@@ -10,6 +10,9 @@ SUBDIRS = \
     semantic \
     typeprettyprinter \
     misc \
+    c99 \
     cxx11 \
     checksymbols \
-    lexer
+    lexer \
+    translationunit \
+    fileiterationorder

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -79,6 +80,29 @@ void FakeMetaEnum::addToHash(QCryptographicHash &hash) const
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
     foreach (int value, m_values)
         hash.addData(reinterpret_cast<const char *>(&value), sizeof(value));
+}
+
+QString FakeMetaEnum::describe(int baseIndent) const
+{
+    QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
+    QString res = QLatin1String("Enum ");
+    res += name();
+    res += QLatin1String(":{");
+    for (int i = 0; i < keyCount(); ++i) {
+        res += newLine;
+        res += QLatin1String("  ");
+        res += key(i);
+        res += QLatin1String(": ");
+        res += QString::number(m_values.value(i, -1));
+    }
+    res += newLine;
+    res += QLatin1Char('}');
+    return res;
+}
+
+QString FakeMetaEnum::toString() const
+{
+    return describe();
 }
 
 FakeMetaMethod::FakeMetaMethod(const QString &name, const QString &returnType)
@@ -155,6 +179,42 @@ void FakeMetaMethod::addToHash(QCryptographicHash &hash) const
     hash.addData(reinterpret_cast<const char *>(m_returnType.constData()), len * sizeof(QChar));
 }
 
+QString FakeMetaMethod::describe(int baseIndent) const
+{
+    QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
+    QString res = QLatin1String("Method {");
+    res += newLine;
+    res += QLatin1String("  methodName:");
+    res += methodName();
+    res += newLine;
+    res += QLatin1String("  methodType:");
+    res += methodType();
+    res += newLine;
+    res += QLatin1String("  parameterNames:[");
+    foreach (const QString &pName, parameterNames()) {
+        res += newLine;
+        res += QLatin1String("    ");
+        res += pName;
+    }
+    res += QLatin1Char(']');
+    res += newLine;
+    res += QLatin1String("  parameterTypes:[");
+    foreach (const QString &pType, parameterTypes()) {
+        res += newLine;
+        res += QLatin1String("    ");
+        res += pType;
+    }
+    res += QLatin1Char(']');
+    res += newLine;
+    res += QLatin1Char('}');
+    return res;
+}
+
+QString FakeMetaMethod::toString() const
+{
+    return describe();
+}
+
 
 FakeMetaProperty::FakeMetaProperty(const QString &name, const QString &type, bool isList,
                                    bool isWritable, bool isPointer, int revision)
@@ -197,6 +257,38 @@ void FakeMetaProperty::addToHash(QCryptographicHash &hash) const
     len = m_type.size();
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
     hash.addData(reinterpret_cast<const char *>(m_type.constData()), len * sizeof(QChar));
+}
+
+QString FakeMetaProperty::describe(int baseIndent) const
+{
+    QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
+    QString res = QLatin1String("Property  {");
+    res += newLine;
+    res += QLatin1String("  name:");
+    res += name();
+    res += newLine;
+    res += QLatin1String("  typeName:");
+    res += typeName();
+    res += newLine;
+    res += QLatin1String("  typeName:");
+    res += QString::number(revision());
+    res += newLine;
+    res += QLatin1String("  isList:");
+    res += isList();
+    res += newLine;
+    res += QLatin1String("  isPointer:");
+    res += isPointer();
+    res += newLine;
+    res += QLatin1String("  isWritable:");
+    res += isWritable();
+    res += newLine;
+    res += QLatin1Char('}');
+    return res;
+}
+
+QString FakeMetaProperty::toString() const
+{
+    return describe();
 }
 
 
@@ -382,6 +474,85 @@ void FakeMetaObject::setIsComposite(bool value)
     m_isSingleton = value;
 }
 
+QString FakeMetaObject::toString() const
+{
+    return describe();
+}
+
+QString FakeMetaObject::describe(bool printDetails, int baseIndent) const
+{
+    QString res = QString::fromLatin1("FakeMetaObject@%1")
+         .arg((quintptr)(void *)this, 0, 16);
+    if (!printDetails)
+        return res;
+    QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
+    res += QLatin1Char('{');
+    res += newLine;
+    res += QLatin1String("className:");
+    res += className();
+    res += newLine;
+    res += QLatin1String("superClassName:");
+    res += superclassName();
+    res += newLine;
+    res += QLatin1String("isSingleton:");
+    res += isSingleton();
+    res += newLine;
+    res += QLatin1String("isCreatable:");
+    res += isCreatable();
+    res += newLine;
+    res += QLatin1String("isComposite:");
+    res += isComposite();
+    res += newLine;
+    res += QLatin1String("defaultPropertyName:");
+    res += defaultPropertyName();
+    res += newLine;
+    res += QLatin1String("attachedTypeName:");
+    res += attachedTypeName();
+    res += newLine;
+    res += QLatin1String("fingerprint:");
+    res += QString::fromUtf8(fingerprint());
+
+    res += newLine;
+    res += QLatin1String("exports:[");
+    foreach (const Export &e, exports()) {
+        res += newLine;
+        res += QLatin1String("  ");
+        res += e.describe(baseIndent + 2);
+    }
+    res += QLatin1Char(']');
+
+    res += newLine;
+    res += QLatin1String("enums:[");
+    for (int iEnum = 0; iEnum < enumeratorCount() ; ++ iEnum) {
+        FakeMetaEnum e = enumerator(enumeratorOffset() + iEnum);
+        res += newLine;
+        res += QLatin1String("  ");
+        res += e.describe(baseIndent + 2);
+    }
+    res += QLatin1Char(']');
+
+    res += newLine;
+    res += QLatin1String("properties:[");
+    for (int iProp = 0; iProp < propertyCount() ; ++ iProp) {
+        FakeMetaProperty prop = property(propertyOffset() + iProp);
+        res += newLine;
+        res += QLatin1String("  ");
+        res += prop.describe(baseIndent + 2);
+    }
+    res += QLatin1Char(']');
+    res += QLatin1String("methods:[");
+    for (int iMethod = 0; iMethod < methodOffset() ; ++ iMethod) {
+        FakeMetaMethod m = method(methodOffset() + iMethod);
+        res += newLine;
+        res += QLatin1String("  ");
+        m.describe(baseIndent + 2);
+    }
+    res += QLatin1Char(']');
+    res += newLine;
+    res += QLatin1Char('}');
+    return res;
+}
+
 FakeMetaObject::Export::Export()
     : metaObjectRevision(0)
 {}
@@ -398,4 +569,33 @@ void FakeMetaObject::Export::addToHash(QCryptographicHash &hash) const
     hash.addData(reinterpret_cast<const char *>(type.constData()), len * sizeof(QChar));
     version.addToHash(hash);
     hash.addData(reinterpret_cast<const char *>(&metaObjectRevision), sizeof(metaObjectRevision));
+}
+
+QString FakeMetaObject::Export::describe(int baseIndent) const
+{
+    QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
+    QString res = QLatin1String("Export {");
+    res += newLine;
+    res += QLatin1String("  package:");
+    res += package;
+    res += newLine;
+    res += QLatin1String("  type:");
+    res += type;
+    res += newLine;
+    res += QLatin1String("  version:");
+    res += version.toString();
+    res += newLine;
+    res += QLatin1String("  metaObjectRevision:");
+    res += QString::number(metaObjectRevision);
+    res += newLine;
+    res += QLatin1String("  isValid:");
+    res += QString::number(isValid());
+    res += newLine;
+    res += QLatin1Char('}');
+    return res;
+}
+
+QString FakeMetaObject::Export::toString() const
+{
+    return describe();
 }

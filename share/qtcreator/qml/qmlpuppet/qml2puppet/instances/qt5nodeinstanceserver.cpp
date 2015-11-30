@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -33,7 +29,7 @@
 #include <QQuickItem>
 #include <QQuickView>
 
-#include <designersupport.h>
+#include <designersupportdelegate.h>
 #include <addimportcontainer.h>
 #include <createscenecommand.h>
 #include <reparentinstancescommand.h>
@@ -41,18 +37,14 @@
 namespace QmlDesigner {
 
 Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient)
-    : NodeInstanceServer(nodeInstanceClient),
-      m_designerSupport(new DesignerSupport)
+    : NodeInstanceServer(nodeInstanceClient)
 {
-    addImportString("import QtQuick 2.0\n");
     DesignerSupport::activateDesignerMode();
 }
 
 Qt5NodeInstanceServer::~Qt5NodeInstanceServer()
 {
     delete quickView();
-    delete m_designerSupport;
-    m_designerSupport = 0;
 }
 
 QQuickView *Qt5NodeInstanceServer::quickView() const
@@ -60,7 +52,7 @@ QQuickView *Qt5NodeInstanceServer::quickView() const
     return m_quickView.data();
 }
 
-void Qt5NodeInstanceServer::initializeView(const QVector<AddImportContainer> &/*importVector*/)
+void Qt5NodeInstanceServer::initializeView()
 {
     Q_ASSERT(!quickView());
 
@@ -91,17 +83,14 @@ void Qt5NodeInstanceServer::resetAllItems()
         DesignerSupport::resetDirty(item);
 }
 
-QList<ServerNodeInstance> Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
+void Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)
 {
     setupFileUrl(command.fileUrl());
     setupImports(command.imports());
     setupDummyData(command.fileUrl());
 
-    QList<ServerNodeInstance> instanceList = setupInstances(command);
-
+    setupInstances(command);
     quickView()->resize(rootNodeInstance().boundingRect().size().toSize());
-
-    return instanceList;
 }
 
 QList<QQuickItem*> subItems(QQuickItem *parentItem)
@@ -117,14 +106,10 @@ QList<QQuickItem*> subItems(QQuickItem *parentItem)
 
 QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
 {
-    QList<QQuickItem*> itemList;
+    if (rootNodeInstance().isValid())
+        return rootNodeInstance().allItemsRecursive();
 
-    if (quickView()) {
-        itemList.append(quickView()->rootObject());
-        itemList.append(subItems(quickView()->rootObject()));
-    }
-
-    return itemList;
+    return QList<QQuickItem*>();
 }
 
 void Qt5NodeInstanceServer::refreshBindings()
@@ -132,21 +117,18 @@ void Qt5NodeInstanceServer::refreshBindings()
     DesignerSupport::refreshExpressions(context());
 }
 
-DesignerSupport *Qt5NodeInstanceServer::designerSupport() const
+DesignerSupport *Qt5NodeInstanceServer::designerSupport()
 {
-    return m_designerSupport;
+    return &m_designerSupport;
 }
 
 void Qt5NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    m_designerSupport = new DesignerSupport;
     NodeInstanceServer::createScene(command);
 }
 
 void Qt5NodeInstanceServer::clearScene(const ClearSceneCommand &command)
 {
-    delete m_designerSupport;
-    m_designerSupport = 0;
     NodeInstanceServer::clearScene(command);
 }
 

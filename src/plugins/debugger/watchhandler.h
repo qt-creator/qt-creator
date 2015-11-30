@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,37 +33,71 @@
 
 #include "watchdata.h"
 
-#include <QPointer>
-#include <QAbstractItemModel>
+#include <utils/treemodel.h>
 
-QT_FORWARD_DECLARE_CLASS(QTabWidget)
+#include <QVector>
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
+class DebuggerCommand;
+class DebuggerEngine;
 class WatchModel;
 
-class UpdateParameters
+typedef QVector<DisplayFormat> DisplayFormats;
+
+class WatchItem : public Utils::TreeItem, public WatchData
 {
 public:
-    UpdateParameters() { tryPartial = tooltipOnly = false; }
+    WatchItem() {}
+    WatchItem(const QByteArray &i, const QString &n);
+    explicit WatchItem(const WatchData &data);
+    explicit WatchItem(const GdbMi &data);
 
-    bool tryPartial;
-    bool tooltipOnly;
-    QByteArray varList;
+    void fetchMore();
+
+    QString displayName() const;
+    QString displayType() const;
+    QString displayValue() const;
+    QString formattedValue() const;
+    QString expression() const;
+
+    int itemFormat() const;
+
+    QVariant editValue() const;
+    int editType() const;
+    QColor valueColor(int column) const;
+
+    int requestedFormat() const;
+    WatchItem *findItem(const QByteArray &iname);
+
+private:
+    WatchItem *parentItem() const;
+    const WatchModel *watchModel() const;
+    WatchModel *watchModel();
+    DisplayFormats typeFormatList() const;
+
+    bool canFetchMore() const;
+    QVariant data(int column, int role) const;
+    Qt::ItemFlags flags(int column) const;
+
+    void parseWatchData(const GdbMi &input);
 };
 
-typedef QHash<QString, QStringList> TypeFormats;
-
-enum IntegerFormat
+class WatchModelBase : public Utils::TreeModel
 {
-    DecimalFormat = 0, // Keep that at 0 as default.
-    HexadecimalFormat,
-    BinaryFormat,
-    OctalFormat
+    Q_OBJECT
+
+public:
+    WatchModelBase() {}
+
+signals:
+    void currentIndexRequested(const QModelIndex &idx);
+    void itemIsExpanded(const QModelIndex &idx);
+    void inameIsExpanded(const QByteArray &iname);
+    void columnAdjustmentRequested();
+    void updateStarted();
+    void updateFinished();
 };
 
 class WatchHandler : public QObject
@@ -73,20 +108,18 @@ public:
     explicit WatchHandler(DebuggerEngine *engine);
     ~WatchHandler();
 
-    QAbstractItemModel *model() const;
+    WatchModelBase *model() const;
 
     void cleanup();
     void watchExpression(const QString &exp, const QString &name = QString());
+    void updateWatchExpression(WatchItem *item, const QByteArray &newExp);
     void watchVariable(const QString &exp);
     Q_SLOT void clearWatches();
 
-    void showEditValue(const WatchData &data);
-
-    const WatchData *watchData(const QModelIndex &) const;
-    const QModelIndex watchDataIndex(const QByteArray &iname) const;
-    const WatchData *findData(const QByteArray &iname) const;
-    const WatchData *findCppLocalVariable(const QString &name) const;
-    bool hasItem(const QByteArray &iname) const;
+    const WatchItem *watchItem(const QModelIndex &) const;
+    void fetchMore(const QByteArray &iname) const;
+    WatchItem *findItem(const QByteArray &iname) const;
+    const WatchItem *findCppLocalVariable(const QString &name) const;
 
     void loadSessionData();
     void saveSessionData();
@@ -97,63 +130,48 @@ public:
     static QStringList watchedExpressions();
     static QHash<QByteArray, int> watcherNames();
 
-    QByteArray expansionRequests() const;
+    void appendFormatRequests(DebuggerCommand *cmd);
+    void appendWatchersAndTooltipRequests(DebuggerCommand *cmd);
+
     QByteArray typeFormatRequests() const;
     QByteArray individualFormatRequests() const;
 
     int format(const QByteArray &iname) const;
+    static QString nameForFormat(int format);
 
-    void addTypeFormats(const QByteArray &type, const QStringList &formats);
-    void setTypeFormats(const TypeFormats &typeFormats);
-    TypeFormats typeFormats() const;
+    void addDumpers(const GdbMi &dumpers);
+    void addTypeFormats(const QByteArray &type, const DisplayFormats &formats);
 
     void setUnprintableBase(int base);
     static int unprintableBase();
 
     QByteArray watcherName(const QByteArray &exp);
     QString editorContents();
-    void editTypeFormats(bool includeLocals, const QByteArray &iname);
 
     void scheduleResetLocation();
     void resetLocation();
-    bool isValidToolTip(const QByteArray &iname) const;
 
     void setCurrentItem(const QByteArray &iname);
     void updateWatchersWindow();
 
-    void insertData(const WatchData &data); // Convenience.
-    void insertData(const QList<WatchData> &list);
-    void insertIncompleteData(const WatchData &data);
-    void removeData(const QByteArray &iname);
-    void removeChildren(const QByteArray &iname);
+    void insertItem(WatchItem *item); // Takes ownership.
+    void removeItemByIName(const QByteArray &iname);
     void removeAllData(bool includeInspectData = false);
     void resetValueCache();
+    void resetWatchers();
+
+    void notifyUpdateStarted(const QList<QByteArray> &inames = {});
+    void notifyUpdateFinished();
+
+    void reexpandItems();
 
 private:
-    void removeSeparateWidget(QObject *o);
-    void showSeparateWidget(QWidget *w);
-
-    friend class WatchModel;
-
-    void saveWatchers();
-    static void loadFormats();
-    static void saveFormats();
-
-    void setFormat(const QByteArray &type, int format);
-
     WatchModel *m_model; // Owned.
-    DebuggerEngine *m_engine; // Not owned.
-    QPointer<QTabWidget> m_separateWindow; // Owned.
-
-    int m_watcherCounter;
-
-    bool m_contentsValid;
-    bool m_resetLocationScheduled;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::UpdateParameters)
+Q_DECLARE_METATYPE(Debugger::Internal::DisplayFormat)
 
 #endif // DEBUGGER_WATCHHANDLER_H

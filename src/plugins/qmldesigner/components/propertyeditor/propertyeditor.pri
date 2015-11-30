@@ -10,7 +10,8 @@ SOURCES += propertyeditorview.cpp \
     propertyeditorqmlbackend.cpp \
     propertyeditorwidget.cpp \
     fileresourcesmodel.cpp \
-    components/propertyeditor/gradientmodel.cpp
+    gradientmodel.cpp \
+    qmlmodelnodeproxy.cpp
 
 HEADERS += propertyeditorview.h \
     qmlanchorbindingproxy.h \
@@ -22,8 +23,9 @@ HEADERS += propertyeditorview.h \
     propertyeditorqmlbackend.h \
     propertyeditorwidget.h \
     fileresourcesmodel.h \
-    components/propertyeditor/gradientmodel.h
-    
+    gradientmodel.h \
+    qmlmodelnodeproxy.h
+
 QT += qml quick
 
 RESOURCES += propertyeditor.qrc

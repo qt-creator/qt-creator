@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,32 +9,33 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "glsleditor.h"
-#include "glsleditoreditable.h"
 #include "glsleditorconstants.h"
 #include "glsleditorplugin.h"
 #include "glslhighlighter.h"
+#include "glslhoverhandler.h"
 #include "glslautocompleter.h"
-#include "glslindenter.h"
 #include "glslcompletionassist.h"
+#include "glslindenter.h"
 
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
@@ -44,45 +45,45 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/id.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
+#include <coreplugin/id.h>
+
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/basetextdocument.h>
+#include <extensionsystem/pluginspec.h>
+
+#include <texteditor/refactoroverlay.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/syntaxhighlighter.h>
+#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/syntaxhighlighter.h>
-#include <texteditor/refactoroverlay.h>
-#include <qmldesigner/qmldesignerconstants.h>
+
 #include <utils/changeset.h>
+#include <utils/qtcassert.h>
 #include <utils/uncommentselection.h>
 
-#include <QFileInfo>
-#include <QSignalMapper>
-#include <QTimer>
-#include <QTextBlock>
-
-#include <QMenu>
+#include <QCoreApplication>
+#include <QSettings>
 #include <QComboBox>
+#include <QFileInfo>
 #include <QHeaderView>
-#include <QInputDialog>
-#include <QToolBar>
+#include <QTextBlock>
+#include <QTimer>
 #include <QTreeView>
-#include <QSharedPointer>
 
+using namespace TextEditor;
 using namespace GLSL;
-using namespace GLSLEditor;
-using namespace GLSLEditor::Internal;
+
+namespace GlslEditor {
+namespace Internal {
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 150
 };
 
-namespace {
-
-class CreateRanges: protected GLSL::Visitor
+class CreateRanges: protected Visitor
 {
     QTextDocument *textDocument;
     Document::Ptr glslDocument;
@@ -91,12 +92,12 @@ public:
     CreateRanges(QTextDocument *textDocument, Document::Ptr glslDocument)
         : textDocument(textDocument), glslDocument(glslDocument) {}
 
-    void operator()(GLSL::AST *ast) { accept(ast); }
+    void operator()(AST *ast) { accept(ast); }
 
 protected:
     using GLSL::Visitor::visit;
 
-    virtual void endVisit(GLSL::CompoundStatementAST *ast)
+    virtual void endVisit(CompoundStatementAST *ast)
     {
         if (ast->symbol) {
             QTextCursor tc(textDocument);
@@ -107,140 +108,45 @@ protected:
     }
 };
 
-} // end of anonymous namespace
+//
+//  GlslEditorWidget
+//
 
-Document::Document()
-    : _engine(0)
-    , _ast(0)
-    , _globalScope(0)
+class GlslEditorWidget : public TextEditorWidget
 {
+public:
+    GlslEditorWidget();
 
-}
+    int editorRevision() const;
+    bool isOutdated() const;
 
-Document::~Document()
+    QSet<QString> identifiers() const;
+
+    AssistInterface *createAssistInterface(AssistKind assistKind, AssistReason reason) const override;
+
+private:
+    void updateDocumentNow();
+    void setSelectedElements();
+    QString wordUnderCursor() const;
+
+    QTimer m_updateDocumentTimer;
+    QComboBox *m_outlineCombo;
+    Document::Ptr m_glslDocument;
+};
+
+GlslEditorWidget::GlslEditorWidget()
 {
-    delete _globalScope;
-    delete _engine;
-}
-
-GLSL::Scope *Document::scopeAt(int position) const
-{
-    foreach (const Range &c, _cursors) {
-        if (position >= c.cursor.selectionStart() && position <= c.cursor.selectionEnd())
-            return c.scope;
-    }
-    return _globalScope;
-}
-
-void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
-{
-    Range c;
-    c.cursor = cursor;
-    c.scope = scope;
-    _cursors.append(c);
-}
-
-GLSLTextEditorWidget::GLSLTextEditorWidget(QWidget *parent)
-    : TextEditor::BaseTextEditorWidget(parent)
-{
-    baseTextDocument()->setId(GLSLEditor::Constants::C_GLSLEDITOR_ID);
-    baseTextDocument()->setIndenter(new GLSLIndenter());
-    ctor();
-}
-
-GLSLTextEditorWidget::GLSLTextEditorWidget(GLSLTextEditorWidget *other)
-    : TextEditor::BaseTextEditorWidget(other)
-{
-    ctor();
-}
-
-void GLSLTextEditorWidget::ctor()
-{
+    setAutoCompleter(new GlslCompleter);
     m_outlineCombo = 0;
-    setParenthesesMatchingEnabled(true);
-    setMarksVisible(true);
-    setCodeFoldingSupported(true);
-    setAutoCompleter(new GLSLCompleter());
 
-    m_updateDocumentTimer = new QTimer(this);
-    m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
-    m_updateDocumentTimer->setSingleShot(true);
-    connect(m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(updateDocumentNow()));
+    m_updateDocumentTimer.setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_updateDocumentTimer.setSingleShot(true);
+    connect(&m_updateDocumentTimer, &QTimer::timeout,
+            this, &GlslEditorWidget::updateDocumentNow);
 
-    connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
+    connect(this, &QPlainTextEdit::textChanged,
+            [this]() { m_updateDocumentTimer.start(); });
 
-    new Highlighter(baseTextDocument());
-
-//    if (m_modelManager) {
-//        m_semanticHighlighter->setModelManager(m_modelManager);
-//        connect(m_modelManager, SIGNAL(documentUpdated(GLSL::Document::Ptr)),
-//                this, SLOT(onDocumentUpdated(GLSL::Document::Ptr)));
-//        connect(m_modelManager, SIGNAL(libraryInfoUpdated(QString,GLSL::LibraryInfo)),
-//                this, SLOT(forceSemanticRehighlight()));
-//        connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
-//    }
-}
-
-GLSLTextEditorWidget::~GLSLTextEditorWidget()
-{
-}
-
-int GLSLTextEditorWidget::editorRevision() const
-{
-    //return document()->revision();
-    return 0;
-}
-
-bool GLSLTextEditorWidget::isOutdated() const
-{
-//    if (m_semanticInfo.revision() != editorRevision())
-//        return true;
-
-    return false;
-}
-
-Core::IEditor *GLSLEditorEditable::duplicate()
-{
-    GLSLTextEditorWidget *newEditor = new GLSLTextEditorWidget(
-                qobject_cast<GLSLTextEditorWidget *>(editorWidget()));
-    TextEditor::TextEditorSettings::initializeEditor(newEditor);
-    return newEditor->editor();
-}
-
-bool GLSLEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    baseTextDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
-    bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
-    return b;
-}
-
-TextEditor::CompletionAssistProvider *GLSLEditorEditable::completionAssistProvider()
-{
-    return ExtensionSystem::PluginManager::getObject<GLSLCompletionAssistProvider>();
-}
-
-QString GLSLTextEditorWidget::wordUnderCursor() const
-{
-    QTextCursor tc = textCursor();
-    const QChar ch = document()->characterAt(tc.position() - 1);
-    // make sure that we're not at the start of the next word.
-    if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
-        tc.movePosition(QTextCursor::Left);
-    tc.movePosition(QTextCursor::StartOfWord);
-    tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    const QString word = tc.selectedText();
-    return word;
-}
-
-TextEditor::BaseTextEditor *GLSLTextEditorWidget::createEditor()
-{
-    GLSLEditorEditable *editable = new GLSLEditorEditable(this);
-    createToolBar(editable);
-    return editable;
-}
-
-void GLSLTextEditorWidget::createToolBar(GLSLEditorEditable *editor)
-{
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
 
@@ -260,63 +166,88 @@ void GLSLTextEditorWidget::createToolBar(GLSLEditorEditable *editor)
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
 
-    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
+    insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
+
+//    if (m_modelManager) {
+//        m_semanticHighlighter->setModelManager(m_modelManager);
+//        connect(m_modelManager, SIGNAL(documentUpdated(GLSL::Document::Ptr)),
+//                this, SLOT(onDocumentUpdated(GLSL::Document::Ptr)));
+//        connect(m_modelManager, SIGNAL(libraryInfoUpdated(QString,GLSL::LibraryInfo)),
+//                this, SLOT(forceSemanticRehighlight()));
+//        connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
+//    }
 }
 
-void GLSLTextEditorWidget::unCommentSelection()
+int GlslEditorWidget::editorRevision() const
 {
-    Utils::unCommentSelection(this);
+    //return document()->revision();
+    return 0;
 }
 
-void GLSLTextEditorWidget::updateDocument()
+bool GlslEditorWidget::isOutdated() const
 {
-    m_updateDocumentTimer->start();
+//    if (m_semanticInfo.revision() != editorRevision())
+//        return true;
+
+    return false;
 }
 
-void GLSLTextEditorWidget::updateDocumentNow()
+QString GlslEditorWidget::wordUnderCursor() const
 {
-    m_updateDocumentTimer->stop();
+    QTextCursor tc = textCursor();
+    const QChar ch = document()->characterAt(tc.position() - 1);
+    // make sure that we're not at the start of the next word.
+    if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
+        tc.movePosition(QTextCursor::Left);
+    tc.movePosition(QTextCursor::StartOfWord);
+    tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    const QString word = tc.selectedText();
+    return word;
+}
 
-    int variant = languageVariant(baseTextDocument()->mimeType());
+void GlslEditorWidget::updateDocumentNow()
+{
+    m_updateDocumentTimer.stop();
+
+    int variant = languageVariant(textDocument()->mimeType());
     const QString contents = toPlainText(); // get the code from the editor
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
     Document::Ptr doc(new Document());
-    GLSL::Engine *engine = new GLSL::Engine();
-    doc->_engine = new GLSL::Engine();
+    doc->_engine = new Engine();
     Parser parser(doc->_engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnitAST *ast = parser.parse();
     if (ast != 0 || extraSelections(CodeWarningsSelection).isEmpty()) {
         Semantic sem;
-        Scope *globalScope = engine->newNamespace();
+        Scope *globalScope = new Namespace();
         doc->_globalScope = globalScope;
-        const GLSLEditorPlugin::InitFile *file = GLSLEditorPlugin::shaderInit(variant);
+        const GlslEditorPlugin::InitFile *file = GlslEditorPlugin::shaderInit(variant);
         sem.translationUnit(file->ast, globalScope, file->engine);
         if (variant & Lexer::Variant_VertexShader) {
-            file = GLSLEditorPlugin::vertexShaderInit(variant);
+            file = GlslEditorPlugin::vertexShaderInit(variant);
             sem.translationUnit(file->ast, globalScope, file->engine);
         }
         if (variant & Lexer::Variant_FragmentShader) {
-            file = GLSLEditorPlugin::fragmentShaderInit(variant);
+            file = GlslEditorPlugin::fragmentShaderInit(variant);
             sem.translationUnit(file->ast, globalScope, file->engine);
         }
-        sem.translationUnit(ast, globalScope, engine);
+        sem.translationUnit(ast, globalScope, doc->_engine);
 
         CreateRanges createRanges(document(), doc);
         createRanges(ast);
 
         QTextCharFormat errorFormat;
-        errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        errorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
         errorFormat.setUnderlineColor(Qt::red);
 
         QTextCharFormat warningFormat;
-        warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        warningFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
         warningFormat.setUnderlineColor(Qt::darkYellow);
 
         QList<QTextEdit::ExtraSelection> sels;
         QSet<int> errors;
 
-        foreach (const DiagnosticMessage &m, engine->diagnosticMessages()) {
+        foreach (const DiagnosticMessage &m, doc->_engine->diagnosticMessages()) {
             if (! m.line())
                 continue;
             else if (errors.contains(m.line()))
@@ -339,7 +270,7 @@ void GLSLTextEditorWidget::updateDocumentNow()
     }
 }
 
-int GLSLTextEditorWidget::languageVariant(const QString &type)
+int languageVariant(const QString &type)
 {
     int variant = 0;
     bool isVertex = false;
@@ -376,16 +307,50 @@ int GLSLTextEditorWidget::languageVariant(const QString &type)
     return variant;
 }
 
-TextEditor::IAssistInterface *GLSLTextEditorWidget::createAssistInterface(
-    TextEditor::AssistKind kind,
-    TextEditor::AssistReason reason) const
+AssistInterface *GlslEditorWidget::createAssistInterface(
+    AssistKind kind, AssistReason reason) const
 {
-    if (kind == TextEditor::Completion)
-        return new GLSLCompletionAssistInterface(document(),
+    if (kind == Completion)
+        return new GlslCompletionAssistInterface(document(),
                                                  position(),
-                                                 editor()->document()->filePath(),
+                                                 textDocument()->filePath().toString(),
                                                  reason,
-                                                 baseTextDocument()->mimeType(),
+                                                 textDocument()->mimeType(),
                                                  m_glslDocument);
-    return BaseTextEditorWidget::createAssistInterface(kind, reason);
+    return TextEditorWidget::createAssistInterface(kind, reason);
 }
+
+
+//
+//  GlslEditorFactory
+//
+
+GlslEditorFactory::GlslEditorFactory()
+{
+    setId(Constants::C_GLSLEDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", Constants::C_GLSLEDITOR_DISPLAY_NAME));
+    addMimeType(Constants::GLSL_MIMETYPE);
+    addMimeType(Constants::GLSL_MIMETYPE_VERT);
+    addMimeType(Constants::GLSL_MIMETYPE_FRAG);
+    addMimeType(Constants::GLSL_MIMETYPE_VERT_ES);
+    addMimeType(Constants::GLSL_MIMETYPE_FRAG_ES);
+
+    setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
+    setEditorWidgetCreator([]() { return new GlslEditorWidget; });
+    setIndenterCreator([]() { return new GlslIndenter; });
+    setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
+    setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCompletionAssistProvider(new GlslCompletionAssistProvider);
+    setParenthesesMatchingEnabled(true);
+    setMarksVisible(true);
+    setCodeFoldingSupported(true);
+
+    setEditorActionHandlers(TextEditorActionHandler::Format
+                          | TextEditorActionHandler::UnCommentSelection
+                          | TextEditorActionHandler::UnCollapseAll);
+
+    addHoverHandler(new GlslHoverHandler);
+}
+
+} // namespace Internal
+} // namespace GlslEditor

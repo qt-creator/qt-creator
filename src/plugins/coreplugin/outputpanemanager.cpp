@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "outputpanemanager.h"
 #include "outputpane.h"
-#include "coreconstants.h"
+#include "coreicons.h"
 #include "findplaceholder.h"
 
 #include "icore.h"
@@ -38,14 +39,18 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QDebug>
 
@@ -62,23 +67,22 @@
 #include <QToolButton>
 #include <QTimeLine>
 
+using namespace Utils;
+
 namespace Core {
 namespace Internal {
 
 static char outputPaneSettingsKeyC[] = "OutputPaneVisibility";
 static char outputPaneIdKeyC[] = "id";
 static char outputPaneVisibleKeyC[] = "visible";
+static const int numberAreaWidth = 19;
+static const int buttonBorderWidth = 3;
 
 ////
 // OutputPaneManager
 ////
 
 static OutputPaneManager *m_instance = 0;
-
-bool comparePanes(IOutputPane *p1, IOutputPane *p2)
-{
-    return p1->priorityInStatusBar() > p2->priorityInStatusBar();
-}
 
 void OutputPaneManager::create()
 {
@@ -119,8 +123,8 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_prevAction(0),
     m_outputWidgetPane(new QStackedWidget),
     m_opToolBarWidgets(new QStackedWidget),
-    m_minimizeIcon(QLatin1String(":/core/images/arrowdown.png")),
-    m_maximizeIcon(QLatin1String(":/core/images/arrowup.png")),
+    m_minimizeIcon(Icons::ARROW_DOWN.icon()),
+    m_maximizeIcon(Icons::ARROW_UP.icon()),
     m_maximised(false),
     m_outputPaneHeight(0)
 {
@@ -129,17 +133,17 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_titleLabel->setContentsMargins(5, 0, 5, 0);
 
     m_clearAction = new QAction(this);
-    m_clearAction->setIcon(QIcon(QLatin1String(Constants::ICON_CLEAN_PANE)));
+    m_clearAction->setIcon(Icons::CLEAN_PANE.icon());
     m_clearAction->setText(tr("Clear"));
     connect(m_clearAction, SIGNAL(triggered()), this, SLOT(clearPage()));
 
     m_nextAction = new QAction(this);
-    m_nextAction->setIcon(QIcon(QLatin1String(Constants::ICON_NEXT)));
+    m_nextAction->setIcon(Icons::NEXT.icon());
     m_nextAction->setText(tr("Next Item"));
     connect(m_nextAction, SIGNAL(triggered()), this, SLOT(slotNext()));
 
     m_prevAction = new QAction(this);
-    m_prevAction->setIcon(QIcon(QLatin1String(Constants::ICON_PREV)));
+    m_prevAction->setIcon(Icons::PREV.icon());
     m_prevAction->setText(tr("Previous Item"));
     connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
 
@@ -147,7 +151,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_minMaxAction->setIcon(m_maximizeIcon);
     m_minMaxAction->setText(tr("Maximize Output Pane"));
 
-    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_DOCUMENT)));
+    m_closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
 
     connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
@@ -155,12 +159,12 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     QVBoxLayout *mainlayout = new QVBoxLayout;
     mainlayout->setSpacing(0);
     mainlayout->setMargin(0);
-    m_toolBar = new Utils::StyledBar;
+    m_toolBar = new StyledBar;
     QHBoxLayout *toolLayout = new QHBoxLayout(m_toolBar);
     toolLayout->setMargin(0);
     toolLayout->setSpacing(0);
     toolLayout->addWidget(m_titleLabel);
-    toolLayout->addWidget(new Utils::StyledSeparator);
+    toolLayout->addWidget(new StyledSeparator);
     m_clearButton = new QToolButton;
     toolLayout->addWidget(m_clearButton);
     m_prevToolButton = new QToolButton;
@@ -172,7 +176,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     toolLayout->addWidget(m_closeButton);
     mainlayout->addWidget(m_toolBar);
     mainlayout->addWidget(m_outputWidgetPane, 10);
-    mainlayout->addWidget(new Core::FindToolBarPlaceHolder(this));
+    mainlayout->addWidget(new FindToolBarPlaceHolder(this));
     setLayout(mainlayout);
 
     m_buttonsWidget = new QWidget;
@@ -193,14 +197,13 @@ QWidget *OutputPaneManager::buttonsWidget()
 // Return shortcut as Ctrl+<number>
 static inline int paneShortCut(int number)
 {
-    const int modifier = Utils::HostOsInfo::isMacHost() ? Qt::CTRL : Qt::ALT;
+    const int modifier = HostOsInfo::isMacHost() ? Qt::CTRL : Qt::ALT;
     return modifier | (Qt::Key_0 + number);
 }
 
 void OutputPaneManager::init()
 {
     ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
-    const Context globalContext(Constants::C_GLOBAL);
 
     // Window->Output Panes
     ActionContainer *mpanes = ActionManager::createMenu(Constants::M_WINDOW_PANES);
@@ -211,21 +214,21 @@ void OutputPaneManager::init()
 
     Command *cmd;
 
-    cmd = ActionManager::registerAction(m_clearAction, "Coreplugin.OutputPane.clear", globalContext);
+    cmd = ActionManager::registerAction(m_clearAction, "Coreplugin.OutputPane.clear");
     m_clearButton->setDefaultAction(cmd->action());
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
-    cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem", globalContext);
+    cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem");
     cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F6")));
     m_prevToolButton->setDefaultAction(cmd->action());
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
-    cmd = ActionManager::registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem", globalContext);
+    cmd = ActionManager::registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem");
     m_nextToolButton->setDefaultAction(cmd->action());
     cmd->setDefaultKeySequence(QKeySequence(tr("F6")));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
-    cmd = ActionManager::registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax", globalContext);
+    cmd = ActionManager::registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax");
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+9") : tr("Alt+9")));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
@@ -233,13 +236,15 @@ void OutputPaneManager::init()
     connect(m_minMaxAction, SIGNAL(triggered()), this, SLOT(slotMinMax()));
     m_minMaxButton->setDefaultAction(cmd->action());
 
-    mpanes->addSeparator(globalContext, "Coreplugin.OutputPane.ActionsGroup");
+    mpanes->addSeparator("Coreplugin.OutputPane.ActionsGroup");
 
     QFontMetrics titleFm = m_titleLabel->fontMetrics();
     int minTitleWidth = 0;
 
     m_panes = ExtensionSystem::PluginManager::getObjects<IOutputPane>();
-    qSort(m_panes.begin(), m_panes.end(), &comparePanes);
+    Utils::sort(m_panes, [](IOutputPane *p1, IOutputPane *p2) {
+        return p1->priorityInStatusBar() > p2->priorityInStatusBar();
+    });
     const int n = m_panes.size();
 
     int shortcutNumber = 1;
@@ -273,7 +278,7 @@ void OutputPaneManager::init()
         suffix.remove(QLatin1Char(' '));
         const Id id = baseId.withSuffix(suffix);
         QAction *action = new QAction(outPane->displayName(), this);
-        Command *cmd = ActionManager::registerAction(action, id, globalContext);
+        Command *cmd = ActionManager::registerAction(action, id);
 
         mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
         m_actions.append(action);
@@ -289,6 +294,7 @@ void OutputPaneManager::init()
 
         bool visible = outPane->priorityInStatusBar() != -1;
         button->setVisible(visible);
+        m_buttonVisibility.insert(id, visible);
 
         connect(action, SIGNAL(triggered()), this, SLOT(shortcutTriggered()));
     }
@@ -307,7 +313,7 @@ void OutputPaneManager::shortcutTriggered()
     QTC_ASSERT(action, return);
     int idx = m_actions.indexOf(action);
     QTC_ASSERT(idx != -1, return);
-    Core::IOutputPane *outputPane = m_panes.at(idx);
+    IOutputPane *outputPane = m_panes.at(idx);
     // Now check the special case, the output window is already visible,
     // we are already on that page but the outputpane doesn't have focus
     // then just give it focus.
@@ -363,19 +369,18 @@ void OutputPaneManager::buttonTriggered(int idx)
 
 void OutputPaneManager::readSettings()
 {
-    QMap<QString, bool> visibility;
     QSettings *settings = ICore::settings();
     int num = settings->beginReadArray(QLatin1String(outputPaneSettingsKeyC));
     for (int i = 0; i < num; ++i) {
         settings->setArrayIndex(i);
-        visibility.insert(settings->value(QLatin1String(outputPaneIdKeyC)).toString(),
+        m_buttonVisibility.insert(Id::fromSetting(settings->value(QLatin1String(outputPaneIdKeyC))),
                           settings->value(QLatin1String(outputPaneVisibleKeyC)).toBool());
     }
     settings->endArray();
 
     for (int i = 0; i < m_ids.size(); ++i) {
-        if (visibility.contains(m_ids.at(i).toString()))
-            m_buttons.at(i)->setVisible(visibility.value(m_ids.at(i).toString()));
+        if (m_buttonVisibility.contains(m_ids.at(i)))
+            m_buttons.at(i)->setVisible(m_buttonVisibility.value(m_ids.at(i)));
     }
 
     m_outputPaneHeight = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
@@ -408,7 +413,7 @@ void OutputPaneManager::slotHide()
         QTC_ASSERT(idx >= 0, return);
         m_buttons.at(idx)->setChecked(false);
         m_panes.value(idx)->visibilityChanged(false);
-        if (IEditor *editor = Core::EditorManager::currentEditor()) {
+        if (IEditor *editor = EditorManager::currentEditor()) {
             QWidget *w = editor->widget()->focusWidget();
             if (!w)
                 w = editor->widget();
@@ -489,8 +494,9 @@ void OutputPaneManager::showPage(int idx, int flags)
         ensurePageVisible(idx);
         IOutputPane *out = m_panes.at(idx);
         out->visibilityChanged(true);
-        if (flags & IOutputPane::WithFocus && out->canFocus()) {
-            out->setFocus();
+        if (flags & IOutputPane::WithFocus) {
+            if (out->canFocus())
+                out->setFocus();
             ICore::raiseWindow(m_outputWidgetPane);
         }
 
@@ -555,7 +561,7 @@ void OutputPaneManager::popupMenu()
     foreach (IOutputPane *pane, m_panes) {
         QAction *act = menu.addAction(pane->displayName());
         act->setCheckable(true);
-        act->setChecked(m_buttons.at(idx)->isVisible());
+        act->setChecked(m_buttonVisibility.value(m_ids.at(idx)));
         act->setData(idx);
         ++idx;
     }
@@ -563,14 +569,17 @@ void OutputPaneManager::popupMenu()
     if (!result)
         return;
     idx = result->data().toInt();
+    Id id = m_ids.at(idx);
     QTC_ASSERT(idx >= 0 && idx < m_buttons.size(), return);
     QToolButton *button = m_buttons.at(idx);
-    if (button->isVisible()) {
+    if (m_buttonVisibility.value(id)) {
         m_panes.value(idx)->visibilityChanged(false);
         button->setChecked(false);
         button->hide();
+        m_buttonVisibility.insert(id, false);
     } else {
         button->show();
+        m_buttonVisibility.insert(id, true);
         showPage(idx, IOutputPane::ModeSwitch);
     }
 }
@@ -582,8 +591,9 @@ void OutputPaneManager::saveSettings() const
                               m_ids.size());
     for (int i = 0; i < m_ids.size(); ++i) {
         settings->setArrayIndex(i);
-        settings->setValue(QLatin1String(outputPaneIdKeyC), m_ids.at(i).toString());
-        settings->setValue(QLatin1String(outputPaneVisibleKeyC), m_buttons.at(i)->isVisible());
+        settings->setValue(QLatin1String(outputPaneIdKeyC), m_ids.at(i).toSetting());
+        settings->setValue(QLatin1String(outputPaneVisibleKeyC),
+                           m_buttonVisibility.value(m_ids.at(i)));
     }
     settings->endArray();
     settings->setValue(QLatin1String("OutputPanePlaceHolder/Height"), m_outputPaneHeight);
@@ -608,20 +618,6 @@ int OutputPaneManager::currentIndex() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-static QString buttonStyleSheet()
-{
-    QString styleSheet = QLatin1String("QToolButton { border-image: url(:/core/images/panel_button.png) 2 2 2 19;"
-            " border-width: 2px 2px 2px 19px; padding-left: -17; padding-right: 4 } "
-            "QToolButton:checked { border-image: url(:/core/images/panel_button_checked.png) 2 2 2 19 } "
-            "QToolButton::menu-indicator { width:0; height:0 }");
-    if (!Utils::HostOsInfo::isMacHost()) { // Mac UIs usually don't hover
-        styleSheet += QLatin1String("QToolButton:checked:hover { border-image: url(:/core/images/panel_button_checked_hover.png) 2 2 2 19 } "
-                "QToolButton:pressed:hover { border-image: url(:/core/images/panel_button_pressed.png) 2 2 2 19 } "
-                "QToolButton:hover { border-image: url(:/core/images/panel_button_hover.png) 2 2 2 19 } ");
-    }
-    return styleSheet;
-}
-
 OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
                                                QAction *action, QWidget *parent)
     : QToolButton(parent)
@@ -634,7 +630,6 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     setCheckable(true);
     QFont fnt = QApplication::font();
     setFont(fnt);
-    setStyleSheet(buttonStyleSheet());
     if (m_action)
         connect(m_action, SIGNAL(changed()), this, SLOT(updateToolTip()));
 
@@ -643,15 +638,6 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     m_flashTimer->setFrameRange(0, 92);
     connect(m_flashTimer, SIGNAL(valueChanged(qreal)), this, SLOT(update()));
     connect(m_flashTimer, SIGNAL(finished()), this, SLOT(update()));
-
-    m_label = new QLabel(this);
-    fnt.setBold(true);
-    fnt.setPixelSize(11);
-    m_label->setFont(fnt);
-    m_label->setAlignment(Qt::AlignCenter);
-    m_label->setStyleSheet(QLatin1String("background-color: #818181; color: white; border-radius: 6; padding-left: 4; padding-right: 4;"));
-    m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_label->hide();
 }
 
 void OutputPaneToggleButton::updateToolTip()
@@ -666,46 +652,78 @@ QSize OutputPaneToggleButton::sizeHint() const
 
     QSize s = fontMetrics().size(Qt::TextSingleLine, m_text);
 
-    // Expand to account for border image set by stylesheet above
-    s.rwidth() += 19 + 5 + 2;
-    s.rheight() += 2 + 2;
+    // Expand to account for border image
+    s.rwidth() += numberAreaWidth + 1 + buttonBorderWidth + buttonBorderWidth;
 
-    if (!m_label->text().isNull())
-        s.rwidth() += m_label->width();
+    if (!m_badgeNumberLabel.text().isNull())
+        s.rwidth() += m_badgeNumberLabel.sizeHint().width() + 1;
 
     return s.expandedTo(QApplication::globalStrut());
 }
 
-void OutputPaneToggleButton::resizeEvent(QResizeEvent *event)
+void OutputPaneToggleButton::paintEvent(QPaintEvent*)
 {
-    QToolButton::resizeEvent(event);
-    if (!m_label->text().isNull()) {
-        m_label->move(width() - m_label->width() - 3,  (height() - m_label->height() + 1) / 2);
-        m_label->show();
-    }
-}
-
-void OutputPaneToggleButton::paintEvent(QPaintEvent *event)
-{
-    // For drawing the style sheet stuff
-    QToolButton::paintEvent(event);
+    static const QImage panelButton(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button.png")));
+    static const QImage panelButtonHover(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_hover.png")));
+    static const QImage panelButtonPressed(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_pressed.png")));
+    static const QImage panelButtonChecked(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_checked.png")));
+    static const QImage panelButtonCheckedHover(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_checked_hover.png")));
 
     const QFontMetrics fm = fontMetrics();
     const int baseLine = (height() - fm.height() + 1) / 2 + fm.ascent();
     const int numberWidth = fm.width(m_number);
 
     QPainter p(this);
-    if (m_flashTimer->state() == QTimeLine::Running) {
-        p.setPen(Qt::transparent);
-        p.fillRect(rect().adjusted(19, 1, -1, -1), QBrush(QColor(255,0,0, m_flashTimer->currentFrame())));
+
+    QStyleOption styleOption;
+    styleOption.initFrom(this);
+    const bool hovered = !HostOsInfo::isMacHost() && (styleOption.state & QStyle::State_MouseOver);
+
+    const QImage *image = 0;
+    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        if (isDown())
+            image = &panelButtonPressed;
+        else if (isChecked())
+            image = hovered ? &panelButtonCheckedHover : &panelButtonChecked;
+        else
+            image = hovered ? &panelButtonHover : &panelButton;
+        if (image)
+            StyleHelper::drawCornerImage(*image, &p, rect(), numberAreaWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
+    } else {
+        QColor c;
+        if (isChecked()) {
+            c = creatorTheme()->color(hovered ? Theme::BackgroundColorHover
+                                              : Theme::BackgroundColorSelected);
+        } else if (isDown()) {
+            c = creatorTheme()->color(Theme::BackgroundColorSelected);
+        } else {
+            c = creatorTheme()->color(hovered ? Theme::BackgroundColorHover
+                                              : Theme::BackgroundColorDark);
+        }
+        p.fillRect(rect(), c);
     }
+
+    if (m_flashTimer->state() == QTimeLine::Running)
+    {
+        QColor c = creatorTheme()->color(Theme::OutputPaneButtonFlashColor);
+        c.setAlpha (m_flashTimer->currentFrame());
+        QRect r = (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+                  ? rect() : rect().adjusted(numberAreaWidth, 1, -1, -1);
+        p.fillRect(r, c);
+    }
+
     p.setFont(font());
-    p.setPen(Qt::white);
-    p.drawText((20 - numberWidth) / 2, baseLine, m_number);
+    p.setPen(creatorTheme()->color(Theme::OutputPaneToggleButtonTextColorChecked));
+    p.drawText((numberAreaWidth - numberWidth) / 2, baseLine, m_number);
     if (!isChecked())
-        p.setPen(Qt::black);
-    int leftPart = 22;
-    int labelWidth = m_label->isVisible() ? m_label->width() + 3 : 0;
+        p.setPen(creatorTheme()->color(Theme::OutputPaneToggleButtonTextColorUnchecked));
+    int leftPart = numberAreaWidth + buttonBorderWidth;
+    int labelWidth = 0;
+    if (!m_badgeNumberLabel.text().isEmpty()) {
+        const QSize labelSize = m_badgeNumberLabel.sizeHint();
+        labelWidth = labelSize.width() + 3;
+        m_badgeNumberLabel.paint(&p, width() - labelWidth, (height() - labelSize.height()) / 2, isChecked());
+    }
     p.drawText(leftPart, baseLine, fm.elidedText(m_text, Qt::ElideRight, width() - leftPart - 1 - labelWidth));
 }
 
@@ -714,13 +732,6 @@ void OutputPaneToggleButton::checkStateSet()
     //Stop flashing when button is checked
     QToolButton::checkStateSet();
     m_flashTimer->stop();
-
-    if (isChecked())
-        m_label->setStyleSheet(QLatin1String("background-color: #e1e1e1; color: #606060; "
-                                             "border-radius: 6; padding-left: 4; padding-right: 4;"));
-    else
-        m_label->setStyleSheet(QLatin1String("background-color: #818181; color: white; border-radius: 6; "
-                                             "padding-left: 4; padding-right: 4;"));
 }
 
 void OutputPaneToggleButton::flash(int count)
@@ -737,21 +748,8 @@ void OutputPaneToggleButton::flash(int count)
 
 void OutputPaneToggleButton::setIconBadgeNumber(int number)
 {
-    if (number) {
-        const QString text = QString::number(number);
-        m_label->setText(text);
-
-        QSize size = m_label->sizeHint();
-        if (size.width() < size.height())
-            //Ensure we increase size by an even number of pixels
-            size.setWidth(size.height() + ((size.width() - size.height()) & 1));
-        m_label->resize(size);
-
-        //Do not show yet, we wait until the button has been resized
-    } else {
-        m_label->setText(QString());
-        m_label->hide();
-    }
+    QString text = (number ? QString::number(number) : QString());
+    m_badgeNumberLabel.setText(text);
     updateGeometry();
 }
 
@@ -766,32 +764,80 @@ OutputPaneManageButton::OutputPaneManageButton()
 {
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
-    setStyleSheet(QLatin1String("QToolButton { border-image: url(:/core/images/panel_manage_button.png) 2 2 2 2;"
-                                " border-width: 2px 2px 2px 2px } "
-                                "QToolButton::menu-indicator { width:0; height:0 }"));
 }
 
 QSize OutputPaneManageButton::sizeHint() const
 {
     ensurePolished();
-    return QSize(18, QApplication::globalStrut().height());
+    return QSize(numberAreaWidth, QApplication::globalStrut().height());
 }
 
-void OutputPaneManageButton::paintEvent(QPaintEvent *event)
+void OutputPaneManageButton::paintEvent(QPaintEvent*)
 {
-    QToolButton::paintEvent(event); // Draw style sheet.
     QPainter p(this);
+    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        static const QImage button(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_manage_button.png")));
+        StyleHelper::drawCornerImage(button, &p, rect(), buttonBorderWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
+    }
     QStyle *s = style();
     QStyleOption arrowOpt;
     arrowOpt.initFrom(this);
-    arrowOpt.rect = QRect(5, rect().center().y() - 3, 9, 9);
+    arrowOpt.rect = QRect(6, rect().center().y() - 3, 8, 8);
     arrowOpt.rect.translate(0, -3);
     s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
     arrowOpt.rect.translate(0, 6);
     s->drawPrimitive(QStyle::PE_IndicatorArrowDown, &arrowOpt, &p, this);
 }
 
+BadgeLabel::BadgeLabel()
+{
+    m_font = QApplication::font();
+    m_font.setBold(true);
+    m_font.setPixelSize(11);
+}
+
+void BadgeLabel::paint(QPainter *p, int x, int y, bool isChecked)
+{
+    const QRectF rect(QRect(QPoint(x, y), m_size));
+    p->save();
+
+    p->setBrush(creatorTheme()->color(isChecked? Theme::BadgeLabelBackgroundColorChecked
+                                               : Theme::BadgeLabelBackgroundColorUnchecked));
+    p->setPen(Qt::NoPen);
+    p->setRenderHint(QPainter::Antialiasing, true);
+    p->drawRoundedRect(rect, m_padding, m_padding, Qt::AbsoluteSize);
+
+    p->setFont(m_font);
+    p->setPen(creatorTheme()->color(isChecked ? Theme::BadgeLabelTextColorChecked
+                                              : Theme::BadgeLabelTextColorUnchecked));
+    p->drawText(rect, Qt::AlignCenter, m_text);
+
+    p->restore();
+}
+
+void BadgeLabel::setText(const QString &text)
+{
+    m_text = text;
+    calculateSize();
+}
+
+QString BadgeLabel::text() const
+{
+    return m_text;
+}
+
+QSize BadgeLabel::sizeHint() const
+{
+    return m_size;
+}
+
+void BadgeLabel::calculateSize()
+{
+    const QFontMetrics fm(m_font);
+    m_size = fm.size(Qt::TextSingleLine, m_text);
+    m_size.setWidth(m_size.width() + m_padding * 1.5);
+    m_size.setHeight(2 * m_padding + 1); // Needs to be uneven for pixel perfect vertical centering in the button
+}
+
 } // namespace Internal
 } // namespace Core
-
-

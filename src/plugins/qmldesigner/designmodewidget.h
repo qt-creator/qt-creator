@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -72,7 +68,7 @@ class DocumentWarningWidget : public Utils::FakeToolTip
 public:
     explicit DocumentWarningWidget(DesignModeWidget *parent = 0);
 
-    void setError(const RewriterView::Error &error);
+    void setError(const RewriterError &error);
 
 private slots:
     void goToError();
@@ -80,7 +76,7 @@ private slots:
 private:
     QLabel *m_errorMessage;
     QLabel *m_goToError;
-    RewriterView::Error m_error;
+    RewriterError m_error;
     DesignModeWidget *m_designModeWidget;
 };
 
@@ -99,7 +95,7 @@ public:
     void readSettings();
     void saveSettings();
 
-    TextEditor::ITextEditor *textEditor() const;
+    TextEditor::BaseTextEditor *textEditor() const;
 
     DesignDocument *currentDesignDocument() const;
     ViewManager &viewManager();
@@ -108,12 +104,12 @@ public:
 
     void enableWidgets();
     void disableWidgets();
-    void showErrorMessage(const QList<RewriterView::Error> &errors);
+    void showErrorMessage(const QList<RewriterError> &errors);
 
     CrumbleBar* crumbleBar() const;
 
 public slots:
-    void updateErrorStatus(const QList<RewriterView::Error> &errors);
+    void updateErrorStatus(const QList<RewriterError> &errors);
     void restoreDefaultView();
     void toggleSidebars();
     void toggleLeftSidebar();
@@ -124,7 +120,7 @@ private slots:
     void updateAvailableSidebarItemsRight();
 
     void deleteSidebarWidgets();
-    void qmlPuppetCrashed();
+    void showQmlPuppetCrashedError();
 
     void toolBarOnGoBackClicked();
     void toolBarOnGoForwardClicked();
@@ -147,10 +143,9 @@ private: // variables
     QSplitter *m_mainSplitter;
     QScopedPointer<Core::SideBar> m_leftSideBar;
     QScopedPointer<Core::SideBar> m_rightSideBar;
+    QPointer<QWidget> m_topSideBar;
     Core::EditorToolBar *m_toolBar;
     CrumbleBar *m_crumbleBar;
-    Core::OutputPanePlaceHolder *m_outputPanePlaceholder;
-    Core::MiniSplitter *m_outputPlaceholderSplitter;
     bool m_isDisabled;
     bool m_showSidebars;
 
@@ -160,6 +155,8 @@ private: // variables
     QStringList m_navigatorHistory;
     int m_navigatorHistoryCounter;
     bool m_keepNavigatorHistory;
+
+    QList<QPointer<QWidget> >m_viewWidgets;
 };
 
 } // namespace Internal

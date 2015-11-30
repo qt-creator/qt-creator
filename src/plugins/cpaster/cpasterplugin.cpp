@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -45,12 +46,13 @@
 #include <coreplugin/id.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <utils/qtcassert.h>
 #include <utils/fileutils.h>
-#include <texteditor/itexteditor.h>
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -59,6 +61,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QInputDialog>
+#include <QMenu>
 #include <QUrl>
 
 using namespace Core;
@@ -67,43 +70,39 @@ using namespace TextEditor;
 namespace CodePaster {
 
 /*!
-   \class CodePaster::CodePasterService
-   \brief The CodePasterService class is a service registered with PluginManager
+   \class CodePaster::Service
+   \brief The CodePaster::Service class is a service registered with PluginManager
    that provides CodePaster \c post() functionality.
-
-   \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
-   \sa VcsBase::VcsBaseEditorWidget
 */
 
-CodePasterService::CodePasterService(QObject *parent) :
+CodePasterServiceImpl::CodePasterServiceImpl(QObject *parent) :
     QObject(parent)
 {
 }
 
-void CodePasterService::postText(const QString &text, const QString &mimeType)
+void CodePasterServiceImpl::postText(const QString &text, const QString &mimeType)
 {
     QTC_ASSERT(CodepasterPlugin::instance(), return);
     CodepasterPlugin::instance()->post(text, mimeType);
 }
 
-void CodePasterService::postCurrentEditor()
+void CodePasterServiceImpl::postCurrentEditor()
 {
     QTC_ASSERT(CodepasterPlugin::instance(), return);
-    CodepasterPlugin::instance()->postEditor();
+    CodepasterPlugin::instance()->post(CodepasterPlugin::PasteEditor);
 }
 
-void CodePasterService::postClipboard()
+void CodePasterServiceImpl::postClipboard()
 {
     QTC_ASSERT(CodepasterPlugin::instance(), return);
-    CodepasterPlugin::instance()->postClipboard();
+    CodepasterPlugin::instance()->post(CodepasterPlugin::PasteClipboard);
 }
 
 // ---------- CodepasterPlugin
 CodepasterPlugin *CodepasterPlugin::m_instance = 0;
 
 CodepasterPlugin::CodepasterPlugin() :
-    m_settings(new Settings),
-    m_postEditorAction(0), m_postClipboardAction(0), m_fetchAction(0)
+    m_settings(new Settings)
 {
     CodepasterPlugin::m_instance = this;
 }
@@ -120,11 +119,8 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    // Create the globalcontext list to register actions accordingly
-    Core::Context globalcontext(Core::Constants::C_GLOBAL);
-
     // Create the settings Page
-    m_settings->fromSettings(Core::ICore::settings());
+    m_settings->fromSettings(ICore::settings());
     SettingsPage *settingsPage = new SettingsPage(m_settings);
     addAutoReleasedObject(settingsPage);
 
@@ -146,44 +142,38 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     }
 
     m_urlOpen = new UrlOpenProtocol;
-    connect(m_urlOpen, SIGNAL(fetchDone(QString,QString,bool)),
-            this, SLOT(finishFetch(QString,QString,bool)));
+    connect(m_urlOpen, &Protocol::fetchDone, this, &CodepasterPlugin::finishFetch);
 
     //register actions
 
-    Core::ActionContainer *toolsContainer =
-        Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *toolsContainer =
+        ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
-    Core::ActionContainer *cpContainer =
-        Core::ActionManager::createMenu("CodePaster");
+    ActionContainer *cpContainer =
+        ActionManager::createMenu("CodePaster");
     cpContainer->menu()->setTitle(tr("&Code Pasting"));
     toolsContainer->addMenu(cpContainer);
 
-    Core::Command *command;
+    Command *command;
 
     m_postEditorAction = new QAction(tr("Paste Snippet..."), this);
-    command = Core::ActionManager::registerAction(m_postEditorAction, "CodePaster.Post", globalcontext);
+    command = ActionManager::registerAction(m_postEditorAction, "CodePaster.Post");
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+P") : tr("Alt+C,Alt+P")));
-    connect(m_postEditorAction, SIGNAL(triggered()), this, SLOT(postEditor()));
-    cpContainer->addAction(command);
-
-    m_postClipboardAction = new QAction(tr("Paste Clipboard..."), this);
-    command = Core::ActionManager::registerAction(m_postClipboardAction, "CodePaster.PostClipboard", globalcontext);
-    connect(m_postClipboardAction, SIGNAL(triggered()), this, SLOT(postClipboard()));
+    connect(m_postEditorAction, &QAction::triggered, this, &CodepasterPlugin::pasteSnippet);
     cpContainer->addAction(command);
 
     m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
-    command = Core::ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch", globalcontext);
+    command = ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch");
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+F") : tr("Alt+C,Alt+F")));
-    connect(m_fetchAction, SIGNAL(triggered()), this, SLOT(fetch()));
+    connect(m_fetchAction, &QAction::triggered, this, &CodepasterPlugin::fetch);
     cpContainer->addAction(command);
 
     m_fetchUrlAction = new QAction(tr("Fetch from URL..."), this);
-    command = Core::ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl", globalcontext);
-    connect(m_fetchUrlAction, SIGNAL(triggered()), this, SLOT(fetchUrl()));
+    command = ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl");
+    connect(m_fetchUrlAction, &QAction::triggered, this, &CodepasterPlugin::fetchUrl);
     cpContainer->addAction(command);
 
-    addAutoReleasedObject(new CodePasterService);
+    addAutoReleasedObject(new CodePasterServiceImpl);
 
     return true;
 }
@@ -203,27 +193,28 @@ ExtensionSystem::IPlugin::ShutdownFlag CodepasterPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void CodepasterPlugin::postEditor()
+static inline void textFromCurrentEditor(QString *text, QString *mimeType)
 {
+    IEditor *editor = EditorManager::currentEditor();
+    if (!editor)
+        return;
+    const IDocument *document = editor->document();
     QString data;
-    QString mimeType;
-    if (IEditor *editor = EditorManager::currentEditor()) {
-        if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
-            data = textEditor->selectedText();
-            if (data.isEmpty())
-                data = textEditor->textDocument()->plainText();
-            mimeType = textEditor->document()->mimeType();
+    if (const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor))
+        data = textEditor->selectedText();
+    if (data.isEmpty()) {
+        if (auto textDocument = qobject_cast<const TextDocument *>(document)) {
+            data = textDocument->plainText();
+        } else {
+            const QVariant textV = document->property("plainText"); // Diff Editor.
+            if (textV.type() == QVariant::String)
+                data = textV.toString();
         }
     }
-    post(data, mimeType);
-}
-
-void CodepasterPlugin::postClipboard()
-{
-    QString subtype = QLatin1String("plain");
-    const QString text = qApp->clipboard()->text(subtype, QClipboard::Clipboard);
-    if (!text.isEmpty())
-        post(text, QString());
+    if (!data.isEmpty()) {
+        *text = data;
+        *mimeType = document->mimeType();
+    }
 }
 
 static inline void fixSpecialCharacters(QString &data)
@@ -248,6 +239,19 @@ static inline void fixSpecialCharacters(QString &data)
     }
 }
 
+void CodepasterPlugin::post(PasteSources pasteSources)
+{
+    QString data;
+    QString mimeType;
+    if (pasteSources & PasteEditor)
+        textFromCurrentEditor(&data, &mimeType);
+    if (data.isEmpty() && (pasteSources & PasteClipboard)) {
+        QString subType = QStringLiteral("plain");
+        data = qApp->clipboard()->text(subType, QClipboard::Clipboard);
+    }
+    post(data, mimeType);
+}
+
 void CodepasterPlugin::post(QString data, const QString &mimeType)
 {
     fixSpecialCharacters(data);
@@ -265,7 +269,7 @@ void CodepasterPlugin::post(QString data, const QString &mimeType)
     if (dialogResult == QDialog::Accepted
         && m_settings->protocol != view.protocol()) {
         m_settings->protocol = view.protocol();
-        m_settings->toSettings(Core::ICore::settings());
+        m_settings->toSettings(ICore::settings());
     }
 }
 
@@ -281,6 +285,11 @@ void CodepasterPlugin::fetchUrl()
     m_urlOpen->fetch(url.toString());
 }
 
+void CodepasterPlugin::pasteSnippet()
+{
+    post(PasteEditor | PasteClipboard);
+}
+
 void CodepasterPlugin::fetch()
 {
     PasteSelectDialog dialog(m_protocols, ICore::dialogParent());
@@ -291,7 +300,7 @@ void CodepasterPlugin::fetch()
     // Save new protocol in case user changed it.
     if (m_settings->protocol != dialog.protocol()) {
         m_settings->protocol = dialog.protocol();
-        m_settings->toSettings(Core::ICore::settings());
+        m_settings->toSettings(ICore::settings());
     }
 
     const QString pasteID = dialog.pasteId();
@@ -306,7 +315,7 @@ void CodepasterPlugin::finishPost(const QString &link)
 {
     if (m_settings->copyToClipboard)
         QApplication::clipboard()->setText(link);
-    MessageManager::write(link, m_settings->displayOutput ? Core::MessageManager::ModeSwitch : Core::MessageManager::Silent);
+    MessageManager::write(link, m_settings->displayOutput ? MessageManager::ModeSwitch : MessageManager::Silent);
 }
 
 // Extract the characters that can be used for a file name from a title
@@ -333,8 +342,9 @@ static inline QString tempFilePattern(const QString &prefix, const QString &exte
 {
     // Get directory
     QString pattern = QDir::tempPath();
-    if (!pattern.endsWith(QDir::separator()))
-        pattern.append(QDir::separator());
+    const QChar slash = QLatin1Char('/');
+    if (!pattern.endsWith(slash))
+        pattern.append(slash);
     // Prefix, placeholder, extension
     pattern += prefix;
     pattern += QLatin1String("_XXXXXX.");
@@ -362,7 +372,9 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // Default to "txt".
     QByteArray byteContent = content.toUtf8();
     QString suffix;
-    if (const MimeType mimeType = MimeDatabase::findByData(byteContent))
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mimeType = mdb.mimeTypeForData(byteContent);
+    if (mimeType.isValid())
         suffix = mimeType.preferredSuffix();
     if (suffix.isEmpty())
          suffix = QLatin1String("txt");
@@ -377,9 +389,9 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     const QString fileName = saver.fileName();
     m_fetchedSnippets.push_back(fileName);
     // Open editor with title.
-    Core::IEditor *editor = EditorManager::openEditor(fileName);
+    IEditor *editor = EditorManager::openEditor(fileName);
     QTC_ASSERT(editor, return);
-    editor->document()->setDisplayName(titleDescription);
+    editor->document()->setPreferredDisplayName(titleDescription);
 }
 
 CodepasterPlugin *CodepasterPlugin::instance()
@@ -388,5 +400,3 @@ CodepasterPlugin *CodepasterPlugin::instance()
 }
 
 } // namespace CodePaster
-
-Q_EXPORT_PLUGIN(CodePaster::CodepasterPlugin)

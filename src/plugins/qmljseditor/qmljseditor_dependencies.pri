@@ -1,6 +1,5 @@
 QTC_PLUGIN_NAME = QmlJSEditor
 QTC_LIB_DEPENDS += \
-    aggregation \
     extensionsystem \
     languageutils \
     qmljs \

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,9 +33,7 @@
 #include "index.h"
 #include "cxraii.h"
 #include "sourcelocation.h"
-#include "liveunitsmanager.h"
 #include "utils_p.h"
-#include "clangsymbolsearcher.h"
 #include "pchmanager.h"
 #include "raii/scopedclangoptions.h"
 
@@ -60,19 +59,6 @@
 #include <QThreadPool>
 #include <QDateTime>
 #include <QStringBuilder>
-
-#include <cassert>
-
-//#define DEBUG
-//#define DEBUG_DIAGNOSTICS
-
-#ifdef DEBUG
-    #define BEGIN_PROFILE_SCOPE(ID) { ScopepTimer t(ID);
-    #define END_PROFILE_SCOPE }
-#else
-    #define BEGIN_PROFILE_SCOPE(ID)
-    #define END_PROFILE_SCOPE
-#endif
 
 using namespace Utils;
 using namespace ClangCodeModel;
@@ -172,7 +158,7 @@ public:
     void computeDependencyGraph();
     void analyzeRestoredSymbols();
 
-    void runQuickIndexing(const Unit &unit, const ProjectPart::Ptr &part);
+    void runQuickIndexing(const Unit::Ptr &unit, const ProjectPart::Ptr &part);
     void run();
     void run(const QStringList &fileNames);
     void runCore(const QHash<QString, FileData> &headers,
@@ -258,7 +244,7 @@ protected:
             indexingResults.reserve(m_allFiles.size());
 
             foreach (const QString &fn, m_allFiles.keys()) {
-                QVector<ClangCodeModel::Symbol> symbols; unfoldSymbols(symbols, fn);
+                QVector<Symbol> symbols; unfoldSymbols(symbols, fn);
                 QSet<QString> processedFiles = QSet<QString>::fromList(m_allFiles.keys());
                 Unit::Ptr unit = Unit::create(fn);
                 IndexingResult indexingResult(symbols, processedFiles, unit, projectPart);
@@ -389,7 +375,7 @@ protected:
 
         void addInclude(File *f)
         {
-            assert(f);
+//            assert(f);
             m_includes.insert(f->name(), f);
         }
 
@@ -407,7 +393,7 @@ protected:
 
         void addSymbol(Symbol *symbol)
         {
-            assert(symbol);
+//            assert(symbol);
             m_symbols.append(symbol);
         }
 
@@ -501,18 +487,18 @@ protected:
         }
     }
 
-    void unfoldSymbols(QVector<ClangCodeModel::Symbol> &result, const QString &fileName) {
+    void unfoldSymbols(QVector<Symbol> &result, const QString &fileName) {
         const QVector<Symbol *> symbolsForFile = file(fileName)->symbols();
         foreach (const Symbol *s, symbolsForFile) {
             unfoldSymbols(s, result);
         }
     }
 
-    void unfoldSymbols(const Symbol *s, QVector<ClangCodeModel::Symbol> &result) {
+    void unfoldSymbols(const Symbol *s, QVector<Symbol> &result) {
         if (!s->file)
             return;
 
-        ClangCodeModel::Symbol sym;
+        Symbol sym;
         sym.m_name = s->spellingName;
         sym.m_qualification = s->spellingName;
 
@@ -523,16 +509,16 @@ protected:
         sym.m_location = SourceLocation(s->file->name(), s->line, s->column, s->offset);
 
         switch (s->kind) {
-        case CXCursor_EnumDecl: sym.m_kind = ClangCodeModel::Symbol::Enum; break;
+        case CXCursor_EnumDecl: sym.m_kind = Symbol::Enum; break;
         case CXCursor_StructDecl:
-        case CXCursor_ClassDecl: sym.m_kind = ClangCodeModel::Symbol::Class; break;
-        case CXCursor_CXXMethod: sym.m_kind = ClangCodeModel::Symbol::Method; break;
+        case CXCursor_ClassDecl: sym.m_kind = Symbol::Class; break;
+        case CXCursor_CXXMethod: sym.m_kind = Symbol::Method; break;
         case CXCursor_FunctionTemplate:
-        case CXCursor_FunctionDecl: sym.m_kind = ClangCodeModel::Symbol::Function; break;
-        case CXCursor_DeclStmt: sym.m_kind = ClangCodeModel::Symbol::Declaration; break;
-        case CXCursor_Constructor: sym.m_kind = ClangCodeModel::Symbol::Constructor; break;
-        case CXCursor_Destructor: sym.m_kind = ClangCodeModel::Symbol::Destructor; break;
-        default: sym.m_kind = ClangCodeModel::Symbol::Unknown; break;
+        case CXCursor_FunctionDecl: sym.m_kind = Symbol::Function; break;
+        case CXCursor_DeclStmt: sym.m_kind = Symbol::Declaration; break;
+        case CXCursor_Constructor: sym.m_kind = Symbol::Constructor; break;
+        case CXCursor_Destructor: sym.m_kind = Symbol::Destructor; break;
+        default: sym.m_kind = Symbol::Unknown; break;
         }
 
         result.append(sym);
@@ -602,7 +588,7 @@ restart:
                 goto restart;
             }
 
-            QStringList opts = ClangCodeModel::Utils::createClangOptions(pPart, fd.m_fileName);
+            QStringList opts = Utils::createClangOptions(pPart, fd.m_fileName);
             if (!pchInfo.isNull())
                 opts.append(Utils::createPCHInclusionOptions(pchInfo->fileName()));
 
@@ -656,7 +642,7 @@ private:
 class QuickIndexer: public LibClangIndexer
 {
 public:
-    QuickIndexer(IndexerPrivate *indexer, const Unit &unit, const ProjectPart::Ptr &projectPart)
+    QuickIndexer(IndexerPrivate *indexer, const Unit::Ptr &unit, const ProjectPart::Ptr&projectPart)
         : LibClangIndexer(indexer)
         , m_unit(unit)
         , m_projectPart(projectPart)
@@ -664,19 +650,19 @@ public:
 
     void run()
     {
-        if (isCanceled() || !m_unit.isLoaded()) {
+        if (isCanceled() || !m_unit->isLoaded()) {
             finish();
             return;
         }
 
-        CXIndexAction idxAction = clang_IndexAction_create(m_unit.clangIndex());
+        CXIndexAction idxAction = clang_IndexAction_create(m_unit->clangIndex());
         const unsigned index_opts = CXIndexOpt_SuppressWarnings;
 
 //        qDebug() << "Indexing TU" << m_unit.fileName() << "...";
         /*int result =*/ clang_indexTranslationUnit(idxAction, this,
                                                     &IndexCB, sizeof(IndexCB),
                                                     index_opts,
-                                                    m_unit.clangTranslationUnit());
+                                                    m_unit->clangTranslationUnit());
 
         propagateResults(m_projectPart);
 
@@ -685,7 +671,7 @@ public:
     }
 
 private:
-    Unit m_unit;
+    Unit::Ptr m_unit;
     ProjectPart::Ptr m_projectPart;
 };
 
@@ -716,10 +702,10 @@ void IndexerPrivate::runCore(const QHash<QString, FileData> & /*headers*/,
     QHash<ProjectPart::Ptr, QList<IndexerPrivate::FileData> > parts;
     typedef QHash<ProjectPart::Ptr, QList<IndexerPrivate::FileData> >::Iterator PartIter;
 
-    QList<Core::IDocument *> docs = Core::EditorManager::documentModel()->openedDocuments();
+    QList<Core::IDocument *> docs = Core::DocumentModel::openedDocuments();
     QSet<QString> openDocs;
     foreach (Core::IDocument *doc, docs)
-        openDocs.insert(doc->filePath());
+        openDocs.insert(doc->filePath().toString());
 
     for (FileContIt tit = impls.begin(), eit = impls.end(); tit != eit; ++tit) {
         if (!tit->m_upToDate && openDocs.contains(tit.key())) {
@@ -839,10 +825,10 @@ void IndexerPrivate::reset()
 
 void IndexerPrivate::synchronize(const QVector<IndexingResult> &results)
 {
-    foreach (IndexingResult result, results) {
+    Q_UNUSED(results);
+#if 0
+    foreach (const IndexingResult &result, results) {
         QMutexLocker locker(&m_mutex);
-
-        result.m_unit.makeUnique();
 
         foreach (const Symbol &symbol, result.m_symbolsInfo) {
             addOrUpdateFileData(symbol.m_location.fileName(),
@@ -850,12 +836,12 @@ void IndexerPrivate::synchronize(const QVector<IndexingResult> &results)
                                 true);
 
             // Make the symbol available in the database.
-            m_index.insertSymbol(symbol, result.m_unit.timeStamp());
+            m_index.insertSymbol(symbol, result.m_unit->timeStamp());
         }
 
         // There might be files which were processed but did not "generate" any indexable symbol,
         // but we still need to make the index aware of them.
-        result.m_processedFiles.insert(result.m_unit.fileName());
+        result.m_processedFiles.insert(result.m_unit->fileName());
         foreach (const QString &fileName, result.m_processedFiles) {
             if (!m_index.containsFile(fileName))
                 m_index.insertFile(fileName, result.m_unit.timeStamp());
@@ -865,6 +851,7 @@ void IndexerPrivate::synchronize(const QVector<IndexingResult> &results)
         if (LiveUnitsManager::instance()->isTracking(result.m_unit.fileName()))
             LiveUnitsManager::instance()->updateUnit(result.m_unit.fileName(), result.m_unit);
     }
+#endif
 }
 
 void IndexerPrivate::finished(LibClangIndexer *indexer)
@@ -1089,11 +1076,11 @@ void IndexerPrivate::analyzeRestoredSymbols()
     }
 }
 
-void IndexerPrivate::runQuickIndexing(const Unit &unit, const CppTools::ProjectPart::Ptr &part)
+void IndexerPrivate::runQuickIndexing(const Unit::Ptr &unit, const CppTools::ProjectPart::Ptr &part)
 {
     QMutexLocker locker(&m_mutex);
 
-    addOrUpdateFileData(unit.fileName(), part, false);
+    addOrUpdateFileData(unit->fileName(), part, false);
 
     QuickIndexer indexer(this, unit, part);
     indexer.run();
@@ -1286,6 +1273,12 @@ void Indexer::match(ClangSymbolSearcher *searcher) const
 void Indexer::runQuickIndexing(Unit::Ptr unit, const CppTools::ProjectPart::Ptr &part)
 {
     m_d->runQuickIndexing(unit, part);
+}
+
+bool Indexer::isTracking(const QString &fileName) const
+{
+    return m_d->isTrackingFile(fileName, IndexerPrivate::ImplementationFile)
+            || m_d->isTrackingFile(fileName, IndexerPrivate::HeaderFile);
 }
 
 #include "indexer.moc"

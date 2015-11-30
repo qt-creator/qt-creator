@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,6 +36,10 @@
 #include "qmljssemantichighlighter.h"
 #include "qmljssemanticinfoupdater.h"
 #include "qmloutlinemodel.h"
+
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/infobar.h>
+#include <coreplugin/modemanager.h>
 
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -449,6 +454,8 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     m_updateOutlineModelTimer.setInterval(UPDATE_OUTLINE_INTERVAL);
     m_updateOutlineModelTimer.setSingleShot(true);
     connect(&m_updateOutlineModelTimer, SIGNAL(timeout()), this, SLOT(updateOutlineModel()));
+
+    modelManager->updateSourceFiles(QStringList(parent->filePath().toString()), false);
 }
 
 QmlJSEditorDocumentPrivate::~QmlJSEditorDocumentPrivate()
@@ -465,13 +472,13 @@ void QmlJSEditorDocumentPrivate::invalidateFormatterCache()
 
 void QmlJSEditorDocumentPrivate::reparseDocument()
 {
-    ModelManagerInterface::instance()->updateSourceFiles(QStringList() << q->filePath(),
-                                                                false);
+    ModelManagerInterface::instance()->updateSourceFiles(QStringList(q->filePath().toString()),
+                                                         false);
 }
 
 void QmlJSEditorDocumentPrivate::onDocumentUpdated(Document::Ptr doc)
 {
-    if (q->filePath() != doc->fileName())
+    if (q->filePath().toString() != doc->fileName())
         return;
 
     // text document has changed, simply wait for the next onDocumentUpdated
@@ -517,6 +524,19 @@ void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &seman
     m_outlineModelNeedsUpdate = true;
     m_semanticHighlightingNecessary = true;
 
+    if (m_firstSementicInfo) {
+        m_firstSementicInfo = false;
+        if (semanticInfo.document->language() == Dialect::QmlQtQuick2Ui
+                && !q->infoBar()->containsInfo(Core::Id(Constants::QML_UI_FILE_WARNING))) {
+            Core::InfoBarEntry info(Core::Id(Constants::QML_UI_FILE_WARNING),
+                                    tr("This file should only be edited in <b>Design</b> mode."));
+            info.setCustomButtonInfo(tr("Switch Mode"), []() {
+                Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
+            });
+            q->infoBar()->addInfo(info);
+        }
+    }
+
     emit q->semanticInfoUpdated(m_semanticInfo); // calls triggerPendingUpdates as necessary
 }
 
@@ -536,7 +556,7 @@ QmlJSEditorDocument::QmlJSEditorDocument()
     setId(Constants::C_QMLJSEDITOR_ID);
     connect(this, SIGNAL(tabSettingsChanged()),
             d, SLOT(invalidateFormatterCache()));
-    setSyntaxHighlighter(new Highlighter(document()));
+    setSyntaxHighlighter(new QmlJSHighlighter(document()));
     setIndenter(new Internal::Indenter);
 }
 
@@ -572,7 +592,7 @@ void QmlJSEditorDocument::setDiagnosticRanges(const QVector<QTextLayout::FormatR
 
 void QmlJSEditorDocument::applyFontSettings()
 {
-    BaseTextDocument::applyFontSettings();
+    TextDocument::applyFontSettings();
     d->m_semanticHighlighter->updateFontSettings(fontSettings());
     if (!isSemanticInfoOutdated()) {
         d->m_semanticHighlightingNecessary = false;
@@ -582,7 +602,7 @@ void QmlJSEditorDocument::applyFontSettings()
 
 void QmlJSEditorDocument::triggerPendingUpdates()
 {
-    BaseTextDocument::triggerPendingUpdates(); // calls applyFontSettings if necessary
+    TextDocument::triggerPendingUpdates(); // calls applyFontSettings if necessary
     // might still need to rehighlight if font settings did not change
     if (d->m_semanticHighlightingNecessary && !isSemanticInfoOutdated()) {
         d->m_semanticHighlightingNecessary = false;

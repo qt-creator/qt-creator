@@ -46,9 +46,8 @@ win32 {
 }
 
 unix:*-g++* {
-    QMAKE_CFLAGS += -fPIC -ansi -fpermissive -finline-functions -Wno-long-long
-    QMAKE_CXXFLAGS += -fPIC -ansi -fpermissive -finline-functions -Wno-long-long
-    QMAKE_CXXFLAGS_HIDESYMS -= -fvisibility-inlines-hidden # for ubuntu 7.04
+    QMAKE_CFLAGS += -fPIC -fpermissive -finline-functions -Wno-long-long
+    QMAKE_CXXFLAGS += -fPIC -fpermissive -finline-functions -Wno-long-long
 }
 
 linux*|freebsd* {

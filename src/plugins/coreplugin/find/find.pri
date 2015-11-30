@@ -1,37 +1,40 @@
 HEADERS += \
-    $$PWD/findtoolwindow.h \
-    $$PWD/textfindconstants.h \
-    $$PWD/ifindsupport.h \
-    $$PWD/ifindfilter.h \
-    $$PWD/currentdocumentfind.h \
     $$PWD/basetextfind.h \
-    $$PWD/findtoolbar.h \
+    $$PWD/currentdocumentfind.h \
     $$PWD/findplugin.h \
+    $$PWD/findtoolbar.h \
+    $$PWD/findtoolwindow.h \
+    $$PWD/ifindfilter.h \
+    $$PWD/ifindsupport.h \
+    $$PWD/itemviewfind.h \
     $$PWD/searchresultcolor.h \
     $$PWD/searchresulttreeitemdelegate.h \
     $$PWD/searchresulttreeitemroles.h \
     $$PWD/searchresulttreeitems.h \
     $$PWD/searchresulttreemodel.h \
     $$PWD/searchresulttreeview.h \
-    $$PWD/searchresultwindow.h \
     $$PWD/searchresultwidget.h \
-    $$PWD/treeviewfind.h
+    $$PWD/searchresultwindow.h \
+    $$PWD/textfindconstants.h \
+    $$PWD/highlightscrollbar.h
 
 SOURCES += \
-    $$PWD/findtoolwindow.cpp \
-    $$PWD/currentdocumentfind.cpp \
     $$PWD/basetextfind.cpp \
-    $$PWD/findtoolbar.cpp \
+    $$PWD/currentdocumentfind.cpp \
     $$PWD/findplugin.cpp \
+    $$PWD/findtoolbar.cpp \
+    $$PWD/findtoolwindow.cpp \
+    $$PWD/ifindfilter.cpp \
+    $$PWD/ifindsupport.cpp \
+    $$PWD/itemviewfind.cpp \
     $$PWD/searchresulttreeitemdelegate.cpp \
     $$PWD/searchresulttreeitems.cpp \
     $$PWD/searchresulttreemodel.cpp \
     $$PWD/searchresulttreeview.cpp \
-    $$PWD/searchresultwindow.cpp \
-    $$PWD/ifindfilter.cpp \
-    $$PWD/ifindsupport.cpp \
     $$PWD/searchresultwidget.cpp \
-    $$PWD/treeviewfind.cpp
+    $$PWD/searchresultwindow.cpp \
+    $$PWD/highlightscrollbar.cpp
+
 
 FORMS += \
     $$PWD/findwidget.ui \

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,31 +9,34 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "navigatorview.h"
 #include "navigatortreemodel.h"
 #include "navigatorwidget.h"
+#include "nameitemdelegate.h"
+#include "iconcheckboxitemdelegate.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignericons.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <utils/icon.h>
+
+#include <bindingproperty.h>
 #include <designmodecontext.h>
 #include <nodeproperty.h>
 #include <nodelistproperty.h>
@@ -45,9 +48,15 @@ static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPo
 {
     if (modelNode.hasParentProperty() && QmlDesigner::QmlItemNode::isValidQmlItemNode(modelNode.parentProperty().parentModelNode())) {
         QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
-        QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
-        modelNode.variantProperty("x").setValue(localPos.toPoint().x());
-        modelNode.variantProperty("y").setValue(localPos.toPoint().y());
+
+        if (!parentNode.modelNode().metaInfo().isLayoutable()) {
+            QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
+            modelNode.variantProperty("x").setValue(localPos.toPoint().x());
+            modelNode.variantProperty("y").setValue(localPos.toPoint().y());
+        } else { //Items in Layouts do not have a position
+            modelNode.removeProperty("x");
+            modelNode.removeProperty("y");
+        }
     }
 }
 
@@ -73,9 +82,19 @@ NavigatorView::NavigatorView(QObject* parent) :
 
     treeWidget()->setIndentation(treeWidget()->indentation() * 0.5);
 
-    NameItemDelegate *idDelegate = new NameItemDelegate(this,m_treeModel.data());
-    IconCheckboxItemDelegate *showDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/eye_open.png",
-                                                          ":/qmldesigner/images/placeholder.png",m_treeModel.data());
+    NameItemDelegate *idDelegate = new NameItemDelegate(this,
+                                                        m_treeModel.data());
+    IconCheckboxItemDelegate *showDelegate =
+            new IconCheckboxItemDelegate(this,
+                                         Icons::EYE_OPEN.pixmap(),
+                                         Icons::EYE_CLOSED.pixmap(),
+                                         m_treeModel.data());
+
+    IconCheckboxItemDelegate *exportDelegate =
+            new IconCheckboxItemDelegate(this,
+                                         Icons::EXPORT_CHECKED.pixmap(),
+                                         Icons::EXPORT_UNCHECKED.pixmap(),
+                                         m_treeModel.data());
 
 #ifdef _LOCK_ITEMS_
     IconCheckboxItemDelegate *lockDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/lock.png",
@@ -88,7 +107,8 @@ NavigatorView::NavigatorView(QObject* parent) :
     treeWidget()->setItemDelegateForColumn(1,lockDelegate);
     treeWidget()->setItemDelegateForColumn(2,showDelegate);
 #else
-    treeWidget()->setItemDelegateForColumn(1,showDelegate);
+    treeWidget()->setItemDelegateForColumn(1,exportDelegate);
+    treeWidget()->setItemDelegateForColumn(2,showDelegate);
 #endif
 
 }
@@ -108,7 +128,7 @@ WidgetInfo NavigatorView::widgetInfo()
 {
     return createWidgetInfo(m_widget.data(),
                             new WidgetInfo::ToolBarWidgetDefaultFactory<NavigatorWidget>(m_widget.data()),
-                            QLatin1String("Navigator"),
+                            QStringLiteral("Navigator"),
                             WidgetInfo::LeftPane,
                             0);
 }
@@ -122,7 +142,7 @@ void NavigatorView::modelAttached(Model *model)
     QTreeView *treeView = treeWidget();
     treeView->expandAll();
 
-    treeView->header()->setResizeMode(0, QHeaderView::Stretch);
+    treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     treeView->header()->resizeSection(1,26);
     treeView->setRootIsDecorated(false);
     treeView->setIndentation(20);
@@ -143,52 +163,38 @@ void NavigatorView::importsChanged(const QList<Import> &/*addedImports*/, const 
     treeWidget()->update();
 }
 
-void NavigatorView::nodeCreated(const ModelNode & /*createdNode*/)
+void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & propertyList, PropertyChangeFlags /*propertyChange*/)
 {
-}
-
-void NavigatorView::nodeRemoved(const ModelNode & /*removedNode*/, const NodeAbstractProperty & /*parentProperty*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void NavigatorView::propertiesRemoved(const QList<AbstractProperty> & /*propertyList*/)
-{
-}
-
-void NavigatorView::variantPropertiesChanged(const QList<VariantProperty> & /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void NavigatorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
-                                                   AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
+    foreach (const BindingProperty &bindingProperty, propertyList) {
+        /* If a binding property that exports an item using an alias property has
+         * changed, we have to update the affected item.
+         */
+        if (bindingProperty.isAliasExport())
+            m_treeModel->updateItemRow(modelNodeForId(bindingProperty.expression()));
+    }
 }
 
 void NavigatorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    if (m_treeModel->isInTree(removedNode))
-        m_treeModel->removeSubTree(removedNode);
+    m_treeModel->removeSubTree(removedNode);
 }
 
-void NavigatorView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty & /*newPropertyParent*/, const NodeAbstractProperty & /*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty & newPropertyParent, const NodeAbstractProperty & /*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     bool blocked = blockSelectionChangedSignal(true);
 
-    if (m_treeModel->isInTree(node))
-        m_treeModel->removeSubTree(node);
+    m_treeModel->removeSubTree(node);
+
     if (node.isInHierarchy())
         m_treeModel->addSubTree(node);
 
     // make sure selection is in sync again
     updateItemSelection();
+
+    if (newPropertyParent.parentModelNode().isValid()) {
+        QModelIndex index = m_treeModel->indexForNode(newPropertyParent.parentModelNode());
+        treeWidget()->expand(index);
+    }
 
     blockSelectionChangedSignal(blocked);
 }
@@ -202,13 +208,10 @@ void NavigatorView::nodeIdChanged(const ModelNode& node, const QString & /*newId
 void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
     foreach (const AbstractProperty &property, propertyList) {
-        if (property.isNodeProperty()) {
-            NodeProperty nodeProperty(property.toNodeProperty());
-            m_treeModel->removeSubTree(nodeProperty.modelNode());
-        } else if (property.isNodeListProperty()) {
-            NodeListProperty nodeListProperty(property.toNodeListProperty());
-            foreach (const ModelNode &node, nodeListProperty.toModelNodeList()) {
-                m_treeModel->removeSubTree(node);
+        if (property.isNodeAbstractProperty()) {
+            NodeAbstractProperty nodeAbstractProperty(property.toNodeListProperty());
+            foreach (const ModelNode &childNode, nodeAbstractProperty.directSubNodes()) {
+                m_treeModel->removeSubTree(childNode);
             }
         }
     }
@@ -220,75 +223,41 @@ void NavigatorView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVer
         m_treeModel->updateItemRow(rootModelNode());
 }
 
-void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName & /*name*/, const QVariant & /*data*/)
+void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode, const PropertyName & name, const QVariant & /*data*/)
 {
-    if (m_treeModel->isInTree(node))
+    if (name == "invisible" && m_treeModel->isInTree(modelNode))
     {
         // update model
-        m_treeModel->updateItemRow(node);
+        m_treeModel->updateItemRow(modelNode);
 
         // repaint row (id and icon)
-        QModelIndex index = m_treeModel->indexForNode(node);
-        treeWidget()->update( index );
-        treeWidget()->update( index.sibling(index.row(),index.column()+1) );
+        foreach (const ModelNode &currentModelNode, modelNode.allSubModelNodesAndThisNode()) {
+            QModelIndex index = m_treeModel->indexForNode(currentModelNode);
+            treeWidget()->update(index);
+            treeWidget()->update(index.sibling(index.row(),index.column()+1));
+        }
     }
 }
 
-void NavigatorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
+void NavigatorView::instanceErrorChange(const QVector<ModelNode> &errorNodeList)
 {
+    foreach (const ModelNode &currentModelNode, errorNodeList)
+        m_treeModel->updateItemRow(currentModelNode);
 }
 
-void NavigatorView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
+void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int /*oldIndex*/)
 {
-}
+    if (m_treeModel->isInTree(node)) {
+        m_treeModel->removeSubTree(listProperty.parentModelNode());
 
-void NavigatorView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
-{
-}
+        if (node.isInHierarchy())
+            m_treeModel->addSubTree(listProperty.parentModelNode());
 
-void NavigatorView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
-{
-}
-
-void NavigatorView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-}
-
-void NavigatorView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-}
-
-void NavigatorView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void NavigatorView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
-{
-
-}
-
-void NavigatorView::rewriterBeginTransaction()
-{
-}
-
-void NavigatorView::rewriterEndTransaction()
-{
-}
-
-void NavigatorView::currentStateChanged(const ModelNode &/*node*/)
-{
-}
-
-void NavigatorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
-{
-
-}
-
-void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
-{
-    if (m_treeModel->isInTree(node))
-        m_treeModel->updateItemRowOrder(listProperty, node, oldIndex);
+        if (listProperty.parentModelNode().isValid()) {
+            QModelIndex index = m_treeModel->indexForNode(listProperty.parentModelNode());
+            treeWidget()->expand(index);
+        }
+    }
 }
 
 void NavigatorView::changeToComponent(const QModelIndex &index)
@@ -312,11 +281,11 @@ void NavigatorView::leftButtonClicked()
         if (!node.isRootNode() && !node.parentProperty().parentModelNode().isRootNode()) {
             if (QmlItemNode::isValidQmlItemNode(node)) {
                 QPointF scenePos = QmlItemNode(node).instanceScenePosition();
-                node.parentProperty().parentModelNode().parentProperty().reparentHere(node);
+                node.parentProperty().parentProperty().reparentHere(node);
                 if (!scenePos.isNull())
                     setScenePos(node, scenePos);
             } else {
-                node.parentProperty().parentModelNode().parentProperty().reparentHere(node);
+                node.parentProperty().parentProperty().reparentHere(node);
             }
         }
     }
@@ -331,8 +300,8 @@ void NavigatorView::rightButtonClicked()
 
     bool blocked = blockSelectionChangedSignal(true);
     foreach (const ModelNode &node, selectedModelNodes()) {
-        if (!node.isRootNode() && node.parentProperty().isNodeListProperty() && node.parentProperty().toNodeListProperty().count() > 1) {
-            int index = node.parentProperty().toNodeListProperty().indexOf(node);
+        if (!node.isRootNode() && node.parentProperty().isNodeListProperty() && node.parentProperty().count() > 1) {
+            int index = node.parentProperty().indexOf(node);
             index--;
             if (index >= 0) { //for the first node the semantics are not clear enough. Wrapping would be irritating.
                 ModelNode newParent = node.parentProperty().toNodeListProperty().at(index);
@@ -360,11 +329,11 @@ void NavigatorView::upButtonClicked()
     bool blocked = blockSelectionChangedSignal(true);
     foreach (const ModelNode &node, selectedModelNodes()) {
         if (!node.isRootNode() && node.parentProperty().isNodeListProperty()) {
-            int oldIndex = node.parentProperty().toNodeListProperty().indexOf(node);
+            int oldIndex = node.parentProperty().indexOf(node);
             int index = oldIndex;
             index--;
             if (index < 0)
-                index = node.parentProperty().toNodeListProperty().count() - 1; //wrap around
+                index = node.parentProperty().count() - 1; //wrap around
             node.parentProperty().toNodeListProperty().slide(oldIndex, index);
         }
     }
@@ -377,10 +346,10 @@ void NavigatorView::downButtonClicked()
     bool blocked = blockSelectionChangedSignal(true);
     foreach (const ModelNode &node, selectedModelNodes()) {
         if (!node.isRootNode() && node.parentProperty().isNodeListProperty()) {
-            int oldIndex = node.parentProperty().toNodeListProperty().indexOf(node);
+            int oldIndex = node.parentProperty().indexOf(node);
             int index = oldIndex;
             index++;
-            if (index >= node.parentProperty().toNodeListProperty().count())
+            if (index >= node.parentProperty().count())
                 index = 0; //wrap around
             node.parentProperty().toNodeListProperty().slide(oldIndex, index);
         }

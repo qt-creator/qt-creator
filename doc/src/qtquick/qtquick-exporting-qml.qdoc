@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -24,8 +24,8 @@
 
 /*!
 
-    \contentspage index.html
-    \previouspage quick-screens.html
+    \contentspage {Qt Creator Manual}
+    \previouspage qtquick-iso-icon-browser.html
     \page quick-export-to-qml.html
     \nextpage creator-qml-modules-with-plugins.html
 
@@ -39,7 +39,12 @@
     \note GIMP does not support grouping, and therefore, each layer is exported
     as an item in GIMP.
 
-    You can open the QML file in \QC for editing. If you edit the file in Adobe
+    You can open the QML file in \QC for editing. By default, the export scripts
+    generate Qt Quick 1 files. To edit the files in \QMLD, change the import
+    statements in the export scripts to import Qt Quick 2. Or, you can change
+    the import statement in each file after generating the files.
+
+    If you edit the file in Adobe
     Photoshop and export it to the same directory again, any changes you made in
     \QC are overwritten. However, you can re-export graphical assets without
     recreating the QML code.
@@ -87,7 +92,7 @@
             item, use top-level layer groups.
 
         \li To determine that some layers are not exported, hide them, and
-            deselect the \gui {Export hidden} check box during exporting.
+            deselect the \uicontrol {Export hidden} check box during exporting.
 
         \li To make it easier to find the layers and layer groups after
             exporting them, use descriptive names for them.
@@ -114,42 +119,50 @@
 
     \list 1
 
-        \li Download the export script, \e{Export QML.jx}, from
-            \l{http://qt.gitorious.org/qt-labs/photoshop-qmlexporter/trees/master}
-            {Gitorious}.
+        \li Clone the repository that contains the export script,
+            \e{Export QML.jx}, from
+            \l{https://codereview.qt-project.org/#/admin/projects/qt-labs/photoshop-qmlexporter}
+            {Qt Code Review}.
 
             \note Read the README.txt file in the repository for latest
             information about the script.
 
+        \li To generate QML files that you can edit in \QMLD, edit the import
+            statement in \e {Export QML.jx}. For example:
+
+            \code
+            qmlfile.write("import QtQuick 2.5\n");
+            \endcode
+
         \li Double-click the export script to add the export command to the
-            \gui Scripts menu. You can also copy the script file to the Adobe
+            \uicontrol Scripts menu. You can also copy the script file to the Adobe
             Photoshop scripts directory (typically, \c{\Presets\Scripts} in the
             Photoshop installation directory).
 
-        \li In Adobe Photoshop, choose \gui {File > Scripts > Export to QML} to
+        \li In Adobe Photoshop, choose \uicontrol {File > Scripts > Export to QML} to
             export the scene to a QML file.
 
-        \li In the \gui {Export Document to QML} dialog, enter a name and
+        \li In the \uicontrol {Export Document to QML} dialog, enter a name and
             location for the QML file.
 
-        \li Select the \gui {Rasterize text} check box to export text layers as
+        \li Select the \uicontrol {Rasterize text} check box to export text layers as
             images, not as Text items.
 
-        \li Select the \gui {Group layers} check box to export each top-level
+        \li Select the \uicontrol {Group layers} check box to export each top-level
             group as a merged QML Image item.
 
-        \li Select the \gui {Export hidden} check box to export hidden layers
+        \li Select the \uicontrol {Export hidden} check box to export hidden layers
             and to set their visibility property to hidden.
 
-        \li Deselect the \gui {Export QML} check box if you have modified the
+        \li Deselect the \uicontrol {Export QML} check box if you have modified the
             QML document in \QC, but still want to re-export graphical assets.
 
-        \li Click \gui Export.
+        \li Click \uicontrol Export.
 
     \endlist
 
     The QML file is saved to the location that you specified. In \QC, choose
-    \gui {File > Open File or Project} to open the QML file.
+    \uicontrol {File > Open File or Project} to open the QML file.
 
     \note Existing files are replaced without warning.
 
@@ -160,21 +173,12 @@
     The script has been tested to work on GIMP 2. You can download GIMP 2 from
     \l{http://www.gimp.org/downloads/}{GIMP Downloads}.
 
-    To use the export script on Microsoft Windows, you also need to install the
-    GIMP Python extension (Python, PyCairo, PyGobject, PyGTK). However, GIMP is
-    not officially supported on Windows, so we cannot guarantee that this will
-    work.
-
     \list 1
 
-        \li On Microsoft Windows, you must first add Python support to your GIMP
-            installation, as instructed in
-            \l {http://www.gimpusers.com/tutorials/install-python-for-gimp-2-6-windows}
-            {Tutorial: Installing Python for GIMP 2.6 (Windows)}.
-
-        \li Download the export script, \e qmlexporter.py, from
-            \l{http://qt.gitorious.org/qt-labs/gimp-qmlexporter/trees/master}
-            {Gitorious}.
+        \li Clone the repository that contains the export script,
+            \e qmlexporter.py, from
+            \l{https://codereview.qt-project.org/#/admin/projects/qt-labs/gimp-qmlexporter}
+            {Qt Code Review}.
 
             \note Read the INSTALL.txt in the repository for latest information
             about the script.
@@ -186,18 +190,25 @@
 
             On Linux, run the following command: \c {chmod u+rx}
 
-        \li Restart GIMP to have the export command added to the \gui File menu.
+        \li To generate QML files that you can edit in \QMLD, edit the import
+            statement in \e qmlexporter.py. For example:
 
-        \li Choose \gui {File > Export to QML} to export the design to a QML
+            \code
+            f.write('import QtQuick 2.5\n')
+            \endcode
+
+        \li Restart GIMP to have the export command added to the \uicontrol File menu.
+
+        \li Choose \uicontrol {File > Export to QML} to export the design to a QML
             file.
 
-        \li In the \gui {Export Layers to a QML Document} dialog, enter a name
-            and location for the QML file, and click \gui Export.
+        \li In the \uicontrol {Export Layers to a QML Document} dialog, enter a name
+            and location for the QML file, and click \uicontrol Export.
 
     \endlist
 
     The QML file is saved to the location that you specified. In \QC, choose
-    \gui {File > Open File or Project} to open the QML file.
+    \uicontrol {File > Open File or Project} to open the QML file.
 
     \note Existing files are replaced without warning.
 

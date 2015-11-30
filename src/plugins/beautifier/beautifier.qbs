@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "Beautifier"
@@ -22,6 +20,8 @@ QtcPlugin {
         "beautifierconstants.h",
         "beautifierplugin.cpp",
         "beautifierplugin.h",
+        "command.cpp",
+        "command.h",
         "configurationdialog.cpp",
         "configurationdialog.h",
         "configurationdialog.ui",

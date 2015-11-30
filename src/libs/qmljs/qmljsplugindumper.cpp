@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -92,34 +93,35 @@ void PluginDumper::scheduleMaybeRedumpBuiltins(const QmlJS::ModelManagerInterfac
 
 void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info, bool force)
 {
-    if (info.qmlDumpPath.isEmpty() || info.qtImportsPath.isEmpty())
+    const QString baseImportsPath = info.qtQmlPath.isEmpty() ? info.qtImportsPath : info.qtQmlPath;
+    if (info.qmlDumpPath.isEmpty() || baseImportsPath.isEmpty())
         return;
 
-    const QString importsPath = QDir::cleanPath(info.qtImportsPath);
+    const QString importsPath = QDir::cleanPath(baseImportsPath);
     if (m_runningQmldumps.values().contains(importsPath))
         return;
 
     LibraryInfo builtinInfo;
     if (!force) {
         const Snapshot snapshot = m_modelManager->snapshot();
-        builtinInfo = snapshot.libraryInfo(info.qtImportsPath);
+        builtinInfo = snapshot.libraryInfo(baseImportsPath);
         if (builtinInfo.isValid())
             return;
     }
     builtinInfo = LibraryInfo(LibraryInfo::Found);
-    m_modelManager->updateLibraryInfo(info.qtImportsPath, builtinInfo);
+    m_modelManager->updateLibraryInfo(baseImportsPath, builtinInfo);
 
-    // prefer QTDIR/imports/builtins.qmltypes if available
-    const QString builtinQmltypesPath = info.qtImportsPath + QLatin1String("/builtins.qmltypes");
+    // prefer QTDIR/qml/builtins.qmltypes if available
+    const QString builtinQmltypesPath = baseImportsPath + QLatin1String("/builtins.qmltypes");
     if (QFile::exists(builtinQmltypesPath)) {
-        loadQmltypesFile(QStringList(builtinQmltypesPath), info.qtImportsPath, builtinInfo);
+        loadQmltypesFile(QStringList(builtinQmltypesPath), baseImportsPath, builtinInfo);
         return;
     }
     // QTDIR/imports/QtQuick1/builtins.qmltypes was used in developer builds of 5.0.0, 5.0.1
     const QString builtinQmltypesPath2 = info.qtImportsPath
             + QLatin1String("/QtQuick1/builtins.qmltypes");
     if (QFile::exists(builtinQmltypesPath2)) {
-        loadQmltypesFile(QStringList(builtinQmltypesPath2), info.qtImportsPath, builtinInfo);
+        loadQmltypesFile(QStringList(builtinQmltypesPath2), baseImportsPath, builtinInfo);
         return;
     }
 
@@ -130,15 +132,15 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
     connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
     QStringList args(QLatin1String("--builtins"));
     process->start(info.qmlDumpPath, args);
-    m_runningQmldumps.insert(process, info.qtImportsPath);
-    m_qtToInfo.insert(info.qtImportsPath, info);
+    m_runningQmldumps.insert(process, baseImportsPath);
+    m_qtToInfo.insert(baseImportsPath, info);
 }
 
 static QString makeAbsolute(const QString &path, const QString &base)
 {
     if (QFileInfo(path).isAbsolute())
         return path;
-    return QString::fromLatin1("%1%2%3").arg(base, QDir::separator(), path);
+    return QString::fromLatin1("%1/%3").arg(base, path);
 }
 
 void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri, const QString &importVersion)
@@ -241,7 +243,7 @@ static QString qmldumpErrorMessage(const QString &libraryPath, const QString &er
 static QString qmldumpFailedMessage(const QString &libraryPath, const QString &error)
 {
     QString firstLines =
-            QStringList(error.split(QLatin1Char('\n')).mid(0, 10)).join(QLatin1String("\n"));
+            QStringList(error.split(QLatin1Char('\n')).mid(0, 10)).join(QLatin1Char('\n'));
     return noTypeinfoError(libraryPath) + QLatin1String("\n\n") +
             PluginDumper::tr("Automatic type dump of QML module failed.\n"
                              "First 10 lines or errors:\n"
@@ -262,11 +264,7 @@ static void printParseWarnings(const QString &libraryPath, const QString &warnin
 static QString qmlPluginDumpErrorMessage(QProcess *process)
 {
     QString errorMessage;
-#if QT_VERSION >= 0x050000
     const QString binary = QDir::toNativeSeparators(process->program());
-#else
-    const QString binary = QLatin1String("qmlplugindump");
-#endif
     switch (process->error()) {
     case QProcess::FailedToStart:
         errorMessage = PluginDumper::tr("\"%1\" failed to start: %2").arg(binary, process->errorString());
@@ -286,9 +284,7 @@ static QString qmlPluginDumpErrorMessage(QProcess *process)
             errorMessage = PluginDumper::tr("\"%1\" returned exit code %2.").arg(binary).arg(process->exitCode());
         break;
     }
-#if QT_VERSION >= 0x050000
     errorMessage += QLatin1Char('\n') + PluginDumper::tr("Arguments: %1").arg(process->arguments().join(QLatin1Char(' ')));
-#endif
     if (process->error() != QProcess::FailedToStart) {
         const QString stdErr = QString::fromLocal8Bit(process->readAllStandardError());
         if (!stdErr.isEmpty()) {
@@ -311,10 +307,12 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
         return;
     const Snapshot snapshot = m_modelManager->snapshot();
     LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
+    bool privatePlugin = libraryPath.endsWith(QLatin1String("private"));
 
     if (exitCode != 0) {
         const QString errorMessages = qmlPluginDumpErrorMessage(process);
-        ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
+        if (!privatePlugin)
+            ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
     }
 
@@ -324,12 +322,13 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
     CppQmlTypesLoader::BuiltinObjects objectsList;
     QList<ModuleApiInfo> moduleApis;
     CppQmlTypesLoader::parseQmlTypeDescriptions(output, &objectsList, &moduleApis, &error, &warning,
-                                                QLatin1String("<dump of ") + libraryPath + QLatin1String(">"));
+                                                QLatin1String("<dump of ") + libraryPath + QLatin1Char('>'));
     if (exitCode == 0) {
         if (!error.isEmpty()) {
             libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
                                                 qmldumpErrorMessage(libraryPath, error));
-            printParseWarnings(libraryPath, libraryInfo.pluginTypeInfoError());
+            if (!privatePlugin)
+                printParseWarnings(libraryPath, libraryInfo.pluginTypeInfoError());
         } else {
             libraryInfo.setMetaObjects(objectsList.values());
             libraryInfo.setModuleApis(moduleApis);
@@ -354,16 +353,14 @@ void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
     const QString libraryPath = m_runningQmldumps.take(process);
     if (libraryPath.isEmpty())
         return;
-
     const QString errorMessages = qmlPluginDumpErrorMessage(process);
-    ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
-    if (!libraryPath.isEmpty()) {
-        const Snapshot snapshot = m_modelManager->snapshot();
-        LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
-        libraryInfo.updateFingerprint();
-        m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
-    }
+    const Snapshot snapshot = m_modelManager->snapshot();
+    LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
+    if (!libraryPath.endsWith(QLatin1String("private"), Qt::CaseInsensitive))
+        ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
+    libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
+    libraryInfo.updateFingerprint();
+    m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
 }
 
 void PluginDumper::pluginChanged(const QString &pluginLibrary)
@@ -398,7 +395,7 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
         QList<ModuleApiInfo> newModuleApis;
         CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &newObjects, &newModuleApis, &error, &warning, qmltypesFilePath);
         if (!error.isEmpty()) {
-            errors += tr("Failed to parse '%1'.\nError: %2").arg(qmltypesFilePath, error);
+            errors += tr("Failed to parse \"%1\".\nError: %2").arg(qmltypesFilePath, error);
         } else {
             objects += newObjects.values();
             moduleApis += newModuleApis;
@@ -412,9 +409,9 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
     if (errors.isEmpty()) {
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
     } else {
-        printParseWarnings(libraryPath, errors.join(QLatin1String("\n")));
+        printParseWarnings(libraryPath, errors.join(QLatin1Char('\n')));
         errors.prepend(tr("Errors while reading typeinfo files:"));
-        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError, errors.join(QLatin1String("\n")));
+        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError, errors.join(QLatin1Char('\n')));
     }
 
     if (!warnings.isEmpty())
@@ -426,10 +423,12 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
 
 void PluginDumper::dump(const Plugin &plugin)
 {
+    ModelManagerInterface::ProjectInfo info = m_modelManager->defaultProjectInfo();
+    const Snapshot snapshot = m_modelManager->snapshot();
+    LibraryInfo libraryInfo = snapshot.libraryInfo(plugin.qmldirPath);
+
     // if there are type infos, don't dump!
     if (!plugin.typeInfoPaths.isEmpty()) {
-        const Snapshot snapshot = m_modelManager->snapshot();
-        LibraryInfo libraryInfo = snapshot.libraryInfo(plugin.qmldirPath);
         if (!libraryInfo.isValid())
             return;
 
@@ -437,11 +436,10 @@ void PluginDumper::dump(const Plugin &plugin)
         return;
     }
 
-    ModelManagerInterface::ProjectInfo info = m_modelManager->defaultProjectInfo();
+    if (plugin.importUri.isEmpty())
+        return; // initial scan without uri, ignore
 
     if (!info.tryQmlDump || info.qmlDumpPath.isEmpty()) {
-        const Snapshot snapshot = m_modelManager->snapshot();
-        LibraryInfo libraryInfo = snapshot.libraryInfo(plugin.qmldirPath);
         if (!libraryInfo.isValid())
             return;
 
@@ -465,18 +463,11 @@ void PluginDumper::dump(const Plugin &plugin)
     connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
     connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
     QStringList args;
-    if (plugin.importUri.isEmpty()) {
-        args << QLatin1String("--path");
-        args << plugin.importPath;
-        if (ComponentVersion(plugin.importVersion).isValid())
-            args << plugin.importVersion;
-    } else {
-        if (info.qmlDumpHasRelocatableFlag)
-            args << QLatin1String("-relocatable");
-        args << plugin.importUri;
-        args << plugin.importVersion;
-        args << plugin.importPath;
-    }
+    if (info.qmlDumpHasRelocatableFlag)
+        args << QLatin1String("-nonrelocatable");
+    args << plugin.importUri;
+    args << plugin.importVersion;
+    args << plugin.importPath;
     process->start(info.qmlDumpPath, args);
     m_runningQmldumps.insert(process, plugin.qmldirPath);
 }

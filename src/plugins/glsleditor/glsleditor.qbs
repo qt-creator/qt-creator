@@ -1,12 +1,9 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "GLSLEditor"
 
     Depends { name: "Qt.widgets" }
-    Depends { name: "Aggregation" }
     Depends { name: "GLSL" }
     Depends { name: "CPlusPlus" }
     Depends { name: "Utils" }
@@ -24,23 +21,13 @@ QtcPlugin {
         "glsleditor.h",
         "glsleditor.qrc",
         "glsleditorconstants.h",
-        "glsleditoreditable.cpp",
-        "glsleditoreditable.h",
-        "glsleditorfactory.cpp",
-        "glsleditorfactory.h",
         "glsleditorplugin.cpp",
         "glsleditorplugin.h",
-        "glslfilewizard.cpp",
-        "glslfilewizard.h",
         "glslhighlighter.cpp",
         "glslhighlighter.h",
-        "glslhighlighterfactory.cpp",
-        "glslhighlighterfactory.h",
         "glslhoverhandler.cpp",
         "glslhoverhandler.h",
         "glslindenter.cpp",
         "glslindenter.h",
-        "reuse.cpp",
-        "reuse.h",
     ]
 }

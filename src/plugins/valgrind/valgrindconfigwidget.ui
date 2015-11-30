@@ -152,9 +152,9 @@
 &lt;p&gt;By default, only instruction read accesses will be counted (&quot;Ir&quot;).&lt;/p&gt;
 &lt;p&gt;
 With cache simulation, further event counters are enabled:
-&lt;ul&gt;&lt;li&gt;Cache misses on instruction reads (&quot;I1mr&quot;/&quot;I2mr&quot;)&lt;/li&gt;
-&lt;li&gt;Data read accesses (&quot;Dr&quot;) and related cache misses (&quot;D1mr&quot;/&quot;D2mr&quot;)&lt;/li&gt;
-&lt;li&gt;Data write accesses (&quot;Dw&quot;) and related cache misses (&quot;D1mw&quot;/&quot;D2mw&quot;)&lt;/li&gt;&lt;/ul&gt;
+&lt;ul&gt;&lt;li&gt;Cache misses on instruction reads (&quot;I1mr&quot;/&quot;I2mr&quot;).&lt;/li&gt;
+&lt;li&gt;Data read accesses (&quot;Dr&quot;) and related cache misses (&quot;D1mr&quot;/&quot;D2mr&quot;).&lt;/li&gt;
+&lt;li&gt;Data write accesses (&quot;Dw&quot;) and related cache misses (&quot;D1mw&quot;/&quot;D2mw&quot;).&lt;/li&gt;&lt;/ul&gt;
 &lt;/p&gt;
 
 &lt;/body&gt;&lt;/html&gt;</string>
@@ -168,12 +168,12 @@ With cache simulation, further event counters are enabled:
           <widget class="QCheckBox" name="enableBranchSim">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Do branch prediction simulation.&lt;/p&gt;
+&lt;p&gt;Does branch prediction simulation.&lt;/p&gt;
 &lt;p&gt;Further event counters are enabled: &lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;Number of executed conditional branches and related predictor misses (
-&quot;Bc&quot;/&quot;Bcm&quot;)&lt;/li&gt;
+&quot;Bc&quot;/&quot;Bcm&quot;).&lt;/li&gt;
 &lt;li&gt;Executed indirect jumps and related misses of the jump address predictor (
-&quot;Bi&quot;/&quot;Bim&quot;)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&quot;Bi&quot;/&quot;Bim&quot;).&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Enable branch prediction simulation</string>
@@ -183,7 +183,7 @@ With cache simulation, further event counters are enabled:
          <item row="2" column="0">
           <widget class="QCheckBox" name="collectSystime">
            <property name="toolTip">
-            <string>Collect information for system call times.</string>
+            <string>Collects information for system call times.</string>
            </property>
            <property name="text">
             <string>Collect system call time</string>
@@ -205,9 +205,6 @@ With cache simulation, further event counters are enabled:
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="visualisationMinimumInclusiveCostRatioLabel">
-        <property name="toolTip">
-         <string/>
-        </property>
         <property name="text">
          <string>Visualization: Minimum event cost:</string>
         </property>

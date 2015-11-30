@@ -1,7 +1,8 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2015 Denis Shienkov <denis.shienkov@gmail.com>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,9 +33,12 @@
 #include "baremetalgdbcommandsdeploystep.h"
 #include "baremetalrunconfiguration.h"
 #include "baremetaldevice.h"
+#include "baremetaldebugsupport.h"
 
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
+#include "gdbserverprovider.h"
+#include "gdbserverprovidermanager.h"
+
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
 #include <projectexplorer/buildsteplist.h>
@@ -48,6 +53,8 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+
 using namespace Analyzer;
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -56,7 +63,7 @@ namespace BareMetal {
 namespace Internal {
 
 BareMetalRunControlFactory::BareMetalRunControlFactory(QObject *parent) :
-    ProjectExplorer::IRunControlFactory(parent)
+    IRunControlFactory(parent)
 {
 }
 
@@ -64,10 +71,11 @@ BareMetalRunControlFactory::~BareMetalRunControlFactory()
 {
 }
 
-bool BareMetalRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool BareMetalRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    if (mode != NormalRunMode && mode != DebugRunMode && mode != DebugRunModeWithBreakOnMain
-            && mode != QmlProfilerRunMode) {
+    if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
         return false;
     }
 
@@ -75,63 +83,76 @@ bool BareMetalRunControlFactory::canRun(RunConfiguration *runConfiguration, RunM
     return runConfiguration->isEnabled() && idStr.startsWith(BareMetalRunConfiguration::IdPrefix);
 }
 
-DebuggerStartParameters BareMetalRunControlFactory::startParameters(const BareMetalRunConfiguration *runConfig)
-{
-    DebuggerStartParameters params;
-    Target *target = runConfig->target();
-    Kit *k = target->kit();
-    const BareMetalDevice::ConstPtr device = qSharedPointerCast<const BareMetalDevice>(DeviceKitInformation::device(k));
-    QTC_ASSERT(device, return params);
-    params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
-    params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
-    if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
-        params.toolChainAbi = tc->targetAbi();
-    params.languages |= CppLanguage;
-    params.processArgs = runConfig->arguments();
-    params.startMode = AttachToRemoteServer;
-    params.executable = runConfig->localExecutableFilePath();
-    params.remoteSetupNeeded = false; //FIXME probably start debugserver with that, how?
-    params.displayName = runConfig->displayName();
-    if (const Project *project = target->project()) {
-        params.projectSourceDirectory = project->projectDirectory();
-        if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
-            params.projectBuildDirectory = buildConfig->buildDirectory().toString();
-        params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
-    }
-    params.remoteChannel = device->sshParameters().host + QLatin1String(":") + QString::number(device->sshParameters().port);
-    params.remoteSetupNeeded = false; // qml stuff, not needed
-    params.commandsAfterConnect = device->getGdbInitCommands().toLatin1();
-    BuildConfiguration *bc = target->activeBuildConfiguration();
-    BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId());
-    if (bsl) {
-        foreach (BuildStep *bs,bsl->steps()) {
-            BareMetalGdbCommandsDeployStep *ds = qobject_cast<BareMetalGdbCommandsDeployStep *>(bs);
-            if (ds) {
-                if (!params.commandsAfterConnect.endsWith("\n"))
-                    params.commandsAfterConnect.append("\n");
-                params.commandsAfterConnect.append(ds->gdbCommands().toLocal8Bit());
-            }
-        }
-    }
-    params.useContinueInsteadOfRun = true; //we can't execute as its always running
-    return params;
-}
-
-RunControl *BareMetalRunControlFactory::create(RunConfiguration *runConfiguration,
-                                               RunMode mode,
-                                               QString *errorMessage)
+RunControl *BareMetalRunControlFactory::create(
+        RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
-    BareMetalRunConfiguration *rc = qobject_cast<BareMetalRunConfiguration *>(runConfiguration);
+    const auto rc = qobject_cast<BareMetalRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return 0);
-    IDevice::ConstPtr dev = DeviceKitInformation::device(rc->target()->kit());
+
+    const QString bin = rc->localExecutableFilePath();
+    if (bin.isEmpty()) {
+        *errorMessage = tr("Cannot debug: Local executable is not set.");
+        return 0;
+    } else if (!QFile::exists(bin)) {
+        *errorMessage = tr("Cannot debug: Could not find executable for \"%1\".")
+                .arg(bin);
+        return 0;
+    }
+
+    const Target *target = rc->target();
+    QTC_ASSERT(target, return 0);
+
+    const Kit *kit = target->kit();
+    QTC_ASSERT(kit, return 0);
+
+    auto dev = qSharedPointerCast<const BareMetalDevice>(DeviceKitInformation::device(kit));
     if (!dev) {
         *errorMessage = tr("Cannot debug: Kit has no device.");
         return 0;
     }
-    DebuggerStartParameters sp = startParameters(rc);
-    return DebuggerPlugin::createDebugger(sp,runConfiguration,errorMessage);
+
+    const GdbServerProvider *p = GdbServerProviderManager::instance()->findProvider(
+                dev->gdbServerProviderId());
+    if (!p) {
+        *errorMessage = tr("Cannot debug: Device has no GDB server provider configuration.");
+        return 0;
+    }
+
+    DebuggerStartParameters sp;
+
+    if (const BuildConfiguration *bc = target->activeBuildConfiguration()) {
+        if (const BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
+            foreach (const BuildStep *bs, bsl->steps()) {
+                if (auto ds = qobject_cast<const BareMetalGdbCommandsDeployStep *>(bs)) {
+                    if (!sp.commandsAfterConnect.endsWith("\n"))
+                        sp.commandsAfterConnect.append("\n");
+                    sp.commandsAfterConnect.append(ds->gdbCommands().toLatin1());
+                }
+            }
+        }
+    }
+
+    sp.executable = bin;
+    sp.processArgs = rc->arguments();
+    sp.startMode = AttachToRemoteServer;
+    sp.displayName = rc->displayName();
+    sp.commandsAfterConnect = p->initCommands().toLatin1();
+    sp.commandsForReset = p->resetCommands().toLatin1();
+    sp.remoteChannel = p->channel();
+    sp.useContinueInsteadOfRun = true;
+
+    if (p->startupMode() == GdbServerProvider::StartupOnNetwork)
+        sp.remoteSetupNeeded = true;
+
+    DebuggerRunControl *runControl = createDebuggerRunControl(sp, rc, errorMessage, mode);
+    if (runControl && sp.remoteSetupNeeded) {
+        const auto debugSupport = new BareMetalDebugSupport(dev, runControl);
+        Q_UNUSED(debugSupport);
+    }
+
+    return runControl;
 }
 
 } // namespace Internal

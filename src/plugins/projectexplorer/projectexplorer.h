@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,7 @@
 
 #include "projectexplorer_export.h"
 #include "projectexplorerconstants.h"
+#include "runconfiguration.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -39,7 +41,6 @@
 
 QT_BEGIN_NAMESPACE
 class QPoint;
-class QMenu;
 class QAction;
 QT_END_NAMESPACE
 
@@ -54,13 +55,10 @@ class RunConfiguration;
 class IRunControlFactory;
 class Project;
 class Node;
-class BuildConfiguration;
 class FolderNode;
-class TaskHub;
+class FileNode;
 
 namespace Internal { class ProjectExplorerSettings; }
-
-struct ProjectExplorerPluginPrivate;
 
 class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin
     : public ExtensionSystem::IPlugin
@@ -74,20 +72,54 @@ public:
 
     static ProjectExplorerPlugin *instance();
 
-    Project *openProject(const QString &fileName, QString *error);
-    QList<Project *> openProjects(const QStringList &fileNames, QString *error);
+    class OpenProjectResult
+    {
+    public:
+        OpenProjectResult(QList<Project *> projects, QList<Project *> alreadyOpen,
+                          const QString &errorMessage)
+            : m_projects(projects), m_alreadyOpen(alreadyOpen),
+              m_errorMessage(errorMessage)
+        {}
+
+        explicit operator bool() const
+        {
+            return m_errorMessage.isEmpty() && m_alreadyOpen.isEmpty();
+        }
+
+        Project *project() const
+        {
+            return m_projects.isEmpty() ? 0 : m_projects.first();
+        }
+
+        QList<Project *> projects() const
+        {
+            return m_projects;
+        }
+
+        QString errorMessage() const
+        {
+            return m_errorMessage;
+        }
+
+        QList<Project *> alreadyOpen() const
+        {
+            return m_alreadyOpen;
+        }
+    private:
+        QList<Project *> m_projects;
+        QList<Project *> m_alreadyOpen;
+        QString m_errorMessage;
+    };
+
+    static OpenProjectResult openProject(const QString &fileName);
+    static OpenProjectResult openProjects(const QStringList &fileNames);
+    static void showOpenProjectError(const OpenProjectResult &result);
     Q_SLOT void openProjectWelcomePage(const QString &fileName);
-    void unloadProject(Project *project);
+    static void unloadProject(Project *project);
 
-    static Project *currentProject();
-    Node *currentNode() const;
+    static bool saveModifiedFiles();
 
-    void setCurrentFile(Project *project, const QString &file);
-    void setCurrentNode(Node *node);
-
-    bool saveModifiedFiles();
-
-    void showContextMenu(QWidget *view, const QPoint &globalPos, Node *node);
+    static void showContextMenu(QWidget *view, const QPoint &globalPos, Node *node);
 
     //PluginInterface
     bool initialize(const QStringList &arguments, QString *errorMessage);
@@ -97,51 +129,48 @@ public:
     static void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
     static Internal::ProjectExplorerSettings projectExplorerSettings();
 
-    void startRunControl(RunControl *runControl, RunMode runMode);
+    static void startRunControl(RunControl *runControl, Core::Id runMode);
     static void showRunErrorMessage(const QString &errorMessage);
 
     // internal public for FlatModel
-    void renameFile(Node *node, const QString &to);
+    static void renameFile(Node *node, const QString &newFilePath);
     static QStringList projectFilePatterns();
-    bool coreAboutToClose();
-    QList<QPair<QString, QString> > recentProjects();
+    static QList<QPair<QString, QString> > recentProjects();
 
-    bool canRun(Project *pro, RunMode runMode);
-    QString cannotRunReason(Project *project, RunMode runMode);
-    void runProject(Project *pro, RunMode, const bool forceSkipDeploy = false);
-    void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, RunMode runMode,
+    static bool canRun(Project *pro, Core::Id runMode, QString *whyNot = 0);
+    static void runProject(Project *pro, Core::Id, const bool forceSkipDeploy = false);
+    static void runStartupProject(Core::Id runMode, bool forceSkipDeploy = false);
+    static void runRunConfiguration(RunConfiguration *rc, Core::Id runMode,
                              const bool forceSkipDeploy = false);
 
-    void addExistingFiles(ProjectExplorer::FolderNode *projectNode, const QStringList &filePaths);
-    void addExistingFiles(const QStringList &filePaths);
+    static void addExistingFiles(FolderNode *folderNode, const QStringList &filePaths);
 
-    void buildProject(ProjectExplorer::Project *p);
+    static void buildProject(Project *p);
     /// Normally there's no need to call this function.
     /// This function needs to be called, only if the pages that support a project changed.
-    void requestProjectModeUpdate(ProjectExplorer::Project *p);
+    static void requestProjectModeUpdate(Project *p);
 
-    QList<RunControl *> runControls() const;
-
-    void initiateInlineRenaming();
+    static void initiateInlineRenaming();
 
     static QString displayNameForStepId(Core::Id stepId);
 
     static QString directoryFor(Node *node);
-    static QString pathFor(Node *node);
+    static QStringList projectFileGlobs();
+
+    static void updateContextMenuActions();
+
+private:
+    static bool coreAboutToClose();
 
 signals:
     void runControlStarted(ProjectExplorer::RunControl *rc);
     void runControlFinished(ProjectExplorer::RunControl *rc);
-    void aboutToShowContextMenu(ProjectExplorer::Project *project,
-                                ProjectExplorer::Node *node);
 
     // Is emitted when a project has been added/removed,
     // or the file list of a specific project has changed.
     void fileListChanged();
 
-    void currentProjectChanged(ProjectExplorer::Project *project);
-    void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
-    void aboutToExecuteProject(ProjectExplorer::Project *project, RunMode runMode);
+    void aboutToExecuteProject(ProjectExplorer::Project *project, Core::Id runMode);
     void recentProjectsChanged();
 
     void settingsChanged();
@@ -149,91 +178,10 @@ signals:
     void updateRunActions();
 
 public slots:
-    void openOpenProjectDialog();
+    static void openOpenProjectDialog();
 
 private slots:
-    void buildStateChanged(ProjectExplorer::Project * pro);
-    void buildQueueFinished(bool success);
-    void buildProjectOnly();
-    void buildProject();
-    void buildProjectContextMenu();
-    void buildSession();
-    void rebuildProjectOnly();
-    void rebuildProject();
-    void rebuildProjectContextMenu();
-    void rebuildSession();
-    void deployProjectOnly();
-    void deployProject();
-    void deployProjectContextMenu();
-    void deploySession();
-    void cleanProjectOnly();
-    void cleanProject();
-    void cleanProjectContextMenu();
-    void cleanSession();
-    void cancelBuild();
-    void loadAction();
-    void unloadProject();
-    void closeAllProjects();
-    void newProject();
-    void showSessionManager();
-    void populateOpenWithMenu();
-    void updateSessionMenu();
-    void setSession(QAction *action);
-
-    void determineSessionToRestoreAtStartup();
-    void restoreSession();
     void restoreSession2();
-    void loadSession(const QString &session);
-    void runProject();
-    void runProjectWithoutDeploy();
-    void runProjectContextMenu();
-    void savePersistentSettings();
-
-    void addNewFile();
-    void addExistingFiles();
-    void addExistingDirectory();
-    void addNewSubproject();
-    void removeProject();
-    void openFile();
-    void searchOnFileSystem();
-    void showInGraphicalShell();
-    void removeFile();
-    void deleteFile();
-    void renameFile();
-    void setStartupProject();
-    void setStartupProject(ProjectExplorer::Project *project);
-
-    void updateRecentProjectMenu();
-    void clearRecentProjects();
-    void openRecentProject();
-    void openTerminalHere();
-
-    void invalidateProject(ProjectExplorer::Project *project);
-
-    void setCurrentFile(const QString &filePath);
-
-    void runControlFinished();
-
-    void projectAdded(ProjectExplorer::Project *pro);
-    void projectRemoved(ProjectExplorer::Project *pro);
-    void projectDisplayNameChanged(ProjectExplorer::Project *pro);
-    void startupProjectChanged(); // Calls updateRunAction
-    void activeTargetChanged();
-    void activeRunConfigurationChanged();
-
-    void updateDeployActions();
-    void slotUpdateRunActions();
-
-    void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
-    void updateActions();
-    void loadCustomWizards();
-    void updateVariable(const QByteArray &variable);
-    void updateRunWithoutDeployMenu();
-
-    void updateWelcomePage();
-    void updateExternalFileWarning();
-
-    void updateContext();
 
 #ifdef WITH_TESTS
     void testAnsiFilterOutputParser_data();
@@ -256,6 +204,9 @@ private slots:
     void testGnuMakeParserTaskMangling_data();
     void testGnuMakeParserTaskMangling();
 
+    void testXcodebuildParserParsing_data();
+    void testXcodebuildParserParsing();
+
     void testMsvcOutputParsers_data();
     void testMsvcOutputParsers();
 
@@ -270,30 +221,9 @@ private slots:
 
     void testDeviceManager();
 
-    void testCustomWizardPreprocessor_data();
-    void testCustomWizardPreprocessor();
+    void testToolChainManager_data();
+    void testToolChainManager();
 #endif
-
-private:
-    void deploy(QList<Project *>);
-    int queue(QList<Project *>, QList<Core::Id> stepIds);
-    void updateContextMenuActions();
-    bool parseArguments(const QStringList &arguments, QString *error);
-    void executeRunConfiguration(RunConfiguration *, RunMode mode);
-    bool hasBuildSettings(Project *pro);
-    QPair<bool, QString> buildSettingsEnabledForSession();
-    QPair<bool, QString> buildSettingsEnabled(Project *pro);
-    bool hasDeploySettings(Project *pro);
-
-    void setCurrent(Project *project, QString filePath, Node *node);
-
-    QStringList allFilesWithDependencies(Project *pro);
-    IRunControlFactory *findRunControlFactory(RunConfiguration *config, RunMode mode);
-
-    void addToRecentProjects(const QString &fileName, const QString &displayName);
-
-    static ProjectExplorerPlugin *m_instance;
-    ProjectExplorerPluginPrivate *d;
 };
 
 } // namespace ProjectExplorer

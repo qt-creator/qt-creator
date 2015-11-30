@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -152,14 +148,14 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
             endOffset = startOffset;
             if (publicMember->semicolonToken.isValid())
                 startOffset = publicMember->semicolonToken.offset;
-            replacement.prepend(QLatin1String(": "));
+            replacement.prepend(QStringLiteral(": "));
         }
     } else {
         return;
     }
 
     if (needsSemicolon)
-        replacement += ';';
+        replacement += QChar::fromLatin1(';');
 
     replace(startOffset, endOffset - startOffset, replacement);
     setDidRewriting(true);
@@ -207,6 +203,6 @@ void ChangePropertyVisitor::insertIntoArray(QmlJS::AST::UiArrayBinding *ast)
     const int insertionPoint = lastMember->lastSourceLocation().end();
     const int depth = calculateIndentDepth(lastMember->firstSourceLocation());
     const QString indentedArrayMember = addIndentation(m_value, depth);
-    replace(insertionPoint, 0, QLatin1String(",\n") + indentedArrayMember);
+    replace(insertionPoint, 0, QStringLiteral(",\n") + indentedArrayMember);
     setDidRewriting(true);
 }

@@ -55,23 +55,35 @@ SimpleSpecifierAST *SimpleSpecifierAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-AttributeSpecifierAST *AttributeSpecifierAST::clone(MemoryPool *pool) const
+AlignmentSpecifierAST *AlignmentSpecifierAST::clone(MemoryPool *pool) const
 {
-    AttributeSpecifierAST *ast = new (pool) AttributeSpecifierAST;
+    AlignmentSpecifierAST *ast = new (pool) AlignmentSpecifierAST;
+    ast->align_token = align_token;
+    ast->lparen_token = lparen_token;
+    if (typeIdExprOrAlignmentExpr)
+        ast->typeIdExprOrAlignmentExpr = typeIdExprOrAlignmentExpr->clone(pool);
+    ast->ellipses_token = ellipses_token;
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
+GnuAttributeSpecifierAST *GnuAttributeSpecifierAST::clone(MemoryPool *pool) const
+{
+    GnuAttributeSpecifierAST *ast = new (pool) GnuAttributeSpecifierAST;
     ast->attribute_token = attribute_token;
     ast->first_lparen_token = first_lparen_token;
     ast->second_lparen_token = second_lparen_token;
-    for (AttributeListAST *iter = attribute_list, **ast_iter = &ast->attribute_list;
+    for (GnuAttributeListAST *iter = attribute_list, **ast_iter = &ast->attribute_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) AttributeListAST((iter->value) ? iter->value->clone(pool) : 0);
+        *ast_iter = new (pool) GnuAttributeListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->first_rparen_token = first_rparen_token;
     ast->second_rparen_token = second_rparen_token;
     return ast;
 }
 
-AttributeAST *AttributeAST::clone(MemoryPool *pool) const
+GnuAttributeAST *GnuAttributeAST::clone(MemoryPool *pool) const
 {
-    AttributeAST *ast = new (pool) AttributeAST;
+    GnuAttributeAST *ast = new (pool) GnuAttributeAST;
     ast->identifier_token = identifier_token;
     ast->lparen_token = lparen_token;
     ast->tag_token = tag_token;
@@ -275,6 +287,7 @@ BaseSpecifierAST *BaseSpecifierAST::clone(MemoryPool *pool) const
     ast->access_specifier_token = access_specifier_token;
     if (name)
         ast->name = name->clone(pool);
+    ast->ellipsis_token = ellipsis_token;
     return ast;
 }
 
@@ -1254,6 +1267,15 @@ ThrowExpressionAST *ThrowExpressionAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+NoExceptOperatorExpressionAST *NoExceptOperatorExpressionAST::clone(MemoryPool *pool) const
+{
+    NoExceptOperatorExpressionAST *ast = new (pool) NoExceptOperatorExpressionAST;
+    ast->noexcept_token = noexcept_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    return ast;
+}
+
 TranslationUnitAST *TranslationUnitAST::clone(MemoryPool *pool) const
 {
     TranslationUnitAST *ast = new (pool) TranslationUnitAST;
@@ -1759,6 +1781,36 @@ BracedInitializerAST *BracedInitializerAST::clone(MemoryPool *pool) const
         *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->comma_token = comma_token;
     ast->rbrace_token = rbrace_token;
+    return ast;
+}
+
+DotDesignatorAST *DotDesignatorAST::clone(MemoryPool *pool) const
+{
+    DotDesignatorAST *ast = new (pool) DotDesignatorAST;
+    ast->dot_token = dot_token;
+    ast->identifier_token = identifier_token;
+    return ast;
+}
+
+BracketDesignatorAST *BracketDesignatorAST::clone(MemoryPool *pool) const
+{
+    BracketDesignatorAST *ast = new (pool) BracketDesignatorAST;
+    ast->lbracket_token = lbracket_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rbracket_token = rbracket_token;
+    return ast;
+}
+
+DesignatedInitializerAST *DesignatedInitializerAST::clone(MemoryPool *pool) const
+{
+    DesignatedInitializerAST *ast = new (pool) DesignatedInitializerAST;
+    for (DesignatorListAST *iter = designator_list, **ast_iter = &ast->designator_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) DesignatorListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->equal_token = equal_token;
+    if (initializer)
+        ast->initializer = initializer->clone(pool);
     return ast;
 }
 

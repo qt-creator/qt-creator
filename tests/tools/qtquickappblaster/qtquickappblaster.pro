@@ -14,6 +14,6 @@ SOURCES += \
     main.cpp \
     $$CREATORSOURCEDIR/tests/manual/appwizards/helpers.cpp
 INCLUDEPATH += $$APPSOURCEDIR
-OTHER_FILES = qtquickapps.xml
+DISTFILES = qtquickapps.xml
 RESOURCES += \
     qtquickappblaster.qrc

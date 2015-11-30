@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,6 +31,9 @@
 #include "applicationlauncher.h"
 #ifdef Q_OS_WIN
 #include "windebuginterface.h"
+#endif
+#ifdef WITH_JOURNALD
+#include "journaldwatcher.h"
 #endif
 
 #include <coreplugin/icore.h>
@@ -103,6 +107,8 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
             this, SLOT(processDone(int,QProcess::ExitStatus)));
     connect(&d->m_guiProcess, SIGNAL(started()),
             this, SLOT(bringToForeground()));
+    connect(&d->m_guiProcess, SIGNAL(error(QProcess::ProcessError)),
+            this, SIGNAL(error(QProcess::ProcessError)));
 
 #ifdef Q_OS_UNIX
     d->m_consoleProcess.setSettings(Core::ICore::settings());
@@ -113,12 +119,18 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
             this, SLOT(consoleProcessError(QString)));
     connect(&d->m_consoleProcess, SIGNAL(processStopped(int,QProcess::ExitStatus)),
             this, SLOT(processDone(int,QProcess::ExitStatus)));
+    connect(&d->m_consoleProcess, SIGNAL(error(QProcess::ProcessError)),
+            this, SIGNAL(error(QProcess::ProcessError)));
 
 #ifdef Q_OS_WIN
     connect(WinDebugInterface::instance(), SIGNAL(cannotRetrieveDebugOutput()),
             this, SLOT(cannotRetrieveDebugOutput()));
     connect(WinDebugInterface::instance(), SIGNAL(debugOutput(qint64,QString)),
-            this, SLOT(checkDebugOutput(qint64,QString)));
+            this, SLOT(checkDebugOutput(qint64,QString)), Qt::BlockingQueuedConnection);
+#endif
+#ifdef WITH_JOURNALD
+    connect(JournaldWatcher::instance(), &JournaldWatcher::journaldOutput,
+            this, &ApplicationLauncher::checkDebugOutput);
 #endif
 }
 
@@ -135,10 +147,20 @@ void ApplicationLauncher::setWorkingDirectory(const QString &dir)
     d->m_consoleProcess.setWorkingDirectory(fixedPath);
 }
 
+QString ApplicationLauncher::workingDirectory() const
+{
+    return d->m_guiProcess.workingDirectory();
+}
+
 void ApplicationLauncher::setEnvironment(const Utils::Environment &env)
 {
     d->m_guiProcess.setEnvironment(env);
     d->m_consoleProcess.setEnvironment(env);
+}
+
+void ApplicationLauncher::setProcessChannelMode(QProcess::ProcessChannelMode mode)
+{
+    d->m_guiProcess.setProcessChannelMode(mode);
 }
 
 void ApplicationLauncher::start(Mode mode, const QString &program, const QString &args)
@@ -184,20 +206,29 @@ bool ApplicationLauncher::isRunning() const
 
 qint64 ApplicationLauncher::applicationPID() const
 {
-    qint64 result = 0;
     if (!isRunning())
-        return result;
+        return 0;
 
-    if (d->m_currentMode == Console) {
-        result = d->m_consoleProcess.applicationPID();
-    } else {
-#ifdef Q_OS_WIN
-        result = (qint64)d->m_guiProcess.pid()->dwProcessId;
-#else
-        result = (qint64)d->m_guiProcess.pid();
-#endif
-    }
-    return result;
+    if (d->m_currentMode == Console)
+        return d->m_consoleProcess.applicationPID();
+    else
+        return d->m_guiProcess.processId();
+}
+
+QString ApplicationLauncher::errorString() const
+{
+    if (d->m_currentMode == Gui)
+        return d->m_guiProcess.errorString();
+    else
+        return d->m_consoleProcess.errorString();
+}
+
+QProcess::ProcessError ApplicationLauncher::processError() const
+{
+    if (d->m_currentMode == Gui)
+        return d->m_guiProcess.error();
+    else
+        return d->m_consoleProcess.error();
 }
 
 void ApplicationLauncher::guiProcessError()
@@ -253,13 +284,13 @@ void ApplicationLauncher::cannotRetrieveDebugOutput()
     disconnect(WinDebugInterface::instance(), 0, this, 0);
     emit appendMessage(msgWinCannotRetrieveDebuggingOutput(), Utils::ErrorMessageFormat);
 }
+#endif
 
 void ApplicationLauncher::checkDebugOutput(qint64 pid, const QString &message)
 {
     if (applicationPID() == pid)
         emit appendMessage(message, Utils::DebugFormat);
 }
-#endif
 
 void ApplicationLauncher::processDone(int exitCode, QProcess::ExitStatus status)
 {

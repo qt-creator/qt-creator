@@ -75,5 +75,3 @@ void %PluginName%Plugin::triggerAction()
                              tr("Action triggered"),
                              tr("This is an action from %PluginName%."));
 }
-
-Q_EXPORT_PLUGIN2(%PluginName%, %PluginName%Plugin)

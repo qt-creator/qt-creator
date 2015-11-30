@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/baremetal">
+        <file>images/QtBareMetal.png</file>
+    </qresource>
+</RCC>

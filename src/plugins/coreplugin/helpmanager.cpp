@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,7 +31,9 @@
 #include "helpmanager.h"
 
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/qtcassert.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -45,6 +48,8 @@
 #include <QSqlError>
 #include <QSqlQuery>
 
+static const char kUserDocumentationKey[] = "Help/UserDocumentation";
+
 namespace Core {
 
 struct HelpManagerPrivate
@@ -54,14 +59,20 @@ struct HelpManagerPrivate
     {}
 
     QStringList documentationFromInstaller();
+    void readSettings();
+    void writeSettings();
+    void cleanUpDocumentation();
 
     bool m_needsSetup;
     QHelpEngineCore *m_helpEngine;
     Utils::FileSystemWatcher *m_collectionWatcher;
 
-    QStringList m_filesToRegister;
-    QStringList m_nameSpacesToUnregister;
+    // data for delayed initialization
+    QSet<QString> m_filesToRegister;
+    QSet<QString> m_nameSpacesToUnregister;
     QHash<QString, QVariant> m_customValues;
+
+    QSet<QString> m_userRegisteredFiles;
 };
 
 static HelpManager *m_instance = 0;
@@ -86,20 +97,21 @@ struct DbCleaner
 HelpManager::HelpManager(QObject *parent) :
     QObject(parent)
 {
-    Q_ASSERT(!m_instance);
+    QTC_CHECK(!m_instance);
     m_instance = this;
     d = new HelpManagerPrivate;
 }
 
 HelpManager::~HelpManager()
 {
+    d->writeSettings();
     delete d->m_helpEngine;
     d->m_helpEngine = 0;
     m_instance = 0;
     delete d;
 }
 
-QObject *HelpManager::instance()
+HelpManager *HelpManager::instance()
 {
     Q_ASSERT(m_instance);
     return m_instance;
@@ -107,14 +119,15 @@ QObject *HelpManager::instance()
 
 QString HelpManager::collectionFilePath()
 {
-    return QDir::cleanPath(Core::ICore::userResourcePath()
+    return QDir::cleanPath(ICore::userResourcePath()
         + QLatin1String("/helpcollection.qhc"));
 }
 
 void HelpManager::registerDocumentation(const QStringList &files)
 {
     if (d->m_needsSetup) {
-        d->m_filesToRegister.append(files);
+        foreach (const QString &filePath, files)
+            d->m_filesToRegister.insert(filePath);
         return;
     }
 
@@ -151,22 +164,37 @@ void HelpManager::registerDocumentation(const QStringList &files)
 void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
 {
     if (d->m_needsSetup) {
-        d->m_nameSpacesToUnregister.append(nameSpaces);
+        foreach (const QString &name, nameSpaces)
+            d->m_nameSpacesToUnregister.insert(name);
         return;
     }
 
     bool docsChanged = false;
     foreach (const QString &nameSpace, nameSpaces) {
+        const QString filePath = d->m_helpEngine->documentationFileName(nameSpace);
         if (d->m_helpEngine->unregisterDocumentation(nameSpace)) {
             docsChanged = true;
+            d->m_userRegisteredFiles.remove(filePath);
         } else {
             qWarning() << "Error unregistering namespace '" << nameSpace
-                << "' from file '" << d->m_helpEngine->documentationFileName(nameSpace)
+                << "' from file '" << filePath
                 << "': " << d->m_helpEngine->error();
         }
     }
     if (docsChanged)
         emit m_instance->documentationChanged();
+}
+
+void HelpManager::registerUserDocumentation(const QStringList &filePaths)
+{
+    foreach (const QString &filePath, filePaths)
+        d->m_userRegisteredFiles.insert(filePath);
+    registerDocumentation(filePaths);
+}
+
+QSet<QString> HelpManager::userDocumentationPaths()
+{
+    return d->m_userRegisteredFiles;
 }
 
 static QUrl buildQUrl(const QString &ns, const QString &folder,
@@ -184,8 +212,7 @@ static QUrl buildQUrl(const QString &ns, const QString &folder,
 QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
 {
     QMap<QString, QUrl> links;
-    if (d->m_needsSetup)
-        return links;
+    QTC_ASSERT(!d->m_needsSetup, return links);
 
     const QLatin1String sqlite("QSQLITE");
     const QLatin1String name("HelpManager::linksForKeyword");
@@ -216,94 +243,48 @@ QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
 
 QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
 {
-    if (d->m_needsSetup)
-        return QMap<QString, QUrl>();
+    QMap<QString, QUrl> empty;
+    QTC_ASSERT(!d->m_needsSetup, return empty);
     return d->m_helpEngine->linksForIdentifier(id);
-}
-
-// This should go into Qt 4.8 once we start using it for Qt Creator
-QStringList HelpManager::findKeywords(const QString &key, Qt::CaseSensitivity caseSensitivity,
-                                      int maxHits)
-{
-    if (d->m_needsSetup)
-        return QStringList();
-
-    const QLatin1String sqlite("QSQLITE");
-    const QLatin1String name("HelpManager::findKeywords");
-
-    QSet<QString> keywords;
-    QSet<QString> keywordsToSort;
-
-    DbCleaner cleaner(name);
-    QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
-    if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
-        QHelpEngineCore core(collectionFilePath());
-        core.setAutoSaveFilter(false);
-        core.setCurrentFilter(tr("Unfiltered"));
-        core.setupData();
-        const QStringList &registeredDocs = core.registeredDocumentations();
-        foreach (const QString &nameSpace, registeredDocs) {
-            db.setDatabaseName(core.documentationFileName(nameSpace));
-            if (db.open()) {
-                QSqlQuery query = QSqlQuery(db);
-                query.setForwardOnly(true);
-                query.exec(QString::fromLatin1("SELECT DISTINCT Name FROM IndexTable WHERE Name LIKE "
-                    "'%%1%' LIMIT %2").arg(key, QString::number(maxHits)));
-                while (query.next()) {
-                    const QString &keyValue = query.value(0).toString();
-                    if (!keyValue.isEmpty()) {
-                        if (keyValue.startsWith(key, caseSensitivity))
-                            keywordsToSort.insert(keyValue);
-                        else
-                            keywords.insert(keyValue);
-                    }
-                }
-            }
-        }
-    }
-
-    QStringList keywordsSorted = keywordsToSort.toList();
-    qSort(keywordsSorted.begin(), keywordsSorted.end());
-    return keywordsSorted + keywords.toList();
 }
 
 QUrl HelpManager::findFile(const QUrl &url)
 {
-    if (d->m_needsSetup)
-        return QUrl();
+    QTC_ASSERT(!d->m_needsSetup, return QUrl());
     return d->m_helpEngine->findFile(url);
 }
 
 QByteArray HelpManager::fileData(const QUrl &url)
 {
-    if (d->m_needsSetup)
-        return QByteArray();
+    QTC_ASSERT(!d->m_needsSetup, return QByteArray());
     return d->m_helpEngine->fileData(url);
 }
 
-void HelpManager::handleHelpRequest(const QString &url)
+void HelpManager::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocation location)
 {
-    emit m_instance->helpRequested(QUrl(url));
+    emit m_instance->helpRequested(url, location);
+}
+
+void HelpManager::handleHelpRequest(const QString &url, HelpViewerLocation location)
+{
+    handleHelpRequest(QUrl(url), location);
 }
 
 QStringList HelpManager::registeredNamespaces()
 {
-    if (d->m_needsSetup)
-        return QStringList();
+    QTC_ASSERT(!d->m_needsSetup, return QStringList());
     return d->m_helpEngine->registeredDocumentations();
 }
 
 QString HelpManager::namespaceFromFile(const QString &file)
 {
-    if (d->m_needsSetup)
-        return QString();
+    QTC_ASSERT(!d->m_needsSetup, return QString());
     return d->m_helpEngine->namespaceName(file);
 }
 
 QString HelpManager::fileFromNamespace(const QString &nameSpace)
 {
-    if (d->m_needsSetup)
-        return QString();
+    QTC_ASSERT(!d->m_needsSetup, return QString());
     return d->m_helpEngine->documentationFileName(nameSpace);
 }
 
@@ -319,15 +300,13 @@ void HelpManager::setCustomValue(const QString &key, const QVariant &value)
 
 QVariant HelpManager::customValue(const QString &key, const QVariant &value)
 {
-    if (d->m_needsSetup)
-        return QVariant();
+    QTC_ASSERT(!d->m_needsSetup, return QVariant());
     return d->m_helpEngine->customValue(key, value);
 }
 
 HelpManager::Filters HelpManager::filters()
 {
-    if (d->m_needsSetup)
-        return Filters();
+    QTC_ASSERT(!d->m_needsSetup, return Filters());
 
     Filters filters;
     const QStringList &customFilters = d->m_helpEngine->customFilters();
@@ -339,8 +318,7 @@ HelpManager::Filters HelpManager::filters()
 HelpManager::Filters HelpManager::fixedFilters()
 {
     Filters fixedFilters;
-    if (d->m_needsSetup)
-        return fixedFilters;
+    QTC_ASSERT(!d->m_needsSetup, return fixedFilters);
 
     const QLatin1String sqlite("QSQLITE");
     const QLatin1String name("HelpManager::fixedCustomFilters");
@@ -367,8 +345,7 @@ HelpManager::Filters HelpManager::fixedFilters()
 
 HelpManager::Filters HelpManager::userDefinedFilters()
 {
-    if (d->m_needsSetup)
-        return Filters();
+    QTC_ASSERT(!d->m_needsSetup, return Filters());
 
     Filters all = filters();
     const Filters &fixed = fixedFilters();
@@ -379,8 +356,7 @@ HelpManager::Filters HelpManager::userDefinedFilters()
 
 void HelpManager::removeUserDefinedFilter(const QString &filter)
 {
-    if (d->m_needsSetup)
-        return;
+    QTC_ASSERT(!d->m_needsSetup, return);
 
     if (d->m_helpEngine->removeCustomFilter(filter))
         emit m_instance->collectionFileChanged();
@@ -388,8 +364,7 @@ void HelpManager::removeUserDefinedFilter(const QString &filter)
 
 void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList &attr)
 {
-    if (d->m_needsSetup)
-        return;
+    QTC_ASSERT(!d->m_needsSetup, return);
 
     if (d->m_helpEngine->addCustomFilter(filter, attr))
         emit m_instance->collectionFileChanged();
@@ -403,21 +378,26 @@ void HelpManager::setupHelpManager()
         return;
     d->m_needsSetup = false;
 
+    d->readSettings();
+
+    // create the help engine
     d->m_helpEngine = new QHelpEngineCore(collectionFilePath(), m_instance);
     d->m_helpEngine->setAutoSaveFilter(false);
     d->m_helpEngine->setCurrentFilter(tr("Unfiltered"));
     d->m_helpEngine->setupData();
-    verifyDocumenation();
+
+    foreach (const QString &filePath, d->documentationFromInstaller())
+        d->m_filesToRegister.insert(filePath);
+
+    d->cleanUpDocumentation();
 
     if (!d->m_nameSpacesToUnregister.isEmpty()) {
-        unregisterDocumentation(d->m_nameSpacesToUnregister);
+        unregisterDocumentation(d->m_nameSpacesToUnregister.toList());
         d->m_nameSpacesToUnregister.clear();
     }
 
-    d->m_filesToRegister << d->documentationFromInstaller();
-
     if (!d->m_filesToRegister.isEmpty()) {
-        registerDocumentation(d->m_filesToRegister);
+        registerDocumentation(d->m_filesToRegister.toList());
         d->m_filesToRegister.clear();
     }
 
@@ -430,18 +410,24 @@ void HelpManager::setupHelpManager()
 
 // -- private
 
-void HelpManager::verifyDocumenation()
+void HelpManagerPrivate::cleanUpDocumentation()
 {
-    const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
+    // mark documentation for removal for which there is no documentation file anymore
+    // mark documentation for removal that is neither user registered, nor marked for registration
+    const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
     foreach (const QString &nameSpace, registeredDocs) {
-        if (!QFileInfo(d->m_helpEngine->documentationFileName(nameSpace)).exists())
-            d->m_nameSpacesToUnregister.append(nameSpace);
+        const QString filePath = m_helpEngine->documentationFileName(nameSpace);
+        if (!QFileInfo::exists(filePath)
+                || (!m_filesToRegister.contains(filePath)
+                    && !m_userRegisteredFiles.contains(filePath))) {
+            m_nameSpacesToUnregister.insert(nameSpace);
+        }
     }
 }
 
 QStringList HelpManagerPrivate::documentationFromInstaller()
 {
-    QSettings *installSettings = Core::ICore::settings();
+    QSettings *installSettings = ICore::settings();
     QStringList documentationPaths = installSettings->value(QLatin1String("Help/InstalledDocumentation"))
             .toStringList();
     QStringList documentationFiles;
@@ -458,6 +444,18 @@ QStringList HelpManagerPrivate::documentationFromInstaller()
         }
     }
     return documentationFiles;
+}
+
+void HelpManagerPrivate::readSettings()
+{
+    m_userRegisteredFiles = ICore::settings()->value(QLatin1String(kUserDocumentationKey))
+            .toStringList().toSet();
+}
+
+void HelpManagerPrivate::writeSettings()
+{
+    const QStringList list = m_userRegisteredFiles.toList();
+    ICore::settings()->setValue(QLatin1String(kUserDocumentationKey), list);
 }
 
 }   // Core

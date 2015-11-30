@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -60,23 +61,23 @@ public:
 
 } // namespace Internal
 
-TextDocument::TextDocument(QObject *parent) :
+BaseTextDocument::BaseTextDocument(QObject *parent) :
     IDocument(parent), d(new Internal::TextDocumentPrivate)
 {
     setCodec(Core::EditorManager::defaultTextCodec());
 }
 
-TextDocument::~TextDocument()
+BaseTextDocument::~BaseTextDocument()
 {
     delete d;
 }
 
-bool TextDocument::hasDecodingError() const
+bool BaseTextDocument::hasDecodingError() const
 {
     return d->m_readResult == Utils::TextFileFormat::ReadEncodingError;
 }
 
-QByteArray TextDocument::decodingErrorSample() const
+QByteArray BaseTextDocument::decodingErrorSample() const
 {
     return d->m_decodingErrorSample;
 }
@@ -85,7 +86,7 @@ QByteArray TextDocument::decodingErrorSample() const
     Writes out text using the format obtained from the last read.
 */
 
-bool TextDocument::write(const QString &fileName, const QString &data, QString *errorMessage) const
+bool BaseTextDocument::write(const QString &fileName, const QString &data, QString *errorMessage) const
 {
     return write(fileName, format(), data, errorMessage);
 }
@@ -94,7 +95,7 @@ bool TextDocument::write(const QString &fileName, const QString &data, QString *
     Writes out text using a custom \a format.
 */
 
-bool TextDocument::write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const
+bool BaseTextDocument::write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << fileName;
@@ -105,7 +106,7 @@ bool TextDocument::write(const QString &fileName, const Utils::TextFileFormat &f
     Autodetects format and reads in the text file specified by \a fileName.
 */
 
-TextDocument::ReadResult TextDocument::read(const QString &fileName, QStringList *plainTextList, QString *errorString)
+BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QStringList *plainTextList, QString *errorString)
 {
     d->m_readResult =
         Utils::TextFileFormat::readFile(fileName, codec(),
@@ -117,7 +118,7 @@ TextDocument::ReadResult TextDocument::read(const QString &fileName, QStringList
     Autodetects format and reads in the text file specified by \a fileName.
 */
 
-TextDocument::ReadResult TextDocument::read(const QString &fileName, QString *plainText, QString *errorString)
+BaseTextDocument::ReadResult BaseTextDocument::read(const QString &fileName, QString *plainText, QString *errorString)
 {
     d->m_readResult =
         Utils::TextFileFormat::readFile(fileName, codec(),
@@ -125,19 +126,19 @@ TextDocument::ReadResult TextDocument::read(const QString &fileName, QString *pl
     return d->m_readResult;
 }
 
-const QTextCodec *TextDocument::codec() const
+const QTextCodec *BaseTextDocument::codec() const
 {
     return d->m_format.codec;
 }
 
-void TextDocument::setCodec(const QTextCodec *codec)
+void BaseTextDocument::setCodec(const QTextCodec *codec)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << (codec ? codec->name() : QByteArray());
     d->m_format.codec = codec;
 }
 
-void TextDocument::switchUtf8Bom()
+void BaseTextDocument::switchUtf8Bom()
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << "UTF-8 BOM: " << !d->m_format.hasUtf8Bom;
@@ -148,7 +149,7 @@ void TextDocument::switchUtf8Bom()
     Returns the format obtained from the last call to \c read().
 */
 
-Utils::TextFileFormat TextDocument::format() const
+Utils::TextFileFormat BaseTextDocument::format() const
 {
     return d->m_format;
 }

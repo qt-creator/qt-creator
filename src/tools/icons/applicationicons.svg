@@ -1,0 +1,2440 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="2120"
+   height="8985"
+   id="svg3397"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="applicationicons.svg"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs3399">
+    <linearGradient
+       id="linearGradient6827">
+      <stop
+         style="stop-color:#dadada;stop-opacity:1;"
+         offset="0"
+         id="stop6829" />
+      <stop
+         style="stop-color:#f9f9f9;stop-opacity:1;"
+         offset="1"
+         id="stop6831" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6819">
+      <stop
+         style="stop-color:#d5d5d5;stop-opacity:1;"
+         offset="0"
+         id="stop6821" />
+      <stop
+         style="stop-color:#f5f5f5;stop-opacity:1;"
+         offset="1"
+         id="stop6823" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6811">
+      <stop
+         style="stop-color:#e0e0e0;stop-opacity:1;"
+         offset="0"
+         id="stop6813" />
+      <stop
+         style="stop-color:#f6f6f6;stop-opacity:1;"
+         offset="1"
+         id="stop6815" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6801">
+      <stop
+         style="stop-color:#c1c1c1;stop-opacity:1;"
+         offset="0"
+         id="stop6803" />
+      <stop
+         style="stop-color:#f9f9f9;stop-opacity:1;"
+         offset="1"
+         id="stop6805" />
+    </linearGradient>
+    <filter
+       id="filter5469"
+       inkscape:label="bubble_shadow"
+       inkscape:menu="Shadows and Glows"
+       inkscape:menu-tooltip="Adds a colorizable drop shadow inside"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         id="feGaussianBlur5471"
+         stdDeviation="8"
+         result="result8" />
+      <feOffset
+         id="feOffset5473"
+         dx="0"
+         dy="0"
+         result="result11" />
+      <feComposite
+         id="feComposite5475"
+         in2="result11"
+         result="result6"
+         in="SourceGraphic"
+         operator="in" />
+      <feFlood
+         id="feFlood5477"
+         result="result10"
+         in="result6"
+         flood-opacity="1"
+         flood-color="rgb(12,75,102)" />
+      <feBlend
+         id="feBlend5479"
+         in2="result10"
+         mode="normal"
+         in="result6"
+         result="result12" />
+      <feComposite
+         id="feComposite5481"
+         in2="SourceGraphic"
+         result="result2"
+         operator="in" />
+    </filter>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4086">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3428"
+         id="use4088"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4101">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3865-2"
+         id="use4103"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+    </clipPath>
+    <filter
+       id="filter4131"
+       inkscape:label="Colorize"
+       inkscape:menu="Color"
+       inkscape:menu-tooltip="Blend image or object with a flood color and set lightness and contrast"
+       x="0"
+       y="0"
+       width="1"
+       height="1"
+       color-interpolation-filters="sRGB">
+      <feColorMatrix
+         id="feColorMatrix4133"
+         values="1"
+         in="SourceGraphic"
+         type="saturate"
+         result="result2" />
+      <feFlood
+         id="feFlood4135"
+         flood-color="rgb(62,106,190)"
+         flood-opacity="1"
+         result="result1" />
+      <feBlend
+         id="feBlend4137"
+         in2="result2"
+         mode="multiply"
+         in="result1"
+         result="result3" />
+      <feComposite
+         id="feComposite4139"
+         in2="SourceGraphic"
+         operator="in"
+         result="result4" />
+    </filter>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4156">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3380"
+         id="use4158"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4448">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3392"
+         id="use4450"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath5822">
+      <path
+         sodipodi:nodetypes="ccccccc"
+         inkscape:connector-curvature="0"
+         id="path5824"
+         d="m 26,-2221.8674 c 1,2 1,5 1,8 3,0 6,0 8,1 l 0,20 -22,0 0,-29 z"
+         style="fill:none;stroke:none" />
+    </clipPath>
+    <filter
+       id="filter6008"
+       inkscape:label="Drop Shadow"
+       color-interpolation-filters="sRGB">
+      <feFlood
+         id="feFlood6010"
+         flood-opacity="0.25"
+         flood-color="rgb(0,0,0)"
+         result="flood" />
+      <feComposite
+         id="feComposite6012"
+         in2="SourceGraphic"
+         in="flood"
+         operator="in"
+         result="composite1" />
+      <feGaussianBlur
+         id="feGaussianBlur6014"
+         stdDeviation="0.29999999999999999"
+         result="blur" />
+      <feOffset
+         id="feOffset6016"
+         dx="0"
+         dy="0.80000000000000004"
+         result="offset" />
+      <feComposite
+         id="feComposite6018"
+         in2="offset"
+         in="SourceGraphic"
+         operator="over"
+         result="composite2" />
+    </filter>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath6024">
+      <rect
+         style="fill:none;stroke:none"
+         id="rect6026"
+         width="87"
+         height="100"
+         x="225"
+         y="-5429" />
+    </clipPath>
+    <linearGradient
+       id="linearGradient4137-8-7">
+      <stop
+         style="stop-color:#b3b3b3;stop-opacity:1;"
+         offset="0"
+         id="stop4139-8-4" />
+      <stop
+         style="stop-color:#ededed;stop-opacity:1;"
+         offset="1"
+         id="stop4141-2-0" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4153-5-4">
+      <stop
+         style="stop-color:#d5d5d5;stop-opacity:1;"
+         offset="0"
+         id="stop4155-5-8" />
+      <stop
+         style="stop-color:#f1f1f1;stop-opacity:1;"
+         offset="1"
+         id="stop4157-1-8" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4145-1-4">
+      <stop
+         style="stop-color:#eeeeee;stop-opacity:1;"
+         offset="0"
+         id="stop4147-1-5" />
+      <stop
+         style="stop-color:#bfbfbf;stop-opacity:1;"
+         offset="1"
+         id="stop4149-5-5" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6827"
+       id="linearGradient5129"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-7905)"
+       x1="20"
+       y1="8643"
+       x2="165"
+       y2="8542" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6819"
+       id="linearGradient5587"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-7905)"
+       x1="71"
+       y1="8648"
+       x2="168"
+       y2="8539" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6811"
+       id="linearGradient6035"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-7905)"
+       x1="115"
+       y1="8655"
+       x2="167"
+       y2="8543" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4153-5-4"
+       id="linearGradient6926"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.0625,0,0,0.0625,-13.666671,67.80674)"
+       x1="600"
+       y1="8473.999"
+       x2="676"
+       y2="8427.999" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4145-1-4"
+       id="linearGradient8380"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.0625,0,0,0.0625,-13.666671,67.80674)"
+       x1="675"
+       y1="8412.999"
+       x2="668"
+       y2="8513.999" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6801"
+       id="linearGradient3451"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-7905)"
+       x1="169"
+       y1="8684"
+       x2="164"
+       y2="8547" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.022097087"
+     inkscape:cx="2835.2794"
+     inkscape:cy="8436.2293"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer3"
+     showgrid="true"
+     inkscape:window-width="1440"
+     inkscape:window-height="751"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:snap-grids="true"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3405"
+       empspacing="1"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="false"
+       dotted="true"
+       originx="0px"
+       originy="1.7e-005px" />
+    <inkscape:grid
+       type="xygrid"
+       id="grid3407"
+       empspacing="1"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="false"
+       spacingx="4px"
+       spacingy="4px"
+       originx="0px"
+       originy="1.7e-005px" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata3402">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="qt-logos"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,7932.6378)">
+    <g
+       transform="translate(0,452.36218)"
+       style="display:inline"
+       id="qt-logo-original">
+      <path
+         sodipodi:nodetypes="csccscc"
+         d="M 4.1536737,584.15961 C 2.984954,583.96692 2,584.82929 2,586.08492 l 0,13.80599 10.697724,-1.80033 C 13.435147,597.96263 14,597.09324 14,596.15458 l 0,-10.37845 z"
+         style="fill:#7ec242;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         id="logoBackground"
+         inkscape:connector-curvature="0" />
+      <path
+         sodipodi:nodetypes="cscscsccscccscscccsccczcccscc"
+         d="m 7.0072488,594.79983 c -0.015766,10e-4 -0.031029,0.002 -0.046394,0.002 -0.347749,0 -0.6126026,-0.24831 -0.7894394,-0.74949 -0.1875816,-0.52617 -0.2807197,-1.42237 -0.2807197,-2.68548 0,-1.30713 0.09585,-2.17056 0.2850879,-2.58716 0.1748787,-0.38227 0.425774,-0.5726 0.7520335,-0.5726 0.025807,0 0.052469,10e-4 0.079431,0.004 0.3521674,0.0309 0.6148619,0.27546 0.7904435,0.72805 0.1755314,0.45044 0.2618912,1.27125 0.2618912,2.46489 0,1.32962 -0.087213,2.22095 -0.2639498,2.6753 -0.1779414,0.45871 -0.4401841,0.69934 -0.7883849,0.72132 z m 0,-7.7315 c -0.1301423,-0.0152 -0.2565691,-0.0228 -0.3787281,-0.0228 -0.7635315,0 -1.3702595,0.298 -1.8052219,0.90418 -0.5152971,0.71826 -0.7773389,1.85092 -0.7773389,3.38573 0,1.42323 0.1914477,2.51162 0.5675147,3.25548 0.3705942,0.73232 0.9058243,1.1686 1.5922846,1.31491 0.1494226,0.72409 0.3825439,1.21362 0.6985607,1.46735 0.2387448,0.19213 0.5562176,0.28735 0.9485021,0.28735 0.1184937,0 0.2444185,-0.009 0.3764686,-0.0258 l 0.4485189,-0.0587 0,-0.98595 c -0.1355377,0.002 -0.2397967,0.009 -0.3574896,-0.002 -0.1176929,-0.0108 -0.232569,-0.0586 -0.3058243,-0.12423 -0.1309455,-0.11861 -0.2296066,-0.34287 -0.2946778,-0.67711 0.6456402,-0.22085 1.1174561,-0.69793 1.4266445,-1.42709 0.3038158,-0.71897 0.4542929,-1.69282 0.4542929,-2.93113 0,-1.3518 -0.2043012,-2.38107 -0.620385,-3.09928 -0.4237657,-0.73407 -1.0749289,-1.15775 -1.9731214,-1.2612"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         id="path3825"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 11.991386,594.35405 c -0.125222,0 -0.204452,-0.0395 -0.264803,-0.11961 -0.06708,-0.0875 -0.08641,-0.28229 -0.08641,-0.58505 l 0,-3.48029 0.903766,0.0447 0,-0.95217 -0.903766,-0.069 0,-1.51794 -0.879464,-0.0931 -0.358343,1.52517 -0.5697233,-0.0409 0,1.02043 0.4016733,0.0212 0,3.8578 c 0,0.50494 0.127983,0.87301 0.332937,1.10214 0.175833,0.19776 0.446059,0.29543 0.782762,0.29543 0.05031,0 0.103129,-0.002 0.157054,-0.007 0.371799,-0.0316 0.735615,-0.13236 1.137289,-0.30176 l 0,-0.87502 c -0.200837,0.1033 -0.429791,0.16217 -0.62144,0.17332 -0.01255,8e-4 -0.01953,10e-4 -0.03153,10e-4"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         id="path3817"
+         inkscape:connector-curvature="0" />
+      <rect
+         id="rect3865"
+         width="16"
+         height="16"
+         x="0"
+         y="584"
+         style="fill:none" />
+    </g>
+    <g
+       transform="translate(16,452.36218)"
+       style="display:inline"
+       id="qt-logo-16"
+       inkscape:label="#qtlogo-1"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         transform="matrix(1,0,0,1.0009915,0,-0.59733917)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#logoBackground"
+         id="use7459"
+         width="1"
+         height="1" />
+      <path
+         sodipodi:nodetypes="cscscsccscccscscccsccczccsccc"
+         d="m 7.0072488,594.93376 c -0.015766,10e-4 -0.031029,0.002 -0.046394,0.002 -0.347749,0 -0.6126026,-0.24831 -0.7894394,-0.74949 -0.1875816,-0.52617 -0.2807197,-1.5563 -0.2807197,-2.81941 0,-1.30713 0.09585,-2.28217 0.2850879,-2.69877 0.1748787,-0.38227 0.425774,-0.5726 0.7520335,-0.5726 0.025807,0 0.052469,10e-4 0.079431,0.004 0.3521674,0.0309 0.7041476,0.27546 0.8797292,0.72805 0.1755314,0.45044 0.2618912,1.38286 0.2618912,2.5765 0,1.32962 -0.087213,2.35488 -0.2639498,2.80923 -0.1779414,0.45871 -0.5294698,0.69934 -0.8776706,0.72132 z m 0,-7.86543 c -0.1301423,-0.0152 -0.2565691,-0.0228 -0.3787281,-0.0228 -0.7635315,0 -1.3702595,0.298 -1.8052219,0.90418 -0.5152971,0.71826 -0.7773389,1.85092 -0.7773389,3.38573 0,1.42323 0.1914477,2.51162 0.5675147,3.25548 0.3705942,0.73232 0.9058243,1.1686 1.5922846,1.31491 0.1494226,0.72409 0.5931273,1.57063 0.9091441,1.82436 0.2387448,0.19213 0.6678247,0.35431 1.0601092,0.35431 0.1184937,0 0.2444185,-0.009 0.3764686,-0.0258 L 9,598 9,597.01405 c -0.1355377,0.002 -0.2397967,0.009 -0.3574896,-0.002 C 8,597 7.6484375,596.28906 7.7198178,595.78674 c 0.6456402,-0.22085 1.2067418,-0.85261 1.5159302,-1.58177 0.3038158,-0.71897 0.4542929,-1.53814 0.4542929,-2.77645 0,-1.3518 -0.2043012,-2.38107 -0.620385,-3.09928 -0.4237657,-0.73407 -1.1642146,-1.15775 -2.0624071,-1.2612"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         id="path3825-4"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 12.37019,594.25934 c -0.125222,0 -0.204452,-0.0395 -0.264803,-0.11961 -0.06708,-0.0875 -0.08641,-0.28229 -0.08641,-0.58505 l 0,-3.48029 0.877443,-0.0399 0.02632,-0.86761 -0.903766,-0.069 0,-1.51794 -0.879464,-0.0931 -0.159469,1.52517 -0.768596,-0.0409 0,1.02043 0.600546,0.0212 0,3.8578 C 11,594 11.404388,594.80649 11.804687,594.95117 c 0.4003,0.14469 0.816798,0.17756 1.218472,0.008 l 0,-0.87502 c -0.200837,0.1033 -0.429791,0.16217 -0.62144,0.17332 -0.01255,8e-4 -0.01953,10e-4 -0.03153,10e-4"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         id="path3817-0"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccsccccccccccczcccc" />
+      <rect
+         id="rect3865-9"
+         width="16"
+         height="16"
+         x="0"
+         y="584"
+         style="fill:none" />
+    </g>
+    <g
+       id="qt-logo-24"
+       style="display:inline"
+       transform="matrix(1.5,0,0,1.5,32,152.36218)"
+       inkscape:label="#g3454"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         transform="matrix(1,0,0,0.99966082,0,0.20131125)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#logoBackground"
+         id="use7459-1"
+         width="1"
+         height="1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3458"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 7.0072488,594.79983 c -0.015766,10e-4 -0.031029,0.002 -0.046394,0.002 -0.347749,0 -0.6126026,-0.24831 -0.7894394,-0.74949 -0.1875816,-0.52617 -0.2807197,-1.42237 -0.2807197,-2.68548 0,-1.30713 0.09585,-2.17056 0.2850879,-2.58716 0.1748787,-0.38227 0.425774,-0.5726 0.7520335,-0.5726 0.025807,0 0.052469,10e-4 0.079431,0.004 0.3521674,0.0309 0.6148619,0.27546 0.7904435,0.72805 0.1755314,0.45044 0.2618912,1.27125 0.2618912,2.46489 0,1.32962 -0.087213,2.22095 -0.2639498,2.6753 -0.1779414,0.45871 -0.4401841,0.69934 -0.7883849,0.72132 z m 0,-7.7315 c -0.1301423,-0.0152 -0.2565691,-0.0228 -0.3787281,-0.0228 -0.7635315,0 -1.3702595,0.298 -1.8052219,0.90418 -0.5152971,0.71826 -0.7773389,1.85092 -0.7773389,3.38573 0,1.42323 0.1914477,2.51162 0.5675147,3.25548 0.3705942,0.73232 0.9058243,1.1686 1.5922846,1.31491 0.1494226,0.72409 0.3825439,1.21362 0.6985607,1.46735 0.5886123,0.35936 1.165115,0.31057 1.7623468,0.25495 l 0,-0.98595 c -0.1355377,0.002 -0.2286539,0.009 -0.3463468,-0.002 -0.1176929,-0.0108 -0.232569,-0.0586 -0.3058243,-0.12423 -0.1309455,-0.11861 -0.2296066,-0.39495 -0.2946778,-0.72919 0.6456402,-0.22085 1.1174561,-0.69793 1.4266445,-1.42709 0.3038158,-0.71897 0.4542929,-1.69282 0.4542929,-2.93113 0,-1.3518 -0.2043012,-2.38107 -0.620385,-3.09928 -0.4237657,-0.73407 -1.0749289,-1.15775 -1.9731214,-1.2612"
+         sodipodi:nodetypes="cscscsccscccscsccccczcccsccc" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3460"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 12.324719,594.38351 c -0.125222,0 -0.204452,-0.0395 -0.264803,-0.11961 -0.06708,-0.0875 -0.05762,-0.2823 -0.05992,-0.58505 l 0,-3.49071 0.877272,0.0447 0,-0.848 -0.877272,-0.069 -0.08928,-1.72453 -1.096733,-0.0959 -0.130364,1.80824 -0.7331222,-0.0409 0,0.81314 0.7161702,0.0603 0,3.78488 c -0.01188,0.98061 0.402577,1.3508 0.840405,1.43476 0.437828,0.084 1.091254,-0.1029 1.492928,-0.2723 l 0,-0.87502 c -0.200837,0.1033 -0.452097,0.16217 -0.643746,0.17332 -0.01255,8e-4 -0.01953,10e-4 -0.03153,10e-4"
+         sodipodi:nodetypes="ccsccccccccccczcccc" />
+      <rect
+         style="fill:none"
+         y="584"
+         x="0"
+         height="16"
+         width="16"
+         id="rect3462" />
+    </g>
+    <g
+       id="qt-logo-32"
+       style="display:inline"
+       transform="matrix(2,0,0,2,56,-147.63782)"
+       inkscape:label="#g3464"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         transform="matrix(1,0,0,0.9996608,0,0.20162485)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#logoBackground"
+         id="use7459-1-7"
+         width="1"
+         height="1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3468"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 7.0072488,594.79983 c -0.015766,10e-4 -0.031029,0.002 -0.046394,0.002 -0.347749,0 -0.6126026,-0.24831 -0.7894394,-0.74949 -0.1875816,-0.52617 -0.2807197,-1.42237 -0.2807197,-2.68548 0,-1.30713 0.09585,-2.17056 0.2850879,-2.58716 0.1748787,-0.38227 0.425774,-0.5726 0.7520335,-0.5726 0.025807,0 0.052469,10e-4 0.079431,0.004 0.3521674,0.0309 0.6148619,0.27546 0.7904435,0.72805 0.1755314,0.45044 0.2618912,1.27125 0.2618912,2.46489 0,1.32962 -0.087213,2.22095 -0.2639498,2.6753 -0.1779414,0.45871 -0.4401841,0.69934 -0.7883849,0.72132 z m 0,-7.7315 c -0.1301423,-0.0152 -0.2565691,-0.0228 -0.3787281,-0.0228 -0.7635315,0 -1.3702595,0.298 -1.8052219,0.90418 -0.5152971,0.71826 -0.7773389,1.85092 -0.7773389,3.38573 0,1.42323 0.1914477,2.51162 0.5675147,3.25548 0.3705942,0.73232 0.9058243,1.1686 1.5922846,1.31491 0.1494226,0.72409 0.3825439,1.21362 0.6985607,1.46735 0.2387448,0.19213 0.3904894,0.21553 0.7827739,0.21553 0.1184937,0 0.2444185,-0.009 0.3764686,-0.0258 l 0.4485189,-0.0587 0,-0.98595 c -0.1355377,0.002 -0.2397967,0.009 -0.3574896,-0.002 -0.1176929,-0.0108 -0.3209573,0.008 -0.3942126,-0.0579 -0.1309455,-0.11861 -0.2442238,-0.2201 -0.1952409,-0.52242 0.6456402,-0.22085 1.2721357,-0.84709 1.5813241,-1.57625 0.3038158,-0.71897 0.4542929,-1.69282 0.4542929,-2.93113 0,-1.3518 -0.2043012,-2.38107 -0.620385,-3.09928 -0.4237657,-0.73407 -1.0749289,-1.15775 -1.9731214,-1.2612"
+         sodipodi:nodetypes="cscscsccscccscscccsccczcccsccc" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3470"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 11.853557,594.61921 c -0.125222,0 -0.204452,-0.0395 -0.264803,-0.11961 -0.06708,-0.0875 -0.08641,-0.28229 -0.08641,-0.58505 l 0,-3.92223 0.903766,0.0447 0,-0.95217 -0.903766,-0.069 0,-1.34116 -0.741635,-0.0931 -0.292052,1.34839 -0.6360143,-0.0409 0,1.02043 0.4679643,0.0212 0,4.29974 c 0,0.50494 0.127983,0.87301 0.332937,1.10214 0.175833,0.19776 0.379768,0.29543 0.716471,0.29543 0.05031,0 0.103129,-0.002 0.157054,-0.007 0.371799,-0.0316 0.614081,-0.13236 1.015755,-0.30176 l -0.137829,-0.87502 c -0.200837,0.1033 -0.308257,0.16217 -0.499906,0.17332 -0.01255,8e-4 -0.01953,10e-4 -0.03153,10e-4"
+         sodipodi:nodetypes="ccsccccccccccscsccccc" />
+      <rect
+         style="fill:none"
+         y="584"
+         x="0"
+         height="16"
+         width="16"
+         id="rect3472" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qt-logo-24"
+       id="qt-logo-48"
+       transform="matrix(2,0,0,2,24,-1052.3622)"
+       width="1920"
+       height="1080"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qt-logo-128"
+       id="qt-logo-64"
+       transform="matrix(0.5,0,0,0.5,-54,526.18085)"
+       width="1920"
+       height="1080"
+       inkscape:label="#use3476"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qt-logo-original"
+       id="qt-logo-80"
+       transform="matrix(5,0,0,5,200,-4209.4487)"
+       width="1920"
+       height="1080"
+       inkscape:label="#use3478"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       id="qt-logo-100"
+       style="display:inline"
+       transform="matrix(6.25,0,0,6.25,280,-2697.6378)"
+       inkscape:label="#use3480"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         transform="matrix(1,0,0,1.0000012,-0.08,-7.6129842e-4)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#logoBackground"
+         id="use7459-1-0"
+         width="1"
+         height="1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3497"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 7.0072488,594.79983 c -0.015766,10e-4 -0.031029,0.002 -0.046394,0.002 -0.347749,0 -0.6126026,-0.24831 -0.7894394,-0.74949 -0.1875816,-0.52617 -0.2807197,-1.42237 -0.2807197,-2.68548 0,-1.30713 0.09585,-2.17056 0.2850879,-2.58716 0.1748787,-0.38227 0.425774,-0.5726 0.7520335,-0.5726 0.025807,0 0.052469,10e-4 0.079431,0.004 0.3521674,0.0309 0.6148619,0.27546 0.7904435,0.72805 0.1755314,0.45044 0.2618912,1.27125 0.2618912,2.46489 0,1.32962 -0.087213,2.22095 -0.2639498,2.6753 -0.1779414,0.45871 -0.4401841,0.69934 -0.7883849,0.72132 z m 0,-7.7315 c -0.1301423,-0.0152 -0.2565691,-0.0228 -0.3787281,-0.0228 -0.7635315,0 -1.3702595,0.298 -1.8052219,0.90418 -0.5152971,0.71826 -0.7773389,1.85092 -0.7773389,3.38573 0,1.42323 0.1914477,2.51162 0.5675147,3.25548 0.3705942,0.73232 0.9058243,1.1686 1.5922846,1.31491 0.1494226,0.72409 0.3825439,1.21362 0.6985607,1.46735 0.2387448,0.19213 0.5562176,0.28735 0.9485021,0.28735 0.1184937,0 0.2444185,-0.009 0.3764686,-0.0258 l 0.4110189,-0.0587 0,-0.93845 c -0.1355377,0.002 -0.2022967,0.009 -0.3199896,-0.002 -0.1176929,-0.0108 -0.232569,-0.0586 -0.3058243,-0.12423 -0.1309455,-0.11861 -0.2296066,-0.39037 -0.2946778,-0.72461 0.6456402,-0.22085 1.1174561,-0.69793 1.4266445,-1.42709 0.3038158,-0.71897 0.4542929,-1.69282 0.4542929,-2.93113 0,-1.3518 -0.2043012,-2.38107 -0.620385,-3.09928 -0.4237657,-0.73407 -1.0749289,-1.15775 -1.9731214,-1.2612"
+         sodipodi:nodetypes="cscscsccscccscscccsccczcccsccc" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3499"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 11.991386,594.35405 c -0.125222,0 -0.204452,-0.0395 -0.264803,-0.11961 -0.06708,-0.0875 -0.04658,-0.28229 -0.04658,-0.58505 l 0,-3.48029 0.799997,0.0647 0,-0.95217 -0.799997,-0.089 0,-1.51794 -0.95995,-0.1532 -0.317684,1.58527 -0.642369,-0.0584 0,1.02043 0.480003,0.0387 0,3.8578 c 0,0.50494 0.122299,0.87301 0.327253,1.10214 0.175833,0.19776 0.446059,0.29543 0.782762,0.29543 0.05031,0 0.103129,-0.002 0.157054,-0.007 0.371799,-0.0316 0.735615,-0.13236 1.137289,-0.30176 l 0,-0.87502 c -0.200837,0.1033 -0.429791,0.16217 -0.62144,0.17332 -0.01255,8e-4 -0.01953,10e-4 -0.03153,10e-4"
+         sodipodi:nodetypes="ccsccccccccccscsccccc" />
+      <rect
+         style="fill:none"
+         y="584"
+         x="0"
+         height="16"
+         width="16"
+         id="rect3501" />
+    </g>
+    <g
+       id="qt-logo-128"
+       style="display:inline"
+       transform="matrix(8,0,0,8,380,-3747.6379)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         transform="matrix(1,0,0,1.0000019,0,-0.00113593)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#logoBackground"
+         id="use7459-1-0-9"
+         width="1"
+         height="1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4813"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 7.0072488,594.79983 c -0.015766,10e-4 -0.031029,0.002 -0.046394,0.002 -0.347749,0 -0.6126026,-0.24831 -0.7894394,-0.74949 -0.1875816,-0.52617 -0.2807197,-1.42237 -0.2807197,-2.68548 0,-1.30713 0.09585,-2.17056 0.2850879,-2.58716 0.1748787,-0.38227 0.425774,-0.5726 0.7520335,-0.5726 0.025807,0 0.052469,10e-4 0.079431,0.004 0.3521674,0.0309 0.6148619,0.27546 0.7904435,0.72805 0.1755314,0.45044 0.2618912,1.27125 0.2618912,2.46489 0,1.32962 -0.087213,2.22095 -0.2639498,2.6753 -0.1779414,0.45871 -0.4401841,0.69934 -0.7883849,0.72132 z m 0,-7.7315 c -0.1301423,-0.0152 -0.2565691,-0.0228 -0.3787281,-0.0228 -0.7635315,0 -1.3702595,0.298 -1.8052219,0.90418 -0.5152971,0.71826 -0.7773389,1.85092 -0.7773389,3.38573 0,1.42323 0.1914477,2.51162 0.5675147,3.25548 0.3705942,0.73232 0.9058243,1.1686 1.5922846,1.31491 0.1494226,0.72409 0.3825439,1.21362 0.6985607,1.46735 0.2387448,0.19213 0.5562176,0.28735 0.9485021,0.28735 0.1184937,0 0.2444185,-0.009 0.3764686,-0.0258 l 0.4582094,-0.0587 0,-0.98595 c -0.1355377,0.002 -0.2494872,0.009 -0.3671801,-0.002 -0.1176929,-0.0108 -0.232569,-0.0586 -0.3058243,-0.12423 -0.1309455,-0.11861 -0.2296066,-0.34287 -0.2946778,-0.67711 0.6456402,-0.22085 1.1174561,-0.69793 1.4266445,-1.42709 0.3038158,-0.71897 0.4542929,-1.69282 0.4542929,-2.93113 0,-1.3518 -0.2043012,-2.38107 -0.620385,-3.09928 -0.4237657,-0.73407 -1.0749289,-1.15775 -1.9731214,-1.2612"
+         sodipodi:nodetypes="cscscsccscccscscccsccczcccsccc" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4815"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 11.991386,594.35405 c -0.125222,0 -0.204452,-0.0395 -0.264803,-0.11961 -0.06708,-0.0875 -0.102903,-0.28229 -0.101583,-0.58505 l 0,-3.48029 0.875,0.033 0,-0.95217 -0.875,-0.0573 0,-1.51794 -0.864291,-0.0931 -0.358343,1.52517 -0.589866,-0.0409 0,1.02043 0.4375,0.0212 0,3.8578 c 0,0.50494 0.112299,0.87301 0.317253,1.10214 0.175833,0.19776 0.446059,0.29543 0.782762,0.29543 0.05031,0 0.103129,-0.002 0.157054,-0.007 0.371799,-0.0316 0.716257,-0.13236 1.117931,-0.30176 l 0,-0.87502 c -0.200837,0.1033 -0.410433,0.16217 -0.602082,0.17332 -0.01255,8e-4 -0.01953,10e-4 -0.03153,10e-4"
+         sodipodi:nodetypes="ccsccccccccccscsccccc" />
+      <rect
+         style="fill:none"
+         y="584"
+         x="0"
+         height="16"
+         width="16"
+         id="rect4817" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qt-logo-128"
+       id="qt-logo-256"
+       transform="matrix(2,0,0,2,-252,-1052.3636)"
+       width="1920"
+       height="1080"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       inkscape:label="#use3503" />
+    <use
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       x="0"
+       y="0"
+       xlink:href="#qt-logo-128"
+       id="qt-logo-512"
+       transform="matrix(4,0,0,4,-756,-3157.0892)"
+       width="1920"
+       height="1080"
+       inkscape:label="#use4651"
+       style="fill:#d45500" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="qt-appicons"
+     transform="translate(0,7905)">
+    <g
+       id="qt-logo-appicon-16">
+      <use
+         transform="matrix(0.91666667,0,0,0.9166644,15.166667,-150.94164)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#logoBackground"
+         id="use7459-1-0-9-4"
+         width="1"
+         height="1" />
+      <path
+         sodipodi:nodetypes="zzzzzscsccccccsccc"
+         d="m 20.300844,391.14367 c -0.02247,-1.15548 0.208685,-2.81252 1.251898,-2.85426 1.043209,-0.0417 1.178467,1.77211 1.204997,2.88867 0.02653,1.11656 -0.200425,3.01824 -1.23895,3.0453 -1.038495,0.027 -1.195476,-1.92423 -1.217945,-3.07971 z m 1.289134,-4.06549 c -0.119297,-0.0139 -0.235188,-0.0209 -0.347167,-0.0209 -0.699904,0 -1.256072,0.28879 -1.654787,0.84445 -0.472356,0.65841 -0.712561,1.80606 -0.712561,3.21297 0,1.30462 0.175494,2.30231 0.520222,2.98419 0.339711,0.67129 0.830339,1.07121 1.459594,1.20533 C 21.171655,396.73747 22,397 23,397 l 0,-1 c -0.637557,0.004 -0.835538,-0.31475 -0.889417,-0.84373 0.591837,-0.20244 1.156918,-0.60109 1.440341,-1.26949 0.278498,-0.65906 0.416435,-1.55175 0.416435,-2.68687 0,-1.23915 -0.187276,-2.29203 -0.568686,-2.95039 -0.388452,-0.67289 -0.985352,-1.07689 -1.808695,-1.17172"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         id="path3825-1"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 26,393.44856 0,-3.40301 0.805901,-0.0215 0,-0.87283 L 26,389.15052 26,388 l -0.719351,0 -0.328481,1.07185 -0.772247,-0.0375 0,0.93539 0.820079,0.0194 0,3.74905 c 0.172155,1.52562 0.884857,1.48957 1.978298,1.15318 l 0,-0.8021 C 26.75563,394.31896 25.92348,393.99389 26,393.44856 z"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         id="path3817-5"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccccccccc" />
+    </g>
+    <rect
+       style="fill:none"
+       y="384"
+       x="16"
+       height="16"
+       width="16"
+       id="rect3865-2" />
+    <g
+       id="qt-logo-appicon-24"
+       transform="matrix(1.4545455,0,0,1.4545455,8.2727273,-182.29129)"
+       inkscape:label="#g3372">
+      <use
+         transform="matrix(0.91666664,0,0,0.91666834,15.166666,-150.94388)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#logoBackground"
+         id="use7459-1-0-9-4-8"
+         width="1"
+         height="1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3376"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 21.589978,394.29039 c -0.01445,9.1e-4 -0.02844,0.002 -0.04253,0.002 -0.31877,0 -0.561552,-0.22762 -0.723653,-0.68703 -0.171949,-0.48232 -0.343263,-1.30384 -0.343263,-2.46169 0,-1.1982 0.173797,-1.98968 0.347267,-2.37157 0.160306,-0.35041 0.390293,-0.52488 0.689365,-0.52488 0.02366,0 0.0481,9.2e-4 0.07281,0.004 0.32282,0.0283 0.563623,0.2525 0.724573,0.66738 0.160904,0.4129 0.347489,1.16531 0.347489,2.25948 0,1.21882 -0.187372,2.03587 -0.349376,2.45236 -0.163113,0.42048 -0.403502,0.64106 -0.722686,0.66121 z m 0,-7.08721 c -0.119297,-0.0139 -0.235188,-0.0209 -0.347167,-0.0209 -0.699904,0 -1.127166,0.27317 -1.525881,0.82883 -0.472356,0.65841 -0.712561,1.69668 -0.712561,3.10359 0,1.30462 0.175494,2.30231 0.520222,2.98419 0.339711,0.67129 0.701433,1.07121 1.330688,1.20533 0.295978,1.41105 1.113971,1.73251 2.33222,1.57405 l 0,-1.02196 c -0.605719,0.0443 -1.252019,0.11252 -1.180661,-0.55395 0.591837,-0.20244 1.260663,-0.74718 1.544086,-1.41558 0.278498,-0.65906 0.416435,-1.55175 0.416435,-2.68687 0,-1.23915 -0.187276,-2.18265 -0.568686,-2.84101 -0.388452,-0.67289 -0.985352,-1.06127 -1.808695,-1.1561"
+         sodipodi:nodetypes="cscscsccscccscsccccccsccc" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3378"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 25.937499,390.01275 0.6875,0 0.0054,-0.83126 -0.692865,-0.031 5e-6,-1.20027 -1.063476,0 -0.17186,1.1216 -0.522247,-0.0375 0,0.93539 0.382578,0.0194 0,3.88006 c 0.04645,1.28969 1.468228,1.10644 2.062465,0.9985 l 0,-0.8021 c -0.522544,0.24791 -0.708596,-0.15699 -0.6875,-0.43429 z"
+         sodipodi:nodetypes="ccccccccccccccc" />
+    </g>
+    <rect
+       id="rect3380"
+       width="24"
+       height="24"
+       x="32"
+       y="376"
+       style="fill:none" />
+    <g
+       id="qt-logo-appicon-32"
+       transform="matrix(2,0,0,2,24,-400)"
+       inkscape:label="#g3384">
+      <use
+         transform="matrix(0.91666667,0,0,0.9166644,15.166667,-150.94164)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#logoBackground"
+         id="use7459-1-0-9-4-8-8"
+         width="1"
+         height="1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3388"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 21.589978,394.29039 c -0.01445,9.1e-4 -0.02844,0.002 -0.04253,0.002 -0.31877,0 -0.561552,-0.22762 -0.723653,-0.68703 -0.171949,-0.48232 -0.257326,-1.30384 -0.257326,-2.46169 0,-1.1982 0.08786,-1.98968 0.26133,-2.37157 0.160306,-0.35041 0.390293,-0.52488 0.689365,-0.52488 0.02366,0 0.0481,9.2e-4 0.07281,0.004 0.32282,0.0283 0.563623,0.2525 0.724573,0.66738 0.160904,0.4129 0.240067,1.16531 0.240067,2.25948 0,1.21882 -0.07995,2.03587 -0.241954,2.45236 -0.163113,0.42048 -0.403502,0.64106 -0.722686,0.66121 z m 0,-7.08721 c -0.119297,-0.0139 -0.235188,-0.0209 -0.347167,-0.0209 -0.699904,0 -1.134978,0.27317 -1.533693,0.82883 -0.472356,0.65841 -0.712561,1.69668 -0.712561,3.10359 0,1.30462 0.175494,2.30231 0.520222,2.98419 0.339711,0.67129 0.709245,1.07121 1.3385,1.20533 0.09711,1.28799 0.762447,1.6878 2.144721,1.69578 l 0,-1 c -0.668703,0.0733 -0.812175,-0.2735 -0.756834,-0.80506 0.591837,-0.20244 1.024335,-0.63976 1.307758,-1.30816 0.278498,-0.65906 0.416435,-1.55175 0.416435,-2.68687 0,-1.23915 -0.187276,-2.18265 -0.568686,-2.84101 -0.388452,-0.67289 -0.985352,-1.06127 -1.808695,-1.1561"
+         sodipodi:nodetypes="cscscsccscccscsccccccsccc" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3390"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="M 26,393.23582 26,390 l 0.665276,0 0,-0.88003 L 26,389.05677 l 0,-1.12581 -1,-0.0247 -0.297832,1.07185 -0.522247,-0.0375 0,1.02914 0.320079,0.0194 0,3.53631 c 0.104915,1.50418 0.95743,1.84135 2,1.47455 l 0,-0.71875 c -0.5,0 -0.644902,-0.5143 -0.5,-1.04543 z"
+         sodipodi:nodetypes="ccccccccccccccc" />
+    </g>
+    <rect
+       id="rect3392"
+       width="32"
+       height="32"
+       x="56"
+       y="368"
+       style="fill:none" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qt-logo-appicon-24"
+       id="qt-logo-appicon-48"
+       transform="matrix(2,0,0,2,25,-399.14839)"
+       width="1920"
+       height="1080" />
+    <rect
+       style="fill:none"
+       y="352"
+       x="88"
+       height="48"
+       width="48"
+       id="rect3404" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qt-logo-appicon-128"
+       id="qt-logo-appicon-64"
+       transform="matrix(0.5,0,0,0.5,36,200)"
+       width="1920"
+       height="1080" />
+    <rect
+       id="rect3416"
+       width="64"
+       height="64"
+       x="136"
+       y="336"
+       style="fill:none" />
+    <g
+       id="qt-logo-appicon-128"
+       transform="matrix(8,0,0,8,72,-2800)"
+       inkscape:label="#g3420">
+      <use
+         transform="matrix(0.91666667,0,0,0.9166644,15.166667,-150.94139)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#logoBackground"
+         id="use7459-1-0-9-4-8-8-5"
+         width="1"
+         height="1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3424"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 21.589978,394.29039 c -0.01445,9.1e-4 -0.02844,0.002 -0.04253,0.002 -0.31877,0 -0.561552,-0.22762 -0.723653,-0.68703 -0.171949,-0.48232 -0.257326,-1.30384 -0.257326,-2.46169 0,-1.1982 0.08786,-1.98968 0.26133,-2.37157 0.160306,-0.35041 0.390293,-0.52488 0.689365,-0.52488 0.02366,0 0.0481,9.2e-4 0.07281,0.004 0.32282,0.0283 0.563623,0.2525 0.724573,0.66738 0.160904,0.4129 0.240067,1.16531 0.240067,2.25948 0,1.21882 -0.07995,2.03587 -0.241954,2.45236 -0.163113,0.42048 -0.403502,0.64106 -0.722686,0.66121 z m 0,-7.08721 c -0.119297,-0.0139 -0.235188,-0.0209 -0.347167,-0.0209 -0.699904,0 -1.256072,0.27317 -1.654787,0.82883 -0.472356,0.65841 -0.712561,1.69668 -0.712561,3.10359 0,1.30462 0.175494,2.30231 0.520222,2.98419 0.339711,0.67129 0.830339,1.07121 1.459594,1.20533 0.136971,0.66375 0.350665,1.11249 0.640348,1.34507 0.218849,0.17612 0.509866,0.26341 0.86946,0.26341 0.108619,0 0.22405,-0.008 0.345096,-0.0236 l 0.539817,-0.0538 0,-0.90379 c -0.124243,0.002 -0.348488,0.008 -0.456373,-0.002 -0.107886,-0.01 -0.213189,-0.0537 -0.280339,-0.11388 -0.120034,-0.10873 -0.210473,-0.3143 -0.270122,-0.62069 0.591837,-0.20244 1.024335,-0.63976 1.307758,-1.30816 0.278498,-0.65906 0.416435,-1.55175 0.416435,-2.68687 0,-1.23915 -0.187276,-2.18265 -0.568686,-2.84101 -0.388452,-0.67289 -0.985352,-1.06127 -1.808695,-1.1561"
+         sodipodi:nodetypes="cscscsccscccscscccsccczcccsccc" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3426"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         d="m 26.033771,393.88176 c -0.114787,0 -0.154269,-0.0362 -0.209591,-0.10965 -0.06149,-0.0802 -0.07962,-0.25881 -0.07418,-0.53629 l 0,-3.19027 0.75,0.0143 0,-0.83416 -0.75,-0.0366 0,-1.43011 -0.75,-0.13398 -0.297832,1.48552 -0.639668,-0.0485 0,0.89672 0.4375,0.0305 0,3.53631 c 0,0.46286 0.16544,0.80026 0.353314,1.0103 0.161181,0.18128 0.408888,0.27081 0.717532,0.27081 0.04612,0 0.09453,-0.002 0.143966,-0.006 0.340816,-0.029 0.666987,-0.12133 1.035188,-0.27661 l 0,-0.8021 c -0.1841,0.0947 -0.511648,0.14865 -0.687326,0.15887 -0.0115,7.4e-4 -0.0179,9.2e-4 -0.0289,9.2e-4"
+         sodipodi:nodetypes="ccsccccccccccscsccccc" />
+    </g>
+    <rect
+       id="rect3428"
+       width="128"
+       height="128"
+       x="200"
+       y="272"
+       style="fill:none" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qt-logo-appicon-128"
+       id="use3458"
+       transform="matrix(2,0,0,2,-72,-400)"
+       width="1920"
+       height="1080"
+       qt-logo-appicon-256="#qt-logo-appicon-128" />
+    <rect
+       id="rect3440"
+       width="256"
+       height="256"
+       x="328"
+       y="144"
+       style="fill:none" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qt-logo-appicon-128"
+       id="qt-logo-appicon-512"
+       transform="matrix(4,0,0,4,-216,-1200)"
+       width="1920"
+       height="1080" />
+    <rect
+       id="rect3452"
+       width="512"
+       height="512"
+       x="584"
+       y="-112"
+       style="fill:none" />
+    <g
+       id="assistant_icon_16x16"
+       clip-path="url(#clipPath4101)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3142"
+         xlink:href="#qt-logo-appicon-16"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3144"
+         xlink:href="#rect3865-2"
+         y="0"
+         x="0" />
+      <use
+         transform="matrix(0.07059978,0,0,0.07059978,4.0327637,-164.38411)"
+         height="1"
+         width="1"
+         id="use4094"
+         xlink:href="#assistant_questionmark"
+         y="0"
+         x="0"
+         style="filter:url(#filter4131)"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
+    </g>
+    <g
+       id="assistant_icon_24x24"
+       clip-path="url(#clipPath4156)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3146"
+         xlink:href="#qt-logo-appicon-24"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3148"
+         xlink:href="#rect3380"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#assistant_questionmark"
+         id="use4149"
+         width="1"
+         height="1"
+         transform="matrix(0.09499217,0,0,0.09499217,17.094296,-181.71335)" />
+    </g>
+    <g
+       id="assistant_icon_32x32"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3150"
+         xlink:href="#qt-logo-appicon-32"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3152"
+         xlink:href="#rect3392"
+         y="0"
+         x="0" />
+      <use
+         transform="matrix(0.125,0,0,0.125,37.735113,-200.93605)"
+         height="1"
+         width="1"
+         id="use4145"
+         xlink:href="#assistant_questionmark"
+         y="0"
+         x="0" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#assistant_icon_24x24"
+       id="assistant_icon_48x48"
+       transform="matrix(2,0,0,2,24,120)"
+       width="1920"
+       height="1080"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#assistant_icon_128x128"
+       id="assistant_icon_64x64"
+       width="1920"
+       height="1080"
+       transform="matrix(0.5,0,0,0.5,36,-60)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       id="assistant_icon_128x128"
+       clip-path="url(#clipPath4086)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3162"
+         xlink:href="#qt-logo-appicon-128"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3164"
+         xlink:href="#rect3428"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#assistant_questionmark"
+         id="use4030"
+         width="1"
+         height="1"
+         transform="matrix(0.5,0,0,0.5,125.375,-443.35176)" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#assistant_icon_128x128"
+       id="assistant_icon_256x256"
+       transform="matrix(2,0,0,2,-72,120)"
+       width="1920"
+       height="1080"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#assistant_icon_128x128"
+       id="assistant_icon_512x512"
+       width="1920"
+       height="1080"
+       transform="matrix(4,0,0,4,-216,360)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#assistant_icon_128x128"
+       id="assistant_icon_1024x1024"
+       transform="matrix(8,0,0,8,-504,840)"
+       width="1920"
+       height="1080"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       clip-path="url(#clipPath4101)"
+       id="linguist_icon_16x16"
+       transform="translate(0,-1040)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-16"
+         id="use4164"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3865-2"
+         id="use4166"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#linguist_bubble"
+         id="use4240-2"
+         width="1"
+         height="1"
+         transform="matrix(0.08658171,0,0,0.08658171,6.2471299,-179.29014)" />
+    </g>
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       clip-path="url(#clipPath4156)"
+       id="linguist_icon_24x24"
+       transform="translate(0,-1040)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-24"
+         id="use4172"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3380"
+         id="use4174"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#linguist_bubble"
+         id="use4240-8"
+         width="1"
+         height="1"
+         transform="matrix(0.09169048,0,0,0.09169048,27.578857,-189.01855)" />
+    </g>
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       id="linguist_icon_32x32"
+       transform="translate(0,-1040)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-32"
+         id="use4180"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3392"
+         id="use4182"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#linguist_bubble"
+         id="use4240-4"
+         width="1"
+         height="1"
+         transform="matrix(0.13298217,0,0,0.13298217,47.49064,-217.59562)" />
+    </g>
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       height="1080"
+       width="1920"
+       transform="matrix(2,0,0,2,24,1160)"
+       id="linguist_icon_48x48"
+       xlink:href="#linguist_icon_24x24"
+       y="0"
+       x="0" />
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       transform="matrix(0.5,0,0,0.5,36,-580)"
+       height="1080"
+       width="1920"
+       id="linguist_icon_64x64"
+       xlink:href="#linguist_icon_128x128"
+       y="0"
+       x="0" />
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       clip-path="url(#clipPath4086)"
+       id="linguist_icon_128x128"
+       transform="translate(0,-1040)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-128"
+         id="use4192"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3428"
+         id="use4194"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#linguist_bubble"
+         id="use4240"
+         width="1"
+         height="1"
+         transform="matrix(0.44916129,0,0,0.44916129,188.30305,-467.19518)" />
+    </g>
+    <use
+       height="1080"
+       width="1920"
+       transform="matrix(2,0,0,2,-72,1160)"
+       id="linguist_icon_256x256"
+       xlink:href="#linguist_icon_128x128"
+       y="0"
+       x="0" />
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       transform="matrix(4,0,0,4,-216,3480)"
+       height="1080"
+       width="1920"
+       id="linguist_icon_512x512"
+       xlink:href="#linguist_icon_128x128"
+       y="0"
+       x="0" />
+    <use
+       height="1080"
+       width="1920"
+       transform="matrix(8,0,0,8,-504.4,8120)"
+       id="linguist_icon_1024x1024"
+       xlink:href="#linguist_icon_128x128"
+       y="0"
+       x="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       transform="translate(0,-2080)"
+       id="designer_icon_16x16"
+       clip-path="url(#clipPath4101)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use4368"
+         xlink:href="#qt-logo-appicon-16"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use4370"
+         xlink:href="#rect3865-2"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#designer_pen"
+         id="use4408"
+         width="1"
+         height="1"
+         transform="matrix(0,-0.08740465,0.09924617,0,-24.034614,-119.52249)" />
+    </g>
+    <g
+       transform="translate(0,-2080)"
+       id="designer_icon_24x24"
+       clip-path="url(#clipPath4156)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use4376"
+         xlink:href="#qt-logo-appicon-24"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use4378"
+         xlink:href="#rect3380"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#designer_pen"
+         id="use4408-2"
+         width="1"
+         height="1"
+         transform="matrix(0.07759947,-0.07759947,0.07759947,0.07759947,-2.0275119,-163.70546)" />
+    </g>
+    <g
+       transform="translate(0,-2080)"
+       id="designer_icon_32x32"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       clip-path="url(#clipPath4448)">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use4384"
+         xlink:href="#qt-logo-appicon-32"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use4386"
+         xlink:href="#rect3392"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#designer_pen"
+         id="use4408-7"
+         width="1"
+         height="1"
+         transform="matrix(0.10344368,-0.10344368,0.10344368,0.10344368,10.193778,-176.35678)" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#designer_icon_24x24"
+       id="designer_icon_48x48"
+       transform="matrix(2,0,0,2,24,2200)"
+       width="1920"
+       height="1080"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#designer_icon_128x128"
+       id="designer_icon_64x64"
+       width="1920"
+       height="1080"
+       transform="matrix(0.5,0,0,0.5,36,-1100)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       transform="translate(0,-2080)"
+       id="designer_icon_128x128"
+       clip-path="url(#clipPath4086)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use4396"
+         xlink:href="#qt-logo-appicon-128"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use4398"
+         xlink:href="#rect3428"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#designer_pen"
+         id="use4408-79"
+         width="1"
+         height="1"
+         transform="matrix(0.3463446,-0.34254864,0.3463446,0.34254864,63.28528,-312.46397)"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#designer_icon_128x128"
+       id="designer_icon_256x256"
+       transform="matrix(2,0,0,2,-72,2200)"
+       width="1920"
+       height="1080" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#designer_icon_128x128"
+       id="designer_icon_512x512"
+       width="1920"
+       height="1080"
+       transform="matrix(4,0,0,4,-216,6599.6)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       x="0"
+       y="0"
+       xlink:href="#designer_icon_128x128"
+       id="designer_icon_1024x1024"
+       transform="matrix(8,0,0,8,-504,15400)"
+       width="1920"
+       height="1080" />
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       clip-path="url(#clipPath4101)"
+       id="qdbusviewer_icon_16x16"
+       transform="translate(0,-3120)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-16"
+         id="use4462"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3865-2"
+         id="use4464"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#dbusviewer_arrows"
+         id="use4550"
+         transform="matrix(0.10844502,0,0,0.11562764,-26.207541,-187.34041)"
+         width="1"
+         height="1" />
+    </g>
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       clip-path="url(#clipPath4156)"
+       id="qdbusviewer_icon_24x24"
+       transform="translate(0,-3120)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-24"
+         id="use4470"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3380"
+         id="use4472"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#dbusviewer_arrows"
+         id="use4550-6"
+         transform="matrix(0.14520415,0,0,0.11654081,-23.77283,-190.63165)"
+         width="1"
+         height="1" />
+    </g>
+    <g
+       clip-path="url(#clipPath4448)"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       id="qdbusviewer_icon_32x32"
+       transform="translate(0,-3120)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-32"
+         id="use4478"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3392"
+         id="use4480"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#dbusviewer_arrows"
+         id="use4550-3"
+         transform="matrix(0.18154379,0,0,0.1765106,-11.11283,-224.86328)"
+         width="1"
+         height="1" />
+    </g>
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       height="1080"
+       width="1920"
+       transform="matrix(2,0,0,2,24,3240)"
+       id="qdbusviewer_icon_48x48"
+       xlink:href="#qdbusviewer_icon_24x24"
+       y="0"
+       x="0" />
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       transform="matrix(0.5,0,0,0.5,36,-1620)"
+       height="1080"
+       width="1920"
+       id="qdbusviewer_icon_64x64"
+       xlink:href="#qdbusviewer_icon_128x128"
+       y="0"
+       x="0" />
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       clip-path="url(#clipPath4086)"
+       id="qdbusviewer_icon_128x128"
+       transform="translate(0,-3120)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-128"
+         id="use4490"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3428"
+         id="use4492"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#dbusviewer_icon"
+         id="use4617"
+         transform="matrix(0.5,0,0,0.5,53,-423)"
+         width="1"
+         height="1" />
+    </g>
+    <use
+       height="1080"
+       width="1920"
+       transform="matrix(2,0,0,2,-72,3240)"
+       id="qdbusviewer_icon_256x256"
+       xlink:href="#qdbusviewer_icon_128x128"
+       y="0"
+       x="0" />
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       transform="matrix(4,0,0,4,-216,9720)"
+       height="1080"
+       width="1920"
+       id="qdbusviewer_icon_512x512"
+       xlink:href="#qdbusviewer_icon_128x128"
+       y="0"
+       x="0" />
+    <use
+       height="1080"
+       width="1920"
+       transform="matrix(8,0,0,8,-504,22680)"
+       id="qdbusviewer_icon_1024x1024"
+       xlink:href="#qdbusviewer_icon_128x128"
+       y="0"
+       x="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       transform="translate(0,-4160)"
+       id="qmlviewer_icon_16x16"
+       clip-path="url(#clipPath4101)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3241"
+         xlink:href="#qt-logo-appicon-16"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3243"
+         xlink:href="#rect3865-2"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qmlviewer-logo-paperplane"
+         id="use6842-37"
+         transform="matrix(0.0706897,0,0,0.0706897,19.551994,-175.17505)"
+         width="1"
+         height="1" />
+    </g>
+    <g
+       transform="translate(0,-4160)"
+       id="qmlviewer_icon_24x24"
+       clip-path="url(#clipPath4156)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3249"
+         xlink:href="#qt-logo-appicon-24"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3251"
+         xlink:href="#rect3380"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qmlviewer-logo-paperplane"
+         id="use6842-3"
+         transform="matrix(0.07591317,0,0,0.07591317,41.310501,-181.48261)"
+         width="1"
+         height="1" />
+    </g>
+    <g
+       transform="translate(0,-4160)"
+       id="qmlviewer_icon_32x32"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       clip-path="url(#clipPath4448)">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3257"
+         xlink:href="#qt-logo-appicon-32"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3259"
+         xlink:href="#rect3392"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qmlviewer-logo-paperplane"
+         id="use6842-0"
+         transform="matrix(0.10052878,0,0,0.10052878,69.48104,-199.62817)"
+         width="1"
+         height="1" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qmlviewer_icon_24x24"
+       id="qmlviewer_icon_48x48"
+       transform="matrix(2,0,0,2,24,4280)"
+       width="1920"
+       height="1080"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qmlviewer_icon_128x128"
+       id="qmlviewer_icon_64x64"
+       width="1920"
+       height="1080"
+       transform="matrix(0.5,0,0,0.5,36,-2140)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       transform="translate(0,-4160)"
+       id="qmlviewer_icon_128x128"
+       clip-path="url(#clipPath4086)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3269"
+         xlink:href="#qt-logo-appicon-128"
+         y="0"
+         x="0" />
+      <use
+         height="1080"
+         width="1920"
+         transform="translate(0,-520)"
+         id="use3271"
+         xlink:href="#rect3428"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qmlviewer-logo-paperplane"
+         id="use6842"
+         width="1"
+         height="1"
+         transform="matrix(0.37652609,0,0,0.37652609,256.11156,-422.54709)" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qmlviewer_icon_128x128"
+       id="qmlviewer_icon_256x256"
+       transform="matrix(2,0,0,2,-72,4280)"
+       width="1920"
+       height="1080" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#qmlviewer_icon_128x128"
+       id="qmlviewer_icon_512x512"
+       width="1920"
+       height="1080"
+       transform="matrix(4,0,0,4,-216,12840)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       x="0"
+       y="0"
+       xlink:href="#qmlviewer_icon_128x128"
+       id="qmlviewer_icon_1024x1024"
+       transform="matrix(8,0,0,8,-504,29960)"
+       width="1920"
+       height="1080" />
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       clip-path="url(#clipPath4101)"
+       id="qtcreator_icon_16x16"
+       transform="translate(0,-5200)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-16"
+         id="use4547"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3865-2"
+         id="use4549"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qtcreator-logo-leaf"
+         id="use4579"
+         transform="matrix(0.07395821,0,0,0.07395821,-20.597469,-166.37407)"
+         width="1"
+         height="1" />
+    </g>
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       clip-path="url(#clipPath4156)"
+       id="qtcreator_icon_24x24"
+       transform="translate(0,-5200)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-24"
+         id="use4553"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3380"
+         id="use4555"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qtcreator-logo-leaf"
+         id="use4579-5"
+         transform="matrix(0.0796062,0,0,0.0796062,-1.3527167,-171.81739)"
+         width="1"
+         height="1" />
+    </g>
+    <g
+       clip-path="url(#clipPath4448)"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       id="qtcreator_icon_32x32"
+       transform="translate(0,-5200)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-32"
+         id="use4559"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3392"
+         id="use4561"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qtcreator-logo-leaf"
+         id="use4579-7"
+         transform="matrix(0.1139269,0,0,0.1139269,6.1916443,-192.43434)"
+         width="1"
+         height="1" />
+    </g>
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       height="1080"
+       width="1920"
+       transform="matrix(2,0,0,2,24,5320)"
+       id="qtcreator_icon_48x48"
+       xlink:href="#qtcreator_icon_24x24"
+       y="0"
+       x="0" />
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       transform="matrix(0.5,0,0,0.5,36,-2660)"
+       height="1080"
+       width="1920"
+       id="qtcreator_icon_64x64"
+       xlink:href="#qtcreator_icon_128x128"
+       y="0"
+       x="0" />
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       clip-path="url(#clipPath4086)"
+       id="qtcreator_icon_128x128"
+       transform="translate(0,-5200)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qt-logo-appicon-128"
+         id="use4569"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect3428"
+         id="use4571"
+         transform="translate(0,-520)"
+         width="1920"
+         height="1080" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#qtcreator-logo-leaf"
+         id="use4579-6"
+         transform="matrix(0.44178025,0,0,0.44178025,11.274994,-405.05194)"
+         width="1"
+         height="1" />
+    </g>
+    <use
+       height="1080"
+       width="1920"
+       transform="matrix(2,0,0,2,-72,5320)"
+       id="qtcreator_icon_256x256"
+       xlink:href="#qtcreator_icon_128x128"
+       y="0"
+       x="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       transform="matrix(4,0,0,4,-216,15960)"
+       height="1080"
+       width="1920"
+       id="qtcreator_icon_512x512"
+       xlink:href="#qtcreator_icon_128x128"
+       y="0"
+       x="0" />
+    <use
+       height="1080"
+       width="1920"
+       transform="matrix(8,0,0,8,-504,37240)"
+       id="qtcreator_icon_1024x1024"
+       xlink:href="#qtcreator_icon_128x128"
+       y="0"
+       x="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       id="uifile_icon_16x16"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(0,-1036)">
+      <image
+         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset/icon_16x16.png"
+         xlink:href="GenericDocumentIcon.iconset/icon_16x16.png"
+         width="16"
+         height="16"
+         id="image3192"
+         x="16"
+         y="-5336" />
+      <g
+         id="qt-logo-original-1"
+         style="display:inline"
+         transform="matrix(0.66666667,0,0,0.66666667,18.666667,-5722.6053)">
+        <path
+           inkscape:connector-curvature="0"
+           id="path3809-74"
+           style="fill:#7ec242;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           d="M 4.1536737,584.15961 C 2.984954,583.96692 2,584.82929 2,586.08492 l 0,13.80599 10.697724,-1.80033 C 13.435147,597.96263 14,597.09324 14,596.15458 l -10e-7,-7.24663 -4.5000001,-0.0234 -0.010869,-3.84899 z"
+           sodipodi:nodetypes="csccscccc" />
+        <path
+           inkscape:connector-curvature="0"
+           id="path3825-0"
+           style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           d="m 7.2261059,594.79983 c -0.014436,10e-4 -0.028411,0.002 -0.042479,0.002 -0.3184037,0 -0.5609072,-0.24831 -0.7228214,-0.74949 -0.1717522,-0.52617 -0.2570307,-1.42237 -0.2570307,-2.68548 0,-1.30713 0.087762,-2.17056 0.2610303,-2.58716 0.1601213,-0.38227 0.3898444,-0.5726 0.688572,-0.5726 0.023629,0 0.048041,10e-4 0.072728,0.004 0.3224492,0.0309 0.4457883,0.1114 0.6065532,0.56399 0.1607189,0.45044 0.2397911,1.27125 0.2397911,2.46489 0,1.32962 -0.079853,2.22095 -0.241676,2.6753 -0.1629255,0.45871 -0.285851,0.8634 -0.6046683,0.88538 z m 0,-7.7315 c -0.1191601,-0.0152 -0.2349182,-0.0228 -0.3467686,-0.0228 -0.6990997,0 -1.254628,0.298 -1.6528854,0.90418 -0.471813,0.71826 -0.711742,1.85092 -0.711742,3.38573 0,1.42323 0.1752921,2.51162 0.5196241,3.25548 0.339321,0.73232 0.8293849,1.1686 1.4579172,1.31491 0.3207556,1.58503 1.7147694,1.03722 3.0134425,0.99051 l 0,-0.98595 c -0.6889897,0.19207 -1.8461215,0.34471 -1.6271501,-0.12365 0.4505319,-0.19741 0.9059704,-0.86199 1.1890674,-1.59115 0.2781778,-0.71897 0.4159567,-1.69282 0.4159567,-2.93113 0,-1.3518 -0.1870609,-2.38107 -0.5680329,-3.09928 -0.3880055,-0.73407 -0.8670318,-0.99369 -1.6894289,-1.09714"
+           sodipodi:nodetypes="cscscsccscccscsccccccsccc" />
+        <path
+           sodipodi:nodetypes="cccccccccccccccc"
+           inkscape:connector-curvature="0"
+           id="path3817-9"
+           style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           d="m 12.390173,593.64939 0,-2.73029 1.258264,0.0279 -0.117188,-1.00781 -1.141076,0.003 0,-1.03424 -0.879464,0 -0.358343,0.94837 -0.827535,-0.0175 0,0.97355 0.659485,0.0446 0,3.1078 c 0.27691,1.68994 1.342991,1.37427 2.667854,1.44037 l 0.04687,-1.13283 c -0.287905,0.12071 -1.522481,-0.27796 -1.308872,-0.62344 z" />
+      </g>
+      <rect
+         y="-5325"
+         x="27.62998"
+         height="2.9999692"
+         width="2.3699887"
+         id="rect4308-8"
+         style="fill:#cd9aa3;fill-opacity:1;stroke:none" />
+      <path
+         id="path4291-2"
+         d="m 19,-5324 -1,0.5082 1,0.4918 z"
+         style="fill:#47484a;fill-opacity:1;stroke:none"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccc" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path4286-4"
+         d="m 21,-5325 -2,1 0,1 2,1 z"
+         style="fill:#e1cab0;fill-opacity:1;stroke:none" />
+      <rect
+         y="-5325.0005"
+         x="21"
+         height="1.999"
+         width="6"
+         id="rect4296-5"
+         style="fill:#f7ec07;fill-opacity:1;stroke:none" />
+      <rect
+         style="fill:#f7aa03;fill-opacity:1;stroke:none"
+         id="rect4298-5"
+         width="6"
+         height="1.9999794"
+         x="21"
+         y="-5324" />
+      <rect
+         style="fill:#fbcb00;fill-opacity:1;stroke:none"
+         id="rect4300-1"
+         width="6"
+         height="0.99998969"
+         x="21"
+         y="-5324" />
+      <rect
+         style="fill:#e4e6e7;fill-opacity:1;stroke:none"
+         id="rect4302-7"
+         width="1"
+         height="0.99998969"
+         x="26.98"
+         y="-5325" />
+      <rect
+         y="-5323"
+         x="26.98"
+         height="0.99998969"
+         width="1"
+         id="rect4304-1"
+         style="fill:#aeb1b3;fill-opacity:1;stroke:none" />
+      <rect
+         y="-5324"
+         x="26.98"
+         height="0.99998969"
+         width="1"
+         id="rect4306-1"
+         style="fill:#c8c9c9;fill-opacity:1;stroke:none" />
+    </g>
+    <g
+       id="uifile_icon_32x32"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(0,-1036)">
+      <image
+         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset/icon_32x32.png"
+         xlink:href="GenericDocumentIcon.iconset/icon_32x32.png"
+         width="32"
+         height="32"
+         id="image3203"
+         x="32"
+         y="-5352" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3510"
+         y="-6087.4551"
+         x="39.945583"
+         style="font-size:4.71243429px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"
+         transform="scale(1.1435936,0.87443651)"><tspan
+           id="tspan3514"
+           y="-6087.4551"
+           x="39.945583"
+           sodipodi:role="line"
+           style="font-weight:bold;-inkscape-font-specification:Sans Bold">UI</tspan></text>
+      <use
+         clip-path="url(#clipPath5822)"
+         transform="translate(24,-3129.1326)"
+         height="1"
+         width="1"
+         id="use3484"
+         xlink:href="#designer_icon_16x16"
+         y="0"
+         x="0" />
+    </g>
+    <g
+       id="uifile_icon_128x128"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(0,-1036)">
+      <image
+         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset/icon_128x128.png"
+         xlink:href="GenericDocumentIcon.iconset/icon_128x128.png"
+         width="128"
+         height="128"
+         id="image3214"
+         x="200"
+         y="-5448" />
+      <g
+         id="g4328"
+         clip-path="url(#clipPath6024)"
+         transform="translate(0,0.5)">
+        <use
+           x="0"
+           y="0"
+           xlink:href="#text3510"
+           id="use4326"
+           transform="matrix(2.3826256,0,0,2.9999998,149.24544,10637.104)"
+           width="1920"
+           height="1080" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#designer_icon_24x24"
+           id="use5826"
+           transform="matrix(3,0,0,3,137.9978,1248.4)"
+           width="1920"
+           height="1080"
+           style="filter:url(#filter6008)" />
+      </g>
+    </g>
+    <g
+       id="uifile_icon_256x256"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(0,-1036)">
+      <image
+         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset/icon_256x256.png"
+         xlink:href="GenericDocumentIcon.iconset/icon_256x256.png"
+         width="256"
+         height="256"
+         id="image3225"
+         x="328"
+         y="-5576" />
+      <use
+         height="1080"
+         width="1920"
+         transform="matrix(2,0,0,2,-71,5316.1706)"
+         id="use4332"
+         xlink:href="#g4328"
+         y="0"
+         x="0" />
+    </g>
+    <g
+       id="uifile_icon_512x512"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(0,-1036)">
+      <image
+         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset/icon_512x512.png"
+         xlink:href="GenericDocumentIcon.iconset/icon_512x512.png"
+         width="512"
+         height="512"
+         id="image3236"
+         x="584"
+         y="-5832" />
+      <use
+         height="1080"
+         width="1920"
+         transform="matrix(2,0,0,2,-71,5320.6089)"
+         id="use4334"
+         xlink:href="#use4332"
+         y="0"
+         x="0" />
+    </g>
+    <g
+       transform="translate(0,-1560)"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       id="uifile_icon_16x16@2x">
+      <image
+         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset/icon_16x16@2x.png"
+         xlink:href="GenericDocumentIcon.iconset/icon_16x16@2x.png"
+         y="-5352"
+         x="32"
+         id="image4080"
+         height="32"
+         width="32" />
+      <text
+         transform="scale(1.1435936,0.87443651)"
+         xml:space="preserve"
+         style="font-size:4.71243429px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         x="39.945583"
+         y="-6087.4551"
+         id="text4082"
+         sodipodi:linespacing="125%"><tspan
+           style="font-weight:bold;-inkscape-font-specification:Sans Bold"
+           sodipodi:role="line"
+           x="39.945583"
+           y="-6087.4551"
+           id="tspan4084">UI</tspan></text>
+      <use
+         x="0"
+         y="0"
+         xlink:href="#designer_icon_16x16"
+         id="use4086"
+         width="1"
+         height="1"
+         transform="translate(24,-3129.1326)"
+         clip-path="url(#clipPath5822)" />
+    </g>
+    <g
+       id="uifile_icon_32x32@2x">
+      <image
+         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset/icon_32x32@2x.png"
+         xlink:href="GenericDocumentIcon.iconset/icon_32x32@2x.png"
+         width="64"
+         height="64"
+         id="image4120"
+         x="64"
+         y="-6944" />
+      <use
+         height="1"
+         width="1"
+         id="use4442"
+         xlink:href="#g4328"
+         y="0"
+         x="0"
+         transform="matrix(0.5,0,0,0.5,-35.543692,-4220.1631)" />
+    </g>
+    <g
+       transform="translate(0,-1560)"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       id="uifile_icon_128x128@2x">
+      <image
+         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset/icon_128x128@2x.png"
+         xlink:href="GenericDocumentIcon.iconset/icon_128x128@2x.png"
+         y="-5576"
+         x="328"
+         id="image4101"
+         height="256"
+         width="256" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g4328"
+         id="use4104"
+         transform="matrix(2,0,0,2,-71,5316.1706)"
+         width="1920"
+         height="1080" />
+    </g>
+    <g
+       transform="translate(0,-1560)"
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       id="uifile_icon_256x256@2x">
+      <image
+         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset/icon_256x256@2x.png"
+         xlink:href="GenericDocumentIcon.iconset/icon_256x256@2x.png"
+         y="-5832"
+         x="584"
+         id="image4108"
+         height="512"
+         width="512" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#use4332"
+         id="use4110"
+         transform="matrix(2,0,0,2,-71,5320.6089)"
+         width="1920"
+         height="1080" />
+    </g>
+    <g
+       id="uifile_icon_512x512@2x"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <image
+         sodipodi:absref="C:\Users\aportale\dev\qt-creator\src\tools\icons\GenericDocumentIcon.iconset/icon_512x512@2x.png"
+         xlink:href="GenericDocumentIcon.iconset/icon_512x512@2x.png"
+         width="1024"
+         height="1024"
+         id="image4131"
+         x="1096"
+         y="-7905" />
+      <use
+         height="1080"
+         width="1920"
+         transform="matrix(4,0,0,4,-219.93653,14404.292)"
+         id="use5743"
+         xlink:href="#use4332"
+         y="0"
+         x="0" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="app-icon-images"
+     transform="translate(0,7905)">
+    <g
+       id="designer_pen"
+       transform="translate(296.98485,-328.744)"
+       inkscape:label="#assistant_pen">
+      <rect
+         y="853.36218"
+         x="-148.98485"
+         height="30"
+         width="30"
+         id="rect4308"
+         style="fill:#cd9aa3;fill-opacity:1;stroke:none" />
+      <path
+         id="path4291"
+         transform="translate(0,-27.637817)"
+         d="M -267,886.71875 -291,896 l 24,9.25 z"
+         style="fill:#47484a;fill-opacity:1;stroke:none"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccc" />
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="path4286"
+         transform="translate(0,-27.637817)"
+         d="M -242.48485,878.91307 -272,888.5625 l 0,14.84375 29.51515,9.60057 z"
+         style="fill:#e1cab0;fill-opacity:1;stroke:none" />
+      <rect
+         y="853.36218"
+         x="-246"
+         height="19.987"
+         width="112"
+         id="rect4296"
+         style="fill:#f7ec07;fill-opacity:1;stroke:none" />
+      <rect
+         style="fill:#f7aa03;fill-opacity:1;stroke:none"
+         id="rect4298"
+         width="112"
+         height="20"
+         x="-246"
+         y="863.36218" />
+      <rect
+         style="fill:#fbcb00;fill-opacity:1;stroke:none"
+         id="rect4300"
+         width="112"
+         height="10"
+         x="-246"
+         y="863.36218" />
+      <rect
+         style="fill:#e4e6e7;fill-opacity:1;stroke:none"
+         id="rect4302"
+         width="16"
+         height="10"
+         x="-149"
+         y="853.36218" />
+      <rect
+         y="873.36218"
+         x="-149"
+         height="10"
+         width="16"
+         id="rect4304"
+         style="fill:#aeb1b3;fill-opacity:1;stroke:none" />
+      <rect
+         y="863.36218"
+         x="-149"
+         height="10"
+         width="16"
+         id="rect4306"
+         style="fill:#c8c9c9;fill-opacity:1;stroke:none" />
+      <path
+         style="font-size:medium;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:normal;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:4;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+         d="m -292.6875,866.5 c -0.75944,0.28213 -1.30365,1.06485 -1.30365,1.875 0,0.81015 0.54421,1.59287 1.30365,1.875 l 46,17 c 0.21949,0.0815 0.45338,0.11118 0.6875,0.11218 l 129,0 c 1,0 2,-1 2,-2 l 0,-34 c 0,-1 -1,-2 -2,-2 l -128.9688,-0.0809 c -0.25675,0.005 -0.42215,0.017 -0.57042,0.071 z M -119,853.36218 l 0,30 -127,0 -40,-15 40,-15 z"
+         id="path3516"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cscccccccccccccccc" />
+    </g>
+    <g
+       id="linguist_bubble"
+       transform="translate(80.982993,-144.36552)">
+      <path
+         style="fill:#a5d750;fill-opacity:1;stroke:none;filter:url(#filter5469)"
+         d="m 117,712 c 1,-27 30,-37 49,-37 19,0 48,10 48,38 0,28 -43,57 -62,66 4,-12 6,-22 6,-28 -10,-1 -42,-12 -41,-39 z"
+         id="path5467"
+         inkscape:connector-curvature="0"
+         transform="translate(0,-27.637817)"
+         sodipodi:nodetypes="zzzccz" />
+      <path
+         sodipodi:nodetypes="zzzccz"
+         transform="translate(0,-27.637817)"
+         inkscape:connector-curvature="0"
+         id="path4337"
+         d="m 117,712 c 1,-27 30,-37 49,-37 19,0 48,10 48,38 0,28 -43,57 -62,66 4,-12 6,-22 6,-28 -10,-1 -42,-12 -41,-39 z"
+         style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
+    <g
+       id="assistant_questionmark"
+       transform="translate(-180.85534,-135.69775)"
+       clip-path="none">
+      <path
+         id="path3942"
+         transform="matrix(1.025641,0,0,1.0256412,-106.13969,148.03106)"
+         style="fill:#e8eef4;fill-opacity:1;stroke:none;filter:url(#filter5469)"
+         d="m 637,580.5 c 0,10.76955 -8.73045,19.5 -19.5,19.5 -10.76955,0 -19.5,-8.73045 -19.5,-19.5 0,-10.76955 8.73045,-19.5 19.5,-19.5 10.76955,0 19.5,8.73045 19.5,19.5 z M 617.50001,466.42502 c 18.525,0 43.875,5.12805 43.875,33.15 0,29.24999 -31.2,31.19999 -29.25,54.59999 -15.6,0 -21.45,0 -31.2,0 -3.9,-33.15 26.325,-36.075 27.3,-53.62499 0.975,-17.55 -25.35,-10.725 -39,-7.8 0,-8.775 0,-15.6 0,-21.45 7.8,-1.95 16.39219,-4.875 28.275,-4.875 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="sssssssccsccs" />
+      <path
+         d="m 637,580.5 c 0,10.76955 -8.73045,19.5 -19.5,19.5 -10.76955,0 -19.5,-8.73045 -19.5,-19.5 0,-10.76955 8.73045,-19.5 19.5,-19.5 10.76955,0 19.5,8.73045 19.5,19.5 z M 617.50001,466.42502 c 18.525,0 43.875,5.1969 43.875,33.15 0,29.24999 -31.2,31.19999 -29.25,54.59999 -15.6,0 -21.45,0 -31.2,0 -3.9,-33.15 26.325,-36.075 27.3,-53.62499 0.975,-17.55 -25.35,-10.725 -39,-7.8 0,-8.775 0,-15.6 0,-21.45 7.8,-1.95 16.33125,-4.875 28.275,-4.875 z"
+         style="fill:none;stroke:#ffffff;stroke-width:3.89999962;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         transform="matrix(1.025641,0,0,1.0256412,-106.13969,148.03106)"
+         id="path3936"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="sssssssccsccs" />
+    </g>
+    <g
+       id="dbusviewer_icon"
+       inkscape:label="#g4545">
+      <g
+         transform="translate(336,-320.36218)"
+         inkscape:label="#g4645"
+         id="dbusviewer_arrows">
+        <path
+           style="fill:#055e29;fill-opacity:1;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           d="m 94,852.36218 28,-28 0,14 52,0 0,28 -52,0 0,14 z"
+           id="path3850"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cccccccc" />
+        <path
+           style="fill:#1e1261;fill-opacity:1;stroke:#ffffff;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           d="m 202,880.36218 -28,-28 0,14 -52,0 0,28 52,0 0,14 z"
+           id="path3850-1"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cccccccc" />
+      </g>
+      <g
+         id="dbusviewer_d"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+         transform="matrix(1.5841611,0,0,1.5841611,247.07354,-842.03118)"
+         inkscape:label="#text4638">
+        <path
+           sodipodi:nodetypes="ccccsssccccccsccscccss"
+           inkscape:connector-curvature="0"
+           id="path4643"
+           style="font-weight:bold;fill:#ffffff;fill-opacity:1;-inkscape-font-specification:Sans Bold"
+           d="m 159.65957,890.08068 -5.04999,0 0,-3.35537 c -0.84412,1.13088 -1.87489,1.97284 -3.02416,2.52586 -1.14929,0.55301 -2.30829,0.82951 -3.47704,0.82951 -2.37647,0 -4.41204,-0.91651 -6.10673,-2.74954 -1.6947,-1.83301 -2.54205,-4.38992 -2.54205,-7.67072 0,-3.35536 0.82463,-5.90605 2.47386,-7.6521 1.64924,-1.74601 3.73353,-2.61903 6.25284,-2.61905 2.31153,2e-5 4.73506,0.91963 6.42328,2.75886 l 0,-9.8424 5.04999,0 z m -14.60942,-10.77445 c 0,2.11264 0.30516,3.6412 0.91552,4.58566 0.88305,1.36701 2.11673,2.05052 3.70105,2.05051 1.25965,10e-6 2.33101,-0.51262 3.21407,-1.53788 0.88305,-1.02524 1.32457,-2.55689 1.32459,-4.59498 -2e-5,-2.27418 -0.42856,-3.91146 -1.28563,-4.91187 -0.85709,-1.00038 -1.95444,-1.50058 -3.29198,-1.5006 -1.29864,2e-5 -2.38622,0.494 -3.26278,1.48195 -0.87658,0.98799 -1.31484,2.46372 -1.31484,4.42721 z" />
+      </g>
+    </g>
+    <g
+       transform="matrix(16,0,0,16,202.66672,-8973.9071)"
+       style="display:inline"
+       id="qtcreator-logo-leaf">
+      <path
+         style="fill:#b4b4b4;fill-opacity:1;stroke:none;stroke-width:0.25000000000000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m 24.360144,599.91797 c 0,0 -1.180704,-2.9808 0.17111,-4.35547 1.351814,-1.37467 4.480985,-1.78019 7.03125,-4.875 -1.33283,3.62826 -1.079399,5.25815 -2.546875,7.39063 -1.467476,2.13247 -4.655485,1.83984 -4.655485,1.83984 z"
+         id="path3357"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="czczc" />
+      <path
+         style="fill:url(#linearGradient6926);fill-opacity:1;stroke:none"
+         d="m 30.536455,592.1895 -5.953125,7.36719 c 0,0 -1.322826,-3.02036 0.6875,-4.25 2.010326,-1.22963 2.390625,-0.92969 5.265625,-3.11719 z"
+         id="path4127"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cczc" />
+      <path
+         sodipodi:nodetypes="cczc"
+         inkscape:connector-curvature="0"
+         id="path4131"
+         d="m 30.683552,592.28135 -5.942076,7.33784 c 0,0 2.341854,0.0625 3.654354,-1.25 1.3125,-1.3125 2,-4.4375 2.287722,-6.08784 z"
+         style="fill:url(#linearGradient8380);fill-opacity:1;stroke:none" />
+      <path
+         sodipodi:nodetypes="cczc"
+         inkscape:connector-curvature="0"
+         id="path4135"
+         d="m 30.55208,592.30669 c -1.90625,2.4375 -3.96875,5 -5.90625,7.3125 0.184413,-0.3343 0.720466,-1.00456 2.527284,-3.18016 1.806818,-2.17561 1.861243,-2.47029 3.378966,-4.13234 z"
+         style="fill:#808080;fill-opacity:1;stroke:none" />
+    </g>
+    <g
+       id="qmlviewer-logo-paperplane"
+       inkscape:label="#g6835">
+      <path
+         sodipodi:nodetypes="ccccccc"
+         inkscape:connector-curvature="0"
+         id="path6773"
+         d="M 2,741 172.5,626 c -5,40 -3.5,98 -3.5,154 -18.15246,-10.35573 -37.70839,-21.6529 -52,-23 L 77,775 64.646447,745.35355 C 45.291043,740.73103 23.986115,740.3611 2,741 z"
+         style="fill:#929292;fill-opacity:1;stroke:none;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path6775"
+         d="M 15.375,736.75 C 29.458164,736.08324 45,737 67.25,740.375 L 167.875,633.65625 z"
+         style="fill:url(#linearGradient5129);fill-opacity:1;stroke:none" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path6777"
+         d="M 83,767 115.87868,751.72855 167.875,633.65625 z"
+         style="fill:url(#linearGradient6035);fill-opacity:1;stroke:none" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path6779"
+         d="M 118.14384,751.46339 C 135,755.375 148,762.99998 164.625,772.5 165.52971,726.16667 163,679.99998 167.875,633.65625 z"
+         style="fill:url(#linearGradient3451);fill-opacity:1;stroke:none" />
+      <path
+         style="fill:url(#linearGradient5587);fill-opacity:1;stroke:none"
+         d="M 68.875,741.375 79.198223,765.82322 167.875,633.65625 z"
+         id="path6799"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccc" />
+    </g>
+  </g>
+</svg>

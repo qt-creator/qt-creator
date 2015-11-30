@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -95,34 +91,38 @@ QString BindingProperty::expression() const
 
 static ModelNode resolveBinding(const QString &binding, ModelNode currentNode, AbstractView* view)
 {
-    int i = 0;
+    int index = 0;
     QString element = binding.split(QLatin1Char('.')).at(0);
     while (!element.isEmpty())
     {
-        if (element == "parent") {
-            if (currentNode.hasParentProperty())
-                currentNode = currentNode.parentProperty().toNodeAbstractProperty().parentModelNode();
-            else
-                return ModelNode(); //binding not valid
-        } else if (currentNode.hasProperty(element.toUtf8())) {
-            if (currentNode.property(element.toUtf8()).isNodeProperty())
-                currentNode = currentNode.nodeProperty(element.toUtf8()).modelNode();
-            else if (view->hasId(element))
+        if (currentNode.isValid()) {
+            if (element == "parent") {
+                if (currentNode.hasParentProperty())
+                    currentNode = currentNode.parentProperty().toNodeAbstractProperty().parentModelNode();
+                else
+                    return ModelNode(); //binding not valid
+            } else if (currentNode.hasProperty(element.toUtf8())) {
+                if (currentNode.property(element.toUtf8()).isNodeProperty())
+                    currentNode = currentNode.nodeProperty(element.toUtf8()).modelNode();
+                else if (view->hasId(element))
+                    currentNode = view->modelNodeForId(element); //id
+                else
+                    return ModelNode(); //binding not valid
+
+            } else {
                 currentNode = view->modelNodeForId(element); //id
+            }
+            index++;
+            if (index < binding.split(QLatin1Char('.')).count())
+                element = binding.split(QLatin1Char('.')).at(index);
             else
-                return ModelNode(); //binding not valid
+                element.clear();
 
         } else {
-            currentNode = view->modelNodeForId(element); //id
+            return ModelNode();
         }
-        i++;
-        if (i < binding.split(QLatin1Char('.')).count())
-            element = binding.split(QLatin1Char('.')).at(i);
-        else
-            element.clear();
     }
     return currentNode;
-
 }
 
 ModelNode BindingProperty::resolveToModelNode() const
@@ -135,7 +135,7 @@ ModelNode BindingProperty::resolveToModelNode() const
 
 static inline QStringList commaSeparatedSimplifiedStringList(const QString &string)
 {
-    QStringList stringList = string.split(QLatin1String(","));
+    QStringList stringList = string.split(QStringLiteral(","));
     QStringList simpleList;
     foreach (const QString &simpleString, stringList)
         simpleList.append(simpleString.simplified());
@@ -190,6 +190,18 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
         }
     }
     return returnList;
+}
+
+bool BindingProperty::isAliasExport() const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return parentModelNode() == parentModelNode().view()->rootModelNode()
+            && isDynamic()
+            && dynamicTypeName() == "alias"
+            && name() == expression()
+            && parentModelNode().view()->modelNodeForId(expression()).isValid();
 }
 
 void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, const QString &expression)

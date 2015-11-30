@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/removefiledialog.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/fileutils.h>
 
@@ -41,6 +43,7 @@
 #include <QFile>
 #include <QMimeData>
 #include <QtAlgorithms>
+#include <QTextCodec>
 #include <QTextStream>
 
 #include <QIcon>
@@ -110,20 +113,26 @@ ResourceFile::~ResourceFile()
     clearPrefixList();
 }
 
-bool ResourceFile::load()
+Core::IDocument::OpenResult ResourceFile::load()
 {
     m_error_message.clear();
 
     if (m_file_name.isEmpty()) {
         m_error_message = tr("The file name is empty.");
-        return false;
+        return Core::IDocument::OpenResult::ReadError;
     }
 
     QFile file(m_file_name);
     if (!file.open(QIODevice::ReadOnly)) {
         m_error_message = file.errorString();
-        return false;
+        return Core::IDocument::OpenResult::ReadError;
     }
+    QByteArray data = file.readAll();
+    // Detect line ending style
+    m_textFileFormat = Utils::TextFileFormat::detect(data);
+    // we always write UTF-8 when saving
+    m_textFileFormat.codec = QTextCodec::codecForName("UTF-8");
+    file.close();
 
     clearPrefixList();
 
@@ -131,16 +140,16 @@ bool ResourceFile::load()
 
     QString error_msg;
     int error_line, error_col;
-    if (!doc.setContent(&file, &error_msg, &error_line, &error_col)) {
+    if (!doc.setContent(data, &error_msg, &error_line, &error_col)) {
         m_error_message = tr("XML error on line %1, col %2: %3")
                     .arg(error_line).arg(error_col).arg(error_msg);
-        return false;
+        return Core::IDocument::OpenResult::CannotHandle;
     }
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
     if (root.isNull()) {
         m_error_message = tr("The <RCC> root element is missing.");
-        return false;
+        return Core::IDocument::OpenResult::CannotHandle;
     }
 
     QDomElement relt = root.firstChildElement(QLatin1String("qresource"));
@@ -172,24 +181,11 @@ bool ResourceFile::load()
         }
     }
 
-    return true;
+    return Core::IDocument::OpenResult::Success;
 }
 
-bool ResourceFile::save()
+QString ResourceFile::contents() const
 {
-    m_error_message.clear();
-
-    if (m_file_name.isEmpty()) {
-        m_error_message = tr("The file name is empty.");
-        return false;
-    }
-
-    QFile file(m_file_name);
-    if (!file.open(QIODevice::WriteOnly)) {
-        m_error_message = file.errorString();
-        return false;
-    }
-
     QDomDocument doc;
     QDomElement root = doc.createElement(QLatin1String("RCC"));
     doc.appendChild(root);
@@ -209,7 +205,7 @@ bool ResourceFile::save()
             const File &file = *f;
             QDomElement felt = doc.createElement(QLatin1String("file"));
             relt.appendChild(felt);
-            const QString conv_file = relativePath(file.name).replace(QDir::separator(), QLatin1Char('/'));
+            const QString conv_file = QDir::fromNativeSeparators(relativePath(file.name));
             const QDomText text = doc.createTextNode(conv_file);
             felt.appendChild(text);
             if (!file.alias.isEmpty())
@@ -220,15 +216,19 @@ bool ResourceFile::save()
                 felt.setAttribute(QLatin1String("threshold"), file.threshold);
         }
     }
+    return doc.toString(4);
+}
 
-    QTextStream stream(&file);
-    doc.save(stream, 4);
-    stream.flush();
-    if (stream.status() != QTextStream::Ok) {
-        m_error_message = tr("Cannot write file. Disk full?");
+bool ResourceFile::save()
+{
+    m_error_message.clear();
+
+    if (m_file_name.isEmpty()) {
+        m_error_message = tr("The file name is empty.");
         return false;
     }
-    return true;
+
+    return m_textFileFormat.writeFile(m_file_name, contents(), &m_error_message);
 }
 
 void ResourceFile::refresh()
@@ -330,6 +330,7 @@ bool ResourceFile::replacePrefixAndLang(int prefix_idx, const QString &prefix, c
 
     Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     m_prefix_list[prefix_idx]->name = fixed_prefix;
+    m_prefix_list[prefix_idx]->lang = lang;
     return true;
 }
 
@@ -341,7 +342,7 @@ void ResourceFile::replaceAlias(int prefix_idx, int file_idx, const QString &ali
     fileList[file_idx]->alias = alias;
 }
 
-bool ResourceFile::renameFile(const QString fileName, const QString &newFileName)
+bool ResourceFile::renameFile(const QString &fileName, const QString &newFileName)
 {
     bool success = true;
 
@@ -428,7 +429,7 @@ QString ResourceFile::absolutePath(const QString &rel_path) const
         return rel_path;
 
     QString rc = QFileInfo(m_file_name).path();
-    rc +=  QDir::separator();
+    rc +=  QLatin1Char('/');
     rc += rel_path;
     return QDir::cleanPath(rc);
 }
@@ -547,12 +548,9 @@ void ResourceFile::clearPrefixList()
 ** ResourceModel
 */
 
-ResourceModel::ResourceModel(const ResourceFile &resource_file, QObject *parent)
-    : QAbstractItemModel(parent), m_resource_file(resource_file),  m_dirty(false)
+ResourceModel::ResourceModel(QObject *parent)
+    : QAbstractItemModel(parent), m_dirty(false)
 {
-    // Only action that works for QListWidget and the like.
-    setSupportedDragActions(Qt::CopyAction);
-
     m_prefixIcon = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
         QIcon(QLatin1String(":/resourceeditor/images/qt_qrc.png")), QSize(16, 16));
 }
@@ -649,6 +647,30 @@ bool ResourceModel::hasChildren(const QModelIndex &parent) const
 void ResourceModel::refresh()
 {
     m_resource_file.refresh();
+}
+
+QString ResourceModel::errorMessage() const
+{
+    return m_resource_file.errorMessage();
+}
+
+QList<QModelIndex> ResourceModel::nonExistingFiles() const
+{
+    QList<QModelIndex> files;
+    QFileInfo fi;
+    int prefixCount = rowCount(QModelIndex());
+    for (int i = 0; i < prefixCount; ++i) {
+        QModelIndex prefix = index(i, 0, QModelIndex());
+        int fileCount = rowCount(prefix);
+        for (int j = 0; j < fileCount; ++j) {
+            QModelIndex fileIndex = index(j, 0, prefix);
+            QString fileName = file(fileIndex);
+            fi.setFile(fileName);
+            if (!fi.exists())
+                files << fileIndex;
+        }
+    }
+    return files;
 }
 
 Qt::ItemFlags ResourceModel::flags(const QModelIndex &index) const
@@ -1046,11 +1068,11 @@ QModelIndex ResourceModel::deleteItem(const QModelIndex &idx)
     return index(file_idx, 0, prefix_model_idx);
 }
 
-bool ResourceModel::reload()
+Core::IDocument::OpenResult ResourceModel::reload()
 {
     beginResetModel();
-    const bool result = m_resource_file.load();
-    if (result)
+    Core::IDocument::OpenResult result = m_resource_file.load();
+    if (result == Core::IDocument::OpenResult::Success)
         setDirty(false);
     endResetModel();
     return result;
@@ -1101,4 +1123,108 @@ QMimeData *ResourceModel::mimeData(const QModelIndexList &indexes) const
     QMimeData *rc = new QMimeData;
     rc->setText(doc.toString());
     return rc;
+}
+
+
+/*!
+    \class FileEntryBackup
+
+    Backups a file node.
+*/
+class FileEntryBackup : public EntryBackup
+{
+private:
+    int m_fileIndex;
+    QString m_alias;
+
+public:
+    FileEntryBackup(ResourceModel &model, int prefixIndex, int fileIndex,
+            const QString &fileName, const QString &alias)
+            : EntryBackup(model, prefixIndex, fileName), m_fileIndex(fileIndex),
+            m_alias(alias) { }
+    void restore() const;
+};
+
+void FileEntryBackup::restore() const
+{
+    m_model->insertFile(m_prefixIndex, m_fileIndex, m_name, m_alias);
+}
+
+/*!
+    \class PrefixEntryBackup
+
+    Backups a prefix node including children.
+*/
+class PrefixEntryBackup : public EntryBackup
+{
+private:
+    QString m_language;
+    QList<FileEntryBackup> m_files;
+
+public:
+    PrefixEntryBackup(ResourceModel &model, int prefixIndex, const QString &prefix,
+            const QString &language, const QList<FileEntryBackup> &files)
+            : EntryBackup(model, prefixIndex, prefix), m_language(language), m_files(files) { }
+    void restore() const;
+};
+
+void PrefixEntryBackup::restore() const
+{
+    m_model->insertPrefix(m_prefixIndex, m_name, m_language);
+    foreach (const FileEntryBackup &entry, m_files) {
+        entry.restore();
+    }
+}
+
+RelativeResourceModel::RelativeResourceModel(QObject *parent)  :
+    ResourceModel(parent),
+    m_resourceDragEnabled(false)
+{
+}
+
+Qt::ItemFlags RelativeResourceModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags rc = ResourceModel::flags(index);
+    if ((rc & Qt::ItemIsEnabled) && m_resourceDragEnabled)
+        rc |= Qt::ItemIsDragEnabled;
+    return rc;
+}
+
+EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
+{
+    const QModelIndex prefixIndex = this->prefixIndex(index);
+    const bool isPrefixNode = (prefixIndex == index);
+
+    // Create backup, remove, return backup
+    if (isPrefixNode) {
+        QString dummy;
+        QString prefixBackup;
+        getItem(index, prefixBackup, dummy);
+        const QString languageBackup = lang(index);
+        const int childCount = rowCount(index);
+        QList<FileEntryBackup> filesBackup;
+        for (int i = 0; i < childCount; i++) {
+            const QModelIndex childIndex = this->index(i, 0, index);
+            const QString fileNameBackup = file(childIndex);
+            const QString aliasBackup = alias(childIndex);
+            FileEntryBackup entry(*this, index.row(), i, fileNameBackup, aliasBackup);
+            filesBackup << entry;
+        }
+        deleteItem(index);
+        return new PrefixEntryBackup(*this, index.row(), prefixBackup, languageBackup, filesBackup);
+    } else {
+        const QString fileNameBackup = file(index);
+        const QString aliasBackup = alias(index);
+        if (!QFile::exists(fileNameBackup)) {
+            deleteItem(index);
+            return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
+        }
+        Core::RemoveFileDialog removeFileDialog(fileNameBackup, Core::ICore::mainWindow());
+        if (removeFileDialog.exec() == QDialog::Accepted) {
+            deleteItem(index);
+            Core::FileUtils::removeFile(fileNameBackup, removeFileDialog.isDeleteFileChecked());
+            return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
+        }
+        return 0;
+    }
 }

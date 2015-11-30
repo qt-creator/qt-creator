@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 ** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,6 +35,7 @@
 
 #include "ui_valgrindconfigwidget.h"
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -41,6 +43,8 @@
 
 #include <QStandardItemModel>
 #include <QFileDialog>
+
+#include <functional>
 
 namespace Valgrind {
 namespace Internal {
@@ -59,14 +63,14 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     m_ui->valgrindExeChooser->setPromptDialogTitle(tr("Valgrind Command"));
 
     updateUi();
-    connect(m_settings, SIGNAL(changed()), this, SLOT(updateUi()));
+    connect(m_settings, &ValgrindBaseSettings::changed, this, &ValgrindConfigWidget::updateUi);
 
-    connect(m_ui->valgrindExeChooser, SIGNAL(changed(QString)),
-            m_settings, SLOT(setValgrindExecutable(QString)));
-    connect(m_settings, SIGNAL(valgrindExecutableChanged(QString)),
-            m_ui->valgrindExeChooser, SLOT(setPath(QString)));
-    connect(m_ui->smcDetectionComboBox, SIGNAL(currentIndexChanged(int)),
-            m_settings, SLOT(setSelfModifyingCodeDetection(int)));
+    connect(m_ui->valgrindExeChooser, &Utils::PathChooser::rawPathChanged,
+            m_settings, &ValgrindBaseSettings::setValgrindExecutable);
+    connect(m_settings, &ValgrindBaseSettings::valgrindExecutableChanged,
+            m_ui->valgrindExeChooser, &Utils::PathChooser::setPath);
+    connect(m_ui->smcDetectionComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            m_settings, &ValgrindBaseSettings::setSelfModifyingCodeDetection);
 
     if (Utils::HostOsInfo::isWindowsHost()) {
         // FIXME: On Window we know that we don't have a local valgrind
@@ -78,40 +82,40 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     //
     // Callgrind
     //
-    connect(m_ui->enableCacheSim, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setEnableCacheSim(bool)));
-    connect(m_settings, SIGNAL(enableCacheSimChanged(bool)),
-            m_ui->enableCacheSim, SLOT(setChecked(bool)));
+    connect(m_ui->enableCacheSim, &QCheckBox::toggled,
+            m_settings, &ValgrindBaseSettings::setEnableCacheSim);
+    connect(m_settings, &ValgrindBaseSettings::enableCacheSimChanged,
+            m_ui->enableCacheSim, &QAbstractButton::setChecked);
 
-    connect(m_ui->enableBranchSim, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setEnableBranchSim(bool)));
-    connect(m_settings, SIGNAL(enableBranchSimChanged(bool)),
-            m_ui->enableBranchSim, SLOT(setChecked(bool)));
+    connect(m_ui->enableBranchSim, &QCheckBox::toggled,
+            m_settings, &ValgrindBaseSettings::setEnableBranchSim);
+    connect(m_settings, &ValgrindBaseSettings::enableBranchSimChanged,
+            m_ui->enableBranchSim, &QAbstractButton::setChecked);
 
-    connect(m_ui->collectSystime, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setCollectSystime(bool)));
-    connect(m_settings, SIGNAL(collectSystimeChanged(bool)),
-            m_ui->collectSystime, SLOT(setChecked(bool)));
+    connect(m_ui->collectSystime, &QCheckBox::toggled,
+            m_settings, &ValgrindBaseSettings::setCollectSystime);
+    connect(m_settings, &ValgrindBaseSettings::collectSystimeChanged,
+            m_ui->collectSystime, &QAbstractButton::setChecked);
 
-    connect(m_ui->collectBusEvents, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setCollectBusEvents(bool)));
-    connect(m_settings, SIGNAL(collectBusEventsChanged(bool)),
-            m_ui->collectBusEvents, SLOT(setChecked(bool)));
+    connect(m_ui->collectBusEvents, &QCheckBox::toggled,
+            m_settings, &ValgrindBaseSettings::setCollectBusEvents);
+    connect(m_settings, &ValgrindBaseSettings::collectBusEventsChanged,
+            m_ui->collectBusEvents, &QAbstractButton::setChecked);
 
-    connect(m_ui->enableEventToolTips, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setEnableEventToolTips(bool)));
-    connect(m_settings, SIGNAL(enableEventToolTipsChanged(bool)),
-            m_ui->enableEventToolTips, SLOT(setChecked(bool)));
+    connect(m_ui->enableEventToolTips, &QGroupBox::toggled,
+            m_settings, &ValgrindBaseSettings::setEnableEventToolTips);
+    connect(m_settings, &ValgrindBaseSettings::enableEventToolTipsChanged,
+            m_ui->enableEventToolTips, &QGroupBox::setChecked);
 
-    connect(m_ui->minimumInclusiveCostRatio, SIGNAL(valueChanged(double)),
-            m_settings, SLOT(setMinimumInclusiveCostRatio(double)));
-    connect(m_settings, SIGNAL(minimumInclusiveCostRatioChanged(double)),
-            m_ui->minimumInclusiveCostRatio, SLOT(setValue(double)));
+    connect(m_ui->minimumInclusiveCostRatio, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            m_settings, &ValgrindBaseSettings::setMinimumInclusiveCostRatio);
+    connect(m_settings, &ValgrindBaseSettings::minimumInclusiveCostRatioChanged,
+            m_ui->minimumInclusiveCostRatio, &QDoubleSpinBox::setValue);
 
-    connect(m_ui->visualisationMinimumInclusiveCostRatio, SIGNAL(valueChanged(double)),
-            m_settings, SLOT(setVisualisationMinimumInclusiveCostRatio(double)));
-    connect(m_settings, SIGNAL(visualisationMinimumInclusiveCostRatioChanged(double)),
-            m_ui->visualisationMinimumInclusiveCostRatio, SLOT(setValue(double)));
+    connect(m_ui->visualisationMinimumInclusiveCostRatio, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            m_settings, &ValgrindBaseSettings::setVisualisationMinimumInclusiveCostRatio);
+    connect(m_settings, &ValgrindBaseSettings::visualisationMinimumInclusiveCostRatioChanged,
+            m_ui->visualisationMinimumInclusiveCostRatio, &QDoubleSpinBox::setValue);
 
     //
     // Memcheck
@@ -119,45 +123,46 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     m_ui->suppressionList->setModel(m_model);
     m_ui->suppressionList->setSelectionMode(QAbstractItemView::MultiSelection);
 
-    connect(m_ui->addSuppression, SIGNAL(clicked()),
-            this, SLOT(slotAddSuppression()));
-    connect(m_ui->removeSuppression, SIGNAL(clicked()),
-            this, SLOT(slotRemoveSuppression()));
+    connect(m_ui->addSuppression, &QPushButton::clicked, this, &ValgrindConfigWidget::slotAddSuppression);
+    connect(m_ui->removeSuppression, &QPushButton::clicked, this, &ValgrindConfigWidget::slotRemoveSuppression);
 
-    connect(m_ui->numCallers, SIGNAL(valueChanged(int)), m_settings, SLOT(setNumCallers(int)));
-    connect(m_settings, SIGNAL(numCallersChanged(int)), m_ui->numCallers, SLOT(setValue(int)));
+    connect(m_ui->numCallers, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            m_settings, &ValgrindBaseSettings::setNumCallers);
+    connect(m_settings, &ValgrindBaseSettings::numCallersChanged,
+            m_ui->numCallers, &QSpinBox::setValue);
 
-    connect(m_ui->leakCheckOnFinish, SIGNAL(currentIndexChanged(int)),
-            m_settings, SLOT(setLeakCheckOnFinish(int)));
-    connect(m_settings, SIGNAL(leakCheckOnFinishChanged(int)),
-            m_ui->leakCheckOnFinish, SLOT(setCurrentIndex(int)));
+    connect(m_ui->leakCheckOnFinish, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            m_settings, &ValgrindBaseSettings::setLeakCheckOnFinish);
+    connect(m_settings, &ValgrindBaseSettings::leakCheckOnFinishChanged,
+            m_ui->leakCheckOnFinish, &QComboBox::setCurrentIndex);
 
-    connect(m_ui->showReachable, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setShowReachable(bool)));
-    connect(m_settings, SIGNAL(showReachableChanged(bool)),
-            m_ui->showReachable, SLOT(setChecked(bool)));
+    connect(m_ui->showReachable, &QCheckBox::toggled,
+            m_settings, &ValgrindBaseSettings::setShowReachable);
+    connect(m_settings, &ValgrindBaseSettings::showReachableChanged,
+            m_ui->showReachable, &QAbstractButton::setChecked);
 
-    connect(m_ui->trackOrigins, SIGNAL(toggled(bool)),
-            m_settings, SLOT(setTrackOrigins(bool)));
-    connect(m_settings, SIGNAL(trackOriginsChanged(bool)),
-            m_ui->trackOrigins, SLOT(setChecked(bool)));
+    connect(m_ui->trackOrigins, &QCheckBox::toggled, m_settings, &ValgrindBaseSettings::setTrackOrigins);
+    connect(m_settings, &ValgrindBaseSettings::trackOriginsChanged,
+            m_ui->trackOrigins, &QAbstractButton::setChecked);
 
-    connect(m_settings, SIGNAL(suppressionFilesRemoved(QStringList)),
-            this, SLOT(slotSuppressionsRemoved(QStringList)));
-    connect(m_settings, SIGNAL(suppressionFilesAdded(QStringList)),
-            this, SLOT(slotSuppressionsAdded(QStringList)));
+    connect(m_settings, &ValgrindBaseSettings::suppressionFilesRemoved,
+            this, &ValgrindConfigWidget::slotSuppressionsRemoved);
+    connect(m_settings, &ValgrindBaseSettings::suppressionFilesAdded,
+            this, &ValgrindConfigWidget::slotSuppressionsAdded);
 
-    connect(m_ui->suppressionList->selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(slotSuppressionSelectionChanged()));
+    connect(m_ui->suppressionList->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &ValgrindConfigWidget::slotSuppressionSelectionChanged);
     slotSuppressionSelectionChanged();
 
     if (!global) {
         // In project settings we want a flat vertical list.
         QVBoxLayout *l = new QVBoxLayout;
-        while (layout()->count())
-            if (QWidget *w = layout()->takeAt(0)->widget())
+        while (layout()->count()) {
+            QLayoutItem *item = layout()->takeAt(0);
+            if (QWidget *w = item->widget())
                 l->addWidget(w);
+            delete item;
+        }
         delete layout();
         setLayout(l);
     }
@@ -216,11 +221,6 @@ void ValgrindConfigWidget::slotSuppressionsAdded(const QStringList &files)
         m_model->appendRow(new QStandardItem(file));
 }
 
-bool sortReverse(int l, int r)
-{
-    return l > r;
-}
-
 void ValgrindConfigWidget::slotRemoveSuppression()
 {
     // remove from end so no rows get invalidated
@@ -232,7 +232,7 @@ void ValgrindConfigWidget::slotRemoveSuppression()
         removed << index.data().toString();
     }
 
-    qSort(rows.begin(), rows.end(), sortReverse);
+    Utils::sort(rows, std::greater<int>());
 
     foreach (int row, rows)
         m_model->removeRow(row);

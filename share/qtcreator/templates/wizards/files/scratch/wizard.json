@@ -1,0 +1,29 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "Z.ScratchFile",
+    "category": "U.General",
+    "trDescription": "Creates a scratch buffer using a temporary file.",
+    "trDisplayName": "Scratch Buffer",
+    "trDisplayCategory": "General",
+    "icon": "../../global/genericfilewizard.png",
+    "platformIndependent": true,
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('TextEditor') >= 0}",
+
+    "options": [ { "key": "TargetPath", "value": "%{JS: Util.mktemp('scratch-XXXXXX.txt')}" } ],
+
+    "pages" : [],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.txt",
+                "target": "%{TargetPath}",
+                "overwrite": true,
+                "openInEditor": true
+            }
+        }
+    ]
+}

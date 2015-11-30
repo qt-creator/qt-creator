@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,25 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "styleanimator.h"
+
+#include <utils/algorithm.h>
 
 #include <QStyleOption>
 
@@ -35,11 +38,7 @@ Animation * StyleAnimator::widgetAnimation(const QWidget *widget) const
 {
     if (!widget)
         return 0;
-    foreach (Animation *a, animations) {
-        if (a->widget() == widget)
-            return a;
-    }
-    return 0;
+    return Utils::findOrDefault(animations, Utils::equal(&Animation::widget, widget));
 }
 
 void Animation::paint(QPainter *painter, const QStyleOption *option)
@@ -48,7 +47,7 @@ void Animation::paint(QPainter *painter, const QStyleOption *option)
     Q_UNUSED(painter)
 }
 
-void Animation::drawBlendedImage(QPainter *painter, QRect rect, float alpha)
+void Animation::drawBlendedImage(QPainter *painter, const QRect &rect, float alpha)
 {
     if (m_secondaryImage.isNull() || m_primaryImage.isNull())
         return;
@@ -65,8 +64,8 @@ void Animation::drawBlendedImage(QPainter *painter, QRect rect, float alpha)
     case 32:
         {
             uchar *mixed_data = m_tempImage.bits();
-            const uchar *back_data = m_primaryImage.bits();
-            const uchar *front_data = m_secondaryImage.bits();
+            const uchar *back_data = m_primaryImage.constBits();
+            const uchar *front_data = m_secondaryImage.constBits();
             for (int sy = 0; sy < sh; sy++) {
                 quint32 *mixed = (quint32*)mixed_data;
                 const quint32* back = (const quint32*)back_data;

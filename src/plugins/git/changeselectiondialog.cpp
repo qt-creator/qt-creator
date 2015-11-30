@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,10 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 #include "ui_changeselectiondialog.h"
+
+#include <coreplugin/vcsmanager.h>
+
+#include <utils/theme/theme.h>
 
 #include <QProcess>
 #include <QFormLayout>
@@ -46,6 +51,8 @@
 #include <QStringListModel>
 #include <QTimer>
 
+using namespace Utils;
+
 namespace Git {
 namespace Internal {
 
@@ -56,22 +63,31 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     , m_command(NoCommand)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    m_gitBinaryPath = GitPlugin::instance()->gitClient()->gitBinaryPath();
+    m_gitExecutable = GitPlugin::instance()->client()->vcsBinary();
     m_ui->setupUi(this);
     m_ui->workingDirectoryEdit->setText(workingDirectory);
-    m_gitEnvironment = GitPlugin::instance()->gitClient()->processEnvironment();
+    m_gitEnvironment = GitPlugin::instance()->client()->processEnvironment();
     m_ui->changeNumberEdit->setFocus();
     m_ui->changeNumberEdit->selectAll();
 
-    connect(m_ui->changeNumberEdit, SIGNAL(textChanged(QString)), this, SLOT(changeTextChanged(QString)));
-    connect(m_ui->workingDirectoryEdit, SIGNAL(textChanged(QString)), this, SLOT(recalculateDetails()));
-    connect(m_ui->workingDirectoryEdit, SIGNAL(textChanged(QString)), this, SLOT(recalculateCompletion()));
-    connect(m_ui->selectDirectoryButton, SIGNAL(clicked()), this, SLOT(chooseWorkingDirectory()));
-    connect(m_ui->selectFromHistoryButton, SIGNAL(clicked()), this, SLOT(selectCommitFromRecentHistory()));
-    connect(m_ui->showButton, SIGNAL(clicked()), this, SLOT(acceptShow()));
-    connect(m_ui->cherryPickButton, SIGNAL(clicked()), this, SLOT(acceptCherryPick()));
-    connect(m_ui->revertButton, SIGNAL(clicked()), this, SLOT(acceptRevert()));
-    connect(m_ui->checkoutButton, SIGNAL(clicked()), this, SLOT(acceptCheckout()));
+    connect(m_ui->changeNumberEdit, &Utils::CompletingLineEdit::textChanged,
+            this, &ChangeSelectionDialog::changeTextChanged);
+    connect(m_ui->workingDirectoryEdit, &QLineEdit::textChanged,
+            this, &ChangeSelectionDialog::recalculateDetails);
+    connect(m_ui->workingDirectoryEdit, &QLineEdit::textChanged,
+            this, &ChangeSelectionDialog::recalculateCompletion);
+    connect(m_ui->selectDirectoryButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::chooseWorkingDirectory);
+    connect(m_ui->selectFromHistoryButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::selectCommitFromRecentHistory);
+    connect(m_ui->showButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::acceptShow);
+    connect(m_ui->cherryPickButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::acceptCherryPick);
+    connect(m_ui->revertButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::acceptRevert);
+    connect(m_ui->checkoutButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::acceptCheckout);
 
     if (id == "Git.Revert")
         m_ui->revertButton->setDefault(true);
@@ -82,7 +98,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     else
         m_ui->showButton->setDefault(true);
     m_changeModel = new QStringListModel(this);
-    QCompleter *changeCompleter = new QCompleter(m_changeModel, this);
+    auto changeCompleter = new QCompleter(m_changeModel, this);
     m_ui->changeNumberEdit->setCompleter(changeCompleter);
     changeCompleter->setCaseSensitivity(Qt::CaseInsensitive);
 
@@ -92,8 +108,8 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
 
 ChangeSelectionDialog::~ChangeSelectionDialog()
 {
+    terminateProcess();
     delete m_ui;
-    delete m_process;
 }
 
 QString ChangeSelectionDialog::change() const
@@ -119,10 +135,7 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     if (dialog.result() == QDialog::Rejected || dialog.commitIndex() == -1)
         return;
 
-    if (dialog.commitIndex() > 0)
-        commit += QLatin1Char('~') + QString::number(dialog.commitIndex());
-
-    m_ui->changeNumberEdit->setText(commit);
+    m_ui->changeNumberEdit->setText(dialog.commit());
 }
 
 void ChangeSelectionDialog::chooseWorkingDirectory()
@@ -142,7 +155,7 @@ QString ChangeSelectionDialog::workingDirectory() const
     if (workingDir.isEmpty() || !QDir(workingDir).exists())
         return QString();
 
-    return GitPlugin::instance()->gitClient()->findRepositoryForDirectory(workingDir);
+    return Core::VcsManager::findTopLevelForDirectory(workingDir);
 }
 
 ChangeCommand ChangeSelectionDialog::command() const
@@ -177,15 +190,17 @@ void ChangeSelectionDialog::acceptShow()
 //! Set commit message in details
 void ChangeSelectionDialog::setDetails(int exitCode)
 {
+    Theme *theme = creatorTheme();
+
     QPalette palette;
     if (exitCode == 0) {
         m_ui->detailsText->setPlainText(QString::fromUtf8(m_process->readAllStandardOutput()));
-        palette.setColor(QPalette::Text, Qt::black);
+        palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
         m_ui->changeNumberEdit->setPalette(palette);
         enableButtons(true);
     } else {
         m_ui->detailsText->setPlainText(tr("Error: Unknown reference"));
-        palette.setColor(QPalette::Text, Qt::red);
+        palette.setColor(QPalette::Text, theme->color(Theme::TextColorError));
         m_ui->changeNumberEdit->setPalette(palette);
     }
 }
@@ -198,6 +213,16 @@ void ChangeSelectionDialog::enableButtons(bool b)
     m_ui->checkoutButton->setEnabled(b);
 }
 
+void ChangeSelectionDialog::terminateProcess()
+{
+    if (!m_process)
+        return;
+    m_process->kill();
+    m_process->waitForFinished();
+    delete m_process;
+    m_process = 0;
+}
+
 void ChangeSelectionDialog::recalculateCompletion()
 {
     const QString workingDir = workingDirectory();
@@ -206,7 +231,7 @@ void ChangeSelectionDialog::recalculateCompletion()
     m_oldWorkingDir = workingDir;
 
     if (!workingDir.isEmpty()) {
-        GitClient *client = GitPlugin::instance()->gitClient();
+        GitClient *client = GitPlugin::instance()->client();
         QStringList args;
         args << QLatin1String("--format=%(refname:short)");
         QString output;
@@ -220,42 +245,39 @@ void ChangeSelectionDialog::recalculateCompletion()
 
 void ChangeSelectionDialog::recalculateDetails()
 {
-    if (m_process) {
-        m_process->kill();
-        m_process->waitForFinished();
-        delete m_process;
-        m_process = 0;
-    }
+    terminateProcess();
     enableButtons(false);
 
     const QString workingDir = workingDirectory();
     QPalette palette = m_ui->workingDirectoryEdit->palette();
+    Theme *theme = creatorTheme();
     if (workingDir.isEmpty()) {
         m_ui->detailsText->setPlainText(tr("Error: Bad working directory."));
-        palette.setColor(QPalette::Text, Qt::red);
+        palette.setColor(QPalette::Text, theme->color(Theme::TextColorError));
         m_ui->workingDirectoryEdit->setPalette(palette);
         return;
     } else {
-        palette.setColor(QPalette::Text, Qt::black);
+        palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
         m_ui->workingDirectoryEdit->setPalette(palette);
     }
 
     const QString ref = change();
     if (ref.isEmpty()) {
-        m_ui->detailsText->setPlainText(QString());
+        m_ui->detailsText->clear();
         return;
     }
 
     QStringList args;
-    args << QLatin1String("log") << QLatin1String("-n1") << ref;
+    args << QLatin1String("show") << QLatin1String("--stat=80") << ref;
 
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(workingDir);
     m_process->setProcessEnvironment(m_gitEnvironment);
 
-    connect(m_process, SIGNAL(finished(int)), this, SLOT(setDetails(int)));
+    connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            this, &ChangeSelectionDialog::setDetails);
 
-    m_process->start(m_gitBinaryPath, args);
+    m_process->start(m_gitExecutable.toString(), args);
     m_process->closeWriteChannel();
     if (!m_process->waitForStarted())
         m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));
@@ -268,7 +290,7 @@ void ChangeSelectionDialog::changeTextChanged(const QString &text)
     if (QCompleter *comp = m_ui->changeNumberEdit->completer()) {
         if (text.isEmpty() && !comp->popup()->isVisible()) {
             comp->setCompletionPrefix(text);
-            QTimer::singleShot(0, comp, SLOT(complete()));
+            QTimer::singleShot(0, comp, [comp]{ comp->complete(); });
         }
     }
     recalculateDetails();

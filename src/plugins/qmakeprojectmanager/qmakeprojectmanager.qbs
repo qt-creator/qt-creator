@@ -1,12 +1,9 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "QmakeProjectManager"
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
-    Depends { name: "Aggregation" }
     Depends { name: "QmlJS" }
     Depends { name: "Utils" }
 
@@ -15,7 +12,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "CppTools" }
     Depends { name: "TextEditor" }
-    Depends { name: "QmlJSTools" }
     Depends { name: "ResourceEditor" }
 
     pluginRecommends: [
@@ -32,14 +28,12 @@ QtcPlugin {
             "librarydetailscontroller.cpp", "librarydetailscontroller.h",
             "librarydetailswidget.ui",
             "makestep.cpp", "makestep.h", "makestep.ui",
+            "makefileparse.cpp", "makefileparse.h",
             "profilecompletionassist.cpp", "profilecompletionassist.h",
             "profileeditor.cpp", "profileeditor.h",
-            "profileeditorfactory.cpp", "profileeditorfactory.h",
             "profilehighlighter.cpp", "profilehighlighter.h",
-            "profilehighlighterfactory.cpp", "profilehighlighterfactory.h",
             "profilehoverhandler.cpp", "profilehoverhandler.h",
             "qmakebuildinfo.h",
-            "qmakeparser.cpp", "qmakeparser.h",
             "qmakekitconfigwidget.cpp", "qmakekitconfigwidget.h",
             "qmakekitinformation.cpp", "qmakekitinformation.h",
             "qmakeparser.cpp", "qmakeparser.h",
@@ -91,27 +85,14 @@ QtcPlugin {
         name: "Wizards"
         prefix: "wizards/"
         files: [
-            "abstractmobileapp.cpp", "abstractmobileapp.h",
-            "abstractmobileappwizard.cpp", "abstractmobileappwizard.h",
-            "consoleappwizard.cpp", "consoleappwizard.h",
-            "consoleappwizarddialog.cpp", "consoleappwizarddialog.h",
-            "emptyprojectwizard.cpp", "emptyprojectwizard.h",
-            "emptyprojectwizarddialog.cpp", "emptyprojectwizarddialog.h",
             "filespage.cpp", "filespage.h",
             "guiappwizard.cpp", "guiappwizard.h",
             "guiappwizarddialog.cpp", "guiappwizarddialog.h",
-            "html5app.cpp", "html5app.h",
-            "html5appwizard.cpp", "html5appwizard.h",
-            "html5appwizardpages.cpp", "html5appwizardpages.h",
-            "html5appwizardsourcespage.ui",
             "libraryparameters.cpp", "libraryparameters.h",
             "librarywizard.cpp", "librarywizard.h",
             "librarywizarddialog.cpp", "librarywizarddialog.h",
             "modulespage.cpp", "modulespage.h",
             "qtprojectparameters.cpp", "qtprojectparameters.h",
-            "qtquickapp.cpp", "qtquickapp.h",
-            "qtquickappwizard.cpp", "qtquickappwizard.h",
-            "qtquickappwizardpages.cpp", "qtquickappwizardpages.h",
             "qtwizard.cpp", "qtwizard.h",
             "subdirsprojectwizard.cpp", "subdirsprojectwizard.h",
             "subdirsprojectwizarddialog.cpp", "subdirsprojectwizarddialog.h",
@@ -129,9 +110,13 @@ QtcPlugin {
         files: [
             "console.png",
             "gui.png",
-            "html5app.png",
             "lib.png",
             "qtquickapp.png",
         ]
+    }
+
+    Export {
+        Depends { name: "cpp" }
+        cpp.includePaths: [project.sharedSourcesDir]
     }
 }

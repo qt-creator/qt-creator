@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -51,7 +52,17 @@ namespace Internal {
 
 WinRtDeviceFactory::WinRtDeviceFactory()
     : m_process(0)
+    , m_initialized(false)
 {
+    if (allPrerequisitesLoaded()) {
+        onPrerequisitesLoaded();
+    } else {
+        connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
+                this, &WinRtDeviceFactory::onPrerequisitesLoaded, Qt::QueuedConnection);
+        connect(QtVersionManager::instance(),
+                &QtVersionManager::qtVersionsLoaded,
+                this, &WinRtDeviceFactory::onPrerequisitesLoaded, Qt::QueuedConnection);
+    }
 }
 
 QString WinRtDeviceFactory::displayNameForId(Core::Id type) const
@@ -107,13 +118,19 @@ void WinRtDeviceFactory::autoDetect()
     m_process->start();
 }
 
-void WinRtDeviceFactory::onDevicesLoaded()
+void WinRtDeviceFactory::onPrerequisitesLoaded()
 {
+    if (!allPrerequisitesLoaded() || m_initialized)
+        return;
+
+    m_initialized = true;
+    disconnect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
+               this, &WinRtDeviceFactory::onPrerequisitesLoaded);
+    disconnect(QtVersionManager::instance(), &QtVersionManager::qtVersionsLoaded,
+               this, &WinRtDeviceFactory::onPrerequisitesLoaded);
     autoDetect();
-    connect(QtSupport::QtVersionManager::instance(),
-            SIGNAL(qtVersionsChanged(const QList<int>&, const QList<int>&,
-                                                       const QList<int>&)),
-            SLOT(autoDetect()));
+    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+            this, &WinRtDeviceFactory::autoDetect);
 }
 
 void WinRtDeviceFactory::onProcessError()
@@ -136,6 +153,11 @@ void WinRtDeviceFactory::onProcessFinished(int exitCode, QProcess::ExitStatus ex
     }
 
     parseRunnerOutput(m_process->readAllStandardOutput());
+}
+
+bool WinRtDeviceFactory::allPrerequisitesLoaded()
+{
+    return QtVersionManager::isLoaded() && DeviceManager::instance()->isLoaded();
 }
 
 QString WinRtDeviceFactory::findRunnerFilePath() const
@@ -174,7 +196,7 @@ static int extractDeviceId(QByteArray *line)
 
 static IDevice::MachineType machineTypeFromLine(const QByteArray &line)
 {
-    return line.startsWith("Emulator ") ? IDevice::Emulator : IDevice::Hardware;
+    return line.contains("Emulator ") ? IDevice::Emulator : IDevice::Hardware;
 }
 
 /*
@@ -183,6 +205,19 @@ static IDevice::MachineType machineTypeFromLine(const QByteArray &line)
  * Available devices:
  * Appx:
  *   0 local
+ * Phone:
+ *   0 Device
+ *   1 Emulator 8.1 WVGA 4 inch 512MB
+ *   2 Emulator 8.1 WVGA 4 inch
+ *   3 Emulator 8.1 WXGA 4 inch
+ *   4 Emulator 8.1 720P 4.7 inch
+ *   5 Emulator 8.1 1080P 5.5 inch
+ *   6 Emulator 8.1 1080P 6 inch
+ *   7 WE8.1H Emulator WVGA 512MB
+ *   8 WE8.1H Emulator WVGA
+ *   9 WE8.1H Emulator WXGA
+ *   10 WE8.1H Emulator 720P
+ *   11 WE8.1H Emulator 1080P
  * Xap:
  *   0 Device
  *   1 Emulator WVGA 512MB
@@ -193,7 +228,7 @@ static IDevice::MachineType machineTypeFromLine(const QByteArray &line)
 void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
 {
     ProjectExplorer::DeviceManager *deviceManager = ProjectExplorer::DeviceManager::instance();
-    enum State { StartState, AppxState, XapState };
+    enum State { StartState, AppxState, PhoneState, XapState };
     State state = StartState;
     int numFound = 0;
     int numSkipped = 0;
@@ -201,6 +236,8 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
         line = line.trimmed();
         if (line == "Appx:") {
             state = AppxState;
+        } else if (line == "Phone:") {
+            state = PhoneState;
         } else if (line == "Xap:") {
             state = XapState;
         } else {
@@ -216,6 +253,13 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
                 internalName += QStringLiteral("appx.");
                 deviceType = Constants::WINRT_DEVICE_TYPE_LOCAL;
                 name = tr("Windows Runtime local UI");
+            } else if (state == PhoneState) {
+                internalName += QStringLiteral("phone.");
+                name = QString::fromLocal8Bit(line);
+                if (machineType == IDevice::Emulator)
+                    deviceType = Constants::WINRT_DEVICE_TYPE_EMULATOR;
+                else
+                    deviceType = Constants::WINRT_DEVICE_TYPE_PHONE;
             } else if (state == XapState) {
                 internalName += QStringLiteral("xap.");
                 name = QString::fromLocal8Bit(line);

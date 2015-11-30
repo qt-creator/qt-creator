@@ -1,29 +1,40 @@
 import qbs
 
-Application {
+QtcProduct {
+    Depends { name: "bundle" }
+    Depends { name: "ib"; condition: qbs.targetOS.contains("osx") }
+
+    bundle.isBundle: true
+    bundle.infoPlistFile: "Info.plist" // TODO: Remove for qbs 1.6
+
+    Properties {
+        condition: qbs.targetOS.contains("osx")
+        ib.appIconName: "qtcreator"
+    }
+
+    type: ["application"]
     name: project.ide_app_target
     consoleApplication: qbs.debugInformation
+    version: project.qtcreator_version
 
-    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/.."]
+    installSourceBase: buildDirectory
+
+    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/../Frameworks"]
                                              : ["$ORIGIN/../" + project.libDirName + "/qtcreator"]
-    cpp.defines: project.generalDefines
-    cpp.linkerFlags: {
-        if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
-            return ["-Wl,-s"]
-    }
     cpp.includePaths: [
-        "../shared/qtsingleapplication",
-        "../shared/qtlockedfile",
+        project.sharedSourcesDir + "/qtsingleapplication",
+        project.sharedSourcesDir + "/qtlockedfile",
     ]
 
     Depends { name: "app_version_header" }
-    Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Utils" }
     Depends { name: "ExtensionSystem" }
 
     files: [
+        // TODO: Uncomment for qbs 1.6 "Info.plist",
         "main.cpp",
+        "qtcreator.xcassets",
         "qtcreator.rc",
         "../shared/qtsingleapplication/qtsingleapplication.h",
         "../shared/qtsingleapplication/qtsingleapplication.cpp",
@@ -59,8 +70,9 @@ Application {
     }
 
     Group {
-        fileTagsFilter: product.type
+        condition: qbs.targetOS.contains("osx")
+        fileTagsFilter: ["infoplist", "pkginfo", "compiled_assetcatalog"]
         qbs.install: true
-        qbs.installDir: project.ide_app_path
+        qbs.installSourceBase: installSourceBase
     }
 }

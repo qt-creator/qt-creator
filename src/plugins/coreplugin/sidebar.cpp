@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,32 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "sidebar.h"
 #include "sidebarwidget.h"
+#include "coreicons.h"
 
 #include "actionmanager/command.h"
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QSettings>
 #include <QPointer>
@@ -152,7 +156,7 @@ void SideBar::makeItemAvailable(SideBarItem *item)
             d->m_availableItemIds.append(it.key());
             d->m_availableItemTitles.append(it.value().data()->title());
             d->m_unavailableItemIds.removeAll(it.key());
-            qSort(d->m_availableItemTitles);
+            Utils::sort(d->m_availableItemTitles);
             emit availableItemsChanged();
             //updateWidgets();
             break;
@@ -178,7 +182,7 @@ void SideBar::setUnavailableItemIds(const QStringList &itemIds)
         d->m_availableItemIds.removeAll(id);
         d->m_availableItemTitles.removeAll(d->m_itemMap.value(id).data()->title());
     }
-    qSort(d->m_availableItemTitles);
+    Utils::sort(d->m_availableItemTitles);
     updateWidgets();
 }
 
@@ -199,12 +203,19 @@ SideBarItem *SideBar::item(const QString &id)
 
 Internal::SideBarWidget *SideBar::insertSideBarWidget(int position, const QString &id)
 {
+    if (!d->m_widgets.isEmpty())
+        d->m_widgets.at(0)->setCloseIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
+
     Internal::SideBarWidget *item = new Internal::SideBarWidget(this, id);
     connect(item, SIGNAL(splitMe()), this, SLOT(splitSubWidget()));
     connect(item, SIGNAL(closeMe()), this, SLOT(closeSubWidget()));
     connect(item, SIGNAL(currentWidgetChanged()), this, SLOT(updateWidgets()));
     insertWidget(position, item);
     d->m_widgets.insert(position, item);
+    if (d->m_widgets.size() == 1)
+    d->m_widgets.at(0)->setCloseIcon(d->m_widgets.size() == 1
+                                     ? Icons::CLOSE_SPLIT_LEFT.icon()
+                                     : Icons::CLOSE_SPLIT_TOP.icon());
     updateWidgets();
     return item;
 }
@@ -232,6 +243,11 @@ void SideBar::closeSubWidget()
         if (!widget)
             return;
         removeSideBarWidget(widget);
+        // update close button of top item
+        if (d->m_widgets.size() == 1)
+            d->m_widgets.at(0)->setCloseIcon(d->m_widgets.size() == 1
+                                             ? Icons::CLOSE_SPLIT_LEFT.icon()
+                                             : Icons::CLOSE_SPLIT_TOP.icon());
         updateWidgets();
     } else {
         if (d->m_closeWhenEmpty) {
@@ -264,7 +280,8 @@ void SideBar::saveSettings(QSettings *settings, const QString &name)
     }
 
     settings->setValue(prefix + QLatin1String("Views"), views);
-    settings->setValue(prefix + QLatin1String("Visible"), true);
+    settings->setValue(prefix + QLatin1String("Visible"),
+                       parentWidget() ? isVisibleTo(parentWidget()) : true);
     settings->setValue(prefix + QLatin1String("VerticalPosition"), saveState());
     settings->setValue(prefix + QLatin1String("Width"), width());
 }
@@ -286,12 +303,14 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
         QStringList views = settings->value(viewsKey).toStringList();
         if (views.count()) {
             foreach (const QString &id, views)
-                insertSideBarWidget(d->m_widgets.count(), id);
+                if (availableItemIds().contains(id))
+                    insertSideBarWidget(d->m_widgets.count(), id);
 
         } else {
             insertSideBarWidget(0);
         }
-    } else {
+    }
+    if (d->m_widgets.size() == 0) {
         foreach (const QString &id, d->m_defaultVisible)
             insertSideBarWidget(d->m_widgets.count(), id);
     }
@@ -312,25 +331,12 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
     }
 }
 
-void SideBar::activateItem(SideBarItem *item)
+void SideBar::activateItem(const QString &id)
 {
-    typedef QMap<QString, QPointer<SideBarItem> >::const_iterator Iterator;
-
-    QString id;
-    const Iterator cend = d->m_itemMap.constEnd();
-    for (Iterator it = d->m_itemMap.constBegin(); it != cend ; ++it) {
-        if (it.value().data() == item) {
-            id = it.key();
-            break;
-        }
-    }
-
-    if (id.isEmpty())
-        return;
-
+    QTC_ASSERT(d->m_itemMap.contains(id), return);
     for (int i = 0; i < d->m_widgets.count(); ++i) {
         if (d->m_widgets.at(i)->currentItemId() == id) {
-            item->widget()->setFocus();
+            d->m_itemMap.value(id)->widget()->setFocus();
             return;
         }
     }
@@ -338,15 +344,15 @@ void SideBar::activateItem(SideBarItem *item)
     Internal::SideBarWidget *widget = d->m_widgets.first();
     widget->setCurrentItem(id);
     updateWidgets();
-    item->widget()->setFocus();
+    d->m_itemMap.value(id)->widget()->setFocus();
 }
 
-void SideBar::setShortcutMap(const QMap<QString, Core::Command*> &shortcutMap)
+void SideBar::setShortcutMap(const QMap<QString, Command*> &shortcutMap)
 {
     d->m_shortcutMap = shortcutMap;
 }
 
-QMap<QString, Core::Command*> SideBar::shortcutMap() const
+QMap<QString, Command*> SideBar::shortcutMap() const
 {
     return d->m_shortcutMap;
 }

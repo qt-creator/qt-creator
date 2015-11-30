@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -18,7 +18,7 @@
 
     /*!
 
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-connecting-mobile.html
     \page creator-developing-android.html
     \nextpage creator-developing-baremetal.html
@@ -50,16 +50,24 @@
         \li \l{http://www.oracle.com/technetwork/java/javase/downloads/index.html}
             {Java SE Development Kit (JDK)} version 6, or later
 
-        \li \l{http://ant.apache.org/bindownload.cgi}{Apache Ant} 1.8.0, or
-            later
+        \li A build tool for building application packages for Android devices:
 
-        \li A tool chain for building applications for Android devices. You have
-            several options, such as the
+            \list
+
+                \li \l{http://ant.apache.org/bindownload.cgi}{Apache Ant} 1.8.0,
+                    or later
+
+                \li \l{http://www.gradle.org}{Gradle}
+
+            \endlist
+
+        \li A tool chain for building applications for Android devices provided
+            by the
             \l{http://developer.android.com/sdk/index.html}{Android SDK} and
             \l{http://developer.android.com/tools/sdk/ndk/index.html}
-            {Android NDK} from Google (supported for development with Qt 5) or the
-            \l{http://necessitas.kde.org/necessitas/necessitas_sdk_installer.php}
-            {Necessitas SDK} (supported for development with Qt 4).
+            {Android NDK} from Google.
+
+            \note Android Studio is currently not supported by \QC.
 
         \li On Windows, you also need the following:
 
@@ -92,7 +100,25 @@
         ./android update sdk
         \endcode
 
-    \section1 Developing with Qt 5
+    \section1 Selecting the APK Build Tool
+
+    On Android, applications are distributed in specially structured type of ZIP
+    packages called APK. You can use either Ant or Gradle to build APKs. Using
+    Gradle has the following benefits:
+
+    \list
+
+        \li It is 25 to 50 percent faster than Ant when rebuilding packages.
+
+        \li It is integrated with Android Studio.
+
+        \li It supports easily adding Android Extras libraries, such as
+            Google Play services or Android extension files (.obb) to your
+            project.
+
+    \endlist
+
+    \section1 Setting Up the Development Environment
 
     You must download and install the latest Android NDK and SDK, and update the
     SDK to get the API and tools packages needed for development. In addition,
@@ -104,99 +130,72 @@
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui Android to add paths to the
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Android to add paths to the
             Android NDK and SDK.
+
+            You can use the
+            \inlineimage qtcreator-options-android-download-button.png
+            (\uicontrol Download) buttons to go to the sites where you can download
+            the Android NDK and SDK.
 
             \image qtcreator-options-android1.png "Android options"
 
-        \li Select the \gui {Automatically create kits for Android tool chains}
+        \li Select the \uicontrol {Automatically create kits for Android tool chains}
             check box to allow \QC to create the kits for you. \QC displays a
             warning if it cannot find a suitable Qt version.
 
-        \li Select \gui File > \gui {New File or Project} > \gui Applications >
-            \gui {Qt Quick Application} > \gui Choose, and
+        \li Select the tool to use for building application packages:
+
+            \list
+
+                \li To use Gradle, select the \uicontrol {Use Gradle instead of Ant}
+                    check box.
+
+                \li To use Ant, add the path to the Ant executable in the
+                    \uicontrol {Ant executable} field.
+
+            \endlist
+
+        \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol Application >
+            \uicontrol {Qt Quick Application} > \uicontrol Choose, and
             follow the instructions of the wizard. For more information, see
             \l{Creating Qt Quick Projects}.
 
         \li To specify settings for deploying applications to Android, select
-            \gui Projects > \gui Run for the \gui Android kit, and then select
-            \gui Details to view the \gui {Deploy configurations}. For more
+            \uicontrol Projects > \uicontrol Run for the \uicontrol Android kit, and then select
+            \uicontrol Details to view the \uicontrol {Deploy configurations}. For more
             information about the options you have, see
             \l{Deploying Applications to Android Devices}.
 
         \li Enable debugging on your Android device.
 
             Debugging is enabled in different ways on different Android devices.
-            Look for \gui {USB Debugging} under \gui {Developer Options}. On
-            some devices \gui {Developer Options} is hidden and becomes visible
-            when you tap the \gui {Build number} field in \gui Settings >
-            \gui About several times.
+            Look for \uicontrol {USB Debugging} under \uicontrol {Developer Options}. On
+            some devices \uicontrol {Developer Options} is hidden and becomes visible
+            when you tap the \uicontrol {Build number} field in \uicontrol Settings >
+            \uicontrol About several times.
 
         \li Connect the Android device to the development PC with a USB cable.
             You might be asked to select a device in the
-            \gui {Select Android Devices} dialog.
-    \endlist
-
-    \section1 Developing with Qt 4
-
-    The Necessitas SDK automatically sets the paths to the required software
-    in \QC, but you need to add the Qt version. \QC can then create the
-    necessary kits for you.
-
-    To configure connections between \QC and Android devices:
-
-    \list 1
-
-        \li Select \gui Tools > \gui Options > \gui {Build & Run} >
-            \gui {Qt Versions} > \gui Add to add the path to \c qmake path in
-            the Qt for Android SDK.
-
-        \li Select \gui Tools > \gui Options > \gui Android to check the paths
-            to the required software.
-
-            \image qtcreator-options-android.png "Android options"
-
-        \li Select the \gui {Automatically create kits for Android tool chains}
-            check box to allow \QC to create the kits for you. \QC displays a
-            warning if it cannot find a suitable Qt version.
-
-        \li To create an application, select \gui File >
-            \gui {New File or Project} > \gui Applications >
-            \gui {Qt Quick Application} > \gui Choose, and
-            follow the instructions of the wizard. For more information, see
-            \l{Creating Qt Quick Projects}.
-
-        \li To specify information for the Android manifest file, select
-            \gui Projects > \gui Run for the \gui Android kit.
-
-        \li Select \gui Details to view the
-            \gui {Package configurations}. For more information about the
-            options you have, see
-            \l{Specifying Settings for Qt 4 Packages}.
-
-        \li To specify settings for deploying applications to Android, select
-            \gui Details to view the \gui {Deploy configurations}. For more
-            information about the options you have, see
-            \l{Deploying Applications to Android Devices}.
-
+            \uicontrol {Select Android Devices} dialog.
     \endlist
 
     \section1 Selecting Android Devices
 
     When you deploy an application to an Android device with Android
-    version 4.2 or later, the \gui {Select Android Devices} dialog opens. It
+    version 4.2 or later, the \uicontrol {Select Android Devices} dialog opens. It
     lists the devices that are connected to the development PC. and their
-    status. You can select devices from the \gui {Compatible Devices} list for
+    status. You can select devices from the \uicontrol {Compatible Devices} list for
     deployment.
 
     If \QC determines that a device is not ready for deployment, it places the
-    device in the \gui {Incompatible Devices} list, with information about the
+    device in the \uicontrol {Incompatible Devices} list, with information about the
     issue. For example, you might need to authorize the connection on the
     device. After you authorize the connection on the device, select
-    \gui {Refresh Device List}. The device is moved to the
-    \gui {Compatible Devices} list and you can select it for deployment.
+    \uicontrol {Refresh Device List}. The device is moved to the
+    \uicontrol {Compatible Devices} list and you can select it for deployment.
 
-    Other reasons for placing a device on the \gui {Incompatible Devices} are
+    Other reasons for placing a device on the \uicontrol {Incompatible Devices} are
     that the Android version on the device is too old or that the tool chain
     used for building does not match the Android architecture on the device
     (for example, you cannot deploy an ARM build on an x86 device).
@@ -204,21 +203,21 @@
     \image qtcreator-android-select-devices.png "Select Android Devices dialog"
 
     Android Virtual Devices (AVD) are also listed. To create new AVDs, select
-    \gui {Create Android Virtual Device}.
+    \uicontrol {Create Android Virtual Device}.
 
     To set a device as the default device for a particular Android architecture,
-    select the \gui {Always use this device for architecture} check box. The
-    \gui {Select Android Devices} dialog will not appear until you switch to
+    select the \uicontrol {Always use this device for architecture} check box. The
+    \uicontrol {Select Android Devices} dialog will not appear until you switch to
     another project or restart \QC.
 
     \section1 Using the Android Emulator
 
     To run your application on the Android Emulator, you must create Android
-    virtual devices (AVD). Select \gui Tools > \gui Options > \gui Android >
-    \gui Add. If you run an application without a device connected to the
+    virtual devices (AVD). Select \uicontrol Tools > \uicontrol Options > \uicontrol Android >
+    \uicontrol Add. If you run an application without a device connected to the
     development PC and without an AVD specified, \QC asks you to add an AVD.
 
-    To manage AVDs, select \gui {Start AVD Manager}.
+    To manage AVDs, select \uicontrol {Start AVD Manager}.
 
     \note The Android Emulator has a bug that prevents it from starting on some
     systems. If the Android Emulator does not start, you can try starting it
@@ -226,16 +225,12 @@
 
     \section1 Debugging on Android Devices
 
-    \QC is integrated with the GDB and GDB server that are delivered with the
-    Necessitas SDK. It provides GDB with Python support that enables \QC to
-    display custom Qt types, such as QString, QObject, and so on.
-
     Android devices support debugging multi-thread applications in version
     2.2.1 and later. If you use AVD, select Android 2.3, or later. For more
     information, see the Android documentation.
 
     In addition, debugging is supported at android-10 API level, or higher. In
-    the run settings for the project, in the \gui {Android target SDK} field,
+    the run settings for the project, in the \uicontrol {Android build SDK} field,
     select android-10, or higher. For more information about Android API levels,
     see \l{http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels}
     {What is API Level?}.

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -35,9 +31,10 @@ Item {
 
     id: section
     property alias caption: label.text
+    property int leftPadding: 8
+    property int topPadding: 4
+    property int rightPadding: 0
 
-    anchors.left: parent.left
-    anchors.right: parent.right
     clip: true
 
     Rectangle {
@@ -66,12 +63,10 @@ Item {
             Behavior on rotation {NumberAnimation{duration: 80}}
         }
 
-        gradient: Gradient {
-            GradientStop {color: '#555' ; position: 0}
-            GradientStop {color: '#444' ; position: 1}
-        }
+        color: "#444"
 
         Rectangle {
+            visible: false
             color:"#333"
             width: parent.width
             height: 1
@@ -95,16 +90,19 @@ Item {
         }
     }
 
-    default property alias __content: row.data
+    default property alias __content: row.children
 
     readonly property alias contentItem: row
 
     implicitHeight: Math.round(row.height + header.height + 8)
 
     Row {
-        width: parent.width
-        x: 8
-        y: header.height + 4
+        anchors.left: parent.left
+        anchors.leftMargin: leftPadding
+        anchors.right: parent.right
+        anchors.rightMargin: rightPadding
+        anchors.top: header.bottom
+        anchors.topMargin: topPadding
         id: row
         Behavior on opacity { NumberAnimation{easing.type: Easing.Linear ; duration: 80} }
     }
@@ -116,7 +114,7 @@ Item {
             name: "Collapsed"
             PropertyChanges {
                 target: section
-                height: header.height
+                implicitHeight: header.height
             }
             PropertyChanges {
                 target: row

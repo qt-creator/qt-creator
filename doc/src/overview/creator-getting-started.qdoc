@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,8 +23,8 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
-    \previouspage index.html
+    \contentspage {Qt Creator Manual}
+    \previouspage {Qt Creator Manual}
     \page creator-getting-started.html
     \nextpage creator-overview.html
 
@@ -34,6 +34,7 @@
         \row
             \li \inlineimage creator-gs-01.png
             \li \inlineimage creator-gs-02.png
+            \li \inlineimage creator_advanceduse.png
         \row
             \li \b {\l{IDE Overview}}
 
@@ -44,9 +45,17 @@
 
                 If you have not used \QC before, and want to become familiar
                 with the parts of the user interface, go to \l{User Interface}.
+            \li \b {\l{Configuring Qt Creator}}
+
+                To make \QC behave more like your favorite code editor or IDE,
+                you can change the settings for keyboard shortcuts, color
+                schemes, generic highlighting, code snippets, and version
+                control systems. For an overview of the options you have, go to
+                \l{Configuring Qt Creator}.
         \row
             \li \inlineimage creator-gs-03.png
             \li \inlineimage creator-gs-04.png
+            \li
         \row
             \li \b {\l{Building and Running an Example}}
 
@@ -58,7 +67,8 @@
 
                 Now you are ready to start developing your own applications.
                 Pick a tutorial to follow in \l{Tutorials}. To start developing
-                for Android devices, select \l{Creating an Android Application}.
+                for mobile devices, select \l{Creating a Mobile Application}.
+            \li
     \endtable
 
 */

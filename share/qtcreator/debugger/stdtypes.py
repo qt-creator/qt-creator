@@ -1,7 +1,7 @@
 ############################################################################
 #
-# Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-# Contact: http://www.qt-project.org/legal
+# Copyright (C) 2015 The Qt Company Ltd.
+# Contact: http://www.qt.io/licensing
 #
 # This file is part of Qt Creator.
 #
@@ -9,20 +9,21 @@
 # Licensees holding valid commercial Qt licenses may use this file in
 # accordance with the commercial license agreement provided with the
 # Software or, alternatively, in accordance with the terms contained in
-# a written agreement between you and Digia.  For licensing terms and
-# conditions see http://qt.digia.com/licensing.  For further information
-# use the contact form at http://qt.digia.com/contact-us.
+# a written agreement between you and The Qt Company.  For licensing terms and
+# conditions see http://www.qt.io/terms-conditions.  For further information
+# use the contact form at http://www.qt.io/contact-us.
 #
 # GNU Lesser General Public License Usage
 # Alternatively, this file may be used under the terms of the GNU Lesser
-# General Public License version 2.1 as published by the Free Software
-# Foundation and appearing in the file LICENSE.LGPL included in the
-# packaging of this file.  Please review the following information to
-# ensure the GNU Lesser General Public License version 2.1 requirements
-# will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+# General Public License version 2.1 or version 3 as published by the Free
+# Software Foundation and appearing in the file LICENSE.LGPLv21 and
+# LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+# following information to ensure the GNU Lesser General Public License
+# requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+# http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 #
-# In addition, as a special exception, Digia gives you certain additional
-# rights.  These rights are described in the Digia Qt LGPL Exception
+# In addition, as a special exception, The Qt Company gives you certain additional
+# rights.  These rights are described in The Qt Company LGPL Exception
 # version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 #
 #############################################################################
@@ -35,10 +36,8 @@ def qform__std__array():
 def qdump__std__array(d, value):
     size = d.numericTemplateArgument(value.type, 1)
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
-        innerType = d.templateArgument(value.type, 0)
-        d.putPlotData(innerType, d.addressOf(value), size)
+        d.putPlotData(d.addressOf(value), size, d.templateArgument(value.type, 0))
 
 
 def qform__std____1__array():
@@ -80,7 +79,6 @@ def qdump__std__deque(d, value):
 
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         with Children(d, size, maxNumChild=2000, childType=innerType):
             pcur = start["_M_cur"]
@@ -117,7 +115,6 @@ def qdump__std__deque__QNX(d, value):
 
     d.check(0 <= mapsize and mapsize <= 1000 * 1000 * 1000)
     d.putItemCount(mysize)
-    d.putNumChild(mysize)
     if d.isExpanded():
         with Children(d, mysize, maxNumChild=2000, childType=innerType):
             map = value['_Map']
@@ -148,7 +145,6 @@ def qdump__std__list(d, value):
         pp = d.extractPointer(pp)
 
     d.putItemCount(size, 1000)
-    d.putNumChild(size)
 
     if d.isExpanded():
         p = node["_M_next"]
@@ -164,7 +160,6 @@ def qdump__std__list__QNX(d, value):
     size = value["_Mysize"]
 
     d.putItemCount(size, 1000)
-    d.putNumChild(size)
 
     if d.isExpanded():
         p = node["_Next"]
@@ -175,6 +170,9 @@ def qdump__std__list__QNX(d, value):
                 p = p["_Next"]
 
 def qdump__std____debug__list(d, value):
+    qdump__std__list(d, value)
+
+def qdump__std____cxx11__list(d, value):
     qdump__std__list(d, value)
 
 def qform__std__map():
@@ -189,7 +187,6 @@ def qdump__std__map(d, value):
     size = int(impl["_M_node_count"])
     d.check(0 <= size and size <= 100*1000*1000)
     d.putItemCount(size)
-    d.putNumChild(size)
 
     if d.isExpanded():
         pairType = d.templateArgument(d.templateArgument(value.type, 3), 0)
@@ -199,7 +196,7 @@ def qdump__std__map(d, value):
             for i in d.childRange():
                 with SubItem(d, i):
                     pair = (node + 1).cast(pairPointer).dereference()
-                    d.putPair(pair)
+                    d.putPair(pair, i)
                 if d.isNull(node["_M_right"]):
                     parent = node["_M_parent"]
                     while node == parent["_M_right"]:
@@ -216,7 +213,6 @@ def qdump__std__map__QNX(d, value):
     size = value['_Mysize']
     d.check(0 <= size and size <= 100*1000*1000)
     d.putItemCount(size)
-    d.putNumChild(size)
 
     if d.isExpanded():
         keyType = d.templateArgument(value.type, 0)
@@ -275,19 +271,33 @@ def qdump__std____debug__map(d, value):
 def qdump__std____debug__set(d, value):
     qdump__std__set(d, value)
 
+def qdump__std__multiset(d, value):
+    qdump__std__set(d, value)
+
 def qdump__std____cxx1998__map(d, value):
     qdump__std__map(d, value)
 
+def qform__std__multimap():
+    return mapForms()
+
+def qdump__std__multimap(d, value):
+    return qdump__std__map(d, value)
+
 def stdTreeIteratorHelper(d, value):
-    node = value["_M_node"].dereference()
+    node = value["_M_node"]
     d.putNumChild(1)
     d.putEmptyValue()
     if d.isExpanded():
-        nodeTypeName = str(value.type).replace("_Rb_tree_iterator", "_Rb_tree_node", 1)
-        nodeTypeName = nodeTypeName.replace("_Rb_tree_const_iterator", "_Rb_tree_node", 1)
-        nodeType = d.lookupType(nodeTypeName)
-        data = node.cast(nodeType)["_M_value_field"]
         with Children(d):
+            nodeTypeName = str(value.type).replace("_Rb_tree_iterator", "_Rb_tree_node", 1)
+            nodeTypeName = nodeTypeName.replace("_Rb_tree_const_iterator", "_Rb_tree_node", 1)
+            nodeType = d.lookupType(nodeTypeName + '*')
+            nnode = node.cast(nodeType).dereference()
+            try:
+                data = nnode["_M_value_field"]
+            except: # GCC 5.x, C++11.
+                data = nnode["_M_storage"] # __gnu_cxx::__aligned_membuf<T>
+                data = data.cast(d.templateArgument(data.type, 0))
             first = d.childWithName(data, "first")
             if first:
                 d.putSubItem("first", first)
@@ -339,7 +349,6 @@ def qdump__std__set(d, value):
     size = int(impl["_M_node_count"])
     d.check(0 <= size and size <= 100*1000*1000)
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         valueType = d.templateArgument(value.type, 0)
         node = impl["_M_header"]["_M_left"]
@@ -362,7 +371,6 @@ def qdump__std__set__QNX(d, value):
     size = value['_Mysize']
     d.check(0 <= size and size <= 100*1000*1000)
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         valueType = d.templateArgument(value.type, 0)
         head = value['_Myhead']
@@ -383,6 +391,13 @@ def qdump__std__set__QNX(d, value):
                     if node['_Right'] != parent:
                         node = parent
 
+def qdump__std____1__set(d, value):
+    base3 = d.addressOf(value["__tree_"]["__pair3_"])
+    size = d.extractUInt(base3)
+    d.check(size <= 100*1000*1000)
+    d.putItemCount(size)
+    d.putNumChild(0)
+
 def qdump__std__stack(d, value):
     d.putItem(value["c"])
     d.putType(str(value.type))
@@ -391,14 +406,15 @@ def qdump__std____debug__stack(d, value):
     qdump__std__stack(d, value)
 
 def qform__std__string():
-    return "Inline,In Separate Window"
+    return [Latin1StringFormat, SeparateLatin1StringFormat,
+            Utf8StringFormat, SeparateUtf8StringFormat ]
 
 def qdump__std__string(d, value):
-    qdump__std__stringHelper1(d, value, 1)
+    qdump__std__stringHelper1(d, value, 1, d.currentItemFormat())
 
-def qdump__std__stringHelper1(d, value, charSize):
+def qdump__std__stringHelper1(d, value, charSize, format):
     if d.isQnxTarget():
-        qdump__std__stringHelper1__QNX(d, value, charSize)
+        qdump__std__stringHelper1__QNX(d, value, charSize, format)
         return
 
     data = value["_M_dataplus"]["_M_p"]
@@ -411,9 +427,9 @@ def qdump__std__stringHelper1(d, value, charSize):
     refcount = int(sizePtr[-1]) & 0xffffffff
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    qdump_stringHelper(d, sizePtr, size * charSize, charSize)
+    d.putCharArrayHelper(sizePtr, size, charSize, format)
 
-def qdump__std__stringHelper1__QNX(d, value, charSize):
+def qdump__std__stringHelper1__QNX(d, value, charSize, format):
     size = value['_Mysize']
     alloc = value['_Myres']
     _BUF_SIZE = 16 / charSize
@@ -425,30 +441,7 @@ def qdump__std__stringHelper1__QNX(d, value, charSize):
     refcount = int(sizePtr[-1])
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    qdump_stringHelper(d, sizePtr, size * charSize, charSize)
-
-def qdump_stringHelper(d, data, size, charSize):
-    cutoff = min(size, d.stringCutOff)
-    mem = d.readMemory(data, cutoff)
-    if charSize == 1:
-        encodingType = Hex2EncodedLatin1
-        displayType = DisplayLatin1String
-    elif charSize == 2:
-        encodingType = Hex4EncodedLittleEndian
-        displayType = DisplayUtf16String
-    else:
-        encodingType = Hex8EncodedLittleEndian
-        displayType = DisplayUtf16String
-
-    d.putNumChild(0)
-    d.putValue(mem, encodingType)
-
-    format = d.currentItemFormat()
-    if format == 1:
-        d.putDisplay(StopDisplay)
-    elif format == 2:
-        d.putField("editformat", displayType)
-        d.putField("editvalue", d.readMemory(data, size))
+    d.putCharArrayHelper(sizePtr, size, charSize, format)
 
 
 def qdump__std____1__string(d, value):
@@ -457,12 +450,12 @@ def qdump__std____1__string(d, value):
     if firstByte & 1:
         # Long/external.
         data = d.extractPointer(base + 2 * d.ptrSize())
-        size = d.extractInt(base + d.ptrSize())
+        size = d.extractUInt(base + d.ptrSize())
     else:
         # Short/internal.
         size = firstByte / 2
         data = base + 1
-    qdump_stringHelper(d, data, size, 1)
+    d.putCharArrayHelper(data, size, 1, d.currentItemFormat())
     d.putType("std::string")
 
 
@@ -472,13 +465,13 @@ def qdump__std____1__wstring(d, value):
     if firstByte & 1:
         # Long/external.
         data = d.extractPointer(base + 2 * d.ptrSize())
-        size = d.extractInt(base + d.ptrSize())
+        size = d.extractUInt(base + d.ptrSize())
     else:
         # Short/internal.
         size = firstByte / 2
         data = base + 4
-    qdump_stringHelper(d, data, size * 4, 4)
-    d.putType("std::xxwstring")
+    d.putCharArrayHelper(data, size, 4)
+    d.putType("std::wstring")
 
 
 def qdump__std__shared_ptr(d, value):
@@ -491,7 +484,6 @@ def qdump__std__shared_ptr(d, value):
     if d.isSimpleType(d.templateArgument(value.type, 0)):
         d.putValue("%s @0x%x" % (d.simpleValue(i.dereference()), d.pointerValue(i)))
     else:
-        i = d.expensiveDowncast(i)
         d.putValue("@0x%x" % d.pointerValue(i))
 
     d.putNumChild(3)
@@ -530,7 +522,6 @@ def qdump__std__unique_ptr(d, value):
     if d.isSimpleType(d.templateArgument(value.type, 0)):
         d.putValue("%s @0x%x" % (d.simpleValue(i.dereference()), d.pointerValue(i)))
     else:
-        i = d.expensiveDowncast(i)
         d.putValue("@0x%x" % d.pointerValue(i))
 
     d.putNumChild(1)
@@ -568,19 +559,25 @@ def qdump__std__unordered_map(d, value):
     pairType = d.templateArgument(allocatorType, 0)
     ptrSize = d.ptrSize()
     try:
-    # gcc >= 4.7
-        size = value["_M_element_count"]
+        # gcc ~= 4.7
+        size = int(value["_M_element_count"])
         start = value["_M_before_begin"]["_M_nxt"]
         offset = 0
     except:
+        try:
+            # libc++ (Mac)
+            size = int(value["_M_h"]["_M_element_count"])
+            start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+            offset = 0
+        except:
             try:
-                # libc++ (Mac)
-                size = value["_M_h"]["_M_element_count"]
-                start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+                # gcc 4.9.1
+                size = int(value["_M_h"]["_M_element_count"])
+                start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
                 offset = 0
             except:
                 # gcc 4.6.2
-                size = value["_M_element_count"]
+                size = int(value["_M_element_count"])
                 start = value["_M_buckets"].dereference()
                 # FIXME: Pointer-aligned?
                 offset = pairType.sizeof
@@ -588,18 +585,16 @@ def qdump__std__unordered_map(d, value):
                 # We don't know where the data is
                 d.putNumChild(0)
                 return
+
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         p = d.pointerValue(start)
         if d.isMapCompact(keyType, valueType):
-            with Children(d, size, childType=valueType):
+            with PairedChildren(d, size, pairType=pairType):
                 for i in d.childRange():
                     pair = d.createValue(p + ptrSize, pairType)
                     with SubItem(d, i):
-                        d.putField("iname", d.currentIName)
-                        d.putName("[%s] %s" % (i, pair["first"]))
-                        d.putValue(pair["second"])
+                        d.putPair(pair, i)
                     p = d.extractPointer(p)
         else:
             with Children(d, size, childType=pairType):
@@ -612,23 +607,29 @@ def qdump__std____debug__unordered_map(d, value):
 
 def qdump__std__unordered_set(d, value):
     try:
-        # gcc >= 4.7
-        size = value["_M_element_count"]
+        # gcc ~= 4.7
+        size = int(value["_M_element_count"])
         start = value["_M_before_begin"]["_M_nxt"]
         offset = 0
     except:
+        try:
+            # libc++ (Mac)
+            size = int(value["_M_h"]["_M_element_count"])
+            start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+            offset = 0
+        except:
             try:
-                # libc++ (Mac)
-                size = value["_M_h"]["_M_element_count"]
-                start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
-                offset = 0
-            except:
                 # gcc 4.6.2
-                size = value["_M_element_count"]
+                size = int(value["_M_element_count"])
                 start = value["_M_buckets"].dereference()
                 offset = d.ptrSize()
+            except:
+                # gcc 4.9.1
+                size = int(value["_M_h"]["_M_element_count"])
+                start = value["_M_h"]["_M_before_begin"]["_M_nxt"]
+                offset = 0
+
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         p = d.pointerValue(start)
         valueType = d.templateArgument(value.type, 0)
@@ -645,11 +646,18 @@ def qdump__std____1__unordered_map(d, value):
     size = int(value["__table_"]["__p2_"]["__first_"])
     d.putItemCount(size)
     if d.isExpanded():
+        # There seem to be several versions of the implementation.
+        def valueCCorNot(val):
+            try:
+                return val["__cc"]
+            except:
+                return val
+
         node = value["__table_"]["__p1_"]["__first_"]["__next_"]
-        with PairedChildren(d, size, pairType=node["__value_"].type, maxNumChild=1000):
+        with PairedChildren(d, size, pairType=valueCCorNot(node["__value_"]).type):
             for i in d.childRange():
                 with SubItem(d, i):
-                    d.putPair(node["__value_"], i)
+                    d.putPair(valueCCorNot(node["__value_"]), i)
                 node = node["__next_"]
 
 
@@ -715,19 +723,18 @@ def qdump__std__vector(d, value):
     d.checkPointer(alloc)
 
     d.putItemCount(size)
-    d.putNumChild(size)
-    if d.isExpanded():
-        if isBool:
+    if isBool:
+        if d.isExpanded():
             with Children(d, size, maxNumChild=10000, childType=type):
                 base = d.pointerValue(start)
                 for i in d.childRange():
                     q = base + int(i / 8)
                     d.putBoolItem(str(i), (int(d.extractPointer(q)) >> (i % 8)) & 1)
-        else:
-            d.putPlotData(type, start, size)
+    else:
+        d.putPlotData(start, size, type)
 
 def qdump__std__vector__QNX(d, value):
-    type = d.templateArgument(value.type, 0)
+    innerType = d.templateArgument(value.type, 0)
     isBool = str(type) == 'bool'
     if isBool:
         impl = value['_Myvec']
@@ -750,15 +757,14 @@ def qdump__std__vector__QNX(d, value):
     d.checkPointer(end)
 
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         if isBool:
-            with Children(d, size, maxNumChild=10000, childType=type):
+            with Children(d, size, maxNumChild=10000, childType=innerType):
                 for i in d.childRange():
                     q = start + int(i / storagesize)
                     d.putBoolItem(str(i), (q.dereference() >> (i % storagesize)) & 1)
         else:
-            d.putArrayData(type, start, size)
+            d.putArrayData(start, size, innerType)
 
 def qdump__std____1__vector(d, value):
     innerType = d.templateArgument(value.type, 0)
@@ -773,9 +779,8 @@ def qdump__std____1__vector(d, value):
         size = (end - begin) / innerType.sizeof
 
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
-        d.putPlotData(innerType, begin, size)
+        d.putPlotData(begin, size, innerType)
 
 
 def qform__std____debug__vector():
@@ -794,13 +799,33 @@ def qedit__string(d, expr, value):
 def qdump__string(d, value):
     qdump__std__string(d, value)
 
+def qform__std__wstring():
+    return [SimpleFormat, SeparateFormat]
+
 def qdump__std__wstring(d, value):
     charSize = d.lookupType('wchar_t').sizeof
-    qdump__std__stringHelper1(d, value, charSize)
+    qdump__std__stringHelper1(d, value, charSize, d.currentItemFormat())
 
 def qdump__std__basic_string(d, value):
     innerType = d.templateArgument(value.type, 0)
-    qdump__std__stringHelper1(d, value, innerType.sizeof)
+    qdump__std__stringHelper1(d, value, innerType.sizeof, d.currentItemFormat())
+
+def qdump__std____cxx11__basic_string(d, value):
+    innerType = d.templateArgument(value.type, 0)
+    data = value["_M_dataplus"]["_M_p"]
+    size = int(value["_M_string_length"])
+    d.check(0 <= size) #and size <= alloc and alloc <= 100*1000*1000)
+    d.putCharArrayHelper(data, size, innerType.sizeof, d.currentItemFormat())
+
+def qform__std____cxx11__string(d, value):
+    qdump__std____cxx11__basic_string(d, value)
+
+# Needed only to trigger the form report above.
+def qform__std____cxx11__string():
+    return qform__std__string()
+
+def qform__std____cxx11__wstring():
+    return qform__std__wstring()
 
 def qdump__std____1__basic_string(d, value):
     innerType = str(d.templateArgument(value.type, 0))
@@ -820,7 +845,6 @@ def qdump____gnu_cxx__hash_set(d, value):
     size = int(ht["_M_num_elements"])
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
-    d.putNumChild(size)
     type = d.templateArgument(value.type, 0)
     d.putType("__gnu__cxx::hash_set<%s>" % type)
     if d.isExpanded():

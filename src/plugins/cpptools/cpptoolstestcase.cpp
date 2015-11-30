@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,43 +9,58 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "cpptoolstestcase.h"
 
+#include "baseeditordocumentparser.h"
+#include "baseeditordocumentprocessor.h"
+#include "editordocumenthandle.h"
+#include "cppmodelmanager.h"
+#include "cppworkingcopy.h"
+
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/basetexteditor.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/codeassist/iassistproposal.h>
+#include <texteditor/codeassist/iassistproposalmodel.h>
 
 #include <cplusplus/CppDocument.h>
+#include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 
 #include <QtTest>
 
+using namespace ProjectExplorer;
+
 static bool closeEditorsWithoutGarbageCollectorInvocation(const QList<Core::IEditor *> &editors)
 {
-    CppTools::CppModelManagerInterface::instance()->enableGarbageCollector(false);
+    CppTools::CppModelManager::instance()->enableGarbageCollector(false);
     const bool closeEditorsSucceeded = Core::EditorManager::closeEditors(editors, false);
-    CppTools::CppModelManagerInterface::instance()->enableGarbageCollector(true);
+    CppTools::CppModelManager::instance()->enableGarbageCollector(true);
     return closeEditorsSucceeded;
 }
 
-static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QStringList &filePaths)
+static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<QString> &filePaths)
 {
     foreach (const QString &filePath, filePaths) {
         if (!snapshot.contains(filePath)) {
@@ -61,24 +76,29 @@ namespace CppTools {
 namespace Tests {
 
 TestDocument::TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker)
-    : m_fileName(fileName), m_source(source), m_cursorMarker(cursorMarker)
+    : m_fileName(QString::fromUtf8(fileName))
+    , m_source(QString::fromUtf8(source))
+    , m_cursorMarker(cursorMarker)
 {}
 
 QString TestDocument::filePath() const
 {
-    const QString fileNameAsString = QString::fromUtf8(m_fileName);
-    if (!QFileInfo(fileNameAsString).isAbsolute())
-        return QDir::tempPath() + QLatin1Char('/') + fileNameAsString;
-    return fileNameAsString;
+    if (!m_baseDirectory.isEmpty())
+        return QDir::cleanPath(m_baseDirectory + QLatin1Char('/') + m_fileName);
+
+    if (!QFileInfo(m_fileName).isAbsolute())
+        return QDir::tempPath() + QLatin1Char('/') + m_fileName;
+
+    return m_fileName;
 }
 
 bool TestDocument::writeToDisk() const
 {
-    return TestCase::writeFile(filePath(), m_source);
+    return TestCase::writeFile(filePath(), m_source.toUtf8());
 }
 
 TestCase::TestCase(bool runGarbageCollector)
-    : m_modelManager(CppModelManagerInterface::instance())
+    : m_modelManager(CppModelManager::instance())
     , m_succeededSoFar(false)
     , m_runGarbageCollector(runGarbageCollector)
 {
@@ -115,18 +135,43 @@ bool TestCase::openBaseTextEditor(const QString &fileName, TextEditor::BaseTextE
 
 CPlusPlus::Snapshot TestCase::globalSnapshot()
 {
-    return CppModelManagerInterface::instance()->snapshot();
+    return CppModelManager::instance()->snapshot();
 }
 
 bool TestCase::garbageCollectGlobalSnapshot()
 {
-    CppModelManagerInterface::instance()->GC();
+    CppModelManager::instance()->GC();
     return globalSnapshot().isEmpty();
 }
 
-bool TestCase::parseFiles(const QStringList &filePaths)
+static bool waitForProcessedEditorDocument_internal(CppEditorDocumentHandle *editorDocument,
+                                                    int timeOutInMs)
 {
-    CppModelManagerInterface::instance()->updateSourceFiles(filePaths).waitForFinished();
+    QTC_ASSERT(editorDocument, return false);
+
+    QTime timer;
+    timer.start();
+
+    forever {
+        if (!editorDocument->processor()->isParserRunning())
+            return true;
+        if (timer.elapsed() > timeOutInMs)
+            return false;
+
+        QCoreApplication::processEvents();
+        QThread::msleep(20);
+    }
+}
+
+bool TestCase::waitForProcessedEditorDocument(const QString &filePath, int timeOutInMs)
+{
+    auto *editorDocument = CppModelManager::instance()->cppEditorDocument(filePath);
+    return waitForProcessedEditorDocument_internal(editorDocument, timeOutInMs);
+}
+
+bool TestCase::parseFiles(const QSet<QString> &filePaths)
+{
+    CppModelManager::instance()->updateSourceFiles(filePaths).waitForFinished();
     QCoreApplication::processEvents();
     const CPlusPlus::Snapshot snapshot = globalSnapshot();
     if (snapshot.isEmpty()) {
@@ -142,7 +187,7 @@ bool TestCase::parseFiles(const QStringList &filePaths)
 
 bool TestCase::parseFiles(const QString &filePath)
 {
-    return parseFiles(QStringList(filePath));
+    return parseFiles(QSet<QString>() << filePath);
 }
 
 void TestCase::closeEditorAtEndOfTestCase(Core::IEditor *editor)
@@ -156,14 +201,19 @@ bool TestCase::closeEditorWithoutGarbageCollectorInvocation(Core::IEditor *edito
     return closeEditorsWithoutGarbageCollectorInvocation(QList<Core::IEditor *>() << editor);
 }
 
-CPlusPlus::Document::Ptr TestCase::waitForFileInGlobalSnapshot(const QString &filePath)
+CPlusPlus::Document::Ptr TestCase::waitForFileInGlobalSnapshot(const QString &filePath,
+                                                               int timeOutInMs)
 {
-    return waitForFilesInGlobalSnapshot(QStringList(filePath)).first();
+    const auto documents = waitForFilesInGlobalSnapshot(QStringList(filePath), timeOutInMs);
+    return documents.isEmpty() ? CPlusPlus::Document::Ptr() : documents.first();
 }
 
-QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(
-        const QStringList &filePaths)
+QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(const QStringList &filePaths,
+                                                                       int timeOutInMs)
 {
+    QTime t;
+    t.start();
+
     QList<CPlusPlus::Document::Ptr> result;
     foreach (const QString &filePath, filePaths) {
         forever {
@@ -171,10 +221,30 @@ QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(
                 result.append(document);
                 break;
             }
+            if (t.elapsed() > timeOutInMs)
+                return QList<CPlusPlus::Document::Ptr>();
             QCoreApplication::processEvents();
         }
     }
     return result;
+}
+
+bool TestCase::waitUntilCppModelManagerIsAwareOf(Project *project, int timeOutInMs)
+{
+    if (!project)
+        return false;
+
+    QTime t;
+    t.start();
+
+    CppModelManager *modelManager = CppModelManager::instance();
+    forever {
+        if (modelManager->projectInfo(project).isValid())
+            return true;
+        if (t.elapsed() > timeOutInMs)
+            return false;
+        QCoreApplication::processEvents();
+    }
 }
 
 bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
@@ -187,6 +257,185 @@ bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
     }
     return true;
 }
+
+ProjectOpenerAndCloser::ProjectOpenerAndCloser()
+{
+    QVERIFY(!SessionManager::hasProjects());
+}
+
+ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
+{
+    if (m_openProjects.isEmpty())
+        return;
+
+    bool hasGcFinished = false;
+    QMetaObject::Connection connection;
+    Utils::ExecuteOnDestruction disconnect([&]() { QObject::disconnect(connection); });
+    connection = QObject::connect(CppModelManager::instance(), &CppModelManager::gcFinished, [&]() {
+        hasGcFinished = true;
+    });
+
+    foreach (Project *project, m_openProjects)
+        ProjectExplorerPlugin::unloadProject(project);
+
+    QTime t;
+    t.start();
+    while (!hasGcFinished && t.elapsed() <= 30000)
+        QCoreApplication::processEvents();
+}
+
+ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool configureAsExampleProject)
+{
+    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(projectFile);
+    if (!result) {
+        qWarning() << result.errorMessage() << result.alreadyOpen();
+        return ProjectInfo();
+    }
+
+    Project *project = result.project();
+    if (configureAsExampleProject)
+        project->configureAsExampleProject(QStringList());
+
+    if (TestCase::waitUntilCppModelManagerIsAwareOf(project)) {
+        m_openProjects.append(project);
+        return CppModelManager::instance()->projectInfo(project);
+    }
+
+    return ProjectInfo();
+}
+
+TemporaryDir::TemporaryDir()
+    : m_temporaryDir(QFileInfo(QDir::tempPath()).canonicalFilePath()
+                        + QLatin1String("/qtcreator-tests-XXXXXX"))
+    , m_isValid(m_temporaryDir.isValid())
+{
+}
+
+QString TemporaryDir::createFile(const QByteArray &relativePath, const QByteArray &contents)
+{
+    const QString relativePathString = QString::fromUtf8(relativePath);
+    if (relativePathString.isEmpty() || QFileInfo(relativePathString).isAbsolute())
+        return QString();
+
+    const QString filePath = m_temporaryDir.path() + QLatin1Char('/') + relativePathString;
+    if (!TestCase::writeFile(filePath, contents))
+        return QString();
+    return filePath;
+}
+
+static bool copyRecursively(const QString &sourceDirPath,
+                            const QString &targetDirPath,
+                            QString *error)
+{
+    auto copyHelper = [](QFileInfo sourceInfo, QFileInfo targetInfo, QString *error) -> bool {
+        const QString sourcePath = sourceInfo.absoluteFilePath();
+        const QString targetPath = targetInfo.absoluteFilePath();
+        if (!QFile::copy(sourcePath, targetPath)) {
+            if (error) {
+                *error = QString::fromLatin1("copyRecursively() failed: \"%1\" to \"%2\".")
+                            .arg(sourcePath, targetPath);
+            }
+            return false;
+        }
+
+        // Copied files from Qt resources are read-only. Make them writable
+        // so that their parent directory can be removed without warnings.
+        QFile file(targetPath);
+        return file.setPermissions(file.permissions() | QFile::WriteUser);
+    };
+
+    return Utils::FileUtils::copyRecursively(Utils::FileName::fromString(sourceDirPath),
+                                             Utils::FileName::fromString(targetDirPath),
+                                             error,
+                                             copyHelper);
+}
+
+TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
+{
+    if (!m_isValid)
+        return;
+
+    if (sourceDirPath.isEmpty())
+        return;
+
+    QFileInfo fi(sourceDirPath);
+    if (!fi.exists() || !fi.isReadable()) {
+        m_isValid = false;
+        return;
+    }
+
+    QString errorMessage;
+    if (!copyRecursively(sourceDirPath, path(), &errorMessage)) {
+        QWARN(qPrintable(errorMessage));
+        m_isValid = false;
+    }
+}
+
+QString TemporaryCopiedDir::absolutePath(const QByteArray &relativePath) const
+{
+    return m_temporaryDir.path() + QLatin1Char('/') + QString::fromUtf8(relativePath);
+}
+
+FileWriterAndRemover::FileWriterAndRemover(const QString &filePath, const QByteArray &contents)
+    : m_filePath(filePath)
+{
+    if (QFileInfo::exists(filePath)) {
+        const QString warning = QString::fromLatin1(
+            "Will not overwrite existing file: \"%1\"."
+            " If this file is left over due to a(n) abort/crash, please remove manually.")
+                .arg(m_filePath);
+        QWARN(qPrintable(warning));
+        m_writtenSuccessfully = false;
+    } else {
+        m_writtenSuccessfully = TestCase::writeFile(filePath, contents);
+    }
+}
+
+FileWriterAndRemover::~FileWriterAndRemover()
+{
+    if (m_writtenSuccessfully && !QFile::remove(m_filePath)) {
+        const QString warning = QLatin1String("Failed to remove file from disk: ") + m_filePath;
+        QWARN(qPrintable(warning));
+    }
+}
+
+IAssistProposalScopedPointer::IAssistProposalScopedPointer(TextEditor::IAssistProposal *proposal)
+    : d(proposal)
+{}
+
+IAssistProposalScopedPointer::~IAssistProposalScopedPointer()
+{
+    if (d && d->model())
+        delete d->model();
+}
+
+VerifyCleanCppModelManager::VerifyCleanCppModelManager()
+{
+    QVERIFY(isClean());
+}
+
+VerifyCleanCppModelManager::~VerifyCleanCppModelManager() {
+    QVERIFY(isClean());
+}
+
+#define RETURN_FALSE_IF_NOT(check) if (!(check)) return false;
+
+bool VerifyCleanCppModelManager::isClean(bool testOnlyForCleanedProjects)
+{
+    CppModelManager *mm = CppModelManager::instance();
+    RETURN_FALSE_IF_NOT(mm->projectInfos().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->headerPaths().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->definedMacros().isEmpty());
+    RETURN_FALSE_IF_NOT(mm->projectFiles().isEmpty());
+    if (!testOnlyForCleanedProjects) {
+        RETURN_FALSE_IF_NOT(mm->snapshot().isEmpty());
+        RETURN_FALSE_IF_NOT(mm->workingCopy().size() == 1);
+        RETURN_FALSE_IF_NOT(mm->workingCopy().contains(mm->configurationFileName()));
+    }
+    return true;
+}
+
+#undef RETURN_FALSE_IF_NOT
 
 } // namespace Tests
 } // namespace CppTools

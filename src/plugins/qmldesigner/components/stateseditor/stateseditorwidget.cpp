@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -34,11 +30,17 @@
 
 #include <invalidqmlsourceexception.h>
 
-#include <qapplication.h>
+#include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
+#include <QApplication>
+
+#include <QFileInfo>
+#include <QShortcut>
 #include <QBoxLayout>
+#include <QKeySequence>
 
-#include <QQuickView>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
@@ -51,15 +53,15 @@ namespace QmlDesigner {
 
 int StatesEditorWidget::currentStateInternalId() const
 {
-    Q_ASSERT(m_quickView->rootObject());
-    Q_ASSERT(m_quickView->rootObject()->property("currentStateInternalId").isValid());
+    Q_ASSERT(rootObject());
+    Q_ASSERT(rootObject()->property("currentStateInternalId").isValid());
 
-    return m_quickView->rootObject()->property("currentStateInternalId").toInt();
+    return rootObject()->property("currentStateInternalId").toInt();
 }
 
 void StatesEditorWidget::setCurrentStateInternalId(int internalId)
 {
-    m_quickView->rootObject()->setProperty("currentStateInternalId", internalId);
+    rootObject()->setProperty("currentStateInternalId", internalId);
 }
 
 void StatesEditorWidget::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
@@ -69,70 +71,66 @@ void StatesEditorWidget::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
 
 void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
 {
-    m_quickView->rootContext()->setContextProperty("canAddNewStates", showAddNewStatesButton);
+    rootContext()->setContextProperty(QLatin1String("canAddNewStates"), showAddNewStatesButton);
 }
 
-StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel):
-        QWidget(),
-    m_quickView(new QQuickView()),
-    m_statesEditorView(statesEditorView),
-    m_imageProvider(0)
+StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel)
+    : QQuickWidget(),
+      m_statesEditorView(statesEditorView),
+      m_imageProvider(0),
+      m_qmlSourceUpdateShortcut(0)
 {
     m_imageProvider = new Internal::StatesEditorImageProvider;
     m_imageProvider->setNodeInstanceView(statesEditorView->nodeInstanceView());
-    m_quickView->engine()->addImageProvider(
-            QLatin1String("qmldesigner_stateseditor"), m_imageProvider);
 
-    //m_quickView->setAcceptDrops(false);
+    engine()->addImageProvider(QStringLiteral("qmldesigner_stateseditor"), m_imageProvider);
+    engine()->addImportPath(qmlSourcesPath());
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    setMinimumHeight(160);
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    QWidget *container = createWindowContainer(m_quickView.data());
-    layout->addWidget(container);
+    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
+    connect(m_qmlSourceUpdateShortcut, SIGNAL(activated()), this, SLOT(reloadQmlSource()));
 
-    m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
+    setResizeMode(QQuickWidget::SizeRootObjectToView);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    m_quickView->rootContext()->setContextProperty(QLatin1String("statesEditorModel"), statesEditorModel);
-    QColor highlightColor = palette().highlight().color();
-    if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
-        highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
-    m_quickView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
-
-    m_quickView->rootContext()->setContextProperty("canAddNewStates", true);
-
-    // Work around ASSERT in the internal QGraphicsScene that happens when
-    // the scene is created + items set dirty in one event loop run (BAUHAUS-459)
-    //QApplication::processEvents();
-
-    m_quickView->setSource(QUrl("qrc:/stateseditor/stateslist.qml"));
-
-    if (!m_quickView->rootObject())
-        throw InvalidQmlSourceException(__LINE__, __FUNCTION__, __FILE__);
+    rootContext()->setContextProperty(QStringLiteral("statesEditorModel"), statesEditorModel);
+    rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
 
-    QEvent event(QEvent::WindowActivate);
-    QApplication::sendEvent(m_quickView.data(), &event);
-
-
-    connect(m_quickView->rootObject(), SIGNAL(currentStateInternalIdChanged()), statesEditorView, SLOT(synchonizeCurrentStateFromWidget()));
-    connect(m_quickView->rootObject(), SIGNAL(createNewState()), statesEditorView, SLOT(createNewState()));
-    connect(m_quickView->rootObject(), SIGNAL(deleteState(int)), statesEditorView, SLOT(removeState(int)));
-
-    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    rootContext()->setContextProperty(QLatin1String("canAddNewStates"), true);
 
     setWindowTitle(tr("States", "Title of Editor widget"));
+
+    // init the first load of the QML UI elements
+    reloadQmlSource();
 }
 
 StatesEditorWidget::~StatesEditorWidget()
 {
 }
 
-
-QSize StatesEditorWidget::sizeHint() const
-{
-    return QSize(9999, 159);
+QString StatesEditorWidget::qmlSourcesPath() {
+    return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/statesEditorQmlSources");
 }
 
+void StatesEditorWidget::reloadQmlSource()
+{
+    QString statesListQmlFilePath = qmlSourcesPath() + QStringLiteral("/StatesList.qml");
+    QTC_ASSERT(QFileInfo::exists(statesListQmlFilePath), return);
+    engine()->clearComponentCache();
+    setSource(QUrl::fromLocalFile(statesListQmlFilePath));
+
+    QTC_ASSERT(rootObject(), return);
+    connect(rootObject(), SIGNAL(currentStateInternalIdChanged()), m_statesEditorView.data(), SLOT(synchonizeCurrentStateFromWidget()));
+    connect(rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
+    connect(rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
+    m_statesEditorView.data()->synchonizeCurrentStateFromWidget();
+    setFixedHeight(initialSize().height());
+
+    connect(rootObject(), SIGNAL(expandedChanged()), this, SLOT(changeHeight()));
+}
+
+void StatesEditorWidget::changeHeight()
+{
+    setFixedHeight(rootObject()->height());
+}
 }

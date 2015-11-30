@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -60,17 +61,37 @@ private:
 #ifdef WITH_TESTS
 private slots:
     void cleanup();
+
     void test_vim_movement();
+
+    void test_vim_target_column_normal();
+    void test_vim_target_column_visual_char();
+    void test_vim_target_column_visual_block();
+    void test_vim_target_column_visual_line();
+    void test_vim_target_column_insert();
+    void test_vim_target_column_replace();
+
     void test_vim_insert();
     void test_vim_fFtT();
     void test_vim_transform_numbers();
     void test_vim_delete();
+
     void test_vim_delete_inner_word();
     void test_vim_delete_a_word();
     void test_vim_change_a_word();
+
     void test_vim_change_replace();
+
     void test_vim_block_selection();
     void test_vim_block_selection_insert();
+
+    void test_vim_delete_inner_paragraph();
+    void test_vim_delete_a_paragraph();
+    void test_vim_change_inner_paragraph();
+    void test_vim_change_a_paragraph();
+    void test_vim_select_inner_paragraph();
+    void test_vim_select_a_paragraph();
+
     void test_vim_repeat();
     void test_vim_search();
     void test_vim_indent();
@@ -84,6 +105,7 @@ private slots:
     void test_vim_code_folding();
     void test_vim_code_completion();
     void test_vim_substitute();
+    void test_vim_ex_commandbuffer_paste();
     void test_vim_ex_yank();
     void test_vim_ex_delete();
     void test_vim_ex_change();
@@ -141,6 +163,7 @@ private slots:
 
     void test_vim_visual_d();
     void test_vim_Visual_d();
+    void test_vim_visual_block_D();
 
     void test_macros();
 

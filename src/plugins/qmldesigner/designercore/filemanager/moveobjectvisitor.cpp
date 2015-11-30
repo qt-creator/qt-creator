@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -35,15 +31,16 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlDesigner::Internal;
-using namespace QmlDesigner;
+
+namespace QmlDesigner {
+namespace Internal {
 
 class Inserter: public QMLRewriter
 {
 public:
-    Inserter(QmlDesigner::TextModifier &modifier,
+    Inserter(TextModifier &modifier,
              quint32 targetParentObjectLocation,
-             const QmlDesigner::PropertyName &targetPropertyName,
+             const PropertyName &targetPropertyName,
              bool targetIsArrayBinding,
              TextModifier::MoveInfo moveInfo,
              const PropertyNameList &propertyOrder):
@@ -87,10 +84,10 @@ private:
 
             if (insertAfter && insertAfter->member) {
                 moveInfo.destination = insertAfter->member->lastSourceLocation().end();
-                moveInfo.prefixToInsert = QLatin1String("\n\n");
+                moveInfo.prefixToInsert = QStringLiteral("\n\n");
             } else {
                 moveInfo.destination = ast->lbraceToken.end();
-                moveInfo.prefixToInsert = QLatin1String("\n");
+                moveInfo.prefixToInsert = QStringLiteral("\n");
             }
 
             move(moveInfo);
@@ -115,8 +112,8 @@ private:
 
         { // insert (create) a UiObjectBinding:
             UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, targetPropertyName, propertyOrder);
-            moveInfo.prefixToInsert = QLatin1String("\n") + targetPropertyName + (targetIsArrayBinding ? QLatin1String(": [") : QLatin1String(": "));
-            moveInfo.suffixToInsert = targetIsArrayBinding ? QLatin1String("\n]") : QLatin1String("");
+            moveInfo.prefixToInsert = QStringLiteral("\n") + targetPropertyName + (targetIsArrayBinding ? QStringLiteral(": [") : QStringLiteral(": "));
+            moveInfo.suffixToInsert = targetIsArrayBinding ? QStringLiteral("\n]") : QStringLiteral("");
 
             if (insertAfter && insertAfter->member)
                 moveInfo.destination = insertAfter->member->lastSourceLocation().end();
@@ -142,22 +139,22 @@ private:
             Q_ASSERT(!"Invalid QML: empty array found.");
 
         moveInfo.destination = lastMember->lastSourceLocation().end();
-        moveInfo.prefixToInsert = QLatin1String(",\n");
-        moveInfo.suffixToInsert = QLatin1String("\n");
+        moveInfo.prefixToInsert = QStringLiteral(",\n");
+        moveInfo.suffixToInsert = QStringLiteral("\n");
         move(moveInfo);
     }
 
 private:
     quint32 targetParentObjectLocation;
-    QmlDesigner::PropertyName targetPropertyName;
+    PropertyName targetPropertyName;
     bool targetIsArrayBinding;
     TextModifier::MoveInfo moveInfo;
     PropertyNameList propertyOrder;
 };
 
-MoveObjectVisitor::MoveObjectVisitor(QmlDesigner::TextModifier &modifier,
+MoveObjectVisitor::MoveObjectVisitor(TextModifier &modifier,
                                      quint32 objectLocation,
-                                     const QmlDesigner::PropertyName &targetPropertyName,
+                                     const PropertyName &targetPropertyName,
                                      bool targetIsArrayBinding,
                                      quint32 targetParentObjectLocation,
                                      const PropertyNameList &propertyOrder):
@@ -279,7 +276,7 @@ bool MoveObjectVisitor::visit(UiObjectDefinition *ast)
     return !didRewriting();
 }
 
-void MoveObjectVisitor::doMove(TextModifier::MoveInfo moveInfo)
+void MoveObjectVisitor::doMove(const TextModifier::MoveInfo &moveInfo)
 {
     if (moveInfo.objectEnd > moveInfo.objectStart) {
         Inserter findTargetAndInsert(*textModifier(),
@@ -291,3 +288,6 @@ void MoveObjectVisitor::doMove(TextModifier::MoveInfo moveInfo)
         setDidRewriting(findTargetAndInsert(program));
     }
 }
+
+} // namespace Internal
+} // namespace QmlDesigner

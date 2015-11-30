@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,8 +36,6 @@
 #include <qbs.h>
 
 #include <QIcon>
-
-namespace qbs { class Project; }
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -51,14 +50,21 @@ class QbsProjectFile;
 
 class QbsFileNode : public ProjectExplorer::FileNode
 {
-    Q_OBJECT
 public:
-    QbsFileNode(const QString &filePath, const ProjectExplorer::FileType fileType, bool generated,
+    QbsFileNode(const Utils::FileName &filePath, const ProjectExplorer::FileType fileType, bool generated,
                 int line);
 
-    QString displayName() const;
+    QString displayName() const override;
+};
 
-    bool update(const qbs::CodeLocation &loc);
+class QbsFolderNode : public ProjectExplorer::FolderNode
+{
+public:
+    QbsFolderNode(const Utils::FileName &folderPath, ProjectExplorer::NodeType nodeType,
+                  const QString &displayName);
+
+private:
+    QList<ProjectExplorer::ProjectAction> supportedActions(ProjectExplorer::Node *node) const override;
 };
 
 // ---------------------------------------------------------------------------
@@ -69,28 +75,12 @@ class QbsGroupNode;
 
 class QbsBaseProjectNode : public ProjectExplorer::ProjectNode
 {
-    Q_OBJECT
-
 public:
-    explicit QbsBaseProjectNode(const QString &path);
+    explicit QbsBaseProjectNode(const Utils::FileName &absoluteFilePath);
 
-    bool hasBuildTargets() const;
+    bool showInSimpleTree() const override;
 
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
-
-    bool canAddSubProject(const QString &proFilePath) const;
-
-    bool addSubProjects(const QStringList &proFilePaths);
-
-    bool removeSubProjects(const QStringList &proFilePaths);
-
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
-    bool deleteFiles(const QStringList &filePaths);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
-
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
-
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 private:
     friend class QbsGroupNode;
 };
@@ -101,26 +91,32 @@ private:
 
 class QbsGroupNode : public QbsBaseProjectNode
 {
-    Q_OBJECT
-
 public:
-    QbsGroupNode(const qbs::GroupData *grp, const QString &productPath);
+    QbsGroupNode(const qbs::GroupData &grp, const QString &productPath);
 
-    bool isEnabled() const;
-    void updateQbsGroupData(const qbs::GroupData *grp, const QString &productPath,
+    bool isEnabled() const override;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
+    void updateQbsGroupData(const qbs::GroupData &grp, const QString &productPath,
                             bool productWasEnabled, bool productIsEnabled);
 
-    const qbs::GroupData *qbsGroupData() const { return m_qbsGroupData; }
+    qbs::GroupData qbsGroupData() const { return m_qbsGroupData; }
 
     QString productPath() const;
 
-    static void setupFiles(QbsBaseProjectNode *root, const QStringList &files,
+    // group can be invalid
+    static void setupFiles(FolderNode *root, const qbs::GroupData &group, const QStringList &files,
                            const QString &productPath, bool updateExisting);
 
 private:
-    static void setupFolder(ProjectExplorer::FolderNode *folder,
-                            const FileTreeNode *subFileTree, const QString &baseDir, bool updateExisting);
-    const qbs::GroupData *m_qbsGroupData;
+    static void setupFolder(ProjectExplorer::FolderNode *folder, const qbs::GroupData &group,
+            const FileTreeNode *subFileTree, const QString &baseDir, bool updateExisting);
+    static ProjectExplorer::FileType fileType(const qbs::GroupData &group,
+                                              const FileTreeNode &fileNode);
+
+    qbs::GroupData m_qbsGroupData;
     QString m_productPath;
 
     static QIcon m_groupIcon;
@@ -132,18 +128,20 @@ private:
 
 class QbsProductNode : public QbsBaseProjectNode
 {
-    Q_OBJECT
-
 public:
-    explicit QbsProductNode(const qbs::ProductData &prd);
+    explicit QbsProductNode(const qbs::Project &project, const qbs::ProductData &prd);
 
-    bool isEnabled() const;
-    bool hasBuildTargets() const;
+    bool isEnabled() const override;
+    bool showInSimpleTree() const override;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
-    void setQbsProductData(const qbs::ProductData prd);
+    void setQbsProductData(const qbs::Project &project, const qbs::ProductData prd);
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }
 
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
+    QList<ProjectExplorer::RunConfiguration *> runConfigurations() const override;
 
 private:
     QbsGroupNode *findGroupNode(const QString &name);
@@ -158,32 +156,51 @@ private:
 
 class QbsProjectNode : public QbsBaseProjectNode
 {
-    Q_OBJECT
-
 public:
-    explicit QbsProjectNode(QbsProject *project);
-    explicit QbsProjectNode(const QString &path);
-    ~QbsProjectNode();
+    explicit QbsProjectNode(const Utils::FileName &absoluteFilePath);
+    ~QbsProjectNode() override;
 
-    void update(const qbs::Project &prj);
-    void update(const qbs::ProjectData &prjData);
-
-    QbsProject *project() const;
+    virtual QbsProject *project() const;
     const qbs::Project qbsProject() const;
-    const qbs::ProjectData qbsProjectData() const;
+    const qbs::ProjectData qbsProjectData() const { return m_projectData; }
+
+    bool showInSimpleTree() const override;
+
+protected:
+    void update(const qbs::Project &qbsProject, const qbs::ProjectData &prjData);
 
 private:
     void ctor();
 
-    QbsProductNode *findProductNode(const QString &name);
+    QbsProductNode *findProductNode(const QString &uniqueName);
     QbsProjectNode *findProjectNode(const QString &name);
 
-    QbsProject *m_project;
-
-    qbs::Project m_qbsProject;
-    qbs::ProjectData m_qbsProjectData;
     static QIcon m_projectIcon;
+    qbs::ProjectData m_projectData;
 };
+
+// --------------------------------------------------------------------
+// QbsRootProjectNode:
+// --------------------------------------------------------------------
+
+class QbsRootProjectNode : public QbsProjectNode
+{
+public:
+    explicit QbsRootProjectNode(QbsProject *project);
+
+    using QbsProjectNode::update;
+    void update();
+
+    QbsProject *project() const  override { return m_project; }
+
+private:
+    QStringList unreferencedBuildSystemFiles(const qbs::Project &p) const;
+
+    QbsProject *const m_project;
+    ProjectExplorer::FolderNode *m_buildSystemFiles;
+};
+
+
 } // namespace Internal
 } // namespace QbsProjectManager
 

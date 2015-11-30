@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -37,12 +38,12 @@
 #include <QtPlugin>
 #include <QAction>
 
-namespace TextEditor { class ITextEditor; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorWidget;
 class CppCodeModelInspectorDialog;
 class CppQuickFixCollector;
 class CppQuickFixAssistProvider;
@@ -58,14 +59,9 @@ public:
 
     static CppEditorPlugin *instance();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-    // Connect editor to settings changed signals.
-    void initializeEditor(CPPEditorWidget *editor);
-
-    bool sortedOutline() const;
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
+    void extensionsInitialized() override;
+    ShutdownFlag aboutToShutdown() override;
 
     CppQuickFixAssistProvider *quickFixProvider() const;
 
@@ -83,14 +79,15 @@ public slots:
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
 
-    void setSortedOutline(bool sorted);
-
 private slots:
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
     void inspectCppCodeModel();
 
 #ifdef WITH_TESTS
+private:
+    QList<QObject *> createTestObjects() const override;
+
 private slots:
     // The following tests expect that no projects are loaded on start-up.
     void test_SwitchMethodDeclarationDefinition_data();
@@ -101,6 +98,9 @@ private slots:
 
     void test_FollowSymbolUnderCursor_data();
     void test_FollowSymbolUnderCursor();
+
+    void test_FollowSymbolUnderCursor_followCall_data();
+    void test_FollowSymbolUnderCursor_followCall();
 
     void test_FollowSymbolUnderCursor_QObject_connect_data();
     void test_FollowSymbolUnderCursor_QObject_connect();
@@ -118,13 +118,18 @@ private slots:
     void test_FollowSymbolUnderCursor_virtualFunctionCall();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_multipleDocuments();
 
-    void test_doxygen_comments_data();
-    void test_doxygen_comments();
-
     void test_quickfix_data();
     void test_quickfix();
 
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp();
+    void test_quickfix_GenerateGetterSetter_onlyGetter();
+    void test_quickfix_GenerateGetterSetter_onlySetter();
+    void test_quickfix_GenerateGetterSetter_offerGetterWhenSetterPresent();
+    void test_quickfix_GenerateGetterSetter_offerSetterWhenGetterPresent();
+
+    void test_quickfix_ConvertQt4Connect_connectOutOfClass();
+    void test_quickfix_ConvertQt4Connect_connectWithinClass_data();
+    void test_quickfix_ConvertQt4Connect_connectWithinClass();
 
     void test_quickfix_InsertDefFromDecl_afterClass();
     void test_quickfix_InsertDefFromDecl_headerSource_basic1();
@@ -143,32 +148,13 @@ private slots:
     void test_quickfix_InsertDefFromDecl_erroneousStatementAtEndOfFile();
     void test_quickfix_InsertDefFromDecl_rvalueReference();
     void test_quickfix_InsertDefFromDecl_findImplementationFile();
+    void test_quickfix_InsertDefFromDecl_unicodeIdentifier();
 
     void test_quickfix_InsertDeclFromDef();
 
-    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByNewLines();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByIncludeDir();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByIncludeType();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_normal();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_sortingMiddle();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_sortingBottom();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_appendToUnsorted();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_firstLocalIncludeAtFront();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_firstGlobalIncludeAtBack();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_preferGroupWithLongerMatchingPrefix();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_newGroupIfOnlyDifferentIncludeDirs();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsSorted();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsUnsorted();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes1();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes2();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes3();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes4();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_noinclude();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCppStyleCommentOnTop();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCStyleCommentOnTop();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_checkQSomethingInQtIncludePaths();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_data();
+    void test_quickfix_AddIncludeForUndefinedIdentifier();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_noDoubleQtHeaderInclude();
 
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp();
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCppInsideNS();
@@ -184,6 +170,13 @@ private slots:
     void test_quickfix_MoveFuncDefOutside_afterClass();
     void test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames1();
     void test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2();
+    void test_quickfix_MoveFuncDefOutside_macroUses();
+
+    void test_quickfix_MoveAllFuncDefOutside_MemberFuncToCpp();
+    void test_quickfix_MoveAllFuncDefOutside_MemberFuncOutside();
+    void test_quickfix_MoveAllFuncDefOutside_DoNotTriggerOnBaseClass();
+    void test_quickfix_MoveAllFuncDefOutside_classWithBaseClass();
+    void test_quickfix_MoveAllFuncDefOutside_ignoreMacroCode();
 
     void test_quickfix_MoveFuncDefToDecl_MemberFunc();
     void test_quickfix_MoveFuncDefToDecl_MemberFuncOutside();
@@ -194,25 +187,43 @@ private slots:
     void test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS();
     void test_quickfix_MoveFuncDefToDecl_CtorWithInitialization();
     void test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable();
+    void test_quickfix_MoveFuncDefToDecl_macroUses();
+    void test_quickfix_MoveFuncDefToDecl_override();
 
     void test_quickfix_AssignToLocalVariable_templates();
+
+    void test_quickfix_ExtractFunction_data();
+    void test_quickfix_ExtractFunction();
 
     void test_quickfix_ExtractLiteralAsParameter_typeDeduction_data();
     void test_quickfix_ExtractLiteralAsParameter_typeDeduction();
     void test_quickfix_ExtractLiteralAsParameter_freeFunction_separateFiles();
     void test_quickfix_ExtractLiteralAsParameter_memberFunction_separateFiles();
+    void test_quickfix_ExtractLiteralAsParameter_notTriggeringForInvalidCode();
 
     void test_quickfix_InsertVirtualMethods_data();
     void test_quickfix_InsertVirtualMethods();
     void test_quickfix_InsertVirtualMethods_implementationFile();
     void test_quickfix_InsertVirtualMethods_BaseClassInNamespace();
 
-    // tests for "Include Hiererchy"
+    void test_useSelections_data();
+    void test_useSelections();
+
+    // tests for "Include Hierarchy"
     void test_includehierarchy_data();
     void test_includehierarchy();
 
-    // The following tests depend on the projects that are loaded on startup
-    // and will be skipped in case no projects are loaded.
+    // The following tests operate on a project and require special invocation:
+    //
+    // Ensure that the project is properly configured for a given settings path:
+    //   $ ./qtcreator -settingspath /your/settings/path /path/to/project
+    //
+    // ...and that it builds, which might prevent blocking dialogs for not
+    // existing files (e.g. ui_*.h).
+    //
+    // Run a test:
+    //   $ export QTC_TEST_WAIT_FOR_LOADED_PROJECT=1
+    //   $ ./qtcreator -settingspath /your/settings/path -test CppEditor,test_openEachFile /path/to/project
     void test_openEachFile();
     void test_switchHeaderSourceOnEachFile();
     void test_moveTokenWiseThroughEveryFile();
@@ -227,12 +238,9 @@ private slots:
 
 private:
     Core::IEditor *createEditor(QWidget *parent);
-    void writeSettings();
-    void readSettings();
 
     static CppEditorPlugin *m_instance;
 
-    bool m_sortedOutline;
     QAction *m_renameSymbolUnderCursorAction;
     QAction *m_findUsagesAction;
     QAction *m_reparseExternallyChangedFiles;
@@ -243,20 +251,7 @@ private:
 
     QPointer<CppCodeModelInspectorDialog> m_cppCodeModelInspectorDialog;
 
-    QPointer<TextEditor::ITextEditor> m_currentEditor;
-};
-
-class CppEditorFactory : public Core::IEditorFactory
-{
-    Q_OBJECT
-
-public:
-    CppEditorFactory(CppEditorPlugin *owner);
-
-    Core::IEditor *createEditor();
-
-private:
-    CppEditorPlugin *m_owner;
+    QPointer<TextEditor::BaseTextEditor> m_currentEditor;
 };
 
 } // namespace Internal

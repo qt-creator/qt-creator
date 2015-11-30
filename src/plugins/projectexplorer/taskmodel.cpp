@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -52,22 +53,22 @@ TaskModel::TaskModel(QObject *parent) :
     m_categories.insert(Core::Id(), CategoryData());
 }
 
-int TaskModel::taskCount(const Core::Id &categoryId)
+int TaskModel::taskCount(Core::Id categoryId)
 {
     return m_categories.value(categoryId).count;
 }
 
-int TaskModel::errorTaskCount(const Core::Id &categoryId)
+int TaskModel::errorTaskCount(Core::Id categoryId)
 {
     return m_categories.value(categoryId).errors;
 }
 
-int TaskModel::warningTaskCount(const Core::Id &categoryId)
+int TaskModel::warningTaskCount(Core::Id categoryId)
 {
     return m_categories.value(categoryId).warnings;
 }
 
-int TaskModel::unknownTaskCount(const Core::Id &categoryId)
+int TaskModel::unknownTaskCount(Core::Id categoryId)
 {
     return m_categories.value(categoryId).count
             - m_categories.value(categoryId).errors
@@ -82,22 +83,22 @@ bool TaskModel::hasFile(const QModelIndex &index) const
     return !m_tasks.at(row).file.isEmpty();
 }
 
-void TaskModel::addCategory(const Core::Id &categoryId, const QString &categoryName)
+void TaskModel::addCategory(Core::Id categoryId, const QString &categoryName)
 {
-    QTC_ASSERT(categoryId.uniqueIdentifier(), return);
+    QTC_ASSERT(categoryId.isValid(), return);
     CategoryData data;
     data.displayName = categoryName;
     m_categories.insert(categoryId, data);
 }
 
-QList<Task> TaskModel::tasks(const Core::Id &categoryId) const
+QList<Task> TaskModel::tasks(Core::Id categoryId) const
 {
-    if (categoryId.uniqueIdentifier() == 0)
+    if (!categoryId.isValid())
         return m_tasks;
 
     QList<Task> taskList;
     foreach (const Task &t, m_tasks) {
-        if (t.category.uniqueIdentifier() == categoryId.uniqueIdentifier())
+        if (t.category == categoryId)
             taskList.append(t);
     }
     return taskList;
@@ -165,11 +166,11 @@ void TaskModel::updateTaskLineNumber(unsigned int id, int line)
     }
 }
 
-void TaskModel::clearTasks(const Core::Id &categoryId)
+void TaskModel::clearTasks(Core::Id categoryId)
 {
     typedef QHash<Core::Id,CategoryData>::ConstIterator IdCategoryConstIt;
 
-    if (categoryId.uniqueIdentifier() == 0) {
+    if (!categoryId.isValid()) {
         if (m_tasks.count() == 0)
             return;
         beginRemoveRows(QModelIndex(), 0, m_tasks.count() -1);
@@ -237,7 +238,8 @@ int TaskModel::columnCount(const QModelIndex &parent) const
 
 QVariant TaskModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_tasks.count() || index.column() != 0)
+    int row = index.row();
+    if (!index.isValid() || row < 0 || row >= m_tasks.count() || index.column() != 0)
         return QVariant();
 
     if (role == TaskModel::File)
@@ -263,9 +265,10 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
 
 Task TaskModel::task(const QModelIndex &index) const
 {
-    if (!index.isValid())
+    int row = index.row();
+    if (!index.isValid() || row < 0 || row >= m_tasks.count())
         return Task();
-    return m_tasks.at(index.row());
+    return m_tasks.at(row);
 }
 
 QList<Core::Id> TaskModel::categoryIds() const
@@ -275,7 +278,7 @@ QList<Core::Id> TaskModel::categoryIds() const
     return categories;
 }
 
-QString TaskModel::categoryDisplayName(const Core::Id &categoryId) const
+QString TaskModel::categoryDisplayName(Core::Id categoryId) const
 {
     return m_categories.value(categoryId).displayName;
 }
@@ -316,10 +319,11 @@ int TaskModel::sizeOfLineNumber(const QFont &font)
 
 void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
 {
-    if (idx.isValid() && idx.row() < m_tasks.count()) {
-        m_fileNotFound.insert(m_tasks[idx.row()].file.toUserOutput(), b);
-        emit dataChanged(idx, idx);
-    }
+    int row = idx.row();
+    if (!idx.isValid() || row < 0 || row >= m_tasks.count())
+        return;
+    m_fileNotFound.insert(m_tasks[row].file.toUserOutput(), b);
+    emit dataChanged(idx, idx);
 }
 
 /////
@@ -327,9 +331,11 @@ void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
 /////
 
 TaskFilterModel::TaskFilterModel(TaskModel *sourceModel, QObject *parent) : QAbstractItemModel(parent),
-    m_mappingUpToDate(false), m_sourceModel(sourceModel)
+    m_sourceModel(sourceModel)
 {
     Q_ASSERT(m_sourceModel);
+    updateMapping();
+
     connect(m_sourceModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this, SLOT(handleNewRows(QModelIndex,int,int)));
     connect(m_sourceModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
@@ -360,7 +366,6 @@ int TaskFilterModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    updateMapping();
     return m_mapping.count();
 }
 
@@ -437,7 +442,7 @@ void TaskFilterModel::handleRowsAboutToBeRemoved(const QModelIndex &index, int f
     endRemoveRows();
 }
 
-void TaskFilterModel::handleDataChanged(QModelIndex top, QModelIndex bottom)
+void TaskFilterModel::handleDataChanged(const QModelIndex &top, const QModelIndex &bottom)
 {
     const QPair<int, int> range = findFilteredRange(top.row(), bottom.row(), m_mapping);
     if (range.first > range.second)
@@ -453,7 +458,6 @@ void TaskFilterModel::handleReset()
 
 QModelIndex TaskFilterModel::mapFromSource(const QModelIndex &idx) const
 {
-    updateMapping();
     QList<int>::const_iterator it = qBinaryFind(m_mapping.constBegin(), m_mapping.constEnd(), idx.row());
     if (it == m_mapping.constEnd())
         return QModelIndex();
@@ -462,7 +466,6 @@ QModelIndex TaskFilterModel::mapFromSource(const QModelIndex &idx) const
 
 QModelIndex TaskFilterModel::mapToSource(const QModelIndex &index) const
 {
-    updateMapping();
     int row = index.row();
     if (row >= m_mapping.count())
         return QModelIndex();
@@ -472,15 +475,12 @@ QModelIndex TaskFilterModel::mapToSource(const QModelIndex &index) const
 void TaskFilterModel::invalidateFilter()
 {
     beginResetModel();
-    m_mappingUpToDate = false;
+    updateMapping();
     endResetModel();
 }
 
 void TaskFilterModel::updateMapping() const
 {
-    if (m_mappingUpToDate)
-        return;
-
     m_mapping.clear();
     for (int i = 0; i < m_sourceModel->rowCount(); ++i) {
         QModelIndex index = m_sourceModel->index(i, 0);
@@ -488,8 +488,6 @@ void TaskFilterModel::updateMapping() const
         if (filterAcceptsTask(task))
             m_mapping.append(i);
     }
-
-    m_mappingUpToDate = true;
 }
 
 bool TaskFilterModel::filterAcceptsTask(const Task &task) const

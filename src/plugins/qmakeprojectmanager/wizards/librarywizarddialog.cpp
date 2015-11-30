@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -87,7 +88,7 @@ static QStringList pluginDependencies(const PluginBaseClasses *plb)
     const QChar blank = QLatin1Char(' ');
     // Find the module names and convert to ids
     QStringList pluginModules= plb->dependentModules ?
-                               QString(QLatin1String(plb->dependentModules)).split(blank) :
+                               QString::fromLatin1(plb->dependentModules).split(blank) :
                                QStringList();
     pluginModules.push_back(QLatin1String(plb->module));
     foreach (const QString &module, pluginModules) {
@@ -128,12 +129,12 @@ QtProjectParameters::Type LibraryIntroPage::type() const
 }
 
 // ------------------- LibraryWizardDialog
-LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
+LibraryWizardDialog::LibraryWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                         const QString &templateName,
                                          const QIcon &icon,
-                                         bool showModulesPage,
                                          QWidget *parent,
                                          const Core::WizardDialogParameters &parameters) :
-    BaseQmakeProjectWizardDialog(showModulesPage, new LibraryIntroPage, -1, parent, parameters),
+    BaseQmakeProjectWizardDialog(factory, true, new LibraryIntroPage, -1, parent, parameters),
     m_filesPage(new FilesPage),
     m_pluginBaseClassesInitialized(false),
     m_filesPageId(-1), m_modulesPageId(-1), m_targetPageId(-1)
@@ -165,19 +166,21 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     Utils::WizardProgressItem *filesItem = wizardProgress()->item(m_filesPageId);
     filesItem->setTitle(tr("Details"));
 
-    if (m_targetPageId != -1) {
-        targetItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                 << modulesItem << filesItem);
-        targetItem->setNextShownItem(0);
-    } else {
-        introItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                 << modulesItem << filesItem);
-        introItem->setNextShownItem(0);
+    if (targetItem) {
+        if (m_targetPageId != -1) {
+            targetItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                     << modulesItem << filesItem);
+            targetItem->setNextShownItem(0);
+        } else {
+            introItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                    << modulesItem << filesItem);
+            introItem->setNextShownItem(0);
+        }
     }
 
-    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
+    connect(this, &QWizard::currentIdChanged, this, &LibraryWizardDialog::slotCurrentIdChanged);
 
-    addExtensionPages(parameters.extensionPages());
+    addExtensionPages(extensionPages());
 }
 
 void LibraryWizardDialog::setSuffixes(const QString &header, const QString &source,  const QString &form)
@@ -294,14 +297,15 @@ void LibraryWizardDialog::setupFilesPage()
         }
         m_filesPage->setBaseClassInputVisible(true);
         break;
-    default: {
-        // Urrm, figure out a good class name. Use project name this time
-        QString className = projectName();
-        if (!className.isEmpty())
-            className[0] = className.at(0).toUpper();
-        m_filesPage->setClassName(className);
-        m_filesPage->setBaseClassInputVisible(false);
-    }
+    default:
+        if (!m_filesPage->isComplete()) {
+            // Urrm, figure out a good class name. Use project name this time
+            QString className = projectName();
+            if (!className.isEmpty())
+                className[0] = className.at(0).toUpper();
+            m_filesPage->setClassName(className);
+            m_filesPage->setBaseClassInputVisible(false);
+        }
         break;
     }
 }

@@ -45,7 +45,7 @@
       <item row="0" column="0">
        <widget class="QRadioButton" name="usePredefinedStyle">
         <property name="text">
-         <string>Use Predefined Style:</string>
+         <string>Use predefined style:</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -61,7 +61,7 @@
       <item row="1" column="0">
        <widget class="QRadioButton" name="useCustomizedStyle">
         <property name="text">
-         <string>Use Customized Style:</string>
+         <string>Use customized style:</string>
         </property>
         <property name="autoExclusive">
          <bool>true</bool>

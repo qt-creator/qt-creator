@@ -1,25 +1,29 @@
 DEFINES += CORE_LIBRARY
-QT += network \
-    script \
+QT += help \
+    network \
+    printsupport \
+    qml \
     sql
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += help printsupport
-} else {
-    CONFIG += help
-}
+# embedding build time information prevents repeatedly binary exact versions from same source code
+isEmpty(QTC_SHOW_BUILD_DATE): QTC_SHOW_BUILD_DATE = $$(QTC_SHOW_BUILD_DATE)
+!isEmpty(QTC_SHOW_BUILD_DATE): DEFINES += QTC_SHOW_BUILD_DATE
 
 include(../../qtcreatorplugin.pri)
-include(../../shared/scriptwrapper/scriptwrapper.pri)
 win32-msvc*:QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
-SOURCES += mainwindow.cpp \
+SOURCES += corejsextensions.cpp \
+    mainwindow.cpp \
+    shellcommand.cpp \
     editmode.cpp \
-    tabpositionindicator.cpp \
+    iwizardfactory.cpp \
     fancyactionbar.cpp \
     fancytabwidget.cpp \
     generalsettings.cpp \
+    themesettings.cpp \
+    themesettingswidget.cpp \
     id.cpp \
     icontext.cpp \
+    jsexpander.cpp \
     messagemanager.cpp \
     messageoutputwindow.cpp \
     outputpane.cpp \
@@ -27,8 +31,10 @@ SOURCES += mainwindow.cpp \
     vcsmanager.cpp \
     statusbarmanager.cpp \
     versiondialog.cpp \
+    editormanager/editorarea.cpp \
     editormanager/editormanager.cpp \
     editormanager/editorview.cpp \
+    editormanager/editorwindow.cpp \
     editormanager/documentmodel.cpp \
     editormanager/openeditorsview.cpp \
     editormanager/openeditorswindow.cpp \
@@ -52,9 +58,9 @@ SOURCES += mainwindow.cpp \
     progressmanager/futureprogress.cpp \
     statusbarwidget.cpp \
     coreplugin.cpp \
-    variablemanager.cpp \
     modemanager.cpp \
     basefilewizard.cpp \
+    basefilewizardfactory.cpp \
     generatedfile.cpp \
     plugindialog.cpp \
     inavigationwidgetfactory.cpp \
@@ -66,12 +72,10 @@ SOURCES += mainwindow.cpp \
     rightpane.cpp \
     sidebar.cpp \
     fileiconprovider.cpp \
-    mimedatabase.cpp \
     icore.cpp \
     infobar.cpp \
     editormanager/ieditor.cpp \
     dialogs/ioptionspage.cpp \
-    dialogs/iwizard.cpp \
     settingsdatabase.cpp \
     imode.cpp \
     editormanager/systemeditor.cpp \
@@ -91,29 +95,52 @@ SOURCES += mainwindow.cpp \
     fileutils.cpp \
     featureprovider.cpp \
     idocument.cpp \
+    idocumentfactory.cpp \
     textdocument.cpp \
     documentmanager.cpp \
     removefiledialog.cpp \
     iversioncontrol.cpp \
     dialogs/addtovcsdialog.cpp \
-    icorelistener.cpp \
-    ioutputpane.cpp
+    ioutputpane.cpp \
+    patchtool.cpp \
+    windowsupport.cpp \
+    opendocumentstreeview.cpp \
+    themeeditor/themecolors.cpp \
+    themeeditor/themecolorstableview.cpp \
+    themeeditor/colorvariable.cpp \
+    themeeditor/themeeditorwidget.cpp \
+    themeeditor/colorrole.cpp \
+    themeeditor/themesettingstablemodel.cpp \
+    themeeditor/sectionedtablemodel.cpp \
+    themeeditor/themesettingsitemdelegate.cpp \
+    messagebox.cpp \
+    iwelcomepage.cpp \
+    externaltoolmanager.cpp \
+    systemsettings.cpp
 
-HEADERS += mainwindow.h \
+HEADERS += corejsextensions.h \
+    mainwindow.h \
+    shellcommand.h \
     editmode.h \
-    tabpositionindicator.h \
+    iwizardfactory.h \
     fancyactionbar.h \
     fancytabwidget.h \
     generalsettings.h \
+    themesettings.h \
+    themesettingswidget.h \
     id.h \
+    jsexpander.h \
     messagemanager.h \
     messageoutputwindow.h \
     outputpane.h \
     outputwindow.h \
     vcsmanager.h \
     statusbarmanager.h \
+    editormanager/editorarea.h \
     editormanager/editormanager.h \
+    editormanager/editormanager_p.h \
     editormanager/editorview.h \
+    editormanager/editorwindow.h \
     editormanager/documentmodel.h \
     editormanager/openeditorsview.h \
     editormanager/openeditorswindow.h \
@@ -135,7 +162,6 @@ HEADERS += mainwindow.h \
     dialogs/readonlyfilesdialog.h \
     dialogs/shortcutsettings.h \
     dialogs/openwithdialog.h \
-    dialogs/iwizard.h \
     dialogs/ioptionspage.h \
     progressmanager/progressmanager_p.h \
     progressmanager/progressview.h \
@@ -150,14 +176,13 @@ HEADERS += mainwindow.h \
     coreconstants.h \
     iversioncontrol.h \
     ifilewizardextension.h \
-    icorelistener.h \
     versiondialog.h \
     core_global.h \
     statusbarwidget.h \
     coreplugin.h \
-    variablemanager.h \
     modemanager.h \
     basefilewizard.h \
+    basefilewizardfactory.h \
     generatedfile.h \
     plugindialog.h \
     inavigationwidgetfactory.h \
@@ -169,7 +194,6 @@ HEADERS += mainwindow.h \
     rightpane.h \
     sidebar.h \
     fileiconprovider.h \
-    mimedatabase.h \
     settingsdatabase.h \
     editormanager/systemeditor.h \
     designmode.h \
@@ -194,19 +218,36 @@ HEADERS += mainwindow.h \
     textdocument.h \
     documentmanager.h \
     removefiledialog.h \
-    dialogs/addtovcsdialog.h
+    dialogs/addtovcsdialog.h \
+    patchtool.h \
+    windowsupport.h \
+    opendocumentstreeview.h \
+    themeeditor/themecolors.h \
+    themeeditor/themecolorstableview.h \
+    themeeditor/colorvariable.h \
+    themeeditor/themeeditorwidget.h \
+    themeeditor/colorrole.h \
+    themeeditor/themesettingstablemodel.h \
+    themeeditor/sectionedtablemodel.h \
+    themeeditor/themesettingsitemdelegate.h \
+    messagebox.h \
+    iwelcomepage.h \
+    systemsettings.h \
+    coreicons.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
     dialogs/readonlyfilesdialog.ui \
     dialogs/openwithdialog.ui \
     generalsettings.ui \
+    themesettings.ui \
     dialogs/externaltoolconfig.ui \
-    variablechooser.ui \
     mimetypesettingspage.ui \
     mimetypemagicdialog.ui \
     removefiledialog.ui \
-   dialogs/addtovcsdialog.ui
+    dialogs/addtovcsdialog.ui \
+    themeeditor/themeeditorwidget.ui \
+    systemsettings.ui
 
 RESOURCES += core.qrc \
     fancyactionbar.qrc
@@ -216,14 +257,12 @@ include(locator/locator.pri)
 
 win32 {
     SOURCES += progressmanager/progressmanager_win.cpp
-    greaterThan(QT_MAJOR_VERSION, 4): QT += gui-private # Uses QPlatformNativeInterface.
+    QT += gui-private # Uses QPlatformNativeInterface.
     LIBS += -lole32 -luser32
 }
 else:macx {
-    HEADERS += macfullscreen.h
     OBJECTIVE_SOURCES += \
-        progressmanager/progressmanager_mac.mm \
-        macfullscreen.mm
+        progressmanager/progressmanager_mac.mm
     LIBS += -framework AppKit
 }
 else:unix {
@@ -237,7 +276,7 @@ else:unix {
         INSTALLS += image$${imagesize}
     }
 }
-OTHER_FILES += editormanager/BinFiles.mimetypes.xml
+DISTFILES += editormanager/BinFiles.mimetypes.xml
 
 equals(TEST, 1) {
     SOURCES += testdatadir.cpp

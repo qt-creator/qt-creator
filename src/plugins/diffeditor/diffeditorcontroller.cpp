@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,100 +9,193 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
+#include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
+#include "diffeditordocument.h"
+
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
+
+#include <utils/qtcassert.h>
+
+#include <QStringList>
 
 namespace DiffEditor {
 
-DiffEditorController::DiffEditorController(QObject *parent)
-    : QObject(parent),
-      m_descriptionEnabled(false)
+DiffEditorController::DiffEditorController(Core::IDocument *document) :
+    QObject(document),
+    m_document(qobject_cast<Internal::DiffEditorDocument *>(document)),
+    m_isReloading(false),
+    m_diffFileIndex(-1),
+    m_chunkIndex(-1)
 {
-    clear();
+    QTC_ASSERT(m_document, return);
+    m_document->setController(this);
 }
 
-DiffEditorController::~DiffEditorController()
+bool DiffEditorController::isReloading() const
 {
-
+    return m_isReloading;
 }
 
-QString DiffEditorController::clearMessage() const
+QString DiffEditorController::baseDirectory() const
 {
-    return m_clearMessage;
+    return m_document->baseDirectory();
 }
 
-QList<DiffEditorController::DiffFilesContents> DiffEditorController::diffContents() const
+int DiffEditorController::contextLineCount() const
 {
-    return m_diffFileList;
+    return m_document->contextLineCount();
 }
 
-QString DiffEditorController::workingDirectory() const
+bool DiffEditorController::ignoreWhitespace() const
 {
-    return m_workingDirectory;
+    return m_document->ignoreWhitespace();
 }
 
-QString DiffEditorController::description() const
+QString DiffEditorController::revisionFromDescription() const
 {
-    return m_description;
+    // TODO: This is specific for git and does not belong here at all!
+    return m_document->description().mid(7, 12);
 }
 
-bool DiffEditorController::isDescriptionEnabled() const
+QString DiffEditorController::makePatch(bool revert, bool addPrefix) const
 {
-    return m_descriptionEnabled;
+    return m_document->makePatch(m_diffFileIndex, m_chunkIndex, revert, addPrefix);
 }
 
-void DiffEditorController::clear()
+Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId,
+                                                            const QString &displayName)
 {
-    clear(tr("No difference"));
+    QString preferredDisplayName = displayName;
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+                Constants::DIFF_EDITOR_ID, &preferredDisplayName, QByteArray(), vcsId);
+    return editor ? editor->document() : 0;
 }
 
-void DiffEditorController::clear(const QString &message)
+DiffEditorController *DiffEditorController::controller(Core::IDocument *document)
 {
-    m_clearMessage = message;
-    emit cleared(message);
+    auto doc = qobject_cast<Internal::DiffEditorDocument *>(document);
+    return doc ? doc->controller() : 0;
 }
 
-void DiffEditorController::setDiffContents(const QList<DiffFilesContents> &diffFileList,
-                                           const QString &workingDirectory)
+void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList,
+                                        const QString &workingDirectory,
+                                        const QString &startupFile)
 {
-    m_diffFileList = diffFileList;
-    m_workingDirectory = workingDirectory;
-    emit diffContentsChanged(diffFileList, workingDirectory);
+    m_document->setDiffFiles(diffFileList, workingDirectory, startupFile);
 }
 
 void DiffEditorController::setDescription(const QString &description)
 {
-    if (m_description == description)
-        return;
-
-    m_description = description;
-    emit descriptionChanged(description);
+    m_document->setDescription(description);
 }
 
-void DiffEditorController::setDescriptionEnabled(bool on)
+void DiffEditorController::informationForCommitReceived(const QString &output)
 {
-    if (m_descriptionEnabled == on)
-        return;
+    // TODO: Git specific code...
+    const QString branches = prepareBranchesForCommit(output);
 
-    m_descriptionEnabled = on;
-    emit descriptionEnablementChanged(on);
+    QString tmp = m_document->description();
+    tmp.replace(QLatin1String(Constants::EXPAND_BRANCHES), branches);
+    m_document->setDescription(tmp);
+}
+
+void DiffEditorController::requestMoreInformation()
+{
+    const QString rev = revisionFromDescription();
+    if (!rev.isEmpty())
+        emit requestInformationForCommit(rev);
+}
+
+QString DiffEditorController::prepareBranchesForCommit(const QString &output)
+{
+    // TODO: More git-specific code...
+    QString moreBranches;
+    QString branches;
+    QStringList res;
+    foreach (const QString &branch, output.split(QLatin1Char('\n'))) {
+        const QString b = branch.mid(2).trimmed();
+        if (!b.isEmpty())
+            res << b;
+    }
+    const int branchCount = res.count();
+    // If there are more than 20 branches, list first 10 followed by a hint
+    if (branchCount > 20) {
+        const int leave = 10;
+        //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'"
+        //  in git show.
+        moreBranches = QLatin1Char(' ') + tr("and %n more", 0, branchCount - leave);
+        res.erase(res.begin() + leave, res.end());
+    }
+    branches = QLatin1String("Branches: ");
+    if (res.isEmpty())
+        branches += tr("<None>");
+    else
+        branches += res.join(QLatin1String(", ")) + moreBranches;
+
+    return branches;
+}
+
+/**
+ * @brief Force the lines of context to the given number.
+ *
+ * The user will not be able to change the context lines anymore. This needs to be set before
+ * starting any operation or the flag will be ignored by the UI.
+ *
+ * @param lines Lines of context to display.
+ */
+void DiffEditorController::forceContextLineCount(int lines)
+{
+    m_document->forceContextLineCount(lines);
+}
+
+Core::IDocument *DiffEditorController::document() const
+{
+    return m_document;
+}
+
+/**
+ * @brief Request the diff data to be re-read.
+ */
+void DiffEditorController::requestReload()
+{
+    m_isReloading = true;
+    m_document->beginReload();
+    reload();
+}
+
+void DiffEditorController::reloadFinished(bool success)
+{
+    m_document->endReload(success);
+    m_isReloading = false;
+}
+
+void DiffEditorController::requestChunkActions(QMenu *menu, int diffFileIndex, int chunkIndex)
+{
+    m_diffFileIndex = diffFileIndex;
+    m_chunkIndex = chunkIndex;
+    emit chunkActionsRequested(menu, diffFileIndex >= 0 && chunkIndex >= 0);
 }
 
 } // namespace DiffEditor

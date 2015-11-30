@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,31 +9,34 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "iosdevice.h"
+#include "iossimulator.h"
 #include "iosconstants.h"
 #include "iosconfigurations.h"
 #include "iostoolhandler.h"
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <coreplugin/helpmanager.h>
+#include <utils/portlist.h>
 
 #include <QCoreApplication>
 #include <QVariant>
@@ -50,7 +53,9 @@
 
 using namespace ProjectExplorer;
 
-static bool debugDeviceDetection = false;
+namespace {
+Q_LOGGING_CATEGORY(detectLog, "qtc.ios.deviceDetect")
+}
 
 #ifdef Q_OS_MAC
 static QString CFStringRef2QString(CFStringRef s)
@@ -78,27 +83,32 @@ static QString CFStringRef2QString(CFStringRef s)
 namespace Ios {
 namespace Internal {
 
-const char extraInfoKey[] = "extraInfo";
-
 IosDevice::IosDevice()
     : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
                              IDevice::AutoDetected,
                              IDevice::Hardware,
-                             Constants::IOS_DEVICE_ID)
+                             Constants::IOS_DEVICE_ID),
+      m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setDisplayName(IosDevice::name());
     setDeviceState(DeviceDisconnected);
+    Utils::PortList ports;
+    ports.addRange(Constants::IOS_DEVICE_PORT_START,
+                   Constants::IOS_DEVICE_PORT_END);
+    setFreePorts(ports);
 }
 
 IosDevice::IosDevice(const IosDevice &other)
-    : IDevice(other), m_extraInfo(other.m_extraInfo), m_ignoreDevice(other.m_ignoreDevice)
+    : IDevice(other), m_extraInfo(other.m_extraInfo), m_ignoreDevice(other.m_ignoreDevice),
+      m_lastPort(other.m_lastPort)
 { }
 
 IosDevice::IosDevice(const QString &uid)
     : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
                              IDevice::AutoDetected,
                              IDevice::Hardware,
-                             Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid))
+                             Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid)),
+    m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setDisplayName(IosDevice::name());
     setDeviceState(DeviceDisconnected);
@@ -158,7 +168,7 @@ IDevice::Ptr IosDevice::clone() const
 void IosDevice::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);
-    QVariantMap vMap = map.value(QLatin1String(extraInfoKey)).toMap();
+    QVariantMap vMap = map.value(QLatin1String(Constants::EXTRA_INFO_KEY)).toMap();
     QMapIterator<QString, QVariant> i(vMap);
     m_extraInfo.clear();
     while (i.hasNext()) {
@@ -176,7 +186,7 @@ QVariantMap IosDevice::toMap() const
         i.next();
         vMap.insert(i.key(), i.value());
     }
-    res.insert(QLatin1String(extraInfoKey), vMap);
+    res.insert(QLatin1String(Constants::EXTRA_INFO_KEY), vMap);
     return res;
 }
 
@@ -193,6 +203,19 @@ QString IosDevice::name()
 QString IosDevice::osVersion() const
 {
     return m_extraInfo.value(QLatin1String("osVersion"));
+}
+
+quint16 IosDevice::nextPort() const
+{
+    // use qrand instead?
+    if (++m_lastPort >= Constants::IOS_DEVICE_PORT_END)
+        m_lastPort = Constants::IOS_DEVICE_PORT_START;
+    return m_lastPort;
+}
+
+bool IosDevice::canAutoDetectPorts() const
+{
+    return true;
 }
 
 
@@ -228,13 +251,11 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
         IosDevice *newDev = new IosDevice(uid);
         if (!name.isNull())
             newDev->setDisplayName(name);
-        if (debugDeviceDetection)
-            qDebug() << "adding ios device " << uid;
+        qCDebug(detectLog) << "adding ios device " << uid;
         devManager->addDevice(IDevice::ConstPtr(newDev));
     } else if (dev->deviceState() != IDevice::DeviceConnected &&
                dev->deviceState() != IDevice::DeviceReadyToUse) {
-        if (debugDeviceDetection)
-            qDebug() << "updating ios device " << uid;
+        qCDebug(detectLog) << "updating ios device " << uid;
         IosDevice *newDev = 0;
         if (dev->type() == devType) {
             const IosDevice *iosDev = static_cast<const IosDevice *>(dev.data());
@@ -249,20 +270,21 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
 
 void IosDeviceManager::deviceDisconnected(const QString &uid)
 {
-    if (debugDeviceDetection)
-        qDebug() << "detected disconnection of ios device " << uid;
+    qCDebug(detectLog) << "detected disconnection of ios device " << uid;
     DeviceManager *devManager = DeviceManager::instance();
     Core::Id baseDevId(Constants::IOS_DEVICE_ID);
     Core::Id devType(Constants::IOS_DEVICE_TYPE);
     Core::Id devId = baseDevId.withSuffix(uid);
     IDevice::ConstPtr dev = devManager->find(devId);
     if (dev.isNull() || dev->type() != devType) {
-        qDebug() << "ignoring disconnection of ios device " << uid; // should neve happen
+        qCWarning(detectLog) << "ignoring disconnection of ios device " << uid; // should neve happen
     } else {
         const IosDevice *iosDev = static_cast<const IosDevice *>(dev.data());
-        if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
-            if (debugDeviceDetection)
-                qDebug() << "disconnecting device " << iosDev->uniqueDeviceID();
+        if (iosDev->m_extraInfo.isEmpty()
+                || iosDev->m_extraInfo.value(QLatin1String("deviceName")) == QLatin1String("*unknown*")) {
+            devManager->removeDevice(iosDev->id());
+        } else if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
+            qCDebug(detectLog) << "disconnecting device " << iosDev->uniqueDeviceID();
             devManager->setDeviceState(iosDev->id(), IDevice::DeviceDisconnected);
         }
     }
@@ -270,7 +292,7 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
 
 void IosDeviceManager::updateInfo(const QString &devId)
 {
-    IosToolHandler *requester = new IosToolHandler(IosToolHandler::IosDeviceType, this);
+    IosToolHandler *requester = new IosToolHandler(IosDeviceType(IosDeviceType::IosDevice), this);
     connect(requester, SIGNAL(deviceInfo(Ios::IosToolHandler*,QString,Ios::IosToolHandler::Dict)),
             SLOT(deviceInfo(Ios::IosToolHandler*,QString,Ios::IosToolHandler::Dict)), Qt::QueuedConnection);
     connect(requester, SIGNAL(finished(Ios::IosToolHandler*)),
@@ -304,8 +326,7 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
         if (info.contains(devNameKey))
             newDev->setDisplayName(info.value(devNameKey));
         newDev->m_extraInfo = info;
-        if (debugDeviceDetection)
-            qDebug() << "updated info of ios device " << uid;
+        qCDebug(detectLog) << "updated info of ios device " << uid;
         dev = IDevice::ConstPtr(newDev);
         devManager->addDevice(dev);
     }
@@ -375,8 +396,7 @@ void deviceConnectedCallback(void *refCon, io_iterator_t iterator)
             QString name;
             if (KERN_SUCCESS == kr)
                 name = QString::fromLocal8Bit(deviceName);
-            if (debugDeviceDetection)
-                qDebug() << "ios device " << name << " in deviceAddedCallback";
+            qCDebug(detectLog) << "ios device " << name << " in deviceAddedCallback";
 
             CFStringRef cfUid = static_cast<CFStringRef>(IORegistryEntryCreateCFProperty(
                                                              usbDevice,
@@ -390,11 +410,11 @@ void deviceConnectedCallback(void *refCon, io_iterator_t iterator)
             kr = IOObjectRelease(usbDevice);
         }
     }
-    catch (std::exception &e) {
-        qDebug() << "Exception " << e.what() << " in iosdevice.cpp deviceConnectedCallback";
+    catch (const std::exception &e) {
+        qCWarning(detectLog) << "Exception " << e.what() << " in iosdevice.cpp deviceConnectedCallback";
     }
     catch (...) {
-        qDebug() << "Exception in iosdevice.cpp deviceConnectedCallback";
+        qCWarning(detectLog) << "Exception in iosdevice.cpp deviceConnectedCallback";
         throw;
     }
 }
@@ -413,8 +433,7 @@ void deviceDisconnectedCallback(void *refCon, io_iterator_t iterator)
             kr = IORegistryEntryGetName(usbDevice, deviceName);
             if (KERN_SUCCESS != kr)
                 deviceName[0] = '\0';
-            if (debugDeviceDetection)
-                qDebug() << "ios device " << deviceName << " in deviceDisconnectedCallback";
+            qCDebug(detectLog) << "ios device " << deviceName << " in deviceDisconnectedCallback";
 
             {
                 CFStringRef cfUid = static_cast<CFStringRef>(IORegistryEntryCreateCFProperty(
@@ -430,11 +449,11 @@ void deviceDisconnectedCallback(void *refCon, io_iterator_t iterator)
             kr = IOObjectRelease(usbDevice);
         }
     }
-    catch (std::exception &e) {
-        qDebug() << "Exception " << e.what() << " in iosdevice.cpp deviceDisconnectedCallback";
+    catch (const std::exception &e) {
+        qCWarning(detectLog) << "Exception " << e.what() << " in iosdevice.cpp deviceDisconnectedCallback";
     }
     catch (...) {
-        qDebug() << "Exception in iosdevice.cpp deviceDisconnectedCallback";
+        qCWarning(detectLog) << "Exception in iosdevice.cpp deviceDisconnectedCallback";
         throw;
     }
 }
@@ -535,8 +554,7 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
         if (devices.contains(iosDev->uniqueDeviceID()))
             continue;
         if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
-            if (debugDeviceDetection)
-                qDebug() << "disconnecting device " << iosDev->uniqueDeviceID();
+            qCDebug(detectLog) << "disconnecting device " << iosDev->uniqueDeviceID();
             devManager->setDeviceState(iosDev->id(), IDevice::DeviceDisconnected);
         }
     }
@@ -546,7 +564,7 @@ IosDevice::ConstPtr IosKitInformation::device(Kit *kit)
 {
     if (!kit)
         return IosDevice::ConstPtr();
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(kit);
+    IDevice::ConstPtr dev = DeviceKitInformation::device(kit);
     IosDevice::ConstPtr res = dev.dynamicCast<const IosDevice>();
     return res;
 }

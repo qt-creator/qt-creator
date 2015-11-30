@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -73,7 +74,7 @@ QList<EnvironmentItem> EnvironmentItem::fromStringList(const QStringList &list)
 {
     QList<EnvironmentItem> result;
     foreach (const QString &string, list) {
-        int pos = string.indexOf(QLatin1Char('='));
+        int pos = string.indexOf(QLatin1Char('='), 1);
         if (pos == -1) {
             EnvironmentItem item(string, QString());
             item.unset = true;
@@ -101,7 +102,7 @@ QStringList EnvironmentItem::toStringList(const QList<EnvironmentItem> &list)
 Environment::Environment(const QStringList &env, OsType osType) : m_osType(osType)
 {
     foreach (const QString &s, env) {
-        int i = s.indexOf(QLatin1Char('='));
+        int i = s.indexOf(QLatin1Char('='), 1);
         if (i >= 0) {
             if (m_osType == OsTypeWindows)
                 m_values.insert(s.left(i).toUpper(), s.mid(i+1));
@@ -192,6 +193,13 @@ void Environment::prependOrSetLibrarySearchPath(const QString &value)
         prependOrSet(path, QDir::toNativeSeparators(value), QString(sep));
         break;
     }
+    case OsTypeMac: {
+        const QString sep = QLatin1String(":");
+        const QString nativeValue = QDir::toNativeSeparators(value);
+        prependOrSet(QLatin1String("DYLD_LIBRARY_PATH"), nativeValue, sep);
+        prependOrSet(QLatin1String("DYLD_FRAMEWORK_PATH"), nativeValue, sep);
+        break;
+    }
     case OsTypeLinux:
     case OsTypeOtherUnix: {
         const QChar sep = QLatin1Char(':');
@@ -199,7 +207,7 @@ void Environment::prependOrSetLibrarySearchPath(const QString &value)
         prependOrSet(path, QDir::toNativeSeparators(value), QString(sep));
         break;
     }
-    default: // we could set DYLD_LIBRARY_PATH on Mac but it is unnecessary in practice
+    default:
         break;
     }
 }
@@ -214,11 +222,11 @@ void Environment::clear()
     m_values.clear();
 }
 
-QString Environment::searchInDirectory(const QStringList &execs, QString directory) const
+FileName Environment::searchInDirectory(const QStringList &execs, QString directory) const
 {
     const QChar slash = QLatin1Char('/');
     if (directory.isEmpty())
-        return QString();
+        return FileName();
     // Avoid turing / into // on windows which triggers windows to check
     // for network drives!
     if (!directory.endsWith(slash))
@@ -227,64 +235,68 @@ QString Environment::searchInDirectory(const QStringList &execs, QString directo
     foreach (const QString &exec, execs) {
         QFileInfo fi(directory + exec);
         if (fi.exists() && fi.isFile() && fi.isExecutable())
-            return fi.absoluteFilePath();
+            return FileName::fromString(fi.absoluteFilePath());
     }
-    return QString();
+    return FileName();
 }
 
-QString Environment::searchInPath(const QString &executable,
-                                  const QStringList &additionalDirs) const
+QStringList Environment::appendExeExtensions(const QString &executable) const
 {
-    if (executable.isEmpty())
-        return QString();
-
-    QString exec = QDir::cleanPath(expandVariables(executable));
-    QFileInfo fi(exec);
-
-    QStringList execs(exec);
+    QFileInfo fi(executable);
+    QStringList execs(executable);
     if (m_osType == OsTypeWindows) {
         // Check all the executable extensions on windows:
         // PATHEXT is only used if the executable has no extension
         if (fi.suffix().isEmpty()) {
             QStringList extensions = value(QLatin1String("PATHEXT")).split(QLatin1Char(';'));
 
-            foreach (const QString &ext, extensions) {
-                QString tmp = executable + ext.toLower();
-                if (fi.isAbsolute()) {
-                    if (QFile::exists(tmp))
-                        return tmp;
-                } else {
-                    execs << tmp;
-                }
-            }
+            foreach (const QString &ext, extensions)
+                execs << executable + ext.toLower();
         }
     }
+    return execs;
+}
 
-    if (fi.isAbsolute())
-        return exec;
+FileName Environment::searchInPath(const QString &executable,
+                                   const QStringList &additionalDirs) const
+{
+    if (executable.isEmpty())
+        return FileName();
+
+    QString exec = QDir::cleanPath(expandVariables(executable));
+    QFileInfo fi(exec);
+
+    QStringList execs = appendExeExtensions(exec);
+
+    if (fi.isAbsolute()) {
+        foreach (const QString &path, execs)
+            if (QFile::exists(path))
+                return FileName::fromString(path);
+        return FileName::fromString(exec);
+    }
 
     QSet<QString> alreadyChecked;
     foreach (const QString &dir, additionalDirs) {
         if (alreadyChecked.contains(dir))
             continue;
         alreadyChecked.insert(dir);
-        QString tmp = searchInDirectory(execs, dir);
+        FileName tmp = searchInDirectory(execs, dir);
         if (!tmp.isEmpty())
             return tmp;
     }
 
     if (executable.indexOf(QLatin1Char('/')) != -1)
-        return QString();
+        return FileName();
 
     foreach (const QString &p, path()) {
         if (alreadyChecked.contains(p))
             continue;
         alreadyChecked.insert(p);
-        QString tmp = searchInDirectory(execs, QDir::fromNativeSeparators(p));
+        FileName tmp = searchInDirectory(execs, QDir::fromNativeSeparators(p));
         if (!tmp.isEmpty())
             return tmp;
     }
-    return QString();
+    return FileName();
 }
 
 QStringList Environment::path() const
@@ -373,23 +385,24 @@ QList<EnvironmentItem> Environment::diff(const Environment &other) const
     QList<EnvironmentItem> result;
     while (thisIt != constEnd() || otherIt != other.constEnd()) {
         if (thisIt == constEnd()) {
-            result.append(Utils::EnvironmentItem(otherIt.key(), otherIt.value()));
+            result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
-        } else if (otherIt == constEnd()) {
-            Utils::EnvironmentItem item(thisIt.key(), QString());
+        } else if (otherIt == other.constEnd()) {
+            EnvironmentItem item(thisIt.key(), QString());
             item.unset = true;
             result.append(item);
             ++thisIt;
         } else if (thisIt.key() < otherIt.key()) {
-            Utils::EnvironmentItem item(thisIt.key(), QString());
+            EnvironmentItem item(thisIt.key(), QString());
             item.unset = true;
             result.append(item);
             ++thisIt;
         } else if (thisIt.key() > otherIt.key()) {
-            result.append(Utils::EnvironmentItem(otherIt.key(), otherIt.value()));
+            result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
         } else {
-            result.append(Utils::EnvironmentItem(otherIt.key(), otherIt.value()));
+            if (thisIt.value() != otherIt.value())
+                result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
             ++thisIt;
         }

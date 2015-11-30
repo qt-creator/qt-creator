@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,87 +9,72 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qmlprofilerdatamodel.h"
-#include "qmlprofilerbasemodel_p.h"
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilernotesmodel.h"
+#include "qmlprofilerdetailsrewriter.h"
+
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
 #include <QUrl>
 #include <QDebug>
+#include <algorithm>
 
 namespace QmlProfiler {
 
-class QmlProfilerDataModel::QmlProfilerDataModelPrivate :
-        public QmlProfilerBaseModel::QmlProfilerBaseModelPrivate
+class QmlProfilerDataModel::QmlProfilerDataModelPrivate
 {
 public:
-    QmlProfilerDataModelPrivate(QmlProfilerDataModel *qq) : QmlProfilerBaseModelPrivate(qq) {}
+    QVector<QmlEventTypeData> eventTypes;
     QVector<QmlEventData> eventList;
-private:
-    Q_DECLARE_PUBLIC(QmlProfilerDataModel)
+    QVector<QmlEventNoteData> eventNotes;
+    QHash<QmlEventTypeData, int> eventTypeIds;
+
+    QmlProfilerModelManager *modelManager;
+    int modelId;
+    Internal::QmlProfilerDetailsRewriter *detailsRewriter;
 };
 
-QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventData &event);
-QString getDisplayName(const QmlProfilerDataModel::QmlEventData &event);
-QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event);
-
-QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventData &event)
+QString getDisplayName(const QmlProfilerDataModel::QmlEventTypeData &event)
 {
-    QmlDebug::QmlEventLocation eventLocation = event.location;
-    if ((event.eventType == QmlDebug::Creating || event.eventType == QmlDebug::Compiling)
-            && eventLocation.filename.isEmpty()) {
-        eventLocation.filename = getInitialDetails(event);
-        eventLocation.line = 1;
-        eventLocation.column = 1;
-    }
-    return eventLocation;
-}
-
-QString getDisplayName(const QmlProfilerDataModel::QmlEventData &event)
-{
-    const QmlDebug::QmlEventLocation eventLocation = getLocation(event);
-    QString displayName;
-
-    // generate hash
-    if (eventLocation.filename.isEmpty()) {
-        displayName = QmlProfilerDataModel::tr("<bytecode>");
+    if (event.location.filename.isEmpty()) {
+        return QmlProfilerDataModel::tr("<bytecode>");
     } else {
-        const QString filePath = QUrl(eventLocation.filename).path();
-        displayName = filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +
-                QString::number(eventLocation.line);
+        const QString filePath = QUrl(event.location.filename).path();
+        return filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +
+                QString::number(event.location.line);
     }
-
-    return displayName;
 }
 
-QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event)
+QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event)
 {
     QString details;
     // generate details string
-    if (event.data.isEmpty())
-        details = QmlProfilerDataModel::tr("Source code not available.");
-    else {
-        details = event.data.join(QLatin1String(" ")).replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
+    if (!event.data.isEmpty()) {
+        details = event.data;
+        details = details.replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         if (details.isEmpty()) {
-            details = QmlProfilerDataModel::tr("anonymous function");
+            if (event.rangeType == QmlDebug::Javascript)
+                details = QmlProfilerDataModel::tr("anonymous function");
         } else {
             QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
             bool match = rewrite.exactMatch(details);
@@ -99,32 +84,87 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event)
                     details.startsWith(QLatin1String("qrc:/")))
                 details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
         }
+    } else if (event.rangeType == QmlDebug::Painting) {
+        // QtQuick1 animations always run in GUI thread.
+        details = QmlProfilerDataModel::tr("GUI Thread");
     }
 
     return details;
 }
 
-
-bool compareStartTimes(const QmlProfilerDataModel::QmlEventData &t1, const QmlProfilerDataModel::QmlEventData &t2)
+QString QmlProfilerDataModel::formatTime(qint64 timestamp)
 {
-    return t1.startTime < t2.startTime;
+    if (timestamp < 1e6)
+        return QString::number(timestamp/1e3f,'f',3) + trUtf8(" \xc2\xb5s");
+    if (timestamp < 1e9)
+        return QString::number(timestamp/1e6f,'f',3) + tr(" ms");
+
+    return QString::number(timestamp/1e9f,'f',3) + tr(" s");
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
 QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
-                                                     QmlProfilerModelManager *parent)
-    : QmlProfilerBaseModel(fileFinder, parent, new QmlProfilerDataModelPrivate(this))
+                                           QmlProfilerModelManager *parent) :
+    QObject(parent), d_ptr(new QmlProfilerDataModelPrivate)
 {
     Q_D(QmlProfilerDataModel);
+    Q_ASSERT(parent);
+    d->modelManager = parent;
+    d->detailsRewriter = new QmlProfilerDetailsRewriter(this, fileFinder);
+    d->modelId = d->modelManager->registerModelProxy();
+    connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
+            this, &QmlProfilerDataModel::detailsChanged);
+    connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::eventDetailsChanged,
+            this, &QmlProfilerDataModel::detailsDone);
+    connect(this, &QmlProfilerDataModel::requestReload,
+            d->detailsRewriter, &QmlProfilerDetailsRewriter::reloadDocuments);
+
     // The document loading is very expensive.
     d->modelManager->setProxyCountWeight(d->modelId, 4);
+}
+
+QmlProfilerDataModel::~QmlProfilerDataModel()
+{
+    Q_D(QmlProfilerDataModel);
+    delete d->detailsRewriter;
+    delete d;
 }
 
 const QVector<QmlProfilerDataModel::QmlEventData> &QmlProfilerDataModel::getEvents() const
 {
     Q_D(const QmlProfilerDataModel);
     return d->eventList;
+}
+
+const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerDataModel::getEventTypes() const
+{
+    Q_D(const QmlProfilerDataModel);
+    return d->eventTypes;
+}
+
+const QVector<QmlProfilerDataModel::QmlEventNoteData> &QmlProfilerDataModel::getEventNotes() const
+{
+    Q_D(const QmlProfilerDataModel);
+    return d->eventNotes;
+}
+
+void QmlProfilerDataModel::setData(qint64 traceStart, qint64 traceEnd,
+                                   const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
+                                   const QVector<QmlProfilerDataModel::QmlEventData> &events)
+{
+    Q_D(QmlProfilerDataModel);
+    d->modelManager->traceTime()->setTime(traceStart, traceEnd);
+    d->eventList = events;
+    d->eventTypes = types;
+    for (int id = 0; id < types.count(); ++id)
+        d->eventTypeIds[types[id]] = id;
+    // Half the work is done. processData() will do the rest.
+    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 2);
+}
+
+void QmlProfilerDataModel::setNoteData(const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes)
+{
+    Q_D(QmlProfilerDataModel);
+    d->eventNotes = notes;
 }
 
 int QmlProfilerDataModel::count() const
@@ -137,8 +177,12 @@ void QmlProfilerDataModel::clear()
 {
     Q_D(QmlProfilerDataModel);
     d->eventList.clear();
-    // This call emits changed(). Don't emit it again here.
-    QmlProfilerBaseModel::clear();
+    d->eventTypes.clear();
+    d->eventTypeIds.clear();
+    d->eventNotes.clear();
+    d->detailsRewriter->clearRequests();
+    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
+    emit changed();
 }
 
 bool QmlProfilerDataModel::isEmpty() const
@@ -147,27 +191,52 @@ bool QmlProfilerDataModel::isEmpty() const
     return d->eventList.isEmpty();
 }
 
-void QmlProfilerDataModel::complete()
+inline static bool operator<(const QmlProfilerDataModel::QmlEventData &t1,
+                             const QmlProfilerDataModel::QmlEventData &t2)
+{
+    return t1.startTime() < t2.startTime();
+}
+
+inline static uint qHash(const QmlProfilerDataModel::QmlEventTypeData &type)
+{
+    return qHash(type.location.filename) ^
+            ((type.location.line & 0xfff) |             // 12 bits of line number
+            ((type.message << 12) & 0xf000) |           // 4 bits of message
+            ((type.location.column << 16) & 0xff0000) | // 8 bits of column
+            ((type.rangeType << 24) & 0xf000000) |      // 4 bits of rangeType
+            ((type.detailType << 28) & 0xf0000000));    // 4 bits of detailType
+}
+
+inline static bool operator==(const QmlProfilerDataModel::QmlEventTypeData &type1,
+                              const QmlProfilerDataModel::QmlEventTypeData &type2)
+{
+    return type1.message == type2.message && type1.rangeType == type2.rangeType &&
+            type1.detailType == type2.detailType && type1.location.line == type2.location.line &&
+            type1.location.column == type2.location.column &&
+            // compare filename last as it's expensive.
+            type1.location.filename == type2.location.filename;
+}
+
+void QmlProfilerDataModel::processData()
 {
     Q_D(QmlProfilerDataModel);
     // post-processing
 
-    // sort events by start time
-    qSort(d->eventList.begin(), d->eventList.end(), compareStartTimes);
+    // sort events by start time, using above operator<
+    std::sort(d->eventList.begin(), d->eventList.end());
 
     // rewrite strings
-    int n = d->eventList.count();
+    int n = d->eventTypes.count();
     for (int i = 0; i < n; i++) {
-        QmlEventData *event = &d->eventList[i];
-        event->location = getLocation(*event);
+        QmlEventTypeData *event = &d->eventTypes[i];
         event->displayName = getDisplayName(*event);
-        event->data = QStringList() << getInitialDetails(*event);
+        event->data = getInitialDetails(*event);
 
         //
         // request further details from files
         //
 
-        if (event->eventType != QmlDebug::Binding && event->eventType != QmlDebug::HandlingSignal)
+        if (event->rangeType != QmlDebug::Binding && event->rangeType != QmlDebug::HandlingSignal)
             continue;
 
         // This skips anonymous bindings in Qt4.8 (we don't have valid location data for them)
@@ -184,41 +253,38 @@ void QmlProfilerDataModel::complete()
 
     // Allow changed() event only after documents have been reloaded to avoid
     // unnecessary updates of child models.
-    QmlProfilerBaseModel::complete();
+    emit requestReload();
 }
 
-void QmlProfilerDataModel::addQmlEvent(int type, int bindingType, qint64 startTime,
-                                            qint64 duration, const QStringList &data,
+void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType,
+                                            int detailType, qint64 startTime,
+                                            qint64 duration, const QString &data,
                                             const QmlDebug::QmlEventLocation &location,
                                             qint64 ndata1, qint64 ndata2, qint64 ndata3,
                                             qint64 ndata4, qint64 ndata5)
 {
     Q_D(QmlProfilerDataModel);
     QString displayName;
-    if (type == QmlDebug::Painting && bindingType == QmlDebug::AnimationFrame) {
-        displayName = tr("Animations");
+
+    QmlEventTypeData typeData(displayName, location, message, rangeType, detailType,
+                              message == QmlDebug::DebugMessage ? QString() : data);
+    QmlEventData eventData = (message == QmlDebug::DebugMessage) ?
+                QmlEventData(startTime, duration, -1, data) :
+                QmlEventData(startTime, duration, -1, ndata1, ndata2, ndata3, ndata4, ndata5);
+
+    QHash<QmlEventTypeData, int>::Iterator it = d->eventTypeIds.find(typeData);
+    if (it != d->eventTypeIds.end()) {
+        eventData.setTypeIndex(it.value());
     } else {
-        displayName = QString::fromLatin1("%1:%2").arg(
-                location.filename,
-                QString::number(location.line));
+        eventData.setTypeIndex(d->eventTypes.size());
+        d->eventTypeIds[typeData] = eventData.typeIndex();
+        d->eventTypes.append(typeData);
     }
 
-    QmlEventData eventData = {displayName, type, bindingType, startTime, duration, data, location,
-                              ndata1, ndata2, ndata3, ndata4, ndata5};
     d->eventList.append(eventData);
 
     d->modelManager->modelProxyCountUpdated(d->modelId, startTime,
-                                            d->modelManager->estimatedProfilingTime() * 2);
-}
-
-QString QmlProfilerDataModel::getHashString(const QmlProfilerDataModel::QmlEventData &event)
-{
-    return QString::fromLatin1("%1:%2:%3:%4:%5").arg(
-                event.location.filename,
-                QString::number(event.location.line),
-                QString::number(event.location.column),
-                QString::number(event.eventType),
-                QString::number(event.bindingType));
+                                            d->modelManager->traceTime()->duration() * 2);
 }
 
 qint64 QmlProfilerDataModel::lastTimeMark() const
@@ -227,16 +293,24 @@ qint64 QmlProfilerDataModel::lastTimeMark() const
     if (d->eventList.isEmpty())
         return 0;
 
-    return d->eventList.last().startTime + d->eventList.last().duration;
+    return d->eventList.last().startTime() + d->eventList.last().duration();
 }
 
 void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newString)
 {
     Q_D(QmlProfilerDataModel);
-    QTC_ASSERT(requestId < d->eventList.count(), return);
+    QTC_ASSERT(requestId < d->eventTypes.count(), return);
 
-    QmlEventData *event = &d->eventList[requestId];
-    event->data = QStringList(newString);
+    QmlEventTypeData *event = &d->eventTypes[requestId];
+    event->data = newString;
+}
+
+void QmlProfilerDataModel::detailsDone()
+{
+    Q_D(QmlProfilerDataModel);
+    emit changed();
+    d->modelManager->modelProxyCountUpdated(d->modelId, isEmpty() ? 0 : 1, 1);
+    d->modelManager->processingDone();
 }
 
 }

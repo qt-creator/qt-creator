@@ -1,7 +1,7 @@
 ############################################################################
 #
-# Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-# Contact: http://www.qt-project.org/legal
+# Copyright (C) 2015 The Qt Company Ltd.
+# Contact: http://www.qt.io/licensing
 #
 # This file is part of Qt Creator.
 #
@@ -9,39 +9,106 @@
 # Licensees holding valid commercial Qt licenses may use this file in
 # accordance with the commercial license agreement provided with the
 # Software or, alternatively, in accordance with the terms contained in
-# a written agreement between you and Digia.  For licensing terms and
-# conditions see http://qt.digia.com/licensing.  For further information
-# use the contact form at http://qt.digia.com/contact-us.
+# a written agreement between you and The Qt Company.  For licensing terms and
+# conditions see http://www.qt.io/terms-conditions.  For further information
+# use the contact form at http://www.qt.io/contact-us.
 #
 # GNU Lesser General Public License Usage
 # Alternatively, this file may be used under the terms of the GNU Lesser
-# General Public License version 2.1 as published by the Free Software
-# Foundation and appearing in the file LICENSE.LGPL included in the
-# packaging of this file.  Please review the following information to
-# ensure the GNU Lesser General Public License version 2.1 requirements
-# will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+# General Public License version 2.1 or version 3 as published by the Free
+# Software Foundation and appearing in the file LICENSE.LGPLv21 and
+# LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+# following information to ensure the GNU Lesser General Public License
+# requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+# http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 #
-# In addition, as a special exception, Digia gives you certain additional
-# rights.  These rights are described in the Digia Qt LGPL Exception
+# In addition, as a special exception, The Qt Company gives you certain additional
+# rights.  These rights are described in The Qt Company LGPL Exception
 # version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 #
 #############################################################################
 
 from dumper import *
 
+def stripTypeName(value):
+    type = value.type
+    try:
+        type = type.target()
+    except:
+        pass
+    return str(type.unqualified())
+
+def extractPointerType(d, value):
+    postfix = ""
+    while stripTypeName(value) == "CPlusPlus::PointerType":
+        postfix += "*"
+        value = d.downcast(value["_elementType"]["_type"])
+    try:
+        return readLiteral(d, value["_name"]) + postfix
+    except:
+        typeName = str(value.type.unqualified().target())
+        if typeName == "CPlusPlus::IntegerType":
+            return "int" + postfix
+        elif typeName == "CPlusPlus::VoidType":
+            return "void" + postfix
+        return "<unsupported>"
+
+def readTemplateName(d, value):
+    name = readLiteral(d, value["_identifier"]) + "<"
+    args = value["_templateArguments"]
+    impl = args["_M_impl"]
+    start = impl["_M_start"]
+    size = impl["_M_finish"] - start
+    try:
+        d.check(0 <= size and size <= 100)
+        d.checkPointer(start)
+        for i in range(int(size)):
+            if i > 0:
+                name += ", "
+            name += extractPointerType(d, d.downcast(start[i]["_type"]))
+    except:
+        return "<not accessible>"
+    name += ">"
+    return name
+
+def readLiteral(d, value):
+    if d.isNull(value):
+        return "<null>"
+    value = d.downcast(value)
+    type = value.type.unqualified()
+    try:
+        type = type.target()
+    except:
+        pass
+    typestr = str(type)
+    if typestr == "CPlusPlus::TemplateNameId":
+        return readTemplateName(d, value)
+    elif typestr == "CPlusPlus::QualifiedNameId":
+        return readLiteral(d, value["_base"]) + "::" + readLiteral(d, value["_name"])
+    try:
+        return d.extractBlob(value["_chars"], value["_size"]).toString()
+    except:
+        return "<unsupported>"
+
+def dumpLiteral(d, value):
+    d.putValue(d.hexencode(readLiteral(d, value)), Hex2EncodedLatin1)
+
 def qdump__Core__Id(d, value):
     try:
         name = d.parseAndEvaluate("Core::nameForId(%d)" % value["m_id"])
-        d.putValue(d.encodeCharArray(name), Hex2EncodedLatin1)
-        d.putPlainChildren(value)
+        d.putSimpleCharArray(name)
     except:
         d.putValue(value["m_id"])
-        d.putNumChild(0)
+    d.putPlainChildren(value)
 
 def qdump__Debugger__Internal__GdbMi(d, value):
     str = d.encodeByteArray(value["m_name"]) + "3a20" \
         + d.encodeByteArray(value["m_data"])
     d.putValue(str, Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
+def qdump__Debugger__Internal__DisassemblerLine(d, value):
+    d.putByteArrayValue(value["m_data"])
     d.putPlainChildren(value)
 
 def qdump__Debugger__Internal__WatchData(d, value):
@@ -61,34 +128,58 @@ def qdump__Debugger__Internal__ThreadId(d, value):
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__ByteArrayRef(d, value):
-    d.putValue(d.encodeCharArray(value["m_start"], 100, value["m_length"]),
-        Hex2EncodedLatin1)
+    d.putSimpleCharArray(value["m_start"], value["m_length"])
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Identifier(d, value):
-    d.putValue(d.encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putSimpleCharArray(value["_chars"], value["_size"])
     d.putPlainChildren(value)
+
+def qdump__CPlusPlus__Symbol(d, value):
+    dumpLiteral(d, value["_name"])
+    d.putBetterType(value.type)
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__Class(d, value):
+    qdump__CPlusPlus__Symbol(d, value)
 
 def qdump__CPlusPlus__IntegerType(d, value):
     d.putValue(value["_kind"])
     d.putPlainChildren(value)
 
+def qdump__CPlusPlus__FullySpecifiedType(d, value):
+    type = d.downcast(value["_type"])
+    typeName = stripTypeName(type)
+    if typeName == "CPlusPlus::NamedType":
+        dumpLiteral(d, type["_name"])
+    elif typeName == "CPlusPlus::PointerType":
+        d.putValue(d.hexencode(extractPointerType(d, type)), Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__NamedType(d, value):
-    literal = downcast(value["_name"])
-    d.putValue(d.encodeCharArray(literal["_chars"]), Hex2EncodedLatin1)
+    dumpLiteral(d, value["_name"])
+    d.putBetterType(value.type)
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__PointerType(d, value):
+    d.putValue(d.hexencode(extractPointerType(d, value)), Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__TemplateNameId(d, value):
-    s = d.encodeCharArray(value["_identifier"]["_chars"])
-    d.putValue(s + "3c2e2e2e3e", Hex2EncodedLatin1)
+    dumpLiteral(d, value)
+    d.putBetterType(value.type)
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__QualifiedNameId(d, value):
+    dumpLiteral(d, value)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Literal(d, value):
-    d.putValue(d.encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    dumpLiteral(d, value)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__StringLiteral(d, value):
-    d.putValue(d.encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putSimpleCharArray(value["_chars"], value["_size"])
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Internal__Value(d, value):
@@ -105,23 +196,37 @@ def qdump__Utils__ElfSection(d, value):
 
 def qdump__CPlusPlus__Token(d, value):
     k = value["f"]["kind"]
-    if int(k) == 6:
-        d.putValue("T_IDENTIFIER. offset: %d, len: %d"
-            % (value["offset"], value["f"]["length"]))
-    elif int(k) == 7:
-        d.putValue("T_NUMERIC_LITERAL. offset: %d, value: %d"
-            % (value["offset"], value["f"]["length"]))
-    else:
-        val = str(k.cast(d.lookupType("CPlusPlus::Kind")))
-        d.putValue(val[11:]) # Strip "CPlusPlus::"
+    e = int(k)
+    type = str(k.cast(d.lookupType("CPlusPlus::Kind")))[11:] # Strip "CPlusPlus::"
+    try:
+        if e == 6:
+            type = readLiteral(d, value["identifier"]) + " (%s)" % type
+        elif e >= 7 and e <= 23:
+            type = readLiteral(d, value["literal"]) + " (%s)" % type
+    except:
+        pass
+    d.putValue(type)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Internal__PPToken(d, value):
     data, size, alloc = d.byteArrayData(value["m_src"])
-    length = int(value["f"]["length"])
-    offset = int(value["offset"])
+    length = int(value["f"]["utf16chars"])
+    offset = int(value["utf16charOffset"])
     #warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
     #    % (size, alloc, offset, length, data))
     d.putValue(d.readMemory(data + offset, min(100, length)),
         Hex2EncodedLatin1)
     d.putPlainChildren(value)
+
+def qdump__ProString(d, value):
+    try:
+        s = value["m_string"]
+        data, size, alloc = d.stringData(s)
+        data += 2 * int(value["m_offset"])
+        size = int(value["m_length"])
+        s = d.readMemory(data, 2 * size)
+        d.putValue(s, Hex4EncodedLittleEndian)
+    except:
+        d.putEmptyValue()
+    d.putPlainChildren(value)
+

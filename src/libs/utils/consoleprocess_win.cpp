@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -45,6 +46,7 @@ ConsoleProcessPrivate::ConsoleProcessPrivate() :
     m_appPid(0),
     m_stubSocket(0),
     m_tempFile(0),
+    m_error(QProcess::UnknownError),
     m_appMainThreadId(0),
     m_pid(0),
     m_hInferior(NULL),
@@ -56,7 +58,8 @@ ConsoleProcessPrivate::ConsoleProcessPrivate() :
 ConsoleProcess::ConsoleProcess(QObject *parent) :
     QObject(parent), d(new ConsoleProcessPrivate)
 {
-    connect(&d->m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
+    connect(&d->m_stubServer, &QLocalServer::newConnection,
+            this, &ConsoleProcess::stubConnectionAvailable);
 }
 
 qint64 ConsoleProcess::applicationMainThreadID() const
@@ -68,6 +71,9 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
 {
     if (isRunning())
         return false;
+
+    d->m_errorString.clear();
+    d->m_error = QProcess::UnknownError;
 
     QString pcmd;
     QString pargs;
@@ -83,7 +89,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
 
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processError(msgCommChannelFailed(err));
+        emitError(QProcess::FailedToStart, msgCommChannelFailed(err));
         return false;
     }
 
@@ -92,7 +98,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
             stubServerShutdown();
-            emit processError(msgCannotCreateTempFile(d->m_tempFile->errorString()));
+            emitError(QProcess::FailedToStart, msgCannotCreateTempFile(d->m_tempFile->errorString()));
             delete d->m_tempFile;
             d->m_tempFile = 0;
             return false;
@@ -106,7 +112,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         out.flush();
         if (out.status() != QTextStream::Ok) {
             stubServerShutdown();
-            emit processError(msgCannotWriteTempFile());
+            emitError(QProcess::FailedToStart, msgCannotWriteTempFile());
             delete d->m_tempFile;
             d->m_tempFile = 0;
             return false;
@@ -146,12 +152,13 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         delete d->m_tempFile;
         d->m_tempFile = 0;
         stubServerShutdown();
-        emit processError(tr("The process '%1' could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
+        emitError(QProcess::FailedToStart, tr("The process \"%1\" could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
         return false;
     }
 
     d->processFinishedNotifier = new QWinEventNotifier(d->m_pid->hProcess, this);
-    connect(d->processFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(stubExited()));
+    connect(d->processFinishedNotifier, &QWinEventNotifier::activated,
+            this, &ConsoleProcess::stubExited);
     return true;
 }
 
@@ -205,7 +212,7 @@ void ConsoleProcess::stubConnectionAvailable()
 {
     emit stubStarted();
     d->m_stubSocket = d->m_stubServer.nextPendingConnection();
-    connect(d->m_stubSocket, SIGNAL(readyRead()), SLOT(readStubOutput()));
+    connect(d->m_stubSocket, &QIODevice::readyRead, this, &ConsoleProcess::readStubOutput);
 }
 
 void ConsoleProcess::readStubOutput()
@@ -214,9 +221,9 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = d->m_stubSocket->readLine();
         out.chop(2); // \r\n
         if (out.startsWith("err:chdir ")) {
-            emit processError(msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
+            emitError(QProcess::FailedToStart, msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emit processError(msgCannotExecute(d->m_executable, winErrorMessage(out.mid(9).toInt())));
+            emitError(QProcess::FailedToStart, msgCannotExecute(d->m_executable, winErrorMessage(out.mid(9).toInt())));
         } else if (out.startsWith("thread ")) { // Windows only
             d->m_appMainThreadId = out.mid(7).toLongLong();
         } else if (out.startsWith("pid ")) {
@@ -229,16 +236,17 @@ void ConsoleProcess::readStubOutput()
                     SYNCHRONIZE | PROCESS_QUERY_INFORMATION | PROCESS_TERMINATE,
                     FALSE, d->m_appPid);
             if (d->m_hInferior == NULL) {
-                emit processError(tr("Cannot obtain a handle to the inferior: %1")
+                emitError(QProcess::FailedToStart, tr("Cannot obtain a handle to the inferior: %1")
                                   .arg(winErrorMessage(GetLastError())));
                 // Uhm, and now what?
                 continue;
             }
             d->inferiorFinishedNotifier = new QWinEventNotifier(d->m_hInferior, this);
-            connect(d->inferiorFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(inferiorExited()));
+            connect(d->inferiorFinishedNotifier, &QWinEventNotifier::activated,
+                    this, &ConsoleProcess::inferiorExited);
             emit processStarted();
         } else {
-            emit processError(msgUnexpectedOutput(out));
+            emitError(QProcess::UnknownError, msgUnexpectedOutput(out));
             TerminateProcess(d->m_pid->hProcess, (unsigned)-1);
             break;
         }
@@ -259,7 +267,7 @@ void ConsoleProcess::inferiorExited()
     DWORD chldStatus;
 
     if (!GetExitCodeProcess(d->m_hInferior, &chldStatus))
-        emit processError(tr("Cannot obtain exit status from inferior: %1")
+        emitError(QProcess::UnknownError, tr("Cannot obtain exit status from inferior: %1")
                           .arg(winErrorMessage(GetLastError())));
     cleanupInferior();
     d->m_appStatus = QProcess::NormalExit;
@@ -303,13 +311,13 @@ QStringList ConsoleProcess::fixWinEnvironment(const QStringList &env)
     if (envStrings.filter(QRegExp(QLatin1String("^PATH="),Qt::CaseInsensitive)).isEmpty()) {
         QByteArray path = qgetenv("PATH");
         if (!path.isEmpty())
-            envStrings.prepend(QString(QLatin1String("PATH=%1")).arg(QString::fromLocal8Bit(path)));
+            envStrings.prepend(QString::fromLatin1("PATH=%1").arg(QString::fromLocal8Bit(path)));
     }
     // add systemroot if needed
     if (envStrings.filter(QRegExp(QLatin1String("^SystemRoot="),Qt::CaseInsensitive)).isEmpty()) {
         QByteArray systemRoot = qgetenv("SystemRoot");
         if (!systemRoot.isEmpty())
-            envStrings.prepend(QString(QLatin1String("SystemRoot=%1")).arg(QString::fromLocal8Bit(systemRoot)));
+            envStrings.prepend(QString::fromLatin1("SystemRoot=%1").arg(QString::fromLocal8Bit(systemRoot)));
     }
     return envStrings;
 }

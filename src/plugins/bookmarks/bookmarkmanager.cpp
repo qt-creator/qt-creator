@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,43 +36,43 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/texteditor.h>
 #include <utils/tooltip/tooltip.h>
-#include <utils/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
-
-#include <QDebug>
-#include <QDir>
-#include <QFileInfo>
+#include <utils/theme/theme.h>
+#include <utils/dropsupport.h>
 
 #include <QAction>
 #include <QContextMenuEvent>
+#include <QDebug>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QDir>
+#include <QFileInfo>
+#include <QFormLayout>
+#include <QLineEdit>
 #include <QMenu>
 #include <QPainter>
-#include <QInputDialog>
+#include <QSpinBox>
 
 Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)
 
-using namespace Bookmarks;
-using namespace Bookmarks::Internal;
 using namespace ProjectExplorer;
 using namespace Core;
 using namespace Utils;
 
-BookmarkDelegate::BookmarkDelegate(QObject *parent)
-    : QStyledItemDelegate(parent), m_normalPixmap(0), m_selectedPixmap(0)
-{
-}
+namespace Bookmarks {
+namespace Internal {
 
-BookmarkDelegate::~BookmarkDelegate()
+BookmarkDelegate::BookmarkDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
 {
-    delete m_normalPixmap;
-    delete m_selectedPixmap;
 }
 
 QSize BookmarkDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -86,16 +87,15 @@ QSize BookmarkDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
     return s;
 }
 
-void BookmarkDelegate::generateGradientPixmap(int width, int height, QColor color, bool selected) const
+void BookmarkDelegate::generateGradientPixmap(int width, int height, const QColor &color, bool selected) const
 {
-
     QColor c = color;
     c.setAlpha(0);
 
-    QPixmap *pixmap = new QPixmap(width+1, height);
-    pixmap->fill(c);
+    QPixmap pixmap(width+1, height);
+    pixmap.fill(c);
 
-    QPainter painter(pixmap);
+    QPainter painter(&pixmap);
     painter.setPen(Qt::NoPen);
 
     QLinearGradient lg;
@@ -105,7 +105,7 @@ void BookmarkDelegate::generateGradientPixmap(int width, int height, QColor colo
     lg.setColorAt(0, c);
     lg.setColorAt(0.4, color);
 
-        painter.setBrush(lg);
+    painter.setBrush(lg);
     painter.drawRect(0, 0, width+1, height);
 
     if (selected)
@@ -152,7 +152,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
 
     // TopLeft
-    QString topLeft = index.data(BookmarkManager::Filename ).toString();
+    QString topLeft = index.data(BookmarkManager::Filename).toString();
     painter->drawText(6, 2 + opt.rect.top() + fm.ascent(), topLeft);
 
     QString topRight = index.data(BookmarkManager::LineNumber).toString();
@@ -160,7 +160,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     int fwidth = fm.width(topLeft);
     if (fwidth + lwidth > opt.rect.width()) {
         int left = opt.rect.right() - lwidth;
-        painter->drawPixmap(left, opt.rect.top(), selected? *m_selectedPixmap : *m_normalPixmap);
+        painter->drawPixmap(left, opt.rect.top(), selected ? m_selectedPixmap : m_normalPixmap);
     }
     // topRight
     painter->drawText(opt.rect.right() - fm.width(topRight) - 6 , 2 + opt.rect.top() + fm.ascent(), topRight);
@@ -211,24 +211,31 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->restore();
 }
 
-BookmarkView::BookmarkView(QWidget *parent)  :
-    QListView(parent),
-    m_bookmarkContext(new BookmarkContext(this)),
-    m_manager(0)
+BookmarkView::BookmarkView(BookmarkManager *manager)  :
+    m_bookmarkContext(new IContext(this)),
+    m_manager(manager)
 {
     setWindowTitle(tr("Bookmarks"));
 
-    connect(this, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(gotoBookmark(QModelIndex)));
-    connect(this, SIGNAL(activated(QModelIndex)),
-            this, SLOT(gotoBookmark(QModelIndex)));
+    m_bookmarkContext->setWidget(this);
+    m_bookmarkContext->setContext(Context(Constants::BOOKMARKS_CONTEXT));
 
     ICore::addContextObject(m_bookmarkContext);
+
+    ListView::setModel(manager);
 
     setItemDelegate(new BookmarkDelegate(this));
     setFrameStyle(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFocusPolicy(Qt::NoFocus);
+    setSelectionModel(manager->selectionModel());
+    setSelectionMode(QAbstractItemView::SingleSelection);
+    setSelectionBehavior(QAbstractItemView::SelectRows);
+    setDragEnabled(true);
+    setDragDropMode(QAbstractItemView::DragOnly);
+
+    connect(this, &QAbstractItemView::clicked, this, &BookmarkView::gotoBookmark);
+    connect(this, &QAbstractItemView::activated, this, &BookmarkView::gotoBookmark);
 }
 
 BookmarkView::~BookmarkView()
@@ -241,7 +248,7 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
     QMenu menu;
     QAction *moveUp = menu.addAction(tr("Move Up"));
     QAction *moveDown = menu.addAction(tr("Move Down"));
-    QAction *editNote = menu.addAction(tr("Edit Note"));
+    QAction *edit = menu.addAction(tr("&Edit"));
     menu.addSeparator();
     QAction *remove = menu.addAction(tr("&Remove"));
     menu.addSeparator();
@@ -252,22 +259,17 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
         moveUp->setEnabled(false);
         moveDown->setEnabled(false);
         remove->setEnabled(false);
-        editNote->setEnabled(false);
+        edit->setEnabled(false);
     }
 
     if (model()->rowCount() == 0)
         removeAll->setEnabled(false);
 
-    connect(moveUp, SIGNAL(triggered()),
-            m_manager, SLOT(moveUp()));
-    connect(moveDown, SIGNAL(triggered()),
-            m_manager, SLOT(moveDown()));
-    connect(remove, SIGNAL(triggered()),
-            this, SLOT(removeFromContextMenu()));
-    connect(removeAll, SIGNAL(triggered()),
-            this, SLOT(removeAll()));
-    connect(editNote, SIGNAL(triggered()),
-            m_manager, SLOT(editNote()));
+    connect(moveUp, &QAction::triggered, m_manager, &BookmarkManager::moveUp);
+    connect(moveDown, &QAction::triggered, m_manager, &BookmarkManager::moveDown);
+    connect(remove, &QAction::triggered, this, &BookmarkView::removeFromContextMenu);
+    connect(removeAll, &QAction::triggered, this, &BookmarkView::removeAll);
+    connect(edit, &QAction::triggered, m_manager, &BookmarkManager::edit);
 
     menu.exec(mapToGlobal(event->pos()));
 }
@@ -280,7 +282,7 @@ void BookmarkView::removeFromContextMenu()
 void BookmarkView::removeBookmark(const QModelIndex& index)
 {
     Bookmark *bm = m_manager->bookmarkForIndex(index);
-    m_manager->removeBookmark(bm);
+    m_manager->deleteBookmark(bm);
 }
 
 void BookmarkView::keyPressEvent(QKeyEvent *event)
@@ -290,12 +292,12 @@ void BookmarkView::keyPressEvent(QKeyEvent *event)
         event->accept();
         return;
     }
-    QListView::keyPressEvent(event);
+    ListView::keyPressEvent(event);
 }
 
 void BookmarkView::removeAll()
 {
-    if (Utils::CheckableMessageBox::doNotAskAgainQuestion(this,
+    if (CheckableMessageBox::doNotAskAgainQuestion(this,
             tr("Remove All Bookmarks"),
             tr("Are you sure you want to remove all bookmarks from all files in the current session?"),
             ICore::settings(),
@@ -309,33 +311,11 @@ void BookmarkView::removeAll()
     }
 }
 
-void BookmarkView::setModel(QAbstractItemModel *model)
-{
-    BookmarkManager *manager = qobject_cast<BookmarkManager *>(model);
-    QTC_ASSERT(manager, return);
-    m_manager = manager;
-    QListView::setModel(model);
-    setSelectionModel(manager->selectionModel());
-    setSelectionMode(QAbstractItemView::SingleSelection);
-    setSelectionBehavior(QAbstractItemView::SelectRows);
-}
-
 void BookmarkView::gotoBookmark(const QModelIndex &index)
 {
     Bookmark *bk = m_manager->bookmarkForIndex(index);
     if (!m_manager->gotoBookmark(bk))
-        m_manager->removeBookmark(bk);
-}
-
-////
-// BookmarkContext
-////
-
-BookmarkContext::BookmarkContext(QWidget *widget)
-    : Core::IContext(widget)
-{
-      setWidget(widget);
-      setContext(Core::Context(Constants::BOOKMARKS_CONTEXT));
+        m_manager->deleteBookmark(bk);
 }
 
 ////
@@ -346,13 +326,15 @@ BookmarkManager::BookmarkManager() :
     m_bookmarkIcon(QLatin1String(":/bookmarks/images/bookmark.png")),
     m_selectionModel(new QItemSelectionModel(this, this))
 {
-    connect(Core::ICore::instance(), SIGNAL(contextChanged(QList<Core::IContext*>,Core::Context)),
-            this, SLOT(updateActionStatus()));
+    connect(ICore::instance(), &ICore::contextChanged,
+            this, &BookmarkManager::updateActionStatus);
 
-    connect(SessionManager::instance(), SIGNAL(sessionLoaded(QString)),
-            this, SLOT(loadBookmarks()));
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+            this, &BookmarkManager::loadBookmarks);
 
     updateActionStatus();
+    Bookmark::setCategoryColor(Constants::BOOKMARKS_TEXT_MARK_CATEGORY,
+                               Theme::Bookmarks_TextMarkColor);
 }
 
 BookmarkManager::~BookmarkManager()
@@ -373,8 +355,7 @@ QItemSelectionModel *BookmarkManager::selectionModel() const
 
 bool BookmarkManager::hasBookmarkInPosition(const QString &fileName, int lineNumber)
 {
-    QFileInfo fi(fileName);
-    return findBookmark(fi.path(), fi.fileName(), lineNumber);
+    return findBookmark(fileName, lineNumber);
 }
 
 QModelIndex BookmarkManager::index(int row, int column, const QModelIndex &parent) const
@@ -410,47 +391,67 @@ QVariant BookmarkManager::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.column() !=0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
         return QVariant();
 
+    Bookmark *bookMark = m_bookmarksList.at(index.row());
     if (role == BookmarkManager::Filename)
-        return m_bookmarksList.at(index.row())->fileName();
-    else if (role == BookmarkManager::LineNumber)
-        return m_bookmarksList.at(index.row())->lineNumber();
-    else if (role == BookmarkManager::Directory)
-        return m_bookmarksList.at(index.row())->path();
-    else if (role == BookmarkManager::LineText)
-        return m_bookmarksList.at(index.row())->lineText();
-    else if (role == BookmarkManager::Note)
-        return m_bookmarksList.at(index.row())->note();
-    else if (role == Qt::ToolTipRole)
-        return QDir::toNativeSeparators(m_bookmarksList.at(index.row())->filePath());
-
+        return FileName::fromString(bookMark->fileName()).fileName();
+    if (role == BookmarkManager::LineNumber)
+        return bookMark->lineNumber();
+    if (role == BookmarkManager::Directory)
+        return QFileInfo(bookMark->fileName()).path();
+    if (role == BookmarkManager::LineText)
+        return bookMark->lineText();
+    if (role == BookmarkManager::Note)
+        return bookMark->note();
+    if (role == Qt::ToolTipRole)
+        return QDir::toNativeSeparators(bookMark->fileName());
     return QVariant();
 }
 
-void BookmarkManager::toggleBookmark()
+Qt::ItemFlags BookmarkManager::flags(const QModelIndex &index) const
 {
-    TextEditor::ITextEditor *editor = currentTextEditor();
-    if (!editor)
-        return;
+    if (!index.isValid() || index.column() !=0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
+        return Qt::NoItemFlags;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+}
 
-    toggleBookmark(editor->document()->filePath(), editor->currentLine());
+Qt::DropActions BookmarkManager::supportedDragActions() const
+{
+    return Qt::MoveAction;
+}
+
+QStringList BookmarkManager::mimeTypes() const
+{
+    return DropSupport::mimeTypesForFilePaths();
+}
+
+QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
+{
+    auto data = new DropMimeData;
+    foreach (const QModelIndex &index, indexes) {
+        if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
+            continue;
+        Bookmark *bookMark = m_bookmarksList.at(index.row());
+        data->addFile(bookMark->fileName(), bookMark->lineNumber());
+    }
+    return data;
 }
 
 void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
 {
-    const QFileInfo fi(fileName);
-    const int editorLine = lineNumber;
+    if (lineNumber <= 0 || fileName.isEmpty())
+        return;
 
     // Remove any existing bookmark on this line
-    if (Bookmark *mark = findBookmark(fi.path(), fi.fileName(), lineNumber)) {
+    if (Bookmark *mark = findBookmark(fileName, lineNumber)) {
         // TODO check if the bookmark is really on the same markable Interface
-        removeBookmark(mark);
+        deleteBookmark(mark);
         return;
     }
 
     // Add a new bookmark if no bookmark existed on this line
-    Bookmark *bookmark = new Bookmark(fi.filePath(), editorLine, this);
-    bookmark->init();
-    addBookmark(bookmark);
+    Bookmark *mark = new Bookmark(lineNumber, this);
+    mark->updateFileName(fileName);
+    addBookmark(mark);
 }
 
 void BookmarkManager::updateBookmark(Bookmark *bookmark)
@@ -461,6 +462,17 @@ void BookmarkManager::updateBookmark(Bookmark *bookmark)
 
     emit dataChanged(index(idx, 0, QModelIndex()), index(idx, 2, QModelIndex()));
     saveBookmarks();
+}
+
+void BookmarkManager::updateBookmarkFileName(Bookmark *bookmark, const QString &oldFileName)
+{
+    if (oldFileName == bookmark->fileName())
+        return;
+
+    if (removeBookmarkFromMap(bookmark, oldFileName))
+        addBookmarkToMap(bookmark);
+
+    updateBookmark(bookmark);
 }
 
 void BookmarkManager::removeAllBookmarks()
@@ -486,28 +498,35 @@ void BookmarkManager::removeAllBookmarks()
     endRemoveRows();
 }
 
-void BookmarkManager::removeBookmark(Bookmark *bookmark)
+bool BookmarkManager::removeBookmarkFromMap(Bookmark *bookmark, const QString &fileName)
+{
+    bool found = false;
+    const QFileInfo fi(fileName.isEmpty() ? bookmark->fileName() : fileName);
+    if (FileNameBookmarksMap *files = m_bookmarksMap.value(fi.path())) {
+        FileNameBookmarksMap::iterator i = files->begin();
+        while (i != files->end()) {
+            if (i.value() == bookmark) {
+                files->erase(i);
+                found = true;
+                break;
+            }
+            ++i;
+        }
+        if (files->count() <= 0) {
+            m_bookmarksMap.remove(fi.path());
+            delete files;
+        }
+    }
+    return found;
+}
+
+void BookmarkManager::deleteBookmark(Bookmark *bookmark)
 {
     int idx = m_bookmarksList.indexOf(bookmark);
     beginRemoveRows(QModelIndex(), idx, idx);
 
-    const QFileInfo fi(bookmark->filePath() );
-    FileNameBookmarksMap *files = m_bookmarksMap.value(fi.path());
-
-    FileNameBookmarksMap::iterator i = files->begin();
-    while (i != files->end()) {
-        if (i.value() == bookmark) {
-            files->erase(i);
-            delete bookmark;
-            break;
-        }
-        ++i;
-    }
-    if (files->count() <= 0) {
-        m_bookmarksMap.remove(fi.path());
-        delete files;
-    }
-
+    removeBookmarkFromMap(bookmark);
+    delete bookmark;
 
     m_bookmarksList.removeAt(idx);
     endRemoveRows();
@@ -519,21 +538,17 @@ void BookmarkManager::removeBookmark(Bookmark *bookmark)
     saveBookmarks();
 }
 
-Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index)
+Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= m_bookmarksList.size())
         return 0;
     return m_bookmarksList.at(index.row());
 }
 
-
 bool BookmarkManager::gotoBookmark(Bookmark *bookmark)
 {
-    using namespace TextEditor;
-    if (ITextEditor *editor = qobject_cast<ITextEditor *>(EditorManager::openEditorAt(bookmark->filePath(),
-                                                                                      bookmark->lineNumber()))) {
-        return (editor->currentLine() == bookmark->lineNumber());
-    }
+    if (IEditor *editor = EditorManager::openEditorAt(bookmark->fileName(), bookmark->lineNumber()))
+        return editor->currentLine() == bookmark->lineNumber();
     return false;
 }
 
@@ -549,9 +564,12 @@ void BookmarkManager::prevInDocument()
 
 void BookmarkManager::documentPrevNext(bool next)
 {
-    TextEditor::ITextEditor *editor = currentTextEditor();
-    int editorLine = editor->currentLine();
-    QFileInfo fi(editor->document()->filePath());
+    IEditor *editor = EditorManager::currentEditor();
+    const int editorLine = editor->currentLine();
+    if (editorLine <= 0)
+        return;
+
+    const QFileInfo fi = editor->document()->filePath().toFileInfo();
     if (!m_bookmarksMap.contains(fi.path()))
         return;
 
@@ -604,7 +622,7 @@ void BookmarkManager::next()
             selectionModel()->setCurrentIndex(newIndex, QItemSelectionModel::Select | QItemSelectionModel::Clear);
             return;
         }
-        removeBookmark(bk);
+        deleteBookmark(bk);
         if (m_bookmarksList.isEmpty()) // No bookmarks anymore ...
             return;
     }
@@ -627,16 +645,10 @@ void BookmarkManager::prev()
             selectionModel()->setCurrentIndex(newIndex, QItemSelectionModel::Select | QItemSelectionModel::Clear);
             return;
         }
-        removeBookmark(bk);
+        deleteBookmark(bk);
         if (m_bookmarksList.isEmpty())
             return;
     }
-}
-
-TextEditor::ITextEditor *BookmarkManager::currentTextEditor() const
-{
-    Core::IEditor *currEditor = EditorManager::currentEditor();
-    return qobject_cast<TextEditor::ITextEditor *>(currEditor);
 }
 
 BookmarkManager::State BookmarkManager::state() const
@@ -644,11 +656,11 @@ BookmarkManager::State BookmarkManager::state() const
     if (m_bookmarksMap.empty())
         return NoBookMarks;
 
-    TextEditor::ITextEditor *editor = currentTextEditor();
+    IEditor *editor = EditorManager::currentEditor();
     if (!editor)
         return HasBookMarks;
 
-    const QFileInfo fi(editor->document()->filePath());
+    const QFileInfo fi = editor->document()->filePath().toFileInfo();
 
     const DirectoryFileBookmarksMap::const_iterator dit = m_bookmarksMap.constFind(fi.path());
     if (dit == m_bookmarksMap.constEnd())
@@ -659,7 +671,10 @@ BookmarkManager::State BookmarkManager::state() const
 
 void BookmarkManager::updateActionStatus()
 {
-    emit updateActions(state());
+    IEditor *editor = EditorManager::currentEditor();
+    const bool enableToggle = editor && !editor->document()->isTemporary();
+
+    updateActions(enableToggle, state());
 }
 
 void BookmarkManager::moveUp()
@@ -705,43 +720,65 @@ void BookmarkManager::moveDown()
     saveBookmarks();
 }
 
-void BookmarkManager::editNote(const QString &fileName, int lineNumber)
+void BookmarkManager::editByFileAndLine(const QString &fileName, int lineNumber)
 {
-    QFileInfo fi(fileName);
-    Bookmark *b = findBookmark(fi.path(), fi.fileName(), lineNumber);
+    Bookmark *b = findBookmark(fileName, lineNumber);
     QModelIndex current = selectionModel()->currentIndex();
     selectionModel()->setCurrentIndex(current.sibling(m_bookmarksList.indexOf(b), 0),
                                       QItemSelectionModel::Select | QItemSelectionModel::Clear);
 
-    editNote();
+    edit();
 }
 
-void BookmarkManager::editNote()
+void BookmarkManager::edit()
 {
     QModelIndex current = selectionModel()->currentIndex();
     Bookmark *b = m_bookmarksList.at(current.row());
 
-    bool inputOk = false;
-    QString noteText = QInputDialog::getText(0, tr("Edit Note"),
-                                             tr("Note text:"), QLineEdit::Normal,
-                                             b->note(), &inputOk);
-    if (inputOk) {
-        b->updateNote(noteText.replace(QLatin1Char('\t'), QLatin1Char(' ')));
+    QDialog dlg;
+    dlg.setWindowTitle(tr("Edit Bookmark"));
+    auto layout = new QFormLayout(&dlg);
+    auto noteEdit = new QLineEdit(b->note());
+    noteEdit->setMinimumWidth(300);
+    auto lineNumberSpinbox = new QSpinBox;
+    lineNumberSpinbox->setRange(1, INT_MAX);
+    lineNumberSpinbox->setValue(b->lineNumber());
+    lineNumberSpinbox->setMaximumWidth(100);
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttonBox, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+    layout->addRow(tr("Note text:"), noteEdit);
+    layout->addRow(tr("Line number:"), lineNumberSpinbox);
+    layout->addWidget(buttonBox);
+    if (dlg.exec() == QDialog::Accepted) {
+        b->move(lineNumberSpinbox->value());
+        b->updateNote(noteEdit->text().replace(QLatin1Char('\t'), QLatin1Char(' ')));
         emit dataChanged(current, current);
         saveBookmarks();
     }
 }
 
 /* Returns the bookmark at the given file and line number, or 0 if no such bookmark exists. */
-Bookmark *BookmarkManager::findBookmark(const QString &path, const QString &fileName, int lineNumber)
+Bookmark *BookmarkManager::findBookmark(const QString &filePath, int lineNumber)
 {
+    QFileInfo fi(filePath);
+    QString path = fi.path();
     if (m_bookmarksMap.contains(path)) {
-        foreach (Bookmark *bookmark, m_bookmarksMap.value(path)->values(fileName)) {
+        foreach (Bookmark *bookmark, m_bookmarksMap.value(path)->values(fi.fileName())) {
             if (bookmark->lineNumber() == lineNumber)
                 return bookmark;
         }
     }
     return 0;
+}
+
+void BookmarkManager::addBookmarkToMap(Bookmark *bookmark)
+{
+    const QFileInfo fi(bookmark->fileName());
+    const QString &path = fi.path();
+    if (!m_bookmarksMap.contains(path))
+        m_bookmarksMap.insert(path, new FileNameBookmarksMap());
+    m_bookmarksMap.value(path)->insert(fi.fileName(), bookmark);
 }
 
 /* Adds a bookmark to the internal data structures. The 'userset' parameter
@@ -751,12 +788,8 @@ Bookmark *BookmarkManager::findBookmark(const QString &path, const QString &file
 void BookmarkManager::addBookmark(Bookmark *bookmark, bool userset)
 {
     beginInsertRows(QModelIndex(), m_bookmarksList.size(), m_bookmarksList.size());
-    const QFileInfo fi(bookmark->filePath());
-    const QString &path = fi.path();
 
-    if (!m_bookmarksMap.contains(path))
-        m_bookmarksMap.insert(path, new FileNameBookmarksMap());
-    m_bookmarksMap.value(path)->insert(fi.fileName(), bookmark);
+    addBookmarkToMap(bookmark);
 
     m_bookmarksList.append(bookmark);
 
@@ -782,12 +815,10 @@ void BookmarkManager::addBookmark(const QString &s)
         const QString &filePath = s.mid(index1+1, index2-index1-1);
         const QString &note = s.mid(index3 + 1);
         const int lineNumber = s.mid(index2 + 1, index3 - index2 - 1).toInt();
-        const QFileInfo fi(filePath);
-
-        if (!filePath.isEmpty() && !findBookmark(fi.path(), fi.fileName(), lineNumber)) {
-            Bookmark *b = new Bookmark(filePath, lineNumber, this);
+        if (!filePath.isEmpty() && !findBookmark(filePath, lineNumber)) {
+            Bookmark *b = new Bookmark(lineNumber, this);
+            b->updateFileName(filePath);
             b->setNote(note);
-            b->init();
             addBookmark(b, false);
         }
     } else {
@@ -801,8 +832,7 @@ QString BookmarkManager::bookmarkToString(const Bookmark *b)
     const QLatin1Char colon(':');
     // Using \t as delimiter because any another symbol can be a part of note.
     const QLatin1Char noteDelimiter('\t');
-    // Empty string was the name of the bookmark, which now is always ""
-    return QLatin1String("") + colon + b->filePath() +
+    return colon + b->fileName() +
             colon + QString::number(b->lineNumber()) +
             noteDelimiter + b->note();
 }
@@ -812,12 +842,12 @@ void BookmarkManager::saveBookmarks()
 {
     QStringList list;
     foreach (const Bookmark *bookmark, m_bookmarksList)
-            list << bookmarkToString(bookmark);
+        list << bookmarkToString(bookmark);
 
     SessionManager::setValue(QLatin1String("Bookmarks"), list);
 }
 
-void BookmarkManager::operateTooltip(TextEditor::ITextEditor *textEditor, const QPoint &pos, Bookmark *mark)
+void BookmarkManager::operateTooltip(QWidget *widget, const QPoint &pos, Bookmark *mark)
 {
     if (!mark)
         return;
@@ -825,7 +855,7 @@ void BookmarkManager::operateTooltip(TextEditor::ITextEditor *textEditor, const 
     if (mark->note().isEmpty())
         ToolTip::hide();
     else
-        ToolTip::show(pos, TextContent(mark->note()), textEditor->widget());
+        ToolTip::show(pos, mark->note(), widget);
 }
 
 /* Loads the bookmarks from the session settings. */
@@ -839,22 +869,10 @@ void BookmarkManager::loadBookmarks()
     updateActionStatus();
 }
 
-void BookmarkManager::handleBookmarkRequest(TextEditor::ITextEditor *textEditor,
-                                            int line,
-                                            TextEditor::ITextEditor::MarkRequestKind kind)
+void BookmarkManager::handleBookmarkTooltipRequest(IEditor *editor, const QPoint &pos, int line)
 {
-    if (kind == TextEditor::ITextEditor::BookmarkRequest && textEditor->document())
-        toggleBookmark(textEditor->document()->filePath(), line);
-}
-
-void BookmarkManager::handleBookmarkTooltipRequest(TextEditor::ITextEditor *textEditor, const QPoint &pos,
-                                            int line)
-{
-    if (textEditor->document()) {
-        const QFileInfo fi(textEditor->document()->filePath());
-        Bookmark *mark = findBookmark(fi.path(), fi.fileName(), line);
-        operateTooltip(textEditor, pos, mark);
-    }
+    Bookmark *mark = findBookmark(editor->document()->filePath().toString(), line);
+    operateTooltip(editor->widget(), pos, mark);
 }
 
 // BookmarkViewFactory
@@ -862,33 +880,16 @@ void BookmarkManager::handleBookmarkTooltipRequest(TextEditor::ITextEditor *text
 BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
     : m_manager(bm)
 {
+    setDisplayName(BookmarkView::tr("Bookmarks"));
+    setPriority(300);
+    setId("Bookmarks");
+    setActivationSequence(QKeySequence(UseMacShortcuts ? tr("Alt+Meta+M") : tr("Alt+M")));
 }
 
-QString BookmarkViewFactory::displayName() const
+NavigationView BookmarkViewFactory::createWidget()
 {
-    return BookmarkView::tr("Bookmarks");
+    return NavigationView(new BookmarkView(m_manager));
 }
 
-int BookmarkViewFactory::priority() const
-{
-    return 300;
-}
-
-Id BookmarkViewFactory::id() const
-{
-    return "Bookmarks";
-}
-
-QKeySequence BookmarkViewFactory::activationSequence() const
-{
-    return QKeySequence(Core::UseMacShortcuts ? tr("Alt+Meta+M") : tr("Alt+M"));
-}
-
-Core::NavigationView BookmarkViewFactory::createWidget()
-{
-    BookmarkView *bookmarkView = new BookmarkView();
-    bookmarkView->setModel(m_manager);
-    Core::NavigationView view;
-    view.widget = bookmarkView;
-    return view;
-}
+} // namespace Internal
+} // namespace Bookmarks

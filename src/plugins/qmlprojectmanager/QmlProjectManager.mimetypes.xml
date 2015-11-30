@@ -2,7 +2,7 @@
 
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
   <mime-type type="application/x-qmlproject">
-    <sub-class-of type="application/x-qml"/>
+    <sub-class-of type="text/x-qml"/>
     <comment>QML Project file</comment>
     <glob pattern="*.qmlproject"/>
   </mime-type>

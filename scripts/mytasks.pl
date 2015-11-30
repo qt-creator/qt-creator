@@ -113,5 +113,5 @@ while (<PIPE>) {
     if ($line =~ /^\+(.*)/) {
         checkLine($1, $filename, $pos);
     }
-}  
-close(PIPE);  
+}
+close(PIPE);

@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "Subversion"
@@ -9,16 +7,13 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
+    Depends { name: "DiffEditor" }
     Depends { name: "TextEditor" }
     Depends { name: "VcsBase" }
 
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
-        "checkoutwizard.cpp",
-        "checkoutwizard.h",
-        "checkoutwizardpage.cpp",
-        "checkoutwizardpage.h",
         "settingspage.cpp",
         "settingspage.h",
         "settingspage.ui",

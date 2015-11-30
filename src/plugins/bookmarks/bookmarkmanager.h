@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,10 +31,9 @@
 #ifndef BOOKMARKMANAGER_H
 #define BOOKMARKMANAGER_H
 
-#include <coreplugin/icontext.h>
+#include <utils/itemviews.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/inavigationwidgetfactory.h>
-
-#include <texteditor/itexteditor.h>
 
 #include <QAbstractItemModel>
 #include <QMultiMap>
@@ -60,9 +60,10 @@ public:
     QIcon bookmarkIcon() const { return m_bookmarkIcon; }
 
     void updateBookmark(Bookmark *bookmark);
-    void removeBookmark(Bookmark *bookmark); // Does not remove the mark
+    void updateBookmarkFileName(Bookmark *bookmark, const QString &oldFileName);
+    void deleteBookmark(Bookmark *bookmark); // Does not remove the mark
     void removeAllBookmarks();
-    Bookmark *bookmarkForIndex(const QModelIndex &index);
+    Bookmark *bookmarkForIndex(const QModelIndex &index) const;
 
     enum State { NoBookMarks, HasBookMarks, HasBookmarksInDocument };
     State state() const;
@@ -73,6 +74,11 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    Qt::DropActions supportedDragActions() const;
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
 
     // this QItemSelectionModel is shared by all views
     QItemSelectionModel *selectionModel() const;
@@ -87,8 +93,8 @@ public:
         Note = Qt::UserRole + 4
     };
 
-public slots:
-    void toggleBookmark();
+    void handleBookmarkTooltipRequest(Core::IEditor *editor, const QPoint &pos, int line);
+
     void toggleBookmark(const QString &fileName, int lineNumber);
     void nextInDocument();
     void prevInDocument();
@@ -96,35 +102,28 @@ public slots:
     void prev();
     void moveUp();
     void moveDown();
-    void editNote();
-    void editNote(const QString &fileName, int lineNumber);
+    void edit();
+    void editByFileAndLine(const QString &fileName, int lineNumber);
     bool gotoBookmark(Bookmark *bookmark);
 
 signals:
-    void updateActions(int state);
+    void updateActions(bool enableToggle, int state);
     void currentIndexChanged(const QModelIndex &);
 
-private slots:
+private:
     void updateActionStatus();
     void loadBookmarks();
-    void handleBookmarkRequest(TextEditor::ITextEditor * textEditor,
-                               int line,
-                               TextEditor::ITextEditor::MarkRequestKind kind);
-    void handleBookmarkTooltipRequest(TextEditor::ITextEditor *textEditor,
-                                      const QPoint &pos,
-                                      int line);
-
-private:
-    TextEditor::ITextEditor *currentTextEditor() const;
 
     void documentPrevNext(bool next);
 
-    Bookmark* findBookmark(const QString &path, const QString &fileName, int lineNumber);
+    Bookmark *findBookmark(const QString &filePath, int lineNumber);
     void addBookmark(Bookmark *bookmark, bool userset = true);
     void addBookmark(const QString &s);
+    void addBookmarkToMap(Bookmark *bookmark);
+    bool removeBookmarkFromMap(Bookmark *bookmark, const QString &fileName = QString());
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
-    void operateTooltip(TextEditor::ITextEditor *textEditor, const QPoint &pos, Bookmark *mark);
+    void operateTooltip(QWidget *widget, const QPoint &pos, Bookmark *mark);
 
     typedef QMultiMap<QString, Bookmark *> FileNameBookmarksMap;
     typedef QMap<QString, FileNameBookmarksMap *> DirectoryFileBookmarksMap;
@@ -137,61 +136,59 @@ private:
     QItemSelectionModel *m_selectionModel;
 };
 
-class BookmarkView : public QListView
+class BookmarkView : public Utils::ListView
 {
     Q_OBJECT
+
 public:
-    BookmarkView(QWidget *parent = 0);
+    explicit BookmarkView(BookmarkManager *manager);
     ~BookmarkView();
-    void setModel(QAbstractItemModel *model);
+
 public slots:
     void gotoBookmark(const QModelIndex &index);
+
 protected slots:
     void removeFromContextMenu();
     void removeAll();
+
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
     void removeBookmark(const QModelIndex &index);
     void keyPressEvent(QKeyEvent *event);
+
 private:
-    BookmarkContext *m_bookmarkContext;
+    Core::IContext *m_bookmarkContext;
     QModelIndex m_contextMenuIndex;
     BookmarkManager *m_manager;
-};
-
-class BookmarkContext : public Core::IContext
-{
-public:
-    BookmarkContext(QWidget *widget);
 };
 
 class BookmarkViewFactory : public Core::INavigationWidgetFactory
 {
     Q_OBJECT
+
 public:
     BookmarkViewFactory(BookmarkManager *bm);
-    QString displayName() const;
-    int priority() const;
-    Core::Id id() const;
-    QKeySequence activationSequence() const;
-    Core::NavigationView createWidget();
+
 private:
+    Core::NavigationView createWidget();
+
     BookmarkManager *m_manager;
 };
 
 class BookmarkDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
+
 public:
-    BookmarkDelegate(QObject * parent = 0);
-    ~BookmarkDelegate();
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    BookmarkDelegate(QObject *parent = 0);
 
 private:
-    void generateGradientPixmap(int width, int height, QColor color, bool selected) const;
-    mutable QPixmap *m_normalPixmap;
-    mutable QPixmap *m_selectedPixmap;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void generateGradientPixmap(int width, int height, const QColor &color, bool selected) const;
+
+    mutable QPixmap m_normalPixmap;
+    mutable QPixmap m_selectedPixmap;
 };
 
 } // namespace Internal

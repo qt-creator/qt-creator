@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -41,7 +42,6 @@
 #include <QDir>
 #include <QDebug>
 #include <QXmlStreamReader>
-#include <QtAlgorithms>
 
 #include <iterator>
 #include <algorithm>
@@ -51,29 +51,16 @@ using namespace Internal;
 
 namespace {
 
-struct SnippetComp
+static bool snippetComp(const Snippet &a, const Snippet &b)
 {
-    bool operator()(const Snippet &a, const Snippet &b) const
-    {
-        const int comp = a.trigger().toLower().localeAwareCompare(b.trigger().toLower());
-        if (comp < 0)
-            return true;
-        else if (comp == 0 &&
-                 a.complement().toLower().localeAwareCompare(b.complement().toLower()) < 0)
-            return true;
-        return false;
-    }
-};
-SnippetComp snippetComp;
-
-struct RemovedSnippetPred
-{
-    bool operator()(const Snippet &s) const
-    {
-        return s.isRemoved();
-    }
-};
-RemovedSnippetPred removedSnippetPred;
+    const int comp = a.trigger().toLower().localeAwareCompare(b.trigger().toLower());
+    if (comp < 0)
+        return true;
+    else if (comp == 0 &&
+             a.complement().toLower().localeAwareCompare(b.complement().toLower()) < 0)
+        return true;
+    return false;
+}
 
 } // Anonymous
 
@@ -140,8 +127,8 @@ SnippetsCollection::Hint SnippetsCollection::computeInsertionHint(const Snippet 
 {
     const int group = groupIndex(snippet.groupId());
     QList<Snippet> &snippets = m_snippets[group];
-    QList<Snippet>::iterator it = qUpperBound(
-        snippets.begin(), m_activeSnippetsEnd.at(group), snippet, snippetComp);
+    QList<Snippet>::iterator it = std::upper_bound(snippets.begin(), m_activeSnippetsEnd.at(group),
+                                                   snippet, snippetComp);
     return Hint(static_cast<int>(std::distance(snippets.begin(), it)), it);
 }
 
@@ -175,12 +162,12 @@ SnippetsCollection::Hint SnippetsCollection::computeReplacementHint(int index,
 {
     const int group = groupIndex(snippet.groupId());
     QList<Snippet> &snippets = m_snippets[group];
-    QList<Snippet>::iterator it = qLowerBound(
-        snippets.begin(), m_activeSnippetsEnd.at(group), snippet, snippetComp);
+    QList<Snippet>::iterator it = std::lower_bound(snippets.begin(), m_activeSnippetsEnd.at(group),
+                                                    snippet, snippetComp);
     int hintIndex = static_cast<int>(std::distance(snippets.begin(), it));
     if (index < hintIndex - 1)
         return Hint(hintIndex - 1, it);
-    it = qUpperBound(it, m_activeSnippetsEnd.at(group), snippet, snippetComp);
+    it = std::upper_bound(it, m_activeSnippetsEnd.at(group), snippet, snippetComp);
     hintIndex = static_cast<int>(std::distance(snippets.begin(), it));
     if (index > hintIndex)
         return Hint(hintIndex, it);
@@ -220,7 +207,7 @@ int SnippetsCollection::totalActiveSnippets(const QString &groupId) const
 {
     const int group = groupIndex(groupId);
     return std::distance<QList<Snippet>::const_iterator>(m_snippets.at(group).begin(),
-                                                         m_activeSnippetsEnd.at(group));
+                                                         QList<Snippet>::const_iterator(m_activeSnippetsEnd.at(group)));
 }
 
 int SnippetsCollection::totalSnippets(const QString &groupId) const
@@ -249,7 +236,7 @@ void SnippetsCollection::updateActiveSnippetsEnd(int groupIndex)
 {
     m_activeSnippetsEnd[groupIndex] = std::find_if(m_snippets[groupIndex].begin(),
                                                    m_snippets[groupIndex].end(),
-                                                   removedSnippetPred);
+                                                   [](const Snippet &s) { return s.isRemoved(); });
 }
 
 void SnippetsCollection::restoreRemovedSnippets(const QString &groupId)
@@ -258,7 +245,7 @@ void SnippetsCollection::restoreRemovedSnippets(const QString &groupId)
     // Reverting the snippet can still bring it to the original version
     const int group = groupIndex(groupId);
     QVector<Snippet> toRestore(std::distance(m_activeSnippetsEnd[group], m_snippets[group].end()));
-    qCopy(m_activeSnippetsEnd[group], m_snippets[group].end(), toRestore.begin());
+    std::copy(m_activeSnippetsEnd[group], m_snippets[group].end(), toRestore.begin());
     m_snippets[group].erase(m_activeSnippetsEnd[group], m_snippets[group].end());
     foreach (Snippet snippet, toRestore) {
         snippet.setIsRemoved(false);

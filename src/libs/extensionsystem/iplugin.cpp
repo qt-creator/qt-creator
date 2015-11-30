@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -55,9 +56,9 @@
     Plugins must provide one implementation of the IPlugin class, located
     in a library that matches the \c name attribute given in their
     XML description. The IPlugin implementation must be exported and
-    made known to Qt's plugin system, see the Qt Documentation on the
-    \l{http://qt-project.org/doc/qt-4.8/qtplugin.html#Q_EXPORT_PLUGIN2}
-    {Q_EXPORT_PLUGIN2 macro}.
+    made known to Qt's plugin system, using the \c Q_PLUGIN_METADATA macro with
+    an IID set to \c "org.qt-project.Qt.QtCreatorPlugin".
+
 
     After the plugins' XML files have been read, and dependencies have been
     found, the plugin loading is done in three phases:
@@ -201,6 +202,20 @@ IPlugin::~IPlugin()
     d->addedObjectsInReverseOrder.clear();
     delete d;
     d = 0;
+}
+
+/*!
+    \fn QList<QObject *> IPlugin::createTestObjects() const
+
+    Returns objects that are meant to be passed on to QTest::qExec().
+
+    This function will be called if the user starts \QC with '-test PluginName' or '-test all'.
+
+    The ownership of returned objects is transferred to caller.
+*/
+QList<QObject *> IPlugin::createTestObjects() const
+{
+    return QList<QObject *>();
 }
 
 /*!

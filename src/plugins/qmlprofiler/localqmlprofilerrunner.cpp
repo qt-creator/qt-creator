@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,55 +9,70 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "localqmlprofilerrunner.h"
 #include "qmlprofilerplugin.h"
-#include "qmlprofilerengine.h"
+#include "qmlprofilerruncontrol.h"
 
+#include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerstartparameters.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
+
+#include <QTcpServer>
+#include <QTemporaryFile>
 
 using namespace QmlProfiler;
-using namespace QmlProfiler::Internal;
 using namespace ProjectExplorer;
 
-LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
+Analyzer::AnalyzerRunControl *LocalQmlProfilerRunner::createLocalRunControl(
         RunConfiguration *runConfiguration,
         const Analyzer::AnalyzerStartParameters &sp,
-        QString *errorMessage,
-        QmlProfilerRunControl *engine)
+        QString *errorMessage)
 {
-    LocalApplicationRunConfiguration *larc =
-                   qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(larc, return 0);
-    ProjectExplorer::EnvironmentAspect *environment
-            = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
-    QTC_ASSERT(environment, return 0);
-    Configuration conf;
-    conf.executable = larc->executable();
-    conf.executableArguments = larc->commandLineArguments();
-    conf.workingDirectory = larc->workingDirectory();
-    conf.environment = environment->environment();
+    // only desktop device is supported
+    const IDevice::ConstPtr device = DeviceKitInformation::device(
+                runConfiguration->target()->kit());
+    QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
 
+    Analyzer::AnalyzerRunControl *rc = Analyzer::AnalyzerManager::createRunControl(
+                sp, runConfiguration);
+    QmlProfilerRunControl *engine = qobject_cast<QmlProfilerRunControl *>(rc);
+    if (!engine) {
+        delete rc;
+        return 0;
+    }
+
+    Configuration conf;
+    conf.executable = sp.debuggee;
+    conf.executableArguments = sp.debuggeeArgs;
+    conf.workingDirectory = sp.workingDirectory;
+    conf.environment = sp.environment;
+    conf.socket = sp.analyzerSocket;
     conf.port = sp.analyzerPort;
 
     if (conf.executable.isEmpty()) {
@@ -65,17 +80,50 @@ LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
             *errorMessage = tr("No executable file to launch.");
         return 0;
     }
-    return new LocalQmlProfilerRunner(conf, engine);
+
+    LocalQmlProfilerRunner *runner = new LocalQmlProfilerRunner(conf, engine);
+
+    QObject::connect(runner, &LocalQmlProfilerRunner::stopped,
+                     engine, &QmlProfilerRunControl::notifyRemoteFinished);
+    QObject::connect(runner, &LocalQmlProfilerRunner::appendMessage,
+                     engine, &QmlProfilerRunControl::logApplicationMessage);
+    QObject::connect(engine, &Analyzer::AnalyzerRunControl::starting,
+                     runner, &LocalQmlProfilerRunner::start);
+    QObject::connect(rc, &RunControl::finished, runner, &LocalQmlProfilerRunner::stop);
+    return rc;
+}
+
+QString LocalQmlProfilerRunner::findFreeSocket()
+{
+    QTemporaryFile file;
+    if (file.open()) {
+        return file.fileName();
+    } else {
+        qWarning() << "Could not open a temporary file to find a debug socket.";
+        return QString();
+    }
+}
+
+quint16 LocalQmlProfilerRunner::findFreePort(QString &host)
+{
+    QTcpServer server;
+    if (!server.listen(QHostAddress::LocalHost)
+            && !server.listen(QHostAddress::LocalHostIPv6)) {
+        qWarning() << "Cannot open port on host for QML profiling.";
+        return 0;
+    }
+    host = server.serverAddress().toString();
+    return server.serverPort();
 }
 
 LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
                                                QmlProfilerRunControl *engine) :
-    AbstractQmlProfilerRunner(engine),
+    QObject(engine),
     m_configuration(configuration),
     m_engine(engine)
 {
-    connect(&m_launcher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-            this, SIGNAL(appendMessage(QString,Utils::OutputFormat)));
+    connect(&m_launcher, &ApplicationLauncher::appendMessage,
+            this, &LocalQmlProfilerRunner::appendMessage);
 }
 
 LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
@@ -85,24 +133,27 @@ LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
 
 void LocalQmlProfilerRunner::start()
 {
-    if (m_engine->mode() != Analyzer::StartLocal)
-        return;
+    QString arguments = m_configuration.socket.isEmpty() ?
+                QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
+                                               m_configuration.port) :
+                QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlProfilerServices,
+                                                 m_configuration.socket);
 
-    QString arguments = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_configuration.port);
 
     if (!m_configuration.executableArguments.isEmpty())
         arguments += QLatin1Char(' ') + m_configuration.executableArguments;
 
-    if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Launching %s:%d", qPrintable(m_configuration.executable),
-                 m_configuration.port);
+    if (QmlProfilerPlugin::debugOutput) {
+        qWarning("QmlProfiler: Launching %s:%s", qPrintable(m_configuration.executable),
+                 qPrintable(m_configuration.socket.isEmpty() ?
+                                QString::number(m_configuration.port) : m_configuration.socket));
+    }
 
     m_launcher.setWorkingDirectory(m_configuration.workingDirectory);
     m_launcher.setEnvironment(m_configuration.environment);
-    connect(&m_launcher, SIGNAL(processExited(int,QProcess::ExitStatus)),
-            this, SLOT(spontaneousStop(int,QProcess::ExitStatus)));
-    m_launcher.start(ProjectExplorer::ApplicationLauncher::Gui, m_configuration.executable,
-                     arguments);
+    connect(&m_launcher, &ApplicationLauncher::processExited,
+            this, &LocalQmlProfilerRunner::spontaneousStop);
+    m_launcher.start(ApplicationLauncher::Gui, m_configuration.executable, arguments);
 
     emit started();
 }
@@ -116,25 +167,17 @@ void LocalQmlProfilerRunner::spontaneousStop(int exitCode, QProcess::ExitStatus 
             qWarning("QmlProfiler: Application exited (exit code %d).", exitCode);
     }
 
-    disconnect(&m_launcher, SIGNAL(processExited(int,QProcess::ExitStatus)),
-               this, SLOT(spontaneousStop(int,QProcess::ExitStatus)));
+    disconnect(&m_launcher, &ApplicationLauncher::processExited,
+               this, &LocalQmlProfilerRunner::spontaneousStop);
 
     emit stopped();
 }
 
 void LocalQmlProfilerRunner::stop()
 {
-    if (m_engine->mode() != Analyzer::StartLocal)
-        return;
-
     if (QmlProfilerPlugin::debugOutput)
         qWarning("QmlProfiler: Stopping application ...");
 
     if (m_launcher.isRunning())
         m_launcher.stop();
-}
-
-quint16 LocalQmlProfilerRunner::debugPort() const
-{
-    return m_configuration.port;
 }

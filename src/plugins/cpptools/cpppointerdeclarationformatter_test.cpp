@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,33 +9,38 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "cpppointerdeclarationformatter.h"
 #include "cpptoolsplugin.h"
-#include "cpptoolsplugin.h"
 #include "cpptoolstestcase.h"
 
-#include <texteditor/plaintexteditor.h>
+#include <coreplugin/coreconstants.h>
+
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/plaintexteditorfactory.h>
 
 #include <utils/fileutils.h>
 
+#include <cplusplus/Overview.h>
 #include <cplusplus/pp.h>
 
 #include <QDebug>
@@ -48,13 +53,9 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-using Utils::ChangeSet;
-
 Q_DECLARE_METATYPE(Overview)
 
 namespace {
-
-typedef Utils::ChangeSet::Range Range;
 
 QString stripCursor(const QString &source)
 {
@@ -67,7 +68,7 @@ QString stripCursor(const QString &source)
     return copy;
 }
 
-class PointerDeclarationFormatterTestCase : public CppTools::Tests::TestCase
+class PointerDeclarationFormatterTestCase : public Tests::TestCase
 {
 public:
     PointerDeclarationFormatterTestCase(const QByteArray &source,
@@ -87,36 +88,40 @@ public:
         }
 
         // Write source to temprorary file
-        const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
-        Document::Ptr document = Document::create(filePath);
-        QVERIFY(writeFile(document->fileName(), sourceWithoutCursorMarker.toLatin1()));
+        Tests::TemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+        const QString filePath = temporaryDir.createFile("file.h",
+                                                         sourceWithoutCursorMarker.toUtf8());
+        QVERIFY(!filePath.isEmpty());
 
         // Preprocess source
         Environment env;
         Preprocessor preprocess(0, &env);
         const QByteArray preprocessedSource = preprocess.run(filePath, sourceWithoutCursorMarker);
 
+        Document::Ptr document = Document::create(filePath);
         document->setUtf8Source(preprocessedSource);
         document->parse(parseMode);
         document->check();
+        QVERIFY(document->diagnosticMessages().isEmpty());
         AST *ast = document->translationUnit()->ast();
         QVERIFY(ast);
 
         // Open file
-        QScopedPointer<TextEditor::BaseTextEditorWidget> editorWidget(
-            new TextEditor::PlainTextEditorWidget);
+        QScopedPointer<TextEditor::BaseTextEditor> editor(
+                    TextEditor::PlainTextEditorFactory::createPlainTextEditor());
         QString error;
-        editorWidget->open(&error, document->fileName(), document->fileName());
+        editor->document()->open(&error, document->fileName(), document->fileName());
         QVERIFY(error.isEmpty());
 
         // Set cursor position
-        QTextCursor cursor = editorWidget->textCursor();
+        QTextCursor cursor = editor->textCursor();
         cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, cursorPosition);
-        editorWidget->setTextCursor(cursor);
+        editor->setTextCursor(cursor);
 
-        QTextDocument *textDocument = editorWidget->document();
+        QTextDocument *qtextDocument = editor->textDocument()->document();
         CppRefactoringFilePtr cppRefactoringFile
-            = CppRefactoringChanges::file(editorWidget.data(), document);
+            = CppRefactoringChanges::file(editor->editorWidget(), document);
 
         // Prepare for formatting
         Overview overview;
@@ -126,14 +131,14 @@ public:
 
         // Run the formatter
         PointerDeclarationFormatter formatter(cppRefactoringFile, overview, cursorHandling);
-        ChangeSet change = formatter.format(ast); // ChangeSet may be empty.
+        Utils::ChangeSet change = formatter.format(ast); // ChangeSet may be empty.
 
         // Apply change
-        QTextCursor changeCursor(textDocument);
+        QTextCursor changeCursor(qtextDocument);
         change.apply(&changeCursor);
 
         // Compare
-        QCOMPARE(textDocument->toPlainText(), expectedSource);
+        QCOMPARE(qtextDocument->toPlainText(), expectedSource);
     }
 };
 
@@ -144,7 +149,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_simpledeclarations()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    PointerDeclarationFormatterTestCase(source.toLatin1(),
+    PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
                                         Document::ParseDeclaration,
                                         PointerDeclarationFormatter::RespectCursor);
@@ -368,7 +373,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_controlflowstatements()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    PointerDeclarationFormatterTestCase(source.toLatin1(),
+    PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
                                         Document::ParseStatement,
                                         PointerDeclarationFormatter::RespectCursor);
@@ -443,7 +448,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_declarators()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    PointerDeclarationFormatterTestCase(source.toLatin1(),
+    PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
                                         Document::ParseDeclaration,
                                         PointerDeclarationFormatter::RespectCursor);
@@ -498,7 +503,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_matches()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    PointerDeclarationFormatterTestCase(source.toLatin1(),
+    PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
                                         Document::ParseTranlationUnit,
                                         PointerDeclarationFormatter::IgnoreCursor);
@@ -581,7 +586,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_macros()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    PointerDeclarationFormatterTestCase(source.toLatin1(),
+    PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
                                         Document::ParseTranlationUnit,
                                         PointerDeclarationFormatter::RespectCursor);
@@ -614,25 +619,25 @@ void CppToolsPlugin::test_format_pointerdeclaration_macros_data()
 
     source = QLatin1String(
         "#define FOO int*\n"
-        "FOO @f() {};\n");
+        "FOO @f() {}\n");
     QTest::newRow("macro-in-function-definition-returntype")
         << source << stripCursor(source);
 
     source = QLatin1String(
         "#define FOO int*\n"
-        "int f(FOO @a) {};\n");
+        "int f(FOO @a) {}\n");
     QTest::newRow("macro-in-function-definition-param")
         << source << stripCursor(source);
 
     source = QLatin1String(
         "#define FOO int*\n"
-        "while (FOO @s = 0);\n");
+        "void f() { while (FOO @s = 0) {} }\n");
     QTest::newRow("macro-in-if-while-for")
         << source << stripCursor(source);
 
     source = QLatin1String(
         "#define FOO int*\n"
-        "foreach (FOO @s, list);\n");
+        "void f() { foreach (FOO @s, list) {} }\n");
     QTest::newRow("macro-in-foreach")
         << source << stripCursor(source);
 

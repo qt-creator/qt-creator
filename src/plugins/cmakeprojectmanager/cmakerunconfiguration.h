@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -56,36 +57,31 @@ class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfigu
 public:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &target,
                           const QString &workingDirectory, const QString &title);
-    ~CMakeRunConfiguration();
 
-    QString executable() const;
-    RunMode runMode() const;
-    void setRunMode(RunMode runMode);
-    QString workingDirectory() const;
-    QString commandLineArguments() const;
-    QWidget *createConfigurationWidget();
+    QString executable() const override;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
+    QString workingDirectory() const override;
+    QString commandLineArguments() const override;
+    QWidget *createConfigurationWidget() override;
 
     void setExecutable(const QString &executable);
     void setBaseWorkingDirectory(const QString &workingDirectory);
 
     QString title() const;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
     void setEnabled(bool b);
 
-    bool isEnabled() const;
-    QString disabledReason() const;
+    bool isEnabled() const override;
+    QString disabledReason() const override;
 
 signals:
     void baseWorkingDirectoryChanged(const QString&);
 
-private slots:
-    void setCommandLineArguments(const QString &newText);
-
 protected:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, CMakeRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map);
+    virtual bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
 private:
@@ -93,12 +89,10 @@ private:
     QString baseWorkingDirectory() const;
     void ctor();
 
-    RunMode m_runMode;
     QString m_buildTarget;
     QString m_workingDirectory;
     QString m_userWorkingDirectory;
     QString m_title;
-    QString m_arguments;
     bool m_enabled;
 };
 
@@ -109,10 +103,8 @@ public:
     explicit CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent = 0);
 
 private slots:
-    void setArguments(const QString &args);
     void setWorkingDirectory();
     void resetWorkingDirectory();
-    void runInTerminalToggled(bool toggled);
     void environmentWasChanged();
 
     void workingDirectoryChanged(const QString &workingDirectory);
@@ -133,13 +125,13 @@ public:
     explicit CMakeRunConfigurationFactory(QObject *parent = 0);
     ~CMakeRunConfigurationFactory();
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const;
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
+    QString displayNameForId(Core::Id id) const;
 
     static Core::Id idFromBuildTarget(const QString &target);
     static QString buildTargetFromId(Core::Id id);
@@ -147,7 +139,7 @@ public:
 private:
     bool canHandle(ProjectExplorer::Target *parent) const;
 
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id);
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
                                                  const QVariantMap &map);
 };

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -37,7 +33,7 @@ namespace QmlDesigner {
 ZoomAction::ZoomAction(QObject *parent)
     :  QWidgetAction(parent),
     m_zoomLevel(1.0),
-    m_currentComboBoxIndex(-1)
+    m_currentComboBoxIndex(3)
 {
 
 }
@@ -78,20 +74,30 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
 
     if (m_comboBoxModel.isNull()) {
         m_comboBoxModel = comboBox->model();
-        comboBox->addItem("10 %", 0.1);
-        comboBox->addItem("25 %", 0.25);
-        comboBox->addItem("50 %", 0.5);
-        comboBox->addItem("100 %", 1.0);
-        comboBox->addItem("200 %", 2.0);
-        comboBox->addItem("400 %", 4.0);
-        comboBox->addItem("800 %", 8.0);
-        comboBox->addItem("1600 %", 16.0);
-
+        comboBox->addItem(QLatin1String("6.25 %"), 0.0625);
+        comboBox->addItem(QLatin1String("12.5 %"), 0.125);
+        comboBox->addItem(QLatin1String("25 %"), 0.25);
+        comboBox->addItem(QLatin1String("33 %"), 0.33);
+        comboBox->addItem(QLatin1String("50 %"), 0.5);
+        comboBox->addItem(QLatin1String("66 %"), 0.66);
+        comboBox->addItem(QLatin1String("75 %"), 0.75);
+        comboBox->addItem(QLatin1String("90 %"), 0.90);
+        comboBox->addItem(QLatin1String("100 %"), 1.0);
+        comboBox->addItem(QLatin1String("125 %"), 1.25);
+        comboBox->addItem(QLatin1String("150 %"), 1.5);
+        comboBox->addItem(QLatin1String("175 %"), 1.75);
+        comboBox->addItem(QLatin1String("200 %"), 2.0);
+        comboBox->addItem(QLatin1String("300 %"), 3.0);
+        comboBox->addItem(QLatin1String("400 %"), 4.0);
+        comboBox->addItem(QLatin1String("600 %"), 6.0);
+        comboBox->addItem(QLatin1String("800 %"), 8.0);
+        comboBox->addItem(QLatin1String("1000 %"), 10.0);
+        comboBox->addItem(QLatin1String("1600 %"), 16.0);
     } else {
         comboBox->setModel(m_comboBoxModel.data());
     }
 
-    comboBox->setCurrentIndex(3);
+    comboBox->setCurrentIndex(8);
     connect(comboBox, SIGNAL(currentIndexChanged(int)), SLOT(emitZoomLevelChanged(int)));
     connect(this, SIGNAL(indexChanged(int)), comboBox, SLOT(setCurrentIndex(int)));
 

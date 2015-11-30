@@ -28,7 +28,8 @@
 #include <cstdio>
 #include <vector>
 
-#if !(__cplusplus > 199711L || __GXX_EXPERIMENTAL_CXX0X__ || _MSC_VER >= 1600 || defined( _LIBCPP_VERSION ))
+#if !(__cplusplus > 199711L || __GXX_EXPERIMENTAL_CXX0X__ || _MSC_VER >= 1600 || defined( _LIBCPP_VERSION )) \
+    || (defined(__GNUC_LIBSTD__) && ((__GNUC_LIBSTD__-0) * 100 + __GNUC_LIBSTD_MINOR__-0 <= 402))
 #define USE_TR1
 #endif
 
@@ -67,7 +68,7 @@ public:
     const Token &tokenAt(unsigned index) const
     { return _tokens && index < tokenCount() ? (*_tokens)[index] : nullToken; }
 
-    int tokenKind(unsigned index) const { return tokenAt(index).f.kind; }
+    Kind tokenKind(unsigned index) const { return tokenAt(index).kind(); }
     const char *spell(unsigned index) const;
 
     unsigned commentCount() const;
@@ -126,7 +127,7 @@ public:
                              unsigned *column = 0,
                              const StringLiteral **fileName = 0) const;
 
-    void getPosition(unsigned offset,
+    void getPosition(unsigned utf16charOffset,
                      unsigned *line,
                      unsigned *column = 0,
                      const StringLiteral **fileName = 0) const;
@@ -137,7 +138,7 @@ public:
                           const StringLiteral **fileName = 0) const;
 
     void pushLineOffset(unsigned offset);
-    void pushPreprocessorLine(unsigned offset,
+    void pushPreprocessorLine(unsigned utf16charOffset,
                               unsigned line,
                               const StringLiteral *fileName);
 
@@ -150,30 +151,30 @@ public:
 
 private:
     struct PPLine {
-        unsigned offset;
+        unsigned utf16charOffset;
         unsigned line;
         const StringLiteral *fileName;
 
-        PPLine(unsigned offset = 0,
+        PPLine(unsigned utf16charOffset = 0,
                unsigned line = 0,
                const StringLiteral *fileName = 0)
-            : offset(offset), line(line), fileName(fileName)
+            : utf16charOffset(utf16charOffset), line(line), fileName(fileName)
         { }
 
         bool operator == (const PPLine &other) const
-        { return offset == other.offset; }
+        { return utf16charOffset == other.utf16charOffset; }
 
         bool operator != (const PPLine &other) const
-        { return offset != other.offset; }
+        { return utf16charOffset != other.utf16charOffset; }
 
         bool operator < (const PPLine &other) const
-        { return offset < other.offset; }
+        { return utf16charOffset < other.utf16charOffset; }
     };
 
     void releaseTokensAndComments();
-    unsigned findLineNumber(unsigned offset) const;
-    unsigned findColumnNumber(unsigned offset, unsigned lineNumber) const;
-    PPLine findPreprocessorLine(unsigned offset) const;
+    unsigned findLineNumber(unsigned utf16charOffset) const;
+    unsigned findColumnNumber(unsigned utf16CharOffset, unsigned lineNumber) const;
+    PPLine findPreprocessorLine(unsigned utf16charOffset) const;
     void showErrorLine(unsigned index, unsigned column, FILE *out);
 
     static const Token nullToken;

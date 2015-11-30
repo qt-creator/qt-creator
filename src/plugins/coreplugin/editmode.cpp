@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,30 +9,32 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
-#include "editmode.h"
 #include "coreconstants.h"
+#include "editmode.h"
+#include "icore.h"
 #include "modemanager.h"
 #include "minisplitter.h"
-#include "outputpane.h"
 #include "navigationwidget.h"
+#include "outputpane.h"
 #include "rightpane.h"
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -42,8 +44,8 @@
 #include <QWidget>
 #include <QIcon>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
 
 EditMode::EditMode() :
     m_splitter(new MiniSplitter),
@@ -59,7 +61,8 @@ EditMode::EditMode() :
     m_rightSplitWidgetLayout->setMargin(0);
     QWidget *rightSplitWidget = new QWidget;
     rightSplitWidget->setLayout(m_rightSplitWidgetLayout);
-    m_rightSplitWidgetLayout->insertWidget(0, new Core::EditorManagerPlaceHolder(this));
+    auto editorPlaceHolder = new EditorManagerPlaceHolder(this);
+    m_rightSplitWidgetLayout->insertWidget(0, editorPlaceHolder);
 
     MiniSplitter *rightPaneSplitter = new MiniSplitter;
     rightPaneSplitter->insertWidget(0, rightSplitWidget);
@@ -70,7 +73,7 @@ EditMode::EditMode() :
     MiniSplitter *splitter = new MiniSplitter;
     splitter->setOrientation(Qt::Vertical);
     splitter->insertWidget(0, rightPaneSplitter);
-    QWidget *outputPane = new Core::OutputPanePlaceHolder(this, splitter);
+    QWidget *outputPane = new OutputPanePlaceHolder(this, splitter);
     outputPane->setObjectName(QLatin1String("EditModeOutputPanePlaceHolder"));
     splitter->insertWidget(1, outputPane);
     splitter->setStretchFactor(0, 3);
@@ -81,13 +84,17 @@ EditMode::EditMode() :
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
 
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(grabEditorManager(Core::IMode*)));
-    m_splitter->setFocusProxy(EditorManager::instance());
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &EditMode::grabEditorManager);
+    m_splitter->setFocusProxy(editorPlaceHolder);
+
+    IContext *modeContextObject = new IContext(this);
+    modeContextObject->setContext(Context(Constants::C_EDITORMANAGER));
+    modeContextObject->setWidget(m_splitter);
+    ICore::addContextObject(modeContextObject);
 
     setWidget(m_splitter);
     setContext(Context(Constants::C_EDIT_MODE,
-                       Constants::C_EDITORMANAGER,
                        Constants::C_NAVIGATION_PANE));
 }
 
@@ -96,7 +103,7 @@ EditMode::~EditMode()
     delete m_splitter;
 }
 
-void EditMode::grabEditorManager(Core::IMode *mode)
+void EditMode::grabEditorManager(IMode *mode)
 {
     if (mode != this)
         return;
@@ -104,3 +111,6 @@ void EditMode::grabEditorManager(Core::IMode *mode)
     if (EditorManager::currentEditor())
         EditorManager::currentEditor()->widget()->setFocus();
 }
+
+} // namespace Internal
+} // namespace Core

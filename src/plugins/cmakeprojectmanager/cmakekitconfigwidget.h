@@ -1,0 +1,82 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Canonical Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+#ifndef CMAKEPROJECTMANAGER_INTERNAL_CMAKEKITCONFIGWIDGET_H
+#define CMAKEPROJECTMANAGER_INTERNAL_CMAKEKITCONFIGWIDGET_H
+
+#include <projectexplorer/kitconfigwidget.h>
+
+namespace ProjectExplorer {
+    class Kit;
+    class KitInformation;
+}
+
+QT_FORWARD_DECLARE_CLASS(QComboBox)
+QT_FORWARD_DECLARE_CLASS(QPushButton)
+
+namespace CMakeProjectManager {
+
+class CMakeTool;
+
+namespace Internal {
+
+class CMakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
+{
+    Q_OBJECT
+public:
+    CMakeKitConfigWidget(ProjectExplorer::Kit *kit, const ProjectExplorer::KitInformation *ki);
+    virtual ~CMakeKitConfigWidget();
+
+    // KitConfigWidget interface
+    QString displayName() const override;
+    void makeReadOnly() override;
+    void refresh() override;
+    QWidget *mainWidget() const override;
+    QWidget *buttonWidget() const override;
+    QString toolTip() const override;
+
+private:
+    int indexOf(const Core::Id &id);
+    void updateComboBox();
+    void cmakeToolAdded(const Core::Id &id);
+    void cmakeToolUpdated(const Core::Id &id);
+    void cmakeToolRemoved(const Core::Id &id);
+    void currentCMakeToolChanged(int index);
+    void manageCMakeTools();
+
+private:
+    bool m_removingItem;
+    QComboBox *m_comboBox;
+    QPushButton *m_manageButton;
+};
+
+} // namespace Internal
+} // namespace CMakeProjectManager
+
+#endif // CMAKEPROJECTMANAGER_INTERNAL_CMAKEKITCONFIGWIDGET_H

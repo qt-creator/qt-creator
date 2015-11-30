@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,27 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "debuggeritemmanager.h"
-
-#include "debuggeritemmodel.h"
+#include "debuggeritem.h"
 #include "debuggerkitinformation.h"
 
 #include <coreplugin/icore.h>
@@ -45,26 +45,36 @@
 #include <QFileInfo>
 #include <QProcess>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Debugger {
 
-static const char DEBUGGER_COUNT_KEY[] = "DebuggerItem.Count";
-static const char DEBUGGER_DATA_KEY[] = "DebuggerItem.";
-static const char DEBUGGER_LEGACY_FILENAME[] = "/qtcreator/profiles.xml";
-static const char DEBUGGER_FILE_VERSION_KEY[] = "Version";
-static const char DEBUGGER_FILENAME[] = "/qtcreator/debuggers.xml";
+const char DEBUGGER_COUNT_KEY[] = "DebuggerItem.Count";
+const char DEBUGGER_DATA_KEY[] = "DebuggerItem.";
+const char DEBUGGER_LEGACY_FILENAME[] = "/qtcreator/profiles.xml";
+const char DEBUGGER_FILE_VERSION_KEY[] = "Version";
+const char DEBUGGER_FILENAME[] = "/qtcreator/debuggers.xml";
+
+namespace {
+QList<DebuggerItem> m_debuggers;
+PersistentSettingsWriter *m_writer = 0;
+}
 
 // --------------------------------------------------------------------------
 // DebuggerItemManager
 // --------------------------------------------------------------------------
 
-static DebuggerItemManager *m_instance = 0;
+static void addDebugger(const DebuggerItem &item)
+{
+    QTC_ASSERT(item.id().isValid(), return);
+    m_debuggers.append(item);
+}
 
 static FileName userSettingsFileName()
 {
-    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
+    QFileInfo settingsLocation(ICore::settings()->fileName());
     return FileName::fromString(settingsLocation.absolutePath() + QLatin1String(DEBUGGER_FILENAME));
 }
 
@@ -110,27 +120,15 @@ static void readDebuggers(const FileName &fileName, bool isSystem)
     }
 }
 
-QList<DebuggerItem> DebuggerItemManager::m_debuggers;
-PersistentSettingsWriter * DebuggerItemManager::m_writer = 0;
-
-DebuggerItemManager::DebuggerItemManager(QObject *parent)
-    : QObject(parent)
+DebuggerItemManager::DebuggerItemManager()
 {
-    m_instance = this;
-    m_writer = new PersistentSettingsWriter(userSettingsFileName(), QLatin1String("QtCreatorDebugger"));
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
-            this, SLOT(saveDebuggers()));
-}
-
-QObject *DebuggerItemManager::instance()
-{
-    return m_instance;
+    m_writer = new PersistentSettingsWriter(userSettingsFileName(), QLatin1String("QtCreatorDebuggers"));
+    connect(ICore::instance(), &ICore::saveSettingsRequested,
+            this, &DebuggerItemManager::saveDebuggers);
 }
 
 DebuggerItemManager::~DebuggerItemManager()
 {
-    disconnect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
-            this, SLOT(saveDebuggers()));
     delete m_writer;
 }
 
@@ -141,7 +139,7 @@ QList<DebuggerItem> DebuggerItemManager::debuggers()
 
 void DebuggerItemManager::autoDetectCdbDebuggers()
 {
-    QList<FileName> cdbs;
+    FileNameList cdbs;
 
     QStringList programDirs;
     programDirs.append(QString::fromLocal8Bit(qgetenv("ProgramFiles")));
@@ -193,7 +191,7 @@ void DebuggerItemManager::autoDetectCdbDebuggers()
         item.setAbis(Abi::abisOfBinary(cdb));
         item.setCommand(cdb);
         item.setEngineType(CdbEngineType);
-        item.setDisplayName(uniqueDisplayName(tr("Auto-detected CDB at %1").arg(cdb.toUserOutput())));
+        item.setUnexpandedDisplayName(uniqueDisplayName(tr("Auto-detected CDB at %1").arg(cdb.toUserOutput())));
         addDebugger(item);
     }
 }
@@ -202,8 +200,11 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
 {
     QStringList filters;
     filters.append(QLatin1String("gdb-i686-pc-mingw32"));
+    filters.append(QLatin1String("gdb-i686-pc-mingw32.exe"));
     filters.append(QLatin1String("gdb"));
+    filters.append(QLatin1String("gdb.exe"));
     filters.append(QLatin1String("lldb"));
+    filters.append(QLatin1String("lldb.exe"));
     filters.append(QLatin1String("lldb-*"));
 
 //    DebuggerItem result;
@@ -226,7 +227,7 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
     }
     */
 
-    QFileInfoList suspects;
+    FileNameList suspects;
 
     if (HostOsInfo::isMacHost()) {
         QProcess lldbInfo;
@@ -237,41 +238,43 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
             lldbInfo.waitForFinished();
         } else {
             QByteArray lPath = lldbInfo.readAll();
-            suspects.append(QFileInfo(QString::fromLocal8Bit(lPath.data(), lPath.size() -1)));
+            const QFileInfo fi(QString::fromLocal8Bit(lPath.data(), lPath.size() -1));
+            if (fi.exists() && fi.isExecutable() && !fi.isDir())
+                suspects.append(FileName::fromString(fi.absoluteFilePath()));
         }
     }
 
     QStringList path = Environment::systemEnvironment().path();
+    path.removeDuplicates();
+    QDir dir;
+    dir.setNameFilters(filters);
+    dir.setFilter(QDir::Files | QDir::Executable);
     foreach (const QString &base, path) {
-        QDir dir(base);
-        dir.setNameFilters(filters);
-        suspects += dir.entryInfoList();
-    }
-
-    foreach (const QFileInfo &fi, suspects) {
-        if (fi.exists() && fi.isExecutable()) {
-            FileName command = FileName::fromString(fi.absoluteFilePath());
-            if (findByCommand(command))
+        dir.setPath(base);
+        foreach (const QString &entry, dir.entryList()) {
+            if (entry.startsWith(QLatin1String("lldb-platform-"))
+                    || entry.startsWith(QLatin1String("lldb-gdbserver-"))) {
                 continue;
-            DebuggerItem item;
-            item.createId();
-            item.setCommand(command);
-            item.reinitializeFromFile();
-            //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
-            item.setDisplayName(tr("System %1 at %2")
-                .arg(item.engineTypeName()).arg(QDir::toNativeSeparators(fi.absoluteFilePath())));
-            item.setAutoDetected(true);
-            addDebugger(item);
+            }
+            suspects.append(FileName::fromString(dir.absoluteFilePath(entry)));
         }
     }
-}
 
-void DebuggerItemManager::readLegacyDebuggers()
-{
-    QFileInfo systemLocation(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    readLegacyDebuggers(FileName::fromString(systemLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
-    QFileInfo userLocation(Core::ICore::settings()->fileName());
-    readLegacyDebuggers(FileName::fromString(userLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
+    foreach (const FileName &command, suspects) {
+        if (findByCommand(command))
+            continue;
+        DebuggerItem item;
+        item.createId();
+        item.setCommand(command);
+        item.reinitializeFromFile();
+        if (item.engineType() == NoEngineType)
+            continue;
+        //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
+        item.setUnexpandedDisplayName(tr("System %1 at %2")
+            .arg(item.engineTypeName()).arg(command.toUserOutput()));
+        item.setAutoDetected(true);
+        addDebugger(item);
+    }
 }
 
 void DebuggerItemManager::readLegacyDebuggers(const FileName &file)
@@ -297,6 +300,8 @@ void DebuggerItemManager::readLegacyDebuggers(const FileName &file)
         if (fn == QLatin1String("auto"))
             continue;
         FileName command = FileName::fromUserInput(fn);
+        if (!command.exists())
+            continue;
         if (findByCommand(command))
             continue;
         DebuggerItem item;
@@ -304,7 +309,7 @@ void DebuggerItemManager::readLegacyDebuggers(const FileName &file)
         item.setCommand(command);
         item.setAutoDetected(true);
         item.reinitializeFromFile();
-        item.setDisplayName(tr("Extracted from Kit %1").arg(kitName));
+        item.setUnexpandedDisplayName(tr("Extracted from Kit %1").arg(kitName));
         addDebugger(item);
     }
 }
@@ -338,7 +343,7 @@ const DebuggerItem *DebuggerItemManager::findByEngineType(DebuggerEngineType eng
 void DebuggerItemManager::restoreDebuggers()
 {
     // Read debuggers from SDK
-    QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
+    QFileInfo systemSettingsFile(ICore::settings(QSettings::SystemScope)->fileName());
     readDebuggers(FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(DEBUGGER_FILENAME)), true);
 
     // Read all debuggers from user file.
@@ -349,7 +354,10 @@ void DebuggerItemManager::restoreDebuggers()
     autoDetectGdbOrLldbDebuggers();
 
     // Add debuggers from pre-3.x profiles.xml
-    readLegacyDebuggers();
+    QFileInfo systemLocation(ICore::settings(QSettings::SystemScope)->fileName());
+    readLegacyDebuggers(FileName::fromString(systemLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
+    QFileInfo userLocation(ICore::settings()->fileName());
+    readLegacyDebuggers(FileName::fromString(userLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
 }
 
 void DebuggerItemManager::saveDebuggers()
@@ -369,93 +377,64 @@ void DebuggerItemManager::saveDebuggers()
         }
     }
     data.insert(QLatin1String(DEBUGGER_COUNT_KEY), count);
-    m_writer->save(data, Core::ICore::mainWindow());
+    m_writer->save(data, ICore::mainWindow());
 
     // Do not save default debuggers as they are set by the SDK.
 }
 
 QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
 {
-    // Force addition when Id is set.
-    if (item.id().isValid())
-        return addDebugger(item);
-
-    // Otherwise, try re-using existing item first.
+    // Try re-using existing item first.
     foreach (const DebuggerItem &d, m_debuggers) {
         if (d.command() == item.command()
                 && d.isAutoDetected() == item.isAutoDetected()
                 && d.engineType() == item.engineType()
-                && d.displayName() == item.displayName()
-                && d.abis() == item.abis())
+                && d.unexpandedDisplayName() == item.unexpandedDisplayName()
+                && d.abis() == item.abis()) {
             return d.id();
+        }
     }
 
-    // Nothing suitable. Create a new id and add the item.
+    // If item already has an id, use it. Otherwise, create a new id.
     DebuggerItem di = item;
-    di.createId();
-    return addDebugger(di);
+    if (!di.id().isValid())
+        di.createId();
+
+    addDebugger(di);
+    return di.id();
 }
 
 void DebuggerItemManager::deregisterDebugger(const QVariant &id)
 {
-    if (findById(id))
-        removeDebugger(id);
-}
-
-QVariant DebuggerItemManager::addDebugger(const DebuggerItem &item)
-{
-    QTC_ASSERT(item.id().isValid(), return QVariant());
-    m_debuggers.append(item);
-    QVariant id = item.id();
-    emit m_instance->debuggerAdded(id);
-    return id;
-}
-
-void DebuggerItemManager::removeDebugger(const QVariant &id)
-{
-    bool ok = false;
     for (int i = 0, n = m_debuggers.size(); i != n; ++i) {
         if (m_debuggers.at(i).id() == id) {
-            emit m_instance->aboutToRemoveDebugger(id);
             m_debuggers.removeAt(i);
-            emit m_instance->debuggerRemoved(id);
-            ok = true;
             break;
         }
     }
-
-    QTC_ASSERT(ok, return);
 }
 
 QString DebuggerItemManager::uniqueDisplayName(const QString &base)
 {
     foreach (const DebuggerItem &item, m_debuggers)
-        if (item.displayName() == base)
+        if (item.unexpandedDisplayName() == base)
             return uniqueDisplayName(base + QLatin1String(" (1)"));
 
     return base;
 }
 
-void DebuggerItemManager::setItemData(const QVariant &id, const QString &displayName, const FileName &fileName)
+void DebuggerItemManager::updateOrAddDebugger(const DebuggerItem &treeItem)
 {
     for (int i = 0, n = m_debuggers.size(); i != n; ++i) {
         DebuggerItem &item = m_debuggers[i];
-        if (item.id() == id) {
-            bool changed = false;
-            if (item.displayName() != displayName) {
-                item.setDisplayName(displayName);
-                changed = true;
-            }
-            if (item.command() != fileName) {
-                item.setCommand(fileName);
-                item.reinitializeFromFile();
-                changed = true;
-            }
-            if (changed)
-                emit m_instance->debuggerUpdated(id);
-            break;
+        if (item.id() == treeItem.id()) {
+            item = treeItem;
+            return;
         }
     }
+
+    // This is a new item.
+    addDebugger(treeItem);
 }
 
 } // namespace Debugger;

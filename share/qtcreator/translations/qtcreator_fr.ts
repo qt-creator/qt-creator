@@ -53010,7 +53010,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
     <message>
         <source>Find in This Directory...</source>
-        <translation>Trouvé dans le répertoire...</translation>
+        <translation>Trouver dans le répertoire...</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
@@ -70079,7 +70079,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
     <message>
         <source>Refresh Device List</source>
-        <translation>Rafréchir la liste des périphériques</translation>
+        <translation>Rafraîchir la liste des périphériques</translation>
     </message>
     <message>
         <source>Create Android Virtual Device</source>

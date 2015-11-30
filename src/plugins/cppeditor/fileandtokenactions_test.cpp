@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,26 +37,22 @@
 #include "cppinsertvirtualmethods.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
-#include <cpptools/cpptoolsplugin.h>
-#include <extensionsystem/pluginmanager.h>
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
+#include <cpptools/cppworkingcopy.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 
+#include <extensionsystem/pluginmanager.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
+#include <utils/algorithm.h>
 
+#include <QApplication>
 #include <QDebug>
 #include <QTextDocument>
-#include <QtAlgorithms>
 #include <QtTest>
-
-#if  QT_VERSION >= 0x050000
-#define MSKIP_SINGLE(x) QSKIP(x)
-#else
-#define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
-#endif
 
 /*!
     Tests for executing "test actions" for
@@ -76,21 +73,22 @@
 
 using namespace Core;
 using namespace CPlusPlus;
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
 
+namespace CppEditor {
+namespace Internal {
+
 namespace {
 
-class TestActionsTestCase : public CppEditor::Internal::Tests::TestCase
+class TestActionsTestCase : public Tests::TestCase
 {
 public:
     class AbstractAction
     {
     public:
         /// Every Action is expected to undo its changes.
-        virtual void run(CPPEditorWidget *editorWidget) = 0;
+        virtual void run(CppEditorWidget *editorWidget) = 0;
         virtual ~AbstractAction() {}
     };
     typedef QSharedPointer<AbstractAction> ActionPointer;
@@ -107,29 +105,20 @@ public:
     static void escape();
 
     /// Undoing changes
-    static void undoChangesInDocument(BaseTextDocument *editorDocument);
+    static void undoChangesInDocument(TextDocument *editorDocument);
     static void undoChangesInAllEditorWidgets();
 
     /// Execute actions for the current cursor position of editorWidget.
-    static void executeActionsOnEditorWidget(CPPEditorWidget *editorWidget, Actions actions);
+    static void executeActionsOnEditorWidget(CppEditorWidget *editorWidget, Actions actions);
 
 private:
     /// Move word camel case wise from current cursor position until given token (not included)
     /// and execute the tokenActions for each new position.
-    static void moveWordCamelCaseToToken(TranslationUnit *translationUnit, Token token,
-                                         CPPEditor *editor, const Actions &tokenActions);
+    static void moveWordCamelCaseToToken(TranslationUnit *translationUnit, const Token &token,
+                                         CppEditor *editor, const Actions &tokenActions);
 
     static void undoAllChangesAndCloseAllEditors();
-
-    /// This function expects:
-    /// (1) Only Qt4 projects are loaded (qmake in PATH should point to Qt4/bin).
-    /// (2) No *.pro.user file exists for the projects.
-    static void configureAllProjects(const QList<QPointer<ProjectExplorer::Project> > &projects);
-
-    static bool allProjectsConfigured;
 };
-
-bool TestActionsTestCase::allProjectsConfigured = false;
 
 typedef TestActionsTestCase::Actions Actions;
 typedef TestActionsTestCase::ActionPointer ActionPointer;
@@ -139,20 +128,37 @@ Actions singleAction(const ActionPointer &action)
     return Actions() << action;
 }
 
+static bool waitUntilAProjectIsLoaded(int timeOutInMs = 30000)
+{
+    QElapsedTimer timer;
+    timer.start();
+
+    while (timer.elapsed() < timeOutInMs) {
+        if (!CppModelManager::instance()->projectInfos().isEmpty())
+            return true;
+
+        QCoreApplication::processEvents();
+        QThread::msleep(20);
+    }
+
+    return false;
+}
+
 TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Actions &fileActions)
-    : CppEditor::Internal::Tests::TestCase(/*runGarbageCollector=*/false)
+    : Tests::TestCase(/*runGarbageCollector=*/false)
 {
     QVERIFY(succeededSoFar());
+
+    if (qgetenv("QTC_TEST_WAIT_FOR_LOADED_PROJECT") != "1")
+        QSKIP("Environment variable QTC_TEST_WAIT_FOR_LOADED_PROJECT=1 not set.");
+    QVERIFY(waitUntilAProjectIsLoaded());
 
     // Collect files to process
     QStringList filesToOpen;
     QList<QPointer<ProjectExplorer::Project> > projects;
-    const QList<CppModelManagerInterface::ProjectInfo> projectInfos
-            = m_modelManager->projectInfos();
-    if (projectInfos.isEmpty())
-        MSKIP_SINGLE("No project(s) loaded. Test operates only on loaded projects.");
+    const QList<ProjectInfo> projectInfos = m_modelManager->projectInfos();
 
-    foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
+    foreach (const ProjectInfo &info, projectInfos) {
         QPointer<ProjectExplorer::Project> project = info.project();
         if (!projects.contains(project))
             projects << project;
@@ -162,19 +168,12 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
             filesToOpen << sourceFile;
     }
 
-    // Configure all projects on first execution of this function (= very first test)
-    if (!TestActionsTestCase::allProjectsConfigured) {
-        configureAllProjects(projects);
-        TestActionsTestCase::allProjectsConfigured = true;
-    }
-
-    qSort(filesToOpen);
+    Utils::sort(filesToOpen);
 
     // Process all files from the projects
     foreach (const QString filePath, filesToOpen) {
         // Skip e.g. "<configuration>"
-        const QFileInfo fileInfo(filePath);
-        if (!fileInfo.exists())
+        if (!QFileInfo::exists(filePath))
             continue;
 
         qDebug() << " --" << filePath;
@@ -183,12 +182,12 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
         undoAllChangesAndCloseAllEditors();
 
         // Open editor
-        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 0);
-        CPPEditor *editor;
-        CPPEditorWidget *editorWidget;
+        QCOMPARE(DocumentModel::openedDocuments().size(), 0);
+        CppEditor *editor;
+        CppEditorWidget *editorWidget;
         QVERIFY(openCppEditor(filePath, &editor, &editorWidget));
 
-        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 1);
+        QCOMPARE(DocumentModel::openedDocuments().size(), 1);
         QVERIFY(m_modelManager->isCppEditor(editor));
         QVERIFY(m_modelManager->workingCopy().contains(filePath));
 
@@ -238,7 +237,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
             } else {
                 // Position the cursor on the token
                 unsigned line, column;
-                translationUnit->getPosition(token.offset, &line, &column);
+                translationUnit->getPosition(token.utf16charsBegin(), &line, &column);
                 editor->gotoLine(line, column - 1);
                 QApplication::processEvents();
 
@@ -258,7 +257,7 @@ void TestActionsTestCase::escape()
         QTest::keyClick(w, Qt::Key_Escape);
 }
 
-void TestActionsTestCase::undoChangesInDocument(BaseTextDocument *editorDocument)
+void TestActionsTestCase::undoChangesInDocument(TextDocument *editorDocument)
 {
     QTextDocument * const document = editorDocument->document();
     QVERIFY(document);
@@ -268,13 +267,13 @@ void TestActionsTestCase::undoChangesInDocument(BaseTextDocument *editorDocument
 
 void TestActionsTestCase::undoChangesInAllEditorWidgets()
 {
-    foreach (IDocument *document, EditorManager::documentModel()->openedDocuments()) {
-        BaseTextDocument *baseTextDocument = qobject_cast<BaseTextDocument *>(document);
+    foreach (IDocument *document, DocumentModel::openedDocuments()) {
+        TextDocument *baseTextDocument = qobject_cast<TextDocument *>(document);
         undoChangesInDocument(baseTextDocument);
     }
 }
 
-void TestActionsTestCase::executeActionsOnEditorWidget(CPPEditorWidget *editorWidget,
+void TestActionsTestCase::executeActionsOnEditorWidget(CppEditorWidget *editorWidget,
                                                         TestActionsTestCase::Actions actions)
 {
     foreach (const ActionPointer &action, actions)
@@ -282,16 +281,18 @@ void TestActionsTestCase::executeActionsOnEditorWidget(CPPEditorWidget *editorWi
     QApplication::processEvents();
 }
 
-void TestActionsTestCase::moveWordCamelCaseToToken(TranslationUnit *translationUnit, Token token,
-                                                    CPPEditor *editor, const Actions &tokenActions)
+void TestActionsTestCase::moveWordCamelCaseToToken(TranslationUnit *translationUnit,
+                                                   const Token &token,
+                                                   CppEditor *editor,
+                                                   const Actions &tokenActions)
 {
     QVERIFY(translationUnit);
     QVERIFY(editor);
-    CPPEditorWidget *editorWidget = dynamic_cast<CPPEditorWidget *>(editor->editorWidget());
+    CppEditorWidget *editorWidget = dynamic_cast<CppEditorWidget *>(editor->editorWidget());
     QVERIFY(editorWidget);
 
     unsigned line, column;
-    translationUnit->getPosition(token.offset, &line, &column);
+    translationUnit->getPosition(token.utf16charsBegin(), &line, &column);
 
     while (editor->currentLine() < (int) line
            || (editor->currentLine() == (int) line
@@ -309,23 +310,14 @@ void TestActionsTestCase::undoAllChangesAndCloseAllEditors()
     undoChangesInAllEditorWidgets();
     EditorManager::closeAllEditors(/*askAboutModifiedEditors =*/ false);
     QApplication::processEvents();
-    QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 0);
-}
-
-void TestActionsTestCase::configureAllProjects(const QList<QPointer<ProjectExplorer::Project> >
-                                               &projects)
-{
-    foreach (const QPointer<ProjectExplorer::Project> &project, projects) {
-        qDebug() << "*** Configuring project" << project->displayName();
-        project->configureAsExampleProject(QStringList());
-    }
+    QCOMPARE(DocumentModel::openedDocuments().size(), 0);
 }
 
 class NoOpTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Do nothing on each token
-    void run(CPPEditorWidget *) {}
+    void run(CppEditorWidget *) {}
 };
 
 class FollowSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractAction
@@ -333,10 +325,10 @@ class FollowSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractA
 public:
     /// Follow symbol under cursor
     /// Warning: May block if file does not exists (e.g. a not generated ui_* file).
-    void run(CPPEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget);
 };
 
-void FollowSymbolUnderCursorTokenAction::run(CPPEditorWidget *editorWidget)
+void FollowSymbolUnderCursorTokenAction::run(CppEditorWidget *editorWidget)
 {
     // Follow link
     IEditor *editorBefore = EditorManager::currentEditor();
@@ -359,16 +351,16 @@ class SwitchDeclarationDefinitionTokenAction : public TestActionsTestCase::Abstr
 {
 public:
     /// Switch Declaration/Definition on each token
-    void run(CPPEditorWidget *);
+    void run(CppEditorWidget *);
 };
 
-void SwitchDeclarationDefinitionTokenAction::run(CPPEditorWidget *)
+void SwitchDeclarationDefinitionTokenAction::run(CppEditorWidget *)
 {
     // Switch Declaration/Definition
     IEditor *editorBefore = EditorManager::currentEditor();
     const int originalLine = editorBefore->currentLine();
     const int originalColumn = editorBefore->currentColumn();
-    CppEditor::Internal::CppEditorPlugin::instance()->switchDeclarationDefinition();
+    CppEditorPlugin::instance()->switchDeclarationDefinition();
     QApplication::processEvents();
 
     // Go back
@@ -384,12 +376,12 @@ class FindUsagesTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Find Usages on each token
-    void run(CPPEditorWidget *);
+    void run(CppEditorWidget *);
 };
 
-void FindUsagesTokenAction::run(CPPEditorWidget *)
+void FindUsagesTokenAction::run(CppEditorWidget *)
 {
-    CppEditor::Internal::CppEditorPlugin::instance()->findUsages();
+    CppEditorPlugin::instance()->findUsages();
     QApplication::processEvents();
 }
 
@@ -397,12 +389,12 @@ class RenameSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractA
 {
 public:
     /// Rename Symbol Under Cursor on each token (Renaming is not applied)
-    void run(CPPEditorWidget *);
+    void run(CppEditorWidget *);
 };
 
-void RenameSymbolUnderCursorTokenAction::run(CPPEditorWidget *)
+void RenameSymbolUnderCursorTokenAction::run(CppEditorWidget *)
 {
-    CppEditor::Internal::CppEditorPlugin::instance()->renameSymbolUnderCursor();
+    CppEditorPlugin::instance()->renameSymbolUnderCursor();
     QApplication::processEvents();
 }
 
@@ -410,12 +402,12 @@ class OpenTypeHierarchyTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Open Type Hierarchy on each token
-    void run(CPPEditorWidget *);
+    void run(CppEditorWidget *);
 };
 
-void OpenTypeHierarchyTokenAction::run(CPPEditorWidget *)
+void OpenTypeHierarchyTokenAction::run(CppEditorWidget *)
 {
-    CppEditor::Internal::CppEditorPlugin::instance()->openTypeHierarchy();
+    CppEditorPlugin::instance()->openTypeHierarchy();
     QApplication::processEvents();
 }
 
@@ -424,10 +416,10 @@ class InvokeCompletionTokenAction : public TestActionsTestCase::AbstractAction
 public:
     /// Invoke completion menu on each token.
     /// Warning: May create tool tip artefacts if focus is lost.
-    void run(CPPEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget);
 };
 
-void InvokeCompletionTokenAction::run(CPPEditorWidget *editorWidget)
+void InvokeCompletionTokenAction::run(CppEditorWidget *editorWidget)
 {
     // Invoke assistant and wait until it is finished
     QEventLoop loop;
@@ -443,18 +435,18 @@ void InvokeCompletionTokenAction::run(CPPEditorWidget *editorWidget)
     //    editorWidget->setFocus();
     QApplication::processEvents();
 
-    TestActionsTestCase::undoChangesInDocument(editorWidget->baseTextDocument());
+    TestActionsTestCase::undoChangesInDocument(editorWidget->textDocument());
 }
 
 class RunAllQuickFixesTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Trigger all Quick Fixes and apply the matching ones
-    void run(CPPEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget);
 };
 
 // TODO: Some QuickFixes operate on selections.
-void RunAllQuickFixesTokenAction::run(CPPEditorWidget *editorWidget)
+void RunAllQuickFixesTokenAction::run(CppEditorWidget *editorWidget)
 {
     // Calling editorWidget->invokeAssist(QuickFix) would be not enough
     // since we also want to execute the ones that match.
@@ -463,13 +455,13 @@ void RunAllQuickFixesTokenAction::run(CPPEditorWidget *editorWidget)
         = ExtensionSystem::PluginManager::getObjects<CppQuickFixFactory>();
     QVERIFY(!quickFixFactories.isEmpty());
 
-    CppQuickFixInterface qfi(new CppQuickFixAssistInterface(editorWidget, ExplicitlyInvoked));
+    CppQuickFixInterface qfi(editorWidget, ExplicitlyInvoked);
     // This guard is important since the Quick Fixes expect to get a non-empty path().
-    if (qfi->path().isEmpty())
+    if (qfi.path().isEmpty())
         return;
 
     foreach (CppQuickFixFactory *quickFixFactory, quickFixFactories) {
-        TextEditor::QuickFixOperations operations;
+        QuickFixOperations operations;
         // Some Quick Fixes pop up a dialog and are therefore inappropriate for this test.
         // Where possible, use a guiless version of the factory.
         if (qobject_cast<InsertVirtualMethods *>(quickFixFactory)) {
@@ -493,14 +485,14 @@ void RunAllQuickFixesTokenAction::run(CPPEditorWidget *editorWidget)
 class SwitchHeaderSourceFileAction : public TestActionsTestCase::AbstractAction
 {
 public:
-    void run(CPPEditorWidget *);
+    void run(CppEditorWidget *);
 };
 
-void SwitchHeaderSourceFileAction::run(CPPEditorWidget *)
+void SwitchHeaderSourceFileAction::run(CppEditorWidget *)
 {
     // Switch Header/Source
     IEditor *editorBefore = EditorManager::currentEditor();
-    CppTools::Internal::CppToolsPlugin::instance()->switchHeaderSource();
+    CppTools::switchHeaderSource();
     QApplication::processEvents();
 
     // Go back
@@ -562,3 +554,6 @@ void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndTriggerQuickFixes()
 {
     TestActionsTestCase(singleAction(ActionPointer(new RunAllQuickFixesTokenAction)));
 }
+
+} // namespace Internal
+} // namespace CppEditor

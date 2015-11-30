@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -44,6 +45,8 @@ const char DEFAULT_DEVICES_ID[] = "DefaultDevices";
 const char DEVICE_LIST_ID[] = "DeviceList";
 
 const char DEVICE_ID_ID[] = "InternalId";
+
+static const char INTERNAL_DSEKTOP_DEVICE_ID[] = "Desktop Device";
 
 AddDeviceOperation::AddDeviceOperation()
 { }
@@ -82,7 +85,7 @@ QString AddDeviceOperation::argumentsHelpText() const
 bool AddDeviceOperation::setArguments(const QStringList &args)
 {
     m_authentication = -1;
-    m_origin = -1;
+    m_origin = 1;
     m_sshPort = 0;
     m_timeout = 5;
     m_type = -1;
@@ -255,7 +258,7 @@ bool AddDeviceOperation::setArguments(const QStringList &args)
 
 int AddDeviceOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("devices"));
+    QVariantMap map = load(QLatin1String("Devices"));
     if (map.isEmpty())
         map = initializeDevices();
 
@@ -267,7 +270,7 @@ int AddDeviceOperation::execute() const
     if (result.isEmpty() || map == result)
         return 2;
 
-    return save(result, QLatin1String("devices")) ? 0 : 3;
+    return save(result, QLatin1String("Devices")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS
@@ -361,7 +364,7 @@ QVariantMap AddDeviceOperation::addDevice(const QVariantMap &map,
 QVariantMap AddDeviceOperation::initializeDevices()
 {
     QVariantMap dmData;
-    dmData.insert(QLatin1String(DEFAULT_DEVICES_ID), QVariant());
+    dmData.insert(QLatin1String(DEFAULT_DEVICES_ID), QVariantMap());
     dmData.insert(QLatin1String(DEVICE_LIST_ID), QVariantList());
 
     QVariantMap data;
@@ -371,12 +374,14 @@ QVariantMap AddDeviceOperation::initializeDevices()
 
 bool AddDeviceOperation::exists(const QString &id)
 {
-    QVariantMap map = load(QLatin1String("device"));
+    QVariantMap map = load(QLatin1String("Devices"));
     return exists(map, id);
 }
 
 bool AddDeviceOperation::exists(const QVariantMap &map, const QString &id)
 {
+    if (id == QLatin1String(INTERNAL_DSEKTOP_DEVICE_ID))
+        return true;
     QVariantMap dmMap = map.value(QLatin1String(DEVICEMANAGER_ID)).toMap();
     QVariantList devList = dmMap.value(QLatin1String(DEVICE_LIST_ID)).toList();
     foreach (const QVariant &dev, devList) {

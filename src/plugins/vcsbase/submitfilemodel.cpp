@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,6 +32,7 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QStandardItem>
 #include <QFileInfo>
@@ -42,12 +44,40 @@ namespace VcsBase {
 // Helpers:
 // --------------------------------------------------------------------------
 
-enum { fileColumn = 1 };
+enum { stateColumn = 0, fileColumn = 1 };
 
-static QList<QStandardItem *> createFileRow(const QString &fileName, const QString &status,
-                                            CheckMode checked, const QVariant &v)
+static QBrush fileStatusTextForeground(SubmitFileModel::FileStatusHint statusHint)
 {
-    QStandardItem *statusItem = new QStandardItem(status);
+    using Utils::Theme;
+    Theme::Color statusTextColor = Theme::VcsBase_FileStatusUnknown_TextColor;
+    switch (statusHint) {
+    case SubmitFileModel::FileStatusUnknown:
+        statusTextColor = Theme::VcsBase_FileStatusUnknown_TextColor;
+        break;
+    case SubmitFileModel::FileAdded:
+        statusTextColor = Theme::VcsBase_FileAdded_TextColor;
+        break;
+    case SubmitFileModel::FileModified:
+        statusTextColor = Theme::VcsBase_FileModified_TextColor;
+        break;
+    case SubmitFileModel::FileDeleted:
+        statusTextColor = Theme::VcsBase_FileDeleted_TextColor;
+        break;
+    case SubmitFileModel::FileRenamed:
+        statusTextColor = Theme::VcsBase_FileRenamed_TextColor;
+        break;
+    }
+    return QBrush(Utils::creatorTheme()->color(statusTextColor));
+}
+
+static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
+                                            const QString &fileName,
+                                            const QString &status,
+                                            SubmitFileModel::FileStatusHint statusHint,
+                                            CheckMode checked,
+                                            const QVariant &v)
+{
+    auto statusItem = new QStandardItem(status);
     Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     if (checked != Uncheckable) {
         flags |= Qt::ItemIsUserCheckable;
@@ -55,11 +85,20 @@ static QList<QStandardItem *> createFileRow(const QString &fileName, const QStri
     }
     statusItem->setFlags(flags);
     statusItem->setData(v);
-    QStandardItem *fileItem = new QStandardItem(fileName);
+    auto fileItem = new QStandardItem(fileName);
     fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    fileItem->setIcon(Core::FileIconProvider::icon(fileName));
+    // For some reason, Windows (at least) requires a valid (existing) file path to the icon, so
+    // the repository root is needed here.
+    // Note: for "overlaid" icons in Core::FileIconProvider a valid file path is not required
+    const QFileInfo fi(repositoryRoot + QLatin1Char('/') + fileName);
+    fileItem->setIcon(Core::FileIconProvider::icon(fi));
     QList<QStandardItem *> row;
     row << statusItem << fileItem;
+    if (statusHint != SubmitFileModel::FileStatusUnknown) {
+        const QBrush textForeground = fileStatusTextForeground(statusHint);
+        foreach (QStandardItem *item, row)
+            item->setForeground(textForeground);
+    }
     return row;
 }
 
@@ -85,10 +124,23 @@ SubmitFileModel::SubmitFileModel(QObject *parent) :
     setHorizontalHeaderLabels(headerLabels);
 }
 
+const QString &SubmitFileModel::repositoryRoot() const
+{
+    return m_repositoryRoot;
+}
+
+void SubmitFileModel::setRepositoryRoot(const QString &repoRoot)
+{
+    m_repositoryRoot = repoRoot;
+}
+
 QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const QString &status, CheckMode checkMode,
                                                 const QVariant &v)
 {
-    const QList<QStandardItem *> row = createFileRow(fileName, status, checkMode, v);
+    const FileStatusHint statusHint =
+            m_fileStatusQualifier ? m_fileStatusQualifier(status, v) : FileStatusUnknown;
+    const QList<QStandardItem *> row =
+            createFileRow(m_repositoryRoot, fileName, status, statusHint, checkMode, v);
     appendRow(row);
     return row;
 }
@@ -130,8 +182,11 @@ void SubmitFileModel::setChecked(int row, bool check)
 void SubmitFileModel::setAllChecked(bool check)
 {
     int rows = rowCount();
-    for (int row = 0; row < rows; ++row)
-        item(row)->setCheckState(check ? Qt::Checked : Qt::Unchecked);
+    for (int row = 0; row < rows; ++row) {
+        QStandardItem *i = item(row);
+        if (i->isCheckable())
+            i->setCheckState(check ? Qt::Checked : Qt::Unchecked);
+    }
 }
 
 QVariant SubmitFileModel::extraData(int row) const
@@ -184,6 +239,26 @@ void SubmitFileModel::updateSelections(SubmitFileModel *source)
             }
         }
     }
+}
+
+const SubmitFileModel::FileStatusQualifier &SubmitFileModel::fileStatusQualifier() const
+{
+    return m_fileStatusQualifier;
+}
+
+void SubmitFileModel::setFileStatusQualifier(FileStatusQualifier &&func)
+{
+    const int topLevelRowCount = rowCount();
+    const int topLevelColCount = columnCount();
+    for (int row = 0; row < topLevelRowCount; ++row) {
+        const QStandardItem *statusItem = item(row, stateColumn);
+        const FileStatusHint statusHint =
+                func ? func(statusItem->text(), statusItem->data()) : FileStatusUnknown;
+        const QBrush textForeground = fileStatusTextForeground(statusHint);
+        for (int col = 0; col < topLevelColCount; ++col)
+            item(row, col)->setForeground(textForeground);
+    }
+    m_fileStatusQualifier = func;
 }
 
 } // namespace VcsBase

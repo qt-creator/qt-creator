@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,6 +32,10 @@
 #include "gitsubmiteditorwidget.h"
 #include "githighlighters.h"
 #include "logchangedialog.h"
+
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
+#include <utils/completingtextedit.h>
 
 #include <QRegExpValidator>
 #include <QTextEdit>
@@ -45,8 +50,7 @@ namespace Git {
 namespace Internal {
 
 // ------------------
-GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
-    VcsBase::SubmitEditorWidget(parent),
+GitSubmitEditorWidget::GitSubmitEditorWidget() :
     m_pushAction(NoPush),
     m_gitSubmitPanel(new QWidget),
     m_logChangeWidget(0),
@@ -57,11 +61,15 @@ GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
     new GitSubmitHighlighter(descriptionEdit());
 
     m_emailValidator = new QRegExpValidator(QRegExp(QLatin1String("[^@ ]+@[^@ ]+\\.[a-zA-Z]+")), this);
+    const QPixmap error = Core::Icons::ERROR.pixmap();
+    m_gitSubmitPanelUi.invalidAuthorLabel->setPixmap(error);
+    m_gitSubmitPanelUi.invalidEmailLabel->setToolTip(tr("Provide a valid email to commit."));
+    m_gitSubmitPanelUi.invalidEmailLabel->setPixmap(error);
 
-    connect(m_gitSubmitPanelUi.authorLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(authorInformationChanged()));
-    connect(m_gitSubmitPanelUi.emailLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(authorInformationChanged()));
+    connect(m_gitSubmitPanelUi.authorLineEdit, &QLineEdit::textChanged,
+            this, &GitSubmitEditorWidget::authorInformationChanged);
+    connect(m_gitSubmitPanelUi.emailLineEdit, &QLineEdit::textChanged,
+            this, &GitSubmitEditorWidget::authorInformationChanged);
 }
 
 void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
@@ -94,14 +102,14 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
         return;
     m_isInitialized = true;
     if (commitType == FixupCommit) {
-        QGroupBox *logChangeGroupBox = new QGroupBox(tr("Select Change"));
-        QVBoxLayout *logChangeLayout = new QVBoxLayout;
+        auto logChangeGroupBox = new QGroupBox(tr("Select Change"));
+        auto logChangeLayout = new QVBoxLayout;
         logChangeGroupBox->setLayout(logChangeLayout);
         m_logChangeWidget = new LogChangeWidget;
         m_logChangeWidget->init(repository);
-        connect(m_logChangeWidget, SIGNAL(doubleClicked(QString)), this, SIGNAL(show(QString)));
+        connect(m_logChangeWidget, &LogChangeWidget::commitActivated, this, &GitSubmitEditorWidget::show);
         logChangeLayout->addWidget(m_logChangeWidget);
-        insertTopWidget(logChangeGroupBox);
+        insertLeftWidget(logChangeGroupBox);
         m_gitSubmitPanelUi.editGroup->hide();
         hideDescription();
     }
@@ -110,10 +118,13 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
     setPanelInfo(info);
 
     if (enablePush) {
-        QMenu *menu = new QMenu(this);
-        menu->addAction(tr("&Commit only"), this, SLOT(commitOnlySlot()));
-        menu->addAction(tr("Commit and &Push"), this, SLOT(commitAndPushSlot()));
-        menu->addAction(tr("Commit and Push to &Gerrit"), this, SLOT(commitAndPushToGerritSlot()));
+        auto menu = new QMenu(this);
+        connect(menu->addAction(tr("&Commit only")), &QAction::triggered,
+                this, &GitSubmitEditorWidget::commitOnlySlot);
+        connect(menu->addAction(tr("Commit and &Push")), &QAction::triggered,
+                this, &GitSubmitEditorWidget::commitAndPushSlot);
+        connect(menu->addAction(tr("Commit and Push to &Gerrit")), &QAction::triggered,
+                this, &GitSubmitEditorWidget::commitAndPushToGerritSlot);
         addSubmitButtonMenu(menu);
     }
 }
@@ -127,8 +138,12 @@ void GitSubmitEditorWidget::refreshLog(const QString &repository)
 GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
 {
     GitSubmitEditorPanelData rc;
-    rc.author = m_gitSubmitPanelUi.authorLineEdit->text();
-    rc.email = m_gitSubmitPanelUi.emailLineEdit->text();
+    const QString author = m_gitSubmitPanelUi.authorLineEdit->text();
+    const QString email = m_gitSubmitPanelUi.emailLineEdit->text();
+    if (author != m_originalAuthor || email != m_originalEmail) {
+        rc.author = author;
+        rc.email = email;
+    }
     rc.bypassHooks = m_gitSubmitPanelUi.bypassHooksCheckBox->isChecked();
     rc.pushAction = m_pushAction;
     return rc;
@@ -136,6 +151,8 @@ GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
 
 void GitSubmitEditorWidget::setPanelData(const GitSubmitEditorPanelData &data)
 {
+    m_originalAuthor = data.author;
+    m_originalEmail = data.email;
     m_gitSubmitPanelUi.authorLineEdit->setText(data.author);
     m_gitSubmitPanelUi.emailLineEdit->setText(data.email);
     m_gitSubmitPanelUi.bypassHooksCheckBox->setChecked(data.bypassHooks);

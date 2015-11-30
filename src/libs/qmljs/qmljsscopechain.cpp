@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,6 +32,7 @@
 #include "qmljsbind.h"
 #include "qmljsevaluate.h"
 #include "qmljsmodelmanagerinterface.h"
+#include "parser/qmljsengine_p.h"
 
 using namespace QmlJS;
 
@@ -258,7 +260,7 @@ void ScopeChain::update() const
         m_all += m_cppContextProperties;
 
     // the root scope in js files doesn't see instantiating components
-    if (m_document->language() != Language::JavaScript || m_jsScopes.count() != 1) {
+    if (m_document->language() != Dialect::JavaScript || m_jsScopes.count() != 1) {
         if (m_qmlComponentScope) {
             foreach (const QmlComponentChain *parent, m_qmlComponentScope->instantiatingComponents())
                 collectScopes(parent, &m_all);
@@ -283,6 +285,36 @@ void ScopeChain::update() const
     if (m_jsImports)
         m_all += m_jsImports;
     m_all += m_jsScopes;
+}
+
+static void addInstantiatingComponents(ContextPtr context, QmlComponentChain *chain)
+{
+    const QRegExp importCommentPattern(QLatin1String("@scope\\s+(.*)"));
+    foreach (const AST::SourceLocation &commentLoc, chain->document()->engine()->comments()) {
+        const QString &comment = chain->document()->source().mid(commentLoc.begin(), commentLoc.length);
+
+        // find all @scope annotations
+        QStringList additionalScopes;
+        int lastOffset = -1;
+        forever {
+            lastOffset = importCommentPattern.indexIn(comment, lastOffset + 1);
+            if (lastOffset == -1)
+                break;
+            additionalScopes << QFileInfo(chain->document()->path() + QLatin1Char('/') + importCommentPattern.cap(1).trimmed()).absoluteFilePath();
+        }
+
+        foreach (const QmlComponentChain *c, chain->instantiatingComponents())
+            additionalScopes.removeAll(c->document()->fileName());
+
+        foreach (const QString &scope, additionalScopes) {
+            Document::Ptr doc = context->snapshot().document(scope);
+            if (doc) {
+                QmlComponentChain *ch = new QmlComponentChain(doc);
+                chain->addInstantiatingComponent(ch);
+                addInstantiatingComponents(context, ch);
+            }
+        }
+    }
 }
 
 void ScopeChain::initializeRootScope()
@@ -328,7 +360,7 @@ void ScopeChain::initializeRootScope()
         if (bind->rootObjectValue())
             m_jsScopes += bind->rootObjectValue();
     }
-
+    addInstantiatingComponents(m_context, chain);
     m_modified = true;
 }
 

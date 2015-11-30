@@ -82,7 +82,7 @@ class QualifiedNameId;
 class SelectorNameId;
 
 // types
-class TypeMatcher;
+class Matcher;
 class FullySpecifiedType;
 class TypeVisitor;
 class Type;

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,32 +9,35 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qmljscodeformatter.h"
 
-#include <QDebug>
+#include <QLoggingCategory>
 #include <QMetaEnum>
-#include <QTextDocument>
 #include <QTextBlock>
+#include <QTextDocument>
 
-using namespace QmlJS;
+static Q_LOGGING_CATEGORY(formatterLog, "qtc.qmljs.formatter")
+
+namespace QmlJS {
 
 CodeFormatter::BlockData::BlockData()
     : m_indentDepth(0)
@@ -65,13 +68,13 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
     m_tokenIndex = 0;
     m_newStates.clear();
 
-    //qDebug() << "Starting to look at " << block.text() << block.blockNumber() + 1;
+    //qCDebug(formatterLog) << "Starting to look at " << block.text() << block.blockNumber() + 1;
 
     for (; m_tokenIndex < m_tokens.size(); ) {
         m_currentToken = tokenAt(m_tokenIndex);
         const int kind = extendedTokenKind(m_currentToken);
 
-        //qDebug() << "Token" << m_currentLine.mid(m_currentToken.begin(), m_currentToken.length) << m_tokenIndex << "in line" << block.blockNumber() + 1;
+        //qCDebug(formatterLog) << "Token" << m_currentLine.mid(m_currentToken.begin(), m_currentToken.length) << m_tokenIndex << "in line" << block.blockNumber() + 1;
         //dump();
 
         if (kind == Comment
@@ -520,7 +523,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
 int CodeFormatter::indentFor(const QTextBlock &block)
 {
-//    qDebug() << "indenting for" << block.blockNumber() + 1;
+//    qCDebug(formatterLog) << "indenting for" << block.blockNumber() + 1;
 
     restoreCurrentState(block.previous());
     correctIndentation(block);
@@ -641,7 +644,7 @@ void CodeFormatter::enter(int newState)
     m_currentState.push(s);
     m_newStates.push(s);
 
-    //qDebug() << "enter state" << stateToString(newState);
+    //qCDebug(formatterLog) << "enter state" << stateToString(newState);
 
     if (newState == bracket_open)
         enter(bracket_element_start);
@@ -662,7 +665,7 @@ void CodeFormatter::leave(bool statementDone)
 
     int topState = m_currentState.top().type;
 
-    //qDebug() << "left state" << stateToString(poppedState.type) << ", now in state" << stateToString(topState);
+    //qCDebug(formatterLog) << "left state" << stateToString(poppedState.type) << ", now in state" << stateToString(topState);
 
     // if statement is done, may need to leave recursively
     if (statementDone) {
@@ -1003,12 +1006,12 @@ CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &to
 
 void CodeFormatter::dump() const
 {
-    qDebug() << "Current token index" << m_tokenIndex;
-    qDebug() << "Current state:";
+    qCDebug(formatterLog) << "Current token index" << m_tokenIndex;
+    qCDebug(formatterLog) << "Current state:";
     foreach (const State &s, m_currentState) {
-        qDebug() << stateToString(s.type) << s.savedIndentDepth;
+        qCDebug(formatterLog) << stateToString(s.type) << s.savedIndentDepth;
     }
-    qDebug() << "Current indent depth:" << m_indentDepth;
+    qCDebug(formatterLog) << "Current indent depth:" << m_indentDepth;
 }
 
 QString CodeFormatter::stateToString(int type) const
@@ -1339,3 +1342,5 @@ void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int startLex
         break;
     }
 }
+
+} // namespace QmlJS

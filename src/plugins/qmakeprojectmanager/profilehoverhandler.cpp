@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,80 +9,66 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "profilehoverhandler.h"
-#include "profileeditor.h"
 #include "profilecompletionassist.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <coreplugin/helpmanager.h>
-#include <extensionsystem/pluginmanager.h>
+#include <texteditor/texteditor.h>
 #include <utils/htmldocextractor.h>
 
 #include <QTextBlock>
 #include <QUrl>
 
-using namespace QmakeProjectManager;
-using namespace QmakeProjectManager::Internal;
 using namespace Core;
 
-ProFileHoverHandler::ProFileHoverHandler(QObject *parent)
-  : BaseHoverHandler(parent),
-    m_manualKind(UnknownManual)
+namespace QmakeProjectManager {
+namespace Internal {
+
+ProFileHoverHandler::ProFileHoverHandler(const TextEditor::Keywords &keywords)
+    : m_keywords(keywords)
 {
-    ProFileCompletionAssistProvider *pcap
-            = ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>();
-    m_keywords = TextEditor::Keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
 }
 
-ProFileHoverHandler::~ProFileHoverHandler()
-{}
-
-bool ProFileHoverHandler::acceptEditor(IEditor *editor)
-{
-    if (qobject_cast<ProFileEditor *>(editor) != 0)
-        return true;
-    return false;
-}
-
-void ProFileHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
+void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos)
 {
     m_docFragment.clear();
     m_manualKind = UnknownManual;
-    if (ProFileEditorWidget *proFileEditor = qobject_cast<ProFileEditorWidget *>(editor->widget())) {
-        if (!proFileEditor->extraSelectionTooltip(pos).isEmpty()) {
-            setToolTip(proFileEditor->extraSelectionTooltip(pos));
-        } else {
-            QTextDocument *document = proFileEditor->document();
-            QTextBlock block = document->findBlock(pos);
-            identifyQMakeKeyword(block.text(), pos - block.position());
+    if (!editorWidget->extraSelectionTooltip(pos).isEmpty()) {
+        setToolTip(editorWidget->extraSelectionTooltip(pos));
+    } else {
+        QTextDocument *document = editorWidget->document();
+        QTextBlock block = document->findBlock(pos);
+        identifyQMakeKeyword(block.text(), pos - block.position());
 
-            if (m_manualKind != UnknownManual) {
-                QUrl url(QString::fromLatin1("qthelp://com.trolltech.qmake/qdoc/qmake-%1-reference.html#%2")
-                        .arg(manualName()).arg(m_docFragment));
-                setLastHelpItemIdentified(TextEditor::HelpItem(url.toString(),
-                                          m_docFragment, TextEditor::HelpItem::QMakeVariableOfFunction));
-            } else {
-                // General qmake manual will be shown outside any function or variable
-                setLastHelpItemIdentified(TextEditor::HelpItem(QLatin1String("qmake"),
-                                          TextEditor::HelpItem::Unknown));
-            }
+        if (m_manualKind != UnknownManual) {
+            QUrl url(QString::fromLatin1("qthelp://org.qt-project.qmake/qmake/qmake-%1-reference.html#%2")
+                     .arg(manualName()).arg(m_docFragment));
+            setLastHelpItemIdentified(TextEditor::HelpItem(url.toString(),
+                                                           m_docFragment, TextEditor::HelpItem::QMakeVariableOfFunction));
+        } else {
+            // General qmake manual will be shown outside any function or variable
+            setLastHelpItemIdentified(TextEditor::HelpItem(QLatin1String("qmake"),
+                                                           TextEditor::HelpItem::Unknown));
         }
     }
 }
@@ -148,7 +134,7 @@ void ProFileHoverHandler::identifyDocFragment(ProFileHoverHandler::ManualKind ma
     m_docFragment.replace(QLatin1Char('_'), QLatin1Char('-'));
 
     if (m_manualKind == FunctionManual) {
-        QUrl url(QString::fromLatin1("qthelp://com.trolltech.qmake/qdoc/qmake-%1-reference.html").arg(manualName()));
+        QUrl url(QString::fromLatin1("qthelp://org.qt-project.qmake/qmake/qmake-%1-reference.html").arg(manualName()));
         const QByteArray html = Core::HelpManager::fileData(url);
 
         Utils::HtmlDocExtractor htmlExtractor;
@@ -161,3 +147,5 @@ void ProFileHoverHandler::identifyDocFragment(ProFileHoverHandler::ManualKind ma
     }
 }
 
+} // namespace Internal
+} // namespace QmakeProjectManager

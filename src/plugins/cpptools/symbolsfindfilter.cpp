@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,6 +35,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/searchresultwindow.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
@@ -84,32 +88,32 @@ bool SymbolsFindFilter::isEnabled() const
 
 void SymbolsFindFilter::cancel()
 {
-    Core::SearchResult *search = qobject_cast<Core::SearchResult *>(sender());
+    SearchResult *search = qobject_cast<SearchResult *>(sender());
     QTC_ASSERT(search, return);
-    QFutureWatcher<Core::SearchResultItem> *watcher = m_watchers.key(search);
+    QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
     QTC_ASSERT(watcher, return);
     watcher->cancel();
 }
 
 void SymbolsFindFilter::setPaused(bool paused)
 {
-    Core::SearchResult *search = qobject_cast<Core::SearchResult *>(sender());
+    SearchResult *search = qobject_cast<SearchResult *>(sender());
     QTC_ASSERT(search, return);
-    QFutureWatcher<Core::SearchResultItem> *watcher = m_watchers.key(search);
+    QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
     QTC_ASSERT(watcher, return);
     if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
         watcher->setPaused(paused);
 }
 
-Core::FindFlags SymbolsFindFilter::supportedFindFlags() const
+FindFlags SymbolsFindFilter::supportedFindFlags() const
 {
-    return Core::FindCaseSensitively | Core::FindRegularExpression | Core::FindWholeWords;
+    return FindCaseSensitively | FindRegularExpression | FindWholeWords;
 }
 
-void SymbolsFindFilter::findAll(const QString &txt, Core::FindFlags findFlags)
+void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
 {
-    Core::SearchResultWindow *window = Core::SearchResultWindow::instance();
-    Core::SearchResult *search = window->startNewSearch(label(), toolTip(findFlags), txt);
+    SearchResultWindow *window = SearchResultWindow::instance();
+    SearchResult *search = window->startNewSearch(label(), toolTip(findFlags), txt);
     search->setSearchAgainSupported(true);
     connect(search, SIGNAL(activated(Core::SearchResultItem)),
             this, SLOT(openEditor(Core::SearchResultItem)));
@@ -128,7 +132,7 @@ void SymbolsFindFilter::findAll(const QString &txt, Core::FindFlags findFlags)
     startSearch(search);
 }
 
-void SymbolsFindFilter::startSearch(Core::SearchResult *search)
+void SymbolsFindFilter::startSearch(SearchResult *search)
 {
     SymbolSearcher::Parameters parameters = search->userData().value<SymbolSearcher::Parameters>();
     QSet<QString> projectFileNames;
@@ -137,7 +141,7 @@ void SymbolsFindFilter::startSearch(Core::SearchResult *search)
             projectFileNames += project->files(ProjectExplorer::Project::AllFiles).toSet();
     }
 
-    QFutureWatcher<Core::SearchResultItem> *watcher = new QFutureWatcher<Core::SearchResultItem>();
+    QFutureWatcher<SearchResultItem> *watcher = new QFutureWatcher<SearchResultItem>();
     m_watchers.insert(watcher, search);
     connect(watcher, SIGNAL(finished()),
             this, SLOT(finish()));
@@ -147,44 +151,44 @@ void SymbolsFindFilter::startSearch(Core::SearchResult *search)
     connect(watcher, SIGNAL(finished()),
             symbolSearcher, SLOT(deleteLater()));
     watcher->setFuture(QtConcurrent::run(&SymbolSearcher::runSearch, symbolSearcher));
-    FutureProgress *progress = ProgressManager::addTask(watcher->future(), tr("Searching"),
+    FutureProgress *progress = ProgressManager::addTask(watcher->future(), tr("Searching for Symbol"),
                                                         Core::Constants::TASK_SEARCH);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 
 void SymbolsFindFilter::addResults(int begin, int end)
 {
-    QFutureWatcher<Core::SearchResultItem> *watcher =
-            static_cast<QFutureWatcher<Core::SearchResultItem> *>(sender());
-    Core::SearchResult *search = m_watchers.value(watcher);
+    QFutureWatcher<SearchResultItem> *watcher =
+            static_cast<QFutureWatcher<SearchResultItem> *>(sender());
+    SearchResult *search = m_watchers.value(watcher);
     if (!search) {
         // search was removed from search history while the search is running
         watcher->cancel();
         return;
     }
-    QList<Core::SearchResultItem> items;
+    QList<SearchResultItem> items;
     for (int i = begin; i < end; ++i)
         items << watcher->resultAt(i);
-    search->addResults(items, Core::SearchResult::AddSorted);
+    search->addResults(items, SearchResult::AddSorted);
 }
 
 void SymbolsFindFilter::finish()
 {
-    QFutureWatcher<Core::SearchResultItem> *watcher =
-            static_cast<QFutureWatcher<Core::SearchResultItem> *>(sender());
-    Core::SearchResult *search = m_watchers.value(watcher);
+    QFutureWatcher<SearchResultItem> *watcher =
+            static_cast<QFutureWatcher<SearchResultItem> *>(sender());
+    SearchResult *search = m_watchers.value(watcher);
     if (search)
         search->finishSearch(watcher->isCanceled());
     m_watchers.remove(watcher);
     watcher->deleteLater();
 }
 
-void SymbolsFindFilter::openEditor(const Core::SearchResultItem &item)
+void SymbolsFindFilter::openEditor(const SearchResultItem &item)
 {
-    if (!item.userData.canConvert<ModelItemInfo>())
+    if (!item.userData.canConvert<IndexItem::Ptr>())
         return;
-    ModelItemInfo info = item.userData.value<ModelItemInfo>();
-    EditorManager::openEditorAt(info.fileName, info.line, info.column);
+    IndexItem::Ptr info = item.userData.value<IndexItem::Ptr>();
+    EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }
 
 QWidget *SymbolsFindFilter::createConfigWidget()
@@ -219,7 +223,7 @@ void SymbolsFindFilter::onTaskStarted(Id type)
     }
 }
 
-void SymbolsFindFilter::onAllTasksFinished(Core::Id type)
+void SymbolsFindFilter::onAllTasksFinished(Id type)
 {
     if (type == CppTools::Constants::TASK_INDEX) {
         m_enabled = true;
@@ -229,7 +233,7 @@ void SymbolsFindFilter::onAllTasksFinished(Core::Id type)
 
 void SymbolsFindFilter::searchAgain()
 {
-    Core::SearchResult *search = qobject_cast<Core::SearchResult *>(sender());
+    SearchResult *search = qobject_cast<SearchResult *>(sender());
     QTC_ASSERT(search, return);
     search->restart();
     startSearch(search);
@@ -240,7 +244,7 @@ QString SymbolsFindFilter::label() const
     return tr("C++ Symbols:");
 }
 
-QString SymbolsFindFilter::toolTip(Core::FindFlags findFlags) const
+QString SymbolsFindFilter::toolTip(FindFlags findFlags) const
 {
     QStringList types;
     if (m_symbolsToSearch & SymbolSearcher::Classes)
@@ -254,7 +258,7 @@ QString SymbolsFindFilter::toolTip(Core::FindFlags findFlags) const
     return tr("Scope: %1\nTypes: %2\nFlags: %3")
             .arg(searchScope() == SymbolSearcher::SearchGlobal ? tr("All") : tr("Projects"))
             .arg(types.join(tr(", ")))
-            .arg(Core::IFindFilter::descriptionForFindFlags(findFlags));
+            .arg(IFindFilter::descriptionForFindFlags(findFlags));
 }
 
 // #pragma mark -- SymbolsFindFilterConfigWidget

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,6 +36,7 @@
 #include "task.h"
 
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QUuid>
@@ -55,20 +57,17 @@ class ToolChainPrivate
 public:
     typedef ToolChain::Detection Detection;
 
-    explicit ToolChainPrivate(const QString &id, Detection d) :
+    explicit ToolChainPrivate(Core::Id typeId, Detection d) :
+        m_id(QUuid::createUuid().toByteArray()),
+        m_typeId(typeId),
         m_detection(d)
     {
-        m_id = createId(id);
+        QTC_ASSERT(m_typeId.isValid(), return);
+        QTC_ASSERT(!m_typeId.toString().contains(QLatin1Char(':')), return);
     }
 
-    static QString createId(const QString &id)
-    {
-        QString newId = id.left(id.indexOf(QLatin1Char(':')));
-        newId.append(QLatin1Char(':') + QUuid::createUuid().toString());
-        return newId;
-    }
-
-    QString m_id;
+    QByteArray m_id;
+    Core::Id m_typeId;
     Detection m_detection;
     mutable QString m_displayName;
 };
@@ -83,12 +82,12 @@ public:
 
 // --------------------------------------------------------------------------
 
-ToolChain::ToolChain(const QString &id, Detection d) :
-    d(new Internal::ToolChainPrivate(id, d))
+ToolChain::ToolChain(Core::Id typeId, Detection d) :
+    d(new Internal::ToolChainPrivate(typeId, d))
 { }
 
 ToolChain::ToolChain(const ToolChain &other) :
-    d(new Internal::ToolChainPrivate(other.d->m_id, ManualDetection))
+    d(new Internal::ToolChainPrivate(other.d->m_typeId, ManualDetection))
 {
     // leave the autodetection bit at false.
     d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
@@ -121,19 +120,24 @@ ToolChain::Detection ToolChain::detection() const
     return d->m_detection;
 }
 
-QString ToolChain::id() const
+QByteArray ToolChain::id() const
 {
     return d->m_id;
 }
 
-QList<Utils::FileName> ToolChain::suggestedMkspecList() const
+Utils::FileNameList ToolChain::suggestedMkspecList() const
 {
-    return QList<Utils::FileName>();
+    return Utils::FileNameList();
 }
 
 Utils::FileName ToolChain::suggestedDebugger() const
 {
     return ToolChainManager::defaultDebugger(targetAbi());
+}
+
+Core::Id ToolChain::typeId() const
+{
+    return d->m_typeId;
 }
 
 bool ToolChain::canClone() const
@@ -146,11 +150,8 @@ bool ToolChain::operator == (const ToolChain &tc) const
     if (this == &tc)
         return true;
 
-    const QString thisId = id().left(id().indexOf(QLatin1Char(':')));
-    const QString tcId = tc.id().left(tc.id().indexOf(QLatin1Char(':')));
-
     // We ignore displayname
-    return thisId == tcId && isAutoDetected() == tc.isAutoDetected();
+    return typeId() == tc.typeId() && isAutoDetected() == tc.isAutoDetected();
 }
 
 /*!
@@ -162,7 +163,8 @@ bool ToolChain::operator == (const ToolChain &tc) const
 QVariantMap ToolChain::toMap() const
 {
     QVariantMap result;
-    result.insert(QLatin1String(ID_KEY), id());
+    QString idToSave = d->m_typeId.toString() + QLatin1Char(':') + QString::fromUtf8(id());
+    result.insert(QLatin1String(ID_KEY), idToSave);
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
     result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
 
@@ -191,8 +193,14 @@ void ToolChain::setDetection(ToolChain::Detection de)
 bool ToolChain::fromMap(const QVariantMap &data)
 {
     d->m_displayName = data.value(QLatin1String(DISPLAY_NAME_KEY)).toString();
+
     // make sure we have new style ids:
-    d->m_id = data.value(QLatin1String(ID_KEY)).toString();
+    const QString id = data.value(QLatin1String(ID_KEY)).toString();
+    int pos = id.indexOf(QLatin1Char(':'));
+    QTC_ASSERT(pos > 0, return false);
+    d->m_typeId = Core::Id::fromString(id.left(pos));
+    d->m_id = id.mid(pos + 1).toUtf8();
+
     const bool autoDetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
     d->m_detection = autoDetect ? AutoDetectionFromSettings : ManualDetection;
 
@@ -231,8 +239,9 @@ QList<Task> ToolChain::validateKit(const Kit *) const
     Used by the tool chain manager to restore user-generated tool chains.
 */
 
-QList<ToolChain *> ToolChainFactory::autoDetect()
+QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
+    Q_UNUSED(alreadyKnown);
     return QList<ToolChain *>();
 }
 
@@ -256,14 +265,22 @@ ToolChain *ToolChainFactory::restore(const QVariantMap &)
     return 0;
 }
 
-QString ToolChainFactory::idFromMap(const QVariantMap &data)
+static QPair<QString, QString> rawIdData(const QVariantMap &data)
 {
-    return data.value(QLatin1String(ID_KEY)).toString();
+    const QString raw = data.value(QLatin1String(ID_KEY)).toString();
+    const int pos = raw.indexOf(QLatin1Char(':'));
+    QTC_ASSERT(pos > 0, return qMakePair(QString::fromLatin1("unknown"), QString::fromLatin1("unknown")));
+    return qMakePair(raw.mid(0, pos), raw.mid(pos + 1));
 }
 
-void ToolChainFactory::idToMap(QVariantMap &data, const QString id)
+QByteArray ToolChainFactory::idFromMap(const QVariantMap &data)
 {
-    data.insert(QLatin1String(ID_KEY), id);
+    return rawIdData(data).second.toUtf8();
+}
+
+Core::Id ToolChainFactory::typeIdFromMap(const QVariantMap &data)
+{
+    return Core::Id::fromString(rawIdData(data).first);
 }
 
 void ToolChainFactory::autoDetectionToMap(QVariantMap &data, bool detected)

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,7 +31,7 @@
 #include "navigationsubwidget.h"
 #include "navigationwidget.h"
 
-#include "coreconstants.h"
+#include "coreicons.h"
 #include "inavigationwidgetfactory.h"
 #include "actionmanager/command.h"
 #include "id.h"
@@ -40,6 +41,7 @@
 #include <QDebug>
 
 #include <QHBoxLayout>
+#include <QMenu>
 #include <QResizeEvent>
 #include <QToolButton>
 
@@ -72,14 +74,20 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     toolBarLayout->addWidget(m_navigationComboBox);
 
     QToolButton *splitAction = new QToolButton();
-    splitAction->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
+    splitAction->setIcon(Icons::SPLIT_HORIZONTAL.icon());
     splitAction->setToolTip(tr("Split"));
-    QToolButton *close = new QToolButton();
-    close->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_DOCUMENT)));
-    close->setToolTip(tr("Close"));
+    splitAction->setPopupMode(QToolButton::InstantPopup);
+    splitAction->setProperty("noArrow", true);
+    m_splitMenu = new QMenu(splitAction);
+    splitAction->setMenu(m_splitMenu);
+    connect(m_splitMenu, &QMenu::aboutToShow, this, &NavigationSubWidget::populateSplitMenu);
+
+    m_closeButton = new QToolButton();
+    m_closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
+    m_closeButton->setToolTip(tr("Close"));
 
     toolBarLayout->addWidget(splitAction);
-    toolBarLayout->addWidget(close);
+    toolBarLayout->addWidget(m_closeButton);
 
     QVBoxLayout *lay = new QVBoxLayout();
     lay->setMargin(0);
@@ -87,8 +95,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     setLayout(lay);
     lay->addWidget(m_toolBar);
 
-    connect(splitAction, SIGNAL(clicked()), this, SIGNAL(splitMe()));
-    connect(close, SIGNAL(clicked()), this, SIGNAL(closeMe()));
+    connect(m_closeButton, SIGNAL(clicked()), this, SIGNAL(closeMe()));
 
     setFactoryIndex(factoryIndex);
 
@@ -135,6 +142,18 @@ void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
     restoreSettings();
 }
 
+void NavigationSubWidget::populateSplitMenu()
+{
+    m_splitMenu->clear();
+    QAbstractItemModel *factoryModel = m_parentWidget->factoryModel();
+    int count = factoryModel->rowCount();
+    for (int i = 0; i < count; ++i) {
+        QModelIndex index = factoryModel->index(i, 0);
+        QAction *action = m_splitMenu->addAction(factoryModel->data(index).toString());
+        connect(action, &QAction::triggered, this, [this, i]() { emit splitMe(i); });
+    }
+}
+
 void NavigationSubWidget::setFocusWidget()
 {
     if (m_navigationWidget)
@@ -170,6 +189,16 @@ Core::Command *NavigationSubWidget::command(const QString &title) const
     return 0;
 }
 
+void NavigationSubWidget::setCloseIcon(const QIcon &icon)
+{
+    m_closeButton->setIcon(icon);
+}
+
+QWidget *NavigationSubWidget::widget()
+{
+    return m_navigationWidget;
+}
+
 int NavigationSubWidget::factoryIndex() const
 {
     return m_navigationComboBox->currentIndex();
@@ -199,7 +228,7 @@ bool CommandComboBox::event(QEvent *e)
     if (e->type() == QEvent::ToolTip) {
         const QString text = currentText();
         if (const Core::Command *cmd = command(text)) {
-            const QString tooltip = tr("Activate %1 Pane").arg(text);
+            const QString tooltip = tr("Activate %1 View").arg(text);
             setToolTip(cmd->stringWithAppendedShortcut(tooltip));
         } else {
             setToolTip(text);

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,18 +36,18 @@
 #include "highlightersettings.h"
 #include <texteditor/plaintexteditorfactory.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorplugin.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/algorithm.h>
 #include <utils/QtConcurrentTools>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/networkaccessmanager.h>
 
-#include <QtAlgorithms>
+#include <QCoreApplication>
 #include <QString>
-#include <QLatin1Char>
-#include <QLatin1String>
 #include <QStringList>
 #include <QFile>
 #include <QFileInfo>
@@ -76,22 +77,55 @@ const char kMimeType[] = "mimetype";
 const char kVersion[] = "version";
 const char kUrl[] = "url";
 
+class MultiDefinitionDownloader : public QObject
+{
+    Q_OBJECT
+
+public:
+    MultiDefinitionDownloader(const QString &savePath, const QList<QString> &installedDefinitions) :
+        m_installedDefinitions(installedDefinitions),
+        m_downloadPath(savePath)
+    {
+        connect(&m_downloadWatcher, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
+    }
+
+    ~MultiDefinitionDownloader()
+    {
+        if (m_downloadWatcher.isRunning())
+            m_downloadWatcher.cancel();
+    }
+
+    void downloadDefinitions(const QList<QUrl> &urls);
+
+signals:
+    void finished();
+
+private slots:
+    void downloadReferencedDefinition(const QString &name);
+    void downloadDefinitionsFinished();
+
+private:
+    QFutureWatcher<void> m_downloadWatcher;
+    QList<DefinitionDownloader *> m_downloaders;
+    QList<QString> m_installedDefinitions;
+    QSet<QString> m_referencedDefinitions;
+    QString m_downloadPath;
+};
+
 Manager::Manager() :
-    m_isDownloadingDefinitionsSpec(false),
+    m_multiDownloader(0),
     m_hasQueuedRegistration(false)
 {
-    connect(&m_registeringWatcher, SIGNAL(finished()), this, SLOT(registerMimeTypesFinished()));
-    connect(&m_downloadWatcher, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
+    connect(&m_registeringWatcher, SIGNAL(finished()), this, SLOT(registerHighlightingFilesFinished()));
 }
 
 Manager::~Manager()
 {
     disconnect(&m_registeringWatcher);
-    disconnect(&m_downloadWatcher);
+    disconnect(m_multiDownloader);
     if (m_registeringWatcher.isRunning())
         m_registeringWatcher.cancel();
-    if (m_downloadWatcher.isRunning())
-        m_downloadWatcher.cancel();
+    delete m_multiDownloader;
 }
 
 Manager *Manager::instance()
@@ -105,20 +139,75 @@ QString Manager::definitionIdByName(const QString &name) const
     return m_register.m_idByName.value(name);
 }
 
-QString Manager::definitionIdByMimeType(const QString &mimeType) const
+static bool matchesPattern(const QString &fileName, DefinitionMetaDataPtr metaData)
 {
-    return m_register.m_idByMimeType.value(mimeType);
+    if (metaData.isNull())
+        return false;
+    foreach (const QString &pattern, metaData->patterns) {
+        QRegExp reg(pattern, Qt::CaseSensitive, QRegExp::Wildcard);
+        if (reg.exactMatch(fileName))
+            return true;
+    }
+    return false;
 }
 
-QString Manager::definitionIdByAnyMimeType(const QStringList &mimeTypes) const
+QString Manager::definitionIdByMimeType(const Utils::MimeType &mimeType) const
 {
-    QString definitionId;
-    foreach (const QString &mimeType, mimeTypes) {
-        definitionId = definitionIdByMimeType(mimeType);
-        if (!definitionId.isEmpty())
-            break;
+    Utils::MimeDatabase mdb;
+    QList<Utils::MimeType> queue;
+    queue.append(mimeType);
+    while (!queue.isEmpty()) {
+        const Utils::MimeType mt = queue.takeFirst();
+        const QString id = m_register.m_idByMimeType.value(mt.name());
+        if (!id.isEmpty())
+            return id;
+        foreach (const QString &parent, mt.parentMimeTypes()) {
+            const Utils::MimeType parentMt = mdb.mimeTypeForName(parent);
+            if (parentMt.isValid())
+                queue.append(parentMt);
+        }
     }
-    return definitionId;
+    return QString();
+}
+
+QString Manager::definitionIdByFile(const QString &filePath) const
+{
+    const QString fileName = QFileInfo(filePath).fileName();
+    // find best match
+    QString bestId;
+    int bestPriority = -1;
+    auto it = m_register.m_definitionsMetaData.constBegin();
+    while (it != m_register.m_definitionsMetaData.constEnd()) {
+        DefinitionMetaDataPtr metaData = it.value();
+        if (metaData->priority > bestPriority && matchesPattern(fileName, metaData)) {
+            bestId = metaData->id;
+            bestPriority = metaData->priority;
+        }
+        ++it;
+    }
+    return bestId;
+}
+
+QString Manager::definitionIdByMimeTypeAndFile(const Utils::MimeType &mimeType,
+                                               const QString &filePath) const
+{
+    QString id = definitionIdByMimeType(mimeType);
+    if (!filePath.isEmpty()) {
+        QString idByFile;
+        const QString fileName = QFileInfo(filePath).fileName();
+        // if mime type check returned no result, or doesn't match the patterns,
+        // prefer a match by pattern
+        if (id.isEmpty() || !matchesPattern(fileName, m_register.m_definitionsMetaData.value(id)))
+            idByFile = definitionIdByFile(filePath);
+        if (!idByFile.isEmpty())
+            id = idByFile;
+    }
+    return id;
+}
+
+DefinitionMetaDataPtr Manager::availableDefinitionByName(const QString &name) const
+{
+    return m_availableDefinitions.value(name);
 }
 
 QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
@@ -137,7 +226,11 @@ QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
         m_isBuildingDefinition.insert(id);
         try {
             reader.parse(source);
-        } catch (HighlighterException &) {
+        } catch (const HighlighterException &e) {
+            MessageManager::write(
+                        QCoreApplication::translate("GenericHighlighter",
+                                                    "Generic highlighter error: ") + e.message(),
+                        MessageManager::WithFocus);
             definition.clear();
         }
         m_isBuildingDefinition.remove(id);
@@ -149,7 +242,7 @@ QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
     return m_definitions.value(id);
 }
 
-QSharedPointer<HighlightDefinitionMetaData> Manager::definitionMetaData(const QString &id) const
+DefinitionMetaDataPtr Manager::definitionMetaData(const QString &id) const
 {
     return m_register.m_definitionsMetaData.value(id);
 }
@@ -164,57 +257,28 @@ class ManagerProcessor : public QObject
     Q_OBJECT
 public:
     ManagerProcessor();
-    void process(QFutureInterface<QPair<Manager::RegisterData,
-                                        QList<MimeType> > > &future);
+    void process(QFutureInterface<Manager::RegisterData> &future);
 
     QStringList m_definitionsPaths;
-    QSet<QString> m_knownMimeTypes;
-    QSet<QString> m_knownSuffixes;
-    QHash<QString, MimeType> m_userModified;
     static const int kMaxProgress;
 };
-
-bool priorityComp(const QSharedPointer<HighlightDefinitionMetaData> &a,
-                  const QSharedPointer<HighlightDefinitionMetaData> &b)
-{
-    return a->priority > b->priority;
-}
 
 const int ManagerProcessor::kMaxProgress = 200;
 
 ManagerProcessor::ManagerProcessor()
-    : m_knownSuffixes(QSet<QString>::fromList(MimeDatabase::suffixes()))
 {
     const HighlighterSettings &settings = TextEditorSettings::highlighterSettings();
     m_definitionsPaths.append(settings.definitionFilesPath());
     if (settings.useFallbackLocation())
         m_definitionsPaths.append(settings.fallbackDefinitionFilesPath());
-
-    foreach (const MimeType &userMimeType, MimeDatabase::readUserModifiedMimeTypes())
-        m_userModified.insert(userMimeType.type(), userMimeType);
-    foreach (const MimeType &mimeType, MimeDatabase::mimeTypes())
-        m_knownMimeTypes.insert(mimeType.type());
 }
 
-void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
-                                                      QList<MimeType> > > &future)
+void ManagerProcessor::process(QFutureInterface<Manager::RegisterData> &future)
 {
     future.setProgressRange(0, kMaxProgress);
 
-    // @TODO: Improve MIME database to handle the following limitation.
-    // The generic highlighter only register its types after all other plugins
-    // have populated Creator's MIME database (so it does not override anything).
-    // When the generic highlighter settings change only its internal data is cleaned-up
-    // and rebuilt. Creator's MIME database is not touched. So depending on how the
-    // user plays around with the generic highlighter file definitions (changing
-    // duplicated patterns, for example), some changes might not be reflected.
-    // A definitive implementation would require some kind of re-load or update
-    // (considering hierarchies, aliases, etc) of the MIME database whenever there
-    // is a change in the generic highlighter settings.
-
     Manager::RegisterData data;
-    QList<MimeType> newMimeTypes;
-
+    // iterate through paths in order, high priority > low priority
     foreach (const QString &path, m_definitionsPaths) {
         if (path.isEmpty())
             continue;
@@ -222,135 +286,78 @@ void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
         QDir definitionsDir(path);
         QStringList filter(QLatin1String("*.xml"));
         definitionsDir.setNameFilters(filter);
-        QList<QSharedPointer<HighlightDefinitionMetaData> > allMetaData;
         foreach (const QFileInfo &fileInfo, definitionsDir.entryInfoList()) {
-            const QSharedPointer<HighlightDefinitionMetaData> &metaData =
-                    Manager::parseMetadata(fileInfo);
-            if (!metaData.isNull())
-                allMetaData.append(metaData);
-        }
-
-        // Consider definitions with higher priority first.
-        qSort(allMetaData.begin(), allMetaData.end(), &priorityComp);
-
-        foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
             if (future.isCanceled())
                 return;
             if (future.progressValue() < kMaxProgress - 1)
                 future.setProgressValue(future.progressValue() + 1);
 
-            if (data.m_idByName.contains(metaData->name))
-                // Name already exists... This is a fallback item, do not consider it.
-                continue;
-
-            const QString &id = metaData->id;
-            data.m_idByName.insert(metaData->name, id);
-            data.m_definitionsMetaData.insert(id, metaData);
-
-            static const QStringList textPlain(QLatin1String("text/plain"));
-
-            // A definition can specify multiple MIME types and file extensions/patterns,
-            // but all on a single string. So associate all patterns with all MIME types.
-            QList<MimeGlobPattern> globPatterns;
-            foreach (const QString &type, metaData->mimeTypes) {
-                if (data.m_idByMimeType.contains(type))
-                    continue;
-
-                data.m_idByMimeType.insert(type, id);
-                if (!m_knownMimeTypes.contains(type)) {
-                    m_knownMimeTypes.insert(type);
-
-                    MimeType mimeType;
-                    mimeType.setType(type);
-                    mimeType.setSubClassesOf(textPlain);
-                    mimeType.setComment(metaData->name);
-
-                    // If there's a user modification for this mime type, we want to use the
-                    // modified patterns and rule-based matchers. If not, just consider what
-                    // is specified in the definition file.
-                    QHash<QString, MimeType>::const_iterator it =
-                        m_userModified.find(mimeType.type());
-                    if (it == m_userModified.end()) {
-                        if (globPatterns.isEmpty()) {
-                            foreach (const QString &pattern, metaData->patterns) {
-                                static const QLatin1String mark("*.");
-                                if (pattern.startsWith(mark)) {
-                                    const QString &suffix = pattern.right(pattern.length() - 2);
-                                    if (!m_knownSuffixes.contains(suffix))
-                                        m_knownSuffixes.insert(suffix);
-                                    else
-                                        continue;
-                                }
-                                globPatterns.append(MimeGlobPattern(pattern, 50));
-                            }
-                        }
-                        mimeType.setGlobPatterns(globPatterns);
-                    } else {
-                        mimeType.setGlobPatterns(it.value().globPatterns());
-                        mimeType.setMagicRuleMatchers(it.value().magicRuleMatchers());
+            const DefinitionMetaDataPtr &metaData =
+                    Manager::parseMetadata(fileInfo);
+            // skip failing or already existing definitions
+            if (!metaData.isNull() && !data.m_idByName.contains(metaData->name)) {
+                const QString id = metaData->id;
+                data.m_idByName.insert(metaData->name, id);
+                data.m_definitionsMetaData.insert(id, metaData);
+                foreach (const QString &mt, metaData->mimeTypes) {
+                    bool insert = true;
+                    // check if there is already a definition registered with higher priority
+                    const QString existingDefinition = data.m_idByMimeType.value(mt);
+                    if (!existingDefinition.isEmpty()) {
+                        // check priorities
+                        DefinitionMetaDataPtr existingMetaData =
+                                data.m_definitionsMetaData.value(existingDefinition);
+                        if (!existingMetaData.isNull() && existingMetaData->priority > metaData->priority)
+                            insert = false;
                     }
-
-                    newMimeTypes.append(mimeType);
+                    if (insert)
+                        data.m_idByMimeType.insert(mt, id);
                 }
             }
         }
     }
 
-    future.reportResult(qMakePair(data, newMimeTypes));
+    future.reportResult(data);
 }
 
-void Manager::registerMimeTypes()
+void Manager::registerHighlightingFiles()
 {
     if (!m_registeringWatcher.isRunning()) {
         clear();
 
         ManagerProcessor *processor = new ManagerProcessor;
-        QFuture<QPair<RegisterData, QList<MimeType> > > future =
+        QFuture<RegisterData> future =
             QtConcurrent::run(&ManagerProcessor::process, processor);
         connect(&m_registeringWatcher, SIGNAL(finished()), processor, SLOT(deleteLater()));
         m_registeringWatcher.setFuture(future);
-
-        ProgressManager::addTask(future, tr("Registering definitions"), "TextEditor.Task.Register");
     } else {
         m_hasQueuedRegistration = true;
         m_registeringWatcher.cancel();
     }
 }
 
-void Manager::registerMimeTypesFinished()
+void Manager::registerHighlightingFilesFinished()
 {
     if (m_hasQueuedRegistration) {
         m_hasQueuedRegistration = false;
-        registerMimeTypes();
+        registerHighlightingFiles();
     } else if (!m_registeringWatcher.isCanceled()) {
-        const QPair<RegisterData, QList<MimeType> > &result = m_registeringWatcher.result();
-        m_register = result.first;
+        m_register = m_registeringWatcher.result();
 
-        PlainTextEditorFactory *factory = TextEditorPlugin::instance()->editorFactory();
-        const QSet<QString> &inFactory = factory->mimeTypes().toSet();
-        foreach (const MimeType &mimeType, result.second) {
-            MimeDatabase::addMimeType(mimeType);
-            if (!inFactory.contains(mimeType.type()))
-                factory->addMimeType(mimeType.type());
-        }
-
-        emit mimeTypesRegistered();
+        emit highlightingFilesRegistered();
     }
 }
 
-QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileInfo &fileInfo)
+DefinitionMetaDataPtr Manager::parseMetadata(const QFileInfo &fileInfo)
 {
     static const QLatin1Char kSemiColon(';');
-    static const QLatin1Char kSpace(' ');
-    static const QLatin1Char kDash('-');
     static const QLatin1String kLanguage("language");
-    static const QLatin1String kArtificial("text/x-artificial-");
 
     QFile definitionFile(fileInfo.absoluteFilePath());
     if (!definitionFile.open(QIODevice::ReadOnly | QIODevice::Text))
-        return QSharedPointer<HighlightDefinitionMetaData>();
+        return DefinitionMetaDataPtr();
 
-    QSharedPointer<HighlightDefinitionMetaData> metaData(new HighlightDefinitionMetaData);
+    DefinitionMetaDataPtr metaData(new HighlightDefinitionMetaData);
 
     QXmlStreamReader reader(&definitionFile);
     while (!reader.atEnd() && !reader.hasError()) {
@@ -365,17 +372,8 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
             metaData->patterns = atts.value(QLatin1String(kExtensions))
                                   .toString().split(kSemiColon, QString::SkipEmptyParts);
 
-            QStringList mimeTypes = atts.value(QLatin1String(kMimeType)).
+            metaData->mimeTypes = atts.value(QLatin1String(kMimeType)).
                                     toString().split(kSemiColon, QString::SkipEmptyParts);
-            if (mimeTypes.isEmpty()) {
-                // There are definitions which do not specify a MIME type, but specify file
-                // patterns. Creating an artificial MIME type is a workaround.
-                QString artificialType(kArtificial);
-                artificialType.append(metaData->name.trimmed().replace(kSpace, kDash));
-                mimeTypes.append(artificialType);
-            }
-            metaData->mimeTypes = mimeTypes;
-
             break;
         }
     }
@@ -385,38 +383,38 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
     return metaData;
 }
 
-QList<HighlightDefinitionMetaData> Manager::parseAvailableDefinitionsList(QIODevice *device) const
+QList<DefinitionMetaDataPtr> Manager::parseAvailableDefinitionsList(QIODevice *device)
 {
     static const QLatin1Char kSlash('/');
     static const QLatin1String kDefinition("Definition");
 
-    QList<HighlightDefinitionMetaData> metaDataList;
+    m_availableDefinitions.clear();
     QXmlStreamReader reader(device);
     while (!reader.atEnd() && !reader.hasError()) {
         if (reader.readNext() == QXmlStreamReader::StartElement &&
             reader.name() == kDefinition) {
             const QXmlStreamAttributes &atts = reader.attributes();
 
-            HighlightDefinitionMetaData metaData;
-            metaData.name = atts.value(QLatin1String(kName)).toString();
-            metaData.version = atts.value(QLatin1String(kVersion)).toString();
+            DefinitionMetaDataPtr metaData(new HighlightDefinitionMetaData);
+            metaData->name = atts.value(QLatin1String(kName)).toString();
+            metaData->version = atts.value(QLatin1String(kVersion)).toString();
             QString url = atts.value(QLatin1String(kUrl)).toString();
-            metaData.url = QUrl(url);
+            metaData->url = QUrl(url);
             const int slash = url.lastIndexOf(kSlash);
             if (slash != -1)
-                metaData.fileName = url.right(url.length() - slash - 1);
+                metaData->fileName = url.right(url.length() - slash - 1);
 
-            metaDataList.append(metaData);
+            m_availableDefinitions.insert(metaData->name, metaData);
         }
     }
     reader.clear();
 
-    return metaDataList;
+    return m_availableDefinitions.values();
 }
 
 void Manager::downloadAvailableDefinitionsMetaData()
 {
-    QUrl url(QLatin1String("http://www.kate-editor.org/syntax/update-3.9.xml"));
+    QUrl url(QLatin1String("http://www.kate-editor.org/syntax/update-5.17.xml"));
     QNetworkRequest request(url);
     // Currently this takes a couple of seconds on Windows 7: QTBUG-10106.
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);
@@ -436,17 +434,28 @@ void Manager::downloadAvailableDefinitionsListFinished()
 
 void Manager::downloadDefinitions(const QList<QUrl> &urls, const QString &savePath)
 {
-    m_downloaders.clear();
-    foreach (const QUrl &url, urls)
-        m_downloaders.append(new DefinitionDownloader(url, savePath));
-
-    m_isDownloadingDefinitionsSpec = true;
-    QFuture<void> future = QtConcurrent::map(m_downloaders, DownloaderStarter());
-    m_downloadWatcher.setFuture(future);
-    ProgressManager::addTask(future, tr("Downloading definitions"), "TextEditor.Task.Download");
+    m_multiDownloader = new MultiDefinitionDownloader(savePath, m_register.m_idByName.keys());
+    connect(m_multiDownloader, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
+    m_multiDownloader->downloadDefinitions(urls);
 }
 
-void Manager::downloadDefinitionsFinished()
+void MultiDefinitionDownloader::downloadDefinitions(const QList<QUrl> &urls)
+{
+    m_downloaders.clear();
+    foreach (const QUrl &url, urls) {
+        DefinitionDownloader *downloader = new DefinitionDownloader(url, m_downloadPath);
+        connect(downloader, SIGNAL(foundReferencedDefinition(QString)),
+                this, SLOT(downloadReferencedDefinition(QString)));
+        m_downloaders.append(downloader);
+    }
+
+    QFuture<void> future = QtConcurrent::map(m_downloaders, DownloaderStarter());
+    m_downloadWatcher.setFuture(future);
+    ProgressManager::addTask(future, tr("Downloading Highlighting Definitions"),
+                             "TextEditor.Task.Download");
+}
+
+void MultiDefinitionDownloader::downloadDefinitionsFinished()
 {
     int errors = 0;
     bool writeError = false;
@@ -471,12 +480,37 @@ void Manager::downloadDefinitionsFinished()
         QMessageBox::critical(0, tr("Download Error"), text);
     }
 
-    m_isDownloadingDefinitionsSpec = false;
+    QList<QUrl> urls;
+    foreach (const QString &definition, m_referencedDefinitions) {
+        if (DefinitionMetaDataPtr metaData =
+                Manager::instance()->availableDefinitionByName(definition)) {
+            urls << metaData->url;
+        }
+    }
+    m_referencedDefinitions.clear();
+    if (urls.isEmpty())
+        emit finished();
+    else
+        downloadDefinitions(urls);
+}
+
+void Manager::downloadDefinitionsFinished()
+{
+    delete m_multiDownloader;
+    m_multiDownloader = 0;
+}
+
+void MultiDefinitionDownloader::downloadReferencedDefinition(const QString &name)
+{
+    if (m_installedDefinitions.contains(name))
+        return;
+    m_referencedDefinitions.insert(name);
+    m_installedDefinitions.append(name);
 }
 
 bool Manager::isDownloadingDefinitions() const
 {
-    return m_isDownloadingDefinitionsSpec;
+    return m_multiDownloader != 0;
 }
 
 void Manager::clear()

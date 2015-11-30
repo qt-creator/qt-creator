@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -37,15 +38,15 @@
 #include "qmlconsolemanager.h"
 #include "qmljsbundleprovider.h"
 
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
-#include <QDebug>
 #include <QMenu>
 
 using namespace Core;
@@ -72,9 +73,9 @@ QmlJSToolsPlugin::~QmlJSToolsPlugin()
 bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
+    Q_UNUSED(error)
 
-    if (!MimeDatabase::addMimeTypes(QLatin1String(":/qmljstools/QmlJSTools.mimetypes.xml"), error))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/qmljstools/QmlJSTools.mimetypes.xml"));
 
     m_settings = new QmlJSToolsSettings(this); // force registration of qmljstools settings
 
@@ -105,10 +106,10 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     // Update context in global context
     m_resetCodeModelAction = new QAction(tr("Reset Code Model"), this);
-    Context globalContext(Core::Constants::C_GLOBAL);
     Command *cmd = ActionManager::registerAction(
-                m_resetCodeModelAction, Constants::RESET_CODEMODEL, globalContext);
-    connect(m_resetCodeModelAction, SIGNAL(triggered()), m_modelManager, SLOT(resetCodeModel()));
+                m_resetCodeModelAction, Constants::RESET_CODEMODEL);
+    connect(m_resetCodeModelAction, &QAction::triggered,
+            m_modelManager, &ModelManager::resetCodeModel);
     mqmljstools->addAction(cmd);
 
     // watch task progress
@@ -130,16 +131,14 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlJSToolsPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void QmlJSToolsPlugin::onTaskStarted(Core::Id type)
+void QmlJSToolsPlugin::onTaskStarted(Id type)
 {
     if (type == QmlJS::Constants::TASK_INDEX)
         m_resetCodeModelAction->setEnabled(false);
 }
 
-void QmlJSToolsPlugin::onAllTasksFinished(Core::Id type)
+void QmlJSToolsPlugin::onAllTasksFinished(Id type)
 {
     if (type == QmlJS::Constants::TASK_INDEX)
         m_resetCodeModelAction->setEnabled(true);
 }
-
-Q_EXPORT_PLUGIN(QmlJSToolsPlugin)

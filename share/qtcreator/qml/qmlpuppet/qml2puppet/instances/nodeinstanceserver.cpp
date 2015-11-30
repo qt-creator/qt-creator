@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,62 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 #include "nodeinstanceserver.h"
 
+#include "servernodeinstance.h"
+#include "objectnodeinstance.h"
+#include "childrenchangeeventfilter.h"
+
+#include "dummycontextobject.h"
+
+#include <propertyabstractcontainer.h>
+#include <propertybindingcontainer.h>
+#include <propertyvaluecontainer.h>
+#include <instancecontainer.h>
+
+#include <commondefines.h>
+#include <nodeinstanceclientinterface.h>
+
+#include <qmlprivategate.h>
+
+#include <createinstancescommand.h>
+#include <changefileurlcommand.h>
+#include <clearscenecommand.h>
+#include <reparentinstancescommand.h>
+#include <changevaluescommand.h>
+#include <changeauxiliarycommand.h>
+#include <changebindingscommand.h>
+#include <changeidscommand.h>
+#include <removeinstancescommand.h>
+#include <removepropertiescommand.h>
+#include <valueschangedcommand.h>
+#include <informationchangedcommand.h>
+#include <pixmapchangedcommand.h>
+#include <changestatecommand.h>
+#include <childrenchangedcommand.h>
+#include <completecomponentcommand.h>
+#include <componentcompletedcommand.h>
+#include <createscenecommand.h>
+#include <changenodesourcecommand.h>
+#include <tokencommand.h>
+#include <removesharedmemorycommand.h>
+
+#include <QDebug>
 #include <QQmlEngine>
+#include <QQmlApplicationEngine>
 #include <QFileSystemWatcher>
 #include <QUrl>
 #include <QSet>
@@ -39,45 +75,45 @@
 #include <QQmlContext>
 #include <qqmllist.h>
 #include <QAbstractAnimation>
-#include <private/qabstractanimation_p.h>
 #include <QMutableVectorIterator>
-#include <private/qquickview_p.h>
+#include <QQuickView>
 
-#include "servernodeinstance.h"
-#include "objectnodeinstance.h"
-#include "childrenchangeeventfilter.h"
-#include "propertyabstractcontainer.h"
-#include "propertybindingcontainer.h"
-#include "propertyvaluecontainer.h"
-#include "instancecontainer.h"
-#include "createinstancescommand.h"
-#include "changefileurlcommand.h"
-#include "clearscenecommand.h"
-#include "reparentinstancescommand.h"
-#include "changevaluescommand.h"
-#include "changeauxiliarycommand.h"
-#include "changebindingscommand.h"
-#include "changeidscommand.h"
-#include "removeinstancescommand.h"
-#include "nodeinstanceclientinterface.h"
-#include "removepropertiescommand.h"
-#include "valueschangedcommand.h"
-#include "informationchangedcommand.h"
-#include "pixmapchangedcommand.h"
-#include "commondefines.h"
-#include "changestatecommand.h"
-#include "childrenchangedcommand.h"
-#include "completecomponentcommand.h"
-#include "componentcompletedcommand.h"
-#include "createscenecommand.h"
-#include "changenodesourcecommand.h"
-#include "tokencommand.h"
-#include "removesharedmemorycommand.h"
+#include <designersupportdelegate.h>
 
-#include "dummycontextobject.h"
 
+namespace {
+    bool testImportStatements(const QStringList &importStatementList, const QUrl &url, QString *errorMessage = 0) {
+        QQmlEngine engine;
+        QQmlComponent testImportComponent(&engine);
+
+        QByteArray testComponentCode = QStringList(importStatementList).join("\n").toUtf8();
+
+        testImportComponent.setData(testComponentCode.append("\nItem {}\n"), url);
+        testImportComponent.create();
+
+        if (testImportComponent.errors().isEmpty()) {
+            return true;
+        } else {
+            if (errorMessage) {
+                errorMessage->append("found not working imports: ");
+                errorMessage->append(testImportComponent.errorString());
+            }
+            return false;
+        }
+    }
+}
 
 namespace QmlDesigner {
+
+static NodeInstanceServer *nodeInstanceServerInstance = 0;
+
+static void notifyPropertyChangeCallBackFunction(QObject *object, const PropertyName &propertyName)
+{
+    qint32 id = nodeInstanceServerInstance->instanceForObject(object).instanceId();
+    nodeInstanceServerInstance->notifyPropertyChange(id, propertyName);
+}
+
+static void (*notifyPropertyChangeCallBackPointer)(QObject *, const PropertyName &) = &notifyPropertyChangeCallBackFunction;
 
 NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     NodeInstanceServerInterface(),
@@ -90,14 +126,16 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
 {
     qmlRegisterType<DummyContextObject>("QmlDesigner", 1, 0, "DummyContextObject");
 
-    connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
+    connect(m_childrenChangeEventFilter.data(), &Internal::ChildrenChangeEventFilter::childrenChanged, this, &NodeInstanceServer::emitParentChanged);
+    nodeInstanceServerInstance = this;
+    Internal::QmlPrivateGate::registerNotifyPropertyChangeCallBack(notifyPropertyChangeCallBackPointer);
 }
 
 NodeInstanceServer::~NodeInstanceServer()
 {
 }
 
-QList<ServerNodeInstance>  NodeInstanceServer::createInstances(const QVector<InstanceContainer> &containerVector)
+QList<ServerNodeInstance> NodeInstanceServer::createInstances(const QVector<InstanceContainer> &containerVector)
 {
     Q_ASSERT(declarativeView() || quickView());
     QList<ServerNodeInstance> instanceList;
@@ -113,6 +151,8 @@ QList<ServerNodeInstance>  NodeInstanceServer::createInstances(const QVector<Ins
         instance.internalObject()->installEventFilter(childrenChangeEventFilter());
         if (instanceContainer.instanceId() == 0) {
             m_rootNodeInstance = instance;
+            if (quickView())
+                quickView()->setContent(fileUrl(), m_importComponent, m_rootNodeInstance.rootQuickItem());
             resizeCanvasSizeToRootItemSize();
         }
 
@@ -143,7 +183,7 @@ bool NodeInstanceServer::hasInstanceForId(qint32 id) const
     if (id < 0)
         return false;
 
-    return m_idInstanceHash.contains(id);
+    return m_idInstanceHash.contains(id) && m_idInstanceHash.value(id).isValid();
 }
 
 ServerNodeInstance NodeInstanceServer::instanceForObject(QObject *object) const
@@ -157,7 +197,7 @@ bool NodeInstanceServer::hasInstanceForObject(QObject *object) const
     if (object == 0)
         return false;
 
-    return m_objectInstanceHash.contains(object);
+    return m_objectInstanceHash.contains(object) && m_objectInstanceHash.value(object).isValid();
 }
 
 void NodeInstanceServer::setRenderTimerInterval(int timerInterval)
@@ -222,14 +262,12 @@ void NodeInstanceServer::stopRenderTimer()
 
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    initializeView(command.imports());
-    QUnifiedTimer::instance()->setSlowdownFactor(0.00001);
-    QUnifiedTimer::instance()->setSlowModeEnabled(true);
+    initializeView();
 
-    QList<ServerNodeInstance> instanceList = setupScene(command);
+    Internal::QmlPrivateGate::stopUnifiedTimer();
 
+    setupScene(command);
     refreshBindings();
-
     startRenderTimer();
 }
 
@@ -278,12 +316,13 @@ void NodeInstanceServer::removeProperties(const RemovePropertiesCommand &command
 void NodeInstanceServer::reparentInstances(const QVector<ReparentContainer> &containerVector)
 {
     foreach (const ReparentContainer &container, containerVector) {
-        ServerNodeInstance instance = instanceForId(container.instanceId());
-        if (instance.isValid()) {
-            instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(), instanceForId(container.newParentInstanceId()), container.newParentProperty());
+        if (hasInstanceForId(container.instanceId())) {
+            ServerNodeInstance instance = instanceForId(container.instanceId());
+            if (instance.isValid()) {
+                instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(), instanceForId(container.newParentInstanceId()), container.newParentProperty());
+            }
         }
     }
-
 }
 
 void NodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
@@ -345,6 +384,8 @@ void NodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &/*c
 
 void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector)
 {
+    Q_ASSERT(quickView());
+    QSet<QString> importStatementSet;
     foreach (const AddImportContainer &container, containerVector) {
         QString importStatement = QString("import ");
 
@@ -359,31 +400,65 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
         if (!container.alias().isEmpty())
             importStatement += " as " + container.alias();
 
-        importStatement.append('\n');
-
-        if (!m_importList.contains(importStatement))
-            m_importList.append(importStatement);
+        importStatementSet.insert(importStatement);
     }
 
     delete m_importComponent.data();
     delete m_importComponentObject.data();
+    QStringList importStatementList(importStatementSet.toList());
+    QStringList workingImportStatementList;
 
-    QString componentString;
-    foreach (const QString &importStatement, m_importList)
-        componentString += QString("%1").arg(importStatement);
+    // check possible import statements combinations
+    QString errorMessage;
+    // maybe it just works
+    if (testImportStatements(importStatementList, fileUrl())) {
+        workingImportStatementList = importStatementList;
+    } else {
+        QString firstWorkingImportStatement; //usually this will be "import QtQuick x.x"
+        QStringList otherImportStatements;
+        foreach (const QString &importStatement, importStatementList) {
+            if (testImportStatements(QStringList(importStatement), fileUrl()))
+                firstWorkingImportStatement = importStatement;
+            else
+                otherImportStatements.append(importStatement);
+        }
 
-    componentString += QString("Item {}\n");
+        // find the bad imports from otherImportStatements
+        foreach (const QString &importStatement, otherImportStatements) {
+            if (testImportStatements(QStringList(firstWorkingImportStatement) <<
+                importStatement, fileUrl(), &errorMessage)) {
+                workingImportStatementList.append(importStatement);
+            }
+        }
+        workingImportStatementList.prepend(firstWorkingImportStatement);
+    }
+
+    if (!errorMessage.isEmpty())
+        sendDebugOutput(DebugOutputCommand::WarningType, errorMessage);
+    setupOnlyWorkingImports(workingImportStatementList);
+}
+
+void NodeInstanceServer::setupOnlyWorkingImports(const QStringList &workingImportStatementList)
+{
+    QByteArray componentCode = workingImportStatementList.join("\n").toUtf8().append("\n");
+    m_importCode = componentCode;
 
     m_importComponent = new QQmlComponent(engine(), quickView());
+    quickView()->setContent(fileUrl(), m_importComponent, quickView()->rootObject());
 
-    if (quickView())
-        quickView()->setContent(fileUrl(), m_importComponent, quickView()->rootObject());
-
-    m_importComponent->setData(componentString.toUtf8(), fileUrl());
+    m_importComponent->setData(componentCode.append("\nItem {}\n"), fileUrl());
     m_importComponentObject = m_importComponent->create();
 
-    if (!m_importComponent->errorString().isEmpty())
-        qDebug() << "QmlDesigner.NodeInstances: import wrong: " << m_importComponent->errorString();
+    if (!m_importComponentObject) {
+        delete m_importComponent;
+        m_importComponent = new QQmlComponent(engine(), quickView());
+        m_importComponent->setData("import QtQuick 2.0\n\nItem {}\n", fileUrl());
+        sendDebugOutput(DebugOutputCommand::WarningType, tr("No working QtQuick import"));
+        m_importComponentObject = m_importComponent->create();
+    }
+
+    Q_ASSERT(m_importComponent && m_importComponentObject);
+    Q_ASSERT_X(m_importComponent->errors().isEmpty(), __FUNCTION__, m_importComponent->errorString().toLatin1());
 }
 
 void NodeInstanceServer::setupFileUrl(const QUrl &fileUrl)
@@ -411,7 +486,8 @@ void NodeInstanceServer::setupDummyData(const QUrl &fileUrl)
 void NodeInstanceServer::setupDefaultDummyData()
 {
     QQmlComponent component(engine());
-    QByteArray defaultContextObjectArray("import QmlDesigner 1.0\n"
+    QByteArray defaultContextObjectArray("import QtQml 2.0\n"
+                                         "import QmlDesigner 1.0\n"
                                          "DummyContextObject {\n"
                                          "    parent: QtObject {\n"
                                          "        property real width: 360\n"
@@ -430,14 +506,14 @@ void NodeInstanceServer::setupDefaultDummyData()
     }
 
     if (m_dummyContextObject) {
-        qWarning() << "Loaded default dummy context object.";
+        qDebug() << "Loaded default dummy context object.";
         m_dummyContextObject->setParent(this);
     }
 
     refreshBindings();
 }
 
-QList<ServerNodeInstance>  NodeInstanceServer::setupInstances(const CreateSceneCommand &command)
+QList<ServerNodeInstance> NodeInstanceServer::setupInstances(const CreateSceneCommand &command)
 {
     QList<ServerNodeInstance> instanceList = createInstances(command.instances());
 
@@ -638,7 +714,7 @@ QFileSystemWatcher *NodeInstanceServer::dummydataFileSystemWatcher()
 {
     if (m_dummdataFileSystemWatcher.isNull()) {
         m_dummdataFileSystemWatcher = new QFileSystemWatcher(this);
-        connect(m_dummdataFileSystemWatcher.data(), SIGNAL(fileChanged(QString)), this, SLOT(refreshDummyData(QString)));
+        connect(m_dummdataFileSystemWatcher.data(), &QFileSystemWatcher::fileChanged, this, &NodeInstanceServer::refreshDummyData);
     }
 
     return m_dummdataFileSystemWatcher.data();
@@ -648,7 +724,7 @@ QFileSystemWatcher *NodeInstanceServer::fileSystemWatcher()
 {
     if (m_fileSystemWatcher.isNull()) {
         m_fileSystemWatcher = new QFileSystemWatcher(this);
-        connect(m_fileSystemWatcher.data(), SIGNAL(fileChanged(QString)), this, SLOT(refreshLocalFileProperty(QString)));
+        connect(m_fileSystemWatcher.data(), &QFileSystemWatcher::fileChanged, this, &NodeInstanceServer::refreshLocalFileProperty);
     }
 
     return m_fileSystemWatcher.data();
@@ -720,7 +796,7 @@ Internal::ChildrenChangeEventFilter *NodeInstanceServer::childrenChangeEventFilt
 {
     if (m_childrenChangeEventFilter.isNull()) {
         m_childrenChangeEventFilter = new Internal::ChildrenChangeEventFilter(this);
-        connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
+        connect(m_childrenChangeEventFilter.data(), &Internal::ChildrenChangeEventFilter::childrenChanged, this, &NodeInstanceServer::emitParentChanged);
     }
 
     return m_childrenChangeEventFilter.data();
@@ -761,15 +837,13 @@ void NodeInstanceServer::setInstancePropertyBinding(const PropertyBindingContain
             bool stateBindingWasUpdated = activeStateInstance().updateStateBinding(instance, name, expression);
             if (!stateBindingWasUpdated) {
                 if (bindingContainer.isDynamic())
-                    instance.setPropertyDynamicBinding(name, bindingContainer.dynamicTypeName(), expression);
-                else
-                    instance.setPropertyBinding(name, expression);
+                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
+                instance.setPropertyBinding(name, expression);
             }
         } else {
             if (bindingContainer.isDynamic())
-                instance.setPropertyDynamicBinding(name, bindingContainer.dynamicTypeName(), expression);
-            else
-                instance.setPropertyBinding(name, expression);
+                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
+            instance.setPropertyBinding(name, expression);
         }
     }
 }
@@ -795,19 +869,17 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
             bool stateValueWasUpdated = activeStateInstance().updateStateVariant(instance, name, value);
             if (!stateValueWasUpdated) {
                 if (valueContainer.isDynamic())
-                    instance.setPropertyDynamicVariant(name, valueContainer.dynamicTypeName(), value);
-                else
-                    instance.setPropertyVariant(name, value);
+                    Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
+                instance.setPropertyVariant(name, value);
             }
         } else { //base state
             if (valueContainer.isDynamic())
-                instance.setPropertyDynamicVariant(name, valueContainer.dynamicTypeName(), value);
-            else
-                instance.setPropertyVariant(name, value);
+                Internal::QmlPrivateGate::createNewDynamicProperty(instance.internalInstance()->object(), engine(), name);
+            instance.setPropertyVariant(name, value);
         }
 
         if (valueContainer.isDynamic() && valueContainer.instanceId() == 0 && engine())
-            rootContext()->setContextProperty(name, Internal::ObjectNodeInstance::fixResourcePaths(value));
+            rootContext()->setContextProperty(name, Internal::QmlPrivateGate::fixResourcePaths(value));
     }
 }
 
@@ -881,74 +953,75 @@ static QVector<InformationContainer> createInformationVector(const QList<ServerN
     QVector<InformationContainer> informationVector;
 
     foreach (const ServerNodeInstance &instance, instanceList) {
-        informationVector.append(InformationContainer(instance.instanceId(), Position, instance.position()));
-        informationVector.append(InformationContainer(instance.instanceId(), Transform, instance.transform()));
-        informationVector.append(InformationContainer(instance.instanceId(), SceneTransform, instance.sceneTransform()));
-        informationVector.append(InformationContainer(instance.instanceId(), Size, instance.size()));
-        informationVector.append(InformationContainer(instance.instanceId(), BoundingRect, instance.boundingRect()));
-        informationVector.append(InformationContainer(instance.instanceId(), ContentItemBoundingRect, instance.contentItemBoundingRect()));
-        informationVector.append(InformationContainer(instance.instanceId(), Transform, instance.transform()));
-        informationVector.append(InformationContainer(instance.instanceId(), ContentTransform, instance.contentTransform()));
-        informationVector.append(InformationContainer(instance.instanceId(), ContentItemTransform, instance.contentItemTransform()));
-        informationVector.append(InformationContainer(instance.instanceId(), HasContent, instance.hasContent()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsMovable, instance.isMovable()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsResizable, instance.isResizable()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsInLayoutable, instance.isInLayoutable()));
-        informationVector.append(InformationContainer(instance.instanceId(), PenWidth, instance.penWidth()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredByChildren, instance.isAnchoredByChildren()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredBySibling, instance.isAnchoredBySibling()));
+        if (instance.isValid()) {
+            informationVector.append(InformationContainer(instance.instanceId(), Position, instance.position()));
+            informationVector.append(InformationContainer(instance.instanceId(), Transform, instance.transform()));
+            informationVector.append(InformationContainer(instance.instanceId(), SceneTransform, instance.sceneTransform()));
+            informationVector.append(InformationContainer(instance.instanceId(), Size, instance.size()));
+            informationVector.append(InformationContainer(instance.instanceId(), BoundingRect, instance.boundingRect()));
+            informationVector.append(InformationContainer(instance.instanceId(), ContentItemBoundingRect, instance.contentItemBoundingRect()));
+            informationVector.append(InformationContainer(instance.instanceId(), Transform, instance.transform()));
+            informationVector.append(InformationContainer(instance.instanceId(), ContentTransform, instance.contentTransform()));
+            informationVector.append(InformationContainer(instance.instanceId(), ContentItemTransform, instance.contentItemTransform()));
+            informationVector.append(InformationContainer(instance.instanceId(), HasContent, instance.hasContent()));
+            informationVector.append(InformationContainer(instance.instanceId(), IsMovable, instance.isMovable()));
+            informationVector.append(InformationContainer(instance.instanceId(), IsResizable, instance.isResizable()));
+            informationVector.append(InformationContainer(instance.instanceId(), IsInLayoutable, instance.isInLayoutable()));
+            informationVector.append(InformationContainer(instance.instanceId(), PenWidth, instance.penWidth()));
+            informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredByChildren, instance.isAnchoredByChildren()));
+            informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredBySibling, instance.isAnchoredBySibling()));
 
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.fill"), instance.hasAnchor("anchors.fill")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.centerIn"), instance.hasAnchor("anchors.centerIn")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.right"), instance.hasAnchor("anchors.right")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.top"), instance.hasAnchor("anchors.top")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.left"), instance.hasAnchor("anchors.left")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.bottom"), instance.hasAnchor("anchors.bottom")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.horizontalCenter"), instance.hasAnchor("anchors.horizontalCenter")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.verticalCenter"), instance.hasAnchor("anchors.verticalCenter")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.baseline"), instance.hasAnchor("anchors.baseline")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.fill"), instance.hasAnchor("anchors.fill")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.centerIn"), instance.hasAnchor("anchors.centerIn")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.right"), instance.hasAnchor("anchors.right")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.top"), instance.hasAnchor("anchors.top")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.left"), instance.hasAnchor("anchors.left")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.bottom"), instance.hasAnchor("anchors.bottom")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.horizontalCenter"), instance.hasAnchor("anchors.horizontalCenter")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.verticalCenter"), instance.hasAnchor("anchors.verticalCenter")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.baseline"), instance.hasAnchor("anchors.baseline")));
 
-        QPair<PropertyName, ServerNodeInstance> anchorPair = instance.anchor("anchors.fill");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.fill"), anchorPair.first, anchorPair.second.instanceId()));
+            QPair<PropertyName, ServerNodeInstance> anchorPair = instance.anchor("anchors.fill");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.fill"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.centerIn");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.centerIn"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.centerIn");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.centerIn"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.right");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.right"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.right");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.right"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.top");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.top"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.top");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.top"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.left");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.left"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.left");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.left"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.bottom");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.bottom"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.bottom");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.bottom"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.horizontalCenter");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.horizontalCenter"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.horizontalCenter");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.horizontalCenter"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.verticalCenter");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.verticalCenter"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.verticalCenter");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.verticalCenter"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.baseline");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.baseline"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.baseline");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.baseline"), anchorPair.first, anchorPair.second.instanceId()));
 
-        PropertyNameList propertyNames = instance.propertyNames();
+            PropertyNameList propertyNames = instance.propertyNames();
 
-        if (initial) {
-            foreach (const PropertyName &propertyName,propertyNames)
-                informationVector.append(InformationContainer(instance.instanceId(), InstanceTypeForProperty, propertyName, instance.instanceType(propertyName)));
+            if (initial) {
+                foreach (const PropertyName &propertyName,propertyNames)
+                    informationVector.append(InformationContainer(instance.instanceId(), InstanceTypeForProperty, propertyName, instance.instanceType(propertyName)));
+            }
+
+            foreach (const PropertyName &propertyName,instance.propertyNames()) {
+                bool hasChanged = false;
+                bool hasBinding = instance.hasBindingForProperty(propertyName, &hasChanged);
+                if (hasChanged)
+                    informationVector.append(InformationContainer(instance.instanceId(), HasBindingForProperty, propertyName, hasBinding));
+            }
         }
-
-        foreach (const PropertyName &propertyName,instance.propertyNames()) {
-            bool hasChanged = false;
-            bool hasBinding = instance.hasBindingForProperty(propertyName, &hasChanged);
-            if (hasChanged)
-                informationVector.append(InformationContainer(instance.instanceId(), HasBindingForProperty, propertyName, hasBinding));
-        }
-
     }
 
     return informationVector;
@@ -1020,14 +1093,9 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
     return ValuesChangedCommand(valueVector);
 }
 
-QStringList NodeInstanceServer::imports() const
+QByteArray NodeInstanceServer::importCode() const
 {
-    return m_importList;
-}
-
-void NodeInstanceServer::addImportString(const QString &import)
-{
-    m_importList.append(import);
+    return m_importCode;
 }
 
 QObject *NodeInstanceServer::dummyContextObject() const
@@ -1088,7 +1156,7 @@ void NodeInstanceServer::loadDummyDataFile(const QFileInfo& qmlFileInfo)
     QVariant oldDummyDataObject = rootContext()->contextProperty(qmlFileInfo.completeBaseName());
 
     if (dummyData) {
-        qWarning() << "Loaded dummy data:" << qmlFileInfo.filePath();
+        qDebug() << "Loaded dummy data:" << qmlFileInfo.filePath();
         rootContext()->setContextProperty(qmlFileInfo.completeBaseName(), dummyData);
         dummyData->setParent(this);
         m_dummyObjectList.append(DummyPair(qmlFileInfo.completeBaseName(), dummyData));
@@ -1151,10 +1219,28 @@ void NodeInstanceServer::loadDummyDataContext(const QString& directory)
     }
 }
 
-void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message)
+void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId)
 {
-    DebugOutputCommand command(message, type);
+    QVector<qint32> ids;
+    ids.append(instanceId);
+    sendDebugOutput(type, message, ids);
+}
+
+void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QVector<qint32> &instanceIds)
+{
+    DebugOutputCommand command(message, type, instanceIds);
     nodeInstanceClient()->debugOutput(command);
+}
+
+void NodeInstanceServer::removeInstanceRelationsipForDeletedObject(QObject *object)
+{
+    if (m_objectInstanceHash.contains(object)) {
+        ServerNodeInstance instance = instanceForObject(object);
+        m_objectInstanceHash.remove(object);
+
+        if (m_idInstanceHash.contains(instance.instanceId()))
+            m_idInstanceHash.remove(instance.instanceId());
+    }
 }
 
 QStringList NodeInstanceServer::dummyDataDirectories(const QString& directoryPath)

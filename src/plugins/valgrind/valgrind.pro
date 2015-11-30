@@ -22,7 +22,6 @@ HEADERS += \
     callgrindengine.h \
     workarounds.h \
     callgrindtextmark.h \
-    valgrindtool.h \
     memchecktool.h \
     memcheckengine.h \
     memcheckerrorview.h \
@@ -36,7 +35,6 @@ SOURCES += \
     valgrindsettings.cpp \
     valgrindrunner.cpp \
     valgrindprocess.cpp \
-    valgrindtool.cpp \
     callgrindcostdelegate.cpp \
     callgrindcostview.cpp \
     callgrindhelper.cpp \
@@ -55,3 +53,5 @@ SOURCES += \
 FORMS += \
     valgrindconfigwidget.ui
 
+RESOURCES += \
+    valgrind.qrc

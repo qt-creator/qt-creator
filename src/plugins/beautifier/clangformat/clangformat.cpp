@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Lorenz Haas
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Lorenz Haas
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,23 +9,26 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
+// Tested with version 3.3, 3.4 and 3.4.1
 
 #include "clangformat.h"
 
@@ -45,7 +48,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QAction>
 #include <QMenu>
@@ -54,8 +57,9 @@ namespace Beautifier {
 namespace Internal {
 namespace ClangFormat {
 
-ClangFormat::ClangFormat(QObject *parent) :
+ClangFormat::ClangFormat(BeautifierPlugin *parent) :
     BeautifierAbstractTool(parent),
+    m_beautifierPlugin(parent),
     m_settings(new ClangFormatSettings)
 {
 }
@@ -68,22 +72,20 @@ ClangFormat::~ClangFormat()
 bool ClangFormat::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ClangFormat::MENU_ID);
-    menu->menu()->setTitle(QLatin1String("ClangFormat"));
+    menu->menu()->setTitle(QLatin1String(Constants::ClangFormat::DISPLAY_NAME));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
             = Core::ActionManager::registerAction(m_formatFile,
-                                                  Constants::ClangFormat::ACTION_FORMATFILE,
-                                                  Core::Context(Core::Constants::C_GLOBAL));
+                                                  Constants::ClangFormat::ACTION_FORMATFILE);
     menu->addAction(cmd);
-    connect(m_formatFile, SIGNAL(triggered()), this, SLOT(formatFile()));
+    connect(m_formatFile, &QAction::triggered, this, &ClangFormat::formatFile);
 
     m_formatRange = new QAction(BeautifierPlugin::msgFormatSelectedText(), this);
     cmd = Core::ActionManager::registerAction(m_formatRange,
-                                              Constants::ClangFormat::ACTION_FORMATSELECTED,
-                                              Core::Context(Core::Constants::C_GLOBAL));
+                                              Constants::ClangFormat::ACTION_FORMATSELECTED);
     menu->addAction(cmd);
-    connect(m_formatRange, SIGNAL(triggered()), this, SLOT(formatSelectedText()));
+    connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatSelectedText);
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
@@ -105,42 +107,45 @@ QList<QObject *> ClangFormat::autoReleaseObjects()
 
 void ClangFormat::formatFile()
 {
-    BeautifierPlugin::formatCurrentFile(command());
+    m_beautifierPlugin->formatCurrentFile(command());
 }
 
 void ClangFormat::formatSelectedText()
 {
-    TextEditor::BaseTextEditor *editor
-            = qobject_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::currentEditor());
-    if (!editor)
+    const TextEditor::TextEditorWidget *widget
+            = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    if (!widget)
         return;
 
-    QTextCursor tc = editor->editorWidget()->textCursor();
+    const QTextCursor tc = widget->textCursor();
     if (tc.hasSelection()) {
         const int offset = tc.selectionStart();
         const int length = tc.selectionEnd() - offset;
-        BeautifierPlugin::formatCurrentFile(command(offset, length));
+        m_beautifierPlugin->formatCurrentFile(command(offset, length));
     } else if (m_settings->formatEntireFileFallback()) {
         formatFile();
     }
 }
 
-QStringList ClangFormat::command(int offset, int length) const
+Command ClangFormat::command(int offset, int length) const
 {
-    QStringList command;
-    command << m_settings->command();
-    command << QLatin1String("-i");
+    Command command;
+    command.setExecutable(m_settings->command());
+    command.setProcessing(Command::PipeProcessing);
+
     if (m_settings->usePredefinedStyle()) {
-        command << QLatin1String("-style=") + m_settings->predefinedStyle();
+        command.addOption(QLatin1String("-style=") + m_settings->predefinedStyle());
     } else {
-        command << QLatin1String("-style={") + m_settings->style(
-                       m_settings->customStyle()).remove(QLatin1Char('\n')) + QLatin1String("}");
+        command.addOption(QLatin1String("-style={")
+                          + m_settings->style(m_settings->customStyle()).remove(QLatin1Char('\n'))
+                          + QLatin1Char('}'));
     }
+
     if (offset != -1) {
-        command << QLatin1String("-offset=") + QString::number(offset);
-        command << QLatin1String("-length=") + QString::number(length);
+        command.addOption(QLatin1String("-offset=") + QString::number(offset));
+        command.addOption(QLatin1String("-length=") + QString::number(length));
     }
-    command << QLatin1String("%file");
+    command.addOption(QLatin1String("-assume-filename=%file"));
 
     return command;
 }

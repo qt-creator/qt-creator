@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,24 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "objectnodeinstance.h"
 
 #include <enumeration.h>
+#include <qmlprivategate.h>
 
 #include <QEvent>
 #include <QQmlContext>
@@ -42,53 +39,17 @@
 #include <QFileSystemWatcher>
 #include <QPixmapCache>
 #include <QQuickItem>
+#include <QQmlExpression>
 #include <QQmlParserStatus>
 #include <QTextDocument>
 #include <QLibraryInfo>
 
-#include <private/qqmlbinding_p.h>
-#include <private/qqmlmetatype_p.h>
-#include <private/qqmlvaluetype_p.h>
-#include <private/qquicktransition_p.h>
-#include <private/qquickanimation_p.h>
-#include <private/qqmltimer_p.h>
-#include <private/qqmlengine_p.h>
-#include <designersupport.h>
-
-
-namespace {
-class ComponentCompleteDisabler
+static bool isSimpleExpression(const QString &expression)
 {
-public:
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
-    ComponentCompleteDisabler()
-    {
-        DesignerSupport::disableComponentComplete();
-    }
+    if (expression.startsWith(QStringLiteral("{")))
+        return false;
 
-    ~ComponentCompleteDisabler()
-    {
-        DesignerSupport::enableComponentComplete();
-    }
-#else
-    ComponentCompleteDisabler()
-    {
-    //nothing not available yet
-    }
-#endif
-};
-
-} //namespace
-
-static bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
-{
-    if (propertyName.contains(".") && propertyName.contains("__"))
-        return true;
-
-    if (propertyName.count(".") > 1)
-        return true;
-
-    return false;
+    return true;
 }
 
 namespace QmlDesigner {
@@ -96,12 +57,19 @@ namespace Internal {
 
 ObjectNodeInstance::ObjectNodeInstance(QObject *object)
     : m_object(object),
-      m_metaObject(0),
       m_instanceId(-1),
       m_deleteHeldInstance(true),
       m_isInLayoutable(false)
 {
+    if (object)
+        QObject::connect(m_object.data(), &QObject::destroyed, [=] {
 
+            /*This lambda is save because m_nodeInstanceServer
+            is a smartpointer and object is a dangling pointer anyway.*/
+
+            if (m_nodeInstanceServer)
+                m_nodeInstanceServer->removeInstanceRelationsipForDeletedObject(object);
+        });
 }
 
 ObjectNodeInstance::~ObjectNodeInstance()
@@ -127,7 +95,6 @@ void ObjectNodeInstance::destroy()
         }
     }
 
-    m_metaObject = 0;
     m_instanceId = -1;
 }
 
@@ -155,13 +122,13 @@ void ObjectNodeInstance::setNodeInstanceServer(NodeInstanceServer *server)
 
 void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
-    m_metaObject = NodeInstanceMetaObject::createNodeInstanceMetaObject(objectNodeInstance, nodeInstanceServer()->engine());
     m_signalSpy.setObjectNodeInstance(objectNodeInstance);
 }
 
 void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
     initializePropertyWatcher(objectNodeInstance);
+    QmlPrivateGate::registerNodeInstanceMetaObject(objectNodeInstance->object(), objectNodeInstance->nodeInstanceServer()->engine());
 }
 
 void ObjectNodeInstance::setId(const QString &id)
@@ -198,11 +165,6 @@ bool ObjectNodeInstance::isQuickItem() const
 }
 
 bool ObjectNodeInstance::isQuickWindow() const
-{
-    return false;
-}
-
-bool ObjectNodeInstance::isGraphical() const
 {
     return false;
 }
@@ -312,16 +274,11 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
-static bool hasFullImplementedListInterface(const QQmlListReference &list)
-{
-    return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
-}
-
 static void removeObjectFromList(const QQmlProperty &property, QObject *objectToBeRemoved, QQmlEngine * engine)
 {
     QQmlListReference listReference(property.object(), property.name().toUtf8(), engine);
 
-    if (!hasFullImplementedListInterface(listReference)) {
+    if (!QmlPrivateGate::hasFullImplementedListInterface(listReference)) {
         qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
         return;
     }
@@ -371,7 +328,7 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
     if (isList(property)) {
         QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
 
-        if (!hasFullImplementedListInterface(list)) {
+        if (!QmlPrivateGate::hasFullImplementedListInterface(list)) {
             qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
             return;
         }
@@ -386,16 +343,17 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
 
 void ObjectNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty)
 {
-    if (oldParentInstance) {
+    if (oldParentInstance && !oldParentInstance->ignoredProperties().contains(oldParentProperty)) {
         removeFromOldProperty(object(), oldParentInstance->object(), oldParentProperty);
         m_parentProperty.clear();
     }
 
-    if (newParentInstance) {
+    if (newParentInstance && !newParentInstance->ignoredProperties().contains(newParentProperty)) {
         m_parentProperty = newParentProperty;
         addToNewProperty(object(), newParentInstance->object(), newParentProperty);
     }
 }
+
 QVariant ObjectNodeInstance::convertSpecialCharacter(const QVariant& value) const
 {
     QVariant specialCharacterConvertedValue = value;
@@ -409,71 +367,50 @@ QVariant ObjectNodeInstance::convertSpecialCharacter(const QVariant& value) cons
     return specialCharacterConvertedValue;
 }
 
-
-QVariant ObjectNodeInstance::fixResourcePaths(const QVariant &value)
-{
-    if (value.type() == QVariant::Url)
-    {
-        const QUrl url = value.toUrl();
-        if (url.scheme() == QLatin1String("qrc")) {
-            const QString path = QLatin1String("qrc:") +  url.path();
-            QString qrcSearchPath = qgetenv("QMLDESIGNER_RC_PATHS");
-            if (!qrcSearchPath.isEmpty()) {
-                const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
-                foreach (const QString &qrcPath, searchPaths) {
-                    const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
-                    if (qrcDefintion.count() == 2) {
-                        QString fixedPath = path;
-                        fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
-                        if (QFileInfo(fixedPath).exists()) {
-                            fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
-                            fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
-                            return QUrl(fixedPath);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (value.type() == QVariant::String) {
-        const QString str = value.toString();
-        if (str.contains(QLatin1String("qrc:"))) {
-            QString qrcSearchPath = qgetenv("QMLDESIGNER_RC_PATHS");
-            if (!qrcSearchPath.isEmpty()) {
-                const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
-                foreach (const QString &qrcPath, searchPaths) {
-                    const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
-                    if (qrcDefintion.count() == 2) {
-                        QString fixedPath = str;
-                        fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
-                        if (QFileInfo(fixedPath).exists()) {
-                            fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
-                            fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
-                            return fixedPath;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return value;
-}
-
 void ObjectNodeInstance::updateAllDirtyNodesRecursive()
 {
 }
 
+PropertyNameList ObjectNodeInstance::ignoredProperties() const
+{
+    return PropertyNameList();
+}
+
+QVariant ObjectNodeInstance::convertEnumToValue(const QVariant &value, const PropertyName &name)
+{
+    Q_ASSERT(value.canConvert<Enumeration>());
+    int propertyIndex = object()->metaObject()->indexOfProperty(name);
+    QMetaProperty metaProperty = object()->metaObject()->property(propertyIndex);
+
+    QVariant adjustedValue;
+    Enumeration enumeration = value.value<Enumeration>();
+    if (metaProperty.isValid() && metaProperty.isEnumType()) {
+        adjustedValue = metaProperty.enumerator().keyToValue(enumeration.name());
+    } else {
+        QQmlExpression expression(context(), object(), enumeration.toString());
+        adjustedValue =  expression.evaluate();
+        if (expression.hasError())
+            qDebug() << "Enumeration can not be evaluated:" << object() << name << enumeration;
+    }
+    return adjustedValue;
+}
+
 void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
+    if (ignoredProperties().contains(name))
+        return;
+
     QQmlProperty property(object(), name, context());
 
     if (!property.isValid())
         return;
 
-    QVariant fixedValue = fixResourcePaths(value);
-
+    QVariant adjustedValue;
     if (value.canConvert<Enumeration>())
-        fixedValue = QVariant::fromValue(value.value<Enumeration>().nameToString());
+        adjustedValue = convertEnumToValue(value, name);
+    else
+        adjustedValue = QmlPrivateGate::fixResourcePaths(value);
+
 
     QVariant oldValue = property.read();
     if (oldValue.type() == QVariant::Url) {
@@ -484,13 +421,13 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
     }
 
     if (hasValidResetBinding(name)) {
-        QQmlPropertyPrivate::setBinding(property, 0, QQmlPropertyPrivate::BypassInterceptor | QQmlPropertyPrivate::DontRemoveBinding);
+        QmlPrivateGate::keepBindingFromGettingDeleted(object(), context(), name);
     }
 
-    bool isWritten = property.write(convertSpecialCharacter(fixedValue));
+    bool isWritten = property.write(convertSpecialCharacter(adjustedValue));
 
     if (!isWritten)
-        qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << fixedValue;
+        qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << adjustedValue;
 
     QVariant newValue = property.read();
     if (newValue.type() == QVariant::Url) {
@@ -503,28 +440,13 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
 
 void ObjectNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
-    QQmlProperty property(object(), name, context());
-
-    if (!property.isValid())
+    if (ignoredProperties().contains(name))
         return;
 
-    if (property.isProperty()) {
-        QQmlBinding *binding = new QQmlBinding(expression, object(), context());
-        binding->setTarget(property);
-        binding->setNotifyOnValueChanged(true);
-        QQmlAbstractBinding *oldBinding = QQmlPropertyPrivate::setBinding(property, binding);
-        if (oldBinding && !hasValidResetBinding(name))
-            oldBinding->destroy();
-        binding->update();
-        if (binding->hasError()) {
-            //qDebug() <<" ObjectNodeInstance.setPropertyBinding has Error: " << object() << name << expression << binding->error(engine()).toString();
-            if (property.property().userType() == QVariant::String)
-                property.write(QVariant(QString("#%1#").arg(expression)));
-        }
+    if (!isSimpleExpression(expression))
+        return;
 
-    } else {
-        qWarning() << "ObjectNodeInstance.setPropertyBinding: Cannot set binding for property" << name << ": property is unknown for type";
-    }
+    QmlPrivateGate::setPropertyBinding(object(), context(), name, expression);
 }
 
 void ObjectNodeInstance::deleteObjectsInList(const QQmlProperty &property)
@@ -532,7 +454,7 @@ void ObjectNodeInstance::deleteObjectsInList(const QQmlProperty &property)
     QObjectList objectList;
     QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
 
-    if (!hasFullImplementedListInterface(list)) {
+    if (!QmlPrivateGate::hasFullImplementedListInterface(list)) {
         qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
         return;
     }
@@ -546,6 +468,9 @@ void ObjectNodeInstance::deleteObjectsInList(const QQmlProperty &property)
 
 void ObjectNodeInstance::resetProperty(const PropertyName &name)
 {
+    if (ignoredProperties().contains(name))
+        return;
+
     doResetProperty(name);
 
     if (name == "font.pixelSize")
@@ -578,80 +503,24 @@ void ObjectNodeInstance::refreshProperty(const PropertyName &name)
     property.write(oldValue);
 }
 
-bool ObjectNodeInstance::hasBindingForProperty(const PropertyName &name, bool *hasChanged) const
+bool ObjectNodeInstance::hasBindingForProperty(const PropertyName &propertyName, bool *hasChanged) const
 {
-    if (isPropertyBlackListed(name))
-        return false;
-
-    QQmlProperty property(object(), name, context());
-
-    bool hasBinding = QQmlPropertyPrivate::binding(property);
-
-    if (hasChanged) {
-        *hasChanged = hasBinding != m_hasBindingHash.value(name, false);
-        if (*hasChanged)
-            m_hasBindingHash.insert(name, hasBinding);
-    }
-
-    return QQmlPropertyPrivate::binding(property);
+    return QmlPrivateGate::hasBindingForProperty(object(), context(), propertyName, hasChanged);
 }
 
 void ObjectNodeInstance::doResetProperty(const PropertyName &propertyName)
 {
-    m_modelAbstractPropertyHash.remove(propertyName);
-
-    QQmlProperty property(object(), propertyName, context());
-
-    if (!property.isValid())
-        return;
-
-    QVariant oldValue = property.read();
-    if (oldValue.type() == QVariant::Url) {
-        QUrl url = oldValue.toUrl();
-        QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceServer())
-            nodeInstanceServer()->removeFilePropertyFromFileSystemWatcher(object(), propertyName, path);
-    }
-
-
-    QQmlAbstractBinding *binding = QQmlPropertyPrivate::binding(property);
-    if (binding && !(hasValidResetBinding(propertyName) && resetBinding(propertyName) == binding)) {
-        binding->setEnabled(false, 0);
-        binding->destroy();
-    }
-
-
-    if (hasValidResetBinding(propertyName)) {
-        QQmlAbstractBinding *binding = resetBinding(propertyName);
-        QQmlPropertyPrivate::setBinding(property, binding, QQmlPropertyPrivate::DontRemoveBinding);
-        binding->update();
-    } else if (property.isResettable()) {
-        property.reset();
-    } else if (property.propertyTypeCategory() == QQmlProperty::List) {
-        QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
-
-        if (!hasFullImplementedListInterface(list)) {
-            qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
-            return;
-        }
-
-        list.clear();
-    } else if (property.isWritable()) {
-        if (property.read() == resetValue(propertyName))
-            return;
-
-        property.write(resetValue(propertyName));
-    }
+    QmlPrivateGate::doResetProperty(object(), context(), propertyName);
 }
 
 QVariant ObjectNodeInstance::property(const PropertyName &name) const
 {
-    if (m_modelAbstractPropertyHash.contains(name))
-        return QVariant::fromValue(m_modelAbstractPropertyHash.value(name));
+    if (ignoredProperties().contains(name))
+        return QVariant();
 
     // TODO: handle model nodes
 
-    if (isPropertyBlackListed(name))
+    if (QmlPrivateGate::isPropertyBlackListed(name))
         return QVariant();
 
     QQmlProperty property(object(), name, context());
@@ -674,49 +543,16 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
     return property.read();
 }
 
-PropertyNameList allPropertyNames(QObject *object, const PropertyName &baseName = PropertyName(), QObjectList *inspectedObjects = new QObjectList)
-{
-    PropertyNameList propertyNameList;
-
-
-    if (inspectedObjects== 0 || inspectedObjects->contains(object))
-        return propertyNameList;
-
-    inspectedObjects->append(object);
-
-
-    const QMetaObject *metaObject = object->metaObject();
-    for (int index = 0; index < metaObject->propertyCount(); ++index) {
-        QMetaProperty metaProperty = metaObject->property(index);
-        QQmlProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
-        if (declarativeProperty.isValid() && declarativeProperty.propertyTypeCategory() == QQmlProperty::Object) {
-            if (declarativeProperty.name() != "parent") {
-                QObject *childObject = QQmlMetaType::toQObject(declarativeProperty.read());
-                if (childObject)
-                    propertyNameList.append(allPropertyNames(childObject, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
-            }
-        } else if (QQmlValueTypeFactory::valueType(metaProperty.userType())) {
-            QQmlValueType *valueType = QQmlValueTypeFactory::valueType(metaProperty.userType());
-            valueType->setValue(metaProperty.read(object));
-            propertyNameList.append(allPropertyNames(valueType, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
-        } else  {
-            propertyNameList.append(baseName + PropertyName(metaProperty.name()));
-        }
-    }
-
-    return propertyNameList;
-}
-
 PropertyNameList ObjectNodeInstance::propertyNames() const
 {
     if (isValid())
-        return allPropertyNames(object());
+        return QmlPrivateGate::allPropertyNames(object());
     return PropertyNameList();
 }
 
 QString ObjectNodeInstance::instanceType(const PropertyName &name) const
 {
-    if (isPropertyBlackListed(name))
+    if (QmlPrivateGate::isPropertyBlackListed(name))
         return QLatin1String("undefined");
 
     QQmlProperty property(object(), name, context());
@@ -728,6 +564,11 @@ QString ObjectNodeInstance::instanceType(const PropertyName &name) const
 QList<ServerNodeInstance> ObjectNodeInstance::childItems() const
 {
     return QList<ServerNodeInstance>();
+}
+
+QList<QQuickItem *> ObjectNodeInstance::allItemsRecursive() const
+{
+    return QList<QQuickItem *>();
 }
 
 QList<ServerNodeInstance>  ObjectNodeInstance::stateInstances() const
@@ -758,185 +599,34 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::create(QObject *object)
     return instance;
 }
 
-static void stopAnimation(QObject *object)
+QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
-    if (object == 0)
-        return;
-
-    QQuickTransition *transition = qobject_cast<QQuickTransition*>(object);
-    QQuickAbstractAnimation *animation = qobject_cast<QQuickAbstractAnimation*>(object);
-    QQmlTimer *timer = qobject_cast<QQmlTimer*>(object);
-    if (transition) {
-       transition->setFromState("");
-       transition->setToState("");
-    } else if (animation) {
-//        QQuickScriptAction *scriptAimation = qobject_cast<QQuickScriptAction*>(animation);
-//        if (scriptAimation) FIXME
-//            scriptAimation->setScript(QQmlScriptString());
-        animation->setLoops(1);
-        animation->complete();
-        animation->setDisableUserControl();
-    } else if (timer) {
-        timer->blockSignals(true);
-    }
+    return QmlPrivateGate::createPrimitive(typeName, majorNumber, minorNumber, context);
 }
 
-void allSubObject(QObject *object, QObjectList &objectList)
+QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)
 {
-    // don't add null pointer and stop if the object is already in the list
-    if (!object || objectList.contains(object))
-        return;
-
-    objectList.append(object);
-
-    for (int index = QObject::staticMetaObject.propertyOffset();
-         index < object->metaObject()->propertyCount();
-         index++) {
-        QMetaProperty metaProperty = object->metaObject()->property(index);
-
-        // search recursive in property objects
-        if (metaProperty.isReadable()
-                && metaProperty.isWritable()
-                && QQmlMetaType::isQObject(metaProperty.userType())) {
-            if (metaProperty.name() != QLatin1String("parent")) {
-                QObject *propertyObject = QQmlMetaType::toQObject(metaProperty.read(object));
-                allSubObject(propertyObject, objectList);
-            }
-
-        }
-
-        // search recursive in property object lists
-        if (metaProperty.isReadable()
-                && QQmlMetaType::isList(metaProperty.userType())) {
-            QQmlListReference list(object, metaProperty.name());
-            if (list.canCount() && list.canAt()) {
-                for (int i = 0; i < list.count(); i++) {
-                    QObject *propertyObject = list.at(i);
-                    allSubObject(propertyObject, objectList);
-
-                }
-            }
-        }
-    }
-
-    // search recursive in object children list
-    foreach (QObject *childObject, object->children()) {
-        allSubObject(childObject, objectList);
-    }
-
-    // search recursive in quick item childItems list
-    QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
-    if (quickItem) {
-        foreach (QQuickItem *childItem, quickItem->childItems()) {
-            allSubObject(childItem, objectList);
-        }
-    }
-}
-
-static void disableTiledBackingStore(QObject *object)
-{
-    Q_UNUSED(object);
-}
-
-static void addToPropertyNameListIfNotBlackListed(PropertyNameList *propertyNameList, const PropertyName &propertyName)
-{
-    if (!isPropertyBlackListed(propertyName))
-        propertyNameList->append(propertyName);
-}
-
-PropertyNameList propertyNameListForWritableProperties(QObject *object, const PropertyName &baseName = PropertyName(), QObjectList *inspectedObjects = new QObjectList())
-{
-    PropertyNameList propertyNameList;
-
-    if (inspectedObjects == 0 || inspectedObjects->contains(object))
-        return propertyNameList;
-
-    inspectedObjects->append(object);
-
-    const QMetaObject *metaObject = object->metaObject();
-    for (int index = 0; index < metaObject->propertyCount(); ++index) {
-        QMetaProperty metaProperty = metaObject->property(index);
-        QQmlProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
-        if (declarativeProperty.isValid() && !declarativeProperty.isWritable() && declarativeProperty.propertyTypeCategory() == QQmlProperty::Object) {
-            if (declarativeProperty.name() != "parent") {
-                QObject *childObject = QQmlMetaType::toQObject(declarativeProperty.read());
-                if (childObject)
-                    propertyNameList.append(propertyNameListForWritableProperties(childObject, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
-            }
-        } else if (QQmlValueTypeFactory::valueType(metaProperty.userType())) {
-            QQmlValueType *valueType = QQmlValueTypeFactory::valueType(metaProperty.userType());
-            valueType->setValue(metaProperty.read(object));
-            propertyNameList.append(propertyNameListForWritableProperties(valueType, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
-        }
-
-        if (metaProperty.isReadable() && metaProperty.isWritable()) {
-            addToPropertyNameListIfNotBlackListed(&propertyNameList, baseName + PropertyName(metaProperty.name()));
-        }
-    }
-
-    return propertyNameList;
-}
-
-static void fixResourcePathsForObject(QObject *object)
-{
-    if (qgetenv("QMLDESIGNER_RC_PATHS").isEmpty())
-        return;
-
-    PropertyNameList propertyNameList = propertyNameListForWritableProperties(object);
-
-    foreach (const PropertyName &propertyName, propertyNameList) {
-        QQmlProperty property(object, propertyName, QQmlEngine::contextForObject(object));
-
-        const QVariant value  = property.read();
-        const QVariant fixedValue = ObjectNodeInstance::fixResourcePaths(value);
-        if (value != fixedValue) {
-            property.write(fixedValue);
-        }
-    }
-}
-
-void tweakObjects(QObject *object)
-{
-    QObjectList objectList;
-    allSubObject(object, objectList);
-    foreach (QObject* childObject, objectList) {
-        disableTiledBackingStore(childObject);
-        stopAnimation(childObject);
-        fixResourcePathsForObject(childObject);
-    }
-}
-
-QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QStringList &imports, QQmlContext *context)
-{
-    ComponentCompleteDisabler disableComponentComplete;
-
+    QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
     Q_UNUSED(disableComponentComplete)
 
     QQmlComponent *component = new QQmlComponent(context->engine());
 
-    QByteArray importArray;
-
-    foreach (const QString &import, imports) {
-        importArray.append(import.toUtf8());
-    }
-
     QByteArray data(nodeSource.toUtf8());
-
-    data.prepend(importArray);
-
+    data.prepend(importCode);
     component->setData(data, context->baseUrl().resolved(QUrl("createComponent.qml")));
-
     QObject *object = component;
-    tweakObjects(object);
-
-    if (object && context)
-        QQmlEngine::setContextForObject(object, context);
-
+    QmlPrivateGate::tweakObjects(object);
+    QQmlEngine::setContextForObject(object, context);
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
+    if (component->isError()) {
+        qWarning() << "Error in:" << Q_FUNC_INFO << component->url().toString();
+        foreach (const QQmlError &error, component->errors())
+            qWarning() << error;
+        qWarning() << "file data:\n" << data;
+    }
     return object;
 }
-
 
 //The component might also be shipped with Creator.
 //To avoid trouble with import "." we use the component shipped with Creator.
@@ -967,20 +657,20 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
 
 QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlContext *context)
 {
-    ComponentCompleteDisabler disableComponentComplete;
+    QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
 
     Q_UNUSED(disableComponentComplete)
 
     QQmlComponent component(context->engine(), fixComponentPathForIncompatibleQt(componentPath));
     QObject *object = component.beginCreate(context);
 
-    tweakObjects(object);
+    QmlPrivateGate::tweakObjects(object);
     component.completeCreate();
 
     if (component.isError()) {
         qDebug() << componentPath;
         foreach (const QQmlError &error, component.errors())
-            qDebug() << error;
+            qWarning() << error;
     }
 
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
@@ -990,101 +680,36 @@ QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlC
 
 QObject *ObjectNodeInstance::createComponent(const QUrl &componentUrl, QQmlContext *context)
 {
-    ComponentCompleteDisabler disableComponentComplete;
-
-    Q_UNUSED(disableComponentComplete)
-
-    QQmlComponent component(context->engine(), componentUrl);
-    QObject *object = component.beginCreate(context);
-
-    tweakObjects(object);
-    component.completeCreate();
-
-    if (component.isError()) {
-        qDebug() << componentUrl;
-        foreach (const QQmlError &error, component.errors())
-            qDebug() << error;
-    }
-
-    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
-
-    return object;
+    return QmlPrivateGate::createComponent(componentUrl, context);
 }
 
-QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QStringList &imports, QQmlContext *context)
+QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)
 {
-    ComponentCompleteDisabler disableComponentComplete;
-
+    QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
     Q_UNUSED(disableComponentComplete)
 
     QQmlComponent component(context->engine());
 
-    QByteArray importArray;
-    foreach (const QString &import, imports) {
-        importArray.append(import.toUtf8());
-    }
-
     QByteArray data(nodeSource.toUtf8());
-
-    data.prepend(importArray);
-
+    data.prepend(importCode);
     component.setData(data, context->baseUrl().resolved(QUrl("createCustomParserObject.qml")));
-
     QObject *object = component.beginCreate(context);
-    tweakObjects(object);
+    QmlPrivateGate::tweakObjects(object);
     component.completeCreate();
-
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
-    return object;
-}
-
-static QQmlType *getQmlType(const QString &typeName, int majorNumber, int minorNumber)
-{
-     return  QQmlMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
-}
-
-QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
-{
-    ComponentCompleteDisabler disableComponentComplete;
-
-    Q_UNUSED(disableComponentComplete)
-
-    QObject *object = 0;
-    QQmlType *type = getQmlType(typeName, majorNumber, minorNumber);
-
-    if (type) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)) // TODO remove hack later if we only support >= 5.2
-        if ( type->isComposite()) {
-             object = createComponent(type->sourceUrl(), context);
-        } else
-#endif
-        {
-            if (type->typeName() == "QQmlComponent") {
-                object = new QQmlComponent(context->engine(), 0);
-            } else  {
-                object = type->create();
-            }
-        }
-    } else {
-        qWarning() << "QuickDesigner: Cannot create an object of type"
-                   << QString("%1 %2,%3").arg(typeName).arg(majorNumber).arg(minorNumber)
-                   << "- type isn't known to declarative meta type system";
+    if (component.isError()) {
+        qWarning() << "Error in:" << Q_FUNC_INFO << component.url().toString();
+        foreach (const QQmlError &error, component.errors())
+            qWarning() << error;
+        qWarning() << "file data:\n" << data;
     }
-
-    tweakObjects(object);
-
-    if (object && context)
-        QQmlEngine::setContextForObject(object, context);
-
-    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
-
     return object;
 }
 
 QObject *ObjectNodeInstance::object() const
 {
-        if (!m_object.isNull() && !QObjectPrivate::get(m_object.data())->wasDeleted)
+        if (!m_object.isNull() && !QmlPrivateGate::objectWasDeleted(m_object.data()))
             return m_object.data();
         return 0;
 }
@@ -1155,38 +780,17 @@ void ObjectNodeInstance::deactivateState()
 
 void ObjectNodeInstance::populateResetHashes()
 {
-    PropertyNameList propertyNameList = propertyNameListForWritableProperties(object());
-
-    foreach (const PropertyName &propertyName, propertyNameList) {
-        QQmlProperty property(object(), propertyName, QQmlEngine::contextForObject(object()));
-
-        QQmlAbstractBinding::Pointer binding = QQmlAbstractBinding::getPointer(QQmlPropertyPrivate::binding(property));
-        if (binding) {
-            m_resetBindingHash.insert(propertyName, binding);
-        } else if (property.isWritable()) {
-            m_resetValueHash.insert(propertyName, property.read());
-        }
-    }
-}
-
-QQmlAbstractBinding *ObjectNodeInstance::resetBinding(const PropertyName &propertyName) const
-{
-    return m_resetBindingHash.value(propertyName).data();
+    QmlPrivateGate::registerCustomData(object());
 }
 
 bool ObjectNodeInstance::hasValidResetBinding(const PropertyName &propertyName) const
 {
-    return m_resetBindingHash.contains(propertyName) &&  m_resetBindingHash.value(propertyName).data();
+    return QmlPrivateGate::hasValidResetBinding(object(), propertyName);
 }
 
 QVariant ObjectNodeInstance::resetValue(const PropertyName &propertyName) const
 {
-    return m_resetValueHash.value(propertyName);
-}
-
-void ObjectNodeInstance::setResetValue(const PropertyName &propertyName, const QVariant &value)
-{
-    m_resetValueHash.insert(propertyName, value);
+    return QmlPrivateGate::getResetValue(object(), propertyName);
 }
 
 QImage ObjectNodeInstance::renderImage() const
@@ -1220,38 +824,6 @@ QObject *ObjectNodeInstance::parentObject(QObject *object)
     }
 
     return object->parent();
-}
-
-void ObjectNodeInstance::doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer)
-{
-    if (object) {
-        QQuickItem *item = qobject_cast<QQuickItem*>(object);
-
-        if (item && DesignerSupport::isComponentComplete(item))
-            return;
-
-        QList<QObject*> childList = object->children();
-
-        if (item) {
-            foreach (QQuickItem *childItem, item->childItems()) {
-                if (!childList.contains(childItem))
-                    childList.append(childItem);
-            }
-        }
-
-        foreach (QObject *child, childList) {
-            if (!nodeInstanceServer->hasInstanceForObject(child))
-                doComponentCompleteRecursive(child, nodeInstanceServer);
-        }
-
-        if (item) {
-            static_cast<QQmlParserStatus*>(item)->componentComplete();
-        } else {
-            QQmlParserStatus *qmlParserStatus = dynamic_cast< QQmlParserStatus*>(object);
-            if (qmlParserStatus)
-                qmlParserStatus->componentComplete();
-        }
-    }
 }
 
 ObjectNodeInstance::Pointer ObjectNodeInstance::parentInstance() const
@@ -1295,16 +867,6 @@ int ObjectNodeInstance::penWidth() const
     return 0;
 }
 
-void ObjectNodeInstance::createDynamicProperty(const QString &name, const QString &/*typeName*/)
-{
-    if (m_metaObject == 0) {
-        qWarning() << "ObjectNodeInstance.createDynamicProperty: No Metaobject.";
-        return;
-    }
-
-    m_metaObject->createNewProperty(name);
-}
-
 bool ObjectNodeInstance::updateStateVariant(const ObjectNodeInstance::Pointer &/*target*/, const PropertyName &/*propertyName*/, const QVariant &/*value*/)
 {
     return false;
@@ -1322,7 +884,7 @@ bool ObjectNodeInstance::resetStateProperty(const ObjectNodeInstance::Pointer &/
 
 void ObjectNodeInstance::doComponentComplete()
 {
-    doComponentCompleteRecursive(object(), nodeInstanceServer());
+    QmlPrivateGate::doComponentCompleteRecursive(object(), nodeInstanceServer());
 }
 
 bool ObjectNodeInstance::isRootNodeInstance() const

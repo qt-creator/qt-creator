@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,7 +37,6 @@
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <cplusplus/CppDocument.h>
 
-#include <QDebug>
 #include <QList>
 
 //using namespace QmlJS;
@@ -51,6 +51,9 @@ public:
     LanguageUtils::ComponentVersion version;
     Scope *scope;
     QString typeExpression;
+    QString url;
+    bool isCreatable;
+    bool isSingleton;
 };
 
 class ContextProperty {
@@ -72,6 +75,24 @@ class FindExportsVisitor : protected ASTVisitor
     QList<CPlusPlus::Document::DiagnosticMessage> _messages;
 
 public:
+    enum RegistrationFunction {
+        InvalidRegistrationFunction,
+        // template<typename T> int qmlRegisterType(const char *uri, int versionMajor, int versionMinor, const char *qmlName);
+        // or template<typename T, int metaObjectRevision> int qmlRegisterType(const char *uri, int versionMajor, int versionMinor, const char *qmlName);
+        QmlRegisterType4,
+        // int qmlRegisterType(const QUrl & url, const char * uri, int versionMajor, int versionMinor, const char * qmlName)
+        QmlRegisterType5,
+        // template<typename T> int qmlRegisterSingletonType(const char * uri, int versionMajor, int versionMinor, const char * typeName, QObject *(* ) ( QQmlEngine *, QJSEngine * ) callback)
+        QmlRegisterSingletonTypeCallback1,
+        // int qmlRegisterSingletonType(const char * uri, int versionMajor, int versionMinor, const char * typeName, QJSValue(* ) ( QQmlEngine *, QJSEngine * ) callback)
+        QmlRegisterSingletonTypeCallback2,
+        // int qmlRegisterSingletonType(const QUrl &url, const char *uri, int versionMajor, int versionMinor, const char *qmlName)
+        QmlRegisterSingletonTypeUrl,
+        // template<typename T> int qmlRegisterUncreatableType(const char *uri, int versionMajor, int versionMinor, const char *qmlName, const QString& reason)
+        // or template<typename T, int metaObjectRevision> int qmlRegisterUncreatableType(const char *uri, int versionMajor, int versionMinor, const char *qmlName, const QString& reason)
+        QmlRegisterUncreatableType
+    };
+
     FindExportsVisitor(CPlusPlus::Document::Ptr doc)
         : ASTVisitor(doc->translationUnit())
         , _doc(doc)
@@ -123,63 +144,112 @@ protected:
         IdExpressionAST *idExp = ast->base_expression->asIdExpression();
         if (!idExp || !idExp->name)
             return false;
-        TemplateIdAST *templateId = idExp->name->asTemplateId();
-        if (!templateId || !templateId->identifier_token)
-            return false;
-
-        // check the name
-        const Identifier *templateIdentifier = translationUnit()->identifier(templateId->identifier_token);
-        if (!templateIdentifier)
-            return false;
-        const QString callName = QString::fromUtf8(templateIdentifier->chars());
-        int argCount = 0;
-        if (callName == QLatin1String("qmlRegisterType"))
-            argCount = 4;
-        else if (callName == QLatin1String("qmlRegisterUncreatableType"))
-            argCount = 5;
-        else
-            return false;
-
-        // check that there is a typeId
-        if (!templateId->template_argument_list || !templateId->template_argument_list->value)
-            return false;
-        // sometimes there can be a second argument, the metaRevisionNumber
-        if (templateId->template_argument_list->next) {
-            if (!templateId->template_argument_list->next->value ||
-                    templateId->template_argument_list->next->next)
+        RegistrationFunction registrationFunction = InvalidRegistrationFunction;
+        TypeIdAST *typeId = 0;
+        if (TemplateIdAST *templateId = idExp->name->asTemplateId()) {
+            if (!templateId->identifier_token)
                 return false;
-            // should just check for a generic ExpressionAST?
-            NumericLiteralAST *metaRevision =
-                    templateId->template_argument_list->next->value->asNumericLiteral();
-            if (!metaRevision)
+
+            // check the name
+            const Identifier *templateIdentifier = translationUnit()->identifier(templateId->identifier_token);
+            if (!templateIdentifier)
                 return false;
+            const QString callName = QString::fromUtf8(templateIdentifier->chars());
+            if (callName == QLatin1String("qmlRegisterType"))
+                registrationFunction = QmlRegisterType4;
+            else if (callName == QLatin1String("qmlRegisterSingletonType"))
+                registrationFunction = QmlRegisterSingletonTypeCallback1;
+            else if (callName == QLatin1String("qmlRegisterUncreatableType"))
+                registrationFunction = QmlRegisterUncreatableType;
+            else
+                return false;
+
+            // check that there is a typeId
+            if (!templateId->template_argument_list || !templateId->template_argument_list->value)
+                return false;
+            // sometimes there can be a second argument, the metaRevisionNumber
+            if (templateId->template_argument_list->next) {
+                if (!templateId->template_argument_list->next->value ||
+                        templateId->template_argument_list->next->next)
+                    return false;
+                // should just check for a generic ExpressionAST?
+                NumericLiteralAST *metaRevision =
+                        templateId->template_argument_list->next->value->asNumericLiteral();
+                if (!metaRevision)
+                    return false;
+            }
+
+            typeId = templateId->template_argument_list->value->asTypeId();
+            if (!typeId)
+                return false;
+        } else if (idExp->name) {
+            QByteArray fName;
+            if (SimpleNameAST *simpleName = idExp->name->asSimpleName()) {
+                if (const Identifier *id = translationUnit()->identifier(simpleName->identifier_token))
+                    fName = QByteArray(id->chars(), id->size());
+            }
+            if (fName == "qmlRegisterType")
+                registrationFunction = QmlRegisterType5;
+            else if (fName == "qmlRegisterSingletonType")
+                registrationFunction = QmlRegisterSingletonTypeCallback2;
+            else
+                return false;
+        } else {
+            return false;
         }
-
-        TypeIdAST *typeId = templateId->template_argument_list->value->asTypeId();
-        if (!typeId)
-            return false;
-
-        // must have four arguments for qmlRegisterType and five for qmlRegisterUncreatableType
+        // must have at least four arguments
         if (!ast->expression_list
                 || !ast->expression_list->value || !ast->expression_list->next
                 || !ast->expression_list->next->value || !ast->expression_list->next->next
                 || !ast->expression_list->next->next->value || !ast->expression_list->next->next->next
                 || !ast->expression_list->next->next->next->value)
             return false;
-        if (argCount == 4 && ast->expression_list->next->next->next->next)
+        switch (registrationFunction) {
+        case InvalidRegistrationFunction:
             return false;
-        if (argCount == 5 && (!ast->expression_list->next->next->next->next
-                              || !ast->expression_list->next->next->next->next->value
-                              || ast->expression_list->next->next->next->next->next))
-            return false;
-
-        // 4th argument must be a string literal
+        case QmlRegisterType4:
+            break;
+        case QmlRegisterType5:
+        case QmlRegisterSingletonTypeCallback1:
+        case QmlRegisterSingletonTypeCallback2:
+        case QmlRegisterSingletonTypeUrl:
+        case QmlRegisterUncreatableType:
+            if (!ast->expression_list->next->next->next->next
+                    || !ast->expression_list->next->next->next->next->value
+                    || ast->expression_list->next->next->next->next->next)
+                return false;
+        }
+        ExpressionAST *uriExp = 0;
+        ExpressionAST *majorVersionExp = 0;
+        ExpressionAST *minorVersionExp = 0;
+        ExpressionAST *nameExp = 0;
+        if (registrationFunction == QmlRegisterType5) {
+            uriExp = ast->expression_list->next->value;
+            majorVersionExp = ast->expression_list->next->next->value;
+            minorVersionExp = ast->expression_list->next->next->next->value;
+            nameExp = ast->expression_list->next->next->next->next->value;
+        } else if (registrationFunction == QmlRegisterSingletonTypeCallback2
+                   && (!ast->expression_list->next->value->asNumericLiteral()
+                       || ast->expression_list->next->next->next->value->asNumericLiteral())) {
+            // discriminate between QmlRegisterSingletonTypeCallback2 and QmlRegisterSingletonTypeUrl,
+            // this is very rough check, improve?
+            registrationFunction = QmlRegisterSingletonTypeUrl;
+            uriExp = ast->expression_list->next->value;
+            majorVersionExp = ast->expression_list->next->next->value;
+            minorVersionExp = ast->expression_list->next->next->next->value;
+            nameExp = ast->expression_list->next->next->next->next->value;
+        } else {
+            uriExp = ast->expression_list->value;
+            majorVersionExp = ast->expression_list->next->value;
+            minorVersionExp = ast->expression_list->next->next->value;
+            nameExp = ast->expression_list->next->next->next->value;
+        }
         const StringLiteral *nameLit = 0;
-        if (StringLiteralAST *nameAst = skipStringCall(ast->expression_list->next->next->next->value)->asStringLiteral())
+        if (StringLiteralAST *nameAst = skipStringCall(nameExp)->asStringLiteral())
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
         if (!nameLit) {
             unsigned line, column;
-            translationUnit()->getTokenStartPosition(ast->expression_list->next->next->next->value->firstToken(), &line, &column);
+            translationUnit()->getTokenStartPosition(nameExp->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
                         _doc->fileName(),
@@ -189,9 +259,9 @@ protected:
             return false;
         }
 
-        // if the first argument is a string literal, things are easy
+        // if the uri is a string literal, things are easy
         QString packageName;
-        if (StringLiteralAST *packageAst = skipStringCall(ast->expression_list->value)->asStringLiteral()) {
+        if (StringLiteralAST *packageAst = skipStringCall(uriExp)->asStringLiteral()) {
             const StringLiteral *packageLit = translationUnit()->stringLiteral(packageAst->literal_token);
             packageName = QString::fromUtf8(packageLit->chars(), packageLit->size());
         }
@@ -199,7 +269,7 @@ protected:
         // Q_ASSERT(QLatin1String(uri) == QLatin1String("actual uri"));
         // in the enclosing compound statement
         QString uriNameString;
-        if (IdExpressionAST *uriName = ast->expression_list->value->asIdExpression())
+        if (IdExpressionAST *uriName = uriExp->asIdExpression())
             uriNameString = stringOf(uriName);
         if (packageName.isEmpty() && !uriNameString.isEmpty() && _compound) {
             for (StatementListAST *it = _compound->statement_list; it; it = it->next) {
@@ -225,8 +295,10 @@ protected:
             // go through comments backwards to find the annotation closest to the call
             for (unsigned i = _doc->translationUnit()->commentCount(); i-- > 0; ) {
                 const Token commentToken = _doc->translationUnit()->commentAt(i);
-                if (commentToken.begin() >= end.begin() || commentToken.end() <= begin.begin())
+                if (commentToken.utf16charsBegin() >= end.utf16charsBegin()
+                        || commentToken.utf16charsEnd() <= begin.utf16charsBegin()) {
                     continue;
+                }
                 const QString comment = stringOf(commentToken);
                 if (uriAnnotation.indexIn(comment) != -1) {
                     packageName = uriAnnotation.cap(1);
@@ -248,16 +320,21 @@ protected:
                             "Qt Creator know about a likely URI."));
         }
 
-        // second and third argument must be integer literals
+        // version arguments must be integer literals
         const NumericLiteral *majorLit = 0;
         const NumericLiteral *minorLit = 0;
-        if (NumericLiteralAST *majorAst = ast->expression_list->next->value->asNumericLiteral())
+        if (NumericLiteralAST *majorAst = majorVersionExp->asNumericLiteral())
             majorLit = translationUnit()->numericLiteral(majorAst->literal_token);
-        if (NumericLiteralAST *minorAst = ast->expression_list->next->next->value->asNumericLiteral())
+        if (NumericLiteralAST *minorAst = minorVersionExp->asNumericLiteral())
             minorLit = translationUnit()->numericLiteral(minorAst->literal_token);
 
         // build the descriptor
         ExportedQmlType exportedType;
+        exportedType.isSingleton = registrationFunction == QmlRegisterSingletonTypeCallback1
+                || registrationFunction == QmlRegisterSingletonTypeCallback2
+                || registrationFunction == QmlRegisterSingletonTypeUrl;
+        exportedType.isCreatable = !exportedType.isSingleton
+                && registrationFunction != QmlRegisterUncreatableType;
         exportedType.typeName = QString::fromUtf8(nameLit->chars(), nameLit->size());
         exportedType.packageName = packageName;
         if (majorLit && minorLit && majorLit->isInt() && minorLit->isInt()) {
@@ -271,11 +348,27 @@ protected:
         translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
         exportedType.scope = _doc->scopeAt(line, column);
 
-        // and the expression
-        const Token begin = translationUnit()->tokenAt(typeId->firstToken());
-        const Token last = translationUnit()->tokenAt(typeId->lastToken() - 1);
-        exportedType.typeExpression = QString::fromUtf8(_doc->utf8Source().mid(begin.begin(), last.end() - begin.begin()));
-
+        if (typeId){
+            // add the expression
+            const Token begin = translationUnit()->tokenAt(typeId->firstToken());
+            const Token last = translationUnit()->tokenAt(typeId->lastToken() - 1);
+            exportedType.typeExpression = QString::fromUtf8(
+                        _doc->utf8Source().mid(begin.bytesBegin(), last.bytesEnd() - begin.bytesBegin()));
+        } else if (registrationFunction == QmlRegisterSingletonTypeCallback2) {
+            // we cannot really do much with generated QJSValue values
+        } else if (registrationFunction == QmlRegisterSingletonTypeUrl
+                   || registrationFunction == QmlRegisterType5) {
+            // try to recover QUrl("literal")
+            if (ast->expression_list && ast->expression_list->value) {
+                ExpressionAST *urlAst = skipStringCall(skipQUrl(ast->expression_list->value, translationUnit()));
+                if (StringLiteralAST *uriAst = urlAst->asStringLiteral()) {
+                    const StringLiteral *urlLit = translationUnit()->stringLiteral(uriAst->literal_token);
+                    exportedType.url = QString::fromUtf8(urlLit->chars(), urlLit->size());
+                }
+            }
+        } else {
+            qCWarning(QmlJS::qmljsLog()) << "missing template type for registrationFunction " << registrationFunction;
+        }
         _exportedTypes += exportedType;
 
         return true;
@@ -335,6 +428,32 @@ protected:
             if (QString::fromUtf8(lhsId->chars(), lhsId->size()) != QLatin1String("QVariant"))
                 return ast;
             return call->expression_list->value;
+        }
+
+        return ast;
+    }
+
+    static ExpressionAST *skipQUrl(ExpressionAST *ast, TranslationUnit *translationUnit)
+    {
+        CallAST *call = ast->asCall();
+        if (!call)
+            return ast;
+        if (!call->expression_list
+                || !call->expression_list->value
+                || call->expression_list->next)
+            return ast;
+
+        IdExpressionAST *idExp = call->base_expression->asIdExpression();
+        if (!idExp || !idExp->name)
+            return ast;
+
+        // QUrl(foo) -> foo
+        if (SimpleNameAST *simpleName = idExp->name->asSimpleName()) {
+            const Identifier *id = translationUnit->identifier(simpleName->identifier_token);
+            if (!id)
+                return ast;
+            if (QByteArray(id->chars(), id->size()) == "QUrl")
+                return call->expression_list->value;
         }
 
         return ast;
@@ -401,12 +520,14 @@ private:
     {
         const Token firstToken = translationUnit()->tokenAt(first);
         const Token lastToken = translationUnit()->tokenAt(last);
-        return QString::fromUtf8(_doc->utf8Source().mid(firstToken.begin(), lastToken.end() - firstToken.begin()));
+        return QString::fromUtf8(
+            _doc->utf8Source().mid(firstToken.bytesBegin(),
+                                   lastToken.bytesEnd() - firstToken.bytesBegin()));
     }
 
     QString stringOf(const Token &token)
     {
-        return QString::fromUtf8(_doc->utf8Source().mid(token.begin(), token.length()));
+        return QString::fromUtf8(_doc->utf8Source().mid(token.bytesBegin(), token.bytes()));
     }
 
     ExpressionAST *skipStringCall(ExpressionAST *exp)
@@ -627,7 +748,8 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
 static void buildExportedQmlObjects(
         TypeOfExpression &typeOf,
         const QList<ExportedQmlType> &cppExports,
-        QHash<Class *, LanguageUtils::FakeMetaObject::Ptr> *fakeMetaObjects)
+        QHash<Class *, LanguageUtils::FakeMetaObject::Ptr> *fakeMetaObjects,
+        QList<LanguageUtils::FakeMetaObject::Ptr> *extraFakeMetaObjects)
 {
     using namespace LanguageUtils;
 
@@ -635,12 +757,21 @@ static void buildExportedQmlObjects(
         return;
 
     foreach (const ExportedQmlType &exportedType, cppExports) {
-        Class *klass = lookupClass(exportedType.typeExpression, exportedType.scope, typeOf);
+        Class *klass = 0;
+        if (!exportedType.typeExpression.isEmpty())
+            klass = lookupClass(exportedType.typeExpression, exportedType.scope, typeOf);
+        // TODO: something smarter with exportedType.url
         // accepts a null klass
         FakeMetaObject::Ptr fmo = buildFakeMetaObject(klass, fakeMetaObjects, typeOf);
         fmo->addExport(exportedType.typeName,
                        exportedType.packageName,
                        exportedType.version);
+        fmo->setIsCreatable(exportedType.isCreatable);
+        fmo->setIsSingleton(exportedType.isSingleton);
+        if (!klass) {
+            fmo->setClassName(QLatin1String("__autogen__") + exportedType.typeName);
+            extraFakeMetaObjects->append(fmo);
+        }
     }
 }
 
@@ -725,9 +856,10 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
     TypeOfExpression typeOf;
     typeOf.init(localDoc, m_snapshot);
     QHash<Class *, LanguageUtils::FakeMetaObject::Ptr> fakeMetaObjects;
+    QList<LanguageUtils::FakeMetaObject::Ptr> extraFakeMetaObjects;
 
     // generate the exports from qmlRegisterType
-    buildExportedQmlObjects(typeOf, exports, &fakeMetaObjects);
+    buildExportedQmlObjects(typeOf, exports, &fakeMetaObjects, &extraFakeMetaObjects);
 
     // add the types from the context properties and create a name->cppname map
     // also expose types where necessary
@@ -735,8 +867,12 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
                            &fakeMetaObjects, &m_contextProperties);
 
     // convert to list of FakeMetaObject::ConstPtr
-    m_exportedTypes.reserve(fakeMetaObjects.size());
+    m_exportedTypes.reserve(fakeMetaObjects.size() + extraFakeMetaObjects.size());
     foreach (const LanguageUtils::FakeMetaObject::Ptr &fmo, fakeMetaObjects) {
+        fmo->updateFingerprint();
+        m_exportedTypes += fmo;
+    }
+    foreach (const LanguageUtils::FakeMetaObject::Ptr &fmo, extraFakeMetaObjects) {
         fmo->updateFingerprint();
         m_exportedTypes += fmo;
     }
@@ -756,11 +892,16 @@ bool FindExportedCppTypes::maybeExportsTypes(const CPlusPlus::Document::Ptr &doc
 {
     if (!document->control())
         return false;
-    const QByteArray qmlRegisterTypeToken("qmlRegisterType");
+    const QByteArray qmlRegisterSingletonTypeToken("qmlRegisterType");
+    const QByteArray qmlRegisterTypeToken("qmlRegisterSingletonType");
     const QByteArray qmlRegisterUncreatableTypeToken("qmlRegisterUncreatableType");
     const QByteArray setContextPropertyToken("setContextProperty");
     if (document->control()->findIdentifier(
                 qmlRegisterTypeToken.constData(), qmlRegisterTypeToken.size())) {
+        return true;
+    }
+    if (document->control()->findIdentifier(
+                qmlRegisterSingletonTypeToken.constData(), qmlRegisterSingletonTypeToken.size())) {
         return true;
     }
     if (document->control()->findIdentifier(

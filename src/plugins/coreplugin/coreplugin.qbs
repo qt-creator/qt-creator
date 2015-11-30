@@ -1,6 +1,5 @@
-import qbs.base 1.0
+import qbs 1.0
 import qbs.FileInfo
-import QtcPlugin
 
 QtcPlugin {
     name: "Core"
@@ -8,9 +7,15 @@ QtcPlugin {
     Depends {
         name: "Qt"
         submodules: [
-            "widgets", "xml", "network", "script", "sql", "help", "printsupport"
+            "widgets", "xml", "network", "qml", "sql", "help", "printsupport"
         ]
     }
+
+    Depends {
+        name: "Qt.gui-private"
+        condition: qbs.targetOS.contains("windows")
+    }
+
     Depends { name: "Utils" }
     Depends { name: "Aggregation" }
 
@@ -29,16 +34,19 @@ QtcPlugin {
         name: "General"
         files: [
             "basefilewizard.cpp", "basefilewizard.h",
+            "basefilewizardfactory.cpp", "basefilewizardfactory.h",
             "core.qrc",
             "core_global.h",
             "coreconstants.h",
+            "coreicons.h",
+            "corejsextensions.cpp", "corejsextensions.h",
             "coreplugin.cpp", "coreplugin.h",
             "designmode.cpp", "designmode.h",
             "documentmanager.cpp", "documentmanager.h",
             "editmode.cpp", "editmode.h",
             "editortoolbar.cpp", "editortoolbar.h",
             "externaltool.cpp", "externaltool.h",
-            "externaltoolmanager.h",
+            "externaltoolmanager.cpp", "externaltoolmanager.h",
             "fancyactionbar.cpp", "fancyactionbar.h", "fancyactionbar.qrc",
             "fancytabwidget.cpp", "fancytabwidget.h",
             "featureprovider.cpp", "featureprovider.h",
@@ -50,21 +58,23 @@ QtcPlugin {
             "helpmanager.cpp", "helpmanager.h",
             "icontext.cpp", "icontext.h",
             "icore.cpp", "icore.h",
-            "icorelistener.cpp", "icorelistener.h",
             "id.cpp", "id.h",
             "idocument.cpp", "idocument.h",
-            "idocumentfactory.h",
+            "idocumentfactory.cpp", "idocumentfactory.h",
             "ifilewizardextension.h",
             "imode.cpp", "imode.h",
             "inavigationwidgetfactory.cpp", "inavigationwidgetfactory.h",
             "infobar.cpp", "infobar.h",
             "ioutputpane.cpp", "ioutputpane.h",
             "iversioncontrol.cpp", "iversioncontrol.h",
+            "iwelcomepage.cpp", "iwelcomepage.h",
+            "iwizardfactory.cpp", "iwizardfactory.h",
+            "jsexpander.cpp", "jsexpander.h",
             "mainwindow.cpp", "mainwindow.h",
             "manhattanstyle.cpp", "manhattanstyle.h",
+            "messagebox.cpp", "messagebox.h",
             "messagemanager.cpp", "messagemanager.h",
             "messageoutputwindow.cpp", "messageoutputwindow.h",
-            "mimedatabase.cpp", "mimedatabase.h",
             "mimetypemagicdialog.cpp", "mimetypemagicdialog.h", "mimetypemagicdialog.ui",
             "mimetypesettings.cpp", "mimetypesettings.h",
             "mimetypesettingspage.ui",
@@ -72,25 +82,30 @@ QtcPlugin {
             "modemanager.cpp", "modemanager.h",
             "navigationsubwidget.cpp", "navigationsubwidget.h",
             "navigationwidget.cpp", "navigationwidget.h",
+            "opendocumentstreeview.cpp", "opendocumentstreeview.h",
             "outputpane.cpp", "outputpane.h",
             "outputpanemanager.cpp", "outputpanemanager.h",
             "outputwindow.cpp", "outputwindow.h",
+            "patchtool.cpp", "patchtool.h",
             "plugindialog.cpp", "plugindialog.h",
             "removefiledialog.cpp", "removefiledialog.h", "removefiledialog.ui",
             "rightpane.cpp", "rightpane.h",
             "settingsdatabase.cpp", "settingsdatabase.h",
+            "shellcommand.cpp", "shellcommand.h",
             "sidebar.cpp", "sidebar.h",
             "sidebarwidget.cpp", "sidebarwidget.h",
             "statusbarmanager.cpp", "statusbarmanager.h",
             "statusbarwidget.cpp", "statusbarwidget.h",
             "styleanimator.cpp", "styleanimator.h",
-            "tabpositionindicator.cpp", "tabpositionindicator.h",
+            "systemsettings.cpp", "systemsettings.h", "systemsettings.ui",
             "textdocument.cpp", "textdocument.h",
+            "themesettings.cpp", "themesettings.h", "themesettings.ui",
+            "themesettingswidget.cpp", "themesettingswidget.h",
             "toolsettings.cpp", "toolsettings.h",
-            "variablechooser.cpp", "variablechooser.h", "variablechooser.ui",
-            "variablemanager.cpp", "variablemanager.h",
+            "variablechooser.cpp", "variablechooser.h",
             "vcsmanager.cpp", "vcsmanager.h",
             "versiondialog.cpp", "versiondialog.h",
+            "windowsupport.cpp", "windowsupport.h"
         ]
     }
 
@@ -114,7 +129,6 @@ QtcPlugin {
             "addtovcsdialog.cpp", "addtovcsdialog.h", "addtovcsdialog.ui",
             "externaltoolconfig.cpp", "externaltoolconfig.h", "externaltoolconfig.ui",
             "ioptionspage.cpp", "ioptionspage.h",
-            "iwizard.cpp", "iwizard.h",
             "newdialog.cpp", "newdialog.h", "newdialog.ui",
             "openwithdialog.cpp", "openwithdialog.h", "openwithdialog.ui",
             "promptoverwritedialog.cpp", "promptoverwritedialog.h",
@@ -129,10 +143,11 @@ QtcPlugin {
         name: "Editor Manager"
         prefix: "editormanager/"
         files: [
-            "BinFiles.mimetypes.xml",
             "documentmodel.cpp", "documentmodel.h",
-            "editormanager.cpp", "editormanager.h",
+            "editorarea.cpp", "editorarea.h",
+            "editormanager.cpp", "editormanager.h", "editormanager_p.h",
             "editorview.cpp", "editorview.h",
+            "editorwindow.cpp", "editorwindow.h",
             "ieditor.cpp", "ieditor.h",
             "ieditorfactory.cpp", "ieditorfactory.h",
             "iexternaleditor.cpp", "iexternaleditor.h",
@@ -165,8 +180,6 @@ QtcPlugin {
         name: "ProgressManager_mac"
         condition: qbs.targetOS.contains("osx")
         files: [
-            "macfullscreen.h",
-            "macfullscreen.mm",
             "progressmanager/progressmanager_mac.mm",
         ]
     }
@@ -210,10 +223,14 @@ QtcPlugin {
             "findtoolwindow.cpp",
             "findtoolwindow.h",
             "findwidget.ui",
+            "highlightscrollbar.cpp",
+            "highlightscrollbar.h",
             "ifindfilter.cpp",
             "ifindfilter.h",
             "ifindsupport.cpp",
             "ifindsupport.h",
+            "itemviewfind.cpp",
+            "itemviewfind.h",
             "searchresultcolor.h",
             "searchresulttreeitemdelegate.cpp",
             "searchresulttreeitemdelegate.h",
@@ -229,8 +246,6 @@ QtcPlugin {
             "searchresultwindow.cpp",
             "searchresultwindow.h",
             "textfindconstants.h",
-            "treeviewfind.cpp",
-            "treeviewfind.h",
         ]
     }
 
@@ -247,6 +262,8 @@ QtcPlugin {
             "directoryfilter.ui",
             "executefilter.cpp",
             "executefilter.h",
+            "externaltoolsfilter.cpp",
+            "externaltoolsfilter.h",
             "filesystemfilter.cpp",
             "filesystemfilter.h",
             "filesystemfilter.ui",
@@ -266,11 +283,44 @@ QtcPlugin {
             "locatorwidget.h",
             "opendocumentsfilter.cpp",
             "opendocumentsfilter.h",
-            "settingspage.cpp",
-            "settingspage.h",
-            "settingspage.ui",
+            "locatorsettingspage.cpp",
+            "locatorsettingspage.h",
+            "locatorsettingspage.ui",
             "images/locator.png",
             "images/reload.png",
+        ]
+    }
+
+    Group {
+        name: "Locator_mac"
+        condition: qbs.targetOS.contains("osx")
+        files: [
+            "locator/spotlightlocatorfilter.h",
+            "locator/spotlightlocatorfilter.mm",
+        ]
+    }
+
+    Group {
+        name: "ThemeEditor"
+        prefix: "themeeditor/"
+        files: [
+            "colorrole.cpp",
+            "colorrole.h",
+            "colorvariable.cpp",
+            "colorvariable.h",
+            "sectionedtablemodel.cpp",
+            "sectionedtablemodel.h",
+            "themecolors.cpp",
+            "themecolors.h",
+            "themecolorstableview.cpp",
+            "themecolorstableview.h",
+            "themeeditorwidget.cpp",
+            "themeeditorwidget.h",
+            "themeeditorwidget.ui",
+            "themesettingsitemdelegate.cpp",
+            "themesettingsitemdelegate.h",
+            "themesettingstablemodel.cpp",
+            "themesettingstablemodel.h",
         ]
     }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,6 +34,7 @@ Rectangle {
     id: delegate
     height: 240
     width: 216
+    color: creatorTheme.Welcome_BackgroundColorNormal
 
     property alias caption: captionItem.text
     property alias imageSource: imageItem.source
@@ -105,7 +107,7 @@ Rectangle {
         y: 161
         width: 200
         height: 69
-        color: "#ffffff"
+        color: creatorTheme.Welcome_BackgroundColorNormal
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: parent.left
@@ -115,7 +117,7 @@ Rectangle {
         id: captionItem
         x: 16
         y: 170
-        color: colors.strongForegroundColor
+        color: creatorTheme.Welcome_Caption_TextColorNormal
         text: qsTr("2D PAINTING EXAMPLE long description")
         elide: Text.ElideRight
         anchors.right: parent.right
@@ -162,6 +164,7 @@ Rectangle {
         x: 16
         y: 198
         text: qsTr("Tags:")
+        color: creatorTheme.Welcome_TextColorNormal
         smooth: true
         font.italic: false
         font.pixelSize: 11
@@ -221,9 +224,14 @@ Rectangle {
             if (model.isVideo)
                 gettingStarted.openUrl(model.videoUrl);
             else if (model.hasSourceCode)
-                gettingStarted.openProject(model.projectPath, model.filesToOpen, model.docUrl, model.dependencies, model.platforms)
+                gettingStarted.openProject(model.projectPath,
+                                           model.filesToOpen,
+                                           model.mainFile,
+                                           model.docUrl,
+                                           model.dependencies,
+                                           model.platforms)
             else
-                gettingStarted.openSplitHelp(model.docUrl);
+                gettingStarted.openHelpInExtraWindow(model.docUrl);
         }
 
     }

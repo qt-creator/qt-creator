@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,29 +34,32 @@
 #include "cppquickfixassistant.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpplocalsymbols.h>
 #include <cpptools/symbolfinder.h>
 #include <texteditor/refactoroverlay.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppRewriter.h>
+#include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
-#include <utils/tooltip/tipcontents.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QtConcurrentRun>
 #include <QVarLengthArray>
 
 using namespace CPlusPlus;
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
 using namespace Utils;
+
+namespace CppEditor {
+namespace Internal {
 
 FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
     : QObject(parent)
@@ -123,7 +127,7 @@ static bool findDeclOrDef(const Document::Ptr &doc, int line, int column,
     return *funcDecl;
 }
 
-static void declDefLinkStartEnd(const CppTools::CppRefactoringFileConstPtr &file,
+static void declDefLinkStartEnd(const CppRefactoringFileConstPtr &file,
                                 DeclarationAST *parent, FunctionDeclaratorAST *funcDecl,
                                 int *start, int *end)
 {
@@ -149,14 +153,14 @@ static DeclaratorIdAST *getDeclaratorId(DeclaratorAST *declarator)
     return 0;
 }
 
-static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<FunctionDeclDefLink> link, CppTools::CppRefactoringChanges changes)
+static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<FunctionDeclDefLink> link, CppRefactoringChanges changes)
 {
     QSharedPointer<FunctionDeclDefLink> noResult;
     const Snapshot &snapshot = changes.snapshot();
 
     // find the matching decl/def symbol
     Symbol *target = 0;
-    CppTools::SymbolFinder finder;
+    SymbolFinder finder;
     if (FunctionDefinitionAST *funcDef = link->sourceDeclaration->asFunctionDefinition()) {
         QList<Declaration *> nameMatch, argumentCountMatch, typeMatch;
         finder.findMatchingDeclaration(LookupContext(link->sourceDocument, snapshot),
@@ -173,7 +177,7 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
     // parse the target file to get the linked decl/def
     const QString targetFileName = QString::fromUtf8(
                 target->fileName(), target->fileNameLength());
-    CppTools::CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(targetFileName);
+    CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(targetFileName);
     if (!targetFile->isValid())
         return noResult;
 
@@ -220,8 +224,8 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
         return;
 
     // find the start/end offsets
-    CppTools::CppRefactoringChanges refactoringChanges(snapshot);
-    CppTools::CppRefactoringFilePtr sourceFile = refactoringChanges.file(doc->fileName());
+    CppRefactoringChanges refactoringChanges(snapshot);
+    CppRefactoringFilePtr sourceFile = refactoringChanges.file(doc->fileName());
     sourceFile->setCppDocument(doc);
     int start, end;
     declDefLinkStartEnd(sourceFile, parent, funcDecl, &start, &end);
@@ -283,16 +287,16 @@ bool FunctionDeclDefLink::isMarkerVisible() const
 
 static bool namesEqual(const Name *n1, const Name *n2)
 {
-    return n1 == n2 || (n1 && n2 && n1->isEqualTo(n2));
+    return n1 == n2 || (n1 && n2 && n1->match(n2));
 }
 
-void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
+void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
 {
     Snapshot snapshot = editor->semanticInfo().snapshot;
 
     // first verify the interesting region of the target file is unchanged
-    CppTools::CppRefactoringChanges refactoringChanges(snapshot);
-    CppTools::CppRefactoringFilePtr newTargetFile = refactoringChanges.file(targetFile->fileName());
+    CppRefactoringChanges refactoringChanges(snapshot);
+    CppRefactoringFilePtr newTargetFile = refactoringChanges.file(targetFile->fileName());
     if (!newTargetFile->isValid())
         return;
     const int targetStart = newTargetFile->position(targetLine, targetColumn);
@@ -307,37 +311,35 @@ void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
         newTargetFile->apply();
     } else {
         ToolTip::show(editor->toolTipPosition(linkSelection),
-                     TextContent(tr("Target file was changed, could not apply changes")));
+                     tr("Target file was changed, could not apply changes"));
     }
 }
 
-template <class T>
-static QList<TextEditor::RefactorMarker> removeMarkersOfType(const QList<TextEditor::RefactorMarker> &markers)
+static QList<RefactorMarker> removeDeclDefLinkMarkers(const QList<RefactorMarker> &markers)
 {
-    QList<TextEditor::RefactorMarker> result;
-    foreach (const TextEditor::RefactorMarker &marker, markers) {
-        if (!marker.data.canConvert<T>())
+    QList<RefactorMarker> result;
+    foreach (const RefactorMarker &marker, markers) {
+        if (!marker.data.canConvert<FunctionDeclDefLink::Marker>())
             result += marker;
     }
     return result;
 }
 
-void FunctionDeclDefLink::hideMarker(CPPEditorWidget *editor)
+void FunctionDeclDefLink::hideMarker(CppEditorWidget *editor)
 {
     if (!hasMarker)
         return;
-    editor->setRefactorMarkers(
-                removeMarkersOfType<Marker>(editor->refactorMarkers()));
+    editor->setRefactorMarkers(removeDeclDefLinkMarkers(editor->refactorMarkers()));
     hasMarker = false;
 }
 
-void FunctionDeclDefLink::showMarker(CPPEditorWidget *editor)
+void FunctionDeclDefLink::showMarker(CppEditorWidget *editor)
 {
     if (hasMarker)
         return;
 
-    QList<TextEditor::RefactorMarker> markers = removeMarkersOfType<Marker>(editor->refactorMarkers());
-    TextEditor::RefactorMarker marker;
+    QList<RefactorMarker> markers = removeDeclDefLinkMarkers(editor->refactorMarkers());
+    RefactorMarker marker;
 
     // show the marker at the end of the linked area, with a special case
     // to avoid it overlapping with a trailing semicolon
@@ -358,7 +360,7 @@ void FunctionDeclDefLink::showMarker(CPPEditorWidget *editor)
 
     Core::Command *quickfixCommand = Core::ActionManager::command(TextEditor::Constants::QUICKFIX_THIS);
     if (quickfixCommand)
-        message = Utils::ProxyAction::stringWithAppendedShortcut(message, quickfixCommand->keySequence());
+        message = ProxyAction::stringWithAppendedShortcut(message, quickfixCommand->keySequence());
 
     marker.tooltip = message;
     marker.data = QVariant::fromValue(Marker());
@@ -414,17 +416,17 @@ static bool hasCommentedName(
     // maybe in a comment but in the right spot?
     int nameStart = 0;
     if (param->declarator)
-        nameStart = unit->tokenAt(param->declarator->lastToken() - 1).end();
+        nameStart = unit->tokenAt(param->declarator->lastToken() - 1).utf16charsEnd();
     else if (param->type_specifier_list)
-        nameStart = unit->tokenAt(param->type_specifier_list->lastToken() - 1).end();
+        nameStart = unit->tokenAt(param->type_specifier_list->lastToken() - 1).utf16charsEnd();
     else
-        nameStart = unit->tokenAt(param->firstToken()).begin();
+        nameStart = unit->tokenAt(param->firstToken()).utf16charsBegin();
 
     int nameEnd = 0;
     if (param->equal_token)
-        nameEnd = unit->tokenAt(param->equal_token).begin();
+        nameEnd = unit->tokenAt(param->equal_token).utf16charsBegin();
     else
-        nameEnd = unit->tokenAt(param->lastToken()).begin(); // one token after
+        nameEnd = unit->tokenAt(param->lastToken()).utf16charsBegin(); // one token after
 
     QString text = source.mid(nameStart, nameEnd - nameStart);
 
@@ -487,7 +489,7 @@ static int findUniqueTypeMatch(int sourceParamIndex, Function *sourceFunction, F
         int otherSourceParamIndex = sourceParams.at(i);
         if (sourceParamIndex == otherSourceParamIndex)
             continue;
-        if (sourceParam->type().isEqualTo(sourceFunction->argumentAt(otherSourceParamIndex)->type()))
+        if (sourceParam->type().match(sourceFunction->argumentAt(otherSourceParamIndex)->type()))
             return -1;
     }
 
@@ -496,7 +498,7 @@ static int findUniqueTypeMatch(int sourceParamIndex, Function *sourceFunction, F
     int newParamWithSameTypeIndex = -1;
     for (int i = 0; i < newParams.size(); ++i) {
         int newParamIndex = newParams.at(i);
-        if (sourceParam->type().isEqualTo(newFunction->argumentAt(newParamIndex)->type())) {
+        if (sourceParam->type().match(newFunction->argumentAt(newParamIndex)->type())) {
             if (newParamWithSameTypeIndex != -1)
                 return -1;
             newParamWithSameTypeIndex = newParamIndex;
@@ -530,7 +532,7 @@ static QString ensureCorrectParameterSpacing(const QString &text, bool isFirstPa
     return text;
 }
 
-static unsigned findCommaTokenBetween(const CppTools::CppRefactoringFileConstPtr &file,
+static unsigned findCommaTokenBetween(const CppRefactoringFileConstPtr &file,
                                       ParameterDeclarationAST *left, ParameterDeclarationAST *right)
 {
     unsigned last = left->lastToken() - 1;
@@ -543,9 +545,9 @@ static unsigned findCommaTokenBetween(const CppTools::CppRefactoringFileConstPtr
     return 0;
 }
 
-Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffset)
+ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffset)
 {
-    Utils::ChangeSet changes;
+    ChangeSet changes;
 
     // Everything prefixed with 'new' in this function relates to the state of the 'source'
     // function *after* the user did his changes.
@@ -635,8 +637,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
         else
             returnTypeStart = targetFile->startOf(declarator);
 
-        if (!newFunction->returnType().isEqualTo(sourceFunction->returnType())
-                && !newFunction->returnType().isEqualTo(targetFunction->returnType())) {
+        if (!newFunction->returnType().match(sourceFunction->returnType())
+                && !newFunction->returnType().match(targetFunction->returnType())) {
             FullySpecifiedType type = rewriteType(newFunction->returnType(), &env, control);
             const QString replacement = overview.prettyType(type, targetFunction->name());
             changes.replace(returnTypeStart,
@@ -671,8 +673,10 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
 
         // the number of parameters in sourceFunction or targetFunction
         const int existingParamCount = declaredParameterCount(sourceFunction);
-        QTC_ASSERT(existingParamCount == declaredParameterCount(targetFunction), return changes);
-        QTC_ASSERT(existingParamCount == targetParameterDecls.size(), return changes);
+        if (existingParamCount != declaredParameterCount(targetFunction))
+            return changes;
+        if (existingParamCount != targetParameterDecls.size())
+            return changes;
 
         const int newParamCount = declaredParameterCount(newFunction);
 
@@ -802,7 +806,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
 
                 // don't change the name if it's in a comment
                 if (hasCommentedName(targetFile->cppDocument()->translationUnit(),
-                                     QLatin1String(targetFile->cppDocument()->utf8Source()),
+                                     QString::fromUtf8(targetFile->cppDocument()->utf8Source()),
                                      targetFunctionDeclarator, existingParamIndex))
                     replacementName = 0;
 
@@ -811,8 +815,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                     renamedTargetParameters[targetParam] = overview.prettyName(replacementName);
 
                 // need to change the type (and name)?
-                if (!newParam->type().isEqualTo(sourceParam->type())
-                        && !newParam->type().isEqualTo(targetParam->type())) {
+                if (!newParam->type().match(sourceParam->type())
+                        && !newParam->type().match(targetParam->type())) {
                     const int parameterTypeStart = targetFile->startOf(targetParamAst);
                     int parameterTypeEnd = 0;
                     if (targetParamAst->declarator)
@@ -961,13 +965,16 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
     if (targetOffset != -1) {
         // move all change operations to have the right start offset
         const int moveAmount = targetOffset - targetFile->startOf(targetDeclaration);
-        QList<Utils::ChangeSet::EditOp> ops = changes.operationList();
+        QList<ChangeSet::EditOp> ops = changes.operationList();
         for (int i = 0; i < ops.size(); ++i) {
             ops[i].pos1 += moveAmount;
             ops[i].pos2 += moveAmount;
         }
-        changes = Utils::ChangeSet(ops);
+        changes = ChangeSet(ops);
     }
 
     return changes;
 }
+
+} // namespace Internal
+} // namespace CppEditor

@@ -1,7 +1,5 @@
-import qbs.base 1.0
+import qbs 1.0
 import qbs.FileInfo
-
-import QtcPlugin
 
 QtcPlugin {
     name: "Designer"
@@ -12,8 +10,14 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "CppTools" }
+    Depends { name: "ResourceEditor" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "QtSupport" }
+
+    pluginTestDepends: [
+        "CppEditor",
+    ]
 
     cpp.defines: base.concat(["CPP_ENABLED"])
     cpp.includePaths: base.concat([
@@ -29,7 +33,6 @@ QtcPlugin {
             "designer_export.h",
             "designerconstants.h",
             "designercontext.cpp", "designercontext.h",
-            "designerxmleditorwidget.cpp", "designerxmleditorwidget.h",
             "editordata.h",
             "editorwidget.cpp", "editorwidget.h",
             "formeditorfactory.cpp", "formeditorfactory.h",
@@ -39,8 +42,6 @@ QtcPlugin {
             "formtemplatewizardpage.cpp", "formtemplatewizardpage.h",
             "formwindoweditor.cpp", "formwindoweditor.h",
             "formwindowfile.cpp", "formwindowfile.h",
-            "formwizard.cpp", "formwizard.h",
-            "formwizarddialog.cpp", "formwizarddialog.h",
             "qtcreatorintegration.cpp", "qtcreatorintegration.h",
             "qtdesignerformclasscodegenerator.cpp", "qtdesignerformclasscodegenerator.h",
             "resourcehandler.cpp", "resourcehandler.h",
@@ -52,7 +53,7 @@ QtcPlugin {
     Group {
         name: "Shared Sources"
         id: sharedSources
-        prefix: "../../shared/designerintegrationv2/"
+        prefix: project.sharedSourcesDir + "/designerintegrationv2/"
         files: [
             "formresizer.cpp", "formresizer.h",
             "sizehandlerect.cpp", "sizehandlerect.h",
@@ -65,8 +66,6 @@ QtcPlugin {
         name: "cpp"
         prefix: "cpp/"
         files: [
-            "cppsettingspage.cpp", "cppsettingspage.h",
-            "cppsettingspagewidget.ui",
             "formclasswizard.cpp", "formclasswizard.h",
             "formclasswizarddialog.cpp", "formclasswizarddialog.h",
             "formclasswizardpage.cpp", "formclasswizardpage.h", "formclasswizardpage.ui",

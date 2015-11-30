@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -170,6 +166,28 @@ void FormEditorItem::setFormEditorVisible(bool isVisible)
     setVisible(isVisible);
 }
 
+QPointF FormEditorItem::center() const
+{
+    return mapToScene(qmlItemNode().instanceBoundingRect().center());
+}
+
+qreal FormEditorItem::selectionWeigth(const QPointF &point, int iteration)
+{
+    if (!qmlItemNode().isValid())
+        return 100000;
+
+    QRectF boundingRect = mapRectToScene(qmlItemNode().instanceBoundingRect());
+
+    float weight = point.x()- boundingRect.left()
+            + point.y() - boundingRect.top()
+            + boundingRect.right()- point.x()
+            + boundingRect.bottom() - point.y()
+            + (center() - point).manhattanLength()
+            + sqrt(boundingRect.width() * boundingRect.height()) / 2 * iteration;
+
+    return weight;
+}
+
 FormEditorItem::~FormEditorItem()
 {
     scene()->removeItemFromHash(this);
@@ -233,29 +251,18 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
     painter->drawRect(m_boundingRect.adjusted(0., 0., -1., -1.));
 }
 
-void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
+static void paintTextInPlaceHolderForInvisbleItem(QPainter *painter,
+                                                  const QString &id,
+                                                  const QString &typeName,
+                                                  const QRectF &boundingRect)
 {
-    painter->save();
-
-    qreal stripesWidth = 12;
-
-    QRegion innerRegion = QRegion(m_boundingRect.adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
-    QRegion outerRegion  = QRegion(m_boundingRect.toRect()) - innerRegion;
-
-    painter->setClipRegion(outerRegion);
-    painter->setClipping(true);
-    painter->fillRect(m_boundingRect.adjusted(1, 1, -1, -1), Qt::BDiagPattern);
-
-    QString displayText = qmlItemNode().id();
-
-    if (displayText.isEmpty())
-        displayText = qmlItemNode().simplifiedTypeName();
+    QString displayText = id.isEmpty() ? typeName : id;
 
     QTextOption textOption;
     textOption.setAlignment(Qt::AlignTop);
     textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 
-    if (m_boundingRect.height() > 60) {
+    if (boundingRect.height() > 60) {
         QFont font;
         font.setStyleHint(QFont::SansSerif);
         font.setBold(true);
@@ -264,22 +271,41 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
 
         QFontMetrics fm(font);
         painter->rotate(90);
-        if (fm.width(displayText) > (m_boundingRect.height() - 32) && displayText.length() > 4) {
+        if (fm.width(displayText) > (boundingRect.height() - 32) && displayText.length() > 4) {
 
-            displayText = fm.elidedText(displayText, Qt::ElideRight, m_boundingRect.height() - 32, Qt::TextShowMnemonic);
+            displayText = fm.elidedText(displayText, Qt::ElideRight, boundingRect.height() - 32, Qt::TextShowMnemonic);
         }
 
         QRectF rotatedBoundingBox;
-        rotatedBoundingBox.setWidth(m_boundingRect.height());
+        rotatedBoundingBox.setWidth(boundingRect.height());
         rotatedBoundingBox.setHeight(12);
-        rotatedBoundingBox.setY(-m_boundingRect.width() + 12);
+        rotatedBoundingBox.setY(-boundingRect.width() + 12);
         rotatedBoundingBox.setX(20);
 
         painter->setFont(font);
         painter->setPen(QColor(48, 48, 96, 255));
+        painter->setClipping(false);
         painter->drawText(rotatedBoundingBox, displayText, textOption);
     }
+}
 
+void paintDecorationInPlaceHolderForInvisbleItem(QPainter *painter, const QRectF &boundingRect)
+{
+    qreal stripesWidth = 12;
+
+    QRegion innerRegion = QRegion(boundingRect.adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
+    QRegion outerRegion  = QRegion(boundingRect.toRect()) - innerRegion;
+
+    painter->setClipRegion(outerRegion);
+    painter->setClipping(true);
+    painter->fillRect(boundingRect.adjusted(1, 1, -1, -1), Qt::BDiagPattern);
+}
+
+void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
+{
+    painter->save();
+    paintDecorationInPlaceHolderForInvisbleItem(painter, m_boundingRect);
+    paintTextInPlaceHolderForInvisbleItem(painter, qmlItemNode().id(), qmlItemNode().simplifiedTypeName(), m_boundingRect);
     painter->restore();
 }
 
@@ -418,7 +444,7 @@ bool FormEditorItem::isContainer() const
     NodeMetaInfo nodeMetaInfo = qmlItemNode().modelNode().metaInfo();
 
     if (nodeMetaInfo.isValid())
-        return !nodeMetaInfo.defaultPropertyIsComponent();
+        return !nodeMetaInfo.defaultPropertyIsComponent() && !nodeMetaInfo.isLayoutable();
 
     return true;
 }

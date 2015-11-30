@@ -1,15 +1,12 @@
 DEFINES += TEXTEDITOR_LIBRARY
-QT += xml network
+QT += network printsupport xml
 CONFIG += exceptions
 CONFIG += include_source_dir # For the highlighter autotest.
-greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
 include(../../qtcreatorplugin.pri)
 SOURCES += texteditorplugin.cpp \
-    textfilewizard.cpp \
-    plaintexteditor.cpp \
     plaintexteditorfactory.cpp \
-    basetextdocument.cpp \
-    basetexteditor.cpp \
+    textdocument.cpp \
+    texteditor.cpp \
     behaviorsettings.cpp \
     behaviorsettingspage.cpp \
     texteditoractionhandler.cpp \
@@ -21,7 +18,6 @@ SOURCES += texteditorplugin.cpp \
     displaysettingspage.cpp \
     fontsettings.cpp \
     linenumberfilter.cpp \
-    basetextmark.cpp \
     findinfiles.cpp \
     basefilefind.cpp \
     texteditorsettings.cpp \
@@ -30,10 +26,9 @@ SOURCES += texteditorplugin.cpp \
     findinopenfiles.cpp \
     colorscheme.cpp \
     colorschemeedit.cpp \
-    itexteditor.cpp \
     texteditoroverlay.cpp \
     texteditoroptionspage.cpp \
-    basetextdocumentlayout.cpp \
+    textdocumentlayout.cpp \
     completionsettings.cpp \
     normalindenter.cpp \
     indenter.cpp \
@@ -80,19 +75,16 @@ SOURCES += texteditorplugin.cpp \
     codeassist/iassistproposalwidget.cpp \
     codeassist/codeassistant.cpp \
     snippets/snippetassistcollector.cpp \
-    codeassist/iassistinterface.cpp \
-    codeassist/defaultassistinterface.cpp \
-    codeassist/iassistproposalitem.cpp \
+    codeassist/assistinterface.cpp \
+    codeassist/assistproposalitem.cpp \
     convenience.cpp \
     codeassist/runner.cpp \
     codeassist/completionassistprovider.cpp \
-    codeassist/igenericproposalmodel.cpp \
+    codeassist/genericproposalmodel.cpp \
     codeassist/quickfixassistprovider.cpp \
     codeassist/quickfixassistprocessor.cpp \
     codeassist/genericproposal.cpp \
     codeassist/genericproposalwidget.cpp \
-    codeassist/basicproposalitem.cpp \
-    codeassist/basicproposalitemlistmodel.cpp \
     codeassist/iassistproposalmodel.cpp \
     tabsettingswidget.cpp \
     simplecodestylepreferences.cpp \
@@ -106,19 +98,17 @@ SOURCES += texteditorplugin.cpp \
     codestyleeditor.cpp \
     circularclipboard.cpp \
     circularclipboardassist.cpp \
-    itextmark.cpp \
+    textmark.cpp \
     codeassist/keywordscompletionassist.cpp \
     marginsettings.cpp
 
 HEADERS += texteditorplugin.h \
-    textfilewizard.h \
-    plaintexteditor.h \
     plaintexteditorfactory.h \
-    basetexteditor_p.h \
-    basetextdocument.h \
+    texteditor_p.h \
+    textdocument.h \
     behaviorsettings.h \
     behaviorsettingspage.h \
-    basetexteditor.h \
+    texteditor.h \
     texteditoractionhandler.h \
     fontsettingspage.h \
     texteditorconstants.h \
@@ -127,10 +117,8 @@ HEADERS += texteditorplugin.h \
     displaysettings.h \
     displaysettingspage.h \
     fontsettings.h \
-    itexteditor.h \
     linenumberfilter.h \
     texteditor_global.h \
-    basetextmark.h \
     findinfiles.h \
     basefilefind.h \
     texteditorsettings.h \
@@ -141,12 +129,11 @@ HEADERS += texteditorplugin.h \
     colorschemeedit.h \
     texteditoroverlay.h \
     texteditoroptionspage.h \
-    basetextdocumentlayout.h \
+    textdocumentlayout.h \
     completionsettings.h \
     normalindenter.h \
     indenter.h \
     quickfix.h \
-    ihighlighterfactory.h \
     syntaxhighlighter.h \
     highlighterutils.h \
     generichighlighter/reuse.h \
@@ -195,20 +182,17 @@ HEADERS += texteditorplugin.h \
     codeassist/iassistproposal.h \
     codeassist/codeassistant.h \
     snippets/snippetassistcollector.h \
-    codeassist/iassistinterface.h \
-    codeassist/defaultassistinterface.h \
-    codeassist/iassistproposalitem.h \
+    codeassist/assistinterface.h \
+    codeassist/assistproposalitem.h \
     convenience.h \
     codeassist/assistenums.h \
     codeassist/runner.h \
     codeassist/completionassistprovider.h \
-    codeassist/igenericproposalmodel.h \
+    codeassist/genericproposalmodel.h \
     codeassist/quickfixassistprovider.h \
     codeassist/quickfixassistprocessor.h \
     codeassist/genericproposal.h \
     codeassist/genericproposalwidget.h \
-    codeassist/basicproposalitem.h \
-    codeassist/basicproposalitemlistmodel.h \
     codeassist/iassistproposalmodel.h \
     tabsettingswidget.h \
     simplecodestylepreferences.h \
@@ -223,9 +207,9 @@ HEADERS += texteditorplugin.h \
     basefilefind_p.h \
     circularclipboard.h \
     circularclipboardassist.h \
-    itextmark.h \
+    textmark.h \
     codeassist/keywordscompletionassist.h \
-    basetextmarkregistry.h \
+    textmarkregistry.h \
     marginsettings.h
 
 FORMS += \
@@ -242,6 +226,6 @@ FORMS += \
 RESOURCES += texteditor.qrc
 
 equals(TEST, 1) {
-SOURCES += basetexteditor_test.cpp
+SOURCES += texteditor_test.cpp
 }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,18 +33,15 @@
 
 #include "vcsbase_global.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QSet>
 
 QT_BEGIN_NAMESPACE
-class QAction;
 class QRegExp;
 class QTextCodec;
 class QTextCursor;
 QT_END_NAMESPACE
-
-namespace Core { class IVersionControl; }
 
 namespace VcsBase {
 
@@ -52,10 +50,10 @@ class ChangeTextCursorHandler;
 class VcsBaseEditorWidgetPrivate;
 }
 
-class DiffHighlighter;
 class BaseAnnotationHighlighter;
+class VcsBaseEditorWidget;
 class VcsBaseEditorParameterWidget;
-class Command;
+class VcsCommand;
 
 // Documentation inside
 enum EditorContentType
@@ -72,7 +70,6 @@ public:
     EditorContentType type;
     const char *id;
     const char *displayName;
-    const char *context;
     const char *mimeType;
 };
 
@@ -87,7 +84,62 @@ public:
     QByteArray header;
 };
 
-class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::BaseTextEditorWidget
+class VCSBASE_EXPORT VcsBaseEditor : public TextEditor::BaseTextEditor
+{
+    Q_OBJECT
+public:
+    explicit VcsBaseEditor();
+
+    // Utility to find a parameter set by type in an array.
+    static  const VcsBaseEditorParameters *
+        findType(const VcsBaseEditorParameters *array, int arraySize, EditorContentType et);
+
+    // Utility to find the codec for a source (file or directory), querying
+    // the editor manager and the project managers (defaults to system codec).
+    // The codec should be set on editors displaying diff or annotation
+    // output.
+    static QTextCodec *getCodec(const QString &source);
+    static QTextCodec *getCodec(const QString &workingDirectory, const QStringList &files);
+
+    // Utility to return the widget from the IEditor returned by the editor
+    // manager which is a BaseTextEditor.
+    static VcsBaseEditorWidget *getVcsBaseEditor(const Core::IEditor *editor);
+
+    // Utility to find the line number of the current editor. Optionally,
+    // pass in the file name to match it. To be used when jumping to current
+    // line number in a 'annnotate current file' slot, which checks if the
+    // current file originates from the current editor or the project selection.
+    static int lineNumberOfCurrentEditor(const QString &currentFile = QString());
+
+    //Helper to go to line of editor if it is a text editor
+    static bool gotoLineOfEditor(Core::IEditor *e, int lineNumber);
+
+    // Convenience functions to determine the source to pass on to a diff
+    // editor if one has a call consisting of working directory and file arguments.
+    // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
+    static QString getSource(const QString &workingDirectory, const QString &fileName);
+    static QString getSource(const QString &workingDirectory, const QStringList &fileNames);
+    // Convenience functions to determine an title/id to identify the editor
+    // from the arguments (','-joined arguments or directory) + revision.
+    static QString getTitleId(const QString &workingDirectory,
+                              const QStringList &fileNames,
+                              const QString &revision = QString());
+
+    /* Tagging editors: Sometimes, an editor should be re-used, for example, when showing
+     * a diff of the same file with different diff-options. In order to be able to find
+     * the editor, they get a 'tag' containing type and parameters (dynamic property string). */
+    static void tagEditor(Core::IEditor *e, const QString &tag);
+    static Core::IEditor* locateEditorByTag(const QString &tag);
+    static QString editorTag(EditorContentType t, const QString &workingDirectory, const QStringList &files,
+                             const QString &revision = QString());
+    void finalizeInitialization() override;
+signals:
+    void describeRequested(const QString &source, const QString &change);
+    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+                                   const QString &change, int line);
+};
+
+class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_PROPERTY(QString source READ source WRITE setSource)
     Q_PROPERTY(QString workingDirectory READ workingDirectory WRITE setWorkingDirectory)
@@ -100,8 +152,7 @@ class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::BaseTextEditorWidg
 protected:
     // Initialization requires calling init() (which in turns calls
     // virtual functions).
-    explicit VcsBaseEditorWidget(const VcsBaseEditorParameters *type,
-                                 QWidget *parent);
+    VcsBaseEditorWidget();
     // Pattern for diff header. File name must be in the first capture group
     void setDiffFilePattern(const QRegExp &pattern);
     // Pattern for log entry. hash/revision number must be in the first capture group
@@ -110,9 +161,15 @@ protected:
     virtual QString fileNameForLine(int line) const;
 
 public:
+    void finalizeInitialization() override;
+    // FIXME: Consolidate these into finalizeInitialization
+    void setDescribeSlot(QObject *describeReceiver, const char *describeSlot);
+    // void
     virtual void init();
+    //
+    void setParameters(const VcsBaseEditorParameters *parameters);
 
-    ~VcsBaseEditorWidget();
+    ~VcsBaseEditorWidget() override;
 
     /* Force read-only: Make it a read-only, temporary file.
      * Should be set to true by version control views. It is not on
@@ -152,52 +209,13 @@ public:
 
     EditorContentType contentType() const;
 
-    // Utility to find a parameter set by type in an array.
-    static  const VcsBaseEditorParameters *
-        findType(const VcsBaseEditorParameters *array, int arraySize, EditorContentType et);
-
-    // Utility to find the codec for a source (file or directory), querying
-    // the editor manager and the project managers (defaults to system codec).
-    // The codec should be set on editors displaying diff or annotation
-    // output.
-    static QTextCodec *getCodec(const QString &source);
-    static QTextCodec *getCodec(const QString &workingDirectory, const QStringList &files);
-
-    // Utility to return the widget from the IEditor returned by the editor
-    // manager which is a BaseTextEditor.
-    static VcsBaseEditorWidget *getVcsBaseEditor(const Core::IEditor *editor);
-
-    // Utility to find the line number of the current editor. Optionally,
-    // pass in the file name to match it. To be used when jumping to current
-    // line number in a 'annnotate current file' slot, which checks if the
-    // current file originates from the current editor or the project selection.
-    static int lineNumberOfCurrentEditor(const QString &currentFile = QString());
-
-    //Helper to go to line of editor if it is a text editor
-    static bool gotoLineOfEditor(Core::IEditor *e, int lineNumber);
-
-    // Convenience functions to determine the source to pass on to a diff
-    // editor if one has a call consisting of working directory and file arguments.
-    // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
-    static QString getSource(const QString &workingDirectory, const QString &fileName);
-    static QString getSource(const QString &workingDirectory, const QStringList &fileNames);
-    // Convenience functions to determine an title/id to identify the editor
-    // from the arguments (','-joined arguments or directory) + revision.
-    static QString getTitleId(const QString &workingDirectory,
-                              const QStringList &fileNames,
-                              const QString &revision = QString());
-
     bool setConfigurationWidget(VcsBaseEditorParameterWidget *w);
     VcsBaseEditorParameterWidget *configurationWidget() const;
 
-    void setCommand(Command *command);
-    /* Tagging editors: Sometimes, an editor should be re-used, for example, when showing
-     * a diff of the same file with different diff-options. In order to be able to find
-     * the editor, they get a 'tag' containing type and parameters (dynamic property string). */
-    static void tagEditor(Core::IEditor *e, const QString &tag);
-    static Core::IEditor* locateEditorByTag(const QString &tag);
-    static QString editorTag(EditorContentType t, const QString &workingDirectory, const QStringList &files,
-                             const QString &revision = QString());
+    void setCommand(VcsCommand *command);
+
+    virtual void setPlainText(const QString &text);
+
 signals:
     // These signals also exist in the opaque editable (IEditor) that is
     // handled by the editor manager for convenience. They are emitted
@@ -212,23 +230,23 @@ public slots:
     void reportCommandFinished(bool ok, int exitCode, const QVariant &data);
 
 protected:
-    virtual TextEditor::BaseTextEditor *createEditor();
-
-    void contextMenuEvent(QContextMenuEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseDoubleClickEvent(QMouseEvent *e);
-    void keyPressEvent(QKeyEvent *);
+    void contextMenuEvent(QContextMenuEvent *e) override;
+    void mouseMoveEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void mouseDoubleClickEvent(QMouseEvent *e) override;
+    void keyPressEvent(QKeyEvent *) override;
 
 private slots:
     void slotActivateAnnotation();
     void slotPopulateDiffBrowser();
     void slotPopulateLogBrowser();
     void slotJumpToEntry(int);
-    void slotCursorPositionChanged();
+    void slotCursorPositionChanged() override;
     void slotAnnotateRevision();
     void slotApplyDiffChunk();
     void slotPaste();
+    void showProgressIndicator();
+    void hideProgressIndicator();
 
 protected:
     /* A helper that can be used to locate a file in a diff in case it
@@ -281,8 +299,8 @@ private:
 
 #ifdef WITH_TESTS
 public:
-    void testDiffFileResolving();
-    void testLogResolving(QByteArray &data, const QByteArray &entry1, const QByteArray &entry2);
+    static void testDiffFileResolving(const char *id);
+    static void testLogResolving(const char *id, QByteArray &data, const QByteArray &entry1, const QByteArray &entry2);
 #endif
 };
 

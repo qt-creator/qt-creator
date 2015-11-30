@@ -1,10 +1,10 @@
-import qbs.base 1.0
-import QtcTool
+import qbs 1.0
 
 QtcTool {
     name: "iostool"
     condition: qbs.targetOS.contains("osx")
 
+    Depends { name: "bundle" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Qt.xml" }
     Depends { name: "Qt.network" }
@@ -15,10 +15,10 @@ QtcTool {
         "iosdevicemanager.cpp",
         "iosdevicemanager.h"
     ]
-    cpp.linkerFlags: base.concat(["-sectcreate", "__TEXT", "__info_plist", path + "/Info.plist"])
     cpp.frameworks: base.concat(["CoreFoundation", "CoreServices", "IOKit", "Security",
                                  "SystemConfiguration"])
     cpp.dynamicLibraries: base.concat(["ssl", "bz2"])
+    bundle.infoPlistFile: "Info.plist"
 
-    toolInstallDir: project.ide_libexec_path + "/ios"
+    installDir: project.ide_libexec_path + "/ios"
 }

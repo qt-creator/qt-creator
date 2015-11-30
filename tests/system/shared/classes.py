@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,68 +9,65 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
 
 import operator
 
-isQt4Build = False
-
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    DESKTOP_474_GCC = 1
-    DESKTOP_480_GCC = 2
-    SIMULATOR = 4
-    MAEMO5 = 8
-    HARMATTAN = 16
-    EMBEDDED_LINUX = 32
-    DESKTOP_480_MSVC2010 = 64
-    DESKTOP_501_DEFAULT = 128
-    DESKTOP_521_DEFAULT = 256
+    ALL_TARGETS = map(lambda x: 2 ** x , range(7))
+
+    (DESKTOP_474_GCC,
+     DESKTOP_480_DEFAULT,
+     SIMULATOR,
+     EMBEDDED_LINUX,
+     DESKTOP_521_DEFAULT,
+     DESKTOP_531_DEFAULT,
+     DESKTOP_541_GCC) = ALL_TARGETS
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = (Targets.DESKTOP_474_GCC | Targets.DESKTOP_480_GCC
-                          | Targets.DESKTOP_501_DEFAULT | Targets.DESKTOP_521_DEFAULT)
-        if platform.system() in ('Windows', 'Microsoft'):
-            desktopTargets |= Targets.DESKTOP_480_MSVC2010
+        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.SIMULATOR & ~Targets.EMBEDDED_LINUX)
+        if platform.system() == 'Darwin':
+            desktopTargets &= ~Targets.DESKTOP_541_GCC
         return desktopTargets
 
     @staticmethod
     def getStringForTarget(target):
         if target == Targets.DESKTOP_474_GCC:
             return "Desktop 474 GCC"
-        if target == Targets.DESKTOP_480_GCC:
-            return "Desktop 480 GCC"
-        elif target == Targets.MAEMO5:
-            return "Fremantle"
+        elif target == Targets.DESKTOP_480_DEFAULT:
+            if platform.system() in ('Windows', 'Microsoft'):
+                return "Desktop 480 MSVC2010"
+            else:
+                return "Desktop 480 GCC"
         elif target == Targets.SIMULATOR:
             return "Qt Simulator"
-        elif target == Targets.HARMATTAN:
-            return "Harmattan"
         elif target == Targets.EMBEDDED_LINUX:
             return "Embedded Linux"
-        elif target == Targets.DESKTOP_480_MSVC2010:
-            return "Desktop 480 MSVC2010"
-        elif target == Targets.DESKTOP_501_DEFAULT:
-            return "Desktop 501 default"
         elif target == Targets.DESKTOP_521_DEFAULT:
             return "Desktop 521 default"
+        elif target == Targets.DESKTOP_531_DEFAULT:
+            return "Desktop 531 default"
+        elif target == Targets.DESKTOP_541_GCC:
+            return "Desktop 541 GCC"
         else:
             return None
 
@@ -86,14 +83,15 @@ class Targets:
 
     @staticmethod
     def intToArray(targets):
-        available = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_GCC, Targets.SIMULATOR, Targets.MAEMO5,
-                     Targets.HARMATTAN, Targets.EMBEDDED_LINUX, Targets.DESKTOP_480_MSVC2010,
-                     Targets.DESKTOP_501_DEFAULT, Targets.DESKTOP_521_DEFAULT]
-        return filter(lambda x: x & targets == x, available)
+        return filter(lambda x: x & targets, Targets.ALL_TARGETS)
 
     @staticmethod
     def arrayToInt(targetArr):
         return reduce(operator.or_, targetArr, 0)
+
+    @staticmethod
+    def getDefaultKit():
+        return Targets.DESKTOP_521_DEFAULT
 
 # this class holds some constants for easier usage inside the Projects view
 class ProjectSettings:
@@ -102,10 +100,7 @@ class ProjectSettings:
 
 # this class defines some constants for the views of the creator's MainWindow
 class ViewConstants:
-    if isQt4Build:
-        EDIT, DESIGN, DEBUG, PROJECTS, ANALYZE, HELP = range(6)
-    else:
-        WELCOME, EDIT, DESIGN, DEBUG, PROJECTS, ANALYZE, HELP = range(7)
+    WELCOME, EDIT, DESIGN, DEBUG, PROJECTS, ANALYZE, HELP = range(7)
     FIRST_AVAILABLE = 0
     # always adjust the following to the highest value of the available ViewConstants when adding new
     LAST_AVAILABLE = HELP
@@ -115,7 +110,7 @@ class ViewConstants:
     # if the provided argument does not match any of the ViewConstants it returns None
     @staticmethod
     def getToolTipForViewTab(viewTab):
-        if not isQt4Build and viewTab == ViewConstants.WELCOME:
+        if viewTab == ViewConstants.WELCOME:
             toolTip = ur'Switch to <b>Welcome</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
         elif viewTab == ViewConstants.EDIT:
             toolTip = ur'Switch to <b>Edit</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
@@ -144,7 +139,10 @@ class SubprocessType:
         if subprocessType == SubprocessType.QT_WIDGET:
             return "QMainWindow"
         if subprocessType == SubprocessType.QT_QUICK_APPLICATION:
-            return "QtQuick%sApplicationViewer" % qtQuickVersion[0]
+            qqv = "2"
+            if qtQuickVersion[0] == "1":
+                qqv = "1"
+            return "QtQuick%sApplicationViewer" % qqv
         if subprocessType == SubprocessType.QT_QUICK_UI:
             if qtQuickVersion == "1.1":
                 return "QDeclarativeViewer"
@@ -159,3 +157,48 @@ class QtInformation:
     QT_VERSION = 0
     QT_BINPATH = 1
     QT_LIBPATH = 2
+
+class LibType:
+    SHARED = 0
+    STATIC = 1
+    QT_PLUGIN = 2
+
+    @staticmethod
+    def getStringForLib(libType):
+        if libType == LibType.SHARED:
+            return "Shared Library"
+        if libType == LibType.STATIC:
+            return "Statically Linked Library"
+        if libType == LibType.QT_PLUGIN:
+            return "Qt Plugin"
+        return None
+
+class Qt5Path:
+    DOCS = 0
+    EXAMPLES = 1
+
+    @staticmethod
+    def getPaths(pathSpec):
+        if pathSpec == Qt5Path.DOCS:
+            path52 = "/doc"
+            path53 = "/Docs/Qt-5.3"
+            path54 = "/Docs/Qt-5.4"
+        elif pathSpec == Qt5Path.EXAMPLES:
+            path52 = "/examples"
+            path53 = "/Examples/Qt-5.3"
+            path54 = "/Examples/Qt-5.4"
+        else:
+            test.fatal("Unknown pathSpec given: %s" % str(pathSpec))
+            return []
+        if platform.system() in ('Microsoft', 'Windows'):
+            return ["C:/Qt/Qt5.2.1/5.2.1/msvc2010" + path52,
+                    "C:/Qt/Qt5.3.1" + path53, "C:/Qt/Qt5.4.1" + path54]
+        elif platform.system() == 'Linux':
+            if __is64BitOS__():
+                return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/gcc_64" + path52,
+                                                "~/Qt5.3.1" + path53, "~/Qt5.4.1" + path54])
+            return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/gcc" + path52,
+                                            "~/Qt5.3.1" + path53, "~/Qt5.4.1" + path54])
+        else:
+            return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/clang_64" + path52,
+                                            "~/Qt5.3.1" + path53])

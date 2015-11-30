@@ -99,7 +99,6 @@ Tricky parts:
       * Qt4ProjectManager.QtVersion.Desktop for a desktop Qt
       * RemoteLinux.EmbeddedLinuxQt for an embedded linux Qt
       * Qt4ProjectManager.QtVersion.Maemo for an Maemo Qt
-      * Qt4ProjectManager.QtVersion.QNX.BlackBerry for Qt on BlackBerry
       * Qt4ProjectManager.QtVersion.QNX.QNX for Qt on QNX
       * Qt4ProjectManager.QtVersion.Simulator for Qt running in the Qt simulator
       * Qt4ProjectManager.QtVersion.WinCE for Qt on WinCE
@@ -126,7 +125,6 @@ Tricky parts:
     Currently these are (Qt Creator 2.6):
       * Android.Device.Type for Android devices
       * Desktop for code running on the local desktop
-      * BBOsType for BlackBerry devices
       * HarmattanOsType for N9/N950 devices based on Harmattan
       * Maemo5OsType for N900 devices based on Maemo
 

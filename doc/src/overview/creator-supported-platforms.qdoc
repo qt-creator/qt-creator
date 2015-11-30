@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -24,7 +24,7 @@
 
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-advanced.html
     \page creator-os-supported-platforms.html
     \nextpage creator-project-other.html
@@ -32,7 +32,7 @@
     \title Supported Platforms
 
     You can install and run \QC on several operating systems to create
-    applications for multiple desktop and mobile device platforms.
+    applications for multiple desktop, embedded, and mobile device platforms.
 
     \section1 Development Platforms
 
@@ -102,17 +102,26 @@
 
             \endlist
 
-        \li Mac OS 10.6 or later with the following:
+        \li OS X 10.7 or later with the following:
 
             \list
 
-                \li Xcode tools for your Mac OS X version available from your
-                    Mac OS X installation DVDs or at
-                    \l http://developer.apple.com.
+                \li Xcode tools for your OS X version available on the
+                    Mac App Store.
 
             \endlist
 
     \endlist
+
+    \section2 Developing for Embedded Devices
+
+    The development environment supported by Qt for Device Creation is
+    Ubuntu Linux 64-bit (12.04 LTS or later). For more information about
+    the requirements for the development host, see the
+    \l{http://doc.qt.io/QtForDeviceCreation/qtee-installation-guide.html}
+    {Installation Guide} in the
+    \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
+    documentation.
 
     \section1 Compiling from Source
 

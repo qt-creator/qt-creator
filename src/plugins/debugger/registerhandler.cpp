@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,30 +9,29 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "registerhandler.h"
-#include "watchdelegatewidgets.h"
 
-#if USE_REGISTER_MODEL_TEST
-#include <modeltest.h>
-#endif
+#include "debuggerengine.h"
+#include "watchdelegatewidgets.h"
 
 #include <utils/qtcassert.h>
 
@@ -45,266 +44,478 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////
 
-enum RegisterType
+void Register::guessMissingData()
 {
-    RegisterUnknown,
-    //RegisterDummy,  // like AH if EAX is present.
-    RegisterI8,
-    RegisterI16,
-    RegisterI32,
-    RegisterI64,
-    RegisterI128,
-    RegisterF32,
-    RegisterF64,
-    RegisterF80,
-    RegisterXMM,
-    RegisterMMX,
-    RegisterNeon,
-    RegisterFlags32
+    if (reportedType == "int")
+        kind = IntegerRegister;
+    else if (reportedType == "float")
+        kind = FloatRegister;
+    else if (reportedType == "_i387_ext")
+        kind = FloatRegister;
+    else if (reportedType == "*1" || reportedType == "long")
+        kind = IntegerRegister;
+    else if (reportedType.contains("vec"))
+        kind = VectorRegister;
+    else if (reportedType.startsWith("int"))
+        kind = IntegerRegister;
+    else if (name.startsWith("xmm") || name.startsWith("ymm"))
+        kind = VectorRegister;
+}
+
+static QString subTypeName(RegisterKind kind, int size, RegisterFormat format)
+{
+    QString name(QLatin1Char('['));
+
+    switch (kind) {
+        case IntegerRegister: name += QLatin1Char('i'); break;
+        case FloatRegister: name += QLatin1Char('f'); break;
+        default: break;
+    }
+
+    name += QString::number(size);
+
+    switch (format) {
+        case BinaryFormat: name += QLatin1Char('b'); break;
+        case OctalFormat: name += QLatin1Char('o'); break;
+        case DecimalFormat: name += QLatin1Char('u'); break;
+        case SignedDecimalFormat: name += QLatin1Char('s'); break;
+        case HexadecimalFormat: name += QLatin1Char('x'); break;
+        case CharacterFormat: name += QLatin1Char('c'); break;
+    }
+
+    name += QLatin1Char(']');
+
+    return name;
+}
+
+static uint decodeHexChar(unsigned char c)
+{
+    c -= '0';
+    if (c < 10)
+        return c;
+    c -= 'A' - '0';
+    if (c < 6)
+        return 10 + c;
+    c -= 'a' - 'A';
+    if (c < 6)
+        return 10 + c;
+    return uint(-1);
+}
+
+void RegisterValue::fromByteArray(const QByteArray &ba, RegisterFormat format)
+{
+    known = !ba.isEmpty();
+    v.u64[1] = v.u64[0] = 0;
+
+    const int n = ba.size();
+    int pos = 0;
+    if (ba.startsWith("0x"))
+        pos += 2;
+
+    bool negative = pos < n && ba.at(pos) == '-';
+    if (negative)
+        ++pos;
+
+    while (pos < n) {
+        uint c = ba.at(pos);
+        if (format != CharacterFormat) {
+            c = decodeHexChar(c);
+            if (c == uint(-1))
+                break;
+        }
+        shiftOneDigit(c, format);
+        ++pos;
+    }
+
+    if (negative) {
+        v.u64[1] = ~v.u64[1];
+        v.u64[0] = ~v.u64[0];
+        ++v.u64[0];
+        if (v.u64[0] == 0)
+            ++v.u64[1];
+    }
+}
+
+bool RegisterValue::operator==(const RegisterValue &other)
+{
+    return v.u64[0] == other.v.u64[0] && v.u64[1] == other.v.u64[1];
+}
+
+static QByteArray formatRegister(quint64 v, int size, RegisterFormat format, bool forEdit)
+{
+    QByteArray result;
+    if (format == HexadecimalFormat) {
+        result = QByteArray::number(v, 16);
+        result.prepend(QByteArray(2*size - result.size(), '0'));
+    } else if (format == DecimalFormat) {
+        result = QByteArray::number(v, 10);
+        result.prepend(QByteArray(2*size - result.size(), ' '));
+    } else if (format == SignedDecimalFormat) {
+        qint64 sv;
+        if (size >= 8)
+            sv = qint64(v);
+        else if (size >= 4)
+            sv = qint32(v);
+        else if (size >= 2)
+            sv = qint16(v);
+        else
+            sv = qint8(v);
+        result = QByteArray::number(sv, 10);
+        result.prepend(QByteArray(2*size - result.size(), ' '));
+    } else if (format == CharacterFormat) {
+        bool spacesOnly = true;
+        if (v >= 32 && v < 127) {
+            spacesOnly = false;
+            if (!forEdit)
+                result += '\'';
+            result += char(v);
+            if (!forEdit)
+                result += '\'';
+        } else {
+            result += "   ";
+        }
+        if (spacesOnly && forEdit)
+            result.clear();
+        else
+            result.prepend(QByteArray(2*size - result.size(), ' '));
+    }
+    return result;
+}
+
+QByteArray RegisterValue::toByteArray(RegisterKind kind, int size, RegisterFormat format, bool forEdit) const
+{
+    if (!known)
+        return "[inaccessible]";
+    if (kind == FloatRegister) {
+        if (size == 4)
+            return QByteArray::number(v.f[0]);
+        if (size == 8)
+            return QByteArray::number(v.d[0]);
+    }
+
+    QByteArray result;
+    if (size > 8) {
+        result += formatRegister(v.u64[1], size - 8, format, forEdit);
+        size = 8;
+        if (format != HexadecimalFormat)
+            result += ',';
+    }
+    return result + formatRegister(v.u64[0], size, format, forEdit);
+}
+
+RegisterValue RegisterValue::subValue(int size, int index) const
+{
+    RegisterValue value;
+    value.known = known;
+    switch (size) {
+        case 1:
+            value.v.u8[0] = v.u8[index];
+            break;
+        case 2:
+            value.v.u16[0] = v.u16[index];
+            break;
+        case 4:
+            value.v.u32[0] = v.u32[index];
+            break;
+        case 8:
+            value.v.u64[0] = v.u64[index];
+            break;
+    }
+    return value;
+}
+
+void RegisterValue::setSubValue(int size, int index, RegisterValue subValue)
+{
+    switch (size) {
+        case 1:
+            v.u8[index] = subValue.v.u8[0];
+            break;
+        case 2:
+            v.u16[index] = subValue.v.u16[0];
+            break;
+        case 4:
+            v.u32[index] = subValue.v.u32[0];
+            break;
+        case 8:
+            v.u64[index] = subValue.v.u64[0];
+            break;
+    }
+}
+
+static inline void shiftBitsLeft(RegisterValue *val, int amount)
+{
+    val->v.u64[1] <<= amount;
+    val->v.u64[1] |= val->v.u64[0] >> (64 - amount);
+    val->v.u64[0] <<= amount;
+}
+
+void RegisterValue::shiftOneDigit(uint digit, RegisterFormat format)
+{
+    switch (format) {
+    case HexadecimalFormat:
+        shiftBitsLeft(this, 4);
+        v.u64[0] |= digit;
+        break;
+    case OctalFormat:
+        shiftBitsLeft(this, 3);
+        v.u64[0] |= digit;
+        break;
+    case BinaryFormat:
+        shiftBitsLeft(this, 1);
+        v.u64[0] |= digit;
+        break;
+    case DecimalFormat:
+    case SignedDecimalFormat: {
+        shiftBitsLeft(this, 1);
+        quint64 tmp0 = v.u64[0];
+        quint64 tmp1 = v.u64[1];
+        shiftBitsLeft(this, 2);
+        v.u64[1] += tmp1;
+        v.u64[0] += tmp0;
+        if (v.u64[0] < tmp0)
+            ++v.u64[1];
+        v.u64[0] += digit;
+        if (v.u64[0] < digit)
+            ++v.u64[1];
+        break;
+    }
+    case CharacterFormat:
+        shiftBitsLeft(this, 8);
+        v.u64[0] |= digit;
+    }
+}
+
+//////////////////////////////////////////////////////////////////
+//
+// RegisterSubItem and RegisterItem
+//
+//////////////////////////////////////////////////////////////////
+
+class RegisterSubItem;
+
+class RegisterEditItem : public Utils::TreeItem
+{
+public:
+    RegisterEditItem(int pos, RegisterKind subKind, int subSize, RegisterFormat format)
+        : m_index(pos), m_subKind(subKind), m_subSize(subSize), m_subFormat(format)
+    {}
+
+    QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &value, int role) override;
+    Qt::ItemFlags flags(int column) const override;
+
+    int m_index;
+    RegisterKind m_subKind;
+    int m_subSize;
+    RegisterFormat m_subFormat;
 };
 
-static struct RegisterNameAndType
-{
-    const char *name;
-    RegisterType type;
-} theNameAndType[] = {
-    // ARM
-    { "r0", RegisterI32 },
-    { "r1", RegisterI32 },
-    { "r2", RegisterI32 },
-    { "r3", RegisterI32 },
-    { "r4", RegisterI32 },
-    { "r5", RegisterI32 },
-    { "r6", RegisterI32 },
-    { "r7", RegisterI32 },
-    { "r8", RegisterI32 },
-    { "r9", RegisterI32 },
-    { "r10", RegisterI32 },
-    { "r11", RegisterI32 },
-    { "r12", RegisterI32 },
-    { "sp", RegisterI32 },
-    { "lr", RegisterI32 },
-    { "pc", RegisterI32 },
-    { "cpsr", RegisterFlags32 },
-    { "d0", RegisterI64 },
-    { "d1", RegisterI64 },
-    { "d2", RegisterI64 },
-    { "d3", RegisterI64 },
-    { "d4", RegisterI64 },
-    { "d5", RegisterI64 },
-    { "d6", RegisterI64 },
-    { "d7", RegisterI64 },
-    { "d8", RegisterI64 },
-    { "d9", RegisterI64 },
-    { "d10", RegisterI64 },
-    { "d11", RegisterI64 },
-    { "d12", RegisterI64 },
-    { "d13", RegisterI64 },
-    { "d14", RegisterI64 },
-    { "d15", RegisterI64 },
-    { "d16", RegisterI64 },
-    { "d17", RegisterI64 },
-    { "d18", RegisterI64 },
-    { "d19", RegisterI64 },
-    { "d20", RegisterI64 },
-    { "d21", RegisterI64 },
-    { "d22", RegisterI64 },
-    { "d23", RegisterI64 },
-    { "d24", RegisterI64 },
-    { "d25", RegisterI64 },
-    { "d26", RegisterI64 },
-    { "d27", RegisterI64 },
-    { "d28", RegisterI64 },
-    { "d29", RegisterI64 },
-    { "d30", RegisterI64 },
-    { "d31", RegisterI64 },
-    { "fpscr", RegisterFlags32 },
-    { "s0", RegisterI32 },
-    { "s1", RegisterI32 },
-    { "s2", RegisterI32 },
-    { "s3", RegisterI32 },
-    { "s4", RegisterI32 },
-    { "s5", RegisterI32 },
-    { "s6", RegisterI32 },
-    { "s7", RegisterI32 },
-    { "s8", RegisterI32 },
-    { "s9", RegisterI32 },
-    { "s10", RegisterI32 },
-    { "s11", RegisterI32 },
-    { "s12", RegisterI32 },
-    { "s13", RegisterI32 },
-    { "s14", RegisterI32 },
-    { "s15", RegisterI32 },
-    { "s16", RegisterI32 },
-    { "s17", RegisterI32 },
-    { "s18", RegisterI32 },
-    { "s19", RegisterI32 },
-    { "s20", RegisterI32 },
-    { "s21", RegisterI32 },
-    { "s22", RegisterI32 },
-    { "s23", RegisterI32 },
-    { "s24", RegisterI32 },
-    { "s25", RegisterI32 },
-    { "s26", RegisterI32 },
-    { "s27", RegisterI32 },
-    { "s28", RegisterI32 },
-    { "s29", RegisterI32 },
-    { "s30", RegisterI32 },
-    { "s31", RegisterI32 },
-    { "q0", RegisterI128 },
-    { "q1", RegisterI128 },
-    { "q2", RegisterI128 },
-    { "q3", RegisterI128 },
-    { "q4", RegisterI128 },
-    { "q5", RegisterI128 },
-    { "q6", RegisterI128 },
-    { "q7", RegisterI128 },
-    { "q8", RegisterI128 },
-    { "q9", RegisterI128 },
-    { "q10", RegisterI128 },
-    { "q11", RegisterI128 },
-    { "q12", RegisterI128 },
-    { "q13", RegisterI128 },
-    { "q14", RegisterI128 },
-    { "q15", RegisterI128 },
 
-    // Intel
-    { "eax", RegisterI32 },
-    { "ecx", RegisterI32 },
-    { "edx", RegisterI32 },
-    { "ebx", RegisterI32 },
-    { "esp", RegisterI32 },
-    { "ebp", RegisterI32 },
-    { "esi", RegisterI32 },
-    { "edi", RegisterI32 },
-    { "eip", RegisterI32 },
-    { "eflags", RegisterFlags32 },
-    { "cs", RegisterI32 },
-    { "ss", RegisterI32 },
-    { "ds", RegisterI32 },
-    { "es", RegisterI32 },
-    { "fs", RegisterI32 },
-    { "gs", RegisterI32 },
-    { "st0", RegisterF80 },
-    { "st1", RegisterF80 },
-    { "st2", RegisterF80 },
-    { "st3", RegisterF80 },
-    { "st4", RegisterF80 },
-    { "st5", RegisterF80 },
-    { "st6", RegisterF80 },
-    { "st7", RegisterF80 },
-    { "fctrl", RegisterFlags32 },
-    { "fstat", RegisterFlags32 },
-    { "ftag", RegisterFlags32 },
-    { "fiseg", RegisterFlags32 },
-    { "fioff", RegisterFlags32 },
-    { "foseg", RegisterFlags32 },
-    { "fooff", RegisterFlags32 },
-    { "fop", RegisterFlags32 },
-    { "xmm0", RegisterXMM },
-    { "xmm1", RegisterXMM },
-    { "xmm2", RegisterXMM },
-    { "xmm3", RegisterXMM },
-    { "xmm4", RegisterXMM },
-    { "xmm5", RegisterXMM },
-    { "xmm6", RegisterXMM },
-    { "xmm7", RegisterXMM },
-    { "mxcsr", RegisterFlags32 },
-    { "orig_eax", RegisterI32 },
-    { "al", RegisterI8 },
-    { "cl", RegisterI8 },
-    { "dl", RegisterI8 },
-    { "bl", RegisterI8 },
-    { "ah", RegisterI8 },
-    { "ch", RegisterI8 },
-    { "dh", RegisterI8 },
-    { "bh", RegisterI8 },
-    { "ax", RegisterI16 },
-    { "cx", RegisterI16 },
-    { "dx", RegisterI16 },
-    { "bx", RegisterI16 },
-    { "bp", RegisterI16 },
-    { "si", RegisterI16 },
-    { "di", RegisterI16 },
-    { "mm0", RegisterMMX },
-    { "mm1", RegisterMMX },
-    { "mm2", RegisterMMX },
-    { "mm3", RegisterMMX },
-    { "mm4", RegisterMMX },
-    { "mm5", RegisterMMX },
-    { "mm6", RegisterMMX },
-    { "mm7", RegisterMMX }
- };
-
-static RegisterType guessType(const QByteArray &name)
+class RegisterSubItem : public Utils::TreeItem
 {
-    static QHash<QByteArray, RegisterType> theTypes;
-    if (theTypes.isEmpty()) {
-        for (int i = 0; i != sizeof(theNameAndType) / sizeof(theNameAndType[0]); ++i)
-            theTypes[theNameAndType[i].name] = theNameAndType[i].type;
+public:
+    RegisterSubItem(RegisterKind subKind, int subSize, int count, RegisterFormat format)
+        : m_subKind(subKind), m_subFormat(format), m_subSize(subSize), m_count(count), m_changed(false)
+    {
+        for (int i = 0; i != count; ++i)
+            appendChild(new RegisterEditItem(i, subKind, subSize, format));
     }
-    return theTypes.value(name, RegisterUnknown);
-}
 
-static int childCountFromType(int type)
-{
-    switch (type) {
-        case RegisterUnknown: return 0;
-        case RegisterI8: return 0;
-        case RegisterI16: return 1;
-        case RegisterI32: return 2;
-        case RegisterI64: return 3;
-        case RegisterI128: return 4;
-        case RegisterF32: return 0;
-        case RegisterF64: return 0;
-        case RegisterF80: return 0;
-        case RegisterXMM: return 3;
-        case RegisterMMX: return 3;
-        case RegisterNeon: return 3;
-        case RegisterFlags32: return 0;
+    QVariant data(int column, int role) const;
+
+    Qt::ItemFlags flags(int column) const
+    {
+        //return column == 1 ? Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable
+        //                   : Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+        Q_UNUSED(column);
+        return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     }
-    QTC_ASSERT(false, /**/);
-    return 0;
-}
 
-static int bitWidthFromType(int type, int subType)
+    RegisterKind m_subKind;
+    RegisterFormat m_subFormat;
+    int m_subSize;
+    int m_count;
+    bool m_changed;
+};
+
+class RegisterItem : public Utils::TreeItem
 {
-    const uint integer[] = { 8, 16, 32, 64, 128 };
-    const uint xmm[] = { 8, 16, 32, 64, 128 };
-    const uint mmx[] = { 8, 16, 32, 64, 128 };
-    const uint neon[] = { 8, 16, 32, 64, 128 };
+public:
+    explicit RegisterItem(const Register &reg);
 
-    switch (type) {
-        case RegisterUnknown: return 0;
-        case RegisterI8: return 8;
-        case RegisterI16: return integer[subType];
-        case RegisterI32: return integer[subType];
-        case RegisterI64: return integer[subType];
-        case RegisterI128: return integer[subType];
-        case RegisterF32: return 0;
-        case RegisterF64: return 0;
-        case RegisterF80: return 0;
-        case RegisterXMM: return xmm[subType];
-        case RegisterMMX: return mmx[subType];
-        case RegisterNeon: return neon[subType];
-        case RegisterFlags32: return 0;
+    QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &value, int role) override;
+    Qt::ItemFlags flags(int column) const override;
+
+    quint64 addressValue() const;
+    void triggerChange();
+
+    Register m_reg;
+    RegisterFormat m_format;
+    bool m_changed;
+};
+
+RegisterItem::RegisterItem(const Register &reg) :
+    m_reg(reg), m_format(HexadecimalFormat), m_changed(true)
+{
+    if (m_reg.kind == UnknownRegister)
+        m_reg.guessMissingData();
+
+    if (m_reg.kind == IntegerRegister || m_reg.kind == VectorRegister) {
+        if (m_reg.size <= 8) {
+            appendChild(new RegisterSubItem(IntegerRegister, m_reg.size, 1, SignedDecimalFormat));
+            appendChild(new RegisterSubItem(IntegerRegister, m_reg.size, 1, DecimalFormat));
+        }
+        for (int s = m_reg.size / 2; s; s = s / 2) {
+            appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, HexadecimalFormat));
+            appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, SignedDecimalFormat));
+            appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, DecimalFormat));
+            if (s == 1)
+                appendChild(new RegisterSubItem(IntegerRegister, s, m_reg.size / s, CharacterFormat));
+        }
     }
-    QTC_ASSERT(false, /**/);
-    return 0;
+    if (m_reg.kind == IntegerRegister || m_reg.kind == VectorRegister) {
+        for (int s = m_reg.size; s >= 4; s = s / 2)
+            appendChild(new RegisterSubItem(FloatRegister, s, m_reg.size / s, DecimalFormat));
+    }
 }
 
-static const uint TopLevelId = UINT_MAX;
-static bool isTopLevelItem(const QModelIndex &index)
+Qt::ItemFlags RegisterItem::flags(int column) const
 {
-    return quintptr(index.internalId()) == quintptr(TopLevelId);
+    const Qt::ItemFlags notEditable = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+    // Can edit registers if they are hex numbers and not arrays.
+    if (column == 1) //  && IntegerWatchLineEdit::isUnsignedHexNumber(QLatin1String(m_reg.display)))
+        return notEditable | Qt::ItemIsEditable;
+    return notEditable;
 }
 
-Register::Register(const QByteArray &name_)
-    : name(name_), changed(true)
+quint64 RegisterItem::addressValue() const
 {
-    type = guessType(name);
+    return m_reg.value.v.u64[0];
 }
 
+void RegisterItem::triggerChange()
+{
+    QByteArray ba = "0x" + m_reg.value.toByteArray(m_reg.kind, m_reg.size, HexadecimalFormat);
+    DebuggerEngine *engine = static_cast<RegisterHandler *>(model())->engine();
+    engine->setRegisterValue(m_reg.name, QString::fromLatin1(ba));
+}
+
+QVariant RegisterItem::data(int column, int role) const
+{
+    switch (role) {
+        case RegisterNameRole:
+            return m_reg.name;
+
+        case RegisterIsBigRole:
+            return m_reg.value.v.u64[1] > 0;
+
+        case RegisterChangedRole:
+            return m_changed;
+
+        case RegisterAsAddressRole:
+            return addressValue();
+
+        case RegisterFormatRole:
+            return m_format;
+
+        case Qt::DisplayRole:
+            switch (column) {
+                case RegisterNameColumn: {
+                    QByteArray res = m_reg.name;
+                    if (!m_reg.description.isEmpty())
+                        res += " (" + m_reg.description + ')';
+                    return res;
+                }
+                case RegisterValueColumn: {
+                    return m_reg.value.toByteArray(m_reg.kind, m_reg.size, m_format);
+                }
+            }
+
+        case Qt::ToolTipRole:
+            return QString::fromLatin1("Current Value: %1\nPreviousValue: %2")
+                    .arg(QString::fromLatin1(m_reg.value.toByteArray(m_reg.kind, m_reg.size, m_format)))
+                    .arg(QString::fromLatin1(m_reg.previousValue.toByteArray(m_reg.kind, m_reg.size, m_format)));
+
+        case Qt::EditRole: // Edit: Unpadded for editing
+            return QString::fromLatin1(m_reg.value.toByteArray(m_reg.kind, m_reg.size, m_format));
+
+        case Qt::TextAlignmentRole:
+            return column == RegisterValueColumn ? QVariant(Qt::AlignRight) : QVariant();
+
+        default:
+            break;
+    }
+    return QVariant();
+}
+
+bool RegisterItem::setData(int column, const QVariant &value, int role)
+{
+    if (column == RegisterValueColumn && role == Qt::EditRole) {
+        m_reg.value.fromByteArray(value.toString().toLatin1(), m_format);
+        triggerChange();
+        return true;
+    }
+    return false;
+}
+
+QVariant RegisterSubItem::data(int column, int role) const
+{
+    switch (role) {
+        case RegisterChangedRole:
+            return m_changed;
+
+        case RegisterFormatRole: {
+            RegisterItem *registerItem = static_cast<RegisterItem *>(parent());
+            return int(registerItem->m_format);
+        }
+
+        case RegisterAsAddressRole:
+            return 0;
+
+        case Qt::DisplayRole:
+            switch (column) {
+                case RegisterNameColumn:
+                    return subTypeName(m_subKind, m_subSize, m_subFormat);
+                case RegisterValueColumn: {
+                    QTC_ASSERT(parent(), return QVariant());
+                    RegisterItem *registerItem = static_cast<RegisterItem *>(parent());
+                    RegisterValue value = registerItem->m_reg.value;
+                    QByteArray ba;
+                    for (int i = 0; i != m_count; ++i) {
+                        int tab = 5 * (i + 1) * m_subSize;
+                        QByteArray b = value.subValue(m_subSize, i).toByteArray(m_subKind, m_subSize, m_subFormat);
+                        ba += QByteArray(tab - ba.size() - b.size(), ' ');
+                        ba += b;
+                    }
+                    return ba;
+                }
+            }
+
+        case Qt::ToolTipRole:
+            if (m_subKind == IntegerRegister) {
+                if (m_subFormat == CharacterFormat)
+                    return RegisterHandler::tr("Content as ASCII Characters");
+                if (m_subFormat == SignedDecimalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Signed Decimal Values").arg(8 * m_subSize);
+                if (m_subFormat == DecimalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Unsigned Decimal Values").arg(8 * m_subSize);
+                if (m_subFormat == HexadecimalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Hexadecimal Values").arg(8 * m_subSize);
+                if (m_subFormat == OctalFormat)
+                    return RegisterHandler::tr("Content as %1-bit Octal Values").arg(8 * m_subSize);
+                if (m_subFormat == BinaryFormat)
+                    return RegisterHandler::tr("Content as %1-bit Binary Values").arg(8 * m_subSize);
+            }
+            if (m_subKind == FloatRegister)
+                return RegisterHandler::tr("Contents as %1-bit Floating Point Values").arg(8 * m_subSize);
+
+        default:
+            break;
+    }
+
+    return QVariant();
+}
 
 //////////////////////////////////////////////////////////////////
 //
@@ -312,251 +523,112 @@ Register::Register(const QByteArray &name_)
 //
 //////////////////////////////////////////////////////////////////
 
-RegisterHandler::RegisterHandler()
+RegisterHandler::RegisterHandler(DebuggerEngine *engine)
+    : m_engine(engine)
 {
     setObjectName(QLatin1String("RegisterModel"));
-    m_base = 16;
-    calculateWidth();
-#if USE_REGISTER_MODEL_TEST
-    new ModelTest(this, 0);
-#endif
+    setHeader({tr("Name"), tr("Value")});
 }
 
-int RegisterHandler::rowCount(const QModelIndex &idx) const
+void RegisterHandler::updateRegister(const Register &r)
 {
-    if (idx.column() > 0)
-        return 0;
-    if (!idx.isValid())
-        return m_registers.size(); // Top level.
-    if (!isTopLevelItem(idx))
-        return 0; // Sub-Items don't have children.
-    if (idx.row() >= m_registers.size())
-        return 0;
-    return childCountFromType(m_registers[idx.row()].type);
-}
-
-int RegisterHandler::columnCount(const QModelIndex &idx) const
-{
-    if (idx.column() > 0)
-        return 0;
-    if (!idx.isValid())
-        return 2;
-    if (!isTopLevelItem(idx))
-        return 0; // Sub-Items don't have children.
-    return 2;
-}
-
-QModelIndex RegisterHandler::index(int row, int col, const QModelIndex &parent) const
-{
-    if (row < 0 || col < 0 || col >= 2)
-        return QModelIndex();
-    if (!parent.isValid()) // Top level.
-        return createIndex(row, col, TopLevelId);
-    if (!isTopLevelItem(parent)) // Sub-Item has no children.
-        return QModelIndex();
-    if (parent.column() > 0)
-        return QModelIndex();
-    return createIndex(row, col, parent.row());
-}
-
-QModelIndex RegisterHandler::parent(const QModelIndex &idx) const
-{
-    if (!idx.isValid())
-        return QModelIndex();
-    if (!isTopLevelItem(idx))
-        return createIndex(idx.internalId(), 0, TopLevelId);
-    return QModelIndex();
-}
-
-// Editor value: Preferably number, else string.
-QVariant Register::editValue() const
-{
-    bool ok = true;
-    // Try to convert to number?
-    const qulonglong v = value.toULongLong(&ok, 0); // Autodetect format
-    if (ok)
-        return QVariant(v);
-    return QVariant(value);
-}
-
-// Editor value: Preferably padded number, else padded string.
-QString Register::displayValue(int base, int strlen) const
-{
-    const QVariant editV = editValue();
-    if (editV.type() == QVariant::ULongLong)
-        return QString::fromLatin1("%1").arg(editV.toULongLong(), strlen, base);
-    const QString stringValue = editV.toString();
-    if (stringValue.size() < strlen)
-        return QString(strlen - stringValue.size(), QLatin1Char(' ')) + QLatin1String(value);
-    return stringValue;
-}
-
-QVariant RegisterHandler::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    QModelIndex topLevel = index.parent();
-    const int mainRow = topLevel.isValid() ? topLevel.row() : index.row();
-
-    if (mainRow >= m_registers.size())
-        return QVariant();
-
-
-    const Register &reg = m_registers.at(mainRow);
-
-    if (topLevel.isValid()) {
-        //
-        // Nested
-        //
-        int subType = index.row();
-        int bitWidth = bitWidthFromType(reg.type, subType);
-
-        switch (role) {
-        case Qt::DisplayRole:
-            switch (index.column()) {
-            case 0: {
-                switch (bitWidth) {
-                    case 8:  return QLatin1String("[Bytes]");
-                    case 16: return QLatin1String("[Words]");
-                    case 32: return QLatin1String("[DWords]");
-                    case 64: return QLatin1String("[QWords]");
-                    case 128: return QLatin1String("[TWords]");
-                    case -32: return QLatin1String("[Single]");
-                    case -64: return QLatin1String("[Double]");
-                    return QVariant(bitWidth);
-                }
-            }
-        }
-        default:
-            break;
-        }
-
-    } else {
-        //
-        // Toplevel
-        //
-
-        switch (role) {
-        case Qt::DisplayRole:
-            switch (index.column()) {
-            case 0: {
-                const QString padding = QLatin1String("  ");
-                return QVariant(padding + QLatin1String(reg.name) + padding);
-                //return QVariant(reg.name);
-            }
-            case 1: // Display: Pad value for alignment
-                return reg.displayValue(m_base, m_strlen);
-            } // switch column
-        case Qt::EditRole: // Edit: Unpadded for editing
-            return reg.editValue();
-        case Qt::TextAlignmentRole:
-            return index.column() == 1 ? QVariant(Qt::AlignRight) : QVariant();
-        default:
-            break;
-        }
-    }
-    return QVariant();
-}
-
-QVariant RegisterHandler::headerData(int section, Qt::Orientation orientation,
-    int role) const
-{
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        switch (section) {
-        case 0: return tr("Name");
-        case 1: return tr("Value (Base %1)").arg(m_base);
-        };
-    }
-    return QVariant();
-}
-
-Qt::ItemFlags RegisterHandler::flags(const QModelIndex &idx) const
-{
-    if (!idx.isValid())
-        return Qt::ItemFlags();
-
-    const Qt::ItemFlags notEditable = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
-    // Can edit registers if they are hex numbers and not arrays.
-    if (idx.column() == 1
-            && IntegerWatchLineEdit::isUnsignedHexNumber(QLatin1String(m_registers.at(idx.row()).value)))
-        return notEditable | Qt::ItemIsEditable;
-    return notEditable;
-}
-
-void RegisterHandler::removeAll()
-{
-    beginResetModel();
-    m_registers.clear();
-    endResetModel();
-}
-
-bool RegisterHandler::isEmpty() const
-{
-    return m_registers.isEmpty();
-}
-
-// Compare register sets by name
-static inline bool compareRegisterSet(const Registers &r1, const Registers &r2)
-{
-    if (r1.size() != r2.size())
-        return false;
-    const int size = r1.size();
-    for (int r = 0; r < size; r++)
-        if (r1.at(r).name != r2.at(r).name)
-            return false;
-    return true;
-}
-
-void RegisterHandler::setRegisters(const Registers &registers)
-{
-    beginResetModel();
-    m_registers = registers;
-    const int size = m_registers.size();
-    for (int r = 0; r < size; r++)
-        m_registers[r].changed = false;
-    calculateWidth();
-    endResetModel();
-}
-
-void RegisterHandler::setAndMarkRegisters(const Registers &registers)
-{
-    if (!compareRegisterSet(m_registers, registers)) {
-        setRegisters(registers);
+    RegisterItem *reg = m_registerByName.value(r.name, 0);
+    if (!reg) {
+        reg = new RegisterItem(r);
+        m_registerByName[r.name] = reg;
+        rootItem()->appendChild(reg);
         return;
     }
-    const int size = m_registers.size();
-    for (int r = 0; r != size; ++r) {
-        const QModelIndex regIndex = index(r, 1, QModelIndex());
-        if (m_registers.at(r).value != registers.at(r).value) {
-            // Indicate red if values change, keep changed.
-            m_registers[r].changed = m_registers.at(r).changed
-                || !m_registers.at(r).value.isEmpty();
-            m_registers[r].value = registers.at(r).value;
-            emit dataChanged(regIndex, regIndex);
-        }
-        emit registerSet(regIndex); // Notify attached memory views.
+
+    if (r.size > 0)
+        reg->m_reg.size = r.size;
+    if (!r.description.isEmpty())
+        reg->m_reg.description = r.description;
+    if (reg->m_reg.value != r.value) {
+        // Indicate red if values change, keep changed.
+        reg->m_changed = true;
+        reg->m_reg.previousValue = reg->m_reg.value;
+        reg->m_reg.value = r.value;
+        emit registerChanged(reg->m_reg.name, reg->addressValue()); // Notify attached memory views.
+    } else {
+        reg->m_changed = false;
     }
 }
 
-Registers RegisterHandler::registers() const
+void RegisterHandler::setNumberFormat(const QByteArray &name, RegisterFormat format)
 {
-    return m_registers;
+    RegisterItem *reg = m_registerByName.value(name, 0);
+    QTC_ASSERT(reg, return);
+    reg->m_format = format;
+    QModelIndex index = indexForItem(reg);
+    emit dataChanged(index, index);
 }
 
-void RegisterHandler::calculateWidth()
+RegisterMap RegisterHandler::registerMap() const
 {
-    m_strlen = (m_base == 2 ? 64 : m_base == 8 ? 32 : m_base == 10 ? 26 : 16);
-}
-
-void RegisterHandler::setNumberBase(int base)
-{
-    if (m_base != base) {
-        beginResetModel();
-        m_base = base;
-        calculateWidth();
-        endResetModel();
+    RegisterMap result;
+    Utils::TreeItem *root = rootItem();
+    for (int i = 0, n = root->rowCount(); i != n; ++i) {
+        RegisterItem *reg = static_cast<RegisterItem *>(root->child(i));
+        quint64 value = reg->addressValue();
+        if (value)
+            result.insert(value, reg->m_reg.name);
     }
+    return result;
+}
+
+QVariant RegisterEditItem::data(int column, int role) const
+{
+    switch (role) {
+        case Qt::DisplayRole:
+        case Qt::EditRole:
+            switch (column) {
+                case RegisterNameColumn: {
+                    return QString::fromLatin1("[%1]").arg(m_index);
+                }
+                case RegisterValueColumn: {
+                    RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
+                    RegisterValue value = registerItem->m_reg.value;
+                    return value.subValue(m_subSize, m_index)
+                            .toByteArray(m_subKind, m_subSize, m_subFormat, role == Qt::EditRole);
+                }
+            }
+        case Qt::ToolTipRole: {
+                RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
+                return RegisterHandler::tr("Edit bits %1...%2 of register %3")
+                        .arg(m_index * 8).arg(m_index * 8 + 7)
+                        .arg(QString::fromLatin1(registerItem->m_reg.name));
+            }
+        default:
+            break;
+    }
+    return QVariant();
+}
+
+bool RegisterEditItem::setData(int column, const QVariant &value, int role)
+{
+    if (column == RegisterValueColumn && role == Qt::EditRole) {
+        QTC_ASSERT(parent(), return false);
+        QTC_ASSERT(parent()->parent(), return false);
+        RegisterItem *registerItem = static_cast<RegisterItem *>(parent()->parent());
+        Register &reg = registerItem->m_reg;
+        RegisterValue vv;
+        vv.fromByteArray(value.toString().toLatin1(), m_subFormat);
+        reg.value.setSubValue(m_subSize, m_index, vv);
+        registerItem->triggerChange();
+        return true;
+    }
+    return false;
+}
+
+Qt::ItemFlags RegisterEditItem::flags(int column) const
+{
+    QTC_ASSERT(parent(), return Qt::ItemFlags());
+    RegisterSubItem *registerSubItem = static_cast<RegisterSubItem *>(parent());
+    Qt::ItemFlags f = registerSubItem->flags(column);
+    if (column == RegisterValueColumn)
+        f |= Qt::ItemIsEditable;
+    return f;
 }
 
 } // namespace Internal

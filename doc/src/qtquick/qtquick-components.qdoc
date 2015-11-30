@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -24,8 +24,8 @@
 
 /*!
 
-    \contentspage index.html
-    \previouspage creator-using-qt-quick-designer.html
+    \contentspage {Qt Creator Manual}
+    \previouspage qmldesigner-connections.html
     \page quick-components.html
     \nextpage quick-buttons.html
 
@@ -71,14 +71,14 @@
 
     \endlist
 
-    QML types allow you to write cross-platform applications with custom look
-    and feel. You can also use ready-made Qt Quick Components (for Qt 4) to
-    create screens with a native look and feel for a particular target platform.
-    Since Qt 5.1, a set of Qt Quick Controls is available for creating classic
-    desktop-style user interfaces using Qt Quick 2.1.
+    You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
+    screens with a native look and feel for a particular target platform.
+    Since Qt 5.1, Qt Quick Controls, Dialogs, and Layouts are available for
+    creating classic desktop-style user interfaces using Qt Quick 2.1. You can
+    use the Qt Quick Controls Styles to customize Qt Quick Controls.
 
-    You can install Qt Quick 1 Components as part of the Qt 4 SDK and the Qt
-    Quick Controls as part of Qt 5.1, or later.
+    Some ready-made controls, such as a gauge, dial, status indicator, and
+    tumbler, are provided by the \l {Qt Quick Extras} module.
 
     The \QC project wizards create Qt Quick applications that use Qt Quick
     Components or Controls.
@@ -90,20 +90,20 @@
 
     \list 1
 
-        \li Select \gui File > \gui {New File or Project} >
-            \gui {Files and Classes} > \gui Qt > \gui {QML File (Qt Quick 1)} or
-            \gui {QML File (Qt Quick 2)} > \gui Choose to create a new .qml
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Files and Classes} > \uicontrol Qt > \uicontrol {QML File (Qt Quick 1)} or
+            \uicontrol {QML File (Qt Quick 2)} > \uicontrol Choose to create a new .qml
             file.
 
-            \note Components are listed in the \gui {QML Components} section of
-            the \gui Library pane only if the filename begins with a capital
+            \note Components are listed in the \uicontrol {QML Components} section of
+            the \uicontrol Library only if the filename begins with a capital
             letter.
 
-        \li Click \gui Design to open the .qml file in \QMLD.
+        \li Click \uicontrol Design to open the .qml file in \QMLD.
 
-        \li Drag and drop a QML type from the \gui Library pane to the editor.
+        \li Drag and drop a QML type from the \uicontrol Library to the editor.
 
-        \li Edit its properties in the \gui Properties pane.
+        \li Edit its properties in the \uicontrol Properties pane.
 
             The available properties depend on the QML type.
 
@@ -124,7 +124,7 @@
 
     Components can consist of several other components. To view the component
     hierarchy as a bread crumb path when you edit a component on the canvas,
-    select \gui {Go into Component} or press \key F2. Click the component
+    select \uicontrol {Go into Component} or press \key F2. Click the component
     names in the path to navigate to them. You can easily navigate back to the
     top level when you are done editing the component.
 

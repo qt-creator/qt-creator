@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -100,6 +101,8 @@ static Abi macAbiForCpu(quint32 type) {
         return Abi(Abi::PowerPCArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
     case 12: // CPU_TYPE_ARM
         return Abi(Abi::ArmArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
+    case 0x01000000 + 12: // CPU_TYPE_ARM64
+        return Abi(Abi::ArmArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 64);
     default:
         return Abi();
     }
@@ -164,6 +167,9 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
             break;
         case 12:
             flavor = Abi::WindowsMsvc2013Flavor;
+            break;
+        case 14:
+            flavor = Abi::WindowsMsvc2015Flavor;
             break;
         default: // Keep unknown flavor
             if (minorLinker != 0)
@@ -237,6 +243,9 @@ static QList<Abi> abiOf(const QByteArray &data)
         case 40: // EM_ARM
             result.append(Abi(Abi::ArmArchitecture, os, flavor, Abi::ElfFormat, 32));
             break;
+        case 183: // EM_AARCH64
+            result.append(Abi(Abi::ArmArchitecture, os, flavor, Abi::ElfFormat, 64));
+            break;
         case 62: // EM_X86_64
             result.append(Abi(Abi::X86Architecture, os, flavor, Abi::ElfFormat, 64));
             break;
@@ -307,29 +316,32 @@ Abi::Abi(const Architecture &a, const OS &o,
     m_architecture(a), m_os(o), m_osFlavor(of), m_binaryFormat(f), m_wordWidth(w)
 {
     switch (m_os) {
-    case ProjectExplorer::Abi::UnknownOS:
+    case Abi::UnknownOS:
         m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::LinuxOS:
+    case Abi::LinuxOS:
         if (m_osFlavor < GenericLinuxFlavor || m_osFlavor > AndroidLinuxFlavor)
             m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::BsdOS:
+    case Abi::BsdOS:
         if (m_osFlavor < FreeBsdFlavor || m_osFlavor > OpenBsdFlavor)
             m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::MacOS:
+    case Abi::MacOS:
         if (m_osFlavor < GenericMacFlavor || m_osFlavor > GenericMacFlavor)
             m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::UnixOS:
+    case Abi::UnixOS:
         if (m_osFlavor < GenericUnixFlavor || m_osFlavor > SolarisUnixFlavor)
             m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::WindowsOS:
+    case Abi::WindowsOS:
         if (m_osFlavor < WindowsMsvc2005Flavor || m_osFlavor > WindowsCEFlavor)
             m_osFlavor = UnknownFlavor;
         break;
+    case Abi::VxWorks:
+        if (m_osFlavor != VxWorksFlavor)
+            m_osFlavor = VxWorksFlavor;
     }
 }
 
@@ -370,8 +382,9 @@ Abi::Abi(const QString &abiString) :
             m_os = UnixOS;
         else if (abiParts.at(1) == QLatin1String("windows"))
             m_os = WindowsOS;
+        else if (abiParts.at(1) == QLatin1String("vxworks"))
+            m_os = VxWorks;
         else
-
             return;
     }
 
@@ -404,10 +417,14 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = WindowsMsvc2012Flavor;
         else if (abiParts.at(2) == QLatin1String("msvc2013") && m_os == WindowsOS)
             m_osFlavor = WindowsMsvc2013Flavor;
+        else if (abiParts.at(2) == QLatin1String("msvc2015") && m_os == WindowsOS)
+            m_osFlavor = WindowsMsvc2015Flavor;
         else if (abiParts.at(2) == QLatin1String("msys") && m_os == WindowsOS)
             m_osFlavor = WindowsMSysFlavor;
         else if (abiParts.at(2) == QLatin1String("ce") && m_os == WindowsOS)
             m_osFlavor = WindowsCEFlavor;
+        else if (abiParts.at(2) == QLatin1String("vxworks") && m_os == VxWorks)
+            m_osFlavor = VxWorksFlavor;
         else
             return;
     }
@@ -454,7 +471,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     Abi::OS os = Abi::UnknownOS;
     Abi::OSFlavor flavor = Abi::UnknownFlavor;
     Abi::BinaryFormat format = Abi::UnknownFormat;
-    int width = 0;
+    unsigned char width = 0;
     int unknownCount = 0;
 
     foreach (const QString &p, parts) {
@@ -466,12 +483,13 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
         } else if (p == QLatin1String("i386") || p == QLatin1String("i486") || p == QLatin1String("i586")
                    || p == QLatin1String("i686") || p == QLatin1String("x86")) {
             arch = Abi::X86Architecture;
+            width = 32;
         } else if (p.startsWith(QLatin1String("arm"))) {
             arch = Abi::ArmArchitecture;
-            width = 32;
-        } else if (p == QLatin1String("mipsel")) {
+            width = p.contains(QLatin1String("64")) ? 64 : 32;
+        } else if (p.startsWith(QLatin1String("mips"))) {
             arch = Abi::MipsArchitecture;
-            width = 32;
+            width = p.contains(QLatin1String("64")) ? 64 : 32;
         } else if (p == QLatin1String("x86_64") || p == QLatin1String("amd64")) {
             arch = Abi::X86Architecture;
             width = 64;
@@ -495,7 +513,9 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             if (flavor == Abi::UnknownFlavor)
                 flavor = Abi::FreeBsdFlavor;
             format = Abi::ElfFormat;
-        } else if (p == QLatin1String("mingw32") || p == QLatin1String("win32") || p == QLatin1String("mingw32msvc")) {
+        } else if (p == QLatin1String("mingw32") || p == QLatin1String("win32")
+                   || p == QLatin1String("mingw32msvc") || p == QLatin1String("msys")
+                   || p == QLatin1String("cygwin")) {
             arch = Abi::X86Architecture;
             os = Abi::WindowsOS;
             flavor = Abi::WindowsMSysFlavor;
@@ -509,6 +529,12 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
         } else if (p == QLatin1String("darwin9")) {
             width = 32;
         } else if (p == QLatin1String("gnueabi")) {
+            format = Abi::ElfFormat;
+        } else if (p == QLatin1String("wrs")) {
+            continue;
+        } else if (p == QLatin1String("vxworks")) {
+            os = Abi::VxWorks;
+            flavor = Abi::VxWorksFlavor;
             format = Abi::ElfFormat;
         } else {
             ++unknownCount;
@@ -527,7 +553,7 @@ QString Abi::toString() const
     dn << toString(m_binaryFormat);
     dn << toString(m_wordWidth);
 
-    return dn.join(QLatin1String("-"));
+    return dn.join(QLatin1Char('-'));
 }
 
 bool Abi::operator != (const Abi &other) const
@@ -619,6 +645,8 @@ QString Abi::toString(const OS &o)
         return QLatin1String("unix");
     case WindowsOS:
         return QLatin1String("windows");
+    case VxWorks:
+        return QLatin1String("vxworks");
     case UnknownOS: // fall through!
     default:
         return QLatin1String("unknown");
@@ -628,37 +656,41 @@ QString Abi::toString(const OS &o)
 QString Abi::toString(const OSFlavor &of)
 {
     switch (of) {
-    case ProjectExplorer::Abi::GenericLinuxFlavor:
+    case Abi::GenericLinuxFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::AndroidLinuxFlavor:
+    case Abi::AndroidLinuxFlavor:
         return QLatin1String("android");
-    case ProjectExplorer::Abi::FreeBsdFlavor:
+    case Abi::FreeBsdFlavor:
         return QLatin1String("freebsd");
-    case ProjectExplorer::Abi::NetBsdFlavor:
+    case Abi::NetBsdFlavor:
         return QLatin1String("netbsd");
-    case ProjectExplorer::Abi::OpenBsdFlavor:
+    case Abi::OpenBsdFlavor:
         return QLatin1String("openbsd");
-    case ProjectExplorer::Abi::GenericMacFlavor:
+    case Abi::GenericMacFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::GenericUnixFlavor:
+    case Abi::GenericUnixFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::SolarisUnixFlavor:
+    case Abi::SolarisUnixFlavor:
         return QLatin1String("solaris");
-    case ProjectExplorer::Abi::WindowsMsvc2005Flavor:
+    case Abi::WindowsMsvc2005Flavor:
         return QLatin1String("msvc2005");
-    case ProjectExplorer::Abi::WindowsMsvc2008Flavor:
+    case Abi::WindowsMsvc2008Flavor:
         return QLatin1String("msvc2008");
-    case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
+    case Abi::WindowsMsvc2010Flavor:
         return QLatin1String("msvc2010");
-    case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
+    case Abi::WindowsMsvc2012Flavor:
         return QLatin1String("msvc2012");
-    case ProjectExplorer::Abi::WindowsMsvc2013Flavor:
+    case Abi::WindowsMsvc2013Flavor:
         return QLatin1String("msvc2013");
-    case ProjectExplorer::Abi::WindowsMSysFlavor:
+    case Abi::WindowsMsvc2015Flavor:
+        return QLatin1String("msvc2015");
+    case Abi::WindowsMSysFlavor:
         return QLatin1String("msys");
-    case ProjectExplorer::Abi::WindowsCEFlavor:
+    case Abi::WindowsCEFlavor:
         return QLatin1String("ce");
-    case ProjectExplorer::Abi::UnknownFlavor: // fall through!
+    case Abi::VxWorksFlavor:
+        return QLatin1String("vxworks");
+    case Abi::UnknownFlavor: // fall through!
     default:
         return QLatin1String("unknown");
     }
@@ -702,8 +734,10 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
         return result << GenericUnixFlavor << SolarisUnixFlavor << UnknownFlavor;
     case WindowsOS:
         return result << WindowsMsvc2005Flavor << WindowsMsvc2008Flavor << WindowsMsvc2010Flavor
-                      << WindowsMsvc2012Flavor << WindowsMsvc2013Flavor << WindowsMSysFlavor
-                      << WindowsCEFlavor << UnknownFlavor;
+                      << WindowsMsvc2012Flavor << WindowsMsvc2013Flavor << WindowsMsvc2015Flavor
+                      << WindowsMSysFlavor << WindowsCEFlavor << UnknownFlavor;
+    case VxWorks:
+        return result << VxWorksFlavor << UnknownFlavor;
     case UnknownOS:
         return result << UnknownFlavor;
     default:
@@ -721,7 +755,9 @@ Abi Abi::hostAbi()
 
 #if defined (Q_OS_WIN)
     os = WindowsOS;
-#if _MSC_VER == 1800
+#if _MSC_VER == 1900
+    subos = WindowsMsvc2015Flavor;
+#elif _MSC_VER == 1800
     subos = WindowsMsvc2013Flavor;
 #elif _MSC_VER == 1700
     subos = WindowsMsvc2012Flavor;
@@ -743,6 +779,16 @@ Abi Abi::hostAbi()
     os = MacOS;
     subos = GenericMacFlavor;
     format = MachOFormat;
+#elif defined (Q_OS_BSD4)
+    os = BsdOS;
+# if defined (Q_OS_FREEBSD)
+    subos = FreeBsdFlavor;
+# elif defined (Q_OS_NETBSD)
+    subos = NetBsdFlavor;
+# elif defined (Q_OS_OPENBSD)
+    subos = OpenBsdFlavor;
+# endif
+    format = ElfFormat;
 #endif
 
     const Abi result(arch, os, subos, format, QSysInfo::WordSize);
@@ -815,14 +861,6 @@ QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
     }
 
     return result;
-}
-
-ProjectExplorer::Abi::Endianness Abi::endianness() const
-{
-    if (m_architecture == X86Architecture)
-        return LittleEndian;
-    // All other architectures are bi-endian:/
-    return UnknownEndian; // Todo: Add a field for endianness to the Abi struct!
 }
 
 } // namespace ProjectExplorer
@@ -996,92 +1034,114 @@ void ProjectExplorer::ProjectExplorerPlugin::testFlavorForOs()
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
 {
-    QTest::addColumn<QString>("targetTriplet");
     QTest::addColumn<int>("architecture");
     QTest::addColumn<int>("os");
     QTest::addColumn<int>("osFlavor");
     QTest::addColumn<int>("binaryFormat");
-    QTest::addColumn<unsigned char>("wordWidth");
+    QTest::addColumn<int>("wordWidth");
 
-    QTest::newRow("x86_64-apple-darwin") << "x86_64-apple-darwin" << int(Abi::X86Architecture)
+    QTest::newRow("x86_64-apple-darwin") << int(Abi::X86Architecture)
                                          << int(Abi::MacOS) << int(Abi::GenericMacFlavor)
-                                         << int(Abi::MachOFormat) << (unsigned char) 64;
+                                         << int(Abi::MachOFormat) << 64;
 
-    QTest::newRow("x86_64-apple-darwin12.5.0") << "x86_64-apple-darwin12.5.0" << int(Abi::X86Architecture)
+    QTest::newRow("x86_64-apple-darwin12.5.0") << int(Abi::X86Architecture)
                                                << int(Abi::MacOS) << int(Abi::GenericMacFlavor)
-                                               << int(Abi::MachOFormat) << (unsigned char) 64;
+                                               << int(Abi::MachOFormat) << 64;
 
-    QTest::newRow("x86_64-linux-gnu") << "x86_64-linux-gnu" << int(Abi::X86Architecture)
+    QTest::newRow("x86_64-linux-gnu") << int(Abi::X86Architecture)
                                       << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
-                                      << int(Abi::ElfFormat) << (unsigned char) 64;
+                                      << int(Abi::ElfFormat) << 64;
 
-    QTest::newRow("x86_64-pc-mingw32msvc") << "x86_64-pc-mingw32msvc" << int(Abi::X86Architecture)
+    QTest::newRow("x86_64-pc-mingw32msvc") << int(Abi::X86Architecture)
                                            << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                           << int(Abi::PEFormat) << (unsigned char) 64;
+                                           << int(Abi::PEFormat) << 64;
 
-    QTest::newRow("i586-pc-mingw32msvc") << "i586-pc-mingw32msvc" << int(Abi::X86Architecture)
+    QTest::newRow("i586-pc-mingw32msvc") << int(Abi::X86Architecture)
                                          << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                         << int(Abi::PEFormat) << (unsigned char) 0;
+                                         << int(Abi::PEFormat) << 32;
 
-    QTest::newRow("i686-linux-gnu") << "i686-linux-gnu" << int(Abi::X86Architecture)
+    QTest::newRow("i686-linux-gnu") << int(Abi::X86Architecture)
                                     << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
-                                    << int(Abi::ElfFormat) << (unsigned char) 0;
+                                    << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("i686-linux-android") << "i686-linux-android" << int(Abi::X86Architecture)
+    QTest::newRow("i686-linux-android") << int(Abi::X86Architecture)
                                         << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                        << int(Abi::ElfFormat) << (unsigned char) 0;
+                                        << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("i686-pc-linux-android") << "i686-pc-linux-android" << int(Abi::X86Architecture)
+    QTest::newRow("i686-pc-linux-android") << int(Abi::X86Architecture)
                                            << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                           << int(Abi::ElfFormat) << (unsigned char) 0;
+                                           << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("i686-pc-mingw32") << "i686-pc-mingw32" << int(Abi::X86Architecture)
+    QTest::newRow("i686-pc-mingw32") << int(Abi::X86Architecture)
                                      << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                     << int(Abi::PEFormat) << (unsigned char) 0;
+                                     << int(Abi::PEFormat) << 32;
 
-    QTest::newRow("i686-w64-mingw32") << "i686-w64-mingw32" << int(Abi::X86Architecture)
+    QTest::newRow("i686-w64-mingw32") << int(Abi::X86Architecture)
                                       << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                      << int(Abi::PEFormat) << (unsigned char) 0;
+                                      << int(Abi::PEFormat) << 32;
 
-    QTest::newRow("mingw32") << "mingw32" << int(Abi::X86Architecture)
+    QTest::newRow("x86_64-pc-msys") << int(Abi::X86Architecture)
+                                    << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
+                                    << int(Abi::PEFormat) << 64;
+
+    QTest::newRow("x86_64-pc-cygwin") << int(Abi::X86Architecture)
+                                      << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
+                                      << int(Abi::PEFormat) << 64;
+
+    QTest::newRow("mingw32") << int(Abi::X86Architecture)
                              << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                             << int(Abi::PEFormat) << (unsigned char) 0;
+                             << int(Abi::PEFormat) << 0;
 
-    QTest::newRow("arm-linux-android") << "arm-linux-android" << int(Abi::ArmArchitecture)
+    QTest::newRow("arm-linux-android") << int(Abi::ArmArchitecture)
                                        << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                       << int(Abi::ElfFormat) << (unsigned char) 32;
+                                       << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("arm-linux-androideabi") << "arm-linux-androideabi" << int(Abi::ArmArchitecture)
+    QTest::newRow("arm-linux-androideabi") << int(Abi::ArmArchitecture)
                                            << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                           << int(Abi::ElfFormat) << (unsigned char) 32;
+                                           << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("arm-none-linux-gnueabi") << "arm-none-linux-gnueabi" << int(Abi::ArmArchitecture)
+    QTest::newRow("arm-none-linux-gnueabi") << int(Abi::ArmArchitecture)
                                             << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
-                                            << int(Abi::ElfFormat) << (unsigned char) 32;
+                                            << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("mipsel-linux-android") << "mipsel-linux-android" << int(Abi::MipsArchitecture)
+    QTest::newRow("mipsel-linux-android") << int(Abi::MipsArchitecture)
                                           << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                          << int(Abi::ElfFormat) << (unsigned char) 32;
+                                          << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("mipsel-unknown-linux-android") << "mipsel-unknown-linux-android" << int(Abi::MipsArchitecture)
+    QTest::newRow("mipsel-unknown-linux-android") << int(Abi::MipsArchitecture)
                                                   << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                                  << int(Abi::ElfFormat) << (unsigned char) 32;
+                                                  << int(Abi::ElfFormat) << 32;
+
+    QTest::newRow("mips-linux-gnu") << int(Abi::MipsArchitecture)
+                                    << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
+                                    << int(Abi::ElfFormat) << 32;
+
+    QTest::newRow("mips64-linux-octeon-gnu") << int(Abi::MipsArchitecture)
+                                             << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
+                                             << int(Abi::ElfFormat) << 64;
+
+    QTest::newRow("mips64el-linux-gnuabi") << int(Abi::MipsArchitecture)
+                                    << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
+                                    << int(Abi::ElfFormat) << 64;
+
+    QTest::newRow("arm-wrs-vxworks") << int(Abi::ArmArchitecture)
+                                     << int(Abi::VxWorks) << int(Abi::VxWorksFlavor)
+                                     << int(Abi::ElfFormat) << 32;
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()
 {
-    QFETCH(QString, targetTriplet);
     QFETCH(int, architecture);
     QFETCH(int, os);
     QFETCH(int, osFlavor);
     QFETCH(int, binaryFormat);
-    QFETCH(unsigned char, wordWidth);
+    QFETCH(int, wordWidth);
 
     const Abi expectedAbi = Abi(Abi::Architecture(architecture),
                                 Abi::OS(os), Abi::OSFlavor(osFlavor),
-                                Abi::BinaryFormat(binaryFormat), wordWidth);
+                                Abi::BinaryFormat(binaryFormat), (unsigned char)wordWidth);
 
-    QCOMPARE(Abi::abiFromTargetTriplet(targetTriplet), expectedAbi);
+    QCOMPARE(Abi::abiFromTargetTriplet(QLatin1String(QTest::currentDataTag())), expectedAbi);
 }
 
 #endif

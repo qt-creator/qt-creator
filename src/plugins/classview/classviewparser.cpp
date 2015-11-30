@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Denis Mingulov
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Denis Mingulov
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -38,7 +39,7 @@
 #include <cplusplus/Name.h>
 
 // other
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/Icons.h>
 #include <projectexplorer/projectexplorer.h>
@@ -94,6 +95,8 @@ namespace Internal {
 class ParserPrivate
 {
 public:
+    typedef QHash<QString, CPlusPlus::Document::Ptr>::const_iterator CitDocumentList;
+
     //! Constructor
     ParserPrivate() : flatMode(false) {}
 
@@ -147,9 +150,10 @@ public:
 
 CPlusPlus::Document::Ptr ParserPrivate::document(const QString &fileName) const
 {
-    if (!documentList.contains(fileName))
+    CitDocumentList cit = documentList.find(fileName);
+    if (cit == documentList.end())
         return CPlusPlus::Document::Ptr();
-    return documentList[fileName];
+    return cit.value();
 }
 
 // ----------------------------- Parser ---------------------------------
@@ -163,11 +167,12 @@ Parser::Parser(QObject *parent)
     d(new ParserPrivate())
 {
     d->timer = new QTimer(this);
+    d->timer->setObjectName(QLatin1String("ClassViewParser::timer"));
     d->timer->setSingleShot(true);
 
     // connect signal/slots
     // internal data reset
-    connect(this, SIGNAL(resetDataDone()), SLOT(onResetDataDone()), Qt::QueuedConnection);
+    connect(this, &Parser::resetDataDone, this, &Parser::onResetDataDone, Qt::QueuedConnection);
 
     // timer for emitting changes
     connect(d->timer, SIGNAL(timeout()), SLOT(requestCurrentState()), Qt::QueuedConnection);
@@ -186,9 +191,9 @@ Parser::~Parser()
     Checks \a item for lazy data population of a QStandardItemModel.
 */
 
-bool Parser::canFetchMore(QStandardItem *item) const
+bool Parser::canFetchMore(QStandardItem *item, bool skipRoot) const
 {
-    ParserTreeItem::ConstPtr ptr = findItemByRoot(item);
+    ParserTreeItem::ConstPtr ptr = findItemByRoot(item, skipRoot);
     if (ptr.isNull())
         return false;
     return ptr->canFetchMore(item);
@@ -205,6 +210,14 @@ void Parser::fetchMore(QStandardItem *item, bool skipRoot) const
     if (ptr.isNull())
         return;
     ptr->fetchMore(item);
+}
+
+bool Parser::hasChildren(QStandardItem *item) const
+{
+    ParserTreeItem::ConstPtr ptr = findItemByRoot(item);
+    if (ptr.isNull())
+        return false;
+    return ptr->childCount() != 0;
 }
 
 /*!
@@ -281,24 +294,18 @@ ParserTreeItem::ConstPtr Parser::parse()
             continue;
 
         ParserTreeItem::Ptr item;
-        if (!d->flatMode)
-            item = ParserTreeItem::Ptr(new ParserTreeItem());
-
         QString prjName(prj->displayName());
         QString prjType(prjName);
         if (prj->document())
-            prjType = prj->projectFilePath();
+            prjType = prj->projectFilePath().toString();
         SymbolInformation inf(prjName, prjType);
+        item = ParserTreeItem::Ptr(new ParserTreeItem());
 
-        QStringList projectList = addProjectNode(item, prj->rootProjectNode());
+        if (d->flatMode)
+            addFlatTree(item, prj->rootProjectNode());
+        else
+            addProjectNode(item, prj->rootProjectNode());
 
-        if (d->flatMode) {
-            // use prj path (prjType) as a project id
-//            addProject(item, prj->files(Project::ExcludeGeneratedFiles), prjType);
-            //! \todo return back, works too long
-            ParserTreeItem::Ptr flatItem = createFlatTree(projectList);
-            item.swap(flatItem);
-        }
         item->setIcon(prj->rootProjectNode()->icon());
         rootItem->appendChild(item, inf);
     }
@@ -339,9 +346,6 @@ void Parser::addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol 
     // easy solution - lets add any scoped symbol and
     // any symbol which does not contain :: in the name
 
-//    if (symbol->isDeclaration())
-//        return;
-
     //! \todo collect statistics and reorder to optimize
     if (symbol->isForwardClassDeclaration()
         || symbol->isExtern()
@@ -352,17 +356,11 @@ void Parser::addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol 
         )
         return;
 
-    // skip static local functions
-//    if ((!symbol->scope() || symbol->scope()->isClass())
-//        && symbol->isStatic() && symbol->isFunction())
-//        return;
-
-
     const CPlusPlus::Name *symbolName = symbol->name();
     if (symbolName && symbolName->isQualifiedNameId())
         return;
 
-    QString name = d->overview.prettyName(symbol->name()).trimmed();
+    QString name = d->overview.prettyName(symbolName).trimmed();
     QString type = d->overview.prettyType(symbol->type()).trimmed();
     int iconType = CPlusPlus::Icons::iconTypeForSymbol(symbol);
 
@@ -385,49 +383,23 @@ void Parser::addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol 
 
     // prevent showing a content of the functions
     if (!symbol->isFunction()) {
-        const CPlusPlus::Scope *scope = symbol->asScope();
-        if (scope) {
-            CPlusPlus::Scope::iterator cur = scope->firstMember();
-            while (cur != scope->lastMember()) {
+        if (const CPlusPlus::Scope *scope = symbol->asScope()) {
+            CPlusPlus::Scope::iterator cur = scope->memberBegin();
+            CPlusPlus::Scope::iterator last = scope->memberEnd();
+            while (cur != last) {
                 const CPlusPlus::Symbol *curSymbol = *cur;
                 ++cur;
                 if (!curSymbol)
                     continue;
-
-                //                if (!symbol->isClass() && curSymbol->isStatic() && curSymbol->isFunction())
-                //                        return;
 
                 addSymbol(itemAdd, curSymbol);
             }
         }
     }
 
-    bool appendChild = true;
-
     // if item is empty and has not to be added
-    if (symbol->isNamespace() && itemAdd->childCount() == 0)
-        appendChild = false;
-
-    if (appendChild)
+    if (!(symbol->isNamespace() && itemAdd->childCount() == 0))
         item->appendChild(itemAdd, information);
-}
-
-/*!
-    Creates a flat tree from the list of projects specified by \a projectList.
-*/
-
-ParserTreeItem::Ptr Parser::createFlatTree(const QStringList &projectList)
-{
-    QReadLocker locker(&d->prjLocker);
-
-    ParserTreeItem::Ptr item(new ParserTreeItem());
-    foreach (const QString &project, projectList) {
-        if (!d->cachedPrjTrees.contains(project))
-            continue;
-        ParserTreeItem::ConstPtr list = d->cachedPrjTrees[project];
-        item->add(list);
-    }
-    return item;
 }
 
 /*!
@@ -480,8 +452,9 @@ ParserTreeItem::Ptr Parser::getCachedOrParseProjectTree(const QStringList &fileL
 {
     d->prjLocker.lockForRead();
 
+    ParserTreeItem::Ptr item = d->cachedPrjTrees.value(projectId);
     // calculate current revision
-    if (!projectId.isEmpty() && d->cachedPrjTrees.contains(projectId)) {
+    if (!projectId.isEmpty() && !item.isNull()) {
         // calculate project's revision
         unsigned revision = 0;
         foreach (const QString &file, fileList) {
@@ -494,7 +467,7 @@ ParserTreeItem::Ptr Parser::getCachedOrParseProjectTree(const QStringList &fileL
         // if even revision is the same, return cached project
         if (revision == d->cachedPrjTreesRevision[projectId]) {
             d->prjLocker.unlock();
-            return d->cachedPrjTrees[projectId];
+            return item;
         }
     }
 
@@ -520,7 +493,7 @@ ParserTreeItem::ConstPtr Parser::getParseDocumentTree(const CPlusPlus::Document:
 
     ParserTreeItem::Ptr itemPtr(new ParserTreeItem());
 
-    unsigned total = doc->globalSymbolCount();
+    const unsigned total = doc->globalSymbolCount();
     for (unsigned i = 0; i < total; ++i)
         addSymbol(itemPtr, doc->globalSymbolAt(i));
 
@@ -547,11 +520,13 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
 
     const QString &fileName = doc->fileName();
     d->docLocker.lockForRead();
-    if (d->cachedDocTrees.contains(fileName)
-        && d->cachedDocTreesRevision.contains(fileName)
-        && d->cachedDocTreesRevision[fileName] == doc->revision()) {
+    ParserTreeItem::ConstPtr item = d->cachedDocTrees.value(fileName);
+    CitCachedDocTreeRevision citCachedDocTreeRevision = d->cachedDocTreesRevision.constFind(fileName);
+    if (!item.isNull()
+        && citCachedDocTreeRevision != d->cachedDocTreesRevision.constEnd()
+            && citCachedDocTreeRevision.value() == doc->revision()) {
         d->docLocker.unlock();
-        return d->cachedDocTrees[fileName];
+        return item;
     }
     d->docLocker.unlock();
     return getParseDocumentTree(doc);
@@ -665,8 +640,8 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     // copy snapshot's documents
     CPlusPlus::Snapshot::const_iterator cur = snapshot.begin();
     CPlusPlus::Snapshot::const_iterator end = snapshot.end();
-    for (; cur != end; cur++)
-        d->documentList[cur.key()] = cur.value();
+    for (; cur != end; ++cur)
+        d->documentList[cur.key().toString()] = cur.value();
 
     d->docLocker.unlock();
 
@@ -692,9 +667,7 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
 void Parser::resetDataToCurrentState()
 {
     // get latest data
-    CppTools::CppModelManagerInterface *codeModel = CppTools::CppModelManagerInterface::instance();
-    if (codeModel)
-        resetData(codeModel->snapshot());
+    resetData(CppTools::CppModelManager::instance()->snapshot());
 }
 
 /*!
@@ -743,25 +716,24 @@ void Parser::emitCurrentTree()
     Generates a project node file list for the root node \a node.
 */
 
-QStringList Parser::projectNodeFileList(const ProjectExplorer::FolderNode *node) const
+QStringList Parser::projectNodeFileList(const FolderNode *node) const
 {
     QStringList list;
     if (!node)
         return list;
 
-    QList<ProjectExplorer::FileNode *> fileNodes = node->fileNodes();
-    QList<ProjectExplorer::FolderNode *> subFolderNodes = node->subFolderNodes();
+    QList<FileNode *> fileNodes = node->fileNodes();
+    QList<FolderNode *> subFolderNodes = node->subFolderNodes();
 
-    foreach (const ProjectExplorer::FileNode *file, fileNodes) {
+    foreach (const FileNode *file, fileNodes) {
         if (file->isGenerated())
             continue;
 
-        list << file->path();
+        list << file->filePath().toString();
     }
 
-    foreach (const ProjectExplorer::FolderNode *folder, subFolderNodes) {
-        if (folder->nodeType() != ProjectExplorer::FolderNodeType
-                && folder->nodeType() != ProjectExplorer::VirtualFolderNodeType)
+    foreach (const FolderNode *folder, subFolderNodes) {
+        if (folder->nodeType() != FolderNodeType && folder->nodeType() != VirtualFolderNodeType)
             continue;
         list << projectNodeFileList(folder);
     }
@@ -776,36 +748,36 @@ QStringList Parser::projectNodeFileList(const ProjectExplorer::FolderNode *node)
     Returns a list of projects which were added to the item.
 */
 
-QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item,
-                                     const ProjectExplorer::ProjectNode *node)
+QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const ProjectNode *node)
 {
     QStringList projectList;
     if (!node)
         return projectList;
 
-    const QString &nodePath = node->path();
+    const QString nodePath = node->filePath().toString();
 
     // our own files
     QStringList fileList;
 
+    CitCachedPrjFileLists cit = d->cachedPrjFileLists.constFind(nodePath);
     // try to improve parsing speed by internal cache
-    if (d->cachedPrjFileLists.contains(nodePath)) {
-        fileList = d->cachedPrjFileLists[nodePath];
+    if (cit != d->cachedPrjFileLists.constEnd()) {
+        fileList = cit.value();
     } else {
         fileList = projectNodeFileList(node);
         d->cachedPrjFileLists[nodePath] = fileList;
     }
     if (fileList.count() > 0) {
-        addProject(item, fileList, node->path());
-        projectList << node->path();
+        addProject(item, fileList, node->filePath().toString());
+        projectList << node->filePath().toString();
     }
 
     // subnodes
-    QList<ProjectExplorer::ProjectNode *> projectNodes = node->subProjectNodes();
+    QList<ProjectNode *> projectNodes = node->subProjectNodes();
 
-    foreach (const ProjectExplorer::ProjectNode *project, projectNodes) {
+    foreach (const ProjectNode *project, projectNodes) {
         ParserTreeItem::Ptr itemPrj(new ParserTreeItem());
-        SymbolInformation information(project->displayName(), project->path());
+        SymbolInformation information(project->displayName(), project->filePath().toString());
 
         projectList += addProjectNode(itemPrj, project);
 
@@ -817,6 +789,44 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item,
     }
 
     return projectList;
+}
+
+QStringList Parser::getAllFiles(const ProjectNode *node)
+{
+    QStringList fileList;
+
+    if (!node)
+        return fileList;
+
+    const QString nodePath = node->filePath().toString();
+
+    CitCachedPrjFileLists cit = d->cachedPrjFileLists.constFind(nodePath);
+    // try to improve parsing speed by internal cache
+    if (cit != d->cachedPrjFileLists.constEnd()) {
+        fileList = cit.value();
+    } else {
+        fileList = projectNodeFileList(node);
+        d->cachedPrjFileLists[nodePath] = fileList;
+    }
+    // subnodes
+    QList<ProjectNode *> projectNodes = node->subProjectNodes();
+
+    foreach (const ProjectNode *project, projectNodes)
+        fileList += getAllFiles(project);
+    return fileList;
+}
+
+void Parser::addFlatTree(const ParserTreeItem::Ptr &item, const ProjectNode *node)
+{
+    if (!node)
+        return;
+
+    QStringList fileList = getAllFiles(node);
+    fileList.removeDuplicates();
+
+    if (fileList.count() > 0) {
+        addProject(item, fileList, node->filePath().toString());
+    }
 }
 
 } // namespace Internal

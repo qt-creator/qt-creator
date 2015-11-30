@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -47,37 +43,67 @@ Controls.TextField {
 
     property bool showTranslateCheckBox: true
 
+    property bool writeValueManually: false
+
+    property bool __dirty: false
+
+    property bool showExtendedFunctionButton: true
+
+    signal commitData
+
     ExtendedFunctionButton {
         x: 2
         y: 4
         backendValue: lineEdit.backendValue
-        visible: lineEdit.enabled
+        visible: lineEdit.enabled && showExtendedFunctionButton
     }
 
     ColorLogic {
         id: colorLogic
         backendValue: lineEdit.backendValue
         onValueFromBackendChanged: {
-            lineEdit.text = valueFromBackend;
+            if (writeValueManually) {
+                lineEdit.text = convertColorToString(valueFromBackend)
+            } else {
+                lineEdit.text = valueFromBackend
+            }
+            __dirty = false
+        }
+    }
+
+    onTextChanged: {
+        __dirty = true
+    }
+
+    Connections {
+        target: modelNodeBackend
+        onSelectionToBeChanged: {
+            if (__dirty && !writeValueManually) {
+                lineEdit.backendValue.value = text
+            } else if (__dirty) {
+                commitData()
+            }
+
+            __dirty = false
         }
     }
 
     onEditingFinished: {
+
+        if (writeValueManually)
+            return
+
+        if (!__dirty)
+            return
+
         if (backendValue.isTranslated) {
             backendValue.expression = "qsTr(\"" + trCheckbox.escapeString(text) + "\")"
         } else {
             if (lineEdit.backendValue.value !== text)
                 lineEdit.backendValue.value = text;
         }
+        __dirty = false
     }
-
-    //    onFocusChanged: {
-    //        if (focus) {
-    //            transaction.start();
-    //        } else {
-    //            transaction.end();
-    //        }
-    //    }
 
     style: TextFieldStyle {
         selectionColor: lineEdit.textColor
@@ -86,13 +112,12 @@ Controls.TextField {
         padding.top: 3
         padding.bottom: 1
         padding.left: 16
-        padding.right: 16
+        padding.right: lineEdit.showTranslateCheckBox ? 16 : 1
         placeholderTextColor: "gray"
         background: Rectangle {
             implicitWidth: 100
             implicitHeight: 23
             border.color: borderColor
-            radius: 3
             gradient: Gradient {
                 GradientStop {color: "#2c2c2c" ; position: 0}
                 GradientStop {color: "#343434" ; position: 0.15}

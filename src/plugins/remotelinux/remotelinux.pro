@@ -10,6 +10,7 @@ HEADERS += \
     remotelinuxplugin.h \
     remotelinux_export.h \
     linuxdevice.h \
+    abstractremotelinuxrunconfiguration.h \
     remotelinuxrunconfiguration.h \
     publickeydeploymentdialog.h \
     genericlinuxdeviceconfigurationwizard.h \
@@ -39,16 +40,15 @@ HEADERS += \
     sshkeydeployer.h \
     typespecificdeviceconfigurationlistmodel.h \
     remotelinuxutils.h \
-    remotelinuxdeployconfigurationwidget.h \
     remotelinuxcustomcommanddeployservice.h \
     remotelinuxcustomcommanddeploymentstep.h \
     genericlinuxdeviceconfigurationwidget.h \
     remotelinuxcheckforfreediskspaceservice.h \
     remotelinuxcheckforfreediskspacestep.h \
-    remotelinuxdeploymentdatamodel.h \
     remotelinuxanalyzesupport.h \
     abstractremotelinuxrunsupport.h \
     linuxdeviceprocess.h \
+    remotelinuxcustomrunconfiguration.h \
     remotelinuxsignaloperation.h
 
 SOURCES += \
@@ -58,6 +58,7 @@ SOURCES += \
     remotelinuxenvironmentaspectwidget.cpp \
     remotelinuxplugin.cpp \
     linuxdevice.cpp \
+    abstractremotelinuxrunconfiguration.cpp \
     remotelinuxrunconfiguration.cpp \
     publickeydeploymentdialog.cpp \
     genericlinuxdeviceconfigurationwizard.cpp \
@@ -86,23 +87,22 @@ SOURCES += \
     sshkeydeployer.cpp \
     typespecificdeviceconfigurationlistmodel.cpp \
     remotelinuxutils.cpp \
-    remotelinuxdeployconfigurationwidget.cpp \
     remotelinuxcustomcommanddeployservice.cpp \
     remotelinuxcustomcommanddeploymentstep.cpp \
     genericlinuxdeviceconfigurationwidget.cpp \
     remotelinuxcheckforfreediskspaceservice.cpp \
     remotelinuxcheckforfreediskspacestep.cpp \
-    remotelinuxdeploymentdatamodel.cpp \
     remotelinuxanalyzesupport.cpp \
     abstractremotelinuxrunsupport.cpp \
     linuxdeviceprocess.cpp \
+    remotelinuxcustomrunconfiguration.cpp \
     remotelinuxsignaloperation.cpp
 
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \
-    remotelinuxdeployconfigurationwidget.ui \
     genericlinuxdeviceconfigurationwidget.ui \
-    remotelinuxcheckforfreediskspacestepwidget.ui
+    remotelinuxcheckforfreediskspacestepwidget.ui \
+    remotelinuxcustomrunconfigurationwidget.ui
 
 RESOURCES += remotelinux.qrc
 

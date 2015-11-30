@@ -10,6 +10,9 @@ Text {
     property alias bar: x
     property list<QtObject> pro
     default property int def
+    property var baz: Rectangle {
+        width: 20
+    }
 
     // script binding
     x: x + y

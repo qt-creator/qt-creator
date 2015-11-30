@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Denis Mingulov
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Denis Mingulov
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,12 +37,13 @@
 #include <utils/qtcassert.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <texteditor/itexteditor.h>
+#include <coreplugin/idocument.h>
+#include <texteditor/texteditor.h>
 
 #include <QThread>
 #include <QMutex>
@@ -200,9 +202,9 @@ Manager *Manager::instance()
     Checks \a item for lazy data population of a QStandardItemModel.
 */
 
-bool Manager::canFetchMore(QStandardItem *item) const
+bool Manager::canFetchMore(QStandardItem *item, bool skipRoot) const
 {
-    return d->parser.canFetchMore(item);
+    return d->parser.canFetchMore(item, skipRoot);
 }
 
 /*!
@@ -215,13 +217,14 @@ void Manager::fetchMore(QStandardItem *item, bool skipRoot)
     d->parser.fetchMore(item, skipRoot);
 }
 
+bool Manager::hasChildren(QStandardItem *item) const
+{
+    return d->parser.hasChildren(item);
+}
+
 void Manager::initialize()
 {
     // use Qt::QueuedConnection everywhere
-
-    // widget factory signals
-    connect(NavigationWidgetFactory::instance(), SIGNAL(widgetIsCreated()),
-            SLOT(onWidgetIsCreated()), Qt::QueuedConnection);
 
     // internal manager state is changed
     connect(this, SIGNAL(stateChanged(bool)), SLOT(onStateChanged(bool)), Qt::QueuedConnection);
@@ -268,8 +271,7 @@ void Manager::initialize()
             &d->parser, SLOT(setFlatMode(bool)), Qt::QueuedConnection);
 
     // connect to the cpp model manager for signals about document updates
-    CppTools::CppModelManagerInterface *codeModelManager
-        = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *codeModelManager = CppTools::CppModelManager::instance();
 
     // when code manager signals that document is updated - handle it by ourselves
     connect(codeModelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
@@ -311,17 +313,6 @@ void Manager::setState(bool state)
     d->state = state;
 
     emit stateChanged(d->state);
-}
-
-/*!
-    Reacts to the widget factory creating a widget.
-
-    \sa setState, state
-*/
-
-void Manager::onWidgetIsCreated()
-{
-    // do nothing - continue to sleep
 }
 
 /*!
@@ -378,7 +369,7 @@ void Manager::onProjectListChanged()
    \sa CppTools::Constants::TASK_INDEX
 */
 
-void Manager::onTaskStarted(Core::Id type)
+void Manager::onTaskStarted(Id type)
 {
     if (type != CppTools::Constants::TASK_INDEX)
         return;
@@ -394,7 +385,7 @@ void Manager::onTaskStarted(Core::Id type)
    \sa CppTools::Constants::TASK_INDEX
 */
 
-void Manager::onAllTasksFinished(Core::Id type)
+void Manager::onAllTasksFinished(Id type)
 {
     if (type != CppTools::Constants::TASK_INDEX)
         return;
@@ -452,51 +443,34 @@ void Manager::gotoLocation(const QString &fileName, int line, int column)
 void Manager::gotoLocations(const QList<QVariant> &list)
 {
     QSet<SymbolLocation> locations = Utils::roleToLocations(list);
-
-    if (locations.count() == 0)
+    if (locations.size() == 0)
         return;
 
-    QString fileName;
-    int line = 0;
-    int column = 0;
-    bool currentPositionAvailable = false;
+    // Default to first known location
+    SymbolLocation loc = *locations.constBegin();
 
-    // what is open now?
-    if (IEditor *editor = EditorManager::currentEditor()) {
-        // get current file name
-        if (IDocument *document = editor->document())
-            fileName = document->filePath();
-
-        // if text file - what is current position?
-        TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
+    if (locations.size() > 1) {
+        // The symbol has multiple locations. Check if we are already at one location,
+        // and if so, cycle to the "next" one
+        auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
         if (textEditor) {
-            // there is open currently text editor
-            int position = textEditor->position();
-            textEditor->convertPosition(position, &line, &column);
-            currentPositionAvailable = true;
+            // check if current cursor position is a known location of the symbol
+            const QString fileName = textEditor->document()->filePath().toString();
+            int line;
+            int column;
+            textEditor->convertPosition(textEditor->position(), &line, &column);
+            SymbolLocation current(fileName, line, column);
+            QSet<SymbolLocation>::const_iterator it = locations.find(current);
+            QSet<SymbolLocation>::const_iterator end = locations.constEnd();
+            if (it != end) {
+                // we already are at the symbol, cycle to next location
+                ++it;
+                if (it == end)
+                    it = locations.begin();
+                loc = *it;
+            }
         }
     }
-
-    // if there is something open - try to check, is it currently activated symbol?
-    if (currentPositionAvailable) {
-        SymbolLocation current(fileName, line, column);
-        QSet<SymbolLocation>::const_iterator it = locations.find(current);
-        QSet<SymbolLocation>::const_iterator end = locations.constEnd();
-        // is it known location?
-        if (it != end) {
-            // found - do one additional step
-            ++it;
-            if (it == end)
-                it = locations.begin();
-            const SymbolLocation &found = *it;
-            gotoLocation(found.fileName(), found.line(), found.column());
-            return;
-        }
-    }
-
-    // no success - open first item in the list
-    const SymbolLocation loc = *locations.constBegin();
-
     gotoLocation(loc.fileName(), loc.line(), loc.column());
 }
 

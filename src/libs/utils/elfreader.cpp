@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,8 @@
 
 #include <QDir>
 #include <QDebug>
+
+#include <new> // std::bad_alloc
 
 namespace Utils {
 
@@ -101,33 +104,27 @@ static void parseProgramHeader(const uchar *s, ElfProgramHeader *sh, const ElfDa
     sh->memsz = getWord(s, context);
 }
 
-class ElfMapper
+ElfMapper::ElfMapper(const ElfReader *reader) : file(reader->m_binary) {}
+
+bool ElfMapper::map()
 {
-public:
-    ElfMapper(const ElfReader *reader) : file(reader->m_binary) {}
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
 
-    bool map()
-    {
-        if (!file.open(QIODevice::ReadOnly))
-            return false;
-
-        fdlen = file.size();
-        ustart = file.map(0, fdlen);
-        if (ustart == 0) {
-            // Try reading the data into memory instead.
+    fdlen = file.size();
+    ustart = file.map(0, fdlen);
+    if (ustart == 0) {
+        // Try reading the data into memory instead.
+        try {
             raw = file.readAll();
-            start = raw.constData();
-            fdlen = raw.size();
+        } catch (const std::bad_alloc &) {
+            return false;
         }
-        return true;
+        start = raw.constData();
+        fdlen = raw.size();
     }
-
-public:
-    QFile file;
-    QByteArray raw;
-    union { const char *start; const uchar *ustart; };
-    quint64 fdlen;
-};
+    return true;
+}
 
 ElfReader::ElfReader(const QString &binary)
     : m_binary(binary)
@@ -142,7 +139,7 @@ ElfData ElfReader::readHeaders()
 
 static inline QString msgInvalidElfObject(const QString &binary, const QString &why)
 {
-    return ElfReader::tr("'%1' is an invalid ELF object (%2)")
+    return ElfReader::tr("\"%1\" is an invalid ELF object (%2)")
            .arg(QDir::toNativeSeparators(binary), why);
 }
 
@@ -160,12 +157,12 @@ ElfReader::Result ElfReader::readIt()
     const quint64 fdlen = mapper.fdlen;
 
     if (fdlen < 64) {
-        m_errorString = tr("'%1' is not an ELF object (file too small)").arg(QDir::toNativeSeparators(m_binary));
+        m_errorString = tr("\"%1\" is not an ELF object (file too small)").arg(QDir::toNativeSeparators(m_binary));
         return NotElf;
     }
 
     if (strncmp(mapper.start, "\177ELF", 4) != 0) {
-        m_errorString = tr("'%1' is not an ELF object").arg(QDir::toNativeSeparators(m_binary));
+        m_errorString = tr("\"%1\" is not an ELF object").arg(QDir::toNativeSeparators(m_binary));
         return NotElf;
     }
 
@@ -184,7 +181,7 @@ ElfReader::Result ElfReader::readIt()
     // if ((sizeof(void*) == 4 && bits != 32)
     //     || (sizeof(void*) == 8 && bits != 64)) {
     //     if (errorString)
-    //         *errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
+    //         *errorString = QLibrary::tr("\"%1\" is an invalid ELF object (%2)")
     //         .arg(m_binary).arg(QLatin1String("wrong cpu architecture"));
     //     return Corrupt;
     // }
@@ -238,7 +235,7 @@ ElfReader::Result ElfReader::readIt()
     quint64 soff = e_shoff + e_shentsize * e_shtrndx;
 
 //    if ((soff + e_shentsize) > fdlen || soff % 4 || soff == 0) {
-//        m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
+//        m_errorString = QLibrary::tr("\"%1\" is an invalid ELF object (%2)")
 //           .arg(m_binary)
 //           .arg(QLatin1String("shstrtab section header seems to be at %1"))
 //           .arg(QString::number(soff, 16));
@@ -298,19 +295,22 @@ ElfReader::Result ElfReader::readIt()
     return Ok;
 }
 
-QByteArray ElfReader::readSection(const QByteArray &name)
+QSharedPointer<ElfMapper> ElfReader::readSection(const QByteArray &name)
 {
+    QSharedPointer<ElfMapper> mapper;
     readIt();
     int i = m_elfData.indexOf(name);
     if (i == -1)
-        return QByteArray();
+        return mapper;
 
-    ElfMapper mapper(this);
-    if (!mapper.map())
-        return QByteArray();
+    mapper.reset(new ElfMapper(this));
+    if (!mapper->map())
+        return mapper;
 
     const ElfSectionHeader &section = m_elfData.sectionHeaders.at(i);
-    return QByteArray(mapper.start + section.offset, section.size);
+    mapper->start += section.offset;
+    mapper->fdlen = section.size;
+    return mapper;
 }
 
 static QByteArray cutout(const char *s)

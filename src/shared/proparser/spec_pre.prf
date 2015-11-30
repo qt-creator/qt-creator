@@ -23,7 +23,8 @@ equals(QMAKE_HOST.os, Windows) {
     QMAKE_EXT_OBJ       = .obj
     QMAKE_EXT_RES       = .res
     QMAKE_SH            =
-    PATH = $$split($$(PATH), ;)
+    PATH = $$(PATH)
+    PATH = $$split(PATH, ;)
     for(dir, PATH) {
         exists($$dir/sh.exe) {
             QMAKE_SH = $$dir/sh.exe

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -53,34 +54,50 @@ CppQtStyleIndenter::~CppQtStyleIndenter()
 
 bool CppQtStyleIndenter::isElectricCharacter(const QChar &ch) const
 {
-    if (ch == QLatin1Char('{') ||
-        ch == QLatin1Char('}') ||
-        ch == QLatin1Char(':') ||
-        ch == QLatin1Char('#')) {
+    switch (ch.toLatin1()) {
+    case '{':
+    case '}':
+    case ':':
+    case '#':
+    case '<':
+    case '>':
+    case ';':
         return true;
     }
     return false;
 }
 
-static bool colonIsElectric(const QString &text)
+static bool isElectricInLine(const QChar ch, const QString &text)
 {
-    // switch cases and access declarations should be reindented
-    if (text.contains(QLatin1String("case"))
-            || text.contains(QLatin1String("default"))
-            || text.contains(QLatin1String("public"))
-            || text.contains(QLatin1String("private"))
-            || text.contains(QLatin1String("protected"))
-            || text.contains(QLatin1String("signals"))
-            || text.contains(QLatin1String("Q_SIGNALS"))) {
-        return true;
+    switch (ch.toLatin1()) {
+    case ';':
+        return text.contains(QLatin1String("break"));
+    case ':':
+        // switch cases and access declarations should be reindented
+        if (text.contains(QLatin1String("case"))
+                || text.contains(QLatin1String("default"))
+                || text.contains(QLatin1String("public"))
+                || text.contains(QLatin1String("private"))
+                || text.contains(QLatin1String("protected"))
+                || text.contains(QLatin1String("signals"))
+                || text.contains(QLatin1String("Q_SIGNALS"))) {
+            return true;
+        }
+
+        // fall-through
+        // lines that start with : might have a constructor initializer list
+    case '<':
+    case '>': {
+        // Electric if at line beginning (after space indentation)
+        for (int i = 0, len = text.count(); i < len; ++i) {
+            if (!text.at(i).isSpace())
+                return text.at(i) == ch;
+        }
+        return false;
+    }
     }
 
-    // lines that start with : might have a constructor initializer list
-    const QString trimmedtext = text.trimmed();
-    if (!trimmedtext.isEmpty() && trimmedtext.at(0) == QLatin1Char(':'))
-        return true;
-
-    return false;
+    return true;
 }
 
 void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
@@ -90,7 +107,7 @@ void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
 {
     Q_UNUSED(doc)
 
-    CppTools::QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
+    QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
 
     codeFormatter.updateStateUntil(block);
     int indent;
@@ -99,7 +116,7 @@ void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
 
     if (isElectricCharacter(typedChar)) {
         // : should not be electric for labels
-        if (typedChar == QLatin1Char(':') && !colonIsElectric(block.text()))
+        if (!isElectricInLine(typedChar, block.text()))
             return;
 
         // only reindent the current line when typing electric characters if the
@@ -123,7 +140,7 @@ void CppQtStyleIndenter::indent(QTextDocument *doc,
         QTextBlock block = doc->findBlock(cursor.selectionStart());
         const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
 
-        CppTools::QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
+        QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
         codeFormatter.updateStateUntil(block);
 
         QTextCursor tc = cursor;
@@ -144,15 +161,15 @@ void CppQtStyleIndenter::indent(QTextDocument *doc,
 
 void CppQtStyleIndenter::setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences)
 {
-    CppTools::CppCodeStylePreferences *cppCodeStylePreferences
-            = qobject_cast<CppTools::CppCodeStylePreferences *>(preferences);
+    CppCodeStylePreferences *cppCodeStylePreferences
+            = qobject_cast<CppCodeStylePreferences *>(preferences);
     if (cppCodeStylePreferences)
         m_cppCodeStylePreferences = cppCodeStylePreferences;
 }
 
 void CppQtStyleIndenter::invalidateCache(QTextDocument *doc)
 {
-    CppTools::QtStyleCodeFormatter formatter;
+    QtStyleCodeFormatter formatter;
     formatter.invalidateCache(doc);
 }
 

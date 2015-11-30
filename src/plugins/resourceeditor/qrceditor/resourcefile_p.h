@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,6 +37,9 @@
 #include <QString>
 #include <QStringList>
 #include <QIcon>
+
+#include <coreplugin/idocument.h>
+#include <utils/textfileformat.h>
 
 namespace ResourceEditor {
 namespace Internal {
@@ -134,8 +138,9 @@ public:
 
     void setFileName(const QString &file_name) { m_file_name = file_name; }
     QString fileName() const { return m_file_name; }
-    bool load();
+    Core::IDocument::OpenResult load();
     bool save();
+    QString contents() const;
     QString errorMessage() const { return m_error_message; }
     void refresh();
 
@@ -159,7 +164,7 @@ public:
     bool replacePrefixAndLang(int prefix_idx, const QString &prefix, const QString &lang);
     void replaceAlias(int prefix_idx, int file_idx, const QString &alias);
 
-    bool renameFile(const QString fileName, const QString &newFileName);
+    bool renameFile(const QString &fileName, const QString &newFileName);
 
     void replaceFile(int pref_idx, int file_idx, const QString &file);
     int indexOfPrefix(const QString &prefix, const QString &lang) const;
@@ -177,6 +182,7 @@ private:
     PrefixList m_prefix_list;
     QString m_file_name;
     QString m_error_message;
+    Utils::TextFileFormat m_textFileFormat;
 
 public:
     void * prefixPointer(int prefixIndex) const;
@@ -198,7 +204,7 @@ class ResourceModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit ResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
+    explicit ResourceModel(QObject *parent = 0);
 
     QModelIndex index(int row, int column,
                         const QModelIndex &parent = QModelIndex()) const;
@@ -209,6 +215,10 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void refresh();
+
+    QString errorMessage() const;
+
+    QList<QModelIndex> nonExistingFiles() const;
 
 protected:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -246,8 +256,10 @@ private:
     bool renameFile(const QString &fileName, const QString &newFileName);
 
 public:
-    virtual bool reload();
+    virtual Core::IDocument::OpenResult reload();
     virtual bool save();
+    QString contents() const { return m_resource_file.contents(); }
+
     // QString errorMessage() const { return m_resource_file.errorMessage(); }
 
     bool dirty() const { return m_dirty; }
@@ -267,6 +279,55 @@ private:
     bool m_dirty;
     QString m_lastResourceDir;
     QIcon m_prefixIcon;
+};
+
+/*!
+    \class EntryBackup
+
+    Holds the backup of a tree node including children.
+*/
+class EntryBackup
+{
+protected:
+    ResourceModel *m_model;
+    int m_prefixIndex;
+    QString m_name;
+
+    EntryBackup(ResourceModel &model, int prefixIndex, const QString &name)
+            : m_model(&model), m_prefixIndex(prefixIndex), m_name(name) { }
+
+public:
+    virtual void restore() const = 0;
+    virtual ~EntryBackup() { }
+};
+
+class RelativeResourceModel : public ResourceModel
+{
+public:
+    RelativeResourceModel(QObject *parent = 0);
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
+    {
+        if (!index.isValid())
+            return QVariant();
+/*
+        void const * const internalPointer = index.internalPointer();
+
+        if ((role == Qt::DisplayRole) && (internalPointer != NULL))
+            return ResourceModel::data(index, Qt::ToolTipRole);
+*/
+        return ResourceModel::data(index, role);
+    }
+
+    void setResourceDragEnabled(bool e) { m_resourceDragEnabled = e; }
+    bool resourceDragEnabled() const { return m_resourceDragEnabled; }
+
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    EntryBackup * removeEntry(const QModelIndex &index);
+
+private:
+    bool m_resourceDragEnabled;
 };
 
 } // namespace Internal

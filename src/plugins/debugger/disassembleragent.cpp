@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,20 +31,25 @@
 #include "disassembleragent.h"
 
 #include "breakhandler.h"
+#include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
 #include "disassemblerlines.h"
+#include "sourceutils.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
+#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
 
-#include <texteditor/basetextdocument.h>
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/textmark.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QTextBlock>
@@ -54,6 +60,30 @@ using namespace TextEditor;
 
 namespace Debugger {
 namespace Internal {
+
+///////////////////////////////////////////////////////////////////////
+//
+// DisassemblerBreakpointMarker
+//
+///////////////////////////////////////////////////////////////////////
+
+// The red blob on the left side in the cpp editor.
+class DisassemblerBreakpointMarker : public TextMark
+{
+public:
+    DisassemblerBreakpointMarker(const Breakpoint &bp, int lineNumber)
+        : TextMark(QString(), lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(bp)
+    {
+        setIcon(bp.icon());
+        setPriority(TextMark::NormalPriority);
+    }
+
+    bool isClickable() const { return true; }
+    void clicked() { m_bp.removeBreakpoint(); }
+
+public:
+    Breakpoint m_bp;
+};
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -93,51 +123,45 @@ typedef QPair<FrameKey, DisassemblerLines> CacheEntry;
 class DisassemblerAgentPrivate
 {
 public:
-    DisassemblerAgentPrivate();
+    DisassemblerAgentPrivate(DebuggerEngine *engine);
     ~DisassemblerAgentPrivate();
     void configureMimeType();
-    DisassemblerLines contentsAtCurrentLocation() const;
+    int lineForAddress(quint64 address) const;
 
 public:
-    QPointer<TextEditor::ITextEditor> editor;
+    QPointer<TextDocument> document;
     Location location;
     QPointer<DebuggerEngine> engine;
-    ITextMark *locationMark;
-    QList<ITextMark *> breakpointMarks;
+    LocationMark locationMark;
+    QList<DisassemblerBreakpointMarker *> breakpointMarks;
     QList<CacheEntry> cache;
     QString mimeType;
-    bool tryMixedInitialized;
-    bool tryMixed;
     bool resetLocationScheduled;
 };
 
-DisassemblerAgentPrivate::DisassemblerAgentPrivate()
-  : editor(0),
-    locationMark(0),
+DisassemblerAgentPrivate::DisassemblerAgentPrivate(DebuggerEngine *engine)
+  : document(0),
+    engine(engine),
+    locationMark(engine, QString(), 0),
     mimeType(_("text/x-qtcreator-generic-asm")),
-    tryMixedInitialized(false),
-    tryMixed(true),
     resetLocationScheduled(false)
-{
-
-}
+{}
 
 DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
 {
-    EditorManager::closeEditor(editor);
-    editor = 0;
-    delete locationMark;
+    EditorManager::closeDocuments(QList<IDocument *>() << document);
+    document = 0;
     qDeleteAll(breakpointMarks);
 }
 
-DisassemblerLines DisassemblerAgentPrivate::contentsAtCurrentLocation() const
+int DisassemblerAgentPrivate::lineForAddress(quint64 address) const
 {
     for (int i = 0, n = cache.size(); i != n; ++i) {
         const CacheEntry &entry = cache.at(i);
         if (entry.first.matches(location))
-            return entry.second;
+            return entry.second.lineForAddress(address);
     }
-    return DisassemblerLines();
+    return 0;
 }
 
 
@@ -156,10 +180,8 @@ DisassemblerLines DisassemblerAgentPrivate::contentsAtCurrentLocation() const
 */
 
 DisassemblerAgent::DisassemblerAgent(DebuggerEngine *engine)
-    : QObject(0), d(new DisassemblerAgentPrivate)
-{
-    d->engine = engine;
-}
+    : d(new DisassemblerAgentPrivate(engine))
+{}
 
 DisassemblerAgent::~DisassemblerAgent()
 {
@@ -187,12 +209,11 @@ void DisassemblerAgent::scheduleResetLocation()
 
 void DisassemblerAgent::resetLocation()
 {
-    if (!d->editor)
+    if (!d->document)
         return;
     if (d->resetLocationScheduled) {
         d->resetLocationScheduled = false;
-        if (d->locationMark)
-            d->editor->textDocument()->markableInterface()->removeMark(d->locationMark);
+        d->document->removeMark(&d->locationMark);
     }
 }
 
@@ -201,18 +222,10 @@ const Location &DisassemblerAgent::location() const
     return d->location;
 }
 
-bool DisassemblerAgent::isMixed() const
+void DisassemblerAgent::reload()
 {
-    if (!d->tryMixedInitialized) {
-        if (d->engine->startParameters().toolChainAbi.os() == ProjectExplorer::Abi::MacOS)
-           d->tryMixed = false;
-        d->tryMixedInitialized = true;
-    }
-
-    return d->tryMixed
-        && d->location.lineNumber() > 0
-        && !d->location.functionName().isEmpty()
-        && d->location.functionName() != _("??");
+    d->cache.clear();
+    d->engine->fetchDisassembler(this);
 }
 
 void DisassemblerAgent::setLocation(const Location &loc)
@@ -222,7 +235,7 @@ void DisassemblerAgent::setLocation(const Location &loc)
     if (index != -1) {
         // Refresh when not displaying a function and there is not sufficient
         // context left past the address.
-        if (!isMixed() && d->cache.at(index).first.endAddress - loc.address() < 24) {
+        if (d->cache.at(index).first.endAddress - loc.address() < 24) {
             index = -1;
             d->cache.removeAt(index);
         }
@@ -230,12 +243,12 @@ void DisassemblerAgent::setLocation(const Location &loc)
     if (index != -1) {
         const FrameKey &key = d->cache.at(index).first;
         const QString msg =
-            _("Using cached disassembly for 0x%1 (0x%2-0x%3) in '%4'/ '%5'")
+            _("Using cached disassembly for 0x%1 (0x%2-0x%3) in \"%4\"/ \"%5\"")
                 .arg(loc.address(), 0, 16)
                 .arg(key.startAddress, 0, 16).arg(key.endAddress, 0, 16)
                 .arg(loc.functionName(), QDir::toNativeSeparators(loc.fileName()));
         d->engine->showMessage(msg);
-        setContentsToEditor(d->cache.at(index).second);
+        setContentsToDocument(d->cache.at(index).second);
         d->resetLocationScheduled = false; // In case reset from previous run still pending.
     } else {
         d->engine->fetchDisassembler(this);
@@ -244,22 +257,19 @@ void DisassemblerAgent::setLocation(const Location &loc)
 
 void DisassemblerAgentPrivate::configureMimeType()
 {
-    QTC_ASSERT(editor, return);
+    QTC_ASSERT(document, return);
 
-    TextEditor::BaseTextDocument *doc =
-        qobject_cast<TextEditor::BaseTextDocument *>(editor->document());
-    QTC_ASSERT(doc, return);
-    doc->setMimeType(mimeType);
+    document->setMimeType(mimeType);
 
-    TextEditor::PlainTextEditorWidget *pe =
-        qobject_cast<TextEditor::PlainTextEditorWidget *>(editor->widget());
-    QTC_ASSERT(pe, return);
-
-    MimeType mtype = MimeDatabase::findByType(mimeType);
-    if (mtype)
-        pe->configure(mtype);
-    else
+    Utils::MimeDatabase mdb;
+    Utils::MimeType mtype = mdb.mimeTypeForName(mimeType);
+    if (mtype.isValid()) {
+        foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
+            if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget()))
+                widget->configureGenericHighlighter();
+    } else {
         qWarning("Assembler mimetype '%s' not found.", qPrintable(mimeType));
+    }
 }
 
 QString DisassemblerAgent::mimeType() const
@@ -272,7 +282,7 @@ void DisassemblerAgent::setMimeType(const QString &mt)
     if (mt == d->mimeType)
         return;
     d->mimeType = mt;
-    if (d->editor)
+    if (d->document)
        d->configureMimeType();
 }
 
@@ -291,110 +301,102 @@ void DisassemblerAgent::setContents(const DisassemblerLines &contents)
             d->cache.append(CacheEntry(key, contents));
         }
     }
-    setContentsToEditor(contents);
+    setContentsToDocument(contents);
 }
 
-void DisassemblerAgent::setContentsToEditor(const DisassemblerLines &contents)
+void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
 {
     QTC_ASSERT(d, return);
-    using namespace Core;
-    using namespace TextEditor;
-
-    if (!d->editor) {
+    if (!d->document) {
         QString titlePattern = QLatin1String("Disassembler");
-        d->editor = qobject_cast<ITextEditor *>(
-            EditorManager::openEditorWithContents(
+        IEditor *editor = EditorManager::openEditorWithContents(
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
-                &titlePattern));
-        QTC_ASSERT(d->editor, return);
-        IDocument *document = d->editor->document();
-        document->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
-        document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
+                &titlePattern);
+        QTC_ASSERT(editor, return);
+        if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+            widget->setReadOnly(true);
+            widget->setRequestMarkEnabled(true);
+        }
+        d->document = qobject_cast<TextDocument *>(editor->document());
+        QTC_ASSERT(d->document, return);
+        d->document->setTemporary(true);
+        // FIXME: This is accumulating quite a bit out-of-band data.
+        // Make that a proper TextDocument reimplementation.
+        d->document->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
+        d->document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
+        d->document->setProperty(Debugger::Constants::DISASSEMBLER_SOURCE_FILE, d->location.fileName());
         d->configureMimeType();
-
-        BaseTextEditorWidget *baseTextEdit =
-                qobject_cast<BaseTextEditorWidget *>(d->editor->widget());
-        if (baseTextEdit)
-            baseTextEdit->setRequestMarkEnabled(true);
     } else {
-        EditorManager::activateEditor(d->editor);
+        EditorManager::activateEditorForDocument(d->document);
     }
 
-    QPlainTextEdit *plainTextEdit =
-        qobject_cast<QPlainTextEdit *>(d->editor->widget());
-    QTC_ASSERT(plainTextEdit, return);
+    d->document->setPlainText(contents.toString());
 
-    QString str;
-    for (int i = 0, n = contents.size(); i != n; ++i) {
-        str += contents.at(i).toString();
-        str += QLatin1Char('\n');
-    }
-    plainTextEdit->setPlainText(str);
-    plainTextEdit->setReadOnly(true);
-
-    d->editor->document()->setDisplayName(_("Disassembler (%1)")
+    d->document->setPreferredDisplayName(_("Disassembler (%1)")
         .arg(d->location.functionName()));
 
-    updateBreakpointMarkers();
+    Breakpoints bps = breakHandler()->engineBreakpoints(d->engine);
+    foreach (Breakpoint bp, bps)
+        updateBreakpointMarker(bp);
+
     updateLocationMarker();
 }
 
 void DisassemblerAgent::updateLocationMarker()
 {
-    QTC_ASSERT(d->editor, return);
-    const DisassemblerLines contents = d->contentsAtCurrentLocation();
-    int lineNumber = contents.lineForAddress(d->location.address());
+    QTC_ASSERT(d->document, return);
+    int lineNumber = d->lineForAddress(d->location.address());
     if (d->location.needsMarker()) {
-        if (d->locationMark)
-            d->editor->textDocument()->markableInterface()->removeMark(d->locationMark);
-        delete d->locationMark;
-        d->locationMark = 0;
-        if (lineNumber) {
-            d->locationMark = new ITextMark(lineNumber);
-            d->locationMark->setIcon(debuggerCore()->locationMarkIcon());
-            d->locationMark->setPriority(TextEditor::ITextMark::HighPriority);
-            d->editor->textDocument()->markableInterface()->addMark(d->locationMark);
-        }
+        d->document->removeMark(&d->locationMark);
+        d->locationMark.updateLineNumber(lineNumber);
+        d->document->addMark(&d->locationMark);
     }
 
-    QPlainTextEdit *plainTextEdit =
-        qobject_cast<QPlainTextEdit *>(d->editor->widget());
-    QTC_ASSERT(plainTextEdit, return);
-    QTextCursor tc = plainTextEdit->textCursor();
-    QTextBlock block = tc.document()->findBlockByNumber(lineNumber - 1);
-    tc.setPosition(block.position());
-    plainTextEdit->setTextCursor(tc);
-    plainTextEdit->centerCursor();
+    // Center cursor.
+    if (EditorManager::currentDocument() == d->document)
+        if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor()))
+            textEditor->gotoLine(lineNumber);
 }
 
-void DisassemblerAgent::updateBreakpointMarkers()
+void DisassemblerAgent::removeBreakpointMarker(const Breakpoint &bp)
 {
-    if (!d->editor)
+    if (!d->document)
         return;
 
-    BreakHandler *handler = breakHandler();
-    BreakpointModelIds ids = handler->engineBreakpointIds(d->engine);
-    if (ids.isEmpty())
-        return;
-
-    const DisassemblerLines contents = d->contentsAtCurrentLocation();
-    foreach (TextEditor::ITextMark *marker, d->breakpointMarks)
-        d->editor->textDocument()->markableInterface()->removeMark(marker);
-    qDeleteAll(d->breakpointMarks);
-    d->breakpointMarks.clear();
-    foreach (BreakpointModelId id, ids) {
-        const quint64 address = handler->response(id).address;
-        if (!address)
-            continue;
-        const int lineNumber = contents.lineForAddress(address);
-        if (!lineNumber)
-            continue;
-        ITextMark *marker = new ITextMark(lineNumber);
-        marker->setIcon(handler->icon(id));
-        marker->setPriority(ITextMark::NormalPriority);
-        d->breakpointMarks.append(marker);
-        d->editor->textDocument()->markableInterface()->addMark(marker);
+    BreakpointModelId id = bp.id();
+    foreach (DisassemblerBreakpointMarker *marker, d->breakpointMarks) {
+        if (marker->m_bp.id() == id) {
+            d->breakpointMarks.removeOne(marker);
+            d->document->removeMark(marker);
+            delete marker;
+            return;
+        }
     }
+}
+
+void DisassemblerAgent::updateBreakpointMarker(const Breakpoint &bp)
+{
+    removeBreakpointMarker(bp);
+    const quint64 address = bp.response().address;
+    if (!address)
+        return;
+
+    int lineNumber = d->lineForAddress(address);
+    if (!lineNumber)
+        return;
+
+    // HACK: If it's a FileAndLine breakpoint, and there's a source line
+    // above, move the marker up there. That allows setting and removing
+    // normal breakpoints from within the disassembler view.
+    if (bp.type() == BreakpointByFileAndLine) {
+        ContextData context = getLocationContext(d->document, lineNumber - 1);
+        if (context.type == LocationByFile)
+            --lineNumber;
+    }
+
+    auto marker = new DisassemblerBreakpointMarker(bp, lineNumber);
+    d->breakpointMarks.append(marker);
+    d->document->addMark(marker);
 }
 
 quint64 DisassemblerAgent::address() const

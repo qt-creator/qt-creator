@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Nicolas Arnaud-Cormos
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Nicolas Arnaud-Cormos
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -41,16 +42,8 @@
 
 #include <QDir>
 #include <QFileInfo>
-
-#include <QShortcut>
-#include <QButtonGroup>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
-#include <QCheckBox>
-#include <QGroupBox>
-#include <QHeaderView>
-#include <QRegExpValidator>
-#include <QLineEdit>
 
 namespace {
     int NAME_ROLE = Qt::UserRole;
@@ -68,12 +61,12 @@ MacroOptionsWidget::MacroOptionsWidget(QWidget *parent) :
 {
     m_ui->setupUi(this);
 
-    connect(m_ui->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-            this, SLOT(changeCurrentItem(QTreeWidgetItem*)));
-    connect(m_ui->removeButton, SIGNAL(clicked()),
-            this, SLOT(remove()));
-    connect(m_ui->description, SIGNAL(textChanged(QString)),
-            this, SLOT(changeDescription(QString)));
+    connect(m_ui->treeWidget, &QTreeWidget::currentItemChanged,
+            this, &MacroOptionsWidget::changeCurrentItem);
+    connect(m_ui->removeButton, &QPushButton::clicked,
+            this, &MacroOptionsWidget::remove);
+    connect(m_ui->description, &QLineEdit::textChanged,
+            this, &MacroOptionsWidget::changeDescription);
 
     m_ui->treeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);
 
@@ -102,16 +95,17 @@ void MacroOptionsWidget::createTable()
     QMapIterator<QString, Macro *> it(MacroManager::macros());
     while (it.hasNext()) {
         it.next();
-        QFileInfo fileInfo(it.value()->fileName());
+        Macro *macro = it.value();
+        QFileInfo fileInfo(macro->fileName());
         if (fileInfo.absoluteDir() == dir.absolutePath()) {
             QTreeWidgetItem *macroItem = new QTreeWidgetItem(m_ui->treeWidget);
-            macroItem->setText(0, it.value()->displayName());
-            macroItem->setText(1, it.value()->description());
-            macroItem->setData(0, NAME_ROLE, it.value()->displayName());
-            macroItem->setData(0, WRITE_ROLE, it.value()->isWritable());
+            macroItem->setText(0, macro->displayName());
+            macroItem->setText(1, macro->description());
+            macroItem->setData(0, NAME_ROLE, macro->displayName());
+            macroItem->setData(0, WRITE_ROLE, macro->isWritable());
 
             Core::Command *command =
-                    Core::ActionManager::command(base.withSuffix(it.value()->displayName()));
+                    Core::ActionManager::command(base.withSuffix(macro->displayName()));
             if (command && command->action())
                 macroItem->setText(2, command->action()->shortcut().toString());
         }

@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,29 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #ifndef ANDROIDCONFIGURATIONS_H
 #define ANDROIDCONFIGURATIONS_H
+
+#include "android_global.h"
 
 #include <QObject>
 #include <QString>
@@ -37,35 +40,53 @@
 #include <QHash>
 #include <QMap>
 #include <QFutureInterface>
-#include <projectexplorer/abi.h>
+
 #include <utils/fileutils.h>
-#include <utils/environment.h>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class Abi;
+class Project;
+}
+
+namespace Utils { class Environment; }
 
 namespace Android {
 class AndroidPlugin;
-namespace Internal {
 
-struct AndroidDeviceInfo
+class AndroidDeviceInfo
 {
+public:
     QString serialNumber;
+    QString avdname;
     QStringList cpuAbi;
-    int sdk;
+    int sdk = -1;
     enum State { OkState, UnAuthorizedState, OfflineState };
-    State state;
-    bool unauthorized;
+    State state = OfflineState;
+    bool unauthorized = false;
     enum AndroidDeviceType { Hardware, Emulator };
-    AndroidDeviceType type;
+    AndroidDeviceType type = Emulator;
 
     static QStringList adbSelector(const QString &serialNumber);
+
+    bool isValid() { return !serialNumber.isEmpty() && !avdname.isEmpty(); }
 };
 
-class AndroidConfig
+class SdkPlatform
+{
+public:
+    SdkPlatform()
+        : apiLevel(-1)
+    {}
+    int apiLevel;
+    QString name;
+    QStringList abis;
+};
+
+class ANDROID_EXPORT AndroidConfig
 {
 public:
     AndroidConfig();
@@ -73,7 +94,9 @@ public:
     void load(const QSettings &settings);
     void save(QSettings &settings) const;
 
-    QStringList sdkTargets(int minApiLevel = 0) const;
+    static QStringList apiLevelNamesFor(const QList<SdkPlatform> &platforms);
+    static QString apiLevelNameFor(const SdkPlatform &platform);
+    QList<SdkPlatform> sdkTargets(int minApiLevel = 0) const;
 
     Utils::FileName sdkLocation() const;
     void setSdkLocation(const Utils::FileName &sdkLocation);
@@ -99,6 +122,9 @@ public:
     bool automaticKitCreation() const;
     void setAutomaticKitCreation(bool b);
 
+    bool useGrandle() const;
+    void setUseGradle(bool b);
+
     Utils::FileName adbToolPath() const;
     Utils::FileName androidToolPath() const;
     Utils::Environment androidToolEnvironment() const;
@@ -106,45 +132,63 @@ public:
     Utils::FileName emulatorToolPath() const;
 
 
-    Utils::FileName gccPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
-    Utils::FileName gdbPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
+    Utils::FileName gccPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
+    Utils::FileName gdbPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
 
     Utils::FileName keytoolPath() const;
-    Utils::FileName jarsignerPath() const;
-    Utils::FileName zipalignPath() const;
-    Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
-    Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
 
+    class CreateAvdInfo
+    {
+    public:
+        QString target;
+        QString name;
+        QString abi;
+        int sdcardSize;
+        QString error; // only used in the return value of createAVD
+    };
 
-    QString createAVD(QWidget *parent, int minApiLevel = 0, QString targetArch = QString()) const;
-    QString createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize) const;
+    CreateAvdInfo gatherCreateAVDInfo(QWidget *parent, int minApiLevel = 0, QString targetArch = QString()) const;
+    QFuture<CreateAvdInfo> createAVD(CreateAvdInfo info) const;
     bool removeAVD(const QString &name) const;
 
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
-    QVector<AndroidDeviceInfo> androidVirtualDevices() const;
-    QString startAVD(const QString &name, int apiLevel, QString cpuAbi) const;
-    bool startAVDAsync(const QString &avdName) const;
-    QString findAvd(int apiLevel, const QString &cpuAbi) const;
-    QString waitForAvd(int apiLevel, const QString &cpuAbi, const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
-    QString bestNdkPlatformMatch(const QString &targetAPI) const;
+    static QVector<AndroidDeviceInfo> connectedDevices(const QString &adbToolPath, QString *error = 0);
 
-    static ProjectExplorer::Abi::Architecture architectureForToolChainPrefix(const QString &toolchainprefix);
-    static QLatin1String toolchainPrefix(ProjectExplorer::Abi::Architecture architecture);
-    static QLatin1String toolsPrefix(ProjectExplorer::Abi::Architecture architecture);
+    QFuture<QVector<AndroidDeviceInfo> > androidVirtualDevicesFuture();
+    static QVector<AndroidDeviceInfo> androidVirtualDevices(const QString &androidTool, const Utils::Environment &environment);
+
+    QString startAVD(const QString &name) const;
+    bool startAVDAsync(const QString &avdName) const;
+    QString findAvd(const QString &avdName) const;
+    QString waitForAvd(const QString &avdName, const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
+    QString bestNdkPlatformMatch(int target) const;
+
+    static ProjectExplorer::Abi abiForToolChainPrefix(const QString &toolchainPrefix);
+    static QLatin1String toolchainPrefix(const ProjectExplorer::Abi &abi);
+    static QLatin1String toolsPrefix(const ProjectExplorer::Abi &abi);
+    static QLatin1String displayName(const ProjectExplorer::Abi &abi);
 
     QString getProductModel(const QString &device) const;
+    enum class OpenGl { Enabled, Disabled, Unknown };
+    OpenGl getOpenGLEnabled(const QString &emulator) const;
     bool hasFinishedBooting(const QString &device) const;
     bool waitForBooted(const QString &serialNumber, const QFutureInterface<bool> &fi) const;
     bool isConnected(const QString &serialNumber) const;
 
-    QString highestAndroidSdk() const;
-
+    SdkPlatform highestAndroidSdk() const;
 private:
-    Utils::FileName toolPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
+    static CreateAvdInfo createAVDImpl(CreateAvdInfo info, Utils::FileName androidToolPath, Utils::Environment env);
+    static QString getDeviceProperty(const QString &adbToolPath, const QString &device, const QString &property);
+
+    Utils::FileName toolPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKBinPath() const;
     int getSDKVersion(const QString &device) const;
+    static int getSDKVersion(const QString &adbToolPath, const QString &device);
     QStringList getAbis(const QString &device) const;
+    static QStringList getAbis(const QString &adbToolPath, const QString &device);
+    static bool isBootToQt(const QString &adbToolPath, const QString &device);
     bool isBootToQt(const QString &device) const;
+    static QString getAvdName(const QString &serialnumber);
 
     void updateAvailableSdkPlatforms() const;
     void updateNdkInformation() const;
@@ -157,10 +201,12 @@ private:
     QStringList m_makeExtraSearchDirectories;
     unsigned m_partitionSize;
     bool m_automaticKitCreation;
+    bool m_useGradle;
 
     //caches
     mutable bool m_availableSdkPlatformsUpToDate;
-    mutable QVector<int> m_availableSdkPlatforms;
+    mutable QVector<SdkPlatform> m_availableSdkPlatforms;
+    static bool sortSdkPlatformByApiLevel(const SdkPlatform &a, const SdkPlatform &b);
 
     mutable bool m_NdkInformationUpToDate;
     mutable QString m_toolchainHost;
@@ -169,7 +215,7 @@ private:
     mutable QHash<QString, QString> m_serialNumberToDeviceName;
 };
 
-class AndroidConfigurations : public QObject
+class ANDROID_EXPORT AndroidConfigurations : public QObject
 {
     friend class Android::AndroidPlugin;
     Q_OBJECT
@@ -180,12 +226,16 @@ public:
     static AndroidConfigurations *instance();
 
     static void updateAndroidDevice();
-    static AndroidDeviceInfo showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi);
+    enum Options { None, FilterAndroid5 };
+    static AndroidDeviceInfo showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi, Options options);
     static void setDefaultDevice(ProjectExplorer::Project *project, const QString &abi, const QString &serialNumber); // serial number or avd name
     static QString defaultDevice(ProjectExplorer::Project *project, const QString &abi); // serial number or avd name
 public slots:
     static void clearDefaultDevices(ProjectExplorer::Project *project);
+    static void registerNewToolChains();
+    static void removeOldToolChains();
     static void updateAutomaticKitList();
+    static bool force32bitEmulator();
 
 signals:
     void updated();
@@ -199,9 +249,9 @@ private:
     AndroidConfig m_config;
 
     QMap<ProjectExplorer::Project *, QMap<QString, QString> > m_defaultDeviceForAbi;
+    bool m_force32bit;
 };
 
-} // namespace Internal
 } // namespace Android
 
 #endif // ANDROIDCONFIGURATIONS_H

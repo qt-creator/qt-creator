@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 AudioCodes Ltd.
+** Copyright (C) 2015 AudioCodes Ltd.
 ** Author: Orgad Shaneh <orgad.shaneh@audiocodes.com>
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -62,6 +63,7 @@ ClearCaseSettings SettingsPageWidget::settings() const
     rc.ccBinaryPath = m_ui.commandPathChooser->path();
     rc.timeOutS = m_ui.timeOutSpinBox->value();
     rc.autoCheckOut = m_ui.autoCheckOutCheckBox->isChecked();
+    rc.noComment = m_ui.noCommentCheckBox->isChecked();
     if (m_ui.graphicalDiffRadioButton->isChecked())
         rc.diffType = GraphicalDiff;
     else if (m_ui.externalDiffRadioButton->isChecked())
@@ -81,16 +83,17 @@ void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
     m_ui.commandPathChooser->setPath(s.ccCommand);
     m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.autoCheckOutCheckBox->setChecked(s.autoCheckOut);
-    bool extDiffAvailable = !Utils::Environment::systemEnvironment().searchInPath(QLatin1String("diff")).isEmpty();
+    m_ui.noCommentCheckBox->setChecked(s.noComment);
+    bool extDiffAvailable = !Environment::systemEnvironment().searchInPath(QLatin1String("diff")).isEmpty();
     if (extDiffAvailable) {
         m_ui.diffWarningLabel->setVisible(false);
     } else {
-        QString diffWarning = tr("In order to use External diff, 'diff' command needs to be accessible.");
+        QString diffWarning = tr("In order to use External diff, \"diff\" command needs to be accessible.");
         if (HostOsInfo::isWindowsHost()) {
             diffWarning += QLatin1Char(' ');
-            diffWarning.append(tr("DiffUtils is available for free download "
-                                  "<a href=\"http://gnuwin32.sourceforge.net/packages/diffutils.htm\">here</a>. "
-                                  "Please extract it to a directory in your PATH."));
+            diffWarning.append(tr("DiffUtils is available for free download at "
+                                  "http://gnuwin32.sourceforge.net/packages/diffutils.htm. "
+                                  "Extract it to a directory in your PATH."));
         }
         m_ui.diffWarningLabel->setText(diffWarning);
         m_ui.externalDiffRadioButton->setEnabled(false);

@@ -11,20 +11,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -43,22 +44,21 @@ class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
 {
     Q_OBJECT
 public:
-    QnxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
-            const QString &projectFilePath);
+    QnxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
+                        const QString &targetName);
 
-    Utils::Environment environment() const;
+    Utils::Environment environment() const override;
 
-    QWidget *createConfigurationWidget();
+    QWidget *createConfigurationWidget() override;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
 protected:
     friend class QnxRunConfigurationFactory;
 
-    QnxRunConfiguration(ProjectExplorer::Target *parent,
-                        QnxRunConfiguration *source);
+    QnxRunConfiguration(ProjectExplorer::Target *parent, QnxRunConfiguration *source);
 
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private slots:
     void setQtLibPath(const QString &path);

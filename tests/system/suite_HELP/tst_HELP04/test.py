@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,26 +9,26 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
 
 source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
 import re
 
 # test search in help mode and advanced search
@@ -36,7 +36,7 @@ searchKeywordDictionary={ "deployment":True, "deplmint":False, "build":True, "bl
 
 
 def __getSelectedText__():
-    hv = findObject(":Qt Creator_Help::Internal::HelpViewer")
+    hv = getHelpViewer()
     try:
         selText = hv.selectedText
         if className(selText) != 'instancemethod':
@@ -51,7 +51,7 @@ def __getSelectedText__():
     return str(selText)
 
 def __getUrl__():
-    helpViewer = findObject(":Qt Creator_Help::Internal::HelpViewer")
+    helpViewer = getHelpViewer()
     try:
         url = helpViewer.url
     except:
@@ -59,8 +59,6 @@ def __getUrl__():
             url = helpViewer.source
         except:
             return ""
-    if isQt4Build:
-        return str(url.toString())
     return str(url.scheme) + "://" + str(url.host) + str(url.path)
 
 def getHighlightsInHtml(htmlCode):
@@ -71,6 +69,13 @@ def getHighlightsInHtml(htmlCode):
             continue
         res += "%s " % curr.group(1)
     return res
+
+def verifySelection(expected):
+    selText = str(__getSelectedText__())
+    if test.verify(selText, "Verify that there is a selection"):
+        # verify if search keyword is found in results
+        test.verify(expected.lower() in selText.lower(),
+                    "'%s' search result can be found" % expected)
 
 def main():
     global sdkPath
@@ -89,7 +94,7 @@ def main():
     # try to search empty string
     clickButton(waitForObject("{text='Search' type='QPushButton' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}"))
-    progressBarWait()
+    progressBarWait(600000)
     test.verify(waitFor("noMatch in "
                         "str(waitForObject(':Hits_QCLuceneResultWidget').plainText)", 2000),
                         "Verifying if search did not match anything.")
@@ -97,10 +102,13 @@ def main():
     mouseClick(waitForObject("{column='0' container=':Qt Creator_QHelpContentWidget' "
                              "text='Qt Reference Documentation' type='QModelIndex'}"))
     # try to search keyword from list
+    searchLineEdit = getChildByClass(waitForObject("{type='QHelpSearchQueryWidget' unnamed='1' visible='1' "
+                                                   "window=':Qt Creator_Core::Internal::MainWindow'}"),
+                                     "QLineEdit")
     for searchKeyword,shouldFind in searchKeywordDictionary.items():
-        mouseClick(waitForObject(":Qt Creator.Help_Search for:_QLineEdit"))
-        replaceEditorContent(":Qt Creator.Help_Search for:_QLineEdit", searchKeyword)
-        type(waitForObject(":Qt Creator.Help_Search for:_QLineEdit"), "<Return>")
+        mouseClick(searchLineEdit)
+        replaceEditorContent(searchLineEdit, searchKeyword)
+        type(searchLineEdit, "<Return>")
         progressBarWait(warn=False)
         if shouldFind:
             test.verify(waitFor("re.match('[1-9]\d* - [1-9]\d* of [1-9]\d* Hits',"
@@ -112,10 +120,8 @@ def main():
             mouseClick(waitForObject(":Hits_QCLuceneResultWidget"), 1, 1, 0, Qt.LeftButton)
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Tab>")
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Return>")
-            waitFor("__getUrl__() != url or selText != __getSelectedText__()")
-            # verify if search keyword is found in results
-            test.verify(searchKeyword.lower() in __getSelectedText__().lower(),
-                        searchKeyword + " search result can be found")
+            waitFor("__getUrl__() != url or selText != __getSelectedText__()", 20000)
+            verifySelection(searchKeyword)
         else:
             test.verify(waitFor("noMatch in "
                                 "str(waitForObject(':Hits_QCLuceneResultWidget').plainText)", 1000),
@@ -146,15 +152,13 @@ def main():
     mouseClick(resultsView, 1, 1, 0, Qt.LeftButton)
     type(resultsView, "<Tab>")
     type(resultsView, "<Return>")
-    test.verify("printing" in str(__getSelectedText__()).lower(),
-                "printing advanced search result can be found")
+    verifySelection("printing")
     for i in range(2):
         type(resultsView, "<Tab>")
     type(resultsView, "<Return>")
-    test.verify("sql" in str(__getSelectedText__()).lower(),
-                "sql advanced search result can be found")
+    verifySelection("sql")
     # verify if simple search is properly disabled
-    test.verify(findObject(":Qt Creator.Help_Search for:_QLineEdit").enabled == False,
+    test.verify(not searchLineEdit.enabled,
                 "Verifying if simple search is not active in advanced mode.")
     # exit
     invokeMenuItem("File", "Exit")

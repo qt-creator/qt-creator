@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,138 +31,79 @@
 #ifndef ANDROIDMANAGER_H
 #define ANDROIDMANAGER_H
 
-#include <utils/fileutils.h>
+#include "android_global.h"
 
-#include <QDomDocument>
 #include <QPair>
 #include <QObject>
 #include <QStringList>
 
-namespace ProjectExplorer { class Target; }
+namespace ProjectExplorer {
+class Kit;
+class Target;
+}
+
+namespace Utils { class FileName; }
 
 namespace Android {
-namespace Internal {
 
-class AndroidManager : public QObject
+class AndroidQtSupport;
+
+class ANDROID_EXPORT AndroidManager : public QObject
 {
     Q_OBJECT
 
 public:
-    enum BuildType
-    {
-        DebugBuild,
-        ReleaseBuildUnsigned,
-        ReleaseBuildSigned
-    };
 
-    static bool supportsAndroid(ProjectExplorer::Target *target);
+    static bool supportsAndroid(const ProjectExplorer::Kit *kit);
+    static bool supportsAndroid(const ProjectExplorer::Target *target);
 
     static QString packageName(ProjectExplorer::Target *target);
-    static bool setPackageName(ProjectExplorer::Target *target, const QString &name);
-
-    static QString applicationName(ProjectExplorer::Target *target);
-    static bool setApplicationName(ProjectExplorer::Target *target, const QString &name);
+    static QString packageName(const Utils::FileName &manifestFile);
 
     static QString intentName(ProjectExplorer::Target *target);
     static QString activityName(ProjectExplorer::Target *target);
 
-    static QStringList availableTargetApplications(ProjectExplorer::Target *target);
-    static QString targetApplication(ProjectExplorer::Target *target);
-    static bool setTargetApplication(ProjectExplorer::Target *target, const QString &name);
-    static QString targetApplicationPath(ProjectExplorer::Target *target);
-
-    static bool updateDeploymentSettings(ProjectExplorer::Target *target);
     static bool bundleQt(ProjectExplorer::Target *target);
     static bool useLocalLibs(ProjectExplorer::Target *target);
     static QString deviceSerialNumber(ProjectExplorer::Target *target);
+    static void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
 
     static QString buildTargetSDK(ProjectExplorer::Target *target);
-    static bool setBuildTargetSDK(ProjectExplorer::Target *target, const QString &sdk);
+
+    static bool signPackage(ProjectExplorer::Target *target);
+
     static int minimumSDK(ProjectExplorer::Target *target);
 
     static QString targetArch(ProjectExplorer::Target *target);
 
     static Utils::FileName dirPath(ProjectExplorer::Target *target);
     static Utils::FileName manifestPath(ProjectExplorer::Target *target);
+    static Utils::FileName manifestSourcePath(ProjectExplorer::Target *target);
     static Utils::FileName libsPath(ProjectExplorer::Target *target);
-    static Utils::FileName stringsPath(ProjectExplorer::Target *target);
     static Utils::FileName defaultPropertiesPath(ProjectExplorer::Target *target);
-    static Utils::FileName srcPath(ProjectExplorer::Target *target);
-    static Utils::FileName apkPath(ProjectExplorer::Target *target, BuildType buildType);
-
-    static bool createAndroidTemplatesIfNecessary(ProjectExplorer::Target *target);
-    static void updateTarget(ProjectExplorer::Target *target, const QString &buildTargetSDK,
-                             const QString &name = QString());
 
     static Utils::FileName localLibsRulesFilePath(ProjectExplorer::Target *target);
     static QString loadLocalLibs(ProjectExplorer::Target *target, int apiLevel = -1);
     static QString loadLocalJars(ProjectExplorer::Target *target, int apiLevel = -1);
-    static QString loadLocalBundledFiles(ProjectExplorer::Target *target, int apiLevel = -1);
     static QString loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel = -1);
 
-    static QPair<int, int> apiLevelRange(ProjectExplorer::Target *target);
+    static QPair<int, int> apiLevelRange();
     static QString androidNameForApiLevel(int x);
 
-    class Library
-    {
-    public:
-        Library()
-        { level = -1; }
-        int level;
-        QStringList dependencies;
-        QString name;
-    };
-    typedef QMap<QString, Library> LibrariesMap;
-
-    static QVector<AndroidManager::Library> availableQtLibsWithDependencies(ProjectExplorer::Target *target);
-    static QStringList availableQtLibs(ProjectExplorer::Target *target);
     static QStringList qtLibs(ProjectExplorer::Target *target);
-    static bool setQtLibs(ProjectExplorer::Target *target, const QStringList &libs);
-
-    static bool setBundledInLib(ProjectExplorer::Target *target,
-                                const QStringList &fileList);
-    static bool setBundledInAssets(ProjectExplorer::Target *target,
-                                   const QStringList &fileList);
-
-    static QStringList availablePrebundledLibs(ProjectExplorer::Target *target);
     static QStringList prebundledLibs(ProjectExplorer::Target *target);
-    static bool setPrebundledLibs(ProjectExplorer::Target *target, const QStringList &libs);
-
-    static QString libGnuStl(const QString &arch, const QString &ndkToolChainVersion);
-    static QString libraryPrefix();
 
     static void cleanLibsOnDevice(ProjectExplorer::Target *target);
     static void installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath);
 
     static bool checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd);
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
-    static bool checkForQt51Files(const QString &projectDirectory);
-private:
-    static void raiseError(const QString &reason);
-    static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
-    static bool saveXmlFile(ProjectExplorer::Target *target, QDomDocument &doc, const Utils::FileName &fileName);
-    static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
-    static bool saveManifest(ProjectExplorer::Target *target, QDomDocument &doc);
-    static bool openLibsXml(ProjectExplorer::Target *target, QDomDocument &doc);
-    static bool saveLibsXml(ProjectExplorer::Target *target, QDomDocument &doc);
-    static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag);
-    static bool setLibsXml(ProjectExplorer::Target *target, const QStringList &libs, const QString &tag);
-
-    enum ItemType
-    {
-        Lib,
-        Jar,
-        BundledFile,
-        BundledJar
-    };
-    static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute=QLatin1String("file"));
-
-    static QStringList dependencies(const Utils::FileName &readelfPath, const QString &lib);
-    static int setLibraryLevel(const QString &library, LibrariesMap &mapLibs);
-    static bool qtLibrariesLessThan(const Library &a, const Library &b);
+    static bool checkForQt51Files(Utils::FileName fileName);
+    static AndroidQtSupport *androidQtSupport(ProjectExplorer::Target *target);
+    static bool useGradle(ProjectExplorer::Target *target);
+    static bool updateGradleProperties(ProjectExplorer::Target *target);
 };
 
-} // namespace Internal
 } // namespace Android
 
 #endif // ANDROIDMANAGER_H

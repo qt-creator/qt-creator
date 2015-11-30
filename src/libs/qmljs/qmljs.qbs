@@ -1,5 +1,4 @@
-import qbs.base 1.0
-import QtcLibrary
+import qbs 1.0
 
 QtcLibrary {
     name: "QmlJS"
@@ -9,6 +8,7 @@ QtcLibrary {
     ])
     cpp.optimization: "fast"
 
+    Depends { name: "ExtensionSystem" }
     Depends { name: "Utils" }
     Depends { name: "LanguageUtils" }
     Depends { name: "CPlusPlus" }
@@ -31,7 +31,7 @@ QtcLibrary {
             "qmljscompletioncontextfinder.cpp", "qmljscompletioncontextfinder.h",
             "qmljsconstants.h",
             "qmljscontext.cpp", "qmljscontext.h",
-            "qmljsdelta.cpp", "qmljsdelta.h",
+            "qmljsdescribevalue.cpp", "qmljsdescribevalue.h",
             "qmljsdocument.cpp", "qmljsdocument.h",
             "qmljsevaluate.cpp", "qmljsevaluate.h",
             "qmljsfindexportedcpptypes.cpp", "qmljsfindexportedcpptypes.h",
@@ -40,6 +40,7 @@ QtcLibrary {
             "qmljsimportdependencies.cpp", "qmljsimportdependencies.h",
             "qmljsindenter.cpp", "qmljsindenter.h",
             "qmljsinterpreter.cpp", "qmljsinterpreter.h",
+            "qmljsdialect.cpp", "qmljsdialect.h",
             "qmljslineinfo.cpp", "qmljslineinfo.h",
             "qmljslink.cpp", "qmljslink.h",
             "qmljsmodelmanagerinterface.cpp", "qmljsmodelmanagerinterface.h",

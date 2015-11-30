@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -82,8 +83,9 @@ QbsInstallStep::~QbsInstallStep()
     m_job = 0;
 }
 
-bool QbsInstallStep::init()
+bool QbsInstallStep::init(QList<const BuildStep *> &earlierSteps)
 {
+    Q_UNUSED(earlierSteps);
     QTC_ASSERT(!static_cast<QbsProject *>(project())->isParsing() && !m_job, return false);
     return true;
 }
@@ -97,6 +99,7 @@ void QbsInstallStep::run(QFutureInterface<bool> &fi)
 
     if (!m_job) {
         m_fi->reportResult(false);
+        emit finished();
         return;
     }
 
@@ -191,7 +194,7 @@ void QbsInstallStep::installDone(bool success)
     // Report errors:
     foreach (const qbs::ErrorItem &item, m_job->error().items()) {
         createTaskAndOutput(ProjectExplorer::Task::Error, item.description(),
-                            item.codeLocation().fileName(), item.codeLocation().line());
+                            item.codeLocation().filePath(), item.codeLocation().line());
     }
 
     QTC_ASSERT(m_fi, return);
@@ -220,9 +223,10 @@ void QbsInstallStep::handleProgress(int value)
 void QbsInstallStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                                          const QString &message, const QString &file, int line)
 {
-    emit addTask(ProjectExplorer::Task(type, message,
-                                       Utils::FileName::fromString(file), line,
-                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
+    ProjectExplorer::Task task = ProjectExplorer::Task(type, message,
+                                                       Utils::FileName::fromString(file), line,
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+    emit addTask(task, 1);
     emit addOutput(message, NormalOutput);
 }
 
@@ -279,7 +283,8 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
     m_ui->installRootChooser->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->installRootChooser->setHistoryCompleter(QLatin1String("Qbs.InstallRoot.History"));
 
-    connect(m_ui->installRootChooser, SIGNAL(changed(QString)), this, SLOT(changeInstallRoot()));
+    connect(m_ui->installRootChooser, SIGNAL(rawPathChanged(QString)), this,
+            SLOT(changeInstallRoot()));
     connect(m_ui->removeFirstCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeRemoveFirst(bool)));
     connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
     connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
@@ -287,6 +292,11 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
     connect(project, SIGNAL(projectParsingDone(bool)), this, SLOT(updateState()));
 
     updateState();
+}
+
+QbsInstallStepConfigWidget::~QbsInstallStepConfigWidget()
+{
+    delete m_ui;
 }
 
 QString QbsInstallStepConfigWidget::summaryText() const
@@ -308,20 +318,9 @@ void QbsInstallStepConfigWidget::updateState()
         m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
     }
 
-    const qbs::ProjectData data = static_cast<QbsProject *>(m_step->project())->qbsProjectData();
-    if (data.isValid())
-        m_ui->installRootChooser->setBaseDirectory(data.buildDirectory());
+    m_ui->installRootChooser->setBaseFileName(m_step->target()->activeBuildConfiguration()->buildDirectory());
 
-    QString command = QLatin1String("qbs install ");
-    command += QString::fromLatin1("--settings-dir ")
-            + QDir::toNativeSeparators(Core::ICore::userResourcePath()) + QLatin1String(" ");
-    if (m_step->dryRun())
-        command += QLatin1String("--dry-run ");
-    if (m_step->keepGoing())
-        command += QLatin1String("--keep-going ");
-    if (m_step->removeFirst())
-        command += QLatin1String("--remove-first ");
-    command += QString::fromLatin1("--install-root \"%1\"").arg(m_step->absoluteInstallRoot());
+    QString command = QbsBuildConfiguration::equivalentCommandLine(m_step);
     m_ui->commandLineTextEdit->setPlainText(command);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
@@ -374,14 +373,14 @@ QList<Core::Id> QbsInstallStepFactory::availableCreationIds(ProjectExplorer::Bui
     return QList<Core::Id>();
 }
 
-QString QbsInstallStepFactory::displayNameForId(const Core::Id id) const
+QString QbsInstallStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == Core::Id(Constants::QBS_INSTALLSTEP_ID))
         return tr("Qbs Install");
     return QString();
 }
 
-bool QbsInstallStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
+bool QbsInstallStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const
 {
     if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
             || !qobject_cast<ProjectExplorer::DeployConfiguration *>(parent->parent())

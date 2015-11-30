@@ -1,8 +1,3 @@
-# PROVIDER = AudioCodes
-
-macx: CLEARCASE_DISABLED_STR = "true"
-else: CLEARCASE_DISABLED_STR = "false"
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS += activityselector.h \

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -41,23 +42,14 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
-GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IDocument *projectFile)
-    : ProjectNode(projectFile->filePath()), m_project(project), m_projectFile(projectFile)
+GenericProjectNode::GenericProjectNode(GenericProject *project)
+    : ProjectNode(project->projectFilePath())
+    , m_project(project)
 {
-    setDisplayName(QFileInfo(projectFile->filePath()).completeBaseName());
+    setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
 }
 
-Core::IDocument *GenericProjectNode::projectFile() const
-{
-    return m_projectFile;
-}
-
-QString GenericProjectNode::projectFilePath() const
-{
-    return m_projectFile->filePath();
-}
-
-QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<QString> files)
+QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<QString> &files)
 {
     QHash<QString, QStringList> filesInPath;
     const QDir baseDir(base);
@@ -76,6 +68,9 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
                 relativeFilePath.chop(1);
         }
 
+        if (relativeFilePath == QLatin1String("."))
+            relativeFilePath.clear();
+
         filesInPath[relativeFilePath].append(absoluteFileName);
     }
     return filesInPath;
@@ -85,26 +80,6 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
 {
     typedef QHash<QString, QStringList> FilesInPathHash;
     typedef FilesInPathHash::ConstIterator FilesInPathHashConstIt;
-
-    if (oldFileList.isEmpty()) {
-        // Only do this once
-        FileNode *projectFilesNode = new FileNode(m_project->filesFileName(),
-                                                  ProjectFileType,
-                                                  /* generated = */ false);
-
-        FileNode *projectIncludesNode = new FileNode(m_project->includesFileName(),
-                                                     ProjectFileType,
-                                                     /* generated = */ false);
-
-        FileNode *projectConfigNode = new FileNode(m_project->configFileName(),
-                                                   ProjectFileType,
-                                                   /* generated = */ false);
-
-        addFileNodes(QList<FileNode *>()
-                     << projectFilesNode
-                     << projectIncludesNode
-                     << projectConfigNode);
-    }
 
     // Do those separately
     oldFileList.remove(m_project->filesFileName());
@@ -121,7 +96,7 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
     QSet<QString> added = newFileList;
     added.subtract(oldFileList);
 
-    QString baseDir = QFileInfo(path()).absolutePath();
+    QString baseDir = filePath().toFileInfo().absolutePath();
     FilesInPathHash filesInPaths = sortFilesIntoPaths(baseDir, added);
 
     FilesInPathHashConstIt cend = filesInPaths.constEnd();
@@ -137,7 +112,10 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
         QList<FileNode *> fileNodes;
         foreach (const QString &file, it.value()) {
             FileType fileType = SourceType; // ### FIXME
-            FileNode *fileNode = new FileNode(file, fileType, /*generated = */ false);
+            if (file.endsWith(QLatin1String(".qrc")))
+                fileType = ResourceType;
+            FileNode *fileNode = new FileNode(Utils::FileName::fromString(file),
+                                              fileType, /*generated = */ false);
             fileNodes.append(fileNode);
         }
 
@@ -155,9 +133,10 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
 
         QList<FileNode *> fileNodes;
         foreach (const QString &file, it.value()) {
-            foreach (FileNode *fn, folder->fileNodes())
-                if (fn->path() == file)
+            foreach (FileNode *fn, folder->fileNodes()) {
+                if (fn->filePath().toString() == file)
                     fileNodes.append(fn);
+            }
         }
 
         folder->removeFileNodes(fileNodes);
@@ -190,8 +169,8 @@ FolderNode *GenericProjectNode::createFolderByName(const QStringList &components
 
     const QString component = components.at(end - 1);
 
-    const QString baseDir = QFileInfo(path()).path();
-    FolderNode *folder = new FolderNode(baseDir + QLatin1Char('/') + folderName);
+    const Utils::FileName folderPath = filePath().parentDir().appendPath(folderName);
+    FolderNode *folder = new FolderNode(folderPath);
     folder->setDisplayName(component);
 
     FolderNode *parent = findFolderByName(components, end - 1);
@@ -218,19 +197,20 @@ FolderNode *GenericProjectNode::findFolderByName(const QStringList &components, 
     if (!parent)
         return 0;
 
-    const QString baseDir = QFileInfo(path()).path();
-    foreach (FolderNode *fn, parent->subFolderNodes())
-        if (fn->path() == baseDir + QLatin1Char('/') + folderName)
+    const QString baseDir = filePath().toFileInfo().path();
+    foreach (FolderNode *fn, parent->subFolderNodes()) {
+        if (fn->filePath().toString() == baseDir + QLatin1Char('/') + folderName)
             return fn;
+    }
     return 0;
 }
 
-bool GenericProjectNode::hasBuildTargets() const
+bool GenericProjectNode::showInSimpleTree() const
 {
     return true;
 }
 
-QList<ProjectExplorer::ProjectAction> GenericProjectNode::supportedActions(Node *node) const
+QList<ProjectAction> GenericProjectNode::supportedActions(Node *node) const
 {
     Q_UNUSED(node);
     return QList<ProjectAction>()
@@ -239,24 +219,6 @@ QList<ProjectExplorer::ProjectAction> GenericProjectNode::supportedActions(Node 
         << AddExistingDirectory
         << RemoveFile
         << Rename;
-}
-
-bool GenericProjectNode::canAddSubProject(const QString &proFilePath) const
-{
-    Q_UNUSED(proFilePath)
-    return false;
-}
-
-bool GenericProjectNode::addSubProjects(const QStringList &proFilePaths)
-{
-    Q_UNUSED(proFilePaths)
-    return false;
-}
-
-bool GenericProjectNode::removeSubProjects(const QStringList &proFilePaths)
-{
-    Q_UNUSED(proFilePaths)
-    return false;
 }
 
 bool GenericProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
@@ -273,21 +235,9 @@ bool GenericProjectNode::removeFiles(const QStringList &filePaths, QStringList *
     return m_project->removeFiles(filePaths);
 }
 
-bool GenericProjectNode::deleteFiles(const QStringList &filePaths)
-{
-    Q_UNUSED(filePaths)
-    return false;
-}
-
 bool GenericProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
     return m_project->renameFile(filePath, newFilePath);
-}
-
-QList<RunConfiguration *> GenericProjectNode::runConfigurationsFor(Node *node)
-{
-    Q_UNUSED(node)
-    return QList<RunConfiguration *>();
 }
 
 } // namespace Internal

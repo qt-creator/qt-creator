@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,6 +31,7 @@
 #include <QtTest>
 #include <QDebug>
 
+#include <cplusplus/ASTVisitor.h>
 #include <cplusplus/Control.h>
 #include <cplusplus/Literals.h>
 #include <cplusplus/Parser.h>
@@ -48,10 +50,12 @@ public:
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode,
                            bool blockErrors = false,
-                           bool qtMocRun = false)
+                           bool qtMocRun = false,
+                           bool cxx11Enabled = false)
     {
         const StringLiteral *fileId = control.stringLiteral("<stdin>");
         LanguageFeatures features;
+        features.cxx11Enabled = cxx11Enabled;
         features.objCEnabled = true;
         features.qtEnabled = qtMocRun;
         features.qtKeywordsEnabled = qtMocRun;
@@ -61,18 +65,27 @@ public:
         unit->setSource(source.constData(), source.length());
         unit->blockErrors(blockErrors);
         unit->parse(mode);
+
+        // Sanity check: Visit all AST nodes
+        if (AST *ast = unit->ast()) {
+            ASTVisitor visitor(unit);
+            visitor.accept(ast);
+        }
+
         return unit;
     }
 
-    TranslationUnit *parseDeclaration(const QByteArray &source, bool blockErrors = false, bool qtMocRun = false)
-    { return parse(source, TranslationUnit::ParseDeclaration, blockErrors, qtMocRun); }
+    TranslationUnit *parseDeclaration(const QByteArray &source, bool blockErrors = false,
+        bool qtMocRun = false, bool cxx11Enabled = false)
+    { return parse(source, TranslationUnit::ParseDeclaration,
+        blockErrors, qtMocRun, cxx11Enabled); }
 
     TranslationUnit *parseExpression(const QByteArray &source)
     { return parse(source, TranslationUnit::ParseExpression); }
 
-    TranslationUnit *parseStatement(const QByteArray &source)
-    { return parse(source, TranslationUnit::ParseStatement); }
-    
+    TranslationUnit *parseStatement(const QByteArray &source, bool cxx11Enabled = false)
+    { return parse(source, TranslationUnit::ParseStatement, false, false, cxx11Enabled); }
+
     class Diagnostic: public DiagnosticClient {
     public:
         int errorCount;
@@ -92,8 +105,8 @@ public:
         }
     };
 
-    Diagnostic diag;    
-    
+    Diagnostic diag;
+
 
 private slots:
     void initTestCase();
@@ -156,6 +169,11 @@ private slots:
     void cpp_constructor_multiple_args();
     void cpp_constructor_function_try_catch();
 
+    // c++11 ast
+    //! checks for both correct ellipsis tokens in
+    //! "template<class ...Args> class T : Args... {};"
+    void cpp11_variadic_inheritance();
+
     // Q_PROPERTY
     void cpp_qproperty();
     void cpp_qproperty_data();
@@ -182,7 +200,16 @@ private slots:
     // Qt "keywords"
     void q_enum_1();
 
+    void declarationWithNewStatement();
+    void declarationWithNewStatement_data();
     void incomplete_ast();
+    void unnamed_class();
+    void unnamed_class_data();
+    void expensiveExpression();
+    void invalidCode_data();
+    void invalidCode();
+    void enumDeclaration();
+    void invalidEnumClassDeclaration();
 };
 
 void tst_AST::gcc_attributes_1()
@@ -205,12 +232,12 @@ void tst_AST::gcc_attributes_2()
     QVERIFY(ns->attribute_list);
     QVERIFY(!ns->attribute_list->next);
     QVERIFY(ns->attribute_list->value);
-    AttributeSpecifierAST *attrSpec = ns->attribute_list->value->asAttributeSpecifier();
+    GnuAttributeSpecifierAST *attrSpec = ns->attribute_list->value->asGnuAttributeSpecifier();
     QVERIFY(attrSpec);
     QVERIFY(attrSpec->attribute_list);
     QVERIFY(!attrSpec->attribute_list->next);
     QVERIFY(attrSpec->attribute_list->value);
-    AttributeAST *attr = attrSpec->attribute_list->value->asAttribute();
+    GnuAttributeAST *attr = attrSpec->attribute_list->value->asGnuAttribute();
     QVERIFY(attr);
     QCOMPARE(unit->spell(attr->identifier_token), "__visibility__");
     QVERIFY(attr->expression_list);
@@ -235,9 +262,9 @@ void tst_AST::gcc_attributes_3()
     QVERIFY(ns->linkage_body);
     LinkageBodyAST *link = ns->linkage_body->asLinkageBody();
     QVERIFY(link);
-    QCOMPARE(unit->tokenKind(link->lbrace_token), (int) T_LBRACE);
+    QCOMPARE(unit->tokenKind(link->lbrace_token), T_LBRACE);
     QVERIFY(!link->declaration_list);
-    QCOMPARE(unit->tokenKind(link->rbrace_token), (int) T_RBRACE);
+    QCOMPARE(unit->tokenKind(link->rbrace_token), T_RBRACE);
 }
 
 void tst_AST::crash_test_1()
@@ -363,13 +390,13 @@ void tst_AST::condition_1()
     QVERIFY(nestedExpr->expression);
     BinaryExpressionAST *andExpr = nestedExpr->expression->asBinaryExpression();
     QVERIFY(andExpr);
-    QCOMPARE(unit->tokenKind(andExpr->binary_op_token), (int) T_AMPER_AMPER);
+    QCOMPARE(unit->tokenKind(andExpr->binary_op_token), T_AMPER_AMPER);
     QVERIFY(andExpr->left_expression);
     QVERIFY(andExpr->right_expression);
 
     BinaryExpressionAST *ltExpr = andExpr->left_expression->asBinaryExpression();
     QVERIFY(ltExpr);
-    QCOMPARE(unit->tokenKind(ltExpr->binary_op_token), (int) T_LESS);
+    QCOMPARE(unit->tokenKind(ltExpr->binary_op_token), T_LESS);
     QVERIFY(ltExpr->left_expression);
     QVERIFY(ltExpr->right_expression);
 
@@ -383,7 +410,7 @@ void tst_AST::condition_1()
 
     BinaryExpressionAST *gtExpr = andExpr->right_expression->asBinaryExpression();
     QVERIFY(gtExpr);
-    QCOMPARE(unit->tokenKind(gtExpr->binary_op_token), (int) T_GREATER);
+    QCOMPARE(unit->tokenKind(gtExpr->binary_op_token), T_GREATER);
     QVERIFY(gtExpr->left_expression);
     QVERIFY(gtExpr->right_expression);
 
@@ -435,13 +462,13 @@ void tst_AST::conditional_1()
     QVERIFY(nestedExpr->expression);
     BinaryExpressionAST *andExpr = nestedExpr->expression->asBinaryExpression();
     QVERIFY(andExpr);
-    QCOMPARE(unit->tokenKind(andExpr->binary_op_token), (int) T_AMPER_AMPER);
+    QCOMPARE(unit->tokenKind(andExpr->binary_op_token), T_AMPER_AMPER);
     QVERIFY(andExpr->left_expression);
     QVERIFY(andExpr->right_expression);
 
     BinaryExpressionAST *ltExpr = andExpr->left_expression->asBinaryExpression();
     QVERIFY(ltExpr);
-    QCOMPARE(unit->tokenKind(ltExpr->binary_op_token), (int) T_LESS);
+    QCOMPARE(unit->tokenKind(ltExpr->binary_op_token), T_LESS);
     QVERIFY(ltExpr->left_expression);
     QVERIFY(ltExpr->right_expression);
 
@@ -455,7 +482,7 @@ void tst_AST::conditional_1()
 
     BinaryExpressionAST *gtExpr = andExpr->right_expression->asBinaryExpression();
     QVERIFY(gtExpr);
-    QCOMPARE(unit->tokenKind(gtExpr->binary_op_token), (int) T_GREATER);
+    QCOMPARE(unit->tokenKind(gtExpr->binary_op_token), T_GREATER);
     QVERIFY(gtExpr->left_expression);
     QVERIFY(gtExpr->right_expression);
 
@@ -484,7 +511,7 @@ void tst_AST::conditional_1()
 
     BinaryExpressionAST *equals = conditional->left_expression->asBinaryExpression();
     QVERIFY(equals);
-    QCOMPARE(unit->tokenKind(equals->binary_op_token), (int) T_EQUAL_EQUAL);
+    QCOMPARE(unit->tokenKind(equals->binary_op_token), T_EQUAL_EQUAL);
 
     x = equals->left_expression->asIdExpression()->name->asSimpleName();
     QVERIFY(x);
@@ -496,7 +523,7 @@ void tst_AST::conditional_1()
 
     BinaryExpressionAST *assignment = conditional->right_expression->asBinaryExpression();
     QVERIFY(assignment);
-    QCOMPARE(unit->tokenKind(assignment->binary_op_token), (int) T_EQUAL);
+    QCOMPARE(unit->tokenKind(assignment->binary_op_token), T_EQUAL);
 
     y = assignment->left_expression->asIdExpression()->name->asSimpleName();
     QVERIFY(y);
@@ -683,7 +710,7 @@ void tst_AST::templated_dtor_4()
     QVERIFY(e->expression);
     UnaryExpressionAST *u = e->expression->asUnaryExpression();
     QVERIFY(u);
-    QCOMPARE(unit->tokenKind(u->unary_op_token), (int) T_TILDE);
+    QCOMPARE(unit->tokenKind(u->unary_op_token), T_TILDE);
     QVERIFY(u->expression);
     CallAST *call = u->expression->asCall();
     QVERIFY(call);
@@ -726,7 +753,7 @@ void tst_AST::templated_dtor_5()
     QVERIFY(binExpr->left_expression);
     UnaryExpressionAST *notExpr = binExpr->left_expression->asUnaryExpression();
     QVERIFY(notExpr);
-    QCOMPARE(unit->tokenKind(notExpr->unary_op_token), (int) T_TILDE);
+    QCOMPARE(unit->tokenKind(notExpr->unary_op_token), T_TILDE);
 
     CallAST *call = binExpr->right_expression->asCall();
     QVERIFY(call->base_expression);
@@ -763,7 +790,7 @@ void tst_AST::call_call_1()
     QVERIFY(member_name->identifier_token);
     QCOMPARE(unit->spell(member_name->identifier_token), "call");
 
-    QCOMPARE(unit->tokenKind(member_xs->access_token), (int) T_ARROW);
+    QCOMPARE(unit->tokenKind(member_xs->access_token), T_ARROW);
 
     QVERIFY(member_xs->base_expression);
     CallAST *method_call = member_xs->base_expression->asCall();
@@ -875,7 +902,7 @@ void tst_AST::if_statement_2()
 
     QVERIFY(stmt->condition);
     QVERIFY(stmt->condition->asBinaryExpression());
-    QCOMPARE(unit->tokenKind(stmt->condition->asBinaryExpression()->binary_op_token), int(T_AMPER_AMPER));
+    QCOMPARE(unit->tokenKind(stmt->condition->asBinaryExpression()->binary_op_token), T_AMPER_AMPER);
 }
 
 void tst_AST::if_statement_3()
@@ -1255,6 +1282,49 @@ void tst_AST::cpp_constructor_function_try_catch()
     QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
 }
 
+void tst_AST::cpp11_variadic_inheritance()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration(
+        "template<class ...Args> class C : public Args... {};",
+        false, false, true));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    DeclarationAST *d = ast->asDeclaration();
+    QVERIFY(d != 0);
+
+    TemplateDeclarationAST *t = d->asTemplateDeclaration();
+    QVERIFY(t != 0);
+
+    DeclarationListAST *tp = t->template_parameter_list;
+    QVERIFY(tp != 0);
+    QVERIFY(tp->next == 0);
+
+    DeclarationAST *d3 = tp->value;
+    QVERIFY(d3 != 0);
+
+    TypenameTypeParameterAST *ttp = d3->asTypenameTypeParameter();
+    QVERIFY(ttp != 0);
+    QVERIFY(ttp->dot_dot_dot_token != 0); // important
+
+    DeclarationAST *d2 = t->declaration;
+    QVERIFY(d2 != 0);
+
+    SimpleDeclarationAST *sd = d2->asSimpleDeclaration();
+    QVERIFY(sd != 0);
+
+    ClassSpecifierAST *cl = sd->decl_specifier_list->value->asClassSpecifier();
+    QVERIFY(cl != 0);
+
+    BaseSpecifierListAST *bl = cl->base_clause_list;
+    QVERIFY(bl != 0);
+    QVERIFY(bl->next == 0);
+
+    BaseSpecifierAST *ba = bl->value;
+    QVERIFY(ba != 0);
+    QVERIFY(ba->ellipsis_token != 0); // important
+}
+
 void tst_AST::cpp_qproperty()
 {
     QFETCH(QByteArray, source);
@@ -1360,7 +1430,7 @@ void tst_AST::objc_method_attributes_1()
 
     ObjCMethodPrototypeAST *foo = fooDecl->method_prototype;
     QVERIFY(foo);
-    QCOMPARE(unit->tokenKind(foo->method_type_token), (int) T_MINUS);
+    QCOMPARE(unit->tokenKind(foo->method_type_token), T_MINUS);
     QVERIFY(foo->type_name);
     QVERIFY(foo->selector);
     QVERIFY(foo->selector->selector_argument_list->value);
@@ -1369,13 +1439,13 @@ void tst_AST::objc_method_attributes_1()
     QVERIFY(foo->attribute_list);
     QVERIFY(foo->attribute_list->value);
     QVERIFY(! (foo->attribute_list->next));
-    AttributeSpecifierAST *deprecatedSpec = foo->attribute_list->value->asAttributeSpecifier();
+    GnuAttributeSpecifierAST *deprecatedSpec = foo->attribute_list->value->asGnuAttributeSpecifier();
     QVERIFY(deprecatedSpec);
-    QCOMPARE(unit->tokenKind(deprecatedSpec->attribute_token), (int) T___ATTRIBUTE__);
+    QCOMPARE(unit->tokenKind(deprecatedSpec->attribute_token), T___ATTRIBUTE__);
     QVERIFY(deprecatedSpec->attribute_list);
     QVERIFY(deprecatedSpec->attribute_list->value);
     QVERIFY(! (deprecatedSpec->attribute_list->next));
-    AttributeAST *deprecatedAttr = deprecatedSpec->attribute_list->value->asAttribute();
+    GnuAttributeAST *deprecatedAttr = deprecatedSpec->attribute_list->value->asGnuAttribute();
     QVERIFY(deprecatedAttr);
     QVERIFY(! deprecatedAttr->expression_list);
     QCOMPARE(unit->spell(deprecatedAttr->identifier_token), "deprecated");
@@ -1387,7 +1457,7 @@ void tst_AST::objc_method_attributes_1()
 
     ObjCMethodPrototypeAST *bar = barDecl->method_prototype;
     QVERIFY(bar);
-    QCOMPARE(unit->tokenKind(bar->method_type_token), (int) T_PLUS);
+    QCOMPARE(unit->tokenKind(bar->method_type_token), T_PLUS);
     QVERIFY(bar->type_name);
     QVERIFY(bar->selector);
     QVERIFY(bar->selector->selector_argument_list);
@@ -1397,13 +1467,13 @@ void tst_AST::objc_method_attributes_1()
     QVERIFY(bar->attribute_list);
     QVERIFY(bar->attribute_list->value);
     QVERIFY(! (bar->attribute_list->next));
-    AttributeSpecifierAST *unavailableSpec = bar->attribute_list->value->asAttributeSpecifier();
+    GnuAttributeSpecifierAST *unavailableSpec = bar->attribute_list->value->asGnuAttributeSpecifier();
     QVERIFY(unavailableSpec);
-    QCOMPARE(unit->tokenKind(unavailableSpec->attribute_token), (int) T___ATTRIBUTE__);
+    QCOMPARE(unit->tokenKind(unavailableSpec->attribute_token), T___ATTRIBUTE__);
     QVERIFY(unavailableSpec->attribute_list);
     QVERIFY(unavailableSpec->attribute_list->value);
     QVERIFY(! (unavailableSpec->attribute_list->next));
-    AttributeAST *unavailableAttr = unavailableSpec->attribute_list->value->asAttribute();
+    GnuAttributeAST *unavailableAttr = unavailableSpec->attribute_list->value->asGnuAttribute();
     QVERIFY(unavailableAttr);
     QVERIFY(! unavailableAttr->expression_list);
     QCOMPARE(unit->spell(unavailableAttr->identifier_token), "unavailable");
@@ -1736,11 +1806,204 @@ void tst_AST::q_enum_1()
     QCOMPARE(unit->spell(e->identifier_token), "e");
 }
 
+void tst_AST::declarationWithNewStatement()
+{
+    QFETCH(QByteArray, source);
+
+    QSharedPointer<TranslationUnit> unit(parseStatement(source, true));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+    QVERIFY(ast->asDeclarationStatement());
+}
+
+void tst_AST::declarationWithNewStatement_data()
+{
+    QTest::addColumn<QByteArray>("source");
+
+    typedef QByteArray _;
+    QTest::newRow("withoutParentheses") << _("Foo *foo = new Foo;");
+    QTest::newRow("withParentheses") << _("Foo *foo = new Foo();");
+    QTest::newRow("withParenthesesAndOneArgument") << _("Foo *foo = new Foo(1);");
+}
+
 void tst_AST::incomplete_ast()
 {
     QSharedPointer<TranslationUnit> unit(parseStatement("class A { virtual void a() =\n"));
     AST *ast = unit->ast();
     QVERIFY(ast);
+}
+
+static ClassSpecifierAST *classSpecifierInSimpleDeclaration(SimpleDeclarationAST *simpleDeclaration)
+{
+    Q_ASSERT(simpleDeclaration);
+    SpecifierListAST *specifier = simpleDeclaration->decl_specifier_list;
+    Q_ASSERT(specifier);
+    Q_ASSERT(specifier->value);
+    return specifier->value->asClassSpecifier();
+}
+
+void tst_AST::unnamed_class()
+{
+    QFETCH(QByteArray, source);
+    QVERIFY(!source.isEmpty());
+
+    QSharedPointer<TranslationUnit> unit(parseDeclaration(source));
+    QVERIFY(unit->ast());
+    SimpleDeclarationAST *simpleDeclaration = unit->ast()->asSimpleDeclaration();
+    QVERIFY(simpleDeclaration);
+    ClassSpecifierAST *clazz = classSpecifierInSimpleDeclaration(simpleDeclaration);
+
+    QVERIFY(clazz);
+    QVERIFY(clazz->name);
+    QVERIFY(clazz->name->asAnonymousName());
+
+    QCOMPARE(diag.errorCount, 0);
+}
+
+void tst_AST::unnamed_class_data()
+{
+    QTest::addColumn<QByteArray>("source");
+
+    typedef QByteArray _;
+    QTest::newRow("unnamed-only") << _("class {};");
+    QTest::newRow("unnamed-derived") << _("class : B {};");
+    QTest::newRow("unnamed-__attribute__") << _("class __attribute__((aligned(8))){};");
+}
+
+void tst_AST::expensiveExpression()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+        "void f()\n"
+        "{\n"
+            "(g1\n"
+            "(g2\n"
+            "(g3\n"
+            "(g4\n"
+            "(g5\n"
+            "(g6\n"
+            "(g7\n"
+            "(g8\n"
+            "(g9\n"
+            "(g10\n"
+            "(g11\n"
+            "(g12\n"
+            "(g13\n"
+            "(g14\n"
+            "(g15\n"
+            "(g16\n"
+            "(g17\n"
+            "(g18\n"
+            "(g19\n"
+            "(g20\n"
+            "(g21\n"
+            "(g22\n"
+            "(g23\n"
+            "(g24\n"
+            "(g25\n"
+            "(g26\n"
+            "(g27\n"
+            "(g28\n"
+            "(g29\n"
+            "(g30\n"
+            "(g31(0))))))))))))))))))))))))))))))));\n"
+        "}\n"));
+    QVERIFY(unit->ast());
+}
+
+void tst_AST::invalidCode_data()
+{
+    QTest::addColumn<QByteArray>("source");
+
+    typedef QByteArray _;
+    QTest::newRow("simple") <<
+        _("static inValidLine()\n");
+
+    QTest::newRow("hard") <<
+        _("typedef\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true>,\n"
+          "if_<bool_<true {}\n");
+}
+
+void tst_AST::invalidCode()
+{
+    QFETCH(QByteArray, source);
+
+    source += "\nclass Foo {};\n";
+    const QSharedPointer<TranslationUnit> unit(parse(source, TranslationUnit::ParseTranlationUnit,
+                                                     false, false, true));
+
+    // Check that we find the class coming after the invalid garbage.
+    QVERIFY(unit->ast());
+    TranslationUnitAST *unitAST = unit->ast()->asTranslationUnit();
+    QVERIFY(unitAST->declaration_list);
+    QVERIFY(unitAST->declaration_list->value);
+    SimpleDeclarationAST *simpleDecl = unitAST->declaration_list->value->asSimpleDeclaration();
+    QVERIFY(simpleDecl);
+    QVERIFY(simpleDecl->decl_specifier_list);
+    QVERIFY(simpleDecl->decl_specifier_list->value);
+    ClassSpecifierAST *classSpecifier = simpleDecl->decl_specifier_list->value->asClassSpecifier();
+    QVERIFY(classSpecifier);
+
+    QVERIFY(diag.errorCount != 0);
+}
+
+void tst_AST::enumDeclaration()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+         //Unnamed
+         "enum { ENUMERATOR0 };\n"
+         "enum Enum { ENUMERATOR1 };\n"
+         "enum EnumWithBase : int { ENUMERATOR2 };\n"
+         "enum enum : int { ENUMERATOR2a };\n"
+         "enum class EnumClass { ENUMERATOR3 = 10 };\n", true));
+
+    QVERIFY(unit->ast());
+    QCOMPARE(diag.errorCount, 0);
+}
+
+void tst_AST::invalidEnumClassDeclaration()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+        "enum class operator A { };", true));
+
+    QVERIFY(diag.errorCount != 0);
 }
 
 void tst_AST::initTestCase()

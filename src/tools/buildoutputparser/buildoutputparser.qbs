@@ -1,5 +1,4 @@
 import qbs
-import QtcTool
 
 QtcTool {
     name: "buildoutputparser"
@@ -12,9 +11,10 @@ QtcTool {
         "main.cpp",
         "outputprocessor.cpp", "outputprocessor.h",
     ]
-    cpp.rpaths: base.concat(qbs.targetOS.contains("osx")
-            ? ["@executable_path/../"]
-            : ["$ORIGIN/../" + project.ide_plugin_path + "/QtProject"])
+    Properties {
+        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("darwin")
+        cpp.rpaths: base.concat(["$ORIGIN/../" + project.ide_plugin_path])
+    }
     cpp.defines: base.concat(qbs.targetOS.contains("windows") || project.testsEnabled
                              ? ["HAS_MSVC_PARSER"] : [])
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -39,7 +40,7 @@ using ProjectExplorer::Task;
 #define FILE_PATTERN "^(([A-Za-z]:)?[^:]+\\.[^:]+)"
 
 QtParser::QtParser() :
-    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+)\\)?:\\s([Ww]arning|[Ee]rror):\\s(.+)$")),
+    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+)\\)?:\\s([Ww]arning|[Ee]rror|[Nn]ote):\\s(.+)$")),
     m_translationRegExp(QLatin1String("^([Ww]arning|[Ee]rror):\\s+(.*) in '(.*)'$"))
 {
     setObjectName(QLatin1String("QtParser"));
@@ -56,13 +57,16 @@ void QtParser::stdError(const QString &line)
         if (!ok)
             lineno = -1;
         Task::TaskType type = Task::Error;
-        if (m_mocRegExp.cap(4).compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
+        const QString level = m_mocRegExp.cap(4);
+        if (level.compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
             type = Task::Warning;
+        if (level.compare(QLatin1String("Note"), Qt::CaseInsensitive) == 0)
+            type = Task::Unknown;
         Task task(type, m_mocRegExp.cap(5).trimmed() /* description */,
                   Utils::FileName::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
                   lineno,
                   ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
-        emit addTask(task);
+        emit addTask(task, 1);
         return;
     }
     if (m_translationRegExp.indexIn(lne) > -1) {
@@ -73,7 +77,7 @@ void QtParser::stdError(const QString &line)
                   Utils::FileName::fromUserInput(m_translationRegExp.cap(3)) /* filename */,
                   -1,
                   ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
-        emit addTask(task);
+        emit addTask(task, 1);
         return;
     }
     IOutputParser::stdError(line);
@@ -152,6 +156,15 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
                                                        Utils::FileName::fromUserInput(QLatin1String("c:\\code\\test.h")), 96,
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("moc note")
+            << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>() << Task(Task::Unknown,
+                                                       QLatin1String("No relevant classes found. No output generated."),
+                                                       Utils::FileName::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("ninja with moc")

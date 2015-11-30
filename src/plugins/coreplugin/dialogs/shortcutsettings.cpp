@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -38,163 +39,370 @@
 #include <coreplugin/actionmanager/commandsfile.h>
 
 #include <utils/fancylineedit.h>
+#include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QKeyEvent>
 #include <QFileDialog>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QLineEdit>
 #include <QTreeWidgetItem>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDebug>
 
 Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*)
 
-using namespace Core;
-using namespace Core::Internal;
+static int translateModifiers(Qt::KeyboardModifiers state,
+                                         const QString &text)
+{
+    int result = 0;
+    // The shift modifier only counts when it is not used to type a symbol
+    // that is only reachable using the shift key anyway
+    if ((state & Qt::ShiftModifier) && (text.size() == 0
+                                        || !text.at(0).isPrint()
+                                        || text.at(0).isLetterOrNumber()
+                                        || text.at(0).isSpace()))
+        result |= Qt::SHIFT;
+    if (state & Qt::ControlModifier)
+        result |= Qt::CTRL;
+    if (state & Qt::MetaModifier)
+        result |= Qt::META;
+    if (state & Qt::AltModifier)
+        result |= Qt::ALT;
+    return result;
+}
+
+static QString keySequenceToEditString(const QKeySequence &sequence)
+{
+    QString text = sequence.toString(QKeySequence::PortableText);
+    if (Utils::HostOsInfo::isMacHost()) {
+        // adapt the modifier names
+        text.replace(QLatin1String("Ctrl"), QLatin1String("Cmd"), Qt::CaseInsensitive);
+        text.replace(QLatin1String("Alt"), QLatin1String("Opt"), Qt::CaseInsensitive);
+        text.replace(QLatin1String("Meta"), QLatin1String("Ctrl"), Qt::CaseInsensitive);
+    }
+    return text;
+}
+
+static QKeySequence keySequenceFromEditString(const QString &editString)
+{
+    QString text = editString;
+    if (Utils::HostOsInfo::isMacHost()) {
+        // adapt the modifier names
+        text.replace(QLatin1String("Opt"), QLatin1String("Alt"), Qt::CaseInsensitive);
+        text.replace(QLatin1String("Ctrl"), QLatin1String("Meta"), Qt::CaseInsensitive);
+        text.replace(QLatin1String("Cmd"), QLatin1String("Ctrl"), Qt::CaseInsensitive);
+    }
+    return QKeySequence::fromString(text, QKeySequence::PortableText);
+}
+
+static bool keySequenceIsValid(const QKeySequence &sequence)
+{
+    if (sequence.isEmpty())
+        return false;
+    for (int i = 0; i < sequence.count(); ++i) {
+        if (sequence[i] == Qt::Key_unknown)
+            return false;
+    }
+    return true;
+}
+
+namespace Core {
+namespace Internal {
+
+ShortcutButton::ShortcutButton(QWidget *parent)
+    : QPushButton(parent)
+    , m_key({{ 0, 0, 0, 0 }})
+{
+    setToolTip(tr("Click and type the new key sequence."));
+    setCheckable(true);
+    m_checkedText = tr("Stop Recording");
+    m_uncheckedText = tr("Record");
+    updateText();
+    connect(this, &ShortcutButton::toggled, this, &ShortcutButton::handleToggleChange);
+}
+
+QSize ShortcutButton::sizeHint() const
+{
+    if (m_preferredWidth < 0) { // initialize size hint
+        const QString originalText = text();
+        ShortcutButton *that = const_cast<ShortcutButton *>(this);
+        that->setText(m_checkedText);
+        m_preferredWidth = QPushButton::sizeHint().width();
+        that->setText(m_uncheckedText);
+        int otherWidth = QPushButton::sizeHint().width();
+        if (otherWidth > m_preferredWidth)
+            m_preferredWidth = otherWidth;
+        that->setText(originalText);
+    }
+    return QSize(m_preferredWidth, QPushButton::sizeHint().height());
+}
+
+bool ShortcutButton::eventFilter(QObject *obj, QEvent *evt)
+{
+    if (evt->type() == QEvent::ShortcutOverride) {
+        evt->accept();
+        return true;
+    }
+    if (evt->type() == QEvent::KeyRelease
+               || evt->type() == QEvent::Shortcut
+               || evt->type() == QEvent::Close/*Escape tries to close dialog*/) {
+        return true;
+    }
+    if (evt->type() == QEvent::MouseButtonPress && isChecked()) {
+        setChecked(false);
+        return true;
+    }
+    if (evt->type() == QEvent::KeyPress) {
+        QKeyEvent *k = static_cast<QKeyEvent*>(evt);
+        int nextKey = k->key();
+        if (m_keyNum > 3
+                || nextKey == Qt::Key_Control
+                || nextKey == Qt::Key_Shift
+                || nextKey == Qt::Key_Meta
+                || nextKey == Qt::Key_Alt) {
+             return false;
+        }
+
+        nextKey |= translateModifiers(k->modifiers(), k->text());
+        switch (m_keyNum) {
+        case 0:
+            m_key[0] = nextKey;
+            break;
+        case 1:
+            m_key[1] = nextKey;
+            break;
+        case 2:
+            m_key[2] = nextKey;
+            break;
+        case 3:
+            m_key[3] = nextKey;
+            break;
+        default:
+            break;
+        }
+        m_keyNum++;
+        k->accept();
+        emit keySequenceChanged(QKeySequence(m_key[0], m_key[1], m_key[2], m_key[3]));
+        if (m_keyNum > 3)
+            setChecked(false);
+        return true;
+    }
+    return QPushButton::eventFilter(obj, evt);
+}
+
+void ShortcutButton::updateText()
+{
+    setText(isChecked() ? m_checkedText : m_uncheckedText);
+}
+
+void ShortcutButton::handleToggleChange(bool toogleState)
+{
+    updateText();
+    m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
+    if (toogleState) {
+        if (qApp->focusWidget())
+            qApp->focusWidget()->clearFocus(); // funny things happen otherwise
+        qApp->installEventFilter(this);
+    } else {
+        qApp->removeEventFilter(this);
+    }
+}
+
+ShortcutSettingsWidget::ShortcutSettingsWidget(QWidget *parent)
+    : CommandMappings(parent)
+{
+    setPageTitle(tr("Keyboard Shortcuts"));
+    setTargetHeader(tr("Shortcut"));
+
+    connect(ActionManager::instance(), &ActionManager::commandListChanged,
+            this, &ShortcutSettingsWidget::initialize);
+    connect(this, &ShortcutSettingsWidget::currentCommandChanged,
+            this, &ShortcutSettingsWidget::handleCurrentCommandChanged);
+
+    m_shortcutBox = new QGroupBox(tr("Shortcut"), this);
+    m_shortcutBox->setEnabled(false);
+    auto vboxLayout = new QVBoxLayout(m_shortcutBox);
+    m_shortcutBox->setLayout(vboxLayout);
+    auto hboxLayout = new QHBoxLayout;
+    vboxLayout->addLayout(hboxLayout);
+    m_shortcutEdit = new Utils::FancyLineEdit(m_shortcutBox);
+    m_shortcutEdit->setFiltering(true);
+    m_shortcutEdit->setPlaceholderText(tr("Enter key sequence as text"));
+    m_shortcutEdit->setValidationFunction([this](Utils::FancyLineEdit *, QString *) {
+        return validateShortcutEdit();
+    });
+    auto shortcutLabel = new QLabel(tr("Key sequence:"));
+    shortcutLabel->setToolTip(Utils::HostOsInfo::isMacHost()
+           ? QLatin1String("<html><body>")
+             + tr("Use \"Cmd\", \"Opt\", \"Ctrl\", and \"Shift\" for modifier keys. "
+                  "Use \"Escape\", \"Backspace\", \"Delete\", \"Insert\", \"Home\", and so on, for special keys. "
+                  "Combine individual keys with \"+\", "
+                  "and combine multiple shortcuts to a shortcut sequence with \",\". "
+                  "For example, if the user must hold the Ctrl and Shift modifier keys "
+                  "while pressing Escape, and then release and press A, "
+                  "enter \"Ctrl+Shift+Escape,A\".")
+             + QLatin1String("</body></html>")
+           : QLatin1String("<html><body>")
+             + tr("Use \"Ctrl\", \"Alt\", \"Meta\", and \"Shift\" for modifier keys. "
+                  "Use \"Escape\", \"Backspace\", \"Delete\", \"Insert\", \"Home\", and so on, for special keys. "
+                  "Combine individual keys with \"+\", "
+                  "and combine multiple shortcuts to a shortcut sequence with \",\". "
+                  "For example, if the user must hold the Ctrl and Shift modifier keys "
+                  "while pressing Escape, and then release and press A, "
+                  "enter \"Ctrl+Shift+Escape,A\".")
+             + QLatin1String("</body></html>"));
+    auto shortcutButton = new ShortcutButton(m_shortcutBox);
+    connect(shortcutButton, &ShortcutButton::keySequenceChanged,
+            this, &ShortcutSettingsWidget::setKeySequence);
+    auto resetButton = new QPushButton(tr("Reset"), m_shortcutBox);
+    resetButton->setToolTip(tr("Reset to default."));
+    connect(resetButton, &QPushButton::clicked,
+            this, &ShortcutSettingsWidget::resetToDefault);
+    hboxLayout->addWidget(shortcutLabel);
+    hboxLayout->addWidget(m_shortcutEdit);
+    hboxLayout->addWidget(shortcutButton);
+    hboxLayout->addWidget(resetButton);
+
+    m_warningLabel = new QLabel(m_shortcutBox);
+    m_warningLabel->setTextFormat(Qt::RichText);
+    QPalette palette = m_warningLabel->palette();
+    palette.setColor(QPalette::Active, QPalette::WindowText,
+                     Utils::creatorTheme()->color(Utils::Theme::TextColorError));
+    m_warningLabel->setPalette(palette);
+    connect(m_warningLabel, &QLabel::linkActivated, this, &ShortcutSettingsWidget::showConflicts);
+    vboxLayout->addWidget(m_warningLabel);
+
+    layout()->addWidget(m_shortcutBox);
+
+    initialize();
+}
+
+ShortcutSettingsWidget::~ShortcutSettingsWidget()
+{
+    qDeleteAll(m_scitems);
+}
 
 ShortcutSettings::ShortcutSettings(QObject *parent)
-    : CommandMappings(parent), m_initialized(false)
+    : IOptionsPage(parent)
 {
-    connect(ActionManager::instance(), SIGNAL(commandListChanged()), this, SLOT(initialize()));
-
-    setId(Core::Constants::SETTINGS_ID_SHORTCUTS);
+    setId(Constants::SETTINGS_ID_SHORTCUTS);
     setDisplayName(tr("Keyboard"));
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setCategory(Constants::SETTINGS_CATEGORY_CORE);
+    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 QWidget *ShortcutSettings::widget()
 {
-    m_initialized = true;
-    m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
-
-    QWidget *w = CommandMappings::widget();
-
-    const QString pageTitle = tr("Keyboard Shortcuts");
-    const QString targetLabelText = tr("Key sequence:");
-    const QString editTitle = tr("Shortcut");
-
-    setPageTitle(pageTitle);
-    setTargetLabelText(targetLabelText);
-    setTargetEditTitle(editTitle);
-    setTargetHeader(editTitle);
-    targetEdit()->setPlaceholderText(tr("Type to set shortcut"));
-
-    return w;
+    if (!m_widget)
+        m_widget = new ShortcutSettingsWidget();
+    return m_widget;
 }
 
-void ShortcutSettings::apply()
+void ShortcutSettingsWidget::apply()
 {
     foreach (ShortcutItem *item, m_scitems)
         item->m_cmd->setKeySequence(item->m_key);
 }
 
+void ShortcutSettings::apply()
+{
+    QTC_ASSERT(m_widget, return);
+    m_widget->apply();
+}
+
 void ShortcutSettings::finish()
 {
-    qDeleteAll(m_scitems);
-    m_scitems.clear();
-
-    CommandMappings::finish();
-    m_initialized = false;
+    delete m_widget;
 }
 
-bool ShortcutSettings::eventFilter(QObject *o, QEvent *e)
+void ShortcutSettingsWidget::handleCurrentCommandChanged(QTreeWidgetItem *current)
 {
-    Q_UNUSED(o)
-
-    if ( e->type() == QEvent::KeyPress ) {
-        QKeyEvent *k = static_cast<QKeyEvent*>(e);
-        handleKeyEvent(k);
-        return true;
-    }
-
-    if ( e->type() == QEvent::Shortcut ||
-         e->type() == QEvent::KeyRelease ) {
-        return true;
-    }
-
-    if (e->type() == QEvent::ShortcutOverride) {
-        // for shortcut overrides, we need to accept as well
-        e->accept();
-        return true;
-    }
-
-    return false;
-}
-
-void ShortcutSettings::commandChanged(QTreeWidgetItem *current)
-{
-    CommandMappings::commandChanged(current);
-    if (!current || !current->data(0, Qt::UserRole).isValid())
+    if (!current || !current->data(0, Qt::UserRole).isValid()) {
+        m_shortcutEdit->clear();
+        m_warningLabel->clear();
+        m_shortcutBox->setEnabled(false);
         return;
-    ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
-    setKeySequence(scitem->m_key);
-    markCollisions(scitem);
+    } else {
+        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
+        setKeySequence(scitem->m_key);
+        markCollisions(scitem);
+        m_shortcutBox->setEnabled(true);
+    }
 }
 
-void ShortcutSettings::targetIdentifierChanged()
+bool ShortcutSettingsWidget::validateShortcutEdit() const
+{
+    m_warningLabel->clear();
+    QTreeWidgetItem *current = commandList()->currentItem();
+    if (!current || !current->data(0, Qt::UserRole).isValid())
+        return true;
+
+    ShortcutItem *item = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
+    QTC_ASSERT(item, return true);
+
+    bool valid = false;
+
+    const QString text = m_shortcutEdit->text().trimmed();
+    const QKeySequence currentKey = keySequenceFromEditString(text);
+
+    if (keySequenceIsValid(currentKey) || text.isEmpty()) {
+        item->m_key = currentKey;
+        auto that = const_cast<ShortcutSettingsWidget *>(this);
+        if (item->m_cmd->defaultKeySequence() != item->m_key)
+            that->setModified(current, true);
+        else
+            that->setModified(current, false);
+        current->setText(2, item->m_key.toString(QKeySequence::NativeText));
+        valid = !that->markCollisions(item);
+        if (!valid) {
+            m_warningLabel->setText(
+                        tr("Key sequence has potential conflicts. <a href=\"#conflicts\">Show.</a>"));
+        }
+    } else {
+        m_warningLabel->setText(tr("Invalid key sequence."));
+    }
+    return valid;
+}
+
+bool ShortcutSettingsWidget::filterColumn(const QString &filterString, QTreeWidgetItem *item,
+                                          int column) const
+{
+    QString text;
+    if (column == item->columnCount() - 1) { // shortcut
+        // filter on the shortcut edit text
+        if (!item->data(0, Qt::UserRole).isValid())
+            return true;
+        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(item->data(0, Qt::UserRole));
+        text = keySequenceToEditString(scitem->m_key);
+    } else if (column == 0 && item->data(0, Qt::UserRole).isValid()) { // command id
+        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(item->data(0, Qt::UserRole));
+        text = scitem->m_cmd->id().toString();
+    } else {
+        text = item->text(column);
+    }
+    return !text.contains(filterString, Qt::CaseInsensitive);
+}
+
+void ShortcutSettingsWidget::setKeySequence(const QKeySequence &key)
+{
+    m_shortcutEdit->setText(keySequenceToEditString(key));
+}
+
+void ShortcutSettingsWidget::showConflicts()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
     if (current && current->data(0, Qt::UserRole).isValid()) {
         ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
-        scitem->m_key = QKeySequence(m_key[0], m_key[1], m_key[2], m_key[3]);
-        if (scitem->m_cmd->defaultKeySequence() != scitem->m_key)
-            setModified(current, true);
-        else
-            setModified(current, false);
-        current->setText(2, scitem->m_key.toString(QKeySequence::NativeText));
-        markCollisions(scitem);
+        setFilterText(keySequenceToEditString(scitem->m_key));
     }
 }
 
-bool ShortcutSettings::hasConflicts() const
-{
-    QTreeWidgetItem *current = commandList()->currentItem();
-    if (!current || !current->data(0, Qt::UserRole).isValid())
-        return false;
-
-    ShortcutItem *item = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
-    if (!item)
-        return false;
-
-    const QKeySequence currentKey = QKeySequence::fromString(targetEdit()->text(), QKeySequence::NativeText);
-    if (currentKey.isEmpty())
-        return false;
-
-    const Id globalId(Constants::C_GLOBAL);
-    const Context itemContext = item->m_cmd->context();
-
-    foreach (ShortcutItem *listItem, m_scitems) {
-        if (item == listItem)
-            continue;
-        if (listItem->m_key.isEmpty())
-            continue;
-        if (listItem->m_key.matches(currentKey) == QKeySequence::NoMatch)
-            continue;
-
-        const Context listContext = listItem->m_cmd->context();
-        if (itemContext.contains(globalId) && !listContext.isEmpty())
-            return true;
-        if (listContext.contains(globalId) && !itemContext.isEmpty())
-            return true;
-        foreach (Id id, listContext)
-            if (itemContext.contains(id))
-                return true;
-    }
-    return false;
-}
-
-void ShortcutSettings::setKeySequence(const QKeySequence &key)
-{
-    m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
-    m_keyNum = key.count();
-    for (int i = 0; i < m_keyNum; ++i) {
-        m_key[i] = key[i];
-    }
-    targetEdit()->setText(key.toString(QKeySequence::NativeText));
-}
-
-void ShortcutSettings::resetTargetIdentifier()
+void ShortcutSettingsWidget::resetToDefault()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
     if (current && current->data(0, Qt::UserRole).isValid()) {
@@ -205,18 +413,9 @@ void ShortcutSettings::resetTargetIdentifier()
     }
 }
 
-void ShortcutSettings::removeTargetIdentifier()
+void ShortcutSettingsWidget::importAction()
 {
-    m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
-    targetEdit()->clear();
-
-    foreach (ShortcutItem *item, m_scitems)
-        markCollisions(item);
-}
-
-void ShortcutSettings::importAction()
-{
-    QString fileName = QFileDialog::getOpenFileName(widget(), tr("Import Keyboard Mapping Scheme"),
+    QString fileName = QFileDialog::getOpenFileName(ICore::dialogParent(), tr("Import Keyboard Mapping Scheme"),
         ICore::resourcePath() + QLatin1String("/schemes/"),
         tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
@@ -230,7 +429,7 @@ void ShortcutSettings::importAction()
                 item->m_key = mapping.value(sid);
                 item->m_item->setText(2, item->m_key.toString(QKeySequence::NativeText));
                 if (item->m_item == commandList()->currentItem())
-                    commandChanged(item->m_item);
+                    currentCommandChanged(item->m_item);
 
                 if (item->m_cmd->defaultKeySequence() != item->m_key)
                     setModified(item->m_item, true);
@@ -244,21 +443,21 @@ void ShortcutSettings::importAction()
     }
 }
 
-void ShortcutSettings::defaultAction()
+void ShortcutSettingsWidget::defaultAction()
 {
     foreach (ShortcutItem *item, m_scitems) {
         item->m_key = item->m_cmd->defaultKeySequence();
         item->m_item->setText(2, item->m_key.toString(QKeySequence::NativeText));
         setModified(item->m_item, false);
         if (item->m_item == commandList()->currentItem())
-            commandChanged(item->m_item);
+            currentCommandChanged(item->m_item);
     }
 
     foreach (ShortcutItem *item, m_scitems)
         markCollisions(item);
 }
 
-void ShortcutSettings::exportAction()
+void ShortcutSettingsWidget::exportAction()
 {
     QString fileName = DocumentManager::getSaveFileNameWithExtension(
         tr("Export Keyboard Mapping Scheme"),
@@ -270,7 +469,7 @@ void ShortcutSettings::exportAction()
     }
 }
 
-void ShortcutSettings::clear()
+void ShortcutSettingsWidget::clear()
 {
     QTreeWidget *tree = commandList();
     for (int i = tree->topLevelItemCount()-1; i >= 0 ; --i) {
@@ -280,10 +479,8 @@ void ShortcutSettings::clear()
     m_scitems.clear();
 }
 
-void ShortcutSettings::initialize()
+void ShortcutSettingsWidget::initialize()
 {
-    if (!m_initialized)
-        return;
     clear();
     QMap<QString, QTreeWidgetItem *> sections;
 
@@ -328,85 +525,40 @@ void ShortcutSettings::initialize()
     filterChanged(filterText());
 }
 
-void ShortcutSettings::handleKeyEvent(QKeyEvent *e)
-{
-    int nextKey = e->key();
-    if ( m_keyNum > 3 ||
-         nextKey == Qt::Key_Control ||
-         nextKey == Qt::Key_Shift ||
-         nextKey == Qt::Key_Meta ||
-         nextKey == Qt::Key_Alt )
-         return;
-
-    nextKey |= translateModifiers(e->modifiers(), e->text());
-    switch (m_keyNum) {
-        case 0:
-            m_key[0] = nextKey;
-            break;
-        case 1:
-            m_key[1] = nextKey;
-            break;
-        case 2:
-            m_key[2] = nextKey;
-            break;
-        case 3:
-            m_key[3] = nextKey;
-            break;
-        default:
-            break;
-    }
-    m_keyNum++;
-    QKeySequence ks(m_key[0], m_key[1], m_key[2], m_key[3]);
-    targetEdit()->setText(ks.toString(QKeySequence::NativeText));
-    e->accept();
-}
-
-int ShortcutSettings::translateModifiers(Qt::KeyboardModifiers state,
-                                         const QString &text)
-{
-    int result = 0;
-    // The shift modifier only counts when it is not used to type a symbol
-    // that is only reachable using the shift key anyway
-    if ((state & Qt::ShiftModifier) && (text.size() == 0
-                                        || !text.at(0).isPrint()
-                                        || text.at(0).isLetterOrNumber()
-                                        || text.at(0).isSpace()))
-        result |= Qt::SHIFT;
-    if (state & Qt::ControlModifier)
-        result |= Qt::CTRL;
-    if (state & Qt::MetaModifier)
-        result |= Qt::META;
-    if (state & Qt::AltModifier)
-        result |= Qt::ALT;
-    return result;
-}
-
-void ShortcutSettings::markCollisions(ShortcutItem *item)
+bool ShortcutSettingsWidget::markCollisions(ShortcutItem *item)
 {
     bool hasCollision = false;
     if (!item->m_key.isEmpty()) {
-        Id globalId = Context(Constants::C_GLOBAL).at(0);
+        Id globalId(Constants::C_GLOBAL);
         const Context itemContext = item->m_cmd->context();
-
+        const bool itemHasGlobalContext = itemContext.contains(globalId);
         foreach (ShortcutItem *currentItem, m_scitems) {
-
             if (currentItem->m_key.isEmpty() || item == currentItem
                     || item->m_key != currentItem->m_key)
                 continue;
-
-            foreach (Id id, currentItem->m_cmd->context()) {
-                // conflict if context is identical, OR if one
-                // of the contexts is the global context
-                const Context thisContext = currentItem->m_cmd->context();
-                if (itemContext.contains(id)
-                        || (itemContext.contains(globalId) && !thisContext.isEmpty())
-                        || (thisContext.contains(globalId) && !itemContext.isEmpty())) {
-                    currentItem->m_item->setForeground(2, Qt::red);
-                    hasCollision = true;
+            const Context currentContext = currentItem->m_cmd->context();
+            bool currentIsConflicting = (itemHasGlobalContext && !currentContext.isEmpty());
+            if (!currentIsConflicting) {
+                foreach (const Id &id, currentContext) {
+                    if ((id == globalId && !itemContext.isEmpty())
+                            || itemContext.contains(id)) {
+                        currentIsConflicting = true;
+                        break;
+                    }
                 }
+            }
+            if (currentIsConflicting) {
+                currentItem->m_item->setForeground(
+                            2, Utils::creatorTheme()->color(Utils::Theme::TextColorError));
+                hasCollision = true;
             }
         }
     }
-    item->m_item->setForeground(2, hasCollision ? Qt::red : commandList()->palette().foreground());
+    item->m_item->setForeground(2, hasCollision
+                                ? Utils::creatorTheme()->color(Utils::Theme::TextColorError)
+                                : commandList()->palette().foreground());
+    return hasCollision;
 }
 
+} // namespace Internal
+} // namespace Core

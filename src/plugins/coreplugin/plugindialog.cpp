@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,6 +36,8 @@
 #include <extensionsystem/pluginerrorview.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <utils/fancylineedit.h>
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDialog>
@@ -43,15 +46,23 @@
 #include <QLabel>
 #include <QDebug>
 
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
 
-bool PluginDialog::m_isRestartRequired = false;
+static bool s_isRestartRequired = false;
 
 PluginDialog::PluginDialog(QWidget *parent)
     : QDialog(parent),
       m_view(new ExtensionSystem::PluginView(this))
 {
     QVBoxLayout *vl = new QVBoxLayout(this);
+
+    auto filterEdit = new Utils::FancyLineEdit(this);
+    filterEdit->setFiltering(true);
+    connect(filterEdit, &Utils::FancyLineEdit::filterChanged,
+            m_view, &ExtensionSystem::PluginView::setFilter);
+    vl->addWidget(filterEdit);
+
     vl->addWidget(m_view);
 
     m_detailsButton = new QPushButton(tr("Details"), this);
@@ -63,7 +74,7 @@ PluginDialog::PluginDialog(QWidget *parent)
     m_closeButton->setDefault(true);
 
     m_restartRequired = new QLabel(tr("Restart required."), this);
-    if (!m_isRestartRequired)
+    if (!s_isRestartRequired)
         m_restartRequired->setVisible(false);
 
     QHBoxLayout *hl = new QHBoxLayout;
@@ -76,19 +87,21 @@ PluginDialog::PluginDialog(QWidget *parent)
 
     vl->addLayout(hl);
 
-
     resize(650, 400);
     setWindowTitle(tr("Installed Plugins"));
 
-    connect(m_view, SIGNAL(currentPluginChanged(ExtensionSystem::PluginSpec*)),
-            this, SLOT(updateButtons()));
-    connect(m_view, SIGNAL(pluginActivated(ExtensionSystem::PluginSpec*)),
-            this, SLOT(openDetails(ExtensionSystem::PluginSpec*)));
-    connect(m_view, SIGNAL(pluginSettingsChanged(ExtensionSystem::PluginSpec*)),
-            this, SLOT(updateRestartRequired()));
-    connect(m_detailsButton, SIGNAL(clicked()), this, SLOT(openDetails()));
-    connect(m_errorDetailsButton, SIGNAL(clicked()), this, SLOT(openErrorDetails()));
-    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeDialog()));
+    connect(m_view, &ExtensionSystem::PluginView::currentPluginChanged,
+            this, &PluginDialog::updateButtons);
+    connect(m_view, &ExtensionSystem::PluginView::pluginActivated,
+            this, &PluginDialog::openDetails);
+    connect(m_view, &ExtensionSystem::PluginView::pluginSettingsChanged,
+            this, &PluginDialog::updateRestartRequired);
+    connect(m_detailsButton, &QAbstractButton::clicked,
+            [this]  { openDetails(m_view->currentPlugin()); });
+    connect(m_errorDetailsButton, &QAbstractButton::clicked,
+            this, &PluginDialog::openErrorDetails);
+    connect(m_closeButton, &QAbstractButton::clicked,
+            this, &PluginDialog::closeDialog);
     updateButtons();
 }
 
@@ -101,7 +114,7 @@ void PluginDialog::closeDialog()
 void PluginDialog::updateRestartRequired()
 {
     // just display the notice all the time after once changing something
-    m_isRestartRequired = true;
+    s_isRestartRequired = true;
     m_restartRequired->setVisible(true);
 }
 
@@ -117,12 +130,6 @@ void PluginDialog::updateButtons()
     }
 }
 
-
-void PluginDialog::openDetails()
-{
-    openDetails(m_view->currentPlugin());
-}
-
 void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
 {
     if (!spec)
@@ -136,8 +143,8 @@ void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
     details->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);
     layout->addWidget(buttons);
-    connect(buttons, SIGNAL(accepted()), &dialog, SLOT(accept()));
-    connect(buttons, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     dialog.resize(400, 500);
     dialog.exec();
 }
@@ -156,9 +163,11 @@ void PluginDialog::openErrorDetails()
     errors->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);
     layout->addWidget(buttons);
-    connect(buttons, SIGNAL(accepted()), &dialog, SLOT(accept()));
-    connect(buttons, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     dialog.resize(500, 300);
     dialog.exec();
 }
 
+} // namespace Internal
+} // namespace Core

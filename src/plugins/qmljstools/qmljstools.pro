@@ -56,9 +56,6 @@ SOURCES += \
 RESOURCES += \
     qmljstools.qrc
 
-OTHER_FILES += \
-    QmlJSTools.mimetypes.xml
-
 FORMS += \
     $$PWD/qmljscodestylesettingspage.ui
 

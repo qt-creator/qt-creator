@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,15 +36,15 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/mimedatabase.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <utils/environment.h>
+#include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QSettings>
 #include <QDebug>
 #include <QFile>
-#include <QFileInfo>
 #include <QCoreApplication>
 #include <QDate>
 #include <QLocale>
@@ -117,8 +118,17 @@ void CppFileSettings::fromSettings(QSettings *s)
 
 bool CppFileSettings::applySuffixesToMimeDB()
 {
-    return Core::MimeDatabase::setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE), sourceSuffix)
-            && Core::MimeDatabase::setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE), headerSuffix);
+    Utils::MimeDatabase mdb;
+    Utils::MimeType mt;
+    mt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE));
+    if (!mt.isValid())
+        return false;
+    mt.setPreferredSuffix(sourceSuffix);
+    mt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE));
+    if (!mt.isValid())
+        return false;
+    mt.setPreferredSuffix(headerSuffix);
+    return true;
 }
 
 bool CppFileSettings::equals(const CppFileSettings &rhs) const
@@ -135,28 +145,26 @@ bool CppFileSettings::equals(const CppFileSettings &rhs) const
 
 // Replacements of special license template keywords.
 static bool keyWordReplacement(const QString &keyWord,
-                               const QString &file,
-                               const QString &className,
                                QString *value)
 {
     if (keyWord == QLatin1String("%YEAR%")) {
-        *value = QString::number(QDate::currentDate().year());
+        *value = QLatin1String("%{CurrentDate:yyyy}");
         return true;
     }
     if (keyWord == QLatin1String("%MONTH%")) {
-        *value = QString::number(QDate::currentDate().month());
+        *value = QLatin1String("%{CurrentDate:M}");
         return true;
     }
     if (keyWord == QLatin1String("%DAY%")) {
-        *value = QString::number(QDate::currentDate().day());
+        *value = QLatin1String("%{CurrentDate:d}");
         return true;
     }
     if (keyWord == QLatin1String("%CLASS%")) {
-        *value = className;
+        *value = QLatin1String("%{Cpp:License:ClassName}");
         return true;
     }
     if (keyWord == QLatin1String("%FILENAME%")) {
-        *value = QFileInfo(file).fileName();
+        *value = QLatin1String("%{Cpp:License:FileName}");
         return true;
     }
     if (keyWord == QLatin1String("%DATE%")) {
@@ -169,17 +177,17 @@ static bool keyWordReplacement(const QString &keyWord,
             if (format.count(ypsilon) == 2)
                 format.insert(format.indexOf(ypsilon), QString(2, ypsilon));
         }
-        *value = QDate::currentDate().toString(format);
+        *value = QString::fromLatin1("%{CurrentDate:") + format + QLatin1Char('}');
         return true;
     }
     if (keyWord == QLatin1String("%USER%")) {
-        *value = Utils::Environment::systemEnvironment().userName();
+        *value = QLatin1String("%{Env:USER}");
         return true;
     }
     // Environment variables (for example '%$EMAIL%').
     if (keyWord.startsWith(QLatin1String("%$"))) {
         const QString varName = keyWord.mid(2, keyWord.size() - 3);
-        *value = QString::fromLocal8Bit(qgetenv(varName.toLocal8Bit()));
+        *value = QString::fromLatin1("%{Env:") + varName + QLatin1Char('}');
         return true;
     }
     return false;
@@ -187,10 +195,11 @@ static bool keyWordReplacement(const QString &keyWord,
 
 // Parse a license template, scan for %KEYWORD% and replace if known.
 // Replace '%%' by '%'.
-static void parseLicenseTemplatePlaceholders(QString *t, const QString &file, const QString &className)
+static void parseLicenseTemplatePlaceholders(QString *t)
 {
     int pos = 0;
     const QChar placeHolder = QLatin1Char('%');
+    bool isCompatibilityStyle = false;
     do {
         const int placeHolderPos = t->indexOf(placeHolder, pos);
         if (placeHolderPos == -1)
@@ -204,7 +213,8 @@ static void parseLicenseTemplatePlaceholders(QString *t, const QString &file, co
         } else {
             const QString keyWord = t->mid(placeHolderPos, endPlaceHolderPos + 1 - placeHolderPos);
             QString replacement;
-            if (keyWordReplacement(keyWord, file, className, &replacement)) {
+            if (keyWordReplacement(keyWord, &replacement)) {
+                isCompatibilityStyle = true;
                 t->replace(placeHolderPos, keyWord.size(), replacement);
                 pos = placeHolderPos + replacement.size();
             } else {
@@ -213,12 +223,14 @@ static void parseLicenseTemplatePlaceholders(QString *t, const QString &file, co
             }
         }
     } while (pos < t->size());
+
+    if (isCompatibilityStyle)
+        t->replace(QLatin1Char('\\'), QLatin1String("\\\\"));
 }
 
 // Convenience that returns the formatted license template.
-QString CppFileSettings::licenseTemplate(const QString &fileName, const QString &className)
+QString CppFileSettings::licenseTemplate()
 {
-
     const QSettings *s = Core::ICore::settings();
     QString key = QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP);
     key += QLatin1Char('/');
@@ -237,12 +249,13 @@ QString CppFileSettings::licenseTemplate(const QString &fileName, const QString 
     licenseStream.setAutoDetectUnicode(true);
     QString license = licenseStream.readAll();
 
-    parseLicenseTemplatePlaceholders(&license, fileName, className);
-    // Ensure exactly one additional new line separating stuff
+    parseLicenseTemplatePlaceholders(&license);
+
+    // Ensure at least one newline at the end of the license template to separate it from the code
     const QChar newLine = QLatin1Char('\n');
     if (!license.endsWith(newLine))
         license += newLine;
-    license += newLine;
+
     return license;
 }
 
@@ -254,16 +267,21 @@ CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
 {
     m_ui->setupUi(this);
     // populate suffix combos
-    if (const Core::MimeType sourceMt = Core::MimeDatabase::findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)))
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType sourceMt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE));
+    if (sourceMt.isValid()) {
         foreach (const QString &suffix, sourceMt.suffixes())
             m_ui->sourceSuffixComboBox->addItem(suffix);
+    }
 
-    if (const Core::MimeType headerMt = Core::MimeDatabase::findByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)))
+    const Utils::MimeType headerMt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE));
+    if (headerMt.isValid()) {
         foreach (const QString &suffix, headerMt.suffixes())
             m_ui->headerSuffixComboBox->addItem(suffix);
+    }
     m_ui->licenseTemplatePathChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui->licenseTemplatePathChooser->setHistoryCompleter(QLatin1String("Cpp.LicenseTemplate.History"));
-    m_ui->licenseTemplatePathChooser->addButton(tr("Edit..."), this, SLOT(slotEdit()));
+    m_ui->licenseTemplatePathChooser->addButton(tr("Edit..."), this, [this] { slotEdit(); });
 }
 
 CppFileSettingsWidget::~CppFileSettingsWidget()
@@ -311,13 +329,14 @@ static inline void setComboText(QComboBox *cb, const QString &text, int defaultI
 
 void CppFileSettingsWidget::setSettings(const CppFileSettings &s)
 {
+    const QChar comma = QLatin1Char(',');
     m_ui->lowerCaseFileNamesCheckBox->setChecked(s.lowerCaseFiles);
-    m_ui->headerPrefixesEdit->setText(s.headerPrefixes.join(QLatin1String(",")));
-    m_ui->sourcePrefixesEdit->setText(s.sourcePrefixes.join(QLatin1String(",")));
+    m_ui->headerPrefixesEdit->setText(s.headerPrefixes.join(comma));
+    m_ui->sourcePrefixesEdit->setText(s.sourcePrefixes.join(comma));
     setComboText(m_ui->headerSuffixComboBox, s.headerSuffix);
     setComboText(m_ui->sourceSuffixComboBox, s.sourceSuffix);
-    m_ui->headerSearchPathsEdit->setText(s.headerSearchPaths.join(QLatin1String(",")));
-    m_ui->sourceSearchPathsEdit->setText(s.sourceSearchPaths.join(QLatin1String(",")));
+    m_ui->headerSearchPathsEdit->setText(s.headerSearchPaths.join(comma));
+    m_ui->sourceSearchPathsEdit->setText(s.sourceSearchPaths.join(comma));
     setLicenseTemplatePath(s.licenseTemplatePath);
 }
 

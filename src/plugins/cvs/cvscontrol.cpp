@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,29 +9,36 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "cvscontrol.h"
+
+#include "cvsclient.h"
 #include "cvsplugin.h"
 #include "cvssettings.h"
 
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcscommand.h>
+
+#include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
 
@@ -55,10 +62,10 @@ Core::Id CvsControl::id() const
 
 bool CvsControl::isConfigured() const
 {
-    const QString binary = m_plugin->settings().binaryPath();
+    const Utils::FileName binary = m_plugin->client()->vcsBinary();
     if (binary.isEmpty())
         return false;
-    QFileInfo fi(binary);
+    QFileInfo fi = binary.toFileInfo();
     return fi.exists() && fi.isFile() && fi.isExecutable();
 }
 
@@ -69,12 +76,11 @@ bool CvsControl::supportsOperation(Operation operation) const
     case AddOperation:
     case DeleteOperation:
     case AnnotateOperation:
+    case InitialCheckoutOperation:
         break;
     case MoveOperation:
     case CreateRepositoryOperation:
     case SnapshotOperations:
-    case CheckoutOperation:
-    case GetRepositoryRootOperation:
         rc = false;
         break;
     }
@@ -117,16 +123,6 @@ bool CvsControl::vcsCreateRepository(const QString &)
     return false;
 }
 
-QString CvsControl::vcsGetRepositoryURL(const QString &)
-{
-    return QString();
-}
-
-bool CvsControl::vcsCheckout(const QString &, const QByteArray &)
-{
-    return false;
-}
-
 bool CvsControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
@@ -137,6 +133,25 @@ bool CvsControl::vcsAnnotate(const QString &file, int line)
 QString CvsControl::vcsOpenText() const
 {
     return tr("&Edit");
+}
+
+Core::ShellCommand *CvsControl::createInitialCheckoutCommand(const QString &url,
+                                                             const Utils::FileName &baseDirectory,
+                                                             const QString &localName,
+                                                             const QStringList &extraArgs)
+{
+    QTC_ASSERT(localName == url, return 0);
+
+    const CvsSettings settings = CvsPlugin::instance()->client()->settings();
+
+    QStringList args;
+    args << QLatin1String("checkout") << url << extraArgs;
+
+    auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
+                                           QProcessEnvironment::systemEnvironment());
+    command->setDisplayName(tr("CVS Checkout"));
+    command->addJob(m_plugin->client()->vcsBinary(), settings.addOptions(args), -1);
+    return command;
 }
 
 bool CvsControl::managesDirectory(const QString &directory, QString *topLevel) const
@@ -157,9 +172,4 @@ void CvsControl::emitRepositoryChanged(const QString &s)
 void CvsControl::emitFilesChanged(const QStringList &l)
 {
     emit filesChanged(l);
-}
-
-void CvsControl::emitConfigurationChanged()
-{
-    emit configurationChanged();
 }

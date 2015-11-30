@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,30 +9,34 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "disassemblerlines.h"
+#include "debuggerengine.h"
 #include "debuggerstringutils.h"
+#include "sourceutils.h"
 
 #include <QDebug>
-#include <QRegExp>
 #include <QFile>
+#include <QRegExp>
+#include <QTextStream>
 
 namespace Debugger {
 namespace Internal {
@@ -68,13 +72,6 @@ void DisassemblerLine::fromString(const QString &unparsed)
         data = unparsed.mid(pos + 1);
     else
         data = unparsed;
-}
-
-quint64 DisassemblerLine::addressFromDisassemblyLine(const QString &line)
-{
-    DisassemblerLine l;
-    l.fromString(line);
-    return l.address;
 }
 
 quint64 DisassemblerLines::startAddress() const
@@ -170,17 +167,22 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
         line = line.mid(3);
     if (line.startsWith(QLatin1String("0x"))) {
         // Address line. Split at the tab.
-        int tab = line.indexOf(QLatin1Char('\t'));
-        if (tab == -1) {
+        int tab1 = line.indexOf(QLatin1Char('\t'));
+        if (tab1 == -1) {
             appendComment(line);
             return;
         }
-        QString address = line.left(tab);
+        int tab2 = line.indexOf(QLatin1Char('\t'), tab1 + 1);
+        if (tab2 == -1)
+            tab2 = tab1;
+        QString address = line.left(tab1);
         if (address.endsWith(QLatin1Char(':')))
             address.chop(1);
         int pos1 = address.indexOf(QLatin1Char('<')) + 1;
         DisassemblerLine dl;
-        dl.data = line.mid(tab).trimmed();
+        dl.bytes = line.mid(tab1, tab2 - tab1).trimmed();
+        m_bytesLength = qMax(m_bytesLength, tab2 - tab1);
+        dl.data = line.mid(tab2).trimmed();
         if (pos1 && address.indexOf(QLatin1String("<UNDEFINED> instruction:")) == -1) {
             if (address.endsWith(QLatin1Char('>')))
                 address.chop(1);
@@ -206,14 +208,16 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
         m_rowCache[dl.address] = m_data.size() + 1;
         m_data.append(dl);
     } else {
-        // Comment line.
+        // Comment or code line.
+        QTextStream ts(&line);
         DisassemblerLine dl;
-        dl.data = line;
+        ts >> dl.lineNumber;
+        dl.data = line.mid(ts.pos());
         m_data.append(dl);
     }
 }
 
-QString DisassemblerLine::toString() const
+QString DisassemblerLine::toString(int maxOp) const
 {
     const QString someSpace = _("        ");
     QString str;
@@ -224,14 +228,30 @@ QString DisassemblerLine::toString() const
             str += _("<+0x%2> ").arg(offset, 4, 16, QLatin1Char('0'));
         else
             str += _("          ");
-        str += _("        ");
+        str += _("       %1 ").arg(bytes);
+        str += QString(maxOp - bytes.size(), QLatin1Char(' '));
         str += data;
     } else if (isCode()) {
         str += someSpace;
+        str += QString::number(lineNumber);
+        if (hunk)
+            str += _(" [%1]").arg(hunk);
+        else
+            str += _("    ");
         str += data;
     } else {
         str += someSpace;
         str += data;
+    }
+    return str;
+}
+
+QString DisassemblerLines::toString() const
+{
+    QString str;
+    for (int i = 0, n = size(); i != n; ++i) {
+        str += m_data.at(i).toString(m_bytesLength);
+        str += QLatin1Char('\n');
     }
     return str;
 }

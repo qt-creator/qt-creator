@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "Bazaar"
@@ -15,7 +13,6 @@ QtcPlugin {
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
-        "bazaar.qrc",
         "bazaarclient.cpp",
         "bazaarclient.h",
         "bazaarcommitpanel.ui",
@@ -31,13 +28,6 @@ QtcPlugin {
         "bazaarsettings.h",
         "branchinfo.cpp",
         "branchinfo.h",
-        "cloneoptionspanel.cpp",
-        "cloneoptionspanel.h",
-        "cloneoptionspanel.ui",
-        "clonewizard.cpp",
-        "clonewizard.h",
-        "clonewizardpage.cpp",
-        "clonewizardpage.h",
         "commiteditor.cpp",
         "commiteditor.h",
         "constants.h",
@@ -51,7 +41,6 @@ QtcPlugin {
         "uncommitdialog.cpp",
         "uncommitdialog.h",
         "uncommitdialog.ui",
-        "images/bazaar.png",
     ]
 }
 

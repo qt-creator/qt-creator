@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -123,20 +124,20 @@ void SynchronousProcessResponse::clear()
     stdErr.clear();
 }
 
-QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeoutMS) const
+QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeoutS) const
 {
     switch (result) {
     case Finished:
-        return SynchronousProcess::tr("The command '%1' finished successfully.").arg(QDir::toNativeSeparators(binary));
+        return SynchronousProcess::tr("The command \"%1\" finished successfully.").arg(QDir::toNativeSeparators(binary));
     case FinishedError:
-        return SynchronousProcess::tr("The command '%1' terminated with exit code %2.").arg(QDir::toNativeSeparators(binary)).arg(exitCode);
+        return SynchronousProcess::tr("The command \"%1\" terminated with exit code %2.").arg(QDir::toNativeSeparators(binary)).arg(exitCode);
     case TerminatedAbnormally:
-        return SynchronousProcess::tr("The command '%1' terminated abnormally.").arg(QDir::toNativeSeparators(binary));
+        return SynchronousProcess::tr("The command \"%1\" terminated abnormally.").arg(QDir::toNativeSeparators(binary));
     case StartFailed:
-        return SynchronousProcess::tr("The command '%1' could not be started.").arg(QDir::toNativeSeparators(binary));
+        return SynchronousProcess::tr("The command \"%1\" could not be started.").arg(QDir::toNativeSeparators(binary));
     case Hang:
-        return SynchronousProcess::tr("The command '%1' did not respond within the timeout limit (%2 ms).").
-                arg(QDir::toNativeSeparators(binary)).arg(timeoutMS);
+        return SynchronousProcess::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
+                .arg(QDir::toNativeSeparators(binary)).arg(timeoutS);
     }
     return QString();
 }
@@ -188,7 +189,8 @@ void ChannelBuffer::clearForRun()
 QString ChannelBuffer::linesRead()
 {
     // Any new lines?
-    const int lastLineIndex = data.lastIndexOf(QLatin1Char('\n'));
+    const int lastLineIndex = qMax(data.lastIndexOf(QLatin1Char('\n')),
+                                   data.lastIndexOf(QLatin1Char('\r')));
     if (lastLineIndex == -1 || lastLineIndex <= bufferPos)
         return QString();
     const int nextBufferPos = lastLineIndex + 1;
@@ -247,13 +249,16 @@ SynchronousProcess::SynchronousProcess() :
     d(new SynchronousProcessPrivate)
 {
     d->m_timer.setInterval(1000);
-    connect(&d->m_timer, SIGNAL(timeout()), this, SLOT(slotTimeout()));
-    connect(&d->m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
-    connect(&d->m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
-    connect(&d->m_process, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(stdOutReady()));
-    connect(&d->m_process, SIGNAL(readyReadStandardError()),
-            this, SLOT(stdErrReady()));
+    connect(&d->m_timer, &QTimer::timeout, this, &SynchronousProcess::slotTimeout);
+    connect(&d->m_process,
+            static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            this, &SynchronousProcess::finished);
+    connect(&d->m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &SynchronousProcess::error);
+    connect(&d->m_process, &QProcess::readyReadStandardOutput,
+            this, &SynchronousProcess::stdOutReady);
+    connect(&d->m_process, &QProcess::readyReadStandardError,
+            this, &SynchronousProcess::stdErrReady);
 }
 
 SynchronousProcess::~SynchronousProcess()
@@ -263,17 +268,17 @@ SynchronousProcess::~SynchronousProcess()
     delete d;
 }
 
-void SynchronousProcess::setTimeout(int timeoutMS)
+void SynchronousProcess::setTimeoutS(int timeoutS)
 {
-    if (timeoutMS >= 0)
-        d->m_maxHangTimerCount = qMax(2, timeoutMS / 1000);
+    if (timeoutS > 0)
+        d->m_maxHangTimerCount = qMax(2, timeoutS);
     else
         d->m_maxHangTimerCount = INT_MAX;
 }
 
-int SynchronousProcess::timeout() const
+int SynchronousProcess::timeoutS() const
 {
-    return d->m_maxHangTimerCount == INT_MAX ? -1 : 1000 * d->m_maxHangTimerCount;
+    return d->m_maxHangTimerCount == INT_MAX ? -1 : d->m_maxHangTimerCount;
 }
 
 void SynchronousProcess::setCodec(QTextCodec *c)
@@ -383,7 +388,7 @@ static bool isGuiThread()
 }
 
 SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
-                                                 const QStringList &args)
+                                                   const QStringList &args)
 {
     if (debug)
         qDebug() << '>' << Q_FUNC_INFO << binary << args;
@@ -431,7 +436,7 @@ static inline bool askToKill(const QString &binary = QString())
     const QString title = SynchronousProcess::tr("Process not Responding");
     QString msg = binary.isEmpty() ?
                   SynchronousProcess::tr("The process is not responding.") :
-                  SynchronousProcess::tr("The process '%1' is not responding.").arg(QDir::toNativeSeparators(binary));
+                  SynchronousProcess::tr("The process \"%1\" is not responding.").arg(QDir::toNativeSeparators(binary));
     msg += QLatin1Char(' ');
     msg += SynchronousProcess::tr("Would you like to terminate it?");
     // Restore the cursor that is set to wait while running.
@@ -577,12 +582,12 @@ QSharedPointer<QProcess> SynchronousProcess::createProcess(unsigned flags)
 }
 
 // Static utilities: Keep running as long as it gets data.
-bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
+bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeoutS,
                                              QByteArray *stdOut, QByteArray *stdErr,
                                              bool showTimeOutMessageBox)
 {
     if (syncDebug)
-        qDebug() << ">readDataFromProcess" << timeOutMS;
+        qDebug() << ">readDataFromProcess" << timeoutS;
     if (p.state() != QProcess::Running) {
         qWarning("readDataFromProcess: Process in non-running state passed in.");
         return false;
@@ -594,7 +599,8 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
     bool finished = false;
     bool hasData = false;
     do {
-        finished = p.state() == QProcess::NotRunning || p.waitForFinished(timeOutMS);
+        finished = p.state() == QProcess::NotRunning
+                || p.waitForFinished(timeoutS > 0 ? timeoutS * 1000 : -1);
         hasData = false;
         // First check 'stdout'
         if (p.bytesAvailable()) { // applies to readChannel() only
@@ -613,14 +619,7 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
         }
         // Prompt user, pretend we have data if says 'No'.
         const bool hang = !hasData && !finished;
-        if (hang && showTimeOutMessageBox) {
-            QString binary;
-#if QT_VERSION >= 0x050000
-            binary = p.program();
-#endif
-            if (!askToKill(binary))
-                hasData = true;
-        }
+        hasData = hang && showTimeOutMessageBox && !askToKill(p.program());
     } while (hasData && !finished);
     if (syncDebug)
         qDebug() << "<readDataFromProcess" << finished;
@@ -719,20 +718,8 @@ QString SynchronousProcess::locateBinary(const QString &path, const QString &bin
 
 QString SynchronousProcess::normalizeNewlines(const QString &text)
 {
-    const QChar cr(QLatin1Char('\r'));
-    const QChar lf(QLatin1Char('\n'));
-    QString res;
-    res.reserve(text.size());
-    for (int i = 0, count = text.size(); i < count; ++i) {
-        const QChar c = text.at(i);
-        if (c == cr) {
-            res += lf;
-            if (i + 1 < count && text.at(i + 1) == lf)
-                ++i;
-        } else {
-            res += c;
-        }
-    }
+    QString res = text;
+    res.replace(QLatin1String("\r\n"), QLatin1String("\n"));
     return res;
 }
 

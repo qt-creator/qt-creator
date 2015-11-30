@@ -1,5 +1,4 @@
-import qbs.base 1.0
-import QtcTool
+import qbs 1.0
 
 QtcTool {
     name: "cpaster"
@@ -10,12 +9,6 @@ QtcTool {
     }
     Depends { name: "Core" }
     Depends { name: "CppTools" }
-
-    cpp.rpaths: [
-        "$ORIGIN/../" + project.libDirName + "/qtcreator",
-        "$ORIGIN/../" + project.libDirName + "/qtcreator/plugins",
-        "$ORIGIN/../" + project.libDirName + "/qtcreator/plugins/QtProject"
-    ]
 
     Group {
         name: "Frontend Sources"

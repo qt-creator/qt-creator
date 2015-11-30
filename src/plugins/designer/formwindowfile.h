@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,36 +31,38 @@
 #ifndef FORMWINDOWFILE_H
 #define FORMWINDOWFILE_H
 
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
-class QFile;
 QT_END_NAMESPACE
 
 namespace Designer {
 namespace Internal {
 
-class FormWindowFile : public TextEditor::PlainTextDocument
+class ResourceHandler;
+
+class FormWindowFile : public TextEditor::TextDocument
 {
     Q_OBJECT
 
 public:
     explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
-    ~FormWindowFile() { }
+    ~FormWindowFile() override { }
 
     // IDocument
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
-    bool setContents(const QByteArray &contents);
-    bool shouldAutoSave() const;
-    bool isModified() const;
-    bool isSaveAsAllowed() const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-    QString mimeType() const;
+    OpenResult open(QString *errorString, const QString &fileName,
+                    const QString &realFileName) override;
+    bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    bool setContents(const QByteArray &contents) override;
+    bool shouldAutoSave() const override;
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
 
     // Internal
     void setSuggestedFileName(const QString &fileName);
@@ -69,13 +72,10 @@ public:
     QDesignerFormWindowInterface *formWindow() const;
     void syncXmlFromFormWindow();
     QString formWindowContents() const;
-
-signals:
-    // Internal
-    void reloadRequested(QString *errorString, const QString &);
+    ResourceHandler *resourceHandler() const;
 
 public slots:
-    void setFilePath(const QString &);
+    void setFilePath(const Utils::FileName &) override;
     void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
     void updateIsModified();
 
@@ -83,14 +83,13 @@ private slots:
     void slotFormWindowRemoved(QDesignerFormWindowInterface *w);
 
 private:
-    const QString m_mimeType;
-
     QString m_suggestedName;
-    bool m_shouldAutoSave;
+    bool m_shouldAutoSave = false;
     // Might actually go out of scope before the IEditor due
     // to deleting the WidgetHost which owns it.
     QPointer<QDesignerFormWindowInterface> m_formWindow;
-    bool m_isModified;
+    bool m_isModified = false;
+    ResourceHandler *m_resourceHandler = nullptr;
 };
 
 } // namespace Internal

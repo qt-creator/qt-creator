@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 ** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -58,12 +59,12 @@ public:
     explicit Recorder(Valgrind::XmlProtocol::Parser *parser, QObject *parent = 0)
     : QObject(parent)
     {
-        connect(parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-                this, SLOT(error(Valgrind::XmlProtocol::Error)));
-        connect(parser, SIGNAL(errorCount(qint64, qint64)),
-                this, SLOT(errorCount(qint64, qint64)));
-        connect(parser, SIGNAL(suppressionCount(QString, qint64)),
-                this, SLOT(suppressionCount(QString, qint64)));
+        connect(parser, &Valgrind::XmlProtocol::Parser::error,
+                this, &Recorder::error);
+        connect(parser, &Valgrind::XmlProtocol::Parser::errorCount,
+                this, &Recorder::errorCount);
+        connect(parser, &Valgrind::XmlProtocol::Parser::suppressionCount,
+                this, &Recorder::suppressionCount);
     }
 
     QList<Valgrind::XmlProtocol::Error> errors;
@@ -97,18 +98,16 @@ public:
         : QObject()
         , m_errorReceived(false)
     {
-        connect(parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-                this, SLOT(error(Valgrind::XmlProtocol::Error)));
-        connect(parser, SIGNAL(internalError(QString)),
-                this, SLOT(internalError(QString)));
-        connect(parser, SIGNAL(status(Valgrind::XmlProtocol::Status)),
-                this, SLOT(status(Valgrind::XmlProtocol::Status)));
-        connect(runner, SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)),
-                this, SLOT(handleProcessOutput(QByteArray,Utils::OutputFormat)));
-        connect(runner, SIGNAL(logMessageReceived(QByteArray)),
-                this, SLOT(logMessageReceived(QByteArray)));
-        connect(runner, SIGNAL(processErrorReceived(QString, QProcess::ProcessError)),
-                this, SLOT(processErrorReceived(QString)));
+        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::error,
+                this, &RunnerDumper::error);
+        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::internalError,
+                this, &RunnerDumper::internalError);
+        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::status,
+                this, &RunnerDumper::status);
+        connect(runner, &Valgrind::Memcheck::MemcheckRunner::logMessageReceived,
+                this, &RunnerDumper::logMessageReceived);
+        connect(runner, &Valgrind::ValgrindRunner::processErrorReceived,
+                this, &RunnerDumper::processErrorReceived);
     }
 
 public slots:
@@ -120,10 +119,6 @@ public slots:
     void internalError(const QString& error)
     {
         qDebug() << "internal error received:" << error;
-    }
-    void handleProcessOutput(const QByteArray &out, Utils::OutputFormat format)
-    {
-        qDebug() << "Output received:" << format << out;
     }
     void status(const Valgrind::XmlProtocol::Status &status)
     {

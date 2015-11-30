@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,6 +35,8 @@
 #include <cplusplus/PreprocessorClient.h>
 #include <cplusplus/PreprocessorEnvironment.h>
 
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QDir>
@@ -49,19 +52,91 @@ using namespace CppTools;
 using namespace CppTools::IncludeUtils;
 using namespace Utils;
 
-static bool includeLineLessThan(const Include &left, const Include &right)
-{ return left.line() < right.line(); }
+namespace {
 
-static bool includeFileNamelessThen(const Include & left, const Include & right)
+bool includeFileNamelessThen(const Include & left, const Include & right)
 { return left.unresolvedFileName() < right.unresolvedFileName(); }
 
+int lineForAppendedIncludeGroup(const QList<IncludeGroup> &groups,
+                                unsigned *newLinesToPrepend)
+{
+    if (newLinesToPrepend)
+        *newLinesToPrepend += 1;
+    return groups.last().last().line() + 1;
+}
+
+int lineForPrependedIncludeGroup(const QList<IncludeGroup> &groups,
+                                 unsigned *newLinesToAppend)
+{
+    if (newLinesToAppend)
+        *newLinesToAppend += 1;
+    return groups.first().first().line();
+}
+
+QString includeDir(const QString &include)
+{
+    QString dirPrefix = QFileInfo(include).dir().path();
+    if (dirPrefix == QLatin1String("."))
+        return QString();
+    dirPrefix.append(QLatin1Char('/'));
+    return dirPrefix;
+}
+
+int lineAfterFirstComment(const QTextDocument *textDocument)
+{
+    int insertLine = -1;
+
+    QTextBlock block = textDocument->firstBlock();
+    while (block.isValid()) {
+        const QString trimmedText = block.text().trimmed();
+
+        // Only skip the first comment!
+        if (trimmedText.startsWith(QLatin1String("/*"))) {
+            do {
+                const int pos = block.text().indexOf(QLatin1String("*/"));
+                if (pos > -1) {
+                    insertLine = block.blockNumber() + 2;
+                    break;
+                }
+                block = block.next();
+            } while (block.isValid());
+            break;
+        } else if (trimmedText.startsWith(QLatin1String("//"))) {
+            block = block.next();
+            while (block.isValid()) {
+                if (!block.text().trimmed().startsWith(QLatin1String("//"))) {
+                    insertLine = block.blockNumber() + 1;
+                    break;
+                }
+                block = block.next();
+            }
+            break;
+        }
+
+        if (!trimmedText.isEmpty())
+            break;
+        block = block.next();
+    }
+
+    return insertLine;
+}
+
+} // anonymous namespace
+
 LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *textDocument,
-                                                       QList<Document::Include> includes,
+                                                       const Document::Ptr cppDocument,
                                                        MocIncludeMode mocIncludeMode,
                                                        IncludeStyle includeStyle)
     : m_textDocument(textDocument)
+    , m_cppDocument(cppDocument)
     , m_includeStyle(includeStyle)
 {
+    QList<Document::Include> includes
+        = cppDocument->resolvedIncludes() + cppDocument->unresolvedIncludes();
+    Utils::sort(includes, [](const Include &left, const Include &right) {
+        return left.line() < right.line();
+    });
+
     // Ignore *.moc includes if requested
     if (mocIncludeMode == IgnoreMocIncludes) {
         foreach (const Document::Include &include, includes) {
@@ -70,13 +145,6 @@ LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *text
         }
     } else {
         m_includes = includes;
-    }
-
-    // TODO: Remove this filter loop once FastPreprocessor::sourceNeeded does not add
-    // extra includes anymore.
-    for (int i = m_includes.count() - 1; i >= 0; --i) {
-        if (!QFileInfo(m_includes.at(i).resolvedFileName()).isAbsolute())
-            m_includes.removeAt(i);
     }
 
     // Detect include style
@@ -102,6 +170,43 @@ LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *text
     }
 }
 
+int LineForNewIncludeDirective::findInsertLineForVeryFirstInclude(unsigned *newLinesToPrepend,
+                                                                  unsigned *newLinesToAppend)
+{
+    int insertLine = 1;
+
+    // If there is an include guard, insert right after that one
+    const QByteArray includeGuardMacroName = m_cppDocument->includeGuardMacroName();
+    if (!includeGuardMacroName.isEmpty()) {
+        const QList<Macro> definedMacros = m_cppDocument->definedMacros();
+        foreach (const Macro &definedMacro, definedMacros) {
+            if (definedMacro.name() == includeGuardMacroName) {
+                if (newLinesToPrepend)
+                    *newLinesToPrepend = 1;
+                if (newLinesToAppend)
+                    *newLinesToAppend += 1;
+                insertLine = definedMacro.line() + 1;
+            }
+        }
+        QTC_CHECK(insertLine != 1);
+    } else {
+        // Otherwise, if there is a comment, insert right after it
+        insertLine = lineAfterFirstComment(m_textDocument);
+        if (insertLine != -1) {
+            if (newLinesToPrepend)
+                *newLinesToPrepend = 1;
+
+        // Otherwise, insert at top of file
+        } else {
+            if (newLinesToAppend)
+                *newLinesToAppend += 1;
+            insertLine = 1;
+        }
+    }
+
+    return insertLine;
+}
+
 int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
                                            unsigned *newLinesToPrepend,
                                            unsigned *newLinesToAppend)
@@ -112,56 +217,13 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
         *newLinesToAppend = false;
 
     const QString pureIncludeFileName = newIncludeFileName.mid(1, newIncludeFileName.length() - 2);
-    const CPlusPlus::Client::IncludeType newIncludeType =
+    const Client::IncludeType newIncludeType =
         newIncludeFileName.startsWith(QLatin1Char('"')) ? Client::IncludeLocal
                                                         : Client::IncludeGlobal;
 
     // Handle no includes
-    if (m_includes.empty()) {
-        unsigned insertLine = 0;
-
-        QTextBlock block = m_textDocument->firstBlock();
-        while (block.isValid()) {
-            const QString trimmedText = block.text().trimmed();
-
-            // Only skip the first comment!
-            if (trimmedText.startsWith(QLatin1String("/*"))) {
-                do {
-                    const int pos = block.text().indexOf(QLatin1String("*/"));
-                    if (pos > -1) {
-                        insertLine = block.blockNumber() + 2;
-                        break;
-                    }
-                    block = block.next();
-                } while (block.isValid());
-                break;
-            } else if (trimmedText.startsWith(QLatin1String("//"))) {
-                block = block.next();
-                while (block.isValid()) {
-                    if (!block.text().trimmed().startsWith(QLatin1String("//"))) {
-                        insertLine = block.blockNumber() + 1;
-                        break;
-                    }
-                    block = block.next();
-                }
-                break;
-            }
-
-            if (!trimmedText.isEmpty())
-                break;
-            block = block.next();
-        }
-
-        if (insertLine == 0) {
-            if (newLinesToAppend)
-                *newLinesToAppend += 1;
-            insertLine = 1;
-        } else {
-            if (newLinesToPrepend)
-                *newLinesToPrepend = 1;
-        }
-        return insertLine;
-    }
+    if (m_includes.empty())
+        return findInsertLineForVeryFirstInclude(newLinesToPrepend, newLinesToAppend);
 
     typedef QList<IncludeGroup> IncludeGroups;
 
@@ -178,8 +240,8 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
         // case: The new include goes into an own include group
         if (groupsMixedIncludeType.isEmpty()) {
             return includeAtTop
-                ? IncludeGroup::lineForPrependedIncludeGroup(groupsNewline, newLinesToAppend)
-                : IncludeGroup::lineForAppendedIncludeGroup(groupsNewline, newLinesToPrepend);
+                ? lineForPrependedIncludeGroup(groupsNewline, newLinesToAppend)
+                : lineForAppendedIncludeGroup(groupsNewline, newLinesToPrepend);
         // case: add to mixed group
         } else {
             const IncludeGroup bestMixedGroup = groupsMixedIncludeType.last(); // TODO: flaterize
@@ -203,7 +265,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
 
     IncludeGroups groupsMatchingIncludeDir;
     foreach (const IncludeGroup &group, groupsSameIncludeDir) {
-        if (group.commonIncludeDir() == IncludeGroup::includeDir(pureIncludeFileName))
+        if (group.commonIncludeDir() == includeDir(pureIncludeFileName))
             groupsMatchingIncludeDir << group;
     }
 
@@ -224,10 +286,10 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
         if (groupsMixedIncludeDirs.isEmpty()) {
             if (includeAtTop) {
                 return groupsSameIncludeDir.isEmpty()
-                    ? IncludeGroup::lineForPrependedIncludeGroup(groupsNewline, newLinesToAppend)
-                    : IncludeGroup::lineForAppendedIncludeGroup(groupsSameIncludeDir, newLinesToPrepend);
+                    ? lineForPrependedIncludeGroup(groupsNewline, newLinesToAppend)
+                    : lineForAppendedIncludeGroup(groupsSameIncludeDir, newLinesToPrepend);
             } else {
-                return IncludeGroup::lineForAppendedIncludeGroup(groupsNewline, newLinesToPrepend);
+                return lineForAppendedIncludeGroup(groupsNewline, newLinesToPrepend);
             }
         // case: The new include is inserted at the best position of the best
         //       group with mixed include dirs
@@ -239,7 +301,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
             }
             IncludeGroup localBestIncludeGroup = IncludeGroup(QList<Include>());
             foreach (const IncludeGroup &group, groupsIncludeDir) {
-                if (group.commonIncludeDir() == IncludeGroup::includeDir(pureIncludeFileName))
+                if (group.commonIncludeDir() == includeDir(pureIncludeFileName))
                     localBestIncludeGroup = group;
             }
             if (!localBestIncludeGroup.isEmpty())
@@ -263,9 +325,6 @@ QList<IncludeGroup> LineForNewIncludeDirective::getGroupsByIncludeType(
 /// includes will be modified!
 QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByNewLines(QList<Document::Include> &includes)
 {
-    // Sort by line
-    qSort(includes.begin(), includes.end(), includeLineLessThan);
-
     // Create groups
     QList<IncludeGroup> result;
     unsigned lastLine = 0;
@@ -332,11 +391,11 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByIncludeType(const QList<I
 {
     // Create sub groups
     QList<IncludeGroup> result;
-    CPlusPlus::Client::IncludeType lastIncludeType;
+    Client::IncludeType lastIncludeType = Client::IncludeLocal;
     QList<Include> currentIncludes;
     bool isFirst = true;
     foreach (const Include &include, includes) {
-        const CPlusPlus::Client::IncludeType currentIncludeType = include.type();
+        const Client::IncludeType currentIncludeType = include.type();
 
         // First include...
         if (isFirst) {
@@ -359,15 +418,6 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByIncludeType(const QList<I
         result << IncludeGroup(currentIncludes);
 
     return result;
-}
-
-QString IncludeGroup::includeDir(const QString &include)
-{
-    QString dirPrefix = QFileInfo(include).dir().path();
-    if (dirPrefix == QLatin1String("."))
-        return QString();
-    dirPrefix.append(QLatin1Char('/'));
-    return dirPrefix;
 }
 
 /// returns groups that solely contains includes of the given include type
@@ -473,18 +523,123 @@ bool IncludeGroup::hasCommonIncludeDir() const
     return true;
 }
 
-int IncludeGroup::lineForAppendedIncludeGroup(const QList<IncludeGroup> &groups,
-                                              unsigned *newLinesToPrepend)
+#ifdef WITH_TESTS
+
+#include "cppmodelmanager.h"
+#include "cppsourceprocessertesthelper.h"
+#include "cppsourceprocessor.h"
+#include "cpptoolsplugin.h"
+#include "cpptoolstestcase.h"
+
+#include <QtTest>
+
+using namespace Tests;
+using CppTools::Internal::CppToolsPlugin;
+
+static QList<Include> includesForSource(const QString &filePath)
 {
-    if (newLinesToPrepend)
-        *newLinesToPrepend += 1;
-    return groups.last().last().line() + 1;
+    using namespace CppTools::Internal;
+    CppModelManager *cmm = CppModelManager::instance();
+    cmm->GC();
+    QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
+    sourceProcessor->setHeaderPaths(ProjectPart::HeaderPaths()
+                                    << ProjectPart::HeaderPath(
+                                        TestIncludePaths::globalIncludePath(),
+                                        ProjectPart::HeaderPath::IncludePath));
+    sourceProcessor->run(filePath);
+
+    Document::Ptr document = cmm->document(filePath);
+    return document->resolvedIncludes();
 }
 
-int IncludeGroup::lineForPrependedIncludeGroup(const QList<IncludeGroup> &groups,
-                                               unsigned *newLinesToAppend)
+void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByNewLines()
 {
-    if (newLinesToAppend)
-        *newLinesToAppend += 1;
-    return groups.first().first().line();
+    const QString testFilePath = TestIncludePaths::testFilePath(
+                QLatin1String("test_main_detectIncludeGroupsByNewLines.cpp"));
+
+    QList<Include> includes = includesForSource(testFilePath);
+    QCOMPARE(includes.size(), 17);
+    QList<IncludeGroup> includeGroups
+        = IncludeGroup::detectIncludeGroupsByNewLines(includes);
+    QCOMPARE(includeGroups.size(), 8);
+
+    QCOMPARE(includeGroups.at(0).size(), 1);
+    QVERIFY(includeGroups.at(0).commonPrefix().isEmpty());
+    QVERIFY(includeGroups.at(0).hasOnlyIncludesOfType(Client::IncludeLocal));
+    QVERIFY(includeGroups.at(0).isSorted());
+
+    QCOMPARE(includeGroups.at(1).size(), 2);
+    QVERIFY(!includeGroups.at(1).commonPrefix().isEmpty());
+    QVERIFY(includeGroups.at(1).hasOnlyIncludesOfType(Client::IncludeLocal));
+    QVERIFY(includeGroups.at(1).isSorted());
+
+    QCOMPARE(includeGroups.at(2).size(), 2);
+    QVERIFY(!includeGroups.at(2).commonPrefix().isEmpty());
+    QVERIFY(includeGroups.at(2).hasOnlyIncludesOfType(Client::IncludeGlobal));
+    QVERIFY(!includeGroups.at(2).isSorted());
+
+    QCOMPARE(includeGroups.at(6).size(), 3);
+    QVERIFY(includeGroups.at(6).commonPrefix().isEmpty());
+    QVERIFY(includeGroups.at(6).hasOnlyIncludesOfType(Client::IncludeGlobal));
+    QVERIFY(!includeGroups.at(6).isSorted());
+
+    QCOMPARE(includeGroups.at(7).size(), 3);
+    QVERIFY(includeGroups.at(7).commonPrefix().isEmpty());
+    QVERIFY(!includeGroups.at(7).hasOnlyIncludesOfType(Client::IncludeLocal));
+    QVERIFY(!includeGroups.at(7).hasOnlyIncludesOfType(Client::IncludeGlobal));
+    QVERIFY(!includeGroups.at(7).isSorted());
+
+    QCOMPARE(IncludeGroup::filterIncludeGroups(includeGroups, Client::IncludeLocal).size(), 4);
+    QCOMPARE(IncludeGroup::filterIncludeGroups(includeGroups, Client::IncludeGlobal).size(), 3);
+    QCOMPARE(IncludeGroup::filterMixedIncludeGroups(includeGroups).size(), 1);
 }
+
+void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeDir()
+{
+    const QString testFilePath = TestIncludePaths::testFilePath(
+                QLatin1String("test_main_detectIncludeGroupsByIncludeDir.cpp"));
+
+    QList<Include> includes = includesForSource(testFilePath);
+    QCOMPARE(includes.size(), 9);
+    QList<IncludeGroup> includeGroups
+        = IncludeGroup::detectIncludeGroupsByIncludeDir(includes);
+    QCOMPARE(includeGroups.size(), 4);
+
+    QCOMPARE(includeGroups.at(0).size(), 2);
+    QVERIFY(includeGroups.at(0).commonIncludeDir().isEmpty());
+
+    QCOMPARE(includeGroups.at(1).size(), 2);
+    QCOMPARE(includeGroups.at(1).commonIncludeDir(), QLatin1String("lib/"));
+
+    QCOMPARE(includeGroups.at(2).size(), 2);
+    QCOMPARE(includeGroups.at(2).commonIncludeDir(), QLatin1String("otherlib/"));
+
+    QCOMPARE(includeGroups.at(3).size(), 3);
+    QCOMPARE(includeGroups.at(3).commonIncludeDir(), QLatin1String(""));
+}
+
+void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeType()
+{
+    const QString testFilePath = TestIncludePaths::testFilePath(
+                QLatin1String("test_main_detectIncludeGroupsByIncludeType.cpp"));
+
+    QList<Include> includes = includesForSource(testFilePath);
+    QCOMPARE(includes.size(), 9);
+    QList<IncludeGroup> includeGroups
+        = IncludeGroup::detectIncludeGroupsByIncludeDir(includes);
+    QCOMPARE(includeGroups.size(), 4);
+
+    QCOMPARE(includeGroups.at(0).size(), 2);
+    QVERIFY(includeGroups.at(0).hasOnlyIncludesOfType(Client::IncludeLocal));
+
+    QCOMPARE(includeGroups.at(1).size(), 2);
+    QVERIFY(includeGroups.at(1).hasOnlyIncludesOfType(Client::IncludeGlobal));
+
+    QCOMPARE(includeGroups.at(2).size(), 2);
+    QVERIFY(includeGroups.at(2).hasOnlyIncludesOfType(Client::IncludeLocal));
+
+    QCOMPARE(includeGroups.at(3).size(), 3);
+    QVERIFY(includeGroups.at(3).hasOnlyIncludesOfType(Client::IncludeGlobal));
+}
+
+#endif // WITH_TESTS

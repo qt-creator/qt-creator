@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,33 +9,45 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "wizard.h"
+
+#include "algorithm.h"
 #include "hostosinfo.h"
+#include "qtcassert.h"
+#include "wizardpage.h"
 
-#include <QMap>
+#include <utils/theme/theme.h>
+
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QHash>
-
+#include <QIcon>
+#include <QKeyEvent>
 #include <QLabel>
+#include <QMap>
+#include <QScrollArea>
 #include <QVBoxLayout>
-#include <QStyle>
+#include <QVariant>
+
 
 /*! \class Utils::Wizard
 
@@ -136,20 +148,20 @@ LinearProgressWidget::LinearProgressWidget(WizardProgress *progress, QWidget *pa
     m_dotsItemWidget->setVisible(false);
     m_dotsItemWidget->setEnabled(false);
 
-    connect(m_wizardProgress, SIGNAL(itemAdded(WizardProgressItem*)),
-            this, SLOT(slotItemAdded(WizardProgressItem*)));
-    connect(m_wizardProgress, SIGNAL(itemRemoved(WizardProgressItem*)),
-            this, SLOT(slotItemRemoved(WizardProgressItem*)));
-    connect(m_wizardProgress, SIGNAL(itemChanged(WizardProgressItem*)),
-            this, SLOT(slotItemChanged(WizardProgressItem*)));
-    connect(m_wizardProgress, SIGNAL(nextItemsChanged(WizardProgressItem*,QList<WizardProgressItem*>)),
-            this, SLOT(slotNextItemsChanged(WizardProgressItem*,QList<WizardProgressItem*>)));
-    connect(m_wizardProgress, SIGNAL(nextShownItemChanged(WizardProgressItem*,WizardProgressItem*)),
-            this, SLOT(slotNextShownItemChanged(WizardProgressItem*,WizardProgressItem*)));
-    connect(m_wizardProgress, SIGNAL(startItemChanged(WizardProgressItem*)),
-            this, SLOT(slotStartItemChanged(WizardProgressItem*)));
-    connect(m_wizardProgress, SIGNAL(currentItemChanged(WizardProgressItem*)),
-            this, SLOT(slotCurrentItemChanged(WizardProgressItem*)));
+    connect(m_wizardProgress, &WizardProgress::itemAdded,
+            this, &LinearProgressWidget::slotItemAdded);
+    connect(m_wizardProgress, &WizardProgress::itemRemoved,
+            this, &LinearProgressWidget::slotItemRemoved);
+    connect(m_wizardProgress, &WizardProgress::itemChanged,
+            this, &LinearProgressWidget::slotItemChanged);
+    connect(m_wizardProgress, &WizardProgress::nextItemsChanged,
+            this, &LinearProgressWidget::slotNextItemsChanged);
+    connect(m_wizardProgress, &WizardProgress::nextShownItemChanged,
+            this, &LinearProgressWidget::slotNextShownItemChanged);
+    connect(m_wizardProgress, &WizardProgress::startItemChanged,
+            this, &LinearProgressWidget::slotStartItemChanged);
+    connect(m_wizardProgress, &WizardProgress::currentItemChanged,
+            this, &LinearProgressWidget::slotCurrentItemChanged);
 
     QList<WizardProgressItem *> items = m_wizardProgress->items();
     for (int i = 0; i < items.count(); i++)
@@ -308,6 +320,7 @@ public:
     }
     bool m_automaticProgressCreation;
     WizardProgress *m_wizardProgress;
+    QSet<QString> m_fieldNames;
 };
 
 Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
@@ -315,16 +328,18 @@ Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
 {
     d_ptr->q_ptr = this;
     d_ptr->m_wizardProgress = new WizardProgress(this);
-    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(_q_currentPageChanged(int)));
-    connect(this, SIGNAL(pageAdded(int)), this, SLOT(_q_pageAdded(int)));
-    connect(this, SIGNAL(pageRemoved(int)), this, SLOT(_q_pageRemoved(int)));
+    connect(this, &QWizard::currentIdChanged, this, &Wizard::_q_currentPageChanged);
+    connect(this, &QWizard::pageAdded, this, &Wizard::_q_pageAdded);
+    connect(this, &QWizard::pageRemoved, this, &Wizard::_q_pageRemoved);
     setSideWidget(new LinearProgressWidget(d_ptr->m_wizardProgress, this));
     setOption(QWizard::NoCancelButton, false);
     setOption(QWizard::NoDefaultButton, false);
     setOption(QWizard::NoBackButtonOnStartPage, true);
+    if (!Utils::creatorTheme()->preferredStyles().isEmpty())
+        setWizardStyle(QWizard::ModernStyle);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    if (Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost()) {
         setButtonLayout(QList<QWizard::WizardButton>()
                         << QWizard::CancelButton
                         << QWizard::Stretch
@@ -369,10 +384,100 @@ WizardProgress *Wizard::wizardProgress() const
     return d->m_wizardProgress;
 }
 
-bool Wizard::validateCurrentPage()
+bool Wizard::hasField(const QString &name) const
 {
-    emit nextClicked();
-    return QWizard::validateCurrentPage();
+    return d_ptr->m_fieldNames.contains(name);
+}
+
+void Wizard::registerFieldName(const QString &name)
+{
+    QTC_ASSERT(!hasField(name), return);
+    d_ptr->m_fieldNames.insert(name);
+}
+
+QSet<QString> Wizard::fieldNames() const
+{
+    return d_ptr->m_fieldNames;
+}
+
+QHash<QString, QVariant> Wizard::variables() const
+{
+    QHash<QString, QVariant> result;
+    foreach (const QString &f, fieldNames()) {
+        result.insert(f, field(f));
+    }
+    return result;
+}
+
+QString typeOf(const QVariant &v)
+{
+    QString result;
+    switch (v.type()) {
+    case QVariant::Map:
+        result = QLatin1String("Object");
+        break;
+    default:
+        result = QLatin1String(v.typeName());
+    }
+    return result;
+}
+
+void Wizard::showVariables()
+{
+    QString result = QLatin1String("<table>\n  <tr><td>Key</td><td>Type</td><td>Value</td><td>Eval</td></tr>\n");
+    QHash<QString, QVariant> vars = variables();
+    QList<QString> keys = vars.keys();
+    sort(keys);
+    foreach (const QString &key, keys) {
+        const QVariant &v = vars.value(key);
+        result += QLatin1String("  <tr><td>")
+                + key + QLatin1String("</td><td>")
+                + typeOf(v) + QLatin1String("</td><td>")
+                + stringify(v) + QLatin1String("</td><td>")
+                + evaluate(v) + QLatin1String("</td></tr>\n");
+    }
+
+    result += QLatin1String("</table>");
+
+    auto dialog = new QDialog(this);
+    dialog->setMinimumSize(800, 600);
+    auto layout = new QVBoxLayout(dialog);
+    auto scrollArea = new QScrollArea;
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok, Qt::Horizontal);
+
+    auto label = new QLabel(result);
+    label->setWordWrap(true);
+    scrollArea->setWidget(label);
+
+    layout->addWidget(scrollArea);
+    layout->addWidget(buttons);
+
+    connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+    connect(dialog, &QDialog::finished, dialog, &QObject::deleteLater);
+
+    dialog->show();
+}
+
+QString Wizard::stringify(const QVariant &v) const
+{
+    return v.toString();
+}
+
+QString Wizard::evaluate(const QVariant &v) const
+{
+    return stringify(v);
+}
+
+bool Wizard::event(QEvent *event)
+{
+    if (event->type() == QEvent::ShortcutOverride) {
+        auto ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+            ke->accept();
+            return true;
+        }
+    }
+    return QWizard::event(event);
 }
 
 void Wizard::_q_currentPageChanged(int pageId)
@@ -386,10 +491,17 @@ void Wizard::_q_pageAdded(int pageId)
 {
     Q_D(Wizard);
 
+    QWizardPage *p = page(pageId);
+    WizardPage *wp = qobject_cast<WizardPage *>(p);
+    if (wp)
+        wp->pageWasAdded();
+
     if (!d->m_automaticProgressCreation)
         return;
 
-    WizardProgressItem *item = d->m_wizardProgress->addItem(page(pageId)->title());
+    QVariant property = p->property(SHORT_TITLE_PROPERTY);
+    const QString title = property.isNull() ? p->title() : property.toString();
+    WizardProgressItem *item = d->m_wizardProgress->addItem(title);
     item->addPage(pageId);
     d->m_wizardProgress->setStartPage(startId());
     if (!d->m_wizardProgress->startItem())

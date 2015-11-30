@@ -1,0 +1,65 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "E.QtCore",
+    "category": "F.Application",
+    "trDescription": "Creates a project containing a single main.cpp file with a stub implementation.\n\nPreselects a desktop Qt for building the application if available.",
+    "trDisplayName": "Qt Console Application",
+    "trDisplayCategory": "Application",
+    "icon": "../../../global/consoleapplication.png",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}",
+
+    "options":
+    [
+        { "key": "ProFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
+        { "key": "IsTopLevelProject", "value": "%{JS: !'%{Exists:ProjectExplorer.Profile.Ids}' }" },
+        { "key": "MainCppName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src') }" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project",
+            "data": { "trDescription": "This wizard creates a simple Qt-based console application." }
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{IsTopLevelProject}",
+            "data": { "projectFilePath": "%{ProFileName}" }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "file.pro",
+                    "target": "%{ProFileName}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "main.cpp",
+                    "target": "%{MainCppName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "../../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: ( %{IsTopLevelProject} && '%{VersionControl}' === 'G.Git' )}"
+                }
+            ]
+        }
+    ]
+}

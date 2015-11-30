@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -44,14 +45,17 @@ const char NEWSESSION[]           = "ProjectExplorer.NewSession";
 const char NEWPROJECT[]           = "ProjectExplorer.NewProject";
 const char LOAD[]                 = "ProjectExplorer.Load";
 const char UNLOAD[]               = "ProjectExplorer.Unload";
+const char UNLOADCM[]             = "ProjectExplorer.UnloadCM";
 const char CLEARSESSION[]         = "ProjectExplorer.ClearSession";
 const char BUILDPROJECTONLY[]     = "ProjectExplorer.BuildProjectOnly";
 const char BUILD[]                = "ProjectExplorer.Build";
 const char BUILDCM[]              = "ProjectExplorer.BuildCM";
+const char BUILDDEPENDCM[]        = "ProjectExplorer.BuildDependenciesCM";
 const char BUILDSESSION[]         = "ProjectExplorer.BuildSession";
 const char REBUILDPROJECTONLY[]   = "ProjectExplorer.RebuildProjectOnly";
 const char REBUILD[]              = "ProjectExplorer.Rebuild";
 const char REBUILDCM[]            = "ProjectExplorer.RebuildCM";
+const char REBUILDDEPENDCM[]      = "ProjectExplorer.RebuildDependenciesCM";
 const char REBUILDSESSION[]       = "ProjectExplorer.RebuildSession";
 const char DEPLOYPROJECTONLY[]    = "ProjectExplorer.DeployProjectOnly";
 const char DEPLOY[]               = "ProjectExplorer.Deploy";
@@ -61,6 +65,7 @@ const char PUBLISH[]              = "ProjectExplorer.Publish";
 const char CLEANPROJECTONLY[]     = "ProjectExplorer.CleanProjectOnly";
 const char CLEAN[]                = "ProjectExplorer.Clean";
 const char CLEANCM[]              = "ProjectExplorer.CleanCM";
+const char CLEANDEPENDCM[]        = "ProjectExplorer.CleanDependenciesCM";
 const char CLEANSESSION[]         = "ProjectExplorer.CleanSession";
 const char CANCELBUILD[]          = "ProjectExplorer.CancelBuild";
 const char RUN[]                  = "ProjectExplorer.Run";
@@ -101,6 +106,7 @@ const char LANG_QMLJS[]           = "QMLJS";
 
 // Menus
 const char M_RECENTPROJECTS[]     = "ProjectExplorer.Menu.Recent";
+const char M_UNLOADPROJECTS[]     = "ProjectExplorer.Menu.Unload";
 const char M_BUILDPROJECT[]       = "ProjectExplorer.Menu.Build";
 const char M_DEBUG[]              = "ProjectExplorer.Menu.Debug";
 const char M_DEBUG_STARTDEBUGGING[] = "ProjectExplorer.Menu.Debug.StartDebugging";
@@ -149,34 +155,20 @@ const char RUNMENUCONTEXTMENU[]   = "Project.RunMenu";
 // File factory
 const char FILE_FACTORY_ID[]      = "ProjectExplorer.FileFactoryId";
 
-// Icons
-const char ICON_BUILD[]           = ":/projectexplorer/images/build.png";
-const char ICON_BUILD_SMALL[]     = ":/projectexplorer/images/build_small.png";
-const char ICON_CLEAN[]           = ":/projectexplorer/images/clean.png";
-const char ICON_CLEAN_SMALL[]     = ":/projectexplorer/images/clean_small.png";
-const char ICON_REBUILD[]         = ":/projectexplorer/images/rebuild.png";
-const char ICON_REBUILD_SMALL[]   = ":/projectexplorer/images/rebuild_small.png";
-const char ICON_RUN[]             = ":/projectexplorer/images/run.png";
-const char ICON_RUN_SMALL[]       = ":/projectexplorer/images/run_small.png";
-const char ICON_DEBUG_SMALL[]     = ":/projectexplorer/images/debugger_start_small.png";
-const char ICON_STOP[]            = ":/projectexplorer/images/stop.png";
-const char ICON_STOP_SMALL[]      = ":/projectexplorer/images/stop_small.png";
-const char ICON_WINDOW[]          = ":/projectexplorer/images/window.png";
-
 // Mime types
 const char C_SOURCE_MIMETYPE[]    = "text/x-csrc";
 const char C_HEADER_MIMETYPE[]    = "text/x-chdr";
 const char CPP_SOURCE_MIMETYPE[]  = "text/x-c++src";
 const char CPP_HEADER_MIMETYPE[]  = "text/x-c++hdr";
-const char LINGUIST_MIMETYPE[]    = "application/x-linguist";
+const char LINGUIST_MIMETYPE[]    = "text/vnd.trolltech.linguist";
 const char FORM_MIMETYPE[]        = "application/x-designer";
-const char QML_MIMETYPE[]         = "application/x-qml"; // separate def also in qmljstoolsconstants.h
+const char QML_MIMETYPE[]         = "text/x-qml"; // separate def also in qmljstoolsconstants.h
 const char RESOURCE_MIMETYPE[]    = "application/vnd.qt.xml.resource";
 
 // Settings page
 const char PROJECTEXPLORER_SETTINGS_CATEGORY[]  = "K.ProjectExplorer";
 const char PROJECTEXPLORER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Build & Run");
-const char PROJECTEXPLORER_SETTINGS_CATEGORY_ICON[]  = ":/core/images/category_buildrun.png";
+const char PROJECTEXPLORER_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/category_buildrun.png";
 const char PROJECTEXPLORER_SETTINGS_ID[] = "A.ProjectExplorer.ProjectExplorer";
 const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "M.ProjectExplorer.ToolChainOptions";
 const char DEBUGGER_SETTINGS_PAGE_ID[] = "N.ProjectExplorer.DebuggerOptions";
@@ -191,21 +183,25 @@ const char TASK_CATEGORY_COMPILE[] = "Task.Category.Compile";
 const char TASK_CATEGORY_BUILDSYSTEM[] = "Task.Category.Buildsystem";
 const char TASK_CATEGORY_DEPLOYMENT[] = "Task.Category.Deploy";
 
+// Task mark categories
+const char TASK_MARK_WARNING[] = "Task.Mark.Warning";
+const char TASK_MARK_ERROR[] = "Task.Mark.Error";
+
 // Wizard categories
-const char QT_PROJECT_WIZARD_CATEGORY[] = "H.QtProjects";
+const char QT_PROJECT_WIZARD_CATEGORY[] = "H.Project";
 const char QT_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Other Project");
 
-const char QT_APPLICATION_WIZARD_CATEGORY[] = "F.QtApplications";
-const char QT_APPLICATION_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Applications");
+const char QT_APPLICATION_WIZARD_CATEGORY[] = "F.Application";
+const char QT_APPLICATION_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Application");
 
-const char LIBRARIES_WIZARD_CATEGORY[] = "G.Libraries";
-const char LIBRARIES_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Libraries");
+const char LIBRARIES_WIZARD_CATEGORY[] = "G.Library";
+const char LIBRARIES_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Library");
 
 const char IMPORT_WIZARD_CATEGORY[] = "T.Import";
 const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Import Project");
 
 // Wizard extra values
-const char PREFERED_PROJECT_NODE[] = "ProjectExplorer.PreferedProjectNode";
+const char PREFERRED_PROJECT_NODE[] = "ProjectExplorer.PreferredProjectNode";
 const char PROJECT_KIT_IDS[] = "ProjectExplorer.Profile.Ids";
 
 // Build step lists ids:
@@ -216,14 +212,14 @@ const char BUILDSTEPS_DEPLOY[] = "ProjectExplorer.BuildSteps.Deploy";
 // Deploy Configuration id:
 const char DEFAULT_DEPLOYCONFIGURATION_ID[] = "ProjectExplorer.DefaultDeployConfiguration";
 
-// ToolChain Ids
-const char CLANG_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Clang";
-const char GCC_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Gcc";
-const char LINUXICC_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.LinuxIcc";
-const char MINGW_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Mingw";
-const char MSVC_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Msvc";
-const char WINCE_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.WinCE";
-const char CUSTOM_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Custom";
+// ToolChain TypeIds
+const char CLANG_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Clang";
+const char GCC_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Gcc";
+const char LINUXICC_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.LinuxIcc";
+const char MINGW_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Mingw";
+const char MSVC_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Msvc";
+const char WINCE_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.WinCE";
+const char CUSTOM_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Custom";
 
 // Default directory to run custom (build) commands in.
 const char DEFAULT_WORKING_DIR[] = "%{buildDir}";
@@ -244,35 +240,33 @@ const char VAR_CURRENTKIT_FILESYSTEMNAME[] = "CurrentKit:FileSystemName";
 const char VAR_CURRENTKIT_ID[] = "CurrentKit:Id";
 const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
 const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
-const char VAR_CURRENTSESSION_PREFIX[] = "CurrentSession";
-const char VAR_CURRENTSESSION_NAME[] = "CurrentSession:Name";
 const char VAR_CURRENTDEVICE_HOSTADDRESS[] = "CurrentDevice:HostAddress";
 const char VAR_CURRENTDEVICE_SSHPORT[] = "CurrentDevice:SshPort";
 const char VAR_CURRENTDEVICE_USERNAME[] = "CurrentDevice:UserName";
 const char VAR_CURRENTDEVICE_PRIVATEKEYFILE[] = "CurrentDevice:PrivateKeyFile";
 
 const char HIDE_FILE_FILTER_SETTING[] = "GenericProject/FileFilter";
-const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes; *.autosave";
+const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; *.files;"
+    " *.config; *.creator; *.user; *.includes; *.autosave";
 
 const char SHOW_FILE_FILTER_SETTING[] = "GenericProject/ShowFileFilter";
 const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
 
-// Unconfigured Panel
-const char UNCONFIGURED_PANEL_PAGE_ID[] = "UnconfiguredPanel";
+// JsonWizard:
+const char PAGE_ID_PREFIX[] = "PE.Wizard.Page.";
+const char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";
+
+// RunMode
+const char NO_RUN_MODE[]="RunConfiguration.NoRunMode";
+const char NORMAL_RUN_MODE[]="RunConfiguration.NormalRunMode";
+const char QML_PROFILER_RUN_MODE[]="RunConfiguration.QmlProfilerRunMode";
+const char DEBUG_RUN_MODE[]="RunConfiguration.DebugRunMode";
+const char DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN[]="RunConfiguration.DebugRunModeWithBreakOnMain";
+
+// Navigation Widget
+const char PROJECTTREE_ID[] = "Projects";
 
 } // namespace Constants
-
-// Run modes
-enum RunMode {
-    NoRunMode,
-    NormalRunMode,
-    DebugRunMode,
-    DebugRunModeWithBreakOnMain,
-    QmlProfilerRunMode,
-    CallgrindRunMode,
-    MemcheckRunMode
-};
-
 } // namespace ProjectExplorer
 
 #endif // PROJECTEXPLORERCONSTANTS_H

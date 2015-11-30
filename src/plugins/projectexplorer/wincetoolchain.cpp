@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,7 @@
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -116,7 +118,7 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
 Utils::Environment WinCEToolChain::readEnvironmentSetting(Utils::Environment &env) const
 {
     Utils::Environment result = env;
-    if (!QFileInfo(m_vcvarsBat).exists())
+    if (!QFileInfo::exists(m_vcvarsBat))
         return result;
 
     // Get the env pairs
@@ -126,7 +128,7 @@ Utils::Environment WinCEToolChain::readEnvironmentSetting(Utils::Environment &en
         return result;
 
     QMap<QString,QString>::const_iterator envPairIter;
-    for (envPairIter = envPairs.begin(); envPairIter!=envPairs.end(); ++envPairIter) {
+    for (envPairIter = envPairs.constBegin(); envPairIter!=envPairs.constEnd(); ++envPairIter) {
         // Replace the env values with those from the WinCE SDK
         QString varValue = envPairIter.value();
         if (envPairIter.key() == QLatin1String("PATH"))
@@ -241,7 +243,7 @@ WinCEToolChain::WinCEToolChain(const QString &name,
                                const QString &includePath,
                                const QString &libPath,
                                Detection d) :
-    AbstractMsvcToolChain(QLatin1String(Constants::WINCE_TOOLCHAIN_ID), d, abi, vcvarsBat),
+    AbstractMsvcToolChain(Constants::WINCE_TOOLCHAIN_TYPEID, d, abi, vcvarsBat),
     m_msvcVer(msvcVer),
     m_ceVer(ceVer),
     m_binPath(binPath),
@@ -257,7 +259,7 @@ WinCEToolChain::WinCEToolChain(const QString &name,
 }
 
 WinCEToolChain::WinCEToolChain() :
-    AbstractMsvcToolChain(QLatin1String(Constants::WINCE_TOOLCHAIN_ID), ManualDetection)
+    AbstractMsvcToolChain(Constants::WINCE_TOOLCHAIN_TYPEID, ManualDetection)
 {
 }
 
@@ -270,17 +272,12 @@ WinCEToolChain *WinCEToolChain::readFromMap(const QVariantMap &data)
     return 0;
 }
 
-QString WinCEToolChain::type() const
-{
-    return QLatin1String("wince");
-}
-
 QString WinCEToolChain::typeDisplayName() const
 {
     return WinCEToolChainFactory::tr("WinCE");
 }
 
-QList<Utils::FileName> WinCEToolChain::suggestedMkspecList() const
+Utils::FileNameList WinCEToolChain::suggestedMkspecList() const
 {
     const QChar specSeperator(QLatin1Char('-'));
 
@@ -292,7 +289,7 @@ QList<Utils::FileName> WinCEToolChain::suggestedMkspecList() const
     specString += specSeperator;
     specString += m_msvcVer;
 
-    return QList<Utils::FileName>() << Utils::FileName::fromString(specString);
+    return Utils::FileNameList() << Utils::FileName::fromString(specString);
 }
 
 
@@ -353,12 +350,35 @@ ToolChain *WinCEToolChain::clone() const
 
 WinCEToolChainFactory::WinCEToolChainFactory()
 {
-    setId(Constants::WINCE_TOOLCHAIN_ID);
     setDisplayName(tr("WinCE"));
 }
 
+static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
+                                        const QString &name, const Abi &abi,
+                                        const QString &vcvarsBat, const QString &msvcVer,
+                                        const QString &ceVer, const QString &binPath,
+                                        const QString &includePath, const QString &libPath,
+                                        ToolChain::Detection d = ToolChain::ManualDetection)
+{
+    ToolChain *tc
+            = Utils::findOrDefault(alreadyKnown, [&](ToolChain *tc) -> bool {
+                                       if (tc->typeId() != Constants::WINCE_TOOLCHAIN_TYPEID)
+                                           return false;
+                                       auto cetc = static_cast<WinCEToolChain *>(tc);
+                                       return cetc->targetAbi() == abi
+                                                  && cetc->varsBat() == vcvarsBat
+                                                  && cetc->msvcVer() == msvcVer
+                                                  && cetc->ceVer() == ceVer
+                                                  && cetc->binPath() == binPath
+                                                  && cetc->includePath() == includePath
+                                                  && cetc->libPath() == libPath;
+                                         });
+    if (!tc)
+        tc = new WinCEToolChain(name, abi, vcvarsBat, msvcVer, ceVer, binPath, includePath, libPath, d);
+    return tc;
+}
 
-QList<ToolChain *> WinCEToolChainFactory::autoDetect()
+QList<ToolChain *> WinCEToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> results;
 
@@ -402,16 +422,16 @@ QList<ToolChain *> WinCEToolChainFactory::autoDetect()
                         QString ceVer;
 
                         if (parseSDK(platformReader, theArch, thePlat, ceVer, binPath, includePath, libPath)) {
-                            WinCEToolChain *pChain = new WinCEToolChain(thePlat,
-                                                                        Abi(theArch, Abi::WindowsOS, Abi::WindowsCEFlavor, Abi::PEFormat, 32),
-                                                                        vcvars32bat,
-                                                                        msvcVer,
-                                                                        ceVer,
-                                                                        binPath,
-                                                                        includePath,
-                                                                        libPath,
-                                                                        ToolChain::AutoDetection);
-                            results.append(pChain);
+                            results.append(findOrCreateToolChain(alreadyKnown,
+                                                                 thePlat,
+                                                                 Abi(theArch, Abi::WindowsOS, Abi::WindowsCEFlavor, Abi::PEFormat, 32),
+                                                                 vcvars32bat,
+                                                                 msvcVer,
+                                                                 ceVer,
+                                                                 binPath,
+                                                                 includePath,
+                                                                 libPath,
+                                                                 ToolChain::AutoDetection));
                         }
                     }
                 }
@@ -431,7 +451,7 @@ QString WinCEToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /*
 
 bool WinCEToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QLatin1String(Constants::WINCE_TOOLCHAIN_ID) + QLatin1Char(':'));
+    return typeIdFromMap(data) == Constants::WINCE_TOOLCHAIN_TYPEID;
 }
 
 bool WinCEToolChain::operator ==(const ToolChain &other) const

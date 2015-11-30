@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -86,7 +87,7 @@ using namespace ProjectExplorer;
      Should be used in init().
 */
 
-AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, const Core::Id id) :
+AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
     BuildStep(bsl, id), m_timer(0), m_futureInterface(0),
     m_ignoreReturnValue(false), m_process(0),
     m_outputParserChain(0), m_skipFlush(false)
@@ -116,17 +117,17 @@ AbstractProcessStep::~AbstractProcessStep()
      Derived classes need to call this function.
 */
 
-void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser)
+void AbstractProcessStep::setOutputParser(IOutputParser *parser)
 {
     delete m_outputParserChain;
     m_outputParserChain = new AnsiFilterParser;
     m_outputParserChain->appendOutputParser(parser);
 
     if (m_outputParserChain) {
-        connect(m_outputParserChain, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
-                this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
-        connect(m_outputParserChain, SIGNAL(addTask(ProjectExplorer::Task)),
-                this, SLOT(taskAdded(ProjectExplorer::Task)));
+        connect(m_outputParserChain, &IOutputParser::addOutput,
+                this, &AbstractProcessStep::outputAdded);
+        connect(m_outputParserChain, &IOutputParser::addTask,
+                this, &AbstractProcessStep::taskAdded);
     }
 }
 
@@ -134,7 +135,7 @@ void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser
     Appends the given output parser to the existing chain of parsers.
 */
 
-void AbstractProcessStep::appendOutputParser(ProjectExplorer::IOutputParser *parser)
+void AbstractProcessStep::appendOutputParser(IOutputParser *parser)
 {
     if (!parser)
         return;
@@ -144,9 +145,15 @@ void AbstractProcessStep::appendOutputParser(ProjectExplorer::IOutputParser *par
     return;
 }
 
-ProjectExplorer::IOutputParser *AbstractProcessStep::outputParser() const
+IOutputParser *AbstractProcessStep::outputParser() const
 {
     return m_outputParserChain;
+}
+
+void AbstractProcessStep::emitFaultyConfigurationMessage()
+{
+    emit addOutput(tr("Configuration is faulty. Check the Issues view for details."),
+                   BuildStep::MessageOutput);
 }
 
 bool AbstractProcessStep::ignoreReturnValue()
@@ -171,8 +178,9 @@ void AbstractProcessStep::setIgnoreReturnValue(bool b)
     YourBuildStep::init().
 */
 
-bool AbstractProcessStep::init()
+bool AbstractProcessStep::init(QList<const BuildStep *> &earlierSteps)
 {
+    Q_UNUSED(earlierSteps);
     return true;
 }
 
@@ -185,11 +193,19 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 {
     m_futureInterface = &fi;
     QDir wd(m_param.effectiveWorkingDirectory());
-    if (!wd.exists())
-        wd.mkpath(wd.absolutePath());
+    if (!wd.exists()) {
+        if (!wd.mkpath(wd.absolutePath())) {
+            emit addOutput(tr("Could not create directory \"%1\"")
+                           .arg(QDir::toNativeSeparators(wd.absolutePath())),
+                           BuildStep::ErrorMessageOutput);
+            fi.reportResult(false);
+            emit finished();
+            return;
+        }
+    }
 
     QString effectiveCommand = m_param.effectiveCommand();
-    if (!QFileInfo(effectiveCommand).exists()) {
+    if (!QFileInfo::exists(effectiveCommand)) {
         processStartupFailed();
         fi.reportResult(false);
         emit finished();
@@ -197,9 +213,8 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     }
 
     m_process = new Utils::QtcProcess();
-#ifdef Q_OS_WIN
-    m_process->setUseCtrlCStub(true);
-#endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        m_process->setUseCtrlCStub(true);
     m_process->setWorkingDirectory(wd.absolutePath());
     m_process->setEnvironment(m_param.environment());
 
@@ -377,7 +392,7 @@ void AbstractProcessStep::checkForCancel()
     }
 }
 
-void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
+void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int skipLines)
 {
     // Do not bother to report issues if we do not care about the results of
     // the buildstep anyway:
@@ -401,8 +416,8 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
         // 3. give up.
 
         QList<QFileInfo> possibleFiles;
-        QString fileName = QFileInfo(filePath).fileName();
-        foreach (const QString &file, project()->files(ProjectExplorer::Project::AllFiles)) {
+        QString fileName = Utils::FileName::fromString(filePath).fileName();
+        foreach (const QString &file, project()->files(Project::AllFiles)) {
             QFileInfo candidate(file);
             if (candidate.fileName() == fileName)
                 possibleFiles << candidate;
@@ -429,10 +444,10 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
                 qWarning() << "Could not find absolute location of file " << filePath;
         }
     }
-    emit addTask(editable);
+    emit addTask(editable, linkedOutputLines, skipLines);
 }
 
-void AbstractProcessStep::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
+void AbstractProcessStep::outputAdded(const QString &string, BuildStep::OutputFormat format)
 {
     emit addOutput(string, format, BuildStep::DontAppendNewline);
 }

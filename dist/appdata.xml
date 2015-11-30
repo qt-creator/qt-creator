@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2015 The Qt Company Ltd. Contact: http://www.qt.io/licensing -->
+<application>
+ <id type="desktop">qtcreator.desktop</id>
+ <licence>CC-BY-SA</licence>
+ <description>
+  <p>
+   Qt Creator provides a cross-platform, complete integrated development
+   environment (IDE) for application developers to create applications for
+   multiple desktop and mobile device platforms, such as Android and iOS.
+  </p>
+  <p>
+   Qt Creator enables a team of developers to share a project across different
+   development platforms with a common tool for development and debugging.
+  </p>
+  <p>
+   The main goal for Qt Creator is meeting the development needs of Qt
+   developers who are looking for simplicity, usability, productivity,
+   extendibility and openness, while aiming to lower the barrier of entry for
+   newcomers to Qt.
+  </p>
+ </description>
+ <screenshots>
+  <screenshot type="default" width="800" height="600">http://qt-project.org/uploads/image_upload/qtcreator-edit-mode.png</screenshot>
+ </screenshots>
+ <url type="homepage">https://wiki.qt.io/Category:Tools::QtCreator</url>
+ <project_group>Qt</project_group>
+</application>

@@ -12,7 +12,7 @@ SOURCES += tst_qmllookup.cpp
 
 RESOURCES += testfiles.qrc
 
-OTHER_FILES += \
+DISTFILES += \
     data/localIdLookup.qml \
     data/localScriptMethodLookup.qml \
     data/localScopeLookup.qml \

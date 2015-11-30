@@ -37,18 +37,11 @@ public:
     ~Lexer();
 
     Control *control() const { return _control; }
-    TranslationUnit *translationUnit() const;
 
     void scan(Token *tok);
 
     inline void operator()(Token *tok)
     { scan(tok); }
-
-    unsigned tokenOffset() const;
-    unsigned tokenLength() const;
-    const char *tokenBegin() const;
-    const char *tokenEnd() const;
-    unsigned currentLine() const;
 
     bool scanCommentTokens() const;
     void setScanCommentTokens(bool onoff);
@@ -67,7 +60,33 @@ public:
     LanguageFeatures languageFeatures() const { return _languageFeatures; }
     void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
 
+    void setPreprocessorMode(bool onoff)
+    { f._ppMode = onoff; }
+
+public:
+    static void yyinp_utf8(const char *&currentSourceChar, unsigned char &yychar,
+                           unsigned &utf16charCounter)
+    {
+        ++utf16charCounter;
+
+        // Process multi-byte UTF-8 code point (non-latin1)
+        if (CPLUSPLUS_UNLIKELY(isByteOfMultiByteCodePoint(yychar))) {
+            unsigned trailingBytesCurrentCodePoint = 1;
+            for (unsigned char c = yychar << 2; isByteOfMultiByteCodePoint(c); c <<= 1)
+                ++trailingBytesCurrentCodePoint;
+            // Code points >= 0x00010000 are represented by two UTF-16 code units
+            if (trailingBytesCurrentCodePoint >= 3)
+                ++utf16charCounter;
+            yychar = *(currentSourceChar += trailingBytesCurrentCodePoint + 1);
+
+            // Process single-byte UTF-8 code point (latin1)
+        } else {
+            yychar = *++currentSourceChar;
+        }
+    }
+
 private:
+    void pushLineStartOffset();
     void scan_helper(Token *tok);
     void setSource(const char *firstChar, const char *lastChar);
     static int classify(const char *string, int length, LanguageFeatures features);
@@ -76,27 +95,36 @@ private:
 
     void scanStringLiteral(Token *tok, unsigned char hint = 0);
     void scanRawStringLiteral(Token *tok, unsigned char hint = 0);
+    bool scanUntilRawStringLiteralEndSimple();
     void scanCharLiteral(Token *tok, unsigned char hint = 0);
     void scanUntilQuote(Token *tok, unsigned char quote);
+    bool scanDigitSequence();
+    bool scanExponentPart();
+    bool scanOptionalFloatingSuffix();
+    bool scanOptionalIntegerSuffix(bool allowU = true);
+    void scanOptionalUserDefinedLiteral(Token *tok);
     void scanNumericLiteral(Token *tok);
+    void scanPreprocessorNumber(Token *tok, bool dotAlreadySkipped);
     void scanIdentifier(Token *tok, unsigned extraProcessedChars = 0);
     void scanBackslash(Kind type);
     void scanCppComment(Kind type);
 
-    inline void yyinp()
+    static bool isByteOfMultiByteCodePoint(unsigned char byte)
+    { return byte & 0x80; } // Check if most significant bit is set
+
+    void yyinp()
     {
-        _yychar = *++_currentChar;
+        yyinp_utf8(_currentChar, _yychar, _currentCharUtf16);
         if (CPLUSPLUS_UNLIKELY(_yychar == '\n'))
             pushLineStartOffset();
     }
-
-    void pushLineStartOffset();
 
 private:
     struct Flags {
         unsigned _scanCommentTokens: 1;
         unsigned _scanKeywords: 1;
         unsigned _scanAngleStringLiteralTokens: 1;
+        unsigned _ppMode: 1;
     };
 
     struct State {
@@ -111,6 +139,10 @@ private:
     const char *_lastChar;
     const char *_tokenStart;
     unsigned char _yychar;
+
+    unsigned _currentCharUtf16;
+    unsigned _tokenStartUtf16;
+
     union {
         unsigned char _state;
         State s;
@@ -119,12 +151,11 @@ private:
         unsigned _flags;
         Flags f;
     };
+
     unsigned _currentLine;
     LanguageFeatures _languageFeatures;
-
 };
 
 } // namespace CPlusPlus
-
 
 #endif // CPLUSPLUS_LEXER_H

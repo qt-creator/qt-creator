@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -86,7 +82,7 @@ ModelNode::ModelNode(const InternalNodePointer &internalNode, Model *model, cons
     Q_ASSERT(!m_model || m_view);
 }
 
-ModelNode::ModelNode(const ModelNode modelNode, AbstractView *view)
+ModelNode::ModelNode(const ModelNode &modelNode, AbstractView *view)
     : m_internalNode(modelNode.m_internalNode),
       m_model(modelNode.model()),
       m_view(view)
@@ -140,7 +136,7 @@ QString ModelNode::id() const
 QString ModelNode::validId()
 {
     if (id().isEmpty())
-        setId(view()->generateNewId(QString::fromUtf8(simplifiedTypeName())));
+        setIdWithRefactoring(view()->generateNewId(QString::fromUtf8(simplifiedTypeName())));
 
     return id();
 }
@@ -148,14 +144,14 @@ QString ModelNode::validId()
 static bool idIsQmlKeyWord(const QString& id)
 {
     QStringList keywords;
-    keywords << "import" << "as";
+    keywords << QLatin1String("import") << QLatin1String("as");
 
     return keywords.contains(id);
 }
 
 static bool idContainsWrongLetter(const QString& id)
 {
-    static QRegExp idExpr(QLatin1String("[a-z_][a-zA-Z0-9_]*"));
+    static QRegExp idExpr(QStringLiteral("[a-z_][a-zA-Z0-9_]*"));
     return !idExpr.exactMatch(id);
 }
 
@@ -164,7 +160,26 @@ bool ModelNode::isValidId(const QString &id)
     return id.isEmpty() || (!idContainsWrongLetter(id) && !idIsQmlKeyWord(id));
 }
 
-void ModelNode::setId(const QString& id)
+bool ModelNode::hasId() const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return m_internalNode->hasId();
+}
+
+void ModelNode::setIdWithRefactoring(const QString& id)
+{
+    if (model()->rewriterView()
+            && !id.isEmpty()
+            && !m_internalNode->id().isEmpty()) { // refactor the id if they are not empty
+        model()->rewriterView()->renameId(m_internalNode->id(), id);
+    } else {
+        setIdWithoutRefactoring(id);
+    }
+}
+
+void ModelNode::setIdWithoutRefactoring(const QString &id)
 {
     Internal::WriteLocker locker(m_model.data());
     if (!isValid()) {
@@ -173,13 +188,13 @@ void ModelNode::setId(const QString& id)
     }
 
     if (!isValidId(id))
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id, InvalidIdException::InvalidCharacters);
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toUtf8(), InvalidIdException::InvalidCharacters);
 
-    if (id == ModelNode::id())
+    if (id == m_internalNode->id())
         return;
 
     if (view()->hasId(id))
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id, InvalidIdException::DuplicateId);
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toUtf8(), InvalidIdException::DuplicateId);
 
     m_model.data()->d->changeNodeId(internalNode(), id);
 }
@@ -426,6 +441,15 @@ NodeAbstractProperty ModelNode::defaultNodeAbstractProperty() const
     return nodeAbstractProperty(metaInfo().defaultPropertyName());
 }
 
+NodeListProperty ModelNode::defaultNodeListProperty() const
+{
+    return nodeListProperty(metaInfo().defaultPropertyName());
+}
+
+NodeProperty ModelNode::defaultNodeProperty() const
+{
+    return nodeProperty(metaInfo().defaultPropertyName());
+}
 
 /*!
   \brief Returns a VariantProperty
@@ -555,12 +579,12 @@ Does nothing if the node state does not set this property.
 
 \see addProperty property  properties hasProperties
 */
-void ModelNode::removeProperty(const PropertyName &name)
+void ModelNode::removeProperty(const PropertyName &name) const
 {
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    model()->d->checkPropertyName(name);
+    model()->d->checkPropertyName(QString::fromUtf8(name));
 
     if (internalNode()->hasProperty(name))
         model()->d->removeProperty(internalNode()->property(name));
@@ -572,8 +596,8 @@ void ModelNode::removeProperty(const PropertyName &name)
 
 static QList<ModelNode> descendantNodes(const ModelNode &parent)
 {
-    QList<ModelNode> descendants(parent.allDirectSubModelNodes());
-    foreach (const ModelNode &child, parent.allDirectSubModelNodes()) {
+    QList<ModelNode> descendants(parent.directSubModelNodes());
+    foreach (const ModelNode &child, parent.directSubModelNodes()) {
         descendants += descendantNodes(child);
     }
     return descendants;
@@ -694,7 +718,7 @@ The list contains every ModelNode that belongs to one of this ModelNodes
 properties.
 \return a list of all ModelNodes that are direct children
 */
-const QList<ModelNode> ModelNode::allDirectSubModelNodes() const
+const QList<ModelNode> ModelNode::directSubModelNodes() const
 {
     return toModelNodeList(internalNode()->allDirectSubNodes(), view());
 }
@@ -710,6 +734,15 @@ All children in this list will be implicitly removed if this ModelNode is destro
 const QList<ModelNode> ModelNode::allSubModelNodes() const
 {
     return toModelNodeList(internalNode()->allSubNodes(), view());
+}
+
+const QList<ModelNode> ModelNode::allSubModelNodesAndThisNode() const
+{
+    QList<ModelNode> modelNodeList;
+    modelNodeList.append(*this);
+    modelNodeList.append(allSubModelNodes());
+
+    return modelNodeList;
 }
 
 /*!
@@ -802,14 +835,24 @@ bool ModelNode::hasBindingProperty(const PropertyName &name) const
     return hasProperty(name) && internalNode()->property(name)->isBindingProperty();
 }
 
-bool ModelNode::hasNodeAbstracProperty(const PropertyName &name) const
+bool ModelNode::hasNodeAbstractProperty(const PropertyName &name) const
 {
     return hasProperty(name) && internalNode()->property(name)->isNodeAbstractProperty();
 }
 
-bool ModelNode::hasDefaultNodeAbstracProperty() const
+bool ModelNode::hasDefaultNodeAbstractProperty() const
 {
     return hasProperty(metaInfo().defaultPropertyName()) && internalNode()->property(metaInfo().defaultPropertyName())->isNodeAbstractProperty();
+}
+
+bool ModelNode::hasDefaultNodeListProperty() const
+{
+    return hasProperty(metaInfo().defaultPropertyName()) && internalNode()->property(metaInfo().defaultPropertyName())->isNodeListProperty();
+}
+
+bool ModelNode::hasDefaultNodeProperty() const
+{
+    return hasProperty(metaInfo().defaultPropertyName()) && internalNode()->property(metaInfo().defaultPropertyName())->isNodeProperty();
 }
 
 bool ModelNode::hasNodeProperty(const PropertyName &name) const
@@ -911,6 +954,12 @@ void ModelNode::setAuxiliaryData(const PropertyName &name, const QVariant &data)
     m_model.data()->d->setAuxiliaryData(internalNode(), name, data);
 }
 
+void ModelNode::removeAuxiliaryData(const PropertyName &name)
+{
+    Internal::WriteLocker locker(m_model.data());
+    m_model.data()->d->removeAuxiliaryData(internalNode(), name);
+}
+
 bool ModelNode::hasAuxiliaryData(const PropertyName &name) const
 {
     if (!isValid())
@@ -974,9 +1023,9 @@ QString ModelNode::convertTypeToImportAlias() const
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
     if (model()->rewriterView())
-        return model()->rewriterView()->convertTypeToImportAlias(type());
+        return model()->rewriterView()->convertTypeToImportAlias(QString::fromLatin1(type()));
 
-    return type();
+    return QString::fromLatin1(type());
 }
 
 ModelNode::NodeSourceType ModelNode::nodeSourceType() const
@@ -1006,6 +1055,41 @@ bool ModelNode::isComponent() const
         if (nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
             return true;
     }
+
+    if (metaInfo().isSubclassOf("QtQuick.Loader", -1 , -1)) {
+
+        if (hasNodeListProperty("component")) {
+
+        /*
+         * The component property should be a NodeProperty, but currently is a NodeListProperty, because
+         * the default property is always implcitly a NodeListProperty. This is something that has to be fixed.
+         */
+
+            ModelNode componentNode = nodeListProperty("component").toModelNodeList().first();
+            if (componentNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
+                return true;
+            if (componentNode.metaInfo().isFileComponent())
+                return true;
+        }
+
+        if (hasNodeProperty("sourceComponent")) {
+            if (nodeProperty("sourceComponent").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
+                return true;
+            if (nodeProperty("sourceComponent").modelNode().metaInfo().isFileComponent())
+                return true;
+        }
+
+        if (hasVariantProperty("source"))
+            return true;
+    }
+
+    return false;
+}
+
+bool ModelNode::isSubclassOf(const TypeName &typeName, int majorVersion, int minorVersion) const
+{
+    if (metaInfo().isValid())
+        return metaInfo().isSubclassOf(typeName, majorVersion, minorVersion);
 
     return false;
 }

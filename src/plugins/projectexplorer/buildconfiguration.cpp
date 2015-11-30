@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,12 +37,14 @@
 #include "project.h"
 #include "kit.h"
 
-#include <coreplugin/variablemanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/projectmacroexpander.h>
 #include <extensionsystem/pluginmanager.h>
+#include <coreplugin/idocument.h>
 
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
+#include <utils/macroexpander.h>
+#include <utils/algorithm.h>
 
 #include <QDebug>
 
@@ -52,35 +55,10 @@ static const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfigu
 static const char BUILDDIRECTORY_KEY[] = "ProjectExplorer.BuildConfiguration.BuildDirectory";
 
 namespace ProjectExplorer {
-namespace Internal {
 
-class BuildConfigMacroExpander : public Utils::AbstractQtcMacroExpander {
-public:
-    explicit BuildConfigMacroExpander(const BuildConfiguration *bc) : m_bc(bc) {}
-    virtual bool resolveMacro(const QString &name, QString *ret);
-private:
-    const BuildConfiguration *m_bc;
-};
-
-bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
-{
-    if (name == QLatin1String("sourceDir")) {
-        *ret = QDir::toNativeSeparators(m_bc->target()->project()->projectDirectory());
-        return true;
-    }
-    if (name == QLatin1String("buildDir")) {
-        *ret = m_bc->buildDirectory().toUserOutput();
-        return true;
-    }
-    *ret = Core::VariableManager::value(name.toUtf8());
-    return !ret->isEmpty();
-}
-} // namespace Internal
-
-BuildConfiguration::BuildConfiguration(Target *target, const Core::Id id) :
+BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
     ProjectConfiguration(target, id),
-    m_clearSystemEnvironment(false),
-    m_macroExpander(0)
+    m_clearSystemEnvironment(false)
 {
     Q_ASSERT(target);
     BuildStepList *bsl = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_BUILD));
@@ -97,13 +75,14 @@ BuildConfiguration::BuildConfiguration(Target *target, const Core::Id id) :
     connect(target, SIGNAL(kitChanged()),
             this, SLOT(handleKitUpdate()));
     connect(this, SIGNAL(environmentChanged()), this, SLOT(emitBuildDirectoryChanged()));
+
+    ctor();
 }
 
 BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
     ProjectConfiguration(target, source),
     m_clearSystemEnvironment(source->m_clearSystemEnvironment),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
-    m_macroExpander(0),
     m_buildDirectory(source->m_buildDirectory)
 {
     Q_ASSERT(target);
@@ -115,17 +94,29 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
 
     connect(target, SIGNAL(kitChanged()),
             this, SLOT(handleKitUpdate()));
+
+    ctor();
 }
 
-BuildConfiguration::~BuildConfiguration()
+void BuildConfiguration::ctor()
 {
-    delete m_macroExpander;
+    Utils::MacroExpander *expander = macroExpander();
+    expander->setDisplayName(tr("Build Settings"));
+    expander->setAccumulating(true);
+    expander->registerSubProvider([this] { return target()->macroExpander(); });
+
+    expander->registerVariable("buildDir", tr("Build directory"),
+            [this] { return buildDirectory().toUserOutput(); });
+
+    expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME,
+            QCoreApplication::translate("ProjectExplorer", "Name of current build"),
+            [this] { return displayName(); }, false);
 }
 
 Utils::FileName BuildConfiguration::buildDirectory() const
 {
     QString path = QDir::cleanPath(environment().expandVariables(m_buildDirectory.toString()));
-    return Utils::FileName::fromString(QDir::cleanPath(QDir(target()->project()->projectDirectory()).absoluteFilePath(path)));
+    return Utils::FileName::fromString(QDir::cleanPath(QDir(target()->project()->projectDirectory().toString()).absoluteFilePath(path)));
 }
 
 Utils::FileName BuildConfiguration::rawBuildDirectory() const
@@ -141,30 +132,17 @@ void BuildConfiguration::setBuildDirectory(const Utils::FileName &dir)
 
 QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
 {
-    return QList<NamedWidget *>() << new ProjectExplorer::BuildEnvironmentWidget(this);
-}
-
-Utils::AbstractMacroExpander *BuildConfiguration::macroExpander()
-{
-    if (!m_macroExpander)
-        m_macroExpander = new Internal::BuildConfigMacroExpander(this);
-    return m_macroExpander;
+    return QList<NamedWidget *>() << new BuildEnvironmentWidget(this);
 }
 
 QList<Core::Id> BuildConfiguration::knownStepLists() const
 {
-    QList<Core::Id> result;
-    foreach (BuildStepList *list, m_stepLists)
-        result.append(list->id());
-    return result;
+    return Utils::transform(m_stepLists, &BuildStepList::id);
 }
 
 BuildStepList *BuildConfiguration::stepList(Core::Id id) const
 {
-    foreach (BuildStepList *list, m_stepLists)
-        if (id == list->id())
-            return list;
-    return 0;
+    return Utils::findOrDefault(m_stepLists, Utils::equal(&BuildStepList::id, id));
 }
 
 QVariantMap BuildConfiguration::toMap() const
@@ -213,8 +191,8 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     }
 
     // We currently assume there to be at least a clean and build list!
-    QTC_CHECK(knownStepLists().contains(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
-    QTC_CHECK(knownStepLists().contains(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
+    QTC_CHECK(knownStepLists().contains(Core::Id(Constants::BUILDSTEPS_BUILD)));
+    QTC_CHECK(knownStepLists().contains(Core::Id(Constants::BUILDSTEPS_CLEAN)));
 
     return ProjectConfiguration::fromMap(map);
 }
@@ -253,6 +231,7 @@ Utils::Environment BuildConfiguration::baseEnvironment() const
     if (useSystemEnvironment())
         result = Utils::Environment::systemEnvironment();
     target()->kit()->addToEnvironment(result);
+    addToEnvironment(result);
     return result;
 }
 
@@ -275,6 +254,11 @@ void BuildConfiguration::setUseSystemEnvironment(bool b)
         return;
     m_clearSystemEnvironment = !b;
     emitEnvironmentChanged();
+}
+
+void BuildConfiguration::addToEnvironment(Utils::Environment &env) const
+{
+    Q_UNUSED(env);
 }
 
 bool BuildConfiguration::useSystemEnvironment() const
@@ -318,6 +302,21 @@ QString BuildConfiguration::disabledReason() const
     return QString();
 }
 
+QString BuildConfiguration::buildTypeName(BuildConfiguration::BuildType type)
+{
+    switch (type) {
+    case ProjectExplorer::BuildConfiguration::Debug:
+        return QLatin1String("debug");
+    case ProjectExplorer::BuildConfiguration::Profile:
+        return QLatin1String("profile");
+    case ProjectExplorer::BuildConfiguration::Release:
+        return QLatin1String("release");
+    case ProjectExplorer::BuildConfiguration::Unknown: // fallthrough
+    default:
+        return QLatin1String("unknown");
+    }
+}
+
 ///
 // IBuildConfigurationFactory
 ///
@@ -333,12 +332,21 @@ IBuildConfigurationFactory::~IBuildConfigurationFactory()
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
     QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>();
-    foreach (IBuildConfigurationFactory *factory, factories) {
-        if (factory->canRestore(parent, map))
-            return factory;
+            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>(
+                [&parent, map](IBuildConfigurationFactory *factory) {
+                    return factory->canRestore(parent, map);
+                });
+
+    IBuildConfigurationFactory *factory = 0;
+    int priority = -1;
+    foreach (IBuildConfigurationFactory *i, factories) {
+        int iPriority = i->priority(parent);
+        if (iPriority > priority) {
+            factory = i;
+            priority = iPriority;
+        }
     }
-    return 0;
+    return factory;
 }
 
 // setup
@@ -362,7 +370,7 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(Kit *k, const QStri
 IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 {
     QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>();
+            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
     IBuildConfigurationFactory *factory = 0;
     int priority = -1;
     foreach (IBuildConfigurationFactory *i, factories) {
@@ -379,11 +387,20 @@ IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, BuildConfiguration *bc)
 {
     QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>();
-    foreach (IBuildConfigurationFactory *factory, factories) {
-        if (factory->canClone(parent, bc))
-            return factory;
+            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>(
+                [&parent, &bc](IBuildConfigurationFactory *factory) {
+                    return factory->canClone(parent, bc);
+                });
+
+    IBuildConfigurationFactory *factory = 0;
+    int priority = -1;
+    foreach (IBuildConfigurationFactory *i, factories) {
+        int iPriority = i->priority(parent);
+        if (iPriority > priority) {
+            factory = i;
+            priority = iPriority;
+        }
     }
-    return 0;
+    return factory;
 }
 } // namespace ProjectExplorer

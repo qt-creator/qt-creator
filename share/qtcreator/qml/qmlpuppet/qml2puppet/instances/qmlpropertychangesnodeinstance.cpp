@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,52 +9,41 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "qmlpropertychangesnodeinstance.h"
 #include "qmlstatenodeinstance.h"
+
+#include <qmlprivategate.h>
+
 #include <QQmlEngine>
 #include <QQmlContext>
 #include <QQmlExpression>
-#include <private/qqmlbinding_p.h>
 #include <QMutableListIterator>
-
-
-#include <private/qquickstate_p_p.h>
-#include <private/qquickpropertychanges_p.h>
-#include <private/qqmlproperty_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
-QmlPropertyChangesNodeInstance::QmlPropertyChangesNodeInstance(QQuickPropertyChanges *propertyChangesObject) :
+QmlPropertyChangesNodeInstance::QmlPropertyChangesNodeInstance(QObject *propertyChangesObject) :
         ObjectNodeInstance(propertyChangesObject)
 {
 }
 
 QmlPropertyChangesNodeInstance::Pointer QmlPropertyChangesNodeInstance::create(QObject *object)
 {
-    QQuickPropertyChanges *propertyChange = qobject_cast<QQuickPropertyChanges*>(object);
-
-    Q_ASSERT(propertyChange);
-
-    Pointer instance(new QmlPropertyChangesNodeInstance(propertyChange));
+    Pointer instance(new QmlPropertyChangesNodeInstance(object));
 
     instance->populateResetHashes();
 
@@ -63,55 +52,49 @@ QmlPropertyChangesNodeInstance::Pointer QmlPropertyChangesNodeInstance::create(Q
 
 void QmlPropertyChangesNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
-    QMetaObject metaObject = QQuickPropertyChanges::staticMetaObject;
-
-    if (metaObject.indexOfProperty(name) > 0) { // 'restoreEntryValues', 'explicit'
+    if (QmlPrivateGate::PropertyChanges::isNormalProperty(name)) { // 'restoreEntryValues', 'explicit'
         ObjectNodeInstance::setPropertyVariant(name, value);
     } else {
-        changesObject()->changeValue(name, value);
-        QObject *targetObject = changesObject()->object();
-        if (targetObject && nodeInstanceServer()->activeStateInstance().isWrappingThisObject(changesObject()->state())) {
-            ServerNodeInstance targetInstance = nodeInstanceServer()->instanceForObject(targetObject);
-            targetInstance.setPropertyVariant(name, value);
+        QmlPrivateGate::PropertyChanges::changeValue(object(), name, value);
+        QObject *targetObject = QmlPrivateGate::PropertyChanges::targetObject(object());
+        if (targetObject
+                && nodeInstanceServer()->activeStateInstance().
+                isWrappingThisObject(QmlPrivateGate::PropertyChanges::stateObject(object()))) {
+            if (nodeInstanceServer()->hasInstanceForObject(targetObject)) {
+                ServerNodeInstance targetInstance = nodeInstanceServer()->instanceForObject(targetObject);
+                targetInstance.setPropertyVariant(name, value);
+            }
         }
     }
 }
 
 void QmlPropertyChangesNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
-    QMetaObject metaObject = QQuickPropertyChanges::staticMetaObject;
-
-    if (metaObject.indexOfProperty(name) > 0) { // 'restoreEntryValues', 'explicit'
+    if (QmlPrivateGate::PropertyChanges::isNormalProperty(name)) { // 'restoreEntryValues', 'explicit'
         ObjectNodeInstance::setPropertyBinding(name, expression);
     } else {
-        changesObject()->changeExpression(name, expression);
+        QmlPrivateGate::PropertyChanges::changeExpression(object(), name, expression);
     }
 }
 
 QVariant QmlPropertyChangesNodeInstance::property(const PropertyName &name) const
 {
-    return changesObject()->property(name);
+    return QmlPrivateGate::PropertyChanges::getProperty(object(), name);
 }
 
 void QmlPropertyChangesNodeInstance::resetProperty(const PropertyName &name)
 {
-    changesObject()->removeProperty(name);
+    QmlPrivateGate::PropertyChanges::removeProperty(object(), name);
 }
 
 
 void QmlPropertyChangesNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty)
 {
-    changesObject()->detachFromState();
+    QmlPrivateGate::PropertyChanges::detachFromState(object());
 
     ObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
 
-    changesObject()->attachToState();
-}
-
-QQuickPropertyChanges *QmlPropertyChangesNodeInstance::changesObject() const
-{
-    Q_ASSERT(qobject_cast<QQuickPropertyChanges*>(object()));
-    return static_cast<QQuickPropertyChanges*>(object());
+    QmlPrivateGate::PropertyChanges::attachToState(object());
 }
 
 } // namespace Internal

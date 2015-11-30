@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,10 +23,10 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-editor-fakevim.html
     \page creator-mime-types.html
-    \nextpage creator-building-running.html
+    \nextpage creator-modeling.html
 
     \title Editing MIME Types
 
@@ -40,10 +40,14 @@
     matches the patterns specified for any MIME type. If no match is found, it
     checks the contents of the file for magic headers specified for the file.
 
-    The magic headers can contain text strings or bytes. The type of the header
-    value, string or byte, determines how \QC interprets the value. \QC
-    searches for the value within a specified range in the files and takes the
-    priority of the magic header into account. If you specify wide search
+    The magic headers can contain the following types of values: string, host,
+    big-endian, little-endian, and byte. \QC interprets the values according to
+    the
+    \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
+    {Shared MIME-info Database specification}.
+
+    \QC searches for the value within a specified range in the files and takes
+    the priority of the magic header into account. If you specify wide search
     ranges, openging files in \QC might take a long time. Therefore, you are
     advised to use the recommended values for the range and priority of the
     magic header.
@@ -56,35 +60,41 @@
 
     \list 1
 
-        \li Select \gui {Tools > Options > Environment > MIME Types}.
+        \li Select \uicontrol {Tools > Options > Environment > MIME Types}.
 
             \image qtcreator-mime-types.png "MIME Types"
 
-        \li In \gui {MIME Type}, select a MIME type.
+        \li In \uicontrol {MIME Type}, select a MIME type.
 
-        \li In \gui Patterns, add the filename extension for the type of files
+        \li In \uicontrol Patterns, add the filename extension for the type of files
             that you want to identify as having this MIME type.
 
-        \li Click \gui Add to add \gui {Magic Headers}.
+        \li Click \uicontrol Add to add \uicontrol {Magic Headers}.
 
             \image qtcreator-mime-types-magic-header.png "Magic Header"
 
-        \li In the \gui Value field, specify a text string or bytes that
+        \li In the \uicontrol Value field, specify a text string or bytes that
             appear in the files.
 
-        \li In the \gui Type field, select the type of the value.
+        \li In the \uicontrol Type field, select the type of the value.
+
+        \li In the \uicontrol Mask field, specify the number to combine the
+            value in the file with using the AND operator before comparing it to
+            the specified value. You can specify any numbers as masks for
+            numerical types, whereas masks for strings must be in base 16, and
+            start with 0x.
 
             \note You are recommended not to change the range and priority,
             because it might cause problems when opening files in \QC.
 
-        \li Click \gui OK.
+        \li Click \uicontrol OK.
 
     \endlist
 
     To revert all the changes you have made to the MIME type definitions,
-    select \gui {Reset All}.
+    select \uicontrol {Reset All}.
 
-    \note If you now select \gui OK or \gui Apply, you permanently lose all
+    \note If you now select \uicontrol OK or \uicontrol Apply, you permanently lose all
     your own patterns and magic headers. The changes are reverted the next
     time you start \QC.
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -32,7 +28,6 @@
 #include "stateseditormodel.h"
 #include <rewritingexception.h>
 
-#include <QMessageBox>
 #include <QDebug>
 #include <math.h>
 
@@ -42,6 +37,7 @@
 #include <nodelistproperty.h>
 
 #include <qmlitemnode.h>
+
 
 namespace QmlDesigner {
 
@@ -68,72 +64,12 @@ WidgetInfo StatesEditorView::widgetInfo()
     if (!m_statesEditorWidget)
         m_statesEditorWidget = new StatesEditorWidget(this, m_statesEditorModel.data());
 
-    return createWidgetInfo(m_statesEditorWidget.data(), 0, "StatesEditor", WidgetInfo::TopPane, 0, tr("States Editor"));
-}
-
-void StatesEditorView::nodeCreated(const ModelNode &/*createdNode*/)
-{
-
-}
-
-void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &/*propertyList*/)
-{
-
+    return createWidgetInfo(m_statesEditorWidget.data(), 0, QLatin1String("StatesEditor"), WidgetInfo::TopPane, 0, tr("States Editor"));
 }
 
 void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    checkForApplicationWindow();
-}
-
-void StatesEditorView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
-{
-
-}
-
-void StatesEditorView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
-{
-
-}
-
-void StatesEditorView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
-{
-
-}
-
-void StatesEditorView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void StatesEditorView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void StatesEditorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
-{
-
-}
-
-void StatesEditorView::nodeSourceChanged(const ModelNode &/*modelNode*/, const QString &/*newNodeSource*/)
-{
-
-}
-
-void StatesEditorView::rewriterBeginTransaction()
-{
-
-}
-
-void StatesEditorView::rewriterEndTransaction()
-{
-
-}
-
-void StatesEditorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
-{
-
+    checkForWindow();
 }
 
 void StatesEditorView::removeState(int nodeId)
@@ -157,8 +93,8 @@ void StatesEditorView::removeState(int nodeId)
 
             stateNode.destroy();
         }
-    }  catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+    }  catch (const RewritingException &e) {
+        e.showException();
     }
 }
 
@@ -197,19 +133,19 @@ void StatesEditorView::addState()
     QString newStateName;
     int index = 1;
     while (true) {
-        newStateName = QString("State%1").arg(index++);
+        newStateName = QString(QStringLiteral("State%1")).arg(index++);
         if (!modelStateNames.contains(newStateName))
             break;
     }
 
     try {
         if ((rootStateGroup().allStates().count() < 1) && //QtQuick import might be missing
-            (!model()->hasImport(Import::createLibraryImport("QtQuick", "1.0"), true, true)))
-            model()->changeImports(QList<Import>() << Import::createLibraryImport("QtQuick", "1.0"), QList<Import>());
+            (!model()->hasImport(Import::createLibraryImport(QLatin1String("QtQuick"), QLatin1String("1.0")), true, true)))
+            model()->changeImports(QList<Import>() << Import::createLibraryImport(QLatin1String("QtQuick"), QLatin1String("1.0")), QList<Import>());
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);
-    }  catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+    }  catch (const RewritingException &e) {
+        e.showException();
     }
 }
 
@@ -235,7 +171,7 @@ void StatesEditorView::duplicateCurrentState()
     QString newName = state.name();
 
     // Strip out numbers at the end of the string
-    QRegExp regEx(QString("[0-9]+$"));
+    QRegExp regEx(QLatin1String("[0-9]+$"));
     int numberIndex = newName.indexOf(regEx);
     if ((numberIndex != -1) && (numberIndex+regEx.matchedLength()==newName.length()))
         newName = newName.left(numberIndex);
@@ -249,10 +185,10 @@ void StatesEditorView::duplicateCurrentState()
     setCurrentState(newState);
 }
 
-void StatesEditorView::checkForApplicationWindow()
+void StatesEditorView::checkForWindow()
 {
     if (m_statesEditorWidget)
-        m_statesEditorWidget->showAddNewStatesButton(!rootModelNode().metaInfo().isSubclassOf("QtQuick.Controls.ApplicationWindow", -1, -1));
+        m_statesEditorWidget->showAddNewStatesButton(!rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Window", -1, -1));
 }
 
 void StatesEditorView::setCurrentState(const QmlModelState &state)
@@ -291,10 +227,10 @@ QString StatesEditorView::currentStateName() const
     return currentState().isValid() ? currentState().name() : QString();
 }
 
-void StatesEditorView::renameState(int nodeId, const QString &newName)
+void StatesEditorView::renameState(int internalNodeId, const QString &newName)
 {
-    if (hasModelNodeForInternalId(nodeId)) {
-        QmlModelState state(modelNodeForInternalId(nodeId));
+    if (hasModelNodeForInternalId(internalNodeId)) {
+        QmlModelState state(modelNodeForInternalId(internalNodeId));
         try {
             if (state.isValid() && state.name() != newName) {
                 // Jump to base state for the change
@@ -303,8 +239,8 @@ void StatesEditorView::renameState(int nodeId, const QString &newName)
                 state.setName(newName);
                 setCurrentState(oldState);
             }
-        }  catch (RewritingException &e) {
-            QMessageBox::warning(0, "Error", e.description());
+        }  catch (const RewritingException &e) {
+            e.showException();
         }
     }
 }
@@ -320,7 +256,7 @@ void StatesEditorView::modelAttached(Model *model)
     if (m_statesEditorWidget)
         m_statesEditorWidget->setNodeInstanceView(nodeInstanceView());
 
-    checkForApplicationWindow();
+    checkForWindow();
 
     resetModel();
 }
@@ -338,12 +274,6 @@ void StatesEditorView::propertiesRemoved(const QList<AbstractProperty>& property
             resetModel();
     }
 }
-
-
-void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 
 void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
@@ -422,31 +352,6 @@ void StatesEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &no
 
     if (maximumIndex >= 0)
         m_statesEditorModel->updateState(minimumIndex, maximumIndex);
-}
-
-void StatesEditorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
-{
-}
-
-void StatesEditorView::nodeIdChanged(const ModelNode &/*node*/, const QString &/*newId*/, const QString &/*oldId*/)
-{
-
-}
-
-void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void StatesEditorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
-                                                      AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void StatesEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/, const QList<ModelNode> &/*lastSelectedNodeList*/)
-{
-
 }
 
 } // namespace QmlDesigner

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,14 +35,20 @@
 #include "project.h"
 #include "session.h"
 #include "projectmodels.h"
+#include "projecttree.h"
 
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/find/itemviewfind.h>
 
 #include <utils/navigationtreeview.h>
+#include <utils/algorithm.h>
+#include <utils/tooltip/tooltip.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -56,6 +63,8 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+QList<ProjectTreeWidget *> ProjectTreeWidget::m_projectTreeWidgets;
+
 namespace {
 
 class ProjectTreeItemDelegate : public QStyledItemDelegate
@@ -67,7 +76,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
         QStyleOptionViewItem opt = option;
-        if (!index.data(ProjectExplorer::Project::EnabledRole).toBool())
+        if (!index.data(Project::EnabledRole).toBool())
             opt.state &= ~QStyle::State_Enabled;
         QStyledItemDelegate::paint(painter, opt, index);
     }
@@ -83,18 +92,76 @@ public:
     {
         setEditTriggers(QAbstractItemView::EditKeyPressed);
         setContextMenuPolicy(Qt::CustomContextMenu);
+        setDragEnabled(true);
+        setDragDropMode(QAbstractItemView::DragOnly);
         m_context = new IContext(this);
         m_context->setContext(Context(ProjectExplorer::Constants::C_PROJECT_TREE));
         m_context->setWidget(this);
+
         ICore::addContextObject(m_context);
+
+        connect(this, &ProjectTreeView::expanded,
+                this, &ProjectTreeView::invalidateSize);
+        connect(this, &ProjectTreeView::collapsed,
+                this, &ProjectTreeView::invalidateSize);
     }
+
+    void invalidateSize()
+    {
+        m_cachedSize = -1;
+    }
+
+    void setModel(QAbstractItemModel *newModel) override
+    {
+        // Note: Don't connect to column signals, as we have only one column
+        if (model()) {
+            QAbstractItemModel *m = model();
+            disconnect(m, &QAbstractItemModel::dataChanged,
+                    this, &ProjectTreeView::invalidateSize);
+            disconnect(m, &QAbstractItemModel::layoutChanged,
+                    this, &ProjectTreeView::invalidateSize);
+            disconnect(m, &QAbstractItemModel::modelReset,
+                    this, &ProjectTreeView::invalidateSize);
+            disconnect(m, &QAbstractItemModel::rowsInserted,
+                    this, &ProjectTreeView::invalidateSize);
+            disconnect(m, &QAbstractItemModel::rowsMoved,
+                    this, &ProjectTreeView::invalidateSize);
+            disconnect(m, &QAbstractItemModel::rowsRemoved,
+                    this, &ProjectTreeView::invalidateSize);
+        }
+        if (newModel) {
+            connect(newModel, &QAbstractItemModel::dataChanged,
+                    this, &ProjectTreeView::invalidateSize);
+            connect(newModel, &QAbstractItemModel::layoutChanged,
+                    this, &ProjectTreeView::invalidateSize);
+            connect(newModel, &QAbstractItemModel::modelReset,
+                    this, &ProjectTreeView::invalidateSize);
+            connect(newModel, &QAbstractItemModel::rowsInserted,
+                    this, &ProjectTreeView::invalidateSize);
+            connect(newModel, &QAbstractItemModel::rowsMoved,
+                    this, &ProjectTreeView::invalidateSize);
+            connect(newModel, &QAbstractItemModel::rowsRemoved,
+                    this, &ProjectTreeView::invalidateSize);
+        }
+        Utils::NavigationTreeView::setModel(newModel);
+    }
+
     ~ProjectTreeView()
     {
         ICore::removeContextObject(m_context);
         delete m_context;
     }
 
+    int sizeHintForColumn(int column) const override
+    {
+        if (m_cachedSize < 0)
+            m_cachedSize = Utils::NavigationTreeView::sizeHintForColumn(column);
+
+        return m_cachedSize;
+    }
+
 private:
+    mutable int m_cachedSize = -1;
     IContext *m_context;
 };
 
@@ -105,7 +172,6 @@ private:
   */
 ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
         : QWidget(parent),
-          m_explorer(ProjectExplorerPlugin::instance()),
           m_view(0),
           m_model(0),
           m_filterProjectsAction(0),
@@ -116,22 +182,18 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     Project *pro = SessionManager::startupProject();
     if (pro)
         m_model->setStartupProject(pro->rootProjectNode());
-    NodesWatcher *watcher = new NodesWatcher(this);
-    SessionManager::sessionNode()->registerWatcher(watcher);
-
-    connect(watcher, SIGNAL(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)),
-            this, SLOT(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)));
-    connect(watcher, SIGNAL(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)),
-            this, SLOT(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)));
 
     m_view = new ProjectTreeView;
     m_view->setModel(m_model);
     m_view->setItemDelegate(new ProjectTreeItemDelegate(this));
     setFocusProxy(m_view);
+    m_view->installEventFilter(this);
     initView();
 
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(m_view);
+    layout->addWidget(ItemViewFind::createSearchableWrapper(
+                          m_view, ItemViewFind::DarkColored,
+                          ItemViewFind::FetchMoreWhileSearching));
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
@@ -148,6 +210,8 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     // connections
     connect(m_model, SIGNAL(modelReset()),
             this, SLOT(initView()));
+    connect(m_model, &FlatModel::renamed,
+            this, &ProjectTreeWidget::renamed);
     connect(m_view, SIGNAL(activated(QModelIndex)),
             this, SLOT(openItem(QModelIndex)));
     connect(m_view->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
@@ -169,13 +233,97 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
             this, SLOT(saveExpandData()));
 
     m_toggleSync = new QToolButton;
-    m_toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
+    m_toggleSync->setIcon(Core::Icons::LINK.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(autoSynchronization());
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
     connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleAutoSynchronization()));
 
     setAutoSynchronization(true);
+
+    m_projectTreeWidgets << this;
+    ProjectTree::registerWidget(this);
+}
+
+ProjectTreeWidget::~ProjectTreeWidget()
+{
+    m_projectTreeWidgets.removeOne(this);
+    ProjectTree::unregisterWidget(this);
+}
+
+// returns how many nodes need to be expanded to make node visible
+int ProjectTreeWidget::expandedCount(Node *node)
+{
+    if (m_projectTreeWidgets.isEmpty())
+        return 0;
+    FlatModel *model = m_projectTreeWidgets.first()->m_model;
+    QModelIndex index = model->indexForNode(node);
+    if (!index.isValid())
+        return 0;
+
+    int count = 0;
+    foreach (ProjectTreeWidget *tree, m_projectTreeWidgets) {
+        QModelIndex idx = index;
+        while (idx.isValid() && idx != tree->m_view->rootIndex()) {
+            if (!tree->m_view->isExpanded(idx))
+                ++count;
+            idx = model->parent(idx);
+        }
+    }
+    return count;
+}
+
+void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int end)
+{
+    Node *node = m_model->nodeForIndex(parent);
+    QTC_ASSERT(node, return);
+    const QString path = node->filePath().toString();
+    const QString displayName = node->displayName();
+
+    auto it = m_toExpand.find(ExpandData(path, displayName));
+    if (it != m_toExpand.end()) {
+        m_view->expand(parent);
+        m_toExpand.erase(it);
+    }
+    int i = start;
+    while (i <= end) {
+        QModelIndex idx = m_model->index(i, 0, parent);
+        Node *n = m_model->nodeForIndex(idx);
+        if (n && n->filePath() == m_delayedRename) {
+            m_view->setCurrentIndex(idx);
+            m_delayedRename.clear();
+            break;
+        }
+        ++i;
+    }
+}
+
+Node *ProjectTreeWidget::nodeForFile(const Utils::FileName &fileName)
+{
+    return mostExpandedNode(SessionManager::nodesForFile(fileName));
+}
+
+Node *ProjectTreeWidget::mostExpandedNode(const QList<Node *> &nodes)
+{
+    Node *bestNode = 0;
+    int bestNodeExpandCount = INT_MAX;
+
+    foreach (Node *node, nodes) {
+        if (!bestNode) {
+            bestNode = node;
+            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+        } else if (node->nodeType() < bestNode->nodeType()) {
+            bestNode = node;
+            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+        } else if (node->nodeType() == bestNode->nodeType()) {
+            int nodeExpandCount = ProjectTreeWidget::expandedCount(node);
+            if (nodeExpandCount < bestNodeExpandCount) {
+                bestNode = node;
+                bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+            }
+        }
+    }
+    return bestNode;
 }
 
 void ProjectTreeWidget::disableAutoExpand()
@@ -186,14 +334,31 @@ void ProjectTreeWidget::disableAutoExpand()
 void ProjectTreeWidget::loadExpandData()
 {
     m_autoExpand = true;
-    QStringList data = SessionManager::value(QLatin1String("ProjectTree.ExpandData")).toStringList();
-    recursiveLoadExpandData(m_view->rootIndex(), data.toSet());
+    QList<QVariant> data = SessionManager::value(QLatin1String("ProjectTree.ExpandData")).value<QList<QVariant>>();
+    QSet<ExpandData> set = Utils::transform<QSet>(data, [](const QVariant &v) {
+        QStringList list = v.toStringList();
+        if (list.size() != 2)
+            return ExpandData();
+        return ExpandData(list.at(0), list.at(1));
+    });
+
+    set.remove(ExpandData());
+
+    recursiveLoadExpandData(m_view->rootIndex(), set);
+
+    // store remaning nodes to expand
+    m_toExpand = set;
 }
 
-void ProjectTreeWidget::recursiveLoadExpandData(const QModelIndex &index, const QSet<QString> &data)
+void ProjectTreeWidget::recursiveLoadExpandData(const QModelIndex &index, QSet<ExpandData> &data)
 {
-    if (data.contains(m_model->nodeForIndex(index)->path())) {
+    Node *node = m_model->nodeForIndex(index);
+    const QString path = node->filePath().toString();
+    const QString displayName = node->displayName();
+    auto it = data.find(ExpandData(path, displayName));
+    if (it != data.end()) {
         m_view->expand(index);
+        data.erase(it);
         int count = m_model->rowCount(index);
         for (int i = 0; i < count; ++i)
             recursiveLoadExpandData(index.child(i, 0), data);
@@ -202,46 +367,24 @@ void ProjectTreeWidget::recursiveLoadExpandData(const QModelIndex &index, const 
 
 void ProjectTreeWidget::saveExpandData()
 {
-    QStringList data;
+    QList<QVariant> data;
     recursiveSaveExpandData(m_view->rootIndex(), &data);
     // TODO if there are multiple ProjectTreeWidgets, the last one saves the data
     SessionManager::setValue(QLatin1String("ProjectTree.ExpandData"), data);
 }
 
-void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QStringList *data)
+void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QList<QVariant> *data)
 {
     Q_ASSERT(data);
-    if (m_view->isExpanded(index)) {
-        data->append(m_model->nodeForIndex(index)->path());
+    if (m_view->isExpanded(index) || index == m_view->rootIndex()) {
+        // Note: We store the path+displayname of the node, which isn't unique for e.g. .pri files
+        // but works for most nodes
+        Node *node = m_model->nodeForIndex(index);
+        const QStringList &list = ExpandData(node->filePath().toString(), node->displayName()).toStringList();
+        data->append(QVariant::fromValue(list));
         int count = m_model->rowCount(index);
         for (int i = 0; i < count; ++i)
             recursiveSaveExpandData(index.child(i, 0), data);
-    }
-}
-
-void ProjectTreeWidget::foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &list)
-{
-    Node *n = m_explorer->currentNode();
-    while (n) {
-        if (FolderNode *fn = qobject_cast<FolderNode *>(n)) {
-            if (list.contains(fn)) {
-                ProjectNode *pn = n->projectNode();
-                // Make sure the node we are switching too isn't going to be removed also
-                while (list.contains(pn))
-                    pn = pn->parentFolderNode()->projectNode();
-                m_explorer->setCurrentNode(pn);
-                break;
-            }
-        }
-        n = n->parentFolderNode();
-    }
-}
-
-void ProjectTreeWidget::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &list)
-{
-    if (FileNode *fileNode = qobject_cast<FileNode *>(m_explorer->currentNode())) {
-        if (list.contains(fileNode))
-            m_explorer->setCurrentNode(fileNode->projectNode());
     }
 }
 
@@ -260,7 +403,7 @@ bool ProjectTreeWidget::autoSynchronization() const
     return m_autoSync;
 }
 
-void ProjectTreeWidget::setAutoSynchronization(bool sync, bool syncNow)
+void ProjectTreeWidget::setAutoSynchronization(bool sync)
 {
     m_toggleSync->setChecked(sync);
     if (sync == m_autoSync)
@@ -270,14 +413,14 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync, bool syncNow)
 
     if (debug)
         qDebug() << (m_autoSync ? "Enabling auto synchronization" : "Disabling auto synchronization");
+
     if (m_autoSync) {
-        connect(m_explorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
-                this, SLOT(setCurrentItem(ProjectExplorer::Node*,ProjectExplorer::Project*)));
-        if (syncNow)
-            setCurrentItem(m_explorer->currentNode(), ProjectExplorerPlugin::currentProject());
-    } else {
-        disconnect(m_explorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
-                this, SLOT(setCurrentItem(ProjectExplorer::Node*,ProjectExplorer::Project*)));
+        // sync from document manager
+        Utils::FileName fileName;
+        if (IDocument *doc = EditorManager::currentDocument())
+            fileName = doc->filePath();
+        if (!currentNode() || currentNode()->filePath() != fileName)
+            setCurrentItem(ProjectTreeWidget::nodeForFile(fileName));
     }
 }
 
@@ -288,19 +431,27 @@ void ProjectTreeWidget::collapseAll()
 
 void ProjectTreeWidget::editCurrentItem()
 {
+    m_delayedRename.clear();
     if (m_view->selectionModel()->currentIndex().isValid())
         m_view->edit(m_view->selectionModel()->currentIndex());
 }
 
-void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
+
+void ProjectTreeWidget::renamed(const Utils::FileName &oldPath, const Utils::FileName &newPath)
 {
-    if (debug)
-        qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->displayName() : QLatin1String("0"))
-                 << ", " <<  (node ? node->path() : QLatin1String("0")) << ")";
+    Q_UNUSED(oldPath);
+    if (!currentNode() || currentNode()->filePath() != newPath) {
+        // try to find the node
+        Node *node = nodeForFile(newPath);
+        if (node)
+            m_view->setCurrentIndex(m_model->indexForNode(node));
+        else
+            m_delayedRename = newPath;
+    }
+}
 
-    if (!project)
-        return;
-
+void ProjectTreeWidget::setCurrentItem(Node *node)
+{
     const QModelIndex mainIndex = m_model->indexForNode(node);
 
     if (mainIndex.isValid()) {
@@ -309,8 +460,6 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
             m_view->scrollTo(mainIndex);
         }
     } else {
-        if (debug)
-            qDebug() << "clear selection";
         m_view->clearSelection();
     }
 
@@ -318,31 +467,52 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
 
 void ProjectTreeWidget::handleCurrentItemChange(const QModelIndex &current)
 {
-    Node *node = m_model->nodeForIndex(current);
-    // node might be 0. that's okay
-    bool autoSync = autoSynchronization();
-    setAutoSynchronization(false);
-    m_explorer->setCurrentNode(node);
-    setAutoSynchronization(autoSync, false);
+    Q_UNUSED(current);
+    ProjectTree::nodeChanged(this);
+}
+
+Node *ProjectTreeWidget::currentNode()
+{
+    return m_model->nodeForIndex(m_view->currentIndex());
+}
+
+void ProjectTreeWidget::sync(Node *node)
+{
+    if (m_autoSync)
+        setCurrentItem(node);
+}
+
+void ProjectTreeWidget::showMessage(Node *node, const QString &message)
+{
+    QModelIndex idx = m_model->indexForNode(node);
+    m_view->setCurrentIndex(idx);
+    m_view->scrollTo(idx);
+
+    QPoint pos = m_view->mapToGlobal(m_view->visualRect(idx).bottomLeft());
+    pos -= Utils::ToolTip::offsetFromPosition();
+    Utils::ToolTip::show(pos, message);
 }
 
 void ProjectTreeWidget::showContextMenu(const QPoint &pos)
 {
     QModelIndex index = m_view->indexAt(pos);
     Node *node = m_model->nodeForIndex(index);
-    m_explorer->showContextMenu(this, m_view->mapToGlobal(pos), node);
+    ProjectTree::showContextMenu(this, m_view->mapToGlobal(pos), node);
 }
 
-void ProjectTreeWidget::handleProjectAdded(ProjectExplorer::Project *project)
+void ProjectTreeWidget::handleProjectAdded(Project *project)
 {
     Node *node = project->rootProjectNode();
     QModelIndex idx = m_model->indexForNode(node);
     if (m_autoExpand) // disabled while session restoring
         m_view->setExpanded(idx, true);
     m_view->setCurrentIndex(idx);
+
+    connect(m_model, &FlatModel::rowsInserted,
+            this, &ProjectTreeWidget::rowsInserted);
 }
 
-void ProjectTreeWidget::startupProjectChanged(ProjectExplorer::Project *project)
+void ProjectTreeWidget::startupProjectChanged(Project *project)
 {
     if (project) {
         ProjectNode *node = project->rootProjectNode();
@@ -366,7 +536,7 @@ void ProjectTreeWidget::initView()
     for (int i = 0; i < m_model->rowCount(sessionIndex); ++i)
         m_view->expand(m_model->index(i, 0, sessionIndex));
 
-    setCurrentItem(m_explorer->currentNode(), ProjectExplorerPlugin::currentProject());
+    setCurrentItem(ProjectTree::currentNode());
 }
 
 void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
@@ -374,7 +544,7 @@ void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
     Node *node = m_model->nodeForIndex(mainIndex);
     if (node->nodeType() != FileNodeType)
         return;
-    IEditor *editor = EditorManager::openEditor(node->path());
+    IEditor *editor = EditorManager::openEditor(node->filePath().toString());
     if (editor && node->line() >= 0)
         editor->gotoLine(node->line());
 }
@@ -404,30 +574,10 @@ bool ProjectTreeWidget::projectFilter()
 
 ProjectTreeWidgetFactory::ProjectTreeWidgetFactory()
 {
-}
-
-ProjectTreeWidgetFactory::~ProjectTreeWidgetFactory()
-{
-}
-
-QString ProjectTreeWidgetFactory::displayName() const
-{
-    return tr("Projects");
-}
-
-int ProjectTreeWidgetFactory::priority() const
-{
-    return 100;
-}
-
-Id ProjectTreeWidgetFactory::id() const
-{
-    return "Projects";
-}
-
-QKeySequence ProjectTreeWidgetFactory::activationSequence() const
-{
-    return QKeySequence(UseMacShortcuts ? tr("Meta+X") : tr("Alt+X"));
+    setDisplayName(tr("Projects"));
+    setPriority(100);
+    setId(ProjectExplorer::Constants::PROJECTTREE_ID);
+    setActivationSequence(QKeySequence(UseMacShortcuts ? tr("Meta+X") : tr("Alt+X")));
 }
 
 NavigationView ProjectTreeWidgetFactory::createWidget()
@@ -437,7 +587,7 @@ NavigationView ProjectTreeWidgetFactory::createWidget()
     n.widget = ptw;
 
     QToolButton *filter = new QToolButton;
-    filter->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    filter->setIcon(Core::Icons::FILTER.icon());
     filter->setToolTip(tr("Filter Tree"));
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);
@@ -469,5 +619,5 @@ void ProjectTreeWidgetFactory::restoreSettings(int position, QWidget *widget)
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     ptw->setProjectFilter(settings->value(baseKey + QLatin1String(".ProjectFilter"), false).toBool());
     ptw->setGeneratedFilesFilter(settings->value(baseKey + QLatin1String(".GeneratedFilter"), true).toBool());
-    ptw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor"), true).toBool());
+    ptw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor")).toBool());
 }

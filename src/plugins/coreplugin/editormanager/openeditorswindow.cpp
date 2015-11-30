@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,30 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "openeditorswindow.h"
+
 #include "documentmodel.h"
 #include "editormanager.h"
+#include "editormanager_p.h"
 #include "editorview.h"
 #include <coreplugin/idocument.h>
 
@@ -38,8 +41,8 @@
 
 #include <QFocusEvent>
 #include <QHeaderView>
-#include <QTreeWidget>
 #include <QVBoxLayout>
+#include <QScrollBar>
 
 Q_DECLARE_METATYPE(Core::Internal::EditorView*)
 Q_DECLARE_METATYPE(Core::IDocument*)
@@ -47,15 +50,12 @@ Q_DECLARE_METATYPE(Core::IDocument*)
 using namespace Core;
 using namespace Core::Internal;
 
-const int WIDTH = 300;
-const int HEIGHT = 200;
-
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QFrame(parent, Qt::Popup),
     m_emptyIcon(QLatin1String(":/core/images/empty14.png")),
-    m_editorList(new QTreeWidget(this))
+    m_editorList(new OpenEditorsTreeWidget(this))
 {
-    resize(QSize(WIDTH, HEIGHT));
+    setMinimumSize(300, 200);
     m_editorList->setColumnCount(1);
     m_editorList->header()->hide();
     m_editorList->setIndentation(0);
@@ -92,19 +92,6 @@ void OpenEditorsWindow::setVisible(bool visible)
         setFocus();
 }
 
-bool OpenEditorsWindow::isCentering()
-{
-    int internalMargin = m_editorList->viewport()->mapTo(m_editorList, QPoint(0,0)).y();
-    QRect rect0 = m_editorList->visualItemRect(m_editorList->topLevelItem(0));
-    QRect rect1 = m_editorList->visualItemRect(m_editorList->topLevelItem(m_editorList->topLevelItemCount()-1));
-    int height = rect1.y() + rect1.height() - rect0.y();
-    height += 2 * internalMargin;
-    if (height > HEIGHT)
-        return true;
-    return false;
-}
-
-
 bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
 {
     if (obj == m_editorList) {
@@ -114,7 +101,8 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
                 setVisible(false);
                 return true;
             }
-            if (ke->key() == Qt::Key_Return) {
+            if (ke->key() == Qt::Key_Return
+                    || ke->key() == Qt::Key_Enter) {
                 selectEditor(m_editorList->currentItem());
                 return true;
             }
@@ -170,52 +158,34 @@ void OpenEditorsWindow::selectPreviousEditor()
     selectUpDown(false);
 }
 
+QSize OpenEditorsTreeWidget::sizeHint() const
+{
+    return QSize(sizeHintForColumn(0) + verticalScrollBar()->width() + frameWidth() * 2,
+                 viewportSizeHint().height() + frameWidth() * 2);
+}
+
+QSize OpenEditorsWindow::sizeHint() const
+{
+    return m_editorList->sizeHint() + QSize(frameWidth() * 2, frameWidth() * 2);
+}
+
 void OpenEditorsWindow::selectNextEditor()
 {
     selectUpDown(true);
 }
 
-void OpenEditorsWindow::centerOnItem(int selectedIndex)
-{
-    if (selectedIndex >= 0) {
-        QTreeWidgetItem *item;
-        int num = m_editorList->topLevelItemCount();
-        int rotate = selectedIndex-(num-1)/2;
-        for (int i = 0; i < rotate; ++i) {
-            item = m_editorList->takeTopLevelItem(0);
-            m_editorList->addTopLevelItem(item);
-        }
-        rotate = -rotate;
-        for (int i = 0; i < rotate; ++i) {
-            item = m_editorList->takeTopLevelItem(num-1);
-            m_editorList->insertTopLevelItem(0, item);
-        }
-    }
-}
-
-void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, EditorView *view, DocumentModel *model)
+void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, EditorView *view)
 {
     m_editorList->clear();
 
     QSet<IDocument*> documentsDone;
-    addHistoryItems(view->editorHistory(), view, model, documentsDone);
+    addHistoryItems(view->editorHistory(), view, documentsDone);
+
     // add missing editors from the global history
-    addHistoryItems(globalHistory, view, model, documentsDone);
+    addHistoryItems(globalHistory, view, documentsDone);
 
     // add purely restored editors which are not initialised yet
-    foreach (DocumentModel::Entry *entry, model->documents()) {
-        if (entry->document)
-            continue;
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        QString title = entry->displayName();
-        item->setIcon(0, m_emptyIcon);
-        item->setText(0, title);
-        item->setToolTip(0, entry->fileName());
-        item->setData(0, Qt::UserRole+2, QVariant::fromValue(entry->id()));
-        item->setTextAlignment(0, Qt::AlignLeft);
-
-        m_editorList->addTopLevelItem(item);
-    }
+    addRestoredItems();
 }
 
 
@@ -225,11 +195,11 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
         return;
     if (IDocument *document = item->data(0, Qt::UserRole).value<IDocument*>()) {
         EditorView *view = item->data(0, Qt::UserRole+1).value<EditorView*>();
-        EditorManager::activateEditorForDocument(view, document);
+        EditorManagerPrivate::activateEditorForDocument(view, document);
     } else {
         if (!EditorManager::openEditor(
-                    item->toolTip(0), item->data(0, Qt::UserRole+2).value<Core::Id>())) {
-            EditorManager::documentModel()->removeDocument(item->toolTip(0));
+                    item->toolTip(0), item->data(0, Qt::UserRole+2).value<Id>())) {
+            DocumentModel::removeDocument(item->toolTip(0));
             delete item;
         }
     }
@@ -249,21 +219,22 @@ void OpenEditorsWindow::ensureCurrentVisible()
 
 
 void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, EditorView *view,
-                                        DocumentModel *model, QSet<IDocument *> &documentsDone)
+                                        QSet<IDocument *> &documentsDone)
 {
     foreach (const EditLocation &hi, history) {
         if (hi.document.isNull() || documentsDone.contains(hi.document))
             continue;
         documentsDone.insert(hi.document.data());
-        QString title = hi.document->displayName();
+        DocumentModel::Entry *entry = DocumentModel::entryForDocument(hi.document);
+        QString title = entry ? entry->displayName() : hi.document->displayName();
         QTC_ASSERT(!title.isEmpty(), continue);
         QTreeWidgetItem *item = new QTreeWidgetItem();
         if (hi.document->isModified())
             title += tr("*");
         item->setIcon(0, !hi.document->filePath().isEmpty() && hi.document->isFileReadOnly()
-                      ? model->lockedIcon() : m_emptyIcon);
+                      ? DocumentModel::lockedIcon() : m_emptyIcon);
         item->setText(0, title);
-        item->setToolTip(0, hi.document->filePath());
+        item->setToolTip(0, hi.document->filePath().toString());
         item->setData(0, Qt::UserRole, QVariant::fromValue(hi.document.data()));
         item->setData(0, Qt::UserRole+1, QVariant::fromValue(view));
         item->setTextAlignment(0, Qt::AlignLeft);
@@ -272,5 +243,22 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
 
         if (m_editorList->topLevelItemCount() == 1)
             m_editorList->setCurrentItem(item);
+    }
+}
+
+void OpenEditorsWindow::addRestoredItems()
+{
+    foreach (DocumentModel::Entry *entry, DocumentModel::entries()) {
+        if (!entry->isRestored)
+            continue;
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        QString title = entry->displayName();
+        item->setIcon(0, m_emptyIcon);
+        item->setText(0, title);
+        item->setToolTip(0, entry->fileName().toString());
+        item->setData(0, Qt::UserRole+2, QVariant::fromValue(entry->id()));
+        item->setTextAlignment(0, Qt::AlignLeft);
+
+        m_editorList->addTopLevelItem(item);
     }
 }

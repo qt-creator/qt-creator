@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -42,7 +43,7 @@ namespace Internal {
 
 SubdirsProjectWizard::SubdirsProjectWizard()
 {
-    setId(QLatin1String("U.Qt4Subdirs"));
+    setId("U.Qt4Subdirs");
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
@@ -50,15 +51,16 @@ SubdirsProjectWizard::SubdirsProjectWizard()
     setDescription(tr("Creates a qmake-based subdirs project. This allows you to group "
                 "your projects in a tree structure."));
     setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
-    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT));
+    setRequiredFeatures(Core::FeatureSet(Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_PREFIX)));
 }
 
-QWizard *SubdirsProjectWizard::createWizardDialog(QWidget *parent,
-                                                  const Core::WizardDialogParameters &wizardDialogParameters) const
+Core::BaseFileWizard *SubdirsProjectWizard::create(QWidget *parent,
+                                                   const Core::WizardDialogParameters &parameters) const
 {
-    SubdirsProjectWizardDialog *dialog = new SubdirsProjectWizardDialog(displayName(), icon(), parent, wizardDialogParameters);
+    SubdirsProjectWizardDialog *dialog = new SubdirsProjectWizardDialog(this, displayName(), icon(),
+                                                                        parent, parameters);
 
-    dialog->setProjectName(SubdirsProjectWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
+    dialog->setProjectName(SubdirsProjectWizardDialog::uniqueProjectName(parameters.defaultPath()));
     const QString buttonText = dialog->wizardStyle() == QWizard::MacStyle
             ? tr("Done && Add Subproject") : tr("Finish && Add Subproject");
     dialog->setButtonText(QWizard::FinishButton, buttonText);
@@ -71,7 +73,7 @@ Core::GeneratedFiles SubdirsProjectWizard::generateFiles(const QWizard *w,
     const SubdirsProjectWizardDialog *wizard = qobject_cast< const SubdirsProjectWizardDialog *>(w);
     const QtProjectParameters params = wizard->parameters();
     const QString projectPath = params.projectPath();
-    const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.fileName, profileSuffix());
+    const QString profileName = Core::BaseFileWizardFactory::buildFileName(projectPath, params.fileName, profileSuffix());
 
     Core::GeneratedFile profile(profileName);
     profile.setAttributes(Core::GeneratedFile::OpenProjectAttribute | Core::GeneratedFile::OpenEditorAttribute);
@@ -79,20 +81,20 @@ Core::GeneratedFiles SubdirsProjectWizard::generateFiles(const QWizard *w,
     return Core::GeneratedFiles() << profile;
 }
 
-bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &files, QString *errorMessage)
+bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &files,
+                                             QString *errorMessage) const
 {
     const SubdirsProjectWizardDialog *wizard = qobject_cast< const SubdirsProjectWizardDialog *>(w);
     if (QtWizard::qt4ProjectPostGenerateFiles(wizard, files, errorMessage)) {
         const QtProjectParameters params = wizard->parameters();
         const QString projectPath = params.projectPath();
-        const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.fileName, profileSuffix());
+        const QString profileName = Core::BaseFileWizardFactory::buildFileName(projectPath, params.fileName, profileSuffix());
         QVariantMap map;
-        map.insert(QLatin1String(ProjectExplorer::Constants::PREFERED_PROJECT_NODE), profileName);
+        map.insert(QLatin1String(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE), profileName);
         map.insert(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS), QVariant::fromValue(wizard->selectedKits()));
-        Core::ICore::showNewItemDialog(tr("New Subproject", "Title of dialog"),
-                              Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard),
-                              wizard->parameters().projectPath(),
-                              map);
+        IWizardFactory::requestNewItemDialog(tr("New Subproject", "Title of dialog"),
+                                             Core::IWizardFactory::wizardFactoriesOfKind(Core::IWizardFactory::ProjectWizard),
+                                             wizard->parameters().projectPath(), map);
     } else {
         return false;
     }

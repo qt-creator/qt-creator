@@ -1,5 +1,4 @@
-import qbs.base 1.0
-import QtcTool
+import qbs 1.0
 
 QtcTool {
     name: "qtcreator_ctrlc_stub"

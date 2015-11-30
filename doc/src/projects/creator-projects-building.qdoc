@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-building-running.html
     \page creator-building-targets.html
     \nextpage creator-running-targets.html
@@ -41,18 +41,23 @@
 
     To check that the application code can be compiled and linked for a device,
     you can build the project. The build errors and warnings are displayed in
-    the \gui {Issues} output pane. More detailed information is displayed
-    in the \gui {Compile Output} pane.
+    the \uicontrol {Issues} output pane. More detailed information is displayed
+    in the \uicontrol {Compile Output} pane.
 
     To build an application:
 
     \list 1
 
-        \li  Select a \l{glossary-buildandrun-kit}{kit} for the project.
+        \li  Click the \uicontrol {Build and Run Kit Selector} icon (1) or select
+             \uicontrol Build > \uicontrol {Open Build and Run Kit Selector} to select the
+             build and run \l{glossary-buildandrun-kit}{kit}.
 
         \image qtcreator-kit-selector.png "Kit selector"
 
-        \li  Choose \gui {Build > Build Project} or press \key {Ctrl+B}.
+        \li  Choose \uicontrol {Build > Build Project} or press \key {Ctrl+B}.
+
+             You can also select the \uicontrol Run button (2) to also deploy and run
+             the application after building it.
 
     \endlist
 
@@ -60,7 +65,19 @@
     \l{Specifying Build Settings}.
 
     To quickly check the compile output for changes that you made in one file or
-    subproject, you can use the \gui Build menu commands to build a file or
+    subproject, you can use the \uicontrol Build menu commands to build a file or
     subproject.
+
+    To remove all build artifacts, select \uicontrol Build > \uicontrol {Clean All} or
+    \uicontrol {Clean Project}. To clean the build directory and then build the
+    project, select \uicontrol Build > \uicontrol {Rebuild All} or \uicontrol {Rebuild Project}.
+
+    To build and clean projects without dependencies, select the
+    \uicontrol {Build Without Dependencies},
+    \uicontrol {Rebuild Without Dependencies}, and
+    \uicontrol {Clean Without Dependencies} options in the context menu in the
+    \uicontrol Projects view.
+
+    To run qmake to generate new Makefiles, select \uicontrol Build > \uicontrol qmake.
 
 */

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,6 +35,7 @@
 #include "iosrunconfiguration.h"
 #include "iosruncontrol.h"
 #include "iosmanager.h"
+#include "iosanalyzesupport.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -56,13 +58,13 @@ namespace Internal {
 #define IOS_PREFIX "Qt4ProjectManager.IosRunConfiguration"
 #define IOS_RC_ID_PREFIX IOS_PREFIX ":"
 
-static QString pathFromId(const Core::Id id)
+static Utils::FileName pathFromId(Core::Id id)
 {
     QString pathStr = id.toString();
     const QString prefix = QLatin1String(IOS_RC_ID_PREFIX);
     if (!pathStr.startsWith(prefix))
-        return QString();
-    return pathStr.mid(prefix.size());
+        return Utils::FileName();
+    return Utils::FileName::fromString(pathStr.mid(prefix.size()));
 }
 
 IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
@@ -71,7 +73,7 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
     setObjectName(QLatin1String("IosRunConfigurationFactory"));
 }
 
-bool IosRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool IosRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -91,23 +93,25 @@ bool IosRunConfigurationFactory::canClone(Target *parent, RunConfiguration *sour
     return canCreate(parent, source->id());
 }
 
-QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
 {
-    QList<Core::Id> ids;
     if (!IosManager::supportsIos(parent))
-        return ids;
+        return QList<Core::Id>();
+    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
+
+    QList<QmakeProFileNode *> nodes = project->allProFiles(QList<QmakeProjectType>()
+                                                           << ApplicationTemplate
+                                                           << SharedLibraryTemplate
+                                                           << AuxTemplate);
+    if (mode == AutoCreate)
+        nodes = QmakeProject::nodesWithQtcRunnable(nodes);
     Core::Id baseId(IOS_RC_ID_PREFIX);
-    QList<QmakeProFileNode *> nodes = static_cast<QmakeProject *>(parent->project())->allProFiles();
-    foreach (QmakeProFileNode *node, nodes)
-        if (node->projectType() == ApplicationTemplate || node->projectType() == LibraryTemplate
-                || node->projectType() == AuxTemplate)
-            ids << baseId.withSuffix(node->path());
-    return ids;
+    return QmakeProject::idsForNodes(baseId, nodes);
 }
 
-QString IosRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString IosRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    return QFileInfo(pathFromId(id)).completeBaseName();
+    return pathFromId(id).toFileInfo().completeBaseName();
 }
 
 RunConfiguration *IosRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
@@ -126,17 +130,19 @@ bool IosRunConfigurationFactory::canHandle(Target *t) const
     return IosManager::supportsIos(t);
 }
 
-QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, ProjectExplorer::Node *n)
+QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)
 {
-    QList<ProjectExplorer::RunConfiguration *> result;
-    foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations())
-        if (IosRunConfiguration *qt4c = qobject_cast<IosRunConfiguration *>(rc))
-                if (qt4c->profilePath() == n->path())
-                    result << rc;
+    QList<RunConfiguration *> result;
+    foreach (RunConfiguration *rc, t->runConfigurations()) {
+        if (IosRunConfiguration *qt4c = qobject_cast<IosRunConfiguration *>(rc)) {
+            if (qt4c->profilePath() == n->filePath())
+                result << rc;
+        }
+    }
     return result;
 }
 
-RunConfiguration *IosRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
+RunConfiguration *IosRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     return new IosRunConfiguration(parent, id, pathFromId(id));
 }
@@ -153,29 +159,36 @@ IosRunControlFactory::IosRunControlFactory(QObject *parent)
 }
 
 bool IosRunControlFactory::canRun(RunConfiguration *runConfiguration,
-                ProjectExplorer::RunMode mode) const
+                Core::Id mode) const
 {
-    if (mode != NormalRunMode && mode != DebugRunMode)
+    if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
+            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN
+            && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         return false;
+    }
+
     return qobject_cast<IosRunConfiguration *>(runConfiguration);
 }
 
 RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
-                                        ProjectExplorer::RunMode mode, QString *errorMessage)
+                                        Core::Id mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
     IosRunConfiguration *rc = qobject_cast<IosRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
     RunControl *res = 0;
-    Core::Id devId = ProjectExplorer::DeviceKitInformation::deviceId(rc->target()->kit());
+    Core::Id devId = DeviceKitInformation::deviceId(rc->target()->kit());
     // The device can only run an application at a time, if an app is running stop it.
     if (m_activeRunControls.contains(devId)) {
-        if (QPointer<ProjectExplorer::RunControl> activeRunControl = m_activeRunControls[devId])
+        if (QPointer<RunControl> activeRunControl = m_activeRunControls[devId])
             activeRunControl->stop();
         m_activeRunControls.remove(devId);
     }
-    if (mode == NormalRunMode)
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         res = new Ios::Internal::IosRunControl(rc);
+    else if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
+        res = IosAnalyzeSupport::createAnalyzeRunControl(rc, errorMessage);
     else
         res = IosDebugSupport::createDebugRunControl(rc, errorMessage);
     if (devId.isValid())

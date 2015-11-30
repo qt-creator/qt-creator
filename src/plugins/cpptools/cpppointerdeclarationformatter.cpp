@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,6 +31,9 @@
 
 #include "cpppointerdeclarationformatter.h"
 
+#include <cplusplus/Overview.h>
+
+#include <QDebug>
 #include <QTextCursor>
 
 #define DEBUG_OUTPUT 0
@@ -117,7 +121,7 @@ static unsigned firstTypeSpecifierWithoutFollowingAttribute(
 }
 
 PointerDeclarationFormatter::PointerDeclarationFormatter(
-        const CppRefactoringFilePtr refactoringFile,
+        const CppRefactoringFilePtr &refactoringFile,
         Overview &overview,
         CursorHandling cursorHandling)
     : ASTVisitor(refactoringFile->cppDocument()->translationUnit())
@@ -352,7 +356,7 @@ void PointerDeclarationFormatter::processIfWhileForStatement(ExpressionAST *expr
     //
     // The declaration for 's' will be handled in visit(SimpleDeclarationAST *ast),
     // so handle declaration for 't' here.
-    Scope::iterator it = block->lastMember() - 1;
+    Scope::iterator it = block->memberEnd() - 1;
     Symbol *symbol = *it;
     if (symbol && symbol->asScope()) { // True if there is a  "{ ... }" following.
         --it;
@@ -382,8 +386,8 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
     for (unsigned token = tokenRange.start; token <= tokenRange.end; ++token)
         CHECK_R(!tokenAt(token).expanded(), "Token is expanded");
 
-    Range range(m_cppRefactoringFile->startOf(tokenRange.start),
-                m_cppRefactoringFile->endOf(tokenRange.end));
+    Utils::ChangeSet::Range range(m_cppRefactoringFile->startOf(tokenRange.start),
+                                  m_cppRefactoringFile->endOf(tokenRange.end));
 
     CHECK_R(range.start >= 0 && range.end > 0, "ChangeRange invalid1");
     CHECK_R(range.start < range.end, "ChangeRange invalid2");
@@ -429,8 +433,8 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
             "No pointer or references in rewritten declaration");
 
     if (DEBUG_OUTPUT) {
-        qDebug("==> Rewritten: \"%s\" --> \"%s\"", originalDeclaration.toLatin1().constData(),
-               rewrittenDeclaration.toLatin1().constData());
+        qDebug("==> Rewritten: \"%s\" --> \"%s\"", originalDeclaration.toUtf8().constData(),
+               rewrittenDeclaration.toUtf8().constData());
     }
 
     // Creating the replacement in the changeset may fail due to operations
@@ -446,7 +450,7 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
     // original source. It tries to create an replacement operation
     // at this position and fails due to overlapping ranges (the
     // simple declaration range includes parameter declaration range).
-    ChangeSet change(m_changeSet);
+    Utils::ChangeSet change(m_changeSet);
     if (change.replace(range, rewrittenDeclaration))
         m_changeSet = change;
     else if (DEBUG_OUTPUT)

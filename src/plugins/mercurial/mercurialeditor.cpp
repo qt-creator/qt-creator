@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Brian McGillion
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Brian McGillion
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,7 +35,7 @@
 #include "mercurialclient.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <vcsbase/diffhighlighter.h>
+#include <vcsbase/diffandloghighlighter.h>
 
 #include <QString>
 #include <QTextCursor>
@@ -43,11 +44,10 @@
 #include <QFileInfo>
 #include <QDebug>
 
-using namespace Mercurial::Internal;
-using namespace Mercurial;
+namespace Mercurial {
+namespace Internal  {
 
-MercurialEditor::MercurialEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent)
-        : VcsBase::VcsBaseEditorWidget(type, parent),
+MercurialEditorWidget::MercurialEditorWidget() :
         exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
         exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
         changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),
@@ -55,11 +55,11 @@ MercurialEditor::MercurialEditor(const VcsBase::VcsBaseEditorParameters *type, Q
 {
     setDiffFilePattern(QRegExp(QLatin1String(Constants::DIFFIDENTIFIER)));
     setLogEntryPattern(QRegExp(QLatin1String("^changeset:\\s+(\\S+)$")));
-    setAnnotateRevisionTextFormat(tr("Annotate %1"));
-    setAnnotatePreviousRevisionTextFormat(tr("Annotate parent revision %1"));
+    setAnnotateRevisionTextFormat(tr("&Annotate %1"));
+    setAnnotatePreviousRevisionTextFormat(tr("Annotate &parent revision %1"));
 }
 
-QSet<QString> MercurialEditor::annotationChanges() const
+QSet<QString> MercurialEditorWidget::annotationChanges() const
 {
     QSet<QString> changes;
     const QString data = toPlainText();
@@ -75,7 +75,7 @@ QSet<QString> MercurialEditor::annotationChanges() const
     return changes;
 }
 
-QString MercurialEditor::changeUnderCursor(const QTextCursor &cursorIn) const
+QString MercurialEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) const
 {
     QTextCursor cursor = cursorIn;
     cursor.select(QTextCursor::WordUnderCursor);
@@ -89,12 +89,12 @@ QString MercurialEditor::changeUnderCursor(const QTextCursor &cursorIn) const
     return QString();
 }
 
-VcsBase::BaseAnnotationHighlighter *MercurialEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *MercurialEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
     return new MercurialAnnotationHighlighter(changes);
 }
 
-QString MercurialEditor::decorateVersion(const QString &revision) const
+QString MercurialEditorWidget::decorateVersion(const QString &revision) const
 {
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
@@ -102,10 +102,13 @@ QString MercurialEditor::decorateVersion(const QString &revision) const
     return MercurialPlugin::client()->shortDescriptionSync(workingDirectory, revision);
 }
 
-QStringList MercurialEditor::annotationPreviousVersions(const QString &revision) const
+QStringList MercurialEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Retrieve parent revisions
     return MercurialPlugin::client()->parentRevisionsSync(workingDirectory, fi.fileName(), revision);
 }
+
+} // namespace Internal
+} // namespace Mercurial

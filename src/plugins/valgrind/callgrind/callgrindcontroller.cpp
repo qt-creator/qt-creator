@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -61,12 +62,11 @@ CallgrindController::~CallgrindController()
 
 QString toOptionString(CallgrindController::Option option)
 {
-    /* Callgrind help from v3.6.0
+    /* callgrind_control help from v3.9.0
 
     Options:
     -h --help        Show this help text
     --version        Show version
-    -l --long        Show more information
     -s --stat        Show statistics
     -b --back        Show stack/back trace
     -e [<A>,...]     Show event counters for <A>,... (default: all)
@@ -74,7 +74,6 @@ QString toOptionString(CallgrindController::Option option)
     -z --zero        Zero all event counters
     -k --kill        Kill
     --instr=<on|off> Switch instrumentation state on/off
-    -w=<dir>         Specify the startup directory of an active Callgrind run
     */
 
     switch (option) {
@@ -104,10 +103,10 @@ void CallgrindController::run(Option option)
                 connection ? connection->connectionParameters() : QSsh::SshConnectionParameters(),
                 connection, this);
 
-    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            SLOT(processFinished(int,QProcess::ExitStatus)));
-    connect(m_process, SIGNAL(error(QProcess::ProcessError)),
-            SLOT(processError(QProcess::ProcessError)));
+    connect(m_process, &ValgrindProcess::finished,
+            this, &CallgrindController::processFinished);
+    connect(m_process, &ValgrindProcess::error,
+            this, &CallgrindController::processError);
 
     // save back current running operation
     m_lastOption = option;
@@ -135,9 +134,11 @@ void CallgrindController::run(Option option)
     m_process->setProcessChannelMode(QProcess::ForwardedChannels);
 #endif
     const int pid = Utils::HostOsInfo::isWindowsHost() ? 0 : m_valgrindProc->pid();
-    m_process->run(CALLGRIND_CONTROL_BINARY,
-                   QStringList() << optionString << QString::number(pid),
-                   QString(), QString());
+    m_process->setValgrindExecutable(CALLGRIND_CONTROL_BINARY);
+    m_process->setValgrindArguments(QStringList() << optionString << QString::number(pid));
+    m_process->setDebuggeeExecutable(QString());
+    m_process->setDebugeeArguments(QString());
+    m_process->run();
 }
 
 void CallgrindController::processError(QProcess::ProcessError)
@@ -155,7 +156,7 @@ void CallgrindController::processFinished(int rc, QProcess::ExitStatus status)
     QTC_ASSERT(m_process, return);
     const QString error = m_process->errorString();
 
-    delete m_process;
+    m_process->deleteLater(); // Called directly from finished() signal in m_process
     m_process = 0;
 
     if (rc != 0 || status != QProcess::NormalExit) {
@@ -170,9 +171,7 @@ void CallgrindController::processFinished(int rc, QProcess::ExitStatus status)
             run(Dump);
             return;
         case Pause:
-            // on pause, reset profiling info (for now)
-            run(ResetEventCounters);
-            return;
+            break;
         case Dump:
             emit statusMessage(tr("Callgrind dumped profiling info"));
             break;
@@ -201,7 +200,7 @@ void CallgrindController::getLocalDataFile()
             arg(m_valgrindProc->pid());
     const QString workingDir = m_valgrindProc->workingDirectory();
     // first, set the to-be-parsed file to callgrind.out.PID
-    QString fileName = workingDir.isEmpty() ? baseFileName : (workingDir + QDir::separator() + baseFileName);
+    QString fileName = workingDir.isEmpty() ? baseFileName : (workingDir + QLatin1Char('/') + baseFileName);
 
     if (!m_valgrindProc->isLocal()) {
         ///TODO: error handling
@@ -210,15 +209,15 @@ void CallgrindController::getLocalDataFile()
         // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
         QString cmd = QString::fromLatin1("ls -t %1* | head -n 1").arg(fileName);
         m_findRemoteFile = m_ssh->createRemoteProcess(cmd.toUtf8());
-        connect(m_findRemoteFile.data(), SIGNAL(readyReadStandardOutput()), this,
-            SLOT(foundRemoteFile()));
+        connect(m_findRemoteFile.data(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
+                this, &CallgrindController::foundRemoteFile);
         m_findRemoteFile->start();
     } else {
         QDir dir(workingDir, QString::fromLatin1("%1.*").arg(baseFileName), QDir::Time);
         QStringList outputFiles = dir.entryList();
         // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
         if (!outputFiles.isEmpty())
-            fileName = workingDir + QDir::separator() + dir.entryList().first();
+            fileName = workingDir + QLatin1Char('/') + dir.entryList().first();
 
         emit localParseDataAvailable(fileName);
     }
@@ -229,22 +228,23 @@ void CallgrindController::foundRemoteFile()
     m_remoteFile = m_findRemoteFile->readAllStandardOutput().trimmed();
 
     m_sftp = m_ssh->createSftpChannel();
-    connect(m_sftp.data(), SIGNAL(finished(QSsh::SftpJobId,QString)),
-            this, SLOT(sftpJobFinished(QSsh::SftpJobId,QString)));
-    connect(m_sftp.data(), SIGNAL(initialized()), this, SLOT(sftpInitialized()));
+    connect(m_sftp.data(), &QSsh::SftpChannel::finished,
+            this, &CallgrindController::sftpJobFinished);
+    connect(m_sftp.data(), &QSsh::SftpChannel::initialized,
+            this, &CallgrindController::sftpInitialized);
     m_sftp->initialize();
 }
 
 void CallgrindController::sftpInitialized()
 {
     cleanupTempFile();
-    QTemporaryFile dataFile(QDir::tempPath() + QDir::separator() + QLatin1String("callgrind.out."));
+    QTemporaryFile dataFile(QDir::tempPath() + QLatin1Char('/') + QLatin1String("callgrind.out."));
     QTC_ASSERT(dataFile.open(), return);
     m_tempDataFile = dataFile.fileName();
     dataFile.setAutoRemove(false);
     dataFile.close();
 
-    m_downloadJob = m_sftp->downloadFile(QString::fromLocal8Bit(m_remoteFile), m_tempDataFile, QSsh::SftpOverwriteExisting);
+    m_downloadJob = m_sftp->downloadFile(QString::fromUtf8(m_remoteFile), m_tempDataFile, QSsh::SftpOverwriteExisting);
 }
 
 void CallgrindController::sftpJobFinished(QSsh::SftpJobId job, const QString &error)

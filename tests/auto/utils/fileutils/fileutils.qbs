@@ -1,10 +1,8 @@
 import qbs
-import "../../autotest.qbs" as Autotest
 
-Autotest {
+QtcAutotest {
     name: "FileUtils autotest"
     Depends { name: "Utils" }
-    Depends { name: "Qt.widgets" } // TODO: Remove when qbs bug is fixed
     Properties {
         condition: qbs.toolchain.contains("gcc")
         cpp.cxxFlags: base.concat(["-Wno-trigraphs"])

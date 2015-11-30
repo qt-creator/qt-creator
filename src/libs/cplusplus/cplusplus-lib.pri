@@ -8,7 +8,7 @@ INCLUDEPATH *= $$IDE_SOURCE_TREE/src/libs/3rdparty
 
 include(../3rdparty/cplusplus/cplusplus.pri)
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += concurrent
+QT += concurrent
 
 #DEFINES += DEBUG_INCLUDE_GUARD_TRACKING
 
@@ -57,7 +57,6 @@ HEADERS += \
     $$PWD/pp-scanner.h \
     $$PWD/findcdbbreakpoint.h \
     $$PWD/PPToken.h \
-    $$PWD/Dumpers.h \
     $$PWD/cppmodelmanagerbase.h
 
 SOURCES += \
@@ -86,7 +85,6 @@ SOURCES += \
     $$PWD/pp-scanner.cpp \
     $$PWD/findcdbbreakpoint.cpp \
     $$PWD/PPToken.cpp \
-    $$PWD/Dumpers.cpp \
     $$PWD/cppmodelmanagerbase.cpp
 
 RESOURCES += $$PWD/cplusplus.qrc

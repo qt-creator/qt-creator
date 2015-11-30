@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-faq.html
     \page creator-tips.html
     \nextpage creator-known-issues.html
@@ -37,13 +37,13 @@
 
     \list
 
-        \li \gui Welcome mode \key Ctrl+1
-        \li \gui Edit mode \key Ctrl+2
-        \li \gui Design mode \key Ctrl+3
-        \li \gui Debug mode \key Ctrl+4
-        \li \gui Projects mode \key Ctrl+5
-        \li \gui Analyze mode \key Ctrl+6
-        \li \gui Help mode \key Ctrl+7
+        \li \uicontrol Welcome mode \key Ctrl+1
+        \li \uicontrol Edit mode \key Ctrl+2
+        \li \uicontrol Design mode \key Ctrl+3
+        \li \uicontrol Debug mode \key Ctrl+4
+        \li \uicontrol Projects mode \key Ctrl+5
+        \li \uicontrol Analyze mode \key Ctrl+6
+        \li \uicontrol Help mode \key Ctrl+7
 
     \endlist
 
@@ -55,17 +55,17 @@
     \key Ctrl+Tab.
 
     To move forward in the location history, press \key {Alt+Right}
-    (\key {Cmd+Opt+Right} on Mac OS). To move backward, press \key {Alt+Left}
-    (\key {Cmd+Opt+Left} on Mac OS). For example, if you use the \gui Locator
+    (\key {Cmd+Opt+Right} on OS X). To move backward, press \key {Alt+Left}
+    (\key {Cmd+Opt+Left} on OS X). For example, if you use the \uicontrol Locator
     to jump to a symbol in the same file, you can jump back to your original
     location in that file by pressing \key {Alt+Left}.
 
     \section1 Moving To the Edit Mode
 
-    To move to the \gui Edit mode and currently active file, press
+    To move to the \uicontrol Edit mode and currently active file, press
     \key Esc.
 
-    If you already are in the \gui Edit mode:
+    If you already are in the \uicontrol Edit mode:
 
     \list
 
@@ -77,8 +77,8 @@
 
     \section1 Using the Filter in Options Dialog
 
-    To find specific settings you require in \gui{Tools} > \gui{Options}
-    use the filter located at the top left of the \gui Options dialog box.
+    To find specific settings you require in \uicontrol{Tools} > \uicontrol{Options}
+    use the filter located at the top left of the \uicontrol Options dialog box.
 
     \section1 Opening Output Panes
 
@@ -90,18 +90,18 @@
 
     \list
 
-        \li \gui{Issues} pane Alt+1 (Cmd+1 on Mac OS X)
+        \li \uicontrol{Issues} pane Alt+1 (Cmd+1 on OS X)
 
-        \li \gui{Search Results} pane Alt+2 (Cmd+2 on Mac OS X)
+        \li \uicontrol{Search Results} pane Alt+2 (Cmd+2 on OS X)
 
-        \li \gui{Application Output} pane Alt+3 (Cmd+3 on Mac OS X)
+        \li \uicontrol{Application Output} pane Alt+3 (Cmd+3 on OS X)
 
-        \li \gui{Compile Output} pane Alt+4 (Cmd+4 on Mac OS X)
+        \li \uicontrol{Compile Output} pane Alt+4 (Cmd+4 on OS X)
 
     \endlist
 
-    To open the other output panes, such as \gui{General Messages} and
-    \gui{Version Control}, select \gui Window > \gui {Output Panes}. The menu
+    To open the other output panes, such as \uicontrol{General Messages} and
+    \uicontrol{Version Control}, select \uicontrol Window > \uicontrol {Output Panes}. The menu
     items also display the keyboard shortcuts that you can use.
 
     For more information about output panes, see \l{Viewing Output}.
@@ -112,8 +112,8 @@
     You can see the keyboard shortcut for a menu command in the menu
     or the tooltip for a button.
 
-    To customize, import or export keyboard shortcuts, select \gui Tools >
-    \gui Options > \gui Environment > \gui Keyboard.
+    To customize, import or export keyboard shortcuts, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Environment > \uicontrol Keyboard.
 
     \section1 Running \QC From Command Line
 
@@ -124,17 +124,13 @@
     For example, running \tt{qtcreator somesession}, launches \QC and
     loads session somesession.
 
-    \note Make sure \QC is included in the PATH environment variable.
-    This can be done by typing the following in the command line:
-    \code
-    set PATH=c:\qtsdk\mingw\bin;c:\qtsdk\qt\bin;%PATH%
-    \endcode
+    For more information, see \l{Using Command Line Options}.
 
     \section1 Showing and Hiding the Sidebar
 
-    To toggle the sidebar in the \gui Edit and \gui Debug modes, click
+    To toggle the sidebar in the \uicontrol Edit and \uicontrol Debug modes, click
     \inlineimage qtcreator-togglebutton.png
-    or press \key Alt+0 (\key Cmd+0 on Mac OS X).
+    or press \key Alt+0 (\key Cmd+0 on OS X).
 
     For more information on using the sidebar, see
     \l {Browsing Project Contents}.
@@ -142,31 +138,32 @@
     \section1 Moving To Symbols
 
     To move straight to a symbol used in a project, select the symbol in the
-    \gui Editor toolbar drop-down menu. For more information on the editor
+    \uicontrol Editor toolbar drop-down menu. For more information on the editor
     toolbar, see \l {Using the Editor Toolbar}.
 
     To jump to a symbol in the current file, press \key {Ctrl+K} to open the
-    \gui Locator, enter a period (.), and start typing the symbol name. Then
+    \uicontrol Locator, enter a period (.), and start typing the symbol name. Then
     select the symbol in the list. For more information on using the locator,
     see \l{Searching with the Locator}.
 
-    Press \key Ctrl (\key Cmd on Mac OS) and click a symbol to move directly to
+    Press \key Ctrl (\key Cmd on OS X) and click a symbol to move directly to
     the definition or the declaration of the symbol. You can also move the
-    on the symbol and press \key {F2}. For more information, see
-    cursor \l{Moving to Symbol Definition or Declaration}.
+    cursor on the symbol and press \key {F2}. For more information, see
+    \l{Moving to Symbol Definition or Declaration}.
 
     \section1 Displaying Signals and Slots
 
     If an instance of a class is derived from QObject, and you would like to
     find all other objects connected to one of your object's slots using
-    Qt's signals and slots mechanism, select \gui Tools > \gui Options
-    > \gui{Debugger} > \gui{Debugging Helper} > \gui{Use Debugging Helper}.
+    Qt's signals and slots mechanism, select \uicontrol Tools > \uicontrol Options
+    > \uicontrol{Debugger} > \uicontrol{Locals and Expressions} >
+    \uicontrol{Use Debugging Helper}.
 
-    In the \gui{Locals and Expressions} view, expand the object's entry and open
+    In the \uicontrol{Locals and Expressions} view, expand the object's entry and open
     the slot in the \e slots subitem. The objects connected to this slot are
     shown as children of the slot. This method works with signals too.
 
-    For more information about the \gui{Locals and Expressions} view, see
+    For more information about the \uicontrol{Locals and Expressions} view, see
     \l{Locals and Expressions}.
 
     \section1 Displaying Low Level Data
@@ -178,10 +175,10 @@
     To switch off the debugging helpers:
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui Debugger >
-            \gui{Debugging Helper}.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+            \uicontrol{Locals and Expressions}.
 
-        \li Uncheck the \gui{Use Debugging Helper} checkbox.
+        \li Uncheck the \uicontrol{Use Debugging Helper} checkbox.
 
     \endlist
 
@@ -192,39 +189,40 @@
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui Debugger > \gui General.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol Debugger > \uicontrol General.
 
-        \li Select the \gui {Use tooltips in main editor while debugging} check
+        \li Select the \uicontrol {Use tooltips in main editor while debugging} check
             box.
 
     \endlist
 
-    When you hover over a variable in the code editor in \gui Debug mode, a
+    When you hover over a variable in the code editor in \uicontrol Debug mode, a
     tooltip is displayed. To keep the tooltip visible, click the pin button.
     You can expand pinned tooltips to view their full content.
 
     \image qtcreator-pin-tooltip.png
 
     Pinned tooltips are stored in the session. To close all pinned tooltips,
-    select \gui {Close Editor Tooltips} in the context menu in the \gui {Locals
+    select \uicontrol {Close Editor Tooltips} in the context menu in the \uicontrol {Locals
     and Expressions} view.
 
     \section1 Locating Files
 
-    The \gui Locator provides one of the easiest ways in \QC to browse
+    The \uicontrol Locator provides one of the easiest ways in \QC to browse
     through projects, files, classes, functions, documentation and file systems.
     To quickly access files not directly mentioned in your project, you can
     create your own locator filters. That way you can locate files in a
     directory structure you have defined.
 
-    To create locator filters, select \gui {Tools > Options > Locator > Add}.
+    To create locator filters, select \uicontrol {Tools > Options > Locator > Add}.
 
     For more information, see \l{Creating Locator Filters}.
 
     \section1 Adding a License Header Template for C++ Code
 
     A file containing a license header for C++ can be specified under
-    \gui{Tools > Options > C++ > License Template}. It may contain special
+    \uicontrol{Tools > Options > C++ > License Template}. It may contain special
     placeholders enclosed in \c{%%} that are replaced when generating a
     new file:
 
@@ -234,7 +232,7 @@
         \li \c %MONTH%: Month
         \li \c %DAY%: Day of the month
         \li \c %DATE%: Date
-        \li \c %USER%: User name
+        \li \c %USER%: Username
         \li \c %FILENAME%: File name
         \li \c %CLASS%: Class name (if applicable)
         \li \c %$VARIABLE%: Contents of environment variable \c{VARIABLE}.

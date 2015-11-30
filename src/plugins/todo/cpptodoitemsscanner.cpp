@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Dmitry Savchenko
-** Copyright (c) 2014 Vasiliy Sorokin
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Dmitry Savchenko
+** Copyright (C) 2015 Vasiliy Sorokin
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,60 +34,53 @@
 #include <projectexplorer/project.h>
 #include <cplusplus/TranslationUnit.h>
 
+#include <cctype>
+
 namespace Todo {
 namespace Internal {
 
 CppTodoItemsScanner::CppTodoItemsScanner(const KeywordList &keywordList, QObject *parent) :
     TodoItemsScanner(keywordList, parent)
 {
-    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
-    connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)), this,
-        SLOT(documentUpdated(CPlusPlus::Document::Ptr)), Qt::DirectConnection);
+    connect(modelManager, &CppTools::CppModelManager::documentUpdated,
+            this, &CppTodoItemsScanner::documentUpdated, Qt::DirectConnection);
+
+    setParams(keywordList);
 }
 
-bool CppTodoItemsScanner::shouldProcessFile(const QString &fileName)
-{
-    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
-
-    foreach (const CppTools::CppModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
-        if (info.project().data()->files(ProjectExplorer::Project::ExcludeGeneratedFiles).contains(fileName))
-            return true;
-
-    return false;
-}
-
-void CppTodoItemsScanner::keywordListChanged()
+void CppTodoItemsScanner::scannerParamsChanged()
 {
     // We need to rescan everything known to the code model
     // TODO: It would be nice to only tokenize the source files, not update the code model entirely.
 
-    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
-    QStringList filesToBeUpdated;
-    foreach (const CppTools::CppModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
-        filesToBeUpdated << info.project().data()->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+    QSet<QString> filesToBeUpdated;
+    foreach (const CppTools::ProjectInfo &info, modelManager->projectInfos())
+        filesToBeUpdated.unite(info.project().data()->files(ProjectExplorer::Project::ExcludeGeneratedFiles).toSet());
 
     modelManager->updateSourceFiles(filesToBeUpdated);
 }
 
 void CppTodoItemsScanner::documentUpdated(CPlusPlus::Document::Ptr doc)
 {
-    if (shouldProcessFile(doc->fileName()))
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    if (!modelManager->projectPart(doc->fileName()).isEmpty())
         processDocument(doc);
 }
 
 void CppTodoItemsScanner::processDocument(CPlusPlus::Document::Ptr doc)
 {
     QList<TodoItem> itemList;
-
     CPlusPlus::TranslationUnit *translationUnit = doc->translationUnit();
 
     for (unsigned i = 0; i < translationUnit->commentCount(); ++i) {
 
         // Get comment source
         CPlusPlus::Token token = doc->translationUnit()->commentAt(i);
-        QByteArray source = doc->utf8Source().mid(token.begin(), token.length()).trimmed();
+        QByteArray source = doc->utf8Source().mid(token.bytesBegin(), token.bytes()).trimmed();
 
         if ((token.kind() == CPlusPlus::T_COMMENT) || (token.kind() == CPlusPlus::T_DOXY_COMMENT)) {
             // Remove trailing "*/"
@@ -94,14 +88,27 @@ void CppTodoItemsScanner::processDocument(CPlusPlus::Document::Ptr doc)
         }
 
         // Process every line of the comment
-        // TODO: Do not create QStringList, just iterate through a string tracking line endings.
-        const QStringList commentLines =
-            QString::fromUtf8(source).split(QLatin1Char('\n'), QString::SkipEmptyParts);
         unsigned lineNumber = 0;
-        translationUnit->getPosition(token.begin(), &lineNumber);
-        for (int j = 0; j < commentLines.count(); ++j) {
-            const QString &commentLine = commentLines.at(j);
-            processCommentLine(doc->fileName(), commentLine, lineNumber + j, itemList);
+        translationUnit->getPosition(token.utf16charsBegin(), &lineNumber);
+
+        for (int from = 0, sz = source.size(); from < sz; ++lineNumber) {
+            int to = source.indexOf('\n', from);
+            if (to == -1)
+                to = sz - 1;
+
+            const char *start = source.constData() + from;
+            const char *end = source.constData() + to;
+            while (start != end && std::isspace((unsigned char)*start))
+                ++start;
+            while (start != end && std::isspace((unsigned char)*end))
+                --end;
+            const int length = end - start + 1;
+            if (length > 0) {
+                QString commentLine = QString::fromUtf8(start, length);
+                processCommentLine(doc->fileName(), commentLine, lineNumber, itemList);
+            }
+
+            from = to + 1;
         }
     }
     emit itemsFetched(doc->fileName(), itemList);

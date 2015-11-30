@@ -1,7 +1,6 @@
 import qbs
-import "../autotest.qbs" as Autotest
 
-Autotest {
+QtcAutotest {
     name: "gdb autotest"
     Depends { name: "Qt.network" } // For QHostAddress
     Group {

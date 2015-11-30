@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,6 +35,8 @@
 
 #include <coreplugin/id.h>
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 #include <QFileSystemModel>
 
@@ -41,6 +44,8 @@ namespace Core {
 class IDocument;
 class Context;
 }
+
+namespace Utils { class MacroExpander; }
 
 namespace ProjectExplorer {
 
@@ -59,6 +64,7 @@ class ProjectPrivate;
 class PROJECTEXPLORER_EXPORT Project
     : public QObject
 {
+    friend class SessionManager; // for setActiveTarget
     Q_OBJECT
 
 public:
@@ -77,7 +83,7 @@ public:
     virtual Core::IDocument *document() const = 0;
     virtual IProjectManager *projectManager() const = 0;
 
-    QString projectFilePath() const;
+    Utils::FileName projectFilePath() const;
 
     bool hasActiveBuildSettings() const;
 
@@ -91,31 +97,32 @@ public:
     QList<Target *> targets() const;
     // Note: activeTarget can be 0 (if no targets are defined).
     Target *activeTarget() const;
-    void setActiveTarget(Target *target);
-    Target *target(const Core::Id id) const;
+    Target *target(Core::Id id) const;
     Target *target(Kit *k) const;
     virtual bool supportsKit(Kit *k, QString *errorMessage = 0) const;
 
     Target *createTarget(Kit *k);
+    Target *cloneTarget(Target *sourceTarget, Kit *k);
     Target *restoreTarget(const QVariantMap &data);
 
     void saveSettings();
-    bool restoreSettings();
+    enum class RestoreResult { Ok, Error, UserAbort };
+    RestoreResult restoreSettings(QString *errorMessage);
 
     virtual ProjectNode *rootProjectNode() const = 0;
 
     enum FilesMode { AllFiles, ExcludeGeneratedFiles };
     virtual QStringList files(FilesMode fileMode) const = 0;
     // TODO: generalize to find source(s) of generated files?
-    virtual QString generatedUiHeader(const QString &formFile) const;
+    virtual QString generatedUiHeader(const Utils::FileName &formFile) const;
 
-    static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
+    static QString makeUnique(const QString &preferredName, const QStringList &usedNames);
 
     virtual QVariantMap toMap() const;
 
     // The directory that holds the project. This includes the absolute path.
-    QString projectDirectory() const;
-    static QString projectDirectory(const QString &top);
+    Utils::FileName projectDirectory() const;
+    static Utils::FileName projectDirectory(const Utils::FileName &top);
 
     Core::Context projectContext() const;
     Core::Context projectLanguages() const;
@@ -126,14 +133,19 @@ public:
     virtual bool needsConfiguration() const;
     virtual void configureAsExampleProject(const QStringList &platforms);
 
-    virtual bool supportsNoTargetPanel() const;
+    virtual bool requiresTargetPanel() const;
     virtual ProjectImporter *createProjectImporter() const;
-    virtual KitMatcher *createRequiredKitMatcher() const { return 0; }
-    virtual KitMatcher *createPreferredKitMatcher() const { return 0; }
+
+    KitMatcher requiredKitMatcher() const;
+    void setRequiredKitMatcher(const KitMatcher &matcher);
+
+    KitMatcher preferredKitMatcher() const;
+    void setPreferredKitMatcher(const KitMatcher &matcher);
 
     virtual bool needsSpecialDeployment() const;
 
     void setup(QList<const BuildInfo *> infoList);
+    Utils::MacroExpander *macroExpander() const;
 
 signals:
     void displayNameChanged();
@@ -158,7 +170,7 @@ signals:
     void projectLanguagesUpdated();
 
 protected:
-    virtual bool fromMap(const QVariantMap &map);
+    virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     virtual bool setupTarget(Target *t);
 
     void setId(Core::Id id);
@@ -174,6 +186,7 @@ private slots:
     void onBuildDirectoryChanged();
 
 private:
+    void setActiveTarget(Target *target);
     ProjectPrivate *d;
 };
 

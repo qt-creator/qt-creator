@@ -1,25 +1,20 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "Android"
 
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
+    Depends { name: "AnalyzerBase" }
     Depends { name: "Core" }
-    Depends { name: "ProjectExplorer" }
-    Depends { name: "QmakeProjectManager" }
     Depends { name: "Debugger" }
+    Depends { name: "ProjectExplorer" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
-    Depends { name: "AnalyzerBase" }
     Depends { name: "Utils" }
-    Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
-
-    property bool enable: false
-    pluginspecreplacements: ({"ANDROID_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
     files: [
+        "android_global.h",
         "addnewavddialog.ui",
         "android.qrc",
         "androidanalyzesupport.cpp",
@@ -30,6 +25,11 @@ QtcPlugin {
         "androidcreatekeystorecertificate.cpp",
         "androidcreatekeystorecertificate.h",
         "androidcreatekeystorecertificate.ui",
+        "androidbuildapkstep.cpp",
+        "androidbuildapkstep.h",
+        "androidbuildapkwidget.cpp",
+        "androidbuildapkwidget.h",
+        "androidbuildapkwidget.ui",
         "androiddeployqtstep.cpp",
         "androiddeployqtstep.h",
         "androiddebugsupport.cpp",
@@ -39,13 +39,6 @@ QtcPlugin {
         "androiddevicedialog.ui",
         "androiddeployconfiguration.cpp",
         "androiddeployconfiguration.h",
-        "androiddeploystep.cpp",
-        "androiddeploystep.h",
-        "androiddeploystepfactory.cpp",
-        "androiddeploystepfactory.h",
-        "androiddeploystepwidget.cpp",
-        "androiddeploystepwidget.h",
-        "androiddeploystepwidget.ui",
         "androiddeployqtwidget.cpp",
         "androiddeployqtwidget.h",
         "androiddeployqtwidget.ui",
@@ -55,8 +48,6 @@ QtcPlugin {
         "androiddevicefactory.h",
         "androiderrormessage.h",
         "androiderrormessage.cpp",
-        "androidextralibrarylistmodel.cpp",
-        "androidextralibrarylistmodel.h",
         "androidgdbserverkitinformation.cpp",
         "androidgdbserverkitinformation.h",
         "androidglobal.h",
@@ -70,21 +61,12 @@ QtcPlugin {
         "androidmanifesteditorfactory.h",
         "androidmanifesteditorwidget.cpp",
         "androidmanifesteditorwidget.h",
-        "androidpackagecreationfactory.cpp",
-        "androidpackagecreationfactory.h",
-        "androidpackagecreationstep.cpp",
-        "androidpackagecreationstep.h",
-        "androidpackagecreationwidget.cpp",
-        "androidpackagecreationwidget.h",
-        "androidpackagecreationwidget.ui",
-        "androidpackageinstallationfactory.cpp",
-        "androidpackageinstallationfactory.h",
-        "androidpackageinstallationstep.cpp",
-        "androidpackageinstallationstep.h",
         "androidplugin.cpp",
         "androidplugin.h",
         "androidpotentialkit.cpp",
         "androidpotentialkit.h",
+        "androidqtsupport.cpp",
+        "androidqtsupport.h",
         "androidqtversion.cpp",
         "androidqtversion.h",
         "androidqtversionfactory.cpp",
@@ -97,8 +79,6 @@ QtcPlugin {
         "androidrunfactories.h",
         "androidrunner.cpp",
         "androidrunner.h",
-        "androidrunsupport.cpp",
-        "androidrunsupport.h",
         "androidsettingspage.cpp",
         "androidsettingspage.h",
         "androidsettingswidget.cpp",
@@ -108,20 +88,16 @@ QtcPlugin {
         "androidsignaloperation.h",
         "androidtoolchain.cpp",
         "androidtoolchain.h",
+        "avddialog.cpp",
+        "avddialog.h",
         "certificatesmodel.cpp",
         "certificatesmodel.h",
-        "createandroidmanifestwizard.cpp",
-        "createandroidmanifestwizard.h",
         "javaautocompleter.cpp",
         "javaautocompleter.h",
         "javacompletionassistprovider.cpp",
         "javacompletionassistprovider.h",
         "javaeditor.cpp",
         "javaeditor.h",
-        "javaeditorfactory.cpp",
-        "javaeditorfactory.h",
-        "javafilewizard.cpp",
-        "javafilewizard.h",
         "javaindenter.cpp",
         "javaindenter.h",
         "javaparser.cpp",

@@ -1,5 +1,4 @@
-import qbs.base 1.0
-import QtcLibrary
+import qbs 1.0
 
 QtcLibrary {
     name: "CPlusPlus"
@@ -12,6 +11,7 @@ QtcLibrary {
     cpp.optimization: "fast"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Utils" }
 
     Group {
         name: "ThirdPartyCPlusPlus"
@@ -43,10 +43,11 @@ QtcLibrary {
             "Keywords.cpp",
             "Lexer.cpp",
             "Lexer.h",
-            "LiteralTable.cpp",
             "LiteralTable.h",
             "Literals.cpp",
             "Literals.h",
+            "Matcher.cpp",
+            "Matcher.h",
             "MemoryPool.cpp",
             "MemoryPool.h",
             "Name.cpp",
@@ -62,11 +63,12 @@ QtcLibrary {
             "Parser.h",
             "QtContextKeywords.cpp",
             "QtContextKeywords.h",
+            "SafeMatcher.cpp",
+            "SafeMatcher.h",
             "Scope.cpp",
             "Scope.h",
             "Symbol.cpp",
             "Symbol.h",
-            "SymbolVisitor.cpp",
             "SymbolVisitor.h",
             "Symbols.cpp",
             "Symbols.h",
@@ -78,8 +80,6 @@ QtcLibrary {
             "TranslationUnit.h",
             "Type.cpp",
             "Type.h",
-            "TypeMatcher.cpp",
-            "TypeMatcher.h",
             "TypeVisitor.cpp",
             "TypeVisitor.h",
         ]
@@ -131,6 +131,7 @@ QtcLibrary {
         prefix: "images/"
         files: [
             "class.png",
+            "struct.png",
             "enum.png",
             "enumerator.png",
             "func.png",

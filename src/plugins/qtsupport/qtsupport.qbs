@@ -1,14 +1,9 @@
-import qbs.base 1.0
-
-import QtcFunctions
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "QtSupport"
 
-    Depends { name: "Qt"; submodules: ["widgets"]; }
-    Depends { name: "Qt.quick"; condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1"); }
-    Depends { name: "Aggregation" }
+    Depends { name: "Qt"; submodules: ["quick", "widgets", "xml"]; }
     Depends { name: "QmlJS" }
     Depends { name: "Utils" }
 
@@ -17,7 +12,7 @@ QtcPlugin {
     Depends { name: "CppTools" }
 
     cpp.includePaths: base.concat([
-        "../../shared",
+        project.sharedSourcesDir,
     ])
 
     cpp.defines: base.concat([
@@ -32,7 +27,7 @@ QtcPlugin {
 
     Group {
         name: "Shared"
-        prefix: "../../shared/proparser/"
+        prefix: project.sharedSourcesDir + "/proparser/"
         files: [
             "ioutils.cpp",
             "ioutils.h",
@@ -60,6 +55,13 @@ QtcPlugin {
     files: [
         "baseqtversion.cpp",
         "baseqtversion.h",
+        "codegenerator.cpp",
+        "codegenerator.h",
+        "codegensettings.cpp",
+        "codegensettings.h",
+        "codegensettingspage.cpp",
+        "codegensettingspage.h",
+        "codegensettingspagewidget.ui",
         "qtconfigwidget.cpp",
         "qtconfigwidget.h",
         "qtsupport.qrc",
@@ -96,7 +98,6 @@ QtcPlugin {
         "qtversionmanager.cpp",
         "qtversionmanager.h",
         "qtversionmanager.ui",
-        "qtfeatureprovider.h",
         "screenshotcropper.cpp",
         "screenshotcropper.h",
         "showbuildlog.ui",
@@ -113,8 +114,6 @@ QtcPlugin {
         files: [
             "desktopqtversion.cpp", "desktopqtversion.h",
             "desktopqtversionfactory.cpp", "desktopqtversionfactory.h",
-            "simulatorqtversion.cpp", "simulatorqtversion.h",
-            "simulatorqtversionfactory.cpp", "simulatorqtversionfactory.h",
             "winceqtversion.cpp", "winceqtversion.h",
             "winceqtversionfactory.cpp", "winceqtversionfactory.h",
         ]
@@ -122,7 +121,6 @@ QtcPlugin {
 
     Group {
         name: "Getting Started Welcome Page"
-        condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1")
         files: [
             "gettingstartedwelcomepage.cpp",
             "gettingstartedwelcomepage.h"

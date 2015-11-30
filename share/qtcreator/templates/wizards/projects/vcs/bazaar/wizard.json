@@ -1,0 +1,198 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "B.Bazaar",
+    "category": "T.Import",
+    "trDescription": "Clones a Bazaar branch and tries to load the contained project.",
+    "trDisplayName": "Bazaar Clone (Or Branch)",
+    "trDisplayCategory": "Import Project",
+    "icon": "icon.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Bazaar') >= 0}",
+
+    "options":
+    [
+        { "key": "vcsId", "value": "B.Bazaar" },
+        { "key": "vcsName", "value": "%{JS: Vcs.displayName('%{vcsId}')}" },
+        { "key": "SR", "value": "%{JS: '%{Repo}'.substr('%{Repo}'.indexOf(':') + 1) }" },
+        { "key": "defaultDir", "value": "%{JS: '%{SR}'.substr('%{SR}'.lastIndexOf('/') + 1).replace(/\\./, '-') }"},
+        { "key": "RevArg", "value": "%{JS: '%{Rev}' !== '' ? '-r' : ''}" },
+        { "key": "TargetPath", "value": "%{Path}/%{Dir}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Configuration",
+            "trShortTitle": "Configuration",
+            "trSubTitle": "Please configure <b>%{vcsName}</b> now.",
+            "typeId": "VcsConfiguration",
+            "enabled": "%{JS: !Vcs.isConfigured('%{vcsId}')}",
+            "data": { "vcsId": "%{vcsId}" }
+        },
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "trSubTitle": "Specify repository URL, checkout directory, and path.",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "Repo",
+                    "trDisplayName": "Repository:",
+                    "mandatory": true,
+                    "type": "LineEdit"
+                },
+                {
+                    "name": "Sp1",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "Path",
+                    "trDisplayName": "Path:",
+                    "type": "PathChooser",
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                },
+                {
+                    "name": "Dir",
+                    "trDisplayName": "Directory:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "isComplete": "%{JS: '%{UseExisting}' !== '' || '%{Dir}' === '' || !Util.exists('%{TargetPath}')}",
+                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators('%{TargetPath}')}\" exists in the filesystem.",
+                    "data":
+                    {
+                        "trText": "%{defaultDir}"
+                    }
+                },
+                {
+                    "name": "Sp2",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "UseExisting",
+                    "trDisplayName": "Use existing directory",
+                    "trToolTip": "Proceed with cloning the repository, even if the target directory already exists.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "--use-existing-dir",
+                        "uncheckedValue": ""
+                    }
+                },
+                {
+                    "name": "Stacked",
+                    "trDisplayName": "Stacked",
+                    "trToolTip": "Make the new branch depend on the availability of the source branch.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "--stacked",
+                        "uncheckedValue": ""
+                    }
+                },
+                {
+                    "name": "Standalone",
+                    "trDisplayName": "Standalone",
+                    "trToolTip": "Do not use a shared repository.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "--standalone",
+                        "uncheckedValue": ""
+                    }
+                },
+                {
+                    "name": "Bind",
+                    "trDisplayName": "Bind new branch to source location",
+                    "trToolTip": "Bind the new branch to the source location.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "--bind",
+                        "uncheckedValue": ""
+                    }
+                },
+                {
+                    "name": "Switch",
+                    "trDisplayName": "Switch checkout",
+                    "trToolTip": "Switch the checkout in the current directory to the new branch.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "--switch",
+                        "uncheckedValue": ""
+                    }
+                },
+                {
+                    "name": "Hardlink",
+                    "trDisplayName": "Hardlink",
+                    "trToolTip": "Use hard-links in working tree.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "--hardlink",
+                        "uncheckedValue": ""
+                    }
+                },
+                {
+                    "name": "NoTree",
+                    "trDisplayName": "No working-tree",
+                    "trToolTip": "Do not create a working tree.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "--no-tree",
+                        "uncheckedValue": ""
+                    }
+                },
+                {
+                    "name": "Rev",
+                    "trDisplayName": "Revision:",
+                    "mandatory": false,
+                    "type": "LineEdit"
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Clone",
+            "trShortTitle": "Clone",
+            "typeId": "VcsCommand",
+            "data" :
+            {
+                "vcsId": "%{vcsId}",
+                "trRunMessage": "Running Bazaar branch...",
+                "repository": "%{Repo}",
+                "baseDirectory": "%{Path}",
+                "checkoutName": "%{Dir}",
+                "extraArguments":
+                [
+                    "%{UseExisting}",
+                    "%{Stacked}",
+                    "%{Standalone}",
+                    "%{Bind}",
+                    "%{Switch}",
+                    "%{Hardlink}",
+                    "%{NoTree}",
+                    "%{RevArg}", "%{Rev}"
+                ]
+            }
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "Scanner",
+            "data": {
+                "subdirectoryPatterns": [ "^src$" ]
+            }
+        }
+    ]
+}

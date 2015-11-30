@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -50,7 +51,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.pathChooser->setPromptDialogTitle(tr("Perforce Command"));
     m_ui.pathChooser->setHistoryCompleter(QLatin1String("Perforce.Command.History"));
     m_ui.pathChooser->setExpectedKind(PathChooser::Command);
-    connect(m_ui.testPushButton, SIGNAL(clicked()), this, SLOT(slotTest()));
+    connect(m_ui.testPushButton, &QPushButton::clicked, this, &SettingsPageWidget::slotTest);
 }
 
 void SettingsPageWidget::slotTest()
@@ -58,8 +59,8 @@ void SettingsPageWidget::slotTest()
     if (!m_checker) {
         m_checker = new PerforceChecker(this);
         m_checker->setUseOverideCursor(true);
-        connect(m_checker.data(), SIGNAL(failed(QString)), this, SLOT(setStatusError(QString)));
-        connect(m_checker.data(), SIGNAL(succeeded(QString)), this, SLOT(testSucceeded(QString)));
+        connect(m_checker.data(), &PerforceChecker::failed, this, &SettingsPageWidget::setStatusError);
+        connect(m_checker.data(), &PerforceChecker::succeeded, this, &SettingsPageWidget::testSucceeded);
     }
 
     if (m_checker->isRunning())
@@ -67,7 +68,7 @@ void SettingsPageWidget::slotTest()
 
     setStatusText(tr("Testing..."));
     const Settings s = settings();
-    m_checker->start(s.p4BinaryPath, s.commonP4Arguments(), 10000);
+    m_checker->start(s.p4BinaryPath, QString(), s.commonP4Arguments(), 10000);
 }
 
 void SettingsPageWidget::testSucceeded(const QString &repo)
@@ -114,27 +115,6 @@ void SettingsPageWidget::setStatusError(const QString &t)
 {
     m_ui.errorLabel->setStyleSheet(QLatin1String("background-color: red"));
     m_ui.errorLabel->setText(t);
-}
-
-QString SettingsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream(&rc)
-            << sep << m_ui.configGroupBox->title()
-            << sep << m_ui.commandLabel->text()
-            << sep << m_ui.environmentGroupBox->title()
-            << sep << m_ui.portLabel->text()
-            << sep << m_ui.clientLabel->text()
-            << sep << m_ui.userLabel->text()
-            << sep << m_ui.miscGroupBox->title()
-            << sep << m_ui.logCountLabel->text()
-            << sep << m_ui.timeOutLabel->text()
-            << sep << m_ui.promptToSubmitCheckBox->text()
-            << sep << m_ui.autoOpenCheckBox->text()
-               ;
-    rc.remove(QLatin1Char('&'));
-    return rc;
 }
 
 SettingsPage::SettingsPage()

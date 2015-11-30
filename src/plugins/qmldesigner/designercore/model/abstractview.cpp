@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -34,6 +30,9 @@
 #include "internalnode_p.h"
 #include "nodeinstanceview.h"
 #include <qmlstate.h>
+
+#include <coreplugin/helpmanager.h>
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
@@ -106,7 +105,7 @@ const ModelNode AbstractView::rootModelNode() const
 ModelNode AbstractView::rootModelNode()
 {
     Q_ASSERT(model());
-    return  ModelNode(model()->d->rootNode(), model(), this);
+    return ModelNode(model()->d->rootNode(), model(), this);
 }
 
 /*!
@@ -189,12 +188,63 @@ void AbstractView::modelAboutToBeDetached(Model *)
             Empty properties were removed.
 */
 
+void AbstractView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
+{
+}
+
+void AbstractView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
+{
+}
+
+void AbstractView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+}
+
+void AbstractView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+}
+
+void AbstractView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+}
+
+void AbstractView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
+{
+}
+
+void AbstractView::nodeSourceChanged(const ModelNode &/*modelNode*/, const QString &/*newNodeSource*/)
+{
+}
+
+void AbstractView::rewriterBeginTransaction()
+{
+}
+
+void AbstractView::rewriterEndTransaction()
+{
+}
+
+void AbstractView::instanceErrorChange(const QVector<ModelNode> &/*errorNodeList*/)
+{
+}
+
+void AbstractView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
+{
+}
+
 // Node related functions
 
 /*!
 \fn void AbstractView::nodeCreated(const ModelNode &createdNode)
 Called when the new node \a createdNode is created.
 */
+void AbstractView::nodeCreated(const ModelNode &/*createdNode*/)
+{
+}
+
+void AbstractView::currentStateChanged(const ModelNode &/*node*/)
+{
+}
 
 /*!
 Called when the file URL (that is needed to resolve relative paths against,
@@ -204,10 +254,25 @@ void AbstractView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*/
 {
 }
 
+void AbstractView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
+{
+}
+
 /*!
 \fn void AbstractView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 Called when the node specified by \a removedNode will be removed.
 */
+void AbstractView::nodeAboutToBeRemoved(const ModelNode &/*removedNode*/)
+{
+}
+
+void AbstractView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, PropertyChangeFlags /*propertyChange*/)
+{
+}
+
+void AbstractView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*propertyList*/)
+{
+}
 
 /*!
 Called when the properties specified by \a propertyList are removed.
@@ -228,13 +293,51 @@ Called when the parent of \a node will be changed from \a oldPropertyParent to
 Called when the selection is changed from \a lastSelectedNodeList to
 \a selectedNodeList.
 */
+void AbstractView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/, const QList<ModelNode> &/*lastSelectedNodeList*/)
+{
+}
+
+void AbstractView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+}
+
+void AbstractView::nodeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+}
+
+void AbstractView::nodeIdChanged(const ModelNode& /*node*/, const QString& /*newId*/, const QString& /*oldId*/)
+{
+}
+
+void AbstractView::variantPropertiesChanged(const QList<VariantProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
+{
+}
+
+void AbstractView::bindingPropertiesChanged(const QList<BindingProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
+{
+}
+
+void AbstractView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
+{
+}
+
+void AbstractView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
+{
+}
+
+void AbstractView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+{
+}
 
 void AbstractView::auxiliaryDataChanged(const ModelNode &/*node*/, const PropertyName &/*name*/, const QVariant &/*data*/)
 {
-
 }
 
 void AbstractView::customNotification(const AbstractView * /*view*/, const QString & /*identifier*/, const QList<ModelNode> & /*nodeList*/, const QList<QVariant> & /*data*/)
+{
+}
+
+void AbstractView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
 {
 }
 
@@ -326,9 +429,10 @@ ModelNode AbstractView::singleSelectedModelNode() const
 /*!
     Adds \a node to the selection list.
 */
-void AbstractView::selectModelNode(const ModelNode &node)
+void AbstractView::selectModelNode(const ModelNode &modelNode)
 {
-    model()->d->selectNode(node.internalNode());
+    QTC_ASSERT(modelNode.isInHierarchy(), return);
+    model()->d->selectNode(modelNode.internalNode());
 }
 
 /*!
@@ -349,7 +453,7 @@ bool AbstractView::hasId(const QString &id) const
     return model()->d->hasId(id);
 }
 
-QString firstCharToLower(const QString string)
+QString firstCharToLower(const QString &string)
 {
     QString resultString = string;
 
@@ -359,17 +463,17 @@ QString firstCharToLower(const QString string)
     return resultString;
 }
 
-QString AbstractView::generateNewId(const QString prefixName) const
+QString AbstractView::generateNewId(const QString &prefixName) const
 {
     int counter = 1;
 
     QString newId = QString("%1%2").arg(firstCharToLower(prefixName)).arg(counter);
-    newId.remove(QRegExp(QLatin1String("[^a-zA-Z0-9_]")));
+    newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
 
     while (hasId(newId)) {
         counter += 1;
         newId = QString("%1%2").arg(firstCharToLower(prefixName)).arg(counter);
-        newId.remove(QRegExp(QLatin1String("[^a-zA-Z0-9_]")));
+        newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
     }
 
     return newId;
@@ -411,6 +515,11 @@ void AbstractView::resetView()
     currentModel->attachView(this);
 }
 
+void AbstractView::resetPuppet()
+{
+    emitCustomNotification(QStringLiteral("reset QmlPuppet"));
+}
+
 bool AbstractView::hasWidget() const
 {
     return false;
@@ -419,6 +528,28 @@ bool AbstractView::hasWidget() const
 WidgetInfo AbstractView::widgetInfo()
 {
     return createWidgetInfo();
+}
+
+QString AbstractView::contextHelpId() const
+{
+    QString helpId;
+
+    if (hasSelectedModelNodes()) {
+        QString className = firstSelectedModelNode().simplifiedTypeName();
+        helpId = QStringLiteral("QML.") + className;
+        if (Core::HelpManager::linksForIdentifier(helpId).isEmpty() && firstSelectedModelNode().metaInfo().isValid()) {
+
+            foreach (className, firstSelectedModelNode().metaInfo().superClassNames()) {
+                helpId = QStringLiteral("QML.") + className;
+                if (Core::HelpManager::linksForIdentifier(helpId).isEmpty())
+                    helpId = QString();
+                else
+                    break;
+            }
+        }
+    }
+
+    return helpId;
 }
 
 QList<ModelNode> AbstractView::allModelNodes() const
@@ -445,6 +576,12 @@ void AbstractView::emitInstancePropertyChange(const QList<QPair<ModelNode, Prope
 {
     if (model() && nodeInstanceView() == this)
         model()->d->notifyInstancePropertyChange(propertyList);
+}
+
+void AbstractView::emitInstanceErrorChange(const QVector<qint32> &instanceIds)
+{
+    if (model() && nodeInstanceView() == this)
+        model()->d->notifyInstanceErrorChange(instanceIds);
 }
 
 void AbstractView::emitInstancesCompleted(const QVector<ModelNode> &nodeVector)
@@ -531,10 +668,10 @@ QmlModelState AbstractView::currentState() const
 static int getMajorVersionFromImport(const Model *model)
 {
     foreach (const Import &import, model->imports()) {
-        if (import.isLibraryImport() && import.url() == QLatin1String("QtQuick")) {
+        if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
             const QString versionString = import.version();
-            if (versionString.contains(QLatin1String("."))) {
-                const QString majorVersionString = versionString.split(QLatin1String(".")).first();
+            if (versionString.contains(QStringLiteral("."))) {
+                const QString majorVersionString = versionString.split(QStringLiteral(".")).first();
                 return majorVersionString.toInt();
             }
         }

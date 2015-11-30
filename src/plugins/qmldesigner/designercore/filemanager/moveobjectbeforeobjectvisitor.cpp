@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -33,8 +29,6 @@
 
 #include <QDebug>
 
-using namespace QmlJS;
-using namespace QmlJS::AST;
 using namespace QmlDesigner::Internal;
 using namespace QmlDesigner;
 
@@ -73,13 +67,13 @@ bool MoveObjectBeforeObjectVisitor::operator ()(QmlJS::AST::UiProgram *ast)
     return didRewriting();
 }
 
-bool MoveObjectBeforeObjectVisitor::preVisit(Node *ast)
+bool MoveObjectBeforeObjectVisitor::preVisit(QmlJS::AST::Node *ast)
 { if (ast) parents.push(ast); return true; }
 
-void MoveObjectBeforeObjectVisitor::postVisit(Node *ast)
+void MoveObjectBeforeObjectVisitor::postVisit(QmlJS::AST::Node *ast)
 { if (ast) parents.pop(); }
 
-bool MoveObjectBeforeObjectVisitor::visit(UiObjectDefinition *ast)
+bool MoveObjectBeforeObjectVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     if (foundEverything())
         return false;
@@ -109,16 +103,16 @@ void MoveObjectBeforeObjectVisitor::doMove()
     Q_ASSERT(!movingObjectParents.isEmpty());
 
     TextModifier::MoveInfo moveInfo;
-    Node *parent = movingObjectParent();
-    UiArrayMemberList *arrayMember = 0, *otherArrayMember = 0;
+    QmlJS::AST::Node *parent = movingObjectParent();
+    QmlJS::AST::UiArrayMemberList *arrayMember = 0, *otherArrayMember = 0;
     QString separator;
 
     if (!inDefaultProperty) {
-        UiArrayBinding *initializer = cast<UiArrayBinding*>(parent);
+        QmlJS::AST::UiArrayBinding *initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parent);
         Q_ASSERT(initializer);
 
         otherArrayMember = 0;
-        for (UiArrayMemberList *cur = initializer->members; cur; cur = cur->next) {
+        for (QmlJS::AST::UiArrayMemberList *cur = initializer->members; cur; cur = cur->next) {
             if (cur->member == movingObject) {
                 arrayMember = cur;
                 if (cur->next)
@@ -128,7 +122,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
             otherArrayMember = cur;
         }
         Q_ASSERT(arrayMember && otherArrayMember);
-        separator = QLatin1String(",");
+        separator = QStringLiteral(",");
     }
 
     moveInfo.objectStart = movingObject->firstSourceLocation().offset;
@@ -153,23 +147,23 @@ void MoveObjectBeforeObjectVisitor::doMove()
         includeSurroundingWhitespace(moveInfo.destination, dummy);
 
         moveInfo.prefixToInsert = QString(moveInfo.leadingCharsToRemove, QLatin1Char(' '));
-        moveInfo.suffixToInsert = separator + QLatin1String("\n\n");
+        moveInfo.suffixToInsert = separator + QStringLiteral("\n\n");
     } else {
-        const SourceLocation insertionPoint = lastParentLocation();
+        const QmlJS::AST::SourceLocation insertionPoint = lastParentLocation();
         Q_ASSERT(insertionPoint.isValid());
         moveInfo.destination = insertionPoint.offset;
         int dummy = -1;
         includeSurroundingWhitespace(moveInfo.destination, dummy);
 
         moveInfo.prefixToInsert = separator + QString(moveInfo.leadingCharsToRemove, QLatin1Char(' '));
-        moveInfo.suffixToInsert = QLatin1String("\n");
+        moveInfo.suffixToInsert = QStringLiteral("\n");
     }
 
     move(moveInfo);
     setDidRewriting(true);
 }
 
-Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
+QmlJS::AST::Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
 {
     if (movingObjectParents.size() > 1)
         return movingObjectParents.at(movingObjectParents.size() - 2);
@@ -177,15 +171,15 @@ Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
         return 0;
 }
 
-SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() const
+QmlJS::AST::SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() const
 {
     dump(movingObjectParents);
 
-    Node *parent = movingObjectParent();
-    if (UiObjectInitializer *initializer = cast<UiObjectInitializer*>(parent))
+    QmlJS::AST::Node *parent = movingObjectParent();
+    if (QmlJS::AST::UiObjectInitializer *initializer = QmlJS::AST::cast<QmlJS::AST::UiObjectInitializer*>(parent))
         return initializer->rbraceToken;
-    else if (UiArrayBinding *initializer = cast<UiArrayBinding*>(parent))
+    else if (QmlJS::AST::UiArrayBinding *initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parent))
         return initializer->rbracketToken;
     else
-        return SourceLocation();
+        return QmlJS::AST::SourceLocation();
 }

@@ -9,3 +9,5 @@ QTC_PLUGIN_DEPENDS += \
     texteditor \
     projectexplorer \
     cpptools
+QTC_PLUGIN_RECOMMENDS += \
+    cpaster

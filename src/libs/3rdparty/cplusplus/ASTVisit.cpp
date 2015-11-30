@@ -54,7 +54,15 @@ void SimpleSpecifierAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void AttributeSpecifierAST::accept0(ASTVisitor *visitor)
+void AlignmentSpecifierAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(typeIdExprOrAlignmentExpr, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void GnuAttributeSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(attribute_list, visitor);
@@ -62,7 +70,7 @@ void AttributeSpecifierAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void AttributeAST::accept0(ASTVisitor *visitor)
+void GnuAttributeAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(expression_list, visitor);
@@ -922,6 +930,14 @@ void ThrowExpressionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void NoExceptOperatorExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(expression, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void TranslationUnitAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1275,6 +1291,30 @@ void BracedInitializerAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(expression_list, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void DotDesignatorAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
+void BracketDesignatorAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(expression, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void DesignatedInitializerAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(designator_list, visitor);
+        accept(initializer, visitor);
     }
     visitor->endVisit(this);
 }

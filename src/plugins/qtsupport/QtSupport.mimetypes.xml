@@ -1,8 +1,14 @@
 <?xml version="1.0"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="application/x-linguist-translation">
+    <comment>Linguist translated messages (machine-readable)</comment>
+    <glob pattern="*.qm"/>
+  </mime-type>
   <mime-type type="application/x-linguist">
-    <sub-class-of type="application/xml"/>
-    <comment>message catalog</comment>
-    <glob pattern="*.ts"/>
+    <comment>Linguist message catalog</comment>
+    <magic>
+      <match value="&lt;TS" type="string" offset="0:256"/>
+    </magic>
+    <glob pattern="*.ts" weight="70"/>
   </mime-type>
 </mime-info>

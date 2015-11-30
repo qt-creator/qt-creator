@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,27 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "texteditoroverlay.h"
-#include "basetexteditor.h"
+#include "texteditor.h"
 #include "snippets/snippet.h"
 
 #include <QDebug>
@@ -39,7 +40,7 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-TextEditorOverlay::TextEditorOverlay(BaseTextEditorWidget *editor) :
+TextEditorOverlay::TextEditorOverlay(TextEditorWidget *editor) :
     QObject(editor),
     m_visible(false),
     m_alpha(true),
@@ -245,13 +246,13 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
     const int margin = m_borderWidth/2;
     const int extra = 0;
 
-    points += (selection.at(0).topLeft() + selection.at(0).topRight()) / 2 + QPointF(0, -margin);
-    points += selection.at(0).topRight() + QPointF(margin+1, -margin);
-    points += selection.at(0).bottomRight() + QPointF(margin+1, 0);
+    const QRectF &firstSelection = selection.at(0);
+    points += (firstSelection.topLeft() + firstSelection.topRight()) / 2 + QPointF(0, -margin);
+    points += firstSelection.topRight() + QPointF(margin+1, -margin);
+    points += firstSelection.bottomRight() + QPointF(margin+1, 0);
 
-
-    for (int i = 1; i < selection.count()-1; ++i) {
-
+    const int count = selection.count();
+    for (int i = 1; i < count-1; ++i) {
 #define MAX3(a,b,c) qMax(a, qMax(b,c))
         qreal x = MAX3(selection.at(i-1).right(),
                        selection.at(i).right(),
@@ -259,15 +260,15 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
 
         points += QPointF(x+1, selection.at(i).top());
         points += QPointF(x+1, selection.at(i).bottom());
-
     }
 
-    points += selection.at(selection.count()-1).topRight() + QPointF(margin+1, 0);
-    points += selection.at(selection.count()-1).bottomRight() + QPointF(margin+1, margin+extra);
-    points += selection.at(selection.count()-1).bottomLeft() + QPointF(-margin, margin+extra);
-    points += selection.at(selection.count()-1).topLeft() + QPointF(-margin, 0);
+    const QRectF &lastSelection = selection.at(count-1);
+    points += lastSelection.topRight() + QPointF(margin+1, 0);
+    points += lastSelection.bottomRight() + QPointF(margin+1, margin+extra);
+    points += lastSelection.bottomLeft() + QPointF(-margin, margin+extra);
+    points += lastSelection.topLeft() + QPointF(-margin, 0);
 
-    for (int i = selection.count()-2; i > 0; --i) {
+    for (int i = count-2; i > 0; --i) {
 #define MIN3(a,b,c) qMin(a, qMin(b,c))
         qreal x = MIN3(selection.at(i-1).left(),
                        selection.at(i).left(),
@@ -277,8 +278,8 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         points += QPointF(x, selection.at(i).top());
     }
 
-    points += selection.at(0).bottomLeft() + QPointF(-margin, extra);
-    points += selection.at(0).topLeft() + QPointF(-margin, -margin);
+    points += firstSelection.bottomLeft() + QPointF(-margin, extra);
+    points += firstSelection.topLeft() + QPointF(-margin, -margin);
 
 
     QPainterPath path;
@@ -498,8 +499,9 @@ void TextEditorOverlay::mapEquivalentSelections()
     const QList<QString> &uniqueKeys = all.uniqueKeys();
     foreach (const QString &key, uniqueKeys) {
         QList<int> indexes;
-        QMap<QString, int>::const_iterator lbit = all.lowerBound(key);
-        QMap<QString, int>::const_iterator ubit = all.upperBound(key);
+        const auto cAll = all;
+        QMap<QString, int>::const_iterator lbit = cAll.lowerBound(key);
+        QMap<QString, int>::const_iterator ubit = cAll.upperBound(key);
         while (lbit != ubit) {
             indexes.append(lbit.value());
             ++lbit;

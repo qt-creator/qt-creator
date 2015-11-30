@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,6 +32,7 @@
 #include "actionmanager.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
 
 #include <utils/hostosinfo.h>
@@ -43,8 +45,8 @@
 
 Q_DECLARE_METATYPE(Core::Internal::MenuActionContainer*)
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
 
 /*!
     \class ActionContainer
@@ -117,13 +119,13 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn QAction *ActionContainer::insertLocation(const Id &group) const
+    \fn QAction *ActionContainer::insertLocation(Id group) const
     Returns an action representing the \a group,
     that could be used with \c{QWidget::insertAction}.
 */
 
 /*!
-    \fn void ActionContainer::appendGroup(const Id &group)
+    \fn void ActionContainer::appendGroup(Id group)
     Adds a group with the given \a identifier to the action container. Using groups
     you can segment your action container into logical parts and add actions and
     menus directly to these parts.
@@ -132,7 +134,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void ActionContainer::addAction(Command *action, const Id &group = Id())
+    \fn void ActionContainer::addAction(Command *action, Id group = Id())
     Add the \a action as a menu item to this action container. The action is added as the
     last item of the specified \a group.
     \sa appendGroup()
@@ -140,7 +142,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void ActionContainer::addMenu(ActionContainer *menu, const Id &group = Id())
+    \fn void ActionContainer::addMenu(ActionContainer *menu, Id group = Id())
     Add the \a menu as a submenu to this action container. The menu is added as the
     last item of the specified \a group.
     \sa appendGroup()
@@ -380,14 +382,16 @@ void ActionContainerPrivate::update()
 */
 
 MenuActionContainer::MenuActionContainer(Id id)
-    : ActionContainerPrivate(id), m_menu(0)
+    : ActionContainerPrivate(id),
+      m_menu(new QMenu)
 {
+    m_menu->setObjectName(id.toString());
     setOnAllDisabledBehavior(Disable);
 }
 
-void MenuActionContainer::setMenu(QMenu *menu)
+MenuActionContainer::~MenuActionContainer()
 {
-    m_menu = menu;
+    delete m_menu;
 }
 
 QMenu *MenuActionContainer::menu() const
@@ -415,26 +419,10 @@ void MenuActionContainer::removeMenu(QMenu *menu)
     m_menu->removeAction(menu->menuAction());
 }
 
-static bool menuInMenuBar(const QMenu *menu)
-{
-    foreach (const QWidget *widget, menu->menuAction()->associatedWidgets()) {
-        if (qobject_cast<const QMenuBar *>(widget))
-            return true;
-    }
-    return false;
-}
-
 bool MenuActionContainer::updateInternal()
 {
     if (onAllDisabledBehavior() == Show)
         return true;
-
-    if (Utils::HostOsInfo::isMacHost()) {
-        // work around QTBUG-25544 which makes menus in the menu bar stay at their enabled state at startup
-        // (so menus that are disabled at startup would stay disabled)
-        if (menuInMenuBar(m_menu))
-            return true;
-    }
 
     bool hasitems = false;
     QList<QAction *> actions = m_menu->actions();
@@ -564,3 +552,12 @@ bool MenuBarActionContainer::canBeAddedToMenu() const
     return false;
 }
 
+} // namespace Internal
+
+Command *ActionContainer::addSeparator(Id group)
+{
+    static const Context context(Constants::C_GLOBAL);
+    return addSeparator(context, group);
+}
+
+} // namespace Core

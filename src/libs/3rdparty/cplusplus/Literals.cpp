@@ -20,6 +20,7 @@
 
 #include "Literals.h"
 #include "NameVisitor.h"
+#include "Matcher.h"
 #include <cstring>
 #include <algorithm>
 #include <iostream>
@@ -55,23 +56,7 @@ bool Literal::equalTo(const Literal *other) const
     return ! std::strcmp(chars(), other->chars());
 }
 
-Literal::iterator Literal::begin() const
-{ return _chars; }
 
-Literal::iterator Literal::end() const
-{ return _chars + _size; }
-
-const char *Literal::chars() const
-{ return _chars; }
-
-char Literal::at(unsigned index) const
-{ return _chars[index]; }
-
-unsigned Literal::size() const
-{ return _size; }
-
-unsigned Literal::hashCode() const
-{ return _hashCode; }
 
 unsigned Literal::hashCode(const char *chars, unsigned size)
 {
@@ -94,23 +79,6 @@ unsigned Literal::hashCode(const char *chars, unsigned size)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-StringLiteral::StringLiteral(const char *chars, unsigned size)
-    : Literal(chars, size)
-{ }
-
-StringLiteral::~StringLiteral()
-{ }
-
-////////////////////////////////////////////////////////////////////////////////
-enum {
-    NumericLiteralIsInt,
-    NumericLiteralIsFloat,
-    NumericLiteralIsDouble,
-    NumericLiteralIsLongDouble,
-    NumericLiteralIsLong,
-    NumericLiteralIsLongLong
-};
-
 NumericLiteral::NumericLiteral(const char *chars, unsigned size)
     : Literal(chars, size), _flags(0)
 {
@@ -162,52 +130,14 @@ NumericLiteral::NumericLiteral(const char *chars, unsigned size)
     }
 }
 
-NumericLiteral::~NumericLiteral()
-{ }
-
-bool NumericLiteral::isHex() const
-{ return f._isHex; }
-
-bool NumericLiteral::isUnsigned() const
-{ return f._isUnsigned; }
-
-bool NumericLiteral::isInt() const
-{ return f._type == NumericLiteralIsInt; }
-
-bool NumericLiteral::isFloat() const
-{ return f._type == NumericLiteralIsFloat; }
-
-bool NumericLiteral::isDouble() const
-{ return f._type == NumericLiteralIsDouble; }
-
-bool NumericLiteral::isLongDouble() const
-{ return f._type == NumericLiteralIsLongDouble; }
-
-bool NumericLiteral::isLong() const
-{ return f._type == NumericLiteralIsLong; }
-
-bool NumericLiteral::isLongLong() const
-{ return f._type == NumericLiteralIsLongLong; }
-
 ////////////////////////////////////////////////////////////////////////////////
-Identifier::Identifier(const char *chars, unsigned size)
-    : Literal(chars, size)
-{ }
-
-Identifier::~Identifier()
-{ }
 
 void Identifier::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
 
-bool Identifier::isEqualTo(const Name *other) const
+bool Identifier::match0(const Name *otherName, Matcher *matcher) const
 {
-    if (this == other)
-        return true;
-
-    else if (other) {
-        if (const Identifier *nameId = other->asNameId())
-            return equalTo(nameId);
-    }
+    if (const Identifier *id = otherName->asNameId())
+        return matcher->match(this, id);
     return false;
 }

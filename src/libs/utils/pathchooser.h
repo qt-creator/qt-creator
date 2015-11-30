@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,6 +31,7 @@
 #ifndef PATHCHOOSER_H
 #define PATHCHOOSER_H
 
+#include "fancylineedit.h"
 #include "fileutils.h"
 
 #include <QWidget>
@@ -60,6 +62,8 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
     // Designer does not know this type, so force designable to false:
     Q_PROPERTY(Utils::FileName fileName READ fileName WRITE setFileName DESIGNABLE false)
     Q_PROPERTY(Utils::FileName baseFileName READ baseFileName WRITE setBaseFileName DESIGNABLE false)
+    Q_PROPERTY(QColor errorColor READ errorColor WRITE setErrorColor DESIGNABLE true)
+    Q_PROPERTY(QColor okColor READ okColor WRITE setOkColor DESIGNABLE true)
 
 public:
     static QString browseButtonLabel();
@@ -94,25 +98,27 @@ public:
 
     QString path() const;
     QString rawPath() const; // The raw unexpanded input.
-    Utils::FileName fileName() const;
+    FileName fileName() const;
 
     QString baseDirectory() const;
     void setBaseDirectory(const QString &directory);
-    Utils::FileName baseFileName() const;
-    void setBaseFileName(const Utils::FileName &base);
 
-    void setEnvironment(const Utils::Environment &env);
+    FileName baseFileName() const;
+    void setBaseFileName(const FileName &base);
+
+    void setEnvironment(const Environment &env);
 
     /** Returns the suggested label title when used in a form layout. */
     static QString label();
 
-    virtual bool validatePath(const QString &path, QString *errorMessage = 0);
+    FancyLineEdit::ValidationFunction defaultValidationFunction() const;
+    void setValidationFunction(const FancyLineEdit::ValidationFunction &fn);
 
     /** Return the home directory, which needs some fixing under Windows. */
     static QString homePath();
 
-    void addButton(const QString &text, QObject *receiver, const char *slotFunc);
-    void insertButton(int index, const QString &text, QObject *receiver, const char *slotFunc);
+    void addButton(const QString &text, QObject *context, const std::function<void()> &callback);
+    void insertButton(int index, const QString &text, QObject *context, const std::function<void()> &callback);
     QAbstractButton *buttonAtIndex(int index) const;
 
     FancyLineEdit *lineEdit() const;
@@ -135,14 +141,25 @@ public:
     void setReadOnly(bool b);
 
     void triggerChanged();
+
+    // global handler for adding context menus to ALL pathchooser
+    // used by the coreplugin to add "Open in Terminal" and "Open in Explorer" context menu actions
+    using AboutToShowContextMenuHandler = std::function<void (Utils::PathChooser *, QMenu *)>;
+    static void setAboutToShowContextMenuHandler(AboutToShowContextMenuHandler handler);
+
+    QColor errorColor() const;
+    QColor okColor() const;
+
 private:
+    bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
+    void slotBrowse();
+    void contextMenuRequested(const QPoint &pos);
 
 signals:
-    void validChanged();
     void validChanged(bool validState);
-    void changed(const QString &text);
+    void rawPathChanged(const QString &text);
     void pathChanged(const QString &path);
     void editingFinished();
     void beforeBrowsing();
@@ -153,12 +170,12 @@ public slots:
     void setPath(const QString &);
     void setFileName(const Utils::FileName &);
 
-private slots:
-    void slotBrowse();
-    void slotTextChanged();
+    void setErrorColor(const QColor &errorColor);
+    void setOkColor(const QColor &okColor);
 
 private:
     PathChooserPrivate *d;
+    static AboutToShowContextMenuHandler s_aboutToShowContextMenuHandler;
 };
 
 } // namespace Utils

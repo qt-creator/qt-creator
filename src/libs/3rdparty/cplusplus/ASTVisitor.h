@@ -63,8 +63,8 @@ public:
 
     void accept(AST *ast);
 
-    template <typename _Tp>
-    void accept(List<_Tp> *it)
+    template <typename Tptr>
+    void accept(List<Tptr> *it)
     {
         for (; it; it = it->next)
             accept(it->value);
@@ -75,18 +75,18 @@ public:
 
     virtual bool visit(AccessDeclarationAST *) { return true; }
     virtual bool visit(AliasDeclarationAST *) { return true; }
+    virtual bool visit(AlignmentSpecifierAST *) { return true; }
     virtual bool visit(AlignofExpressionAST *) { return true; }
     virtual bool visit(AnonymousNameAST *) { return true; }
     virtual bool visit(ArrayAccessAST *) { return true; }
     virtual bool visit(ArrayDeclaratorAST *) { return true; }
     virtual bool visit(ArrayInitializerAST *) { return true; }
     virtual bool visit(AsmDefinitionAST *) { return true; }
-    virtual bool visit(AttributeAST *) { return true; }
-    virtual bool visit(AttributeSpecifierAST *) { return true; }
     virtual bool visit(BaseSpecifierAST *) { return true; }
     virtual bool visit(BinaryExpressionAST *) { return true; }
     virtual bool visit(BoolLiteralAST *) { return true; }
     virtual bool visit(BracedInitializerAST *) { return true; }
+    virtual bool visit(BracketDesignatorAST *) { return true; }
     virtual bool visit(BreakStatementAST *) { return true; }
     virtual bool visit(CallAST *) { return true; }
     virtual bool visit(CaptureAST *) { return true; }
@@ -108,8 +108,10 @@ public:
     virtual bool visit(DeclaratorIdAST *) { return true; }
     virtual bool visit(DecltypeSpecifierAST *) { return true; }
     virtual bool visit(DeleteExpressionAST *) { return true; }
+    virtual bool visit(DesignatedInitializerAST *) { return true; }
     virtual bool visit(DestructorNameAST *) { return true; }
     virtual bool visit(DoStatementAST *) { return true; }
+    virtual bool visit(DotDesignatorAST *) { return true; }
     virtual bool visit(DynamicExceptionSpecificationAST *) { return true; }
     virtual bool visit(ElaboratedTypeSpecifierAST *) { return true; }
     virtual bool visit(EmptyDeclarationAST *) { return true; }
@@ -123,6 +125,8 @@ public:
     virtual bool visit(ForeachStatementAST *) { return true; }
     virtual bool visit(FunctionDeclaratorAST *) { return true; }
     virtual bool visit(FunctionDefinitionAST *) { return true; }
+    virtual bool visit(GnuAttributeAST *) { return true; }
+    virtual bool visit(GnuAttributeSpecifierAST *) { return true; }
     virtual bool visit(GotoStatementAST *) { return true; }
     virtual bool visit(IdExpressionAST *) { return true; }
     virtual bool visit(IfStatementAST *) { return true; }
@@ -144,6 +148,7 @@ public:
     virtual bool visit(NewArrayDeclaratorAST *) { return true; }
     virtual bool visit(NewExpressionAST *) { return true; }
     virtual bool visit(NewTypeIdAST *) { return true; }
+    virtual bool visit(NoExceptOperatorExpressionAST *) { return true; }
     virtual bool visit(NoExceptSpecificationAST *) { return true; }
     virtual bool visit(NumericLiteralAST *) { return true; }
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
@@ -221,18 +226,18 @@ public:
 
     virtual void endVisit(AccessDeclarationAST *) {}
     virtual void endVisit(AliasDeclarationAST *) {}
+    virtual void endVisit(AlignmentSpecifierAST *) {}
     virtual void endVisit(AlignofExpressionAST *) {}
     virtual void endVisit(AnonymousNameAST *) {}
     virtual void endVisit(ArrayAccessAST *) {}
     virtual void endVisit(ArrayDeclaratorAST *) {}
     virtual void endVisit(ArrayInitializerAST *) {}
     virtual void endVisit(AsmDefinitionAST *) {}
-    virtual void endVisit(AttributeAST *) {}
-    virtual void endVisit(AttributeSpecifierAST *) {}
     virtual void endVisit(BaseSpecifierAST *) {}
     virtual void endVisit(BinaryExpressionAST *) {}
     virtual void endVisit(BoolLiteralAST *) {}
     virtual void endVisit(BracedInitializerAST *) {}
+    virtual void endVisit(BracketDesignatorAST *) {}
     virtual void endVisit(BreakStatementAST *) {}
     virtual void endVisit(CallAST *) {}
     virtual void endVisit(CaptureAST *) {}
@@ -254,8 +259,10 @@ public:
     virtual void endVisit(DeclaratorIdAST *) {}
     virtual void endVisit(DecltypeSpecifierAST *) {}
     virtual void endVisit(DeleteExpressionAST *) {}
+    virtual void endVisit(DesignatedInitializerAST *) {}
     virtual void endVisit(DestructorNameAST *) {}
     virtual void endVisit(DoStatementAST *) {}
+    virtual void endVisit(DotDesignatorAST *) {}
     virtual void endVisit(DynamicExceptionSpecificationAST *) {}
     virtual void endVisit(ElaboratedTypeSpecifierAST *) {}
     virtual void endVisit(EmptyDeclarationAST *) {}
@@ -269,6 +276,8 @@ public:
     virtual void endVisit(ForeachStatementAST *) {}
     virtual void endVisit(FunctionDeclaratorAST *) {}
     virtual void endVisit(FunctionDefinitionAST *) {}
+    virtual void endVisit(GnuAttributeAST *) {}
+    virtual void endVisit(GnuAttributeSpecifierAST *) {}
     virtual void endVisit(GotoStatementAST *) {}
     virtual void endVisit(IdExpressionAST *) {}
     virtual void endVisit(IfStatementAST *) {}
@@ -290,6 +299,7 @@ public:
     virtual void endVisit(NewArrayDeclaratorAST *) {}
     virtual void endVisit(NewExpressionAST *) {}
     virtual void endVisit(NewTypeIdAST *) {}
+    virtual void endVisit(NoExceptOperatorExpressionAST *) {}
     virtual void endVisit(NoExceptSpecificationAST *) {}
     virtual void endVisit(NumericLiteralAST *) {}
     virtual void endVisit(ObjCClassDeclarationAST *) {}

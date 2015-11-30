@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2014 Denis Mingulov.
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Denis Mingulov.
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -17,7 +17,7 @@
 **     notice, this list of conditions and the following disclaimer in
 **     the documentation and/or other materials provided with the
 **     distribution.
-**   * Neither the name of Digia Plc and its Subsidiary(-ies) nor
+**   * Neither the name of The Qt Company Ltd and its Subsidiary(-ies) nor
 **     the names of its contributors may be used to endorse or promote
 **     products derived from this software without specific prior written
 **     permission.
@@ -45,18 +45,18 @@
 namespace ImageViewer {
 namespace Internal {
 
+class ImageViewerFile;
+
 class ImageView : public QGraphicsView
 {
     Q_OBJECT
 
 public:
-    ImageView(QWidget *parent = 0);
+    ImageView(ImageViewerFile *file);
     ~ImageView();
 
-    bool openFile(QString fileName);
-    bool isAnimated() const;
-    bool isPaused() const;
-    void setPaused(bool paused);
+    void reset();
+    void createScene();
 
 signals:
     void scaleFactorChanged(qreal factor);
@@ -72,9 +72,6 @@ public slots:
 
 private slots:
     void emitScaleFactor();
-    void doScale(qreal factor);
-    void updatePixmap(const QRect &rect);
-    void pixmapResized(const QSize &size);
 
 protected:
     void drawBackground(QPainter *p, const QRectF &rect);
@@ -83,7 +80,14 @@ protected:
     void wheelEvent(QWheelEvent *event);
 
 private:
-    struct ImageViewPrivate *d;
+    void doScale(qreal factor);
+
+    ImageViewerFile *m_file;
+    QGraphicsItem *m_imageItem = 0;
+    QGraphicsRectItem *m_backgroundItem = 0;
+    QGraphicsRectItem *m_outlineItem = 0;
+    bool m_showBackground = false;
+    bool m_showOutline = true;
 };
 
 } // namespace Internal

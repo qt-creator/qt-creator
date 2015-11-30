@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -64,62 +65,62 @@ QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
     return result;
 }
 
-Utils::FileName BuildableHelperLibrary::findSystemQt(const Utils::Environment &env)
+static bool isQmake(const QString &path)
 {
-    QStringList paths = env.path();
-    foreach (const QString &path, paths) {
-        QString prefix = path;
-        if (!prefix.endsWith(QLatin1Char('/')))
-            prefix.append(QLatin1Char('/'));
-        foreach (const QString &possibleCommand, possibleQMakeCommands()) {
-            QFileInfo qmake(prefix + possibleCommand);
-            if (qmake.exists()) {
-                if (isQtChooser(qmake))
-                    qmake.setFile(qtChooserToQmakePath(qmake.symLinkTarget()));
+    if (path.isEmpty())
+        return false;
+    QFileInfo fi(path);
+    if (BuildableHelperLibrary::isQtChooser(fi))
+        fi.setFile(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
 
-                if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull())
-                    return Utils::FileName(qmake);
-            }
-        }
-    }
-    return Utils::FileName();
+    return !BuildableHelperLibrary::qtVersionForQMake(fi.absoluteFilePath()).isEmpty();
 }
 
-QString BuildableHelperLibrary::qtInstallDataDir(const Utils::FileName &qmakePath)
+FileName BuildableHelperLibrary::findSystemQt(const Environment &env)
 {
-    QProcess proc;
-    proc.start(qmakePath.toString(), QStringList() << QLatin1String("-query") << QLatin1String("QT_INSTALL_DATA"));
-    if (proc.waitForFinished())
-        return QString::fromLocal8Bit(proc.readAll()).trimmed();
-    return QString();
+    const QString qmake = QLatin1String("qmake");
+    QStringList paths = env.path();
+    foreach (const QString &path, paths) {
+        if (path.isEmpty())
+            continue;
+
+        QDir dir(path);
+
+        if (dir.exists(qmake)) {
+            const QString qmakePath = dir.absoluteFilePath(qmake);
+            if (isQmake(qmakePath))
+                return FileName::fromString(qmakePath);
+        }
+
+        // Prefer qmake-qt5 to qmake-qt4 by sorting the filenames in reverse order.
+        foreach (const QFileInfo &fi, dir.entryInfoList(possibleQMakeCommands(), QDir::Files, QDir::Name | QDir::Reversed)) {
+            if (fi.fileName() == qmake)
+                continue;
+
+            if (isQmake(fi.absoluteFilePath()))
+                return FileName(fi);
+        }
+    }
+    return FileName();
 }
 
 QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 {
-    bool qmakeIsExecutable;
-    return BuildableHelperLibrary::qtVersionForQMake(qmakePath, &qmakeIsExecutable);
-}
-
-QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool *qmakeIsExecutable)
-{
-    *qmakeIsExecutable = !qmakePath.isEmpty();
-    if (!*qmakeIsExecutable)
+    if (qmakePath.isEmpty())
         return QString();
 
     QProcess qmake;
     qmake.start(qmakePath, QStringList(QLatin1String("--version")));
     if (!qmake.waitForStarted()) {
-        *qmakeIsExecutable = false;
         qWarning("Cannot start '%s': %s", qPrintable(qmakePath), qPrintable(qmake.errorString()));
         return QString();
     }
     if (!qmake.waitForFinished())      {
-        Utils::SynchronousProcess::stopProcess(qmake);
+        SynchronousProcess::stopProcess(qmake);
         qWarning("Timeout running '%s'.", qPrintable(qmakePath));
         return QString();
     }
     if (qmake.exitStatus() != QProcess::NormalExit) {
-        *qmakeIsExecutable = false;
         qWarning("'%s' crashed.", qPrintable(qmakePath));
         return QString();
     }
@@ -140,17 +141,34 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool
     return QString();
 }
 
+QString BuildableHelperLibrary::filterForQmakeFileDialog()
+{
+    QString filter = QLatin1String("qmake (");
+    const QStringList commands = possibleQMakeCommands();
+    for (int i = 0; i < commands.size(); ++i) {
+        if (i)
+            filter += QLatin1Char(' ');
+        if (HostOsInfo::isMacHost())
+            // work around QTBUG-7739 that prohibits filters that don't start with *
+            filter += QLatin1Char('*');
+        filter += commands.at(i);
+        if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
+            // kde bug, we need at least one wildcard character
+            // see QTCREATORBUG-7771
+            filter += QLatin1Char('*');
+    }
+    filter += QLatin1Char(')');
+    return filter;
+}
+
+
 QStringList BuildableHelperLibrary::possibleQMakeCommands()
 {
-    // On windows no one has renamed qmake, right?
-    if (HostOsInfo::isWindowsHost())
-        return QStringList(QLatin1String("qmake.exe"));
-
-    // On unix some distributions renamed qmake to avoid clashes
-    QStringList result;
-    result << QLatin1String("qmake") << QLatin1String("qmake-qt4") << QLatin1String("qmake4")
-           << QLatin1String("qmake-qt5") << QLatin1String("qmake5") ;
-    return result;
+    // On Windows it is always "qmake.exe"
+    // On Unix some distributions renamed qmake with a postfix to avoid clashes
+    // On OS X, Qt 4 binary packages also has renamed qmake. There are also symbolic links that are
+    // named "qmake", but the file dialog always checks against resolved links (native Cocoa issue)
+    return QStringList(QLatin1String("qmake*"));
 }
 
 // Copy helper source files to a target directory, replacing older files.
@@ -191,13 +209,13 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
 
 // Helper: Run a build process with merged stdout/stderr
 static inline bool runBuildProcessI(QProcess &proc,
-                                    const QString &binary,
+                                    const FileName &binary,
                                     const QStringList &args,
-                                    int timeoutMS,
+                                    int timeoutS,
                                     bool ignoreNonNullExitCode,
                                     QString *output, QString *errorMessage)
 {
-    proc.start(binary, args);
+    proc.start(binary.toString(), args);
     if (!proc.waitForStarted()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                                     "Cannot start process: %1").
@@ -207,10 +225,10 @@ static inline bool runBuildProcessI(QProcess &proc,
     // Read stdout/err and check for timeouts
     QByteArray stdOut;
     QByteArray stdErr;
-    if (!SynchronousProcess::readDataFromProcess(proc, timeoutMS, &stdOut, &stdErr, false)) {
+    if (!SynchronousProcess::readDataFromProcess(proc, timeoutS, &stdOut, &stdErr, false)) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                                    "Timeout after %1s.").
-                                                    arg(timeoutMS / 1000);
+                                                    "Timeout after %1 s.").
+                                                    arg(timeoutS);
         SynchronousProcess::stopProcess(proc);
         return false;
     }
@@ -232,23 +250,23 @@ static inline bool runBuildProcessI(QProcess &proc,
 
 // Run a build process with merged stdout/stderr and qWarn about errors.
 static bool runBuildProcess(QProcess &proc,
-                            const QString &binary,
+                            const FileName &binary,
                             const QStringList &args,
-                            int timeoutMS,
+                            int timeoutS,
                             bool ignoreNonNullExitCode,
                             QString *output, QString *errorMessage)
 {
-    const bool rc = runBuildProcessI(proc, binary, args, timeoutMS, ignoreNonNullExitCode, output, errorMessage);
+    const bool rc = runBuildProcessI(proc, binary, args, timeoutS, ignoreNonNullExitCode, output, errorMessage);
     if (!rc) {
         // Fail - reformat error.
-        QString cmd = binary;
+        QString cmd = binary.toString();
         if (!args.isEmpty()) {
             cmd += QLatin1Char(' ');
-            cmd += args.join(QString(QLatin1Char(' ')));
+            cmd += args.join(QLatin1Char(' '));
         }
         *errorMessage =
                 QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                            "Error running '%1' in %2: %3").
+                                            "Error running \"%1\" in %2: %3").
                                             arg(cmd, proc.workingDirectory(), *errorMessage);
         qWarning("%s", qPrintable(*errorMessage));
     }
@@ -267,12 +285,12 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     proc.setProcessChannelMode(QProcess::MergedChannels);
 
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                          "Building helper '%1' in %2\n").arg(arguments.helperName,
+                                          "Building helper \"%1\" in %2\n").arg(arguments.helperName,
                                                                               arguments.directory));
     log->append(newline);
 
-    const QString makeFullPath = arguments.environment.searchInPath(arguments.makeCommand);
-    if (QFileInfo(arguments.directory + QLatin1String("/Makefile")).exists()) {
+    const FileName makeFullPath = arguments.environment.searchInPath(arguments.makeCommand);
+    if (QFileInfo::exists(arguments.directory + QLatin1String("/Makefile"))) {
         if (makeFullPath.isEmpty()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary",
                                                        "%1 not found in PATH\n").arg(arguments.makeCommand);
@@ -280,8 +298,9 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
         }
         const QString cleanTarget = QLatin1String("distclean");
         log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                                   "Running %1 %2...\n").arg(makeFullPath, cleanTarget));
-        if (!runBuildProcess(proc, makeFullPath, QStringList(cleanTarget), 30000, true, log, errorMessage))
+                                                   "Running %1 %2...\n")
+                    .arg(makeFullPath.toUserOutput(), cleanTarget));
+        if (!runBuildProcess(proc, makeFullPath, QStringList(cleanTarget), 30, true, log, errorMessage))
             return false;
     }
     QStringList qmakeArgs;
@@ -295,9 +314,9 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     log->append(newline);
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                             "Running %1 %2 ...\n").arg(arguments.qmakeCommand.toUserOutput(),
-                                                                       qmakeArgs.join(QLatin1String(" "))));
+                                                                       qmakeArgs.join(QLatin1Char(' '))));
 
-    if (!runBuildProcess(proc, arguments.qmakeCommand.toString(), qmakeArgs, 30000, false, log, errorMessage))
+    if (!runBuildProcess(proc, arguments.qmakeCommand, qmakeArgs, 30, false, log, errorMessage))
         return false;
     log->append(newline);
     if (makeFullPath.isEmpty()) {
@@ -306,8 +325,9 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
         return false;
     }
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                            "Running %1 %2 ...\n").arg(makeFullPath, arguments.makeArguments.join(QLatin1String(" "))));
-    if (!runBuildProcess(proc, makeFullPath, arguments.makeArguments, 120000, false, log, errorMessage))
+                                            "Running %1 %2 ...\n")
+                .arg(makeFullPath.toUserOutput(), arguments.makeArguments.join(QLatin1Char(' '))));
+    if (!runBuildProcess(proc, makeFullPath, arguments.makeArguments, 120, false, log, errorMessage))
         return false;
     return true;
 }

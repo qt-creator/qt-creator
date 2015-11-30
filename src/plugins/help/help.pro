@@ -1,12 +1,7 @@
-QT += network
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += printsupport help
-    !isEmpty(QT.webkitwidgets.name): QT += webkitwidgets webkit
-    else: DEFINES += QT_NO_WEBKIT
-} else {
-    CONFIG += help
-    contains(QT_CONFIG, webkit): QT += webkit
-}
+QT += help network printsupport sql
+!isEmpty(QT.htmlviewwidgets.name): QT += htmlviewwidgets htmlview
+else:!isEmpty(QT.webkitwidgets.name): QT += webkitwidgets webkit
+else: DEFINES += QT_NO_WEBKIT
 
 INCLUDEPATH += $$PWD
 
@@ -28,7 +23,6 @@ HEADERS += \
     helpmode.h \
     helpplugin.h \
     helpviewer.h \
-    helpviewer_p.h \
     openpagesmanager.h \
     openpagesmodel.h \
     openpagesswitcher.h \
@@ -36,7 +30,10 @@ HEADERS += \
     remotehelpfilter.h \
     searchwidget.h \
     xbelsupport.h \
-    externalhelpwindow.h
+    searchtaskhandler.h \
+    qtwebkithelpviewer.h \
+    textbrowserhelpviewer.h \
+    helpwidget.h
 
 SOURCES += \
     centralwidget.cpp \
@@ -49,8 +46,6 @@ SOURCES += \
     helpmode.cpp \
     helpplugin.cpp \
     helpviewer.cpp \
-    helpviewer_qtb.cpp \
-    helpviewer_qwv.cpp \
     openpagesmanager.cpp \
     openpagesmodel.cpp \
     openpagesswitcher.cpp \
@@ -58,12 +53,28 @@ SOURCES += \
     remotehelpfilter.cpp \
     searchwidget.cpp \
     xbelsupport.cpp \
-    externalhelpwindow.cpp
+    searchtaskhandler.cpp \
+    qtwebkithelpviewer.cpp \
+    textbrowserhelpviewer.cpp \
+    helpwidget.cpp
 
 FORMS += docsettingspage.ui \
     filtersettingspage.ui \
     generalsettingspage.ui \
     remotehelpfilter.ui
+
+osx {
+    DEFINES += QTC_MAC_NATIVE_HELPVIEWER
+    QT += macextras
+    HEADERS += macwebkithelpviewer.h
+    OBJECTIVE_SOURCES += macwebkithelpviewer.mm
+    LIBS += -framework WebKit -framework AppKit
+
+    !isEmpty(USE_QUICK_WIDGET) {
+        DEFINES += QTC_MAC_NATIVE_HELPVIEWER_DEFAULT
+    }
+}
+
 
 RESOURCES += help.qrc
 include(../../shared/help/help.pri)

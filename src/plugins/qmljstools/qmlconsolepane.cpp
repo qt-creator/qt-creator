@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,11 +33,13 @@
 #include "qmlconsoleproxymodel.h"
 #include "qmlconsoleitemdelegate.h"
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/findplaceholder.h>
 #include <utils/savedaction.h>
 #include <aggregation/aggregate.h>
-#include <coreplugin/find/treeviewfind.h>
+#include <coreplugin/find/itemviewfind.h>
 
 #include <QToolButton>
 #include <QLabel>
@@ -71,22 +74,23 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_proxyModel = new QmlConsoleProxyModel(this);
     m_proxyModel->setSourceModel(QmlConsoleModel::qmlConsoleItemModel());
     connect(QmlConsoleModel::qmlConsoleItemModel(),
-            SIGNAL(selectEditableRow(QModelIndex,QItemSelectionModel::SelectionFlags)),
+            &QmlConsoleItemModel::selectEditableRow,
             m_proxyModel,
-            SLOT(selectEditableRow(QModelIndex,QItemSelectionModel::SelectionFlags)));
+            &QmlConsoleProxyModel::selectEditableRow);
 
     //Scroll to bottom when rows matching current filter settings are inserted
     //Not connecting rowsRemoved as the only way to remove rows is to clear the
     //model which will automatically reset the view.
-    connect(QmlConsoleModel::qmlConsoleItemModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
-            m_proxyModel, SLOT(onRowsInserted(QModelIndex,int,int)));
+    connect(QmlConsoleModel::qmlConsoleItemModel(), &QAbstractItemModel::rowsInserted,
+            m_proxyModel, &QmlConsoleProxyModel::onRowsInserted);
     m_consoleView->setModel(m_proxyModel);
 
     connect(m_proxyModel,
             SIGNAL(setCurrentIndex(QModelIndex,QItemSelectionModel::SelectionFlags)),
             m_consoleView->selectionModel(),
             SLOT(setCurrentIndex(QModelIndex,QItemSelectionModel::SelectionFlags)));
-    connect(m_proxyModel, SIGNAL(scrollToBottom()), m_consoleView, SLOT(onScrollToBottom()));
+    connect(m_proxyModel, &QmlConsoleProxyModel::scrollToBottom,
+            m_consoleView, &QmlConsoleView::onScrollToBottom);
 
     m_itemDelegate = new QmlConsoleItemDelegate(this);
     connect(m_consoleView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
@@ -95,7 +99,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate();
     aggregate->add(m_consoleView);
-    aggregate->add(new Core::TreeViewFind(m_consoleView));
+    aggregate->add(new Core::ItemViewFind(m_consoleView));
 
     vbox->addWidget(m_consoleView);
     vbox->addWidget(new Core::FindToolBarPlaceHolder(m_consoleWidget));
@@ -108,8 +112,10 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showDebugButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_LOG));
     m_showDebugButtonAction->setToolTip(tr("Show debug, log, and info messages."));
     m_showDebugButtonAction->setCheckable(true);
-    m_showDebugButtonAction->setIcon(QIcon(QLatin1String(":/qmljstools/images/log.png")));
-    connect(m_showDebugButtonAction, SIGNAL(toggled(bool)), m_proxyModel, SLOT(setShowLogs(bool)));
+    m_showDebugButtonAction->setChecked(true);
+    m_showDebugButtonAction->setIcon(Core::Icons::INFO.icon());
+    connect(m_showDebugButtonAction, &Utils::SavedAction::toggled,
+            m_proxyModel, &QmlConsoleProxyModel::setShowLogs);
     m_showDebugButton->setDefaultAction(m_showDebugButtonAction);
 
     m_showWarningButton = new QToolButton(m_consoleWidget);
@@ -118,11 +124,12 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showWarningButtonAction = new Utils::SavedAction(this);
     m_showWarningButtonAction->setDefaultValue(true);
     m_showWarningButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_WARNING));
-    m_showWarningButtonAction->setToolTip(tr("Show debug, log, and info messages."));
+    m_showWarningButtonAction->setToolTip(tr("Show warning messages."));
     m_showWarningButtonAction->setCheckable(true);
-    m_showWarningButtonAction->setIcon(QIcon(QLatin1String(":/qmljstools/images/warning.png")));
-    connect(m_showWarningButtonAction, SIGNAL(toggled(bool)), m_proxyModel,
-            SLOT(setShowWarnings(bool)));
+    m_showWarningButtonAction->setChecked(true);
+    m_showWarningButtonAction->setIcon(Core::Icons::WARNING.icon());
+    connect(m_showWarningButtonAction, &Utils::SavedAction::toggled,
+            m_proxyModel, &QmlConsoleProxyModel::setShowWarnings);
     m_showWarningButton->setDefaultAction(m_showWarningButtonAction);
 
     m_showErrorButton = new QToolButton(m_consoleWidget);
@@ -131,11 +138,11 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showErrorButtonAction = new Utils::SavedAction(this);
     m_showErrorButtonAction->setDefaultValue(true);
     m_showErrorButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_ERROR));
-    m_showErrorButtonAction->setToolTip(tr("Show debug, log, and info messages."));
+    m_showErrorButtonAction->setToolTip(tr("Show error messages."));
     m_showErrorButtonAction->setCheckable(true);
-    m_showErrorButtonAction->setIcon(QIcon(QLatin1String(":/qmljstools/images/error.png")));
-    connect(m_showErrorButtonAction, SIGNAL(toggled(bool)), m_proxyModel,
-            SLOT(setShowErrors(bool)));
+    m_showErrorButtonAction->setChecked(true);
+    m_showErrorButtonAction->setIcon(Core::Icons::ERROR.icon());
+    connect(m_showErrorButtonAction, &Utils::SavedAction::toggled, m_proxyModel, &QmlConsoleProxyModel::setShowErrors);
     m_showErrorButton->setDefaultAction(m_showErrorButtonAction);
 
     m_spacer = new QWidget(m_consoleWidget);
@@ -185,12 +192,17 @@ bool QmlConsolePane::canFocus() const
 
 bool QmlConsolePane::hasFocus() const
 {
-    return m_consoleWidget->hasFocus();
+    for (QWidget *widget = m_consoleWidget->window()->focusWidget(); widget != 0;
+         widget = widget->parentWidget()) {
+        if (widget == m_consoleWidget)
+            return true;
+    }
+    return false;
 }
 
 void QmlConsolePane::setFocus()
 {
-    m_consoleWidget->setFocus();
+    m_consoleView->setFocus();
 }
 
 bool QmlConsolePane::canNext() const

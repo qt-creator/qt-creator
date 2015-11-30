@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -72,7 +73,7 @@ namespace Internal {
 
 class SelectRemoteFileDialog : public QDialog
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::SelectRemoteFileDialog)
 
 public:
     explicit SelectRemoteFileDialog(QWidget *parent);
@@ -81,14 +82,13 @@ public:
     QString localFile() const { return m_localFile; }
     QString remoteFile() const { return m_remoteFile; }
 
-private slots:
-    void handleSftpOperationFinished(QSsh::SftpJobId, const QString &error);
+private:
+    void handleSftpOperationFinished(SftpJobId, const QString &error);
     void handleSftpOperationFailed(const QString &errorMessage);
     void handleConnectionError(const QString &errorMessage);
     void handleRemoteError(const QString &errorMessage);
     void selectFile();
 
-private:
     QSortFilterProxyModel m_model;
     SftpFileSystemModel m_fileSystemModel;
     QTreeView *m_fileSystemView;
@@ -127,13 +127,15 @@ SelectRemoteFileDialog::SelectRemoteFileDialog(QWidget *parent)
     layout->addWidget(m_textBrowser);
     layout->addWidget(m_buttonBox);
 
-    QObject::connect(m_buttonBox, SIGNAL(rejected()), SLOT(reject()));
-    QObject::connect(m_buttonBox, SIGNAL(accepted()), SLOT(selectFile()));
+    connect(m_buttonBox, &QDialogButtonBox::rejected,
+            this, &QDialog::reject);
+    connect(m_buttonBox, &QDialogButtonBox::accepted,
+            this, &SelectRemoteFileDialog::selectFile);
 
-    connect(&m_fileSystemModel, SIGNAL(sftpOperationFailed(QString)),
-            SLOT(handleSftpOperationFailed(QString)));
-    connect(&m_fileSystemModel, SIGNAL(connectionError(QString)),
-            SLOT(handleConnectionError(QString)));
+    connect(&m_fileSystemModel, &SftpFileSystemModel::sftpOperationFailed,
+            this, &SelectRemoteFileDialog::handleSftpOperationFailed);
+    connect(&m_fileSystemModel, &SftpFileSystemModel::connectionError,
+            this, &SelectRemoteFileDialog::handleConnectionError);
 }
 
 void SelectRemoteFileDialog::attachToDevice(Kit *k)
@@ -142,7 +144,7 @@ void SelectRemoteFileDialog::attachToDevice(Kit *k)
     QTC_ASSERT(k, return);
     IDevice::ConstPtr device = DeviceKitInformation::device(k);
     QTC_ASSERT(device, return);
-    QSsh::SshConnectionParameters sshParams = device->sshParameters();
+    SshConnectionParameters sshParams = device->sshParameters();
     m_fileSystemModel.setSshConnection(sshParams);
 }
 
@@ -158,7 +160,7 @@ void SelectRemoteFileDialog::handleConnectionError(const QString &errorMessage)
     //reject();
 }
 
-void SelectRemoteFileDialog::handleSftpOperationFinished(QSsh::SftpJobId, const QString &error)
+void SelectRemoteFileDialog::handleSftpOperationFinished(SftpJobId, const QString &error)
 {
     if (error.isEmpty()) {
         m_textBrowser->append(tr("Download of remote file succeeded."));
@@ -183,8 +185,8 @@ void SelectRemoteFileDialog::selectFile()
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     m_fileSystemView->setEnabled(false);
 
-    connect(&m_fileSystemModel, SIGNAL(sftpOperationFinished(QSsh::SftpJobId,QString)),
-            SLOT(handleSftpOperationFinished(QSsh::SftpJobId,QString)));
+    connect(&m_fileSystemModel, &SftpFileSystemModel::sftpOperationFinished,
+            this, &SelectRemoteFileDialog::handleSftpOperationFinished);
 
     {
         QTemporaryFile localFile(QDir::tempPath() + QLatin1String("/remotecore-XXXXXX"));
@@ -218,6 +220,36 @@ public:
     PathChooser *overrideStartScriptFileName;
 
     QDialogButtonBox *buttonBox;
+
+    struct State
+    {
+        bool isValid() const
+        {
+            return validKit && validLocalExecFilename && validCoreFilename;
+        }
+
+        bool validKit;
+        bool validLocalExecFilename;
+        bool validCoreFilename;
+        bool localCoreFile;
+        bool localKit;
+    };
+
+    State getDialogState(const AttachCoreDialog &p) const
+    {
+        State st;
+        st.localCoreFile = p.useLocalCoreFile();
+        st.validKit = (kitChooser->currentKit() != 0);
+        st.validLocalExecFilename = localExecFileName->isValid();
+
+        if (st.localCoreFile)
+            st.validCoreFilename = localCoreFileName->isValid();
+        else
+            st.validCoreFilename = !p.remoteCoreFile().isEmpty();
+
+        st.localKit = p.isLocalKit();
+        return st;
+    }
 };
 
 AttachCoreDialog::AttachCoreDialog(QWidget *parent)
@@ -226,43 +258,43 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     setWindowTitle(tr("Load Core File"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::RemoteDebugging, this);
-    d->kitChooser->populate();
+    d->buttonBox = new QDialogButtonBox(this);
+    d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    d->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    d->selectRemoteCoreButton = new QPushButton(tr("Browse..."), this);
-    d->remoteCoreFileName = new QLineEdit(this);
+    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::AnyDebugging, this);
+    d->kitChooser->populate();
 
     d->forceLocalCheckBox = new QCheckBox(this);
     d->forceLocalLabel = new QLabel(this);
     d->forceLocalLabel->setText(tr("Use local core file:"));
     d->forceLocalLabel->setBuddy(d->forceLocalCheckBox);
 
-    d->localExecFileName = new PathChooser(this);
-    d->localExecFileName->setHistoryCompleter(QLatin1String("LocalExecutable"));
-    d->localExecFileName->setExpectedKind(PathChooser::File);
-    d->localExecFileName->setPromptDialogTitle(tr("Select Executable"));
+    d->remoteCoreFileName = new QLineEdit(this);
+    d->selectRemoteCoreButton = new QPushButton(PathChooser::browseButtonLabel(), this);
 
     d->localCoreFileName = new PathChooser(this);
     d->localCoreFileName->setHistoryCompleter(QLatin1String("Debugger.CoreFile.History"));
     d->localCoreFileName->setExpectedKind(PathChooser::File);
     d->localCoreFileName->setPromptDialogTitle(tr("Select Core File"));
 
+    d->localExecFileName = new PathChooser(this);
+    d->localExecFileName->setHistoryCompleter(QLatin1String("LocalExecutable"));
+    d->localExecFileName->setExpectedKind(PathChooser::File);
+    d->localExecFileName->setPromptDialogTitle(tr("Select Executable"));
+
     d->overrideStartScriptFileName = new PathChooser(this);
     d->overrideStartScriptFileName->setHistoryCompleter(QLatin1String("Debugger.StartupScript.History"));
     d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
     d->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
 
-    d->buttonBox = new QDialogButtonBox(this);
-    d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-    d->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-
-    QHBoxLayout *coreLayout = new QHBoxLayout;
+    auto coreLayout = new QHBoxLayout;
     coreLayout->addWidget(d->localCoreFileName);
     coreLayout->addWidget(d->remoteCoreFileName);
     coreLayout->addWidget(d->selectRemoteCoreButton);
 
-    QFormLayout *formLayout = new QFormLayout;
+    auto formLayout = new QFormLayout;
     formLayout->setContentsMargins(0, 0, 0, 0);
     formLayout->setHorizontalSpacing(6);
     formLayout->setVerticalSpacing(6);
@@ -272,13 +304,13 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     formLayout->addRow(tr("&Executable:"), d->localExecFileName);
     formLayout->addRow(tr("Override &start script:"), d->overrideStartScriptFileName);
 
-    QFrame *line = new QFrame(this);
+    auto line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
 
     formLayout->addRow(d->buttonBox);
 
-    QVBoxLayout *vboxLayout = new QVBoxLayout(this);
+    auto vboxLayout = new QVBoxLayout(this);
     vboxLayout->addLayout(formLayout);
     vboxLayout->addStretch();
     vboxLayout->addWidget(line);
@@ -292,15 +324,27 @@ AttachCoreDialog::~AttachCoreDialog()
 
 int AttachCoreDialog::exec()
 {
-    connect(d->selectRemoteCoreButton, SIGNAL(clicked()), SLOT(selectRemoteCoreFile()));
-    connect(d->remoteCoreFileName, SIGNAL(textChanged(QString)), SLOT(coreFileChanged(QString)));
-    connect(d->localExecFileName, SIGNAL(changed(QString)), SLOT(changed()));
-    connect(d->localCoreFileName, SIGNAL(changed(QString)), SLOT(coreFileChanged(QString)));
-    connect(d->forceLocalCheckBox, SIGNAL(stateChanged(int)), SLOT(changed()));
-    connect(d->kitChooser, SIGNAL(currentIndexChanged(int)), SLOT(changed()));
-    connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
-    connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    connect(d->selectRemoteCoreButton, &QAbstractButton::clicked, this, &AttachCoreDialog::selectRemoteCoreFile);
+    connect(d->remoteCoreFileName, &QLineEdit::textChanged, this, &AttachCoreDialog::coreFileChanged);
+    connect(d->localExecFileName, &PathChooser::rawPathChanged, this, &AttachCoreDialog::changed);
+    connect(d->localCoreFileName, &PathChooser::rawPathChanged, this, &AttachCoreDialog::coreFileChanged);
+    connect(d->forceLocalCheckBox, &QCheckBox::stateChanged, this, &AttachCoreDialog::changed);
+    connect(d->kitChooser, &KitChooser::currentIndexChanged, this, &AttachCoreDialog::changed);
+    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     changed();
+
+    AttachCoreDialogPrivate::State st = d->getDialogState(*this);
+    if (!st.validKit) {
+        d->kitChooser->setFocus();
+    } else if (!st.validCoreFilename) {
+        if (st.localCoreFile)
+            d->localCoreFileName->setFocus();
+        else
+            d->remoteCoreFileName->setFocus();
+    } else if (!st.validLocalExecFilename) {
+        d->localExecFileName->setFocus();
+    }
 
     return QDialog::exec();
 }
@@ -321,35 +365,37 @@ bool AttachCoreDialog::useLocalCoreFile() const
 
 void AttachCoreDialog::coreFileChanged(const QString &core)
 {
-    Kit *k = d->kitChooser->currentKit();
-    QTC_ASSERT(k, return);
-    FileName cmd = DebuggerKitInformation::debuggerCommand(k);
-    bool isCore = false;
-    QString exe = readExecutableNameFromCore(cmd.toString(), core, &isCore);
-    d->localExecFileName->setFileName(FileName::fromString(exe));
+    if (!HostOsInfo::isWindowsHost() && QFile::exists(core)) {
+        Kit *k = d->kitChooser->currentKit();
+        QTC_ASSERT(k, return);
+        FileName cmd = DebuggerKitInformation::debuggerCommand(k);
+        GdbCoreEngine::CoreInfo cinfo =
+            GdbCoreEngine::readExecutableNameFromCore(cmd.toString(), core);
+        if (!cinfo.foundExecutableName.isEmpty())
+            d->localExecFileName->setFileName(FileName::fromString(cinfo.foundExecutableName));
+        else if (!d->localExecFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
+            d->localExecFileName->setFileName(FileName::fromString(cinfo.rawStringFromCore));
+    }
     changed();
 }
 
 void AttachCoreDialog::changed()
 {
-    bool isValid = d->kitChooser->currentKit() && d->localExecFileName->isValid();
-    bool isKitLocal = isLocalKit();
+    AttachCoreDialogPrivate::State st = d->getDialogState(*this);
 
-    d->forceLocalLabel->setVisible(!isKitLocal);
-    d->forceLocalCheckBox->setVisible(!isKitLocal);
-    if (useLocalCoreFile()) {
+    d->forceLocalLabel->setVisible(!st.localKit);
+    d->forceLocalCheckBox->setVisible(!st.localKit);
+    if (st.localCoreFile) {
         d->localCoreFileName->setVisible(true);
         d->remoteCoreFileName->setVisible(false);
         d->selectRemoteCoreButton->setVisible(false);
-        isValid = isValid && d->localCoreFileName->isValid();
     } else {
         d->localCoreFileName->setVisible(false);
         d->remoteCoreFileName->setVisible(true);
         d->selectRemoteCoreButton->setVisible(true);
-        isValid = isValid && !remoteCoreFile().isEmpty();
     }
 
-    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isValid);
+    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(st.isValid());
 }
 
 void AttachCoreDialog::selectRemoteCoreFile()
@@ -396,7 +442,7 @@ QString AttachCoreDialog::remoteCoreFile() const
     return d->remoteCoreFileName->text();
 }
 
-void AttachCoreDialog::setKitId(const Core::Id &id)
+void AttachCoreDialog::setKitId(Id id)
 {
     d->kitChooser->setCurrentKitId(id);
 }
@@ -428,5 +474,3 @@ void AttachCoreDialog::setOverrideStartScript(const QString &scriptName)
 
 } // namespace Internal
 } // namespace Debugger
-
-#include "loadcoredialog.moc"

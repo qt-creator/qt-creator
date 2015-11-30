@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -31,17 +31,23 @@
     \title Qt Creator Manual
 
     \QC provides a cross-platform, complete integrated development environment
-    (IDE) for application developers to create applications for multiple desktop
+    (IDE) for application developers to create applications for multiple
+    desktop, \l {http://doc.qt.io/QtForDeviceCreation/index.html}{embedded},
     and mobile device platforms, such as \l{Connecting Android Devices}{Android}
-    and \l{Connecting iOS Devices}{iOS}. It is available for Linux, Mac OS X and
+    and \l{Connecting iOS Devices}{iOS}. It is available for Linux, OS X and
     Windows
     operating systems. For more information, see \l{Supported Platforms}.
+
+    This manual also describes features that are only available if you have the
+    appropriate \l{http://qt.io/licensing/}{Qt license}. For more information,
+    see \l{Qt Creator Commercial Features}.
 
     \table
         \row
             \li \inlineimage creator_gettingstarted.png
             \li \inlineimage creator_managingprojects.png
             \li \inlineimage creator_designinguserinterface.png
+            \li \inlineimage creator_coding.png
         \row
             \li \b {\l{Getting Started}}
                 \list
@@ -64,35 +70,33 @@
                     \li \l{Developing Widget Based Applications}
                     \li \l{Optimizing Applications for Mobile Devices}
                 \endlist
-        \row
-            \li \inlineimage creator_coding.png
-            \li \inlineimage creator_buildingrunning.png
-            \li \inlineimage creator_testing.png
-        \row
             \li \b {\l{Coding}}
                 \list
                     \li \l{Writing Code}
                     \li \l{Finding}
                     \li \l{Refactoring}
                     \li \l{Configuring the Editor}
-            \endlist
+                    \li \l{Modeling}
+                \endlist
+        \row
+            \li \inlineimage creator_buildingrunning.png
+            \li \inlineimage creator_testing.png
+            \li \inlineimage creator_advanceduse.png
+            \li \inlineimage creator_gettinghelp.png
+        \row
             \li \b {\l{Building and Running}}
                 \list
                     \li \l{Building for Multiple Platforms}
                     \li \l{Running on Multiple Platforms}
                     \li \l{Deploying to Mobile Devices}
                     \li \l{Connecting Mobile Devices}
-            \endlist
-            \li \b {\l{Debugging and Analyzing}}
+                \endlist
+            \li \b {\l{Testing}}
                 \list
                     \li \l{Debugging}
                     \li \l{Analyzing Code}
+                    \li \l{Running Autotests}
                 \endlist
-        \row
-            \li \inlineimage creator_advanceduse.png
-            \li \inlineimage creator_gettinghelp.png
-            \li
-        \row
             \li \b {\l{Advanced Use}}
                 \list
                     \li \l{Supported Platforms}
@@ -109,10 +113,9 @@
                     \li \l{Known Issues}
                     \li \l{Glossary}
                 \endlist
-            \li
         \row
-            \li {3,1} \note To report bugs and suggestions to the Qt Bug
-                Tracker, select \gui {Help > Report Bug}.
+            \li {4,1} \note To report bugs and suggestions to the Qt Bug
+                Tracker, select \uicontrol {Help > Report Bug}.
 
                 You can also join the \QC mailing list at:
                 \l{http://lists.qt-project.org/mailman/listinfo/}
@@ -133,7 +136,8 @@
             \list
                 \li \l{Creating a Qt Quick Application}
                 \li \l{Creating a Qt Widget Based Application}
-                \li \l{Creating an Android Application}
+                \li \l{Creating a Mobile Application}
+                \li \l{Using Qt Quick UI Forms}
             \endlist
         \endlist
         \li \l{Managing Projects}
@@ -143,6 +147,10 @@
                 \li \l{Opening Projects}
                 \li \l{Adding Libraries to Projects}
                 \li \l{Adding New Custom Wizards}
+                \list
+                    \li \l{Adding JSON-Based Wizards}
+                    \li \l{Adding XML-Based Wizards}
+                \endlist
             \endlist
             \li \l{Using Version Control Systems}
             \li \l{Configuring Projects}
@@ -165,11 +173,15 @@
             \li \l{Developing Qt Quick Applications}
             \list
                 \li \l {Creating Qt Quick Projects}
+                \li \l {Qt Quick UI Forms}
                 \li \l {Using Qt Quick Designer}
+                \li \l {Editing PathView Properties}
+                \li \l {Adding Connections}
                 \li \l {Creating Components}
                 \li \l {Creating Buttons}
                 \li \l {Creating Scalable Buttons and Borders}
                 \li \l {Creating Screens}
+                \li \l {Browsing ISO 7000 Icons}
                 \li \l {Exporting Designs from Graphics Software}
                 \li \l {Using QML Modules with Plugins}
             \endlist
@@ -207,6 +219,7 @@
                 \li \l{Using FakeVim Mode}
             \endlist
             \li \l{Editing MIME Types}
+            \li \l{Modeling}
         \endlist
         \li \l{Building and Running}
         \list
@@ -215,15 +228,13 @@
             \li \l{Deploying to Mobile Devices}
             \list
                 \li \l{Deploying Applications to Android Devices}
-                \li \l{Deploying Applications to BlackBerry 10 Devices}
                 \li \l{Deploying Applications to Embedded Linux Devices}
-                \li \l{Deploying Applications to QNX Devices}
+                \li \l{Deploying Applications to QNX Neutrino Devices}
             \endlist
             \li \l{Connecting Mobile Devices}
             \list
                 \li \l{Connecting Android Devices}
                 \li \l{Connecting Bare Metal Devices}
-                \li \l{Connecting BlackBerry 10 Devices}
                 \li \l{Connecting Embedded Linux Devices}
                 \li \l{Connecting iOS Devices}
                 \li \l{Connecting QNX Devices}
@@ -231,7 +242,7 @@
             \endlist
             \li \l{Customizing the Build Process}
         \endlist
-        \li \l{Debugging and Analyzing}
+        \li \l{Testing}
         \list
             \li \l{Debugging}
             \list
@@ -251,10 +262,12 @@
                 \list
                     \li \l{Detecting Memory Leaks}
                     \li \l{Profiling Function Execution}
-                    \li \l{Running Valgrind Tools Remotely}
+                    \li \l{Running Valgrind Tools on External Applications}
                 \endlist
+                \li \l{Using Clang Static Analyzer}
+                \li \l{Analyzing CPU Usage}
             \endlist
-
+            \li \l{Running Autotests}
         \endlist
         \li \l{Advanced Use}
         \list

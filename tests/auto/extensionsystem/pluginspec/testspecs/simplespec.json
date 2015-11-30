@@ -1,0 +1,8 @@
+{
+    "IID" : "plugin",
+    "MetaData" : {
+        "Name" : "MyPlugin",
+        "Version" : "2.2.3_9",
+        "CompatVersion" : "2.0.0"
+    }
+}

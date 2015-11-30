@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -73,76 +69,31 @@
 
 #include "qmldesignerplugin.h"
 
+#include "puppetcreator.h"
+
+#include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
+#include <coreplugin/messagebox.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <projectexplorer/kit.h>
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtsupportconstants.h>
 
-#include <QMessageBox>
-
-namespace {
-#ifdef Q_OS_MAC
-#  define SHARE_PATH "/../Resources"
-#else
-#  define SHARE_PATH "/../share/qtcreator"
-#endif
-
-static QString applicationDirPath()
-{
-    return QCoreApplication::applicationDirPath();
-}
-
-static inline QString sharedDirPath()
-{
-    QString appPath = applicationDirPath();
-
-    return QFileInfo(appPath + SHARE_PATH).absoluteFilePath();
-}
-
-static QLatin1String qmlPuppetApplicationDirectoryForTests()
-{
-    if (Utils::HostOsInfo::isWindowsHost())
-        //one more - debug/release dir
-        return QLatin1String("/../../../../../../bin/");
-    return QLatin1String("/../../../../../bin/");
-}
-} //namespace
 
 namespace QmlDesigner {
 
-static bool hasQtQuick2(NodeInstanceView *nodeInstanceView)
+static void showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {
-    if (nodeInstanceView && nodeInstanceView->model()) {
-        foreach (const Import &import ,nodeInstanceView->model()->imports()) {
-            if (import.url() ==  "QtQuick" && import.version().toDouble() >= 2.0)
-                return true;
-        }
-    }
+    Core::AsynchronousMessageBox::warning(QCoreApplication::translate("NodeInstanceServerProxy", "Cannot Connect to QML Emulation Layer (QML Puppet)"),
+                                           QCoreApplication::translate("NodeInstanceServerProxy", "The executable of the QML emulation layer (QML Puppet) may not be responding. "
+                                                                                                  "Switching to another kit might help."));
 
-    return false;
+    QmlDesignerPlugin::instance()->switchToTextModeDeferred();
+
 }
 
-QString NodeInstanceServerProxy::creatorQmlPuppetPath()
-{
-    QString applicationPath =  QCoreApplication::applicationDirPath();
-    applicationPath = macOSBundlePath(applicationPath);
-    applicationPath += QLatin1Char('/') + qmlPuppetApplicationName();
-
-    return applicationPath;
-}
-
-bool NodeInstanceServerProxy::checkPuppetVersion(const QString &qmlPuppetPath)
-{
-    QProcess qmlPuppetVersionProcess;
-    qmlPuppetVersionProcess.start(qmlPuppetPath, QStringList() << "--version");
-    qmlPuppetVersionProcess.waitForReadyRead(6000);
-
-    QByteArray versionString = qmlPuppetVersionProcess.readAll();
-
-    bool canConvert;
-    unsigned int versionNumber = versionString.toUInt(&canConvert);
-
-    return canConvert && versionNumber == 2;
-}
-
-NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus, const QString &pathToQt)
+NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus, ProjectExplorer::Kit *kit)
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
       m_nodeInstanceView(nodeInstanceView),
@@ -156,137 +107,104 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
       m_runModus(runModus),
       m_synchronizeId(-1)
 {
-   QString applicationPath =  pathToQt + QLatin1String("/bin");
-   if (runModus == TestModus) {
-       applicationPath = QCoreApplication::applicationDirPath()
-           + qmlPuppetApplicationDirectoryForTests()
-           + qmlPuppetApplicationName();
-   } else {
-       applicationPath = macOSBundlePath(applicationPath);
-       applicationPath += QLatin1Char('/') + qmlPuppetApplicationName();
+   QString socketToken(QUuid::createUuid().toString());
+   m_localServer->listen(socketToken);
+   m_localServer->setMaxPendingConnections(3);
 
+   PuppetCreator puppetCreator(kit, QString(), nodeInstanceView->model());
+   puppetCreator.setQrcMappingString(qrcMappingString());
 
-#if defined(QT_NO_DEBUG) || defined(SEARCH_PUPPET_IN_CREATOR_BINPATH) // to prevent of choosing the wrong puppet in debug
-       if (!QFileInfo(applicationPath).exists()) { //No qmlpuppet in Qt
-           //We have to find out how to give not too intrusive feedback
-           applicationPath = creatorQmlPuppetPath();
-       }
-#endif
+   puppetCreator.createPuppetExecutableIfMissing();
+
+   m_qmlPuppetEditorProcess = puppetCreator.createPuppetProcess("editormode",
+                                                              socketToken,
+                                                              this,
+                                                              SLOT(printEditorProcessOutput()),
+                                                              SLOT(processFinished(int,QProcess::ExitStatus)));
+
+   if (runModus == NormalModus) {
+       m_qmlPuppetRenderProcess = puppetCreator.createPuppetProcess("rendermode",
+                                                                    socketToken,
+                                                                    this,
+                                                                    SLOT(printRenderProcessOutput()),
+                                                                    SLOT(processFinished(int,QProcess::ExitStatus)));
+       m_qmlPuppetPreviewProcess = puppetCreator.createPuppetProcess("previewmode",
+                                                                     socketToken,
+                                                                     this,
+                                                                     SLOT(printPreviewProcessOutput()),
+                                                                     SLOT(processFinished(int,QProcess::ExitStatus)));
    }
 
+   if (m_qmlPuppetEditorProcess->waitForStarted(10000)) {
+       connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int)), m_qmlPuppetEditorProcess.data(),SLOT(deleteLater()));
 
-   QByteArray envImportPath = qgetenv("QTCREATOR_QMLPUPPET_PATH");
-   if (!envImportPath.isEmpty())
-       applicationPath = envImportPath;
+       if (runModus == NormalModus) {
+           m_qmlPuppetPreviewProcess->waitForStarted();
+           connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int)), m_qmlPuppetPreviewProcess.data(),SLOT(deleteLater()));
 
-   QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+           m_qmlPuppetRenderProcess->waitForStarted();
+           connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int)), m_qmlPuppetRenderProcess.data(),SLOT(deleteLater()));
+       }
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0)) && (defined(Q_OS_MAC) || defined(Q_OS_LINUX))
-   environment.insert(QLatin1String("DESIGNER_DONT_USE_SHARED_MEMORY"), QLatin1String("1"));
-#endif
+       bool connectedToPuppet = true;
 
-   if (QFileInfo(applicationPath).exists()) {
-       if (checkPuppetVersion(applicationPath)) {
-           QString socketToken(QUuid::createUuid().toString());
-           m_localServer->listen(socketToken);
-           m_localServer->setMaxPendingConnections(3);
+       if (!m_localServer->hasPendingConnections())
+           connectedToPuppet = m_localServer->waitForNewConnection(3000);
 
-           m_qmlPuppetEditorProcess = new QProcess;
-           m_qmlPuppetEditorProcess->setProcessEnvironment(environment);
-           m_qmlPuppetEditorProcess->setObjectName("EditorProcess");
-           connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
-           connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetEditorProcess.data(), SLOT(kill()));
-           bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QMLPUPPET_OUTPUT").isEmpty();
-           if (fowardQmlpuppetOutput) {
-               m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::MergedChannels);
-               connect(m_qmlPuppetEditorProcess.data(), SIGNAL(readyRead()), this, SLOT(printEditorProcessOutput()));
-           }
-           m_qmlPuppetEditorProcess->start(applicationPath, QStringList() << socketToken << "editormode" << "-graphicssystem raster");
+       if (connectedToPuppet) {
+           m_firstSocket = m_localServer->nextPendingConnection();
+           connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
 
            if (runModus == NormalModus) {
-               m_qmlPuppetPreviewProcess = new QProcess;
-               m_qmlPuppetPreviewProcess->setProcessEnvironment(environment);
-               m_qmlPuppetPreviewProcess->setObjectName("PreviewProcess");
-               connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
-               connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
-               if (fowardQmlpuppetOutput) {
-                   m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::MergedChannels);
-                   connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(readyRead()), this, SLOT(printPreviewProcessOutput()));
-               }
-               m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
-
-               m_qmlPuppetRenderProcess = new QProcess;
-               m_qmlPuppetRenderProcess->setProcessEnvironment(environment);
-               m_qmlPuppetRenderProcess->setObjectName("RenderProcess");
-               connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
-               connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetRenderProcess.data(), SLOT(kill()));
-               if (fowardQmlpuppetOutput) {
-                   m_qmlPuppetRenderProcess->setProcessChannelMode(QProcess::MergedChannels);
-                   connect(m_qmlPuppetRenderProcess.data(), SIGNAL(readyRead()), this, SLOT(printRenderProcessOutput()));
-               }
-               m_qmlPuppetRenderProcess->start(applicationPath, QStringList() << socketToken << "rendermode" << "-graphicssystem raster");
-
-           }
-
-           connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
-
-           if (m_qmlPuppetEditorProcess->waitForStarted(10000)) {
-               connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int)), m_qmlPuppetEditorProcess.data(),SLOT(deleteLater()));
-
-               if (runModus == NormalModus) {
-                   m_qmlPuppetPreviewProcess->waitForStarted();
-                   connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int)), m_qmlPuppetPreviewProcess.data(),SLOT(deleteLater()));
-
-                   m_qmlPuppetRenderProcess->waitForStarted();
-                   connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int)), m_qmlPuppetRenderProcess.data(),SLOT(deleteLater()));
-               }
-
                if (!m_localServer->hasPendingConnections())
-                   m_localServer->waitForNewConnection(10000);
+                   connectedToPuppet = m_localServer->waitForNewConnection(3000);
 
-               m_firstSocket = m_localServer->nextPendingConnection();
-               connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
-
-               if (runModus == NormalModus) {
-                   if (!m_localServer->hasPendingConnections())
-                       m_localServer->waitForNewConnection(10000);
-
+               if (connectedToPuppet) {
                    m_secondSocket = m_localServer->nextPendingConnection();
                    connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
 
                    if (!m_localServer->hasPendingConnections())
-                       m_localServer->waitForNewConnection(10000);
+                        connectedToPuppet = m_localServer->waitForNewConnection(3000);
 
-                   m_thirdSocket = m_localServer->nextPendingConnection();
-                   connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+                   if (connectedToPuppet) {
+                       m_thirdSocket = m_localServer->nextPendingConnection();
+                       connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+                   } else {
+                       showCannotConnectToPuppetWarningAndSwitchToEditMode();
+                   }
+               } else {
+                   showCannotConnectToPuppetWarningAndSwitchToEditMode();
                }
-
-           } else {
-               QMessageBox::warning(0, tr("Cannot Start QML Puppet Executable"),
-                                    tr("The executable of the QML Puppet process (%1) cannot be started. "
-                                       "Please check your installation. "
-                                       "QML Puppet is a process which runs in the background to render the items.").
-                                    arg(applicationPath));
-
-               QmlDesignerPlugin::instance()->switchToTextModeDeferred();
            }
-
-           m_localServer->close();
-
        } else {
-           QMessageBox::warning(0, tr("Wrong QML Puppet Executable Version"), tr("The QML Puppet version is incompatible with the Qt Creator version."));
-           QmlDesignerPlugin::instance()->switchToTextModeDeferred();
+           showCannotConnectToPuppetWarningAndSwitchToEditMode();
        }
+
    } else {
-           QMessageBox::warning(0, tr("Cannot Find QML Puppet Executable"), missingQmlPuppetErrorMessage(applicationPath));
-           QmlDesignerPlugin::instance()->switchToTextModeDeferred();
+       Core::AsynchronousMessageBox::warning(tr("Cannot Start QML Emulation Layer (QML Puppet)"),
+                                              tr("The executable of the QML emulation layer (QML Puppet) process cannot be started or does not respond."));
+
+       QmlDesignerPlugin::instance()->switchToTextModeDeferred();
    }
+
+   m_localServer->close();
+
 
    int indexOfCapturePuppetStream = QCoreApplication::arguments().indexOf("-capture-puppet-stream");
    if (indexOfCapturePuppetStream > 0) {
        m_captureFileForTest.setFileName(QCoreApplication::arguments().at(indexOfCapturePuppetStream + 1));
        bool isOpen = m_captureFileForTest.open(QIODevice::WriteOnly);
        qDebug() << "file is open: " << isOpen;
+   }
+
+   m_firstTimer.setInterval(3000);
+   m_secondTimer.setInterval(3000);
+   m_thirdTimer.setInterval(3000);
+
+   if (qgetenv("DEBUG_QML_PUPPET").isEmpty()) {
+       connect(&m_firstTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
+       connect(&m_secondTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
+       connect(&m_thirdTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
    }
 }
 
@@ -296,27 +214,38 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
 
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
-    if (m_firstSocket)
-        m_firstSocket->close();
+    if (m_firstSocket) {
+        m_firstSocket->waitForBytesWritten(1000);
+        m_firstSocket->abort();
+    }
 
-    if (m_secondSocket)
-        m_secondSocket->close();
+    if (m_secondSocket) {
+        m_secondSocket->waitForBytesWritten(1000);
+        m_secondSocket->abort();
+    }
 
-    if (m_thirdSocket)
-        m_thirdSocket->close();
+    if (m_thirdSocket) {
+        m_thirdSocket->waitForBytesWritten(1000);
+        m_thirdSocket->abort();
+    }
 
-
-    if (m_qmlPuppetEditorProcess)
+    if (m_qmlPuppetEditorProcess) {
         QTimer::singleShot(3000, m_qmlPuppetEditorProcess.data(), SLOT(terminate()));
+        QTimer::singleShot(6000, m_qmlPuppetEditorProcess.data(), SLOT(kill()));
+    }
 
-    if (m_qmlPuppetPreviewProcess)
+    if (m_qmlPuppetPreviewProcess) {
         QTimer::singleShot(3000, m_qmlPuppetPreviewProcess.data(), SLOT(terminate()));
+        QTimer::singleShot(6000, m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
+    }
 
-    if (m_qmlPuppetRenderProcess)
+    if (m_qmlPuppetRenderProcess) {
          QTimer::singleShot(3000, m_qmlPuppetRenderProcess.data(), SLOT(terminate()));
+         QTimer::singleShot(6000, m_qmlPuppetRenderProcess.data(), SLOT(kill()));
+    }
 }
 
-void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
+void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStreamType puppetStreamType)
 {
     static const int informationChangedCommandType = QMetaType::type("InformationChangedCommand");
     static const int valuesChangedCommandType = QMetaType::type("ValuesChangedCommand");
@@ -327,6 +256,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
+    static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
 
     if (command.userType() ==  informationChangedCommandType) {
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
@@ -344,6 +274,8 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
         nodeInstanceClient()->token(command.value<TokenCommand>());
     } else if (command.userType() == debugOutputCommandType) {
         nodeInstanceClient()->debugOutput(command.value<DebugOutputCommand>());
+    } else if (command.userType() == puppetAliveCommandType) {
+        puppetAlive(puppetStreamType);
     } else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();
@@ -356,29 +288,53 @@ NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
     return m_nodeInstanceView.data();
 }
 
-QString NodeInstanceServerProxy::missingQmlPuppetErrorMessage(const QString &applicationPath) const
+void NodeInstanceServerProxy::puppetAlive(NodeInstanceServerProxy::PuppetStreamType puppetStreamType)
 {
-    QString message;
-    QTextStream str(&message);
-    str << "<html><head/><body><p>"
-        << tr("The executable of the QML Puppet process (<code>%1</code>) cannot be found. "
-              "Check your installation. "
-              "QML Puppet is a process which runs in the background to render the items.").
-           arg(QDir::toNativeSeparators(applicationPath))
-        << "</p>";
-    if (hasQtQuick2(m_nodeInstanceView.data())) {
-        str << "<p>"
-            << tr("You can build <code>qml2puppet</code> yourself with Qt 5.0.1 or higher. "
-                 "The source can be found in <code>%1</code>.").
-               arg(QDir::toNativeSeparators(sharedDirPath() + QLatin1String("/qml/qmlpuppet/qml2puppet/")))
-            << "</p><p>"
-            << tr("<code>qml2puppet</code> will be installed to the <code>bin</code> directory of your Qt version. "
-                  "Qt Quick Designer will check the <code>bin</code> directory of the currently active Qt version "
-                  "of your project.")
-            << "</p>";
+    switch (puppetStreamType) {
+    case FirstPuppetStream:
+        m_firstTimer.stop();
+        m_firstTimer.start();
+        break;
+    case SecondPuppetStream:
+        m_secondTimer.stop();
+        m_secondTimer.start();
+        break;
+    case ThirdPuppetStream:
+        m_thirdTimer.stop();
+        m_thirdTimer.start();
+        break;
+    default:
+        break;
     }
-    str << "</p></body></html>";
-    return message;
+}
+
+QString NodeInstanceServerProxy::qrcMappingString() const
+{
+    if (m_nodeInstanceView && m_nodeInstanceView.data()->model()) {
+        RewriterView *rewriterView = m_nodeInstanceView.data()->model()->rewriterView();
+        if (rewriterView) {
+            QString mappingString;
+
+            typedef QPair<QString, QString> StringPair;
+
+            foreach (const StringPair &pair, rewriterView->qrcMapping()) {
+                if (!mappingString.isEmpty())
+                    mappingString.append(QLatin1String(","));
+                mappingString.append(pair.first);
+                mappingString.append(QLatin1String("="));
+                mappingString.append(pair.second);
+            }
+
+            return mappingString;
+        }
+    }
+
+    return QString();
+}
+
+void NodeInstanceServerProxy::processFinished()
+{
+    processFinished(-1, QProcess::CrashExit);
 }
 
 static void writeCommandToIODecive(const QVariant &command, QIODevice *ioDevice, unsigned int commandCounter)
@@ -404,7 +360,7 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
     writeCommandToIODecive(command, m_thirdSocket.data(), m_writeCommandCounter);
 
     if (m_captureFileForTest.isWritable()) {
-        qDebug() << "Write strean to file: " << m_captureFileForTest.fileName();
+        qDebug() << "Write stream to file: " << m_captureFileForTest.fileName();
         writeCommandToIODecive(command, &m_captureFileForTest, m_writeCommandCounter);
         qDebug() << "\twrite file: " << m_captureFileForTest.pos();
     }
@@ -426,26 +382,39 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
     }
 }
 
-void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitStatus exitStatus)
+void NodeInstanceServerProxy::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    qDebug() << "Process finished:" << sender();
+    QProcess* finishedProcess = qobject_cast<QProcess*>(sender());
+    if (finishedProcess)
+        qWarning() << "Process" << (exitStatus == QProcess::CrashExit ? "crashed:" : "finished:") << finishedProcess->arguments() << "exitCode:" << exitCode;
+    else
+        qWarning() << "Process" << (exitStatus == QProcess::CrashExit ? "crashed:" : "finished:") << sender() << "exitCode:" << exitCode;
 
     if (m_captureFileForTest.isOpen()) {
         m_captureFileForTest.close();
         m_captureFileForTest.remove();
-        QMessageBox::warning(0, tr("QML Puppet Crashed"), tr("You are recording a puppet stream and the puppet crashed. "
-                                                             "It is recommended to reopen the Qt Quick Designer and start again."));
+        Core::AsynchronousMessageBox::warning(tr("QML Emulation Layer (QML Puppet) Crashed"),
+                             tr("You are recording a puppet stream and the emulations layer crashed. "
+                                "It is recommended to reopen the Qt Quick Designer and start again."));
     }
 
 
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
-    if (m_firstSocket)
-        m_firstSocket->close();
-    if (m_secondSocket)
-        m_secondSocket->close();
-    if (m_thirdSocket)
-        m_thirdSocket->close();
+    if (m_firstSocket) {
+        m_firstSocket->waitForBytesWritten(1000);
+        m_firstSocket->abort();
+    }
+
+    if (m_secondSocket) {
+        m_secondSocket->waitForBytesWritten(1000);
+        m_secondSocket->abort();
+    }
+
+    if (m_thirdSocket) {
+        m_thirdSocket->waitForBytesWritten(1000);
+        m_thirdSocket->abort();
+    }
 
     if (exitStatus == QProcess::CrashExit)
         emit processCrashed();
@@ -485,7 +454,7 @@ void NodeInstanceServerProxy::readFirstDataStream()
     }
 
     foreach (const QVariant &command, commandList) {
-        dispatchCommand(command);
+        dispatchCommand(command, FirstPuppetStream);
     }
 }
 
@@ -522,7 +491,7 @@ void NodeInstanceServerProxy::readSecondDataStream()
     }
 
     foreach (const QVariant &command, commandList) {
-        dispatchCommand(command);
+        dispatchCommand(command, SecondPuppetStream);
     }
 }
 
@@ -559,13 +528,13 @@ void NodeInstanceServerProxy::readThirdDataStream()
     }
 
     foreach (const QVariant &command, commandList) {
-        dispatchCommand(command);
+        dispatchCommand(command, ThirdPuppetStream);
     }
 }
 
 void NodeInstanceServerProxy::printEditorProcessOutput()
 {
-    while (m_qmlPuppetEditorProcess->canReadLine()) {
+    while (m_qmlPuppetEditorProcess && m_qmlPuppetEditorProcess->canReadLine()) {
         QByteArray line = m_qmlPuppetEditorProcess->readLine();
         line.chop(1);
         qDebug().nospace() << "Editor Puppet: " << qPrintable(line);
@@ -575,7 +544,7 @@ void NodeInstanceServerProxy::printEditorProcessOutput()
 
 void NodeInstanceServerProxy::printPreviewProcessOutput()
 {
-    while (m_qmlPuppetPreviewProcess->canReadLine()) {
+    while (m_qmlPuppetPreviewProcess && m_qmlPuppetPreviewProcess->canReadLine()) {
         QByteArray line = m_qmlPuppetPreviewProcess->readLine();
         line.chop(1);
         qDebug().nospace() << "Preview Puppet: " << qPrintable(line);
@@ -585,33 +554,13 @@ void NodeInstanceServerProxy::printPreviewProcessOutput()
 
 void NodeInstanceServerProxy::printRenderProcessOutput()
 {
-    while (m_qmlPuppetRenderProcess->canReadLine()) {
+    while (m_qmlPuppetRenderProcess && m_qmlPuppetRenderProcess->canReadLine()) {
         QByteArray line = m_qmlPuppetRenderProcess->readLine();
         line.chop(1);
         qDebug().nospace() << "Render Puppet: " << qPrintable(line);
     }
 
     qDebug() << "\n";
-}
-
-QString NodeInstanceServerProxy::qmlPuppetApplicationName() const
-{
-    if (hasQtQuick2(m_nodeInstanceView.data()))
-        return QLatin1String("qml2puppet" QTC_HOST_EXE_SUFFIX);
-    return QLatin1String("qmlpuppet" QTC_HOST_EXE_SUFFIX);
-}
-
-QString NodeInstanceServerProxy::macOSBundlePath(const QString &path) const
-{
-    QString applicationPath = path;
-    if (Utils::HostOsInfo::isMacHost()) {
-        if (hasQtQuick2(m_nodeInstanceView.data()))
-            applicationPath += QLatin1String("/qml2puppet.app/Contents/MacOS");
-        else
-            applicationPath += QLatin1String("/qmlpuppet.app/Contents/MacOS");
-
-    }
-   return applicationPath;
 }
 
 void NodeInstanceServerProxy::createInstances(const CreateInstancesCommand &command)

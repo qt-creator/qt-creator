@@ -1,46 +1,47 @@
-import qbs.base 1.0
+import qbs 1.0
 import qbs.FileInfo
 import QtcFunctions
 
-Product {
+QtcProduct {
     type: ["dynamiclibrary", "pluginSpec"]
-    property string provider: 'QtProject'
-    property var pluginspecreplacements
-    property var pluginRecommends: []
+    installDir: project.ide_plugin_path
 
-    Depends { name: "Qt.core" }
-    property string minimumQtVersion: "4.8"
+    property var pluginJsonReplacements
+    property var pluginRecommends: []
+    property var pluginTestDepends: []
+
+    property string minimumQtVersion: "5.4.0"
     condition: QtcFunctions.versionIsAtLeast(Qt.core.version, minimumQtVersion)
 
     targetName: QtcFunctions.qtLibraryName(qbs, name)
-    destinationDirectory: project.ide_plugin_path + '/' + provider
+    destinationDirectory: project.ide_plugin_path
 
     Depends { name: "ExtensionSystem" }
-    Depends { name: "pluginspec" }
-    Depends { name: "cpp" }
+    Depends { name: "pluginjson" }
     Depends {
         condition: project.testsEnabled
         name: "Qt.test"
     }
 
-    cpp.defines: project.generalDefines.concat([name.toUpperCase() + "_LIBRARY"])
-    cpp.installNamePrefix: "@rpath/PlugIns/" + provider + "/"
-    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@loader_path/../..", "@executable_path/.."]
-                                      : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../.."]
+    cpp.defines: base.concat([name.toUpperCase() + "_LIBRARY"])
+    cpp.installNamePrefix: "@rpath"
+    cpp.rpaths: qbs.targetOS.contains("osx")
+        ? ["@loader_path/../Frameworks", "@loader_path/../PlugIns"]
+        : ["$ORIGIN", "$ORIGIN/.."]
     cpp.linkerFlags: {
-        if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
-            return ["-Wl,-s"]
-        else if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))
-            return ["/INCREMENTAL:NO"] // Speed up startup time when debugging with cdb
+        var flags = base;
+        if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))
+            flags.push("/INCREMENTAL:NO"); // Speed up startup time when debugging with cdb
+        return flags;
     }
 
     property string pluginIncludeBase: ".." // #include <plugin/header.h>
     cpp.includePaths: [pluginIncludeBase]
 
     Group {
-        name: "PluginSpec"
-        files: [ product.name + ".pluginspec.in" ]
-        fileTags: ["pluginSpecIn"]
+        name: "PluginMetaData"
+        files: [ product.name + ".json.in" ]
+        fileTags: ["pluginJsonIn"]
     }
 
     Group {
@@ -48,15 +49,9 @@ Product {
         files: [ "*.mimetypes.xml" ]
     }
 
-    Group {
-        fileTagsFilter: product.type
-        qbs.install: true
-        qbs.installDir: project.ide_plugin_path + "/" + provider
-    }
-
     Export {
         Depends { name: "ExtensionSystem" }
         Depends { name: "cpp" }
-        cpp.includePaths: [pluginIncludeBase]
+        cpp.includePaths: [product.pluginIncludeBase]
     }
 }

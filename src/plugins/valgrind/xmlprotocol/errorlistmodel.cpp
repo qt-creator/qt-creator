@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 ** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,29 +35,74 @@
 #include "stack.h"
 #include "modelhelpers.h"
 
+#include <analyzerbase/diagnosticlocation.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QVector>
+
+#include <cmath>
 
 namespace Valgrind {
 namespace XmlProtocol {
 
-class ErrorListModel::Private
+class ErrorListModelPrivate
 {
 public:
-    QVector<Error> errors;
-    QVariant errorData(int row, int column, int role) const;
+    QVariant errorData(const QModelIndex &index, int role) const;
     QSharedPointer<const ErrorListModel::RelevantFrameFinder> relevantFrameFinder;
     Frame findRelevantFrame(const Error &error) const;
-    QString formatAbsoluteFilePath(const Error &error) const;
-    QString formatLocation(const Error &error) const;
+    QString errorLocation(const Error &error) const;
 };
 
-ErrorListModel::ErrorListModel(QObject *parent)
-    : QAbstractItemModel(parent)
-    , d(new Private)
+class ErrorItem : public Utils::TreeItem
 {
+public:
+    ErrorItem(const ErrorListModelPrivate *modelPrivate, const Error &error);
+
+    const ErrorListModelPrivate *modelPrivate() const { return m_modelPrivate; }
+    Error error() const { return m_error; }
+
+private:
+    QVariant data(int column, int role) const override;
+
+    const ErrorListModelPrivate * const m_modelPrivate;
+    const Error m_error;
+};
+
+class StackItem : public Utils::TreeItem
+{
+public:
+    StackItem(const Stack &stack);
+
+private:
+    QVariant data(int column, int role) const override;
+
+    const ErrorItem *getErrorItem() const;
+
+    const Stack m_stack;
+};
+
+class FrameItem : public Utils::TreeItem
+{
+public:
+    FrameItem(const Frame &frame);
+
+private:
+    QVariant data(int column, int role) const override;
+
+    const ErrorItem *getErrorItem() const;
+
+    const Frame m_frame;
+};
+
+
+ErrorListModel::ErrorListModel(QObject *parent)
+    : Utils::TreeModel(parent)
+    , d(new ErrorListModelPrivate)
+{
+    setHeader(QStringList() << tr("Issue") << tr("Location"));
 }
 
 ErrorListModel::~ErrorListModel()
@@ -74,27 +120,7 @@ void ErrorListModel::setRelevantFrameFinder(const QSharedPointer<const RelevantF
     d->relevantFrameFinder = finder;
 }
 
-Frame ErrorListModel::findRelevantFrame(const Error &error) const
-{
-    return d->findRelevantFrame(error);
-}
-
-QModelIndex ErrorListModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (parent.isValid()) {
-        QTC_ASSERT(parent.model() == this, qt_noop());
-        return QModelIndex();
-    }
-    return createIndex(row, column);
-}
-
-QModelIndex ErrorListModel::parent(const QModelIndex &child) const
-{
-    QTC_ASSERT(!child.isValid() || child.model() == this, return QModelIndex());
-    return QModelIndex();
-}
-
-Frame ErrorListModel::Private::findRelevantFrame(const Error &error) const
+Frame ErrorListModelPrivate::findRelevantFrame(const Error &error) const
 {
     if (relevantFrameFinder)
         return relevantFrameFinder->findRelevant(error);
@@ -108,184 +134,194 @@ Frame ErrorListModel::Private::findRelevantFrame(const Error &error) const
     return Frame();
 }
 
-QString ErrorListModel::Private::formatAbsoluteFilePath(const Error &error) const
+static QString makeFrameName(const Frame &frame, bool withLocation)
 {
-    const Frame f = findRelevantFrame(error);
-    if (!f.directory().isEmpty() && !f.file().isEmpty())
-        return QString(f.directory() + QDir::separator() + f.file());
-    return QString();
-}
+    const QString d = frame.directory();
+    const QString f = frame.fileName();
+    const QString fn = frame.functionName();
+    const QString fullPath = frame.filePath();
 
-QString ErrorListModel::Private::formatLocation(const Error &error) const
-{
-    const Frame frame = findRelevantFrame(error);
-    const QString file = frame.file();
-    if (!frame.functionName().isEmpty())
-        return frame.functionName();
-    if (!file.isEmpty()) {
-        const qint64 line = frame.line();
-        if (line > 0)
-            return QString::fromLatin1("%1:%2").arg(file, QString::number(frame.line()));
-        return file;
+    QString path;
+    if (!d.isEmpty() && !f.isEmpty())
+        path = fullPath;
+    else
+        path = frame.object();
+
+    if (QFile::exists(path))
+        path = QFileInfo(path).canonicalFilePath();
+
+    if (frame.line() != -1)
+        path += QLatin1Char(':') + QString::number(frame.line());
+
+    if (!fn.isEmpty()) {
+        const QString location = withLocation || path == frame.object()
+                ? QString::fromLatin1(" in %2").arg(path) : QString();
+        return QCoreApplication::translate("Valgrind::Internal", "%1%2").arg(fn, location);
     }
-    return frame.object();
+    if (!path.isEmpty())
+        return path;
+    return QString::fromLatin1("0x%1").arg(frame.instructionPointer(), 0, 16);
 }
 
-QVariant ErrorListModel::Private::errorData(int row, int column, int role) const
+QString ErrorListModelPrivate::errorLocation(const Error &error) const
 {
-    // A dummy entry.
-    if (row == 0 && errors.isEmpty()) {
-        if (role == Qt::DisplayRole)
-            return tr("No errors found");
-        if (role == ErrorRole)
-            return tr("No errors found");
-        return QVariant();
-    }
-
-    if (row < 0 || row >= errors.size())
-        return QVariant();
-
-    const Error &error = errors.at(row);
-
-    if (error.stacks().count())
-    switch (role) {
-    case Qt::DisplayRole: {
-        switch (column) {
-        case WhatColumn:
-            return error.what();
-        case LocationColumn:
-            return formatLocation(error);
-        case AbsoluteFilePathColumn:
-            return formatAbsoluteFilePath(error);
-        case LineColumn: {
-            const qint64 line = findRelevantFrame(error).line();
-            return line > 0 ? line : QVariant();
-        }
-        case UniqueColumn:
-            return error.unique();
-        case TidColumn:
-            return error.tid();
-        case KindColumn:
-            return error.kind();
-        case LeakedBlocksColumn:
-            return error.leakedBlocks();
-        case LeakedBytesColumn:
-            return error.leakedBytes();
-        case HelgrindThreadIdColumn:
-            return error.helgrindThreadId();
-        default:
-            break;
-        }
-    }
-    case Qt::ToolTipRole:
-        return toolTipForFrame(findRelevantFrame(error));
-    case ErrorRole:
-        return QVariant::fromValue<Error>(error);
-    case AbsoluteFilePathRole:
-        return formatAbsoluteFilePath(error);
-    case FileRole:
-        return findRelevantFrame(error).file();
-    case LineRole: {
-        const qint64 line = findRelevantFrame(error).line();
-        return line > 0 ? line : QVariant();
-    }
-    }
-    return QVariant();
-}
-
-QVariant ErrorListModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    if (!index.parent().isValid())
-        return d->errorData(index.row(), index.column(), role);
-
-    return QVariant();
-}
-
-QVariant ErrorListModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
-        return QVariant();
-
-    switch (section) {
-    case WhatColumn:
-        return tr("What");
-    case LocationColumn:
-        return tr("Location");
-    case AbsoluteFilePathColumn:
-        return tr("File");
-    case LineColumn:
-        return tr("Line");
-    case UniqueColumn:
-        return tr("Unique");
-    case TidColumn:
-        return tr("Thread ID");
-    case KindColumn:
-        return tr("Kind");
-    case LeakedBlocksColumn:
-        return tr("Leaked Blocks");
-    case LeakedBytesColumn:
-        return tr("Leaked Bytes");
-    case HelgrindThreadIdColumn:
-        return tr("Helgrind Thread ID");
-    }
-
-    return QVariant();
-}
-
-int ErrorListModel::rowCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-    return qMax(1, d->errors.count());
-}
-
-int ErrorListModel::columnCount(const QModelIndex &parent) const
-{
-    QTC_ASSERT(!parent.isValid() || parent.model() == this, return 0);
-    return ColumnCount;
-}
-
-bool ErrorListModel::removeRows(int row, int count, const QModelIndex &parent)
-{
-    QTC_ASSERT(!parent.isValid() || parent.model() == this, return false);
-
-    if (row < 0 || row + count > d->errors.size() || parent.isValid())
-        return false;
-
-    beginRemoveRows(parent, row, row + count);
-    d->errors.remove(row, count);
-    endRemoveRows();
-    return true;
+    return QCoreApplication::translate("Valgrind::Internal", "in %1").
+            arg(makeFrameName(findRelevantFrame(error), true));
 }
 
 void ErrorListModel::addError(const Error &error)
 {
-    beginInsertRows(QModelIndex(), d->errors.size(), d->errors.size());
-    d->errors.push_back(error);
-    endInsertRows();
+    rootItem()->appendChild(new ErrorItem(d, error));
 }
 
-Error ErrorListModel::error(const QModelIndex &index) const
+
+ErrorItem::ErrorItem(const ErrorListModelPrivate *modelPrivate, const Error &error)
+    : m_modelPrivate(modelPrivate), m_error(error)
 {
-    if (!index.isValid())
-        return Error();
+    QTC_ASSERT(!m_error.stacks().isEmpty(), return);
 
-    QTC_ASSERT(index.model() == this, return Error());
-
-    const int r = index.row();
-    if (r < 0 || r >= d->errors.size())
-        return Error();
-    return d->errors.at(r);
+    // If there's more than one stack, we simply map the real tree structure.
+    // Otherwise, we skip the stack level, which has no useful information and would
+    // just annoy the user.
+    // The same goes for the frame level.
+    if (m_error.stacks().count() > 1) {
+        foreach (const Stack &s, m_error.stacks())
+            appendChild(new StackItem(s));
+    } else if (m_error.stacks().first().frames().count() > 1) {
+        foreach (const Frame &f, m_error.stacks().first().frames())
+            appendChild(new FrameItem(f));
+    }
 }
 
-void ErrorListModel::clear()
+static QVariant location(const Frame &frame, int role)
 {
-    beginResetModel();
-    d->errors.clear();
-    endResetModel();
+    switch (role) {
+    case Analyzer::DetailedErrorView::LocationRole:
+        return QVariant::fromValue(Analyzer::DiagnosticLocation(frame.filePath(), frame.line(), 0));
+    case Qt::ToolTipRole:
+        return frame.filePath().isEmpty() ? QVariant() : QVariant(frame.filePath());
+    default:
+        return QVariant();
+    }
+}
+
+QVariant ErrorItem::data(int column, int role) const
+{
+    if (column == Analyzer::DetailedErrorView::LocationColumn) {
+        const Frame frame = m_modelPrivate->findRelevantFrame(m_error);
+        return location(frame, role);
+    }
+
+    // DiagnosticColumn
+    switch (role) {
+    case Analyzer::DetailedErrorView::FullTextRole: {
+        QString content;
+        QTextStream stream(&content);
+
+        stream << m_error.what() << "\n";
+        stream << "  "
+               << m_modelPrivate->errorLocation(m_error)
+               << "\n";
+
+        foreach (const Stack &stack, m_error.stacks()) {
+            if (!stack.auxWhat().isEmpty())
+                stream << stack.auxWhat();
+            int i = 1;
+            foreach (const Frame &frame, stack.frames())
+                stream << "  " << i++ << ": " << makeFrameName(frame, true) << "\n";
+        }
+
+        stream.flush();
+        return content;
+    }
+    case ErrorListModel::ErrorRole:
+        return QVariant::fromValue<Error>(m_error);
+    case Qt::DisplayRole:
+        // If and only if there is exactly one frame, we have omitted creating a child item for it
+        // (see the constructor) and display the function name in the error item instead.
+        if (m_error.stacks().count() != 1 || m_error.stacks().first().frames().count() != 1
+                || m_error.stacks().first().frames().first().functionName().isEmpty()) {
+            return m_error.what();
+        }
+        return ErrorListModel::tr("%1 in function %2")
+                .arg(m_error.what(), m_error.stacks().first().frames().first().functionName());
+    case Qt::ToolTipRole:
+        return toolTipForFrame(m_modelPrivate->findRelevantFrame(m_error));
+    default:
+        return QVariant();
+    }
+}
+
+
+StackItem::StackItem(const Stack &stack) : m_stack(stack)
+{
+    foreach (const Frame &f, m_stack.frames())
+        appendChild(new FrameItem(f));
+}
+
+QVariant StackItem::data(int column, int role) const
+{
+    const ErrorItem * const errorItem = getErrorItem();
+    if (column == Analyzer::DetailedErrorView::LocationColumn)
+        return location(errorItem->modelPrivate()->findRelevantFrame(errorItem->error()), role);
+
+    // DiagnosticColumn
+    switch (role) {
+    case ErrorListModel::ErrorRole:
+        return QVariant::fromValue(errorItem->error());
+    case Qt::DisplayRole:
+        return m_stack.auxWhat().isEmpty() ? errorItem->error().what() : m_stack.auxWhat();
+    case Qt::ToolTipRole:
+        return toolTipForFrame(errorItem->modelPrivate()->findRelevantFrame(errorItem->error()));
+    default:
+        return QVariant();
+    }
+}
+
+const ErrorItem *StackItem::getErrorItem() const
+{
+    return static_cast<ErrorItem *>(parent());
+}
+
+
+FrameItem::FrameItem(const Frame &frame) : m_frame(frame)
+{
+}
+
+QVariant FrameItem::data(int column, int role) const
+{
+    if (column == Analyzer::DetailedErrorView::LocationColumn)
+        return location(m_frame, role);
+
+    // DiagnosticColumn
+    switch (role) {
+    case ErrorListModel::ErrorRole:
+        return QVariant::fromValue(getErrorItem()->error());
+    case Qt::DisplayRole: {
+        const int row = parent()->children().indexOf(const_cast<FrameItem *>(this)) + 1;
+        const int padding = static_cast<int>(std::log10(parent()->rowCount()))
+                - static_cast<int>(std::log10(row));
+        return QString::fromLatin1("%1%2: %3")
+                .arg(QString(padding, QLatin1Char(' ')))
+                .arg(row)
+                .arg(makeFrameName(m_frame, false));
+    }
+    case Qt::ToolTipRole:
+        return toolTipForFrame(m_frame);
+    default:
+        return QVariant();
+    }
+}
+
+const ErrorItem *FrameItem::getErrorItem() const
+{
+    for (const TreeItem *parentItem = parent(); parentItem; parentItem = parentItem->parent()) {
+        const ErrorItem * const errorItem = dynamic_cast<const ErrorItem *>(parentItem);
+        if (errorItem)
+            return errorItem;
+    }
+    QTC_CHECK(false);
+    return nullptr;
 }
 
 } // namespace XmlProtocol

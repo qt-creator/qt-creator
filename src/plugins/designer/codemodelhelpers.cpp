@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "codemodelhelpers.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -50,8 +51,10 @@ static const char setupUiC[] = "setupUi";
 // Find the generated "ui_form.h" header of the form via project.
 static QString generatedHeaderOf(const QString &uiFileName)
 {
-    if (const ProjectExplorer::Project *uiProject = ProjectExplorer::SessionManager::projectForFile(uiFileName))
-        return uiProject->generatedUiHeader(uiFileName);
+    if (const ProjectExplorer::Project *uiProject =
+            ProjectExplorer::SessionManager::projectForFile(Utils::FileName::fromString(uiFileName))) {
+        return uiProject->generatedUiHeader(Utils::FileName::fromString(uiFileName));
+    }
     return QString();
 }
 
@@ -93,7 +96,7 @@ bool SearchFunction::visit(CPlusPlus::Function * f)
     if (const CPlusPlus::Name *name = f->name())
         if (const CPlusPlus::Identifier *id = name->identifier())
             if (id->size() == m_length)
-                if (!qstrncmp(m_name, id->chars(), m_length))
+                if (!qstrncmp(m_name, id->chars(), uint(m_length)))
                     m_matches.push_back(f);
     return true;
 }
@@ -115,13 +118,13 @@ bool navigateToSlot(const QString &uiFileName,
     // Find the generated header.
     const QString generatedHeaderFile = generatedHeaderOf(uiFileName);
     if (generatedHeaderFile.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("Designer", "The generated header of the form '%1' could not be found.\nRebuilding the project might help.").arg(uiFileName);
+        *errorMessage = QCoreApplication::translate("Designer", "The generated header of the form \"%1\" could not be found.\nRebuilding the project might help.").arg(uiFileName);
         return false;
     }
-    const CPlusPlus::Snapshot snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    const CPlusPlus::Snapshot snapshot = CppTools::CppModelManager::instance()->snapshot();
     const DocumentPtr generatedHeaderDoc = snapshot.document(generatedHeaderFile);
     if (!generatedHeaderDoc) {
-        *errorMessage = QCoreApplication::translate("Designer", "The generated header '%1' could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile);
+        *errorMessage = QCoreApplication::translate("Designer", "The generated header \"%1\" could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile);
         return false;
     }
 
@@ -129,7 +132,7 @@ bool navigateToSlot(const QString &uiFileName,
     SearchFunction searchFunc(setupUiC);
     const SearchFunction::FunctionList funcs = searchFunc(generatedHeaderDoc);
     if (funcs.size() != 1) {
-        *errorMessage = QString::fromLatin1("Internal error: The function '%1' could not be found in in %2").arg(QLatin1String(setupUiC), generatedHeaderFile);
+        *errorMessage = QString::fromLatin1("Internal error: The function \"%1\" could not be found in %2").arg(QLatin1String(setupUiC), generatedHeaderFile);
         return false;
     }
     return true;

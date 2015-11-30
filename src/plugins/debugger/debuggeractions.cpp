@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,30 +9,33 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "debuggeractions.h"
+#include "debuggericons.h"
 
 #ifdef Q_OS_WIN
 #include "registerpostmortemaction.h"
 #endif
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
@@ -55,15 +58,23 @@ void GlobalDebuggerOptions::toSettings() const
 {
     QSettings *s = Core::ICore::settings();
     s->beginWriteArray(QLatin1String(sourcePathMappingArrayNameC));
-    if (!sourcePathMap.isEmpty()) {
+    if (!sourcePathMap.isEmpty() || !sourcePathRegExpMap.isEmpty()) {
         const QString sourcePathMappingSourceKey = QLatin1String(sourcePathMappingSourceKeyC);
         const QString sourcePathMappingTargetKey = QLatin1String(sourcePathMappingTargetKeyC);
         int i = 0;
-        const SourcePathMap::const_iterator cend = sourcePathMap.constEnd();
-        for (SourcePathMap::const_iterator it = sourcePathMap.constBegin(); it != cend; ++it, ++i) {
+        for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
+             it != cend;
+             ++it, ++i) {
             s->setArrayIndex(i);
             s->setValue(sourcePathMappingSourceKey, it.key());
             s->setValue(sourcePathMappingTargetKey, it.value());
+        }
+        for (auto it = sourcePathRegExpMap.constBegin(), cend = sourcePathRegExpMap.constEnd();
+             it != cend;
+             ++it, ++i) {
+            s->setArrayIndex(i);
+            s->setValue(sourcePathMappingSourceKey, it->first.pattern());
+            s->setValue(sourcePathMappingTargetKey, it->second);
         }
     }
     s->endArray();
@@ -78,8 +89,12 @@ void GlobalDebuggerOptions::fromSettings()
         const QString sourcePathMappingTargetKey = QLatin1String(sourcePathMappingTargetKeyC);
         for (int i = 0; i < count; ++i) {
              s->setArrayIndex(i);
-             sourcePathMap.insert(s->value(sourcePathMappingSourceKey).toString(),
-                                  s->value(sourcePathMappingTargetKey).toString());
+             const QString key = s->value(sourcePathMappingSourceKey).toString();
+             const QString value = s->value(sourcePathMappingTargetKey).toString();
+             if (key.startsWith(QLatin1Char('(')))
+                 sourcePathRegExpMap.append(qMakePair(QRegExp(key), value));
+             else
+                 sourcePathMap.insert(key, value);
         }
     }
     s->endArray();
@@ -106,75 +121,28 @@ DebuggerSettings::DebuggerSettings()
     // View
     //
     item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
+    item->setText(tr("Always Adjust View Column Widths to Contents"));
     item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
+    item->setValue(true);
+    item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustLocalsColumnWidths"));
-    insertItem(AlwaysAdjustLocalsColumnWidths, item);
+        QLatin1String("AlwaysAdjustColumnWidths"));
+    insertItem(AlwaysAdjustColumnWidths, item);
 
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustStackColumnWidths"));
-    insertItem(AlwaysAdjustStackColumnWidths, item);
-
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustThreadsColumnWidths"));
-    insertItem(AlwaysAdjustThreadsColumnWidths, item);
-
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustRegistersColumnWidths"));
-    insertItem(AlwaysAdjustRegistersColumnWidths, item);
-
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustSnapshotsColumnWidths"));
-    insertItem(AlwaysAdjustSnapshotsColumnWidths, item);
-
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustBreakpointsColumnWidths"));
-    insertItem(AlwaysAdjustBreakpointsColumnWidths, item);
-
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustModulesColumnWidths"));
-    insertItem(AlwaysAdjustModulesColumnWidths, item);
-
-    //Needed by QML Inspector
+    // Needed by QML Inspector
     item = new SavedAction(this);
     item->setText(tr("Use Alternating Row Colors"));
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAlternatingRowColours"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(UseAlternatingRowColors, item);
+
+    item = new SavedAction(this);
+    item->setText(tr("Keep Editor Stationary When Stepping"));
+    item->setSettingsKey(debugModeGroup, QLatin1String("StationaryEditorWhileStepping"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    insertItem(StationaryEditorWhileStepping, item);
 
     item = new SavedAction(this);
     item->setText(tr("Debugger Font Size Follows Main Editor"));
@@ -209,8 +177,8 @@ DebuggerSettings::DebuggerSettings()
     item->setText(tr("Operate by Instruction"));
     item->setCheckable(true);
     item->setDefaultValue(false);
-    item->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_singleinstructionmode.png")));
-    item->setToolTip(tr("This switches the debugger to instruction-wise "
+    item->setIcon(Debugger::Icons::SINGLE_INSTRUCTION_MODE.icon());
+    item->setToolTip(tr("<p>This switches the debugger to instruction-wise "
         "operation mode. In this mode, stepping operates on single "
         "instructions and the source location view also shows the "
         "disassembled instructions."));
@@ -222,7 +190,7 @@ DebuggerSettings::DebuggerSettings()
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup, QLatin1String("AutoDerefPointers"));
-    item->setToolTip(tr("This switches the Locals&&Watchers view to "
+    item->setToolTip(tr("<p>This switches the Locals&&Watchers view to "
         "automatically dereference pointers. This saves a level in the "
         "tree view, but also loses data for the now-missing intermediate "
         "level."));
@@ -282,6 +250,8 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowStandardNamespace"));
     item->setText(tr("Show \"std::\" Namespace in Types"));
+    item->setDialogText(tr("Show \"std::\" namespace in types"));
+    item->setToolTip(tr("<p>Shows \"std::\" prefix for types from the standard library."));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
@@ -290,6 +260,9 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowQtNamespace"));
     item->setText(tr("Show Qt's Namespace in Types"));
+    item->setDialogText(tr("Show Qt's namespace in types"));
+    item->setToolTip(tr("<p>Shows Qt namespace prefix for Qt types. This is only "
+                        "relevant if Qt was configured with \"-qtnamespace\"."));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
@@ -298,6 +271,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("SortStructMembers"));
     item->setText(tr("Sort Members of Classes and Structs Alphabetically"));
+    item->setDialogText(tr("Sort members of classes and structs alphabetically"));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
@@ -316,8 +290,8 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseCodeModel"));
-    item->setText(tr("Use Code Model"));
-    item->setToolTip(tr("Selecting this causes the C++ Code Model being asked "
+    item->setDialogText(tr("Use code model"));
+    item->setToolTip(tr("<p>Selecting this causes the C++ Code Model being asked "
       "for variable scope information. This might result in slightly faster "
       "debugger operation but may fail for optimized code."));
     item->setCheckable(true);
@@ -327,6 +301,8 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowThreadNames"));
+    item->setToolTip(tr("<p>Displays names of QThread based threads."));
+    item->setDialogText(tr("Display thread names"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setValue(false);
@@ -342,7 +318,7 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setText(tr("Adjust Breakpoint Locations"));
-    item->setToolTip(tr("Not all source code lines generate "
+    item->setToolTip(tr("<p>Not all source code lines generate "
       "executable code. Putting a breakpoint on such a line acts as "
       "if the breakpoint was set on the next line that generated code. "
       "Selecting 'Adjust Breakpoint Locations' shifts the red "
@@ -407,11 +383,11 @@ DebuggerSettings::DebuggerSettings()
     insertItem(LoadGdbInit, item);
 
     item = new SavedAction(this);
-    item->setSettingsKey(debugModeGroup, QLatin1String("LoadGdbDumpers"));
+    item->setSettingsKey(debugModeGroup, QLatin1String("LoadGdbDumpers2"));
     item->setDefaultValue(QString());
     item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
+    item->setDefaultValue(false);
+    item->setValue(false);
     insertItem(LoadGdbDumpers, item);
 
     item = new SavedAction(this);
@@ -451,9 +427,14 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("GdbCustomDumperCommands"));
     item->setDefaultValue(QString());
-    insertItem(GdbCustomDumperCommands, item);
-    item = new SavedAction(this);
+    insertItem(ExtraDumperCommands, item);
 
+    item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ExtraDumperFile"));
+    item->setDefaultValue(QString());
+    insertItem(ExtraDumperFile, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("GdbPostAttachCommands"));
     item->setDefaultValue(QString());
     insertItem(GdbPostAttachCommands, item);
@@ -462,7 +443,13 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(debugModeGroup, QLatin1String("CloseBuffersOnExit"));
     item->setCheckable(true);
     item->setDefaultValue(false);
-    insertItem(CloseBuffersOnExit, item);
+    insertItem(CloseSourceBuffersOnExit, item);
+
+    item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("CloseMemoryBuffersOnExit"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    insertItem(CloseMemoryBuffersOnExit, item);
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("SwitchModeOnExit"));
@@ -516,7 +503,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTips"));
     item->setText(tr("Use tooltips in main editor when debugging"));
-    item->setToolTip(tr("Checking this will enable tooltips for variable "
+    item->setToolTip(tr("<p>Checking this will enable tooltips for variable "
         "values during debugging. Since this can slow down debugging and "
         "does not provide reliable information as it does not use scope "
         "information, it is switched off by default."));
@@ -527,7 +514,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInLocalsView"));
     item->setText(tr("Use Tooltips in Locals View when Debugging"));
-    item->setToolTip(tr("Checking this will enable tooltips in the locals "
+    item->setToolTip(tr("<p>Checking this will enable tooltips in the locals "
         "view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -536,7 +523,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInBreakpointsView"));
     item->setText(tr("Use Tooltips in Breakpoints View when Debugging"));
-    item->setToolTip(tr("Checking this will enable tooltips in the breakpoints "
+    item->setToolTip(tr("<p>Checking this will enable tooltips in the breakpoints "
         "view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -545,7 +532,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInBreakpointsView"));
     item->setText(tr("Use Tooltips in Stack View when Debugging"));
-    item->setToolTip(tr("Checking this will enable tooltips in the stack "
+    item->setToolTip(tr("<p>Checking this will enable tooltips in the stack "
         "view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(true);
@@ -554,7 +541,7 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAddressInBreakpointsView"));
     item->setText(tr("Show Address Data in Breakpoints View when Debugging"));
-    item->setToolTip(tr("Checking this will show a column with address "
+    item->setToolTip(tr("<p>Checking this will show a column with address "
         "information in the breakpoint view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -563,18 +550,11 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAddressInStackView"));
     item->setText(tr("Show Address Data in Stack View when Debugging"));
-    item->setToolTip(tr("Checking this will show a column with address "
+    item->setToolTip(tr("<p>Checking this will show a column with address "
         "information in the stack view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(UseAddressInStackView, item);
-    item = new SavedAction(this);
-
-    item->setSettingsKey(debugModeGroup, QLatin1String("ListSourceFiles"));
-    item->setText(tr("List Source Files"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(ListSourceFiles, item);
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("SkipKnownFrames"));
@@ -625,7 +605,17 @@ DebuggerSettings::DebuggerSettings()
     insertItem(MaximalStackDepth, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("DisplayStringLimit"));
+    item->setToolTip(tr("<p>The maximum length of string entries in the "
+        "Locals and Expressions pane. Longer than that are cut off "
+        "and displayed with an ellipsis attached."));
+    item->setDefaultValue(100);
+    insertItem(DisplayStringLimit, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("MaximalStringLength"));
+    item->setToolTip(tr("<p>The maximum length for strings in separated windows. "
+        "Longer strings are cut off and displayed with an ellipsis attached."));
     item->setDefaultValue(10000);
     insertItem(MaximalStringLength, item);
 
@@ -655,11 +645,6 @@ DebuggerSettings::DebuggerSettings()
     item->setSettingsKey(qmlInspectorGroup, QLatin1String("QmlInspector.ShowAppOnTop"));
     item->setDefaultValue(false);
     insertItem(ShowAppOnTop, item);
-
-    item = new SavedAction(this);
-    item->setSettingsKey(qmlInspectorGroup, QLatin1String("QmlInspector.FromQml"));
-    item->setDefaultValue(false);
-    insertItem(QmlUpdateOnSave, item);
 }
 
 DebuggerSettings::~DebuggerSettings()

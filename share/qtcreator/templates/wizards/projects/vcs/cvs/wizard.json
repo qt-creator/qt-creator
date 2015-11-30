@@ -1,0 +1,87 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "Z.CVS",
+    "category": "T.Import",
+    "trDescription": "Checks out a CVS repository and tries to load the contained project.",
+    "trDisplayName": "CVS Checkout",
+    "trDisplayCategory": "Import Project",
+    "icon": "icon.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('CVS') >= 0}",
+
+    "options":
+    [
+        { "key": "vcsId", "value": "Z.CVS" },
+        { "key": "vcsName", "value": "%{JS: Vcs.displayName('%{vcsId}')}" },
+        { "key": "Dir", "value": "%{JS: '%{Repo}'.substr('%{Repo}'.lastIndexOf('/') + 1) }"},
+        { "key": "TargetPath", "value": "%{Path}/%{Dir}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Configuration",
+            "trShortTitle": "Configuration",
+            "trSubTitle": "Please configure <b>%{vcsName}</b> now.",
+            "typeId": "VcsConfiguration",
+            "enabled": "%{JS: !Vcs.isConfigured('%{vcsId}')}",
+            "data": { "vcsId": "%{vcsId}" }
+        },
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "trSubTitle": "Specify module and checkout directory.",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "Repo",
+                    "trDisplayName": "Module:",
+                    "mandatory": true,
+                    "type": "LineEdit"
+                },
+                {
+                    "name": "Sp1",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "Path",
+                    "trDisplayName": "Path:",
+                    "type": "PathChooser",
+                    "isComplete": "%{JS: '%{Dir}' === '' || !Util.exists('%{TargetPath}')}",
+                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators('%{TargetPath}')}\" exists in the filesystem.",
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Checkout",
+            "trShortTitle": "Checkout",
+            "typeId": "VcsCommand",
+            "data" :
+            {
+                "vcsId": "%{vcsId}",
+                "trRunMessage": "Running CVS checkout...",
+                "repository": "%{Repo}",
+                "baseDirectory": "%{Path}",
+                "checkoutName": "%{Dir}"
+            }
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "Scanner",
+            "data": {
+                "subdirectoryPatterns": [ "^src$" ]
+            }
+        }
+    ]
+}

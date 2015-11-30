@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,36 +9,37 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "cppcompletionassist.h"
 
+#include "builtineditordocumentparser.h"
 #include "cppdoxygen.h"
 #include "cppmodelmanager.h"
-#include "cppmodelmanagerinterface.h"
-#include "cppsnapshotupdater.h"
 #include "cpptoolsconstants.h"
-#include "cpptoolseditorsupport.h"
+#include "cpptoolsreuse.h"
+#include "editordocumenthandle.h"
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <texteditor/codeassist/basicproposalitem.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/codeassist/functionhintproposal.h>
@@ -47,8 +48,8 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcoverride.h>
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/CppRewriter.h>
@@ -57,6 +58,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/ResolveExpression.h>
 
+#include <QDirIterator>
 #include <QLatin1String>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -83,15 +85,14 @@ struct CompleteFunctionDeclaration
 // ---------------------
 // CppAssistProposalItem
 // ---------------------
-class CppAssistProposalItem : public TextEditor::BasicProposalItem
+class CppAssistProposalItem : public AssistProposalItem
 {
 public:
     CppAssistProposalItem() :
         m_isOverloaded(false) {}
 
-    bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
-    void applyContextualContent(TextEditor::BaseTextEditor *editor,
-                                int basePosition) const QTC_OVERRIDE;
+    bool prematurelyApplies(const QChar &c) const override;
+    void applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const override;
 
     bool isOverloaded() const { return m_isOverloaded; }
     void markAsOverloaded() { m_isOverloaded = true; }
@@ -119,10 +120,9 @@ bool CppAssistProposalModel::isSortable(const QString &prefix) const
     return !prefix.isEmpty();
 }
 
-IAssistProposalItem *CppAssistProposalModel::proposalItem(int index) const
+AssistProposalItem *CppAssistProposalModel::proposalItem(int index) const
 {
-    BasicProposalItem *item =
-        static_cast<BasicProposalItem *>(BasicProposalItemListModel::proposalItem(index));
+    auto item = static_cast<AssistProposalItem *>(GenericProposalModel::proposalItem(index));
     if (!item->data().canConvert<QString>()) {
         CppAssistProposalItem *cppItem = static_cast<CppAssistProposalItem *>(item);
         cppItem->keepCompletionOperator(m_completionOperator);
@@ -163,12 +163,12 @@ bool CppAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
     return false;
 }
 
-static bool isDereferenced(TextEditor::BaseTextEditor *editor, int basePosition)
+static bool isDereferenced(TextEditorWidget *editorWidget, int basePosition)
 {
-    QTextCursor cursor = editor->editorWidget()->textCursor();
+    QTextCursor cursor = editorWidget->textCursor();
     cursor.setPosition(basePosition);
 
-    BackwardsScanner scanner(cursor);
+    BackwardsScanner scanner(cursor, LanguageFeatures());
     for (int pos = scanner.startToken()-1; pos >= 0; pos--) {
         switch (scanner[pos].kind()) {
         case T_COLON_COLON:
@@ -183,8 +183,7 @@ static bool isDereferenced(TextEditor::BaseTextEditor *editor, int basePosition)
     return false;
 }
 
-void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *editor,
-                                                    int basePosition) const
+void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const
 {
     Symbol *symbol = 0;
 
@@ -234,7 +233,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
                     if (function->argumentCount() == 0)
                         extraChars += QLatin1Char('<');
 #endif
-                } else if (!isDereferenced(editor, basePosition) && !function->isAmbiguous()) {
+                } else if (!isDereferenced(editorWidget, basePosition) && !function->isAmbiguous()) {
                     // When the user typed the opening parenthesis, he'll likely also type the closing one,
                     // in which case it would be annoying if we put the cursor after the already automatically
                     // inserted closing parenthesis.
@@ -248,7 +247,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
 
                     // If the function doesn't return anything, automatically place the semicolon,
                     // unless we're doing a scope completion (then it might be function definition).
-                    const QChar characterAtCursor = editor->textDocument()->characterAt(editor->position());
+                    const QChar characterAtCursor = editorWidget->characterAt(editorWidget->position());
                     bool endWithSemicolon = m_typedChar == QLatin1Char(';')
                             || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON);
                     const QChar semicolon = m_typedChar.isNull() ? QLatin1Char(';') : m_typedChar;
@@ -266,7 +265,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
                             m_typedChar = QChar();
                         }
                     } else if (autoParenthesesEnabled) {
-                        const QChar lookAhead = editor->textDocument()->characterAt(editor->position() + 1);
+                        const QChar lookAhead = editorWidget->characterAt(editorWidget->position() + 1);
                         if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                             extraChars += QLatin1Char(')');
                             --cursorOffset;
@@ -304,18 +303,16 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
 
     // Determine the length of characters that should just be kept on the editor, but do
     // not consider content that ends as an identifier (which could be undesired).
-    const int lineEnd = editor->position(TextEditor::ITextEditor::EndOfLine);
-    const QString inEditor = editor->textDocument()->textAt(editor->position(),
-                                                            lineEnd - editor->position());
+    const int lineEnd = editorWidget->position(EndOfLinePosition);
+    const QString inEditor = editorWidget->textAt(editorWidget->position(), lineEnd - editorWidget->position());
     int preserveLength = 0;
     if (!inEditor.isEmpty()) {
-        preserveLength = toInsert.length() - (editor->position() - basePosition);
+        preserveLength = toInsert.length() - (editorWidget->position() - basePosition);
         const int inEditorLength = inEditor.length();
         while (preserveLength > 0) {
             if (inEditor.startsWith(toInsert.right(preserveLength))
                     && (inEditorLength == preserveLength
-                        || (!inEditor.at(preserveLength).isLetterOrNumber()
-                            && inEditor.at(preserveLength) != QLatin1Char('_')))) {
+                        || !CppTools::isValidIdentifierChar(inEditor.at(preserveLength)))) {
                 break;
             }
             --preserveLength;
@@ -324,7 +321,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
 
     for (int i = 0; i < extraChars.length(); ++i) {
         const QChar a = extraChars.at(i);
-        const QChar b = editor->textDocument()->characterAt(editor->position() + i + preserveLength);
+        const QChar b = editorWidget->characterAt(editorWidget->position() + i + preserveLength);
         if (a == b)
             ++extraLength;
         else
@@ -334,17 +331,17 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
     toInsert += extraChars;
 
     // Insert the remainder of the name
-    const int length = editor->position() - basePosition + preserveLength + extraLength;
-    editor->setCursorPosition(basePosition);
-    editor->replace(length, toInsert);
+    const int length = editorWidget->position() - basePosition + preserveLength + extraLength;
+    editorWidget->setCursorPosition(basePosition);
+    editorWidget->replace(length, toInsert);
     if (cursorOffset)
-        editor->setCursorPosition(editor->position() + cursorOffset);
+        editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
 }
 
 // --------------------
 // CppFunctionHintModel
 // --------------------
-class CppFunctionHintModel : public TextEditor::IFunctionHintProposalModel
+class CppFunctionHintModel : public IFunctionHintProposalModel
 {
 public:
     CppFunctionHintModel(QList<Function *> functionSymbols,
@@ -354,10 +351,10 @@ public:
         , m_typeOfExpression(typeOfExp)
     {}
 
-    void reset() QTC_OVERRIDE {}
-    int size() const QTC_OVERRIDE { return m_functionSymbols.size(); }
-    QString text(int index) const QTC_OVERRIDE;
-    int activeArgument(const QString &prefix) const QTC_OVERRIDE;
+    void reset() override {}
+    int size() const override { return m_functionSymbols.size(); }
+    QString text(int index) const override;
+    int activeArgument(const QString &prefix) const override;
 
 private:
     QList<Function *> m_functionSymbols;
@@ -378,11 +375,11 @@ QString CppFunctionHintModel::text(int index) const
     const int end = overview.markedArgumentEnd;
 
     QString hintText;
-    hintText += Qt::escape(prettyMethod.left(begin));
+    hintText += prettyMethod.left(begin).toHtmlEscaped();
     hintText += QLatin1String("<b>");
-    hintText += Qt::escape(prettyMethod.mid(begin, end - begin));
+    hintText += prettyMethod.mid(begin, end - begin).toHtmlEscaped();
     hintText += QLatin1String("</b>");
-    hintText += Qt::escape(prettyMethod.mid(end));
+    hintText += prettyMethod.mid(end).toHtmlEscaped();
     return hintText;
 }
 
@@ -391,7 +388,7 @@ int CppFunctionHintModel::activeArgument(const QString &prefix) const
     int argnr = 0;
     int parcount = 0;
     SimpleLexer tokenize;
-    QList<Token> tokens = tokenize(prefix);
+    Tokens tokens = tokenize(prefix);
     for (int i = 0; i < tokens.count(); ++i) {
         const Token &tk = tokens.at(i);
         if (tk.is(T_LPAREN))
@@ -417,43 +414,51 @@ int CppFunctionHintModel::activeArgument(const QString &prefix) const
 
 IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
 {
-    return new CppCompletionAssistProcessor;
+    return new InternalCppCompletionAssistProcessor;
 }
 
-TextEditor::IAssistInterface *InternalCompletionAssistProvider::createAssistInterface(
-        ProjectExplorer::Project *project, BaseTextEditor *editor, QTextDocument *document,
-        int position, TextEditor::AssistReason reason) const
+AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
+        const QString &filePath,
+        const TextEditorWidget *textEditorWidget,
+        const LanguageFeatures &languageFeatures,
+        int position,
+        AssistReason reason) const
 {
-    Q_UNUSED(project);
-    QTC_ASSERT(editor, return 0);
-    QTC_ASSERT(document, return 0);
-    return new CppTools::Internal::CppCompletionAssistInterface(editor, document, position, reason);
+    QTC_ASSERT(textEditorWidget, return 0);
+
+    return new CppCompletionAssistInterface(filePath,
+                                            textEditorWidget,
+                                            BuiltinEditorDocumentParser::get(filePath),
+                                            languageFeatures,
+                                            position,
+                                            reason,
+                                            CppModelManager::instance()->workingCopy());
 }
 
 // -----------------
 // CppAssistProposal
 // -----------------
-class CppAssistProposal : public TextEditor::GenericProposal
+class CppAssistProposal : public GenericProposal
 {
 public:
-    CppAssistProposal(int cursorPos, TextEditor::IGenericProposalModel *model)
-        : TextEditor::GenericProposal(cursorPos, model)
+    CppAssistProposal(int cursorPos, GenericProposalModel *model)
+        : GenericProposal(cursorPos, model)
         , m_replaceDotForArrow(static_cast<CppAssistProposalModel *>(model)->m_replaceDotForArrow)
     {}
 
-    bool isCorrective() const QTC_OVERRIDE { return m_replaceDotForArrow; }
-    void makeCorrection(BaseTextEditor *editor) QTC_OVERRIDE;
+    bool isCorrective() const override { return m_replaceDotForArrow; }
+    void makeCorrection(TextEditorWidget *editorWidget) override;
 
 private:
     bool m_replaceDotForArrow;
 };
 
-void CppAssistProposal::makeCorrection(BaseTextEditor *editor)
+void CppAssistProposal::makeCorrection(TextEditorWidget *editorWidget)
 {
-    const int oldPosition = editor->position();
-    editor->setCursorPosition(basePosition() - 1);
-    editor->replace(1, QLatin1String("->"));
-    editor->setCursorPosition(oldPosition + 1);
+    const int oldPosition = editorWidget->position();
+    editorWidget->setCursorPosition(basePosition() - 1);
+    editorWidget->replace(1, QLatin1String("->"));
+    editorWidget->setCursorPosition(oldPosition + 1);
     moveBasePosition(1);
 }
 
@@ -462,7 +467,7 @@ namespace {
 class ConvertToCompletionItem: protected NameVisitor
 {
     // The completion item.
-    BasicProposalItem *_item;
+    AssistProposalItem *_item;
 
     // The current symbol.
     Symbol *_symbol;
@@ -479,14 +484,14 @@ public:
         overview.showArgumentNames = true;
     }
 
-    BasicProposalItem *operator()(Symbol *symbol)
+    AssistProposalItem *operator()(Symbol *symbol)
     {
         //using declaration can be qualified
         if (!symbol || !symbol->name() || (symbol->name()->isQualifiedNameId()
                                            && !symbol->asUsingDeclaration()))
             return 0;
 
-        BasicProposalItem *previousItem = switchCompletionItem(0);
+        AssistProposalItem *previousItem = switchCompletionItem(0);
         Symbol *previousSymbol = switchSymbol(symbol);
         accept(symbol->unqualifiedName());
         if (_item)
@@ -503,16 +508,16 @@ protected:
         return previousSymbol;
     }
 
-    BasicProposalItem *switchCompletionItem(BasicProposalItem *item)
+    AssistProposalItem *switchCompletionItem(AssistProposalItem *item)
     {
-        BasicProposalItem *previousItem = _item;
+        AssistProposalItem *previousItem = _item;
         _item = item;
         return previousItem;
     }
 
-    BasicProposalItem *newCompletionItem(const Name *name)
+    AssistProposalItem *newCompletionItem(const Name *name)
     {
-        BasicProposalItem *item = new CppAssistProposalItem;
+        AssistProposalItem *item = new CppAssistProposalItem;
         item->setText(overview.prettyName(name));
         return item;
     }
@@ -527,7 +532,7 @@ protected:
     void visit(const TemplateNameId *name)
     {
         _item = newCompletionItem(name);
-        _item->setText(QLatin1String(name->identifier()->chars()));
+        _item->setText(QString::fromUtf8(name->identifier()->chars(), name->identifier()->size()));
     }
 
     void visit(const DestructorNameId *name)
@@ -590,7 +595,7 @@ bool isQPrivateSignal(const Symbol *symbol)
     if (FullySpecifiedType type = symbol->type()) {
         if (NamedType *namedType = type->asNamedType()) {
             if (const Name *name = namedType->name()) {
-                if (name->isEqualTo(&qPrivateSignalIdentifier))
+                if (name->match(&qPrivateSignalIdentifier))
                     return true;
             }
         }
@@ -598,42 +603,219 @@ bool isQPrivateSignal(const Symbol *symbol)
     return false;
 }
 
-} // Anonymous
-
-// ----------------------------
-// CppCompletionAssistProcessor
-// ----------------------------
-CppCompletionAssistProcessor::CppCompletionAssistProcessor()
-    : m_startPosition(-1)
-    , m_snippetCollector(QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID),
-                         QIcon(QLatin1String(":/texteditor/images/snippet.png")))
-    , preprocessorCompletions(QStringList()
-          << QLatin1String("define")
-          << QLatin1String("error")
-          << QLatin1String("include")
-          << QLatin1String("line")
-          << QLatin1String("pragma")
-          << QLatin1String("undef")
-          << QLatin1String("if")
-          << QLatin1String("ifdef")
-          << QLatin1String("ifndef")
-          << QLatin1String("elif")
-          << QLatin1String("else")
-          << QLatin1String("endif"))
-    , m_model(new CppAssistProposalModel)
-    , m_hintProposal(0)
+QString createQt4SignalOrSlot(CPlusPlus::Function *function, const Overview &overview)
 {
-    // FIXME: C++11?
-    m_languageFeatures.objCEnabled = true;
-    m_languageFeatures.qtEnabled = true;
-    m_languageFeatures.qtKeywordsEnabled = true;
-    m_languageFeatures.qtMocRunEnabled = true;
+    QString signature;
+    signature += Overview().prettyName(function->name());
+    signature += QLatin1Char('(');
+    for (unsigned i = 0, to = function->argumentCount(); i < to; ++i) {
+        Symbol *arg = function->argumentAt(i);
+        if (isQPrivateSignal(arg))
+            continue;
+        if (i != 0)
+            signature += QLatin1Char(',');
+        signature += overview.prettyType(arg->type());
+    }
+    signature += QLatin1Char(')');
+
+    const QByteArray normalized = QMetaObject::normalizedSignature(signature.toUtf8());
+    return QString::fromUtf8(normalized, normalized.size());
 }
 
-CppCompletionAssistProcessor::~CppCompletionAssistProcessor()
+QString createQt5SignalOrSlot(CPlusPlus::Function *function, const Overview &overview)
+{
+    QString text;
+    text += overview.prettyName(function->name());
+    return text;
+}
+
+/*!
+    \class BackwardsEater
+    \brief Checks strings and expressions before given position.
+
+    Similar to BackwardsScanner, but also can handle expressions. Ignores whitespace.
+*/
+class BackwardsEater
+{
+public:
+    explicit BackwardsEater(const CppCompletionAssistInterface *assistInterface, int position)
+        : m_position(position)
+        , m_assistInterface(assistInterface)
+    {
+    }
+
+    bool isPositionValid() const
+    {
+        return m_position >= 0;
+    }
+
+    bool eatConnectOpenParenthesis()
+    {
+        return eatString(QLatin1String("(")) && eatString(QLatin1String("connect"));
+    }
+
+    bool eatExpressionCommaAmpersand()
+    {
+        return eatString(QLatin1String("&")) && eatString(QLatin1String(",")) && eatExpression();
+    }
+
+    bool eatConnectOpenParenthesisExpressionCommaAmpersandExpressionComma()
+    {
+        return eatString(QLatin1String(","))
+            && eatExpression()
+            && eatExpressionCommaAmpersand()
+            && eatConnectOpenParenthesis();
+    }
+
+private:
+    bool eatExpression()
+    {
+        if (!isPositionValid())
+            return false;
+
+        maybeEatWhitespace();
+
+        QTextCursor cursor(m_assistInterface->textDocument());
+        cursor.setPosition(m_position + 1);
+        ExpressionUnderCursor expressionUnderCursor(m_assistInterface->languageFeatures());
+        const QString expression = expressionUnderCursor(cursor);
+        if (expression.isEmpty())
+            return false;
+        m_position = m_position - expression.length();
+        return true;
+    }
+
+    bool eatString(const QString &string)
+    {
+        if (!isPositionValid())
+            return false;
+
+        if (string.isEmpty())
+            return true;
+
+        maybeEatWhitespace();
+
+        const int stringLength = string.length();
+        const int stringStart = m_position - (stringLength - 1);
+
+        if (stringStart < 0)
+            return false;
+
+        if (m_assistInterface->textAt(stringStart, stringLength) == string) {
+            m_position = stringStart - 1;
+            return true;
+        }
+
+        return false;
+    }
+
+    void maybeEatWhitespace()
+    {
+        while (isPositionValid() && m_assistInterface->characterAt(m_position).isSpace())
+            --m_position;
+    }
+
+private:
+    int m_position;
+    const CppCompletionAssistInterface * const m_assistInterface;
+};
+
+bool canCompleteConnectSignalAt2ndArgument(const CppCompletionAssistInterface *assistInterface,
+                                           int startOfExpression)
+{
+    BackwardsEater eater(assistInterface, startOfExpression);
+
+    return eater.isPositionValid()
+        && eater.eatExpressionCommaAmpersand()
+        && eater.eatConnectOpenParenthesis();
+}
+
+bool canCompleteConnectSignalAt4thArgument(const CppCompletionAssistInterface *assistInterface,
+                                           int startPosition)
+{
+    BackwardsEater eater(assistInterface, startPosition);
+
+    return eater.isPositionValid()
+        && eater.eatExpressionCommaAmpersand()
+        && eater.eatConnectOpenParenthesisExpressionCommaAmpersandExpressionComma();
+}
+
+bool canCompleteClassNameAt2ndOr4thConnectArgument(
+        const CppCompletionAssistInterface *assistInterface,
+        int startPosition)
+{
+    BackwardsEater eater(assistInterface, startPosition);
+
+    if (!eater.isPositionValid())
+        return false;
+
+    return eater.eatConnectOpenParenthesis()
+        || eater.eatConnectOpenParenthesisExpressionCommaAmpersandExpressionComma();
+}
+
+ClassOrNamespace *classOrNamespaceFromLookupItem(const LookupItem &lookupItem,
+                                                 const LookupContext &context)
+{
+    const Name *name = 0;
+
+    if (Symbol *d = lookupItem.declaration()) {
+        if (Class *k = d->asClass())
+            name = k->name();
+    }
+
+    if (!name) {
+        FullySpecifiedType type = lookupItem.type().simplified();
+
+        if (PointerType *pointerType = type->asPointerType())
+            type = pointerType->elementType().simplified();
+        else
+            return 0; // not a pointer or a reference to a pointer.
+
+        NamedType *namedType = type->asNamedType();
+        if (!namedType) // not a class name.
+            return 0;
+
+        name = namedType->name();
+    }
+
+    return name ? context.lookupType(name, lookupItem.scope()) : 0;
+}
+
+Class *classFromLookupItem(const LookupItem &lookupItem, const LookupContext &context)
+{
+    ClassOrNamespace *b = classOrNamespaceFromLookupItem(lookupItem, context);
+    if (!b)
+        return 0;
+
+    foreach (Symbol *s, b->symbols()) {
+        if (Class *klass = s->asClass())
+            return klass;
+    }
+    return 0;
+}
+
+const Name *minimalName(Symbol *symbol, Scope *targetScope, const LookupContext &context)
+{
+    ClassOrNamespace *target = context.lookupType(targetScope);
+    if (!target)
+        target = context.globalNamespace();
+    return context.minimalName(symbol, target, context.bindings()->control().data());
+}
+
+} // Anonymous
+
+// ------------------------------------
+// InternalCppCompletionAssistProcessor
+// ------------------------------------
+InternalCppCompletionAssistProcessor::InternalCppCompletionAssistProcessor()
+    : m_model(new CppAssistProposalModel)
+{
+}
+
+InternalCppCompletionAssistProcessor::~InternalCppCompletionAssistProcessor()
 {}
 
-IAssistProposal * CppCompletionAssistProcessor::perform(const IAssistInterface *interface)
+IAssistProposal * InternalCppCompletionAssistProcessor::perform(const AssistInterface *interface)
 {
     m_interface.reset(static_cast<const CppCompletionAssistInterface *>(interface));
 
@@ -651,7 +833,7 @@ IAssistProposal * CppCompletionAssistProcessor::perform(const IAssistInterface *
     return 0;
 }
 
-bool CppCompletionAssistProcessor::accepts() const
+bool InternalCppCompletionAssistProcessor::accepts() const
 {
     const int pos = m_interface->position();
     unsigned token = T_EOF_SYMBOL;
@@ -668,26 +850,21 @@ bool CppCompletionAssistProcessor::accepts() const
     } else {
         // Trigger completion after three characters of a name have been typed, when not editing an existing name
         QChar characterUnderCursor = m_interface->characterAt(pos);
-        if (!characterUnderCursor.isLetterOrNumber() && characterUnderCursor != QLatin1Char('_')) {
+
+        if (!isValidIdentifierChar(characterUnderCursor)) {
             const int startOfName = findStartOfName(pos);
             if (pos - startOfName >= 3) {
                 const QChar firstCharacter = m_interface->characterAt(startOfName);
-                if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_')) {
+                if (isValidFirstIdentifierChar(firstCharacter)) {
                     // Finally check that we're not inside a comment or string (code copied from startOfOperator)
                     QTextCursor tc(m_interface->textDocument());
                     tc.setPosition(pos);
 
-                    LanguageFeatures features;
-                    features.qtEnabled = true;
-                    features.qtMocRunEnabled = true;
-                    features.qtKeywordsEnabled = true;
-                    features.objCEnabled = true;
-
                     SimpleLexer tokenize;
-                    tokenize.setLanguageFeatures(features);
+                    tokenize.setLanguageFeatures(m_interface->languageFeatures());
                     tokenize.setSkipComments(false);
 
-                    const QList<Token> &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
+                    const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
                     const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
                     const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
@@ -700,10 +877,11 @@ bool CppCompletionAssistProcessor::accepts() const
                         const QString &line = tc.block().text();
                         const Token &idToken = tokens.at(1);
                         const QStringRef &identifier =
-                                line.midRef(idToken.begin(), idToken.end() - idToken.begin());
+                                line.midRef(idToken.utf16charsBegin(),
+                                            idToken.utf16charsEnd() - idToken.utf16charsBegin());
                         if (identifier == QLatin1String("include")
                                 || identifier == QLatin1String("include_next")
-                                || (m_languageFeatures.objCEnabled && identifier == QLatin1String("import"))) {
+                                || (m_interface->languageFeatures().objCEnabled && identifier == QLatin1String("import"))) {
                             return true;
                         }
                     }
@@ -715,11 +893,11 @@ bool CppCompletionAssistProcessor::accepts() const
     return false;
 }
 
-IAssistProposal *CppCompletionAssistProcessor::createContentProposal()
+IAssistProposal *InternalCppCompletionAssistProcessor::createContentProposal()
 {
     // Duplicates are kept only if they are snippets.
     QSet<QString> processed;
-    QList<BasicProposalItem *>::iterator it = m_completions.begin();
+    QList<AssistProposalItem *>::iterator it = m_completions.begin();
     while (it != m_completions.end()) {
         CppAssistProposalItem *item = static_cast<CppAssistProposalItem *>(*it);
         if (!processed.contains(item->text()) || item->data().canConvert<QString>()) {
@@ -742,27 +920,28 @@ IAssistProposal *CppCompletionAssistProcessor::createContentProposal()
     }
 
     m_model->loadContent(m_completions);
-    return new CppAssistProposal(m_startPosition, m_model.take());
+    return new CppAssistProposal(m_positionForProposal, m_model.take());
 }
 
-IAssistProposal *CppCompletionAssistProcessor::createHintProposal(
-    QList<CPlusPlus::Function *> functionSymbols) const
+IAssistProposal *InternalCppCompletionAssistProcessor::createHintProposal(
+    QList<Function *> functionSymbols) const
 {
     IFunctionHintProposalModel *model =
             new CppFunctionHintModel(functionSymbols, m_model->m_typeOfExpression);
-    IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
+    IAssistProposal *proposal = new FunctionHintProposal(m_positionForProposal, model);
     return proposal;
 }
 
-int CppCompletionAssistProcessor::startOfOperator(int pos,
-                                                  unsigned *kind,
-                                                  bool wantFunctionCall) const
+int InternalCppCompletionAssistProcessor::startOfOperator(int pos,
+                                                          unsigned *kind,
+                                                          bool wantFunctionCall) const
 {
     const QChar ch  = pos > -1 ? m_interface->characterAt(pos - 1) : QChar();
     const QChar ch2 = pos >  0 ? m_interface->characterAt(pos - 2) : QChar();
     const QChar ch3 = pos >  1 ? m_interface->characterAt(pos - 3) : QChar();
 
-    int start = pos - CppCompletionAssistProvider::activationSequenceChar(ch, ch2, ch3, kind, wantFunctionCall);
+    int start = pos - CppCompletionAssistProvider::activationSequenceChar(ch, ch2, ch3, kind,
+        wantFunctionCall, /*wantQt5SignalSlots*/ true);
     if (start != pos) {
         QTextCursor tc(m_interface->textDocument());
         tc.setPosition(pos);
@@ -779,7 +958,7 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
         }
 
         if (*kind == T_COMMA) {
-            ExpressionUnderCursor expressionUnderCursor;
+            ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
             if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
                 *kind = T_EOF_SYMBOL;
                 start = pos;
@@ -787,19 +966,24 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
         }
 
         SimpleLexer tokenize;
-        tokenize.setLanguageFeatures(m_languageFeatures);
+        tokenize.setLanguageFeatures(m_interface->languageFeatures());
         tokenize.setSkipComments(false);
-        const QList<Token> &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
+        const Tokens &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
         const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
         const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
-        if (*kind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
+        if (*kind == T_AMPER && tokenIdx > 0) {
+            const Token &previousToken = tokens.at(tokenIdx - 1);
+            if (previousToken.kind() == T_COMMA)
+                start = pos - (tk.utf16charOffset - previousToken.utf16charOffset) - 1;
+        } else if (*kind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
             *kind = T_EOF_SYMBOL;
             start = pos;
         }
         // Don't complete in comments or strings, but still check for include completion
-        else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT) ||
-                 (tk.isLiteral() && (*kind != T_STRING_LITERAL
+        else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)
+                 || tk.is(T_CPP_DOXY_COMMENT) || tk.is(T_DOXY_COMMENT)
+                 || (tk.isLiteral() && (*kind != T_STRING_LITERAL
                                      && *kind != T_ANGLE_STRING_LITERAL
                                      && *kind != T_SLASH
                                      && *kind != T_DOT))) {
@@ -834,8 +1018,8 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
                 if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
                                                                                   tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
                     const Token &directiveToken = tokens.at(1);
-                    QString directive = tc.block().text().mid(directiveToken.begin(),
-                                                              directiveToken.length());
+                    QString directive = tc.block().text().mid(directiveToken.utf16charsBegin(),
+                                                              directiveToken.utf16chars());
                     if (directive == QLatin1String("include") ||
                             directive == QLatin1String("include_next") ||
                             directive == QLatin1String("import")) {
@@ -853,7 +1037,8 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
                     const QChar ch4  = start > -1 ? m_interface->characterAt(start - 1) : QChar();
                     const QChar ch5 = start >  0 ? m_interface->characterAt(start - 2) : QChar();
                     const QChar ch6 = start >  1 ? m_interface->characterAt(start - 3) : QChar();
-                    start = start - CppCompletionAssistProvider::activationSequenceChar(ch4, ch5, ch6, kind, wantFunctionCall);
+                    start = start - CppCompletionAssistProvider::activationSequenceChar(
+                                        ch4, ch5, ch6, kind, wantFunctionCall, false);
                 }
             }
         }
@@ -862,7 +1047,7 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
     return start;
 }
 
-int CppCompletionAssistProcessor::findStartOfName(int pos) const
+int InternalCppCompletionAssistProcessor::findStartOfName(int pos) const
 {
     if (pos == -1)
         pos = m_interface->position();
@@ -871,23 +1056,23 @@ int CppCompletionAssistProcessor::findStartOfName(int pos) const
     // Skip to the start of a name
     do {
         chr = m_interface->characterAt(--pos);
-    } while (chr.isLetterOrNumber() || chr == QLatin1Char('_'));
+    } while (CppTools::isValidIdentifierChar(chr));
 
     return pos + 1;
 }
 
-int CppCompletionAssistProcessor::startCompletionHelper()
+int InternalCppCompletionAssistProcessor::startCompletionHelper()
 {
-    if (m_languageFeatures.objCEnabled) {
+    if (m_interface->languageFeatures().objCEnabled) {
         if (tryObjCCompletion())
-            return m_startPosition;
+            return m_positionForProposal;
     }
 
     const int startOfName = findStartOfName();
-    m_startPosition = startOfName;
+    m_positionForProposal = startOfName;
     m_model->m_completionOperator = T_EOF_SYMBOL;
 
-    int endOfOperator = m_startPosition;
+    int endOfOperator = m_positionForProposal;
 
     // Skip whitespace preceding this position
     while (m_interface->characterAt(endOfOperator - 1).isSpace())
@@ -900,14 +1085,14 @@ int CppCompletionAssistProcessor::startCompletionHelper()
     if (m_model->m_completionOperator == T_DOXY_COMMENT) {
         for (int i = 1; i < T_DOXY_LAST_TAG; ++i)
             addCompletionItem(QString::fromLatin1(doxygenTagSpell(i)), m_icons.keywordIcon());
-        return m_startPosition;
+        return m_positionForProposal;
     }
 
     // Pre-processor completion
     if (m_model->m_completionOperator == T_POUND) {
         completePreprocessor();
-        m_startPosition = startOfName;
-        return m_startPosition;
+        m_positionForProposal = startOfName;
+        return m_positionForProposal;
     }
 
     // Include completion
@@ -918,11 +1103,11 @@ int CppCompletionAssistProcessor::startCompletionHelper()
         QTextCursor c(m_interface->textDocument());
         c.setPosition(endOfExpression);
         if (completeInclude(c))
-            m_startPosition = endOfExpression + 1;
-        return m_startPosition;
+            m_positionForProposal = endOfExpression + 1;
+        return m_positionForProposal;
     }
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
     QTextCursor tc(m_interface->textDocument());
 
     if (m_model->m_completionOperator == T_COMMA) {
@@ -934,7 +1119,7 @@ int CppCompletionAssistProcessor::startCompletionHelper()
         }
 
         endOfExpression = start;
-        m_startPosition = start + 1;
+        m_positionForProposal = start + 1;
         m_model->m_completionOperator = T_LPAREN;
     }
 
@@ -946,7 +1131,29 @@ int CppCompletionAssistProcessor::startCompletionHelper()
         expression = expressionUnderCursor(tc);
         startOfExpression = endOfExpression - expression.length();
 
-        if (m_model->m_completionOperator == T_LPAREN) {
+        if (m_model->m_completionOperator == T_AMPER) {
+            // We expect 'expression' to be either "sender" or "receiver" in
+            //  "connect(sender, &" or
+            //  "connect(otherSender, &Foo::signal1, receiver, &"
+            const int beforeExpression = startOfExpression - 1;
+            if (canCompleteClassNameAt2ndOr4thConnectArgument(m_interface.data(),
+                                                              beforeExpression)) {
+                m_model->m_completionOperator = CompleteQt5SignalOrSlotClassNameTrigger;
+            } else { // Ensure global completion
+                startOfExpression = endOfExpression = m_positionForProposal;
+                expression.clear();
+                m_model->m_completionOperator = T_EOF_SYMBOL;
+            }
+        } else if (m_model->m_completionOperator == T_COLON_COLON) {
+            // We expect 'expression' to be "Foo" in
+            //  "connect(sender, &Foo::" or
+            //  "connect(sender, &Bar::signal1, receiver, &Foo::"
+            const int beforeExpression = startOfExpression - 1;
+            if (canCompleteConnectSignalAt2ndArgument(m_interface.data(), beforeExpression))
+                m_model->m_completionOperator = CompleteQt5SignalTrigger;
+            else if (canCompleteConnectSignalAt4thArgument(m_interface.data(), beforeExpression))
+                m_model->m_completionOperator = CompleteQt5SlotTrigger;
+        } else if (m_model->m_completionOperator == T_LPAREN) {
             if (expression.endsWith(QLatin1String("SIGNAL"))) {
                 m_model->m_completionOperator = T_SIGNAL;
             } else if (expression.endsWith(QLatin1String("SLOT"))) {
@@ -955,7 +1162,7 @@ int CppCompletionAssistProcessor::startCompletionHelper()
                 // We don't want a function completion when the cursor isn't at the opening brace
                 expression.clear();
                 m_model->m_completionOperator = T_EOF_SYMBOL;
-                m_startPosition = startOfName;
+                m_positionForProposal = startOfName;
                 startOfExpression = m_interface->position();
             }
         }
@@ -970,7 +1177,7 @@ int CppCompletionAssistProcessor::startCompletionHelper()
     return startCompletionInternal(fileName, line, column, expression, endOfExpression);
 }
 
-bool CppCompletionAssistProcessor::tryObjCCompletion()
+bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
 {
     int end = m_interface->position();
     while (m_interface->characterAt(end).isSpace())
@@ -980,7 +1187,7 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
 
     QTextCursor tc(m_interface->textDocument());
     tc.setPosition(end);
-    BackwardsScanner tokens(tc);
+    BackwardsScanner tokens(tc, m_interface->languageFeatures());
     if (tokens[tokens.startToken() - 1].isNot(T_RBRACKET))
         return false;
 
@@ -988,7 +1195,7 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
     if (start == tokens.startToken())
         return false;
 
-    const int startPos = tokens[start].begin() + tokens.startPosition();
+    const int startPos = tokens[start].bytesBegin() + tokens.startPosition();
     const QString expr = m_interface->textAt(startPos, m_interface->position() - startPos);
 
     Document::Ptr thisDocument = m_interface->snapshot().document(m_interface->fileName());
@@ -1026,7 +1233,7 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
     if (m_completions.isEmpty())
         return false;
 
-    m_startPosition = m_interface->position();
+    m_positionForProposal = m_interface->position();
     return true;
 }
 
@@ -1042,12 +1249,12 @@ enum CompletionOrder {
 };
 }
 
-void CppCompletionAssistProcessor::addCompletionItem(const QString &text,
-                                                     const QIcon &icon,
-                                                     int order,
-                                                     const QVariant &data)
+void InternalCppCompletionAssistProcessor::addCompletionItem(const QString &text,
+                                                             const QIcon &icon,
+                                                             int order,
+                                                             const QVariant &data)
 {
-    BasicProposalItem *item = new CppAssistProposalItem;
+    AssistProposalItem *item = new CppAssistProposalItem;
     item->setText(text);
     item->setIcon(icon);
     item->setOrder(order);
@@ -1055,11 +1262,10 @@ void CppCompletionAssistProcessor::addCompletionItem(const QString &text,
     m_completions.append(item);
 }
 
-void CppCompletionAssistProcessor::addCompletionItem(CPlusPlus::Symbol *symbol,
-                                                     int order)
+void InternalCppCompletionAssistProcessor::addCompletionItem(Symbol *symbol, int order)
 {
     ConvertToCompletionItem toCompletionItem;
-    BasicProposalItem *item = toCompletionItem(symbol);
+    AssistProposalItem *item = toCompletionItem(symbol);
     if (item) {
         item->setIcon(m_icons.iconForSymbol(symbol));
         item->setOrder(order);
@@ -1067,8 +1273,8 @@ void CppCompletionAssistProcessor::addCompletionItem(CPlusPlus::Symbol *symbol,
     }
 }
 
-void CppCompletionAssistProcessor::completeObjCMsgSend(CPlusPlus::ClassOrNamespace *binding,
-                                                       bool staticClassAccess)
+void InternalCppCompletionAssistProcessor::completeObjCMsgSend(ClassOrNamespace *binding,
+                                                               bool staticClassAccess)
 {
     QList<Scope*> memberScopes;
     foreach (Symbol *s, binding->symbols()) {
@@ -1094,12 +1300,12 @@ void CppCompletionAssistProcessor::completeObjCMsgSend(CPlusPlus::ClassOrNamespa
                             Symbol *arg = method->argumentAt(i);
                             text += QString::fromUtf8(selectorName->nameAt(i)->identifier()->chars());
                             text += QLatin1Char(':');
-                            text += TextEditor::Snippet::kVariableDelimiter;
+                            text += Snippet::kVariableDelimiter;
                             text += QLatin1Char('(');
                             text += oo.prettyType(arg->type());
                             text += QLatin1Char(')');
                             text += oo.prettyName(arg->name());
-                            text += TextEditor::Snippet::kVariableDelimiter;
+                            text += Snippet::kVariableDelimiter;
                         }
                     } else {
                         text = QString::fromUtf8(selectorName->identifier()->chars());
@@ -1114,7 +1320,7 @@ void CppCompletionAssistProcessor::completeObjCMsgSend(CPlusPlus::ClassOrNamespa
     }
 }
 
-bool CppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
+bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
 {
     QString directoryPrefix;
     if (m_model->m_completionOperator == T_SLASH) {
@@ -1133,30 +1339,22 @@ bool CppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     }
 
     // Make completion for all relevant includes
-    QStringList includePaths = m_interface->includePaths();
-    const QString &currentFilePath = QFileInfo(m_interface->fileName()).path();
-    if (!includePaths.contains(currentFilePath))
-        includePaths.append(currentFilePath);
+    ProjectPart::HeaderPaths headerPaths = m_interface->headerPaths();
+    const ProjectPart::HeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
+                                                   ProjectPart::HeaderPath::IncludePath);
+    if (!headerPaths.contains(currentFilePath))
+        headerPaths.append(currentFilePath);
 
-    const Core::MimeType mimeType =
-            Core::MimeDatabase::findByType(QLatin1String("text/x-c++hdr"));
-    const QStringList suffixes = mimeType.suffixes();
+    Utils::MimeDatabase mdb;
+    const QStringList suffixes = mdb.mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
 
-    foreach (const QString &includePath, includePaths) {
-        QString realPath = includePath;
+    foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+        QString realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');
             realPath += directoryPrefix;
-        }
-        completeInclude(realPath, suffixes);
-    }
-
-    foreach (const QString &frameworkPath, m_interface->frameworkPaths()) {
-        QString realPath = frameworkPath;
-        if (!directoryPrefix.isEmpty()) {
-            realPath += QLatin1Char('/');
-            realPath += directoryPrefix;
-            realPath += QLatin1String(".framework/Headers");
+            if (headerPath.isFrameworkPath())
+                realPath += QLatin1String(".framework/Headers");
         }
         completeInclude(realPath, suffixes);
     }
@@ -1164,8 +1362,8 @@ bool CppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     return !m_completions.isEmpty();
 }
 
-void CppCompletionAssistProcessor::completeInclude(const QString &realPath,
-                                                   const QStringList &suffixes)
+void InternalCppCompletionAssistProcessor::completeInclude(const QString &realPath,
+                                                           const QStringList &suffixes)
 {
     QDirIterator i(realPath, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     while (i.hasNext()) {
@@ -1181,31 +1379,32 @@ void CppCompletionAssistProcessor::completeInclude(const QString &realPath,
     }
 }
 
-void CppCompletionAssistProcessor::completePreprocessor()
+void InternalCppCompletionAssistProcessor::completePreprocessor()
 {
-    foreach (const QString &preprocessorCompletion, preprocessorCompletions)
+    foreach (const QString &preprocessorCompletion, m_preprocessorCompletions)
         addCompletionItem(preprocessorCompletion);
 
     if (objcKeywordsWanted())
         addCompletionItem(QLatin1String("import"));
 }
 
-bool CppCompletionAssistProcessor::objcKeywordsWanted() const
+bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
 {
-    if (!m_languageFeatures.objCEnabled)
+    if (!m_interface->languageFeatures().objCEnabled)
         return false;
 
     const QString fileName = m_interface->fileName();
 
-    const QString mt = Core::MimeDatabase::findByFile(fileName).type();
-    return mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-            || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mt = mdb.mimeTypeForFile(fileName);
+    return mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))
+            || mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
 
-int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName,
-                                                          unsigned line, unsigned column,
-                                                          const QString &expr,
-                                                          int endOfExpression)
+int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString &fileName,
+                                                                  unsigned line, unsigned column,
+                                                                  const QString &expr,
+                                                                  int endOfExpression)
 {
     QString expression = expr.trimmed();
 
@@ -1221,10 +1420,7 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
     if (expression.isEmpty()) {
         if (m_model->m_completionOperator == T_EOF_SYMBOL || m_model->m_completionOperator == T_COLON_COLON) {
             (void) (*m_model->m_typeOfExpression)(expression.toUtf8(), scope);
-            globalCompletion(scope);
-            if (m_completions.isEmpty())
-                return -1;
-            return m_startPosition;
+            return globalCompletion(scope) ? m_positionForProposal : -1;
         }
 
         if (m_model->m_completionOperator == T_SIGNAL || m_model->m_completionOperator == T_SLOT) {
@@ -1257,7 +1453,7 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
             QTextCursor tc(m_interface->textDocument());
             tc.setPosition(index);
 
-            ExpressionUnderCursor expressionUnderCursor;
+            ExpressionUnderCursor expressionUnderCursor(m_interface->languageFeatures());
             const QString baseExpression = expressionUnderCursor(tc);
 
             // Resolve the type of this expression
@@ -1269,45 +1465,64 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
             foreach (const LookupItem &result, results) {
                 if (result.type()->isClassType()) {
                     if (completeConstructorOrFunction(results, endOfExpression, true))
-                        return m_startPosition;
+                        return m_positionForProposal;
 
                     break;
                 }
             }
             return -1;
 
-        } else {
-            // nothing to do.
-            return -1;
+        } else if (m_model->m_completionOperator == CompleteQt5SignalOrSlotClassNameTrigger) {
+            // Fallback to global completion if we could not lookup sender/receiver object.
+            return globalCompletion(scope) ? m_positionForProposal : -1;
 
+        } else {
+            return -1; // nothing to do.
         }
     }
 
     switch (m_model->m_completionOperator) {
     case T_LPAREN:
         if (completeConstructorOrFunction(results, endOfExpression, false))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     case T_DOT:
     case T_ARROW:
         if (completeMember(results))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     case T_COLON_COLON:
         if (completeScope(results))
-            return m_startPosition;
+            return m_positionForProposal;
         break;
 
     case T_SIGNAL:
-        if (completeSignal(results))
-            return m_startPosition;
+        if (completeQtMethod(results, CompleteQt4Signals))
+            return m_positionForProposal;
         break;
 
     case T_SLOT:
-        if (completeSlot(results))
-            return m_startPosition;
+        if (completeQtMethod(results, CompleteQt4Slots))
+            return m_positionForProposal;
+        break;
+
+    case CompleteQt5SignalOrSlotClassNameTrigger:
+        if (completeQtMethodClassName(results, scope) || globalCompletion(scope))
+            return m_positionForProposal;
+        break;
+
+    case CompleteQt5SignalTrigger:
+        // Fallback to scope completion if "X::" is a namespace and not a class.
+        if (completeQtMethod(results, CompleteQt5Signals) || completeScope(results))
+            return m_positionForProposal;
+        break;
+
+    case CompleteQt5SlotTrigger:
+        // Fallback to scope completion if "X::" is a namespace and not a class.
+        if (completeQtMethod(results, CompleteQt5Slots) || completeScope(results))
+            return m_positionForProposal;
         break;
 
     default:
@@ -1318,13 +1533,13 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
     return -1;
 }
 
-void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentScope)
+bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
 {
     const LookupContext &context = m_model->m_typeOfExpression->context();
 
     if (m_model->m_completionOperator == T_COLON_COLON) {
         completeNamespace(context.globalNamespace());
-        return;
+        return !m_completions.isEmpty();
     }
 
     QList<ClassOrNamespace *> usingBindings;
@@ -1344,6 +1559,11 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
                     if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
                         if (ClassOrNamespace *b = binding->lookupType(u->name()))
                             usingBindings.append(b);
+                    } else if (Class *c = member->asClass()) {
+                        if (c->name()->isAnonymousNameId()) {
+                            if (ClassOrNamespace *b = binding->findBlock(block))
+                                completeClass(b);
+                        }
                     }
                 }
             }
@@ -1385,12 +1605,13 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
         completeNamespace(b);
 
     addKeywords();
-    addMacros(CppModelManagerInterface::configurationFileName(), context.snapshot());
+    addMacros(CppModelManager::configurationFileName(), context.snapshot());
     addMacros(context.thisDocument()->fileName(), context.snapshot());
     addSnippets();
+    return !m_completions.isEmpty();
 }
 
-bool CppCompletionAssistProcessor::completeMember(const QList<CPlusPlus::LookupItem> &baseResults)
+bool InternalCppCompletionAssistProcessor::completeMember(const QList<LookupItem> &baseResults)
 {
     const LookupContext &context = m_model->m_typeOfExpression->context();
 
@@ -1399,10 +1620,14 @@ bool CppCompletionAssistProcessor::completeMember(const QList<CPlusPlus::LookupI
 
     ResolveExpression resolveExpression(context);
 
+    bool *replaceDotForArrow = 0;
+    if (!m_interface->languageFeatures().objCEnabled)
+        replaceDotForArrow = &m_model->m_replaceDotForArrow;
+
     if (ClassOrNamespace *binding =
             resolveExpression.baseExpression(baseResults,
                                              m_model->m_completionOperator,
-                                             &m_model->m_replaceDotForArrow)) {
+                                             replaceDotForArrow)) {
         if (binding)
             completeClass(binding, /*static lookup = */ true);
 
@@ -1412,7 +1637,7 @@ bool CppCompletionAssistProcessor::completeMember(const QList<CPlusPlus::LookupI
     return false;
 }
 
-bool CppCompletionAssistProcessor::completeScope(const QList<CPlusPlus::LookupItem> &results)
+bool InternalCppCompletionAssistProcessor::completeScope(const QList<LookupItem> &results)
 {
     const LookupContext &context = m_model->m_typeOfExpression->context();
     if (results.isEmpty())
@@ -1479,7 +1704,7 @@ bool CppCompletionAssistProcessor::completeScope(const QList<CPlusPlus::LookupIt
     return !m_completions.isEmpty();
 }
 
-void CppCompletionAssistProcessor::completeNamespace(CPlusPlus::ClassOrNamespace *b)
+void InternalCppCompletionAssistProcessor::completeNamespace(ClassOrNamespace *b)
 {
     QSet<ClassOrNamespace *> bindingsVisited;
     QList<ClassOrNamespace *> bindingsToVisit;
@@ -1511,7 +1736,7 @@ void CppCompletionAssistProcessor::completeNamespace(CPlusPlus::ClassOrNamespace
 
             scopesVisited.insert(scope);
 
-            for (Scope::iterator it = scope->firstMember(); it != scope->lastMember(); ++it) {
+            for (Scope::iterator it = scope->memberBegin(); it != scope->memberEnd(); ++it) {
                 Symbol *member = *it;
                 addCompletionItem(member);
             }
@@ -1519,7 +1744,7 @@ void CppCompletionAssistProcessor::completeNamespace(CPlusPlus::ClassOrNamespace
     }
 }
 
-void CppCompletionAssistProcessor::completeClass(CPlusPlus::ClassOrNamespace *b, bool staticLookup)
+void InternalCppCompletionAssistProcessor::completeClass(ClassOrNamespace *b, bool staticLookup)
 {
     QSet<ClassOrNamespace *> bindingsVisited;
     QList<ClassOrNamespace *> bindingsToVisit;
@@ -1539,6 +1764,8 @@ void CppCompletionAssistProcessor::completeClass(CPlusPlus::ClassOrNamespace *b,
         foreach (Symbol *bb, binding->symbols()) {
             if (Class *k = bb->asClass())
                 scopesToVisit.append(k);
+            else if (Block *b = bb->asBlock())
+                scopesToVisit.append(b);
         }
 
         foreach (Enum *e, binding->unscopedEnums())
@@ -1554,28 +1781,49 @@ void CppCompletionAssistProcessor::completeClass(CPlusPlus::ClassOrNamespace *b,
             if (staticLookup)
                 addCompletionItem(scope, InjectedClassNameOrder); // add a completion item for the injected class name.
 
-            for (Scope::iterator it = scope->firstMember(); it != scope->lastMember(); ++it) {
-                Symbol *member = *it;
-                if (member->isFriend()
-                        || member->isQtPropertyDeclaration()
-                        || member->isQtEnum()) {
-                    continue;
-                } else if (!staticLookup && (member->isTypedef() ||
-                                            member->isEnum()    ||
-                                            member->isClass())) {
-                    continue;
-                }
-
-                if (member->isPublic())
-                    addCompletionItem(member, PublicClassMemberOrder);
-                else
-                    addCompletionItem(member);
-            }
+            addClassMembersToCompletion(scope, staticLookup);
         }
     }
 }
 
-bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::LookupItem> &results, bool wantSignals)
+void InternalCppCompletionAssistProcessor::addClassMembersToCompletion(Scope *scope,
+                                                                       bool staticLookup)
+{
+    if (!scope)
+        return;
+
+    std::set<Class *> nestedAnonymouses;
+
+    for (Scope::iterator it = scope->memberBegin(); it != scope->memberEnd(); ++it) {
+        Symbol *member = *it;
+        if (member->isFriend()
+                || member->isQtPropertyDeclaration()
+                || member->isQtEnum()) {
+            continue;
+        } else if (!staticLookup && (member->isTypedef() ||
+                                    member->isEnum()    ||
+                                    member->isClass())) {
+            continue;
+        } else if (member->isClass() && member->name()->isAnonymousNameId()) {
+            nestedAnonymouses.insert(member->asClass());
+        } else if (member->isDeclaration()) {
+            Class *declTypeAsClass = member->asDeclaration()->type()->asClassType();
+            if (declTypeAsClass && declTypeAsClass->name()->isAnonymousNameId())
+                nestedAnonymouses.erase(declTypeAsClass);
+        }
+
+        if (member->isPublic())
+            addCompletionItem(member, PublicClassMemberOrder);
+        else
+            addCompletionItem(member);
+    }
+    std::set<Class *>::const_iterator citEnd = nestedAnonymouses.end();
+    for (std::set<Class *>::const_iterator cit = nestedAnonymouses.begin(); cit != citEnd; ++cit)
+        addClassMembersToCompletion(*cit, staticLookup);
+}
+
+bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupItem> &results,
+                                                            CompleteQtMethodMode type)
 {
     if (results.isEmpty())
         return false;
@@ -1589,19 +1837,8 @@ bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::Looku
     o.showFunctionSignatures = true;
 
     QSet<QString> signatures;
-    foreach (const LookupItem &p, results) {
-        FullySpecifiedType ty = p.type().simplified();
-
-        if (PointerType *ptrTy = ty->asPointerType())
-            ty = ptrTy->elementType().simplified();
-        else
-            continue; // not a pointer or a reference to a pointer.
-
-        NamedType *namedTy = ty->asNamedType();
-        if (!namedTy) // not a class name.
-            continue;
-
-        ClassOrNamespace *b = context.lookupType(namedTy->name(), p.scope());
+    foreach (const LookupItem &lookupItem, results) {
+        ClassOrNamespace *b = classOrNamespaceFromLookupItem(lookupItem, context);
         if (!b)
             continue;
 
@@ -1622,46 +1859,38 @@ bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::Looku
             }
         }
 
+        const bool wantSignals = type == CompleteQt4Signals || type == CompleteQt5Signals;
+        const bool wantQt5SignalOrSlot = type == CompleteQt5Signals || type == CompleteQt5Slots;
         foreach (Scope *scope, scopes) {
-            if (!scope->isClass())
+            Class *klass = scope->asClass();
+            if (!klass)
                 continue;
 
             for (unsigned i = 0; i < scope->memberCount(); ++i) {
                 Symbol *member = scope->memberAt(i);
                 Function *fun = member->type()->asFunctionType();
-                if (!fun)
+                if (!fun || fun->isGenerated())
                     continue;
                 if (wantSignals && !fun->isSignal())
                     continue;
-                else if (!wantSignals && !fun->isSlot())
+                else if (!wantSignals && type == CompleteQt4Slots && !fun->isSlot())
                     continue;
 
                 unsigned count = fun->argumentCount();
                 while (true) {
-                    QString signature;
-                    signature += Overview().prettyName(fun->name());
-                    signature += QLatin1Char('(');
-                    for (unsigned i = 0; i < count; ++i) {
-                        Symbol *arg = fun->argumentAt(i);
-                        if (isQPrivateSignal(arg))
-                            continue;
-                        if (i != 0)
-                            signature += QLatin1Char(',');
-                        signature += o.prettyType(arg->type());
-                    }
-                    signature += QLatin1Char(')');
+                    const QString completionText = wantQt5SignalOrSlot
+                            ? createQt5SignalOrSlot(fun, o)
+                            : createQt4SignalOrSlot(fun, o);
 
-                    const QByteArray normalized =
-                            QMetaObject::normalizedSignature(signature.toLatin1());
-
-                    signature = QString::fromLatin1(normalized, normalized.size());
-
-                    if (!signatures.contains(signature)) {
-                        BasicProposalItem *ci = toCompletionItem(fun);
+                    if (!signatures.contains(completionText)) {
+                        AssistProposalItem *ci = toCompletionItem(fun);
                         if (!ci)
                             break;
-                        signatures.insert(signature);
-                        ci->setText(signature); // fix the completion item.
+                        signatures.insert(completionText);
+                        ci->setText(completionText); // fix the completion item.
+                        ci->setIcon(m_icons.iconForSymbol(fun));
+                        if (wantQt5SignalOrSlot && fun->isSlot())
+                            ci->setOrder(1);
                         m_completions.append(ci);
                     }
 
@@ -1677,12 +1906,33 @@ bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::Looku
     return !m_completions.isEmpty();
 }
 
-void CppCompletionAssistProcessor::addSnippets()
+bool InternalCppCompletionAssistProcessor::completeQtMethodClassName(
+        const QList<LookupItem> &results, Scope *cursorScope)
 {
-    m_completions.append(m_snippetCollector.collect());
+    QTC_ASSERT(cursorScope, return false);
+
+    if (results.isEmpty())
+        return false;
+
+    const LookupContext &context = m_model->m_typeOfExpression->context();
+    const QIcon classIcon = m_icons.iconForType(Icons::ClassIconType);
+    Overview overview;
+
+    foreach (const LookupItem &lookupItem, results) {
+        Class *klass = classFromLookupItem(lookupItem, context);
+        if (!klass)
+            continue;
+        const Name *name = minimalName(klass, cursorScope, context);
+        QTC_ASSERT(name, continue);
+
+        addCompletionItem(overview.prettyName(name), classIcon);
+        break;
+    }
+
+    return !m_completions.isEmpty();
 }
 
-void CppCompletionAssistProcessor::addKeywords()
+void InternalCppCompletionAssistProcessor::addKeywords()
 {
     int keywordLimit = T_FIRST_OBJC_AT_KEYWORD;
     if (objcKeywordsWanted())
@@ -1691,9 +1941,20 @@ void CppCompletionAssistProcessor::addKeywords()
     // keyword completion items.
     for (int i = T_FIRST_KEYWORD; i < keywordLimit; ++i)
         addCompletionItem(QLatin1String(Token::name(i)), m_icons.keywordIcon(), KeywordsOrder);
+
+    // primitive type completion items.
+    for (int i = T_FIRST_PRIMITIVE; i <= T_LAST_PRIMITIVE; ++i)
+        addCompletionItem(QLatin1String(Token::name(i)), m_icons.keywordIcon(), KeywordsOrder);
+
+    // "Identifiers with special meaning"
+    if (m_interface->languageFeatures().cxx11Enabled) {
+        addCompletionItem(QLatin1String("override"), m_icons.keywordIcon(), KeywordsOrder);
+        addCompletionItem(QLatin1String("final"), m_icons.keywordIcon(), KeywordsOrder);
+    }
 }
 
-void CppCompletionAssistProcessor::addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot)
+void InternalCppCompletionAssistProcessor::addMacros(const QString &fileName,
+                                                     const Snapshot &snapshot)
 {
     QSet<QString> processed;
     QSet<QString> definedMacros;
@@ -1704,7 +1965,7 @@ void CppCompletionAssistProcessor::addMacros(const QString &fileName, const CPlu
         addCompletionItem(macroName, m_icons.macroIcon(), MacrosOrder);
 }
 
-void CppCompletionAssistProcessor::addMacros_helper(const CPlusPlus::Snapshot &snapshot,
+void InternalCppCompletionAssistProcessor::addMacros_helper(const Snapshot &snapshot,
                                                     const QString &fileName,
                                                     QSet<QString> *processed,
                                                     QSet<QString> *definedMacros)
@@ -1720,7 +1981,7 @@ void CppCompletionAssistProcessor::addMacros_helper(const CPlusPlus::Snapshot &s
         addMacros_helper(snapshot, i.resolvedFileName(), processed, definedMacros);
 
     foreach (const Macro &macro, doc->definedMacros()) {
-        const QString macroName = QString::fromUtf8(macro.name().constData(), macro.name().length());
+        const QString macroName = macro.nameToQString();
         if (!macro.isHidden())
             definedMacros->insert(macroName);
         else
@@ -1728,9 +1989,9 @@ void CppCompletionAssistProcessor::addMacros_helper(const CPlusPlus::Snapshot &s
     }
 }
 
-bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPlusPlus::LookupItem> &results,
-                                                                 int endOfExpression,
-                                                                 bool toolTipOnly)
+bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const QList<LookupItem> &results,
+                                                                         int endOfExpression,
+                                                                         bool toolTipOnly)
 {
     const LookupContext &context = m_model->m_typeOfExpression->context();
     QList<Function *> functions;
@@ -1754,7 +2015,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                     continue; // skip
 
                 if (Function *funTy = member->type()->asFunctionType()) {
-                    if (memberName->isEqualTo(className)) {
+                    if (memberName->match(className)) {
                         // it's a ctor.
                         functions.append(funTy);
                     }
@@ -1782,7 +2043,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                 bool newOverload = true;
 
                 foreach (Function *f, functions) {
-                    if (fun->isEqualTo(f)) {
+                    if (fun->match(f)) {
                         newOverload = false;
                         break;
                     }
@@ -1846,7 +2107,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
 
             QTextCursor tc(m_interface->textDocument());
             tc.setPosition(endOfExpression);
-            BackwardsScanner bs(tc);
+            BackwardsScanner bs(tc, m_interface->languageFeatures());
             const int startToken = bs.startToken();
             int lineStartToken = bs.startOfLine(startToken);
             // make sure the required tokens are actually available
@@ -1854,12 +2115,11 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
             QString possibleDecl = bs.mid(lineStartToken).trimmed().append(QLatin1String("();"));
 
             Document::Ptr doc = Document::create(QLatin1String("<completion>"));
-            doc->setUtf8Source(possibleDecl.toLatin1());
+            doc->setUtf8Source(possibleDecl.toUtf8());
             if (doc->parse(Document::ParseDeclaration)) {
                 doc->check();
                 if (SimpleDeclarationAST *sd = doc->translationUnit()->ast()->asSimpleDeclaration()) {
-                    if (sd->declarator_list &&
-                        sd->declarator_list && sd->declarator_list->value->postfix_declarator_list
+                    if (sd->declarator_list && sd->declarator_list->value->postfix_declarator_list
                         && sd->declarator_list->value->postfix_declarator_list->value->asFunctionDeclarator()) {
 
                         autocompleteSignature = true;
@@ -1901,7 +2161,9 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                     const FullySpecifiedType localTy = rewriteType(f->type(), &env, control);
 
                     // gets: "parameter list) cv-spec",
-                    QString completion = overview.prettyType(localTy).mid(1);
+                    const QString completion = overview.prettyType(localTy).mid(1);
+                    if (completion == QLatin1String(")"))
+                        continue;
 
                     addCompletionItem(completion, QIcon(), 0,
                                       QVariant::fromValue(CompleteFunctionDeclaration(f)));
@@ -1925,13 +2187,9 @@ void CppCompletionAssistInterface::getCppSpecifics() const
         return;
     m_gotCppSpecifics = true;
 
-    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-    if (CppEditorSupport *supp = modelManager->cppEditorSupport(m_editor)) {
-        if (QSharedPointer<SnapshotUpdater> updater = supp->snapshotUpdater()) {
-            updater->update(modelManager->workingCopy());
-            m_snapshot = updater->snapshot();
-            m_includePaths = updater->includePaths();
-            m_frameworkPaths = updater->frameworkPaths();
-        }
+    if (m_parser) {
+        m_parser->update(BuiltinEditorDocumentParser::InMemoryInfo(false));
+        m_snapshot = m_parser->snapshot();
+        m_headerPaths = m_parser->headerPaths();
     }
 }

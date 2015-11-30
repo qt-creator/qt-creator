@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -50,7 +51,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
 /*!
     \class ProjectExplorer::ProcessHandle
@@ -114,13 +115,12 @@ ISettingsAspect *ISettingsAspect::clone() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-IRunConfigurationAspect::IRunConfigurationAspect(RunConfiguration *parent)
+IRunConfigurationAspect::IRunConfigurationAspect(RunConfiguration *runConfig)
 {
-    m_runConfiguration = parent;
+    m_runConfiguration = runConfig;
     m_projectSettings = 0;
     m_globalSettings = 0;
     m_useGlobalSettings = false;
-    connect(this, SIGNAL(requestRunActionsUpdate()), parent, SIGNAL(requestRunActionsUpdate()));
 }
 
 IRunConfigurationAspect::~IRunConfigurationAspect()
@@ -170,9 +170,9 @@ void IRunConfigurationAspect::toMap(QVariantMap &map) const
     map.insert(m_id.toString() + QLatin1String(".UseGlobalSettings"), m_useGlobalSettings);
 }
 
-IRunConfigurationAspect *IRunConfigurationAspect::clone(RunConfiguration *parent) const
+IRunConfigurationAspect *IRunConfigurationAspect::clone(RunConfiguration *runConfig) const
 {
-    IRunConfigurationAspect *other = create(parent);
+    IRunConfigurationAspect *other = create(runConfig);
     if (m_projectSettings)
         other->m_projectSettings = m_projectSettings->clone();
     other->m_globalSettings = m_globalSettings;
@@ -207,7 +207,7 @@ void IRunConfigurationAspect::resetProjectToGlobalSettings()
     for a target, but still be runnable via the output tab.
 */
 
-RunConfiguration::RunConfiguration(Target *target, const Core::Id id) :
+RunConfiguration::RunConfiguration(Target *target, Core::Id id) :
     ProjectConfiguration(target, id),
     m_aspectsInitialized(false)
 {
@@ -252,6 +252,14 @@ void RunConfiguration::addExtraAspect(IRunConfigurationAspect *aspect)
 void RunConfiguration::ctor()
 {
     connect(this, SIGNAL(enabledChanged()), this, SIGNAL(requestRunActionsUpdate()));
+
+    Utils::MacroExpander *expander = macroExpander();
+    expander->setDisplayName(tr("Run Settings"));
+    expander->setAccumulating(true);
+    expander->registerSubProvider([this]() -> Utils::MacroExpander * {
+        BuildConfiguration *bc = target()->activeBuildConfiguration();
+        return bc ? bc->macroExpander() : target()->macroExpander();
+    });
 }
 
 /*!
@@ -273,13 +281,13 @@ bool RunConfiguration::isConfigured() const
     return true;
 }
 
-bool RunConfiguration::ensureConfigured(QString *errorMessage)
+RunConfiguration::ConfigurationState RunConfiguration::ensureConfigured(QString *errorMessage)
 {
     if (isConfigured())
-        return true;
+        return Configured;
     if (errorMessage)
         *errorMessage = tr("Unknown error.");
-    return false;
+    return UnConfigured;
 }
 
 
@@ -305,12 +313,12 @@ QVariantMap RunConfiguration::toMap() const
     return map;
 }
 
-ProjectExplorer::Abi RunConfiguration::abi() const
+Abi RunConfiguration::abi() const
 {
     BuildConfiguration *bc = target()->activeBuildConfiguration();
     if (!bc)
         return Abi::hostAbi();
-    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     if (!tc)
         return Abi::hostAbi();
     return tc->targetAbi();
@@ -391,7 +399,7 @@ Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
 */
 
 /*!
-    \fn QString ProjectExplorer::IRunConfigurationFactory::displayNameForId(const Core::Id id) const
+    \fn QString ProjectExplorer::IRunConfigurationFactory::displayNameForId(Core::Id id) const
     Translates the types to names to display to the user.
 */
 
@@ -404,7 +412,7 @@ IRunConfigurationFactory::~IRunConfigurationFactory()
 {
 }
 
-RunConfiguration *IRunConfigurationFactory::create(Target *parent, const Core::Id id)
+RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -429,36 +437,26 @@ RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVaria
 
 IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
-    QList<IRunConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
-    foreach (IRunConfigurationFactory *factory, factories) {
-        if (factory->canRestore(parent, map))
-            return factory;
-    }
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<IRunConfigurationFactory>(
+        [&parent, &map](IRunConfigurationFactory *factory) {
+            return factory->canRestore(parent, map);
+        });
 }
 
 IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, RunConfiguration *rc)
 {
-    QList<IRunConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
-    foreach (IRunConfigurationFactory *factory, factories) {
-        if (factory->canClone(parent, rc))
-            return factory;
-    }
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<IRunConfigurationFactory>(
+        [&parent, rc](IRunConfigurationFactory *factory) {
+            return factory->canClone(parent, rc);
+        });
 }
 
 QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 {
-    QList<IRunConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
-    QList<IRunConfigurationFactory *> result;
-    foreach (IRunConfigurationFactory *factory, factories) {
-        if (!factory->availableCreationIds(parent).isEmpty())
-            result << factory;
-    }
-    return result;
+    return ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>(
+        [&parent](IRunConfigurationFactory *factory) {
+            return !factory->availableCreationIds(parent).isEmpty();
+        });
 }
 
 /*!
@@ -517,13 +515,17 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunCon
     than it needs to be.
 */
 
-RunControl::RunControl(RunConfiguration *runConfiguration, RunMode mode)
+RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode)
     : m_runMode(mode), m_runConfiguration(runConfiguration), m_outputFormatter(0)
 {
     if (runConfiguration) {
         m_displayName  = runConfiguration->displayName();
         m_outputFormatter = runConfiguration->createOutputFormatter();
+
+        if (runConfiguration->target())
+            m_project = m_runConfiguration->target()->project();
     }
+
     // We need to ensure that there's always a OutputFormatter
     if (!m_outputFormatter)
         m_outputFormatter = new Utils::OutputFormatter();
@@ -539,7 +541,7 @@ Utils::OutputFormatter *RunControl::outputFormatter()
     return m_outputFormatter;
 }
 
-RunMode RunControl::runMode() const
+Core::Id RunControl::runMode() const
 {
     return m_runMode;
 }
@@ -547,6 +549,16 @@ RunMode RunControl::runMode() const
 QString RunControl::displayName() const
 {
     return m_displayName;
+}
+
+void RunControl::setIcon(const Utils::Icon &icon)
+{
+    m_icon = icon;
+}
+
+Utils::Icon RunControl::icon() const
+{
+    return m_icon;
 }
 
 Abi RunControl::abi() const
@@ -559,6 +571,11 @@ Abi RunControl::abi() const
 RunConfiguration *RunControl::runConfiguration() const
 {
     return m_runConfiguration.data();
+}
+
+Project *RunControl::project() const
+{
+    return m_project.data();
 }
 
 ProcessHandle RunControl::applicationProcessHandle() const
@@ -665,3 +682,5 @@ void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
 {
     emit appendMessage(this, msg, format);
 }
+
+} // namespace ProjectExplorer

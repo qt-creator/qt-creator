@@ -4,12 +4,17 @@ include(../../qtcreatorplugin.pri)
 
 HEADERS += \
     abstracteditorsupport.h \
+    baseeditordocumentparser.h \
+    baseeditordocumentprocessor.h \
+    builtineditordocumentparser.h \
+    builtineditordocumentprocessor.h \
     builtinindexingsupport.h \
     commentssettings.h \
     completionsettingspage.h \
     cppchecksymbols.h \
     cppclassesfilter.h \
     cppcodeformatter.h \
+    cppcodemodelinspectordumper.h \
     cppcodemodelsettings.h \
     cppcodemodelsettingspage.h \
     cppcodestylepreferences.h \
@@ -17,52 +22,65 @@ HEADERS += \
     cppcodestylesettings.h \
     cppcodestylesettingspage.h \
     cppcompletionassist.h \
+    cppcompletionassistprocessor.h \
     cppcompletionassistprovider.h \
     cppcurrentdocumentfilter.h \
+    cppeditoroutline.h \
     cppdoxygen.h \
+    cppfileiterationorder.h \
     cppfilesettingspage.h \
     cppfindreferences.h \
     cppfunctionsfilter.h \
-    cpphighlightingsupport.h \
-    cpphighlightingsupportinternal.h \
+    cppincludesfilter.h \
     cppindexingsupport.h \
     cpplocalsymbols.h \
     cpplocatordata.h \
     cpplocatorfilter.h \
     cppmodelmanager.h \
-    cppmodelmanagerinterface.h \
     cppmodelmanagersupport.h \
     cppmodelmanagersupportinternal.h \
     cpppointerdeclarationformatter.h \
-    cpppreprocessor.h \
     cppprojectfile.h \
+    cppprojects.h \
     cppqtstyleindenter.h \
     cpprefactoringchanges.h \
     cppsemanticinfo.h \
-    cppsnapshotupdater.h \
+    cppsemanticinfoupdater.h \
+    cppsourceprocessor.h \
     cpptools_global.h \
     cpptoolsconstants.h \
-    cpptoolseditorsupport.h \
+    cpptoolsjsextension.h \
     cpptoolsplugin.h \
     cpptoolsreuse.h \
     cpptoolssettings.h \
+    cppworkingcopy.h \
     doxygengenerator.h \
+    editordocumenthandle.h \
     functionutils.h \
     includeutils.h \
+    indexitem.h \
     insertionpointlocator.h \
     searchsymbols.h \
+    semantichighlighter.h \
+    stringtable.h \
     symbolfinder.h \
     symbolsfindfilter.h \
-    typehierarchybuilder.h
+    typehierarchybuilder.h \
+    senddocumenttracker.h
 
 SOURCES += \
     abstracteditorsupport.cpp \
+    baseeditordocumentparser.cpp \
+    baseeditordocumentprocessor.cpp \
+    builtineditordocumentparser.cpp \
+    builtineditordocumentprocessor.cpp \
     builtinindexingsupport.cpp \
     commentssettings.cpp \
     completionsettingspage.cpp \
     cppchecksymbols.cpp \
     cppclassesfilter.cpp \
     cppcodeformatter.cpp \
+    cppcodemodelinspectordumper.cpp \
     cppcodemodelsettings.cpp \
     cppcodemodelsettingspage.cpp \
     cppcodestylepreferences.cpp \
@@ -70,41 +88,49 @@ SOURCES += \
     cppcodestylesettings.cpp \
     cppcodestylesettingspage.cpp \
     cppcompletionassist.cpp \
+    cppcompletionassistprocessor.cpp \
     cppcompletionassistprovider.cpp \
     cppcurrentdocumentfilter.cpp \
+    cppeditoroutline.cpp \
     cppdoxygen.cpp \
+    cppfileiterationorder.cpp \
     cppfilesettingspage.cpp \
     cppfindreferences.cpp \
     cppfunctionsfilter.cpp \
-    cpphighlightingsupport.cpp \
-    cpphighlightingsupportinternal.cpp \
+    cppincludesfilter.cpp \
     cppindexingsupport.cpp \
     cpplocalsymbols.cpp \
     cpplocatordata.cpp \
     cpplocatorfilter.cpp \
     cppmodelmanager.cpp \
-    cppmodelmanagerinterface.cpp \
     cppmodelmanagersupport.cpp \
     cppmodelmanagersupportinternal.cpp \
     cpppointerdeclarationformatter.cpp \
-    cpppreprocessor.cpp \
     cppprojectfile.cpp \
+    cppprojects.cpp \
     cppqtstyleindenter.cpp \
     cpprefactoringchanges.cpp \
     cppsemanticinfo.cpp \
-    cppsnapshotupdater.cpp \
-    cpptoolseditorsupport.cpp \
+    cppsemanticinfoupdater.cpp \
+    cppsourceprocessor.cpp \
+    cpptoolsjsextension.cpp \
     cpptoolsplugin.cpp \
     cpptoolsreuse.cpp \
     cpptoolssettings.cpp \
+    cppworkingcopy.cpp \
     doxygengenerator.cpp \
+    editordocumenthandle.cpp \
     functionutils.cpp \
     includeutils.cpp \
+    indexitem.cpp \
     insertionpointlocator.cpp \
     searchsymbols.cpp \
+    semantichighlighter.cpp \
+    stringtable.cpp \
     symbolfinder.cpp \
     symbolsfindfilter.cpp \
-    typehierarchybuilder.cpp
+    typehierarchybuilder.cpp \
+    senddocumenttracker.cpp
 
 FORMS += \
     completionsettingspage.ui \
@@ -114,7 +140,7 @@ FORMS += \
 
 equals(TEST, 1) {
     HEADERS += \
-        cpppreprocessertesthelper.h \
+        cppsourceprocessertesthelper.h \
         cpptoolstestcase.h \
         modelmanagertesthelper.h
 
@@ -122,11 +148,12 @@ equals(TEST, 1) {
         cppcodegen_test.cpp \
         cppcompletion_test.cpp \
         cppheadersource_test.cpp \
+        cpplocalsymbols_test.cpp \
         cpplocatorfilter_test.cpp \
         cppmodelmanager_test.cpp \
         cpppointerdeclarationformatter_test.cpp \
-        cpppreprocessertesthelper.cpp \
-        cpppreprocessor_test.cpp \
+        cppsourceprocessertesthelper.cpp \
+        cppsourceprocessor_test.cpp \
         cpptoolstestcase.cpp \
         modelmanagertesthelper.cpp \
         symbolsearcher_test.cpp \
@@ -134,3 +161,6 @@ equals(TEST, 1) {
 
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }
+
+RESOURCES += \
+    cpptools.qrc

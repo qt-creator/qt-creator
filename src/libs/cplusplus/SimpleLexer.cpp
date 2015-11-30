@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -40,7 +41,8 @@ using namespace CPlusPlus;
 SimpleLexer::SimpleLexer()
     : _lastState(0),
       _skipComments(false),
-      _endedJoined(false)
+      _endedJoined(false),
+      _ppMode(false)
 {}
 
 SimpleLexer::~SimpleLexer()
@@ -61,17 +63,18 @@ bool SimpleLexer::endedJoined() const
     return _endedJoined;
 }
 
-QList<Token> SimpleLexer::operator()(const QString &text, int state)
+Tokens SimpleLexer::operator()(const QString &text, int state)
 {
-    QList<Token> tokens;
+    Tokens tokens;
 
-    const QByteArray bytes = text.toLatin1();
+    const QByteArray bytes = text.toUtf8();
     const char *firstChar = bytes.constData();
     const char *lastChar = firstChar + bytes.size();
 
     Lexer lex(firstChar, lastChar);
     lex.setLanguageFeatures(_languageFeatures);
     lex.setStartWithNewline(true);
+    lex.setPreprocessorMode(_ppMode);
 
     if (! _skipComments)
         lex.setScanCommentTokens(true);
@@ -89,10 +92,10 @@ QList<Token> SimpleLexer::operator()(const QString &text, int state)
             break;
         }
 
-        QStringRef spell = text.midRef(lex.tokenOffset(), lex.tokenLength());
+        QStringRef spell = text.midRef(tk.bytesBegin(), tk.bytes());
         lex.setScanAngleStringLiteralTokens(false);
 
-        if (tk.f.newline && tk.is(T_POUND))
+        if (tk.newline() && tk.is(T_POUND))
             inPreproc = true;
         else if (inPreproc && tokens.size() == 1 && tk.is(T_IDENTIFIER) &&
                  spell == QLatin1String("include"))
@@ -112,11 +115,11 @@ QList<Token> SimpleLexer::operator()(const QString &text, int state)
     return tokens;
 }
 
-int SimpleLexer::tokenAt(const QList<Token> &tokens, unsigned offset)
+int SimpleLexer::tokenAt(const Tokens &tokens, unsigned utf16charsOffset)
 {
     for (int index = tokens.size() - 1; index >= 0; --index) {
         const Token &tk = tokens.at(index);
-        if (tk.begin() <= offset && tk.end() >= offset)
+        if (tk.utf16charsBegin() <= utf16charsOffset && tk.utf16charsEnd() >= utf16charsOffset)
             return index;
     }
 
@@ -124,27 +127,22 @@ int SimpleLexer::tokenAt(const QList<Token> &tokens, unsigned offset)
 }
 
 Token SimpleLexer::tokenAt(const QString &text,
-                           unsigned offset,
+                           unsigned utf16charsOffset,
                            int state,
-                           bool qtMocRunEnabled)
+                           const LanguageFeatures &languageFeatures)
 {
-    // FIXME: Check default values.
-    LanguageFeatures features;
-    features.qtMocRunEnabled = qtMocRunEnabled;
-    features.qtEnabled = qtMocRunEnabled;
-    features.qtKeywordsEnabled = qtMocRunEnabled;
     SimpleLexer tokenize;
-    tokenize.setLanguageFeatures(features);
-    const QList<Token> tokens = tokenize(text, state);
-    const int tokenIdx = tokenAt(tokens, offset);
+    tokenize.setLanguageFeatures(languageFeatures);
+    const QVector<Token> tokens = tokenize(text, state);
+    const int tokenIdx = tokenAt(tokens, utf16charsOffset);
     return (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 }
 
-int SimpleLexer::tokenBefore(const QList<Token> &tokens, unsigned offset)
+int SimpleLexer::tokenBefore(const Tokens &tokens, unsigned utf16charsOffset)
 {
     for (int index = tokens.size() - 1; index >= 0; --index) {
         const Token &tk = tokens.at(index);
-        if (tk.begin() <= offset)
+        if (tk.utf16charsBegin() <= utf16charsOffset)
             return index;
     }
 

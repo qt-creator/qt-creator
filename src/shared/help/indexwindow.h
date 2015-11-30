@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,15 +31,57 @@
 #ifndef INDEXWINDOW_H
 #define INDEXWINDOW_H
 
+#include <QAbstractProxyModel>
+#include <QList>
 #include <QUrl>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QHelpIndexWidget;
+class QHelpIndexModel;
 class QModelIndex;
 QT_END_NAMESPACE
 
-namespace Utils { class FancyLineEdit; }
+namespace Utils {
+class FancyLineEdit;
+class NavigationTreeView;
+}
+
+namespace Help {
+namespace Internal {
+
+class IndexFilterModel : public QAbstractProxyModel
+{
+    Q_OBJECT
+
+public:
+    IndexFilterModel(QObject *parent);
+
+    QModelIndex filter(const QString &filter, const QString &wildcard);
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+    Qt::DropActions supportedDragActions() const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+    void setSourceModel(QAbstractItemModel *sm);
+
+    // QAbstractProxyModel::sibling is broken in Qt 5
+    QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
+
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+private slots:
+    void sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void sourceRowsRemoved(const QModelIndex &parent, int start, int end);
+    void sourceRowsInserted(const QModelIndex &parent, int start, int end);
+    void sourceModelReset();
+
+private:
+    QString m_filter;
+    QString m_wildcard;
+    QList<int> m_toSource;
+};
 
 class IndexWindow : public QWidget
 {
@@ -48,25 +91,27 @@ public:
     IndexWindow();
     ~IndexWindow();
 
-    void setSearchLineEditText(const QString &text);
-    QString searchLineEditText() const;
+    void setOpenInNewPageActionVisible(bool visible);
 
 signals:
-    void linkActivated(const QUrl &link);
+    void linkActivated(const QUrl &link, bool newPage);
     void linksActivated(const QMap<QString, QUrl> &links,
-        const QString &keyword);
+        const QString &keyword, bool newPage);
 
-private slots:
+private:
     void filterIndices(const QString &filter);
     void enableSearchLineEdit();
     void disableSearchLineEdit();
-
-private:
     bool eventFilter(QObject *obj, QEvent *e);
-    void open(QHelpIndexWidget* indexWidget, const QModelIndex &index);
+    void open(const QModelIndex &index, bool newPage = false);
 
     Utils::FancyLineEdit *m_searchLineEdit;
-    QHelpIndexWidget *m_indexWidget;
+    Utils::NavigationTreeView *m_indexWidget;
+    IndexFilterModel *m_filteredIndexModel;
+    bool m_isOpenInNewPageActionVisible;
 };
+
+} // Internal
+} // Help
 
 #endif // INDEXWINDOW_H

@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "BinEditor"
@@ -18,6 +16,7 @@ QtcPlugin {
         "bineditorconstants.h",
         "bineditorplugin.cpp",
         "bineditorplugin.h",
+        "markup.cpp",
         "markup.h",
     ]
 }

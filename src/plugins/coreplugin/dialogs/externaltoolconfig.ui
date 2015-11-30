@@ -37,7 +37,7 @@
        <item>
         <widget class="QPushButton" name="addButton">
          <property name="toolTip">
-          <string>Add tool</string>
+          <string>Add tool.</string>
          </property>
          <property name="text">
           <string>Add</string>
@@ -47,7 +47,7 @@
        <item>
         <widget class="QPushButton" name="removeButton">
          <property name="toolTip">
-          <string>Remove tool</string>
+          <string>Remove tool.</string>
          </property>
          <property name="text">
           <string>Remove</string>
@@ -70,7 +70,7 @@
        <item>
         <widget class="QPushButton" name="revertButton">
          <property name="toolTip">
-          <string>Revert tool to default</string>
+          <string>Revert tool to default.</string>
          </property>
          <property name="text">
           <string>Reset</string>
@@ -149,7 +149,7 @@
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;What to do with the executable's standard output.
-&lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it&lt;/li&gt;&lt;li&gt;Show in pane: Show it in the general output pane&lt;/li&gt;&lt;li&gt;Replace selection: Replace the current selection in the current document with it&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+&lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it.&lt;/li&gt;&lt;li&gt;Show in pane: Show it in the general output pane.&lt;/li&gt;&lt;li&gt;Replace selection: Replace the current selection in the current document with it.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </string>
         </property>
         <property name="text">
@@ -181,9 +181,9 @@
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head&gt;&lt;body&gt;
 &lt;p &gt;What to do with the executable's standard error output.&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it&lt;/li&gt;
-&lt;li&gt;Show in pane: Show it in the general output pane&lt;/li&gt;
-&lt;li&gt;Replace selection: Replace the current selection in the current document with it&lt;/li&gt;
+&lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it.&lt;/li&gt;
+&lt;li&gt;Show in pane: Show it in the general output pane.&lt;/li&gt;
+&lt;li&gt;Replace selection: Replace the current selection in the current document with it.&lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
@@ -210,7 +210,41 @@
         </item>
        </widget>
       </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Environment:</string>
+        </property>
+       </widget>
+      </item>
       <item row="6" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="environmentLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>No changes to apply.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="environmentButton">
+          <property name="text">
+           <string>Change...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="7" column="1">
        <widget class="QCheckBox" name="modifiesDocumentCheckbox">
         <property name="toolTip">
          <string>If the tool modifies the current document, set this flag to ensure that the document is saved before running the tool and is reloaded after the tool finished.</string>
@@ -220,7 +254,7 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
+      <item row="8" column="0">
        <widget class="QLabel" name="inputLabel">
         <property name="toolTip">
          <string>Text to pass to the executable via standard input. Leave empty if the executable should not receive any input.</string>
@@ -230,7 +264,7 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
+      <item row="8" column="1">
        <widget class="QPlainTextEdit" name="inputText">
         <property name="lineWrapMode">
          <enum>QPlainTextEdit::NoWrap</enum>

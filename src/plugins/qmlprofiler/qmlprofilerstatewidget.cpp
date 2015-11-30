@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,30 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qmlprofilerstatewidget.h"
 
-#include <QPainter>
+#include <utils/qtcassert.h>
 
+#include <QPainter>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QProgressBar>
@@ -51,14 +53,6 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
 
     QmlProfilerStateManager *m_profilerState;
     QmlProfilerModelManager *m_modelManager;
-
-    bool isRecording;
-    bool appKilled;
-    bool emptyList;
-    bool traceAvailable;
-    bool loadingDone;
-    QTime profilingTimer;
-    qint64 estimatedProfilingTime;
 };
 
 QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateManager,
@@ -71,7 +65,7 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
     QVBoxLayout *layout = new QVBoxLayout(this);
     resize(200,70);
 
-    d->shadowPic.load(QLatin1String(":/qmlprofiler/dialog_shadow.png"));
+    d->shadowPic.load(QLatin1String(":/timeline/dialog_shadow.png"));
 
     d->text = new QLabel(this);
     d->text->setAlignment(Qt::AlignCenter);
@@ -84,25 +78,19 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
 
     setLayout(layout);
 
-    // internal state
-    d->isRecording = false;
-    d->appKilled = false;
-    d->traceAvailable = false;
-    d->loadingDone = true;
-    d->emptyList = true;
-
     // profiler state
     d->m_modelManager = modelManager;
-    connect(d->m_modelManager,SIGNAL(stateChanged()), this, SLOT(dataStateChanged()));
-    connect(d->m_modelManager,SIGNAL(progressChanged()), this, SLOT(dataStateChanged()));
-    connect(this, SIGNAL(newTimeEstimation(qint64)), d->m_modelManager, SLOT(newTimeEstimation(qint64)));
+    connect(d->m_modelManager, &QmlProfilerModelManager::stateChanged,
+            this, &QmlProfilerStateWidget::updateDisplay);
+    connect(d->m_modelManager, &QmlProfilerModelManager::progressChanged,
+            this, &QmlProfilerStateWidget::updateDisplay);
     d->m_profilerState = stateManager;
-    connect(d->m_profilerState,SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
-    connect(d->m_profilerState, SIGNAL(serverRecordingChanged()),
-            this, SLOT(profilerStateChanged()));
+    connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
+            this, &QmlProfilerStateWidget::updateDisplay);
+    connect(d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
+            this, &QmlProfilerStateWidget::updateDisplay);
 
     updateDisplay();
-    connect(parent,SIGNAL(resized()),this,SLOT(reposition()));
 }
 
 QmlProfilerStateWidget::~QmlProfilerStateWidget()
@@ -188,92 +176,60 @@ void QmlProfilerStateWidget::paintEvent(QPaintEvent *event)
 
 }
 
+void QmlProfilerStateWidget::showText(const QString &text, bool showProgress)
+{
+    setVisible(true);
+    if (showProgress)
+        d->progressBar->setValue(d->m_modelManager->progress() * 1000);
+    d->progressBar->setVisible(showProgress);
+    d->text->setText(text);
+    resize(300, 70);
+    reposition();
+}
+
 void QmlProfilerStateWidget::updateDisplay()
 {
-    // When datamodel is acquiring data
-    if (!d->loadingDone && !d->emptyList && !d->appKilled) {
-        setVisible(true);
-        d->text->setText(tr("Loading data"));
-        if (d->isRecording) {
-            d->isRecording = false;
-            d->estimatedProfilingTime = d->profilingTimer.elapsed();
-            emit newTimeEstimation(d->estimatedProfilingTime);
-        }
-        d->progressBar->setValue(d->m_modelManager->progress() * 1000);
-        d->progressBar->setVisible(true);
-        resize(300,70);
-        reposition();
-        return;
-    }
-
     // When application is being profiled
-    if (d->isRecording) {
-        setVisible(true);
-        d->progressBar->setVisible(false);
-        d->text->setText(tr("Profiling application"));
-        resize(200,70);
-        reposition();
+    if (d->m_profilerState->serverRecording()) {
+        showText(tr("Profiling application"));
         return;
     }
 
-    // After profiling, there is an empty trace
-    if (d->traceAvailable && d->loadingDone && d->emptyList) {
-        setVisible(true);
-        d->progressBar->setVisible(false);
-        d->text->setText(tr("No QML events recorded"));
-        resize(200,70);
-        reposition();
-        return;
-    }
-
-    // Application died before all data could be read
-    if (!d->loadingDone && !d->emptyList && d->appKilled) {
-        setVisible(true);
-        d->text->setText(tr("Application stopped before loading all data"));
-        if (d->isRecording) {
-            d->isRecording = false;
-            d->estimatedProfilingTime = d->profilingTimer.elapsed();
-            emit newTimeEstimation(d->estimatedProfilingTime);
+    QmlProfilerModelManager::State state = d->m_modelManager->state();
+    if (state == QmlProfilerModelManager::Done || state == QmlProfilerModelManager::Empty) {
+        // After profiling, there is an empty trace
+        if (d->m_modelManager->traceTime()->duration() > 0 &&
+                (d->m_modelManager->isEmpty() || d->m_modelManager->progress() == 0)) {
+            showText(tr("No QML events recorded"));
+            return;
         }
-        d->progressBar->setValue(d->m_modelManager->progress() * 1000);
-        d->progressBar->setVisible(true);
-        resize(300,70);
-        reposition();
+    } else if (d->m_modelManager->progress() != 0 && !d->m_modelManager->isEmpty()) {
+        // When datamodel is acquiring or processing data
+        if (state == QmlProfilerModelManager::ProcessingData) {
+            showText(tr("Processing data"), true);
+        } else  if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle) {
+            if (state == QmlProfilerModelManager::AcquiringData) {
+                // we don't know how much more, so progress numbers are strange here
+                showText(tr("Waiting for more data"));
+            } else if (state == QmlProfilerModelManager::ClearingData) {
+                // when starting a second recording from the same process without aggregation
+                showText(tr("Clearing old trace"));
+            }
+        } else if (state == QmlProfilerModelManager::AcquiringData) {
+            // Application died before all data could be read
+            showText(tr("Application stopped before loading all data"));
+        } else if (state == QmlProfilerModelManager::ClearingData) {
+            showText(tr("Clearing old trace"));
+        }
+        return;
+    } else if (state == QmlProfilerModelManager::AcquiringData) {
+        showText(tr("Waiting for data"));
         return;
     }
 
     // There is a trace on view, hide this dialog
     d->progressBar->setVisible(false);
     setVisible(false);
-}
-
-void QmlProfilerStateWidget::dataStateChanged()
-{
-    // consider possible rounding errors
-    d->loadingDone = d->m_modelManager->state() == QmlProfilerDataState::Done ||
-            d->m_modelManager->state() == QmlProfilerDataState::Empty;
-    d->traceAvailable = d->m_modelManager->traceTime()->duration() > 0;
-    d->emptyList = d->m_modelManager->isEmpty() || d->m_modelManager->progress() == 0;
-    updateDisplay();
-}
-
-void QmlProfilerStateWidget::profilerStateChanged()
-{
-    if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppKilled)
-        d->appKilled = true;
-    else
-        if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppStarting)
-            d->appKilled = false;
-
-    d->isRecording = d->m_profilerState->serverRecording();
-    if (d->isRecording)
-        d->profilingTimer.start();
-    else {
-        // estimated time in ns
-        d->estimatedProfilingTime = d->profilingTimer.elapsed() * 1e6;
-        emit newTimeEstimation(d->estimatedProfilingTime);
-    }
-    updateDisplay();
 }
 
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -40,10 +41,10 @@ class QDebug;
 QT_END_NAMESPACE
 
 namespace Debugger {
-
-class DebuggerStartParameters;
-
 namespace Internal {
+
+class DebuggerRunParameters;
+class GdbMi;
 
 class StackFrame
 {
@@ -53,23 +54,24 @@ public:
     bool isUsable() const;
     QString toToolTip() const;
     QString toString() const;
-    void fixQmlFrame(const DebuggerStartParameters &sp);
+    static StackFrame parseFrame(const GdbMi &data, const DebuggerRunParameters &rp);
+    static QList<StackFrame> parseFrames(const GdbMi &data, const DebuggerRunParameters &rp);
+    void fixQrcFrame(const DebuggerRunParameters &rp);
 
 public:
     DebuggerLanguage language;
-    qint32 level;
+    QByteArray level;
     QString function;
-    QString file;  // We try to put an absolute file name in there.
-    QString from;  // Sometimes something like "/usr/lib/libstdc++.so.6"
-    QString to;    // Used in ScriptEngine only.
+    QString file;        // We try to put an absolute file name in there.
+    QString module;      // Sometimes something like "/usr/lib/libstdc++.so.6"
+    QString receiver;    // Used in ScriptEngine only.
     qint32 line;
     quint64 address;
     bool usable;
+    QByteArray context;  // Opaque value produced and consumed by the native backends.
 
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::StackHandler)
 };
-
-QDebug operator<<(QDebug d, const StackFrame &frame);
 
 typedef QList<StackFrame> StackFrames;
 

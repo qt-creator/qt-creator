@@ -57,7 +57,7 @@
    <item row="1" column="1">
     <widget class="QRadioButton" name="stretchRadioButton">
      <property name="toolTip">
-      <string>The image is scaled to fit</string>
+      <string>The image is scaled to fit.</string>
      </property>
      <property name="text">
       <string/>
@@ -77,7 +77,7 @@
    <item row="1" column="2">
     <widget class="QRadioButton" name="horizontalStretchRadioButton">
      <property name="toolTip">
-      <string>The image is stretched horizontally and tiled vertically</string>
+      <string>The image is stretched horizontally and tiled vertically.</string>
      </property>
      <property name="text">
       <string/>
@@ -97,7 +97,7 @@
    <item row="1" column="3">
     <widget class="QRadioButton" name="verticalStretchRadioButton">
      <property name="toolTip">
-      <string>The image is stretched vertically and tiled horizontally</string>
+      <string>The image is stretched vertically and tiled horizontally.</string>
      </property>
      <property name="text">
       <string/>
@@ -117,7 +117,7 @@
    <item row="2" column="1">
     <widget class="QRadioButton" name="tileRadioButton">
      <property name="toolTip">
-      <string>The image is duplicated horizontally and vertically</string>
+      <string>The image is duplicated horizontally and vertically.</string>
      </property>
      <property name="text">
       <string/>
@@ -137,7 +137,7 @@
    <item row="2" column="2">
     <widget class="QRadioButton" name="preserveAspectFitRadioButton">
      <property name="toolTip">
-      <string>The image is scaled uniformly to fit without cropping</string>
+      <string>The image is scaled uniformly to fit without cropping.</string>
      </property>
      <property name="text">
       <string/>
@@ -157,7 +157,7 @@
    <item row="2" column="3">
     <widget class="QRadioButton" name="cropAspectFitRadioButton">
      <property name="toolTip">
-      <string>The image is scaled uniformly to fill, cropping if necessary</string>
+      <string>The image is scaled uniformly to fill, cropping if necessary.</string>
      </property>
      <property name="text">
       <string/>

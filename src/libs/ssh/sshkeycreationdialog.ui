@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>295</width>
-    <height>223</height>
+    <width>380</width>
+    <height>231</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -68,6 +68,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QRadioButton" name="ecdsa">
+          <property name="text">
+           <string>ECDSA</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -102,21 +109,6 @@
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QComboBox" name="comboBox">
-          <item>
-           <property name="text">
-            <string notr="true">1024</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">2048</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">4096</string>
-           </property>
-          </item>
          </widget>
         </item>
         <item>

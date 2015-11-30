@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "simplifytype.h"
 
+#include <QDebug>
 #include <QRegExp>
 
 #include <ctype.h>
@@ -121,11 +123,18 @@ QString simplifyType(const QString &typeIn)
         type.remove(0, 7);
 
     const bool isLibCpp = type.contains(QLatin1String("std::__1"));
+    type.replace(QLatin1String("std::__cxx11::"), QLatin1String("std::"));
     type.replace(QLatin1String("std::__1::"), QLatin1String("std::"));
     type.replace(QLatin1String("std::__debug::"), QLatin1String("std::"));
     QRegExp simpleStringRE(QString::fromLatin1("std::basic_string<char> ?"));
     type.replace(simpleStringRE, QLatin1String("std::string"));
+
+    // Normalize space + ptr.
+    type.replace(QLatin1String(" *"), QLatin1String("@"));
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
+
+    // Normalize char const * and const char *.
+    type.replace(QLatin1String("char const@"), QLatin1String("const char@"));
 
     for (int i = 0; i < 10; ++i) {
         // boost::shared_ptr<...>::element_type
@@ -218,6 +227,14 @@ QString simplifyType(const QString &typeIn)
             if (unorderedSetRE.indexIn(type) != -1)
                 type.replace(unorderedSetRE.cap(0), QString::fromLatin1("unordered_set<%1>").arg(inner));
 
+            // boost::unordered_set
+            QRegExp boostUnorderedSetRE(QString::fromLatin1("unordered_set<%1, ?boost::hash<%2>, ?std::equal_to<%3>, ?%4\\s*>")
+                    .arg(innerEsc, innerEsc, innerEsc, allocEsc));
+            boostUnorderedSetRE.setMinimal(true);
+            QTC_ASSERT(boostUnorderedSetRE.isValid(), return typeIn);
+            if (boostUnorderedSetRE.indexIn(type) != -1)
+                type.replace(boostUnorderedSetRE.cap(0), QString::fromLatin1("unordered_set<%1>").arg(inner));
+
             // std::map
             if (inner.startsWith(QLatin1String("std::pair<"))) {
                 // search for outermost ',', split key and value
@@ -294,7 +311,7 @@ QString simplifyType(const QString &typeIn)
             }
         } // with std::allocator
     }
-    type.replace(QLatin1Char('@'), QLatin1Char('*'));
+    type.replace(QLatin1Char('@'), QLatin1String(" *"));
     type.replace(QLatin1String(" >"), QLatin1String(">"));
     return type;
 }

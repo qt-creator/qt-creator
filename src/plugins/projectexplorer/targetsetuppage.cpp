@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,6 +36,7 @@
 #include "importwidget.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "session.h"
 #include "target.h"
 #include "targetsetupwidget.h"
 
@@ -43,12 +45,15 @@
 #include <projectexplorer/ipotentialkit.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/wizard.h>
+#include <utils/algorithm.h>
 
 #include <QFileInfo>
 #include <QLabel>
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QVBoxLayout>
+#include <QCheckBox>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -63,6 +68,7 @@ public:
     QLabel *descriptionLabel;
     QLabel *noValidKitLabel;
     QLabel *optionHintLabel;
+    QCheckBox *allKitsCheckBox;
 
     void setupUi(QWidget *q)
     {
@@ -87,6 +93,10 @@ public:
                                      "or via the maintenance tool of the SDK."));
         optionHintLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
         optionHintLabel->setVisible(false);
+
+        allKitsCheckBox = new QCheckBox(setupTargetPage);
+        allKitsCheckBox->setTristate(true);
+        allKitsCheckBox->setText(TargetSetupPage::tr("Select all kits"));
 
         centralWidget = new QWidget(setupTargetPage);
         QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -114,6 +124,7 @@ public:
         verticalLayout_2->addWidget(noValidKitLabel);
         verticalLayout_2->addWidget(descriptionLabel);
         verticalLayout_2->addWidget(optionHintLabel);
+        verticalLayout_2->addWidget(allKitsCheckBox);
         verticalLayout_2->addWidget(centralWidget);
         verticalLayout_2->addWidget(scrollAreaWidget);
 
@@ -123,6 +134,9 @@ public:
 
         QObject::connect(optionHintLabel, SIGNAL(linkActivated(QString)),
                          q, SLOT(openOptions()));
+
+        QObject::connect(allKitsCheckBox, SIGNAL(clicked()),
+                         q, SLOT(changeAllKitsSelections()));
     }
 };
 
@@ -131,14 +145,12 @@ public:
 using namespace Internal;
 
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
-    QWizardPage(parent),
-    m_requiredMatcher(0),
-    m_preferredMatcher(0),
+    Utils::WizardPage(parent),
     m_importer(0),
     m_baseLayout(0),
     m_firstWidget(0),
     m_ui(new TargetSetupPageUi),
-    m_importWidget(new Internal::ImportWidget(this)),
+    m_importWidget(new ImportWidget(this)),
     m_spacer(new QSpacerItem(0,0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding)),
     m_forceOptionHint(false)
 {
@@ -171,6 +183,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     setUseScrollArea(true);
 
     QObject *km = KitManager::instance();
+    // do note that those slots are triggered once *per* targetsetuppage
+    // thus the same slot can be triggered multiple times on different instances!
     connect(km, SIGNAL(kitAdded(ProjectExplorer::Kit*)),
             this, SLOT(handleKitAddition(ProjectExplorer::Kit*)));
     connect(km, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
@@ -179,6 +193,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
             this, SLOT(handleKitUpdate(ProjectExplorer::Kit*)));
     connect(m_importWidget, SIGNAL(importFrom(Utils::FileName)),
             this, SLOT(import(Utils::FileName)));
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Kits"));
 }
 
 void TargetSetupPage::initializePage()
@@ -190,19 +206,15 @@ void TargetSetupPage::initializePage()
     selectAtLeastOneKit();
 }
 
-void TargetSetupPage::setRequiredKitMatcher(KitMatcher *matcher)
+void TargetSetupPage::setRequiredKitMatcher(const KitMatcher &matcher)
 {
-    if (matcher == m_requiredMatcher)
-        return;
-    if (m_requiredMatcher)
-        delete m_requiredMatcher;
     m_requiredMatcher = matcher;
 }
 
 QList<Core::Id> TargetSetupPage::selectedKits() const
 {
     QList<Core::Id> result;
-    QMap<Core::Id, Internal::TargetSetupWidget *>::const_iterator it, end;
+    QMap<Core::Id, TargetSetupWidget *>::const_iterator it, end;
     it = m_widgets.constBegin();
     end = m_widgets.constEnd();
 
@@ -213,12 +225,8 @@ QList<Core::Id> TargetSetupPage::selectedKits() const
     return result;
 }
 
-void TargetSetupPage::setPreferredKitMatcher(KitMatcher *matcher)
+void TargetSetupPage::setPreferredKitMatcher(const KitMatcher &matcher)
 {
-    if (matcher == m_preferredMatcher)
-        return;
-    if (m_preferredMatcher)
-        delete m_preferredMatcher;
     m_preferredMatcher = matcher;
 }
 
@@ -226,8 +234,6 @@ TargetSetupPage::~TargetSetupPage()
 {
     reset();
     delete m_ui;
-    delete m_preferredMatcher;
-    delete m_requiredMatcher;
     delete m_importer;
 }
 
@@ -240,26 +246,27 @@ bool TargetSetupPage::isKitSelected(Core::Id id) const
 void TargetSetupPage::setKitSelected(Core::Id id, bool selected)
 {
     TargetSetupWidget *widget = m_widgets.value(id);
-    if (widget)
+    if (widget) {
         widget->setKitSelected(selected);
+        kitSelectionChanged();
+    }
 }
 
 bool TargetSetupPage::isComplete() const
 {
-    foreach (TargetSetupWidget *widget, m_widgets)
-        if (widget->isKitSelected())
-            return true;
-    return false;
+    return Utils::anyOf(m_widgets, &TargetSetupWidget::isKitSelected);
 }
 
 void TargetSetupPage::setupWidgets()
 {
-    QList<Kit *> kitList;
     // Known profiles:
-    if (m_requiredMatcher)
-        kitList = KitManager::matchingKits(*m_requiredMatcher);
+    QList<Kit *> kitList;
+    if (m_requiredMatcher.isValid())
+        kitList = KitManager::matchingKits(m_requiredMatcher);
     else
         kitList = KitManager::kits();
+
+    kitList = KitManager::sortKits(kitList);
 
     foreach (Kit *k, kitList)
         addWidget(k);
@@ -286,6 +293,8 @@ void TargetSetupPage::reset()
 
     m_widgets.clear();
     m_firstWidget = 0;
+
+    m_ui->allKitsCheckBox->setChecked(false);
 }
 
 void TargetSetupPage::setProjectPath(const QString &path)
@@ -371,9 +380,7 @@ void TargetSetupPage::handleKitUpdate(Kit *k)
 
     TargetSetupWidget *widget = m_widgets.value(k->id());
 
-    bool acceptable = true;
-    if (m_requiredMatcher && !m_requiredMatcher->matches(k))
-        acceptable = false;
+    bool acceptable = !m_requiredMatcher.isValid() || m_requiredMatcher.matches(k);
 
     if (widget && !acceptable)
         removeWidget(k);
@@ -398,8 +405,10 @@ void TargetSetupPage::selectAtLeastOneKit()
         Kit *defaultKit = KitManager::defaultKit();
         if (defaultKit)
             widget = m_widgets.value(defaultKit->id(), m_firstWidget);
-        if (widget)
+        if (widget) {
             widget->setKitSelected(true);
+            kitSelectionChanged();
+        }
         m_firstWidget = 0;
     }
     emit completeChanged(); // Is this necessary?
@@ -414,20 +423,47 @@ void TargetSetupPage::updateVisibility()
     bool hasKits = !m_widgets.isEmpty();
     m_ui->noValidKitLabel->setVisible(!hasKits);
     m_ui->optionHintLabel->setVisible(m_forceOptionHint || !hasKits);
+    m_ui->allKitsCheckBox->setVisible(hasKits);
 
     emit completeChanged();
 }
 
 void TargetSetupPage::openOptions()
 {
-    Core::ICore::instance()->showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                                               Constants::KITS_SETTINGS_PAGE_ID,
-                                               this);
+    Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, this);
 }
 
 void TargetSetupPage::import(const Utils::FileName &path)
 {
     import(path, false);
+}
+
+void TargetSetupPage::kitSelectionChanged()
+{
+    int selected = 0;
+    int deselected = 0;
+    foreach (TargetSetupWidget *widget, m_widgets) {
+        if (widget->isKitSelected())
+            ++selected;
+        else
+            ++deselected;
+    }
+    if (selected > 0 && deselected > 0)
+        m_ui->allKitsCheckBox->setCheckState(Qt::PartiallyChecked);
+    else if (selected > 0 && deselected == 0)
+        m_ui->allKitsCheckBox->setCheckState(Qt::Checked);
+    else
+        m_ui->allKitsCheckBox->setCheckState(Qt::Unchecked);
+}
+
+void TargetSetupPage::changeAllKitsSelections()
+{
+    if (m_ui->allKitsCheckBox->checkState() == Qt::PartiallyChecked)
+        m_ui->allKitsCheckBox->setCheckState(Qt::Checked);
+    bool checked = m_ui->allKitsCheckBox->isChecked();
+    foreach (TargetSetupWidget *widget, m_widgets)
+        widget->setKitSelected(checked);
+    emit completeChanged();
 }
 
 bool TargetSetupPage::isUpdating() const
@@ -458,6 +494,8 @@ void TargetSetupPage::import(const Utils::FileName &path, bool silent)
 
         widget->addBuildInfo(info, true);
         widget->setKitSelected(true);
+        widget->expandWidget();
+        kitSelectionChanged();
     }
     emit completeChanged();
 }
@@ -471,11 +509,12 @@ void TargetSetupPage::removeWidget(Kit *k)
         m_firstWidget = 0;
     widget->deleteLater();
     m_widgets.remove(k->id());
+    kitSelectionChanged();
 }
 
 TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 {
-    if (!k || (m_requiredMatcher && !m_requiredMatcher->matches(k)))
+    if (!k || (m_requiredMatcher.isValid() && !m_requiredMatcher.matches(k)))
         return 0;
 
     IBuildConfigurationFactory *factory
@@ -493,8 +532,10 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
         m_baseLayout->removeWidget(widget);
     m_baseLayout->removeItem(m_spacer);
 
-    widget->setKitSelected(m_preferredMatcher && m_preferredMatcher->matches(k));
+    widget->setKitSelected(m_preferredMatcher.isValid() && m_preferredMatcher.matches(k));
     m_widgets.insert(k->id(), widget);
+    connect(widget, SIGNAL(selectedToggled()),
+            this, SLOT(kitSelectionChanged()));
     m_baseLayout->addWidget(widget);
 
     m_baseLayout->addWidget(m_importWidget);
@@ -507,6 +548,8 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 
     if (!m_firstWidget)
         m_firstWidget = widget;
+
+    kitSelectionChanged();
 
     return widget;
 }
@@ -534,7 +577,7 @@ bool TargetSetupPage::setupProject(Project *project)
     if (m_importer)
         activeTarget = m_importer->preferredTarget(project->targets());
     if (activeTarget)
-        project->setActiveTarget(activeTarget);
+        SessionManager::setActiveTarget(project, activeTarget, SetActive::NoCascade);
 
     return true;
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -18,8 +18,8 @@
 
     /*!
 
-    \contentspage index.html
-    \previouspage creator-developing-bb10.html
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-developing-baremetal.html
     \page creator-developing-generic-linux.html
     \nextpage creator-developing-ios.html
 
@@ -31,14 +31,14 @@
     If you have a tool chain for building applications for embedded Linux
     devices installed on the development PC, you can add
     it to \QC. You can then select a \l{glossary-buildandrun-kit}{kit}
-    with \gui {Embedded Linux} device type to
+    with \uicontrol {Embedded Linux} device type to
     build and run applications on embedded Linux devices.
 
     To be able to run and debug applications on embedded Linux devices, you must
     add devices and select them in the \QC \l{glossary-buildandrun-kit}{kit}.
 
     You use a wizard to create the connections. You can edit the settings later
-    in \gui Tools > \gui Options > \gui Devices.
+    in \uicontrol Tools > \uicontrol Options > \uicontrol Devices.
 
     \image qtcreator-linux-device-configurations.png "Devices dialog"
 
@@ -53,11 +53,11 @@
 
         \li Make sure that your device can be reached via an IP address.
 
-        \li Select \gui {Tools > Options > Build & Run > Qt Versions > Add} to
+        \li Select \uicontrol {Tools > Options > Build & Run > Qt Versions > Add} to
             add the Qt version
             for the embedded Linux.
 
-        \li Select \gui {Tools > Options > Build & Run > Compilers > Add} to
+        \li Select \uicontrol {Tools > Options > Build & Run > Compilers > Add} to
             add the compiler
             for building the applications.
 
@@ -66,42 +66,44 @@
 
             \list 1
 
-                \li Select \gui Tools > \gui Options > \gui Devices > \gui Add
-                    > \gui {Generic Linux Device} > \gui {Start Wizard}.
+                \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices
+                    > \uicontrol Add > \uicontrol {Generic Linux Device}
+                    > \uicontrol {Start Wizard}.
 
                     \image qtcreator-screenshot-devconf-linux.png "Connection Data wizard"
 
-                \li In the \gui {The name to identify this configuration} field,
+                \li In the \uicontrol {The name to identify this configuration} field,
                     enter a name for the connection.
 
-                \li In the \gui {The device's host name or IP address} field,
+                \li In the \uicontrol {The device's host name or IP address} field,
                     enter the host name or IP address of the device.
-                    This value will be available in the variable \c %{CurrentDevice:HostAddress}.
+                    This value will be available in the variable \c %{Device:HostAddress}.
 
-                \li In the \gui {The user name to log into the device} field,
-                    enter the user name to log into the device and run the
+                \li In the \uicontrol {The username to log into the device} field,
+                    enter the username to log into the device and run the
                     application as.
-                    This value will be available in the variable \c %{CurrentDevice:UserName}.
+                    This value will be available in the variable \c %{Device:UserName}.
 
-                \li In the \gui {The authentication type} field, select whether
-                    to use \gui Password or \gui Key authentication, and enter
+                \li In the \uicontrol {The authentication type} field, select whether
+                    to use \uicontrol Password or \uicontrol Key authentication, and enter
                     the user's password or the file that contains the user's
                     private key.
-                    The latter will be available in the variable \c %{CurrentDevice:PrivateKeyFile}.
+                    The latter will be available in the variable \c %{Device:PrivateKeyFile}.
 
-                \li  Click \gui {Next} to create the connection.
+                \li  Click \uicontrol {Next} to create the connection.
 
             \endlist
 
             All of these parameters can be edited later, as well as additional ones that the
             wizard does not show because there are sensible default values. One of these is
-            the SSH port number, which is available in the variable \c %{CurrentDevice:SshPort}.
+            the SSH port number, which is available in the variable \c %{Device:SshPort}.
 
 
-        \li Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits
-            > \gui Add to add a kit for building for the device. Select the
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run}
+            > \uicontrol Kits > \uicontrol Add to add a kit for building for the device.
+            Select the
             Qt version, compiler, and device that you added above, and choose
-            \gui {Generic Linux Device} for the device type.
+            \uicontrol {Generic Linux Device} for the device type.
 
         \li To specify build settings:
 
@@ -110,16 +112,13 @@
             \li Open a project for an application you want to develop for the
                 device.
 
-            \li Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+            \li Select \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol {Add Kit} to
                 add the kit that you specified above.
 
         \endlist
 
-        \li Select \gui Run to specify run settings.
-
-                \image qtcreator-run-settings-linux-devices.png "Run settings for embedded Linux devices"
-
-            Usually, you can use the default settings.
+        \li Select \uicontrol Run to specify run settings. Usually, you can use
+            the default settings.
 
     When you run the project, \QC deploys the application as specified by the
     deploy steps. By default, \QC copies the application files to the device.

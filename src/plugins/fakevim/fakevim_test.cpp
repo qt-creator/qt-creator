@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (C) 2014 Lukas Holecek <hluk@email.cz>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Lukas Holecek <hluk@email.cz>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,7 +37,7 @@
 #include "fakevimhandler.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QtTest>
 #include <QTextEdit>
@@ -49,11 +50,7 @@
  * Tests after this macro will be skipped and warning printed.
  * Uncomment it to test a feature -- if tests succeeds it should be removed from the test.
  */
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#   define NOT_IMPLEMENTED QSKIP("Not fully implemented!", SkipSingle);
-#else
-#   define NOT_IMPLEMENTED QSKIP("Not fully implemented!");
-#endif
+#define NOT_IMPLEMENTED QSKIP("Not fully implemented!");
 
 // Text cursor representation in comparisons.
 #define X "|"
@@ -78,45 +75,43 @@ static const QString helpFormat = _(
     "\n\tShould be:\n" \
     LINE_START "%4" LINE_END);
 
+static QByteArray textWithCursor(const QByteArray &text, int position)
+{
+    return (position == -1) ? text : (text.left(position) + X + text.mid(position));
+}
+
+static QByteArray textWithCursor(const QByteArray &text, const QTextBlock &block, int column)
+{
+    const int pos = block.position() + qMin(column, qMax(0, block.length() - 2));
+    return text.left(pos) + X + text.mid(pos);
+}
+
 // Compare document contents with a expectedText.
 // Also check cursor position if the expectedText contains | chracter.
-#define COMPARE(beforeText, beforePosition, afterText, afterPosition, expectedText, cmd) \
-    do { \
-        QByteArray before(beforeText); \
-        QByteArray actual(afterText); \
-        QByteArray expected = expectedText; \
-        data.oldPosition = beforePosition; \
-        data.oldText = before; \
-        if (expected.contains(X)) {\
-            before = textWithCursor(before, beforePosition); \
-            actual = textWithCursor(actual, afterPosition); \
-        } \
-        QString help = helpFormat \
-            .arg(_(cmd)) \
-            .arg(_(before.replace('\n', LINE_END LINE_START))) \
-            .arg(_(actual.replace('\n', LINE_END LINE_START))) \
-            .arg(_(expected.replace('\n', LINE_END LINE_START))); \
-        QVERIFY2(actual == expected, help.toLatin1().constData()); \
-    } while (false)
 
 // Send keys and check if the expected result is same as document contents.
 // Escape is always prepended to keys so that previous command is cancelled.
-#define KEYS(keys, expected) \
+#define KEYS(keys, expectedText) \
     do { \
         QByteArray beforeText(data.text()); \
         int beforePosition = data.position(); \
-        data.doKeys("<ESC>"); \
         data.doKeys(keys); \
-        COMPARE(beforeText, beforePosition, data.text(), data.position(), (expected), (keys)); \
+        QByteArray actual(data.text()); \
+        QByteArray expected = expectedText; \
+        QByteArray desc = data.fixup(_(keys), beforeText, actual, expected, beforePosition); \
+        QVERIFY2(actual == expected, desc.constData()); \
     } while (false)
 
 // Run Ex command and check if the expected result is same as document contents.
-#define COMMAND(cmd, expected) \
+#define COMMAND(cmd, expectedText) \
     do { \
         QByteArray beforeText(data.text()); \
         int beforePosition = data.position(); \
         data.doCommand(cmd); \
-        COMPARE(beforeText, beforePosition, data.text(), data.position(), (expected), (":" cmd)); \
+        QByteArray actual(data.text()); \
+        QByteArray expected = expectedText; \
+        QByteArray desc = data.fixup(_(":" cmd), beforeText, actual, expected, beforePosition); \
+        QVERIFY2(actual == expected, desc.constData()); \
     } while (false)
 
 // Test undo, redo and repeat of last single command. This doesn't test cursor position.
@@ -143,17 +138,6 @@ static const QString helpFormat = _(
 
 using namespace FakeVim::Internal;
 using namespace TextEditor;
-
-static QByteArray textWithCursor(const QByteArray &text, int position)
-{
-    return (position == -1) ? text : (text.left(position) + X + text.mid(position));
-}
-
-static QByteArray textWithCursor(const QByteArray &text, const QTextBlock &block, int column)
-{
-    const int pos = block.position() + qMin(column, qMax(0, block.length() - 2));
-    return text.left(pos) + X + text.mid(pos);
-}
 
 const QByteArray testLines =
   /* 0         1         2         3        4 */
@@ -203,9 +187,26 @@ struct FakeVimPlugin::TestData
     int oldPosition;
     QByteArray oldText;
 
-    BaseTextEditorWidget *editor() const { return qobject_cast<BaseTextEditorWidget *>(edit); }
+    TextEditorWidget *editor() const { return qobject_cast<TextEditorWidget *>(edit); }
 
     QTextCursor cursor() const { return editor()->textCursor(); }
+
+    QByteArray fixup(const QString &cmd, QByteArray &before,
+                     QByteArray &actual, QByteArray &expected,
+                     int beforePosition)
+    {
+        oldPosition = beforePosition;
+        oldText = before;
+        if (expected.contains(X)) {
+            before = textWithCursor(before, beforePosition);
+            actual = textWithCursor(actual, position());
+        }
+        return helpFormat
+                .arg(cmd)
+                .arg(QString::fromLatin1(before.replace('\n', LINE_END LINE_START)))
+                .arg(QString::fromLatin1(actual.replace('\n', LINE_END LINE_START)))
+                .arg(QString::fromLatin1(expected.replace('\n', LINE_END LINE_START))).toLatin1();
+    }
 
     int position() const
     {
@@ -538,6 +539,147 @@ void FakeVimPlugin::test_vim_movement()
          X "");
 }
 
+void FakeVimPlugin::test_vim_target_column_normal()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    // normal mode movement
+    KEYS("",  X  "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("k",    "a"   "b" X "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m" X "n");
+    KEYS("02k",  "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("2k",   "a"   "b" X "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("jj2|", "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("gg", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("^k", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
+void FakeVimPlugin::test_vim_target_column_visual_char()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    KEYS("v", X  "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d"   "e" X N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("k",    "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n" X);
+    KEYS("02k",  "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("2k",   "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("jj2|", "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("gg", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("^k", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("lO", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<ESC>j",
+                 "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
+void FakeVimPlugin::test_vim_target_column_visual_block()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    KEYS("<C-V>",
+                 "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d"   "e" X N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("k",    "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n" X);
+    KEYS("02k",  "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("2k",   "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("jj2|", "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l" X "m"   "n");
+    KEYS("gg",   "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("^k",   "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("lO", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<ESC>j",
+                 "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
+void FakeVimPlugin::test_vim_target_column_visual_line()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    KEYS("lV<ESC>",    "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("Vj<ESC>",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("Vj<ESC>",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("Vj<ESC>",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("Vgg<ESC>", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    NOT_IMPLEMENTED
+    // Movement inside selection is not supported.
+}
+
+void FakeVimPlugin::test_vim_target_column_insert()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    KEYS("i", X  "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>$",    "a"   "b"   "c"   N   "d"   "e" X N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>k",    "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n" X);
+    KEYS("<C-O>0<C-O>2k",
+                      "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>2k",   "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<down><down><c-o>2|",
+                      "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("<C-O>gg", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>^<up>",
+                    X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
+void FakeVimPlugin::test_vim_target_column_replace()
+{
+    TestData data;
+    setup(&data);
+    data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    KEYS("i<insert>",
+                   X  "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>$",    "a"   "b"   "c"   N   "d"   "e" X N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>k",    "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n" X);
+    KEYS("<C-O>0<C-O>2k",
+                      "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>2k",   "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<down><down><c-o>2|",
+                      "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("<C-O>gg", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("<C-O>^<up>",
+                    X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
 void FakeVimPlugin::test_vim_insert()
 {
     TestData data;
@@ -596,6 +738,7 @@ void FakeVimPlugin::test_vim_insert()
     // <C-O>
     data.setText("abc" N "d" X "ef");
     KEYS("i<c-o>xX", "abc" N "dX" X "f");
+    data.doKeys("<ESC>");
     KEYS("i<c-o><end>", "abc" N "dXf" X);
     data.setText("ab" X "c" N "def");
     KEYS("i<c-o>rX", "ab" X "X" N "def");
@@ -605,6 +748,8 @@ void FakeVimPlugin::test_vim_insert()
     KEYS("i<c-o>0x", "abc" N "x" X "def");
     data.setText("abc" N "de" X "f");
     KEYS("i<c-o>ggx", "x" X "abc" N "def");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("i<c-o>vjlolx", "a" X "f" N "ghi");
 
     // <INSERT> to toggle between insert and replace mode
     data.setText("abc" N "def");
@@ -630,6 +775,7 @@ void FakeVimPlugin::test_vim_insert()
     // delete in insert mode is part of dot command
     data.setText("abc" N "def");
     KEYS("iX<delete>Y", "XY" X "bc" N "def");
+    data.doKeys("<ESC>");
     KEYS("0j.", "XYbc" N "X" X "Yef");
 
     data.setText("abc" N "def");
@@ -638,10 +784,12 @@ void FakeVimPlugin::test_vim_insert()
 
     data.setText("abc" N "def");
     KEYS("i<delete>XY", "XY" X "bc" N "def");
+    data.doKeys("<ESC>");
     KEYS("0j.", "XYbc" N "X" X "Yef");
 
     data.setText("ab" X "c" N "def");
     KEYS("i<bs>XY", "aXY" X "c" N "def");
+    data.doKeys("<ESC>");
     KEYS("j.", "aXYc" N "dX" X "Yf");
 
     // insert in visual mode
@@ -700,6 +848,19 @@ void FakeVimPlugin::test_vim_fFtT()
     KEYS("f .", "abc def" N "g" X " jkl");
     KEYS("u", "abc def" N "g" X "hi jkl");
     KEYS("rg$;", "abc def" N "gg" X "i jkl");
+
+    // repeat with ;
+    data.setText("int main() { return (x > 0) ? 0 : (x - 1); }");
+    KEYS("f(", "int main" X "() { return (x > 0) ? 0 : (x - 1); }");
+    KEYS(";", "int main() { return " X "(x > 0) ? 0 : (x - 1); }");
+    KEYS(";", "int main() { return (x > 0) ? 0 : " X "(x - 1); }");
+    KEYS(";", "int main() { return (x > 0) ? 0 : " X "(x - 1); }");
+    KEYS("02;", "int main() { return " X "(x > 0) ? 0 : (x - 1); }");
+    KEYS("2;", "int main() { return " X "(x > 0) ? 0 : (x - 1); }");
+    KEYS("0t(", "int mai" X "n() { return (x > 0) ? 0 : (x - 1); }");
+    KEYS(";", "int main() { return" X " (x > 0) ? 0 : (x - 1); }");
+    KEYS("3;", "int main() { return" X " (x > 0) ? 0 : (x - 1); }");
+    KEYS("2;", "int main() { return (x > 0) ? 0 :" X " (x - 1); }");
 }
 
 void FakeVimPlugin::test_vim_transform_numbers()
@@ -801,6 +962,12 @@ void FakeVimPlugin::test_vim_delete()
     INTEGRITY(false);
     KEYS("dd", "");
     INTEGRITY(false);
+
+    // delete character / word / line in insert mode
+    data.setText("123" N "456 789");
+    KEYS("A<C-h>", "12" N "456 789");
+    KEYS("<C-u>", "" N "456 789");
+    KEYS("<Esc>jA<C-w>", "" N "456 ");
 
     data.setText("void main()");
     KEYS("dt(", "()");
@@ -1120,10 +1287,13 @@ void FakeVimPlugin::test_vim_change_replace()
     // change in empty document
     data.setText("");
     KEYS("ccABC", "ABC" X);
+    data.doKeys("<ESC>");
     KEYS("u", "");
     KEYS("SABC", "ABC" X);
+    data.doKeys("<ESC>");
     KEYS("u", "");
     KEYS("sABC", "ABC" X);
+    data.doKeys("<ESC>");
     KEYS("u", "");
     KEYS("rA", "" X);
 
@@ -1326,6 +1496,15 @@ void FakeVimPlugin::test_vim_block_selection()
     KEYS("u", "\"" X "abc\"\"def\"");
     KEYS("<c-r>", "\"" X "\"\"def\"");
 
+    /* QTCREATORBUG-12128 */
+    data.setText("abc \"def\" ghi \"jkl\" mno");
+    KEYS("di\"", "abc \"" X "\" ghi \"jkl\" mno");
+    KEYS("u", "abc \"" X "def\" ghi \"jkl\" mno");
+    KEYS("3l" "di\"", "abc \"" X "\" ghi \"jkl\" mno");
+    KEYS("di\"", "abc \"" X "\" ghi \"jkl\" mno");
+    KEYS("tj" "di\"", "abc \"\" ghi \"" X "\" mno");
+    KEYS("l" "di\"", "abc \"\" ghi \"\"" X " mno");
+
     NOT_IMPLEMENTED
     // quoted string with escaped character
     data.setText("\"abc\"");
@@ -1400,6 +1579,432 @@ void FakeVimPlugin::test_vim_block_selection_insert()
         "a" X "bXYZc" N
         "  XYZ" N
         "deXYZf" N
+         );
+}
+
+void FakeVimPlugin::test_vim_delete_inner_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "abc" N
+        "def" N
+        "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+
+    KEYS("dip",
+        X "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+    KEYS("dip",
+        X "ghi" N
+        "" N
+        "jkl" N
+    );
+    KEYS("2dip",
+        X "jkl" N
+    );
+}
+
+void FakeVimPlugin::test_vim_delete_a_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "abc" N
+        "def" N
+        "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+
+    KEYS("dap",
+        X "ghi" N
+        "" N
+        "jkl" N
+    );
+    KEYS("dap",
+        X "jkl" N
+    );
+    KEYS("u",
+        X "ghi" N
+        "" N
+        "jkl" N
+    );
+
+    data.setText(
+        "abc" N
+        "" N
+        "" N
+        "def"
+    );
+    KEYS("Gdap",
+        X "abc"
+    );
+}
+
+void FakeVimPlugin::test_vim_change_inner_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "abc" N
+        "def" N
+        "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+
+    KEYS("cipXXX<ESC>",
+        "XX" X "X" N
+        "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+    KEYS("3j" "cipYYY<ESC>",
+        "XXX" N
+        "" N
+        "" N
+        "YY" X "Y" N
+        "" N
+        "jkl" N
+    );
+}
+
+void FakeVimPlugin::test_vim_change_a_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "abc" N
+        "def" N
+        "" N
+        "" N
+        "ghi" N
+        "" N
+        "jkl" N
+    );
+
+    KEYS("4j" "capXXX<ESC>",
+        "abc" N
+        "def" N
+        "" N
+        "" N
+        "XX" X "X" N
+        "jkl" N
+    );
+    KEYS("gg" "capYYY<ESC>",
+        "YY" X "Y" N
+        "XXX" N
+        "jkl" N
+    );
+
+    data.setText(
+        "abc" N
+        "" N
+        "" N
+        "def"
+    );
+    KEYS("GcapXXX<ESC>",
+        "abc" N
+        "XX" X "X"
+         );
+}
+
+void FakeVimPlugin::test_vim_select_inner_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vip" "r-",
+        "" N
+        X "---" N
+        "---" N
+        "" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vip" ":s/^/-<CR>",
+        "" N
+        "-abc" N
+        X "-def" N
+        "" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("v2ip" ":s/^/-<CR>",
+        "" N
+        "-abc" N
+        "-def" N
+        X "-" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("Vj" "ip" ":s/^/-<CR>",
+        "" N
+        "-abc" N
+        "-def" N
+        X "-" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vj" "ip" ":s/^/-<CR>",
+        "" N
+        "-abc" N
+        "-def" N
+        "-" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "ghi" N
+        "" N
+        "jkl"
+    );
+    KEYS("vj" "ip" ":s/^/-<CR>",
+        "" N
+        "-abc" N
+        "-def" N
+        "-ghi" N
+        "" N
+        "jkl"
+    );
+
+    data.setText(
+        "" N
+        X "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vip" "r-",
+        "" N
+        X "---" N
+        "---" N
+        "" N
+        "ghi"
+    );
+
+    data.setText(
+        "abc" N
+        "" N
+        "def"
+    );
+    KEYS("G" "vip" "r-",
+        "abc" N
+        "" N
+        "---"
+    );
+
+    data.setText(
+        "" N
+        "" N
+        "ghi"
+    );
+    KEYS("vip" ":s/^/-<CR>",
+        "-" N
+        "-" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        "ghi"
+    );
+    KEYS("vip" "ip" ":s/^/-<CR>",
+        "-" N
+        X "-ghi"
+    );
+
+    data.setText(
+        "abc" N
+        "" N
+        ""
+    );
+    KEYS("j" "vip" ":s/^/-<CR>",
+        "abc" N
+        "-" N
+        "-"
+    );
+
+    // Don't move anchor if it's on different line.
+    data.setText(
+        "" N
+        "abc" N
+        X "def" N
+        "ghi" N
+        "" N
+        "jkl"
+    );
+    KEYS("vj" "ip" ":s/^/-<CR>",
+        "" N
+        "abc" N
+        "-def" N
+        "-ghi" N
+        X "-" N
+        "jkl"
+    );
+
+    // Don't change selection mode if anchor is on different line.
+    data.setText(
+        "" N
+        "abc" N
+        X "def" N
+        "ghi" N
+        "" N
+        "jkl"
+    );
+    KEYS("vj" "2ip" "r-",
+        "" N
+        "abc" N
+        X "---" N
+        "---" N
+        "" N
+        "-kl"
+    );
+    KEYS("gv" ":s/^/X<CR>",
+        "" N
+        "abc" N
+        "X---" N
+        "X---" N
+        "X" N
+        X "X-kl"
+    );
+
+    data.setText(
+        "" N
+        "abc" N
+        X "def" N
+        "ghi" N
+        "" N
+        "jkl"
+    );
+    KEYS("<C-V>j" "2ip" "r-",
+        "" N
+        "abc" N
+        X "-ef" N
+        "-hi" N
+        "" N
+        "-kl"
+    );
+    KEYS("gv" "IX<ESC>",
+        "" N
+        "abc" N
+        "X-ef" N
+        "X-hi" N
+        "X" N
+        "X-kl"
+    );
+}
+
+void FakeVimPlugin::test_vim_select_a_paragraph()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vap" ":s/^/-<CR>",
+        "-abc" N
+        "-def" N
+        "-" N
+        "ghi"
+    );
+
+    data.setText(
+        "" N
+        "abc" N
+        "def" N
+        "" N
+        "ghi"
+    );
+    KEYS("vap" ":s/^/-<CR>",
+        "-" N
+        "-abc" N
+        "-def" N
+        "" N
+        "ghi"
+    );
+
+    data.setText(
+        "abc" N
+        "def" N
+        ""
+    );
+    KEYS("j" "vap" ":s/^/-<CR>",
+        "-abc" N
+        "-def" N
+        "-"
+    );
+
+    data.setText(
+        "" N
+        "abc" N
+        "def"
+    );
+    KEYS("j" "vap" ":s/^/-<CR>",
+        "-" N
+        "-abc" N
+        "-def"
     );
 }
 
@@ -1579,6 +2184,20 @@ void FakeVimPlugin::test_vim_search()
     data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
     KEYS("vj" "/abc<ESC>" "x", X "ef" N "abc" N "ghi abc jkl" N "xyz");
     KEYS("vj" "/xxx<CR>" "x", X "bc" N "ghi abc jkl" N "xyz");
+
+    // insert word under cursor (C-R C-W)
+    data.setText("abc def ghi def.");
+    KEYS("fe/<C-R><C-W><CR>", "abc def ghi " X "def.");
+    // insert register (C-R{register})
+    data.setText("abc def ghi def.");
+    KEYS("feyiw/<C-R>0<CR>", "abc def ghi " X "def.");
+    // insert non-existing register
+    data.setText("abc def ghi def.");
+    KEYS("feyiw/<C-R>adef<CR>", "abc def ghi " X "def.");
+    // abort C-R via Esc
+    data.doCommand("set noincsearch");
+    data.setText("abc def ghi def.");
+    KEYS("fe/d<C-R><ESC>ef<CR>", "abc def ghi " X "def.");
 }
 
 void FakeVimPlugin::test_vim_indent()
@@ -1656,6 +2275,59 @@ void FakeVimPlugin::test_vim_indent()
     data.setText("abc");
     KEYS(">>", "\t\t abc");
     INTEGRITY(false);
+
+    // indent inner block
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=2");
+    data.setText("int main()" N
+         "{" N
+         "int i = 0;" N
+         X "return i;" N
+         "}" N
+         "");
+    KEYS(">i{",
+         "int main()" N
+         "{" N
+         "  " X "int i = 0;" N
+         "  return i;" N
+         "}" N
+         "");
+    KEYS(">i}",
+         "int main()" N
+         "{" N
+         "    " X "int i = 0;" N
+         "    return i;" N
+         "}" N
+         "");
+    KEYS("<i}",
+         "int main()" N
+         "{" N
+         "  " X "int i = 0;" N
+         "  return i;" N
+         "}" N
+         "");
+
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=2");
+    data.setText("int main() {" N
+         "return i;" N
+         X "}" N
+         "");
+    KEYS("l>i{",
+         "int main() {" N
+         "  " X "return i;" N
+         "}" N
+         "");
+    KEYS("l>i}",
+         "int main() {" N
+         "    " X "return i;" N
+         "}" N
+         "");
+    KEYS("l<i}",
+         "int main() {" N
+         "  " X "return i;" N
+         "}" N
+         "");
 }
 
 void FakeVimPlugin::test_vim_marks()
@@ -1751,6 +2423,7 @@ void FakeVimPlugin::test_vim_current_column()
     KEYS("<up>", "  abc" N "  def 12" X "3" N "" N "  ghi");
     // ... in insert
     KEYS("i<end><up>", "  abc" X N "  def 123" N "" N "  ghi");
+    data.doKeys("<ESC>");
     KEYS("<down>i<end><up><down>", "  abc" N "  def 123" X N "" N "  ghi");
 
     // vertical movement doesn't reset column
@@ -1774,11 +2447,14 @@ void FakeVimPlugin::test_vim_current_column()
     data.setText("  abc" N "  def" N "  ghi");
     KEYS("lljj", "  abc" N "  def" N "  " X "ghi");
     KEYS("i123<up>", "  abc" N "  def" X N "  123ghi");
+    data.doKeys("<ESC>");
     KEYS("a456<up><down>", "  abc" N "  def456" X N "  123ghi");
 
     data.setText("  abc" N X "  def 123" N "" N "  ghi");
     KEYS("A<down><down>", "  abc" N "  def 123" N "" N "  ghi" X);
+    data.doKeys("<ESC>");
     KEYS("A<up><up>", "  abc" N "  def" X " 123" N "" N "  ghi");
+    data.doKeys("<ESC>");
     KEYS("A<down><down><up><up>", "  abc" N "  def 123" X N "" N "  ghi");
 
     data.setText("  abc" N X "  def 123" N "" N "  ghi");
@@ -1838,6 +2514,9 @@ void FakeVimPlugin::test_vim_copy_paste()
     KEYS("yj", "ab" X "c" N "def");
     data.setText("abc" N "de" X "f");
     KEYS("yk", "ab" X "c" N "def");
+    data.setText("ab" X "c" N "def");
+    KEYS("yy", "ab" X "c" N "def");
+    KEYS("2yy", "ab" X "c" N "def");
 
     // copy empty line
     data.setText(X "a" N "" N "b");
@@ -1851,6 +2530,24 @@ void FakeVimPlugin::test_vim_copy_paste()
     KEYS("j\"yyy", "abc" N "abc" N X "def" N "ghi");
     KEYS("gg\"yP", X "def" N "abc" N "abc" N "def" N "ghi");
     KEYS("\"xP", X "abc" N "def" N "abc" N "abc" N "def" N "ghi");
+
+    // delete to black hole register
+    data.setText("aaa bbb ccc");
+    KEYS("yiww\"_diwP", "aaa aaa ccc");
+    data.setText("aaa bbb ccc");
+    KEYS("yiwwdiwP", "aaa bbb ccc");
+
+    // yank register is only used for y{motion} commands
+    data.setText("aaa bbb ccc");
+    KEYS("yiwwdiw\"0P", "aaa aaa ccc");
+
+    // paste register in insert mode
+    data.setText("aaa bbb ccc ");
+    KEYS("yiwA<C-r>0", "aaa bbb ccc aaa");
+    KEYS("<C-r><Esc>x", "aaa bbb ccc aaax");
+    KEYS("<Esc>dd", "");
+    data.setText("aaa bbb");
+    KEYS("\"ayawA<C-r>a", "aaa bbbaaa ");
 }
 
 void FakeVimPlugin::test_vim_undo_redo()
@@ -2034,6 +2731,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "   return 0;" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("^i" "int x = 1;" N,
          "int main()" N
          "{" N
@@ -2043,6 +2741,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "   return 0;" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("c2k" "if (true) {" N ";" N "}",
          "int main()" N
          "{" N
@@ -2052,12 +2751,14 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "   return 0;" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("jci{" "return 1;",
          "int main()" N
          "{" N
          "   return 1;" X N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("di{",
          "int main()" N
          "{" N
@@ -2188,8 +2889,7 @@ void FakeVimPlugin::test_vim_code_completion()
     data.completeText("st");
     data.doKeys("1");
     data.completeText("Var");
-    data.doKeys(" = 0");
-    KEYS("",
+    KEYS(" = 0<ESC>",
         "int test1Var;" N
         "int test2Var;" N
         "int main() {" N
@@ -2201,8 +2901,7 @@ void FakeVimPlugin::test_vim_code_completion()
     data.completeText("st");
     data.doKeys("2");
     data.completeText("Var");
-    data.doKeys(" = 1;");
-    KEYS("",
+    KEYS(" = 1;<ESC>",
         "int test1Var;" N
         "int test2Var;" N
         "int main() {" N
@@ -2210,6 +2909,7 @@ void FakeVimPlugin::test_vim_code_completion()
         "    test2Var = 1" X ";" N
         "}" N
         "");
+    data.doKeys("<ESC>");
 
     // repeat text insertion with completion
     KEYS(".",
@@ -2313,6 +3013,15 @@ void FakeVimPlugin::test_vim_substitute()
     COMMAND("undo | s/f\\|$/-/g", "abc de-");
 }
 
+void FakeVimPlugin::test_vim_ex_commandbuffer_paste()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abc def abc def xyz");
+    KEYS("fyyiw0:s/<C-R><C-W>/<C-R>0/g<CR>", "xyz def xyz def xyz");
+}
+
 void FakeVimPlugin::test_vim_ex_yank()
 {
     TestData data;
@@ -2378,6 +3087,43 @@ void FakeVimPlugin::test_vim_ex_yank()
     KEYS("yiwp\"xyiw\"\"p",
         "aaabcb" X "cabcbc def" N
         "ghi jkl" N
+    );
+
+    // uppercase register appends to lowercase
+    data.setText(
+        "abc" N
+        "def" N
+        "ghi" N
+    );
+    KEYS("\"zdd" "\"zp",
+        "def" N
+        X "abc" N
+        "ghi" N
+    );
+    KEYS("k\"Zyy" "jj\"zp",
+        "def" N
+        "abc" N
+        "ghi" N
+        X "abc" N
+        "def" N
+    );
+    KEYS("k\"Zdd" "j\"Zp",
+        "def" N
+        "abc" N
+        "abc" N
+        "def" N
+        X "abc" N
+        "def" N
+        "ghi" N
+    );
+    KEYS("\"zdk" "gg\"zp",
+        "def" N
+        X "def" N
+        "abc" N
+        "abc" N
+        "abc" N
+        "def" N
+        "ghi" N
     );
 }
 
@@ -3401,6 +4147,21 @@ void FakeVimPlugin::test_vim_Visual_d()
     KEYS("P",     '|' + lmid(0,1)+'\n' + lmid(3));
 }
 
+void FakeVimPlugin::test_vim_visual_block_D()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abc def" N "ghi" N "" N "jklm");
+    KEYS("l<C-V>3j", "abc def" N "ghi" N "" N "jk" X "lm");
+    KEYS("D", X "a" N "g" N "" N "j");
+
+    KEYS("u", "a" X "bc def" N "ghi" N "" N "jklm");
+    KEYS("<C-R>", X "a" N "g" N "" N "j");
+    KEYS("u", "a" X "bc def" N "ghi" N "" N "jklm");
+    KEYS(".", X "a" N "g" N "" N "j");
+}
+
 void FakeVimPlugin::test_macros()
 {
     TestData data;
@@ -3452,6 +4213,25 @@ void FakeVimPlugin::test_macros()
     data.setText("   abc xyz>." N "   def xyz>." N "   ghi xyz>." N "   jkl xyz>.");
     KEYS("qq" "^wdf>j" "q", "   abc ." N "   def " X "xyz>." N "   ghi xyz>." N "   jkl xyz>.");
     KEYS("2@q", "   abc ." N "   def ." N "   ghi ." N "   jkl " X "xyz>.");
+
+    // record command line
+    data.setText("abc" N "def");
+    KEYS("qq" ":s/./*/g<ESC>" "iX<ESC>" "q", X "Xabc" N "def");
+    KEYS("@q", X "XXabc" N "def");
+
+    KEYS("qq" ":s/./*/g<BS><BS><BS><BS><BS><BS><BS><BS>" "iY<ESC>" "q", X "YXXabc" N "def");
+    KEYS("@q", X "YYXXabc" N "def");
+
+    KEYS("qq" ":s/./*/g<CR>" "q", X "*******" N "def");
+    KEYS("j@q", "*******" N X "***");
+
+    // record repeating last command
+    data.setText("abc" N "def");
+    KEYS(":s/./-/g<CR>", X "---" N "def");
+    KEYS("u", X "abc" N "def");
+    KEYS("qq" ":<UP><CR>" "q", X "---" N "def");
+    KEYS(":s/./!/g<CR>", X "!!!" N "def");
+    KEYS("j@q", "!!!" N X "!!!");
 }
 
 void FakeVimPlugin::test_vim_qtcreator()
@@ -3469,18 +4249,21 @@ void FakeVimPlugin::test_vim_qtcreator()
          "    ;" X N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("cc" "assert(arg1 != 0",
          "void f(int arg1) {" N
          "    // TODO" N
          "    assert(arg1 != 0" X ")" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("k" "." "A;",
          "void f(int arg1) {" N
          "    assert(arg1 != 0);" X N
          "    assert(arg1 != 0)" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("j.",
          "void f(int arg1) {" N
          "    assert(arg1 != 0);" N
@@ -3664,6 +4447,7 @@ void FakeVimPlugin::test_vim_qtcreator()
          "    if (arg1 > 0) return true;" N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("`'",
          "bool f(int arg1, int arg2 = 0) {" N
          "    assert(arg1 >= 0);" N
@@ -3678,6 +4462,7 @@ void FakeVimPlugin::test_vim_qtcreator()
          "    if (arg1 > 0) return false;" X N
          "}" N
          "");
+    data.doKeys("<ESC>");
     KEYS("k.",
          "bool f(int arg1, int arg2 = 0) {" N
          "    assert(arg1 >= 0);" N

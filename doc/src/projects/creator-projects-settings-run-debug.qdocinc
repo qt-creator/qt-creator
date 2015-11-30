@@ -2,8 +2,8 @@
 
     \image qtquick-debugging-settings.png "Debugger Settings"
 
-    To select the languages to debug, select the \gui {Enable C++} and
-    \gui {Enable QML} check boxes. The \gui {Debug port} is the port to
+    To select the languages to debug, select the \uicontrol {Enable C++} and
+    \uicontrol {Enable QML} check boxes. The \uicontrol {Debug port} is the port to
     communicate with the debugger. You can use any free port in the registered
     or dynamic port range.
 
@@ -14,6 +14,6 @@
 
     If you debug more than one application at a time, you might receive an error
     message stating that the port is already in use. Specify a free port number
-    in \gui {Debug port} and try again.
+    in \uicontrol {Debug port} and try again.
 
     For more information about debugging, see \l{Debugging}.

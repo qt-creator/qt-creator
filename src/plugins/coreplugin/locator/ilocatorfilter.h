@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -83,13 +84,13 @@ class CORE_EXPORT ILocatorFilter : public QObject
     Q_OBJECT
 
 public:
-    enum Priority {High = 0, Medium = 1, Low = 2};
+    enum Priority {Highest = 0, High = 1, Medium = 2, Low = 3};
 
     ILocatorFilter(QObject *parent = 0);
     virtual ~ILocatorFilter() {}
 
     /* Internal Id. */
-    Core::Id id() const;
+    Id id() const;
 
     /* Visible name. */
     QString displayName() const;
@@ -99,9 +100,16 @@ public:
 
     /* String to type to use this filter exclusively. */
     QString shortcutString() const;
+    void setShortcutString(const QString &shortcut);
 
-    /* List of matches for the given user entry. */
-    virtual QList<LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry) = 0;
+    /* Called on the main thread before matchesFor is called in a separate thread.
+       Can be used to perform actions that need to be done in the main thread before actually
+       running the search. */
+    virtual void prepareSearch(const QString &entry);
+
+    /* List of matches for the given user entry. This runs in a separate thread, but only
+       a single thread at a time. */
+    virtual QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry) = 0;
 
     /* User has selected the given entry that belongs to this filter. */
     virtual void accept(LocatorFilterEntry selection) const = 0;
@@ -128,6 +136,7 @@ public:
 
     /* Is this filter used also when the shortcutString is not used? */
     bool isIncludedByDefault() const;
+    void setIncludedByDefault(bool includedByDefault);
 
     /* Returns whether the filter should be hidden from configuration and menus. */
     bool isHidden() const;
@@ -138,21 +147,25 @@ public:
     static QString trimWildcards(const QString &str);
     static Qt::CaseSensitivity caseSensitivity(const QString &str);
 
+    static QString msgConfigureDialogTitle();
+    static QString msgPrefixLabel();
+    static QString msgPrefixToolTip();
+    static QString msgIncludeByDefault();
+    static QString msgIncludeByDefaultToolTip();
+
 public slots:
     /* Enable or disable the filter. */
     void setEnabled(bool enabled);
 
 protected:
-    void setShortcutString(const QString &shortcut);
-    void setIncludedByDefault(bool includedByDefault);
     void setHidden(bool hidden);
-    void setId(Core::Id id);
+    void setId(Id id);
     void setPriority(Priority priority);
     void setDisplayName(const QString &displayString);
     void setConfigurable(bool configurable);
 
 private:
-    Core::Id m_id;
+    Id m_id;
     QString m_shortcut;
     Priority m_priority;
     QString m_displayName;

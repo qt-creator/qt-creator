@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,10 +23,10 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-build-example-application.html
     \page creator-tutorials.html
-    \nextpage creator-qml-application.html
+    \nextpage {Creating a Qt Quick Application}
 
     \title Tutorials
 
@@ -46,10 +46,17 @@
 
             Learn how to create a Qt widget based application for the desktop.
 
-       \li \l{Creating an Android Application}
+       \li \l{Creating a Mobile Application}
 
             Learn how to create a Qt Quick application using Qt Quick Controls
-            for Android devices.
+            for Android and iOS devices.
+
+       \li \l{Using Qt Quick UI Forms}
+
+            Learn how to develop a Qt Quick application by using UI forms.
+            UI forms are split into \e .qml and \e .js files that contain the
+            business logic, and \e .ui.qml files that only contain the purely
+            declarative description of the UI.
 
     \endlist
 

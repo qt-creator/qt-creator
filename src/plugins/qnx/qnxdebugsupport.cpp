@@ -11,20 +11,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,9 +36,8 @@
 #include "qnxrunconfiguration.h"
 #include "slog2inforunner.h"
 
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
@@ -45,8 +45,7 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-
-#include <QFileInfo>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
@@ -54,9 +53,9 @@ using namespace RemoteLinux;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::DebuggerEngine *engine)
-    : QnxAbstractRunSupport(runConfig, engine)
-    , m_engine(engine)
+QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::DebuggerRunControl *runControl)
+    : QnxAbstractRunSupport(runConfig, runControl)
+    , m_runControl(runControl)
     , m_pdebugPort(-1)
     , m_qmlPort(-1)
     , m_useCppDebugger(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger())
@@ -70,10 +69,11 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
     connect(runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
     connect(runner, SIGNAL(remoteStderr(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
 
-    connect(m_engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleAdapterSetupRequested()));
+    connect(m_runControl, &Debugger::DebuggerRunControl::requestRemoteSetup,
+            this, &QnxDebugSupport::handleAdapterSetupRequested);
 
-    const QString applicationId = QFileInfo(runConfig->remoteExecutableFilePath()).fileName();
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit());
+    const QString applicationId = Utils::FileName::fromString(runConfig->remoteExecutableFilePath()).fileName();
+    IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
     QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
 
     m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
@@ -87,8 +87,8 @@ void QnxDebugSupport::handleAdapterSetupRequested()
 {
     QTC_ASSERT(state() == Inactive, return);
 
-    if (m_engine)
-        m_engine->showMessage(tr("Preparing remote side...") + QLatin1Char('\n'), Debugger::AppStuff);
+    if (m_runControl)
+        m_runControl->showMessage(tr("Preparing remote side...") + QLatin1Char('\n'), Debugger::AppStuff);
     QnxAbstractRunSupport::handleAdapterSetupRequested();
 }
 
@@ -105,13 +105,14 @@ void QnxDebugSupport::startExecution()
     setState(StartingRemoteProcess);
 
     if (m_useQmlDebugger)
-        m_engine->startParameters().processArgs += QString::fromLatin1(" -qmljsdebugger=port:%1,block").arg(m_qmlPort);
+        m_runControl->startParameters().processArgs +=
+                QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, m_qmlPort);
 
     QStringList arguments;
     if (m_useCppDebugger)
         arguments << QString::number(m_pdebugPort);
     else if (m_useQmlDebugger && !m_useCppDebugger)
-        arguments = Utils::QtcProcess::splitArgs(m_engine->startParameters().processArgs);
+        arguments = Utils::QtcProcess::splitArgs(m_runControl->startParameters().processArgs);
     appRunner()->setEnvironment(environment());
     appRunner()->setWorkingDirectory(workingDirectory());
     appRunner()->start(device(), executable(), arguments);
@@ -120,22 +121,29 @@ void QnxDebugSupport::startExecution()
 void QnxDebugSupport::handleRemoteProcessStarted()
 {
     QnxAbstractRunSupport::handleRemoteProcessStarted();
-    if (m_engine)
-        m_engine->notifyEngineRemoteSetupDone(m_pdebugPort, m_qmlPort);
+    if (m_runControl) {
+        Debugger::RemoteSetupResult result;
+        result.success = true;
+        result.gdbServerPort = m_pdebugPort;
+        result.qmlServerPort = m_qmlPort;
+        m_runControl->notifyEngineRemoteSetupFinished(result);
+    }
 }
 
 void QnxDebugSupport::handleRemoteProcessFinished(bool success)
 {
-    if (m_engine || state() == Inactive)
+    if (m_runControl || state() == Inactive)
         return;
 
     if (state() == Running) {
         if (!success)
-            m_engine->notifyInferiorIll();
+            m_runControl->notifyInferiorIll();
 
     } else {
-        const QString errorMsg = tr("The %1 process closed unexpectedly.").arg(executable());
-        m_engine->notifyEngineRemoteSetupFailed(errorMsg);
+        Debugger::RemoteSetupResult result;
+        result.success = false;
+        result.reason = tr("The %1 process closed unexpectedly.").arg(executable());
+        m_runControl->notifyEngineRemoteSetupFinished(result);
     }
 }
 
@@ -161,41 +169,45 @@ void QnxDebugSupport::killInferiorProcess()
 
 void QnxDebugSupport::handleProgressReport(const QString &progressOutput)
 {
-    if (m_engine)
-        m_engine->showMessage(progressOutput + QLatin1Char('\n'), Debugger::AppStuff);
+    if (m_runControl)
+        m_runControl->showMessage(progressOutput + QLatin1Char('\n'), Debugger::AppStuff);
 }
 
 void QnxDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
     QTC_ASSERT(state() == Inactive || state() == Running, return);
 
-    if (m_engine)
-        m_engine->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
+    if (m_runControl)
+        m_runControl->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
 }
 
 void QnxDebugSupport::handleError(const QString &error)
 {
     if (state() == Running) {
-        if (m_engine) {
-            m_engine->showMessage(error, Debugger::AppError);
-            m_engine->notifyInferiorIll();
+        if (m_runControl) {
+            m_runControl->showMessage(error, Debugger::AppError);
+            m_runControl->notifyInferiorIll();
         }
     } else if (state() != Inactive) {
         setFinished();
-        if (m_engine)
-            m_engine->notifyEngineRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
+        if (m_runControl) {
+            Debugger::RemoteSetupResult result;
+            result.success = false;
+            result.reason = tr("Initial setup failed: %1").arg(error);
+            m_runControl->notifyEngineRemoteSetupFinished(result);
+        }
     }
 }
 
 void QnxDebugSupport::printMissingWarning()
 {
-    if (m_engine)
-        m_engine->showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available!"), Debugger::AppError);
+    if (m_runControl)
+        m_runControl->showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), Debugger::AppError);
 }
 
 void QnxDebugSupport::handleApplicationOutput(const QString &msg, Utils::OutputFormat outputFormat)
 {
     Q_UNUSED(outputFormat);
-    if (m_engine)
-        m_engine->showMessage(msg, Debugger::AppOutput);
+    if (m_runControl)
+        m_runControl->showMessage(msg, Debugger::AppOutput);
 }

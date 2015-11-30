@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,27 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "tips.h"
-#include "tipcontents.h"
+#include "tooltip.h"
 #include "reuse.h"
 
 #include <utils/qtcassert.h>
@@ -48,58 +49,42 @@
 #include <QVBoxLayout>
 
 namespace Utils {
-    namespace Internal {
-
-namespace {
-    // @todo: Reuse...
-    QPixmap tilePixMap(int size)
-    {
-        const int checkerbordSize= size;
-        QPixmap tilePixmap(checkerbordSize * 2, checkerbordSize * 2);
-        tilePixmap.fill(Qt::white);
-        QPainter tilePainter(&tilePixmap);
-        QColor color(220, 220, 220);
-        tilePainter.fillRect(0, 0, checkerbordSize, checkerbordSize, color);
-        tilePainter.fillRect(checkerbordSize, checkerbordSize, checkerbordSize, checkerbordSize, color);
-        return tilePixmap;
-    }
-}
+namespace Internal {
 
 QTipLabel::QTipLabel(QWidget *parent) :
-    QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget),
-    m_tipContent(0)
+    QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget)
 {}
 
-QTipLabel::~QTipLabel()
+void QTipLabel::setHelpId(const QString &id)
 {
-    Utils::TipContent *tmpTipContent = m_tipContent;
-    m_tipContent = 0;
-    delete tmpTipContent;
+    m_helpId = id;
+    update();
 }
 
-bool QTipLabel::isInteractive() const
+QString QTipLabel::helpId() const
 {
-    return m_tipContent && m_tipContent->isInteractive();
+    return m_helpId;
 }
 
-void QTipLabel::setContent(const TipContent &content)
+
+ColorTip::ColorTip(QWidget *parent)
+    : QTipLabel(parent)
 {
-    Utils::TipContent *tmpTipContent = m_tipContent;
-    m_tipContent = content.clone();
-    delete tmpTipContent;
+    resize(40, 40);
 }
 
-const TipContent &QTipLabel::content() const
-{ return *m_tipContent; }
-
-ColorTip::ColorTip(QWidget *parent) : QTipLabel(parent)
+void ColorTip::setContent(const QVariant &content)
 {
-    resize(QSize(40, 40));
-    m_tilePixMap = tilePixMap(10);
-}
+    m_color = content.value<QColor>();
 
-ColorTip::~ColorTip()
-{}
+    const int size = 10;
+    m_tilePixmap = QPixmap(size * 2, size * 2);
+    m_tilePixmap.fill(Qt::white);
+    QPainter tilePainter(&m_tilePixmap);
+    QColor col(220, 220, 220);
+    tilePainter.fillRect(0, 0, size, size, col);
+    tilePainter.fillRect(size, size, size, size, col);
+}
 
 void ColorTip::configure(const QPoint &pos, QWidget *w)
 {
@@ -109,32 +94,30 @@ void ColorTip::configure(const QPoint &pos, QWidget *w)
     update();
 }
 
-bool ColorTip::canHandleContentReplacement(const TipContent &content) const
+bool ColorTip::canHandleContentReplacement(int typeId) const
 {
-    if (content.typeId() == ColorContent::COLOR_CONTENT_ID)
-        return true;
-    return false;
+    return typeId == ToolTip::ColorContent;
+}
+
+bool ColorTip::equals(int typeId, const QVariant &other, const QString &otherHelpId) const
+{
+    return typeId == ToolTip::ColorContent && otherHelpId == helpId() && other == m_color;
 }
 
 void ColorTip::paintEvent(QPaintEvent *event)
 {
     QTipLabel::paintEvent(event);
 
-    const QColor &color = static_cast<const ColorContent &>(content()).color();
+    QPainter painter(this);
+    painter.setBrush(m_color);
+    painter.drawTiledPixmap(rect(), m_tilePixmap);
 
     QPen pen;
-    pen.setWidth(1);
-    if (color.value() > 100)
-        pen.setColor(color.darker());
-    else
-        pen.setColor(color.lighter());
-
-    QPainter painter(this);
+    pen.setColor(m_color.value() > 100 ? m_color.darker() : m_color.lighter());
+    pen.setJoinStyle(Qt::MiterJoin);
+    const QRectF borderRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
     painter.setPen(pen);
-    painter.setBrush(color);
-    QRect r(1, 1, rect().width() - 2, rect().height() - 2);
-    painter.drawTiledPixmap(r, m_tilePixMap);
-    painter.drawRect(r);
+    painter.drawRect(borderRect);
 }
 
 TextTip::TextTip(QWidget *parent) : QTipLabel(parent)
@@ -149,13 +132,19 @@ TextTip::TextTip(QWidget *parent) : QTipLabel(parent)
     setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
 }
 
-TextTip::~TextTip()
-{}
+void TextTip::setContent(const QVariant &content)
+{
+    m_text = content.toString();
+}
 
 void TextTip::configure(const QPoint &pos, QWidget *w)
 {
-    const QString &text = static_cast<const TextContent &>(content()).text();
-    setText(text);
+    if (helpId().isEmpty())
+        setText(m_text);
+    else
+        setText(QString::fromLatin1("<table><tr><td valign=middle>%1</td><td>&nbsp;&nbsp;"
+                                    "<img src=\":/utils/tooltip/images/f1.png\"></td>"
+                                    "</tr></table>").arg(m_text));
 
     // Make it look good with the default ToolTip font on Mac, which has a small descent.
     QFontMetrics fm(font());
@@ -180,11 +169,19 @@ void TextTip::configure(const QPoint &pos, QWidget *w)
     resize(tipWidth, heightForWidth(tipWidth) + extraHeight);
 }
 
-bool TextTip::canHandleContentReplacement(const TipContent &content) const
+bool TextTip::canHandleContentReplacement(int typeId) const
 {
-    if (content.typeId() == TextContent::TEXT_CONTENT_ID)
-        return true;
-    return false;
+    return typeId == ToolTip::TextContent;
+}
+
+int TextTip::showTime() const
+{
+    return 10000 + 40 * qMax(0, m_text.size() - 100);
+}
+
+bool TextTip::equals(int typeId, const QVariant &other, const QString &otherHelpId) const
+{
+    return typeId == ToolTip::TextContent && otherHelpId == helpId() && other.toString() == m_text;
 }
 
 void TextTip::paintEvent(QPaintEvent *event)
@@ -216,52 +213,55 @@ WidgetTip::WidgetTip(QWidget *parent) :
     setLayout(m_layout);
 }
 
-QWidget *WidgetTip::takeWidget(Qt::WindowFlags wf)
+void WidgetTip::setContent(const QVariant &content)
 {
-    // Remove widget from layout
-    if (!m_layout->count())
-        return 0;
-    QLayoutItem *item = m_layout->takeAt(0);
-    QWidget *widget = item->widget();
-    delete item;
-    if (!widget)
-        return 0;
-    widget->setParent(0, wf);
-    return widget;
+    m_widget = content.value<QWidget *>();
 }
 
 void WidgetTip::configure(const QPoint &pos, QWidget *)
 {
-    const WidgetContent &anyContent = static_cast<const WidgetContent &>(content());
-    QWidget *widget = anyContent.widget();
-
-    QTC_ASSERT(widget && m_layout->count() == 0, return);
+    QTC_ASSERT(m_widget && m_layout->count() == 0, return);
 
     move(pos);
-    m_layout->addWidget(widget);
+    m_layout->addWidget(m_widget);
     m_layout->setSizeConstraint(QLayout::SetFixedSize);
     adjustSize();
 }
 
-void WidgetTip::pinToolTipWidget()
+void WidgetTip::pinToolTipWidget(QWidget *parent)
 {
     QTC_ASSERT(m_layout->count(), return);
 
     // Pin the content widget: Rip the widget out of the layout
     // and re-show as a tooltip, with delete on close.
     const QPoint screenPos = mapToGlobal(QPoint(0, 0));
-    QWidget *widget = takeWidget(Qt::ToolTip);
-    QTC_ASSERT(widget, return);
+    // Remove widget from layout
+    if (!m_layout->count())
+        return;
 
+    QLayoutItem *item = m_layout->takeAt(0);
+    QWidget *widget = item->widget();
+    delete item;
+    if (!widget)
+        return;
+
+    widget->setParent(parent, Qt::Tool|Qt::FramelessWindowHint);
     widget->move(screenPos);
     widget->show();
     widget->setAttribute(Qt::WA_DeleteOnClose);
 }
 
-bool WidgetTip::canHandleContentReplacement(const TipContent & ) const
+bool WidgetTip::canHandleContentReplacement(int typeId) const
 {
     // Always create a new widget.
+    Q_UNUSED(typeId);
     return false;
+}
+
+bool WidgetTip::equals(int typeId, const QVariant &other, const QString &otherHelpId) const
+{
+    return typeId == ToolTip::WidgetContent && otherHelpId == helpId()
+            && other.value<QWidget *>() == m_widget;
 }
 
 // need to include it here to force it to be inside the namespaces

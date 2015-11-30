@@ -15,10 +15,7 @@ HEADERS += qmlproject.h \
     qmlprojectrunconfigurationfactory.h \
     qmlprojectmanager_global.h \
     qmlprojectmanagerconstants.h \
-    qmlprojectrunconfigurationwidget.h \
-    qmlapp.h \
-    qmlapplicationwizard.h \
-    qmlapplicationwizardpages.h
+    qmlprojectrunconfigurationwidget.h
 
 SOURCES += qmlproject.cpp \
     qmlprojectenvironmentaspect.cpp \
@@ -28,9 +25,6 @@ SOURCES += qmlproject.cpp \
     qmlprojectfile.cpp \
     qmlprojectrunconfiguration.cpp \
     qmlprojectrunconfigurationfactory.cpp \
-    qmlprojectrunconfigurationwidget.cpp \
-    qmlapp.cpp \
-    qmlapplicationwizard.cpp \
-    qmlapplicationwizardpages.cpp
+    qmlprojectrunconfigurationwidget.cpp
 
 RESOURCES += qmlproject.qrc

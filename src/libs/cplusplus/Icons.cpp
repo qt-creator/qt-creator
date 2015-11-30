@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -39,15 +40,22 @@ using CPlusPlus::Icons;
 
 Icons::Icons()
     : _classIcon(QLatin1String(":/codemodel/images/class.png")),
+      _structIcon(QLatin1String(":/codemodel/images/struct.png")),
       _enumIcon(QLatin1String(":/codemodel/images/enum.png")),
       _enumeratorIcon(QLatin1String(":/codemodel/images/enumerator.png")),
       _funcPublicIcon(QLatin1String(":/codemodel/images/func.png")),
       _funcProtectedIcon(QLatin1String(":/codemodel/images/func_prot.png")),
       _funcPrivateIcon(QLatin1String(":/codemodel/images/func_priv.png")),
+      _funcPublicStaticIcon(QLatin1String(":/codemodel/images/func_st.png")),
+      _funcProtectedStaticIcon(QLatin1String(":/codemodel/images/func_prot_st.png")),
+      _funcPrivateStaticIcon(QLatin1String(":/codemodel/images/func_priv_st.png")),
       _namespaceIcon(QLatin1String(":/codemodel/images/namespace.png")),
       _varPublicIcon(QLatin1String(":/codemodel/images/var.png")),
       _varProtectedIcon(QLatin1String(":/codemodel/images/var_prot.png")),
       _varPrivateIcon(QLatin1String(":/codemodel/images/var_priv.png")),
+      _varPublicStaticIcon(QLatin1String(":/codemodel/images/var_st.png")),
+      _varProtectedStaticIcon(QLatin1String(":/codemodel/images/var_prot_st.png")),
+      _varPrivateStaticIcon(QLatin1String(":/codemodel/images/var_priv_st.png")),
       _signalIcon(QLatin1String(":/codemodel/images/signal.png")),
       _slotPublicIcon(QLatin1String(":/codemodel/images/slot.png")),
       _slotProtectedIcon(QLatin1String(":/codemodel/images/slot_prot.png")),
@@ -97,25 +105,28 @@ Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
         } else if (function->isSignal()) {
             return SignalIconType;
         } else if (symbol->isPublic()) {
-            return FuncPublicIconType;
+            return symbol->isStatic() ? FuncPublicStaticIconType : FuncPublicIconType;
         } else if (symbol->isProtected()) {
-            return FuncProtectedIconType;
+            return symbol->isStatic() ? FuncProtectedStaticIconType : FuncProtectedIconType;
         } else if (symbol->isPrivate()) {
-            return FuncPrivateIconType;
+            return symbol->isStatic() ? FuncPrivateStaticIconType : FuncPrivateIconType;
         }
     } else if (symbol->enclosingScope() && symbol->enclosingScope()->isEnum()) {
         return EnumeratorIconType;
     } else if (symbol->isDeclaration() || symbol->isArgument()) {
-        if (symbol->isPublic())
-            return VarPublicIconType;
-        else if (symbol->isProtected())
-            return VarProtectedIconType;
-        else if (symbol->isPrivate())
-            return VarPrivateIconType;
+        if (symbol->isPublic()) {
+            return symbol->isStatic() ? VarPublicStaticIconType : VarPublicIconType;
+        } else if (symbol->isProtected()) {
+            return symbol->isStatic() ? VarProtectedStaticIconType : VarProtectedIconType;
+        } else if (symbol->isPrivate()) {
+            return symbol->isStatic() ? VarPrivateStaticIconType : VarPrivateIconType;
+        }
     } else if (symbol->isEnum()) {
         return EnumIconType;
-    } else if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
-        return ClassIconType;
+    } else if (symbol->isForwardClassDeclaration()) {
+        return ClassIconType; // TODO: Store class key in ForwardClassDeclaration
+    } else if (const Class *klass = symbol->asClass()) {
+        return klass->isStruct() ? StructIconType : ClassIconType;
     } else if (symbol->isObjCClass() || symbol->isObjCForwardClassDeclaration()) {
         return ClassIconType;
     } else if (symbol->isObjCProtocol() || symbol->isObjCForwardProtocolDeclaration()) {
@@ -140,6 +151,8 @@ QIcon Icons::iconForType(IconType type) const
     switch (type) {
     case ClassIconType:
         return _classIcon;
+    case StructIconType:
+        return _structIcon;
     case EnumIconType:
         return _enumIcon;
     case EnumeratorIconType:
@@ -150,6 +163,12 @@ QIcon Icons::iconForType(IconType type) const
         return _funcProtectedIcon;
     case FuncPrivateIconType:
         return _funcPrivateIcon;
+    case FuncPublicStaticIconType:
+        return _funcPublicStaticIcon;
+    case FuncProtectedStaticIconType:
+        return _funcProtectedStaticIcon;
+    case FuncPrivateStaticIconType:
+        return _funcPrivateStaticIcon;
     case NamespaceIconType:
         return _namespaceIcon;
     case VarPublicIconType:
@@ -158,6 +177,12 @@ QIcon Icons::iconForType(IconType type) const
         return _varProtectedIcon;
     case VarPrivateIconType:
         return _varPrivateIcon;
+    case VarPublicStaticIconType:
+        return _varPublicStaticIcon;
+    case VarProtectedStaticIconType:
+        return _varProtectedStaticIcon;
+    case VarPrivateStaticIconType:
+        return _varPrivateStaticIcon;
     case SignalIconType:
         return _signalIcon;
     case SlotPublicIconType:

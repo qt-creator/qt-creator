@@ -41,13 +41,12 @@ public:
     const Name *base() const;
     const Name *name() const;
 
-    virtual bool isEqualTo(const Name *other) const;
-
     virtual const QualifiedNameId *asQualifiedNameId() const
     { return this; }
 
 protected:
     virtual void accept0(NameVisitor *visitor) const;
+    virtual bool match0(const Name *otherName, Matcher *matcher) const;
 
 private:
     const Name *_base;
@@ -64,13 +63,12 @@ public:
 
     virtual const Identifier *identifier() const;
 
-    virtual bool isEqualTo(const Name *other) const;
-
     virtual const DestructorNameId *asDestructorNameId() const
     { return this; }
 
 protected:
     virtual void accept0(NameVisitor *visitor) const;
+    virtual bool match0(const Name *otherName, Matcher *matcher) const;
 
 private:
     const Name *_name;
@@ -79,9 +77,9 @@ private:
 class CPLUSPLUS_EXPORT TemplateNameId: public Name
 {
 public:
-    template <typename _Iterator>
-    TemplateNameId(const Identifier *identifier, bool isSpecialization, _Iterator first,
-                   _Iterator last)
+    template <typename Iterator>
+    TemplateNameId(const Identifier *identifier, bool isSpecialization, Iterator first,
+                   Iterator last)
         : _identifier(identifier)
         , _templateArguments(first, last)
         , _isSpecialization(isSpecialization) {}
@@ -93,8 +91,6 @@ public:
     // ### find a better name
     unsigned templateArgumentCount() const;
     const FullySpecifiedType &templateArgumentAt(unsigned index) const;
-
-    virtual bool isEqualTo(const Name *other) const;
 
     virtual const TemplateNameId *asTemplateNameId() const
     { return this; }
@@ -115,6 +111,7 @@ public:
 
 protected:
     virtual void accept0(NameVisitor *visitor) const;
+    virtual bool match0(const Name *otherName, Matcher *matcher) const;
 
 private:
     const Identifier *_identifier;
@@ -187,13 +184,13 @@ public:
     Kind kind() const;
 
     virtual const Identifier *identifier() const;
-    virtual bool isEqualTo(const Name *other) const;
 
     virtual const OperatorNameId *asOperatorNameId() const
     { return this; }
 
 protected:
     virtual void accept0(NameVisitor *visitor) const;
+    virtual bool match0(const Name *otherName, Matcher *matcher) const;
 
 private:
     Kind _kind;
@@ -208,13 +205,13 @@ public:
     FullySpecifiedType type() const;
 
     virtual const Identifier *identifier() const;
-    virtual bool isEqualTo(const Name *other) const;
 
     virtual const ConversionNameId *asConversionNameId() const
     { return this; }
 
 protected:
     virtual void accept0(NameVisitor *visitor) const;
+    virtual bool match0(const Name *otherName, Matcher *matcher) const;
 
 private:
     FullySpecifiedType _type;
@@ -223,8 +220,8 @@ private:
 class CPLUSPLUS_EXPORT SelectorNameId: public Name
 {
 public:
-    template <typename _Iterator>
-    SelectorNameId(_Iterator first, _Iterator last, bool hasArguments)
+    template <typename Iterator>
+    SelectorNameId(Iterator first, Iterator last, bool hasArguments)
         : _names(first, last), _hasArguments(hasArguments) {}
 
     virtual ~SelectorNameId();
@@ -234,8 +231,6 @@ public:
     unsigned nameCount() const;
     const Name *nameAt(unsigned index) const;
     bool hasArguments() const;
-
-    virtual bool isEqualTo(const Name *other) const;
 
     virtual const SelectorNameId *asSelectorNameId() const
     { return this; }
@@ -247,6 +242,7 @@ public:
 
 protected:
     virtual void accept0(NameVisitor *visitor) const;
+    virtual bool match0(const Name *otherName, Matcher *matcher) const;
 
 private:
     std::vector<const Name *> _names;
@@ -262,13 +258,13 @@ public:
     unsigned classTokenIndex() const;
 
     virtual const Identifier *identifier() const;
-    virtual bool isEqualTo(const Name *other) const;
 
     virtual const AnonymousNameId *asAnonymousNameId() const
     { return this; }
 
 protected:
     virtual void accept0(NameVisitor *visitor) const;
+    virtual bool match0(const Name *otherName, Matcher *matcher) const;
 
 private:
     unsigned _classTokenIndex;

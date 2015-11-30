@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -61,8 +62,8 @@ static inline void debugNodeFlags(std::ostream &str, unsigned f)
         str << " DumperOk";
     if (f & SymbolGroupNode::SimpleDumperFailed)
         str << " DumperFailed";
-    if (f & SymbolGroupNode::ExpandedByDumper)
-        str << " ExpandedByDumper";
+    if (f & SymbolGroupNode::ExpandedByRequest)
+        str << " ExpandedByRequest";
     if (f & SymbolGroupNode::AdditionalSymbol)
         str << " AdditionalSymbol";
     if (f & SymbolGroupNode::Obscured)
@@ -166,7 +167,12 @@ bool AbstractSymbolGroupNode::accept(SymbolGroupNodeVisitor &visitor,
     case SymbolGroupNodeVisitor::VisitSkipChildren:
         break;
     case SymbolGroupNodeVisitor::VisitContinue: {
-        const AbstractSymbolGroupNodePtrVector &c = children();
+        AbstractSymbolGroupNodePtrVector c = children();
+        if (visitor.sortChildrenAlphabetically() && !testFlags(SymbolGroupNode::PreSortedChildren)) {
+            std::sort(c.begin(), c.end(), [](AbstractSymbolGroupNode *a, AbstractSymbolGroupNode *b) {
+                return a->name() < b->name();
+            });
+        }
         const unsigned childCount = unsigned(c.size());
         for (unsigned i = 0; i < childCount; ++i)
             if (c.at(i)->accept(visitor, fullIname, i, childDepth))
@@ -195,8 +201,10 @@ void AbstractSymbolGroupNode::dumpBasicData(std::ostream &str, const std::string
     str << "iname=\"" << aFullIname << "\",name=\"" << aName << '"';
     if (!type.empty())
         str << ",type=\"" << type << '"';
-    if (!expression.empty())
-        str << ",exp=\"" << expression  << '"';
+    if (WatchesSymbolGroup::isWatchIname(aFullIname))
+        str << ",exp=\"" << aName << '"';
+    else if (!expression.empty())
+        str << ",exp=\"" << expression << '"';
 }
 
 void AbstractSymbolGroupNode::setParent(AbstractSymbolGroupNode *n)
@@ -352,27 +360,15 @@ int DumpParameters::format(const std::string &type, const std::string &iname) co
     return -1;
 }
 
-enum PointerFormats // Watch data pointer format requests
+// Watch data pointer format requests. This should match the values
+// in DisplayFormat in watchhandler.h.
+enum PointerFormats
 {
     FormatAuto = 0,
-    FormatLatin1String = 1,
-    FormatUtf8String = 2,
-    FormatUtf16String = 3,
-    FormatUcs4String = 4
-};
-
-enum DumpEncoding // WatchData encoding of GDBMI values
-{
-    DumpEncodingAscii = 0,
-    DumpEncodingBase64_Utf16_WithQuotes = 2,
-    DumpEncodingHex_Ucs4_LittleEndian_WithQuotes = 3,
-    DumpEncodingBase64_Utf16 = 4,
-    DumpEncodingHex_Latin1_WithQuotes = 6,
-    DumpEncodingHex_Utf8_LittleEndian_WithQuotes = 9,
-    DumpEncodingJulianDate = 14,
-    DumpEncodingMillisecondsSinceMidnight = 15,
-    DumpEncodingJulianDateAndMillisecondsSinceMidnight = 16,
-    DumpEncodingMillisecondsSinceEpoch = 29
+    FormatLatin1String = 101,
+    FormatUtf8String = 102,
+    FormatUtf16String = 104,
+    FormatUcs4String = 105
 };
 
 /* Recode arrays/pointers of char*, wchar_t according to users
@@ -424,7 +420,7 @@ DumpParameters::checkRecode(const std::string &type,
     switch (type.at(type.size() - 1)) {
     case '*':
         reformatType = ReformatPointer;
-        if (value.compare(0, 2, L"0x"))
+        if (value.compare(0, 2, L"0x") != 0)
             return result;
         break;
     case ']':
@@ -555,7 +551,7 @@ std::ostream &operator<<(std::ostream &os, const DumpParameters &d)
     if (!d.individualFormats.empty()) {
         os << ", individual formats: ";
         DumpParameters::FormatMap::const_iterator cend = d.individualFormats.end();
-        for (DumpParameters::FormatMap::const_iterator it = d.typeFormats.begin(); it != cend; ++it)
+        for (DumpParameters::FormatMap::const_iterator it = d.individualFormats.begin(); it != cend; ++it)
             os << ' ' << it->first << ':' << it->second;
         os << '\n';
     }
@@ -603,8 +599,8 @@ void ErrorSymbolGroupNode::debug(std::ostream &os, const std::string &visitingFu
  \endlist
 
  The dumping is mostly based on SymbolGroupValue expressions.
- in the debugger. Evaluating those dumpers might expand symbol nodes, which are
- then marked as 'ExpandedByDumper'. This stops the dump recursion to prevent
+ in the debugger. Evaluating those dumpers might expand symbol nodes, but those
+ are not marked as 'ExpandedByRequest'. This stops the dump recursion to prevent
  outputting data that were not explicitly expanded by the watch handler.
  \ingroup qtcreatorcdbext */
 
@@ -617,6 +613,7 @@ SymbolGroupNode::SymbolGroupNode(SymbolGroup *symbolGroup,
     , m_symbolGroup(symbolGroup)
     , m_module(module)
     , m_index(index)
+    , m_dumperValueEncoding(0)
     , m_dumperType(-1)
     , m_dumperContainerSize(-1)
     , m_dumperSpecialInfo(0)
@@ -690,40 +687,55 @@ bool SymbolGroupNode::notifyIndexesMoved(ULONG index, bool inserted, ULONG offse
     return true;
 }
 
-// Fix names: fix complicated template base names
-static inline void fixName(std::string *name)
+static inline void fixNameAndIname(unsigned &unnamedId, unsigned &templateId,
+                                   std::string &iname, std::string &name)
 {
-    // Long template base classes 'std::tree_base<Key....>' -> 'std::tree<>'
-    // for nice display
-    const std::string::size_type templatePos = name->find('<');
-    if (templatePos != std::string::npos) {
-        name->erase(templatePos + 1, name->size() - templatePos - 1);
-        name->push_back('>');
+    if (name.empty() || name == "__formal") {
+        const std::string number = toString(unnamedId++);
+        name = "<unnamed "  + number + '>';
+        iname = "unnamed#" + number;
+    } else {
+        // Fix names: fix complicated template base names
+        // Long template base classes 'std::tree_base<Key....>' -> 'std::tree<>'
+        // for nice display
+        std::string::size_type templatePos = name.find('<');
+        if (templatePos != std::string::npos) {
+            name.erase(templatePos + 1, name.size() - templatePos - 1);
+            name.push_back('>');
+        }
+
+        // Fix array iname "[0]" -> "0" for sorting to work correctly
+        if (!iname.empty() && iname.at(0) == '[') {
+            const std::string::size_type last = iname.size() - 1;
+            if (iname.at(last) == ']') {
+                iname.erase(last, 1);
+                iname.erase(0, 1);
+                return;
+            }
+        }
+        // Fix inames: arrays and long, complicated template base names
+        // Long template base classes 'std::tree_base<Key....' -> 'tree@t1',
+        // usable as identifier and command line parameter
+        templatePos = iname.find('<');
+        if (templatePos != std::string::npos) {
+            iname.erase(templatePos, iname.size() - templatePos);
+            if (iname.compare(0, 5, "std::") == 0)
+                iname.erase(0, 5);
+            iname.append("@t");
+            iname.append(toString(templateId++));
+        }
     }
 }
 
-// Fix inames: arrays and long, complicated template base names
-static inline void fixIname(unsigned &id, std::string *iname)
+static inline void addShadowCount(const StringVector::size_type count,
+                                  std::string &iname, std::string &name)
 {
-    // Fix array iname "[0]" -> "0" for sorting to work correctly
-    if (!iname->empty() && iname->at(0) == '[') {
-        const std::string::size_type last = iname->size() - 1;
-        if (iname->at(last) == ']') {
-            iname->erase(last, 1);
-            iname->erase(0, 1);
-            return;
-        }
-    }
-    // Long template base classes 'std::tree_base<Key....' -> 'tree@t1',
-    // usable as identifier and command line parameter
-    const std::string::size_type templatePos = iname->find('<');
-    if (templatePos != std::string::npos) {
-        iname->erase(templatePos, iname->size() - templatePos);
-        if (iname->compare(0, 5, "std::") == 0)
-            iname->erase(0, 5);
-        iname->append("@t");
-        iname->append(toString(id++));
-    }
+    const std::string number = toString(count);
+    name += " <shadowed ";
+    name += number;
+    name += '>';
+    iname += '#';
+    iname += number;
 }
 
 // Fix up names and inames
@@ -741,27 +753,33 @@ static inline void fixNames(bool isTopLevel, StringVector *names, StringVector *
        if (true)
           int x = 5; (2)  // Occurrence (2), should be reported as name="x"/iname="x"
       \endcode */
-    StringVector::iterator nameIt = names->begin();
-    const StringVector::iterator namesEnd = names->end();
-    for (StringVector::iterator iNameIt = inames->begin(); nameIt != namesEnd ; ++nameIt, ++iNameIt) {
-        std::string &name = *nameIt;
-        std::string &iname = *iNameIt;
-        if (name.empty() || name == "__formal") {
-            const std::string number = toString(unnamedId++);
-            name = "<unnamed "  + number + '>';
-            iname = "unnamed#" + number;
-        } else {
-            fixName(&name);
-            fixIname(templateId, &iname);
+
+    const ExtensionContext::CdbVersion cdbVersion = ExtensionContext::instance().cdbVersion();
+    const bool reverseOrder = cdbVersion.major == 6 && cdbVersion.minor < 10;
+    if (reverseOrder) {
+        StringVector::reverse_iterator nameIt = names->rbegin();
+        const StringVector::reverse_iterator namesEnd = names->rend();
+        StringVector::reverse_iterator iNameIt = inames->rbegin();
+        for (; nameIt != namesEnd ; ++nameIt, ++iNameIt) {
+            std::string &name = *nameIt;
+            std::string &iname = *iNameIt;
+            fixNameAndIname(unnamedId, templateId, iname, name);
+            if (isTopLevel) {
+                if (const StringVector::size_type count = std::count(nameIt + 1, namesEnd, name))
+                    addShadowCount(count, iname, name);
+            }
         }
-        if (isTopLevel) {
-            if (const StringVector::size_type shadowCount = std::count(nameIt + 1, namesEnd, name)) {
-                const std::string number = toString(shadowCount);
-                name += " <shadowed ";
-                name += number;
-                name += '>';
-                iname += '#';
-                iname += number;
+    } else {
+        StringVector::iterator nameIt = names->begin();
+        const StringVector::iterator namesEnd = names->end();
+        StringVector::iterator iNameIt = inames->begin();
+        for (; nameIt != namesEnd ; ++nameIt, ++iNameIt) {
+            std::string &name = *nameIt;
+            std::string &iname = *iNameIt;
+            fixNameAndIname(unnamedId, templateId, iname, name);
+            if (isTopLevel) {
+                if (const StringVector::size_type count = std::count(nameIt + 1, namesEnd, name))
+                    addShadowCount(count, iname, name);
             }
         }
     }
@@ -773,7 +791,6 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
                                       const SymbolGroup::SymbolParameterVector &vec)
 {
     static char buf[BufSize];
-    ULONG obtainedSize;
 
     const bool isTopLevel = index == DEBUG_ANY_ID;
     if (isTopLevel) {
@@ -795,7 +812,7 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
     for (VectorIndexType pos = startIndex - parameterOffset; pos < size ; ++pos) {
         if (vec.at(pos).ParentSymbol == index) {
             const VectorIndexType symbolGroupIndex = pos + parameterOffset;
-            if (FAILED(m_symbolGroup->debugSymbolGroup()->GetSymbolName(ULONG(symbolGroupIndex), buf, BufSize, &obtainedSize)))
+            if (FAILED(m_symbolGroup->debugSymbolGroup()->GetSymbolName(ULONG(symbolGroupIndex), buf, BufSize, NULL)))
                 buf[0] = '\0';
             names.push_back(std::string(buf));
         }
@@ -1010,7 +1027,6 @@ void SymbolGroupNode::runComplexDumpers(const SymbolGroupValueContext &ctx)
     if (ctChildren.empty())
         return;
 
-    clearFlags(ExpandedByDumper);
     // Mark current children as obscured. We cannot show both currently
     // as this would upset the numerical sorting of the watch model
     AbstractSymbolGroupNodePtrVectorConstIterator cend = children().end();
@@ -1034,7 +1050,7 @@ bool SymbolGroupNode::runSimpleDumpers(const SymbolGroupValueContext &ctx)
         return true;
     if (testFlags(SimpleDumperMask))
         return false;
-    addFlags(dumpSimpleType(this , ctx, &m_dumperValue,
+    addFlags(dumpSimpleType(this , ctx, &m_dumperValue, &m_dumperValueEncoding,
                             &m_dumperType, &m_dumperContainerSize,
                             &m_dumperSpecialInfo, &m_memory));
     if (symbolGroupDebug)
@@ -1044,12 +1060,14 @@ bool SymbolGroupNode::runSimpleDumpers(const SymbolGroupValueContext &ctx)
     return testFlags(SimpleDumperOk);
 }
 
-std::wstring SymbolGroupNode::simpleDumpValue(const SymbolGroupValueContext &ctx)
+std::wstring SymbolGroupNode::simpleDumpValue(const SymbolGroupValueContext &ctx, int *encoding)
 {
     if (testFlags(Uninitialized))
         return L"<not in scope>";
-    if (runSimpleDumpers(ctx))
+    if (runSimpleDumpers(ctx)) {
+        *encoding = m_dumperValueEncoding;
         return m_dumperValue;
+    }
     return symbolGroupFixedValue();
 }
 
@@ -1097,10 +1115,11 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     const std::string watchExp = t.empty() ? aName : watchExpression(addr, t, m_dumperType, m_module);
     SymbolGroupNode::dumpBasicData(str, aName, aFullIName, t, watchExp);
 
-    std::wstring value = simpleDumpValue(ctx);
+    int encoding = 0;
+    std::wstring value = simpleDumpValue(ctx, &encoding);
 
     if (addr) {
-        str << std::hex << std::showbase << ",addr=\"" << addr << '"';
+        str << std::hex << std::showbase << ",address=\"" << addr << '"';
         if (SymbolGroupValue::isPointerType(t)) {
             std::string::size_type pointerPos = value.rfind(L"0x");
             if (pointerPos != std::string::npos) {
@@ -1120,21 +1139,6 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     bool valueEditable = !uninitialized;
     bool valueEnabled = !uninitialized;
 
-    // Shall it be recoded?
-    int encoding = 0;
-    switch (knownType(t, 0)) {
-    case KT_QDate:
-        encoding = DumpEncodingJulianDate;
-        break;
-    case KT_QTime:
-        encoding = DumpEncodingMillisecondsSinceMidnight;
-        break;
-    case KT_QDateTime:
-        encoding = QtInfo::get(ctx).version < 5
-                ? DumpEncodingJulianDateAndMillisecondsSinceMidnight
-                : DumpEncodingMillisecondsSinceEpoch;
-        break;
-    }
     if (encoding) {
         str << ",valueencoded=\"" << encoding << "\",value=\"" << gdbmiWStringFormat(value) <<'"';
     } else if (dumpParameters.recode(t, aFullIName, ctx, addr, &value, &encoding)) {
@@ -1269,11 +1273,8 @@ bool SymbolGroupNode::expand(std::string *errorMessage)
         DebugPrint() << "SymbolGroupNode::expand "  << name()
                      <<'/' << absoluteFullIName() << ' '
                     << m_index << DebugNodeFlags(flags());
-    if (isExpanded()) {
-        // Clear the flag indication dumper expansion on a second, explicit request
-        clearFlags(ExpandedByDumper);
+    if (isExpanded())
         return true;
-    }
     if (!canExpand()) {
         *errorMessage = msgExpandFailed(name(), absoluteFullIName(), m_index,
                                         "No subelements to expand in node.");
@@ -1411,36 +1412,78 @@ SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &module,
                                                   std::string *errorMessage)
 {
     ULONG index = DEBUG_ANY_ID; // Append
-    HRESULT hr = m_symbolGroup->debugSymbolGroup()->AddSymbol(name.c_str(), &index);
+
+    char buf[BufSize];
+    CIDebugSymbolGroup *symbolGroup = m_symbolGroup->debugSymbolGroup();
+    SymbolParameterVector indexParameters(1, DEBUG_SYMBOL_PARAMETERS());
+
+    static const char separator = '.';
+    std::string::size_type partStart = 0;
+    std::string::size_type partEnd = name.find(separator);
+    std::string namePart = name.substr(0, partEnd);
+
+    HRESULT hr = symbolGroup->AddSymbol(namePart.c_str(), &index);
     if (FAILED(hr)) {
-        *errorMessage = msgCannotAddSymbol(name, msgDebugEngineComFailed("AddSymbol", hr));
+        *errorMessage = msgCannotAddSymbol(namePart, msgDebugEngineComFailed("AddSymbol", hr));
         ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
         return 0;
     }
-    if (index == DEBUG_ANY_ID) { // Occasionally happens for unknown or 'complicated' types
-        *errorMessage = msgCannotAddSymbol(name, "DEBUG_ANY_ID was returned as symbol index by AddSymbol.");
-        ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
-        return 0;
-    }
-    SymbolParameterVector parameters(1, DEBUG_SYMBOL_PARAMETERS());
-    hr = m_symbolGroup->debugSymbolGroup()->GetSymbolParameters(index, 1, &(*parameters.begin()));
-    if (FAILED(hr)) { // Should never fail
-        std::ostringstream str;
-        str << "Cannot retrieve 1 symbol parameter entry at " << index << ": "
-            << msgDebugEngineComFailed("GetSymbolParameters", hr);
-        *errorMessage = msgCannotAddSymbol(name, str.str());
-        return 0;
-    }
-    // Paranoia: Check for cuckoo's eggs (which should not happen)
-    if (parameters.front().ParentSymbol != m_index) {
-        *errorMessage = msgCannotAddSymbol(name, "Parent id mismatch");
-        return 0;
-    }
+
+    do {
+        if (index == DEBUG_ANY_ID) { // Occasionally happens for unknown or 'complicated' types
+            *errorMessage = msgCannotAddSymbol(namePart, "DEBUG_ANY_ID was returned as symbol index by AddSymbol.");
+            ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
+            return 0;
+        }
+        hr = symbolGroup->GetSymbolParameters(index, 1, &(*indexParameters.begin()));
+        if (FAILED(hr)) { // Should never fail
+            std::ostringstream str;
+            str << "Cannot retrieve 1 symbol parameter entry at " << index << ": "
+                << msgDebugEngineComFailed("GetSymbolParameters", hr);
+            *errorMessage = msgCannotAddSymbol(namePart, str.str());
+            return 0;
+        }
+
+        if (partEnd == std::string::npos)
+            break;
+        partStart = partEnd + 1;
+        partEnd = name.find(separator, partStart);
+        namePart = name.substr(partStart, partEnd == std::string::npos ? partEnd
+                                                                       : partEnd - partStart);
+
+        hr = symbolGroup->ExpandSymbol(index, TRUE);
+        if (FAILED(hr)) {
+            std::ostringstream str;
+            str << "Cannot expand " << namePart.c_str() << ": "
+                << msgDebugEngineComFailed("ExpandSymbol", hr);
+            *errorMessage = msgCannotAddSymbol(name, str.str());
+            return 0;
+        }
+        ULONG childCount = indexParameters.at(0).SubElements;
+        SymbolParameterVector childParameters(childCount + 1, DEBUG_SYMBOL_PARAMETERS());
+        SymbolGroup::getSymbolParameters(symbolGroup, index,
+                                         childCount + 1, &childParameters, errorMessage);
+
+        const VectorIndexType size = childParameters.size();
+        ULONG newIndex = DEBUG_ANY_ID;
+        for (VectorIndexType pos = 1; pos < size ; ++pos) {
+            if (childParameters.at(pos).ParentSymbol != index)
+                continue;
+            if (FAILED(symbolGroup->GetSymbolName(ULONG(index + pos), buf, BufSize, NULL)))
+                buf[0] = '\0';
+            if (!namePart.compare(buf)) {
+                newIndex = index + (ULONG)pos;
+                break;
+            }
+        }
+        index = newIndex;
+    } while (true);
+
     SymbolGroupNode *node = new SymbolGroupNode(m_symbolGroup, index,
                                                 module,
                                                 displayName.empty() ? name : displayName,
                                                 iname.empty() ? name : iname);
-    node->parseParameters(0, 0, parameters);
+    node->parseParameters(0, 0, indexParameters);
     node->addFlags(AdditionalSymbol);
     addChild(node);
     return node;
@@ -1559,7 +1602,7 @@ int MapNodeSymbolGroupNode::dump(std::ostream &str, const std::string &visitingF
 {
     SymbolGroupNode::dumpBasicData(str, name(), visitingFullIname);
     if (m_address)
-        str << ",addr=\"0x" << std::hex << m_address << '"';
+        str << ",address=\"0x" << std::hex << m_address << '"';
     str << ",type=\"" << m_type << "\",valueencoded=\"0\",value=\"\",valueenabled=\"false\""
            ",valueeditable=\"false\"";
     return 2;
@@ -1661,6 +1704,17 @@ SymbolGroupNodeVisitor::VisitResult
         return VisitSkipChildren;
     if (node->testFlags(SymbolGroupNode::AdditionalSymbol) && !node->testFlags(SymbolGroupNode::WatchNode))
         return VisitSkipChildren;
+    // Recurse to children only if expanded by explicit watchmodel request
+    // and initialized.
+    bool visitChildren = true; // Report only one level for Qt Creator.
+    // Visit children of a SymbolGroupNode only if not expanded by its dumpers.
+    if (const SymbolGroupNode *realNode = node->resolveReference()->asSymbolGroupNode()) {
+        if (!realNode->isExpanded()
+                || realNode->testFlags(SymbolGroupNode::Uninitialized)
+                || !realNode->testFlags(SymbolGroupNode::ExpandedByRequest)) {
+            visitChildren = false;
+        }
+    }
     // Comma between same level children given obscured children
     if (depth == m_lastDepth)
         m_os << ',';
@@ -1673,28 +1727,16 @@ SymbolGroupNodeVisitor::VisitResult
     m_os << '{';
     const int childCount = node->dump(m_os, fullIname, m_parameters, m_context);
     m_os << ",numchild=\"" << childCount << '"';
-
-    if (childCount) {
-        // Recurse to children only if expanded by explicit watchmodel request
-        // and initialized.
-        // Visit children of a SymbolGroupNode only if not expanded by its dumpers.
-        bool skipit = false;
-        if (const SymbolGroupNode *realNode = node->resolveReference()->asSymbolGroupNode()) {
-            if (!realNode->isExpanded() || realNode->testFlags(SymbolGroupNode::Uninitialized | SymbolGroupNode::ExpandedByDumper))
-                skipit = true;
-        }
-        if (!skipit) {
-            m_os << ",children=[";
-            if (m_parameters.humanReadable())
-                m_os << '\n';
-            return VisitContinue;
-        }
+    if (!childCount)
+        visitChildren = false;
+    if (visitChildren) { // open children array
+        m_os << ",children=[";
+    } else {               // No children, close array.
+        m_os << '}';
     }
-    // No children, close array.
-    m_os << '}';
     if (m_parameters.humanReadable())
         m_os << '\n';
-    return VisitSkipChildren;
+    return visitChildren ? VisitContinue : VisitSkipChildren;
 }
 
 void DumpSymbolGroupNodeVisitor::childrenVisited(const AbstractSymbolGroupNode *n, unsigned)

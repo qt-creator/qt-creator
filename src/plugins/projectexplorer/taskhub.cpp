@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,38 +9,56 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "taskhub.h"
+#include "projectexplorerconstants.h"
 
+#include <coreplugin/coreicons.h>
 #include <coreplugin/ioutputpane.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 using namespace ProjectExplorer;
 
 TaskHub *m_instance = 0;
+QVector<Core::Id> TaskHub::m_registeredCategories;
 
-class TaskMark : public TextEditor::BaseTextMark
+static Core::Id categoryForType(Task::TaskType type)
+{
+    switch (type) {
+    case Task::Error:
+        return Constants::TASK_MARK_ERROR;
+    case Task::Warning:
+        return Constants::TASK_MARK_WARNING;
+    default:
+        return Core::Id();
+    }
+}
+
+class TaskMark : public TextEditor::TextMark
 {
 public:
-    TaskMark(unsigned int id, const QString &fileName, int lineNumber, bool visible)
-        : BaseTextMark(fileName, lineNumber), m_id(id)
+    TaskMark(unsigned int id, const QString &fileName, int lineNumber, Task::TaskType type, bool visible)
+        : TextMark(fileName, lineNumber, categoryForType(type))
+        , m_id(id)
     {
         setVisible(visible);
     }
@@ -58,13 +76,13 @@ private:
 void TaskMark::updateLineNumber(int lineNumber)
 {
     TaskHub::updateTaskLineNumber(m_id, lineNumber);
-    BaseTextMark::updateLineNumber(lineNumber);
+    TextMark::updateLineNumber(lineNumber);
 }
 
 void TaskMark::updateFileName(const QString &fileName)
 {
     TaskHub::updateTaskFileName(m_id, fileName);
-    BaseTextMark::updateFileName(fileName);
+    TextMark::updateFileName(fileName);
 }
 
 void TaskMark::removedFromEditor()
@@ -83,12 +101,16 @@ void TaskMark::clicked()
 }
 
 TaskHub::TaskHub()
-    : m_errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png")),
-      m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"))
+    : m_errorIcon(Core::Icons::ERROR.icon()),
+      m_warningIcon(Core::Icons::WARNING.icon())
 {
     m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
     qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
+    TaskMark::setCategoryColor(Constants::TASK_MARK_ERROR,
+                               Utils::Theme::ProjectExplorer_TaskError_TextMarkColor);
+    TaskMark::setCategoryColor(Constants::TASK_MARK_WARNING,
+                               Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
 }
 
 TaskHub::~TaskHub()
@@ -99,10 +121,12 @@ TaskHub::~TaskHub()
 void TaskHub::addCategory(Core::Id categoryId, const QString &displayName, bool visible)
 {
     QTC_CHECK(!displayName.isEmpty());
+    QTC_ASSERT(!m_registeredCategories.contains(categoryId), return);
+    m_registeredCategories.push_back(categoryId);
     emit m_instance->categoryAdded(categoryId, displayName, visible);
 }
 
-QObject *TaskHub::instance()
+TaskHub *TaskHub::instance()
 {
     return m_instance;
 }
@@ -114,20 +138,29 @@ void TaskHub::addTask(Task::TaskType type, const QString &description, Core::Id 
 
 void TaskHub::addTask(Task task)
 {
+    QTC_ASSERT(m_registeredCategories.contains(task.category), return);
+    QTC_ASSERT(!task.description.isEmpty(), return);
+
+    if (task.file.isEmpty())
+        task.line = -1;
+
+    if (task.line <= 0)
+        task.line = -1;
+    task.movedLine = task.line;
+
     if (task.line != -1 && !task.file.isEmpty()) {
-        TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line, !task.icon.isNull());
+        TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line,
+                                      task.type, !task.icon.isNull());
         mark->setIcon(task.icon);
-        mark->setPriority(TextEditor::ITextMark::LowPriority);
+        mark->setPriority(TextEditor::TextMark::LowPriority);
         task.addMark(mark);
-        emit m_instance->taskAdded(task);
-        mark->init();
-    } else {
-        emit m_instance->taskAdded(task);
     }
+    emit m_instance->taskAdded(task);
 }
 
 void TaskHub::clearTasks(Core::Id categoryId)
 {
+    QTC_ASSERT(!categoryId.isValid() || m_registeredCategories.contains(categoryId), return);
     emit m_instance->tasksCleared(categoryId);
 }
 
@@ -156,8 +189,9 @@ void TaskHub::showTaskInEditor(unsigned int id)
     emit m_instance->openTask(id);
 }
 
-void TaskHub::setCategoryVisibility(const Core::Id &categoryId, bool visible)
+void TaskHub::setCategoryVisibility(Core::Id categoryId, bool visible)
 {
+    QTC_ASSERT(m_registeredCategories.contains(categoryId), return);
     emit m_instance->categoryVisibilityChanged(categoryId, visible);
 }
 

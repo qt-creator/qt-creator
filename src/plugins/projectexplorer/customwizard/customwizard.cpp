@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,6 +32,7 @@
 #include "customwizardparameters.h"
 #include "customwizardpage.h"
 #include "customwizardscriptgenerator.h"
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
@@ -38,6 +40,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -54,6 +57,7 @@ static const char configFileC[] = "wizard.xml";
 
 namespace ProjectExplorer {
 
+namespace Internal {
 /*!
     \class ProjectExplorer::ICustomWizardFactory
     \brief The ICustomWizardFactory class implements a factory for creating
@@ -71,14 +75,18 @@ namespace ProjectExplorer {
 
 class CustomWizardPrivate {
 public:
-    CustomWizardPrivate() : m_context(new Internal::CustomWizardContext) {}
+    CustomWizardPrivate() : m_context(new CustomWizardContext) {}
 
-    QSharedPointer<Internal::CustomWizardParameters> m_parameters;
-    QSharedPointer<Internal::CustomWizardContext> m_context;
+    QSharedPointer<CustomWizardParameters> m_parameters;
+    QSharedPointer<CustomWizardContext> m_context;
     static int verbose;
 };
 
 int CustomWizardPrivate::verbose = 0;
+
+} // namespace Internal
+
+using namespace ProjectExplorer::Internal;
 
 /*!
     \class ProjectExplorer::CustomWizard
@@ -113,56 +121,43 @@ int CustomWizard::verbose()
 
 void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
 {
+    QTC_ASSERT(p, return);
+
     d->m_parameters = p;
+
+    setId(p->id);
+    setWizardKind(p->kind);
+    setIcon(p->icon);
+    setDescription(p->description);
+    setDisplayName(p->displayName);
+    setCategory(p->category);
+    setDisplayCategory(p->displayCategory);
+    setRequiredFeatures(p->requiredFeatures);
+    setFlags(p->flags);
 }
 
-// Add a wizard page with an id, visibly warn if something goes wrong.
-static inline void addWizardPage(Utils::Wizard *w, QWizardPage *p, int id)
-{
-    int addedPageId = 0;
-    if (id == -1) {
-        addedPageId = w->addPage(p);
-    } else {
-        if (w->pageIds().contains(id)) {
-            qWarning("Page %d already present in custom wizard dialog, defaulting to add.", id);
-            addedPageId = w->addPage(p);
-        } else {
-            w->setPage(id, p);
-            addedPageId = id;
-        }
-    }
-    w->wizardProgress()->item(addedPageId)->setTitle(QCoreApplication::translate("ProjectExplorer::CustomWizard", "Details", "Default short title for custom wizard page to be shown in the progress pane of the wizard."));
-}
-
-// Initialize a wizard with a custom file page.
-void CustomWizard::initWizardDialog(Utils::Wizard *wizard, const QString &defaultPath,
-                                    const WizardPageList &extensionPages) const
-{
-    QTC_ASSERT(!parameters().isNull(), return);
-
-    d->m_context->reset();
-    Internal::CustomWizardPage *customPage = new Internal::CustomWizardPage(d->m_context, parameters());
-    customPage->setPath(defaultPath);
-    addWizardPage(wizard, customPage, parameters()->firstPageId);
-    if (!parameters()->fieldPageTitle.isEmpty())
-        customPage->setTitle(parameters()->fieldPageTitle);
-    foreach (QWizardPage *ep, extensionPages)
-        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(ep));
-    if (CustomWizardPrivate::verbose)
-        qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
-}
-
-QWizard *CustomWizard::createWizardDialog(QWidget *parent,
-                                          const Core::WizardDialogParameters &wizardDialogParameters) const
+Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDialogParameters &p) const
 {
     QTC_ASSERT(!d->m_parameters.isNull(), return 0);
-    Utils::Wizard *wizard = new Utils::Wizard(parent);
-    initWizardDialog(wizard, wizardDialogParameters.defaultPath(), wizardDialogParameters.extensionPages());
+    Core::BaseFileWizard *wizard = new Core::BaseFileWizard(this, p.extraValues(), parent);
+
+    d->m_context->reset();
+    CustomWizardPage *customPage = new CustomWizardPage(d->m_context, parameters());
+    customPage->setPath(p.defaultPath());
+    if (parameters()->firstPageId >= 0)
+        wizard->setPage(parameters()->firstPageId, customPage);
+    else
+        wizard->addPage(customPage);
+    foreach (QWizardPage *ep, wizard->extensionPages())
+        wizard->addPage(ep);
+    if (CustomWizardPrivate::verbose)
+        qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
+
     return wizard;
 }
 
 // Read out files and store contents with field contents replaced.
-static inline bool createFile(Internal::CustomWizardFile cwFile,
+static inline bool createFile(CustomWizardFile cwFile,
                               const QString &sourceDirectory,
                               const QString &targetDirectory,
                               const CustomProjectWizard::FieldReplacementMap &fm,
@@ -172,7 +167,7 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
     const QChar slash =  QLatin1Char('/');
     const QString sourcePath = sourceDirectory + slash + cwFile.source;
     // Field replacement on target path
-    Internal::CustomWizardContext::replaceFields(fm, &cwFile.target);
+    CustomWizardContext::replaceFields(fm, &cwFile.target);
     const QString targetPath = targetDirectory + slash + cwFile.target;
     if (CustomWizardPrivate::verbose)
         qDebug() << "generating " << targetPath << sourcePath << fm;
@@ -193,7 +188,7 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
     } else {
         // Template file: Preprocess.
         const QString contentsIn = QString::fromLocal8Bit(reader.data());
-        generatedFile.setContents(Internal::CustomWizardContext::processFile(fm, contentsIn));
+        generatedFile.setContents(CustomWizardContext::processFile(fm, contentsIn));
     }
 
     Core::GeneratedFile::Attributes attributes = 0;
@@ -218,20 +213,20 @@ template <class WizardPage>
 
 // Determine where to run the generator script. The user may specify
 // an expression subject to field replacement, default is the target path.
-static inline QString scriptWorkingDirectory(const QSharedPointer<Internal::CustomWizardContext> &ctx,
-                                             const QSharedPointer<Internal::CustomWizardParameters> &p)
+static inline QString scriptWorkingDirectory(const QSharedPointer<CustomWizardContext> &ctx,
+                                             const QSharedPointer<CustomWizardParameters> &p)
 {
     if (p->filesGeneratorScriptWorkingDirectory.isEmpty())
         return ctx->targetPath;
     QString path = p->filesGeneratorScriptWorkingDirectory;
-    Internal::CustomWizardContext::replaceFields(ctx->replacements, &path);
+    CustomWizardContext::replaceFields(ctx->replacements, &path);
     return path;
 }
 
 Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *errorMessage) const
 {
     // Look for the Custom field page to find the path
-    const Internal::CustomWizardPage *cwp = findWizardPage<Internal::CustomWizardPage>(dialog);
+    const CustomWizardPage *cwp = findWizardPage<CustomWizardPage>(dialog);
     QTC_ASSERT(cwp, return Core::GeneratedFiles());
 
     CustomWizardContextPtr ctx = context();
@@ -249,9 +244,9 @@ Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString 
     return generateWizardFiles(errorMessage);
 }
 
-bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorMessage)
+bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorMessage) const
 {
-    if (!Core::BaseFileWizard::writeFiles(files, errorMessage))
+    if (!Core::BaseFileWizardFactory::writeFiles(files, errorMessage))
         return false;
     if (d->m_parameters->filesGeneratorScript.isEmpty())
         return true;
@@ -267,12 +262,12 @@ bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorM
         if (CustomWizardPrivate::verbose)
             qDebug("Creating directory %s", qPrintable(scriptWorkingDir));
         if (!scriptWorkingDirDir.mkpath(scriptWorkingDir)) {
-            *errorMessage = QString::fromLatin1("Unable to create the target directory '%1'").arg(scriptWorkingDir);
+            *errorMessage = QString::fromLatin1("Unable to create the target directory \"%1\"").arg(scriptWorkingDir);
             return false;
         }
     }
     // Run the custom script to actually generate the files.
-    if (!Internal::runCustomWizardGeneratorScript(scriptWorkingDir,
+    if (!runCustomWizardGeneratorScript(scriptWorkingDir,
                                                   d->m_parameters->filesGeneratorScript,
                                                   d->m_parameters->filesGeneratorScriptArguments,
                                                   ctx->replacements, errorMessage))
@@ -301,7 +296,7 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
 
     // If generator script is non-empty, do a dry run to get it's files.
     if (!d->m_parameters->filesGeneratorScript.isEmpty()) {
-        rc += Internal::dryRunCustomWizardGeneratorScript(scriptWorkingDirectory(ctx, d->m_parameters),
+        rc += dryRunCustomWizardGeneratorScript(scriptWorkingDirectory(ctx, d->m_parameters),
                                                           d->m_parameters->filesGeneratorScript,
                                                           d->m_parameters->filesGeneratorScriptArguments,
                                                           ctx->replacements,
@@ -310,7 +305,7 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
             return rc;
     }
     // Add the template files specified by the <file> elements.
-    foreach (const Internal::CustomWizardFile &file, d->m_parameters->files)
+    foreach (const CustomWizardFile &file, d->m_parameters->files)
         if (!createFile(file, d->m_parameters->directory, ctx->targetPath, context()->replacements, &rc, errorMessage))
             return Core::GeneratedFiles();
     return rc;
@@ -319,7 +314,7 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
 // Create a replacement map of static base fields + wizard dialog fields
 CustomWizard::FieldReplacementMap CustomWizard::replacementMap(const QWizard *w) const
 {
-    return Internal::CustomWizardFieldPage::replacementMap(w, context(), d->m_parameters->fields);
+    return CustomWizardFieldPage::replacementMap(w, context(), d->m_parameters->fields);
 }
 
 CustomWizard::CustomWizardParametersPtr CustomWizard::parameters() const
@@ -332,53 +327,23 @@ CustomWizard::CustomWizardContextPtr CustomWizard::context() const
     return d->m_context;
 }
 
-CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p,
-                                         const Core::IWizard::Data &b)
+CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p)
 {
+    ICustomWizardMetaFactory *factory = ExtensionSystem::PluginManager::getObject<ICustomWizardMetaFactory>(
+        [&p](ICustomWizardMetaFactory *factory) {
+            return p->klass.isEmpty() ? (p->kind == factory->kind()) : (p->klass == factory->klass());
+        });
+
     CustomWizard *rc = 0;
-    QList<ICustomWizardFactory *> factories = ExtensionSystem::PluginManager::getObjects<ICustomWizardFactory>();
-    foreach (ICustomWizardFactory *tmp, factories) {
-        if ((p->klass.isEmpty() && b.kind == tmp->kind())
-                || (!p->klass.isEmpty() && p->klass == tmp->klass())) {
-            rc = tmp->create();
-            break;
-        }
-    }
+    if (factory)
+        rc = factory->create();
+
     if (!rc) {
         qWarning("Unable to create custom wizard for class %s.", qPrintable(p->klass));
         return 0;
     }
 
-    rc->setData(b);
     rc->setParameters(p);
-    return rc;
-}
-
-// Format all wizards for display
-static QString listWizards()
-{
-    typedef QMultiMap<QString, const Core::IWizard *> CategoryWizardMap;
-
-    // Sort by category via multimap
-    QString rc;
-    QTextStream str(&rc);
-    CategoryWizardMap categoryWizardMap;
-    foreach (const Core::IWizard *w, Core::IWizard::allWizards())
-        categoryWizardMap.insert(w->category(), w);
-    str << "### Registered wizards (" << categoryWizardMap.size() << ")\n";
-    // Format
-    QString lastCategory;
-    const CategoryWizardMap::const_iterator cend = categoryWizardMap.constEnd();
-    for (CategoryWizardMap::const_iterator it = categoryWizardMap.constBegin(); it != cend; ++it) {
-        const Core::IWizard *wizard = it.value();
-        if (it.key() != lastCategory) {
-            lastCategory = it.key();
-            str << "\nCategory: '" << lastCategory << "' / '" << wizard->displayCategory() << "'\n";
-        }
-        str << "  Id: '" << wizard->id() << "' / '" << wizard->displayName() << "' Kind: "
-                << wizard->kind() << "\n  Class: " << wizard->metaObject()->className()
-                << " Description: '" << wizard->description() << "'\n";
-    }
     return rc;
 }
 
@@ -392,9 +357,8 @@ static QString listWizards()
     containing valid configuration files and parse them into wizards.
 */
 
-QList<CustomWizard*> CustomWizard::createWizards()
+QList<Core::IWizardFactory *> CustomWizard::createWizards()
 {
-    QList<CustomWizard*> rc;
     QString errorMessage;
     QString verboseLog;
     const QString templateDirName = Core::ICore::resourcePath() +
@@ -407,28 +371,31 @@ QList<CustomWizard*> CustomWizard::createWizards()
 
     const QDir templateDir(templateDirName);
     if (CustomWizardPrivate::verbose)
-        verboseLog = QString::fromLatin1("### CustomWizard: Checking '%1'\n").arg(templateDirName);
+        verboseLog += QString::fromLatin1("### CustomWizard: Checking \"%1\"\n").arg(templateDirName);
     if (!templateDir.exists()) {
         if (CustomWizardPrivate::verbose)
            qWarning("Custom project template path %s does not exist.", qPrintable(templateDir.absolutePath()));
-        return rc;
+        return QList<Core::IWizardFactory *>();
     }
 
     const QDir userTemplateDir(userTemplateDirName);
     if (CustomWizardPrivate::verbose)
-        verboseLog = QString::fromLatin1("### CustomWizard: Checking '%1'\n").arg(userTemplateDirName);
+        verboseLog += QString::fromLatin1("### CustomWizard: Checking \"%1\"\n").arg(userTemplateDirName);
 
     const QDir::Filters filters = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
     const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
-    QList<QFileInfo> dirs = templateDir.entryInfoList(filters, sortflags);
+    QList<QFileInfo> dirs;
     if (userTemplateDir.exists()) {
         if (CustomWizardPrivate::verbose)
-            verboseLog = QString::fromLatin1("### CustomWizard: userTemplateDir '%1' found, adding\n").arg(userTemplateDirName);
+            verboseLog += QString::fromLatin1("### CustomWizard: userTemplateDir \"%1\" found, adding\n").arg(userTemplateDirName);
         dirs += userTemplateDir.entryInfoList(filters, sortflags);
     }
+    dirs += templateDir.entryInfoList(filters, sortflags);
 
     const QString configFile = QLatin1String(configFileC);
     // Check and parse config file in each directory.
+
+    QList<CustomWizardParametersPtr> toCreate;
 
     while (!dirs.isEmpty()) {
         const QFileInfo dirFi = dirs.takeFirst();
@@ -436,27 +403,22 @@ QList<CustomWizard*> CustomWizard::createWizards()
         if (CustomWizardPrivate::verbose)
             verboseLog += QString::fromLatin1("CustomWizard: Scanning %1\n").arg(dirFi.absoluteFilePath());
         if (dir.exists(configFile)) {
-            CustomWizardParametersPtr parameters(new Internal::CustomWizardParameters);
-            IWizard::Data data;
-            switch (parameters->parse(dir.absoluteFilePath(configFile), &data, &errorMessage)) {
-            case Internal::CustomWizardParameters::ParseOk:
-                parameters->directory = dir.absolutePath();
-                if (CustomWizardPrivate::verbose)
-                    QTextStream(&verboseLog)
-                            << "\n### Adding: " << data.id << " / " << data.displayName << '\n'
-                            << data.category << " / " << data.displayCategory << '\n'
-                            << "  (" <<   data.description << ")\n"
-                            << parameters->toString();
-                if (CustomWizard *w = createWizard(parameters, data))
-                    rc.push_back(w);
-                else
-                    qWarning("Custom wizard factory function failed for %s", qPrintable(data.id));
+            CustomWizardParametersPtr parameters(new CustomWizardParameters);
+            switch (parameters->parse(dir.absoluteFilePath(configFile), &errorMessage)) {
+            case CustomWizardParameters::ParseOk:
+                if (!Utils::contains(toCreate, [parameters](CustomWizardParametersPtr p) { return parameters->id == p->id; })) {
+                    parameters->directory = dir.absolutePath();
+                    toCreate.append(parameters);
+                } else {
+                    verboseLog += QString::fromLatin1("Customwizard: Ignoring wizard in %1 due to duplicate Id %2.\n")
+                            .arg(dir.absolutePath()).arg(parameters->id.toString());
+                }
                 break;
-            case Internal::CustomWizardParameters::ParseDisabled:
+            case CustomWizardParameters::ParseDisabled:
                 if (CustomWizardPrivate::verbose)
                     qWarning("Ignoring disabled wizard %s...", qPrintable(dir.absolutePath()));
                 break;
-            case Internal::CustomWizardParameters::ParseFailed:
+            case CustomWizardParameters::ParseFailed:
                 qWarning("Failed to initialize custom project wizard in %s: %s",
                          qPrintable(dir.absolutePath()), qPrintable(errorMessage));
                 break;
@@ -468,12 +430,23 @@ QList<CustomWizard*> CustomWizard::createWizards()
                 dirs.swap(subDirs);
                 dirs.append(subDirs);
             } else if (CustomWizardPrivate::verbose) {
-                verboseLog += QString::fromLatin1("CustomWizard: '%1' not found\n").arg(configFile);
+                verboseLog += QString::fromLatin1("CustomWizard: \"%1\" not found\n").arg(configFile);
             }
         }
     }
+
+    QList<Core::IWizardFactory *> rc;
+    foreach (CustomWizardParametersPtr p, toCreate) {
+        if (CustomWizard *w = createWizard(p)) {
+            rc.push_back(w);
+        } else {
+            qWarning("Custom wizard factory function failed for %s from %s.",
+                     qPrintable(p->id.toString()), qPrintable(p->directory));
+        }
+    }
+
+
     if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.
-        verboseLog += listWizards();
         qWarning("%s", qPrintable(verboseLog));
         Core::MessageManager::write(verboseLog, Core::MessageManager::ModeSwitch);
     }
@@ -502,20 +475,19 @@ CustomProjectWizard::CustomProjectWizard()
     initProjectWizardDialog() needs to be called.
 */
 
-    QWizard *CustomProjectWizard::createWizardDialog(QWidget *parent,
-                                                     const Core::WizardDialogParameters &wizardDialogParameters) const
+Core::BaseFileWizard *CustomProjectWizard::create(QWidget *parent,
+                                     const Core::WizardDialogParameters &parameters) const
 {
-    QTC_ASSERT(!parameters().isNull(), return 0);
-    BaseProjectWizardDialog *projectDialog = new BaseProjectWizardDialog(parent, wizardDialogParameters);
+    BaseProjectWizardDialog *projectDialog = new BaseProjectWizardDialog(this, parent, parameters);
     initProjectWizardDialog(projectDialog,
-                            wizardDialogParameters.defaultPath(),
-                            wizardDialogParameters.extensionPages());
+                            parameters.defaultPath(),
+                            projectDialog->extensionPages());
     return projectDialog;
 }
 
 void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
                                                   const QString &defaultPath,
-                                                  const WizardPageList &extensionPages) const
+                                                  const QList<QWizardPage *> &extensionPages) const
 {
     const CustomWizardParametersPtr pa = parameters();
     QTC_ASSERT(!pa.isNull(), return);
@@ -527,17 +499,18 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
         w->setWindowTitle(displayName());
 
     if (!pa->fields.isEmpty()) {
-        Internal::CustomWizardFieldPage *cp = new Internal::CustomWizardFieldPage(ctx, pa);
-        addWizardPage(w, cp, parameters()->firstPageId);
-        if (!pa->fieldPageTitle.isEmpty())
-            cp->setTitle(pa->fieldPageTitle);
+        if (parameters()->firstPageId >= 0)
+            w->setPage(parameters()->firstPageId, new CustomWizardFieldPage(ctx, pa));
+        else
+            w->addPage(new CustomWizardFieldPage(ctx, pa));
     }
     foreach (QWizardPage *ep, extensionPages)
-        BaseFileWizard::applyExtensionPageShortTitle(w, w->addPage(ep));
+        w->addPage(ep);
     w->setPath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
 
-    connect(w, SIGNAL(projectParametersChanged(QString,QString)), this, SLOT(projectParametersChanged(QString,QString)));
+    connect(w, &BaseProjectWizardDialog::projectParametersChanged,
+            this, &CustomProjectWizard::projectParametersChanged);
 
     if (CustomWizardPrivate::verbose)
         qDebug() << "initProjectWizardDialog" << w << w->pageIds();
@@ -570,14 +543,18 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
     // Post-Generate: Open the project and the editors as desired
     foreach (const Core::GeneratedFile &file, l) {
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
-            if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(file.path(), errorMessage))
+            ProjectExplorerPlugin::OpenProjectResult result
+                    = ProjectExplorerPlugin::openProject(file.path());
+            if (!result) {
                 return false;
+                *errorMessage = result.errorMessage();
+            }
         }
     }
-    return BaseFileWizard::postGenerateOpenEditors(l, errorMessage);
+    return BaseFileWizardFactory::postGenerateOpenEditors(l, errorMessage);
 }
 
-bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage)
+bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage) const
 {
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::postGenerateFiles()";

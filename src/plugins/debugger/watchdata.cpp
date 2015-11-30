@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -120,38 +121,28 @@ bool isIntOrFloatType(const QByteArray &type)
 WatchData::WatchData() :
     id(0),
     state(InitialState),
-    editformat(0),
+    editformat(StopDisplay),
+    editencoding(Unencoded8Bit),
     address(0),
     origaddr(0),
     size(0),
     bitpos(0),
     bitsize(0),
-    hasChildren(false),
+    elided(0),
+    wantsChildren(false),
     valueEnabled(true),
     valueEditable(true),
-    error(false),
-    sortId(0),
-    source(0)
+    outdated(false)
 {
 }
 
-bool WatchData::isEqual(const WatchData &other) const
+bool WatchData::isAncestorOf(const QByteArray &childIName) const
 {
-    return iname == other.iname
-      && exp == other.exp
-      && name == other.name
-      && value == other.value
-      && editvalue == other.editvalue
-      && valuetooltip == other.valuetooltip
-      && type == other.type
-      && displayedType == other.displayedType
-      && variable == other.variable
-      && address == other.address
-      && size == other.size
-      && hasChildren == other.hasChildren
-      && valueEnabled == other.valueEnabled
-      && valueEditable == other.valueEditable
-      && error == other.error;
+    if (iname.size() >= childIName.size())
+        return false;
+    if (!childIName.startsWith(iname))
+        return false;
+    return childIName.at(iname.size()) == '.';
 }
 
 bool WatchData::isVTablePointer() const
@@ -166,10 +157,9 @@ void WatchData::setError(const QString &msg)
 {
     setAllUnneeded();
     value = msg;
-    setHasChildren(false);
+    wantsChildren = false;
     valueEnabled = false;
     valueEditable = false;
-    error = true;
 }
 
 void WatchData::setValue(const QString &value0)
@@ -177,7 +167,7 @@ void WatchData::setValue(const QString &value0)
     value = value0;
     if (value == QLatin1String("{...}")) {
         value.clear();
-        hasChildren = true; // at least one...
+        wantsChildren = true; // at least one...
     }
     // strip off quoted characters for chars.
     if (value.endsWith(QLatin1Char('\'')) && type.endsWith("char")) {
@@ -249,7 +239,6 @@ void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)
         else
             changed = false;
     }
-    setTypeUnneeded();
     if (guessChildrenFromType) {
         switch (guessChildren(type)) {
         case HasChildren:
@@ -265,19 +254,6 @@ void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)
     }
 }
 
-void WatchData::setHexAddress(const QByteArray &a)
-{
-    bool ok;
-    const qint64 av = a.toULongLong(&ok, 0);
-    if (ok) {
-        address = av;
-    } else {
-        qWarning("WatchData::setHexAddress(): Failed to parse address value '%s' for '%s', '%s'",
-                 a.constData(), iname.constData(), type.constData());
-        address = 0;
-    }
-}
-
 QString WatchData::toString() const
 {
     const char *doubleQuoteComma = "\",";
@@ -286,11 +262,8 @@ QString WatchData::toString() const
     str << QLatin1Char('{');
     if (!iname.isEmpty())
         str << "iname=\"" << iname << doubleQuoteComma;
-    str << "sortId=\"" << sortId << doubleQuoteComma;
     if (!name.isEmpty() && name != QLatin1String(iname))
         str << "name=\"" << name << doubleQuoteComma;
-    if (error)
-        str << "error,";
     if (address) {
         str.setIntegerBase(16);
         str << "addr=\"0x" << address << doubleQuoteComma;
@@ -304,30 +277,20 @@ QString WatchData::toString() const
     if (!exp.isEmpty())
         str << "exp=\"" << exp << doubleQuoteComma;
 
-    if (!variable.isEmpty())
-        str << "variable=\"" << variable << doubleQuoteComma;
-
     if (isValueNeeded())
         str << "value=<needed>,";
-    if (isValueKnown() && !value.isEmpty())
+    if (!value.isEmpty())
         str << "value=\"" << value << doubleQuoteComma;
+
+    if (elided)
+        str << "valueelided=\"" << elided << doubleQuoteComma;
 
     if (!editvalue.isEmpty())
         str << "editvalue=\"<...>\",";
-    //    str << "editvalue=\"" << editvalue << doubleQuoteComma;
 
-    if (!dumperFlags.isEmpty())
-        str << "dumperFlags=\"" << dumperFlags << doubleQuoteComma;
+    str << "type=\"" << type << doubleQuoteComma;
 
-    if (isTypeNeeded())
-        str << "type=<needed>,";
-    if (isTypeKnown() && !type.isEmpty())
-        str << "type=\"" << type << doubleQuoteComma;
-
-    if (isHasChildrenNeeded())
-        str << "hasChildren=<needed>,";
-    if (isHasChildrenKnown())
-        str << "hasChildren=\"" << (hasChildren ? "true" : "false") << doubleQuoteComma;
+    str << "wantsChildren=\"" << (wantsChildren ? "true" : "false") << doubleQuoteComma;
 
     if (isChildrenNeeded())
         str << "children=<needed>,";
@@ -337,39 +300,15 @@ QString WatchData::toString() const
     return res + QLatin1Char('}');
 }
 
-static QString htmlEscape(const QString &plain)
+// Format a tooltip row with aligned colon.
+static void formatToolTipRow(QTextStream &str, const QString &category, const QString &value)
 {
-#if QT_VERSION >= 0x050000
-    return Qt::escape(plain);
-#else
-    // Copied from Qt to avoid GUI dependency
-    // (Qt::escape has been moved in Qt 5)
-    QString rich;
-    rich.reserve(int(plain.length() * qreal(1.1)));
-    for (int i = 0; i < plain.length(); ++i) {
-        if (plain.at(i) == QLatin1Char('<'))
-            rich += QLatin1String("&lt;");
-        else if (plain.at(i) == QLatin1Char('>'))
-            rich += QLatin1String("&gt;");
-        else if (plain.at(i) == QLatin1Char('&'))
-            rich += QLatin1String("&amp;");
-        else if (plain.at(i) == QLatin1Char('"'))
-            rich += QLatin1String("&quot;");
-        else
-            rich += plain.at(i);
-    }
-    return rich;
-#endif
-}
-
-// Format a tooltip fow with aligned colon.
-static void formatToolTipRow(QTextStream &str,
-    const QString &category, const QString &value)
-{
-    QString val = htmlEscape(value);
+    QString val = value.toHtmlEscaped();
     val.replace(QLatin1Char('\n'), QLatin1String("<br>"));
-    str << "<tr><td>" << category << "</td><td> : </td><td>"
-        << val << "</td></tr>";
+    str << "<tr><td>" << category << "</td><td>";
+    if (!category.isEmpty())
+        str << ':';
+    str << "</td><td>" << val << "</td></tr>";
 }
 
 QString WatchData::toToolTip() const
@@ -382,20 +321,22 @@ QString WatchData::toToolTip() const
     formatToolTipRow(str, tr("Internal Type"), QLatin1String(type));
     if (!displayedType.isEmpty())
         formatToolTipRow(str, tr("Displayed Type"), displayedType);
-    QString val = valuetooltip.isEmpty() ? value : valuetooltip;
-    // Automatically display hex value for unsigned integers.
-    if (!val.isEmpty() && val.at(0).isDigit() && isIntType(type)) {
-        bool ok;
-        const quint64 intValue = val.toULongLong(&ok);
-        if (ok && intValue)
-            val += QLatin1String(" (hex) ") + QString::number(intValue, 16);
+    bool ok;
+    const quint64 intValue = value.toULongLong(&ok);
+    if (ok && intValue) {
+        formatToolTipRow(str, tr("Value"), QLatin1String("(dec)  ") + value);
+        formatToolTipRow(str, QString(), QLatin1String("(hex)  ") + QString::number(intValue, 16));
+        formatToolTipRow(str, QString(), QLatin1String("(oct)  ") + QString::number(intValue, 8));
+        formatToolTipRow(str, QString(), QLatin1String("(bin)  ") + QString::number(intValue, 2));
+    } else {
+        QString val = value;
+        if (val.size() > 1000) {
+            val.truncate(1000);
+            val += QLatin1Char(' ');
+            val += tr("... <cut off>");
+        }
+        formatToolTipRow(str, tr("Value"), val);
     }
-    if (val.size() > 1000) {
-        val.truncate(1000);
-        val += QLatin1Char(' ');
-        val += tr("... <cut off>");
-    }
-    formatToolTipRow(str, tr("Value"), val);
     if (address)
         formatToolTipRow(str, tr("Object Address"), formatToolTipAddress(address));
     if (origaddr)
@@ -450,19 +391,12 @@ QByteArray WatchData::hexAddress() const
 void WatchData::updateValue(const GdbMi &item)
 {
     GdbMi value = item["value"];
-    if (value.isValid()) {
-        int encoding = item["valueencoded"].toInt();
+    DebuggerEncoding encoding = debuggerEncoding(item["valueencoded"].data());
+    if (value.isValid() || encoding != Unencoded8Bit) {
         setValue(decodeData(value.data(), encoding));
     } else {
         setValueNeeded();
     }
-}
-
-void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
-    int encoding)
-{
-    if (mi.isValid())
-        data.valuetooltip = decodeData(mi.data(), encoding);
 }
 
 void WatchData::updateChildCount(const GdbMi &mi)
@@ -491,7 +425,7 @@ static void setWatchDataAddress(WatchData &data, quint64 address)
 {
     data.address = address;
 
-    if (data.exp.isEmpty() && !data.dumperFlags.startsWith('$')) {
+    if (data.exp.isEmpty()) {
         if (data.iname.startsWith("local.") && data.iname.count('.') == 1)
             // Solve one common case of adding 'class' in
             // *(class X*)0xdeadbeef for gdb.
@@ -499,19 +433,6 @@ static void setWatchDataAddress(WatchData &data, quint64 address)
         else
             data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" + data.hexAddress();
     }
-}
-
-void WatchData::updateAddress(const GdbMi &mi)
-{
-    if (!mi.isValid())
-        return;
-    const QByteArray addressBA = mi.data();
-    if (!addressBA.startsWith("0x")) { // Item model dumpers pull tricks.
-        dumperFlags = addressBA;
-        return;
-    }
-    const quint64 address = mi.toAddress();
-    setWatchDataAddress(*this, address);
 }
 
 static void setWatchDataSize(WatchData &data, const GdbMi &mi)
@@ -529,8 +450,6 @@ void WatchData::updateType(const GdbMi &item)
 {
     if (item.isValid())
         setType(item.data());
-    else if (type.isEmpty())
-        setTypeNeeded();
 }
 
 void WatchData::updateDisplayedType(const GdbMi &item)
@@ -541,9 +460,19 @@ void WatchData::updateDisplayedType(const GdbMi &item)
 
 // Utilities to decode string data returned by the dumper helpers.
 
+template <class T>
+QString decodeItemHelper(const T &t)
+{
+    return QString::number(t);
+}
+
+QString decodeItemHelper(const double &t)
+{
+    return QString::number(t, 'g', 16);
+}
 
 template <class T>
-void decodeArrayHelper(QList<WatchData> *list, const WatchData &tmplate,
+void decodeArrayHelper(std::function<void(const WatchData &)> itemHandler, const WatchData &tmplate,
     const QByteArray &rawData)
 {
     const QByteArray ba = QByteArray::fromHex(rawData);
@@ -552,82 +481,74 @@ void decodeArrayHelper(QList<WatchData> *list, const WatchData &tmplate,
     const QByteArray exp = "*(" + gdbQuoteTypes(tmplate.type) + "*)0x";
     for (int i = 0, n = ba.size() / sizeof(T); i < n; ++i) {
         data = tmplate;
-        data.sortId = i;
         data.iname += QByteArray::number(i);
         data.name = QString::fromLatin1("[%1]").arg(i);
-        data.value = QString::number(p[i]);
+        data.value = decodeItemHelper(p[i]);
         data.address += i * sizeof(T);
         data.exp = exp + QByteArray::number(data.address, 16);
         data.setAllUnneeded();
-        list->append(data);
+        itemHandler(data);
     }
 }
 
-static void decodeArray(QList<WatchData> *list, const WatchData &tmplate,
+void decodeArrayData(std::function<void(const WatchData &)> itemHandler, const WatchData &tmplate,
     const QByteArray &rawData, int encoding)
 {
     switch (encoding) {
         case Hex2EncodedInt1:
-            decodeArrayHelper<signed char>(list, tmplate, rawData);
+            decodeArrayHelper<signed char>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedInt2:
-            decodeArrayHelper<short>(list, tmplate, rawData);
+            decodeArrayHelper<short>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedInt4:
-            decodeArrayHelper<int>(list, tmplate, rawData);
+            decodeArrayHelper<int>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedInt8:
-            decodeArrayHelper<qint64>(list, tmplate, rawData);
+            decodeArrayHelper<qint64>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedUInt1:
-            decodeArrayHelper<uchar>(list, tmplate, rawData);
+            decodeArrayHelper<uchar>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedUInt2:
-            decodeArrayHelper<ushort>(list, tmplate, rawData);
+            decodeArrayHelper<ushort>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedUInt4:
-            decodeArrayHelper<uint>(list, tmplate, rawData);
+            decodeArrayHelper<uint>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedUInt8:
-            decodeArrayHelper<quint64>(list, tmplate, rawData);
+            decodeArrayHelper<quint64>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedFloat4:
-            decodeArrayHelper<float>(list, tmplate, rawData);
+            decodeArrayHelper<float>(itemHandler, tmplate, rawData);
             break;
         case Hex2EncodedFloat8:
-            decodeArrayHelper<double>(list, tmplate, rawData);
+            decodeArrayHelper<double>(itemHandler, tmplate, rawData);
             break;
         default:
             qDebug() << "ENCODING ERROR: " << encoding;
     }
 }
 
-void parseWatchData(const QSet<QByteArray> &expandedINames,
-    const WatchData &data0, const GdbMi &item,
-    QList<WatchData> *list)
+void parseChildrenData(const WatchData &data0, const GdbMi &item,
+                       std::function<void(const WatchData &)> itemHandler,
+                       std::function<void(const WatchData &, const GdbMi &)> childHandler,
+                       std::function<void(const WatchData &childTemplate, const QByteArray &encodedData, int encoding)> arrayDecoder)
 {
-    //qDebug() << "HANDLE CHILDREN: " << data0.toString() << item.toString();
     WatchData data = data0;
-    bool isExpanded = expandedINames.contains(data.iname);
-    if (!isExpanded)
-        data.setChildrenUnneeded();
+    data.setChildrenUnneeded();
 
     GdbMi children = item["children"];
-    if (children.isValid() || !isExpanded)
-        data.setChildrenUnneeded();
 
     data.updateType(item["type"]);
-    GdbMi mi = item["editvalue"];
-    if (mi.isValid())
-        data.editvalue = mi.data();
 
-    mi = item["editformat"];
-    if (mi.isValid())
-        data.editformat = mi.toInt();
+    data.editvalue = item["editvalue"].data();
+    data.editformat = DebuggerDisplay(item["editformat"].toInt());
+    data.editencoding = DebuggerEncoding(item["editencoding"].toInt());
 
-    mi = item["typeformats"];
+    GdbMi mi = item["valueelided"];
     if (mi.isValid())
-        data.typeFormats = QString::fromUtf8(mi.data());
+        data.elided = mi.toInt();
 
     mi = item["bitpos"];
     if (mi.isValid())
@@ -641,7 +562,10 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
     if (mi.isValid())
         data.origaddr = mi.toAddress();
 
-    data.updateAddress(item["addr"]);
+    mi = item["address"];
+    if (mi.isValid())
+        setWatchDataAddress(data, mi.toAddress());
+
     data.updateValue(item);
 
     setWatchDataSize(data, item["size"]);
@@ -652,9 +576,9 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
 
     setWatchDataValueEnabled(data, item["valueenabled"]);
     setWatchDataValueEditable(data, item["valueeditable"]);
-    data.updateChildCount(item["numchild"]);
-    //qDebug() << "\nAPPEND TO LIST: " << data.toString() << "\n";
-    list->append(data);
+    data.updateChildCount(item["numchild"]); // GDB/MI
+    data.updateChildCount(item["haschild"]); // native-mixed
+    itemHandler(data);
 
     bool ok = false;
     qulonglong addressBase = item["addrbase"].data().toULongLong(&ok, 0);
@@ -664,19 +588,17 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
     WatchData childtemplate;
     childtemplate.updateType(item["childtype"]);
     childtemplate.updateChildCount(item["childnumchild"]);
-    //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
     mi = item["arraydata"];
     if (mi.isValid()) {
         int encoding = item["arrayencoding"].toInt();
         childtemplate.iname = data.iname + '.';
         childtemplate.address = addressBase;
-        decodeArray(list, childtemplate, mi.data(), encoding);
+        arrayDecoder(childtemplate, mi.data(), encoding);
     } else {
-        for (int i = 0, n = children.children().size(); i != n; ++i) {
+        for (int i = 0, n = int(children.children().size()); i != n; ++i) {
             const GdbMi &child = children.children().at(i);
             WatchData data1 = childtemplate;
-            data1.sortId = i;
             GdbMi name = child["name"];
             if (name.isValid())
                 data1.name = QString::fromLatin1(name.data());
@@ -699,11 +621,79 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
             QByteArray key = child["key"].data();
             if (!key.isEmpty()) {
                 int encoding = child["keyencoded"].toInt();
-                data1.name = decodeData(key, encoding);
+                data1.name = decodeData(key, DebuggerEncoding(encoding));
             }
-            parseWatchData(expandedINames, data1, child, list);
+            childHandler(data1, child);
         }
     }
+}
+
+void parseWatchData(const WatchData &data0, const GdbMi &input,
+    QList<WatchData> *list)
+{
+    auto itemHandler = [list](const WatchData &data) {
+        list->append(data);
+    };
+    auto childHandler = [list](const WatchData &innerData, const GdbMi &innerInput) {
+        parseWatchData(innerData, innerInput, list);
+    };
+    auto arrayDecoder = [itemHandler](const WatchData &childTemplate,
+            const QByteArray &encodedData, int encoding) {
+        decodeArrayData(itemHandler, childTemplate, encodedData, encoding);
+    };
+
+    parseChildrenData(data0, input, itemHandler, childHandler, arrayDecoder);
+}
+
+template <class T>
+void readNumericVectorHelper(std::vector<double> *v, const QByteArray &ba)
+{
+    const T *p = (const T *) ba.data();
+    const int n = ba.size() / sizeof(T);
+    v->resize(n);
+    // Losing precision in case of 64 bit ints is ok here, as the result
+    // is only used to plot data.
+    for (int i = 0; i != n; ++i)
+        (*v)[i] = static_cast<double>(p[i]);
+}
+
+void readNumericVector(std::vector<double> *v, const QByteArray &rawData, DebuggerEncoding encoding)
+{
+    switch (encoding) {
+        case Hex2EncodedInt1:
+            readNumericVectorHelper<signed char>(v, rawData);
+            break;
+        case Hex2EncodedInt2:
+            readNumericVectorHelper<short>(v, rawData);
+            break;
+        case Hex2EncodedInt4:
+            readNumericVectorHelper<int>(v, rawData);
+            break;
+        case Hex2EncodedInt8:
+            readNumericVectorHelper<qint64>(v, rawData);
+            break;
+        case Hex2EncodedUInt1:
+            readNumericVectorHelper<uchar>(v, rawData);
+            break;
+        case Hex2EncodedUInt2:
+            readNumericVectorHelper<ushort>(v, rawData);
+            break;
+        case Hex2EncodedUInt4:
+            readNumericVectorHelper<uint>(v, rawData);
+            break;
+        case Hex2EncodedUInt8:
+            readNumericVectorHelper<quint64>(v, rawData);
+            break;
+        case Hex2EncodedFloat4:
+            readNumericVectorHelper<float>(v, rawData);
+            break;
+        case Hex2EncodedFloat8:
+            readNumericVectorHelper<double>(v, rawData);
+            break;
+        default:
+            qDebug() << "ENCODING ERROR: " << encoding;
+    }
+
 }
 
 } // namespace Internal

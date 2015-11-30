@@ -1,5 +1,4 @@
-import qbs.base 1.0
-import QtcLibrary
+import qbs 1.0
 
 QtcLibrary {
     name: "QmlDebug"
@@ -7,6 +6,7 @@ QtcLibrary {
     cpp.defines: base.concat("QMLDEBUG_LIB")
 
     Depends { name: "Qt"; submodules: ["gui", "network"] }
+    Depends { name: "Utils" }
 
     files: [
         "baseenginedebugclient.cpp",
@@ -23,7 +23,10 @@ QtcLibrary {
         "qmldebug_global.h",
         "qmldebugclient.cpp",
         "qmldebugclient.h",
+        "qmldebugcommandlinearguments.h",
         "qmldebugconstants.h",
+        "qmlenginecontrolclient.cpp",
+        "qmlenginecontrolclient.h",
         "qmlenginedebugclient.h",
         "qmloutputparser.cpp",
         "qmloutputparser.h",
@@ -35,8 +38,6 @@ QtcLibrary {
         "qmltoolsclient.h",
         "qpacketprotocol.cpp",
         "qpacketprotocol.h",
-        "qv8profilerclient.cpp",
-        "qv8profilerclient.h",
     ]
 }
 

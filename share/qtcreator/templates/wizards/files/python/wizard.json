@@ -1,0 +1,37 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "P.PySource",
+    "category": "U.Python",
+    "trDescription": "Creates an empty Python script file using UTF-8 charset.",
+    "trDisplayName": "Python File",
+    "trDisplayCategory": "Python",
+    "icon": "../../global/genericfilewizard.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('PythonEditor') >= 0}",
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.py",
+                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-python')}')}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

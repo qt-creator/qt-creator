@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>NSHumanReadableCopyright</key>
+        <string>(C) 2015 The Qt Company Ltd
+Commercial Usage
+
+Licensees holding valid Qt Commercial licenses may use this tool in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.
+
+GNU General Public License Usage
+
+Alternatively, this tool may be used under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation and appearing in the file LICENSE.GPLv3 included in the packaging of this tool. Please review the following information to ensure the GNU General Public License version 3.0 requirements will be met: http://www.gnu.org/copyleft/gpl.html.</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleExecutable</key>
+	<string>qml2puppet</string>
+	<key>CFBundleIdentifier</key>
+    <string>org.qt-project.qtcreator.qml2puppet</string>
+    <key>LSUIElement</key>
+    <string>1</string>
+</dict>
+</plist>

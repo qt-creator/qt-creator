@@ -1,6 +1,5 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
+import qbs.FileInfo
 
 QtcPlugin {
     name: "GenericProjectManager"
@@ -13,6 +12,10 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
+
+    pluginTestDepends: [
+        "CppEditor",
+    ]
 
     files: [
         "filesselectionwizardpage.cpp",
@@ -36,7 +39,13 @@ QtcPlugin {
         "genericprojectplugin.h",
         "genericprojectwizard.cpp",
         "genericprojectwizard.h",
-        "pkgconfigtool.cpp",
-        "pkgconfigtool.h",
     ]
+
+    Group {
+        name: "Tests"
+        condition: project.testsEnabled
+        files: [ "genericprojectplugin_test.cpp" ]
+
+        cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
+    }
 }

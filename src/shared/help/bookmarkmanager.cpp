@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,31 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "bookmarkmanager.h"
+#include "helpicons.h"
 
 #include <localhelpmanager.h>
+
+#include <coreplugin/icore.h>
 
 #include <utils/fancylineedit.h>
 #include <utils/styledbar.h>
@@ -54,6 +58,8 @@
 #include <QHelpEngine>
 
 using namespace Help::Internal;
+
+static const char kBookmarksKey[] = "Help/Bookmarks";
 
 BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
         const QString &url, QWidget *parent)
@@ -84,25 +90,25 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
     ui.treeView->header()->setVisible(false);
     ui.treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(ui.buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    connect(ui.buttonBox, SIGNAL(accepted()), this, SLOT(addAccepted()));
-    connect(ui.newFolderButton, SIGNAL(clicked()), this, SLOT(addNewFolder()));
-    connect(ui.toolButton, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
-    connect(ui.bookmarkEdit, SIGNAL(textChanged(QString)), this,
-        SLOT(textChanged(QString)));
+    connect(ui.buttonBox, &QDialogButtonBox::rejected, this, &BookmarkDialog::reject);
+    connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &BookmarkDialog::addAccepted);
+    connect(ui.newFolderButton, &QPushButton::clicked, this, &BookmarkDialog::addNewFolder);
+    connect(ui.toolButton, &QToolButton::clicked, this, &BookmarkDialog::toolButtonClicked);
+    connect(ui.bookmarkEdit, &QLineEdit::textChanged, this, &BookmarkDialog::textChanged);
 
     connect(bookmarkManager->treeBookmarkModel(),
-        SIGNAL(itemChanged(QStandardItem*)),
-        this, SLOT(itemChanged(QStandardItem*)));
+            &QStandardItemModel::itemChanged,
+            this, &BookmarkDialog::itemChanged);
 
-    connect(ui.bookmarkFolders, SIGNAL(currentIndexChanged(QString)), this,
-        SLOT(selectBookmarkFolder(QString)));
+    connect(ui.bookmarkFolders,
+            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged),
+            this, &BookmarkDialog::selectBookmarkFolder);
 
-    connect(ui.treeView, SIGNAL(customContextMenuRequested(QPoint)), this,
-        SLOT(customContextMenuRequested(QPoint)));
+    connect(ui.treeView, &TreeView::customContextMenuRequested,
+            this, &BookmarkDialog::customContextMenuRequested);
 
-    connect(ui.treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex,
-        QModelIndex)), this, SLOT(currentChanged(QModelIndex)));
+    connect(ui.treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+            this, SLOT(currentChanged(QModelIndex)));
 }
 
 BookmarkDialog::~BookmarkDialog()
@@ -296,19 +302,22 @@ bool BookmarkDialog::eventFilter(QObject *object, QEvent *e)
 // #pragma mark -- BookmarkWidget
 
 
-BookmarkWidget::BookmarkWidget(BookmarkManager *manager, QWidget *parent,
-        bool showButtons)
+BookmarkWidget::BookmarkWidget(BookmarkManager *manager, QWidget *parent)
     : QWidget(parent)
-    , addButton(0)
-    , removeButton(0)
     , bookmarkManager(manager)
+    , m_isOpenInNewPageActionVisible(true)
 {
-    setup(showButtons);
+    setup();
     installEventFilter(this);
 }
 
 BookmarkWidget::~BookmarkWidget()
 {
+}
+
+void BookmarkWidget::setOpenInNewPageActionVisible(bool visible)
+{
+    m_isOpenInNewPageActionVisible = visible;
 }
 
 void BookmarkWidget::removeClicked()
@@ -330,12 +339,6 @@ void BookmarkWidget::filterChanged()
         regExp.setPattern(QLatin1String(""));
         filterBookmarkModel->setSourceModel(bookmarkManager->treeBookmarkModel());
     }
-
-    if (addButton)
-        addButton->setEnabled(searchBookmarks);
-
-    if (removeButton)
-        removeButton->setEnabled(searchBookmarks);
 
     filterBookmarkModel->setFilterRegExp(regExp);
 
@@ -384,7 +387,8 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
         renameItem = menu.addAction(tr("Rename Folder"));
     } else {
         showItem = menu.addAction(tr("Show Bookmark"));
-        showItemNewTab = menu.addAction(tr("Show Bookmark as New Page"));
+        if (m_isOpenInNewPageActionVisible)
+            showItemNewTab = menu.addAction(tr("Show Bookmark as New Page"));
         if (searchField->text().isEmpty()) {
             menu.addSeparator();
             removeItem = menu.addAction(tr("Delete Bookmark"));
@@ -415,7 +419,7 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
     }
 }
 
-void BookmarkWidget::setup(bool showButtons)
+void BookmarkWidget::setup()
 {
     regExp.setPatternSyntax(QRegExp::FixedString);
     regExp.setCaseSensitivity(Qt::CaseInsensitive);
@@ -438,43 +442,11 @@ void BookmarkWidget::setup(bool showButtons)
     vlayout->addWidget(toolbar);
 
     searchField->installEventFilter(this);
-    connect(searchField, SIGNAL(textChanged(QString)), this,
-        SLOT(filterChanged()));
+    connect(searchField, &Utils::FancyLineEdit::textChanged,
+            this, &BookmarkWidget::filterChanged);
 
     treeView = new TreeView(this);
-    treeView->setFrameStyle(QFrame::NoFrame);
     vlayout->addWidget(treeView);
-
-#ifdef Q_OS_MAC
-#   define SYSTEM "mac"
-#else
-#   define SYSTEM "win"
-#endif
-
-    if (showButtons) {
-        QLayout *hlayout = new QHBoxLayout();
-        vlayout->addItem(hlayout);
-
-        hlayout->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding));
-
-        addButton = new QToolButton(this);
-        addButton->setText(tr("Add"));
-        addButton->setIcon(QIcon(QLatin1String(":/trolltech/assistant/images/"
-            SYSTEM "/addtab.png")));
-        addButton->setAutoRaise(true);
-        addButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-        hlayout->addWidget(addButton);
-        connect(addButton, SIGNAL(clicked()), this, SIGNAL(addBookmark()));
-
-        removeButton = new QToolButton(this);
-        removeButton->setText(tr("Remove"));
-        removeButton->setIcon(QIcon(QLatin1String(":/trolltech/assistant/images/"
-            SYSTEM "/closetab.png")));
-        removeButton->setAutoRaise(true);
-        removeButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-        hlayout->addWidget(removeButton);
-        connect(removeButton, SIGNAL(clicked()), this, SLOT(removeClicked()));
-    }
 
     filterBookmarkModel = new QSortFilterProxyModel(this);
     treeView->setModel(filterBookmarkModel);
@@ -483,18 +455,14 @@ void BookmarkWidget::setup(bool showButtons)
     treeView->setAcceptDrops(true);
     treeView->setAutoExpandDelay(1000);
     treeView->setDropIndicatorShown(true);
-    treeView->header()->setVisible(false);
     treeView->viewport()->installEventFilter(this);
     treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(treeView, SIGNAL(expanded(QModelIndex)), this,
-        SLOT(expand(QModelIndex)));
-    connect(treeView, SIGNAL(collapsed(QModelIndex)), this,
-        SLOT(expand(QModelIndex)));
-    connect(treeView, SIGNAL(activated(QModelIndex)), this,
-        SLOT(activated(QModelIndex)));
-    connect(treeView, SIGNAL(customContextMenuRequested(QPoint)),
-        this, SLOT(customContextMenuRequested(QPoint)));
+    connect(treeView, &TreeView::expanded, this, &BookmarkWidget::expand);
+    connect(treeView, &TreeView::collapsed, this, &BookmarkWidget::expand);
+    connect(treeView, &TreeView::activated, this, &BookmarkWidget::activated);
+    connect(treeView, &TreeView::customContextMenuRequested,
+            this, &BookmarkWidget::customContextMenuRequested);
 
     filterBookmarkModel->setFilterKeyColumn(0);
     filterBookmarkModel->setDynamicSortFilter(true);
@@ -538,13 +506,13 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
 
             switch (ke->key()) {
                 default: break;
-                case Qt::Key_Up: {
-                case Qt::Key_Down:
+                case Qt::Key_Up:
+                case Qt::Key_Down: {
                     treeView->subclassKeyPressEvent(ke);
                 }   break;
 
-                case Qt::Key_Enter: {
-                case Qt::Key_Return:
+                case Qt::Key_Enter:
+                case Qt::Key_Return: {
                     index = treeView->selectionModel()->currentIndex();
                     if (index.isValid()) {
                         QString data = index.data(Qt::UserRole + 10).toString();
@@ -612,12 +580,12 @@ Qt::ItemFlags BookmarkModel::flags(const QModelIndex &index) const
 
 BookmarkManager::BookmarkManager()
     : m_folderIcon(QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon))
-    , m_bookmarkIcon(QLatin1String(":/help/images/bookmark.png"))
+    , m_bookmarkIcon(Help::Icons::BOOKMARK.icon())
     , treeModel(new BookmarkModel(0, 1, this))
     , listModel(new BookmarkModel(0, 1, this))
 {
-    connect(treeModel, SIGNAL(itemChanged(QStandardItem*)), this,
-        SLOT(itemChanged(QStandardItem*)));
+    connect(treeModel, &BookmarkModel::itemChanged,
+            this, &BookmarkManager::itemChanged);
 }
 
 BookmarkManager::~BookmarkManager()
@@ -642,8 +610,7 @@ void BookmarkManager::saveBookmarks()
     QDataStream stream(&bookmarks, QIODevice::WriteOnly);
 
     readBookmarksRecursive(treeModel->invisibleRootItem(), stream, 0);
-    (&LocalHelpManager::helpEngine())->setCustomValue(QLatin1String("Bookmarks"),
-        bookmarks);
+    Core::ICore::settings()->setValue(QLatin1String(kBookmarksKey), bookmarks);
 }
 
 QStringList BookmarkManager::bookmarkFolders() const
@@ -760,8 +727,15 @@ void BookmarkManager::setupBookmarkModels()
     QList<int> lastDepths;
     QList<QStandardItem*> parents;
 
-    QByteArray ba = LocalHelpManager::helpEngine()
-        .customValue(QLatin1String("Bookmarks")).toByteArray();
+    QByteArray ba;
+    QSettings *settings = Core::ICore::settings();
+    if (settings->contains(QLatin1String(kBookmarksKey))) {
+        ba = settings->value(QLatin1String(kBookmarksKey)).toByteArray();
+    } else {
+        // read old settings from help engine
+        // TODO remove some time after Qt Creator 3.5
+        ba = LocalHelpManager::helpEngine().customValue(QLatin1String("Bookmarks")).toByteArray();
+    }
     QDataStream stream(ba);
     while (!stream.atEnd()) {
         stream >> depth >> name >> type >> expanded;
@@ -781,8 +755,9 @@ void BookmarkManager::setupBookmarkModels()
                 }
             }
             parents.last()->appendRow(item);
-            if (type == QLatin1String("Folder"))
+            if (type == QLatin1String("Folder")) {
                 parents << item; lastDepths << depth;
+            }
         }
 
         if (type != QLatin1String("Folder")) {

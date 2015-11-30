@@ -7,11 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>364</width>
-    <height>178</height>
+    <height>198</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -85,12 +94,6 @@
           <height>20</height>
          </size>
         </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
-        </property>
        </widget>
       </item>
       <item row="0" column="3">
@@ -134,18 +137,22 @@
           <height>20</height>
          </size>
         </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="bypassHooksCheckBox">
         <property name="text">
          <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QCheckBox" name="bypassHooksCheckBox">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>By&amp;pass hooks</string>
+         <string>By&amp;pass hooks:</string>
+        </property>
+        <property name="buddy">
+         <cstring>bypassHooksCheckBox</cstring>
         </property>
        </widget>
       </item>
@@ -154,8 +161,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../projectexplorer/projectexplorer.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

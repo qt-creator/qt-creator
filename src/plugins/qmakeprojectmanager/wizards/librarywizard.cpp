@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,7 +35,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QFileInfo>
+#include <utils/fileutils.h>
+
 #include <QTextStream>
 #include <QCoreApplication>
 
@@ -45,7 +47,7 @@ namespace Internal {
 
 LibraryWizard::LibraryWizard()
 {
-    setId(QLatin1String("H.Qt4Library"));
+    setId("H.Qt4Library");
     setCategory(QLatin1String(ProjectExplorer::Constants::LIBRARIES_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         ProjectExplorer::Constants::LIBRARIES_WIZARD_CATEGORY_DISPLAY));
@@ -54,18 +56,14 @@ LibraryWizard::LibraryWizard()
                 "<li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li>"
                 "<li>a shared or static C++ library for use with another project at linktime</li></ul>"));
     setIcon(QIcon(QLatin1String(":/wizards/images/lib.png")));
-    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT));
+    setRequiredFeatures(Core::FeatureSet(Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_PREFIX)));
 }
 
-QWizard *LibraryWizard::createWizardDialog(QWidget *parent, const Core::WizardDialogParameters &wizardDialogParameters) const
+Core::BaseFileWizard *LibraryWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    LibraryWizardDialog *dialog = new LibraryWizardDialog(displayName(),
-                                                           icon(),
-                                                           showModulesPageForLibraries(),
-                                                           parent,
-                                                           wizardDialogParameters);
+    LibraryWizardDialog *dialog = new LibraryWizardDialog(this, displayName(), icon(), parent, parameters);
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
-    dialog->setProjectName(LibraryWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
+    dialog->setProjectName(LibraryWizardDialog::uniqueProjectName(parameters.defaultPath()));
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());
     return dialog;
 }
@@ -97,12 +95,12 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     source.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
 
     const QString headerFileFullName = buildFileName(projectPath, params.headerFileName, headerSuffix());
-    const QString headerFileName = QFileInfo(headerFileFullName).fileName();
+    const QString headerFileName = Utils::FileName::fromString(headerFileFullName).fileName();
     QString pluginJsonFileFullName;
     QString pluginJsonFileName;
     if (projectParams.type == QtProjectParameters::Qt4Plugin) {
         pluginJsonFileFullName = buildFileName(projectPath, projectParams.fileName, QLatin1String("json"));
-        pluginJsonFileName = QFileInfo(pluginJsonFileFullName).fileName();
+        pluginJsonFileName = Utils::FileName::fromString(pluginJsonFileFullName).fileName();
     }
 
     Core::GeneratedFile header(headerFileFullName);
@@ -112,7 +110,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     if (projectParams.type == QtProjectParameters::SharedLibrary) {
         const QString globalHeaderName = buildFileName(projectPath, projectParams.fileName.toLower() + QLatin1String(sharedHeaderPostfixC), headerSuffix());
         Core::GeneratedFile globalHeader(globalHeaderName);
-        globalHeaderFileName = QFileInfo(globalHeader.path()).fileName();
+        globalHeaderFileName = Utils::FileName::fromString(globalHeader.path()).fileName();
         globalHeader.setContents(CppTools::AbstractEditorSupport::licenseTemplate(globalHeaderFileName)
                                  + LibraryParameters::generateSharedHeader(globalHeaderFileName, projectParams.fileName, sharedLibExportMacro));
         rc.push_back(globalHeader);
@@ -139,12 +137,12 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
         QTextStream proStr(&profileContents);
         QtProjectParameters::writeProFileHeader(proStr);
         projectParams.writeProFile(proStr);
-        proStr << "\nSOURCES += " << QFileInfo(source.path()).fileName()
+        proStr << "\nSOURCES += " << Utils::FileName::fromString(source.path()).fileName()
                << "\n\nHEADERS += " << headerFileName;
         if (!globalHeaderFileName.isEmpty())
             proStr << "\\\n        " << globalHeaderFileName << '\n';
         if (!pluginJsonFileName.isEmpty())
-            proStr << "\nOTHER_FILES += " << pluginJsonFileName << '\n';
+            proStr << "\nDISTFILES += " << pluginJsonFileName << '\n';
         writeLinuxProFile(proStr);
     }
     profile.setContents(profileContents);

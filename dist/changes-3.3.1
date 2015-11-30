@@ -1,0 +1,50 @@
+Qt Creator version 3.3.1 contains bug fixes.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v3.3.0..v3.3.1
+
+Editing
+   * Fixed crash with some highlighting files (QTCREATORBUG-13883)
+
+CMake Projects
+   * Fixed include completion (QTCREATORBUG-13567)
+   * Fixed highlighting for CMake files (QTCREATORBUG-13588)
+
+C++ Support
+   * Fixed comment continuation (QTCREATORBUG-13415)
+   * Fixed Convert to Pointer refactoring action for auto variables
+     (QTCREATORBUG-13605)
+   * Fixed that triggering refactoring actions from the context menu
+     worked only if the text cursor was set first (QTCREATORBUG-13388)
+   * Fixed crash if no kits are available (QTCREATORBUG-13730)
+   * Fixed infinite loop when parsing some files (QTCREATORBUG-13703)
+   * Fixed crash when #if nesting is deeper than 512 levels
+
+Version Control Systems
+   * Git
+      * Fixed reverting chunks in diff viewer when diff.mnemonicprefix is set
+        (QTCREATORBUG-13782)
+   * ClearCase
+      * Fixed that check out was requested even though the file was already
+        checked out (QTCREATORBUG-13782)
+
+Code Pasting
+   * Fixed pasting to pastebin.ca (QTCREATORBUG-13802)
+
+Platform Specific
+
+OS X
+   * Fixed dropping files from Finder onto Qt Creator (QTBUG-40449)
+
+Android
+   * Fixed crash when removing auto-detected kits (QTCREATORBUG-13736)
+   * Fixed debugging applications that link many modules (QTCREATORBUG-13691)
+
+WinRT
+   * Fixed installing custom files into package root (QTCREATORBUG-13835)
+   * Fixed occasional crashes when debugging
+

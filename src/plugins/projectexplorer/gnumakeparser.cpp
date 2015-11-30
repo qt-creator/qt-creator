@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -41,8 +42,8 @@ using namespace ProjectExplorer;
 
 namespace {
     // optional full path, make executable name, optional exe extension, optional number in square brackets, colon space
-    const char * const MAKEEXEC_PATTERN("^(.*[/\\\\])?(mingw(32|64)-|g)?make(.exe)?(\\[\\d+\\])?:\\s");
-    const char * const MAKEFILE_PATTERN("^((.*[/\\\\])?[Mm]akefile(\\.[a-zA-Z]+)?):(\\d+):\\s");
+    const char * const MAKEEXEC_PATTERN("^(.*?[/\\\\])?(mingw(32|64)-|g)?make(.exe)?(\\[\\d+\\])?:\\s");
+    const char * const MAKEFILE_PATTERN("^((.*?[/\\\\])?[Mm]akefile(\\.[a-zA-Z]+)?):(\\d+):\\s");
 }
 
 GnuMakeParser::GnuMakeParser() :
@@ -52,13 +53,10 @@ GnuMakeParser::GnuMakeParser() :
     setObjectName(QLatin1String("GnuMakeParser"));
     m_makeDir.setPattern(QLatin1String(MAKEEXEC_PATTERN) +
                          QLatin1String("(\\w+) directory .(.+).$"));
-    m_makeDir.setMinimal(true);
     QTC_CHECK(m_makeDir.isValid());
     m_makeLine.setPattern(QLatin1String(MAKEEXEC_PATTERN) + QLatin1String("(.*)$"));
-    m_makeLine.setMinimal(true);
     QTC_CHECK(m_makeLine.isValid());
     m_errorInMakefile.setPattern(QLatin1String(MAKEFILE_PATTERN) + QLatin1String("(.*)$"));
-    m_errorInMakefile.setMinimal(true);
     QTC_CHECK(m_errorInMakefile.isValid());
 }
 
@@ -77,11 +75,12 @@ void GnuMakeParser::stdOutput(const QString &line)
 {
     const QString lne = rightTrimmed(line);
 
-    if (m_makeDir.indexIn(lne) > -1) {
-        if (m_makeDir.cap(6) == QLatin1String("Leaving"))
-            removeDirectory(m_makeDir.cap(7));
+    QRegularExpressionMatch match = m_makeDir.match(lne);
+    if (match.hasMatch()) {
+        if (match.captured(6) == QLatin1String("Leaving"))
+            removeDirectory(match.captured(7));
         else
-            addDirectory(m_makeDir.cap(7));
+            addDirectory(match.captured(7));
         return;
     }
 
@@ -120,26 +119,29 @@ void GnuMakeParser::stdError(const QString &line)
 {
     const QString lne = rightTrimmed(line);
 
-    if (m_errorInMakefile.indexIn(lne) > -1) {
-        Result res = parseDescription(m_errorInMakefile.cap(5));
+    QRegularExpressionMatch match = m_errorInMakefile.match(lne);
+    if (match.hasMatch()) {
+        Result res = parseDescription(match.captured(5));
         if (res.isFatal)
             ++m_fatalErrorCount;
         if (!m_suppressIssues) {
             taskAdded(Task(res.type, res.description,
-                           Utils::FileName::fromUserInput(m_errorInMakefile.cap(1)) /* filename */,
-                           m_errorInMakefile.cap(4).toInt(), /* line */
-                           Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                           Utils::FileName::fromUserInput(match.captured(1)) /* filename */,
+                           match.captured(4).toInt(), /* line */
+                           Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)), 1, 0);
         }
         return;
     }
-    if (m_makeLine.indexIn(lne) > -1) {
-        Result res = parseDescription(m_makeLine.cap(6));
+    match = m_makeLine.match(lne);
+    if (match.hasMatch()) {
+        Result res = parseDescription(match.captured(6));
         if (res.isFatal)
             ++m_fatalErrorCount;
         if (!m_suppressIssues) {
-            taskAdded(Task(res.type, res.description,
-                           Utils::FileName() /* filename */, -1, /* line */
-                           Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+            Task task = Task(res.type, res.description,
+                             Utils::FileName() /* filename */, -1, /* line */
+                             Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+            taskAdded(task, 1, 0);
         }
         return;
     }
@@ -159,7 +161,7 @@ void GnuMakeParser::removeDirectory(const QString &dir)
     m_directories.removeOne(dir);
 }
 
-void GnuMakeParser::taskAdded(const Task &task)
+void GnuMakeParser::taskAdded(const Task &task, int linkedLines, int skippedLines)
 {
     Task editable(task);
 
@@ -186,7 +188,7 @@ void GnuMakeParser::taskAdded(const Task &task)
         // identify the file!
     }
 
-    IOutputParser::taskAdded(editable);
+    IOutputParser::taskAdded(editable, linkedLines, skippedLines);
 }
 
 #if defined WITH_TESTS
@@ -258,7 +260,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
                                    "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
                                    "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
                                    "../../scriptbug/main.cpp:22: instantiated from here\n")
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString()
             << QStringList();
 
@@ -362,7 +364,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here")
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here\n")
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString()
             << QStringList();
     QTest::newRow("Full path make exe")

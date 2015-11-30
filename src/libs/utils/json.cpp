@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,14 +36,16 @@
 #include <QDir>
 #include <QStringBuilder>
 #include <QDebug>
-#include <QScriptEngine>
+#include <QJsonDocument>
 
 using namespace Utils;
 
 JsonMemoryPool::~JsonMemoryPool()
 {
-    foreach (char *obj, _objs)
+    foreach (char *obj, _objs) {
+        reinterpret_cast<JsonValue *>(obj)->~JsonValue();
         delete[] obj;
+    }
 }
 
 JsonValue::JsonValue(Kind kind)
@@ -54,13 +57,11 @@ JsonValue::~JsonValue()
 
 JsonValue *JsonValue::create(const QString &s, JsonMemoryPool *pool)
 {
-    QScriptEngine engine;
-    QScriptValue jsonParser = engine.evaluate(QLatin1String("JSON.parse"));
-    QScriptValue value = jsonParser.call(QScriptValue(), QScriptValueList() << s);
-    if (engine.hasUncaughtException() || !value.isValid())
+    const QJsonDocument document = QJsonDocument::fromJson(s.toUtf8());
+    if (document.isNull())
         return 0;
 
-    return build(value.toVariant(), pool);
+    return build(document.toVariant(), pool);
 }
 
 void *JsonValue::operator new(size_t size, JsonMemoryPool *pool)
@@ -136,28 +137,28 @@ JsonValue *JsonValue::build(const QVariant &variant, JsonMemoryPool *pool)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const QString JsonSchema::kType(QLatin1String("type"));
-const QString JsonSchema::kProperties(QLatin1String("properties"));
-const QString JsonSchema::kPatternProperties(QLatin1String("patternProperties"));
-const QString JsonSchema::kAdditionalProperties(QLatin1String("additionalProperties"));
-const QString JsonSchema::kItems(QLatin1String("items"));
-const QString JsonSchema::kAdditionalItems(QLatin1String("additionalItems"));
-const QString JsonSchema::kRequired(QLatin1String("required"));
-const QString JsonSchema::kDependencies(QLatin1String("dependencies"));
-const QString JsonSchema::kMinimum(QLatin1String("minimum"));
-const QString JsonSchema::kMaximum(QLatin1String("maximum"));
-const QString JsonSchema::kExclusiveMinimum(QLatin1String("exclusiveMinimum"));
-const QString JsonSchema::kExclusiveMaximum(QLatin1String("exclusiveMaximum"));
-const QString JsonSchema::kMinItems(QLatin1String("minItems"));
-const QString JsonSchema::kMaxItems(QLatin1String("maxItems"));
-const QString JsonSchema::kUniqueItems(QLatin1String("uniqueItems"));
-const QString JsonSchema::kPattern(QLatin1String("pattern"));
-const QString JsonSchema::kMinLength(QLatin1String("minLength"));
-const QString JsonSchema::kMaxLength(QLatin1String("maxLength"));
-const QString JsonSchema::kTitle(QLatin1String("title"));
-const QString JsonSchema::kDescription(QLatin1String("description"));
-const QString JsonSchema::kExtends(QLatin1String("extends"));
-const QString JsonSchema::kRef(QLatin1String("$ref"));
+QString JsonSchema::kType() { return QStringLiteral("type"); }
+QString JsonSchema::kProperties() { return QStringLiteral("properties"); }
+QString JsonSchema::kPatternProperties() { return QStringLiteral("patternProperties"); }
+QString JsonSchema::kAdditionalProperties() { return QStringLiteral("additionalProperties"); }
+QString JsonSchema::kItems() { return QStringLiteral("items"); }
+QString JsonSchema::kAdditionalItems() { return QStringLiteral("additionalItems"); }
+QString JsonSchema::kRequired() { return QStringLiteral("required"); }
+QString JsonSchema::kDependencies() { return QStringLiteral("dependencies"); }
+QString JsonSchema::kMinimum() { return QStringLiteral("minimum"); }
+QString JsonSchema::kMaximum() { return QStringLiteral("maximum"); }
+QString JsonSchema::kExclusiveMinimum() { return QStringLiteral("exclusiveMinimum"); }
+QString JsonSchema::kExclusiveMaximum() { return QStringLiteral("exclusiveMaximum"); }
+QString JsonSchema::kMinItems() { return QStringLiteral("minItems"); }
+QString JsonSchema::kMaxItems() { return QStringLiteral("maxItems"); }
+QString JsonSchema::kUniqueItems() { return QStringLiteral("uniqueItems"); }
+QString JsonSchema::kPattern() { return QStringLiteral("pattern"); }
+QString JsonSchema::kMinLength() { return QStringLiteral("minLength"); }
+QString JsonSchema::kMaxLength() { return QStringLiteral("maxLength"); }
+QString JsonSchema::kTitle() { return QStringLiteral("title"); }
+QString JsonSchema::kDescription() { return QStringLiteral("description"); }
+QString JsonSchema::kExtends() { return QStringLiteral("extends"); }
+QString JsonSchema::kRef() { return QStringLiteral("$ref"); }
 
 JsonSchema::JsonSchema(JsonObjectValue *rootObject, const JsonSchemaManager *manager)
     : m_manager(manager)
@@ -168,11 +169,11 @@ JsonSchema::JsonSchema(JsonObjectValue *rootObject, const JsonSchemaManager *man
 bool JsonSchema::isTypeConstrained() const
 {
     // Simple types
-    if (JsonStringValue *sv = getStringValue(kType, currentValue()))
+    if (JsonStringValue *sv = getStringValue(kType(), currentValue()))
         return isCheckableType(sv->value());
 
     // Union types
-    if (JsonArrayValue *av = getArrayValue(kType, currentValue())) {
+    if (JsonArrayValue *av = getArrayValue(kType(), currentValue())) {
         QTC_ASSERT(currentIndex() != -1, return false);
         QTC_ASSERT(av->elements().at(currentIndex())->kind() == JsonValue::String, return false);
         JsonStringValue *sv = av->elements().at(currentIndex())->toString();
@@ -185,11 +186,11 @@ bool JsonSchema::isTypeConstrained() const
 bool JsonSchema::acceptsType(const QString &type) const
 {
     // Simple types
-    if (JsonStringValue *sv = getStringValue(kType, currentValue()))
+    if (JsonStringValue *sv = getStringValue(kType(), currentValue()))
         return typeMatches(sv->value(), type);
 
     // Union types
-    if (JsonArrayValue *av = getArrayValue(kType, currentValue())) {
+    if (JsonArrayValue *av = getArrayValue(kType(), currentValue())) {
         QTC_ASSERT(currentIndex() != -1, return false);
         QTC_ASSERT(av->elements().at(currentIndex())->kind() == JsonValue::String, return false);
         JsonStringValue *sv = av->elements().at(currentIndex())->toString();
@@ -203,13 +204,13 @@ QStringList JsonSchema::validTypes(JsonObjectValue *v)
 {
     QStringList all;
 
-    if (JsonStringValue *sv = getStringValue(kType, v))
+    if (JsonStringValue *sv = getStringValue(kType(), v))
         all.append(sv->value());
 
-    if (JsonObjectValue *ov = getObjectValue(kType, v))
+    if (JsonObjectValue *ov = getObjectValue(kType(), v))
         return validTypes(ov);
 
-    if (JsonArrayValue *av = getArrayValue(kType, v)) {
+    if (JsonArrayValue *av = getArrayValue(kType(), v)) {
         foreach (JsonValue *v, av->elements()) {
             if (JsonStringValue *sv = v->toString())
                 all.append(sv->value());
@@ -251,14 +252,14 @@ QStringList JsonSchema::validTypes() const
 
 bool JsonSchema::hasTypeSchema() const
 {
-    return getObjectValue(kType, currentValue());
+    return getObjectValue(kType(), currentValue());
 }
 
 void JsonSchema::enterNestedTypeSchema()
 {
     QTC_ASSERT(hasTypeSchema(), return);
 
-    enter(getObjectValue(kType, currentValue()));
+    enter(getObjectValue(kType(), currentValue()));
 }
 
 QStringList JsonSchema::properties(JsonObjectValue *v) const
@@ -267,7 +268,7 @@ QStringList JsonSchema::properties(JsonObjectValue *v) const
 
     QStringList all;
 
-    if (JsonObjectValue *ov = getObjectValue(kProperties, v)) {
+    if (JsonObjectValue *ov = getObjectValue(kProperties(), v)) {
         const MemberConstIterator cend = ov->members().constEnd();
         for (MemberConstIterator it = ov->members().constBegin(); it != cend; ++it)
             if (hasPropertySchema(it.key()))
@@ -290,7 +291,7 @@ QStringList JsonSchema::properties() const
 JsonObjectValue *JsonSchema::propertySchema(const QString &property,
                                                       JsonObjectValue *v) const
 {
-    if (JsonObjectValue *ov = getObjectValue(kProperties, v)) {
+    if (JsonObjectValue *ov = getObjectValue(kProperties(), v)) {
         JsonValue *member = ov->member(property);
         if (member && member->kind() == JsonValue::Object)
             return member->toObject();
@@ -328,14 +329,14 @@ bool JsonSchema::hasItemSchema() const
 {
     QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::Array)), return false);
 
-    return getObjectValue(kItems, currentValue());
+    return getObjectValue(kItems(), currentValue());
 }
 
 void JsonSchema::enterNestedItemSchema()
 {
     QTC_ASSERT(hasItemSchema(), return);
 
-    enter(getObjectValue(kItems, currentValue()));
+    enter(getObjectValue(kItems(), currentValue()));
 }
 
 /*!
@@ -349,14 +350,14 @@ bool JsonSchema::hasItemArraySchema() const
 {
     QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::Array)), return false);
 
-    return getArrayValue(kItems, currentValue());
+    return getArrayValue(kItems(), currentValue());
 }
 
 int JsonSchema::itemArraySchemaSize() const
 {
     QTC_ASSERT(hasItemArraySchema(), return false);
 
-    return getArrayValue(kItems, currentValue())->size();
+    return getArrayValue(kItems(), currentValue())->size();
 }
 
 /*!
@@ -376,7 +377,7 @@ bool JsonSchema::maybeEnterNestedArraySchema(int index)
     QTC_ASSERT(itemArraySchemaSize(), return false);
     QTC_ASSERT(index >= 0 && index < itemArraySchemaSize(), return false);
 
-    JsonValue *v = getArrayValue(kItems, currentValue())->elements().at(index);
+    JsonValue *v = getArrayValue(kItems(), currentValue())->elements().at(index);
 
     return maybeEnter(v, Array, index);
 }
@@ -390,12 +391,12 @@ bool JsonSchema::maybeEnterNestedArraySchema(int index)
  */
 bool JsonSchema::hasUnionSchema() const
 {
-    return getArrayValue(kType, currentValue());
+    return getArrayValue(kType(), currentValue());
 }
 
 int JsonSchema::unionSchemaSize() const
 {
-    return getArrayValue(kType, currentValue())->size();
+    return getArrayValue(kType(), currentValue())->size();
 }
 
 /*!
@@ -415,7 +416,7 @@ bool JsonSchema::maybeEnterNestedUnionSchema(int index)
     QTC_ASSERT(unionSchemaSize(), return false);
     QTC_ASSERT(index >= 0 && index < unionSchemaSize(), return false);
 
-    JsonValue *v = getArrayValue(kType, currentValue())->elements().at(index);
+    JsonValue *v = getArrayValue(kType(), currentValue())->elements().at(index);
 
     return maybeEnter(v, Union, index);
 }
@@ -429,7 +430,7 @@ void JsonSchema::leaveNestedSchema()
 
 bool JsonSchema::required() const
 {
-    if (JsonBooleanValue *bv = getBooleanValue(kRequired, currentValue()))
+    if (JsonBooleanValue *bv = getBooleanValue(kRequired(), currentValue()))
         return bv->value();
 
     return false;
@@ -439,21 +440,21 @@ bool JsonSchema::hasMinimum() const
 {
     QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::Int)), return false);
 
-    return getDoubleValue(kMinimum, currentValue());
+    return getDoubleValue(kMinimum(), currentValue());
 }
 
 double JsonSchema::minimum() const
 {
     QTC_ASSERT(hasMinimum(), return 0);
 
-    return getDoubleValue(kMinimum, currentValue())->value();
+    return getDoubleValue(kMinimum(), currentValue())->value();
 }
 
 bool JsonSchema::hasExclusiveMinimum()
 {
     QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::Int)), return false);
 
-    if (JsonBooleanValue *bv = getBooleanValue(kExclusiveMinimum, currentValue()))
+    if (JsonBooleanValue *bv = getBooleanValue(kExclusiveMinimum(), currentValue()))
         return bv->value();
 
     return false;
@@ -463,21 +464,21 @@ bool JsonSchema::hasMaximum() const
 {
     QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::Int)), return false);
 
-    return getDoubleValue(kMaximum, currentValue());
+    return getDoubleValue(kMaximum(), currentValue());
 }
 
 double JsonSchema::maximum() const
 {
     QTC_ASSERT(hasMaximum(), return 0);
 
-    return getDoubleValue(kMaximum, currentValue())->value();
+    return getDoubleValue(kMaximum(), currentValue())->value();
 }
 
 bool JsonSchema::hasExclusiveMaximum()
 {
     QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::Int)), return false);
 
-    if (JsonBooleanValue *bv = getBooleanValue(kExclusiveMaximum, currentValue()))
+    if (JsonBooleanValue *bv = getBooleanValue(kExclusiveMaximum(), currentValue()))
         return bv->value();
 
     return false;
@@ -487,7 +488,7 @@ QString JsonSchema::pattern() const
 {
     QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::String)), return QString());
 
-    if (JsonStringValue *sv = getStringValue(kPattern, currentValue()))
+    if (JsonStringValue *sv = getStringValue(kPattern(), currentValue()))
         return sv->value();
 
     return QString();
@@ -497,7 +498,7 @@ int JsonSchema::minimumLength() const
 {
     QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::String)), return -1);
 
-    if (JsonDoubleValue *dv = getDoubleValue(kMinLength, currentValue()))
+    if (JsonDoubleValue *dv = getDoubleValue(kMinLength(), currentValue()))
         return dv->value();
 
     return -1;
@@ -507,7 +508,7 @@ int JsonSchema::maximumLength() const
 {
     QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::String)), return -1);
 
-    if (JsonDoubleValue *dv = getDoubleValue(kMaxLength, currentValue()))
+    if (JsonDoubleValue *dv = getDoubleValue(kMaxLength(), currentValue()))
         return dv->value();
 
     return -1;
@@ -517,7 +518,7 @@ bool JsonSchema::hasAdditionalItems() const
 {
     QTC_ASSERT(acceptsType(JsonValue::kindToString(JsonValue::Array)), return false);
 
-    return currentValue()->member(kAdditionalItems);
+    return currentValue()->member(kAdditionalItems());
 }
 
 bool JsonSchema::maybeSchemaName(const QString &s)
@@ -599,7 +600,7 @@ void JsonSchema::leave()
 
 JsonObjectValue *JsonSchema::resolveReference(JsonObjectValue *ov) const
 {
-    if (JsonStringValue *sv = getStringValue(kRef, ov)) {
+    if (JsonStringValue *sv = getStringValue(kRef(), ov)) {
         JsonSchema *referenced = m_manager->schemaByName(sv->value());
         if (referenced)
             return referenced->rootValue();
@@ -610,7 +611,7 @@ JsonObjectValue *JsonSchema::resolveReference(JsonObjectValue *ov) const
 
 JsonObjectValue *JsonSchema::resolveBase(JsonObjectValue *ov) const
 {
-    if (JsonValue *v = ov->member(kExtends)) {
+    if (JsonValue *v = ov->member(kExtends())) {
         if (v->kind() == JsonValue::String) {
             JsonSchema *schema = m_manager->schemaByName(v->toString()->value());
             if (schema)

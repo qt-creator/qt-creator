@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -56,8 +57,7 @@ def main():
         test.passes("Refactoring was properly applied in source file")
     else:
         test.fail("Refactoring of Text to MyComponent failed in source file. Content of editor:\n%s" % codeText)
-    myCompTE = "SampleApp.QML.qml.MyComponent\\.qml"
-    appeared = False
+    myCompTE = "SampleApp.Resources.qml\\.qrc./.MyComponent\\.qml"
     # there should be new QML file generated with name "MyComponent.qml"
     try:
         waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", myCompTE, 3000)
@@ -69,6 +69,7 @@ def main():
             #save and exit
             invokeMenuItem("File", "Save All")
             invokeMenuItem("File", "Exit")
+            return
     test.passes("Refactoring - file MyComponent.qml was generated properly in project explorer")
     # open MyComponent.qml file for verification
     if not openDocument(myCompTE):
@@ -86,7 +87,6 @@ def main():
     #save and exit
     invokeMenuItem("File", "Save All")
     # check if new file was created in file system
-    test.verify(os.path.exists(projectDir + "/SampleApp/qml/MyComponent.qml"),
+    test.verify(os.path.exists(os.path.join(projectDir, "SampleApp", "MyComponent.qml")),
                 "Verifying if MyComponent.qml exists in file system after save")
     invokeMenuItem("File", "Exit")
-

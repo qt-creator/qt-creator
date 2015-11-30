@@ -4,7 +4,7 @@ include(../shared/shared.pri)
 DEFINES += SRCDIR=\\\"$$PWD\\\"
 
 SOURCES += tst_cxx11.cpp
-OTHER_FILES += \
+DISTFILES += \
     data/inlineNamespace.1.cpp \
     data/inlineNamespace.1.errors.txt \
     data/staticAssert.1.cpp \

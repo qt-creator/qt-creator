@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -47,6 +48,21 @@ struct SymbolGroupValueContext;
 class SymbolGroupNode;
 class MemoryHandle;
 
+enum DumpEncoding // WatchData encoding of GDBMI values
+{
+    DumpEncodingAscii = 0,
+    DumpEncodingBase64_Utf16_WithQuotes = 2,
+    DumpEncodingHex_Ucs4_LittleEndian_WithQuotes = 3,
+    DumpEncodingBase64_Utf16 = 4,
+    DumpEncodingHex_Latin1_WithQuotes = 6,
+    DumpEncodingHex_Utf8_LittleEndian_WithQuotes = 9,
+    DumpEncodingJulianDate = 14,
+    DumpEncodingMillisecondsSinceMidnight = 15,
+    DumpEncodingJulianDateAndMillisecondsSinceMidnight = 16,
+    DumpEncodingIPv6AddressAndHexScopeId = 27,
+    DumpEncodingMillisecondsSinceEpoch = 29
+};
+
 // Helper struct used for check results when recoding CDB char pointer output.
 struct DumpParameterRecodeResult
 {
@@ -64,11 +80,13 @@ struct DumpParameters
     enum DumpFlags
     {
         DumpHumanReadable = 0x1,
-        DumpComplexDumpers = 0x2
+        DumpComplexDumpers = 0x2,
+        DumpAlphabeticallySorted = 0x4
     };
 
     DumpParameters();
     bool humanReadable() const {  return dumpFlags & DumpHumanReadable; }
+    bool isAlphabeticallySorted() const {  return (dumpFlags & DumpAlphabeticallySorted) != 0; }
     // Helper to decode format option arguments.
     static FormatMap decodeFormatArgument(const std::string &f, bool isHex);
 
@@ -208,11 +226,12 @@ public:
         SimpleDumperOk = 0x4,     // Internal dumper ran, value set
         SimpleDumperFailed = 0x8, // Internal dumper failed
         SimpleDumperMask = SimpleDumperNotApplicable|SimpleDumperOk|SimpleDumperFailed,
-        ExpandedByDumper = 0x10,
+        ExpandedByRequest = 0x10,
         AdditionalSymbol = 0x20, // Introduced by addSymbol, should not be visible
         Obscured = 0x40,    // Symbol is obscured by (for example) fake container children
         ComplexDumperOk = 0x80,
-        WatchNode = 0x100
+        WatchNode = 0x100,
+        PreSortedChildren = 0x200
     };
 
     ~SymbolGroupNode();
@@ -248,6 +267,7 @@ public:
     std::wstring symbolGroupFixedValue() const;
 
     bool assign(const std::string &value, std::string *errorMessage = 0);
+    std::wstring simpleDumpValue(const SymbolGroupValueContext &ctx, int *encoding);
 
     // A quick check if symbol is valid by checking for inaccessible value
     bool isMemoryAccessible() const;
@@ -290,7 +310,6 @@ private:
     // Notify about expansion/collapsing of a node, shift indexes
     bool notifyIndexesMoved(ULONG index, bool inserted, ULONG offset);
     bool runSimpleDumpers(const SymbolGroupValueContext &ctx);
-    std::wstring simpleDumpValue(const SymbolGroupValueContext &ctx);
     ULONG nextSymbolIndex() const;
 
     SymbolGroup *const m_symbolGroup;
@@ -298,6 +317,7 @@ private:
     ULONG m_index;
     DEBUG_SYMBOL_PARAMETERS m_parameters; // Careful when using ParentSymbol. It might not be correct.
     std::wstring m_dumperValue;
+    int m_dumperValueEncoding;
     int m_dumperType;
     int m_dumperContainerSize;
     void *m_dumperSpecialInfo; // Opaque information passed from simple to complex dumpers
@@ -381,6 +401,7 @@ protected:
                               unsigned child, unsigned depth) = 0;
     // Helper for formatting output.
     virtual void childrenVisited(const AbstractSymbolGroupNode * /* node */, unsigned /* depth */) {}
+    virtual bool sortChildrenAlphabetically() const { return false; }
 };
 
 class DebugSymbolGroupNodeVisitor : public SymbolGroupNodeVisitor {
@@ -423,6 +444,7 @@ protected:
                               const std::string &fullIname,
                               unsigned child, unsigned depth);
     virtual void childrenVisited(const AbstractSymbolGroupNode *  node, unsigned depth);
+    bool sortChildrenAlphabetically() const override { return m_parameters.isAlphabeticallySorted(); }
 
 private:
     std::ostream &m_os;

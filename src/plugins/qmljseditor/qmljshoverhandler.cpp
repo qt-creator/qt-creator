@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,29 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qmljshoverhandler.h"
 #include "qmljseditor.h"
+#include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
-#include "qmljseditoreditable.h"
 #include "qmlexpressionundercursor.h"
 
 #include <coreplugin/editormanager/ieditor.h>
@@ -41,15 +42,14 @@
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsvalueowner.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsqrcparser.h>
-#include <texteditor/itexteditor.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/helpitem.h>
 #include <utils/tooltip/tooltip.h>
-#include <utils/tooltip/tipcontents.h>
 
 #include <QDir>
 #include <QList>
@@ -57,6 +57,7 @@
 
 using namespace Core;
 using namespace QmlJS;
+using namespace TextEditor;
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -92,17 +93,9 @@ namespace {
     }
 }
 
-HoverHandler::HoverHandler(QObject *parent) : BaseHoverHandler(parent), m_modelManager(0)
+QmlJSHoverHandler::QmlJSHoverHandler() : m_modelManager(0)
 {
-    m_modelManager = QmlJS::ModelManagerInterface::instance();
-}
-
-bool HoverHandler::acceptEditor(IEditor *editor)
-{
-    QmlJSEditor *qmlEditor = qobject_cast<QmlJSEditor *>(editor);
-    if (qmlEditor)
-        return true;
-    return false;
+    m_modelManager = ModelManagerInterface::instance();
 }
 
 static inline QString getModuleName(const ScopeChain &scopeChain, const Document::Ptr &qmlDocument,
@@ -151,8 +144,8 @@ static inline QString getModuleName(const ScopeChain &scopeChain, const Document
     return QString();
 }
 
-bool HoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::Ptr &qmlDocument,
-                                  const ObjectValue *value, const QStringList &qName)
+bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::Ptr &qmlDocument,
+                                       const ObjectValue *value, const QStringList &qName)
 {
     QString moduleName = getModuleName(scopeChain, qmlDocument, value);
     QString helpId;
@@ -160,13 +153,13 @@ bool HoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::
         QStringList helpIdPieces(qName);
         helpIdPieces.prepend(moduleName);
         helpIdPieces.prepend(QLatin1String("QML"));
-        helpId = helpIdPieces.join(QLatin1String("."));
+        helpId = helpIdPieces.join(QLatin1Char('.'));
         if (!HelpManager::linksForIdentifier(helpId).isEmpty())
             break;
         if (helpIdPieces.size() > 3) {
             QString lm = helpIdPieces.value(2);
             helpIdPieces.removeAt(2);
-            helpId = helpIdPieces.join(QLatin1String("."));
+            helpId = helpIdPieces.join(QLatin1Char('.'));
             if (!HelpManager::linksForIdentifier(helpId).isEmpty())
                 break;
             helpIdPieces.replace(1, lm);
@@ -174,26 +167,24 @@ bool HoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::
                 break;
         }
         helpIdPieces.removeAt(1);
-        helpId = helpIdPieces.join(QLatin1String("."));
+        helpId = helpIdPieces.join(QLatin1Char('.'));
         if (!HelpManager::linksForIdentifier(helpId).isEmpty())
             break;
         return false;
     } while (0);
-    setLastHelpItemIdentified(TextEditor::HelpItem(helpId, qName.join(QLatin1String(".")),
-                                                   TextEditor::HelpItem::QmlComponent));
+    setLastHelpItemIdentified(HelpItem(helpId, qName.join(QLatin1Char('.')), HelpItem::QmlComponent));
     return true;
 }
 
-void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
+void QmlJSHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
 {
     reset();
 
     if (!m_modelManager)
         return;
 
-    QmlJSTextEditorWidget *qmlEditor = qobject_cast<QmlJSTextEditorWidget *>(editor->widget());
-    if (!qmlEditor)
-        return;
+    QmlJSEditorWidget *qmlEditor = qobject_cast<QmlJSEditorWidget *>(editorWidget);
+    QTC_ASSERT(qmlEditor, return);
 
     const QmlJSTools::SemanticInfo &semanticInfo = qmlEditor->qmlJsEditorDocument()->semanticInfo();
     if (!semanticInfo.isValid() || qmlEditor->qmlJsEditorDocument()->isSemanticInfoOutdated())
@@ -258,10 +249,10 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     setQmlHelpItem(scopeChain, qmlDocument, node);
 }
 
-bool HoverHandler::matchDiagnosticMessage(QmlJSTextEditorWidget *qmlEditor, int pos)
+bool QmlJSHoverHandler::matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos)
 {
     foreach (const QTextEdit::ExtraSelection &sel,
-             qmlEditor->extraSelections(TextEditor::BaseTextEditorWidget::CodeWarningsSelection)) {
+             qmlEditor->extraSelections(TextEditorWidget::CodeWarningsSelection)) {
         if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
             setToolTip(sel.format.toolTip());
             return true;
@@ -277,7 +268,7 @@ bool HoverHandler::matchDiagnosticMessage(QmlJSTextEditorWidget *qmlEditor, int 
     return false;
 }
 
-bool HoverHandler::matchColorItem(const ScopeChain &scopeChain,
+bool QmlJSHoverHandler::matchColorItem(const ScopeChain &scopeChain,
                                   const Document::Ptr &qmlDocument,
                                   const QList<AST::Node *> &astPath,
                                   unsigned pos)
@@ -335,7 +326,7 @@ bool HoverHandler::matchColorItem(const ScopeChain &scopeChain,
     return false;
 }
 
-void HoverHandler::handleOrdinaryMatch(const ScopeChain &scopeChain, AST::Node *node)
+void QmlJSHoverHandler::handleOrdinaryMatch(const ScopeChain &scopeChain, AST::Node *node)
 {
     if (node && !(AST::cast<AST::StringLiteral *>(node) != 0 ||
                   AST::cast<AST::NumericLiteral *>(node) != 0)) {
@@ -344,7 +335,7 @@ void HoverHandler::handleOrdinaryMatch(const ScopeChain &scopeChain, AST::Node *
     }
 }
 
-void HoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport *node)
+void QmlJSHoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport *node)
 {
     const Imports *imports = scopeChain.context()->imports(scopeChain.document().data());
     if (!imports)
@@ -372,23 +363,23 @@ void HoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport *nod
     }
 }
 
-void HoverHandler::reset()
+void QmlJSHoverHandler::reset()
 {
     m_colorTip = QColor();
 }
 
-void HoverHandler::operateTooltip(TextEditor::ITextEditor *editor, const QPoint &point)
+void QmlJSHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     if (toolTip().isEmpty())
         Utils::ToolTip::hide();
     else if (m_colorTip.isValid())
-        Utils::ToolTip::show(point, Utils::ColorContent(m_colorTip), editor->widget());
+        Utils::ToolTip::show(point, m_colorTip, editorWidget);
     else
-        Utils::ToolTip::show(point, Utils::TextContent(toolTip()), editor->widget());
+        Utils::ToolTip::show(point, toolTip(), editorWidget);
 }
 
-void HoverHandler::prettyPrintTooltip(const QmlJS::Value *value,
-                                      const QmlJS::ContextPtr &context)
+void QmlJSHoverHandler::prettyPrintTooltip(const Value *value,
+                                      const ContextPtr &context)
 {
     if (! value)
         return;
@@ -455,7 +446,7 @@ static const ObjectValue *isMember(const ScopeChain &scopeChain,
     return owningObject;
 }
 
-bool HoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
+bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
                                   const Document::Ptr &qmlDocument,
                                   AST::Node *node)
 {
@@ -496,8 +487,7 @@ bool HoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
                     helpId.clear();
                 } while (0);
                 if (!helpId.isEmpty()) {
-                    setLastHelpItemIdentified(
-                                TextEditor::HelpItem(helpId, name, TextEditor::HelpItem::QmlProperty));
+                    setLastHelpItemIdentified(HelpItem(helpId, name, HelpItem::QmlProperty));
                     return true;
                 }
             }

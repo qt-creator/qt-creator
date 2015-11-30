@@ -1,0 +1,49 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "D.Form",
+    "category": "R.Qt",
+    "trDescription": "Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.",
+    "trDisplayName": "Qt Designer Form",
+    "trDisplayCategory": "Qt",
+    "icon": "../../global/genericfilewizard.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Designer') >= 0}",
+
+    "options": [
+        { "key": "UiClass", "value": "%{JS: QtSupport.uiClassName([ %{FormContents} ].join('\\n'))}" },
+        { "key": "Extension", "value": "%{JS: Util.preferredSuffix('application/x-designer')}"},
+        { "key": "InitialFileName", "value": "%{JS: Cpp.classToFileName('%{UiClass}', '%{Extension}') }" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Choose a Form Template",
+            "trShortTitle": "Form Template",
+            "typeId": "Form"
+        },
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.ui",
+                "target": "%{JS: Cpp.fileName('%{TargetPath}', '%{Extension}')}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

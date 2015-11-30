@@ -1,0 +1,52 @@
+Qt Creator version 3.1.2 is a bugfix release.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v3.1.1..v3.1.2
+
+General
+   * Fixed restoring of output pane button visibility
+
+Editing
+   * Fixed crash with highlight definitions and indentation based folding enabled
+     (QTCREATORBUG-12172)
+   * Fixed setting current file when clicking on split view (QTCREATORBUG-12264)
+
+Help
+   * Fixed that pressing F1 twice would not go to Help mode
+     (QTCREATORBUG-9093)
+   * Fixed filtering in topic chooser
+
+QMake Projects
+   * Fixed adding files through context menu in case of multiple
+     resource files (QTCREATORBUG-12297)
+   * Fixed that resource files were no longer appearing in
+     Locator and search
+
+Debugging
+   * GDB
+      * Worked around GDB crash with large object names
+        (QTCREATORBUG-12330)
+
+C++ Support
+   * Fixed crash with anonymous unions with __attribute__
+     (QTCREATORBUG-12345)
+
+Code Paster
+   * Fixed crash in case of invalid protocol setting (QTCREATORBUG-12364)
+
+Beautifier
+   * Fixed problem on Mac when starting Qt Creator from Finder
+     (QTCREATORBUG-12057)
+
+Platform Specific
+
+Windows
+   * Fixed matching of paths in Locator (QTCREATORBUG-12007)
+
+QNX
+   * Fixed font path on devices
+

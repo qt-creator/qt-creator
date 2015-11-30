@@ -232,9 +232,8 @@ public:
     ForwardClassDeclaration(Clone *clone, Subst *subst, ForwardClassDeclaration *original);
     virtual ~ForwardClassDeclaration();
 
+    // Symbol's interface
     virtual FullySpecifiedType type() const;
-
-    virtual bool isEqualTo(const Type *other) const;
 
     virtual const ForwardClassDeclaration *asForwardClassDeclaration() const
     { return this; }
@@ -242,6 +241,7 @@ public:
     virtual ForwardClassDeclaration *asForwardClassDeclaration()
     { return this; }
 
+    // Type's interface
     virtual const ForwardClassDeclaration *asForwardClassDeclarationType() const
     { return this; }
 
@@ -251,7 +251,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 };
 
 class CPLUSPLUS_EXPORT Enum: public Scope, public Type
@@ -261,11 +261,11 @@ public:
     Enum(Clone *clone, Subst *subst, Enum *original);
     virtual ~Enum();
 
+    bool isScoped() const;
+    void setScoped(bool scoped);
+
     // Symbol's interface
     virtual FullySpecifiedType type() const;
-
-    // Type's interface
-    virtual bool isEqualTo(const Type *other) const;
 
     virtual const Enum *asEnum() const
     { return this; }
@@ -273,19 +273,17 @@ public:
     virtual Enum *asEnum()
     { return this; }
 
+    // Type's interface
     virtual const Enum *asEnumType() const
     { return this; }
 
     virtual Enum *asEnumType()
     { return this; }
 
-    bool isScoped() const;
-    void setScoped(bool scoped);
-
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     bool _isScoped;
@@ -347,13 +345,15 @@ public:
     bool isPureVirtual() const;
     void setPureVirtual(bool isPureVirtual);
 
-    bool isSignatureEqualTo(const Function *other) const;
+    bool isSignatureEqualTo(const Function *other, Matcher *matcher = 0) const;
+
+    bool isAmbiguous() const; // internal
+    void setAmbiguous(bool isAmbiguous); // internal
+
+    bool maybeValidPrototype(unsigned actualArgumentCount) const;
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
-
-    // Type's interface
-    virtual bool isEqualTo(const Type *other) const;
 
     virtual const Function *asFunction() const
     { return this; }
@@ -361,21 +361,17 @@ public:
     virtual Function *asFunction()
     { return this; }
 
+    // Type's interface
     virtual const Function *asFunctionType() const
     { return this; }
 
     virtual Function *asFunctionType()
     { return this; }
 
-    bool isAmbiguous() const; // internal
-    void setAmbiguous(bool isAmbiguous); // internal
-
-    bool maybeValidPrototype(unsigned actualArgumentCount) const;
-
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     FullySpecifiedType _returnType;
@@ -410,15 +406,13 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
-    // Type's interface
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const Template *asTemplate() const
     { return this; }
 
     virtual Template *asTemplate()
     { return this; }
 
+    // Type's interface
     virtual const Template *asTemplateType() const
     { return this; }
 
@@ -428,7 +422,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 };
 
 
@@ -442,15 +436,13 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
-    // Type's interface
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const Namespace *asNamespace() const
     { return this; }
 
     virtual Namespace *asNamespace()
     { return this; }
 
+    // Type's interface
     virtual const Namespace *asNamespaceType() const
     { return this; }
 
@@ -466,7 +458,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     bool _isInline;
@@ -482,6 +474,9 @@ public:
     bool isVirtual() const;
     void setVirtual(bool isVirtual);
 
+    bool isVariadic() const;
+    void setVariadic(bool isVariadic);
+
     // Symbol's interface
     virtual FullySpecifiedType type() const;
     void setType(const FullySpecifiedType &type);
@@ -496,6 +491,7 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 
 private:
+    bool _isVariadic;
     bool _isVirtual;
     FullySpecifiedType _type;
 };
@@ -526,15 +522,13 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
-    // Type's interface
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const Class *asClass() const
     { return this; }
 
     virtual Class *asClass()
     { return this; }
 
+    // Type's interface
     virtual const Class *asClassType() const
     { return this; }
 
@@ -544,7 +538,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     Key _key;
@@ -667,9 +661,8 @@ public:
     ObjCForwardProtocolDeclaration(Clone *clone, Subst *subst, ObjCForwardProtocolDeclaration *original);
     virtual ~ObjCForwardProtocolDeclaration();
 
+    // Symbol's interface
     virtual FullySpecifiedType type() const;
-
-    virtual bool isEqualTo(const Type *other) const;
 
     virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const
     { return this; }
@@ -677,6 +670,7 @@ public:
     virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration()
     { return this; }
 
+    // Type's interface
     virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() const
     { return this; }
 
@@ -686,7 +680,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 };
 
 class CPLUSPLUS_EXPORT ObjCProtocol: public Scope, public Type
@@ -703,15 +697,13 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
-    // Type's interface
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const ObjCProtocol *asObjCProtocol() const
     { return this; }
 
     virtual ObjCProtocol *asObjCProtocol()
     { return this; }
 
+    // Type's interface
     virtual const ObjCProtocol *asObjCProtocolType() const
     { return this; }
 
@@ -721,7 +713,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     std::vector<ObjCBaseProtocol *> _protocols;
@@ -734,9 +726,8 @@ public:
     ObjCForwardClassDeclaration(Clone *clone, Subst *subst, ObjCForwardClassDeclaration *original);
     virtual ~ObjCForwardClassDeclaration();
 
+    // Symbol's interface
     virtual FullySpecifiedType type() const;
-
-    virtual bool isEqualTo(const Type *other) const;
 
     virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const
     { return this; }
@@ -744,6 +735,7 @@ public:
     virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration()
     { return this; }
 
+    // Type's interface
     virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() const
     { return this; }
 
@@ -753,7 +745,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 };
 
 class CPLUSPLUS_EXPORT ObjCClass: public Scope, public Type
@@ -780,15 +772,13 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
-    // Type's interface
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const ObjCClass *asObjCClass() const
     { return this; }
 
     virtual ObjCClass *asObjCClass()
     { return this; }
 
+    // Type's interface
     virtual const ObjCClass *asObjCClassType() const
     { return this; }
 
@@ -798,7 +788,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     const Name *_categoryName;
@@ -832,15 +822,13 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
-    // Type's interface
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const ObjCMethod *asObjCMethod() const
     { return this; }
 
     virtual ObjCMethod *asObjCMethod()
     { return this; }
 
+    // Type's interface
     virtual const ObjCMethod *asObjCMethodType() const
     { return this; }
 
@@ -850,7 +838,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     FullySpecifiedType _returnType;

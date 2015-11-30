@@ -1,1 +1,1 @@
-@set path=%PATH%;%CD%\..\..\..\..\..\lib\qtcreator\plugins\QtProject\
+@set path=%PATH%;%CD%\..\..\..\..\..\lib\qtcreator\plugins\

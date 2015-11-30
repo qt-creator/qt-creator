@@ -21,6 +21,7 @@
   <style name="Field" bold="true"/>
   <style name="Function"/>
   <style name="Keyword" foreground="#808bed"/>
+  <style name="PrimitiveType" foreground="#808bed"/>
   <style name="Label" foreground="#e76000"/>
   <style name="LineNumber" foreground="#8b8bcd" background="#2e2e2e"/>
   <style name="Link" foreground="#409090"/>
@@ -31,6 +32,7 @@
   <style name="Occurrences.Unused" foreground="#808000"/>
   <style name="Operator" foreground="#cfbfad"/>
   <style name="Parentheses" foreground="#ffff00"  background="#4e4e8f"/>
+  <style name="ParenthesesMismatch" background="#404040"/>
   <style name="Preprocessor" foreground="#409090"/>
   <style name="RemovedLine" foreground="#ff0000"/>
   <style name="SearchResult" foreground="#000000" background="#ffef0b"/>
@@ -59,5 +61,6 @@
   <style name="DiffSourceChar" background="#c34141"/>
   <style name="DiffDestLine" background="#277027"/>
   <style name="DiffDestChar" background="#339d33"/>
+  <style name="LogChangeLine" foreground="#dcdc00"/>
 </style-scheme>
 

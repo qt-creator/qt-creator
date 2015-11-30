@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QtSupport::Internal::CodeGenSettingsPageWidget</class>
+ <widget class="QWidget" name="QtSupport::Internal::CodeGenSettingsPageWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>340</width>
+    <height>232</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <widget class="QGroupBox" name="uiclassGroupBox">
+     <property name="title">
+      <string>Embedding of the UI Class</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QRadioButton" name="ptrAggregationRadioButton">
+        <property name="text">
+         <string>Aggregation as a pointer member</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="aggregationButton">
+        <property name="text">
+         <string>Aggregation</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="multipleInheritanceButton">
+        <property name="text">
+         <string>Multiple inheritance</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+     <zorder>aggregationButton</zorder>
+     <zorder>multipleInheritanceButton</zorder>
+     <zorder>ptrAggregationRadioButton</zorder>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="codeGenerationGroupBox">
+     <property name="title">
+      <string>Code Generation</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="retranslateCheckBox">
+        <property name="text">
+         <string>Support for changing languages at runtime</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="includeQtModuleCheckBox">
+        <property name="text">
+         <string>Use Qt module name in #include-directive</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="addQtVersionCheckBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Add Qt version #ifdef for module names</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::MinimumExpanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

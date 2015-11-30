@@ -6,7 +6,7 @@ isEmpty(QBS_INSTALL_DIR) {
     QBS_SOURCE_DIR = $$PWD/../../shared/qbs
     include($$QBS_SOURCE_DIR/src/lib/corelib/use_corelib.pri)
     include($$QBS_SOURCE_DIR/src/lib/qtprofilesetup/use_qtprofilesetup.pri)
-    macx:QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../ # Mac: fix rpath for qbscore soname
+    osx:QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../Frameworks # OS X: fix rpath for qbscore soname
 } else {
     include($${QBS_INSTALL_DIR}/include/qbs/use_installed_corelib.pri)
     include($${QBS_INSTALL_DIR}/include/qbs/use_installed_qtprofilesetup.pri)
@@ -18,11 +18,11 @@ DEFINES += \
     QBSPROJECTMANAGER_LIBRARY
 
 HEADERS = \
+    customqbspropertiesdialog.h \
     defaultpropertyprovider.h \
     propertyprovider.h \
     qbsbuildconfiguration.h \
     qbsbuildconfigurationwidget.h \
-    qbsbuildinfo.h \
     qbsbuildstep.h \
     qbscleanstep.h \
     qbsdeployconfigurationfactory.h \
@@ -30,17 +30,19 @@ HEADERS = \
     qbslogsink.h \
     qbsnodes.h \
     qbsparser.h \
+    qbsprofilessettingspage.h \
     qbsproject.h \
     qbsprojectfile.h \
     qbsprojectmanager.h \
     qbsprojectmanager_global.h \
     qbsprojectmanagerconstants.h \
     qbsprojectmanagerplugin.h \
-    qbspropertylineedit.h \
+    qbsprojectparser.h \
     qbsrunconfiguration.h \
     qbsconstants.h
 
 SOURCES = \
+    customqbspropertiesdialog.cpp \
     defaultpropertyprovider.cpp \
     qbsbuildconfiguration.cpp \
     qbsbuildconfigurationwidget.cpp \
@@ -51,17 +53,20 @@ SOURCES = \
     qbslogsink.cpp \
     qbsnodes.cpp \
     qbsparser.cpp \
+    qbsprofilessettingspage.cpp \
     qbsproject.cpp \
     qbsprojectfile.cpp \
     qbsprojectmanager.cpp \
     qbsprojectmanagerplugin.cpp \
-    qbspropertylineedit.cpp \
+    qbsprojectparser.cpp \
     qbsrunconfiguration.cpp
 
 FORMS = \
+    customqbspropertiesdialog.ui \
     qbsbuildstepconfigwidget.ui \
     qbscleanstepconfigwidget.ui \
-    qbsinstallstepconfigwidget.ui
+    qbsinstallstepconfigwidget.ui \
+    qbsprofilessettingswidget.ui
 
 RESOURCES += \
    qbsprojectmanager.qrc

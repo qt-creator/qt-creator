@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,13 +32,16 @@
 #include "idevicefactory.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <ssh/sshhostkeydatabase.h>
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/portlist.h>
+#include <utils/algorithm.h>
 
 #include <QFileInfo>
 #include <QHash>
@@ -72,6 +76,7 @@ public:
     static DeviceManager *clonedInstance;
     QList<IDevice::Ptr> devices;
     QHash<Core::Id, Core::Id> defaultDevices;
+    QSsh::SshHostKeyDatabasePtr hostKeyDatabase;
 
     Utils::PersistentSettingsWriter *writer;
 };
@@ -81,11 +86,11 @@ DeviceManager *DeviceManagerPrivate::clonedInstance = 0;
 
 using namespace Internal;
 
+DeviceManager *DeviceManager::m_instance = 0;
 
 DeviceManager *DeviceManager::instance()
 {
-    static DeviceManager instance;
-    return &instance;
+    return m_instance;
 }
 
 int DeviceManager::deviceCount() const
@@ -133,6 +138,7 @@ void DeviceManager::save()
     QVariantMap data;
     data.insert(QLatin1String(DeviceManagerKey), toMap());
     d->writer->save(data, Core::ICore::mainWindow());
+    d->hostKeyDatabase->store(hostKeysFilePath());
 }
 
 void DeviceManager::load()
@@ -305,6 +311,11 @@ bool DeviceManager::isLoaded() const
     return d->writer;
 }
 
+QSsh::SshHostKeyDatabasePtr DeviceManager::hostKeyDatabase() const
+{
+    return d->hostKeyDatabase;
+}
+
 void DeviceManager::setDefaultDevice(Core::Id id)
 {
     QTC_ASSERT(this != instance(), return);
@@ -323,28 +334,40 @@ void DeviceManager::setDefaultDevice(Core::Id id)
 
 const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
 {
-    const QList<IDeviceFactory *> &factories
-        = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
-    foreach (const IDeviceFactory * const factory, factories) {
-        if (factory->canRestore(map))
-            return factory;
-    }
-    qWarning("Warning: No factory found for device '%s' of type '%s'.",
-             qPrintable(IDevice::idFromMap(map).toString()),
-             qPrintable(IDevice::typeFromMap(map).toString()));
-    return 0;
+    IDeviceFactory *factory = ExtensionSystem::PluginManager::getObject<IDeviceFactory>(
+        [&map](IDeviceFactory *factory) {
+            return factory->canRestore(map);
+        });
+
+    if (!factory)
+        qWarning("Warning: No factory found for device '%s' of type '%s'.",
+                 qPrintable(IDevice::idFromMap(map).toString()),
+                 qPrintable(IDevice::typeFromMap(map).toString()));
+    return factory;
 }
 
 DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
 {
-    if (isInstance)
+    if (isInstance) {
+        QTC_ASSERT(!m_instance, return);
+        m_instance = this;
+        d->hostKeyDatabase = QSsh::SshHostKeyDatabasePtr::create();
+        const QString keyFilePath = hostKeysFilePath();
+        if (QFileInfo(keyFilePath).exists()) {
+            QString error;
+            if (!d->hostKeyDatabase->load(keyFilePath, &error))
+                Core::MessageManager::write(error);
+        }
         connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), SLOT(save()));
+    }
 }
 
 DeviceManager::~DeviceManager()
 {
     if (d->clonedInstance != this)
         delete d->writer;
+    if (m_instance == this)
+        m_instance = 0;
     delete d;
 }
 
@@ -362,11 +385,9 @@ IDevice::Ptr DeviceManager::mutableDevice(Core::Id id) const
 
 bool DeviceManager::hasDevice(const QString &name) const
 {
-    foreach (const IDevice::Ptr &device, d->devices) {
-        if (device->displayName() == name)
-            return true;
-    }
-    return false;
+    return Utils::anyOf(d->devices, [&name](const IDevice::Ptr &device) {
+        return device->displayName() == name;
+    });
 }
 
 IDevice::ConstPtr DeviceManager::find(Core::Id id) const
@@ -407,6 +428,11 @@ IDevice::ConstPtr DeviceManager::fromRawPointer(const IDevice *device) const
 {
     // The const_cast is safe, because we convert the Ptr back to a ConstPtr before returning it.
     return fromRawPointer(const_cast<IDevice *>(device));
+}
+
+QString DeviceManager::hostKeysFilePath()
+{
+    return settingsFilePath(QLatin1String("/ssh-hostkeys")).toString();
 }
 
 } // namespace ProjectExplorer
@@ -508,7 +534,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     dev3->setDisplayName(dev->displayName());
     mgr->addDevice(dev3);
     QCOMPARE(mgr->deviceAt(mgr->deviceCount() - 1)->displayName(),
-             QString(dev3->displayName() + QLatin1String("2")));
+             QString(dev3->displayName() + QLatin1Char('2')));
     QCOMPARE(deviceAddedSpy.count(), 1);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 0);

@@ -6,10 +6,10 @@ OUT_PWD=IDE_BUILD_TREE
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
 include(../../../qttest.pri)
 OUT_PWD=$$OUT_PWD_SAVE
-LIBS += -L$$IDE_PLUGIN_PATH/QtProject
-LIBS += -L$$IDE_LIBRARY_PATH
+LIBS *= -L$$IDE_PLUGIN_PATH
+LIBS *= -L$$IDE_LIBRARY_PATH
 
-unix: QMAKE_LFLAGS += \'-Wl,-rpath,$${IDE_LIBRARY_PATH}\' \'-Wl,-rpath,$${IDE_PLUGIN_PATH}/QtProject\'
+unix: QMAKE_LFLAGS += \'-Wl,-rpath,$${IDE_LIBRARY_PATH}\' \'-Wl,-rpath,$${IDE_PLUGIN_PATH}\'
 
 QT += script \
     network

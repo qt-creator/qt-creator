@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,26 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "itemlibrarymodel.h"
 #include "itemlibraryinfo.h"
+#include "itemlibrarysection.h"
+#include "itemlibraryitem.h"
+#include "itemlibrarysection.h"
+
 #include <model.h>
 #include <nodemetainfo.h>
 
@@ -40,362 +40,14 @@
 #include <qdebug.h>
 
 static bool inline registerItemLibrarySortedModel() {
-    qmlRegisterType<QmlDesigner::Internal::ItemLibrarySortedModel>();
+    qmlRegisterType<QmlDesigner::ItemLibrarySectionModel>();
     return true;
 }
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 static QHash<QString, bool> collapsedStateHash;
 
-ItemLibrarySortedModel::ItemLibrarySortedModel(QObject *parent) :
-    QAbstractListModel(parent)
-{
-}
-
-ItemLibrarySortedModel::~ItemLibrarySortedModel()
-{
-    clearElements();
-}
-
-int ItemLibrarySortedModel::rowCount(const QModelIndex &) const
-{
-    return m_privList.count();
-}
-
-QVariant ItemLibrarySortedModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid() || index.row()+1 > m_privList.count()) {
-        qDebug() << Q_FUNC_INFO << "invalid index requested";
-        return QVariant();
-    }
-
-    if (m_roleNames.contains(role)) {
-        QVariant value = m_privList.at(index.row())->property(m_roleNames.value(role));
-
-        if (ItemLibrarySortedModel* model = qobject_cast<ItemLibrarySortedModel *>(value.value<QObject*>()))
-            return QVariant::fromValue(model);
-
-        return m_privList.at(index.row())->property(m_roleNames.value(role));
-    }
-
-    qWarning() << Q_FUNC_INFO << "invalid role requested";
-
-    return QVariant();
-}
-
-void ItemLibrarySortedModel::clearElements()
-{
-    beginResetModel();
-    while (m_elementOrder.count() > 0)
-        removeElement(m_elementOrder.at(0).libId);
-    endResetModel();
-}
-
-static bool compareFunction(QObject *first, QObject *second)
-{
-    static const char sortRoleName[] = "sortingRole";
-
-    return first->property(sortRoleName).toString() < second->property(sortRoleName).toString();
-}
-
-void ItemLibrarySortedModel::addElement(QObject *element, int libId)
-{
-    struct order_struct orderEntry;
-    orderEntry.libId = libId;
-    orderEntry.visible = false;
-
-    int pos = 0;
-    while ((pos < m_elementOrder.count()) &&
-           compareFunction(m_elementModels.value(m_elementOrder.at(pos).libId), element))
-        ++pos;
-
-    m_elementModels.insert(libId, element);
-    m_elementOrder.insert(pos, orderEntry);
-
-    setElementVisible(libId, true);
-}
-
-void ItemLibrarySortedModel::removeElement(int libId)
-{
-    QObject *element = m_elementModels.value(libId);
-    int pos = findElement(libId);
-
-    setElementVisible(libId, false);
-
-    m_elementModels.remove(libId);
-    m_elementOrder.removeAt(pos);
-
-    delete element;
-}
-
-bool ItemLibrarySortedModel::elementVisible(int libId) const
-{
-    int pos = findElement(libId);
-    return m_elementOrder.at(pos).visible;
-}
-
-bool ItemLibrarySortedModel::setElementVisible(int libId, bool visible)
-{
-    int pos = findElement(libId);
-    if (m_elementOrder.at(pos).visible == visible)
-        return false;
-
-    int visiblePos = visibleElementPosition(libId);
-    if (visible)
-        privateInsert(visiblePos, (m_elementModels.value(libId)));
-    else
-        privateRemove(visiblePos);
-
-    m_elementOrder[pos].visible = visible;
-    return true;
-}
-
-void ItemLibrarySortedModel::privateInsert(int pos, QObject *element)
-{
-    QObject *object = element;
-
-    for (int i = 0; i < object->metaObject()->propertyCount(); ++i) {
-        QMetaProperty property = object->metaObject()->property(i);
-        addRoleName(property.name());
-    }
-
-    m_privList.insert(pos, element);
-}
-
-void ItemLibrarySortedModel::privateRemove(int pos)
-{
-    m_privList.removeAt(pos);
-}
-
-const QMap<int, QObject *> &ItemLibrarySortedModel::elements() const
-{
-    return m_elementModels;
-}
-
-template<typename T>
-const QList<T> ItemLibrarySortedModel::elementsByType() const
-{
-    QList<T> objectList;
-
-    foreach (QObject *item, elements()) {
-        T object = qobject_cast<T>(item);
-        if (object)
-            objectList.append(object);
-    }
-
-    return objectList;
-}
-
-QObject *ItemLibrarySortedModel::element(int libId)
-{
-    return m_elementModels.value(libId);
-}
-
-template<typename T>
-T ItemLibrarySortedModel::elementByType(int libId)
-{
-    return qobject_cast<T>(element(libId));
-}
-
-int ItemLibrarySortedModel::findElement(int libId) const
-{
-    int i = 0;
-    QListIterator<struct order_struct> it(m_elementOrder);
-
-    while (it.hasNext()) {
-        if (it.next().libId == libId)
-            return i;
-        ++i;
-    }
-
-    return -1;
-}
-
-int ItemLibrarySortedModel::visibleElementPosition(int libId) const
-{
-    int i = 0;
-    QListIterator<struct order_struct> it(m_elementOrder);
-
-    while (it.hasNext()) {
-        struct order_struct order = it.next();
-        if (order.libId == libId)
-            return i;
-        if (order.visible)
-            ++i;
-    }
-
-    return -1;
-}
-
-void ItemLibrarySortedModel::resetModel()
-{
-    beginResetModel();
-    endResetModel();
-}
-
-void ItemLibrarySortedModel::addRoleName(const QByteArray &roleName)
-{
-    if (m_roleNames.values().contains(roleName))
-        return;
-
-    int key = m_roleNames.count();
-    m_roleNames.insert(key, roleName);
-    setRoleNames(m_roleNames);
-}
-
-ItemLibraryItemModel::ItemLibraryItemModel(int itemLibId, const QString &itemName, QObject *parent)
-    : QObject(parent),
-      m_libId(itemLibId),
-      m_name(itemName),
-      m_iconSize(64, 64)
-{
-
-}
-
-
-ItemLibraryItemModel::~ItemLibraryItemModel()
-{
-
-}
-
-
-int ItemLibraryItemModel::itemLibId() const
-{
-    return m_libId;
-}
-
-
-QString ItemLibraryItemModel::itemName() const
-{
-    return m_name;
-}
-
-QString ItemLibraryItemModel::itemLibraryIconPath() const
-{
-    //Prepend image provider prefix
-    return QLatin1String("image://qmldesigner_itemlibrary/")+ m_iconPath;
-}
-
-QVariant ItemLibraryItemModel::sortingRole() const
-{
-    return itemName();
-}
-
-void ItemLibraryItemModel::setItemIconPath(const QString &iconPath)
-{
-    m_iconPath = iconPath;
-}
-
-void ItemLibraryItemModel::setItemIconSize(const QSize &itemIconSize)
-{
-    m_iconSize = itemIconSize;
-    setItemIconPath(m_iconPath);
-}
-
-ItemLibrarySectionModel::ItemLibrarySectionModel(int sectionLibId, const QString &sectionName, QObject *parent)
-    : QObject(parent),
-      m_name(sectionName),
-      m_sectionLibId(sectionLibId),
-      m_sectionExpanded(true),
-      m_sectionEntries(parent)
-{
-    if (collapsedStateHash.contains(sectionName))
-        m_sectionExpanded=  collapsedStateHash.value(sectionName);
-}
-
-
-QString ItemLibrarySectionModel::sectionName() const
-{
-    return m_name;
-}
-
-int ItemLibrarySectionModel::sectionLibId() const
-{
-    return m_sectionLibId;
-}
-
-bool ItemLibrarySectionModel::sectionExpanded() const
-{
-    return m_sectionExpanded;
-}
-
-QVariant ItemLibrarySectionModel::sortingRole() const
-{
-
-    if (sectionName() == QLatin1String("QML Components")) //Qml Components always come first
-        return QVariant(QLatin1String("AA.this_comes_first"));
-
-    return sectionName();
-}
-
-void ItemLibrarySectionModel::addSectionEntry(ItemLibraryItemModel *sectionEntry)
-{
-    m_sectionEntries.addElement(sectionEntry, sectionEntry->itemLibId());
-}
-
-
-void ItemLibrarySectionModel::removeSectionEntry(int itemLibId)
-{
-    m_sectionEntries.removeElement(itemLibId);
-}
-
-QObject *ItemLibrarySectionModel::sectionEntries()
-{
-    return &m_sectionEntries;
-}
-
-int ItemLibrarySectionModel::visibleItemIndex(int itemLibId)
-{
-    return m_sectionEntries.visibleElementPosition(itemLibId);
-}
-
-
-bool ItemLibrarySectionModel::isItemVisible(int itemLibId)
-{
-    return m_sectionEntries.elementVisible(itemLibId);
-}
-
-
-bool ItemLibrarySectionModel::updateSectionVisibility(const QString &searchText, bool *changed)
-{
-    bool haveVisibleItems = false;
-
-    *changed = false;
-
-    QMap<int, QObject *>::const_iterator itemIt = m_sectionEntries.elements().constBegin();
-    while (itemIt != m_sectionEntries.elements().constEnd()) {
-
-        bool itemVisible = m_sectionEntries.elementByType<ItemLibraryItemModel*>(
-                    itemIt.key())->itemName().toLower().contains(searchText);
-
-        bool itemChanged = false;
-        itemChanged = m_sectionEntries.setElementVisible(itemIt.key(), itemVisible);
-
-        *changed |= itemChanged;
-
-        if (itemVisible)
-            haveVisibleItems = true;
-
-        ++itemIt;
-    }
-
-    m_sectionEntries.resetModel();
-
-    emit sectionEntriesChanged();
-
-    return haveVisibleItems;
-}
-
-
-void ItemLibrarySectionModel::updateItemIconSize(const QSize &itemIconSize)
-{
-    foreach (ItemLibraryItemModel* itemLibraryItemModel, m_sectionEntries.elementsByType<ItemLibraryItemModel*>()) {
-        itemLibraryItemModel->setItemIconSize(itemIconSize);
-    }
-}
 
 void ItemLibraryModel::setExpanded(bool expanded, const QString &section)
 {
@@ -407,18 +59,50 @@ void ItemLibraryModel::setExpanded(bool expanded, const QString &section)
 }
 
 ItemLibraryModel::ItemLibraryModel(QObject *parent)
-    : ItemLibrarySortedModel(parent),
-      m_searchText(""),
-      m_itemIconSize(64, 64),
-      m_nextLibId(0)
+    : QAbstractListModel(parent)
 {
+    addRoleNames();
 }
-
 
 ItemLibraryModel::~ItemLibraryModel()
 {
+    clearSections();
 }
 
+int ItemLibraryModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return m_sections.count();
+}
+
+QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || index.row() +1 > m_sections.count())
+        return QVariant();
+
+
+    if (m_roleNames.contains(role)) {
+        QVariant value = m_sections.at(index.row())->property(m_roleNames.value(role));
+
+        ItemLibrarySectionModel* model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>());
+        if (model)
+            return QVariant::fromValue(model);
+
+        ItemLibraryModel* model2 = qobject_cast<ItemLibraryModel *>(value.value<QObject*>());
+        if (model2)
+            return QVariant::fromValue(model2);
+
+        return value;
+    }
+
+    qWarning() << Q_FUNC_INFO << "invalid role requested";
+
+    return QVariant();
+}
+
+QHash<int, QByteArray> ItemLibraryModel::roleNames() const
+{
+    return m_roleNames;
+}
 
 QString ItemLibraryModel::searchText() const
 {
@@ -438,44 +122,6 @@ void ItemLibraryModel::setSearchText(const QString &searchText)
     }
 }
 
-
-void ItemLibraryModel::setItemIconSize(const QSize &itemIconSize)
-{
-    m_itemIconSize = itemIconSize;
-
-    foreach (ItemLibrarySectionModel* itemLibrarySectionModel, sections()) {
-        itemLibrarySectionModel->updateItemIconSize(itemIconSize);
-    }
-}
-
-
-int ItemLibraryModel::getItemSectionIndex(int itemLibId)
-{
-    if (m_sections.contains(itemLibId))
-        return section(m_sections.value(itemLibId))->visibleItemIndex(itemLibId);
-    else
-        return -1;
-}
-
-
-int ItemLibraryModel::getSectionLibId(int itemLibId)
-{
-    return m_sections.value(itemLibId);
-}
-
-
-bool ItemLibraryModel::isItemVisible(int itemLibId)
-{
-    if (!m_sections.contains(itemLibId))
-        return false;
-
-    int sectionLibId = m_sections.value(itemLibId);
-    if (!elementVisible(sectionLibId))
-        return false;
-
-    return section(sectionLibId)->isItemVisible(itemLibId);
-}
-
 Import entryToImport(const ItemLibraryEntry &entry)
 {
     if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
@@ -493,10 +139,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
     QMap<QString, int> sections;
 
-    clearElements();
-    m_itemInfos.clear();
-    m_sections.clear();
-    m_nextLibId = 0;
+    clearSections();
 
     QStringList imports;
     foreach (const Import &import, model->imports())
@@ -508,150 +151,116 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
          NodeMetaInfo metaInfo = model->metaInfo(entry.typeName(), -1, -1);
          bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
 
-         if ((valid || entry.forceImport())
+         if (valid
                  && (entry.requiredImport().isEmpty()
-                     || model->hasImport(entryToImport(entry), true, true) || entry.forceImport())) {
+                     || model->hasImport(entryToImport(entry), true, true))) {
             QString itemSectionName = entry.category();
-            ItemLibrarySectionModel *sectionModel;
-            ItemLibraryItemModel *itemModel;
-            int itemId = m_nextLibId++, sectionId;
+            ItemLibrarySection *sectionModel = sectionByName(itemSectionName);
+            ItemLibraryItem *item;
 
-            if (sections.contains(itemSectionName)) {
-                sectionId = sections.value(itemSectionName);
-                sectionModel = section(sectionId);
-            } else {
-                sectionId = m_nextLibId++;
-                sectionModel = new ItemLibrarySectionModel(sectionId, itemSectionName, this);
-                addElement(sectionModel, sectionId);
-                sections.insert(itemSectionName, sectionId);
+            if (sectionModel == 0) {
+                sectionModel = new ItemLibrarySection(itemSectionName, this);
+                m_sections.append(sectionModel);
             }
 
-            m_itemInfos.insert(itemId, entry);
-
-            itemModel = new ItemLibraryItemModel(itemId, entry.name(), sectionModel);
-
-            // delayed creation of (default) icons
-            if (entry.iconPath().isEmpty())
-                entry.setIconPath(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
-            if (entry.dragIcon().isNull())
-                entry.setDragIcon(createDragPixmap(getWidth(entry), getHeight(entry)));
-
-            itemModel->setItemIconPath(entry.iconPath());
-            itemModel->setItemIconSize(m_itemIconSize);
-            sectionModel->addSectionEntry(itemModel);
-            m_sections.insert(itemId, sectionId);
+            item = new ItemLibraryItem(sectionModel);
+            item->setItemLibraryEntry(entry);
+            sectionModel->addSectionEntry(item);
         }
     }
 
+    sortSections();
+    resetModel();
     updateVisibility();
 }
 
-
-QString ItemLibraryModel::getTypeName(int libId)
-{
-    return m_itemInfos.value(libId).typeName();
-}
-
-
-QMimeData *ItemLibraryModel::getMimeData(int libId)
+QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntry)
 {
     QMimeData *mimeData = new QMimeData();
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << m_itemInfos.value(libId);
-    mimeData->setData(QLatin1String("application/vnd.bauhaus.itemlibraryinfo"), data);
+    stream << itemLibraryEntry;
+    mimeData->setData(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"), data);
 
-    const QIcon icon = m_itemInfos.value(libId).dragIcon();
-    if (!icon.isNull()) {
-        const QList<QSize> sizes = icon.availableSizes();
-        if (!sizes.isEmpty())
-            mimeData->setImageData(icon.pixmap(sizes.front()).toImage());
-    }
-
-    mimeData->removeFormat(QLatin1String("text/plain"));
+    mimeData->removeFormat(QStringLiteral("text/plain"));
 
     return mimeData;
 }
 
-
-QIcon ItemLibraryModel::getIcon(int libId)
+QList<ItemLibrarySection *> ItemLibraryModel::sections() const
 {
-    return m_itemInfos.value(libId).icon();
+    return m_sections;
 }
 
-ItemLibrarySectionModel *ItemLibraryModel::section(int libId)
+void ItemLibraryModel::clearSections()
 {
-    return elementByType<ItemLibrarySectionModel*>(libId);
+    beginResetModel();
+    qDeleteAll(m_sections);
+    m_sections.clear();
+    endResetModel();
 }
 
-QList<ItemLibrarySectionModel *> ItemLibraryModel::sections() const
+void ItemLibraryModel::registerQmlTypes()
 {
-    return elementsByType<ItemLibrarySectionModel*>();
+    qmlRegisterType<QmlDesigner::ItemLibrarySectionModel>();
+    qmlRegisterType<QmlDesigner::ItemLibraryModel>();
+}
+
+ItemLibrarySection *ItemLibraryModel::sectionByName(const QString &sectionName)
+{
+    foreach (ItemLibrarySection *itemLibrarySection, m_sections) {
+        if (itemLibrarySection->sectionName() == sectionName)
+            return itemLibrarySection;
+    }
+
+    return 0;
 }
 
 void ItemLibraryModel::updateVisibility()
 {
-    beginResetModel();
-    endResetModel();
     bool changed = false;
 
-    QMap<int, QObject *>::const_iterator sectionIt = elements().constBegin();
-    while (sectionIt != elements().constEnd()) {
-        ItemLibrarySectionModel *sectionModel = section(sectionIt.key());
-
+    foreach (ItemLibrarySection *itemLibrarySection, m_sections) {
         QString sectionSearchText = m_searchText;
 
-        if (sectionModel->sectionName().toLower().contains(m_searchText))
-            sectionSearchText = "";
-
-        bool sectionChanged = false,
-            sectionVisibility = sectionModel->updateSectionVisibility(sectionSearchText,
-                                                                      &sectionChanged);
-        if (sectionChanged) {
-            changed = true;
-            if (sectionVisibility)
-                emit sectionVisibilityChanged(sectionIt.key());
-        }
-
-        changed |= setElementVisible(sectionIt.key(), sectionVisibility);
-        ++sectionIt;
+        bool sectionChanged = false;
+        bool sectionVisibility = itemLibrarySection->updateSectionVisibility(sectionSearchText,
+                                                                             &sectionChanged);
+        changed |= sectionChanged;
+        changed |= itemLibrarySection->setVisible(sectionVisibility);
     }
 
     if (changed)
-        emit visibilityChanged();
+        resetModel();
 }
 
-int ItemLibraryModel::getWidth(const ItemLibraryEntry &itemLibraryEntry)
+void ItemLibraryModel::addRoleNames()
 {
-    foreach (const ItemLibraryEntry::Property &property, itemLibraryEntry.properties())
-    {
-        if (property.name() == "width")
-            return property.value().toInt();
+    int role = 0;
+    for (int propertyIndex = 0; propertyIndex < ItemLibrarySection::staticMetaObject.propertyCount(); ++propertyIndex) {
+        QMetaProperty property = ItemLibrarySection::staticMetaObject.property(propertyIndex);
+        m_roleNames.insert(role, property.name());
+        ++role;
     }
-    return 64;
 }
 
-int ItemLibraryModel::getHeight(const ItemLibraryEntry &itemLibraryEntry)
+void ItemLibraryModel::resetModel()
 {
-    foreach (const ItemLibraryEntry::Property &property, itemLibraryEntry.properties())
-    {
-        if (property.name() == "height")
-            return property.value().toInt();
-    }
-    return 64;
+    beginResetModel();
+    endResetModel();
 }
 
-QPixmap ItemLibraryModel::createDragPixmap(int , int )
+void ItemLibraryModel::sortSections()
 {
-    QImage dragImage(10, 10, QImage::Format_ARGB32); // TODO: draw item drag icon
-    dragImage.fill(0x00ffffff); //### todo for now we disable the preview image
-    QPainter p(&dragImage);
-    QPen pen(Qt::gray);
-//    pen.setWidth(2);
-//    p.setPen(pen);
-//    p.drawRect(1, 1, dragImage.width() - 2, dragImage.height() - 2);
-    return QPixmap::fromImage(dragImage);
+    auto sectionSort = [](ItemLibrarySection *first, ItemLibrarySection *second) {
+        return QString::localeAwareCompare(first->sortingName(), second->sortingName()) < 1;
+    };
+
+    std::sort(m_sections.begin(), m_sections.end(), sectionSort);
+
+    foreach (ItemLibrarySection *itemLibrarySection, m_sections)
+        itemLibrarySection->sortItems();
 }
 
 void registerQmlTypes()
@@ -659,6 +268,5 @@ void registerQmlTypes()
     registerItemLibrarySortedModel();
 }
 
-} // namespace Internal
 } // namespace QmlDesigner
 

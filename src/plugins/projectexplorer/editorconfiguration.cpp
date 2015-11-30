@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,9 +33,13 @@
 #include "projectexplorer.h"
 #include "project.h"
 
+#include <utils/algorithm.h>
+
 #include <coreplugin/id.h>
 #include <coreplugin/icore.h>
-#include <texteditor/basetexteditor.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/typingsettings.h>
@@ -82,6 +87,7 @@ struct EditorConfigurationPrivate
     QTextCodec *m_textCodec;
 
     QMap<Core::Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
+    QList<BaseTextEditor *> m_editors;
 };
 
 EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
@@ -111,8 +117,7 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
     d->m_defaultCodeStyle->setDisplayName(tr("Project", "Settings"));
     d->m_defaultCodeStyle->setId("Project");
     // if setCurrentDelegate is 0 values are read from *this prefs
-    d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal
-                    ? TextEditorSettings::codeStyle() : 0);
+    d->m_defaultCodeStyle->setCurrentDelegate(TextEditorSettings::codeStyle());
 
     connect(SessionManager::instance(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(slotAboutToRemoveProject(ProjectExplorer::Project*)));
@@ -217,8 +222,6 @@ QVariantMap EditorConfiguration::toMap() const
 
 void EditorConfiguration::fromMap(const QVariantMap &map)
 {
-    d->m_useGlobal = map.value(kUseGlobal, d->m_useGlobal).toBool();
-
     const QByteArray &codecName = map.value(kCodec, d->m_textCodec->name()).toByteArray();
     d->m_textCodec = QTextCodec::codecForName(codecName);
     if (!d->m_textCodec)
@@ -244,25 +247,32 @@ void EditorConfiguration::fromMap(const QVariantMap &map)
     d->m_behaviorSettings.fromMap(kPrefix, map);
     d->m_extraEncodingSettings.fromMap(kPrefix, map);
     d->m_marginSettings.fromMap(kPrefix, map);
+    setUseGlobalSettings(map.value(kUseGlobal, d->m_useGlobal).toBool());
 }
 
-void EditorConfiguration::configureEditor(ITextEditor *textEditor) const
+void EditorConfiguration::configureEditor(BaseTextEditor *textEditor) const
 {
-    BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(textEditor->widget());
-    if (baseTextEditor)
-        baseTextEditor->setCodeStyle(codeStyle(baseTextEditor->languageSettingsId()));
+    TextEditorWidget *widget = textEditor->editorWidget();
+    if (widget)
+        widget->setCodeStyle(codeStyle(widget->languageSettingsId()));
     if (!d->m_useGlobal) {
         textEditor->textDocument()->setCodec(d->m_textCodec);
-        if (baseTextEditor)
-            switchSettings(baseTextEditor);
+        if (widget)
+            switchSettings(widget);
     }
+    d->m_editors.append(textEditor);
+    connect(textEditor, &BaseTextEditor::destroyed, this, [this, textEditor]() {
+        d->m_editors.removeOne(textEditor);
+    });
 }
 
-void EditorConfiguration::deconfigureEditor(ITextEditor *textEditor) const
+void EditorConfiguration::deconfigureEditor(BaseTextEditor *textEditor) const
 {
-    BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(textEditor->widget());
-    if (baseTextEditor)
-        baseTextEditor->setCodeStyle(TextEditorSettings::codeStyle(baseTextEditor->languageSettingsId()));
+    TextEditorWidget *widget = textEditor->editorWidget();
+    if (widget)
+        widget->setCodeStyle(TextEditorSettings::codeStyle(widget->languageSettingsId()));
+
+    d->m_editors.removeOne(textEditor);
 
     // TODO: what about text codec and switching settings?
 }
@@ -270,83 +280,80 @@ void EditorConfiguration::deconfigureEditor(ITextEditor *textEditor) const
 void EditorConfiguration::setUseGlobalSettings(bool use)
 {
     d->m_useGlobal = use;
-    d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal
-                    ? TextEditorSettings::codeStyle() : 0);
-    QList<Core::IEditor *> opened = Core::EditorManager::documentModel()->editorsForDocuments(
-                Core::EditorManager::documentModel()->openedDocuments());
-    foreach (Core::IEditor *editor, opened) {
-        if (BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
+    d->m_defaultCodeStyle->setCurrentDelegate(use ? TextEditorSettings::codeStyle() : 0);
+    foreach (Core::IEditor *editor, Core::DocumentModel::editorsForOpenedDocuments()) {
+        if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
             Project *project = SessionManager::projectForFile(editor->document()->filePath());
             if (project && project->editorConfiguration() == this)
-                switchSettings(baseTextEditor);
+                switchSettings(widget);
         }
     }
 }
 
 static void switchSettings_helper(const QObject *newSender, const QObject *oldSender,
-                                                BaseTextEditorWidget *baseTextEditor)
+                                  TextEditorWidget *widget)
 {
     QObject::disconnect(oldSender, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)),
-                        baseTextEditor, SLOT(setMarginSettings(TextEditor::MarginSettings)));
+                        widget, SLOT(setMarginSettings(TextEditor::MarginSettings)));
     QObject::disconnect(oldSender, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
-               baseTextEditor, SLOT(setTypingSettings(TextEditor::TypingSettings)));
+                        widget, SLOT(setTypingSettings(TextEditor::TypingSettings)));
     QObject::disconnect(oldSender, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-               baseTextEditor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
+                        widget, SLOT(setStorageSettings(TextEditor::StorageSettings)));
     QObject::disconnect(oldSender, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
-               baseTextEditor, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
+                        widget, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
     QObject::disconnect(oldSender, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
-               baseTextEditor, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
+                        widget, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
 
     QObject::connect(newSender, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)),
-                     baseTextEditor, SLOT(setMarginSettings(TextEditor::MarginSettings)));
+                     widget, SLOT(setMarginSettings(TextEditor::MarginSettings)));
     QObject::connect(newSender, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
-            baseTextEditor, SLOT(setTypingSettings(TextEditor::TypingSettings)));
+                     widget, SLOT(setTypingSettings(TextEditor::TypingSettings)));
     QObject::connect(newSender, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-            baseTextEditor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
+                     widget, SLOT(setStorageSettings(TextEditor::StorageSettings)));
     QObject::connect(newSender, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
-            baseTextEditor, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
+                     widget, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
     QObject::connect(newSender, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
-            baseTextEditor, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
+                     widget, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
 }
 
-void EditorConfiguration::switchSettings(BaseTextEditorWidget *baseTextEditor) const
+void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
 {
     if (d->m_useGlobal) {
-        baseTextEditor->setMarginSettings(TextEditorSettings::marginSettings());
-        baseTextEditor->setTypingSettings(TextEditorSettings::typingSettings());
-        baseTextEditor->setStorageSettings(TextEditorSettings::storageSettings());
-        baseTextEditor->setBehaviorSettings(TextEditorSettings::behaviorSettings());
-        baseTextEditor->setExtraEncodingSettings(TextEditorSettings::extraEncodingSettings());
-        switchSettings_helper(TextEditorSettings::instance(), this, baseTextEditor);
+        widget->setMarginSettings(TextEditorSettings::marginSettings());
+        widget->setTypingSettings(TextEditorSettings::typingSettings());
+        widget->setStorageSettings(TextEditorSettings::storageSettings());
+        widget->setBehaviorSettings(TextEditorSettings::behaviorSettings());
+        widget->setExtraEncodingSettings(TextEditorSettings::extraEncodingSettings());
+        switchSettings_helper(TextEditorSettings::instance(), this, widget);
     } else {
-        baseTextEditor->setMarginSettings(marginSettings());
-        baseTextEditor->setTypingSettings(typingSettings());
-        baseTextEditor->setStorageSettings(storageSettings());
-        baseTextEditor->setBehaviorSettings(behaviorSettings());
-        baseTextEditor->setExtraEncodingSettings(extraEncodingSettings());
-        switchSettings_helper(this, TextEditorSettings::instance(), baseTextEditor);
+        widget->setMarginSettings(marginSettings());
+        widget->setTypingSettings(typingSettings());
+        widget->setStorageSettings(storageSettings());
+        widget->setBehaviorSettings(behaviorSettings());
+        widget->setExtraEncodingSettings(extraEncodingSettings());
+        switchSettings_helper(this, TextEditorSettings::instance(), widget);
     }
 }
 
-void EditorConfiguration::setTypingSettings(const TextEditor::TypingSettings &settings)
+void EditorConfiguration::setTypingSettings(const TypingSettings &settings)
 {
     d->m_typingSettings = settings;
     emit typingSettingsChanged(d->m_typingSettings);
 }
 
-void EditorConfiguration::setStorageSettings(const TextEditor::StorageSettings &settings)
+void EditorConfiguration::setStorageSettings(const StorageSettings &settings)
 {
     d->m_storageSettings = settings;
     emit storageSettingsChanged(d->m_storageSettings);
 }
 
-void EditorConfiguration::setBehaviorSettings(const TextEditor::BehaviorSettings &settings)
+void EditorConfiguration::setBehaviorSettings(const BehaviorSettings &settings)
 {
     d->m_behaviorSettings = settings;
     emit behaviorSettingsChanged(d->m_behaviorSettings);
 }
 
-void EditorConfiguration::setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &settings)
+void EditorConfiguration::setExtraEncodingSettings(const ExtraEncodingSettings &settings)
 {
     d->m_extraEncodingSettings = settings;
     emit extraEncodingSettingsChanged(d->m_extraEncodingSettings);
@@ -381,31 +388,21 @@ void EditorConfiguration::setWrapColumn(int column)
     }
 }
 
-void EditorConfiguration::slotAboutToRemoveProject(ProjectExplorer::Project *project)
+void EditorConfiguration::slotAboutToRemoveProject(Project *project)
 {
     if (project->editorConfiguration() != this)
         return;
 
-    Core::DocumentModel *model = Core::EditorManager::documentModel();
-    QList<Core::IEditor *> editors = model->editorsForDocuments(model->openedDocuments());
-    foreach (Core::IEditor *editor, editors) {
-        if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
-            Core::IDocument *document = editor->document();
-            if (document) {
-                Project *editorProject = SessionManager::projectForFile(document->filePath());
-                if (project == editorProject)
-                    deconfigureEditor(textEditor);
-            }
-        }
-    }
+    foreach (BaseTextEditor *editor, d->m_editors)
+        deconfigureEditor(editor);
 }
 
 TabSettings actualTabSettings(const QString &fileName,
-                              const BaseTextDocument *baseTextdocument)
+                              const TextDocument *baseTextdocument)
 {
     if (baseTextdocument)
         return baseTextdocument->tabSettings();
-    if (Project *project = SessionManager::projectForFile(fileName))
+    if (Project *project = SessionManager::projectForFile(Utils::FileName::fromString(fileName)))
         return project->editorConfiguration()->codeStyle()->tabSettings();
     return TextEditorSettings::codeStyle()->tabSettings();
 }

@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "TaskList"
@@ -16,8 +14,6 @@ QtcPlugin {
         "stopmonitoringhandler.h",
         "taskfile.cpp",
         "taskfile.h",
-        "taskfilefactory.cpp",
-        "taskfilefactory.h",
         "tasklist.qrc",
         "tasklistconstants.h",
         "tasklistplugin.cpp",

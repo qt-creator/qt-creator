@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -31,18 +27,16 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
-using namespace QmlJS;
-using namespace QmlJS::AST;
+namespace QmlDesigner {
+namespace Internal {
 
-AddPropertyVisitor::AddPropertyVisitor(QmlDesigner::TextModifier &modifier,
+AddPropertyVisitor::AddPropertyVisitor(TextModifier &modifier,
                                        quint32 parentLocation,
-                                       const QmlDesigner::PropertyName &name,
+                                       const PropertyName &name,
                                        const QString &value,
                                        QmlRefactoring::PropertyType propertyType,
                                        const PropertyNameList &propertyOrder,
-                                       const QmlDesigner::TypeName &dynamicTypeName) :
+                                       const TypeName &dynamicTypeName) :
     QMLRewriter(modifier),
     m_parentLocation(parentLocation),
     m_name(name),
@@ -84,9 +78,9 @@ bool AddPropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializer)
 {
-    UiObjectMemberList *insertAfter = searchMemberToInsertAfter(initializer->members, m_name, m_propertyOrder);
-    SourceLocation endOfPreviousMember;
-    SourceLocation startOfNextMember;
+    QmlJS::AST::UiObjectMemberList *insertAfter = searchMemberToInsertAfter(initializer->members, m_name, m_propertyOrder);
+    QmlJS::AST::SourceLocation endOfPreviousMember;
+    QmlJS::AST::SourceLocation startOfNextMember;
     unsigned depth;
 
     if (insertAfter == 0 || insertAfter->member == 0) {
@@ -132,16 +126,16 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     QString newPropertyTemplate;
     switch (m_propertyType) {
     case QmlRefactoring::ArrayBinding:
-        newPropertyTemplate = QLatin1String("%1: [\n%2\n]");
+        newPropertyTemplate = QStringLiteral("%1: [\n%2\n]");
         m_value = addIndentation(m_value, 4);
         break;
 
     case QmlRefactoring::ObjectBinding:
-        newPropertyTemplate = QLatin1String("%1: %2");
+        newPropertyTemplate = QStringLiteral("%1: %2");
         break;
 
     case QmlRefactoring::ScriptBinding:
-        newPropertyTemplate = QLatin1String("%1: %2");
+        newPropertyTemplate = QStringLiteral("%1: %2");
         break;
 
     default:
@@ -149,7 +143,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     }
 
     if (!m_dynamicTypeName.isEmpty())
-        newPropertyTemplate.prepend(QString(QLatin1String("property %1 ")).arg(QString::fromUtf8(m_dynamicTypeName)));
+        newPropertyTemplate.prepend(QStringLiteral("property %1 ").arg(QString::fromUtf8(m_dynamicTypeName)));
 
     if (isOneLiner) {
         if (needsPreceedingSemicolon)
@@ -167,3 +161,6 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
 
     setDidRewriting(true);
 }
+
+} // namespace Internal
+} // namespace QmlDesigner

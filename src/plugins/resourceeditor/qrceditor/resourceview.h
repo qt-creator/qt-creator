@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,7 +33,8 @@
 
 #include "resourcefile_p.h"
 
-#include <QTreeView>
+#include <utils/itemviews.h>
+
 #include <QPoint>
 
 QT_BEGIN_NAMESPACE
@@ -45,29 +47,9 @@ QT_END_NAMESPACE
 namespace ResourceEditor {
 namespace Internal {
 
-/*!
-    \class EntryBackup
-
-    Holds the backup of a tree node including children.
-*/
-class EntryBackup
-{
-protected:
-    ResourceModel *m_model;
-    int m_prefixIndex;
-    QString m_name;
-
-    EntryBackup(ResourceModel &model, int prefixIndex, const QString &name)
-            : m_model(&model), m_prefixIndex(prefixIndex), m_name(name) { }
-
-public:
-    virtual void restore() const = 0;
-    virtual ~EntryBackup() { }
-};
-
 class RelativeResourceModel;
 
-class ResourceView : public QTreeView
+class ResourceView : public Utils::TreeView
 {
     Q_OBJECT
 
@@ -78,17 +60,10 @@ public:
         LanguageProperty
     };
 
-    explicit ResourceView(QUndoStack *history, QWidget *parent = 0);
+    explicit ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent = 0);
     ~ResourceView();
 
-    bool load(const QString &fileName);
-    bool save();
-    QString errorMessage() const { return m_qrcFile.errorMessage(); }
     QString fileName() const;
-    void setFileName(const QString &fileName);
-
-    bool isDirty() const;
-    void setDirty(bool dirty);
 
     bool isPrefix(const QModelIndex &index) const;
 
@@ -108,6 +83,7 @@ public:
     void removeFiles(int prefixIndex, int firstFileIndex, int lastFileIndex);
     QStringList fileNamesToAdd();
     QModelIndex addPrefix();
+    QList<QModelIndex> nonExistingFiles();
 
     void refresh();
 
@@ -122,7 +98,6 @@ protected:
 
 signals:
     void removeItem();
-    void dirtyChanged(bool b);
     void itemActivated(const QString &fileName);
     void showContextMenu(const QPoint &globalPos, const QString &fileName);
 
@@ -138,7 +113,6 @@ private:
     void addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property,
                         const QString &before, const QString &after);
 
-    ResourceFile m_qrcFile;
     RelativeResourceModel *m_qrcModel;
 
     QUndoStack *m_history;

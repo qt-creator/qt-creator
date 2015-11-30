@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,8 +32,6 @@
 #define MANAGER_H
 
 #include "highlightdefinitionmetadata.h"
-
-#include <coreplugin/mimedatabase.h>
 
 #include <QString>
 #include <QHash>
@@ -50,12 +49,14 @@ class QIODevice;
 template <class> class QFutureInterface;
 QT_END_NAMESPACE
 
+namespace Utils { class MimeType; }
+
 namespace TextEditor {
 namespace Internal {
 
 class HighlightDefinition;
-class DefinitionDownloader;
 class ManagerProcessor;
+class MultiDefinitionDownloader;
 
 // This is the generic highlighter manager. It is not thread-safe.
 
@@ -67,57 +68,58 @@ public:
     static Manager *instance();
 
     QString definitionIdByName(const QString &name) const;
-    QString definitionIdByMimeType(const QString &mimeType) const;
-    QString definitionIdByAnyMimeType(const QStringList &mimeTypes) const;
+    QString definitionIdByMimeType(const Utils::MimeType &mimeType) const;
+    QString definitionIdByFile(const QString &filePath) const;
+    QString definitionIdByMimeTypeAndFile(const Utils::MimeType &mimeType,
+                                          const QString &filePath) const;
+    DefinitionMetaDataPtr availableDefinitionByName(const QString &name) const;
 
     bool isBuildingDefinition(const QString &id) const;
     QSharedPointer<HighlightDefinition> definition(const QString &id);
-    QSharedPointer<HighlightDefinitionMetaData> definitionMetaData(const QString &id) const;
+    DefinitionMetaDataPtr definitionMetaData(const QString &id) const;
 
     void downloadAvailableDefinitionsMetaData();
     void downloadDefinitions(const QList<QUrl> &urls, const QString &savePath);
     bool isDownloadingDefinitions() const;
 
-    static QSharedPointer<HighlightDefinitionMetaData> parseMetadata(const QFileInfo &fileInfo);
+    static DefinitionMetaDataPtr parseMetadata(const QFileInfo &fileInfo);
 
 public slots:
-    void registerMimeTypes();
+    void registerHighlightingFiles();
 
 private slots:
-    void registerMimeTypesFinished();
+    void registerHighlightingFilesFinished();
     void downloadAvailableDefinitionsListFinished();
     void downloadDefinitionsFinished();
 
 signals:
-    void mimeTypesRegistered();
+    void highlightingFilesRegistered();
 
 private:
     Manager();
 
     void clear();
-    int foo();
 
-    bool m_isDownloadingDefinitionsSpec;
-    QList<DefinitionDownloader *> m_downloaders;
-    QFutureWatcher<void> m_downloadWatcher;
-    QList<HighlightDefinitionMetaData> parseAvailableDefinitionsList(QIODevice *device) const;
+    MultiDefinitionDownloader *m_multiDownloader;
+    QList<DefinitionMetaDataPtr> parseAvailableDefinitionsList(QIODevice *device);
 
     QSet<QString> m_isBuildingDefinition;
     QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
+    QHash<QString, DefinitionMetaDataPtr> m_availableDefinitions;
 
     struct RegisterData
     {
         QHash<QString, QString> m_idByName;
         QHash<QString, QString> m_idByMimeType;
-        QHash<QString, QSharedPointer<HighlightDefinitionMetaData> > m_definitionsMetaData;
+        QHash<QString, DefinitionMetaDataPtr> m_definitionsMetaData;
     };
     RegisterData m_register;
     bool m_hasQueuedRegistration;
-    QFutureWatcher<QPair<RegisterData, QList<Core::MimeType> > > m_registeringWatcher;
+    QFutureWatcher<RegisterData> m_registeringWatcher;
     friend class ManagerProcessor;
 
 signals:
-    void definitionsMetaDataReady(const QList<Internal::HighlightDefinitionMetaData>&);
+    void definitionsMetaDataReady(const QList<Internal::DefinitionMetaDataPtr>&);
     void errorDownloadingDefinitionsMetaData();
 };
 

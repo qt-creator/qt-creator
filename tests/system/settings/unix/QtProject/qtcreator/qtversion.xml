@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorQtVersions>
-<!-- Written by Qt Creator 2.5.81, 2012-06-27T15:58:50. -->
+<!-- Written by QtCreator 3.3.81, 2015-02-18T14:20:56. -->
 <qtcreator>
  <data>
   <variable>QtVersion.0</variable>
@@ -55,9 +55,9 @@
  <data>
   <variable>QtVersion.5</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">7</value>
-   <value type="QString" key="Name">Desktop Qt 5.0.1 (SQUISH_DEFAULT_COMPILER)</value>
-   <value type="QString" key="QMakePath">~/Qt5.0.1/5.0.1/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
+   <value type="int" key="Id">9</value>
+   <value type="QString" key="Name">Desktop Qt 5.2.1 (SQUISH_DEFAULT_COMPILER)</value>
+   <value type="QString" key="QMakePath">~/Qt5.2.1/5.2.1/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>
@@ -65,9 +65,19 @@
  <data>
   <variable>QtVersion.6</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">9</value>
-   <value type="QString" key="Name">Desktop Qt 5.2.1 (SQUISH_DEFAULT_COMPILER)</value>
-   <value type="QString" key="QMakePath">~/Qt5.2.1/5.2.1/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
+   <value type="int" key="Id">11</value>
+   <value type="QString" key="Name">Qt 5.3.1 (SQUISH_DEFAULT_COMPILER)</value>
+   <value type="QString" key="QMakePath">~/Qt5.3.1/5.3/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.7</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">13</value>
+   <value type="QString" key="Name">Qt %{Qt:Version} (SQUISH_DEFAULT_COMPILER)</value>
+   <value type="QString" key="QMakePath">~/Qt5.4.1/5.4/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>

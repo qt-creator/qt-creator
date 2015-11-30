@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,6 +31,7 @@
 #include "deployconfiguration.h"
 
 #include "buildsteplist.h"
+#include "buildconfiguration.h"
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
@@ -42,7 +44,7 @@ using namespace ProjectExplorer;
 const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
 const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
 
-DeployConfiguration::DeployConfiguration(Target *target, const Core::Id id) :
+DeployConfiguration::DeployConfiguration(Target *target, Core::Id id) :
     ProjectConfiguration(target, id),
     m_stepList(0)
 {
@@ -52,6 +54,7 @@ DeployConfiguration::DeployConfiguration(Target *target, const Core::Id id) :
     m_stepList->setDefaultDisplayName(tr("Deploy"));
     //: Default DeployConfiguration display name
     setDefaultDisplayName(tr("Deploy locally"));
+    ctor();
 }
 
 DeployConfiguration::DeployConfiguration(Target *target, DeployConfiguration *source) :
@@ -62,6 +65,18 @@ DeployConfiguration::DeployConfiguration(Target *target, DeployConfiguration *so
     // Do not clone stepLists here, do that in the derived constructor instead
     // otherwise BuildStepFactories might reject to set up a BuildStep for us
     // since we are not yet the derived class!
+    ctor();
+}
+
+void DeployConfiguration::ctor()
+{
+    Utils::MacroExpander *expander = macroExpander();
+    expander->setDisplayName(tr("Deploy Settings"));
+    expander->setAccumulating(true);
+    expander->registerSubProvider([this]() -> Utils::MacroExpander * {
+        BuildConfiguration *bc = target()->activeBuildConfiguration();
+        return bc ? bc->macroExpander() : target()->macroExpander();
+    });
 }
 
 DeployConfiguration::~DeployConfiguration()
@@ -78,7 +93,7 @@ QVariantMap DeployConfiguration::toMap() const
 {
     QVariantMap map(ProjectConfiguration::toMap());
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 1);
-    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1String("0"), m_stepList->toMap());
+    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0'), m_stepList->toMap());
     return map;
 }
 
@@ -105,7 +120,7 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
     int maxI = map.value(QLatin1String(BUILD_STEP_LIST_COUNT), 0).toInt();
     if (maxI != 1)
         return false;
-    QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1String("0")).toMap();
+    QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1Char('0')).toMap();
     if (!data.isEmpty()) {
         delete m_stepList;
         m_stepList = new BuildStepList(this, data);
@@ -122,7 +137,7 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
     }
 
     // We assume that we hold the deploy list
-    Q_ASSERT(m_stepList && m_stepList->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    Q_ASSERT(m_stepList && m_stepList->id() == Constants::BUILDSTEPS_DEPLOY);
 
     return true;
 }
@@ -144,7 +159,7 @@ void DeployConfiguration::cloneSteps(DeployConfiguration *source)
 ///
 // DefaultDeployConfiguration
 ///
-DefaultDeployConfiguration::DefaultDeployConfiguration(Target *target, const Core::Id id)
+DefaultDeployConfiguration::DefaultDeployConfiguration(Target *target, Core::Id id)
     : DeployConfiguration(target, id)
 {
 
@@ -167,41 +182,69 @@ DeployConfigurationFactory::DeployConfigurationFactory(QObject *parent) :
 DeployConfigurationFactory::~DeployConfigurationFactory()
 { }
 
-QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent) const
+DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, const QVariantMap &map)
+{
+    return ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>(
+        [&parent, &map](DeployConfigurationFactory *factory) {
+            return factory->canRestore(parent, map);
+        });
+}
+
+QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *parent)
+{
+    return ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>(
+        [&parent](DeployConfigurationFactory *factory) {
+            return !factory->availableCreationIds(parent).isEmpty();
+        });
+}
+
+DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, DeployConfiguration *dc)
+{
+    return ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>(
+        [&parent, &dc](DeployConfigurationFactory *factory) {
+            return factory->canClone(parent, dc);
+        });
+}
+
+///
+// DefaultDeployConfigurationFactory
+///
+
+QList<Core::Id> DefaultDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     if (!canHandle(parent))
         return QList<Core::Id>();
     return QList<Core::Id>() << Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
 }
 
-QString DeployConfigurationFactory::displayNameForId(const Core::Id id) const
+QString DefaultDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID)
         //: Display name of the default deploy configuration
-        return tr("Deploy Configuration");
+        return DeployConfigurationFactory::tr("Deploy Configuration");
     return QString();
 }
 
-bool DeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool DefaultDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
     return id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID;
 }
 
-DeployConfiguration *DeployConfigurationFactory::create(Target *parent, const Core::Id id)
+DeployConfiguration *DefaultDeployConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
     return new DefaultDeployConfiguration(parent, id);
 }
 
-bool DeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
+bool DefaultDeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     return canCreate(parent, idFromMap(map));
 }
 
-DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+DeployConfiguration *DefaultDeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -213,53 +256,19 @@ DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const Q
     return dc;
 }
 
-bool DeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *product) const
+bool DefaultDeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *product) const
 {
     return canCreate(parent, product->id());
 }
 
-DeployConfiguration *DeployConfigurationFactory::clone(Target *parent, DeployConfiguration *product)
+DeployConfiguration *DefaultDeployConfigurationFactory::clone(Target *parent, DeployConfiguration *product)
 {
     if (!canClone(parent, product))
         return 0;
     return new DefaultDeployConfiguration(parent, product);
 }
 
-DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, const QVariantMap &map)
-{
-    QList<DeployConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
-    foreach (DeployConfigurationFactory *factory, factories) {
-        if (factory->canRestore(parent, map))
-            return factory;
-    }
-    return 0;
-}
-
-QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *parent)
-{
-    QList<DeployConfigurationFactory *> result;
-    QList<DeployConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
-    foreach (DeployConfigurationFactory *factory, factories) {
-        if (!factory->availableCreationIds(parent).isEmpty())
-            result << factory;
-    }
-    return result;
-}
-
-DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, DeployConfiguration *dc)
-{
-    QList<DeployConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
-    foreach (DeployConfigurationFactory *factory, factories) {
-        if (factory->canClone(parent, dc))
-            return factory;
-    }
-    return 0;
-}
-
-bool DeployConfigurationFactory::canHandle(Target *parent) const
+bool DefaultDeployConfigurationFactory::canHandle(Target *parent) const
 {
     if (!parent->project()->supportsKit(parent->kit()) || parent->project()->needsSpecialDeployment())
         return false;

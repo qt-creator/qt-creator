@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,22 +34,22 @@ Item {
     x: 5
     id: delegate
     property bool expanded: false
-    height: column.height
+    height: columns.height
+    width: columns.width
     property alias name: text.text
 
     Column {
-        id: column
-        spacing: 4
+        id: columns
 
         Row {
             id: row1
-            height: text.height + 8
+            height: text.height
 
             spacing: 7
 
             Image {
                 source: "images/sessions.png"
-                anchors.verticalCenter: projectNameText.verticalCenter
+                anchors.verticalCenter: text.verticalCenter
                 width: 16
                 height: 16
             }
@@ -56,62 +57,55 @@ Item {
             LinkedText {
                 id: text
 
-                onClicked: {
-                    projectWelcomePage.requestSession(sessionName);
-                }
+                onClicked: projectWelcomePage.requestSession(sessionName);
 
                 width: delegate.ListView.view.width - 80
+                height: 28
                 elide: Text.ElideRight
 
                 enlargeMouseArea: false
 
                 Rectangle {
                     z: -4
-                    color: "#f9f9f9"
+                    // background of session item
+                    color: creatorTheme.Welcome_SessionItem_BackgroundColorHover
                     anchors.fill: parent
-                    anchors.rightMargin: - delegate.ListView.view.width + text.width + 32
-                    anchors.topMargin: -4
-                    anchors.bottomMargin: -4
-                    opacity: iArea.hovered || text.hovered || area2.hovered ? 1: 0.1
-                    MouseArea {
-                        acceptedButtons: Qt.RightButton
-                        id: area2
-                        hoverEnabled: true
-                        anchors.fill: parent
-                        property bool hovered: false
-                        onEntered: {
-                            area2.hovered = true
-                        }
-                        onExited: {
-                            area2.hovered = false
-                        }
-                        onClicked: {
-                            delegate.expanded = !delegate.expanded;
-                            delegate.ListView.view.positionViewAtIndex(index, ListView.Contain);
-                            area2.hovered = false
-                        }
+                    visible: iArea.containsMouse || text.hovered
+                    anchors.topMargin: 1
+                    anchors.bottomMargin: 1
+                    anchors.leftMargin: -row1.spacing / 2
+                }
+            }
+        }
+        Rectangle {
+            z: -1
+            property int margin: 6
+            id: details
+            height: expanded ? innerColumn.height + margin * 2 : 0
+            width: delegate.ListView.view.width - 8 - margin * 2
+            color: "#f1f1f1"
+            radius: 4
+            clip: true
+            visible: false
+
+            Behavior on height {
+                SequentialAnimation {
+                    ScriptAction {
+                        script: if (expanded) details.visible = true;
+                    }
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.InOutQuad
+                    }
+                    ScriptAction {
+                        script: if (!expanded) details.visible = false;
                     }
                 }
             }
 
-        }
-        Item {
-            z: -1
-            property int margin: 6
-            height: expanded ? innerColumn.height + margin * 2 : 0
-            width: delegate.ListView.view.width - 8 - margin * 2
-            opacity: delegate.expanded ? 1 : 0
-
-            Behavior on height {
-                ParallelAnimation {
-                    PropertyAnimation { duration:  160 ; easing.type: Easing.OutCubic }
-                }
-            }
-
             Column {
-                y: -4
                 x: parent.margin + 8
-                //y: parent.margin
+                y: parent.margin
                 id: innerColumn
                 spacing: 12
                 width: parent.width - 16
@@ -122,6 +116,7 @@ Item {
                         NativeText {
                             text: projectsName[index]
                             font: fonts.boldDescription
+                            color: creatorTheme.Welcome_TextColorNormal
                         }
                         NativeText {
                             x: 4
@@ -146,7 +141,7 @@ Item {
                             maximumLineCount: 2
                             elide: Text.ElideRight
                             height: lineCount == 2 ? font.pixelSize * 2 + 4 : font.pixelSize + 2
-                            color: "#6b6b6b"
+                            color: creatorTheme.Welcome_ProjectItem_TextColorFilepath
                             width: delegate.ListView.view.width - 48
                             MouseArea {
                                 anchors.fill: parent
@@ -170,10 +165,10 @@ Item {
                 }
 
                 Flow {
-                    x: 6
-                    width: parent.width -12
+                    x: parent.margin
+                    width: parent.width - 2 * parent.margin
+                    height: 18
                     spacing: 4
-                    visible: !defaultSession
 
                     Image { source: "images/icons/clone.png" }
                     LinkedText {
@@ -183,69 +178,73 @@ Item {
                         }
                     }
 
-                    Text { width: 16; text: " "; }
-                    Image { source: "images/icons/rename.png" }
+                    Item {
+                        visible: !defaultSession
+                        width: 16;
+                        height: 10;
+                    }
+                    Image {
+                        visible: !defaultSession
+                        source: "images/icons/rename.png"
+                    }
                     LinkedText {
+                        visible: !defaultSession
                         text: qsTr("Rename")
                         onClicked: {
                             root.model.renameSession(sessionName);
                         }
                     }
 
-                    Text { width: 16; text: " "; visible: y === 0}
-                    Image { source: "images/icons/delete.png" }
+                    Item {
+                        visible: y === 0 && !defaultSession
+                        width: 16;
+                        height: 10;
+                    }
+                    Image {
+                        visible: !defaultSession
+                        source: "images/icons/delete.png"
+                    }
                     LinkedText {
+                        visible: !defaultSession
                         text: qsTr("Delete")
                         onClicked: {
                             root.model.deleteSession(sessionName);
                         }
                     }
-
                 }
             }
-            Rectangle {
-                color: "#f1f1f1"
-                radius: 4
-                anchors.fill: parent
-                anchors.topMargin: -8
-                anchors.bottomMargin: -2
-                anchors.leftMargin: 6
-                anchors.rightMargin: 6
-                z: -1
-            }
-
         }
     }
 
     Item {
         x: delegate.ListView.view.width - 65
         width: 38
-        height: 20
+        height: text.height
         Item {
             id: collapseButton
-            opacity: text.hovered || area2.hovered || iArea.hovered || delegate.expanded ? 1 : 0
+            visible: text.hovered || iArea.containsMouse || delegate.expanded
 
-            property color color: iArea.hovered ? "#E9E9E9" : "#f1f1f1"
+            property color color: iArea.containsMouse ? creatorTheme.Welcome_SessionItemExpanded_BackgroundColorHover
+                                                      : creatorTheme.Welcome_SessionItemExpanded_BackgroundColorNormal
 
             anchors.fill: parent
             Image {
                 x: 4
+                y: 7
                 source: "images/info.png"
             }
             Image {
                 x: 20
+                y: 7
                 source: delegate.expanded ? "images/arrow_up.png" : "images/arrow_down.png"
             }
             Rectangle {
                 color: collapseButton.color
                 z: -1
-                radius: 6
+                radius: creatorTheme.WidgetStyle === 'StyleFlat' ? 0 : 6
                 anchors.fill: parent
-                anchors.topMargin: -3
-                anchors.bottomMargin: 6
-                anchors.leftMargin: -1
-                anchors.rightMargin: -1
-                visible: iArea.hovered || delegate.expanded
+                anchors.topMargin: 1
+                anchors.bottomMargin: 1
             }
 
             Rectangle {
@@ -253,31 +252,18 @@ Item {
                 z: -1
                 anchors.fill: parent
                 anchors.topMargin: 6
-                anchors.bottomMargin: delegate.expanded ? -2 : 2
-                anchors.leftMargin: -1
-                anchors.rightMargin: -1
-                visible: iArea.hovered || delegate.expanded
+                visible: details.visible
             }
         }
 
         MouseArea {
             id: iArea
-            anchors.margins: -2
             anchors.fill: parent
             hoverEnabled: true
-            property bool hovered: false
-
             onClicked: {
                 delegate.expanded = !delegate.expanded;
                 delegate.ListView.view.positionViewAtIndex(index, ListView.Contain);
             }
-            onEntered: {
-                iArea.hovered = true
-            }
-            onExited: {
-                iArea.hovered = false
-            }
         }
-
     }
 }

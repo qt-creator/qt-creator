@@ -1,13 +1,10 @@
-import qbs.base 1.0
+import qbs 1.0
 import qbs.FileInfo
-
-import QtcPlugin
 
 QtcPlugin {
     name: "CppEditor"
 
     Depends { name: "Qt.widgets" }
-    Depends { name: "Aggregation" }
     Depends { name: "CPlusPlus" }
     Depends { name: "Utils" }
 
@@ -18,22 +15,26 @@ QtcPlugin {
 
     Depends { name: "app_version_header" }
 
+    pluginTestDepends: [
+        "QmakeProjectManager",
+    ]
+
     files: [
         "cppautocompleter.cpp", "cppautocompleter.h",
-        "cppclasswizard.cpp", "cppclasswizard.h",
+        "cppcanonicalsymbol.cpp", "cppcanonicalsymbol.h",
         "cppcodemodelinspectordialog.cpp", "cppcodemodelinspectordialog.h", "cppcodemodelinspectordialog.ui",
+        "cppdocumentationcommenthelper.cpp", "cppdocumentationcommenthelper.h",
         "cppeditor.cpp", "cppeditor.h",
         "cppeditor.qrc",
         "cppeditor_global.h",
         "cppeditorconstants.h",
+        "cppeditordocument.cpp", "cppeditordocument.h",
         "cppeditorenums.h",
         "cppeditorplugin.cpp", "cppeditorplugin.h",
         "cppelementevaluator.cpp", "cppelementevaluator.h",
-        "cppfilewizard.cpp", "cppfilewizard.h",
         "cppfollowsymbolundercursor.cpp", "cppfollowsymbolundercursor.h",
         "cppfunctiondecldeflink.cpp", "cppfunctiondecldeflink.h",
         "cpphighlighter.cpp", "cpphighlighter.h",
-        "cpphighlighterfactory.cpp", "cpphighlighterfactory.h",
         "cpphoverhandler.cpp", "cpphoverhandler.h",
         "cppincludehierarchy.cpp", "cppincludehierarchy.h",
         "cppincludehierarchyitem.cpp", "cppincludehierarchyitem.h",
@@ -41,6 +42,7 @@ QtcPlugin {
         "cppincludehierarchytreeview.cpp", "cppincludehierarchytreeview.h",
         "cppinsertvirtualmethods.cpp",
         "cppinsertvirtualmethods.h",
+        "cpplocalrenaming.cpp", "cpplocalrenaming.h",
         "cppoutline.cpp", "cppoutline.h",
         "cpppreprocessordialog.cpp", "cpppreprocessordialog.h", "cpppreprocessordialog.ui",
         "cppquickfix.cpp", "cppquickfix.h",
@@ -48,6 +50,7 @@ QtcPlugin {
         "cppquickfixes.cpp", "cppquickfixes.h",
         "cppsnippetprovider.cpp", "cppsnippetprovider.h",
         "cpptypehierarchy.cpp", "cpptypehierarchy.h",
+        "cppuseselectionsupdater.cpp", "cppuseselectionsupdater.h",
         "cppvirtualfunctionassistprovider.cpp", "cppvirtualfunctionassistprovider.h",
         "cppvirtualfunctionproposalitem.cpp", "cppvirtualfunctionproposalitem.h",
     ]
@@ -56,11 +59,12 @@ QtcPlugin {
         name: "Tests"
         condition: project.testsEnabled
         files: [
-            "cppdoxygen_test.cpp",
+            "cppdoxygen_test.cpp", "cppdoxygen_test.h",
             "cppeditortestcase.cpp", "cppeditortestcase.h",
             "cppincludehierarchy_test.cpp",
             "cppquickfix_test.cpp",
             "cppquickfix_test.h",
+            "cppuseselections_test.cpp",
             "fileandtokenactions_test.cpp",
             "followsymbol_switchmethoddecldef_test.cpp",
         ]

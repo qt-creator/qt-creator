@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,13 +36,14 @@
 #include <QDir>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/dialogs/iwizard.h>
+#include <coreplugin/iwizardfactory.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/sessiondialog.h>
 
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
+#include <utils/algorithm.h>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -49,14 +51,6 @@ namespace Internal {
 SessionModel::SessionModel(QObject *parent)
     : QAbstractListModel(parent)
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::DisplayRole] = "sessionName";
-    roleNames[DefaultSessionRole] = "defaultSession";
-    roleNames[ActiveSessionRole] = "activeSession";
-    roleNames[LastSessionRole] = "lastSession";
-    roleNames[ProjectsPathRole] = "projectsPath";
-    roleNames[ProjectsDisplayRole] = "projectsName";
-    setRoleNames(roleNames);
     connect(SessionManager::instance(), SIGNAL(sessionLoaded(QString)), SLOT(resetSessions()));
 }
 
@@ -67,20 +61,18 @@ int SessionModel::rowCount(const QModelIndex &) const
 
 QStringList pathsToBaseNames(const QStringList &paths)
 {
-    QStringList stringList;
-    foreach (const QString &path, paths)
-        stringList.append(QFileInfo(path).completeBaseName());
-    return stringList;
+    return Utils::transform(paths, [](const QString &path) {
+        return QFileInfo(path).completeBaseName();
+    });
 }
 
 
 
 QStringList pathsWithTildeHomePath(const QStringList &paths)
 {
-    QStringList stringList;
-    foreach (const QString &path, paths)
-        stringList.append(Utils::withTildeHomePath(QDir::toNativeSeparators(path)));
-    return stringList;
+    return Utils::transform(paths, [](const QString &path) {
+        return Utils::withTildeHomePath(QDir::toNativeSeparators(path));
+    });
 }
 
 QVariant SessionModel::data(const QModelIndex &index, int role) const
@@ -102,6 +94,18 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
             return pathsToBaseNames(SessionManager::projectsForSessionName(sessionName));
     }
     return QVariant();
+}
+
+QHash<int, QByteArray> SessionModel::roleNames() const
+{
+    QHash<int, QByteArray> roleNames;
+    roleNames[Qt::DisplayRole] = "sessionName";
+    roleNames[DefaultSessionRole] = "defaultSession";
+    roleNames[ActiveSessionRole] = "activeSession";
+    roleNames[LastSessionRole] = "lastSession";
+    roleNames[ProjectsPathRole] = "projectsPath";
+    roleNames[ProjectsDisplayRole] = "projectsName";
+    return roleNames;
 }
 
 bool SessionModel::isDefaultVirgin() const
@@ -162,25 +166,21 @@ void SessionModel::renameSession(const QString &session)
     }
 }
 
-ProjectModel::ProjectModel(ProjectExplorerPlugin *plugin, QObject *parent)
-    : QAbstractListModel(parent), m_plugin(plugin)
+ProjectModel::ProjectModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::DisplayRole] = "displayName";
-    roleNames[FilePathRole] = "filePath";
-    roleNames[PrettyFilePathRole] = "prettyFilePath";
-    setRoleNames(roleNames);
-    connect(plugin, SIGNAL(recentProjectsChanged()), SLOT(resetProjects()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::recentProjectsChanged,
+            this, &ProjectModel::resetProjects);
 }
 
 int ProjectModel::rowCount(const QModelIndex &) const
 {
-    return m_plugin->recentProjects().count();
+    return ProjectExplorerPlugin::recentProjects().count();
 }
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
-    QPair<QString,QString> data = m_plugin->recentProjects().at(index.row());
+    QPair<QString,QString> data = ProjectExplorerPlugin::recentProjects().at(index.row());
     switch (role) {
     case Qt::DisplayRole:
         return data.second;
@@ -194,6 +194,15 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     }
 
     return QVariant();
+}
+
+QHash<int, QByteArray> ProjectModel::roleNames() const
+{
+    QHash<int, QByteArray> roleNames;
+    roleNames[Qt::DisplayRole] = "displayName";
+    roleNames[FilePathRole] = "filePath";
+    roleNames[PrettyFilePathRole] = "prettyFilePath";
+    return roleNames;
 }
 
 void ProjectModel::resetProjects()
@@ -212,7 +221,7 @@ ProjectWelcomePage::ProjectWelcomePage() :
 void ProjectWelcomePage::facilitateQml(QQmlEngine *engine)
 {
     m_sessionModel = new SessionModel(this);
-    m_projectModel = new ProjectModel(ProjectExplorerPlugin::instance(), this);
+    m_projectModel = new ProjectModel(this);
 
     QQmlContext *ctx = engine->rootContext();
     ctx->setContextProperty(QLatin1String("sessionList"), m_sessionModel);
@@ -227,9 +236,9 @@ QUrl ProjectWelcomePage::pageLocation() const
     return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/develop.qml"));
 }
 
-ProjectWelcomePage::Id ProjectWelcomePage::id() const
+Core::Id ProjectWelcomePage::id() const
 {
-    return Develop;
+    return "Develop";
 }
 
 void ProjectWelcomePage::reloadWelcomeScreenData()
@@ -243,12 +252,12 @@ void ProjectWelcomePage::reloadWelcomeScreenData()
 void ProjectWelcomePage::newProject()
 {
     Core::ICore::showNewItemDialog(tr("New Project"),
-                                   Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
+                                   Core::IWizardFactory::wizardFactoriesOfKind(Core::IWizardFactory::ProjectWizard));
 }
 
 void ProjectWelcomePage::openProject()
 {
-     ProjectExplorerPlugin::instance()->openOpenProjectDialog();
+     ProjectExplorerPlugin::openOpenProjectDialog();
 }
 
 } // namespace Internal

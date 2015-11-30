@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -257,7 +258,6 @@ void ExamplesWelcomePage::facilitateQml(QQmlEngine *engine)
 {
     m_engine = engine;
     m_engine->addImageProvider(QLatin1String("helpimage"), new HelpImageProvider);
-    connect (examplesModel(), SIGNAL(tagsUpdated()), SLOT(updateTagsModel()));
     ExamplesListModelFilter *proxy = new ExamplesListModelFilter(examplesModel(), this);
 
     proxy->setDynamicSortFilter(true);
@@ -268,36 +268,31 @@ void ExamplesWelcomePage::facilitateQml(QQmlEngine *engine)
     if (m_showExamples) {
         proxy->setShowTutorialsOnly(false);
         rootContenxt->setContextProperty(QLatin1String("examplesModel"), proxy);
-        rootContenxt->setContextProperty(QLatin1String("qtVersionModel"), proxy->qtVersionModel());
+        rootContenxt->setContextProperty(QLatin1String("exampleSetModel"), proxy->exampleSetModel());
     } else {
         rootContenxt->setContextProperty(QLatin1String("tutorialsModel"), proxy);
     }
     rootContenxt->setContextProperty(QLatin1String("gettingStarted"), this);
 }
 
-ExamplesWelcomePage::Id ExamplesWelcomePage::id() const
+Core::Id ExamplesWelcomePage::id() const
 {
-    return m_showExamples ? Examples : Tutorials;
+    return m_showExamples ? "Examples" : "Tutorials";
 }
 
-void ExamplesWelcomePage::openSplitHelp(const QUrl &help)
+void ExamplesWelcomePage::openHelpInExtraWindow(const QUrl &help)
 {
-    Core::HelpManager::handleHelpRequest(help.toString()+QLatin1String("?view=split"));
+    Core::HelpManager::handleHelpRequest(help, Core::HelpManager::ExternalHelpAlways);
 }
 
 void ExamplesWelcomePage::openHelp(const QUrl &help)
 {
-    Core::HelpManager::handleHelpRequest(help.toString());
+    Core::HelpManager::handleHelpRequest(help, Core::HelpManager::HelpModeAlways);
 }
 
 void ExamplesWelcomePage::openUrl(const QUrl &url)
 {
     QDesktopServices::openUrl(url);
-}
-
-QStringList ExamplesWelcomePage::tagList() const
-{
-    return examplesModel()->tags();
 }
 
 QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen, const QStringList& dependencies)
@@ -386,43 +381,50 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
 
 }
 
-void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringList &additionalFilesToOpen,
-                                            const QUrl &help, const QStringList &dependencies, const QStringList &platforms)
+void ExamplesWelcomePage::openProject(const QString &projectFile,
+                                      const QStringList &additionalFilesToOpen,
+                                      const QString &mainFile,
+                                      const QUrl &help,
+                                      const QStringList &dependencies,
+                                      const QStringList &)
 {
     QString proFile = projectFile;
     if (proFile.isEmpty())
         return;
 
     QStringList filesToOpen = additionalFilesToOpen;
+    if (!mainFile.isEmpty()) {
+        // ensure that the main file is opened on top (i.e. opened last)
+        filesToOpen.removeAll(mainFile);
+        filesToOpen.append(mainFile);
+    }
+
     QFileInfo proFileInfo(proFile);
     if (!proFileInfo.exists())
         return;
 
+    QFileInfo pathInfo(proFileInfo.path());
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
-    if (!proFileInfo.isWritable())
+    if (!proFileInfo.isWritable()
+            || !pathInfo.isWritable() /* path of .pro file */
+            || !QFileInfo(pathInfo.path()).isWritable() /* shadow build directory */) {
         proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, dependencies);
+    }
 
     // don't try to load help and files if loading the help request is being cancelled
-    QString errorMessage;
-    ProjectExplorer::ProjectExplorerPlugin *peplugin = ProjectExplorer::ProjectExplorerPlugin::instance();
     if (proFile.isEmpty())
         return;
-    if (ProjectExplorer::Project *project = peplugin->openProject(proFile, &errorMessage)) {
+    ProjectExplorer::ProjectExplorerPlugin::OpenProjectResult result =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile);
+    if (result) {
         Core::ICore::openFiles(filesToOpen);
-        if (project->needsConfiguration())
-            project->configureAsExampleProject(platforms);
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         if (help.isValid())
-            Core::HelpManager::handleHelpRequest(help.toString() + QLatin1String("?view=split"));
+            openHelpInExtraWindow(help.toString());
+        Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
+    } else {
+        ProjectExplorer::ProjectExplorerPlugin::showOpenProjectError(result);
     }
-    if (!errorMessage.isEmpty())
-        QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);
-}
-
-void ExamplesWelcomePage::updateTagsModel()
-{
-    m_engine->rootContext()->setContextProperty(QLatin1String("tagsList"), examplesModel()->tags());
-    emit tagsUpdated();
 }
 
 ExamplesListModel *ExamplesWelcomePage::examplesModel() const

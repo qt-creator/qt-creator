@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -50,7 +50,7 @@
             \l{Patterns and Practices}.
         \li Document interfaces. Right now we use qdoc, but changing to doxygen
             is being considered.
-        \endlist
+    \endlist
 
 
     \section1 Submitting Code
@@ -59,7 +59,7 @@
     the philosophy behind Qt development. For more information about how to set up
     the development environment for working on Qt Creator and how to submit code
     and documentation for inclusion, see
-    \l{http://wiki.qt-project.org/index.php/Main_Page}{Guidelines for Contributions to the Qt Project}.
+    \l{https://wiki.qt.io/Qt_Contribution_Guidelines}{Qt Contribution Guidelines}.
 
     \section1 Binary and Source Compatibility
 
@@ -109,7 +109,7 @@
         \li Do not reimplement functions (not even inlines,
             nor protected or private functions).
         \li Check
-            \l {http://wiki.qt-project.org/index.php/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
+            \l {https://wiki.qt.io/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
             for ways to preserve binary compatibility.
     \endlist
 
@@ -238,8 +238,8 @@
         \li Class names begin with a capital letter.
         \li Function names begin with a lower case letter.
         \li Variable names begin with a lower case letter.
-        \li Enum names and values begin with a capital letter. Enum values
-            contain some part of the name of the enum type.
+        \li Enum names and values begin with a capital letter. Unscoped Enum
+            values contain some part of the name of the enum type.
     \endlist
 
     \section2 Whitespace
@@ -270,8 +270,8 @@
 
     \section3  Operator Names and Parentheses
 
-    Do not use spaces between operator names and function names. The equation
-    marks (==) are a part of the function name, and therefore, spaces make the
+    Do not use spaces between operator names and parentheses. The equation
+    marks (==) are a part of the operator name, and therefore, spaces make the
     declaration look like an expression:
 
     \code
@@ -551,7 +551,7 @@
     \section2 Namespaces
 
     \list
-        \li Put the left curly brace on the same line as the \namespace keyword.
+        \li Put the left curly brace on the same line as the \c namespace keyword.
         \li Do not indent declarations or definitions inside.
         \li Optional, but recommended if the namespaces spans more than a few lines:
             Add a comment after the right curly brace repeating the namespace.
@@ -561,14 +561,79 @@
 
         void someFunction() { ... }
 
-        }  // namespace MyPlugin
-        \endcode
+            }  // namespace MyPlugin
+            \endcode
 
         \li As an exception, if there is only a single class declaration inside
             the namespace, all can go on a single line:
+
+            \code
+            namespace MyPlugin { class MyClass; }
+            \endcode
+
+        \li Do not use using-directives in header files.
+
+        \li Do not rely on using-directives when defining classes and
+        functions, instead define it in a properly named declarative region.
+
+        \li Do not rely on using-directives when accessing global functions.
+
+        \li In other cases, you are encouraged to use using-directives,
+        as they help you avoid cluttering the code. Prefer putting all
+        using-directives near the top of the file, after all includes.
+
         \code
-        namespace MyPlugin { class MyClass; }
+        [in foo.cpp]
+        ...
+        #include "foos.h"
+        ...
+        #include <utils/filename.h>
+        ...
+        using namespace Utils;
+
+        namespace Foo {
+        namespace Internal {
+
+        void SomeThing::bar()
+        {
+            FileName f;              // or Utils::FileName f
+            ...
+        }
+        ...
+        } // namespace Internal      // or only // Internal
+        } // namespace Foo           // or only // Foo
+
+        -NOT-
+
+        [in foo.h]
+        ...
+        using namespace Utils;       // Wrong: no using-directives in headers
+
+        class SomeThing
+        {
+            ...
+        };
+
+        -NOT-
+
+        [in foo.cpp]
+        ...
+        using namespace Utils;
+
+        #include "bar.h"             // Wrong: #include after using-directive
+
+        -NOT-
+
+        [in foo.cpp]
+        ...
+        using namepace Foo;
+
+        void SomeThing::bar()        // Wrong if Something is in namespace Foo
+        {
+            ...
+        }
         \endcode
+
     \endlist
 
     \section1 Patterns and Practices
@@ -576,7 +641,7 @@
     \target coding-rules-namespacing
     \section2 Namespacing
 
-    Read \l {http://wiki.qt-project.org/index.php/Qt_In_Namespace}{Qt In Namespace}
+    Read \l{https://wiki.qt.io/Qt_In_Namespace}{Qt In Namespace}
     and keep in mind that all of Qt Creator is \e{namespace aware} code.
 
     The namespacing policy within Qt Creator is as follows:
@@ -612,7 +677,7 @@
 
     For example, the Find plugin provides the FindFilter interface for
     other plugins to implement. With the FindFilter interface, additional search
-    scopes can be added, that appear in the \gui {Advanced Search} dialog. The
+    scopes can be added, that appear in the \uicontrol {Advanced Search} dialog. The
     Find plugin retrieves all FindFilter implementations from the global
     object pool and presents them in the dialog. The plugin forwards the
     actual search request to the correct FindFilter implementation, which
@@ -692,17 +757,182 @@
     \note As an exception, imported third party code as well as code
     interfacing the native APIs (src/support/os_*) can use NULL.
 
+    \section2 C++11 and C++14 Features
+
+    Code should compile with Microsoft Visual Studio 2013, g++ 4.7, and Clang 3.1.
+
+    \section3 Lambdas
+
+    When using lambdas, note the following:
+
+    \list
+        \li You do not have to explicitly specify the return type. If you are not using one
+            of the previously mentioned compilers, do note that this is a C++14 feature and you
+            might need to enable C++14 support in your compiler.
+            \code
+            []() {
+                Foo *foo = activeFoo();
+                return foo ? foo->displayName() : QString();
+            });
+            \endcode
+
+        \li If you use static functions from the class that the lambda is located in, you have to
+            explicitly capture \c this. Otherwise it does not compile with g++ 4.7 and earlier.
+            \code
+            void Foo::something()
+            {
+                ...
+                [this]() { Foo::someStaticFunction(); }
+                ...
+            }
+
+            -NOT-
+
+            void Foo::something()
+            {
+                ...
+                []() { Foo::someStaticFunction(); }
+                ...
+            }
+            \endcode
+    \endlist
+
+    Format the lambda according to the following rules:
+
+    \list
+        \li Place the capture-list, parameter list, return type, and opening brace on the first line,
+            the body indented on the following lines, and the closing brace on a new line.
+            \code
+            []() -> bool {
+                something();
+                return isSomethingElse();
+            }
+
+            -NOT-
+
+            []() -> bool { something();
+            somethingElse(); }
+            \endcode
+
+        \li Place a closing parenthesis and semicolon of an enclosing function call on the same line
+            as the closing brace of the lambda.
+            \code
+            foo([]() {
+                something();
+            });
+            \endcode
+
+        \li If you are using a lambda in an 'if' statement, start the lambda on a new line, to
+            avoid confusion between the opening brace for the lambda and the opening brace for the
+            'if' statement.
+            \code
+            if (anyOf(fooList,
+                    [](Foo foo) {
+                        return foo.isGreat();
+                    }) {
+                return;
+            }
+
+            -NOT-
+
+            if (anyOf(fooList, [](Foo foo) {
+                        return foo.isGreat();
+                    }) {
+                return;
+            }
+            \endcode
+
+        \li Optionally, place the lambda completely on one line if it fits.
+            \code
+            foo([] { return true; });
+
+            if (foo([] { return true; })) {
+                ...
+            }
+            \endcode
+
+    \endlist
+
+    \section3 \c auto Keyword
+
+    Optionally, you can use the \c auto keyword in the following cases. If in doubt,
+    for example if using \c auto could make the code less readable, do not use \c auto.
+    Keep in mind that code is read much more often than written.
+
+    \list
+        \li When it avoids repetition of a type in the same statement.
+            \code
+            auto something = new MyCustomType;
+            auto keyEvent = static_cast<QKeyEvent *>(event);
+            auto myList = QStringList() << QLatin1String("FooThing") << QLatin1String("BarThing");
+            \endcode
+
+        \li When assigning iterator types.
+            \code
+            auto it = myList.const_iterator();
+            \endcode
+
+    \endlist
+
+    \section3 Scoped enums
+
+    You can use scoped enums in places where the implicit conversion to int of unscoped enums is
+    undesired or the additional scope is useful.
+
+    \section3 Delegating constructors
+
+    Use delegating constructors if multiple constructors use essentially the same code.
+
+    \section3 Initializer list
+
+    Use initializer lists to initialize containers, for example:
+
+    \code
+    const QVector<int> values = {1, 2, 3, 4, 5};
+    \endcode
+
+    \section3 Non-Static Data Member Initialization
+
+    Use non-static data member initialization for trivial initializations, except in public
+    exported classes.
+
+    \section3 Defaulted and Deleted Functions
+
+    Consider using \c{=default} and \c{=delete} to control the special functions.
+
+    \section3 Override
+
+    It is recommended to use the \c{override} keyword when overriding virtual functions. Do not
+    use virtual on overridden functions.
+
+    Make sure that a class uses \c{override} consistently, either for all overridden functions or
+    for none.
+
+    \section3 Nullptr
+
+    All compilers support \c{nullptr}, but there is no consensus on using it. If in doubt, ask
+    the maintainer of the module whether they prefer using \c{nullptr}.
+
+    \section3 Range-Based for-Loop
+
+    You may use range-based for-loops, but beware of the spurious detachment problem.
+    If the for-loop only reads the container and it is not obvious whether the
+    container is const or unshared, use \c{std::cref()} to ensure that the container
+    is not unnecessarily detached.
+
     \section2 Using QObject
 
     \list
-        \li Every QObject subclass must have a Q_OBJECT macro, even if it
-            does not have signals or slots, if it is intended to be used
-            with qobject_cast<>. See also \l{Casting}.
-        \li Normalize the arguments for signals and slots
-            (see \l{http://qt-project.org/doc/qt-4.8/qmetaobject.html#normalizedSignature}{QMetaObject::normalizedSignature}
-            inside connect statements
-            to safely make signal and slot lookup a few cycles faster.
-            You can use $QTDIR/util/normalize to normalize existing code.
+        \li Remember to add the Q_OBJECT macro to QObject subclasses that rely
+            on the meta object system. Meta object system related features are
+            the definition of signals and slots, the use of \c{qobject_cast<>},
+            and others. See also \l{Casting}.
+        \li Prefer Qt5-style \c{connect()} calls over Qt4-style.
+        \li When using Qt4-style \c{connect()} calls, normalize the arguments
+            for signals and slots inside connect statements to safely make
+            signal and slot lookup a few cycles faster. You can use
+            $QTDIR/util/normalize to normalize existing code. For more
+            information, see QMetaObject::normalizedSignature.
     \endlist
 
     \section2 File Headers
@@ -775,6 +1005,11 @@
                 int i;
             };
             \endcode
+
+        \li Stick to integral types, arrays of integral types, and structs thereof
+            for static declarations in headers.
+            For example, \c {static float i[SIZE_CONSTANT];} will not be optimized
+            and copied in every plugin in most cases, it would be good to avoid it.
 
         \li Anything that has a constructor or needs to run code to be
             initialized cannot be used as global object in library code,
@@ -864,12 +1099,16 @@
 
             for (Container::const_iterator it = c.begin(); it != c.end(); ++it)
             \endcode
+
+        \li Do not inline virtual destructors in exported classes. This leads to duplicated vtables
+            in dependent plugins and this can also break RTTI. See
+            \l {https://bugreports.qt.io/browse/QTBUG-45582}{QTBUG-45582}.
     \endlist
 
     \section2 Esthetics
 
     \list
-        \li Prefer enums to define const over static const int or defines.
+        \li Prefer unscoped enums to define const over static const int or defines.
             Enumeration values will be replaced by the compiler at compile time,
             resulting in faster code. Defines are not namespace safe.
         \li Prefer verbose argument names in headers.
@@ -943,25 +1182,25 @@
             your class.
 
         \li To improve code readability, always check whether a preprocessor
-            variable is defined before probing its value (\c{-Wundef}).
+            variable is defined before probing its value (\c {-Wundef}).
 
             \code
-              #if defined(Foo) && Foo == 0
+            #if defined(Foo) && Foo == 0
 
               -NOT-
 
-              #if Foo == 0
+            #if Foo == 0
 
-              -NOT-
+            -NOT-
 
-              #if Foo - 0 == 0
-           \endcode
+            #if Foo - 0 == 0
+            \endcode
 
-        \li When checking for a preprocessor define using the \c{defined}
+        \li When checking for a preprocessor define using the \c {defined}
             operator, always include the variable name in parentheses.
 
             \code
-              #if defined(Foo)
+            #if defined(Foo)
 
               -NOT-
 
@@ -1010,7 +1249,7 @@
                 int value() const;
 
                 QScopedPointer<BarPrivate> d;
-                //std::auto_ptr<BarPrivate> d;
+                //std::unique_ptr<BarPrivate> d;
             };
 
             ############### bar.cpp

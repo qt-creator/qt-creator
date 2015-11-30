@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,8 +32,8 @@
 #define CPLUSPLUSCHECKSYMBOLS_H
 
 #include "cpptools_global.h"
-#include "cpphighlightingsupport.h"
 #include "cppsemanticinfo.h"
+#include "semantichighlighter.h"
 
 #include <cplusplus/TypeOfExpression.h>
 
@@ -43,15 +44,17 @@
 namespace CppTools {
 
 class CPPTOOLS_EXPORT CheckSymbols:
+        public QObject,
         protected CPlusPlus::ASTVisitor,
         public QRunnable,
         public QFutureInterface<TextEditor::HighlightingResult>
 {
+    Q_OBJECT
 public:
     virtual ~CheckSymbols();
 
     typedef TextEditor::HighlightingResult Result;
-    typedef CppHighlightingSupport::Kind Kind;
+    typedef SemanticHighlighter::Kind Kind;
 
     virtual void run();
 
@@ -69,6 +72,9 @@ public:
     static Future go(CPlusPlus::Document::Ptr doc,
                      const CPlusPlus::LookupContext &context,
                      const QList<Result> &macroUses);
+    static CheckSymbols * create(CPlusPlus::Document::Ptr doc,
+                                 const CPlusPlus::LookupContext &context,
+                                 const QList<Result> &macroUses);
 
     static QMap<int, QVector<Result> > chunks(const QFuture<Result> &future, int from, int to)
     {
@@ -85,6 +91,10 @@ public:
 
         return chunks;
     }
+
+signals:
+    void codeWarningsUpdated(CPlusPlus::Document::Ptr document,
+                             const QList<CPlusPlus::Document::DiagnosticMessage> selections);
 
 protected:
     using ASTVisitor::visit;
@@ -160,6 +170,8 @@ protected:
     virtual bool visit(CPlusPlus::MemInitializerAST *ast);
     virtual bool visit(CPlusPlus::EnumeratorAST *ast);
 
+    virtual bool visit(CPlusPlus::DotDesignatorAST *ast);
+
     CPlusPlus::NameAST *declaratorId(CPlusPlus::DeclaratorAST *ast) const;
 
     static unsigned referenceToken(CPlusPlus::NameAST *name);
@@ -179,6 +191,7 @@ private:
     QSet<QByteArray> _potentialStatics;
     QList<CPlusPlus::AST *> _astStack;
     QVector<Result> _usages;
+    QList<CPlusPlus::Document::DiagnosticMessage> _diagMsgs;
     int _chunkSize;
     unsigned _lineOfLastUsage;
     QList<Result> _macroUses;

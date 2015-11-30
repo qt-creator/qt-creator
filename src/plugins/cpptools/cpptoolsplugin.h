@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,6 +32,7 @@
 #define CPPTOOLS_H
 
 #include "cpptools_global.h"
+#include "stringtable.h"
 
 #include <projectexplorer/projectexplorer.h>
 
@@ -41,17 +43,18 @@ class QFileInfo;
 class QDir;
 QT_END_NAMESPACE
 
+namespace Utils { class FileName; }
+
 namespace CppTools {
 
 class CppToolsSettings;
+class CppCodeModelSettings;
 
 namespace Internal {
 
-class CppModelManager;
 struct CppFileSettings;
-class CppCodeModelSettings;
 
-class CPPTOOLS_EXPORT CppToolsPlugin : public ExtensionSystem::IPlugin
+class CppToolsPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CppTools.json")
@@ -66,6 +69,8 @@ public:
     static const QStringList &headerPrefixes();
     static const QStringList &sourcePrefixes();
     static void clearHeaderSourceCache();
+    static Utils::FileName licenseTemplatePath();
+    static QString licenseTemplate();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
@@ -73,12 +78,13 @@ public:
 
     QSharedPointer<CppCodeModelSettings> codeModelSettings() const;
 
+    static StringTable &stringTable();
 public slots:
     void switchHeaderSource();
     void switchHeaderSourceInNextSplit();
 
-private slots:
 #ifdef WITH_TESTS
+private slots:
     // Init/Cleanup methods implemented in cppheadersource_test.cpp
     void initTestCase();
     void cleanupTestCase();
@@ -105,6 +111,9 @@ private slots:
     void test_completion_data();
     void test_completion();
 
+    void test_global_completion_data();
+    void test_global_completion();
+
     void test_completion_member_access_operator_data();
     void test_completion_member_access_operator();
 
@@ -122,9 +131,11 @@ private slots:
     void test_format_pointerdeclaration_macros();
     void test_format_pointerdeclaration_macros_data();
 
-    void test_cpppreprocessor_includes_resolvedUnresolved();
-    void test_cpppreprocessor_includes_cyclic();
-    void test_cpppreprocessor_includes_allDiagnostics();
+    void test_cppsourceprocessor_includes_resolvedUnresolved();
+    void test_cppsourceprocessor_includes_cyclic();
+    void test_cppsourceprocessor_includes_allDiagnostics();
+    void test_cppsourceprocessor_macroUses();
+    void test_cppsourceprocessor_includeNext();
 
     void test_functionutils_virtualFunctions();
     void test_functionutils_virtualFunctions_data();
@@ -142,8 +153,12 @@ private slots:
     void test_modelmanager_gc_if_last_cppeditor_closed();
     void test_modelmanager_dont_gc_opened_files();
     void test_modelmanager_defines_per_project();
-    void test_modelmanager_defines_per_project_pch();
     void test_modelmanager_defines_per_editor();
+    void test_modelmanager_updateEditorsAfterProjectUpdate();
+    void test_modelmanager_precompiled_headers();
+    void test_modelmanager_renameIncludes();
+    void test_modelmanager_renameIncludesInEditor();
+    void test_modelmanager_documentsAndRevisions();
 
     void test_cpplocatorfilters_CppLocatorFilter();
     void test_cpplocatorfilters_CppLocatorFilter_data();
@@ -157,12 +172,20 @@ private slots:
 
     void test_typehierarchy_data();
     void test_typehierarchy();
+
+    void test_cpplocalsymbols_data();
+    void test_cpplocalsymbols();
+
+    void test_includeGroups_detectIncludeGroupsByNewLines();
+    void test_includeGroups_detectIncludeGroupsByIncludeDir();
+    void test_includeGroups_detectIncludeGroupsByIncludeType();
 #endif
 
 private:
     QSharedPointer<CppFileSettings> m_fileSettings;
     QSharedPointer<CppCodeModelSettings> m_codeModelSettings;
     CppToolsSettings *m_settings;
+    StringTable m_stringTable;
 };
 
 } // namespace Internal

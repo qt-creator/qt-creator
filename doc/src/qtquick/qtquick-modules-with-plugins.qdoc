@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage quick-export-to-qml.html
     \page creator-qml-modules-with-plugins.html
     \nextpage creator-using-qt-designer.html
@@ -36,7 +36,8 @@
     information for code completion and the semantic checks to work correctly.
 
     When you write a QML module or use QML from a C++ application you typically
-    register new types with \l{QQmlEngine#qmlRegisterType-3}{qmlRegisterType()} or expose some
+    register new types with the \l{QQmlEngine} class \c qmlRegisterType()
+    function or expose some
     class instances with \l{QQmlContext::setContextProperty()}. The \QC C++
     code model now scans for these calls and
     tells the QML code model about them. This means that properties are
@@ -83,5 +84,28 @@
     a temporary file itself by running the \c qmldump program in the background.
     However, this automatic dumping is a fallback mechanism with many points of
     failure and you cannot rely upon it.
+
+    \section1 Running QML Modules in Qt Quick Designer
+
+    \QMLD uses a QML emulation layer (also called QML Puppet) to render and
+    preview images and to collect data. To be able to render custom types
+    correctly from QML modules, the emulation layer must be built with the same
+    Qt version as the QML modules.
+
+    By default, a fallback emulation layer is provided by \QC and built with the same
+    Qt version as \QC. Therefore, your QML modules will mostly not work out of
+    the box.
+
+    To use an emulation layer that is built with the Qt
+    configured in the build and run kit for the project, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} >
+    \uicontrol {Use QML emulation layer which is built by the selected Qt} radio button.
+    \QC builds the emulation layer when you select the \uicontrol Design mode.
+
+    A plugin should behave differently depending on whether it is run by the
+    emulation layer or an application. For example, animations should not be run
+    in the \uicontrol Design mode. You can use the value of the QML_PUPPET_MODE
+    environment variable to check whether the plugin is currently being run
+    by an application or edited in the \uicontrol Design mode.
 
 */

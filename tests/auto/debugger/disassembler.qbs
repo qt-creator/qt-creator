@@ -1,9 +1,9 @@
 import qbs
-import "../autotest.qbs" as Autotest
 
-Autotest {
+QtcAutotest {
     name: "disassembler autotest"
-    Depends { name: "Qt.network" } // For QHostAddress
+    Depends { name: "ProjectExplorer" }
+    Depends { name: "QtcSsh" }
     Group {
         name: "Sources from Debugger plugin"
         prefix: project.debuggerDir

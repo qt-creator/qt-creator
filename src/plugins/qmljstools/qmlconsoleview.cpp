@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,6 +36,8 @@
 #include <coreplugin/manhattanstyle.h>
 #include <utils/hostosinfo.h>
 
+#include <QAction>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QApplication>
@@ -79,7 +82,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 QmlConsoleView::QmlConsoleView(QWidget *parent) :
-    QTreeView(parent)
+    Utils::TreeView(parent)
 {
     setFrameStyle(QFrame::NoFrame);
     setHeaderHidden(true);
@@ -128,7 +131,7 @@ QmlConsoleView::QmlConsoleView(QWidget *parent) :
     horizontalScrollBar()->setSingleStep(20);
     verticalScrollBar()->setSingleStep(20);
 
-    connect(this, SIGNAL(activated(QModelIndex)), SLOT(onRowActivated(QModelIndex)));
+    connect(this, &QmlConsoleView::activated, this, &QmlConsoleView::onRowActivated);
 }
 
 void QmlConsoleView::onScrollToBottom()
@@ -144,9 +147,9 @@ void QmlConsoleView::mousePressEvent(QMouseEvent *event)
     QModelIndex index = indexAt(pos);
     if (index.isValid()) {
         ConsoleItem::ItemType type = (ConsoleItem::ItemType)index.data(
-                    QmlConsoleItemModel::TypeRole).toInt();
+                    ConsoleItem::TypeRole).toInt();
         bool handled = false;
-        if (type == ConsoleItem::UndefinedType) {
+        if (type == ConsoleItem::DefaultType) {
             bool showTypeIcon = index.parent() == QModelIndex();
             ConsoleItemPositions positions(visualRect(index), viewOptions().font, showTypeIcon,
                                            true);
@@ -160,28 +163,15 @@ void QmlConsoleView::mousePressEvent(QMouseEvent *event)
             }
         }
         if (!handled)
-            QTreeView::mousePressEvent(event);
-    } else {
-        selectionModel()->setCurrentIndex(model()->index(model()->rowCount() - 1, 0),
-                                          QItemSelectionModel::ClearAndSelect);
+            Utils::TreeView::mousePressEvent(event);
     }
-}
-
-void QmlConsoleView::keyPressEvent(QKeyEvent *e)
-{
-    if (!e->modifiers() && e->key() == Qt::Key_Return) {
-        emit activated(currentIndex());
-        e->accept();
-        return;
-    }
-    QTreeView::keyPressEvent(e);
 }
 
 void QmlConsoleView::resizeEvent(QResizeEvent *e)
 {
     static_cast<QmlConsoleItemDelegate *>(itemDelegate())->emitSizeHintChanged(
                 selectionModel()->currentIndex());
-    QTreeView::resizeEvent(e);
+    Utils::TreeView::resizeEvent(e);
 }
 
 void QmlConsoleView::drawBranches(QPainter *painter, const QRect &rect,
@@ -189,7 +179,7 @@ void QmlConsoleView::drawBranches(QPainter *painter, const QRect &rect,
 {
     static_cast<QmlConsoleItemDelegate *>(itemDelegate())->drawBackground(painter, rect, index,
                                                                             false);
-    QTreeView::drawBranches(painter, rect, index);
+    Utils::TreeView::drawBranches(painter, rect, index);
 }
 
 void QmlConsoleView::contextMenuEvent(QContextMenuEvent *event)
@@ -223,20 +213,27 @@ void QmlConsoleView::contextMenuEvent(QContextMenuEvent *event)
     }
 }
 
+void QmlConsoleView::focusInEvent(QFocusEvent *event)
+{
+    Q_UNUSED(event);
+    selectionModel()->setCurrentIndex(model()->index(model()->rowCount() - 1, 0),
+                                      QItemSelectionModel::ClearAndSelect);
+}
+
 void QmlConsoleView::onRowActivated(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
 
     // See if we have file and line Info
-    QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
+    QString filePath = model()->data(index, ConsoleItem::FileRole).toString();
     const QUrl fileUrl = QUrl(filePath);
     if (fileUrl.isLocalFile())
         filePath = fileUrl.toLocalFile();
     if (!filePath.isEmpty()) {
         QFileInfo fi(filePath);
         if (fi.exists() && fi.isFile() && fi.isReadable()) {
-            int line = model()->data(index, QmlConsoleItemModel::LineRole).toInt();
+            int line = model()->data(index, ConsoleItem::LineRole).toInt();
             Core::EditorManager::openEditorAt(fi.canonicalFilePath(), line);
         }
     }
@@ -247,15 +244,15 @@ void QmlConsoleView::copyToClipboard(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    QString contents = model()->data(index, QmlConsoleItemModel::ExpressionRole).toString();
+    QString contents = model()->data(index, ConsoleItem::ExpressionRole).toString();
     // See if we have file and line Info
-    QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
+    QString filePath = model()->data(index, ConsoleItem::FileRole).toString();
     const QUrl fileUrl = QUrl(filePath);
     if (fileUrl.isLocalFile())
         filePath = fileUrl.toLocalFile();
     if (!filePath.isEmpty()) {
-        contents = QString(QLatin1String("%1 %2: %3")).arg(contents).arg(filePath).arg(
-                    model()->data(index, QmlConsoleItemModel::LineRole).toString());
+        contents = QString::fromLatin1("%1 %2: %3").arg(contents).arg(filePath).arg(
+                    model()->data(index, ConsoleItem::LineRole).toString());
     }
     QClipboard *cb = QApplication::clipboard();
     cb->setText(contents);
@@ -267,7 +264,7 @@ bool QmlConsoleView::canShowItemInTextEditor(const QModelIndex &index)
         return false;
 
     // See if we have file and line Info
-    QString filePath = model()->data(index, QmlConsoleItemModel::FileRole).toString();
+    QString filePath = model()->data(index, ConsoleItem::FileRole).toString();
     const QUrl fileUrl = QUrl(filePath);
     if (fileUrl.isLocalFile())
         filePath = fileUrl.toLocalFile();

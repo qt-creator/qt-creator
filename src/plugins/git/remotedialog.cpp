@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,7 +37,8 @@
 #include "ui_remotedialog.h"
 #include "ui_remoteadditiondialog.h"
 
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <utils/headerviewstretcher.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QMessageBox>
 
@@ -72,8 +74,8 @@ QString RemoteAdditionDialog::remoteUrl() const
 
 void RemoteAdditionDialog::clear()
 {
-    m_ui->nameEdit->setText(QString());
-    m_ui->urlEdit->setText(QString());
+    m_ui->nameEdit->clear();
+    m_ui->urlEdit->clear();
 }
 
 // --------------------------------------------------------------------------
@@ -84,7 +86,7 @@ void RemoteAdditionDialog::clear()
 RemoteDialog::RemoteDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::RemoteDialog),
-    m_remoteModel(new RemoteModel(GitPlugin::instance()->gitClient(), this)),
+    m_remoteModel(new RemoteModel(GitPlugin::instance()->client(), this)),
     m_addDialog(0)
 {
     setModal(false);
@@ -94,19 +96,16 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
     m_ui->setupUi(this);
 
     m_ui->remoteView->setModel(m_remoteModel);
-    m_ui->remoteView->horizontalHeader()->setStretchLastSection(true);
-    m_ui->remoteView->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
-    QFontMetrics fm(font());
-    m_ui->remoteView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
+    new Utils::HeaderViewStretcher(m_ui->remoteView->header(), 1);
 
-    connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(addRemote()));
-    connect(m_ui->fetchButton, SIGNAL(clicked()), this, SLOT(fetchFromRemote()));
-    connect(m_ui->pushButton, SIGNAL(clicked()), this, SLOT(pushToRemote()));
-    connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(removeRemote()));
-    connect(m_ui->refreshButton, SIGNAL(clicked()), this, SLOT(refreshRemotes()));
+    connect(m_ui->addButton, &QPushButton::clicked, this, &RemoteDialog::addRemote);
+    connect(m_ui->fetchButton, &QPushButton::clicked, this, &RemoteDialog::fetchFromRemote);
+    connect(m_ui->pushButton, &QPushButton::clicked, this, &RemoteDialog::pushToRemote);
+    connect(m_ui->removeButton, &QPushButton::clicked, this, &RemoteDialog::removeRemote);
+    connect(m_ui->refreshButton, &QPushButton::clicked, this, &RemoteDialog::refreshRemotes);
 
-    connect(m_ui->remoteView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(updateButtonState()));
+    connect(m_ui->remoteView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &RemoteDialog::updateButtonState);
 
     updateButtonState();
 }
@@ -127,7 +126,7 @@ void RemoteDialog::refresh(const QString &repository, bool force)
     } else {
         QString errorMessage;
         if (!m_remoteModel->refresh(repository, &errorMessage))
-            VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+            VcsBase::VcsOutputWindow::appendError(errorMessage);
     }
 }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,11 +31,17 @@
 #include "searchsymbols.h"
 
 #include <cplusplus/LookupContext.h>
+#include <utils/qtcassert.h>
+#include <utils/scopedswap.h>
 
 #include <QDebug>
 
 using namespace CPlusPlus;
-using namespace CppTools;
+
+namespace CppTools {
+
+typedef Utils::ScopedSwap<IndexItem::Ptr> ScopedIndexItemPtr;
+typedef Utils::ScopedSwap<QString> ScopedScope;
 
 SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
         SymbolSearcher::Classes
@@ -42,37 +49,40 @@ SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
         | SymbolSearcher::Enums
         | SymbolSearcher::Declarations;
 
-SearchSymbols::SearchSymbols() :
-    symbolsToSearchFor(SymbolSearcher::Classes | SymbolSearcher::Functions | SymbolSearcher::Enums)
+SearchSymbols::SearchSymbols(Internal::StringTable &stringTable)
+    : strings(stringTable)
+    , symbolsToSearchFor(SymbolSearcher::Classes | SymbolSearcher::Functions | SymbolSearcher::Enums)
 {
 }
 
-void SearchSymbols::setSymbolsToSearchFor(SymbolTypes types)
+void SearchSymbols::setSymbolsToSearchFor(const SymbolTypes &types)
 {
     symbolsToSearchFor = types;
 }
 
-QList<ModelItemInfo> SearchSymbols::operator()(Document::Ptr doc, int sizeHint, const QString &scope)
+IndexItem::Ptr SearchSymbols::operator()(Document::Ptr doc, const QString &scope)
 {
-    QString previousScope = switchScope(scope);
-    items.clear();
-    items.reserve(sizeHint);
-    for (unsigned i = 0; i < doc->globalSymbolCount(); ++i) {
-        accept(doc->globalSymbolAt(i));
-    }
-    (void) switchScope(previousScope);
-    QList<ModelItemInfo> result = items;
-    strings.clear();
-    items.clear();
-    m_paths.clear();
-    return result;
-}
+    IndexItem::Ptr root = IndexItem::create(findOrInsert(doc->fileName()), 100);
 
-QString SearchSymbols::switchScope(const QString &scope)
-{
-    QString previousScope = _scope;
-    _scope = scope;
-    return previousScope;
+    { // RAII scope
+        ScopedIndexItemPtr parentRaii(_parent, root);
+        QString newScope = scope;
+        ScopedScope scopeRaii(_scope, newScope);
+
+        QTC_ASSERT(_parent, return IndexItem::Ptr());
+        QTC_ASSERT(root, return IndexItem::Ptr());
+        QTC_ASSERT(_parent->fileName() == findOrInsert(doc->fileName()),
+                   return IndexItem::Ptr());
+
+        for (unsigned i = 0, ei = doc->globalSymbolCount(); i != ei; ++i)
+            accept(doc->globalSymbolAt(i));
+
+        strings.scheduleGC();
+        m_paths.clear();
+    }
+
+    root->squeeze();
+    return root;
 }
 
 bool SearchSymbols::visit(Enum *symbol)
@@ -80,35 +90,35 @@ bool SearchSymbols::visit(Enum *symbol)
     if (!(symbolsToSearchFor & SymbolSearcher::Enums))
         return false;
 
-    QString name = symbolName(symbol);
-    QString scopedName = scopedSymbolName(name);
-    QString previousScope = switchScope(scopedName);
-    appendItem(name, QString(), previousScope, ModelItemInfo::Enum, symbol);
-    for (unsigned i = 0; i < symbol->memberCount(); ++i) {
+    QString name = overview.prettyName(symbol->name());
+    IndexItem::Ptr newParent = addChildItem(name, QString(), _scope, IndexItem::Enum, symbol);
+    if (!newParent)
+        newParent = _parent;
+    ScopedIndexItemPtr parentRaii(_parent, newParent);
+
+    QString newScope = scopedSymbolName(name, symbol);
+    ScopedScope scopeRaii(_scope, newScope);
+
+    for (unsigned i = 0, ei = symbol->memberCount(); i != ei; ++i)
         accept(symbol->memberAt(i));
-    }
-    (void) switchScope(previousScope);
+
     return false;
 }
 
 bool SearchSymbols::visit(Function *symbol)
 {
-    if (!(symbolsToSearchFor & SymbolSearcher::Functions))
-        return false;
-    QString name = symbolName(symbol);
-    QString type = overview.prettyType(symbol->type());
-    appendItem(name, type, _scope, ModelItemInfo::Method, symbol);
+    processFunction(symbol);
     return false;
 }
 
 bool SearchSymbols::visit(Namespace *symbol)
 {
     QString name = scopedSymbolName(symbol);
-    QString previousScope = switchScope(name);
+    QString newScope = name;
+    ScopedScope raii(_scope, newScope);
     for (unsigned i = 0; i < symbol->memberCount(); ++i) {
         accept(symbol->memberAt(i));
     }
-    (void) switchScope(previousScope);
     return false;
 }
 
@@ -118,169 +128,168 @@ bool SearchSymbols::visit(Declaration *symbol)
         // if we're searching for functions, still allow signal declarations to show up.
         if (symbolsToSearchFor & SymbolSearcher::Functions) {
             Function *funTy = symbol->type()->asFunctionType();
-            if (!funTy)
+            if (!funTy) {
+                if (!symbol->type()->asObjCMethodType())
+                    return false;
+            } else if (!funTy->isSignal()) {
                 return false;
-            if (!funTy->isSignal())
-                return false;
+            }
         } else {
             return false;
         }
     }
 
-    QString name = symbolName(symbol);
-    QString type = overview.prettyType(symbol->type());
-    appendItem(name, type, _scope,
-               symbol->type()->asFunctionType() ? ModelItemInfo::Method
-                                                : ModelItemInfo::Declaration,
-               symbol);
+    if (symbol->name()) {
+        QString name = overview.prettyName(symbol->name());
+        QString type = overview.prettyType(symbol->type());
+        addChildItem(name, type, _scope,
+                     symbol->type()->asFunctionType() ? IndexItem::Function
+                                                      : IndexItem::Declaration,
+                     symbol);
+    }
+
     return false;
 }
 
 bool SearchSymbols::visit(Class *symbol)
 {
-    QString name = symbolName(symbol);
-    QString scopedName = scopedSymbolName(name);
-    QString previousScope = switchScope(scopedName);
-    if (symbolsToSearchFor & SymbolSearcher::Classes)
-        appendItem(name, QString(), previousScope, ModelItemInfo::Class, symbol);
-    for (unsigned i = 0; i < symbol->memberCount(); ++i) {
-        accept(symbol->memberAt(i));
-    }
-    (void) switchScope(previousScope);
+    processClass(symbol);
+
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::UsingNamespaceDirective *)
+bool SearchSymbols::visit(UsingNamespaceDirective *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::UsingDeclaration *)
+bool SearchSymbols::visit(UsingDeclaration *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::NamespaceAlias *)
+bool SearchSymbols::visit(NamespaceAlias *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::Argument *)
+bool SearchSymbols::visit(Argument *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::TypenameArgument *)
+bool SearchSymbols::visit(TypenameArgument *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::BaseClass *)
+bool SearchSymbols::visit(BaseClass *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::Template *)
+bool SearchSymbols::visit(Template *)
 {
     return true;
 }
 
-bool SearchSymbols::visit(CPlusPlus::Block *)
+bool SearchSymbols::visit(Block *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ForwardClassDeclaration *)
+bool SearchSymbols::visit(ForwardClassDeclaration *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCBaseClass *)
+bool SearchSymbols::visit(ObjCBaseClass *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCBaseProtocol *)
+bool SearchSymbols::visit(ObjCBaseProtocol *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCClass *)
+bool SearchSymbols::visit(ObjCClass *symbol)
+{
+    processClass(symbol);
+
+    return false;
+}
+
+bool SearchSymbols::visit(ObjCForwardClassDeclaration *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCForwardClassDeclaration *)
+bool SearchSymbols::visit(ObjCProtocol *symbol)
+{
+    processClass(symbol);
+
+    return false;
+}
+
+bool SearchSymbols::visit(ObjCForwardProtocolDeclaration *)
 {
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCProtocol *)
+bool SearchSymbols::visit(ObjCMethod *symbol)
 {
+    processFunction(symbol);
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCForwardProtocolDeclaration *)
+bool SearchSymbols::visit(ObjCPropertyDeclaration *symbol)
 {
+    processFunction(symbol);
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCMethod *)
-{
-    return false;
-}
-
-bool SearchSymbols::visit(CPlusPlus::ObjCPropertyDeclaration *)
-{
-    return false;
-}
-
-QString SearchSymbols::scopedSymbolName(const QString &symbolName) const
+QString SearchSymbols::scopedSymbolName(const QString &symbolName, const Symbol *symbol) const
 {
     QString name = _scope;
     if (!name.isEmpty())
         name += QLatin1String("::");
-    name += symbolName;
+    name += scopeName(symbolName, symbol);
     return name;
 }
 
 QString SearchSymbols::scopedSymbolName(const Symbol *symbol) const
 {
-    return scopedSymbolName(symbolName(symbol));
+    return scopedSymbolName(overview.prettyName(symbol->name()), symbol);
 }
 
-QString SearchSymbols::symbolName(const Symbol *symbol) const
+QString SearchSymbols::scopeName(const QString &name, const Symbol *symbol) const
 {
-    QString symbolName = overview.prettyName(symbol->name());
-    if (symbolName.isEmpty()) {
-        QString type;
-        if (symbol->isNamespace()) {
-            type = QLatin1String("namespace");
-        } else if (symbol->isEnum()) {
-            type = QLatin1String("enum");
-        } else if (const Class *c = symbol->asClass())  {
-            if (c->isUnion())
-                type = QLatin1String("union");
-            else if (c->isStruct())
-                type = QLatin1String("struct");
-            else
-                type = QLatin1String("class");
-        } else {
-            type = QLatin1String("symbol");
-        }
-        symbolName = QLatin1String("<anonymous ");
-        symbolName += type;
-        symbolName += QLatin1Char('>');
+    if (!name.isEmpty())
+        return name;
+
+    if (symbol->isNamespace()) {
+        return QLatin1String("<anonymous namespace>");
+    } else if (symbol->isEnum()) {
+        return QLatin1String("<anonymous enum>");
+    } else if (const Class *c = symbol->asClass())  {
+        if (c->isUnion())
+            return QLatin1String("<anonymous union>");
+        else if (c->isStruct())
+            return QLatin1String("<anonymous struct>");
+        else
+            return QLatin1String("<anonymous class>");
+    } else {
+        return QLatin1String("<anonymous symbol>");
     }
-    return symbolName;
 }
 
-void SearchSymbols::appendItem(const QString &symbolName, const QString &symbolType,
-                               const QString &symbolScope, ModelItemInfo::ItemType itemType,
-                               Symbol *symbol)
+IndexItem::Ptr SearchSymbols::addChildItem(const QString &symbolName, const QString &symbolType,
+                                           const QString &symbolScope, IndexItem::ItemType itemType,
+                                           Symbol *symbol)
 {
     if (!symbol->name() || symbol->isGenerated())
-        return;
+        return IndexItem::Ptr();
 
     QString path = m_paths.value(symbol->fileId(), QString());
     if (path.isEmpty()) {
@@ -289,12 +298,44 @@ void SearchSymbols::appendItem(const QString &symbolName, const QString &symbolT
     }
 
     const QIcon icon = icons.iconForSymbol(symbol);
-    items.append(ModelItemInfo(findOrInsert(symbolName),
-                               findOrInsert(symbolType),
-                               findOrInsert(symbolScope),
-                               itemType,
-                               path,
-                               symbol->line(),
-                               symbol->column() - 1, // 1-based vs 0-based column
-                               icon));
+    IndexItem::Ptr newItem = IndexItem::create(findOrInsert(symbolName),
+                                               findOrInsert(symbolType),
+                                               findOrInsert(symbolScope),
+                                               itemType,
+                                               findOrInsert(path),
+                                               symbol->line(),
+                                               symbol->column() - 1, // 1-based vs 0-based column
+                                               icon);
+    _parent->addChild(newItem);
+    return newItem;
 }
+
+template<class T>
+void SearchSymbols::processClass(T *clazz)
+{
+    QString name = overview.prettyName(clazz->name());
+
+    IndexItem::Ptr newParent;
+    if (symbolsToSearchFor & SymbolSearcher::Classes)
+        newParent = addChildItem(name, QString(), _scope, IndexItem::Class, clazz);
+    if (!newParent)
+        newParent = _parent;
+    ScopedIndexItemPtr parentRaii(_parent, newParent);
+
+    QString newScope = scopedSymbolName(name, clazz);
+    ScopedScope scopeRaii(_scope, newScope);
+    for (unsigned i = 0, ei = clazz->memberCount(); i != ei; ++i)
+        accept(clazz->memberAt(i));
+}
+
+template<class T>
+void SearchSymbols::processFunction(T *func)
+{
+    if (!(symbolsToSearchFor & SymbolSearcher::Functions) || !func->name())
+        return;
+    QString name = overview.prettyName(func->name());
+    QString type = overview.prettyType(func->type());
+    addChildItem(name, type, _scope, IndexItem::Function, func);
+}
+
+} // namespace CppTools

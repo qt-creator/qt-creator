@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 AudioCodes Ltd.
+** Copyright (C) 2015 AudioCodes Ltd.
 ** Author: Orgad Shaneh <orgad.shaneh@audiocodes.com>
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,6 +36,7 @@
 
 #include <coreplugin/id.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
 
 #include <QFile>
 #include <QPair>
@@ -118,7 +120,7 @@ class ClearCasePlugin : public VcsBase::VcsBasePlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClearCase.json")
 
-    enum { SilentRun = NoOutput | FullySynchronously };
+    enum { SilentRun = VcsBase::VcsCommand::NoOutput | VcsBase::VcsCommand::FullySynchronously };
 
 public:
     ClearCasePlugin();
@@ -143,7 +145,6 @@ public:
     bool vcsSetActivity(const QString &workingDir, const QString &title, const QString &activity);
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
     bool vcsCheckout(const QString &directory, const QByteArray &url);
-    QString vcsGetRepositoryURL(const QString &directory);
 
     static ClearCasePlugin *instance();
 
@@ -152,6 +153,7 @@ public:
     QString ccGetPredecessor(const QString &version) const;
     QStringList ccGetActiveVobs() const;
     ViewData ccGetView(const QString &workingDir) const;
+    QString ccGetComment(const QString &workingDir, const QString &fileName) const;
     bool ccFileOp(const QString &workingDir, const QString &title, const QStringList &args,
                   const QString &fileName, const QString &file2 = QString());
     FileStatus vcsStatus(const QString &file) const;
@@ -177,29 +179,11 @@ public slots:
     void updateStreamAndView();
 
 private slots:
-    void checkOutCurrentFile();
-    void addCurrentFile();
-    void undoCheckOutCurrent();
-    void undoHijackCurrent();
-    void diffActivity();
-    void diffCurrentFile();
-    void startCheckInAll();
-    void startCheckInActivity();
-    void startCheckInCurrentFile();
-    void historyCurrentFile();
-    void annotateCurrentFile();
     void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
     void describe(const QString &source, const QString &changeNr);
-    void viewStatus();
-    void checkInSelected();
-    void diffCheckInFiles(const QStringList &);
-    void updateIndex();
-    void updateView();
-    void projectChanged(ProjectExplorer::Project *project);
-    void tasksFinished(Core::Id type);
     void syncSlot();
-    void closing();
     void updateStatusActions();
+
 #ifdef WITH_TESTS
     void initTestCase();
     void cleanupTestCase();
@@ -225,6 +209,26 @@ protected:
     QList<QStringPair> ccGetActivities() const;
 
 private:
+    void checkOutCurrentFile();
+    void addCurrentFile();
+    void undoCheckOutCurrent();
+    void undoHijackCurrent();
+    void diffActivity();
+    void diffCurrentFile();
+    void startCheckInAll();
+    void startCheckInActivity();
+    void startCheckInCurrentFile();
+    void historyCurrentFile();
+    void annotateCurrentFile();
+    void viewStatus();
+    void checkInSelected();
+    void diffCheckInFiles(const QStringList &);
+    void updateIndex();
+    void updateView();
+    void projectChanged(ProjectExplorer::Project *project);
+    void tasksFinished(Core::Id type);
+    void closing();
+
     inline bool isCheckInEditorOpen() const;
     QStringList getVobList() const;
     QString ccManagesDirectory(const QString &directory) const;
@@ -234,9 +238,8 @@ private:
                                       int editorType, const QString &source,
                                       QTextCodec *codec) const;
     QString runCleartoolSync(const QString &workingDir, const QStringList &arguments) const;
-    ClearCaseResponse runCleartool(const QString &workingDir,
-                              const QStringList &arguments, int timeOut,
-                              unsigned flags, QTextCodec *outputCodec = 0) const;
+    ClearCaseResponse runCleartool(const QString &workingDir, const QStringList &arguments,
+                                   int timeOutS, unsigned flags, QTextCodec *outputCodec = 0) const;
     static void sync(QFutureInterface<void> &future, QStringList files);
 
     void history(const QString &workingDir,
@@ -254,8 +257,8 @@ private:
     QString diffExternal(QString file1, QString file2 = QString(), bool keep = false);
     QString getFile(const QString &nativeFile, const QString &prefix);
     static void rmdir(const QString &path);
-    QString runExtDiff(const QString &workingDir, const QStringList &arguments,
-                       int timeOut, QTextCodec *outputCodec = 0);
+    QString runExtDiff(const QString &workingDir, const QStringList &arguments, int timeOutS,
+                       QTextCodec *outputCodec = 0);
     static QString getDriveLetterOfPath(const QString &directory);
 
     FileStatus::Status getFileStatus(const QString &fileName) const;

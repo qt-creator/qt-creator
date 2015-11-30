@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -72,45 +73,37 @@ class QbsRunConfiguration : public ProjectExplorer::LocalApplicationRunConfigura
 public:
     QbsRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    bool isEnabled() const;
-    QString disabledReason() const;
-    QWidget *createConfigurationWidget();
+    bool isEnabled() const override;
+    QString disabledReason() const override;
+    QWidget *createConfigurationWidget() override;
 
-    QString executable() const;
-    RunMode runMode() const;
-    QString workingDirectory() const;
-    QString commandLineArguments() const;
+    QString executable() const override;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
+    QString workingDirectory() const override;
+    QString commandLineArguments() const override;
 
-    QVariantMap toMap() const;
+    Utils::OutputFormatter *createOutputFormatter() const override;
 
-    Utils::OutputFormatter *createOutputFormatter() const;
+    void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
-    void setRunMode(RunMode runMode);
+    void addToBaseEnvironment(Utils::Environment &env) const override;
 
-    void addToBaseEnvironment(Utils::Environment &env) const;
-
-    QString qbsProduct() const;
+    QString uniqueProductName() const;
     bool isConsoleApplication() const;
 
 signals:
-    void commandLineArgumentsChanged(const QString&);
-    void baseWorkingDirectoryChanged(const QString&);
-    void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
     void targetInformationChanged();
     void usingDyldImageSuffixChanged(bool);
 
 protected:
     QbsRunConfiguration(ProjectExplorer::Target *parent, QbsRunConfiguration *source);
-    bool fromMap(const QVariantMap &map);
 
 private slots:
     void installStepChanged();
+    void installStepToBeRemoved(int pos);
 
 private:
-    void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
-    void setCommandLineArguments(const QString &argumentsString);
-    QString rawCommandLineArguments() const;
     QString defaultDisplayName();
     qbs::InstallOptions installOptions() const;
     QString installRoot() const;
@@ -119,12 +112,9 @@ private:
 
     void updateTarget();
 
-    QString m_qbsProduct;
-    QString m_commandLineArguments;
+    QString m_uniqueProductName;
 
     // Cached startup sub project information
-    ProjectExplorer::LocalApplicationRunConfiguration::RunMode m_runMode;
-    QString m_userWorkingDirectory;
 
     QbsInstallStep *m_currentInstallStep; // We do not take ownership!
     ProjectExplorer::BuildStepList *m_currentBuildStepList; // We do not take ownership!
@@ -139,29 +129,16 @@ public:
 
 private slots:
     void runConfigurationEnabledChange();
-    void workDirectoryEdited();
-    void workingDirectoryWasReset();
-    void argumentsEdited(const QString &arguments);
-    void environmentWasChanged();
-
-    void workingDirectoryChanged(const QString &workingDirectory);
-    void commandLineArgumentsChanged(const QString &args);
-    void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
-
-    void termToggled(bool);
-
-private slots:
     void targetInformationHasChanged();
 
 private:
+    void setExecutableLineText(const QString &text = QString());
+
     QbsRunConfiguration *m_rc;
     bool m_ignoreChange;
     QLabel *m_disabledIcon;
     QLabel *m_disabledReason;
-    QLineEdit *m_executableLineEdit;
-    Utils::PathChooser *m_workingDirectoryEdit;
-    QLineEdit *m_argumentsLineEdit;
-    QCheckBox *m_useTerminalCheck;
+    QLabel *m_executableLineLabel;
     QCheckBox *m_usingDyldImageSuffix;
     QLineEdit *m_qmlDebugPort;
     Utils::DetailsWidget *m_detailsContainer;
@@ -176,18 +153,18 @@ public:
     explicit QbsRunConfigurationFactory(QObject *parent = 0);
     ~QbsRunConfigurationFactory();
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
+    QString displayNameForId(Core::Id id) const;
 
 private:
     bool canHandle(ProjectExplorer::Target *t) const;
 
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id);
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
                                                  const QVariantMap &map);
 };

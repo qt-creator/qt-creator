@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,35 +9,43 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "cppoutline.h"
 
+#include <cpptools/cppeditoroutline.h>
+
 #include <cplusplus/OverviewModel.h>
 
+#include <texteditor/textdocument.h>
+
+#include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QMenu>
 
-using namespace CppEditor::Internal;
+namespace CppEditor {
+namespace Internal {
 
 enum {
     debug = false
@@ -46,9 +54,9 @@ enum {
 CppOutlineTreeView::CppOutlineTreeView(QWidget *parent) :
     Utils::NavigationTreeView(parent)
 {
-    // see also QmlJSOutlineTreeView
-    setFocusPolicy(Qt::NoFocus);
     setExpandsOnDoubleClick(false);
+    setDragEnabled(true);
+    setDragDropMode(QAbstractItemView::DragOnly);
 }
 
 void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
@@ -88,12 +96,17 @@ bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
 }
 
+Qt::DropActions CppOutlineFilterModel::supportedDragActions() const
+{
+    return sourceModel()->supportedDragActions();
+}
 
-CppOutlineWidget::CppOutlineWidget(CPPEditorWidget *editor) :
+
+CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     TextEditor::IOutlineWidget(),
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
-    m_model(m_editor->outlineModel()),
+    m_model(m_editor->outline()->model()),
     m_proxyModel(new CppOutlineFilterModel(m_model, this)),
     m_enableCursorSync(true),
     m_blockCursorSync(false)
@@ -101,20 +114,19 @@ CppOutlineWidget::CppOutlineWidget(CPPEditorWidget *editor) :
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addWidget(m_treeView);
+    layout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_treeView));
     setLayout(layout);
 
     m_treeView->setModel(m_proxyModel);
+    setFocusProxy(m_treeView);
 
     connect(m_model, SIGNAL(modelReset()), this, SLOT(modelUpdated()));
     modelUpdated();
 
-    connect(m_editor, SIGNAL(outlineModelIndexChanged(QModelIndex)),
+    connect(m_editor->outline(), SIGNAL(modelIndexChanged(QModelIndex)),
             this, SLOT(updateSelectionInTree(QModelIndex)));
-    connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(updateSelectionInText(QItemSelection)));
-    connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(updateTextCursor(QModelIndex)));
+    connect(m_treeView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(onItemActivated(QModelIndex)));
 }
 
 QList<QAction*> CppOutlineWidget::filterMenuActions() const
@@ -126,7 +138,7 @@ void CppOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_enableCursorSync = syncWithCursor;
     if (m_enableCursorSync)
-        updateSelectionInTree(m_editor->outlineModelIndex());
+        updateSelectionInTree(m_editor->outline()->modelIndex());
 }
 
 void CppOutlineWidget::modelUpdated()
@@ -145,20 +157,9 @@ void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
     if (debug)
         qDebug() << "CppOutline - updating selection due to cursor move";
 
-    m_treeView->selectionModel()->select(proxyIndex, QItemSelectionModel::ClearAndSelect);
+    m_treeView->setCurrentIndex(proxyIndex);
     m_treeView->scrollTo(proxyIndex);
     m_blockCursorSync = false;
-}
-
-void CppOutlineWidget::updateSelectionInText(const QItemSelection &selection)
-{
-    if (!syncCursor())
-        return;
-
-    if (!selection.indexes().isEmpty()) {
-        QModelIndex proxyIndex = selection.indexes().first();
-        updateTextCursor(proxyIndex);
-    }
 }
 
 void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
@@ -176,9 +177,17 @@ void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 
         // line has to be 1 based, column 0 based!
         m_editor->gotoLine(symbol->line(), symbol->column() - 1);
-        m_editor->setFocus();
         m_blockCursorSync = false;
     }
+}
+
+void CppOutlineWidget::onItemActivated(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return;
+
+    updateTextCursor(index);
+    m_editor->setFocus();
 }
 
 bool CppOutlineWidget::syncCursor()
@@ -188,18 +197,21 @@ bool CppOutlineWidget::syncCursor()
 
 bool CppOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
 {
-    if (qobject_cast<CPPEditor*>(editor))
+    if (qobject_cast<CppEditor*>(editor))
         return true;
     return false;
 }
 
 TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor *editor)
 {
-    CPPEditor *cppEditor = qobject_cast<CPPEditor*>(editor);
-    CPPEditorWidget *cppEditorWidget = qobject_cast<CPPEditorWidget*>(cppEditor->widget());
+    CppEditor *cppEditor = qobject_cast<CppEditor*>(editor);
+    CppEditorWidget *cppEditorWidget = qobject_cast<CppEditorWidget*>(cppEditor->widget());
     QTC_ASSERT(cppEditorWidget, return 0);
 
     CppOutlineWidget *widget = new CppOutlineWidget(cppEditorWidget);
 
     return widget;
 }
+
+} // namespace Internal
+} // namespace CppEditor

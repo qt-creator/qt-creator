@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -41,8 +42,10 @@ def main():
     mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
     test.verify(waitFor("sessionName in str(mainWindow.windowTitle)", 2000),
                 "Verifying window title contains created session name.")
+    if canTestEmbeddedQtQuick():
+        checkWelcomePage(sessionName, True)
     for project in projects:
-        openQmakeProject(project)
+        openQmakeProject(project, Targets.DESKTOP_480_DEFAULT)
     progressBarWait(20000)
     checkNavigator(68, "Verifying whether all projects have been opened.")
     openDocument("propertyanimation.QML.qml.color-animation\\.qml")
@@ -52,6 +55,9 @@ def main():
     switchSession("default")
     test.verify(waitFor("'Qt Creator' == str(mainWindow.windowTitle)", 2000),
                 "Verifying window title is set to default.")
+    if canTestEmbeddedQtQuick():
+        checkWelcomePage(sessionName, False)
+        switchViewTo(ViewConstants.EDIT)
     checkNavigator(1, "Verifying that no more project is opened.")
     checkOpenDocuments(0, "Verifying whether all files have been closed.")
     switchSession(sessionName)
@@ -93,7 +99,7 @@ def switchSession(toSession):
 
 def createAndSwitchToSession(toSession):
     sessionInputDialog = ("{type='ProjectExplorer::Internal::SessionNameInputDialog' unnamed='1' "
-                          "visible='1' windowTitle='New session name'}")
+                          "visible='1' windowTitle='New Session Name'}")
     test.log("Switching to session '%s' after creating it." % toSession)
     invokeMenuItem("File", "Session Manager...")
     clickButton(waitForObject("{name='btCreateNew' text='New' type='QPushButton' visible='1' "
@@ -101,24 +107,26 @@ def createAndSwitchToSession(toSession):
     lineEdit = waitForObject("{type='QLineEdit' unnamed='1' visible='1' window=%s}"
                              % sessionInputDialog)
     replaceEditorContent(lineEdit, toSession)
-    clickButton(waitForObject("{text='Switch to' type='QPushButton' unnamed='1' visible='1' "
+    clickButton(waitForObject("{text='Switch To' type='QPushButton' unnamed='1' visible='1' "
                               "window=%s}" % sessionInputDialog))
 
 def checkWelcomePage(sessionName, isCurrent=False):
+    if isQt54Build:
+        welcomePage = ":WelcomePageStyledBar.WelcomePage_QQuickView"
+    else:
+        welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
     switchViewTo(ViewConstants.WELCOME)
-    mouseClick(waitForObject("{clip='false' container=':Qt Creator_QDeclarativeView' enabled='true'"
-                             " text='Develop' type='LinkedText' unnamed='1' visible='true'}"),
-                             5, 5, 0, Qt.LeftButton)
-    waitForObject("{clip='false' container=':Qt Creator_QDeclarativeView' enabled='true' "
-                  "text='Sessions' type='Text' unnamed='1' visible='true'}")
+    mouseClick(waitForObject("{container='%s' text='Projects' type='Button' "
+                             "unnamed='1' visible='true'}" % welcomePage))
+    waitForObject("{container='%s' id='sessionsTitle' text='Sessions' type='Text' "
+                  "unnamed='1' visible='true'}" % welcomePage)
     if isCurrent:
         sessions = ["default", "%s (current session)" % sessionName]
     else:
         sessions = ["default (current session)", sessionName]
     for sessionName in sessions:
-        test.verify(object.exists("{clip='false' container=':Qt Creator_QDeclarativeView' "
-                                  "enabled='true' type='LinkedText' "
-                                  "unnamed='1' visible='true' text='%s'}" % sessionName),
+        test.verify(object.exists("{container='%s' enabled='true' type='LinkedText' unnamed='1' "
+                                  "visible='true' text='%s'}" % (welcomePage, sessionName)),
                                   "Verifying session '%s' exists." % sessionName)
 
 def checkNavigator(expectedRows, message):

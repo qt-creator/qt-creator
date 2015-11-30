@@ -4,31 +4,34 @@ dll {
     DEFINES += QTCREATOR_UTILS_STATIC_LIB
 }
 
-QT += script network
+QT += gui network qml
 
 CONFIG += exceptions # used by portlist.cpp, textfileformat.cpp, and ssh/*
 
-win32-msvc* {
-    # disable warnings caused by botan headers
-    QMAKE_CXXFLAGS += -wd4250 -wd4290
-}
+win32: LIBS += -luser32 -lshell32
+# PortsGatherer
+win32: LIBS += -liphlpapi -lws2_32
 
 SOURCES += $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
     $$PWD/qtcprocess.cpp \
     $$PWD/reloadpromptutils.cpp \
+    $$PWD/shellcommand.cpp \
+    $$PWD/shellcommandpage.cpp \
     $$PWD/settingsselector.cpp \
     $$PWD/stringutils.cpp \
+    $$PWD/templateengine.cpp \
+    $$PWD/textfieldcheckbox.cpp \
+    $$PWD/textfieldcombobox.cpp \
     $$PWD/filesearch.cpp \
     $$PWD/pathchooser.cpp \
     $$PWD/pathlisteditor.cpp \
     $$PWD/wizard.cpp \
+    $$PWD/wizardpage.cpp \
     $$PWD/filewizardpage.cpp \
-    $$PWD/filewizarddialog.cpp \
     $$PWD/filesystemwatcher.cpp \
     $$PWD/projectintropage.cpp \
     $$PWD/filenamevalidatinglineedit.cpp \
-    $$PWD/projectnamevalidatinglineedit.cpp \
     $$PWD/codegeneration.cpp \
     $$PWD/newclasswidget.cpp \
     $$PWD/classnamevalidatinglineedit.cpp \
@@ -47,7 +50,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/checkablemessagebox.cpp \
     $$PWD/styledbar.cpp \
     $$PWD/stylehelper.cpp \
-    $$PWD/iwelcomepage.cpp \
     $$PWD/fancymainwindow.cpp \
     $$PWD/detailsbutton.cpp \
     $$PWD/detailswidget.cpp \
@@ -60,7 +62,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/buildablehelperlibrary.cpp \
     $$PWD/annotateditemdelegate.cpp \
     $$PWD/fileinprojectfinder.cpp \
-    $$PWD/ipaddresslineedit.cpp \
     $$PWD/statuslabel.cpp \
     $$PWD/outputformatter.cpp \
     $$PWD/flowlayout.cpp \
@@ -81,13 +82,23 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/hostosinfo.cpp \
     $$PWD/tooltip/tooltip.cpp \
     $$PWD/tooltip/tips.cpp \
-    $$PWD/tooltip/tipcontents.cpp \
     $$PWD/unixutils.cpp \
-    $$PWD/function.cpp \
     $$PWD/ansiescapecodehandler.cpp \
     $$PWD/execmenu.cpp \
     $$PWD/completinglineedit.cpp \
-    $$PWD/winutils.cpp
+    $$PWD/winutils.cpp \
+    $$PWD/itemviews.cpp \
+    $$PWD/treemodel.cpp \
+    $$PWD/treeviewcombobox.cpp \
+    $$PWD/proxycredentialsdialog.cpp \
+    $$PWD/macroexpander.cpp \
+    $$PWD/theme/theme.cpp \
+    $$PWD/progressindicator.cpp \
+    $$PWD/fadingindicator.cpp \
+    $$PWD/overridecursor.cpp \
+    $$PWD/categorysortfiltermodel.cpp \
+    $$PWD/dropsupport.cpp \
+    $$PWD/icon.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -99,18 +110,22 @@ HEADERS += \
     $$PWD/utils_global.h \
     $$PWD/reloadpromptutils.h \
     $$PWD/settingsselector.h \
+    $$PWD/shellcommand.h \
+    $$PWD/shellcommandpage.h \
     $$PWD/stringutils.h \
+    $$PWD/templateengine.h \
+    $$PWD/textfieldcheckbox.h \
+    $$PWD/textfieldcombobox.h \
     $$PWD/filesearch.h \
     $$PWD/listutils.h \
     $$PWD/pathchooser.h \
     $$PWD/pathlisteditor.h \
     $$PWD/wizard.h \
+    $$PWD/wizardpage.h \
     $$PWD/filewizardpage.h \
-    $$PWD/filewizarddialog.h \
     $$PWD/filesystemwatcher.h \
     $$PWD/projectintropage.h \
     $$PWD/filenamevalidatinglineedit.h \
-    $$PWD/projectnamevalidatinglineedit.h \
     $$PWD/codegeneration.h \
     $$PWD/newclasswidget.h \
     $$PWD/classnamevalidatinglineedit.h \
@@ -131,7 +146,6 @@ HEADERS += \
     $$PWD/qtcassert.h \
     $$PWD/styledbar.h \
     $$PWD/stylehelper.h \
-    $$PWD/iwelcomepage.h \
     $$PWD/fancymainwindow.h \
     $$PWD/detailsbutton.h \
     $$PWD/detailswidget.h \
@@ -144,7 +158,6 @@ HEADERS += \
     $$PWD/buildablehelperlibrary.h \
     $$PWD/annotateditemdelegate.h \
     $$PWD/fileinprojectfinder.h \
-    $$PWD/ipaddresslineedit.h \
     $$PWD/statuslabel.h \
     $$PWD/outputformatter.h \
     $$PWD/outputformat.h \
@@ -168,20 +181,45 @@ HEADERS += \
     $$PWD/elidinglabel.h \
     $$PWD/tooltip/tooltip.h \
     $$PWD/tooltip/tips.h \
-    $$PWD/tooltip/tipcontents.h \
     $$PWD/tooltip/reuse.h \
     $$PWD/tooltip/effects.h \
     $$PWD/unixutils.h \
-    $$PWD/qtcoverride.h \
-    $$PWD/function.h \
     $$PWD/ansiescapecodehandler.h \
     $$PWD/execmenu.h \
     $$PWD/completinglineedit.h \
-    $$PWD/logging.h \
-    $$PWD/winutils.h
+    $$PWD/winutils.h \
+    $$PWD/itemviews.h \
+    $$PWD/treemodel.h \
+    $$PWD/treeviewcombobox.h \
+    $$PWD/scopedswap.h \
+    $$PWD/algorithm.h \
+    $$PWD/QtConcurrentTools \
+    $$PWD/proxycredentialsdialog.h \
+    $$PWD/macroexpander.h \
+    $$PWD/theme/theme.h \
+    $$PWD/theme/theme_p.h \
+    $$PWD/progressindicator.h \
+    $$PWD/fadingindicator.h \
+    $$PWD/executeondestruction.h \
+    $$PWD/overridecursor.h \
+    $$PWD/categorysortfiltermodel.h \
+    $$PWD/dropsupport.h \
+    $$PWD/utilsicons.h \
+    $$PWD/icon.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
-    $$PWD/newclasswidget.ui
+    $$PWD/newclasswidget.ui \
+    $$PWD/proxycredentialsdialog.ui
 
 RESOURCES += $$PWD/utils.qrc
+
+osx {
+    HEADERS += \
+        $$PWD/fileutils_mac.h
+    OBJECTIVE_SOURCES += \
+        $$PWD/fileutils_mac.mm
+    LIBS += -framework Foundation
+}
+
+include(mimetypes/mimetypes.pri)

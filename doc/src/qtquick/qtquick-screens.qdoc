@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -24,10 +24,10 @@
 
 /*!
 
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage quick-scalable-image.html
     \page quick-screens.html
-    \nextpage quick-export-to-qml.html
+    \nextpage qtquick-iso-icon-browser.html
 
     \title Creating Screens
 
@@ -35,24 +35,23 @@
     screens. Typically, the main qml file in a Qt Quick project specifies the
     main window of an application.
 
-    The QML files in the project folder are displayed in \gui {QML Components}
-    in the \gui Library pane.
+    The QML files in the project folder are displayed in \uicontrol {QML Components}
+    in the \uicontrol Library.
 
     You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
     screens with a native look and feel for a particular target platform.
-    Since Qt 5.1, a set of Qt Quick Controls is available for creating classic
-    desktop-style user interfaces using Qt Quick 2.1. You
-    can install Qt Quick 1 Components as part of the Qt 4 SDK and the Qt Quick
-    Controls as part of Qt 5.1, or later.
+    Since Qt 5.1, Qt Quick Controls, Dialogs, and Layouts are available for
+    creating classic desktop-style user interfaces using Qt Quick 2.1. You can
+    use the Qt Quick Controls Styles to customize Qt Quick Controls.
 
     \section1 Adding Components to Screens
 
     \list 1
 
-        \li Drag and drop components from the \gui Library pane to the editor.
+        \li Drag and drop components from the \uicontrol Library to the editor.
 
-        \li Select components in the \gui Navigator pane to edit their
-            properties in the \gui Properties pane.
+        \li Select components in the \uicontrol Navigator to edit their
+            properties in the \uicontrol Properties pane.
 
             For example, you can anchor components to a position on the screen.
 
@@ -77,7 +76,7 @@
     When you add a GridView, ListView, or PathView, the ListModel and the
     delegate component that creates an instance for each item in the model are
     added automatically. You can edit item properties
-    in the \gui Properties pane or
+    in the \uicontrol Properties pane or
     in the code editor. You can also replace the default model and
     delegate with other, more complex models and delegates in the code editor.
 
@@ -108,7 +107,7 @@
 
     \l{Positioning with Bindings}
     {Property binding} is a declarative way of specifying the value of a property.
-    Binding allows a property value to be expressed as an JavaScript expression
+    Binding allows a property value to be expressed as a JavaScript expression
     that defines the value relative to other property values or data accessible
     in the application. The property value is automatically kept up to date if
     the other properties or data values change.
@@ -116,18 +115,17 @@
     Property bindings are created implicitly in QML whenever a property is
     assigned a JavaScript expression. To set JavaScript expressions as values of
     properties in \QMLD, click the circle icon next to a property to open a
-    context menu, and select \gui {Set Binding}.
+    context menu, and select \uicontrol {Set Binding}.
 
     \image qmldesigner-set-expression.png "Type properties context menu"
 
-    To remove bindings, select \gui Reset in the context menu.
+    To remove bindings, select \uicontrol Reset in the context menu.
 
     For more information on the JavaScript environment provided by QML, see
     \l{Integrating QML and JavaScript}.
 
     \QMLD cannot show bindings and using them might have a negative impact on
     performance, so consider setting anchors and margins for items, instead.
-
     For example, instead of setting \c {parent.width} for an item, you could
     anchor the item to its sibling items on the left and the right.
 
@@ -138,7 +136,7 @@
     invisible \e anchor lines: top, bottom, left, right, fill, horizontal
     center, vertical center, and baseline.
 
-    In the \gui Layout pane you can set anchors and margins for items. To set
+    In the \uicontrol Layout pane you can set anchors and margins for items. To set
     the anchors of an item, click the anchor buttons. You can combine the
     top/bottom, left/right, and horizontal/vertical anchors to anchor items in
     the corners of the parent item or center them horizontally or vertically
@@ -151,7 +149,7 @@
 
     For performance reasons, you can only anchor an item to its siblings and
     direct parent. By default, an item is anchored to its parent when you
-    use the anchor buttons. Select a sibling of the item in the \gui Target
+    use the anchor buttons. Select a sibling of the item in the \uicontrol Target
     field to anchor to it, instead.
 
     Arbitrary anchoring is not supported. For example, you cannot specify:
@@ -161,12 +159,12 @@
     to the opposite side: \c {anchor.left: sibling.right}. This allows you to keep
     sibling items together.
 
-    In the following image, \gui{Rectangle 2} is anchored to \gui{Rectangle 1}
+    In the following image, \uicontrol{Rectangle 2} is anchored to \uicontrol{Rectangle 1}
     on its left and to the bottom of its parent.
 
     \image qmldesigner-anchors.png "Anchoring sibling items"
 
-    The anchors for \gui{Rectangle 2} are specified as follows in code:
+    The anchors for \uicontrol{Rectangle 2} are specified as follows in code:
 
     \qml
     Rectangle {
@@ -209,7 +207,7 @@
     \endlist
 
     To lay out several items in a Column, Row, Grid, or Flow, select
-    the items on the canvas, and then select \gui Layout in the context
+    the items on the canvas, and then select \uicontrol Layout in the context
     menu.
 
     \section2 Using Layouts
@@ -224,7 +222,7 @@
     \list
 
         \li \l{Layout} provides attached properties for items pushed onto a
-            \gui {Column Layout}, \gui {Row Layout}, or \gui {Grid Layout}.
+            \uicontrol {Column Layout}, \uicontrol {Row Layout}, or \uicontrol {Grid Layout}.
 
         \li ColumnLayout provides a grid layout with only one column.
 
@@ -235,14 +233,14 @@
 
     \endlist
 
-    To lay out several items in a \gui {Column Layout}, \gui {Row Layout}, or
-    \gui {Grid Layout}, select the items on the canvas, and then select
-    \gui Layout in the context menu.
+    To lay out several items in a \uicontrol {Column Layout}, \uicontrol {Row Layout}, or
+    \uicontrol {Grid Layout}, select the items on the canvas, and then select
+    \uicontrol Layout in the context menu.
 
     To make an item within a layout as wide as possible while respecting the
     given constraints, select the item on the canvas and then select
-    \gui Layout > \gui {Fill Width} in the context menu. To make the item as
-    high as possible, select \gui {Fill Height}.
+    \uicontrol Layout > \uicontrol {Fill Width} in the context menu. To make the item as
+    high as possible, select \uicontrol {Fill Height}.
 
     \section2 Using Split Views
 
@@ -259,7 +257,7 @@
     controls, their properties and behavior and the available actions. For
     example, you can use states to create two screens.
 
-    To add states, click the empty slot in the \gui States pane. Then modify the
+    To add states, click the empty slot in the \uicontrol States pane. Then modify the
     new state in the visual editor.
 
     \image qmldesigner-states.png "States pane"
@@ -299,11 +297,11 @@
             \inlineimage qmldesigner-show-hide-icon.png
             icon to hide items on the canvas that are not part of a screen.
 
-        \li In the \gui States pane, click the empty slot to create a new state
+        \li In the \uicontrol States pane, click the empty slot to create a new state
             and give it a name. For example, \c Normal.
 
-        \li In the \gui Properties pane (2), deselect the \gui Visibility check box
-            or set \gui Opacity to 0 for each item that is not needed in this
+        \li In the \uicontrol Properties pane (2), deselect the \uicontrol Visibility check box
+            or set \uicontrol Opacity to 0 for each item that is not needed in this
             view. If you specify the setting for the parent item, all child
             items inherit it and are also hidden.
 
@@ -349,10 +347,6 @@
         \li \l{Flickable}
             items can be flicked horizontally or vertically.
 
-        \li \l{Flipable}
-            items can be flipped between their front and back sides by using
-            rotation, state, and transition.
-
         \li FocusScope
             assists in keyboard focus handling when building reusable QML
             components.
@@ -396,21 +390,27 @@
             down buttons, by pressing up or down on the keyboard, or by entering
             a value in the box.
 
+        \omit
+        Not visible in the item library in 3.2.
         \li StatusBar contains status information in your application. It
             does not provide a layout of its own, but requires you to position
-            its contents, for instance by creating a \gui {Row Layout}.
+            its contents, for instance by creating a \uicontrol {Row Layout}.
+        \endomit
 
         \li TextArea displays multiple lines of editable formatted text.
 
         \li TextField displays a single line of editable plain text.
 
+        \omit
+        Not visible in the item library in 3.2.
         \li ToolBar provides styling for ToolButton as well as other controls
             that it can contain. However, it does not provide a layout of its
             own, but requires you to position its contents, for instance by
-            creating a \gui {Row Layout}.
+            creating a \uicontrol {Row Layout}.
+        \endomit
 
         \li ToolButton provides a button that is functionally similar to
-            \gui Button, but that looks more suitable on a \gui {Tool Bar}.
+            \uicontrol Button, but that looks more suitable on a \uicontrol {Tool Bar}.
 
     \endlist
 

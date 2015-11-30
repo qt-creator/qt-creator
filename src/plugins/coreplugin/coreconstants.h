@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -37,11 +38,8 @@ namespace Constants {
 
 // Modes
 const char MODE_WELCOME[]          = "Welcome";
-const char MODE_WELCOME_TYPE[]     = "Type.Welcome";
 const char MODE_EDIT[]             = "Edit";
-const char MODE_EDIT_TYPE[]        = "Type.Edit";
 const char MODE_DESIGN[]           = "Design";
-const char MODE_DESIGN_TYPE[]      = "Type.Design";
 const int  P_MODE_WELCOME          = 100;
 const int  P_MODE_EDIT             = 90;
 const int  P_MODE_DESIGN           = 89;
@@ -100,9 +98,14 @@ const char OPTIONS[]               = "QtCreator.Options";
 const char TOGGLE_SIDEBAR[]        = "QtCreator.ToggleSidebar";
 const char TOGGLE_MODE_SELECTOR[]  = "QtCreator.ToggleModeSelector";
 const char TOGGLE_FULLSCREEN[]     = "QtCreator.ToggleFullScreen";
+const char THEMEOPTIONS[]          = "QtCreator.ThemeOptions";
+
+const char TR_SHOW_SIDEBAR[]       = QT_TRANSLATE_NOOP("Core", "Show Sidebar");
+const char TR_HIDE_SIDEBAR[]       = QT_TRANSLATE_NOOP("Core", "Hide Sidebar");
 
 const char MINIMIZE_WINDOW[]       = "QtCreator.MinimizeWindow";
 const char ZOOM_WINDOW[]           = "QtCreator.ZoomWindow";
+const char CLOSE_WINDOW[]           = "QtCreator.CloseWindow";
 
 const char SPLIT[]                 = "QtCreator.Split";
 const char SPLIT_SIDE_BY_SIDE[]    = "QtCreator.SplitSideBySide";
@@ -172,61 +175,33 @@ const char G_WINDOW_PANES[]        = "QtCreator.Group.Window.Panes";
 const char G_WINDOW_VIEWS[]        = "QtCreator.Group.Window.Views";
 const char G_WINDOW_SPLIT[]        = "QtCreator.Group.Window.Split";
 const char G_WINDOW_NAVIGATE[]     = "QtCreator.Group.Window.Navigate";
+const char G_WINDOW_LIST[]         = "QtCreator.Group.Window.List";
 const char G_WINDOW_OTHER[]        = "QtCreator.Group.Window.Other";
 
 // Help groups (global)
 const char G_HELP_HELP[]           = "QtCreator.Group.Help.Help";
 const char G_HELP_SUPPORT[]        = "QtCreator.Group.Help.Supprt";
 const char G_HELP_ABOUT[]          = "QtCreator.Group.Help.About";
-
-const char ICON_MINUS[]              = ":/core/images/minus.png";
-const char ICON_PLUS[]               = ":/core/images/plus.png";
-const char ICON_NEWFILE[]            = ":/core/images/filenew.png";
-const char ICON_OPENFILE[]           = ":/core/images/fileopen.png";
-const char ICON_SAVEFILE[]           = ":/core/images/filesave.png";
-const char ICON_UNDO[]               = ":/core/images/undo.png";
-const char ICON_REDO[]               = ":/core/images/redo.png";
-const char ICON_COPY[]               = ":/core/images/editcopy.png";
-const char ICON_PASTE[]              = ":/core/images/editpaste.png";
-const char ICON_CUT[]                = ":/core/images/editcut.png";
-const char ICON_NEXT[]               = ":/core/images/next.png";
-const char ICON_PREV[]               = ":/core/images/prev.png";
-const char ICON_DIR[]                = ":/core/images/dir.png";
-const char ICON_CLEAN_PANE[]         = ":/core/images/clean_pane_small.png";
-const char ICON_CLEAR[]              = ":/core/images/clear.png";
-const char ICON_RESET[]              = ":/core/images/reset.png";
-const char ICON_MAGNIFIER[]          = ":/core/images/magnifier.png";
-const char ICON_TOGGLE_SIDEBAR[]     = ":/core/images/sidebaricon.png";
-const char ICON_TOGGLE_TOPBAR[]      = ":/core/images/topbaricon.png";
-const char ICON_CLOSE_DOCUMENT[]     = ":/core/images/button_close.png";
-const char ICON_CLOSE[]              = ":/core/images/closebutton.png";
-const char ICON_CLOSE_DARK[]         = ":/core/images/darkclosebutton.png";
-const char ICON_SPLIT_HORIZONTAL[]   = ":/core/images/splitbutton_horizontal.png";
-const char ICON_SPLIT_VERTICAL[]     = ":/core/images/splitbutton_vertical.png";
-const char ICON_CLOSE_SPLIT_TOP[]    = ":/core/images/splitbutton_closetop.png";
-const char ICON_CLOSE_SPLIT_BOTTOM[] = ":/core/images/splitbutton_closebottom.png";
-const char ICON_CLOSE_SPLIT_LEFT[]   = ":/core/images/splitbutton_closeleft.png";
-const char ICON_CLOSE_SPLIT_RIGHT[]  = ":/core/images/splitbutton_closeright.png";
-const char ICON_SIDE_BY_SIDE_DIFF[]  = ":/core/images/sidebysidediff.png";
-const char ICON_TEXT_DIFF[]          = ":/core/images/textdiff.png";
-const char ICON_FILTER[]             = ":/core/images/filtericon.png";
-const char ICON_LINK[]               = ":/core/images/linkicon.png";
-const char ICON_QTLOGO_32[]          = ":/core/images/logo/32/QtProject-qtcreator.png";
-const char ICON_QTLOGO_64[]          = ":/core/images/logo/64/QtProject-qtcreator.png";
-const char ICON_QTLOGO_128[]         = ":/core/images/logo/128/QtProject-qtcreator.png";
+const char G_HELP_UPDATES[]        = "QtCreator.Group.Help.Updates";
 
 const char WIZARD_CATEGORY_QT[] = "R.Qt";
 const char WIZARD_TR_CATEGORY_QT[] = QT_TRANSLATE_NOOP("Core", "Qt");
+const char WIZARD_KIND_UNKNOWN[] = "unknown";
+const char WIZARD_KIND_PROJECT[] = "project";
+const char WIZARD_KIND_FILE[] = "file";
 
 const char SETTINGS_CATEGORY_CORE[] = "A.Core";
 const char SETTINGS_CATEGORY_CORE_ICON[] = ":/core/images/category_core.png";
 const char SETTINGS_TR_CATEGORY_CORE[] = QT_TRANSLATE_NOOP("Core", "Environment");
-const char SETTINGS_ID_ENVIRONMENT[] = "A.General";
-const char SETTINGS_ID_SHORTCUTS[] = "B.Keyboard";
-const char SETTINGS_ID_TOOLS[] = "C.ExternalTools";
-const char SETTINGS_ID_MIMETYPES[] = "D.MimeTypes";
+const char SETTINGS_ID_INTERFACE[] = "A.Interface";
+const char SETTINGS_ID_SYSTEM[] = "B.Core.System";
+const char SETTINGS_ID_SHORTCUTS[] = "C.Keyboard";
+const char SETTINGS_ID_TOOLS[] = "D.ExternalTools";
+const char SETTINGS_ID_MIMETYPES[] = "E.MimeTypes";
 
 const char SETTINGS_DEFAULTTEXTENCODING[] = "General/DefaultFileEncoding";
+
+const char SETTINGS_THEME[] = "Core/CreatorTheme";
 
 const char ALL_FILES_FILTER[]      = QT_TRANSLATE_NOOP("Core", "All Files (*)");
 

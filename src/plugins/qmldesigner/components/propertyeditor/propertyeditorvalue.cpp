@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -57,7 +53,7 @@ QVariant PropertyEditorValue::value() const
     return returnValue;
 }
 
-static bool cleverDoubleCompare(QVariant value1, QVariant value2)
+static bool cleverDoubleCompare(const QVariant &value1, const QVariant &value2)
 { //we ignore slight changes on doubles
     if ((value1.type() == QVariant::Double) && (value2.type() == QVariant::Double)) {
         int a = value1.toDouble() * 100;
@@ -69,7 +65,7 @@ static bool cleverDoubleCompare(QVariant value1, QVariant value2)
     return false;
 }
 
-static bool cleverColorCompare(QVariant value1, QVariant value2)
+static bool cleverColorCompare(const QVariant &value1, const QVariant &value2)
 {
     if ((value1.type() == QVariant::Color) && (value2.type() == QVariant::Color)) {
         QColor c1 = value1.value<QColor>();
@@ -101,7 +97,7 @@ static void fixAmbigousColorNames(const QmlDesigner::ModelNode &modelNode, const
             color = QColor(color.name());
             color.setAlpha(alpha);
             *value = color;
-        } else if (value->toString() != QLatin1String("transparent")) {
+        } else if (value->toString() != QStringLiteral("transparent")) {
             *value = QColor(value->toString()).name();
         }
     }
@@ -113,13 +109,24 @@ static void fixUrl(const QmlDesigner::ModelNode &modelNode, const QmlDesigner::P
             && (modelNode.metaInfo().propertyTypeName(name) == "QUrl"
                 || modelNode.metaInfo().propertyTypeName(name) == "url")) {
         if (!value->isValid())
-            *value = QString(QLatin1String(""));
+            *value = QStringLiteral("");
     }
+}
+
+static bool compareVariants(const QVariant &value1, const QVariant &value2)
+/* The comparison of variants is not symmetric because of implicit conversion.
+ * QVariant(string) == QVariant(QColor) does for example ignore the alpha channel,
+ * because the color is converted to a string ignoring the alpha channel.
+ * By comparing the variants in both directions we gain a symmetric comparison.
+ */
+{
+    return (value1 == value2)
+            && (value2 == value1);
 }
 
 void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 {
-    if (m_value != value || isBound()) {
+    if (!compareVariants(value, m_value ) || isBound()) {
         QVariant newValue = value;
         if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
             if (modelNode().metaInfo().propertyTypeName(name()) == "QUrl")
@@ -129,6 +136,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
             return;
         if (cleverColorCompare(newValue, m_value))
             return;
+
         setValue(newValue);
         m_isBound = false;
         emit valueChanged(name(), value);
@@ -139,7 +147,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 
 void PropertyEditorValue::setValue(const QVariant &value)
 {
-    if ((m_value != value) &&
+    if (!compareVariants(m_value, value) &&
         !cleverDoubleCompare(value, m_value) &&
         !cleverColorCompare(value, m_value))
 

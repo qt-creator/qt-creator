@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 AudioCodes Ltd.
+** Copyright (C) 2015 AudioCodes Ltd.
 ** Author: Orgad Shaneh <orgad.shaneh@audiocodes.com>
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -49,10 +50,10 @@ ActivitySelector::ActivitySelector(QWidget *parent) :
 {
     QTC_ASSERT(m_plugin->isUcm(), return);
 
-    QHBoxLayout *hboxLayout = new QHBoxLayout(this);
+    auto hboxLayout = new QHBoxLayout(this);
     hboxLayout->setContentsMargins(0, 0, 0, 0);
 
-    QLabel *lblActivity = new QLabel(tr("Select &activity:"));
+    auto lblActivity = new QLabel(tr("Select &activity:"));
     lblActivity->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     hboxLayout->addWidget(lblActivity);
 
@@ -63,18 +64,17 @@ ActivitySelector::ActivitySelector(QWidget *parent) :
     QString addText = tr("Add");
     if (!m_plugin->settings().autoAssignActivityName)
         addText.append(QLatin1String("..."));
-    QToolButton *btnAdd = new QToolButton;
+    auto btnAdd = new QToolButton;
     btnAdd->setText(addText);
     hboxLayout->addWidget(btnAdd);
 
-#ifndef QT_NO_SHORTCUT
     lblActivity->setBuddy(m_cmbActivity);
-#endif // QT_NO_SHORTCUT
 
-    connect(btnAdd, SIGNAL(clicked()), this, SLOT(newActivity()));
+    connect(btnAdd, &QToolButton::clicked, this, &ActivitySelector::newActivity);
 
     refresh();
-    connect(m_cmbActivity, SIGNAL(currentIndexChanged(int)), this, SLOT(userChanged()));
+    connect(m_cmbActivity, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &ActivitySelector::userChanged);
 }
 
 void ActivitySelector::userChanged()
@@ -87,7 +87,7 @@ bool ActivitySelector::refresh()
     int current;
     QList<QStringPair> activities = m_plugin->activities(&current);
     m_cmbActivity->clear();
-    foreach (QStringPair activity, activities)
+    foreach (const QStringPair &activity, activities)
         m_cmbActivity->addItem(activity.second, activity.first);
     m_cmbActivity->setCurrentIndex(current);
     m_cmbActivity->updateGeometry();
@@ -110,9 +110,11 @@ void ActivitySelector::setActivity(const QString &act)
 {
     int index = m_cmbActivity->findData(act);
     if (index != -1) {
-        disconnect(m_cmbActivity, SIGNAL(currentIndexChanged(int)), this, SLOT(userChanged()));
+        disconnect(m_cmbActivity, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                   this, &ActivitySelector::userChanged);
         m_cmbActivity->setCurrentIndex(index);
-        connect(m_cmbActivity, SIGNAL(currentIndexChanged(int)), this, SLOT(userChanged()));
+        connect(m_cmbActivity, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, &ActivitySelector::userChanged);
     }
 }
 

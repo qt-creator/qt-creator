@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -46,11 +47,11 @@ namespace ProjectExplorer {
 namespace Internal {
 
 
-AbstractMsvcToolChain::AbstractMsvcToolChain(const QString &id,
+AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId,
                                              Detection d,
                                              const Abi &abi,
                                              const QString& vcvarsBat) :
-    ToolChain(id, d),
+    ToolChain(typeId, d),
     m_lastEnvironment(Utils::Environment::systemEnvironment()),
     m_abi(abi),
     m_vcvarsBat(vcvarsBat)
@@ -61,12 +62,10 @@ AbstractMsvcToolChain::AbstractMsvcToolChain(const QString &id,
     Q_ASSERT(!m_vcvarsBat.isEmpty());
 }
 
-AbstractMsvcToolChain::AbstractMsvcToolChain(const QString &id, Detection d) :
-    ToolChain(id, d),
+AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Detection d) :
+    ToolChain(typeId, d),
     m_lastEnvironment(Utils::Environment::systemEnvironment())
-{
-
-}
+{ }
 
 Abi AbstractMsvcToolChain::targetAbi() const
 {
@@ -100,7 +99,8 @@ ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList 
 
     if (m_abi.osFlavor() == Abi::WindowsMsvc2010Flavor
             || m_abi.osFlavor() == Abi::WindowsMsvc2012Flavor
-            || m_abi.osFlavor() == Abi::WindowsMsvc2013Flavor)
+            || m_abi.osFlavor() == Abi::WindowsMsvc2013Flavor
+            || m_abi.osFlavor() == Abi::WindowsMsvc2015Flavor)
         flags |= StandardCxx11;
 
     return flags;
@@ -185,17 +185,17 @@ QString AbstractMsvcToolChain::makeCommand(const Utils::Environment &environment
     bool useJom = ProjectExplorerPlugin::projectExplorerSettings().useJom;
     const QString jom = QLatin1String("jom.exe");
     const QString nmake = QLatin1String("nmake.exe");
-    QString tmp;
+    Utils::FileName tmp;
 
     if (useJom) {
         tmp = environment.searchInPath(jom, QStringList()
                                        << QCoreApplication::applicationDirPath());
         if (!tmp.isEmpty())
-            return tmp;
+            return tmp.toString();
     }
     tmp = environment.searchInPath(nmake);
     if (!tmp.isEmpty())
-        return tmp;
+        return tmp.toString();
 
     // Nothing found :(
     return useJom ? jom : nmake;
@@ -205,7 +205,7 @@ Utils::FileName AbstractMsvcToolChain::compilerCommand() const
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
-    return Utils::FileName::fromString(env.searchInPath(QLatin1String("cl.exe")));
+    return env.searchInPath(QLatin1String("cl.exe"));
 }
 
 IOutputParser *AbstractMsvcToolChain::outputParser() const
@@ -243,17 +243,11 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
                                                         const QString &batchArgs,
                                                         QMap<QString, QString> &envPairs)
 {
+    const QByteArray marker = "####################\r\n";
     // Create a temporary file name for the output. Use a temporary file here
     // as I don't know another way to do this in Qt...
     // Note, can't just use a QTemporaryFile all the way through as it remains open
     // internally so it can't be streamed to later.
-    QString tempOutFile;
-    QTemporaryFile* pVarsTempFile = new QTemporaryFile(QDir::tempPath() + QLatin1String("/XXXXXX.txt"));
-    pVarsTempFile->setAutoRemove(false);
-    pVarsTempFile->open();
-    pVarsTempFile->close();
-    tempOutFile = pVarsTempFile->fileName();
-    delete pVarsTempFile;
 
     // Create a batch file to create and save the env settings
     Utils::TempFileSaver saver(QDir::tempPath() + QLatin1String("/XXXXXX.bat"));
@@ -265,10 +259,9 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
         call += batchArgs.toLocal8Bit();
     }
     saver.write(call + "\r\n");
-
-    const QByteArray redirect = "set > " + Utils::QtcProcess::quoteArg(
-                                    QDir::toNativeSeparators(tempOutFile)).toLocal8Bit() + "\r\n";
-    saver.write(redirect);
+    saver.write("@echo " + marker);
+    saver.write("set\r\n");
+    saver.write("@echo " + marker);
     if (!saver.finalize()) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
         return false;
@@ -280,14 +273,14 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     // if Creator is launched within a session set up by setenv.cmd.
     env.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(env);
-    QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    Utils::FileName cmdPath = Utils::FileName::fromUserInput(QString::fromLocal8Bit(qgetenv("COMSPEC")));
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
     QString cmdArguments = QLatin1String(" /E:ON /V:ON /c \"");
     cmdArguments += QDir::toNativeSeparators(saver.fileName());
     cmdArguments += QLatin1Char('"');
-    run.setCommand(cmdPath, cmdArguments);
+    run.setCommand(cmdPath.toString(), cmdArguments);
     if (debug)
         qDebug() << "readEnvironmentSetting: " << call << cmdPath << cmdArguments
                  << " Env: " << env.size();
@@ -304,19 +297,31 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
         return false;
     }
     // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
-    const QByteArray stdOut = run.readAllStandardOutput();
+    QByteArray stdOut = run.readAllStandardOutput();
     if (!stdOut.isEmpty() && (stdOut.contains("Unknown") || stdOut.contains("Error")))
         qWarning("%s: '%s' reports:\n%s", Q_FUNC_INFO, call.constData(), stdOut.constData());
 
     //
     // Now parse the file to get the environment settings
-    QFile varsFile(tempOutFile);
-    if (!varsFile.open(QIODevice::ReadOnly))
+    int start = stdOut.indexOf(marker);
+    if (start == -1) {
+        qWarning("Could not find start marker in stdout output.");
         return false;
+    }
 
+    stdOut = stdOut.mid(start + marker.size());
+
+    int end = stdOut.indexOf(marker);
+    if (end == -1) {
+        qWarning("Could not find end marker in stdout output.");
+        return false;
+    }
+
+    stdOut = stdOut.left(end);
+
+    QStringList lines = QString::fromLocal8Bit(stdOut).split(QLatin1String("\r\n"));
     QRegExp regexp(QLatin1String("(\\w*)=(.*)"));
-    while (!varsFile.atEnd()) {
-        const QString line = QString::fromLocal8Bit(varsFile.readLine()).trimmed();
+    foreach (const QString &line, lines) {
         if (regexp.exactMatch(line)) {
             const QString varName = regexp.cap(1);
             const QString varValue = regexp.cap(2);
@@ -325,10 +330,6 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
                 envPairs.insert(varName, varValue);
         }
     }
-
-    // Tidy up and remove the file
-    varsFile.close();
-    varsFile.remove();
 
     return true;
 }

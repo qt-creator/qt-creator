@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 ** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,6 +36,7 @@
 #include "valgrindplugin.h"
 
 #include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzerutils.h>
 #include <analyzerbase/analyzerconstants.h>
 
 #include <valgrind/valgrindsettings.h>
@@ -48,6 +50,7 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
@@ -58,7 +61,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
@@ -81,7 +84,6 @@
 #include <QSpinBox>
 #include <QAction>
 #include <QMenu>
-#include <QMessageBox>
 #include <QToolButton>
 #include <QCheckBox>
 #include <utils/stylehelper.h>
@@ -92,6 +94,7 @@ using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
 namespace Internal {
+const Core::Id MemcheckToolId = "Memcheck";
 
 // ---------------------------- MemcheckErrorFilterProxyModel
 MemcheckErrorFilterProxyModel::MemcheckErrorFilterProxyModel(QObject *parent)
@@ -142,8 +145,13 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         // assume this error was created by an external library
         QSet<QString> validFolders;
         foreach (Project *project, SessionManager::projects()) {
-            validFolders << project->projectDirectory();
+            validFolders << project->projectDirectory().toString();
             foreach (Target *target, project->targets()) {
+                foreach (const DeployableFile &file,
+                         target->deploymentData().allFiles()) {
+                    if (file.isExecutable())
+                        validFolders << file.remoteDirectory();
+                }
                 foreach (BuildConfiguration *config, target->buildConfigurations())
                     validFolders << config->buildDirectory().toString();
             }
@@ -157,7 +165,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         for (int i = 0; i < framesToLookAt; ++i) {
             const Frame &frame = frames.at(i);
             foreach (const QString &folder, validFolders) {
-                if (frame.object().startsWith(folder)) {
+                if (frame.directory().startsWith(folder)) {
                     inProject = true;
                     break;
                 }
@@ -170,23 +178,21 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
     return true;
 }
 
-static void initKindFilterAction(QAction *action, const QList<int> &kinds)
+static void initKindFilterAction(QAction *action, const QVariantList &kinds)
 {
     action->setCheckable(true);
-    QVariantList data;
-    foreach (int kind, kinds)
-        data << kind;
-    action->setData(data);
+    action->setData(kinds);
 }
 
 MemcheckTool::MemcheckTool(QObject *parent)
-  : ValgrindTool(parent)
+  : QObject(parent)
 {
     m_settings = 0;
     m_errorModel = 0;
     m_errorProxyModel = 0;
     m_errorView = 0;
     m_filterMenu = 0;
+
     setObjectName(QLatin1String("MemcheckTool"));
 
     m_filterProjectAction = new QAction(tr("External Errors"), this);
@@ -200,21 +206,21 @@ MemcheckTool::MemcheckTool(QObject *parent)
         tr("These suppression files were used in the last memory analyzer run."));
 
     QAction *a = new QAction(tr("Definite Memory Leaks"), this);
-    initKindFilterAction(a, QList<int>() << Leak_DefinitelyLost << Leak_IndirectlyLost);
+    initKindFilterAction(a, { Leak_DefinitelyLost, Leak_IndirectlyLost });
     m_errorFilterActions.append(a);
 
     a = new QAction(tr("Possible Memory Leaks"), this);
-    initKindFilterAction(a, QList<int>() << Leak_PossiblyLost << Leak_StillReachable);
+    initKindFilterAction(a, { Leak_PossiblyLost, Leak_StillReachable });
     m_errorFilterActions.append(a);
 
     a = new QAction(tr("Use of Uninitialized Memory"), this);
-    initKindFilterAction(a, QList<int>() << InvalidRead << InvalidWrite << InvalidJump << Overlap
-                         << InvalidMemPool << UninitCondition << UninitValue
-                         << SyscallParam << ClientCheck);
+    initKindFilterAction(a, { InvalidRead, InvalidWrite, InvalidJump, Overlap,
+                              InvalidMemPool, UninitCondition, UninitValue,
+                              SyscallParam, ClientCheck });
     m_errorFilterActions.append(a);
 
     a = new QAction(tr("Invalid Calls to \"free()\""), this);
-    initKindFilterAction(a, QList<int>() << InvalidFree << MismatchedFree);
+    initKindFilterAction(a, { InvalidFree,  MismatchedFree });
     m_errorFilterActions.append(a);
 }
 
@@ -240,12 +246,12 @@ void MemcheckTool::updateFromSettings()
     m_filterProjectAction->setChecked(!m_settings->filterExternalIssues());
     m_errorView->settingsChanged(m_settings);
 
-    connect(m_settings, SIGNAL(visibleErrorKindsChanged(QList<int>)),
-            m_errorProxyModel, SLOT(setAcceptedKinds(QList<int>)));
+    connect(m_settings, &ValgrindBaseSettings::visibleErrorKindsChanged,
+            m_errorProxyModel, &MemcheckErrorFilterProxyModel::setAcceptedKinds);
     m_errorProxyModel->setAcceptedKinds(m_settings->visibleErrorKinds());
 
-    connect(m_settings, SIGNAL(filterExternalIssuesChanged(bool)),
-            m_errorProxyModel, SLOT(setFilterExternalIssues(bool)));
+    connect(m_settings, &ValgrindBaseSettings::filterExternalIssuesChanged,
+            m_errorProxyModel, &MemcheckErrorFilterProxyModel::setFilterExternalIssues);
     m_errorProxyModel->setFilterExternalIssues(m_settings->filterExternalIssues());
 }
 
@@ -273,19 +279,9 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     // now make the new settings current, update and connect input widgets
     m_settings = settings;
     QTC_ASSERT(m_settings, return);
-    connect(m_settings, SIGNAL(destroyed(QObject*)), SLOT(settingsDestroyed(QObject*)));
+    connect(m_settings, &ValgrindBaseSettings::destroyed, this, &MemcheckTool::settingsDestroyed);
 
     updateFromSettings();
-}
-
-RunMode MemcheckTool::runMode() const
-{
-    return MemcheckRunMode;
-}
-
-IAnalyzerTool::ToolMode MemcheckTool::toolMode() const
-{
-    return DebugMode;
 }
 
 class FrameFinder : public ErrorListModel::RelevantFrameFinder
@@ -304,11 +300,11 @@ public:
         //find the first frame belonging to the project
         if (!m_projectFiles.isEmpty()) {
             foreach (const Frame &frame, frames) {
-                if (frame.directory().isEmpty() || frame.file().isEmpty())
+                if (frame.directory().isEmpty() || frame.fileName().isEmpty())
                     continue;
 
                 //filepaths can contain "..", clean them:
-                const QString f = QFileInfo(frame.directory() + QLatin1Char('/') + frame.file()).absoluteFilePath();
+                const QString f = QFileInfo(frame.filePath()).absoluteFilePath();
                 if (m_projectFiles.contains(f))
                     return frame;
             }
@@ -358,14 +354,14 @@ QWidget *MemcheckTool::createWidgets()
     m_errorView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_errorView->setAutoScroll(false);
     m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
+    m_errorView->setWindowTitle(tr("Memory Issues"));
 
-    QDockWidget *errorDock = AnalyzerManager::createDockWidget
-        (this, tr("Memory Issues"), m_errorView, Qt::BottomDockWidgetArea);
+    QDockWidget *errorDock = AnalyzerManager::createDockWidget(MemcheckToolId, m_errorView);
     errorDock->show();
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 
-    connect(ProjectExplorerPlugin::instance(),
-            SIGNAL(updateRunActions()), SLOT(maybeActiveRunConfigurationChanged()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+            this, &MemcheckTool::maybeActiveRunConfigurationChanged);
 
     //
     // The Control Widget.
@@ -379,9 +375,9 @@ QWidget *MemcheckTool::createWidgets()
 
     // Load external XML log file
     action = new QAction(this);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_OPENFILE)));
+    action->setIcon(Core::Icons::OPENFILE.icon());
     action->setToolTip(tr("Load External XML Log File"));
-    connect(action, SIGNAL(triggered(bool)), this, SLOT(loadExternalXmlLogFile()));
+    connect(action, &QAction::triggered, this, &MemcheckTool::loadExternalXmlLogFile);
     button = new QToolButton;
     button->setDefaultAction(action);
     layout->addWidget(button);
@@ -390,9 +386,9 @@ QWidget *MemcheckTool::createWidgets()
     // Go to previous leak.
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PREV)));
+    action->setIcon(Core::Icons::PREV.icon());
     action->setToolTip(tr("Go to previous leak."));
-    connect(action, SIGNAL(triggered(bool)), m_errorView, SLOT(goBack()));
+    connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goBack);
     button = new QToolButton;
     button->setDefaultAction(action);
     layout->addWidget(button);
@@ -401,18 +397,19 @@ QWidget *MemcheckTool::createWidgets()
     // Go to next leak.
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_NEXT)));
+    action->setIcon(Core::Icons::NEXT.icon());
     action->setToolTip(tr("Go to next leak."));
-    connect(action, SIGNAL(triggered(bool)), m_errorView, SLOT(goNext()));
+    connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goNext);
     button = new QToolButton;
     button->setDefaultAction(action);
     layout->addWidget(button);
     m_goNext = action;
 
     QToolButton *filterButton = new QToolButton;
-    filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    filterButton->setIcon(Core::Icons::FILTER.icon());
     filterButton->setText(tr("Error Filter"));
     filterButton->setPopupMode(QToolButton::InstantPopup);
+    filterButton->setProperty("noArrow", true);
 
     m_filterMenu = new QMenu(filterButton);
     foreach (QAction *filterAction, m_errorFilterActions)
@@ -420,7 +417,7 @@ QWidget *MemcheckTool::createWidgets()
     m_filterMenu->addSeparator();
     m_filterMenu->addAction(m_filterProjectAction);
     m_filterMenu->addAction(m_suppressionSeparator);
-    connect(m_filterMenu, SIGNAL(triggered(QAction*)), SLOT(updateErrorFilter()));
+    connect(m_filterMenu, &QMenu::triggered, this, &MemcheckTool::updateErrorFilter);
     filterButton->setMenu(m_filterMenu);
     layout->addWidget(filterButton);
 
@@ -431,21 +428,18 @@ QWidget *MemcheckTool::createWidgets()
     return widget;
 }
 
-AnalyzerRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters &sp,
+MemcheckRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters &sp,
                                             RunConfiguration *runConfiguration)
 {
     m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
         ->project()->files(Project::AllFiles) : QStringList());
 
-    MemcheckRunControl *engine = new MemcheckRunControl(sp, runConfiguration);
+    MemcheckRunControl *engine = createMemcheckRunControl(sp, runConfiguration);
 
-    connect(engine, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
-            this, SLOT(engineStarting(const Analyzer::AnalyzerRunControl*)));
-    connect(engine, SIGNAL(parserError(Valgrind::XmlProtocol::Error)),
-            this, SLOT(parserError(Valgrind::XmlProtocol::Error)));
-    connect(engine, SIGNAL(internalParserError(QString)),
-            this, SLOT(internalParserError(QString)));
-    connect(engine, SIGNAL(finished()), this, SLOT(engineFinished()));
+    connect(engine, &MemcheckRunControl::starting, this, &MemcheckTool::engineStarting);
+    connect(engine, &MemcheckRunControl::parserError, this, &MemcheckTool::parserError);
+    connect(engine, &MemcheckRunControl::internalParserError, this, &MemcheckTool::internalParserError);
+    connect(engine, &MemcheckRunControl::finished, this, &MemcheckTool::engineFinished);
     return engine;
 }
 
@@ -457,20 +451,19 @@ void MemcheckTool::engineStarting(const AnalyzerRunControl *engine)
 
     QString dir;
     if (RunConfiguration *rc = engine->runConfiguration())
-        dir = rc->target()->project()->projectDirectory() + QDir::separator();
+        dir = rc->target()->project()->projectDirectory().toString() + QLatin1Char('/');
 
     const MemcheckRunControl *mEngine = dynamic_cast<const MemcheckRunControl *>(engine);
     QTC_ASSERT(mEngine, return);
-    const QString name = QFileInfo(mEngine->executable()).fileName();
+    const QString name = Utils::FileName::fromString(mEngine->executable()).fileName();
 
     m_errorView->setDefaultSuppressionFile(dir + name + QLatin1String(".supp"));
 
     foreach (const QString &file, mEngine->suppressionFiles()) {
-        QAction *action = m_filterMenu->addAction(QFileInfo(file).fileName());
+        QAction *action = m_filterMenu->addAction(Utils::FileName::fromString(file).fileName());
         action->setToolTip(file);
         action->setData(file);
-        connect(action, SIGNAL(triggered(bool)),
-                this, SLOT(suppressionActionTriggered()));
+        connect(action, &QAction::triggered, this, &MemcheckTool::suppressionActionTriggered);
         m_suppressionActions.append(action);
     }
 }
@@ -498,8 +491,8 @@ void MemcheckTool::loadExternalXmlLogFile()
     QFile *logFile = new QFile(filePath);
     if (!logFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
         delete logFile;
-        QMessageBox::critical(m_errorView, tr("Internal Error"),
-            tr("Failed to open file for reading: %1").arg(filePath));
+        AnalyzerUtils::logToIssuesPane(Task::Error,
+                tr("Memcheck: Failed to open file for reading: %1").arg(filePath));
         return;
     }
 
@@ -514,25 +507,23 @@ void MemcheckTool::loadExternalXmlLogFile()
     }
 
     ThreadedParser *parser = new ThreadedParser;
-    connect(parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-            this, SLOT(parserError(Valgrind::XmlProtocol::Error)));
-    connect(parser, SIGNAL(internalError(QString)),
-            this, SLOT(internalParserError(QString)));
-    connect(parser, SIGNAL(finished()), this, SLOT(loadingExternalXmlLogFileFinished()));
-    connect(parser, SIGNAL(finished()), parser, SLOT(deleteLater()));
+    connect(parser, &ThreadedParser::error, this, &MemcheckTool::parserError);
+    connect(parser, &ThreadedParser::internalError, this, &MemcheckTool::internalParserError);
+    connect(parser, &ThreadedParser::finished, this, &MemcheckTool::loadingExternalXmlLogFileFinished);
+    connect(parser, &ThreadedParser::finished, parser, &ThreadedParser::deleteLater);
 
     parser->parse(logFile); // ThreadedParser owns the file
 }
 
-void MemcheckTool::parserError(const Valgrind::XmlProtocol::Error &error)
+void MemcheckTool::parserError(const Error &error)
 {
     m_errorModel->addError(error);
 }
 
 void MemcheckTool::internalParserError(const QString &errorString)
 {
-    QMessageBox::critical(m_errorView, tr("Internal Error"),
-        tr("Error occurred parsing Valgrind output: %1").arg(errorString));
+    AnalyzerUtils::logToIssuesPane(Task::Error,
+            tr("Memcheck: Error occurred parsing Valgrind output: %1").arg(errorString));
 }
 
 void MemcheckTool::clearErrorView()
@@ -576,10 +567,16 @@ int MemcheckTool::updateUiAfterFinishedHelper()
     return issuesFound;
 }
 
+MemcheckRunControl *MemcheckTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,
+                                                           RunConfiguration *runConfiguration)
+{
+    return new MemcheckRunControl(sp, runConfiguration);
+}
+
 void MemcheckTool::engineFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showStatusMessage(issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(MemcheckToolId, issuesFound > 0
         ? AnalyzerManager::tr("Memory Analyzer Tool finished, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Memory Analyzer Tool finished, no issues were found."));
 }
@@ -587,7 +584,7 @@ void MemcheckTool::engineFinished()
 void MemcheckTool::loadingExternalXmlLogFileFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
-    AnalyzerManager::showStatusMessage(issuesFound > 0
+    AnalyzerManager::showPermanentStatusMessage(MemcheckToolId, issuesFound > 0
         ? AnalyzerManager::tr("Log file processed, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Log file processed, no issues were found."));
 }
@@ -596,6 +593,18 @@ void MemcheckTool::setBusyCursor(bool busy)
 {
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_errorView->setCursor(cursor);
+}
+
+MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :
+    MemcheckTool(parent)
+{
+    setObjectName(QLatin1String("MemcheckWithGdbTool"));
+}
+
+MemcheckRunControl *MemcheckWithGdbTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,
+                                                                  RunConfiguration *runConfiguration)
+{
+    return new MemcheckWithGdbRunControl(sp, runConfiguration);
 }
 
 } // namespace Internal

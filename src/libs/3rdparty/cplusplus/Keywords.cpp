@@ -674,7 +674,7 @@ static inline int classify7(const char *s, LanguageFeatures features)
       }
     }
   }
-  else if (features.qtEnabled && s[0] == 's') {
+  else if (features.qtKeywordsEnabled && s[0] == 's') {
     if (s[1] == 'i') {
       if (s[2] == 'g') {
         if (s[3] == 'n') {
@@ -1317,6 +1317,22 @@ static inline int classify11(const char *s, LanguageFeatures features)
                     if (s[9] == 't') {
                       if (s[10] == 'e') {
                         return T___ATTRIBUTE;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        } else if (s[3] == 'l') {
+          if (s[4] == 'i') {
+            if (s[5] == 'g') {
+              if (s[6] == 'n') {
+                if (s[7] == 'o') {
+                  if (s[8] == 'f') {
+                    if (s[9] == '_') {
+                      if (s[10] == '_') {
+                        return T___ALIGNOF__;
                       }
                     }
                   }

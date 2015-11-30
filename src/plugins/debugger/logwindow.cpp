@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,7 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
+#include "debuggericons.h"
 
 #include <QDebug>
 #include <QTime>
@@ -53,6 +55,7 @@
 #include <utils/savedaction.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
+#include <utils/theme/theme.h>
 
 namespace Debugger {
 namespace Internal {
@@ -73,26 +76,28 @@ public:
 private:
     void highlightBlock(const QString &text)
     {
+        using Utils::Theme;
         QTextCharFormat format;
+        Theme *theme = Utils::creatorTheme();
         switch (LogWindow::channelForChar(text.isEmpty() ? QChar() : text.at(0))) {
             case LogInput:
-                format.setForeground(Qt::blue);
+                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogInput));
                 setFormat(1, text.size(), format);
                 break;
             case LogStatus:
-                format.setForeground(Qt::darkGreen);
+                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogStatus));
                 setFormat(1, text.size(), format);
                 break;
             case LogWarning:
-                format.setForeground(Qt::darkYellow);
+                format.setForeground(theme->color(Theme::OutputPanes_WarningMessageTextColor));
                 setFormat(1, text.size(), format);
                 break;
             case LogError:
-                format.setForeground(Qt::red);
+                format.setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
                 setFormat(1, text.size(), format);
                 break;
             case LogTime:
-                format.setForeground(Qt::darkRed);
+                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogTime));
                 setFormat(1, text.size(), format);
                 break;
             default:
@@ -124,9 +129,11 @@ public:
 private:
     void highlightBlock(const QString &text)
     {
+        using Utils::Theme;
+        Theme *theme = Utils::creatorTheme();
         if (text.size() > 3 && text.at(2) == QLatin1Char(':')) {
             QTextCharFormat format;
-            format.setForeground(Qt::darkRed);
+            format.setForeground(theme->color(Theme::Debugger_LogWindow_LogTime));
             setFormat(1, text.size(), format);
         }
     }
@@ -144,27 +151,27 @@ class DebuggerPane : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    DebuggerPane(QWidget *parent)
+    DebuggerPane(LogWindow *parent)
         : QPlainTextEdit(parent)
     {
         setFrameStyle(QFrame::NoFrame);
         m_clearContentsAction = new QAction(this);
         m_clearContentsAction->setText(tr("Clear Contents"));
         m_clearContentsAction->setEnabled(true);
-        connect(m_clearContentsAction, SIGNAL(triggered(bool)),
-            parent, SLOT(clearContents()));
+        connect(m_clearContentsAction, &QAction::triggered,
+                parent, &LogWindow::clearContents);
 
         m_saveContentsAction = new QAction(this);
         m_saveContentsAction->setText(tr("Save Contents"));
         m_saveContentsAction->setEnabled(true);
-        connect(m_saveContentsAction, SIGNAL(triggered()),
-            this, SLOT(saveContents()));
+        connect(m_saveContentsAction, &QAction::triggered,
+                this, &DebuggerPane::saveContents);
 
         m_reloadDebuggingHelpersAction = new QAction(this);
         m_reloadDebuggingHelpersAction->setText(tr("Reload Debugging Helpers"));
         m_reloadDebuggingHelpersAction->setEnabled(true);
-        connect(m_reloadDebuggingHelpersAction, SIGNAL(triggered()),
-            this, SLOT(reloadDebuggingHelpers()));
+        connect(m_reloadDebuggingHelpersAction, &QAction::triggered,
+                this, &DebuggerPane::reloadDebuggingHelpers);
     }
 
     void contextMenuEvent(QContextMenuEvent *ev)
@@ -172,11 +179,11 @@ public:
         QMenu *menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
-        menu->addAction(debuggerCore()->action(LogTimeStamps));
-        menu->addAction(debuggerCore()->action(VerboseLog));
+        menu->addAction(action(LogTimeStamps));
+        menu->addAction(action(VerboseLog));
         menu->addAction(m_reloadDebuggingHelpersAction);
         menu->addSeparator();
-        menu->addAction(debuggerCore()->action(SettingsDialog));
+        menu->addAction(action(SettingsDialog));
         menu->exec(ev->globalPos());
         delete menu;
     }
@@ -208,11 +215,10 @@ public:
         setUndoRedoEnabled(true);
     }
 
-private slots:
+private:
     void saveContents();
     void reloadDebuggingHelpers();
 
-private:
     QAction *m_clearContentsAction;
     QAction *m_saveContentsAction;
     QAction *m_reloadDebuggingHelpersAction;
@@ -225,7 +231,7 @@ void DebuggerPane::saveContents()
 
 void DebuggerPane::reloadDebuggingHelpers()
 {
-    debuggerCore()->currentEngine()->reloadDebuggingHelpers();
+    currentEngine()->reloadDebuggingHelpers();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -238,7 +244,7 @@ class InputPane : public DebuggerPane
 {
     Q_OBJECT
 public:
-    InputPane(QWidget *parent)
+    InputPane(LogWindow *parent)
         : DebuggerPane(parent)
     {
         (void) new InputHighlighter(this);
@@ -304,7 +310,7 @@ class CombinedPane : public DebuggerPane
 {
     Q_OBJECT
 public:
-    CombinedPane(QWidget *parent)
+    CombinedPane(LogWindow *parent)
         : DebuggerPane(parent)
     {
         (void) new OutputHighlighter(this);
@@ -353,7 +359,7 @@ LogWindow::LogWindow(QWidget *parent)
 
     m_ignoreNextInputEcho = false;
 
-    QSplitter *m_splitter = new Core::MiniSplitter(Qt::Horizontal);
+    auto m_splitter = new Core::MiniSplitter(Qt::Horizontal);
     m_splitter->setParent(this);
 
     // Mixed input/output.
@@ -373,25 +379,25 @@ LogWindow::LogWindow(QWidget *parent)
     m_commandEdit->setFrame(false);
     m_commandEdit->setHistoryCompleter(QLatin1String("DebuggerInput"));
 
-    QToolButton *repeatButton = new QToolButton(this);
-    repeatButton->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepover_small.png")));
-    repeatButton->setIconSize(QSize(12, 12));
+    auto repeatButton = new QToolButton(this);
+    repeatButton->setIcon(Icons::STEP_OVER_TOOLBUTTON.icon());
+    repeatButton->setFixedSize(QSize(18, 18));
     repeatButton->setToolTip(tr("Repeat last command for debug reasons."));
 
-    QHBoxLayout *commandBox = new QHBoxLayout;
+    auto commandBox = new QHBoxLayout;
     commandBox->addWidget(repeatButton);
     commandBox->addWidget(new QLabel(tr("Command:"), this));
     commandBox->addWidget(m_commandEdit);
     commandBox->setMargin(2);
     commandBox->setSpacing(6);
 
-    QVBoxLayout *leftBox = new QVBoxLayout;
+    auto leftBox = new QVBoxLayout;
     leftBox->addWidget(m_inputText);
     leftBox->addItem(commandBox);
     leftBox->setMargin(0);
     leftBox->setSpacing(0);
 
-    QWidget *leftDummy = new QWidget;
+    auto leftDummy = new QWidget;
     leftDummy->setLayout(leftBox);
 
     m_splitter->addWidget(leftDummy);
@@ -399,14 +405,14 @@ LogWindow::LogWindow(QWidget *parent)
     m_splitter->setStretchFactor(0, 1);
     m_splitter->setStretchFactor(1, 3);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_splitter);
     layout->addWidget(new Core::FindToolBarPlaceHolder(this));
     setLayout(layout);
 
-    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
+    auto aggregate = new Aggregation::Aggregate;
     aggregate->add(m_combinedText);
     aggregate->add(new Core::BaseTextFind(m_combinedText));
 
@@ -418,14 +424,15 @@ LogWindow::LogWindow(QWidget *parent)
         SIGNAL(statusMessageRequested(QString,int)));
     connect(m_inputText, SIGNAL(commandSelected(int)),
         m_combinedText, SLOT(gotoResult(int)));
-    connect(m_commandEdit, SIGNAL(returnPressed()),
-        SLOT(sendCommand()));
+    connect(m_commandEdit, &QLineEdit::returnPressed,
+            this, &LogWindow::sendCommand);
     connect(m_inputText, SIGNAL(executeLineRequested()),
         SLOT(executeLine()));
-    connect(repeatButton, SIGNAL(clicked()),
-        SLOT(repeatLastCommand()));
+    connect(repeatButton, &QAbstractButton::clicked,
+            this, &LogWindow::repeatLastCommand);
 
-    connect(&m_outputTimer, SIGNAL(timeout()), SLOT(doOutput()));
+    connect(&m_outputTimer, &QTimer::timeout,
+            this, &LogWindow::doOutput);
 
     setMinimumHeight(60);
 }
@@ -433,18 +440,18 @@ LogWindow::LogWindow(QWidget *parent)
 void LogWindow::executeLine()
 {
     m_ignoreNextInputEcho = true;
-    debuggerCore()->currentEngine()->
+    currentEngine()->
         executeDebuggerCommand(m_inputText->textCursor().block().text(), CppLanguage);
 }
 
 void LogWindow::repeatLastCommand()
 {
-    debuggerCore()->currentEngine()->debugLastCommand();
+    currentEngine()->debugLastCommand();
 }
 
 void LogWindow::sendCommand()
 {
-    DebuggerEngine *engine = debuggerCore()->currentEngine();
+    DebuggerEngine *engine = currentEngine();
     if (engine->acceptsDebuggerCommands())
         engine->executeDebuggerCommand(m_commandEdit->text(), CppLanguage);
     else
@@ -462,7 +469,7 @@ void LogWindow::showOutput(int channel, const QString &output)
     QString out;
     out.reserve(output.size() + 1000);
 
-    if (output.at(0) != QLatin1Char('~') && debuggerCore()->boolSetting(LogTimeStamps)) {
+    if (output.at(0) != QLatin1Char('~') && boolSetting(LogTimeStamps)) {
         out.append(charForChannel(LogTime));
         out.append(logTimeStamp());
         out.append(nchar);
@@ -521,7 +528,7 @@ void LogWindow::showInput(int channel, const QString &input)
         m_inputText->setTextCursor(cursor);
         return;
     }
-    if (debuggerCore()->boolSetting(LogTimeStamps))
+    if (boolSetting(LogTimeStamps))
         m_inputText->append(logTimeStamp());
     m_inputText->append(input);
     QTextCursor cursor = m_inputText->textCursor();

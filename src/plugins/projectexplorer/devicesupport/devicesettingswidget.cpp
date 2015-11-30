@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -42,10 +43,10 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QPixmap>
 #include <QPushButton>
-#include <QSignalMapper>
 #include <QTextStream>
 
 #include <algorithm>
@@ -93,12 +94,9 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
       m_deviceManager(DeviceManager::cloneInstance()),
       m_deviceManagerModel(new DeviceManagerModel(m_deviceManager, this)),
       m_nameValidator(new NameValidator(m_deviceManager, this)),
-      m_additionalActionsMapper(new QSignalMapper(this)),
       m_configWidget(0)
 {
     initGui();
-    connect(m_additionalActionsMapper, SIGNAL(mapped(int)),
-            SLOT(handleAdditionalActionRequest(int)));
     connect(m_deviceManager, SIGNAL(deviceUpdated(Core::Id)), SLOT(handleDeviceUpdated(Core::Id)));
 }
 
@@ -109,34 +107,20 @@ DeviceSettingsWidget::~DeviceSettingsWidget()
     delete m_ui;
 }
 
-QString DeviceSettingsWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream(&rc) << m_ui->configurationLabel->text()
-        << ' ' << m_ui->deviceNameLabel->text()
-        << ' ' << m_ui->nameLineEdit->text()
-        << ' ' << m_ui->autoDetectionKeyLabel->text();
-    return rc.remove(QLatin1Char('&'));
-}
-
 void DeviceSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
     m_ui->configurationComboBox->setModel(m_deviceManagerModel);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
 
-    bool hasDeviceFactories = false;
     const QList<IDeviceFactory *> &factories
         = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
-    foreach (const IDeviceFactory *f, factories) {
-        if (f->canCreate()) {
-            hasDeviceFactories = true;
-            break;
-        }
-    }
+
+    bool hasDeviceFactories = Utils::anyOf(factories, &IDeviceFactory::canCreate);
+
     m_ui->addConfigButton->setEnabled(hasDeviceFactories);
 
-    int lastIndex = Core::ICore::settings()
+    int lastIndex = ICore::settings()
         ->value(QLatin1String(LastDeviceIndexKey), 0).toInt();
     if (lastIndex == -1)
         lastIndex = 0;
@@ -155,7 +139,7 @@ void DeviceSettingsWidget::addDevice()
     if (d.exec() != QDialog::Accepted)
         return;
 
-    Core::Id toCreate = d.selectedId();
+    Id toCreate = d.selectedId();
     if (!toCreate.isValid())
         return;
     IDeviceFactory *factory = IDeviceFactory::find(toCreate);
@@ -233,7 +217,7 @@ void DeviceSettingsWidget::updateDeviceFromUi()
 
 void DeviceSettingsWidget::saveSettings()
 {
-    Core::ICore::settings()->setValue(QLatin1String(LastDeviceIndexKey), currentIndex());
+    ICore::settings()->setValue(QLatin1String(LastDeviceIndexKey), currentIndex());
     DeviceManager::replaceInstance();
 }
 
@@ -311,11 +295,11 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
         m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
     }
 
-    foreach (const Core::Id actionId, device->actionIds()) {
+    foreach (Id actionId, device->actionIds()) {
         QPushButton * const button = new QPushButton(device->displayNameForActionId(actionId));
         m_additionalActionButtons << button;
-        connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
-        m_additionalActionsMapper->setMapping(button, actionId.uniqueIdentifier());
+        connect(button, &QAbstractButton::clicked, this,
+                [this, actionId] { handleAdditionalActionRequest(actionId); });
         m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
     }
 
@@ -334,12 +318,12 @@ void DeviceSettingsWidget::clearDetails()
     m_ui->autoDetectionValueLabel->clear();
 }
 
-void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
+void DeviceSettingsWidget::handleAdditionalActionRequest(Id actionId)
 {
     const IDevice::Ptr device = m_deviceManager->mutableDevice(currentDevice()->id());
     QTC_ASSERT(device, return);
     updateDeviceFromUi();
-    device->executeAction(Core::Id::fromUniqueIdentifier(actionId), this);
+    device->executeAction(actionId, this);
 
     // Widget must be set up from scratch, because the action could have changed random attributes.
     currentDeviceChanged(currentIndex());

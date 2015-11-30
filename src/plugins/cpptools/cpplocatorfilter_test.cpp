@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -56,6 +57,8 @@ Q_DECLARE_METATYPE(ILocatorFilter *)
 
 namespace {
 
+enum { debug = 0 };
+
 QTC_DECLARE_MYTESTDATADIR("../../../tests/cpplocators/")
 
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
@@ -77,7 +80,10 @@ public:
         QVERIFY(garbageCollectGlobalSnapshot());
 
         ResultDataList results = ResultData::fromFilterEntryList(matchesFor(searchText));
-//        ResultData::printFilterEntries(results);
+        if (debug) {
+            ResultData::printFilterEntries(expectedResults, QLatin1String("Expected:"));
+            ResultData::printFilterEntries(results, QLatin1String("Results:"));
+        }
         QVERIFY(!results.isEmpty());
         QCOMPARE(results, expectedResults);
     }
@@ -105,7 +111,10 @@ public:
         QVERIFY(!m_fileName.isEmpty());
 
         ResultDataList results = ResultData::fromFilterEntryList(matchesFor());
-//        ResultData::printFilterEntries(results);
+        if (debug) {
+            ResultData::printFilterEntries(expectedResults, QLatin1String("Expected:"));
+            ResultData::printFilterEntries(results, QLatin1String("Results:"));
+        }
         QVERIFY(!results.isEmpty());
         QCOMPARE(results, expectedResults);
     }
@@ -113,20 +122,20 @@ public:
 private:
     void doBeforeLocatorRun()
     {
-        QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
+        QVERIFY(DocumentModel::openedDocuments().isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
 
         m_editor = EditorManager::openEditor(m_fileName);
         QVERIFY(m_editor);
 
-        waitForFileInGlobalSnapshot(m_fileName);
+        QVERIFY(waitForFileInGlobalSnapshot(m_fileName));
     }
 
     void doAfterLocatorRun()
     {
         QVERIFY(closeEditorWithoutGarbageCollectorInvocation(m_editor));
         QCoreApplication::processEvents();
-        QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
+        QVERIFY(DocumentModel::openedDocuments().isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
     }
 
@@ -144,6 +153,8 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter()
     QFETCH(QString, searchText);
     QFETCH(ResultDataList, expectedResults);
 
+    Tests::VerifyCleanCppModelManager verify;
+
     CppLocatorFilterTestCase(filter, testFile, searchText, expectedResults);
 }
 
@@ -160,7 +171,9 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
 
     MyTestDataDir testDirectory(QLatin1String("testdata_basic"));
     const QString testFile = testDirectory.file(QLatin1String("file1.cpp"));
+    const QString objTestFile = testDirectory.file(QLatin1String("file1.mm"));
     const QString testFileShort = FileUtils::shortNativePath(FileName::fromString(testFile));
+    const QString objTestFileShort = FileUtils::shortNativePath(FileName::fromString(objTestFile));
 
     QTest::newRow("CppFunctionsFilter")
         << testFile
@@ -238,6 +251,27 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
             << ResultData(_("MyNamespace::MyEnum"), testFileShort)
             << ResultData(_("MyNamespace::myFunction"), _("(bool, int)"))
             << ResultData(_("myFunction"), _("(bool, int)"))
+            );
+
+    QTest::newRow("CppClassesFilter-ObjC")
+            << objTestFile
+            << cppClassesFilter
+            << _("M")
+            << (QList<ResultData>()
+                << ResultData(_("MyClass"), objTestFileShort)
+                << ResultData(_("MyClass"), objTestFileShort)
+                << ResultData(_("MyClass"), objTestFileShort)
+                << ResultData(_("MyProtocol"), objTestFileShort)
+                );
+
+    QTest::newRow("CppFunctionsFilter-ObjC")
+        << objTestFile
+        << cppFunctionsFilter
+        << _("M")
+        << (QList<ResultData>()
+            << ResultData(_("anotherMethod"), _("MyClass"))
+            << ResultData(_("anotherMethod:"), _("MyClass"))
+            << ResultData(_("someMethod"), _("MyClass"))
             );
 }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-tool-chains.html
     \page creator-debuggers.html
     \nextpage creator-build-settings.html
@@ -37,19 +37,21 @@
 
     The debugger plugin automatically selects a suitable native debugger for
     each \l{glossary-buildandrun-kit}{kit} from the ones found on your system.
-    To override this choice, select \gui Tools > \gui Options >
-    \gui {Build & Run} > \gui Kits.
+    To override this choice, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Build & Run} > \uicontrol Kits.
 
     To add debuggers:
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui {Build & Run} >
-            \gui Debuggers > \gui Add.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Debuggers > \uicontrol Add.
 
-        \li In the \gui Name field, give a descriptive name for the debugger.
+            \image qtcreator-options-build-run-debuggers.png
 
-        \li In the \gui Path field, specify the path to the debugger binary:
+        \li In the \uicontrol Name field, give a descriptive name for the debugger.
+
+        \li In the \uicontrol Path field, specify the path to the debugger binary:
 
             \list
 
@@ -58,27 +60,17 @@
 
                 \li For GDB, specify the path to the GDB executable. The
                     executable must be built with Python scripting support
-                    enabled (except when debugging on Mac OS). The options you
-                    have depend on the development and target platform:
-
-                \list
-
-                    \li For debugging on embedded devices using a different ABI,
-                        you must provide a special executable.
-
-                    \li For debugging on Windows using MinGW, select a Windows
-                        executable of GDB with Python scripting enabled. You can
-                        download it from
-                        \l{http://builds.qt-project.org/job/gdb-windows}.
-
-                \endlist
+                    enabled.
 
                 \li For LLDB (experimental), specify the path to the LLDB
                 executable.
 
             \endlist
 
-        \li In the \gui ABIs field, specify the ABI versions to use on embedded
+            \QC attempts to identify the type and version of the debugger and
+            shows them in the \uicontrol Type and \uicontrol Version fields.
+
+        \li In the \uicontrol ABIs field, specify the ABI versions to use on embedded
             devices.
 
     \endlist

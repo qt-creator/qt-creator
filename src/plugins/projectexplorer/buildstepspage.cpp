@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,10 +35,12 @@
 #include "projectexplorerconstants.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/coreicons.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
+#include <utils/theme/theme.h>
 
 #include <QSignalMapper>
 
@@ -54,13 +57,13 @@ using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
 ToolWidget::ToolWidget(QWidget *parent)
-    : Utils::FadingPanel(parent), m_buildStepEnabled(true), m_targetOpacity(1.0f)
+    : FadingPanel(parent), m_buildStepEnabled(true), m_targetOpacity(1.0f)
 {
     QHBoxLayout *layout = new QHBoxLayout;
     layout->setMargin(4);
     layout->setSpacing(4);
     setLayout(layout);
-    m_firstWidget = new Utils::FadingWidget(this);
+    m_firstWidget = new FadingWidget(this);
     m_firstWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QHBoxLayout *hbox = new QHBoxLayout();
     hbox->setContentsMargins(0, 0, 0, 0);
@@ -72,12 +75,13 @@ ToolWidget::ToolWidget(QWidget *parent)
     m_disableButton->setAutoRaise(true);
     m_disableButton->setToolTip(BuildStepListWidget::tr("Disable"));
     m_disableButton->setFixedSize(buttonSize);
-    m_disableButton->setIcon(QIcon(QLatin1String(":/projectexplorer/images/disabledbuildstep.png")));
+    m_disableButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepDisable,
+            QLatin1String(":/projectexplorer/images/disabledbuildstep.png"))));
     m_disableButton->setCheckable(true);
     hbox->addWidget(m_disableButton);
     layout->addWidget(m_firstWidget);
 
-    m_secondWidget = new Utils::FadingWidget(this);
+    m_secondWidget = new FadingWidget(this);
     m_secondWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     hbox = new QHBoxLayout();
     hbox->setMargin(0);
@@ -88,21 +92,24 @@ ToolWidget::ToolWidget(QWidget *parent)
     m_upButton->setAutoRaise(true);
     m_upButton->setToolTip(BuildStepListWidget::tr("Move Up"));
     m_upButton->setFixedSize(buttonSize);
-    m_upButton->setIcon(QIcon(QLatin1String(":/core/images/darkarrowup.png")));
+    m_upButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepMoveUp,
+            QLatin1String(":/core/images/darkarrowup.png"))));
     hbox->addWidget(m_upButton);
 
     m_downButton = new QToolButton(m_secondWidget);
     m_downButton->setAutoRaise(true);
     m_downButton->setToolTip(BuildStepListWidget::tr("Move Down"));
     m_downButton->setFixedSize(buttonSize);
-    m_downButton->setIcon(QIcon(QLatin1String(":/core/images/darkarrowdown.png")));
+    m_downButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepMoveDown,
+            QLatin1String(":/core/images/darkarrowdown.png"))));
     hbox->addWidget(m_downButton);
 
     m_removeButton  = new QToolButton(m_secondWidget);
     m_removeButton->setAutoRaise(true);
     m_removeButton->setToolTip(BuildStepListWidget::tr("Remove Item"));
     m_removeButton->setFixedSize(buttonSize);
-    m_removeButton->setIcon(QIcon(QLatin1String(":/core/images/darkclose.png")));
+    m_removeButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepRemove,
+            Core::Icons::DARK_CLOSE.imageFileName())));
     hbox->addWidget(m_removeButton);
 
     layout->addWidget(m_secondWidget);
@@ -177,7 +184,7 @@ BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
     widget = s->createConfigWidget();
     Q_ASSERT(widget);
 
-    detailsWidget = new Utils::DetailsWidget;
+    detailsWidget = new DetailsWidget;
     detailsWidget->setWidget(widget);
 
     toolWidget = new ToolWidget(detailsWidget);
@@ -276,7 +283,7 @@ void BuildStepListWidget::init(BuildStepList *bsl)
         addBuildStep(i);
         // addBuilStep expands the config widget by default, which we don't want here
         if (m_buildStepsData.at(i)->widget->showWidget())
-            m_buildStepsData.at(i)->detailsWidget->setState(Utils::DetailsWidget::Collapsed);
+            m_buildStepsData.at(i)->detailsWidget->setState(DetailsWidget::Collapsed);
     }
 
     m_noStepsLabel->setVisible(bsl->isEmpty());
@@ -285,12 +292,6 @@ void BuildStepListWidget::init(BuildStepList *bsl)
     m_addButton->setText(tr("Add %1 Step").arg(m_buildStepList->displayName()));
 
     updateBuildStepButtonsState();
-
-    static QLatin1String buttonStyle(
-            "QToolButton{ border-width: 2;}"
-            "QToolButton:hover{border-image: url(:/welcome/images/btn_26_hover.png) 4;}"
-            "QToolButton:pressed{ border-image: url(:/welcome/images/btn_26_pressed.png) 4;}");
-    setStyleSheet(buttonStyle);
 }
 
 void BuildStepListWidget::updateAddBuildStepMenu()
@@ -306,16 +307,21 @@ void BuildStepListWidget::updateAddBuildStepMenu()
 
     // Ask the user which one to add
     QMenu *menu = m_addButton->menu();
-    m_addBuildStepHash.clear();
     menu->clear();
     if (!map.isEmpty()) {
         QMap<QString, QPair<Core::Id, IBuildStepFactory *> >::const_iterator it, end;
         end = map.constEnd();
         for (it = map.constBegin(); it != end; ++it) {
             QAction *action = menu->addAction(it.key());
-            connect(action, SIGNAL(triggered()),
-                    this, SLOT(triggerAddBuildStep()));
-            m_addBuildStepHash.insert(action, it.value());
+            IBuildStepFactory *factory = it.value().second;
+            Core::Id id = it.value().first;
+
+            connect(action, &QAction::triggered, [id, factory, this]() {
+                BuildStep *newStep = factory->create(m_buildStepList, id);
+                QTC_ASSERT(newStep, return);
+                int pos = m_buildStepList->count();
+                m_buildStepList->insertStep(pos, newStep);
+            });
         }
     }
 }
@@ -346,17 +352,6 @@ void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
             m_removeMapper, SLOT(map()));
 }
 
-void BuildStepListWidget::triggerAddBuildStep()
-{
-    if (QAction *action = qobject_cast<QAction *>(sender())) {
-        QPair<Core::Id, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
-        BuildStep *newStep = pair.second->create(m_buildStepList, pair.first);
-        QTC_ASSERT(newStep, return);
-        int pos = m_buildStepList->count();
-        m_buildStepList->insertStep(pos, newStep);
-    }
-}
-
 void BuildStepListWidget::addBuildStep(int pos)
 {
     BuildStep *newStep = m_buildStepList->at(pos);
@@ -364,9 +359,9 @@ void BuildStepListWidget::addBuildStep(int pos)
     BuildStepsWidgetData *s = m_buildStepsData.at(pos);
     // Expand new build steps by default
     if (s->widget->showWidget())
-        s->detailsWidget->setState(Utils::DetailsWidget::Expanded);
+        s->detailsWidget->setState(DetailsWidget::Expanded);
     else
-        s->detailsWidget->setState(Utils::DetailsWidget::OnlySummary);
+        s->detailsWidget->setState(DetailsWidget::OnlySummary);
 
     m_noStepsLabel->setVisible(false);
     updateBuildStepButtonsState();

@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -20,46 +20,50 @@
     \page creating-plugins.html
     \title Creating Plugins
 
-    At its very core, \QC consists of a plugin loader that loads
-    and runs a set of plugins, which then actually provide the functionality
-    that you know from \QC the IDE. So, even the main application window
-    and menus are all provided by plugins. Plugins can use different means
-    to provide other plugins access to their functionality and to allow them
-    to extend certain aspects of the application.
+    At its very core, \QC consists of a plugin loader that loads and runs a set
+    of plugins, which then actually provide the functionality that you know from
+    \QC the IDE. So, even the main application window and menus are all provided
+    by plugins. Plugins can use different means to provide other plugins access
+    to their functionality and to allow them to extend certain aspects of the
+    application.
 
-    For example the "Core" plugin, which is the very basic plugin that must be
+    For example the \c Core plugin, which is the very basic plugin that must be
     present for \QC to run at all, provides the main window itself, and API
     for adding menu items, modes, editor types, navigation panels and many other
     things.
-    The "TextEditor" plugin provides a framework and base implementation for
-    different text editors with highlighting, completion and folding, that
-    is then used by other plugins to add more specialized text editor types
-    to \QC, like for editing C/C++ or .pro files.
+
+    The \c TextEditor plugin provides a framework and base implementation for
+    different text editors with highlighting, completion and folding, that is
+    then used by other plugins to add more specialized text editor types to \QC,
+    like for editing C/C++ or \c {.pro} files.
 
     After reading this guide you will know what a basic plugin consists of,
     how to write a plugin specification file, what the lifecycle of a plugin is,
-    what the general principles for extending existing plugins'
-    functionality and providing interfaces for other plugins are, and will
-    be able to write your first plugin.
+    what the general principles for extending existing plugins' functionality
+    and providing interfaces for other plugins are, and will be able to write
+    your first plugin.
 
     \section1 Basics
+
     \list
-    \li \l{Getting and Building Qt Creator}
-    \li \l{Creating Your First Plugin}
-    \li \l{Plugin Specifications}
-    \li \l{Plugin Life Cycle}
+        \li \l{Getting and Building Qt Creator}
+        \li \l{Creating Your First Plugin}
+        \li \l{Plugin Meta Data}
+        \li \l{Plugin Life Cycle}
     \endlist
 
     \section1 Design Principles
+
     \list
-    \li \l{The Plugin Manager, the Object Pool, and Registered Objects}
-    \li \l{Aggregations}
-    \li \l{Extending and Providing Interfaces}
+        \li \l{The Plugin Manager, the Object Pool, and Registered Objects}
+        \li \l{Aggregations}
+        \li \l{Extending and Providing Interfaces}
     \endlist
 
     \section1 Creating 3rd-Party Plugins
+
     \list
-    \li \l{A Note on Binary Compatibility}
-    \li \l{Creating User-Installable Plugins}
+        \li \l{A Note on Binary Compatibility}
+        \li \l{Creating User-Installable Plugins}
     \endlist
 */

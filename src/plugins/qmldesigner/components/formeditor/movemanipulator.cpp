@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -99,14 +95,11 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
             }
         }
     }
-
-    if (!parentNode.metaInfo().isLayoutable())
-        update(m_lastPosition, Snapper::NoSnapping, UseBaseState);
 }
 
 void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
 {
-    if (m_view->model() && !m_itemList.isEmpty() && m_itemList.first()->qmlItemNode().instanceParent().isValid())
+    if (m_view->model() && !m_itemList.isEmpty() && m_itemList.first()->qmlItemNode().hasInstanceParent())
         synchronizeParent(itemList, m_itemList.first()->qmlItemNode().instanceParent());
 }
 
@@ -120,6 +113,14 @@ bool MoveManipulator::itemsCanReparented() const
     }
 
     return true;
+}
+
+void MoveManipulator::setDirectUpdateInNodeInstances(bool directUpdate)
+{
+    foreach (FormEditorItem* item, m_itemList) {
+        if (item && item->qmlItemNode().isValid())
+            item->qmlItemNode().nodeInstance().setDirectUpdate(directUpdate);
+    }
 }
 
 void MoveManipulator::begin(const QPointF &beginPoint)
@@ -146,18 +147,20 @@ void MoveManipulator::begin(const QPointF &beginPoint)
     foreach (FormEditorItem* item, m_itemList) {
         if (item && item->qmlItemNode().isValid()) {
             QmlAnchors anchors(item->qmlItemNode().anchors());
-            m_beginTopMarginHash.insert(item, anchors.instanceMargin(AnchorLine::Top));
-            m_beginLeftMarginHash.insert(item, anchors.instanceMargin(AnchorLine::Left));
-            m_beginRightMarginHash.insert(item, anchors.instanceMargin(AnchorLine::Right));
-            m_beginBottomMarginHash.insert(item, anchors.instanceMargin(AnchorLine::Bottom));
-            m_beginHorizontalCenterHash.insert(item, anchors.instanceMargin(AnchorLine::HorizontalCenter));
-            m_beginVerticalCenterHash.insert(item, anchors.instanceMargin(AnchorLine::VerticalCenter));
+            m_beginTopMarginHash.insert(item, anchors.instanceMargin(AnchorLineTop));
+            m_beginLeftMarginHash.insert(item, anchors.instanceMargin(AnchorLineLeft));
+            m_beginRightMarginHash.insert(item, anchors.instanceMargin(AnchorLineRight));
+            m_beginBottomMarginHash.insert(item, anchors.instanceMargin(AnchorLineBottom));
+            m_beginHorizontalCenterHash.insert(item, anchors.instanceMargin(AnchorLineHorizontalCenter));
+            m_beginVerticalCenterHash.insert(item, anchors.instanceMargin(AnchorLineVerticalCenter));
         }
     }
 
     m_beginPoint = beginPoint;
 
 //    setOpacityForAllElements(0.62);
+
+    setDirectUpdateInNodeInstances(true);
 
     m_rewriterTransaction = m_view->beginRewriterTransaction(QByteArrayLiteral("MoveManipulator::begin"));
 }
@@ -280,23 +283,23 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSn
             if (stateToBeManipulated == UseCurrentState) {
                 QmlAnchors anchors(item->qmlItemNode().anchors());
 
-                if (anchors.instanceHasAnchor(AnchorLine::Top))
-                    anchors.setMargin(AnchorLine::Top, m_beginTopMarginHash.value(item) + offsetVector.y());
+                if (anchors.instanceHasAnchor(AnchorLineTop))
+                    anchors.setMargin(AnchorLineTop, m_beginTopMarginHash.value(item) + offsetVector.y());
 
-                if (anchors.instanceHasAnchor(AnchorLine::Left))
-                    anchors.setMargin(AnchorLine::Left, m_beginLeftMarginHash.value(item) + offsetVector.x());
+                if (anchors.instanceHasAnchor(AnchorLineLeft))
+                    anchors.setMargin(AnchorLineLeft, m_beginLeftMarginHash.value(item) + offsetVector.x());
 
-                if (anchors.instanceHasAnchor(AnchorLine::Bottom))
-                    anchors.setMargin(AnchorLine::Bottom, m_beginBottomMarginHash.value(item) - offsetVector.y());
+                if (anchors.instanceHasAnchor(AnchorLineBottom))
+                    anchors.setMargin(AnchorLineBottom, m_beginBottomMarginHash.value(item) - offsetVector.y());
 
-                if (anchors.instanceHasAnchor(AnchorLine::Right))
-                    anchors.setMargin(AnchorLine::Right, m_beginRightMarginHash.value(item) - offsetVector.x());
+                if (anchors.instanceHasAnchor(AnchorLineRight))
+                    anchors.setMargin(AnchorLineRight, m_beginRightMarginHash.value(item) - offsetVector.x());
 
-                if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
-                    anchors.setMargin(AnchorLine::HorizontalCenter, m_beginHorizontalCenterHash.value(item) + offsetVector.x());
+                if (anchors.instanceHasAnchor(AnchorLineHorizontalCenter))
+                    anchors.setMargin(AnchorLineHorizontalCenter, m_beginHorizontalCenterHash.value(item) + offsetVector.x());
 
-                if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
-                    anchors.setMargin(AnchorLine::VerticalCenter, m_beginVerticalCenterHash.value(item) + offsetVector.y());
+                if (anchors.instanceHasAnchor(AnchorLineVerticalCenter))
+                    anchors.setMargin(AnchorLineVerticalCenter, m_beginVerticalCenterHash.value(item) + offsetVector.y());
 
                 item->qmlItemNode().setPosition(positionInContainerSpace);
             } else {
@@ -371,6 +374,7 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
 
 void MoveManipulator::end()
 {
+    setDirectUpdateInNodeInstances(false);
     m_isActive = false;
     deleteSnapLines();
     clear();
@@ -396,23 +400,23 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
 
         QmlAnchors anchors(item->qmlItemNode().anchors());
 
-        if (anchors.instanceHasAnchor(AnchorLine::Top))
-            anchors.setMargin(AnchorLine::Top, anchors.instanceMargin(AnchorLine::Top) + deltaY);
+        if (anchors.instanceHasAnchor(AnchorLineTop))
+            anchors.setMargin(AnchorLineTop, anchors.instanceMargin(AnchorLineTop) + deltaY);
 
-        if (anchors.instanceHasAnchor(AnchorLine::Left))
-            anchors.setMargin(AnchorLine::Left, anchors.instanceMargin(AnchorLine::Left) + deltaX);
+        if (anchors.instanceHasAnchor(AnchorLineLeft))
+            anchors.setMargin(AnchorLineLeft, anchors.instanceMargin(AnchorLineLeft) + deltaX);
 
-        if (anchors.instanceHasAnchor(AnchorLine::Bottom))
-            anchors.setMargin(AnchorLine::Bottom, anchors.instanceMargin(AnchorLine::Bottom) - deltaY);
+        if (anchors.instanceHasAnchor(AnchorLineBottom))
+            anchors.setMargin(AnchorLineBottom, anchors.instanceMargin(AnchorLineBottom) - deltaY);
 
-        if (anchors.instanceHasAnchor(AnchorLine::Right))
-            anchors.setMargin(AnchorLine::Right, anchors.instanceMargin(AnchorLine::Right) - deltaX);
+        if (anchors.instanceHasAnchor(AnchorLineRight))
+            anchors.setMargin(AnchorLineRight, anchors.instanceMargin(AnchorLineRight) - deltaX);
 
-        if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter))
-            anchors.setMargin(AnchorLine::HorizontalCenter, anchors.instanceMargin(AnchorLine::HorizontalCenter) + deltaX);
+        if (anchors.instanceHasAnchor(AnchorLineHorizontalCenter))
+            anchors.setMargin(AnchorLineHorizontalCenter, anchors.instanceMargin(AnchorLineHorizontalCenter) + deltaX);
 
-        if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter))
-            anchors.setMargin(AnchorLine::VerticalCenter, anchors.instanceMargin(AnchorLine::VerticalCenter) + deltaY);
+        if (anchors.instanceHasAnchor(AnchorLineVerticalCenter))
+            anchors.setMargin(AnchorLineVerticalCenter, anchors.instanceMargin(AnchorLineVerticalCenter) + deltaY);
 
         item->qmlItemNode().setPosition(QPointF(item->qmlItemNode().instanceValue("x").toDouble() + deltaX,
                                                   item->qmlItemNode().instanceValue("y").toDouble() + deltaY));

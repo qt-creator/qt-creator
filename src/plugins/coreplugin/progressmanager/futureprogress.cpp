@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,7 +31,10 @@
 #include "futureprogress.h"
 #include "progressbar.h"
 
+#include <coreplugin/id.h>
+
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QCoreApplication>
 #include <QFutureWatcher>
@@ -46,6 +50,8 @@
 
 const int notificationTimeout = 8000;
 const int shortNotificationTimeout = 1000;
+
+using namespace Utils;
 
 namespace Core {
 
@@ -142,6 +148,8 @@ FutureProgress::FutureProgress(QWidget *parent) :
     connect(&d->m_watcher, SIGNAL(progressTextChanged(QString)),
             this, SLOT(setProgressText(QString)));
     connect(d->m_progress, SIGNAL(clicked()), this, SLOT(cancel()));
+    setMinimumWidth(100);
+    setMaximumWidth(300);
 }
 
 /*!
@@ -292,8 +300,12 @@ void FutureProgress::mousePressEvent(QMouseEvent *event)
 void FutureProgress::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QLinearGradient grad = Utils::StyleHelper::statusBarGradient(rect());
-    p.fillRect(rect(), grad);
+    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+        p.fillRect(rect(), creatorTheme()->color(Theme::FutureProgressBackgroundColor));
+    } else {
+      QLinearGradient grad = StyleHelper::statusBarGradient(rect());
+        p.fillRect(rect(), grad);
+    }
 }
 
 /*!
@@ -356,7 +368,7 @@ bool FutureProgress::isFading() const
 
 QSize FutureProgress::sizeHint() const
 {
-    return QSize(100, minimumHeight());
+    return QSize(QWidget::sizeHint().width(), minimumHeight());
 }
 
 void FutureProgressPrivate::fadeAway()
@@ -369,7 +381,7 @@ void FutureProgressPrivate::fadeAway()
 
     QSequentialAnimationGroup *group = new QSequentialAnimationGroup(this);
     QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity");
-    animation->setDuration(Utils::StyleHelper::progressFadeAnimationDuration);
+    animation->setDuration(StyleHelper::progressFadeAnimationDuration);
     animation->setEndValue(0.);
     group->addAnimation(animation);
     animation = new QPropertyAnimation(m_q, "maximumHeight");

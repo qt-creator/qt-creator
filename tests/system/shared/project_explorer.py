@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -149,7 +150,7 @@ def getQtInformationForBuildSettings(kitCount, alreadyOnProjectsBuildSettings=Fa
         switchViewTo(ViewConstants.PROJECTS)
         switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.BUILD)
     clickButton(waitForObject(":Qt Creator_SystemSettings.Details_Utils::DetailsButton"))
-    model = waitForObject(":scrollArea_QTableView").model()
+    model = waitForObject(":scrollArea.environment_QTreeView").model()
     qtDir = None
     for row in range(model.rowCount()):
         index = model.index(row, 0)
@@ -193,8 +194,8 @@ def getQtInformationForQmlProject():
     qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
     test.log("Kit '%s' uses Qt Version '%s'" % (kit, qtVersionStr))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
-    treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
-    if not __selectTreeItemOnBuildAndRun__(treeWidget, qtVersionStr):
+    treeView = waitForObject(":qtdirList_QTreeView")
+    if not __selectTreeItemOnBuildAndRun__(treeView, qtVersionStr):
         test.fatal("Found no matching Qt Version for kit - this shouldn't happen.")
         clickButton(waitForObject(":Options.Cancel_QPushButton"))
         return None, None, None, None
@@ -216,19 +217,15 @@ def __selectTreeItemOnBuildAndRun__(treeViewOrWidget, itemText, isRegex=False):
     test.compare(manual.data().toString(), "Manual", "Verifying label for section")
     if isRegex:
         pattern = re.compile(itemText)
-    found = False
     for section in [autoDetected, manual]:
         for dumpedItem in dumpItems(model, section):
             if (isRegex and pattern.match(dumpedItem)
                 or itemText == dumpedItem):
-                found = True
                 item = ".".join([str(section.data().toString()),
                                  dumpedItem.replace(".", "\\.").replace("_", "\\_")])
                 clickItem(treeViewOrWidget, item, 5, 5, 0, Qt.LeftButton)
-                break
-        if found:
-            break
-    return found
+                return True
+    return False
 
 def __getTargetFromToolTip__(toolTip):
     if toolTip == None or not isinstance(toolTip, (str, unicode)):
@@ -303,6 +300,5 @@ def invokeContextMenuOnProject(projectName, menuItem):
     if platform.system() == 'Darwin':
         waitFor("macHackActivateContextMenuItem(menuItem)", 6000)
     else:
-        activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1' "
-                                       "window=':Qt Creator_Core::Internal::MainWindow'}", menuItem))
+        activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1'}", menuItem))
     return projItem

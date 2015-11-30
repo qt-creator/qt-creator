@@ -1,0 +1,52 @@
+Qt Creator version 3.1.1 is a bugfix release.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v3.1.0..v3.1.1
+
+General
+   * Fixed editing of MIME types while filtering is applied
+     (QTCREATORBUG-12149)
+
+Managing and Building Projects
+   * Fixed performance regression in Issues pane (QTCREATORBUG-12109)
+
+Qbs Projects
+   * Fixed support for VS2013 compiler (QTCREATORBUG-11025)
+
+C++ Support
+   * Fixed issue with missing semantic highlighting (QTCREATORBUG-11367)
+
+Qt Quick Designer
+   * Fixed several UI issues (QTCREATORBUG-12040, QTCREATORBUG-12035,
+     QTCREATORBUG-11904, QTCREATORBUG-12018)
+   * Fixed anchor and alignment handling (QTCREATORBUG-12006)
+
+Diff Viewer
+   * Fixed crash when showing binary file containing carriage return character
+     (QTCREATORBUG-12056)
+
+Version Control Systems
+   * Git
+      * Fixed encoding issues on Window
+      * Fixed crash when closing Qt Creator after revert (QTCREATORBUG-12099)
+
+FakeVim
+
+Platform Specific
+
+QNX
+   * Fixed crash when no device is configured (QTCREATORBUG-12143)
+   * Fixed Qt environment settings for running on devices (QTCREATORBUG-12171)
+
+Android
+   * Fixed selection of Ant executable on OS X (QTCREATORBUG-12184)
+
+iOS
+   * Fixed parsing of build issues
+   * Added warning if provisioning profile does not contain selected device
+     (QTCREATORBUG-12175)
+

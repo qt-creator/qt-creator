@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,27 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
-#include "cpphighlightingsupport.h"
 #include "cpplocalsymbols.h"
+#include "semantichighlighter.h"
 
 #include "cppsemanticinfo.h"
 
@@ -39,12 +40,9 @@ namespace {
 
 class FindLocalSymbols: protected ASTVisitor
 {
-    Scope *_functionScope;
-    Document::Ptr _doc;
-
 public:
     FindLocalSymbols(Document::Ptr doc)
-        : ASTVisitor(doc->translationUnit()), _doc(doc)
+        : ASTVisitor(doc->translationUnit())
     { }
 
     // local and external uses.
@@ -59,12 +57,10 @@ public:
 
         if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
             if (def->symbol) {
-                _functionScope = def->symbol;
                 accept(ast);
             }
         } else if (ObjCMethodDeclarationAST *decl = ast->asObjCMethodDeclaration()) {
             if (decl->method_prototype->symbol) {
-                _functionScope = decl->method_prototype->symbol;
                 accept(ast);
             }
         }
@@ -86,12 +82,12 @@ protected:
                     continue;
                 if (!member->isGenerated() && (member->isDeclaration() || member->isArgument())) {
                     if (member->name() && member->name()->isNameId()) {
-                        const Identifier *id = member->identifier();
+                        const Token token = tokenAt(member->sourceLocation());
                         unsigned line, column;
-                        getTokenStartPosition(member->sourceLocation(), &line, &column);
+                        getPosition(token.utf16charsBegin(), &line, &column);
                         localUses[member].append(
-                                    HighlightingResult(line, column, id->size(),
-                                                       CppHighlightingSupport::LocalUse));
+                                    HighlightingResult(line, column, token.utf16chars(),
+                                                       SemanticHighlighter::LocalUse));
                     }
                 }
             }
@@ -101,7 +97,8 @@ protected:
     bool checkLocalUse(NameAST *nameAst, unsigned firstToken)
     {
         if (SimpleNameAST *simpleName = nameAst->asSimpleName()) {
-            if (tokenAt(simpleName->identifier_token).generated())
+            const Token token = tokenAt(simpleName->identifier_token);
+            if (token.generated())
                 return false;
             const Identifier *id = identifier(simpleName->identifier_token);
             for (int i = _scopeStack.size() - 1; i != -1; --i) {
@@ -113,8 +110,8 @@ protected:
                         unsigned line, column;
                         getTokenStartPosition(simpleName->identifier_token, &line, &column);
                         localUses[member].append(
-                                    HighlightingResult(line, column, id->size(),
-                                                       CppHighlightingSupport::LocalUse));
+                                    HighlightingResult(line, column, token.utf16chars(),
+                                                       SemanticHighlighter::LocalUse));
                         return false;
                     }
                 }
@@ -176,6 +173,19 @@ protected:
     virtual void endVisit(FunctionDefinitionAST *ast)
     {
         if (ast->symbol)
+            _scopeStack.removeLast();
+    }
+
+    virtual bool visit(LambdaExpressionAST *ast)
+    {
+        if (ast->lambda_declarator && ast->lambda_declarator->symbol)
+            enterScope(ast->lambda_declarator->symbol);
+        return true;
+    }
+
+    virtual void endVisit(LambdaExpressionAST *ast)
+    {
+        if (ast->lambda_declarator && ast->lambda_declarator->symbol)
             _scopeStack.removeLast();
     }
 
@@ -296,7 +306,7 @@ private:
 } // end of anonymous namespace
 
 
-LocalSymbols::LocalSymbols(CPlusPlus::Document::Ptr doc, CPlusPlus::DeclarationAST *ast)
+LocalSymbols::LocalSymbols(Document::Ptr doc, DeclarationAST *ast)
 {
     FindLocalSymbols findLocalSymbols(doc);
     findLocalSymbols(ast);

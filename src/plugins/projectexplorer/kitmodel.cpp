@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,30 +34,23 @@
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
+#include <coreplugin/coreicons.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QLayout>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
 
-class KitNode
+class KitNode : public TreeItem
 {
 public:
-    KitNode(KitNode *kn) :
-        parent(kn), widget(0)
+    KitNode(Kit *k)
     {
-        if (kn)
-            kn->childNodes.append(this);
-    }
-
-    KitNode(KitNode *kn, Kit *k) :
-        parent(kn), widget(0)
-    {
-        if (kn)
-            kn->childNodes.append(this);
-
         widget = KitManager::createConfigWidget(k);
         if (widget) {
             if (k && k->isAutoDetected())
@@ -67,18 +61,45 @@ public:
 
     ~KitNode()
     {
-        if (parent)
-            parent->childNodes.removeOne(this);
         delete widget;
-
-        // deleting a child removes it from childNodes
-        // so operate on a temporary list
-        QList<KitNode *> tmp = childNodes;
-        qDeleteAll(tmp);
     }
 
-    KitNode *parent;
-    QList<KitNode *> childNodes;
+    QVariant data(int, int role) const
+    {
+        if (widget) {
+            if (role == Qt::FontRole) {
+                QFont f = QApplication::font();
+                if (widget->isDirty())
+                    f.setBold(!f.bold());
+                if (widget->isDefaultKit())
+                    f.setItalic(f.style() != QFont::StyleItalic);
+                return f;
+            }
+            if (role == Qt::DisplayRole) {
+                QString baseName = widget->displayName();
+                if (widget->isDefaultKit())
+                    //: Mark up a kit as the default one.
+                    baseName = KitModel::tr("%1 (default)").arg(baseName);
+                return baseName;
+            }
+            if (role == Qt::DecorationRole) {
+                if (!widget->isValid()) {
+                    static const QIcon errorIcon(Core::Icons::ERROR.icon());
+                    return errorIcon;
+                }
+                if (widget->hasWarning()) {
+                    static const QIcon warningIcon(Core::Icons::WARNING.icon());
+                    return warningIcon;
+                }
+                return QIcon();
+            }
+            if (role == Qt::ToolTipRole) {
+                return widget->validityMessage();
+            }
+        }
+        return QVariant();
+    }
+
     KitManagerConfigWidget *widget;
 };
 
@@ -87,219 +108,130 @@ public:
 // --------------------------------------------------------------------------
 
 KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
-    QAbstractItemModel(parent),
+    TreeModel(parent),
     m_parentLayout(parentLayout),
     m_defaultNode(0),
     m_keepUnique(true)
 {
-    m_root = new KitNode(0);
-    m_autoRoot = new KitNode(m_root);
-    m_manualRoot = new KitNode(m_root);
+    setHeader(QStringList(tr("Name")));
+    m_autoRoot = new TreeItem(QStringList(tr("Auto-detected")));
+    m_manualRoot = new TreeItem(QStringList(tr("Manual")));
+    rootItem()->appendChild(m_autoRoot);
+    rootItem()->appendChild(m_manualRoot);
 
-    foreach (Kit *k, KitManager::kits())
+    foreach (Kit *k, KitManager::sortKits(KitManager::kits()))
         addKit(k);
 
     changeDefaultKit();
 
-    connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
-            this, SLOT(addKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
-            this, SLOT(removeKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(updateKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(defaultkitChanged()),
-            this, SLOT(changeDefaultKit()));
-}
-
-KitModel::~KitModel()
-{
-    delete m_root;
-}
-
-QModelIndex KitModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!parent.isValid()) {
-        if (row >= 0 && row < m_root->childNodes.count())
-            return createIndex(row, column, m_root->childNodes.at(row));
-    }
-    KitNode *node = static_cast<KitNode *>(parent.internalPointer());
-    if (row < node->childNodes.count() && column == 0)
-        return createIndex(row, column, node->childNodes.at(row));
-    else
-        return QModelIndex();
-}
-
-QModelIndex KitModel::parent(const QModelIndex &idx) const
-{
-    if (!idx.isValid())
-        return QModelIndex();
-    KitNode *node = static_cast<KitNode *>(idx.internalPointer());
-    if (node->parent == m_root)
-        return QModelIndex();
-    return index(node->parent);
-}
-
-int KitModel::rowCount(const QModelIndex &parent) const
-{
-    if (!parent.isValid())
-        return m_root->childNodes.count();
-    KitNode *node = static_cast<KitNode *>(parent.internalPointer());
-    return node->childNodes.count();
-}
-
-int KitModel::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return 1;
-}
-
-QVariant KitModel::data(const QModelIndex &index, int role) const
-{
-    static QIcon warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"));
-    static QIcon errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png"));
-
-    if (!index.isValid() || index.column() != 0)
-        return QVariant();
-
-    KitNode *node = static_cast<KitNode *>(index.internalPointer());
-    QTC_ASSERT(node, return QVariant());
-    if (node == m_autoRoot && role == Qt::DisplayRole)
-        return tr("Auto-detected");
-    if (node == m_manualRoot && role == Qt::DisplayRole)
-        return tr("Manual");
-    if (node->widget) {
-        if (role == Qt::FontRole) {
-            QFont f = QApplication::font();
-            if (node->widget->isDirty())
-                f.setBold(!f.bold());
-            if (node == m_defaultNode)
-                f.setItalic(f.style() != QFont::StyleItalic);
-            return f;
-        } else if (role == Qt::DisplayRole) {
-            QString baseName = node->widget->displayName();
-            if (node == m_defaultNode)
-                //: Mark up a kit as the default one.
-                baseName = tr("%1 (default)").arg(baseName);
-            return baseName;
-        } else if (role == Qt::DecorationRole) {
-            if (!node->widget->isValid())
-                return errorIcon;
-            if (node->widget->hasWarning())
-                return warningIcon;
-            return QIcon();
-        } else if (role == Qt::ToolTipRole) {
-            return node->widget->validityMessage();
-        }
-    }
-    return QVariant();
-}
-
-Qt::ItemFlags KitModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return 0;
-
-    KitNode *node = static_cast<KitNode *>(index.internalPointer());
-    if (!node->widget)
-        return Qt::ItemIsEnabled;
-
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-}
-
-QVariant KitModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    Q_UNUSED(section);
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return tr("Name");
-    return QVariant();
+    connect(KitManager::instance(), &KitManager::kitAdded,
+            this, &KitModel::addKit);
+    connect(KitManager::instance(), &KitManager::kitUpdated,
+            this, &KitModel::updateKit);
+    connect(KitManager::instance(), &KitManager::unmanagedKitUpdated,
+            this, &KitModel::updateKit);
+    connect(KitManager::instance(), &KitManager::kitRemoved,
+            this, &KitModel::removeKit);
+    connect(KitManager::instance(), &KitManager::defaultkitChanged,
+            this, &KitModel::changeDefaultKit);
 }
 
 Kit *KitModel::kit(const QModelIndex &index)
 {
-    if (!index.isValid())
-        return 0;
-    KitNode *node = static_cast<KitNode *>(index.internalPointer());
-    return node->widget->workingCopy();
+    KitNode *n = kitNode(index);
+    return n ? n->widget->workingCopy() : 0;
+}
+
+KitNode *KitModel::kitNode(const QModelIndex &index)
+{
+    TreeItem *n = itemForIndex(index);
+    return n && n->level() == 2 ? static_cast<KitNode *>(n) : 0;
 }
 
 QModelIndex KitModel::indexOf(Kit *k) const
 {
     KitNode *n = findWorkingCopy(k);
-    return n ? index(n) : QModelIndex();
+    return n ? indexForItem(n) : QModelIndex();
 }
 
 void KitModel::setDefaultKit(const QModelIndex &index)
 {
-    if (!index.isValid())
-        return;
-    KitNode *node = static_cast<KitNode *>(index.internalPointer());
-    if (node->widget)
-        setDefaultNode(node);
+    if (KitNode *n = kitNode(index))
+        setDefaultNode(n);
 }
 
-bool KitModel::isDefaultKit(const QModelIndex &index)
+bool KitModel::isDefaultKit(Kit *k) const
 {
-    return m_defaultNode == static_cast<KitNode *>(index.internalPointer());
+    return m_defaultNode && m_defaultNode->widget->workingCopy() == k;
 }
 
 KitManagerConfigWidget *KitModel::widget(const QModelIndex &index)
 {
-    if (!index.isValid())
-        return 0;
-    KitNode *node = static_cast<KitNode *>(index.internalPointer());
-    return node->widget;
+    KitNode *n = kitNode(index);
+    return n ? n->widget : 0;
 }
 
-bool KitModel::isDirty() const
-{
-    foreach (KitNode *n, m_manualRoot->childNodes) {
-        if (n->widget->isDirty())
-            return true;
-    }
-    return false;
-}
-
-bool KitModel::isDirty(Kit *k) const
-{
-    KitNode *n = findWorkingCopy(k);
-    return n ? n->widget->isDirty() : false;
-}
-
-void KitModel::setDirty()
+void KitModel::isAutoDetectedChanged()
 {
     KitManagerConfigWidget *w = qobject_cast<KitManagerConfigWidget *>(sender());
-    QList<KitNode *> nodes = m_manualRoot->childNodes;
-    nodes << m_autoRoot->childNodes;
-    foreach (KitNode *n, nodes) {
-        if (n->widget == w)
-            emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
+    int idx = -1;
+    idx = Utils::indexOf(m_manualRoot->children(), [w](TreeItem *node) {
+        return static_cast<KitNode *>(node)->widget == w;
+    });
+    TreeItem *oldParent = 0;
+    TreeItem *newParent = w->workingCopy()->isAutoDetected() ? m_autoRoot : m_manualRoot;
+    if (idx != -1) {
+        oldParent = m_manualRoot;
+    } else {
+        idx = Utils::indexOf(m_autoRoot->children(), [w](TreeItem *node) {
+            return static_cast<KitNode *>(node)->widget == w;
+        });
+        if (idx != -1) {
+            oldParent = m_autoRoot;
+        }
+    }
+
+    if (oldParent && oldParent != newParent) {
+        beginMoveRows(indexForItem(oldParent), idx, idx, indexForItem(newParent), newParent->children().size());
+        TreeItem *n = oldParent->childAt(idx);
+        takeItem(n);
+        newParent->appendChild(n);
+        endMoveRows();
+    }
+}
+
+void KitModel::validateKitNames()
+{
+    QHash<QString, int> nameHash;
+    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
+        const QString displayName = n->widget->displayName();
+        if (nameHash.contains(displayName))
+            ++nameHash[displayName];
+        else
+            nameHash.insert(displayName, 1);
+    }
+
+    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
+        const QString displayName = n->widget->displayName();
+        n->widget->setHasUniqueName(nameHash.value(displayName) == 1);
     }
 }
 
 void KitModel::apply()
 {
-    // Remove unused kits:
-    QList<KitNode *> nodes = m_toRemoveList;
-    foreach (KitNode *n, nodes) {
-        Q_ASSERT(!n->parent);
-        n->widget->removeKit();
-    }
-
-    // Update kits:
-    bool unique = KitManager::setKeepDisplayNameUnique(false);
-    m_keepUnique = false;
-    nodes = m_autoRoot->childNodes; // These can be dirty due to being made default!
-    nodes.append(m_manualRoot->childNodes);
-    foreach (KitNode *n, nodes) {
-        Q_ASSERT(n);
-        Q_ASSERT(n->widget);
+    // Add/update dirty nodes before removing kits. This ensures the right kit ends up as default.
+    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
         if (n->widget->isDirty()) {
             n->widget->apply();
-            emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
+            n->update();
         }
     }
-    m_keepUnique = unique;
-    KitManager::setKeepDisplayNameUnique(unique);
+
+    // Remove unused kits:
+    foreach (KitNode *n, m_toRemoveList)
+        n->widget->removeKit();
+
+    layoutChanged(); // Force update.
 }
 
 void KitModel::markForRemoval(Kit *k)
@@ -309,37 +241,33 @@ void KitModel::markForRemoval(Kit *k)
         return;
 
     if (node == m_defaultNode) {
-        KitNode *newDefault = 0;
-        if (!m_autoRoot->childNodes.isEmpty())
-            newDefault = m_autoRoot->childNodes.at(0);
-        else if (!m_manualRoot->childNodes.isEmpty())
-            newDefault = m_manualRoot->childNodes.at(0);
-        setDefaultNode(newDefault);
+        TreeItem *newDefault = m_autoRoot->firstChild();
+        if (!newDefault)
+            newDefault = m_manualRoot->firstChild();
+        setDefaultNode(static_cast<KitNode *>(newDefault));
     }
 
-    beginRemoveRows(index(m_manualRoot), m_manualRoot->childNodes.indexOf(node), m_manualRoot->childNodes.indexOf(node));
-    m_manualRoot->childNodes.removeOne(node);
-    node->parent = 0;
+    if (node == m_defaultNode)
+        setDefaultNode(findItemAtLevel<KitNode *>(2, [node](KitNode *kn) { return kn != node; }));
+
+    takeItem(node);
     if (node->widget->configures(0))
         delete node;
     else
         m_toRemoveList.append(node);
-    endRemoveRows();
 }
 
 Kit *KitModel::markForAddition(Kit *baseKit)
 {
-    int pos = m_manualRoot->childNodes.size();
-    beginInsertRows(index(m_manualRoot), pos, pos);
-
-    KitNode *node = createNode(m_manualRoot, 0);
+    KitNode *node = createNode(0);
+    m_manualRoot->appendChild(node);
     Kit *k = node->widget->workingCopy();
     KitGuard g(k);
     if (baseKit) {
         k->copyFrom(baseKit);
         k->setAutoDetected(false); // Make sure we have a manual kit!
         k->setSdkProvided(false);
-        k->setDisplayName(tr("Clone of %1").arg(k->displayName()));
+        k->setUnexpandedDisplayName(tr("Clone of %1").arg(k->unexpandedDisplayName()));
     } else {
         k->setup();
     }
@@ -347,45 +275,30 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     if (!m_defaultNode)
         setDefaultNode(node);
 
-    endInsertRows();
-
     return k;
-}
-
-QString KitModel::findNameFor(Kit *k, const QString baseName)
-{
-    QList<Kit *> kits = kitList(m_root);
-    return KitManager::uniqueKitName(k, baseName, kits);
-}
-
-QModelIndex KitModel::index(KitNode *node, int column) const
-{
-    if (node->parent == 0) // is root (or was marked for deletion)
-        return QModelIndex();
-    else if (node->parent == m_root)
-        return index(m_root->childNodes.indexOf(node), column, QModelIndex());
-    else
-        return index(node->parent->childNodes.indexOf(node), column, index(node->parent));
 }
 
 KitNode *KitModel::findWorkingCopy(Kit *k) const
 {
-    foreach (KitNode *n, m_autoRoot->childNodes) {
-        if (n->widget->workingCopy() == k)
-            return n;
-    }
-    foreach (KitNode *n, m_manualRoot->childNodes) {
+    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
         if (n->widget->workingCopy() == k)
             return n;
     }
     return 0;
 }
 
-KitNode *KitModel::createNode(KitNode *parent, Kit *k)
+KitNode *KitModel::createNode(Kit *k)
 {
-    KitNode *node = new KitNode(parent, k);
+    KitNode *node = new KitNode(k);
     m_parentLayout->addWidget(node->widget);
-    connect(node->widget, SIGNAL(dirty()), this, SLOT(setDirty()));
+    connect(node->widget, &KitManagerConfigWidget::dirty, [this, node] {
+        if (m_autoRoot->children().contains(node)
+                || m_manualRoot->children().contains(node))
+            node->update();
+    });
+    connect(node->widget, &KitManagerConfigWidget::isAutoDetectedChanged,
+            this, &KitModel::isAutoDetectedChanged);
+
     return node;
 }
 
@@ -393,44 +306,33 @@ void KitModel::setDefaultNode(KitNode *node)
 {
     if (m_defaultNode) {
         m_defaultNode->widget->setIsDefaultKit(false);
-        emit dataChanged(index(m_defaultNode), index(m_defaultNode));
+        m_defaultNode->update();
     }
     m_defaultNode = node;
     if (m_defaultNode) {
         m_defaultNode->widget->setIsDefaultKit(true);
-        emit dataChanged(index(m_defaultNode), index(m_defaultNode));
+        m_defaultNode->update();
     }
-}
-
-QList<Kit *> KitModel::kitList(KitNode *node) const
-{
-    QList<Kit *> result;
-    if (!node)
-        return result;
-    foreach (KitNode *n, node->childNodes)
-        result.append(kitList(n));
-    if (node->widget)
-        result.append(node->widget->workingCopy());
-    return result;
 }
 
 void KitModel::addKit(Kit *k)
 {
-    foreach (KitNode *n, m_manualRoot->childNodes) {
+    foreach (TreeItem *n, m_manualRoot->children()) {
         // Was added by us
-        if (n->widget->configures(k))
+        if (static_cast<KitNode *>(n)->widget->configures(k))
             return;
     }
 
-    KitNode *parent = m_manualRoot;
-    if (k->isAutoDetected())
-        parent = m_autoRoot;
-    int row = parent->childNodes.count();
+    TreeItem *parent = k->isAutoDetected() ? m_autoRoot : m_manualRoot;
+    parent->appendChild(createNode(k));
 
-    beginInsertRows(index(parent), row, row);
-    createNode(parent, k);
-    endInsertRows();
+    validateKitNames();
+    emit kitStateChanged();
+}
 
+void KitModel::updateKit(Kit *)
+{
+    validateKitNames();
     emit kitStateChanged();
 }
 
@@ -447,44 +349,30 @@ void KitModel::removeKit(Kit *k)
         }
     }
 
-    KitNode *parent = m_manualRoot;
-    if (k->isAutoDetected())
-        parent = m_autoRoot;
-    int row = 0;
     KitNode *node = 0;
-    foreach (KitNode *current, parent->childNodes) {
-        if (current->widget->configures(k)) {
-            node = current;
+    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
+        if (n->widget->configures(k)) {
+            node = n;
             break;
         }
-        ++row;
     }
 
-    beginRemoveRows(index(parent), row, row);
-    parent->childNodes.removeAt(row);
-    if (m_defaultNode == node)
-        m_defaultNode = 0;
-    endRemoveRows();
-    delete node;
+    if (node == m_defaultNode)
+        setDefaultNode(findItemAtLevel<KitNode *>(2, [node](KitNode *kn) { return kn != node; }));
 
+    delete takeItem(node);
+
+    validateKitNames();
     emit kitStateChanged();
-}
-
-void KitModel::updateKit(Kit *k)
-{
-    if (m_keepUnique)
-        k->setDisplayName(findNameFor(k, k->displayName()));
 }
 
 void KitModel::changeDefaultKit()
 {
     Kit *defaultKit = KitManager::defaultKit();
-    QList<KitNode *> nodes = m_autoRoot->childNodes;
-    nodes << m_manualRoot->childNodes;
-    foreach (KitNode *n, nodes) {
+    foreach (KitNode *n, itemsAtLevel<KitNode *>(2)) {
         if (n->widget->configures(defaultKit)) {
             setDefaultNode(n);
-            break;
+            return;
         }
     }
 }

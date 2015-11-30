@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,9 +36,11 @@
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsrewriter.h>
+#include <qmljs/qmljsvalueowner.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 
 #include <utils/qtcassert.h>
+#include <utils/dropsupport.h>
 
 #include <coreplugin/icore.h>
 #include <QDebug>
@@ -52,6 +55,8 @@ using namespace QmlJSTools;
 enum {
     debug = false
 };
+
+static const char INTERNAL_MIMETYPE[] = "application/x-qtcreator-qmloutlinemodel";
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -92,7 +97,7 @@ void QmlOutlineItem::setItemData(const QMap<int, QVariant> &roles)
     QMap<int,QVariant>::const_iterator iter(roles.constBegin());
     while (iter != roles.constEnd()) {
         setData(iter.value(), iter.key());
-        iter++;
+        ++iter;
     }
 }
 
@@ -298,23 +303,22 @@ private:
     int indent;
 };
 
-QmlOutlineModel::QmlOutlineModel(QmlJSEditorDocument *editor) :
-    QStandardItemModel(editor),
-    m_editorDocument(editor)
+QmlOutlineModel::QmlOutlineModel(QmlJSEditorDocument *document) :
+    QStandardItemModel(document),
+    m_editorDocument(document)
 {
     m_icons = Icons::instance();
     const QString resourcePath = Core::ICore::resourcePath();
     Icons::instance()->setIconFilesPath(resourcePath + QLatin1String("/qmlicons"));
 
-    // TODO: Maybe add a Copy Action?
-    setSupportedDragActions(Qt::MoveAction);
     setItemPrototype(new QmlOutlineItem(this));
 }
 
 QStringList QmlOutlineModel::mimeTypes() const
 {
     QStringList types;
-    types << QLatin1String("application/x-qtcreator-qmloutlinemodel");
+    types << QLatin1String(INTERNAL_MIMETYPE);
+    types << Utils::DropSupport::mimeTypesForFilePaths();
     return types;
 }
 
@@ -323,15 +327,18 @@ QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.count() <= 0)
         return 0;
-    QStringList types = mimeTypes();
-    QMimeData *data = new QMimeData();
-    QString format = types.at(0);
+    auto data = new Utils::DropMimeData;
+    data->setOverrideFileDropAction(Qt::CopyAction);
     QByteArray encoded;
     QDataStream stream(&encoded, QIODevice::WriteOnly);
     stream << indexes.size();
 
     for (int i = 0; i < indexes.size(); ++i) {
         QModelIndex index = indexes.at(i);
+
+        AST::SourceLocation location = sourceLocation(index);
+        data->addFile(m_editorDocument->filePath().toString(), location.startLine,
+                      location.startColumn - 1 /*editors have 0-based column*/);
 
         QList<int> rowPath;
         for (QModelIndex i = index; i.isValid(); i = i.parent()) {
@@ -340,7 +347,7 @@ QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
 
         stream << rowPath;
     }
-    data->setData(format, encoded);
+    data->setData(QLatin1String(INTERNAL_MIMETYPE), encoded);
     return data;
 }
 
@@ -408,6 +415,12 @@ Qt::ItemFlags QmlOutlineModel::flags(const QModelIndex &index) const
             flags |= Qt::ItemIsDropEnabled;
     }
     return flags;
+}
+
+Qt::DropActions QmlOutlineModel::supportedDragActions() const
+{
+    // copy action used for dragging onto editor splits
+    return Qt::MoveAction | Qt::CopyAction;
 }
 
 
@@ -911,7 +924,7 @@ QString QmlOutlineModel::asString(AST::UiQualifiedId *id)
 
 AST::SourceLocation QmlOutlineModel::getLocation(AST::UiObjectMember *objMember) {
     AST::SourceLocation location;
-    location.offset = objMember->firstSourceLocation().offset;
+    location = objMember->firstSourceLocation();
     location.length = objMember->lastSourceLocation().offset
             - objMember->firstSourceLocation().offset
             + objMember->lastSourceLocation().length;
@@ -920,7 +933,7 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::UiObjectMember *objMember)
 
 AST::SourceLocation QmlOutlineModel::getLocation(AST::ExpressionNode *exprNode) {
     AST::SourceLocation location;
-    location.offset = exprNode->firstSourceLocation().offset;
+    location = exprNode->firstSourceLocation();
     location.length = exprNode->lastSourceLocation().offset
             - exprNode->firstSourceLocation().offset
             + exprNode->lastSourceLocation().length;
@@ -937,7 +950,7 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyAssignmentList *pr
 
 AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyNameAndValue *propertyNode) {
     AST::SourceLocation location;
-    location.offset = propertyNode->name->propertyNameToken.offset;
+    location = propertyNode->name->propertyNameToken;
     location.length = propertyNode->value->lastSourceLocation().end() - location.offset;
 
     return location;
@@ -945,7 +958,7 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyNameAndValue *prop
 
 AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyGetterSetter *propertyNode) {
     AST::SourceLocation location;
-    location.offset = propertyNode->name->propertyNameToken.offset;
+    location = propertyNode->name->propertyNameToken;
     location.length = propertyNode->rbraceToken.end() - location.offset;
 
     return location;

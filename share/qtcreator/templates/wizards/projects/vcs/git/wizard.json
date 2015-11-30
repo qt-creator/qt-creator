@@ -1,0 +1,124 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "G.Git",
+    "category": "T.Import",
+    "trDescription": "Clones a Git repository and tries to load the contained project.",
+    "trDisplayName": "Git Clone",
+    "trDisplayCategory": "Import Project",
+    "icon": "icon.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Git') >= 0}",
+
+    "options":
+    [
+        { "key": "vcsId", "value": "G.Git" },
+        { "key": "vcsName", "value": "%{JS: Vcs.displayName('%{vcsId}')}" },
+        { "key": "SR", "value": "%{JS: '%{Repo}'.replace(/\.git$/, '') }"},
+        { "key": "defaultDir", "value": "%{JS: '%{SR}'.substr('%{SR}'.lastIndexOf('/') + 1).replace(/\\./, '-') }"},
+        { "key": "branchArg", "value": "%{JS: '%{Branch}' ? '--branch' : '' }" },
+        { "key": "TargetPath", "value": "%{Path}/%{Dir}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Configuration",
+            "trShortTitle": "Configuration",
+            "trSubTitle": "Please configure <b>%{vcsName}</b> now.",
+            "typeId": "VcsConfiguration",
+            "enabled": "%{JS: !Vcs.isConfigured('%{vcsId}')}",
+            "data": { "vcsId": "%{vcsId}" }
+        },
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "trSubTitle": "Specify repository URL, branch, checkout directory, and path.",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "Repo",
+                    "trDisplayName": "Repository:",
+                    "type": "LineEdit"
+                },
+                {
+                    "name": "Branch",
+                    "trDisplayName": "Branch:",
+                    "type": "LineEdit",
+                    "mandatory": false,
+                    "data":
+                    {
+                        "trPlaceholder": "<default branch>"
+                    }
+                },
+                {
+                    "name": "Sp1",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "Path",
+                    "trDisplayName": "Path:",
+                    "type": "PathChooser",
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                },
+                {
+                    "name": "Dir",
+                    "trDisplayName": "Directory:",
+                    "type": "LineEdit",
+                    "isComplete": "%{JS: '%{Dir}' === '' || !Util.exists('%{TargetPath}')}",
+                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators('%{TargetPath}')}\" exists in the filesystem.",
+                    "data":
+                    {
+                        "trText": "%{defaultDir}"
+                    }
+                },
+                {
+                    "name": "Sp2",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "Recursive",
+                    "trDisplayName": "Recursive",
+                    "trToolTip": "Recursively initialize submodules.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "--recursive",
+                        "uncheckedValue": ""
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Checkout",
+            "trShortTitle": "Checkout",
+            "typeId": "VcsCommand",
+            "data" :
+            {
+                "vcsId": "%{vcsId}",
+                "trRunMessage": "Running Git clone...",
+                "repository": "%{Repo}",
+                "baseDirectory": "%{Path}",
+                "checkoutName": "%{Dir}",
+                "extraArguments": [ "%{Recursive}", "%{branchArg}", "%{Branch}" ]
+            }
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "Scanner",
+            "data": {
+                "subdirectoryPatterns": [ "^src$" ]
+            }
+        }
+    ]
+}

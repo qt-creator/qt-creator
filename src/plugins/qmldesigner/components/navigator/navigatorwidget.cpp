@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,34 +9,31 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "navigatorwidget.h"
 #include "navigatorview.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignericons.h"
 
 #include <QBoxLayout>
 #include <QToolButton>
 #include <QAbstractItemModel>
 #include <QHeaderView>
-
+#include <QtDebug>
 #include <utils/fileutils.h>
-
 
 namespace QmlDesigner {
 
@@ -62,14 +59,8 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view) :
 
     setWindowTitle(tr("Navigator", "Title of navigator view"));
 
-    setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
-    m_treeView->setStyleSheet(
-            QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
-}
-
-NavigatorWidget::~NavigatorWidget()
-{
-
+    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css"))));
+    m_treeView->setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
 }
 
 void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
@@ -77,30 +68,36 @@ void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
     m_treeView->setModel(model);
 }
 
+QTreeView *NavigatorWidget::treeView() const
+{
+    return m_treeView;
+}
+
 QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
 {
     QList<QToolButton *> buttons;
 
-    buttons << new QToolButton();
-    buttons.last()->setIcon(QIcon(":/navigator/icon/arrowleft.png"));
-    buttons.last()->setToolTip(tr("Become first sibling of parent (CTRL + Left)"));
+    buttons.append(new QToolButton());
+    buttons.last()->setIcon(Icons::ARROW_LEFT.icon());
+    buttons.last()->setToolTip(tr("Become last sibling of parent (CTRL + Left)."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Left | Qt::CTRL));
     connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(leftButtonClicked()));
-    buttons << new QToolButton();
-    buttons.last()->setIcon(QIcon(":/navigator/icon/arrowright.png"));
-    buttons.last()->setToolTip(tr("Become child of first sibling (CTRL + Right)"));
+
+    buttons.append(new QToolButton());
+    buttons.last()->setIcon(Icons::ARROW_RIGHT.icon());
+    buttons.last()->setToolTip(tr("Become child of last sibling (CTRL + Right)."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Right | Qt::CTRL));
     connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(rightButtonClicked()));
 
-    buttons << new QToolButton();
-    buttons.last()->setIcon(QIcon(":/navigator/icon/arrowdown.png"));
-    buttons.last()->setToolTip(tr("Move down (CTRL + Down)"));
+    buttons.append(new QToolButton());
+    buttons.last()->setIcon(Icons::ARROW_DOWN.icon());
+    buttons.last()->setToolTip(tr("Move down (CTRL + Down)."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
     connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(downButtonClicked()));
 
-    buttons << new QToolButton();
-    buttons.last()->setIcon(QIcon(":/navigator/icon/arrowup.png"));
-    buttons.last()->setToolTip(tr("Move up (CTRL + Up)"));
+    buttons.append(new QToolButton());
+    buttons.last()->setIcon(Icons::ARROW_UP.icon());
+    buttons.last()->setToolTip(tr("Move up (CTRL + Up)."));
     buttons.last()->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
     connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(upButtonClicked()));
 
@@ -109,17 +106,10 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
 
 QString NavigatorWidget::contextHelpId() const
 {
-    if (!navigatorView())
-        return QString();
+    if (navigatorView())
+        return  navigatorView()->contextHelpId();
 
-    QList<ModelNode> nodes = navigatorView()->selectedModelNodes();
-    QString helpId;
-    if (!nodes.isEmpty()) {
-        helpId = nodes.first().type();
-        helpId.replace("QtQuick", "QML");
-    }
-
-    return helpId;
+    return QString();
 }
 
 NavigatorView *NavigatorWidget::navigatorView() const

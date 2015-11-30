@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -54,6 +55,8 @@
 #include <cplusplus/Token.h>
 #include <cplusplus/Literals.h>
 
+#include <utils/scopedswap.h>
+
 #include <QDebug>
 #include <QList>
 #include <QDate>
@@ -72,6 +75,8 @@
 
 #include <deque>
 
+using namespace Utils;
+
 namespace {
 enum {
     MAX_TOKEN_EXPANSION_COUNT = 5000,
@@ -80,28 +85,6 @@ enum {
 }
 
 namespace {
-/// RAII object to save a value, and restore it when the scope is left.
-template<typename _T>
-class ScopedSwap
-{
-    _T oldValue;
-    _T &ref;
-
-public:
-    ScopedSwap(_T &var, _T newValue)
-        : oldValue(newValue)
-        , ref(var)
-    {
-        std::swap(ref, oldValue);
-    }
-
-    ~ScopedSwap()
-    {
-        std::swap(ref, oldValue);
-    }
-};
-typedef ScopedSwap<bool> ScopedBoolSwap;
-
 static bool same(const char *a, const char *b, int size)
 {
     return strncmp(a, b, size) == 0;
@@ -157,6 +140,12 @@ static bool isQtReservedWord(const char *name, int size)
     return false;
 }
 
+static void nestingTooDeep()
+{
+#ifndef NO_DEBUG
+        std::cerr << "*** WARNING #if / #ifdef nesting exceeded the max level " << MAX_LEVEL << std::endl;
+#endif
+}
 
 } // anonymous namespace
 
@@ -277,7 +266,8 @@ inline bool isContinuationToken(const PPToken &tk)
 }
 
 Macro *macroDefinition(const ByteArrayRef &name,
-                       unsigned offset,
+                       unsigned bytesOffset,
+                       unsigned utf16charsOffset,
                        unsigned line,
                        Environment *env,
                        Client *client)
@@ -285,9 +275,9 @@ Macro *macroDefinition(const ByteArrayRef &name,
     Macro *m = env->resolve(name);
     if (client) {
         if (m)
-            client->passedMacroDefinitionCheck(offset, line, *m);
+            client->passedMacroDefinitionCheck(bytesOffset, utf16charsOffset, line, *m);
         else
-            client->failedMacroDefinitionCheck(offset, name);
+            client->failedMacroDefinitionCheck(bytesOffset, utf16charsOffset, name);
     }
     return m;
 }
@@ -303,10 +293,11 @@ public:
         : first(first), last(last)
     {
         // WARN: `last' must be a valid iterator.
-        trivial.offset = last->offset;
+        trivial.byteOffset = last->byteOffset;
+        trivial.utf16charOffset = last->utf16charOffset;
     }
 
-    inline operator bool() const
+    inline explicit operator bool() const
     { return first != last; }
 
     inline bool isValid() const
@@ -384,12 +375,12 @@ protected:
 
     const char *tokenPosition() const
     {
-        return source.constData() + (*_lex)->offset;
+        return source.constData() + (*_lex)->byteOffset;
     }
 
     int tokenLength() const
     {
-        return (*_lex)->f.length;
+        return (*_lex)->f.bytes;
     }
 
     ByteArrayRef tokenSpell() const
@@ -416,12 +407,16 @@ protected:
             const char *end = spell + len;
             char *vend = const_cast<char *>(end);
             _value.set_long(strtol(spell, &vend, 0));
+            // TODO: if (vend != end) error(NaN)
+            // TODO: binary literals
+            // TODO: float literals
             ++(*_lex);
         } else if (isTokenDefined()) {
             ++(*_lex);
             if ((*_lex)->is(T_IDENTIFIER)) {
                 _value.set_long(macroDefinition(tokenSpell(),
-                                                (*_lex)->offset,
+                                                (*_lex)->byteOffset,
+                                                (*_lex)->utf16charOffset,
                                                 (*_lex)->lineno, env, client)
                                 != 0);
                 ++(*_lex);
@@ -429,7 +424,8 @@ protected:
                 ++(*_lex);
                 if ((*_lex)->is(T_IDENTIFIER)) {
                     _value.set_long(macroDefinition(tokenSpell(),
-                                                    (*_lex)->offset,
+                                                    (*_lex)->byteOffset,
+                                                    (*_lex)->utf16charOffset,
                                                     (*_lex)->lineno,
                                                     env, client)
                                     != 0);
@@ -610,7 +606,8 @@ Preprocessor::State::State()
     , m_markExpandedTokens(true)
     , m_noLines(false)
     , m_inCondition(false)
-    , m_offsetRef(0)
+    , m_bytesOffsetRef(0)
+    , m_utf16charsOffsetRef(0)
     , m_result(0)
     , m_lineRef(1)
     , m_currentExpansion(0)
@@ -737,7 +734,7 @@ void Preprocessor::State::updateIncludeGuardState_helper(IncludeGuardStateHint h
 #endif // DEBUG_INCLUDE_GUARD_TRACKING
 }
 
-const QString Preprocessor::configurationFileName = QLatin1String("<configuration>");
+QString Preprocessor::configurationFileName() { return QStringLiteral("<configuration>"); }
 
 Preprocessor::Preprocessor(Client *client, Environment *env)
     : m_client(client)
@@ -749,7 +746,7 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
 
 QByteArray Preprocessor::run(const QString &fileName, const QString &source)
 {
-    return run(fileName, source.toLatin1());
+    return run(fileName, source.toUtf8());
 }
 
 QByteArray Preprocessor::run(const QString &fileName,
@@ -830,7 +827,9 @@ void Preprocessor::handleDefined(PPToken *tk)
 
     QByteArray result(1, '0');
     const ByteArrayRef macroName = idToken.asByteArrayRef();
-    if (macroDefinition(macroName, idToken.offset + m_state.m_offsetRef,
+    if (macroDefinition(macroName,
+                        idToken.byteOffset + m_state.m_bytesOffsetRef,
+                        idToken.utf16charOffset + m_state.m_utf16charsOffsetRef,
                         idToken.lineno, m_env, m_client)) {
         result[0] = '1';
     }
@@ -845,13 +844,13 @@ void Preprocessor::pushToken(Preprocessor::PPToken *tk)
 
 void Preprocessor::lex(PPToken *tk)
 {
-_Lagain:
+again:
     if (m_state.m_tokenBuffer) {
         // There is a token buffer, so read from there.
         if (m_state.m_tokenBuffer->tokens.empty()) {
             // The token buffer is empty, so pop it, and start over.
             m_state.popTokenBuffer();
-            goto _Lagain;
+            goto again;
         }
         *tk = m_state.m_tokenBuffer->tokens.front();
         m_state.m_tokenBuffer->tokens.pop_front();
@@ -870,25 +869,25 @@ _Lagain:
     // Adjust token's line number in order to take into account the environment reference.
     tk->lineno += m_state.m_lineRef - 1;
 
-_Lclassify:
+reclassify:
     if (! m_state.m_inPreprocessorDirective) {
         if (tk->newline() && tk->is(T_POUND)) {
             handlePreprocessorDirective(tk);
-            goto _Lclassify;
+            goto reclassify;
         } else if (tk->newline() && skipping()) {
             ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
             do {
                 lex(tk);
             } while (isContinuationToken(*tk));
-            goto _Lclassify;
-        } else if (tk->is(T_IDENTIFIER) && !isQtReservedWord(tk->tokenStart(), tk->length())) {
+            goto reclassify;
+        } else if (tk->is(T_IDENTIFIER) && !isQtReservedWord(tk->tokenStart(), tk->bytes())) {
             m_state.updateIncludeGuardState(State::IncludeGuardStateHint_OtherToken);
             if (m_state.m_inCondition && tk->asByteArrayRef() == "defined") {
                 handleDefined(tk);
             } else {
                 synchronizeOutputLines(*tk);
                 if (handleIdentifier(tk))
-                    goto _Lagain;
+                    goto again;
             }
         } else if (tk->isNot(T_COMMENT) && tk->isNot(T_EOF_SYMBOL)) {
             m_state.updateIncludeGuardState(State::IncludeGuardStateHint_OtherToken);
@@ -901,18 +900,14 @@ void Preprocessor::skipPreprocesorDirective(PPToken *tk)
     ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
 
     while (isContinuationToken(*tk)) {
-        if (tk->isComment()) {
-            synchronizeOutputLines(*tk);
-            enforceSpacing(*tk, true);
-            currentOutputBuffer().append(tk->tokenStart(), tk->length());
-        }
+        scanComment(tk);
         lex(tk);
     }
 }
 
 bool Preprocessor::handleIdentifier(PPToken *tk)
 {
-    ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
+    ScopedBoolSwap s(m_state.m_inPreprocessorDirective, !tk->f.expanded);
 
     static const QByteArray ppLine("__LINE__");
     static const QByteArray ppFile("__FILE__");
@@ -984,7 +979,8 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         if (!expandFunctionlikeMacros()
                 // Still expand if this originally started with an object-like macro.
                 && m_state.m_expansionStatus != Expanding) {
-            m_client->notifyMacroReference(m_state.m_offsetRef + idTk.offset,
+            m_client->notifyMacroReference(m_state.m_bytesOffsetRef + idTk.byteOffset,
+                                           m_state.m_utf16charsOffsetRef + idTk.utf16charOffset,
                                            idTk.lineno,
                                            *macro);
             return false;
@@ -1026,7 +1022,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
             //### TODO: error message
             pushToken(tk);
             // If a previous marker was found, make sure to put it back.
-            if (oldMarkerTk.f.length)
+            if (oldMarkerTk.bytes())
                 pushToken(&oldMarkerTk);
             *tk = idTk;
             return false;
@@ -1044,13 +1040,17 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
                 } else {
 
                     argRefs.push_back(MacroArgumentReference(
-                                          m_state.m_offsetRef + argTks.first().begin(),
-                                          argTks.last().begin() + argTks.last().length()
-                                            - argTks.first().begin()));
+                                  m_state.m_bytesOffsetRef + argTks.first().bytesBegin(),
+                                  argTks.last().bytesBegin() + argTks.last().bytes()
+                                    - argTks.first().bytesBegin(),
+                                  m_state.m_utf16charsOffsetRef + argTks.first().utf16charsBegin(),
+                                  argTks.last().utf16charsBegin() + argTks.last().utf16chars()
+                                    - argTks.first().utf16charsBegin()));
                 }
             }
 
-            m_client->startExpandingMacro(m_state.m_offsetRef + idTk.offset,
+            m_client->startExpandingMacro(m_state.m_bytesOffsetRef + idTk.byteOffset,
+                                          m_state.m_utf16charsOffsetRef + idTk.utf16charOffset,
                                           idTk.lineno,
                                           *macro,
                                           argRefs);
@@ -1058,11 +1058,13 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 
         if (!handleFunctionLikeMacro(macro, body, allArgTks, baseLine)) {
             if (m_client && !idTk.expanded())
-                m_client->stopExpandingMacro(idTk.offset, *macro);
+                m_client->stopExpandingMacro(idTk.byteOffset, *macro);
             return false;
         }
     } else if (m_client && !idTk.generated()) {
-        m_client->startExpandingMacro(m_state.m_offsetRef + idTk.offset, idTk.lineno, *macro);
+        m_client->startExpandingMacro(m_state.m_bytesOffsetRef + idTk.byteOffset,
+                                      m_state.m_utf16charsOffsetRef + idTk.utf16charOffset,
+                                      idTk.lineno, *macro);
     }
 
     if (body.isEmpty()) {
@@ -1072,7 +1074,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
             // This is not the most beautiful approach but it's quite reasonable. What we do here
             // is to create a fake identifier token which is only composed by whitespaces. It's
             // also not marked as expanded so it it can be treated as a regular token.
-            const QByteArray content(int(idTk.f.length + computeDistance(idTk)), ' ');
+            const QByteArray content(int(idTk.bytes() + computeDistance(idTk)), ' ');
             PPToken fakeIdentifier = generateToken(T_IDENTIFIER,
                                                    content.constData(), content.length(),
                                                    idTk.lineno, false, false);
@@ -1085,8 +1087,8 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         // The first body token replaces the macro invocation so its whitespace and
         // newline info is replicated.
         PPToken &bodyTk = body[0];
-        bodyTk.f.whitespace = idTk.f.whitespace;
-        bodyTk.f.newline = idTk.f.newline;
+        bodyTk.f.whitespace = idTk.whitespace();
+        bodyTk.f.newline = idTk.newline();
 
         // Expansions are tracked from a "top-level" basis. This means that each expansion
         // section in the output corresponds to a direct use of a macro (either object-like
@@ -1105,13 +1107,13 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
                     || m_state.m_expansionStatus == JustFinishedExpansion) {
                 PPToken marker;
                 marker.f.expanded = true;
-                marker.f.length = idTk.f.length;
-                marker.offset = idTk.offset;
+                marker.f.bytes = idTk.bytes();
+                marker.byteOffset = idTk.byteOffset;
                 marker.lineno = idTk.lineno;
                 body.prepend(marker);
                 body.append(marker);
                 m_state.setExpansionStatus(ReadyForExpansion);
-            } else if (oldMarkerTk.f.length
+            } else if (oldMarkerTk.bytes()
                        && (m_state.m_expansionStatus == ReadyForExpansion
                            || m_state.m_expansionStatus == Expanding)) {
                 body.append(oldMarkerTk);
@@ -1122,7 +1124,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
     m_state.pushTokenBuffer(body.begin(), body.end(), macro);
 
     if (m_client && !idTk.generated())
-        m_client->stopExpandingMacro(idTk.offset, *macro);
+        m_client->stopExpandingMacro(idTk.byteOffset, *macro);
 
     return true;
 }
@@ -1170,7 +1172,7 @@ bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
                                 lineno = t.lineno;
                             else if (t.whitespace())
                                 enclosedString.append(' ');
-                            enclosedString.append(t.tokenStart(), t.length());
+                            enclosedString.append(t.tokenStart(), t.bytes());
                         }
                         enclosedString.replace("\\", "\\\\");
                         enclosedString.replace("\"", "\\\"");
@@ -1269,7 +1271,8 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
 
                 // Offset and length of the macro invocation
                 char chunk[40];
-                qsnprintf(chunk, sizeof(chunk), "# expansion begin %d,%d", tk->offset, tk->length());
+                qsnprintf(chunk, sizeof(chunk), "# expansion begin %d,%d", tk->byteOffset,
+                          tk->bytes());
                 buffer.append(chunk);
 
                 // Expanded tokens
@@ -1378,7 +1381,8 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                               QByteArray *result, QByteArray *includeGuardMacroName,
                               bool noLines,
                               bool markGeneratedTokens, bool inCondition,
-                              unsigned offsetRef, unsigned lineRef)
+                              unsigned bytesOffsetRef, unsigned utf16charOffsetRef,
+                              unsigned lineRef)
 {
     if (source.isEmpty())
         return;
@@ -1389,6 +1393,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     m_state.m_lexer = new Lexer(source.constBegin(), source.constEnd());
     m_state.m_lexer->setScanKeywords(false);
     m_state.m_lexer->setScanAngleStringLiteralTokens(false);
+    m_state.m_lexer->setPreprocessorMode(true);
     if (m_keepComments)
         m_state.m_lexer->setScanCommentTokens(true);
     m_state.m_result = result;
@@ -1396,7 +1401,8 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     m_state.m_noLines = noLines;
     m_state.m_markExpandedTokens = markGeneratedTokens;
     m_state.m_inCondition = inCondition;
-    m_state.m_offsetRef = offsetRef;
+    m_state.m_bytesOffsetRef = bytesOffsetRef;
+    m_state.m_utf16charsOffsetRef = utf16charOffsetRef;
     m_state.m_lineRef = lineRef;
 
     ScopedSwap<QString> savedFileName(m_env->currentFile, fileName);
@@ -1437,7 +1443,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
         enforceSpacing(tk, macroExpanded);
 
         // Finally output the token.
-        currentOutputBuffer().append(tk.tokenStart(), tk.length());
+        currentOutputBuffer().append(tk.tokenStart(), tk.bytes());
 
     } while (tk.isNot(T_EOF_SYMBOL));
 
@@ -1451,6 +1457,23 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
         m_state.popTokenBuffer();
 }
 
+bool Preprocessor::scanComment(Preprocessor::PPToken *tk)
+{
+    if (!tk->isComment())
+        return false;
+    synchronizeOutputLines(*tk);
+    enforceSpacing(*tk, true);
+    currentOutputBuffer().append(tk->tokenStart(), tk->bytes());
+    return true;
+}
+
+bool Preprocessor::consumeComments(PPToken *tk)
+{
+    while (scanComment(tk))
+        lex(tk);
+    return tk->isNot(T_EOF_SYMBOL);
+}
+
 bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> > *actuals)
 {
     Q_ASSERT(tk);
@@ -1458,12 +1481,22 @@ bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> 
 
     lex(tk); // consume the identifier
 
-    // consume comments
-    while (tk->isComment()) {
+    bool lastCommentIsCpp = false;
+    while (scanComment(tk)) {
+        /* After C++ comments we need to add a new line
+           e.g.
+             #define foo(a, b) int a = b
+             foo // comment
+             (x, 3);
+           can result in
+                 // commentint
+             x = 3;
+        */
+        lastCommentIsCpp = tk->is(T_CPP_COMMENT) || tk->is(T_CPP_DOXY_COMMENT);
         lex(tk);
-        if (!tk)
-            return false;
     }
+    if (lastCommentIsCpp)
+        maybeStartOutputLine();
 
     if (tk->isNot(T_LPAREN))
         //### TODO: error message
@@ -1512,7 +1545,8 @@ void Preprocessor::scanActualArgument(PPToken *tk, QVector<PPToken> *tokens)
             // expansion. We stick with GCC's approach which is to replace them by C style
             // comments (currently clang just gets rid of them) and transform internals */
             // into *|.
-            QByteArray text = m_state.m_source.mid(tk->begin() + 2, tk->end() - tk->begin() - 2);
+            QByteArray text = m_state.m_source.mid(tk->bytesBegin() + 2,
+                                                   tk->bytesEnd() - tk->bytesBegin() - 2);
             const QByteArray &comment = "/*" + text.replace("*/", "*|") + "*/";
             tokens->append(generateToken(T_COMMENT,
                                          comment.constData(), comment.size(),
@@ -1606,7 +1640,7 @@ void Preprocessor::handleIncludeDirective(PPToken *tk, bool includeNext)
         return;
     }
 
-//    qDebug("include [[%s]]", included.toUtf8().constData());
+//    qDebug("include [[%s]]", included.constData());
     Client::IncludeType mode;
     if (includeNext)
         mode = Client::IncludeNext;
@@ -1625,8 +1659,11 @@ void Preprocessor::handleIncludeDirective(PPToken *tk, bool includeNext)
 
 void Preprocessor::handleDefineDirective(PPToken *tk)
 {
-    const unsigned defineOffset = tk->offset;
+    const unsigned defineOffset = tk->byteOffset;
     lex(tk); // consume "define" token
+
+    if (!consumeComments(tk))
+        return;
 
     if (tk->isNot(T_IDENTIFIER))
         return;
@@ -1636,7 +1673,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
     macro.setLine(tk->lineno);
     QByteArray macroName = tk->asByteArrayRef().toByteArray();
     macro.setName(macroName);
-    macro.setOffset(tk->offset);
+    macro.setBytesOffset(tk->byteOffset);
+    macro.setUtf16charOffset(tk->utf16charOffset);
 
     PPToken idToken(*tk);
 
@@ -1646,6 +1684,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         macro.setFunctionLike(true);
 
         lex(tk); // skip `('
+        if (!consumeComments(tk))
+            return;
 
         bool hasIdentifier = false;
         if (isContinuationToken(*tk) && tk->is(T_IDENTIFIER)) {
@@ -1653,13 +1693,19 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
             macro.addFormal(tk->asByteArrayRef().toByteArray());
 
             lex(tk);
+            if (!consumeComments(tk))
+                return;
 
             while (isContinuationToken(*tk) && tk->is(T_COMMA)) {
                 lex(tk);
+                if (!consumeComments(tk))
+                    return;
 
                 if (isContinuationToken(*tk) && tk->is(T_IDENTIFIER)) {
                     macro.addFormal(tk->asByteArrayRef().toByteArray());
                     lex(tk);
+                    if (!consumeComments(tk))
+                        return;
                 } else {
                     hasIdentifier = false;
                 }
@@ -1671,6 +1717,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
             if (!hasIdentifier)
                 macro.addFormal("__VA_ARGS__");
             lex(tk); // consume elipsis token
+            if (!consumeComments(tk))
+                return;
         }
         if (isContinuationToken(*tk) && tk->is(T_RPAREN))
             lex(tk); // consume ")" token
@@ -1680,7 +1728,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
     }
 
     QVector<PPToken> bodyTokens;
-    unsigned previousOffset = 0;
+    unsigned previousBytesOffset = 0;
+    unsigned previousUtf16charsOffset = 0;
     unsigned previousLine = 0;
     Macro *macroReference = 0;
     while (isContinuationToken(*tk)) {
@@ -1697,27 +1746,25 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
             macroReference = m_env->resolve(tk->asByteArrayRef());
             if (macroReference) {
                 if (!macroReference->isFunctionLike()) {
-                    m_client->notifyMacroReference(tk->offset, tk->lineno, *macroReference);
+                    m_client->notifyMacroReference(tk->byteOffset, tk->utf16charOffset,
+                                                   tk->lineno, *macroReference);
                     macroReference = 0;
                 }
             }
         } else if (macroReference) {
-            if (tk->is(T_LPAREN))
-                m_client->notifyMacroReference(previousOffset, previousLine, *macroReference);
+            if (tk->is(T_LPAREN)) {
+                m_client->notifyMacroReference(previousBytesOffset, previousUtf16charsOffset,
+                                               previousLine, *macroReference);
+            }
             macroReference = 0;
         }
 
-        previousOffset = tk->offset;
+        previousBytesOffset = tk->byteOffset;
+        previousUtf16charsOffset = tk->utf16charOffset;
         previousLine = tk->lineno;
 
-        // Discard comments in macro definitions (keep comments flag doesn't apply here).
-        if (tk->isComment()) {
-            synchronizeOutputLines(*tk);
-            enforceSpacing(*tk, true);
-            currentOutputBuffer().append(tk->tokenStart(), tk->length());
-        } else {
+        if (!scanComment(tk))
             bodyTokens.push_back(*tk);
-        }
 
         lex(tk);
     }
@@ -1741,8 +1788,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         macro.setDefinition(macroId, bodyTokens);
     } else if (!bodyTokens.isEmpty()) {
         PPToken &firstBodyToken = bodyTokens[0];
-        int start = firstBodyToken.offset;
-        int len = tk->offset - start;
+        int start = firstBodyToken.byteOffset;
+        int len = tk->byteOffset - start;
         QByteArray bodyText = firstBodyToken.source().mid(start, len).trimmed();
 
         const int bodySize = bodyTokens.size();
@@ -1754,7 +1801,7 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         macro.setDefinition(bodyText, bodyTokens);
     }
 
-    macro.setLength(tk->offset - defineOffset);
+    macro.setLength(tk->byteOffset - defineOffset);
     m_env->bind(macro);
 
 //    qDebug() << "adding macro" << macro.name() << "defined at" << macro.fileName() << ":"<<macro.line();
@@ -1766,19 +1813,22 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
 QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
 {
     unsigned line = tk->lineno;
-    unsigned begin = tk->begin();
+    unsigned bytesBegin = tk->bytesBegin();
+    unsigned utf16charsBegin = tk->utf16charsBegin();
     PPToken lastTk;
     while (isContinuationToken(*tk)) {
         lastTk = *tk;
         lex(tk);
     }
     // Gather the exact spelling of the content in the source.
-    QByteArray condition(m_state.m_source.mid(begin, lastTk.begin() + lastTk.length() - begin));
+    QByteArray condition(m_state.m_source.mid(bytesBegin, lastTk.bytesBegin() + lastTk.bytes()
+                                              - bytesBegin));
 
 //    qDebug("*** Condition before: [%s]", condition.constData());
     QByteArray result;
     result.reserve(256);
-    preprocess(m_state.m_currentFileName, condition, &result, 0, true, false, true, begin, line);
+    preprocess(m_state.m_currentFileName, condition, &result, 0, true, false, true,
+               bytesBegin, utf16charsBegin, line);
     result.squeeze();
 //    qDebug("*** Condition after: [%s]", result.constData());
 
@@ -1793,6 +1843,7 @@ const PPToken Preprocessor::evalExpression(PPToken *tk, Value &result)
     PPToken lastConditionToken;
     const QByteArray expanded = expand(tk, &lastConditionToken);
     Lexer lexer(expanded.constData(), expanded.constData() + expanded.size());
+    lexer.setPreprocessorMode(true);
     std::vector<Token> buf;
     Token t;
     do {
@@ -1809,6 +1860,12 @@ void Preprocessor::handleIfDirective(PPToken *tk)
     lex(tk); // consume "if" token
     Value result;
     const PPToken lastExpressionToken = evalExpression(tk, result);
+
+    if (m_state.m_ifLevel >= MAX_LEVEL - 1) {
+        nestingTooDeep();
+        return;
+    }
+
     const bool value = !result.is_zero();
 
     const bool wasSkipping = m_state.m_skipping[m_state.m_ifLevel];
@@ -1852,7 +1909,7 @@ void Preprocessor::handleElifDirective(PPToken *tk, const PPToken &poundToken)
             m_state.m_trueTest[m_state.m_ifLevel] = !startSkipping;
             m_state.m_skipping[m_state.m_ifLevel] = startSkipping;
             if (m_client && !startSkipping)
-                m_client->stopSkippingBlocks(poundToken.offset - 1);
+                m_client->stopSkippingBlocks(poundToken.utf16charOffset - 1);
         }
     }
 }
@@ -1871,7 +1928,7 @@ void Preprocessor::handleElseDirective(PPToken *tk, const PPToken &poundToken)
             m_state.m_skipping[m_state.m_ifLevel] = startSkipping;
 
             if (m_client && wasSkipping && !startSkipping)
-                m_client->stopSkippingBlocks(poundToken.offset - 1);
+                m_client->stopSkippingBlocks(poundToken.utf16charOffset - 1);
             else if (m_client && !wasSkipping && startSkipping)
                 startSkippingBlocks(poundToken);
         }
@@ -1897,7 +1954,7 @@ void Preprocessor::handleEndIfDirective(PPToken *tk, const PPToken &poundToken)
         m_state.m_trueTest[m_state.m_ifLevel] = false;
         --m_state.m_ifLevel;
         if (m_client && wasSkipping && !m_state.m_skipping[m_state.m_ifLevel])
-            m_client->stopSkippingBlocks(poundToken.offset - 1);
+            m_client->stopSkippingBlocks(poundToken.utf16charOffset - 1);
 
         if (m_state.m_ifLevel == 0)
             m_state.updateIncludeGuardState(State::IncludeGuardStateHint_Endif);
@@ -1915,12 +1972,13 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
 
         bool value = false;
         const ByteArrayRef macroName = tk->asByteArrayRef();
-        if (Macro *macro = macroDefinition(macroName, tk->offset, tk->lineno, m_env, m_client)) {
+        if (Macro *macro = macroDefinition(macroName, tk->byteOffset, tk->utf16charOffset,
+                                           tk->lineno, m_env, m_client)) {
             value = true;
 
             // the macro is a feature constraint(e.g. QT_NO_XXX)
             if (checkUndefined && macroName.startsWith("QT_NO_")) {
-                if (macro->fileName() == configurationFileName) {
+                if (macro->fileName() == configurationFileName()) {
                     // and it' defined in a pro file (e.g. DEFINES += QT_NO_QOBJECT)
 
                     value = false; // take the branch
@@ -1934,12 +1992,17 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
             value = !value;
 
         const bool wasSkipping = m_state.m_skipping[m_state.m_ifLevel];
-        ++m_state.m_ifLevel;
-        m_state.m_trueTest[m_state.m_ifLevel] = value;
-        m_state.m_skipping[m_state.m_ifLevel] = wasSkipping ? wasSkipping : !value;
 
-        if (m_client && !wasSkipping && !value)
-            startSkippingBlocks(*tk);
+        if (m_state.m_ifLevel < MAX_LEVEL - 1) {
+            ++m_state.m_ifLevel;
+            m_state.m_trueTest[m_state.m_ifLevel] = value;
+            m_state.m_skipping[m_state.m_ifLevel] = wasSkipping ? wasSkipping : !value;
+
+            if (m_client && !wasSkipping && !value)
+                startSkippingBlocks(*tk);
+        } else {
+            nestingTooDeep();
+        }
 
         lex(tk); // consume the identifier
 #ifndef NO_DEBUG
@@ -1954,17 +2017,21 @@ void Preprocessor::handleUndefDirective(PPToken *tk)
     lex(tk); // consume "undef" token
     if (tk->is(T_IDENTIFIER)) {
         const ByteArrayRef macroName = tk->asByteArrayRef();
-        const unsigned offset = tk->offset + m_state.m_offsetRef;
+        const unsigned bytesOffset = tk->byteOffset + m_state.m_bytesOffsetRef;
+        const unsigned utf16charsOffset = tk->utf16charOffset + m_state.m_utf16charsOffsetRef;
         // Track macro use if previously defined
         if (m_client) {
-            if (const Macro *existingMacro = m_env->resolve(macroName))
-                m_client->notifyMacroReference(offset, tk->lineno, *existingMacro);
+            if (const Macro *existingMacro = m_env->resolve(macroName)) {
+                m_client->notifyMacroReference(bytesOffset, utf16charsOffset,
+                                               tk->lineno, *existingMacro);
+            }
         }
         synchronizeOutputLines(*tk);
         Macro *macro = m_env->remove(macroName);
 
         if (m_client && macro) {
-            macro->setOffset(offset);
+            macro->setBytesOffset(bytesOffset);
+            macro->setUtf16charOffset(utf16charsOffset);
             m_client->macroAdded(*macro);
         }
         lex(tk); // consume macro name
@@ -2007,8 +2074,8 @@ PPToken Preprocessor::generateToken(enum Kind kind,
         else if (kind == T_NUMERIC_LITERAL)
             tk.number = m_state.m_lexer->control()->numericLiteral(m_scratchBuffer.constData() + pos, length);
     }
-    tk.offset = unsigned(pos);
-    tk.f.length = length;
+    tk.byteOffset = unsigned(pos);
+    tk.f.bytes = length;
     tk.f.generated = true;
     tk.f.expanded = true;
     tk.lineno = lineno;
@@ -2019,11 +2086,11 @@ PPToken Preprocessor::generateToken(enum Kind kind,
 PPToken Preprocessor::generateConcatenated(const PPToken &leftTk, const PPToken &rightTk)
 {
     QByteArray newText;
-    newText.reserve(leftTk.length() + rightTk.length());
-    newText.append(leftTk.tokenStart(), leftTk.length());
-    newText.append(rightTk.tokenStart(), rightTk.length());
+    newText.reserve(leftTk.bytes() + rightTk.bytes());
+    newText.append(leftTk.tokenStart(), leftTk.bytes());
+    newText.append(rightTk.tokenStart(), rightTk.bytes());
     PPToken result = generateToken(T_IDENTIFIER, newText.constData(), newText.size(), leftTk.lineno, true);
-    result.f.whitespace = leftTk.f.whitespace;
+    result.f.whitespace = leftTk.whitespace();
     return result;
 }
 
@@ -2032,14 +2099,18 @@ void Preprocessor::startSkippingBlocks(const Preprocessor::PPToken &tk) const
     if (!m_client)
         return;
 
-    int iter = tk.end();
-    const QByteArray &txt = tk.source();
-    for (; iter < txt.size(); ++iter) {
-        if (txt.at(iter) == '\n') {
-            m_client->startSkippingBlocks(iter + 1);
+    unsigned utf16charIter = tk.utf16charsEnd();
+    const char *source = tk.source().constData() + tk.bytesEnd();
+    const char *sourceEnd = tk.source().constEnd();
+    unsigned char yychar = *source;
+
+    do {
+        if (yychar == '\n') {
+            m_client->startSkippingBlocks(utf16charIter + 1);
             return;
         }
-    }
+        Lexer::yyinp_utf8(source, yychar, utf16charIter);
+    } while (source < sourceEnd);
 }
 
 bool Preprocessor::atStartOfOutputLine() const
@@ -2058,7 +2129,7 @@ void Preprocessor::maybeStartOutputLine()
     // If previous line ends with \ (possibly followed by whitespace), add another \n
     const char *start = buffer.constData();
     const char *ch = start + buffer.length() - 2;
-    while (ch > start && (*ch != '\n') && std::isspace(*ch))
+    while (ch > start && (*ch != '\n') && pp_isspace(*ch))
         --ch;
     if (*ch == '\\')
         buffer.append('\n');

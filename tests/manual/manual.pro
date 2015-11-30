@@ -1,17 +1,15 @@
 TEMPLATE=subdirs
 
 SUBDIRS= \
-cplusplus-frontend \
 fakevim \
 debugger \
-preprocessor \
 subdir_proparser \
-utils
+utils \
+shootout
 
 unix {
 #   Uses popen
     SUBDIRS += \
-    plain-cplusplus \
 #   Profile library paths issues
     process \
     ssh

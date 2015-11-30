@@ -86,7 +86,7 @@ void ASTVisitor::getTokenPosition(unsigned index,
 { translationUnit()->getTokenPosition(index, line, column, fileName); }
 
 void ASTVisitor::getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const
-{ getPosition(tokenAt(index).begin(), line, column); }
+{ getPosition(tokenAt(index).utf16charsBegin(), line, column); }
 
 void ASTVisitor::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const
-{ getPosition(tokenAt(index).end(), line, column); }
+{ getPosition(tokenAt(index).utf16charsEnd(), line, column); }

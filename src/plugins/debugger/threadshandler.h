@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,8 +33,7 @@
 
 #include "threaddata.h"
 
-#include <QAbstractTableModel>
-#include <QIcon>
+#include <utils/treemodel.h>
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -46,7 +46,7 @@ namespace Internal {
 
 class GdbMi;
 
-class ThreadsHandler : public QAbstractTableModel
+class ThreadsHandler : public Utils::TreeModel
 {
     Q_OBJECT
 
@@ -57,47 +57,40 @@ public:
     ThreadId currentThread() const;
     ThreadId threadAt(int index) const;
     void setCurrentThread(ThreadId id);
+    QByteArray pidForGroupId(const QByteArray &groupId) const;
 
-    void updateThread(const ThreadData &thread);
+    void updateThread(const ThreadData &threadData);
     void updateThreads(const GdbMi &data);
 
     void removeThread(ThreadId threadId);
     void setThreads(const Threads &threads);
     void removeAll();
-    Threads threads() const;
     ThreadData thread(ThreadId id) const;
     QAbstractItemModel *model();
 
+    void notifyGroupCreated(const QByteArray &groupId, const QByteArray &pid);
+    bool notifyGroupExited(const QByteArray &groupId); // Returns true when empty.
+
     // Clear out all frame information
     void notifyRunning(const QByteArray &data);
-    void notifyRunning(ThreadId id);
+    void notifyRunning(ThreadId threadId);
     void notifyAllRunning();
 
     void notifyStopped(const QByteArray &data);
-    void notifyStopped(ThreadId id);
+    void notifyStopped(ThreadId threadId);
     void notifyAllStopped();
 
     void resetLocation();
     void scheduleResetLocation();
 
 private:
-    int indexOf(ThreadId threadId) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
-        int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    void sort(int, Qt::SortOrder);
     void updateThreadBox();
-    void threadDataChanged(ThreadId id);
 
-    Threads m_threads;
+    void sort(int column, Qt::SortOrder order);
+
     ThreadId m_currentId;
-    const QIcon m_positionIcon;
-    const QIcon m_emptyIcon;
-
     bool m_resetLocationScheduled;
+    QHash<QByteArray, QByteArray> m_pidForGroupId;
 };
 
 } // namespace Internal

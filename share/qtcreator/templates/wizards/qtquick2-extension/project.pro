@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = %ProjectName%
 QT += qml quick
-CONFIG += qt plugin
+CONFIG += qt plugin c++11
 
 TARGET = $$qtLibraryTarget($$TARGET)
 uri = %Uri%
@@ -15,7 +15,7 @@ HEADERS += \
     %ProjectName:l%_plugin.%CppHeaderSuffix% \
     %ObjectName:l%.%CppHeaderSuffix%
 
-OTHER_FILES = qmldir
+DISTFILES = qmldir
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir

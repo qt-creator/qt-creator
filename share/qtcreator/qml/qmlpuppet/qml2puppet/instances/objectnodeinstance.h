@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -31,15 +27,15 @@
 #define OBJECTNODEINSTANCE_H
 
 #include "nodeinstanceserver.h"
-#include "nodeinstancemetaobject.h"
 #include "nodeinstancesignalspy.h"
 
 #include <QPainter>
 #include <QSharedPointer>
 #include <QWeakPointer>
 
+#include "enumeration.h"
+
 QT_BEGIN_NAMESPACE
-class QGraphicsItem;
 class QQmlContext;
 class QQmlEngine;
 class QQmlProperty;
@@ -72,17 +68,16 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
     static QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context);
-    static QObject *createCustomParserObject(const QString &nodeSource, const QStringList &imports, QQmlContext *context);
+    static QObject *createCustomParserObject(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context);
     static QObject *createComponent(const QString &componentPath, QQmlContext *context);
     static QObject *createComponent(const QUrl &componentUrl, QQmlContext *context);
-    static QObject *createComponentWrap(const QString &nodeSource, const QStringList &imports, QQmlContext *context);
+    static QObject *createComponentWrap(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context);
 
     void setInstanceId(qint32 id);
     qint32 instanceId() const;
 
     NodeInstanceServer *nodeInstanceServer() const;
     void setNodeInstanceServer(NodeInstanceServer *server);
-    virtual void initializePropertyWatcher(const Pointer &objectNodeInstance);
     virtual void initialize(const Pointer &objectNodeInstance);
     virtual QImage renderImage() const;
     virtual QImage renderPreviewImage(const QSize &previewImageSize) const;
@@ -91,7 +86,10 @@ public:
 
     Pointer parentInstance() const;
 
-    virtual void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty);
+    virtual void reparent(const ObjectNodeInstance::Pointer &oldParentInstance,
+                          const PropertyName &oldParentProperty,
+                          const ObjectNodeInstance::Pointer &newParentInstance,
+                          const PropertyName &newParentProperty);
 
     virtual void setId(const QString &id);
     virtual QString id() const;
@@ -100,7 +98,6 @@ public:
     virtual bool isPositioner() const;
     virtual bool isQuickItem() const;
     virtual bool isQuickWindow() const;
-    virtual bool isGraphical() const;
     virtual bool isLayoutable() const;
 
     virtual bool equalGraphicsItem(QGraphicsItem *item) const;
@@ -139,8 +136,8 @@ public:
     PropertyNameList propertyNames() const;
 
     virtual QList<ServerNodeInstance> childItems() const;
+    virtual QList<QQuickItem*> allItemsRecursive() const;
 
-    void createDynamicProperty(const QString &PropertyName, const QString &typeName);
     void setDeleteHeldInstance(bool deleteInstance);
     bool deleteHeldInstance() const;
 
@@ -152,9 +149,7 @@ public:
 
     void populateResetHashes();
     bool hasValidResetBinding(const PropertyName &propertyName) const;
-    QQmlAbstractBinding *resetBinding(const PropertyName &propertyName) const;
     QVariant resetValue(const PropertyName &propertyName) const;
-    void setResetValue(const PropertyName &propertyName, const QVariant &value);
 
     QObject *object() const;
     virtual QQuickItem *contentItem() const;
@@ -166,15 +161,22 @@ public:
     void setInLayoutable(bool isInLayoutable);
     virtual void refreshLayoutable();
 
-    bool hasBindingForProperty(const PropertyName &name, bool *hasChanged = 0) const;
+    bool hasBindingForProperty(const PropertyName &propertyName, bool *hasChanged = 0) const;
 
     QQmlContext *context() const;
     QQmlEngine *engine() const;
 
-    virtual bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &value);
-    virtual bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QString &expression);
-    virtual bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &resetValue);
+    virtual bool updateStateVariant(const ObjectNodeInstance::Pointer &target,
+                                    const PropertyName &propertyName,
+                                    const QVariant &value);
 
+    virtual bool updateStateBinding(const ObjectNodeInstance::Pointer &target,
+                                    const PropertyName &propertyName,
+                                    const QString &expression);
+
+    virtual bool resetStateProperty(const ObjectNodeInstance::Pointer &target,
+                                    const PropertyName &propertyName,
+                                    const QVariant &resetValue);
 
     bool isValid() const;
     bool isRootNodeInstance() const;
@@ -185,9 +187,9 @@ public:
 
     virtual void setNodeSource(const QString &source);
 
-    static QVariant fixResourcePaths(const QVariant &value);
-
     virtual void updateAllDirtyNodesRecursive();
+
+    virtual PropertyNameList ignoredProperties() const;
 
 protected:
     explicit ObjectNodeInstance(QObject *object);
@@ -196,25 +198,25 @@ protected:
     void addToNewProperty(QObject *object, QObject *newParent, const PropertyName &newParentProperty);
     void deleteObjectsInList(const QQmlProperty &metaProperty);
     QVariant convertSpecialCharacter(const QVariant& value) const;
+    QVariant convertEnumToValue(const QVariant &value, const PropertyName &name);
     static QObject *parentObject(QObject *object);
-    static void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer);
+    static QVariant enumationValue(const Enumeration &enumeration);
 
+    void initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance);
 private:
-    QHash<PropertyName, QVariant> m_resetValueHash;
-    QHash<PropertyName, QWeakPointer<QQmlAbstractBinding> > m_resetBindingHash;
-    QHash<PropertyName, ServerNodeInstance> m_modelAbstractPropertyHash;
-    mutable QHash<PropertyName, bool> m_hasBindingHash;
     QString m_id;
 
     QPointer<NodeInstanceServer> m_nodeInstanceServer;
     PropertyName m_parentProperty;
 
     QPointer<QObject> m_object;
-    NodeInstanceMetaObject *m_metaObject;
+
     NodeInstanceSignalSpy m_signalSpy;
+
     qint32 m_instanceId;
     bool m_deleteHeldInstance;
     bool m_isInLayoutable;
+    static QHash<EnumerationName, QVariant> m_enumationValueHash;
 };
 
 } // namespace Internal

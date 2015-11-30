@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -37,23 +38,36 @@
 #include "qmakenodes.h"
 #include "qmakestep.h"
 #include "makestep.h"
+#include "makefileparse.h"
 
-#include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
-#include <limits>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
+
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
-#include <QDebug>
+#include <utils/qtcprocess.h>
+#include <utils/qtcassert.h>
+#include <android/androidmanager.h>
 
+#include <QDebug>
 #include <QInputDialog>
+#include <QLoggingCategory>
+
+#include <limits>
+
+using namespace ProjectExplorer;
+using namespace QtSupport;
+using namespace Utils;
+using namespace QmakeProjectManager::Internal;
 
 namespace QmakeProjectManager {
 
@@ -61,20 +75,28 @@ namespace QmakeProjectManager {
 // Helpers:
 // --------------------------------------------------------------------
 
-static Utils::FileName defaultBuildDirectory(bool supportsShadowBuild,
-                                             const QString &projectPath,
-                                             const ProjectExplorer::Kit *k,
-                                             const QString &suffix)
+QString QmakeBuildConfiguration::shadowBuildDirectory(const QString &proFilePath, const Kit *k,
+                                                      const QString &suffix,
+                                                      BuildConfiguration::BuildType buildType)
 {
-    if (supportsShadowBuild)
-        return Utils::FileName::fromString(QmakeProject::shadowBuildDirectory(projectPath, k, suffix));
-    return Utils::FileName::fromString(ProjectExplorer::Project::projectDirectory(projectPath));
+    if (proFilePath.isEmpty())
+        return QString();
+
+    const QString projectName = QFileInfo(proFilePath).completeBaseName();
+    ProjectMacroExpander expander(projectName, k, suffix, buildType);
+    QString projectDir = Project::projectDirectory(FileName::fromString(proFilePath)).toString();
+    QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
+    return FileUtils::resolvePath(projectDir, buildPath);
 }
 
-using namespace Internal;
-using namespace ProjectExplorer;
-using namespace QtSupport;
-using namespace Utils;
+static Utils::FileName defaultBuildDirectory(const QString &projectPath,
+                                             const ProjectExplorer::Kit *k,
+                                             const QString &suffix,
+                                             BuildConfiguration::BuildType type)
+{
+    return Utils::FileName::fromString(QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k,
+                                                                                     suffix, type));
+}
 
 const char QMAKE_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
 const char USE_SHADOW_BUILD_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild";
@@ -82,24 +104,13 @@ const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.
 
 enum { debug = 0 };
 
-QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target) :
-    BuildConfiguration(target, Core::Id(QMAKE_BC_ID)),
-    m_shadowBuild(true),
-    m_isEnabled(false),
-    m_qmakeBuildConfiguration(0),
-    m_subNodeBuild(0),
-    m_fileNodeBuild(0)
+QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target)
+    : QmakeBuildConfiguration(target, Core::Id(QMAKE_BC_ID))
 {
-    ctor();
 }
 
-QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, const Core::Id id) :
-    BuildConfiguration(target, id),
-    m_shadowBuild(true),
-    m_isEnabled(false),
-    m_qmakeBuildConfiguration(0),
-    m_subNodeBuild(0),
-    m_fileNodeBuild(0)
+QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id) :
+    BuildConfiguration(target, id)
 {
     ctor();
 }
@@ -107,10 +118,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, const Core::Id 
 QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, QmakeBuildConfiguration *source) :
     BuildConfiguration(target, source),
     m_shadowBuild(source->m_shadowBuild),
-    m_isEnabled(false),
-    m_qmakeBuildConfiguration(source->m_qmakeBuildConfiguration),
-    m_subNodeBuild(0), // temporary value, so not copied
-    m_fileNodeBuild(0)
+    m_qmakeBuildConfiguration(source->m_qmakeBuildConfiguration)
 {
     cloneSteps(source);
     ctor();
@@ -135,8 +143,6 @@ bool QmakeBuildConfiguration::fromMap(const QVariantMap &map)
 
     m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), true).toBool();
     m_qmakeBuildConfiguration = BaseQtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
-
-    m_qtVersionSupportsShadowBuilds =  supportsShadowBuilds();
 
     m_lastKitState = LastKitState(target()->kit());
 
@@ -163,7 +169,6 @@ void QmakeBuildConfiguration::kitChanged()
         // For that reason the QmakeBuildConfiguration is also connected
         // to the toolchain and qtversion managers
         emitProFileEvaluateNeeded();
-        updateShadowBuild();
         m_lastKitState = newState;
     }
 }
@@ -180,33 +185,9 @@ void QmakeBuildConfiguration::qtVersionsChanged(const QList<int> &,const QList<i
         emitProFileEvaluateNeeded();
 }
 
-void QmakeBuildConfiguration::updateShadowBuild()
-{
-    // We also emit buildDirectoryChanged if the Qt version's supportShadowBuild changed
-    bool currentShadowBuild = supportsShadowBuilds();
-    if (currentShadowBuild != m_qtVersionSupportsShadowBuilds) {
-        if (!currentShadowBuild)
-            setBuildDirectory(Utils::FileName::fromString(target()->project()->projectDirectory()));
-        m_qtVersionSupportsShadowBuilds = currentShadowBuild;
-    }
-}
-
 NamedWidget *QmakeBuildConfiguration::createConfigWidget()
 {
     return new QmakeProjectConfigWidget(this);
-}
-
-QString QmakeBuildConfiguration::defaultShadowBuildDirectory() const
-{
-    // todo displayName isn't ideal
-    return QmakeProject::shadowBuildDirectory(target()->project()->projectFilePath(),
-                                            target()->kit(), displayName());
-}
-
-bool QmakeBuildConfiguration::supportsShadowBuilds()
-{
-    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
-    return !version || version->supportsShadowBuilds();
 }
 
 /// If only a sub tree should be build this function returns which sub node
@@ -244,7 +225,7 @@ void QmakeBuildConfiguration::setFileNodeBuild(FileNode *node)
 /// still is a in-source build
 bool QmakeBuildConfiguration::isShadowBuild() const
 {
-    return buildDirectory().toString() != target()->project()->projectDirectory();
+    return buildDirectory() != target()->project()->projectDirectory();
 }
 
 void QmakeBuildConfiguration::setBuildDirectory(const FileName &directory)
@@ -252,9 +233,6 @@ void QmakeBuildConfiguration::setBuildDirectory(const FileName &directory)
     if (directory == buildDirectory())
         return;
     BuildConfiguration::setBuildDirectory(directory);
-    QTC_CHECK(supportsShadowBuilds()
-              || (!supportsShadowBuilds()
-                  && buildDirectory().toString() == target()->project()->projectDirectory()));
     emitProFileEvaluateNeeded();
 }
 
@@ -276,6 +254,7 @@ void QmakeBuildConfiguration::setQMakeBuildConfiguration(BaseQtVersion::QmakeBui
 
     emit qmakeBuildConfigurationChanged();
     emitProFileEvaluateNeeded();
+    emit buildTypeChanged();
 }
 
 void QmakeBuildConfiguration::emitProFileEvaluateNeeded()
@@ -333,107 +312,130 @@ MakeStep *QmakeBuildConfiguration::makeStep() const
 }
 
 // Returns true if both are equal.
-QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportFrom(const QString &makefile)
+QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportFrom(const QString &makefile, QString *errorString)
 {
+    const QLoggingCategory &logs = MakeFileParse::logging();
+    qCDebug(logs) << "QMakeBuildConfiguration::compareToImport";
+
     QMakeStep *qs = qmakeStep();
-    if (QFileInfo(makefile).exists() && qs) {
-        FileName qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
-        BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
-        if (!version)
-            return MakefileForWrongProject;
-        if (QtSupport::QtVersionManager::makefileIsFor(makefile, qs->project()->projectFilePath())
-                != QtSupport::QtVersionManager::SameProject) {
-            if (debug) {
-                qDebug() << "different profile used to generate the Makefile:"
-                         << makefile << " expected profile:" << qs->project()->projectFilePath();
-            }
-            return MakefileIncompatible;
-        }
-        if (version->qmakeCommand() == qmakePath) {
-            // same qtversion
-            QPair<BaseQtVersion::QmakeBuildConfigs, QString> result =
-                    QtVersionManager::scanMakeFile(makefile, version->defaultBuildConfig());
-            if (qmakeBuildConfiguration() == result.first) {
-                // The qmake Build Configuration are the same,
-                // now compare arguments lists
-                // we have to compare without the spec/platform cmd argument
-                // and compare that on its own
-                QString workingDirectory = QFileInfo(makefile).absolutePath();
-                QStringList actualArgs;
-                QString userArgs = qs->userArguments();
-                // This copies the settings from userArgs to actualArgs (minus some we
-                // are not interested in), splitting them up into individual strings:
-                extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs);
-                actualArgs = qs->deducedArguments() + actualArgs + qs->deducedArgumentsAfter();
-                FileName actualSpec = qs->mkspec();
+    MakeFileParse parse(makefile);
 
-                QString qmakeArgs = result.second;
-                QStringList parsedArgs;
-                FileName parsedSpec = extractSpecFromArguments(&qmakeArgs, workingDirectory, version, &parsedArgs);
+    if (parse.makeFileState() == MakeFileParse::MakefileMissing) {
+        qCDebug(logs) << "**Makefile missing";
+        return MakefileMissing;
+    }
+    if (parse.makeFileState() == MakeFileParse::CouldNotParse) {
+        qCDebug(logs) << "**Makefile incompatible";
+        if (errorString)
+            *errorString = tr("Could not parse Makefile.");
+        return MakefileIncompatible;
+    }
 
-                if (debug) {
-                    qDebug() << "Actual args:" << actualArgs;
-                    qDebug() << "Parsed args:" << parsedArgs;
-                    qDebug() << "Actual spec:" << actualSpec.toString();
-                    qDebug() << "Parsed spec:" << parsedSpec.toString();
-                }
+    if (!qs) {
+        qCDebug(logs) << "**No qmake step";
+        return MakefileMissing;
+    }
 
-                // Comparing the sorted list is obviously wrong
-                // Though haven written a more complete version
-                // that managed had around 200 lines and yet faild
-                // to be actually foolproof at all, I think it's
-                // not feasible without actually taking the qmake
-                // command line parsing code
+    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
+    if (!version) {
+        qCDebug(logs) << "**No qt version in kit";
+        return MakefileForWrongProject;
+    }
 
-                // Things, sorting gets wrong:
-                // parameters to positional parameters matter
-                //  e.g. -o -spec is different from -spec -o
-                //       -o 1 -spec 2 is diffrent from -spec 1 -o 2
-                // variable assignment order matters
-                // variable assignment vs -after
-                // -norecursive vs. recursive
-                actualArgs.sort();
-                parsedArgs.sort();
-                if (actualArgs == parsedArgs) {
-                    // Specs match exactly
-                    if (actualSpec == parsedSpec)
-                        return MakefileMatches;
-                    // Actual spec is the default one
+    if (parse.srcProFile() != qs->project()->projectFilePath().toString()) {
+        qCDebug(logs) << "**Different profile used to generate the Makefile:"
+                      << parse.srcProFile() << " expected profile:" << qs->project()->projectFilePath();
+        if (errorString)
+            *errorString = tr("The Makefile is for a different project.");
+        return MakefileIncompatible;
+    }
+
+    if (version->qmakeCommand() != parse.qmakePath()) {
+        qCDebug(logs) << "**Different Qt versions, buildconfiguration:" << version->qmakeCommand().toString()
+                      << " Makefile:"<< parse.qmakePath().toString();
+        return MakefileForWrongProject;
+    }
+
+    // same qtversion
+    BaseQtVersion::QmakeBuildConfigs buildConfig = parse.effectiveBuildConfig(version->defaultBuildConfig());
+    if (qmakeBuildConfiguration() != buildConfig) {
+        qCDebug(logs) << "**Different qmake buildconfigurations buildconfiguration:"
+                      << qmakeBuildConfiguration() << " Makefile:" << buildConfig;
+        if (errorString)
+            *errorString = tr("The build type has changed.");
+        return MakefileIncompatible;
+    }
+
+    // The qmake Build Configuration are the same,
+    // now compare arguments lists
+    // we have to compare without the spec/platform cmd argument
+    // and compare that on its own
+    QString workingDirectory = QFileInfo(makefile).absolutePath();
+    QStringList actualArgs;
+    QString userArgs = qs->userArguments();
+    // This copies the settings from userArgs to actualArgs (minus some we
+    // are not interested in), splitting them up into individual strings:
+    extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs);
+    FileName actualSpec = qs->mkspec();
+
+    QString qmakeArgs = parse.unparsedArguments();
+    QStringList parsedArgs;
+    FileName parsedSpec = extractSpecFromArguments(&qmakeArgs, workingDirectory, version, &parsedArgs);
+
+    qCDebug(logs) << "  Actual args:" << actualArgs;
+    qCDebug(logs) << "  Parsed args:" << parsedArgs;
+    qCDebug(logs) << "  Actual spec:" << actualSpec.toString();
+    qCDebug(logs) << "  Parsed spec:" << parsedSpec.toString();
+    qCDebug(logs) << "  Actual config:" << qs->deducedArguments();
+    qCDebug(logs) << "  Parsed config:" << parse.config();
+
+    // Comparing the sorted list is obviously wrong
+    // Though haven written a more complete version
+    // that managed had around 200 lines and yet faild
+    // to be actually foolproof at all, I think it's
+    // not feasible without actually taking the qmake
+    // command line parsing code
+
+    // Things, sorting gets wrong:
+    // parameters to positional parameters matter
+    //  e.g. -o -spec is different from -spec -o
+    //       -o 1 -spec 2 is diffrent from -spec 1 -o 2
+    // variable assignment order matters
+    // variable assignment vs -after
+    // -norecursive vs. recursive
+    actualArgs.sort();
+    parsedArgs.sort();
+    if (actualArgs != parsedArgs) {
+        qCDebug(logs) << "**Mismatched args";
+        if (errorString)
+            *errorString = tr("The qmake arguments have changed.");
+        return MakefileIncompatible;
+    }
+
+    if (parse.config() != qs->deducedArguments()) {
+        qCDebug(logs) << "**Mismatched config";
+        if (errorString)
+            *errorString = tr("The qmake arguments have changed.");
+        return MakefileIncompatible;
+    }
+
+    // Specs match exactly
+    if (actualSpec == parsedSpec) {
+        qCDebug(logs) << "**Matched specs (1)";
+        return MakefileMatches;
+    }
+    // Actual spec is the default one
 //                    qDebug() << "AS vs VS" << actualSpec << version->mkspec();
-                    if ((actualSpec == version->mkspec() || actualSpec == FileName::fromLatin1("default"))
-                        && (parsedSpec == version->mkspec() || parsedSpec == FileName::fromLatin1("default") || parsedSpec.isEmpty()))
-                        return MakefileMatches;
-                }
-                return MakefileIncompatible;
-            } else {
-                if (debug)
-                    qDebug() << "different qmake buildconfigurations buildconfiguration:"
-                             << qmakeBuildConfiguration() << " Makefile:" << result.first;
-                return MakefileIncompatible;
-            }
-        } else {
-            if (debug)
-                qDebug() << "different Qt versions, buildconfiguration:" << version->qmakeCommand().toString()
-                         << " Makefile:"<< qmakePath.toString();
-            return MakefileForWrongProject;
-        }
+    if ((actualSpec == version->mkspec() || actualSpec == FileName::fromLatin1("default"))
+            && (parsedSpec == version->mkspec() || parsedSpec == FileName::fromLatin1("default") || parsedSpec.isEmpty())) {
+        qCDebug(logs) << "**Matched specs (2)";
+        return MakefileMatches;
     }
-    return MakefileMissing;
-}
 
-bool QmakeBuildConfiguration::removeQMLInspectorFromArguments(QString *args)
-{
-    bool removedArgument = false;
-    for (QtcProcess::ArgIterator ait(args); ait.next(); ) {
-        const QString arg = ait.value();
-        if (arg.contains(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH))
-            || arg.contains(QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG))
-            || arg.contains(QLatin1String(Constants::QMAKEVAR_QUICK2_DEBUG))) {
-            ait.deleteArg();
-            removedArgument = true;
-        }
-    }
-    return removedArgument;
+    qCDebug(logs) << "**Incompatible specs";
+    if (errorString)
+        *errorString = tr("The mkspec has changed.");
+    return MakefileIncompatible;
 }
 
 FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
@@ -482,7 +484,7 @@ FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
     // if it is the former we need to get the canonical form
     // for the other one we don't need to do anything
     if (parsedSpec.toFileInfo().isRelative()) {
-        if (QFileInfo(directory + QLatin1Char('/') + parsedSpec.toString()).exists())
+        if (QFileInfo::exists(directory + QLatin1Char('/') + parsedSpec.toString()))
             parsedSpec = FileName::fromUserInput(directory + QLatin1Char('/') + parsedSpec.toString());
         else
             parsedSpec = FileName::fromUserInput(baseMkspecDir.toString() + QLatin1Char('/') + parsedSpec.toString());
@@ -567,19 +569,45 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         info->displayName = tr("Release");
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = tr("Release", "Shadow build directory suffix");
+        if (version && version->isQtQuickCompilerSupported())
+            info->config.useQtQuickCompiler = true;
     } else {
-        //: The name of the debug build configuration created by default for a qmake project.
-        info->displayName = tr("Debug");
-        //: Non-ASCII characters in directory suffix may cause build issues.
-        suffix = tr("Debug", "Shadow build directory suffix");
+        if (type == BuildConfiguration::Debug) {
+            //: The name of the debug build configuration created by default for a qmake project.
+            info->displayName = tr("Debug");
+            //: Non-ASCII characters in directory suffix may cause build issues.
+            suffix = tr("Debug", "Shadow build directory suffix");
+        } else if (type == BuildConfiguration::Profile) {
+            //: The name of the profile build configuration created by default for a qmake project.
+            info->displayName = tr("Profile");
+            //: Non-ASCII characters in directory suffix may cause build issues.
+            suffix = tr("Profile", "Shadow build directory suffix");
+            info->config.separateDebugInfo = true;
+            if (version && version->isQtQuickCompilerSupported())
+                info->config.useQtQuickCompiler = true;
+        }
+        if (version && version->isQmlDebuggingSupported())
+            info->config.linkQmlDebuggingQQ2 = true;
     }
-    info->typeName = tr("Build");
+    info->typeName = info->displayName;
     // Leave info->buildDirectory unset;
     info->kitId = k->id();
-    info->supportsShadowBuild = (version && version->supportsShadowBuilds());
-    info->buildDirectory
-            = defaultBuildDirectory(info->supportsShadowBuild, projectPath, k, suffix);
-    info->type = type;
+
+    // check if this project is in the source directory:
+    Utils::FileName projectFilePath = Utils::FileName::fromString(projectPath);
+    if (version && version->isInSourceDirectory(projectFilePath)) {
+        // assemble build directory
+        QString projectDirectory = projectFilePath.toFileInfo().absolutePath();
+        QDir qtSourceDir = QDir(version->sourcePath().toString());
+        QString relativeProjectPath = qtSourceDir.relativeFilePath(projectDirectory);
+        QString qtBuildDir = version->versionInfo().value(QStringLiteral("QT_INSTALL_PREFIX"));
+        QString absoluteBuildPath = QDir::cleanPath(qtBuildDir + QLatin1Char('/') + relativeProjectPath);
+
+        info->buildDirectory = Utils::FileName::fromString(absoluteBuildPath);
+    } else {
+        info->buildDirectory = defaultBuildDirectory(projectPath, k, suffix, type);
+    }
+    info->buildType = type;
     return info;
 }
 
@@ -591,50 +619,56 @@ int QmakeBuildConfigurationFactory::priority(const Target *parent) const
 QList<BuildInfo *> QmakeBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
-    QmakeBuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectFilePath(),
-                                           BuildConfiguration::Debug);
-    info->displayName.clear(); // ask for a name
-    info->buildDirectory.clear(); // This depends on the displayName
-    result << info;
+
+    const QString projectFilePath = parent->project()->projectFilePath().toString();
+
+    for (BuildConfiguration::BuildType buildType : { BuildConfiguration::Debug,
+                                                     BuildConfiguration::Profile,
+                                                     BuildConfiguration::Release }) {
+        QmakeBuildInfo *info = createBuildInfo(parent->kit(), projectFilePath,
+                                               buildType);
+        info->displayName.clear(); // ask for a name
+        info->buildDirectory.clear(); // This depends on the displayName
+        result << info;
+    }
 
     return result;
 }
 
 int QmakeBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::PROFILE_MIMETYPE))) ? 0 : -1;
+    Utils::MimeDatabase mdb;
+    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::PROFILE_MIMETYPE)))
+        return 0;
+    return -1;
 }
 
 QList<BuildInfo *> QmakeBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
+    if (!qtVersion || !qtVersion->isValid())
+        return result;
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Debug);
+    result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Profile);
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Release);
-
     return result;
 }
 
-BuildConfiguration *QmakeBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
+void QmakeBuildConfigurationFactory::configureBuildConfiguration(Target *parent,
+                                                                 QmakeBuildConfiguration *bc,
+                                                                 const QmakeBuildInfo *qmakeInfo) const
 {
-    QTC_ASSERT(info->factory() == this, return 0);
-    QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
-    QTC_ASSERT(!info->displayName.isEmpty(), return 0);
-
-    const QmakeBuildInfo *qmakeInfo = static_cast<const QmakeBuildInfo *>(info);
-
     BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(parent->kit());
-    QTC_ASSERT(version, return 0);
 
     BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-    if (qmakeInfo->type == BuildConfiguration::Release)
-        config &= ~QtSupport::BaseQtVersion::DebugBuild;
-    else
+    if (qmakeInfo->buildType == BuildConfiguration::Debug)
         config |= QtSupport::BaseQtVersion::DebugBuild;
+    else
+        config &= ~QtSupport::BaseQtVersion::DebugBuild;
 
-    QmakeBuildConfiguration *bc = new QmakeBuildConfiguration(parent);
-    bc->setDefaultDisplayName(info->displayName);
-    bc->setDisplayName(info->displayName);
+    bc->setDefaultDisplayName(qmakeInfo->displayName);
+    bc->setDisplayName(qmakeInfo->displayName);
 
     BuildStepList *buildSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     BuildStepList *cleanSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
@@ -653,24 +687,32 @@ BuildConfiguration *QmakeBuildConfigurationFactory::create(Target *parent, const
     cleanSteps->insertStep(0, cleanStep);
 
     QString additionalArguments = qmakeInfo->additionalArguments;
-
-    bool enableQmlDebugger
-            = QmakeBuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
-    if (!qmakeInfo->makefile.isEmpty())
-        qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
+    qmakeStep->setLinkQmlDebuggingLibrary(qmakeInfo->config.linkQmlDebuggingQQ2);
+    qmakeStep->setSeparateDebugInfo(qmakeInfo->config.separateDebugInfo);
+    qmakeStep->setUseQtQuickCompiler(qmakeInfo->config.useQtQuickCompiler);
 
     bc->setQMakeBuildConfiguration(config);
 
     Utils::FileName directory = qmakeInfo->buildDirectory;
     if (directory.isEmpty()) {
-        directory = defaultBuildDirectory(qmakeInfo->supportsShadowBuild,
-                                          parent->project()->projectFilePath(),
-                                          parent->kit(), info->displayName);
+        directory = defaultBuildDirectory(parent->project()->projectFilePath().toString(),
+                                          parent->kit(), qmakeInfo->displayName, bc->buildType());
     }
 
     bc->setBuildDirectory(directory);
+}
+
+BuildConfiguration *QmakeBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
+{
+    QTC_ASSERT(info->factory() == this, return 0);
+    QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
+    QTC_ASSERT(!info->displayName.isEmpty(), return 0);
+
+    const QmakeBuildInfo *qmakeInfo = static_cast<const QmakeBuildInfo *>(info);
+    QmakeBuildConfiguration *bc = new QmakeBuildConfiguration(parent);
+    configureBuildConfiguration(parent, bc, qmakeInfo);
     return bc;
 }
 
@@ -709,6 +751,8 @@ BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
 {
     if (qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
         return Debug;
+    else if (qmakeStep()->separateDebugInfo())
+        return Profile;
     else
         return Release;
 }
@@ -724,7 +768,7 @@ QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
       m_mkspec(QmakeKitInformation::mkspec(k).toString())
 {
     ToolChain *tc = ToolChainKitInformation::toolChain(k);
-    m_toolchain = tc ? tc->id() : QString();
+    m_toolchain = tc ? tc->id() : QByteArray();
 }
 
 bool QmakeBuildConfiguration::LastKitState::operator ==(const LastKitState &other) const

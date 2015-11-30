@@ -1,0 +1,318 @@
+QFrame
+{
+    background-color: #4f4f4f;
+    font-size: 11px;
+    border-radius: 0px;
+}
+
+QPushButton {
+    padding: 0px;
+    font-size: 11px;
+    color: #dedede;
+}
+
+QPushButton, QComboBox[editable="false"],
+QComboBox[editable="true"] {
+    border-image: url(:/qmldesigner/images/combobox-normal.png) 4;
+    border-width: 3;
+    font-size: 11px;
+}
+
+QPushButton:hover, QComboBox[editable="false"]:hover,
+QComboBox[editable="true"]:hover, QMenuBar::item:hover {
+    border-image: url(:/qmldesigner/images/combobox-normal.png) 4;
+    border-width: 3;
+}
+
+QPushButton:pressed, QComboBox[editable="false"]:on,
+QComboBox[editable="true"]:on, QMenuBar::item:on {
+    border-image: url(:/qmldesigner/images/combobox-pressed.png) 4;
+    border-width: 3;
+}
+
+QComboBox
+{
+    font-size: 11px;
+    color: white;
+    min-width: 60px;
+}
+
+QComboBox[editable="true"] {
+    padding-right: 10px;
+}
+
+QComboBox[editable="true"]::drop-down {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 13px;
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    right: 2px;
+}
+
+QComboBox[editable="true"]::drop-down,
+QComboBox[editable="true"]::drop-down:hover,
+QComboBox[editable="true"]::drop-down:on {
+    border-width: 0px;
+    border-left-width: 3px;
+}
+
+QComboBox[editable="true"]::down-arrow:on {
+    position: relative;
+    top: 1px;
+    left: 1px;
+}
+
+QComboBox::disabled {
+    color: gray;
+}
+
+QComboBox QAbstractItemView {
+    show-decoration-selected: 1;
+    background-color: #494949;
+    border: 1px solid black;
+    margin: 0px; /* some spacing around the menu */
+    color: #cacaca;
+    selection-background-color: #d2d2d2;
+    selection-color: #404040;
+}
+
+QTableView {
+    color: white;
+}
+
+QTableView::item
+{
+    border: 0px;
+    padding-left: 4px;
+}
+
+QTableView::item:focus
+{
+    border: none;
+    background-color: transparent;
+}
+
+QTableView::item:selected
+{
+    background-color:  qlineargradient(x1: 0, y1: -0.4, x2: 0, y2: 0.6,stop: 0  palette(midlight), stop: 1 palette(highlight));
+
+    border: none
+}
+
+
+QHeaderView::section {
+    background-color: #494949;
+    padding: 4px;
+    border: 1px solid black;
+    color: #cacaca;
+    border-radius: 2px;
+    margin: 2px
+}
+
+QTableView {
+    alternate-background-color: #414141;
+}
+
+QWidget#widgetSpacer {
+    background-color: #eeeeee;
+}
+
+QStackedWidget {
+    border: 0px;
+    background-color: #4f4f4f;
+}
+
+QTabBar::tab:hover {
+    image: url(:/connectionview/panelselected.png);
+    border-width: 2px;
+}
+
+QTabBar::tab:selected {
+    border: none;
+    border-image: none;
+    image: none;
+
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+    stop: 0 #EFEFEF, stop: 1 #EEEEEE);
+    color: #3c3c3c;
+}
+
+QTabBar::tab {
+image: url(:/connectionview/panel.png);
+
+    width: 130px;
+
+    height: 22px;
+    margin-top: 0x;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    font: bold;
+    font-size: 11px;
+    color: #EEEEEE;
+}
+
+QComboBox::menu-indicator, QComboBox::down-arrow {
+image: url(:/qmldesigner/images/down_arrow.png);
+    width: 7px;
+    height: 7px;
+}
+
+QSpinBox
+{
+    font-size: 11px;
+    color: white;
+    padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 12px;
+    border: 2px solid #0F0F0F;
+    border-radius: 6px;
+    border-width: 1;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+    stop: 0 #2c2c2c, stop: 1 #333333);
+
+     min-height: 22px;
+}
+
+ QDoubleSpinBox
+ {
+    font-size: 11px;
+    color: white;
+    padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 12px;
+    border: 2px solid #0F0F0F;
+    border-radius: 6px;
+    border-width: 1;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+    stop: 0 #2c2c2c, stop: 1 #333333);
+    min-height: 22px;
+ }
+
+ QSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    border-image: url(:/qmldesigner/images/spindown.png) 1;
+
+    width: 16px;
+    border-width: 1px;
+    border-top-width: 0;
+}
+
+QSpinBox::down-button:hover {
+    border-image: url(:/qmldesigner/images/spindown_hover.png) 1;
+}
+
+QSpinBox::down-button:pressed {
+    border-image: url(:/qmldesigner/images/spindown_pressed.png) 1;
+}
+
+
+ QSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right; /* position at bottom right corner */
+    border-image: url(:/qmldesigner/images/spinup.png) 1;
+
+    width: 16px;
+    border-width: 1px;
+}
+
+QSpinBox::up-button:hover {
+border-image: url(:/qmldesigner/images/spinup_hover.png) 1;
+}
+
+QSpinBox::up-button:pressed {
+    border-image: url(:/qmldesigner/images/spinup_pressed.png) 1;
+}
+
+
+ QDoubleSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    border-image: url(:/qmldesigner/images/spindown.png) 1;
+
+    width: 16px;
+    border-width: 1px;
+}
+
+QDoubleSpinBox::down-button:hover {
+    border-image: url(:/qmldesigner/images/spindown_hover.png) 1;
+}
+
+QDoubleSpinBox::down-button:pressed {
+    border-image: url(:/qmldesigner/images/spindown_pressed.png) 1;
+}
+
+QDoubleSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    border-image: url(:/qmldesigner/images/spinup.png) 1;
+
+    width: 16px;
+    border-width: 1px;
+}
+
+QDoubleSpinBox::up-button:hover {
+    border-image: url(:/qmldesigner/images/spinup_hover.png) 1;
+}
+
+QDoubleSpinBox::up-button:pressed {
+    border-image: url(:/qmldesigner/images/spinup_pressed.png) 1;
+}
+
+QComboBox[editable="false"]::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 12px;
+    border-left-style: solid;
+    border-left-color: black;
+    border-left-width: 0px;
+}
+
+QComboBox[editable="false"]::down-arrow {
+    subcontrol-origin: content;
+    subcontrol-position: center;
+    position: relative;
+    right: 3px;
+}
+
+QComboBox[editable="false"]::down-arrow:on {
+    position: relative;
+    top: 1px;
+}
+
+QSpinBox::down-arrow, QSpinBox::menu-indicator, QDoubleSpinBox::down-arrow, QDoubleSpinBox::menu-indicator , QComboBox::menu-indicator, QComboBox::down-arrow {
+    image: url(:/qmldesigner/images/down_arrow.png);
+    width: 7px;
+    height: 7px;
+}
+
+QSpinBox::down-arrow:disabled, QSpinBox::down-arrow:off, QDoubleSpinBox::down-arrow:disabled, QDoubleSpinBox::down-arrow:off {
+    image: url(:/qmldesigner/images/down_arrow_disabled.png);
+}
+
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {
+    image: url(:/qmldesigner/images/up_arrow.png);
+    width: 7px;
+    height: 7px;
+}
+
+QSpinBox::up-arrow:disabled, QSpinBox::up-arrow:off, QDoubleSpinBox::up-arrow:disabled, QDoubleSpinBox::up-arrow:off {
+    image: url(:/qmldesigner/images/up_arrow_disabled.png);
+}
+
+QLineEdit
+{
+    color: white;
+    font-size: 11px;
+    border: 2px solid #0F0F0F;
+    border-radius: 6px;
+    border-width: 1;
+    min-height: 26px;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+    stop: 0 #2c2c2c, stop: 1 #333333);
+}

@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -65,37 +66,35 @@ def __checkBuildAndRun__():
     foundCompilers = []
     foundCompilerNames = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Compilers")
-    compilerTV = waitForObject(":BuildAndRun_QTreeView")
-    __iterateTree__(compilerTV, __compFunc__, foundCompilers, foundCompilerNames)
+    __iterateTree__(":BuildAndRun_QTreeView", __compFunc__, foundCompilers, foundCompilerNames)
     test.verify(__compareCompilers__(foundCompilers, expectedCompilers),
                 "Verifying found and expected compilers are equal.")
     # check debugger
     expectedDebuggers = __getExpectedDebuggers__()
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Debuggers")
     foundDebugger = []
-    debuggerTV = waitForObject(":BuildAndRun_QTreeView")
-    __iterateTree__(debuggerTV, __dbgFunc__, foundDebugger)
+    __iterateTree__(":BuildAndRun_QTreeView", __dbgFunc__, foundDebugger)
     test.verify(__compareDebuggers__(foundDebugger, expectedDebuggers),
                 "Verifying found and expected debuggers are equal.")
     # check Qt versions
     qmakePath = which("qmake")
     foundQt = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
-    qtTW = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
-    __iterateTree__(qtTW, __qtFunc__, foundQt, qmakePath)
+    __iterateTree__(":qtdirList_QTreeView", __qtFunc__, foundQt, qmakePath)
+    test.verify(not qmakePath or len(foundQt) == 1,
+                "Was qmake from %s autodetected? Found %s" % (qmakePath, foundQt))
     if foundQt:
-        foundQt = foundQt[0]
+        foundQt = foundQt[0]    # qmake from "which" should be used in kits
     # check kits
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
-    kitsTV = waitForObject(":BuildAndRun_QTreeView")
-    __iterateTree__(kitsTV, __kitFunc__, foundQt, foundCompilerNames)
+    __iterateTree__(":BuildAndRun_QTreeView", __kitFunc__, foundQt, foundCompilerNames)
 
-def __iterateTree__(treeObj, additionalFunc, *additionalParameters):
+def __iterateTree__(treeObjStr, additionalFunc, *additionalParameters):
     global currentSelectedTreeItem
-    model = treeObj.model()
+    model = waitForObject(treeObjStr).model()
     # 1st row: Auto-detected, 2nd row: Manual
     for sect in dumpIndices(model):
-        sObj = "%s container=%s}" % (objectMap.realName(sect)[:-1], objectMap.realName(treeObj))
+        sObj = "%s container='%s'}" % (objectMap.realName(sect)[:-1], treeObjStr)
         items = dumpIndices(model, sect)
         doneItems = []
         for it in items:
@@ -128,12 +127,16 @@ def __dbgFunc__(it, foundDbg):
     foundDbg.append(str(pathLineEdit.text))
 
 def __qtFunc__(it, foundQt, qmakePath):
-    foundQt.append(it)
     qtPath = str(waitForObject(":QtSupport__Internal__QtVersionManager.qmake_QLabel").text)
     if platform.system() in ('Microsoft', 'Windows'):
         qtPath = qtPath.lower()
         qmakePath = qmakePath.lower()
-    test.compare(qtPath, qmakePath, "Verifying found and expected Qt version are equal.")
+    test.verify(os.path.isfile(qtPath) and os.access(qtPath, os.X_OK),
+                "Verifying found Qt (%s) is executable." % qtPath)
+    # Two Qt versions will be found when using qtchooser: QTCREATORBUG-14697
+    # Only add qmake from "which" to list
+    if qtPath == qmakePath:
+        foundQt.append(it)
     try:
         errorLabel = findObject(":QtSupport__Internal__QtVersionManager.errorLabel.QLabel")
         test.warning("Detected error or warning: '%s'" % errorLabel.text)
@@ -146,7 +149,10 @@ def __kitFunc__(it, foundQt, foundCompNames):
     test.compare(it, "Desktop (default)", "Verifying whether default Desktop kit has been created.")
     if foundQt:
         test.compare(qtVersionStr, foundQt, "Verifying if Qt versions match.")
-    compilerCombo = waitForObject(":Compiler:_QComboBox")
+    compilerCombo = findObject(":Compiler:_QComboBox")
+    test.compare(compilerCombo.enabled, compilerCombo.count > 1,
+                 "Verifying whether compiler combo is enabled/disabled correctly.")
+
     test.verify(str(compilerCombo.currentText) in foundCompNames,
                 "Verifying if one of the found compilers had been set.")
     if currentSelectedTreeItem:
@@ -179,9 +185,10 @@ def __getExpectedCompilers__():
 
 def __getWinCompilers__():
     result = []
-    winEnvVars = __getWinEnvVars__()
     for record in testData.dataset("win_compiler_paths.tsv"):
-        envvar = winEnvVars.get(testData.field(record, "envvar"), "")
+        envvar = os.getenv(testData.field(record, "envvar"))
+        if not envvar:
+            continue
         compiler = os.path.abspath(os.path.join(envvar, testData.field(record, "path"),
                                                 testData.field(record, "file")))
         if os.path.exists(compiler):
@@ -199,29 +206,17 @@ def __getWinCompilers__():
                                    :"%s %s" % (compiler, used)})
     return result
 
-# using os.getenv() or getOutputFromCmdline() do not work - they would return C:\Program Files (x86)
-# for %ProgramFiles% as well as for %ProgramFiles(x86)% when using Python 32bit on 64bit machines
-def __getWinEnvVars__():
-    result = {}
-    tmpF, tmpFPath = tempfile.mkstemp()
-    envvars = subprocess.call('set', stdout=tmpF, shell=True)
-    os.close(tmpF)
-    tmpF = open(tmpFPath, "r")
-    for line in tmpF:
-        tmp = line.split("=")
-        result[tmp[0]] = tmp[1]
-    tmpF.close()
-    os.remove(tmpFPath)
-    return result
-
 def __getExpectedDebuggers__():
+    exeSuffix = ""
     result = []
     if platform.system() in ('Microsoft', 'Windows'):
         result.extend(__getCDB__())
-    debuggers = ["gdb", "lldb"]
-    result.extend(filter(None, map(which, debuggers)))
+        exeSuffix = ".exe"
+    for debugger in ["gdb", "lldb"]:
+        result.extend(findAllFilesInPATH(debugger + exeSuffix))
     if platform.system() == 'Linux':
-        result.extend(findAllFilesInPATH("lldb-*"))
+        result.extend(filter(lambda s: not ("lldb-platform" in s or "lldb-gdbserver" in s),
+                             findAllFilesInPATH("lldb-*")))
     if platform.system() == 'Darwin':
         xcodeLLDB = getOutputFromCmdline("xcrun --find lldb").strip("\n")
         if xcodeLLDB and os.path.exists(xcodeLLDB) and xcodeLLDB not in result:
@@ -233,9 +228,13 @@ def __getCDB__():
     possibleLocations = ["C:\\Program Files\\Debugging Tools for Windows (x64)",
                          "C:\\Program Files (x86)\\Debugging Tools for Windows (x86)",
                          "C:\\Program Files (x86)\\Windows Kits\\8.0\\Debuggers\\x86",
+                         "C:\\Program Files (x86)\\Windows Kits\\8.0\\Debuggers\\x64",
                          "C:\\Program Files\\Windows Kits\\8.0\\Debuggers\\x86",
+                         "C:\\Program Files\\Windows Kits\\8.0\\Debuggers\\x64",
                          "C:\\Program Files (x86)\\Windows Kits\\8.1\\Debuggers\\x86",
-                         "C:\\Program Files\\Windows Kits\\8.1\\Debuggers\\x86"]
+                         "C:\\Program Files (x86)\\Windows Kits\\8.1\\Debuggers\\x64",
+                         "C:\\Program Files\\Windows Kits\\8.1\\Debuggers\\x86",
+                         "C:\\Program Files\\Windows Kits\\8.1\\Debuggers\\x64"]
     for cdbPath in possibleLocations:
         cdb = os.path.join(cdbPath, "cdb.exe")
         if os.path.exists(cdb):
@@ -243,6 +242,7 @@ def __getCDB__():
     return result
 
 def __compareCompilers__(foundCompilers, expectedCompilers):
+    # TODO: Check if all expected compilers were found
     equal = True
     flags = 0
     isWin = platform.system() in ('Microsoft', 'Windows')
@@ -264,7 +264,7 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
                         or currentFound.values() == currentExp.values()):
                         foundExp = True
                         break
-                equal = foundExp
+            equal = foundExp
         else:
             if isWin:
                 equal = currentFound.lower() in __lowerStrs__(expectedCompilers)
@@ -287,12 +287,8 @@ def __compareDebuggers__(foundDebuggers, expectedDebuggers):
     else:
         foundSet = set(foundDebuggers)
         expectedSet = set(expectedDebuggers)
-    if not (test.verify(not foundSet.symmetric_difference(expectedSet),
-                        "Verifying expected and found debuggers match.")):
-        test.log("Found debuggers: %s" % foundDebuggers,
-                 "Expected debuggers: %s" % expectedDebuggers)
-        return False
-    return True
+    return test.compare(foundSet, expectedSet,
+                        "Verifying expected and found debuggers match.")
 
 def __lowerStrs__(iterable):
     for it in iterable:

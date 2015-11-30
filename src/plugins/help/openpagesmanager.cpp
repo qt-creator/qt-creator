@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -41,12 +42,10 @@
 #include <QClipboard>
 #include <QComboBox>
 #include <QMenu>
-#include <QTreeView>
 
 #include <QHelpEngine>
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
 
 using namespace Core;
@@ -98,7 +97,6 @@ QWidget *OpenPagesManager::openPagesWidget() const
 {
     if (!m_openPagesWidget) {
         m_openPagesWidget = new OpenPagesWidget(m_model);
-        m_openPagesWidget->setFrameStyle(QFrame::NoFrame);
         connect(m_openPagesWidget, SIGNAL(setCurrentPage(QModelIndex)), this,
             SLOT(setCurrentPage(QModelIndex)));
         connect(m_openPagesWidget, SIGNAL(closePage(QModelIndex)), this,
@@ -128,39 +126,34 @@ QStringList splitString(const QVariant &value)
 void OpenPagesManager::setupInitialPages()
 {
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    const int option = engine.customValue(QLatin1String("StartOption"),
-        Help::Constants::ShowLastPages).toInt();
-    QString homePage = engine.customValue(QLatin1String("DefaultHomePage"),
-        Help::Constants::AboutBlank).toString();
+    const LocalHelpManager::StartOption option = LocalHelpManager::startOption();
+    QString homePage = LocalHelpManager::homePage();
 
     int initialPage = 0;
     switch (option) {
-        case Help::Constants::ShowHomePage: {
-            m_model->addPage(engine.customValue(QLatin1String("HomePage"),
-                homePage).toString());
+        case LocalHelpManager::ShowHomePage: {
+            m_model->addPage(homePage);
         }   break;
 
-        case Help::Constants::ShowBlankPage: {
+        case LocalHelpManager::ShowBlankPage: {
             m_model->addPage(QUrl(Help::Constants::AboutBlank));
         }   break;
 
-        case Help::Constants::ShowLastPages: {
-            const QStringList &lastShownPageList = splitString(engine
-                .customValue(QLatin1String("LastShownPages")));
+        case LocalHelpManager::ShowLastPages: {
+            const QStringList &lastShownPageList = LocalHelpManager::lastShownPages();
             const int pageCount = lastShownPageList.count();
 
             if (pageCount > 0) {
-                QStringList zoomFactors = splitString(engine
-                    .customValue(QLatin1String("LastShownPagesZoom")));
+                QList<float> zoomFactors = LocalHelpManager::lastShownPagesZoom();
                 while (zoomFactors.count() < pageCount)
-                    zoomFactors.append(Help::Constants::DefaultZoomFactor);
+                    zoomFactors.append(0.);
 
-                initialPage = engine.customValue(QLatin1String("LastTabPage"), 0).toInt();
+                initialPage = LocalHelpManager::lastSelectedTab();
                 for (int curPage = 0; curPage < pageCount; ++curPage) {
                     const QString &curFile = lastShownPageList.at(curPage);
                     if (engine.findFile(curFile).isValid()
                         || curFile == Help::Constants::AboutBlank) {
-                        m_model->addPage(curFile, zoomFactors.at(curPage).toFloat());
+                        m_model->addPage(curFile, zoomFactors.at(curPage));
                     } else if (curPage <= initialPage && initialPage > 0) {
                         --initialPage;
                     }
@@ -175,7 +168,7 @@ void OpenPagesManager::setupInitialPages()
         m_model->addPage(homePage);
 
     for (int i = 0; i < m_model->rowCount(); ++i)
-        CentralWidget::instance()->addPage(m_model->pageAt(i));
+        CentralWidget::instance()->addViewer(m_model->pageAt(i));
 
     emit pagesChanged();
     setCurrentPage((initialPage >= m_model->rowCount())
@@ -190,21 +183,16 @@ HelpViewer *OpenPagesManager::createPage()
     return createPage(QUrl(Help::Constants::AboutBlank));
 }
 
-HelpViewer *OpenPagesManager::createPageFromSearch(const QUrl &url)
+HelpViewer *OpenPagesManager::createPage(const QUrl &url)
 {
-    return createPage(url, true);
-}
-
-HelpViewer *OpenPagesManager::createPage(const QUrl &url, bool fromSearch)
-{
-    if (HelpViewer::launchWithExternalApp(url))
+    if (url.isValid() && HelpViewer::launchWithExternalApp(url))
         return 0;
 
     m_model->addPage(url);
 
     const int index = m_model->rowCount() - 1;
     HelpViewer * const page = m_model->pageAt(index);
-    CentralWidget::instance()->addPage(page, fromSearch);
+    CentralWidget::instance()->addViewer(page);
 
     emit pagesChanged();
     setCurrentPage(index);
@@ -214,7 +202,7 @@ HelpViewer *OpenPagesManager::createPage(const QUrl &url, bool fromSearch)
 
 void OpenPagesManager::setCurrentPage(int index)
 {
-    CentralWidget::instance()->setCurrentPage(m_model->pageAt(index));
+    CentralWidget::instance()->setCurrentViewer(m_model->pageAt(index));
 
     m_comboBox->setCurrentIndex(index);
     if (m_openPagesWidget)
@@ -236,10 +224,9 @@ void OpenPagesManager::closeCurrentPage()
     if (indexes.isEmpty())
         return;
 
-    const bool closeOnReturn = HelpManager::customValue(QLatin1String("ReturnOnClose"),
-        false).toBool();
+    const bool returnOnClose = LocalHelpManager::returnOnClose();
 
-    if (m_model->rowCount() == 1 && closeOnReturn) {
+    if (m_model->rowCount() == 1 && returnOnClose) {
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
     } else {
         Q_ASSERT(indexes.count() == 1);
@@ -296,7 +283,7 @@ void OpenPagesManager::removePage(int index)
     Q_ASSERT(m_model->rowCount() > 1);
 
     m_model->removePage(index);
-    CentralWidget::instance()->removePage(index);
+    CentralWidget::instance()->removeViewerAt(index);
 
     emit pagesChanged();
     if (m_openPagesWidget)

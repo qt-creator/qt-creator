@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -37,6 +38,7 @@
 using namespace CPlusPlus;
 
 BackwardsScanner::BackwardsScanner(const QTextCursor &cursor,
+                                   const LanguageFeatures &languageFeatures,
                                    int maxBlockCount,
                                    const QString &suffix,
                                    bool skipComments)
@@ -45,20 +47,14 @@ BackwardsScanner::BackwardsScanner(const QTextCursor &cursor,
     , _block(cursor.block())
     , _maxBlockCount(maxBlockCount)
 {
-    // FIXME: Why these defaults?
-    LanguageFeatures features;
-    features.qtMocRunEnabled = true;
-    features.qtEnabled = true;
-    features.qtKeywordsEnabled = true;
-    features.objCEnabled = true;
-    _tokenize.setLanguageFeatures(features);
+    _tokenize.setLanguageFeatures(languageFeatures);
     _tokenize.setSkipComments(skipComments);
     _text = _block.text().left(cursor.position() - cursor.block().position());
 
     if (! suffix.isEmpty())
         _text += suffix;
 
-    _tokens.append(_tokenize(_text, previousBlockState(_block)));
+    _tokens += _tokenize(_text, previousBlockState(_block));
 
     _startToken = _tokens.size();
 }
@@ -84,10 +80,10 @@ const Token &BackwardsScanner::fetchToken(int tokenIndex)
             _text.prepend(QLatin1Char('\n'));
             _text.prepend(blockText);
 
-            QList<Token> adaptedTokens;
+            Tokens adaptedTokens;
             for (int i = 0; i < _tokens.size(); ++i) {
                 Token t = _tokens.at(i);
-                t.offset += + blockText.length() + 1;
+                t.utf16charOffset += blockText.length() + 1;
                 adaptedTokens.append(t);
             }
 
@@ -112,19 +108,19 @@ QString BackwardsScanner::text() const
 QString BackwardsScanner::mid(int index) const
 {
     const Token &firstToken = _tokens.at(index + _offset);
-    return _text.mid(firstToken.begin());
+    return _text.mid(firstToken.utf16charsBegin());
 }
 
 QString BackwardsScanner::text(int index) const
 {
     const Token &firstToken = _tokens.at(index + _offset);
-    return _text.mid(firstToken.begin(), firstToken.length());
+    return _text.mid(firstToken.utf16charsBegin(), firstToken.utf16chars());
 }
 
 QStringRef BackwardsScanner::textRef(int index) const
 {
     const Token &firstToken = _tokens.at(index + _offset);
-    return _text.midRef(firstToken.begin(), firstToken.length());
+    return _text.midRef(firstToken.utf16charsBegin(), firstToken.utf16chars());
 }
 
 int BackwardsScanner::size() const
@@ -247,8 +243,8 @@ QString BackwardsScanner::indentationString(int index) const
 {
     const Token tokenAfterNewline = operator[](startOfLine(index + 1));
     const int newlinePos = qMax(0, _text.lastIndexOf(QLatin1Char('\n'),
-                                                     tokenAfterNewline.begin()));
-    return _text.mid(newlinePos, tokenAfterNewline.begin() - newlinePos);
+                                                     tokenAfterNewline.utf16charsBegin()));
+    return _text.mid(newlinePos, tokenAfterNewline.utf16charsBegin() - newlinePos);
 }
 
 

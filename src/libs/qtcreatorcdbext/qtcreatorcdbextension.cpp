@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -123,13 +124,14 @@ static const CommandDescription commandDescriptions[] = {
  "-c complex dumpers"},
 {"locals",
  "Prints local variables of symbol group in GDBMI or debug format",
- "[-t token] [-v] [T formats] [-I formats] [-f debugfilter] [-c] [-h] [-d]\n[-e expand-list] [-u uninitialized-list]\n"
+ "[-t token] [-v] [T formats] [-I formats] [-f debugfilter] [-a] [-c] [-h] [-d]\n[-e expand-list] [-u uninitialized-list]\n"
  "[-W] [-w watch-iname watch-expression] <frame-number> [iname]\n"
  "-h human-readable output\n"
  "-v increase verboseness of dumping\n"
  "-d debug output\n"
  "-f debug_filter\n"
  "-c complex dumpers\n"
+ "-a sort alphabetically\n"
  "-e expand-list        Comma-separated list of inames to be expanded beforehand\n"
  "-u uninitialized-list Comma-separated list of uninitialized inames\n"
  "-I formatmap          map of 'hex-encoded-iname=typecode'\n"
@@ -278,8 +280,8 @@ extern "C" HRESULT CALLBACK pid(CIDebugClient *client, PCSTR args)
 
     int token;
     commandTokens<StringList>(args, &token);
-    dprintf("Qt Creator CDB extension version 3.1 %d bit built %s.\n",
-            sizeof(void *) * 8, __DATE__);
+    dprintf("Qt Creator CDB extension version 3.6 %d bit.\n",
+            sizeof(void *) * 8);
     if (const ULONG pid = currentProcessId(client))
         ExtensionContext::instance().report('R', token, 0, "pid", "%u", pid);
     else
@@ -371,6 +373,9 @@ DumpCommandParameters::ParseOptionResult DumpCommandParameters::parseOption(Stri
     case 'c':
         dumpParameters.dumpFlags |= DumpParameters::DumpComplexDumpers;
         break;
+    case 'a':
+        dumpParameters.dumpFlags |= DumpParameters::DumpAlphabeticallySorted;
+        break;
     case 'f':
         if (options->size() < 2)
             return Error;
@@ -409,7 +414,7 @@ DumpCommandParameters::ParseOptionResult DumpCommandParameters::parseOption(Stri
 // Display local variables of symbol group in GDBMI or debug output form.
 // Takes an optional iname which is expanded before displaying (for updateWatchData)
 
-static std::string commmandLocals(ExtensionCommandContext &commandExtCtx,PCSTR args, int *token, std::string *errorMessage)
+static std::string commandLocals(ExtensionCommandContext &commandExtCtx,PCSTR args, int *token, std::string *errorMessage)
 {
     typedef WatchesSymbolGroup::InameExpressionMap InameExpressionMap;
     typedef InameExpressionMap::value_type InameExpressionMapEntry;
@@ -506,16 +511,16 @@ static std::string commmandLocals(ExtensionCommandContext &commandExtCtx,PCSTR a
     // Synchronize watches if desired.
     WatchesSymbolGroup *watchesSymbolGroup = extCtx.watchesSymbolGroup();
     if (watchSynchronization) {
-        if (watcherInameExpressionMap.empty()) { // No watches..kill group.
-            watchesSymbolGroup = 0;
-            extCtx.discardWatchesSymbolGroup();
-            if (SymbolGroupValue::verbose)
-                DebugPrint() << "Discarding watchers";
-        } else {
+        watchesSymbolGroup = 0;
+        extCtx.discardWatchesSymbolGroup();
+        if (!watcherInameExpressionMap.empty()) {
             // Force group into existence
             watchesSymbolGroup = extCtx.watchesSymbolGroup(commandExtCtx.symbols(), errorMessage);
-            if (!watchesSymbolGroup || !watchesSymbolGroup->synchronize(commandExtCtx.symbols(), watcherInameExpressionMap, errorMessage))
+            if (!watchesSymbolGroup || !watchesSymbolGroup->synchronize(commandExtCtx.symbols(),
+                                                                        watcherInameExpressionMap,
+                                                                        errorMessage)) {
                 return std::string();
+            }
         }
     }
 
@@ -556,7 +561,10 @@ static std::string commmandLocals(ExtensionCommandContext &commandExtCtx,PCSTR a
         return dumpRc;
     }
 
-    return symGroup->dump(iname, dumpContext, parameters.dumpParameters, errorMessage);
+    if (WatchesSymbolGroup::isWatchIname(iname))
+        return watchesSymbolGroup->dump(iname, dumpContext, parameters.dumpParameters, errorMessage);
+    else
+        return symGroup->dump(iname, dumpContext, parameters.dumpParameters, errorMessage);
 }
 
 extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)
@@ -564,7 +572,7 @@ extern "C" HRESULT CALLBACK locals(CIDebugClient *client, PCSTR args)
     ExtensionCommandContext exc(client);
     std::string errorMessage;
     int token;
-    const std::string output = commmandLocals(exc, args, &token, &errorMessage);
+    const std::string output = commandLocals(exc, args, &token, &errorMessage);
     SymbolGroupValue::verbose = 0;
     if (output.empty())
         ExtensionContext::instance().report('N', token, 0, "locals", errorMessage.c_str());
@@ -939,7 +947,7 @@ extern "C" HRESULT CALLBACK setparameter(CIDebugClient *, PCSTR args)
 extern "C" HRESULT CALLBACK help(CIDebugClient *, PCSTR)
 {
     std::ostringstream str;
-    str << "### Qt Creator CDB extension built " << __DATE__ << "\n\n";
+    str << "### Qt Creator CDB extension" << "\n\n";
 
     const size_t commandCount = sizeof(commandDescriptions)/sizeof(CommandDescription);
     std::copy(commandDescriptions, commandDescriptions + commandCount,

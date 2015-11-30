@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,68 +9,109 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "formwindowfile.h"
 #include "designerconstants.h"
+#include "resourcehandler.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QBuffer>
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowManagerInterface>
 #include <QDesignerFormEditorInterface>
-#if QT_VERSION < 0x050000
-#    include "qt_private/qsimpleresource_p.h"
-#    include "qt_private/formwindowbase_p.h"
-#endif
-
 #include <QTextDocument>
 #include <QUndoStack>
-
 #include <QFileInfo>
 #include <QDebug>
 #include <QTextCodec>
+
+using namespace Utils;
 
 namespace Designer {
 namespace Internal {
 
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
-  : m_mimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE)),
-    m_shouldAutoSave(false),
-    m_formWindow(form),
-    m_isModified(false)
+  : m_formWindow(form)
 {
+    setMimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE));
     setParent(parent);
     setId(Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     // Designer needs UTF-8 regardless of settings.
     setCodec(QTextCodec::codecForName("UTF-8"));
-    connect(m_formWindow->core()->formWindowManager(), SIGNAL(formWindowRemoved(QDesignerFormWindowInterface*)),
-            this, SLOT(slotFormWindowRemoved(QDesignerFormWindowInterface*)));
-    connect(m_formWindow->commandHistory(), SIGNAL(indexChanged(int)),
-            this, SLOT(setShouldAutoSave()));
-    connect(m_formWindow, SIGNAL(changed()), SLOT(updateIsModified()));
+    connect(m_formWindow->core()->formWindowManager(), &QDesignerFormWindowManagerInterface::formWindowRemoved,
+            this, &FormWindowFile::slotFormWindowRemoved);
+    connect(m_formWindow->commandHistory(), &QUndoStack::indexChanged,
+            this, &FormWindowFile::setShouldAutoSave);
+    connect(m_formWindow.data(), &QDesignerFormWindowInterface::changed, this, &FormWindowFile::updateIsModified);
+
+    m_resourceHandler = new ResourceHandler(form);
+    connect(this, &FormWindowFile::filePathChanged,
+            m_resourceHandler, &ResourceHandler::updateResources);
+}
+
+Core::IDocument::OpenResult FormWindowFile::open(QString *errorString, const QString &fileName,
+                                                 const QString &realFileName)
+{
+    if (Designer::Constants::Internal::debug)
+        qDebug() << "FormWindowFile::open" << fileName;
+
+    QDesignerFormWindowInterface *form = formWindow();
+    QTC_ASSERT(form, return OpenResult::CannotHandle);
+
+    if (fileName.isEmpty())
+        return OpenResult::ReadError;
+
+    const QFileInfo fi(fileName);
+    const QString absfileName = fi.absoluteFilePath();
+
+    QString contents;
+    Utils::TextFileFormat::ReadResult readResult = read(absfileName, &contents, errorString);
+    if (readResult == Utils::TextFileFormat::ReadEncodingError)
+        return OpenResult::CannotHandle;
+    else if (readResult != Utils::TextFileFormat::ReadSuccess)
+        return OpenResult::ReadError;
+
+    form->setFileName(absfileName);
+    const QByteArray contentsBA = contents.toUtf8();
+    QBuffer str;
+    str.setData(contentsBA);
+    str.open(QIODevice::ReadOnly);
+    if (!form->setContents(&str, errorString))
+        return OpenResult::CannotHandle;
+    form->setDirty(fileName != realFileName);
+
+    syncXmlFromFormWindow();
+    setFilePath(Utils::FileName::fromString(absfileName));
+    setShouldAutoSave(false);
+    resourceHandler()->updateProjectResources();
+
+    return OpenResult::Success;
 }
 
 bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSave)
 {
-    const QString actualName = name.isEmpty() ? filePath() : name;
+    const FileName actualName = name.isEmpty() ? filePath() : FileName::fromString(name);
 
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << name << "->" << actualName;
@@ -80,17 +121,10 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
     if (actualName.isEmpty())
         return false;
 
-    const QFileInfo fi(actualName);
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
-        m_formWindow->setFileName(fi.absoluteFilePath());
-#if QT_VERSION >= 0x050000
-    const bool writeOK = writeFile(actualName, errorString);
-#else
-    const bool warningsEnabled = qdesigner_internal::QSimpleResource::setWarningsEnabled(false);
-    const bool writeOK = writeFile(actualName, errorString);
-    qdesigner_internal::QSimpleResource::setWarningsEnabled(warningsEnabled);
-#endif
+        m_formWindow->setFileName(actualName.toString());
+    const bool writeOK = writeFile(actualName.toString(), errorString);
     m_shouldAutoSave = false;
     if (autoSave)
         return writeOK;
@@ -101,8 +135,8 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
     }
 
     m_formWindow->setDirty(false);
-    setFilePath(fi.absoluteFilePath());
-    emit changed();
+    setFilePath(actualName);
+    updateIsModified();
 
     return true;
 }
@@ -112,7 +146,7 @@ bool FormWindowFile::setContents(const QByteArray &contents)
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << contents.size();
 
-    document()->setPlainText(QString());
+    document()->clear();
 
     QTC_ASSERT(m_formWindow, return false);
 
@@ -128,12 +162,7 @@ bool FormWindowFile::setContents(const QByteArray &contents)
         QApplication::restoreOverrideCursor();
     }
 
-#if QT_VERSION >= 0x050000
     const bool success = m_formWindow->setContents(QString::fromUtf8(contents));
-#else
-    m_formWindow->setContents(QString::fromUtf8(contents));
-    const bool success = m_formWindow->mainContainer() != 0;
-#endif
 
     if (hasOverrideCursor)
         QApplication::setOverrideCursor(overrideCursor);
@@ -146,9 +175,9 @@ bool FormWindowFile::setContents(const QByteArray &contents)
     return true;
 }
 
-void FormWindowFile::setFilePath(const QString &newName)
+void FormWindowFile::setFilePath(const FileName &newName)
 {
-    m_formWindow->setFileName(newName);
+    m_formWindow->setFileName(newName.toString());
     IDocument::setFilePath(newName);
 }
 
@@ -184,8 +213,8 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
         emit changed();
     } else {
         emit aboutToReload();
-        emit reloadRequested(errorString, filePath());
-        const bool success = errorString->isEmpty();
+        const bool success
+                = (open(errorString, filePath().toString(), filePath().toString()) == OpenResult::Success);
         emit reloadFinished(success);
         return success;
     }
@@ -210,11 +239,6 @@ QString FormWindowFile::suggestedFileName() const
     return m_suggestedName;
 }
 
-QString FormWindowFile::mimeType() const
-{
-    return m_mimeType;
-}
-
 bool FormWindowFile::writeFile(const QString &fn, QString *errorString) const
 {
     if (Designer::Constants::Internal::debug)
@@ -234,16 +258,14 @@ void FormWindowFile::syncXmlFromFormWindow()
 
 QString FormWindowFile::formWindowContents() const
 {
-#if QT_VERSION >= 0x050000    // TODO: No warnings about spacers here
+    // TODO: No warnings about spacers here
     QTC_ASSERT(m_formWindow, return QString());
     return m_formWindow->contents();
-#else
-    // No warnings about spacers here
-    const qdesigner_internal::FormWindowBase *fw =
-            qobject_cast<const qdesigner_internal::FormWindowBase *>(m_formWindow);
-    QTC_ASSERT(fw, return QString());
-    return fw->fileContents();
-#endif
+}
+
+ResourceHandler *FormWindowFile::resourceHandler() const
+{
+    return m_resourceHandler;
 }
 
 void FormWindowFile::slotFormWindowRemoved(QDesignerFormWindowInterface *w)

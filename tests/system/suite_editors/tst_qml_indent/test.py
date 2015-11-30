@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -36,16 +37,13 @@ def main():
     # using a temporary directory won't mess up a potentially existing
     createNewQtQuickApplication(tempDir(), "untitled")
     originalText = prepareQmlFile()
-    if not originalText:
-        invokeMenuItem("File", "Save All")
-        invokeMenuItem("File", "Exit")
-        return
-    testReIndent(originalText)
+    if originalText:
+        testReIndent(originalText)
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
 
 def prepareQmlFile():
-    if not openDocument("untitled.QML.qml.main\\.qml"):
+    if not openDocument("untitled.Resources.qml\.qrc./.main\\.qml"):
         test.fatal("Could not open main.qml")
         return None
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
@@ -63,11 +61,11 @@ def prepareQmlFile():
             markText(editor, "End")
         else:
             markText(editor, "Ctrl+End")
-        # unmark the last line
+        # unmark the closing brace
         type(editor, "<Shift+Up>")
-        type(editor, "<Ctrl+C>")
+        type(editor, "<Ctrl+c>")
         for j in range(10):
-            type(editor, "<Ctrl+V>")
+            type(editor, "<Ctrl+v>")
     # assume the current editor content to be indented correctly
     originalText = "%s" % editor.plainText
     indented = editor.plainText
@@ -80,10 +78,10 @@ def testReIndent(originalText):
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     correctIndented = len(originalText)
     incorrectIndented = correctIndented + 4004
-    type(editor, "<Ctrl+A>")
+    type(editor, "<Ctrl+a>")
     test.log("calling re-indent")
     starttime = datetime.utcnow()
-    type(editor, "<Ctrl+I>")
+    type(editor, "<Ctrl+i>")
     waitFor("len(str(editor.plainText)) in (incorrectIndented, correctIndented)", 25000)
     endtime = datetime.utcnow()
     test.xverify(originalText == str(editor.plainText),

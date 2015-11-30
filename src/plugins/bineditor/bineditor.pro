@@ -6,4 +6,5 @@ HEADERS += bineditorplugin.h \
         markup.h
 
 SOURCES += bineditorplugin.cpp \
-        bineditor.cpp
+        bineditor.cpp \
+        markup.cpp

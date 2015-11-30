@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,32 +9,34 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "customwizardparameters.h"
-#include "customwizardpreprocessor.h"
 #include "customwizardscriptgenerator.h"
 
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
 
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/macroexpander.h>
+#include <utils/templateengine.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -44,7 +46,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QIcon>
-#include <QScriptEngine>
+#include <QJSEngine>
 #include <QTemporaryFile>
 #include <QTime>
 #include <QXmlStreamAttribute>
@@ -176,7 +178,7 @@ bool CustomWizardValidationRule::validateRules(const QList<CustomWizardValidatio
     errorMessage->clear();
     if (rules.isEmpty())
         return true;
-    QScriptEngine engine;
+    QJSEngine engine;
     foreach (const CustomWizardValidationRule &rule, rules)
     if (!rule.validate(engine, replacementMap)) {
         *errorMessage = rule.message;
@@ -186,14 +188,14 @@ bool CustomWizardValidationRule::validateRules(const QList<CustomWizardValidatio
     return true;
 }
 
-bool CustomWizardValidationRule::validate(QScriptEngine &engine, const QMap<QString, QString> &replacementMap) const
+bool CustomWizardValidationRule::validate(QJSEngine &engine, const QMap<QString, QString> &replacementMap) const
 {
     // Apply parameters and evaluate using JavaScript
     QString cond = condition;
     CustomWizardContext::replaceFields(replacementMap, &cond);
     bool valid = false;
     QString errorMessage;
-    if (!evaluateBooleanJavaScriptExpression(engine, cond, &valid, &errorMessage)) {
+    if (!Utils::TemplateEngine::evaluateBooleanJavaScriptExpression(engine, cond, &valid, &errorMessage)) {
         qWarning("Error in custom wizard validation expression '%s': %s",
                  qPrintable(cond), qPrintable(errorMessage));
         return false;
@@ -222,7 +224,7 @@ static inline QIcon wizardIcon(const QString &configFileFullPath,
                                const QString &xmlIconFileName)
 {
     const QFileInfo fi(xmlIconFileName);
-    if (fi.isFile())
+    if (fi.isFile() && fi.isAbsolute())
         return QIcon(fi.absoluteFilePath());
     if (!fi.isRelative())
         return QIcon();
@@ -272,8 +274,7 @@ static inline bool assignLanguageElementText(QXmlStreamReader &reader,
 static bool parseCustomProjectElement(QXmlStreamReader &reader,
                                       const QString &configFileFullPath,
                                       const QString &language,
-                                      CustomWizardParameters *p,
-                                      IWizard::Data *bp)
+                                      CustomWizardParameters *p)
 {
     const QStringRef elementName = reader.name();
     if (elementName == QLatin1String(iconElementC)) {
@@ -283,20 +284,20 @@ static bool parseCustomProjectElement(QXmlStreamReader &reader,
             qWarning("Invalid icon path '%s' encountered in custom project template %s.",
                      qPrintable(path), qPrintable(configFileFullPath));
         } else {
-                bp->icon = icon;
+                p->icon = icon;
         }
         return true;
     }
     if (elementName == QLatin1String(descriptionElementC)) {
-        assignLanguageElementText(reader, language, &bp->description);
+        assignLanguageElementText(reader, language, &p->description);
         return true;
     }
     if (elementName == QLatin1String(displayNameElementC)) {
-        assignLanguageElementText(reader, language, &bp->displayName);
+        assignLanguageElementText(reader, language, &p->displayName);
         return true;
     }
     if (elementName == QLatin1String(displayCategoryElementC)) {
-        assignLanguageElementText(reader, language, &bp->displayCategory);
+        assignLanguageElementText(reader, language, &p->displayCategory);
         return true;
     }
     if (elementName == QLatin1String(fieldPageTitleElementC)) {
@@ -448,37 +449,31 @@ static ParseState nextClosingState(ParseState in, const QStringRef &name)
 }
 
 // Parse kind attribute
-static inline IWizard::WizardKind kindAttribute(const QXmlStreamReader &r)
+static inline IWizardFactory::WizardKind kindAttribute(const QXmlStreamReader &r)
 {
     const QStringRef value = r.attributes().value(QLatin1String(kindAttributeC));
-    if (!value.isEmpty()) {
-        if (value == QLatin1String("file"))
-            return IWizard::FileWizard;
-        if (value == QLatin1String("class"))
-            return IWizard::ClassWizard;
-    }
-    return IWizard::ProjectWizard;
+    if (value == QLatin1String("file") || value == QLatin1String("class"))
+        return IWizardFactory::FileWizard;
+    return IWizardFactory::ProjectWizard;
 }
 
-static inline FeatureSet requiredFeatures(const QXmlStreamReader &reader)
+static inline FeatureSet readRequiredFeatures(const QXmlStreamReader &reader)
 {
     QString value = reader.attributes().value(QLatin1String(featuresRequiredC)).toString();
     QStringList stringList = value.split(QLatin1Char(','), QString::SkipEmptyParts);
     FeatureSet features;
-    foreach (const QString &string, stringList) {
-        Feature feature(Id::fromString(string));
-        features |= feature;
-    }
+    foreach (const QString &string, stringList)
+        features |= Feature::fromString(string);
     return features;
 }
 
-static inline IWizard::WizardFlags wizardFlags(const QXmlStreamReader &reader)
+static inline IWizardFactory::WizardFlags wizardFlags(const QXmlStreamReader &reader)
 {
-    IWizard::WizardFlags flags;
+    IWizardFactory::WizardFlags flags;
     const QStringRef value = reader.attributes().value(QLatin1String(platformIndependentC));
 
     if (!value.isEmpty() && value == QLatin1String("true"))
-        flags |= IWizard::PlatformIndependent;
+        flags |= IWizardFactory::PlatformIndependent;
 
     return flags;
 }
@@ -550,18 +545,15 @@ GeneratorScriptArgument::GeneratorScriptArgument(const QString &v) :
 
 // Main parsing routine
 CustomWizardParameters::ParseResult
-     CustomWizardParameters::parse(QIODevice &device,
-                                   const QString &configFileFullPath,
-                                   IWizard::Data *bp,
-                                   QString *errorMessage)
+CustomWizardParameters::parse(QIODevice &device, const QString &configFileFullPath,
+                              QString *errorMessage)
 {
     int comboEntryCount = 0;
     QXmlStreamReader reader(&device);
     QXmlStreamReader::TokenType token = QXmlStreamReader::EndDocument;
     ParseState state = ParseBeginning;
     clear();
-    *bp = IWizard::Data();
-    bp->kind = IWizard::ProjectWizard;
+    kind = IWizardFactory::ProjectWizard;
     const QString language = languageSetting();
     CustomWizardField field;
     do {
@@ -573,7 +565,7 @@ CustomWizardParameters::ParseResult
         case QXmlStreamReader::StartElement:
             do {
                 // Read out subelements applicable to current state
-                if (state == ParseWithinWizard && parseCustomProjectElement(reader, configFileFullPath, language, this, bp))
+                if (state == ParseWithinWizard && parseCustomProjectElement(reader, configFileFullPath, language, this))
                     break;
                 // switch to next state
                 state = nextOpeningState(state, reader.name());
@@ -586,12 +578,15 @@ CustomWizardParameters::ParseResult
                 case ParseWithinWizard:
                     if (!booleanAttributeValue(reader, wizardEnabledAttributeC, true))
                         return ParseDisabled;
-                    bp->id = attributeValue(reader, idAttributeC);
-                    id = bp->id;
-                    bp->category = attributeValue(reader, categoryAttributeC);
-                    bp->kind = kindAttribute(reader);
-                    bp->requiredFeatures = requiredFeatures(reader);
-                    bp->flags = wizardFlags(reader);
+                    {
+                        const QString idString = attributeValue(reader, idAttributeC);
+                        if (!idString.isEmpty())
+                            id = Core::Id::fromString(idString);
+                    }
+                    category = attributeValue(reader, categoryAttributeC);
+                    kind = kindAttribute(reader);
+                    requiredFeatures = readRequiredFeatures(reader);
+                    flags = wizardFlags(reader);
                     klass = attributeValue(reader, klassAttributeC);
                     firstPageId = integerAttributeValue(reader, firstPageAttributeC, -1);
                     break;
@@ -704,67 +699,14 @@ CustomWizardParameters::ParseResult
 }
 
 CustomWizardParameters::ParseResult
-     CustomWizardParameters::parse(const QString &configFileFullPath,
-                                   IWizard::Data *bp,
-                                   QString *errorMessage)
+CustomWizardParameters::parse(const QString &configFileFullPath, QString *errorMessage)
 {
     QFile configFile(configFileFullPath);
     if (!configFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(configFileFullPath, configFile.errorString());
         return ParseFailed;
     }
-    return parse(configFile, configFileFullPath, bp, errorMessage);
-}
-
-QString CustomWizardParameters::toString() const
-{
-    QString rc;
-    QTextStream str(&rc);
-    str << "Directory: " << directory << " Klass: '" << klass << "'\n";
-    if (!filesGeneratorScriptArguments.isEmpty()) {
-        str << "Script:";
-        foreach (const QString &a, filesGeneratorScript)
-            str << " '" << a << '\'';
-        if (!filesGeneratorScriptWorkingDirectory.isEmpty())
-            str << "\nrun in '" <<  filesGeneratorScriptWorkingDirectory << '\'';
-        str << "\nArguments: ";
-        foreach (const GeneratorScriptArgument &a, filesGeneratorScriptArguments) {
-            str << " '" << a.value  << '\'';
-            if (a.flags & GeneratorScriptArgument::OmitEmpty)
-                str << " [omit empty]";
-            if (a.flags & GeneratorScriptArgument::WriteFile)
-                str << " [write file]";
-            str << ',';
-        }
-        str << '\n';
-    }
-    foreach (const CustomWizardFile &f, files) {
-        str << "  File source: " << f.source << " Target: " << f.target;
-        if (f.openEditor)
-            str << " [editor]";
-        if (f.openProject)
-            str << " [project]";
-        if (f.binary)
-            str << " [binary]";
-        str << '\n';
-    }
-    foreach (const CustomWizardField &f, fields) {
-        str << "  Field name: " << f.name;
-        if (f.mandatory)
-            str << '*';
-        str << " Description: '" << f.description << '\'';
-        if (!f.controlAttributes.isEmpty()) {
-            typedef CustomWizardField::ControlAttributeMap::const_iterator AttrMapConstIt;
-            str << " Control: ";
-            const AttrMapConstIt cend = f.controlAttributes.constEnd();
-            for (AttrMapConstIt it = f.controlAttributes.constBegin(); it != cend; ++it)
-                str << '\'' << it.key() << "' -> '" << it.value() << "' ";
-        }
-        str << '\n';
-    }
-    foreach (const CustomWizardValidationRule &r, rules)
-            str << "  Rule: '" << r.condition << "'->'" << r.message << '\n';
-    return rc;
+    return parse(configFile, configFileFullPath, errorMessage);
 }
 
 // ------------ CustomWizardContext
@@ -974,10 +916,13 @@ void CustomWizardContext::reset()
     const QDate currentDate = QDate::currentDate();
     const QTime currentTime = QTime::currentTime();
     baseReplacements.clear();
+    Utils::MimeDatabase mdb;
     baseReplacements.insert(QLatin1String("CppSourceSuffix"),
-                            MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
+                            mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
+                            .preferredSuffix());
     baseReplacements.insert(QLatin1String("CppHeaderSuffix"),
-                            MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+                            mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
+                            .preferredSuffix());
     baseReplacements.insert(QLatin1String("CurrentDate"),
                             currentDate.toString(Qt::ISODate));
     baseReplacements.insert(QLatin1String("CurrentTime"),
@@ -986,12 +931,10 @@ void CustomWizardContext::reset()
                             currentDate.toString(Qt::ISODate));
     baseReplacements.insert(QLatin1String("CurrentTime:ISO"),
                             currentTime.toString(Qt::ISODate));
-#if QT_VERSION >= 0x050200
     baseReplacements.insert(QLatin1String("CurrentDate:RFC"),
                             currentDate.toString(Qt::RFC2822Date));
     baseReplacements.insert(QLatin1String("CurrentTime:RFC"),
                             currentTime.toString(Qt::RFC2822Date));
-#endif
     baseReplacements.insert(QLatin1String("CurrentDate:Locale"),
                             currentDate.toString(Qt::DefaultLocaleShortDate));
     baseReplacements.insert(QLatin1String("CurrentTime:Locale"),
@@ -1012,7 +955,7 @@ QString CustomWizardContext::processFile(const FieldReplacementMap &fm, QString 
 
     QString out;
     QString errorMessage;
-    if (!customWizardPreprocess(in, &out, &errorMessage)) {
+    if (!Utils::TemplateEngine::preprocessText(in, &out, &errorMessage)) {
         qWarning("Error preprocessing custom widget file: %s\nFile:\n%s",
                  qPrintable(errorMessage), qPrintable(in));
         return QString();

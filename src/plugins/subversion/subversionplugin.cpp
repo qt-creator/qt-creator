@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,32 +37,34 @@
 #include "subversionclient.h"
 #include "subversionconstants.h"
 #include "subversioncontrol.h"
-#include "checkoutwizard.h"
 
 #include <vcsbase/basevcseditorfactory.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
-#include <utils/synchronousprocess.h>
-#include <utils/parameteraction.h>
-#include <utils/fileutils.h>
-#include <utils/hostosinfo.h>
 
-#include <coreplugin/icore.h>
+#include <texteditor/textdocument.h>
+
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/mimedatabase.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
-
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <coreplugin/locator/commandlocator.h>
+#include <coreplugin/messagemanager.h>
 
+#include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 
 #include <QDebug>
 #include <QDir>
@@ -76,64 +79,58 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QInputDialog>
+
 #include <limits.h>
 
 #ifdef WITH_TESTS
 #include <QTest>
 #endif
 
+using namespace Core;
+using namespace Utils;
+using namespace VcsBase;
+
 namespace Subversion {
 namespace Internal {
 
-static const char CMD_ID_SUBVERSION_MENU[]    = "Subversion.Menu";
-static const char CMD_ID_ADD[]                = "Subversion.Add";
-static const char CMD_ID_DELETE_FILE[]        = "Subversion.Delete";
-static const char CMD_ID_REVERT[]             = "Subversion.Revert";
-static const char CMD_ID_DIFF_PROJECT[]       = "Subversion.DiffAll";
-static const char CMD_ID_DIFF_CURRENT[]       = "Subversion.DiffCurrent";
-static const char CMD_ID_COMMIT_ALL[]         = "Subversion.CommitAll";
-static const char CMD_ID_REVERT_ALL[]         = "Subversion.RevertAll";
-static const char CMD_ID_COMMIT_CURRENT[]     = "Subversion.CommitCurrent";
-static const char CMD_ID_FILELOG_CURRENT[]    = "Subversion.FilelogCurrent";
-static const char CMD_ID_ANNOTATE_CURRENT[]   = "Subversion.AnnotateCurrent";
-static const char CMD_ID_STATUS[]             = "Subversion.Status";
-static const char CMD_ID_PROJECTLOG[]         = "Subversion.ProjectLog";
-static const char CMD_ID_REPOSITORYLOG[]      = "Subversion.RepositoryLog";
-static const char CMD_ID_REPOSITORYUPDATE[]   = "Subversion.RepositoryUpdate";
-static const char CMD_ID_REPOSITORYDIFF[]     = "Subversion.RepositoryDiff";
-static const char CMD_ID_REPOSITORYSTATUS[]   = "Subversion.RepositoryStatus";
-static const char CMD_ID_UPDATE[]             = "Subversion.Update";
-static const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
-static const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
+const char CMD_ID_SUBVERSION_MENU[]    = "Subversion.Menu";
+const char CMD_ID_ADD[]                = "Subversion.Add";
+const char CMD_ID_DELETE_FILE[]        = "Subversion.Delete";
+const char CMD_ID_REVERT[]             = "Subversion.Revert";
+const char CMD_ID_DIFF_PROJECT[]       = "Subversion.DiffAll";
+const char CMD_ID_DIFF_CURRENT[]       = "Subversion.DiffCurrent";
+const char CMD_ID_COMMIT_ALL[]         = "Subversion.CommitAll";
+const char CMD_ID_REVERT_ALL[]         = "Subversion.RevertAll";
+const char CMD_ID_COMMIT_CURRENT[]     = "Subversion.CommitCurrent";
+const char CMD_ID_FILELOG_CURRENT[]    = "Subversion.FilelogCurrent";
+const char CMD_ID_ANNOTATE_CURRENT[]   = "Subversion.AnnotateCurrent";
+const char CMD_ID_STATUS[]             = "Subversion.Status";
+const char CMD_ID_PROJECTLOG[]         = "Subversion.ProjectLog";
+const char CMD_ID_REPOSITORYLOG[]      = "Subversion.RepositoryLog";
+const char CMD_ID_REPOSITORYUPDATE[]   = "Subversion.RepositoryUpdate";
+const char CMD_ID_REPOSITORYDIFF[]     = "Subversion.RepositoryDiff";
+const char CMD_ID_REPOSITORYSTATUS[]   = "Subversion.RepositoryStatus";
+const char CMD_ID_UPDATE[]             = "Subversion.Update";
+const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
+const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-static const char nonInteractiveOptionC[] = "--non-interactive";
-
-
-
-static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
+const VcsBaseEditorParameters editorParameters[] = {
 {
-    VcsBase::LogOutput,
-    "Subversion File Log Editor",   // id
-    QT_TRANSLATE_NOOP("VCS", "Subversion File Log Editor"),   // display_name
-    "Subversion File Log Editor",   // context
-    "text/vnd.qtcreator.svn.log"},
-{    VcsBase::AnnotateOutput,
-    "Subversion Annotation Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "Subversion Annotation Editor"),   // display_name
-    "Subversion Annotation Editor",  // context
-    "text/vnd.qtcreator.svn.annotation"},
-{   VcsBase::DiffOutput,
-    "Subversion Diff Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "Subversion Diff Editor"),   // display_name
-    "Subversion Diff Editor",  // context
-    "text/x-patch"}
+    LogOutput,
+    Constants::SUBVERSION_LOG_EDITOR_ID,
+    Constants::SUBVERSION_LOG_EDITOR_DISPLAY_NAME,
+    Constants::SUBVERSION_LOG_MIMETYPE},
+{    AnnotateOutput,
+     Constants::SUBVERSION_BLAME_EDITOR_ID,
+     Constants::SUBVERSION_BLAME_EDITOR_DISPLAY_NAME,
+     Constants::SUBVERSION_BLAME_MIMETYPE}
 };
 
 // Utility to find a parameter set by type
-static inline const VcsBase::VcsBaseEditorParameters *findType(int ie)
+static const VcsBaseEditorParameters *findType(int ie)
 {
-    const VcsBase::EditorContentType et = static_cast<VcsBase::EditorContentType>(ie);
-    return  VcsBase::VcsBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters), et);
+    const EditorContentType et = static_cast<EditorContentType>(ie);
+    return VcsBaseEditor::findType(editorParameters, sizeof(editorParameters)/sizeof(editorParameters[0]), et);
 }
 
 static inline QString debugCodec(const QTextCodec *c)
@@ -168,7 +165,7 @@ StatusList parseStatusOutput(const QString &output)
 static inline QStringList svnDirectories()
 {
     QStringList rc(QLatin1String(".svn"));
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (HostOsInfo::isWindowsHost())
         // Option on Windows systems to avoid hassle with some IDEs
         rc.push_back(QLatin1String("_svn"));
     return rc;
@@ -178,33 +175,7 @@ static inline QStringList svnDirectories()
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 
 SubversionPlugin::SubversionPlugin() :
-    m_svnDirectories(svnDirectories()),
-    m_commandLocator(0),
-    m_addAction(0),
-    m_deleteAction(0),
-    m_revertAction(0),
-    m_diffProjectAction(0),
-    m_diffCurrentAction(0),
-    m_logProjectAction(0),
-    m_logRepositoryAction(0),
-    m_commitAllAction(0),
-    m_revertRepositoryAction(0),
-    m_diffRepositoryAction(0),
-    m_statusRepositoryAction(0),
-    m_updateRepositoryAction(0),
-    m_commitCurrentAction(0),
-    m_filelogCurrentAction(0),
-    m_annotateCurrentAction(0),
-    m_statusProjectAction(0),
-    m_updateProjectAction(0),
-    m_commitProjectAction(0),
-    m_describeAction(0),
-    m_submitCurrentLogAction(0),
-    m_submitDiffAction(0),
-    m_submitUndoAction(0),
-    m_submitRedoAction(0),
-    m_menuAction(0),
-    m_submitActionTriggered(false)
+    m_svnDirectories(svnDirectories())
 {
 }
 
@@ -228,224 +199,222 @@ bool SubversionPlugin::isCommitEditorOpen() const
     return !m_commitMessageFileName.isEmpty();
 }
 
-static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
-    Subversion::Constants::SUBVERSION_SUBMIT_MIMETYPE,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR_ID,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR_DISPLAY_NAME,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR,
-    VcsBase::VcsBaseSubmitEditorParameters::DiffFiles
+const VcsBaseSubmitEditorParameters submitParameters = {
+    Constants::SUBVERSION_SUBMIT_MIMETYPE,
+    Constants::SUBVERSION_COMMIT_EDITOR_ID,
+    Constants::SUBVERSION_COMMIT_EDITOR_DISPLAY_NAME,
+    VcsBaseSubmitEditorParameters::DiffFiles
 };
 
 bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
-    typedef VcsBase::VcsSubmitEditorFactory<SubversionSubmitEditor> SubversionSubmitEditorFactory;
-    typedef VcsBase::VcsEditorFactory<SubversionEditor> SubversionEditorFactory;
+    Q_UNUSED(errorMessage)
     using namespace Constants;
-
     using namespace Core::Constants;
-    using namespace ExtensionSystem;
 
-    initializeVcs(new SubversionControl(this));
+    Context context(SUBVERSION_CONTEXT);
+
+    initializeVcs(new SubversionControl(this), context);
 
     m_subversionPluginInstance = this;
 
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
-        return false;
+    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"));
 
-    m_settings.readSettings(Core::ICore::settings());
-    m_client = new SubversionClient(&m_settings);
+    m_client = new SubversionClient;
 
-    addAutoReleasedObject(new SettingsPage);
+    addAutoReleasedObject(new SettingsPage(versionControl()));
 
-    addAutoReleasedObject(new SubversionSubmitEditorFactory(&submitParameters));
+    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new SubversionSubmitEditor(&submitParameters); }));
 
     static const char *describeSlot = SLOT(describe(QString,QString));
-    const int editorCount = sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters);
+    const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
+    const auto widgetCreator = []() { return new SubversionEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new SubversionEditorFactory(editorParameters + i, this, describeSlot));
-
-    addAutoReleasedObject(new CheckoutWizard);
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
 
     const QString prefix = QLatin1String("svn");
-    m_commandLocator = new Core::CommandLocator("Subversion", prefix, prefix);
+    m_commandLocator = new CommandLocator("Subversion", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
-    //register actions
-    Core::ActionContainer *toolsContainer = Core::ActionManager::actionContainer(M_TOOLS);
+    // Register actions
+    ActionContainer *toolsContainer = ActionManager::actionContainer(M_TOOLS);
 
-    Core::ActionContainer *subversionMenu =
-        Core::ActionManager::createMenu(Core::Id(CMD_ID_SUBVERSION_MENU));
+    ActionContainer *subversionMenu = ActionManager::createMenu(Id(CMD_ID_SUBVERSION_MENU));
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);
     m_menuAction = subversionMenu->menu()->menuAction();
-    Core::Context globalcontext(C_GLOBAL);
-    Core::Command *command;
+    Command *command;
 
-    m_diffCurrentAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_diffCurrentAction,
-        CMD_ID_DIFF_CURRENT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+S,Meta+D") : tr("Alt+S,Alt+D")));
-    connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
+    m_diffCurrentAction = new ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_diffCurrentAction,
+        CMD_ID_DIFF_CURRENT, context);
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+S,Meta+D") : tr("Alt+S,Alt+D")));
+    connect(m_diffCurrentAction, &QAction::triggered, this, &SubversionPlugin::diffCurrentFile);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_filelogCurrentAction = new Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_filelogCurrentAction,
-        CMD_ID_FILELOG_CURRENT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_filelogCurrentAction, SIGNAL(triggered()), this,
-        SLOT(filelogCurrentFile()));
+    m_filelogCurrentAction = new ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_filelogCurrentAction,
+        CMD_ID_FILELOG_CURRENT, context);
+    command->setAttribute(Command::CA_UpdateText);
+    connect(m_filelogCurrentAction, &QAction::triggered, this, &SubversionPlugin::filelogCurrentFile);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_annotateCurrentAction = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_annotateCurrentAction,
-        CMD_ID_ANNOTATE_CURRENT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_annotateCurrentAction, SIGNAL(triggered()), this,
-        SLOT(annotateCurrentFile()));
+    m_annotateCurrentAction = new ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_annotateCurrentAction,
+        CMD_ID_ANNOTATE_CURRENT, context);
+    command->setAttribute(Command::CA_UpdateText);
+    connect(m_annotateCurrentAction, &QAction::triggered, this, &SubversionPlugin::annotateCurrentFile);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    subversionMenu->addSeparator(globalcontext);
+    subversionMenu->addSeparator(context);
 
-    m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_addAction, CMD_ID_ADD,
-        globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+S,Meta+A") : tr("Alt+S,Alt+A")));
-    connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
+    m_addAction = new ParameterAction(tr("Add"), tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_addAction, CMD_ID_ADD,
+        context);
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+S,Meta+A") : tr("Alt+S,Alt+A")));
+    connect(m_addAction, &QAction::triggered, this, &SubversionPlugin::addCurrentFile);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitCurrentAction = new Utils::ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_commitCurrentAction,
-        CMD_ID_COMMIT_CURRENT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+S,Meta+C") : tr("Alt+S,Alt+C")));
-    connect(m_commitCurrentAction, SIGNAL(triggered()), this, SLOT(startCommitCurrentFile()));
+    m_commitCurrentAction = new ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_commitCurrentAction,
+        CMD_ID_COMMIT_CURRENT, context);
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+S,Meta+C") : tr("Alt+S,Alt+C")));
+    connect(m_commitCurrentAction, &QAction::triggered, this, &SubversionPlugin::startCommitCurrentFile);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_deleteAction = new Utils::ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
-        globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
+    m_deleteAction = new ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
+        context);
+    command->setAttribute(Command::CA_UpdateText);
+    connect(m_deleteAction, &QAction::triggered, this, &SubversionPlugin::promptToDeleteCurrentFile);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_revertAction = new Utils::ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_revertAction, CMD_ID_REVERT,
-        globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
+    m_revertAction = new ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_revertAction, CMD_ID_REVERT,
+        context);
+    command->setAttribute(Command::CA_UpdateText);
+    connect(m_revertAction, &QAction::triggered, this, &SubversionPlugin::revertCurrentFile);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    subversionMenu->addSeparator(globalcontext);
+    subversionMenu->addSeparator(context);
 
-    m_diffProjectAction = new Utils::ParameterAction(tr("Diff Project"), tr("Diff Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
-        globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffProject()));
+    m_diffProjectAction = new ParameterAction(tr("Diff Project"), tr("Diff Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
+        context);
+    command->setAttribute(Command::CA_UpdateText);
+    connect(m_diffProjectAction, &QAction::triggered, this, &SubversionPlugin::diffProject);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_statusProjectAction = new Utils::ParameterAction(tr("Project Status"), tr("Status of Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_statusProjectAction, CMD_ID_STATUS,
-        globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_statusProjectAction, SIGNAL(triggered()), this, SLOT(projectStatus()));
+    m_statusProjectAction = new ParameterAction(tr("Project Status"), tr("Status of Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_statusProjectAction, CMD_ID_STATUS,
+        context);
+    command->setAttribute(Command::CA_UpdateText);
+    connect(m_statusProjectAction, &QAction::triggered, this, &SubversionPlugin::projectStatus);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logProjectAction = new Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
+    m_logProjectAction = new ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, context);
+    command->setAttribute(Command::CA_UpdateText);
+    connect(m_logProjectAction, &QAction::triggered, this, &SubversionPlugin::logProject);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_updateProjectAction = new Utils::ParameterAction(tr("Update Project"), tr("Update Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE, globalcontext);
-    connect(m_updateProjectAction, SIGNAL(triggered()), this, SLOT(updateProject()));
-    command->setAttribute(Core::Command::CA_UpdateText);
+    m_updateProjectAction = new ParameterAction(tr("Update Project"), tr("Update Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE, context);
+    connect(m_updateProjectAction, &QAction::triggered, this, &SubversionPlugin::updateProject);
+    command->setAttribute(Command::CA_UpdateText);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitProjectAction = new Utils::ParameterAction(tr("Commit Project"), tr("Commit Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_commitProjectAction, CMD_ID_COMMIT_PROJECT, globalcontext);
-    connect(m_commitProjectAction, SIGNAL(triggered()), this, SLOT(startCommitProject()));
-    command->setAttribute(Core::Command::CA_UpdateText);
+    m_commitProjectAction = new ParameterAction(tr("Commit Project"), tr("Commit Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_commitProjectAction, CMD_ID_COMMIT_PROJECT, context);
+    connect(m_commitProjectAction, &QAction::triggered, this, &SubversionPlugin::startCommitProject);
+    command->setAttribute(Command::CA_UpdateText);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    subversionMenu->addSeparator(globalcontext);
+    subversionMenu->addSeparator(context);
 
     m_diffRepositoryAction = new QAction(tr("Diff Repository"), this);
-    command = Core::ActionManager::registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, globalcontext);
-    connect(m_diffRepositoryAction, SIGNAL(triggered()), this, SLOT(diffRepository()));
+    command = ActionManager::registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, context);
+    connect(m_diffRepositoryAction, &QAction::triggered, this, &SubversionPlugin::diffRepository);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_statusRepositoryAction = new QAction(tr("Repository Status"), this);
-    command = Core::ActionManager::registerAction(m_statusRepositoryAction, CMD_ID_REPOSITORYSTATUS, globalcontext);
-    connect(m_statusRepositoryAction, SIGNAL(triggered()), this, SLOT(statusRepository()));
+    command = ActionManager::registerAction(m_statusRepositoryAction, CMD_ID_REPOSITORYSTATUS, context);
+    connect(m_statusRepositoryAction, &QAction::triggered, this, &SubversionPlugin::statusRepository);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_logRepositoryAction = new QAction(tr("Log Repository"), this);
-    command = Core::ActionManager::registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, globalcontext);
-    connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
+    command = ActionManager::registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, context);
+    connect(m_logRepositoryAction, &QAction::triggered, this, &SubversionPlugin::logRepository);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_updateRepositoryAction = new QAction(tr("Update Repository"), this);
-    command = Core::ActionManager::registerAction(m_updateRepositoryAction, CMD_ID_REPOSITORYUPDATE, globalcontext);
-    connect(m_updateRepositoryAction, SIGNAL(triggered()), this, SLOT(updateRepository()));
+    command = ActionManager::registerAction(m_updateRepositoryAction, CMD_ID_REPOSITORYUPDATE, context);
+    connect(m_updateRepositoryAction, &QAction::triggered, this, &SubversionPlugin::updateRepository);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_commitAllAction = new QAction(tr("Commit All Files"), this);
-    command = Core::ActionManager::registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
-        globalcontext);
-    connect(m_commitAllAction, SIGNAL(triggered()), this, SLOT(startCommitAll()));
+    command = ActionManager::registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
+        context);
+    connect(m_commitAllAction, &QAction::triggered, this, &SubversionPlugin::startCommitAll);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_describeAction = new QAction(tr("Describe..."), this);
-    command = Core::ActionManager::registerAction(m_describeAction, CMD_ID_DESCRIBE, globalcontext);
-    connect(m_describeAction, SIGNAL(triggered()), this, SLOT(slotDescribe()));
+    command = ActionManager::registerAction(m_describeAction, CMD_ID_DESCRIBE, context);
+    connect(m_describeAction, &QAction::triggered, this, &SubversionPlugin::slotDescribe);
     subversionMenu->addAction(command);
 
     m_revertRepositoryAction = new QAction(tr("Revert Repository..."), this);
-    command = Core::ActionManager::registerAction(m_revertRepositoryAction, CMD_ID_REVERT_ALL,
-        globalcontext);
-    connect(m_revertRepositoryAction, SIGNAL(triggered()), this, SLOT(revertAll()));
+    command = ActionManager::registerAction(m_revertRepositoryAction, CMD_ID_REVERT_ALL,
+        context);
+    connect(m_revertRepositoryAction, &QAction::triggered, this, &SubversionPlugin::revertAll);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    Core::Context svncommitcontext(Constants::SUBVERSIONCOMMITEDITOR);
+    Context svncommitcontext(Constants::SUBVERSION_COMMIT_EDITOR_ID);
 
-    m_submitCurrentLogAction = new QAction(VcsBase::VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    command = Core::ActionManager::registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, svncommitcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
+    m_submitCurrentLogAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
+    command = ActionManager::registerAction(m_submitCurrentLogAction, SUBMIT_CURRENT, svncommitcontext);
+    command->setAttribute(Command::CA_UpdateText);
+    connect(m_submitCurrentLogAction, &QAction::triggered, this, &SubversionPlugin::submitCurrentLog);
 
-    m_submitDiffAction = new QAction(VcsBase::VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = Core::ActionManager::registerAction(m_submitDiffAction , Constants::DIFF_SELECTED, svncommitcontext);
+    m_submitDiffAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
+    ActionManager::registerAction(m_submitDiffAction , DIFF_SELECTED, svncommitcontext);
 
     m_submitUndoAction = new QAction(tr("&Undo"), this);
-    command = Core::ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, svncommitcontext);
+    ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, svncommitcontext);
 
     m_submitRedoAction = new QAction(tr("&Redo"), this);
-    command = Core::ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, svncommitcontext);
+    ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, svncommitcontext);
 
     return true;
+}
+
+SubversionClient *SubversionPlugin::client() const
+{
+    QTC_CHECK(m_client);
+    return m_client;
 }
 
 bool SubversionPlugin::submitEditorAboutToClose()
@@ -455,20 +424,20 @@ bool SubversionPlugin::submitEditorAboutToClose()
 
     SubversionSubmitEditor *editor = qobject_cast<SubversionSubmitEditor *>(submitEditor());
     QTC_ASSERT(editor, return true);
-    Core::IDocument *editorDocument = editor->document();
+    IDocument *editorDocument = editor->document();
     QTC_ASSERT(editorDocument, return true);
 
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
-    const QFileInfo editorFile(editorDocument->filePath());
+    const QFileInfo editorFile = editorDocument->filePath().toFileInfo();
     const QFileInfo changeFile(m_commitMessageFileName);
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!
 
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    SubversionSettings newSettings = m_settings;
-    const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult answer =
+    VcsBaseClientSettings &newSettings = client()->settings();
+    const VcsBaseSubmitEditor::PromptSubmitResult answer =
             editor->promptSubmit(tr("Closing Subversion Editor"),
                                  tr("Do you want to commit the change?"),
                                  tr("The commit message check failed. Do you want to commit the change?"),
@@ -476,47 +445,50 @@ bool SubversionPlugin::submitEditorAboutToClose()
                                  !m_submitActionTriggered);
     m_submitActionTriggered = false;
     switch (answer) {
-    case VcsBase::VcsBaseSubmitEditor::SubmitCanceled:
+    case VcsBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
-    case VcsBase::VcsBaseSubmitEditor::SubmitDiscarded:
+    case VcsBaseSubmitEditor::SubmitDiscarded:
         cleanCommitMessageFile();
         return true; // Cancel all
     default:
         break;
     }
-    setSettings(newSettings); // in case someone turned prompting off
     const QStringList fileList = editor->checkedFiles();
     bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & commit
-        closeEditor = Core::DocumentManager::saveDocument(editorDocument);
-        if (closeEditor)
-            closeEditor = commit(m_commitMessageFileName, fileList);
+        closeEditor = DocumentManager::saveDocument(editorDocument);
+        if (closeEditor) {
+            VcsCommand *commitCmd = m_client->createCommitCmd(m_commitRepository,
+                                                              fileList,
+                                                              m_commitMessageFileName);
+            QObject::connect(commitCmd, &VcsCommand::finished,
+                             this, [this]() { cleanCommitMessageFile(); });
+            commitCmd->execute();
+        }
     }
-    if (closeEditor)
-        cleanCommitMessageFile();
     return closeEditor;
 }
 
 void SubversionPlugin::diffCommitFiles(const QStringList &files)
 {
-    m_client->diff(m_commitRepository, files);
+    m_client->diff(m_commitRepository, files, QStringList());
 }
 
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
 {
-    Core::IEditor *editor = Core::EditorManager::openEditor(fileName,
-                                                            Constants::SUBVERSIONCOMMITEDITOR_ID);
+    IEditor *editor = EditorManager::openEditor(fileName, Constants::SUBVERSION_COMMIT_EDITOR_ID);
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
-    QTC_CHECK(submitEditor);
+    QTC_ASSERT(submitEditor, return 0);
     setSubmitEditor(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
-    connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCommitFiles(QStringList)));
+    connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
+            this, &SubversionPlugin::diffCommitFiles);
     submitEditor->setCheckScriptWorkingDirectory(m_commitRepository);
     return submitEditor;
 }
 
-void SubversionPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
+void SubversionPlugin::updateActions(VcsBasePlugin::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);
@@ -554,60 +526,68 @@ void SubversionPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
 
 void SubversionPlugin::addCurrentFile()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void SubversionPlugin::revertAll()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     const QString title = tr("Revert repository");
-    if (QMessageBox::warning(0, title, tr("Revert all pending changes to the repository?"),
+    if (QMessageBox::warning(ICore::dialogParent(), title,
+                             tr("Revert all pending changes to the repository?"),
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
     // NoteL: Svn "revert ." doesn not work.
     QStringList args;
-    args << QLatin1String("revert") << QLatin1String("--recursive") << state.topLevel();
-    const SubversionResponse revertResponse =
-            runSvn(state.topLevel(), args, m_settings.timeOutMs(),
-                   SshPasswordPrompt|ShowStdOutInLogWindow);
+    args << QLatin1String("revert");
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
+    args << QLatin1String("--recursive") << state.topLevel();
+    const SubversionResponse revertResponse
+            = runSvn(state.topLevel(), args, m_client->vcsTimeoutS(),
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     if (revertResponse.error)
-        QMessageBox::warning(0, title, tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
+        QMessageBox::warning(ICore::dialogParent(), title,
+                             tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
     else
         subVersionControl()->emitRepositoryChanged(state.topLevel());
 }
 
 void SubversionPlugin::revertCurrentFile()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
 
     QStringList args(QLatin1String("diff"));
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args.push_back(state.relativeCurrentFile());
 
-    const SubversionResponse diffResponse =
-            runSvn(state.currentFileTopLevel(), args, m_settings.timeOutMs(), 0);
+    const SubversionResponse diffResponse
+            = runSvn(state.currentFileTopLevel(), args, m_client->vcsTimeoutS(), 0);
     if (diffResponse.error)
         return;
 
     if (diffResponse.stdOut.isEmpty())
         return;
-    if (QMessageBox::warning(0, QLatin1String("svn revert"), tr("The file has been changed. Do you want to revert it?"),
+    if (QMessageBox::warning(ICore::dialogParent(), QLatin1String("svn revert"),
+                             tr("The file has been changed. Do you want to revert it?"),
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
 
-    Core::FileChangeBlocker fcb(state.currentFile());
+    FileChangeBlocker fcb(state.currentFile());
 
     // revert
     args.clear();
-    args << QLatin1String("revert") << state.relativeCurrentFile();
+    args << QLatin1String("revert");
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
+    args << state.relativeCurrentFile();
 
-    const SubversionResponse revertResponse =
-            runSvn(state.currentFileTopLevel(), args, m_settings.timeOutMs(),
-                   SshPasswordPrompt|ShowStdOutInLogWindow);
+    const SubversionResponse revertResponse
+            = runSvn(state.currentFileTopLevel(), args, m_client->vcsTimeoutS(),
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
 
     if (!revertResponse.error)
         subVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
@@ -615,37 +595,39 @@ void SubversionPlugin::revertCurrentFile()
 
 void SubversionPlugin::diffProject()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     const QString relativeProject = state.relativeCurrentProject();
     m_client->diff(state.currentProjectTopLevel(),
-                      relativeProject.isEmpty() ? QStringList() : QStringList(relativeProject));
+                   relativeProject.isEmpty() ? QStringList() : QStringList(relativeProject),
+                   QStringList());
 }
 
 void SubversionPlugin::diffCurrentFile()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
+                   QStringList());
 }
 
 void SubversionPlugin::startCommitCurrentFile()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     startCommit(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void SubversionPlugin::startCommitAll()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     startCommit(state.topLevel());
 }
 
 void SubversionPlugin::startCommitProject()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     startCommit(state.currentProjectPath());
 }
@@ -658,158 +640,110 @@ void SubversionPlugin::startCommit(const QString &workingDir, const QStringList 
     if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendWarning(tr("Another commit is currently being executed."));
+        VcsOutputWindow::appendWarning(tr("Another commit is currently being executed."));
         return;
     }
 
     QStringList args(QLatin1String("status"));
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args += files;
 
-    const SubversionResponse response =
-            runSvn(workingDir, args, m_settings.timeOutMs(), 0);
+    const SubversionResponse response
+            = runSvn(workingDir, args, m_client->vcsTimeoutS(), 0);
     if (response.error)
         return;
 
     // Get list of added/modified/deleted files
     const StatusList statusOutput = parseStatusOutput(response.stdOut);
     if (statusOutput.empty()) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendWarning(tr("There are no modified files."));
+        VcsOutputWindow::appendWarning(tr("There are no modified files."));
         return;
     }
     m_commitRepository = workingDir;
     // Create a new submit change file containing the submit template
-    Utils::TempFileSaver saver;
+    TempFileSaver saver;
     saver.setAutoRemove(false);
     // TODO: Retrieve submit template from
     const QString submitTemplate;
     // Create a submit
     saver.write(submitTemplate.toUtf8());
     if (!saver.finalize()) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(saver.errorString());
+        VcsOutputWindow::appendError(saver.errorString());
         return;
     }
     m_commitMessageFileName = saver.fileName();
     // Create a submit editor and set file list
     SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_commitMessageFileName);
+    QTC_ASSERT(editor, return);
     editor->setStatusList(statusOutput);
-}
-
-bool SubversionPlugin::commit(const QString &messageFile,
-                              const QStringList &subVersionFileList)
-{
-    if (Subversion::Constants::debug)
-        qDebug() << Q_FUNC_INFO << messageFile << subVersionFileList;
-    // Transform the status list which is sth
-    // "[ADM]<blanks>file" into an args list. The files of the status log
-    // can be relative or absolute depending on where the command was run.
-    QStringList args = QStringList(QLatin1String("commit"));
-    args << QLatin1String(nonInteractiveOptionC) << QLatin1String("--file") << messageFile;
-    args.append(subVersionFileList);
-    const SubversionResponse response =
-            runSvn(m_commitRepository, args, 10 * m_settings.timeOutMs(),
-                   SshPasswordPrompt|ShowStdOutInLogWindow);
-    return !response.error ;
 }
 
 void SubversionPlugin::filelogCurrentFile()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     filelog(state.currentFileTopLevel(), state.relativeCurrentFile(), true);
 }
 
 void SubversionPlugin::logProject()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     filelog(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void SubversionPlugin::logRepository()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     filelog(state.topLevel());
 }
 
 void SubversionPlugin::diffRepository()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_client->diff(state.topLevel(), QStringList());
+    m_client->diff(state.topLevel(), QStringList(), QStringList());
 }
 
 void SubversionPlugin::statusRepository()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     svnStatus(state.topLevel());
 }
 
 void SubversionPlugin::updateRepository()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     svnUpdate(state.topLevel());
 }
 
 void SubversionPlugin::svnStatus(const QString &workingDir, const QString &relativePath)
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList args(QLatin1String("status"));
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     if (!relativePath.isEmpty())
         args.append(relativePath);
-    VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
-    outwin->setRepository(workingDir);
-    runSvn(workingDir, args, m_settings.timeOutMs(),
-           ShowStdOutInLogWindow|ShowSuccessMessage);
-    outwin->clearRepository();
+    VcsOutputWindow::setRepository(workingDir);
+    runSvn(workingDir, args, m_client->vcsTimeoutS(),
+           VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage);
+    VcsOutputWindow::clearRepository();
 }
 
 void SubversionPlugin::filelog(const QString &workingDir,
                                const QString &file,
                                bool enableAnnotationContextMenu)
 {
-    // no need for temp file
-    QStringList args(QLatin1String("log"));
-    if (m_settings.intValue(SubversionSettings::logCountKey) > 0) {
-        args << QLatin1String("-l")
-             << QString::number(m_settings.intValue(SubversionSettings::logCountKey));
-    }
-    if (!file.isEmpty())
-        args.append(QDir::toNativeSeparators(file));
-
-    // subversion stores log in UTF-8 and returns it back in user system locale.
-    // So we do not need to encode it.
-    const SubversionResponse response =
-            runSvn(workingDir, args, m_settings.timeOutMs(),
-                   SshPasswordPrompt, 0/*codec*/);
-    if (response.error)
-        return;
-
-    // Re-use an existing view if possible to support
-    // the common usage pattern of continuously changing and diffing a file
-
-    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, QStringList(file));
-    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::LogOutput, workingDir,
-                                                                QStringList(file));
-    if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
-        editor->document()->setContents(response.stdOut.toUtf8());
-        Core::EditorManager::activateEditor(editor);
-    } else {
-        const QString title = QString::fromLatin1("svn log %1").arg(id);
-        const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, file);
-        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VcsBase::LogOutput, source, /*codec*/0);
-        VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
-        if (enableAnnotationContextMenu)
-            VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
-    }
+    m_client->log(workingDir, QStringList(file), QStringList(), enableAnnotationContextMenu);
 }
 
 void SubversionPlugin::updateProject()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     svnUpdate(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
@@ -817,19 +751,20 @@ void SubversionPlugin::updateProject()
 void SubversionPlugin::svnUpdate(const QString &workingDir, const QString &relativePath)
 {
     QStringList args(QLatin1String("update"));
-    args.push_back(QLatin1String(nonInteractiveOptionC));
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
+    args.push_back(QLatin1String(Constants::NON_INTERACTIVE_OPTION));
     if (!relativePath.isEmpty())
         args.append(relativePath);
-        const SubversionResponse response =
-                runSvn(workingDir, args, 10 * m_settings.timeOutMs(),
-                       SshPasswordPrompt|ShowStdOutInLogWindow);
+        const SubversionResponse response
+                = runSvn(workingDir, args, 10 * m_client->vcsTimeoutS(),
+                         VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     if (!response.error)
         subVersionControl()->emitRepositoryChanged(workingDir);
 }
 
 void SubversionPlugin::annotateCurrentFile()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     vcsAnnotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
@@ -843,49 +778,51 @@ void SubversionPlugin::annotateVersion(const QString &workingDirectory,
 }
 
 void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &file,
-                                const QString &revision /* = QString() */,
-                                int lineNumber /* = -1 */)
+                                   const QString &revision /* = QString() */,
+                                   int lineNumber /* = -1 */)
 {
-    const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, file);
-    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(source);
+    const QString source = VcsBaseEditor::getSource(workingDir, file);
+    QTextCodec *codec = VcsBaseEditor::getCodec(source);
 
     QStringList args(QLatin1String("annotate"));
-    if (m_settings.boolValue(SubversionSettings::spaceIgnorantAnnotationKey))
+    const VcsBaseClientSettings &s = client()->settings();
+    args << SubversionClient::addAuthenticationOptions(s);
+    if (s.boolValue(SubversionSettings::spaceIgnorantAnnotationKey))
         args << QLatin1String("-x") << QLatin1String("-uw");
     if (!revision.isEmpty())
         args << QLatin1String("-r") << revision;
     args.push_back(QLatin1String("-v"));
     args.append(QDir::toNativeSeparators(file));
 
-    const SubversionResponse response =
-            runSvn(workingDir, args, m_settings.timeOutMs(),
-                   SshPasswordPrompt|ForceCLocale, codec);
+    const SubversionResponse response
+            = runSvn(workingDir, args, m_client->vcsTimeoutS(),
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ForceCLocale, codec);
     if (response.error)
         return;
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     if (lineNumber <= 0)
-        lineNumber = VcsBase::VcsBaseEditorWidget::lineNumberOfCurrentEditor(source);
+        lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(source);
     // Determine id
     const QStringList files = QStringList(file);
-    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, files, revision);
-    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::AnnotateOutput, workingDir, files);
-    if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
+    const QString id = VcsBaseEditor::getTitleId(workingDir, files, revision);
+    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir, files);
+    if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(response.stdOut.toUtf8());
-        VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
-        Core::EditorManager::activateEditor(editor);
+        VcsBaseEditor::gotoLineOfEditor(editor, lineNumber);
+        EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(id);
-        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VcsBase::AnnotateOutput, source, codec);
-        VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
-        VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(newEditor, lineNumber);
+        IEditor *newEditor = showOutputInEditor(title, response.stdOut, AnnotateOutput, source, codec);
+        VcsBaseEditor::tagEditor(newEditor, tag);
+        VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
 }
 
 void SubversionPlugin::projectStatus()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     svnStatus(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
@@ -901,61 +838,27 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
         return;
     if (Subversion::Constants::debug)
         qDebug() << Q_FUNC_INFO << source << topLevel << changeNr;
-    // Number must be > 1
+    // Number must be >= 1
     bool ok;
+
     const int number = changeNr.toInt(&ok);
-    if (!ok || number < 2)
+    if (!ok || number < 1)
         return;
-    // Run log to obtain message (local utf8)
-    QString description;
-    QStringList args(QLatin1String("log"));
-    args.push_back(QLatin1String("-r"));
-    args.push_back(changeNr);
-    const SubversionResponse logResponse =
-            runSvn(topLevel, args, m_settings.timeOutMs(), SshPasswordPrompt);
-    if (logResponse.error)
-        return;
-    description = logResponse.stdOut;
 
-    // Run diff (encoding via source codec)
-    args.clear();
-    args.push_back(QLatin1String("diff"));
-    args.push_back(QLatin1String("-r"));
-    QString diffArg;
-    QTextStream(&diffArg) << (number - 1) << ':' << number;
-    args.push_back(diffArg);
+    const QString title = QString::fromLatin1("svn describe %1#%2").arg(fi.fileName(), changeNr);
 
-    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(source);
-    const SubversionResponse response =
-            runSvn(topLevel, args, m_settings.timeOutMs(),
-                   SshPasswordPrompt, codec);
-    if (response.error)
-        return;
-    description += response.stdOut;
-
-    // Re-use an existing view if possible to support
-    // the common usage pattern of continuously changing and diffing a file
-    const QString id = diffArg + source;
-    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, source, QStringList(), changeNr);
-    if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
-        editor->document()->setContents(description.toUtf8());
-        Core::EditorManager::activateEditor(editor);
-    } else {
-        const QString title = QString::fromLatin1("svn describe %1#%2").arg(fi.fileName(), changeNr);
-        Core::IEditor *newEditor = showOutputInEditor(title, description, VcsBase::DiffOutput, source, codec);
-        VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
-    }
+    m_client->describe(topLevel, number, title);
 }
 
 void SubversionPlugin::slotDescribe()
 {
-    const VcsBase::VcsBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QInputDialog inputDialog(Core::ICore::mainWindow());
+    QInputDialog inputDialog(ICore::dialogParent());
     inputDialog.setWindowFlags(inputDialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
     inputDialog.setInputMode(QInputDialog::IntInput);
-    inputDialog.setIntRange(2, INT_MAX);
+    inputDialog.setIntRange(1, INT_MAX);
     inputDialog.setWindowTitle(tr("Describe"));
     inputDialog.setLabelText(tr("Revision number:"));
     if (inputDialog.exec() != QDialog::Accepted)
@@ -968,92 +871,60 @@ void SubversionPlugin::slotDescribe()
 void SubversionPlugin::submitCurrentLog()
 {
     m_submitActionTriggered = true;
-    Core::EditorManager::closeEditors(QList<Core::IEditor*>()
-        << Core::EditorManager::currentEditor());
-}
-
-SubversionResponse
-        SubversionPlugin::runSvn(const QString &workingDir,
-                                 const QStringList &arguments,
-                                 int timeOut,
-                                 unsigned flags,
-                                 QTextCodec *outputCodec) const
-{
-    const bool hasAuth = m_settings.hasAuthentication();
-    return runSvn(workingDir,
-                  hasAuth ? m_settings.stringValue(SubversionSettings::userKey) : QString(),
-                  hasAuth ? m_settings.stringValue(SubversionSettings::passwordKey) : QString(),
-                  arguments, timeOut, flags, outputCodec);
+    QTC_ASSERT(submitEditor(), return);
+    EditorManager::closeDocument(submitEditor()->document());
 }
 
 SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
-                          const QString &userName, const QString &password,
-                          const QStringList &arguments, int timeOut,
-                          unsigned flags, QTextCodec *outputCodec) const
+                                            const QStringList &arguments,
+                                            int timeOutS, unsigned flags,
+                                            QTextCodec *outputCodec) const
 {
-    const QString executable = m_settings.binaryPath();
+    const FileName executable = client()->vcsBinary();
     SubversionResponse response;
     if (executable.isEmpty()) {
         response.error = true;
-        response.message =tr("No subversion executable specified!");
+        response.message =tr("No subversion executable specified.");
         return response;
     }
 
-    const QStringList completeArguments = SubversionClient::addAuthenticationOptions(arguments, userName, password);
-    const Utils::SynchronousProcessResponse sp_resp =
-            VcsBase::VcsBasePlugin::runVcs(workingDir, executable, completeArguments, timeOut,
+    const SynchronousProcessResponse sp_resp =
+            VcsBasePlugin::runVcs(workingDir, executable, arguments, timeOutS,
                                            flags, outputCodec);
 
-    response.error = sp_resp.result != Utils::SynchronousProcessResponse::Finished;
+    response.error = sp_resp.result != SynchronousProcessResponse::Finished;
     if (response.error)
-        response.message = sp_resp.exitMessage(executable, timeOut);
+        response.message = sp_resp.exitMessage(executable.toString(), timeOutS);
     response.stdErr = sp_resp.stdErr;
     response.stdOut = sp_resp.stdOut;
     return response;
 }
 
-Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const QString &output,
+IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const QString &output,
                                                      int editorType, const QString &source,
                                                      QTextCodec *codec)
 {
-    const VcsBase::VcsBaseEditorParameters *params = findType(editorType);
+    const VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const Core::Id id = params->id;
+    const Id id = params->id;
     if (Subversion::Constants::debug)
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor
-            = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8(),
-                                                          (Core::EditorManager::OpenInOtherSplit
-                                                           | Core::EditorManager::NoNewSplits));
+    IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,QString,int)));
-    SubversionEditor *e = qobject_cast<SubversionEditor*>(editor->widget());
+    SubversionEditorWidget *e = qobject_cast<SubversionEditorWidget*>(editor->widget());
     if (!e)
         return 0;
     e->setForceReadOnly(true);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
-    e->baseTextDocument()->setSuggestedFileName(s);
+    e->textDocument()->setSuggestedFileName(s);
     if (!source.isEmpty())
         e->setSource(source);
     if (codec)
         e->setCodec(codec);
     return editor;
-}
-
-SubversionSettings SubversionPlugin::settings() const
-{
-    return m_settings;
-}
-
-void SubversionPlugin::setSettings(const SubversionSettings &s)
-{
-    if (s != m_settings) {
-        m_settings = s;
-        m_settings.writeSettings(Core::ICore::settings());
-        subVersionControl()->emitConfigurationChanged();
-    }
 }
 
 SubversionPlugin *SubversionPlugin::instance()
@@ -1062,14 +933,35 @@ SubversionPlugin *SubversionPlugin::instance()
     return m_subversionPluginInstance;
 }
 
+QString SubversionPlugin::monitorFile(const QString &repository) const
+{
+    QTC_ASSERT(!repository.isEmpty(), return QString());
+    QDir repoDir(repository);
+    foreach (const QString &svnDir, m_svnDirectories) {
+        if (repoDir.exists(svnDir)) {
+            QFileInfo fi(repoDir.absoluteFilePath(svnDir + QLatin1String("/wc.db")));
+            if (fi.exists() && fi.isFile())
+                return fi.absoluteFilePath();
+        }
+    }
+    return QString();
+}
+
+QString SubversionPlugin::synchronousTopic(const QString &repository) const
+{
+    return m_client->synchronousTopic(repository);
+}
+
 bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileName)
 {
     const QString file = QDir::toNativeSeparators(rawFileName);
     QStringList args;
-    args << QLatin1String("add") << QLatin1String("--parents") << file;
-    const SubversionResponse response =
-            runSvn(workingDir, args, m_settings.timeOutMs(),
-                   SshPasswordPrompt|ShowStdOutInLogWindow);
+    args << QLatin1String("add")
+         << SubversionClient::addAuthenticationOptions(client()->settings())
+         << QLatin1String("--parents") << file;
+    const SubversionResponse response
+            = runSvn(workingDir, args, m_client->vcsTimeoutS(),
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     return !response.error;
 }
 
@@ -1077,22 +969,26 @@ bool SubversionPlugin::vcsDelete(const QString &workingDir, const QString &rawFi
 {
     const QString file = QDir::toNativeSeparators(rawFileName);
 
-    QStringList args(QLatin1String("delete"));
-    args.push_back(file);
+    QStringList args;
+    args << QLatin1String("delete");
+    args << SubversionClient::addAuthenticationOptions(client()->settings())
+         << QLatin1String("--force") << file;
 
-    const SubversionResponse response =
-            runSvn(workingDir, args, m_settings.timeOutMs(),
-                   SshPasswordPrompt|ShowStdOutInLogWindow);
+    const SubversionResponse response
+            = runSvn(workingDir, args, m_client->vcsTimeoutS(),
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut);
     return !response.error;
 }
 
 bool SubversionPlugin::vcsMove(const QString &workingDir, const QString &from, const QString &to)
 {
     QStringList args(QLatin1String("move"));
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args << QDir::toNativeSeparators(from) << QDir::toNativeSeparators(to);
-    const SubversionResponse response =
-            runSvn(workingDir, args, m_settings.timeOutMs(),
-                   SshPasswordPrompt|ShowStdOutInLogWindow|FullySynchronously);
+    const SubversionResponse response
+            = runSvn(workingDir, args, m_client->vcsTimeoutS(),
+                     VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut
+                     | VcsCommand::FullySynchronously);
     return !response.error;
 }
 
@@ -1102,73 +998,31 @@ bool SubversionPlugin::vcsCheckout(const QString &directory, const QByteArray &u
     QString username = tempUrl.userName();
     QString password = tempUrl.password();
     QStringList args = QStringList(QLatin1String("checkout"));
-    args << QLatin1String(nonInteractiveOptionC) ;
+    args << QLatin1String(Constants::NON_INTERACTIVE_OPTION) ;
 
-    if (!username.isEmpty() && !password.isEmpty()) {
+    if (!username.isEmpty()) {
         // If url contains username and password we have to use separate username and password
         // arguments instead of passing those in the url. Otherwise the subversion 'non-interactive'
         // authentication will always fail (if the username and password data are not stored locally),
         // if for example we are logging into a new host for the first time using svn. There seems to
         // be a bug in subversion, so this might get fixed in the future.
         tempUrl.setUserInfo(QString());
-        args << QLatin1String(tempUrl.toEncoded()) << directory;
-        const SubversionResponse response = runSvn(directory, username, password, args,
-                                                   10 * m_settings.timeOutMs(),
-                                                   VcsBase::VcsBasePlugin::SshPasswordPrompt);
-        return !response.error;
-    } else {
-        args << QLatin1String(url) << directory;
-        const SubversionResponse response = runSvn(directory, args, 10 * m_settings.timeOutMs(),
-                                                   VcsBase::VcsBasePlugin::SshPasswordPrompt);
-        return !response.error;
+        args << QLatin1String("--username") << username;
+        if (!password.isEmpty())
+            args << QLatin1String("--password") << password;
     }
-}
 
-QString SubversionPlugin::vcsGetRepositoryURL(const QString &directory)
-{
-    QXmlStreamReader xml;
-    QStringList args = QStringList(QLatin1String("info"));
-    args << QLatin1String("--xml");
+    args << QLatin1String(tempUrl.toEncoded()) << directory;
 
-    const SubversionResponse response = runSvn(directory, args, 10 * m_settings.timeOutMs(), SuppressCommandLogging);
-    xml.addData(response.stdOut);
+    const SubversionResponse response
+            = runSvn(directory, args, 10 * m_client->vcsTimeoutS(), VcsCommand::SshPasswordPrompt);
+    return !response.error;
 
-    bool repo = false;
-    bool root = false;
-
-    while (!xml.atEnd() && !xml.hasError()) {
-        switch (xml.readNext()) {
-        case QXmlStreamReader::StartDocument:
-            break;
-        case QXmlStreamReader::StartElement:
-            if (xml.name() == QLatin1String("repository"))
-                repo = true;
-            else if (repo && xml.name() == QLatin1String("root"))
-                root = true;
-            break;
-        case QXmlStreamReader::EndElement:
-            if (xml.name() == QLatin1String("repository"))
-                repo = false;
-            else if (repo && xml.name() == QLatin1String("root"))
-                root = false;
-            break;
-        case QXmlStreamReader::Characters:
-            if (repo && root)
-                return xml.text().toString();
-            break;
-        default:
-            break;
-        }
-    }
-    return QString();
 }
 
 bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
 {
     const QDir dir(directory);
-    if (!dir.exists())
-        return false;
-
     if (topLevel)
         topLevel->clear();
 
@@ -1176,52 +1030,38 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
      * furthest parent containing ".svn/wc.db". Need to check for furthest parent as closer
      * parents may be svn:externals. */
     QDir parentDir = dir;
-    while (!parentDir.isRoot() && parentDir.cdUp()) {
-        if (checkSVNSubDir(parentDir, QLatin1String("wc.db"))) {
+    while (!parentDir.isRoot()) {
+        if (checkSVNSubDir(parentDir)) {
             if (topLevel)
                 *topLevel = parentDir.absolutePath();
             return true;
         }
+        if (!parentDir.cdUp())
+            break;
     }
 
-    /* Subversion < 1.7 has ".svn" directory in each directory
-     * it manages. The top level is the first directory
-     * under the directory that does not have a  ".svn".*/
-    if (!checkSVNSubDir(dir))
-        return false;
-
-     if (topLevel) {
-         QDir lastDirectory = dir;
-         for (parentDir = lastDirectory;
-              !parentDir.isRoot() && parentDir.cdUp();
-              lastDirectory = parentDir) {
-             if (!checkSVNSubDir(parentDir)) {
-                 *topLevel = lastDirectory.absolutePath();
-                 break;
-            }
-        }
-    }
-    return true;
+    return false;
 }
 
 bool SubversionPlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
 {
     QStringList args;
-    args << QLatin1String("status") << fileName;
-    SubversionResponse response =
-            runSvn(workingDirectory, args, m_settings.timeOutMs(), 0);
+    args << QLatin1String("status");
+    args << SubversionClient::addAuthenticationOptions(client()->settings()) << fileName;
+    SubversionResponse response
+            = runSvn(workingDirectory, args, m_client->vcsTimeoutS(), 0);
     return response.stdOut.isEmpty() || response.stdOut.at(0) != QLatin1Char('?');
 }
 
 // Check whether SVN management subdirs exist.
-bool SubversionPlugin::checkSVNSubDir(const QDir &directory, const QString &fileName) const
+bool SubversionPlugin::checkSVNSubDir(const QDir &directory) const
 {
     const int dirCount = m_svnDirectories.size();
     for (int i = 0; i < dirCount; i++) {
-        const QString svnDir = directory.absoluteFilePath(m_svnDirectories.at(i));
-        if (!QFileInfo(svnDir).isDir())
+        const QDir svnDir(directory.absoluteFilePath(m_svnDirectories.at(i)));
+        if (!svnDir.exists())
             continue;
-        if (!fileName.isEmpty() && !QDir(svnDir).exists(fileName))
+        if (!svnDir.exists(QLatin1String("wc.db")))
             continue;
         return true;
     }
@@ -1234,40 +1074,6 @@ SubversionControl *SubversionPlugin::subVersionControl() const
 }
 
 #ifdef WITH_TESTS
-void SubversionPlugin::testDiffFileResolving_data()
-{
-    QTest::addColumn<QByteArray>("header");
-    QTest::addColumn<QByteArray>("fileName");
-
-    QTest::newRow("New") << QByteArray(
-            "Index: src/plugins/subversion/subversioneditor.cpp\n"
-            "===================================================================\n"
-            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
-            "+++ src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
-            "@@ -0,0 +125 @@\n\n")
-        << QByteArray("src/plugins/subversion/subversioneditor.cpp");
-    QTest::newRow("Deleted") << QByteArray(
-            "Index: src/plugins/subversion/subversioneditor.cpp\n"
-            "===================================================================\n"
-            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
-            "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
-            "@@ -1,125 +0,0 @@\n\n")
-        << QByteArray("src/plugins/subversion/subversioneditor.cpp");
-    QTest::newRow("Normal") << QByteArray(
-            "Index: src/plugins/subversion/subversioneditor.cpp\n"
-            "===================================================================\n"
-            "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
-            "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
-            "@@ -120,7 +120,7 @@\n\n")
-        << QByteArray("src/plugins/subversion/subversioneditor.cpp");
-}
-
-void SubversionPlugin::testDiffFileResolving()
-{
-    SubversionEditor editor(editorParameters + 2, 0);
-    editor.testDiffFileResolving();
-}
-
 void SubversionPlugin::testLogResolving()
 {
     QByteArray data(
@@ -1286,13 +1092,10 @@ void SubversionPlugin::testLogResolving()
                 "   expectations, remove XFail.\n"
                 "\n"
                 );
-    SubversionEditor editor(editorParameters, 0);
-    editor.testLogResolving(data, "r1439551", "r1439540");
+    VcsBaseEditorWidget::testLogResolving(editorParameters[0].id, data, "r1439551", "r1439540");
 }
 #endif
 
 } // Internal
 } // Subversion
-
-Q_EXPORT_PLUGIN(Subversion::Internal::SubversionPlugin)
 

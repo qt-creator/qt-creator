@@ -1,0 +1,37 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "F.Resource",
+    "category": "R.Qt",
+    "trDescription": "Creates a Qt Resource file (.qrc).",
+    "trDisplayName": "Qt Resource File",
+    "trDisplayCategory": "Qt",
+    "icon": "../../global/genericfilewizard.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('ResourceEditor') >= 0}",
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.qrc",
+                "target": "%{JS: Cpp.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('application/vnd.qt.xml.resource')}')}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

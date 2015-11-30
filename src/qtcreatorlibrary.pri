@@ -12,6 +12,7 @@ win32 {
 
 DESTDIR = $$IDE_LIBRARY_PATH
 
+osx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/Frameworks/
 include(rpath.pri)
 
 TARGET = $$qtLibraryName($$TARGET)
@@ -23,10 +24,10 @@ contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 
 !macx {
     win32 {
-        dlltarget.path = $$QTC_PREFIX/bin
+        dlltarget.path = $$INSTALL_BIN_PATH
         INSTALLS += dlltarget
     } else {
-        target.path = $$QTC_PREFIX/$$IDE_LIBRARY_BASENAME/qtcreator
+        target.path = $$INSTALL_LIBRARY_PATH
         INSTALLS += target
     }
 }

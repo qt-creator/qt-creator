@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Lorenz Haas
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Lorenz Haas
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -44,7 +45,8 @@ namespace Beautifier {
 namespace Internal {
 
 AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
-    : m_name(name)
+    : m_version(0)
+    , m_name(name)
     , m_ending(ending)
     , m_styleDir(Core::ICore::userResourcePath() + QLatin1Char('/')
                  + QLatin1String(Beautifier::Constants::SETTINGS_DIRNAME) + QLatin1Char('/')
@@ -64,11 +66,7 @@ QStringList AbstractSettings::completerWords()
 QStringList AbstractSettings::styles() const
 {
     QStringList list = m_styles.keys();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     list.sort(Qt::CaseInsensitive);
-#else //QT_VERSION_CHECK(5, 0, 0)
-    list.sort();
-#endif // QT_VERSION_CHECK(5, 0, 0)
     return list;
 }
 
@@ -84,7 +82,7 @@ bool AbstractSettings::styleExists(const QString &key) const
 
 bool AbstractSettings::styleIsReadOnly(const QString &key)
 {
-    QFileInfo fi(m_styleDir.absoluteFilePath(key + m_ending));
+    const QFileInfo fi(m_styleDir.absoluteFilePath(key + m_ending));
     if (!fi.exists()) {
         // newly added style which was not saved yet., thus it is not read only.
         //TODO In a later version when we have predefined styles in Core::ICore::resourcePath()
@@ -135,6 +133,18 @@ void AbstractSettings::setCommand(const QString &command)
         return;
 
     m_command = command;
+    updateVersion();
+}
+
+int AbstractSettings::version() const
+{
+    return m_version;
+}
+
+void AbstractSettings::updateVersion()
+{
+    // If a beautifier needs to know the current tool's version, reimplement and store the version
+    // in m_version.
 }
 
 QStringList AbstractSettings::options()
@@ -183,7 +193,7 @@ void AbstractSettings::save()
     }
 
     // remove old files
-    foreach (const QString file, m_stylesToRemove)
+    foreach (const QString &file, m_stylesToRemove)
         m_styleDir.remove(file);
     m_stylesToRemove.clear();
 
@@ -226,7 +236,7 @@ void AbstractSettings::read()
     s->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
     s->beginGroup(m_name);
     const QStringList keys = s->allKeys();
-    foreach (const QString key, keys) {
+    foreach (const QString &key, keys) {
         if (key == QLatin1String("command"))
             setCommand(s->value(key).toString());
         else if (m_settings.contains(key))
@@ -246,7 +256,7 @@ void AbstractSettings::read()
     const QStringList files
             = m_styleDir.entryList(QStringList() << QLatin1Char('*') + m_ending,
                                    QDir::Files | QDir::Readable | QDir::NoDotAndDotDot);
-    foreach (const QString filename, files) {
+    foreach (const QString &filename, files) {
         // do not allow empty file names
         if (filename == m_ending)
             continue;

@@ -1,7 +1,8 @@
 CONFIG   += console
 
-QT       += core
-QT       += gui
+QT       -= core
+QT       -= gui
+QT       -= test
 
 CONFIG -= app_bundle
 
@@ -10,7 +11,7 @@ include(../../../../qtcreator.pri)
 # Prevent from popping up in the dock when launched.
 # We embed the Info.plist file, so the application doesn't need to
 # be a bundle.
-QMAKE_LFLAGS += -sectcreate __TEXT __info_plist \"$$PWD/Info.plist\" \
+QMAKE_LFLAGS += -Wl,-sectcreate,__TEXT,__info_plist,\"$$PWD/Info.plist\"
   -fobjc-link-runtime
 
 LIBS += \
@@ -26,10 +27,10 @@ iPhoneSimulatorRemoteClientDirectLinking {
     -F/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks \
     -F/Applications/Xcode.app/Contents/OtherFrameworks
   LIBS += \
-    -framework iPhoneSimulatorRemoteClient
+    -framework DTViPhoneSimulatorRemoteClient
   QMAKE_RPATHDIR += /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks \
-    /Applications/Xcode.app/Contents/OtherFrameworks
-    /System/Library/PrivateFrameworks \
+    /Applications/Xcode.app/Contents/OtherFrameworks \
+    /System/Library/PrivateFrameworks
 }
 
 TEMPLATE = app
@@ -41,7 +42,7 @@ include(../../../rpath.pri)
 OBJECTIVE_SOURCES += \
   main.mm \
   nsprintf.mm \
-  nsstringexpandPath.mm \
+  nsstringexpandpath.mm \
   iphonesimulator.mm
 
 HEADERS += \
@@ -49,7 +50,8 @@ HEADERS += \
   nsprintf.h \
   nsstringexpandpath.h \
   version.h \
-  iphonesimulatorremoteclient/iphonesimulatorremoteclient.h
+  dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h \
+  coresimulator/coresimulator.h
 
-OTHER_FILES = IOSSIM_LICENSE \
+DISTFILES = IOSSIM_LICENSE \
   Info.plist

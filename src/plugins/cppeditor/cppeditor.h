@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,246 +31,115 @@
 #ifndef CPPEDITOR_H
 #define CPPEDITOR_H
 
-#include "cppfollowsymbolundercursor.h"
 #include "cppfunctiondecldeflink.h"
 
-#include <cpptools/commentssettings.h>
-#include <cpptools/cppsemanticinfo.h>
-#include <texteditor/basetexteditor.h>
-#include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditor.h>
 
-#include <utils/uncommentselection.h>
-
-#include <QFutureWatcher>
-#include <QModelIndex>
-#include <QMutex>
-#include <QThread>
-#include <QVector>
-#include <QWaitCondition>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QSortFilterProxyModel;
-class QToolButton;
-QT_END_NAMESPACE
-
-namespace CPlusPlus {
-class OverviewModel;
-class Symbol;
-}
+#include <QScopedPointer>
 
 namespace CppTools {
-class CppCodeStyleSettings;
-class CppModelManagerInterface;
-class CppRefactoringFile;
+class CppEditorOutline;
+class SemanticInfo;
 }
-
-namespace TextEditor { class FontSettings; }
 
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorDocument;
 
-class CPPEditorDocument : public TextEditor::BaseTextDocument
+class CppEditorWidgetPrivate;
+class FollowSymbolUnderCursor;
+class FunctionDeclDefLink;
+
+class CppEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
+
 public:
-    CPPEditorDocument();
-
-    bool isObjCEnabled() const;
-
-protected:
-    void applyFontSettings();
-
-private slots:
-    void invalidateFormatterCache();
-    void onMimeTypeChanged();
-
-private:
-    bool m_isObjCEnabled;
+    CppEditor();
 };
 
-class CPPEditor : public TextEditor::BaseTextEditor
-{
-    Q_OBJECT
-public:
-    CPPEditor(CPPEditorWidget *);
-
-    bool duplicateSupported() const { return true; }
-    Core::IEditor *duplicate();
-
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-
-    const Utils::CommentDefinition *commentDefinition() const;
-    TextEditor::CompletionAssistProvider *completionAssistProvider();
-
-private:
-    Utils::CommentDefinition m_commentDefinition;
-};
-
-class CPPEditorWidget : public TextEditor::BaseTextEditorWidget
+class CppEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
 
 public:
-    typedef TextEditor::TabSettings TabSettings;
+    CppEditorWidget();
+    ~CppEditorWidget() override;
 
-    CPPEditorWidget(QWidget *parent = 0);
-    CPPEditorWidget(CPPEditorWidget *other);
-    ~CPPEditorWidget();
+    CppEditorDocument *cppEditorDocument() const;
+    CppTools::CppEditorOutline *outline() const;
 
-    CPPEditorDocument *cppEditorDocument() const;
-
-    void unCommentSelection();
-
-    unsigned editorRevision() const;
-    bool isOutdated() const;
     CppTools::SemanticInfo semanticInfo() const;
-
-    CPlusPlus::OverviewModel *outlineModel() const;
-    QModelIndex outlineModelIndex();
-
-    virtual void paste(); // reimplemented from BaseTextEditorWidget
-    virtual void cut(); // reimplemented from BaseTextEditorWidget
-    virtual void selectAll(); // reimplemented from BaseTextEditorWidget
-
-    bool openLink(const Link &link, bool inNextSplit) { return openCppEditorAt(link, inNextSplit); }
-
-    static Link linkToSymbol(CPlusPlus::Symbol *symbol);
-    static QString identifierUnderCursor(QTextCursor *macroCursor);
-
-    virtual TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind kind,
-                                                                TextEditor::AssistReason reason) const;
+    bool isSemanticInfoValidExceptLocalUses() const;
+    bool isSemanticInfoValid() const;
 
     QSharedPointer<FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
 
+    TextEditor::AssistInterface *createAssistInterface(
+            TextEditor::AssistKind kind,
+            TextEditor::AssistReason reason) const override;
+
     FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
 
-signals:
-    void outlineModelIndexChanged(const QModelIndex &index);
+    void encourageApply() override;
 
 public slots:
-    void setSortedOutline(bool sort);
+    void paste() override;
+    void cut() override;
+    void selectAll() override;
+
     void switchDeclarationDefinition(bool inNextSplit);
-    void renameSymbolUnderCursor();
-    void renameUsages();
-    void findUsages();
     void showPreProcessorWidget();
-    void renameUsagesNow(const QString &replacement = QString());
-    void semanticRehighlight(bool force = false);
-    void highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
-                            unsigned revision);
+
+    void findUsages();
+    void renameSymbolUnderCursor();
+    void renameUsages(const QString &replacement = QString());
 
 protected:
-    bool event(QEvent *e);
-    void contextMenuEvent(QContextMenuEvent *);
-    void keyPressEvent(QKeyEvent *e);
+    bool event(QEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *) override;
+    void keyPressEvent(QKeyEvent *e) override;
+    bool handleStringSplitting(QKeyEvent *e) const;
 
-    void applyFontSettings();
-    TextEditor::BaseTextEditor *createEditor();
+    Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
+                    bool inNextSplit = false) override;
 
-    const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
-                                               CPlusPlus::Document::Ptr doc) const;
+    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
+
 protected slots:
-    void slotCodeStyleSettingsChanged(const QVariant &);
+    void slotCodeStyleSettingsChanged(const QVariant &) override;
 
 private slots:
-    void jumpToOutlineElement(int index);
-    void updateOutlineNow();
-    void updateOutlineIndex();
-    void updateOutlineIndexNow();
-    void updateOutlineToolTip();
-    void updateUses();
-    void updateUsesNow();
     void updateFunctionDeclDefLink();
     void updateFunctionDeclDefLinkNow();
+    void abortDeclDefLink();
     void onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link);
-    void onFilePathChanged();
-    void onDocumentUpdated();
-    void onContentsChanged(int position, int charsRemoved, int charsAdded);
+
+    void onCppDocumentUpdated();
+
+    void onCodeWarningsUpdated(unsigned revision,
+                               const QList<QTextEdit::ExtraSelection> selections);
+    void onIfdefedOutBlocksUpdated(unsigned revision,
+                                   const QList<TextEditor::BlockRange> ifdefedOutBlocks);
+
+    void updateSemanticInfo(const CppTools::SemanticInfo &semanticInfo,
+                            bool updateUseSelectionSynchronously = false);
     void updatePreprocessorButtonTooltip();
-
-    void updateSemanticInfo(const CppTools::SemanticInfo &semanticInfo);
-    void highlightSymbolUsages(int from, int to);
-    void finishHighlightSymbolUsages();
-
-    void markSymbolsNow();
 
     void performQuickFix(int index);
 
-    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
-
-    void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
+    void processKeyNormally(QKeyEvent *e);
 
 private:
-    CPPEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
-    void ctor();
-    void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);
-    bool sortedOutline() const;
+    void finalizeInitialization() override;
+    void finalizeInitializationAfterDuplication(TextEditorWidget *other) override;
 
-    TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
-                                             int column = 0);
+    unsigned documentRevision() const;
 
-    void highlightUses(const QList<TextEditor::HighlightingResult> &uses,
-                       QList<QTextEdit::ExtraSelection> *selections);
-
-    void createToolBar(CPPEditor *editable);
-
-    void startRename();
-    void finishRename();
-    void abortRename();
-
-    Q_SLOT void abortDeclDefLink();
-
-    Link findLinkAt(const QTextCursor &, bool resolveTarget = true, bool inNextSplit = false);
-    bool openCppEditorAt(const Link &, bool inNextSplit = false);
-
-    QModelIndex indexForPosition(int line, int column,
-                                 const QModelIndex &rootIndex = QModelIndex()) const;
-
-    bool handleDocumentationComment(QKeyEvent *e);
-    bool isStartOfDoxygenComment(const QTextCursor &cursor) const;
-
-    QPointer<CppTools::CppModelManagerInterface> m_modelManager;
-
-    CPPEditorDocument *m_cppEditorDocument;
-    QComboBox *m_outlineCombo;
-    CPlusPlus::OverviewModel *m_outlineModel;
-    QModelIndex m_outlineModelIndex;
-    QSortFilterProxyModel *m_proxyModel;
-    QAction *m_sortAction;
-    QTimer *m_updateOutlineTimer;
-    QTimer *m_updateOutlineIndexTimer;
-    QTimer *m_updateUsesTimer;
-    QTimer *m_updateFunctionDeclDefLinkTimer;
-    QHash<int, QTextCharFormat> m_semanticHighlightFormatMap;
-
-    QList<QTextEdit::ExtraSelection> m_renameSelections;
-    int m_currentRenameSelection;
-    static const int NoCurrentRenameSelection = -1;
-    bool m_inRename, m_inRenameChanged, m_firstRenameChange;
-    QTextCursor m_currentRenameSelectionBegin;
-    QTextCursor m_currentRenameSelectionEnd;
-
-    CppTools::SemanticInfo m_lastSemanticInfo;
-    QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
-
-    QScopedPointer<QFutureWatcher<TextEditor::HighlightingResult> > m_highlightWatcher;
-    unsigned m_highlightRevision; // the editor revision that requested the highlight
-
-    QScopedPointer<QFutureWatcher<QList<int> > > m_referencesWatcher;
-    unsigned m_referencesRevision;
-    int m_referencesCursorPosition;
-
-    FunctionDeclDefLinkFinder *m_declDefLinkFinder;
-    QSharedPointer<FunctionDeclDefLink> m_declDefLink;
-
-    CppTools::CommentsSettings m_commentsSettings;
-
-    QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
-    QToolButton *m_preprocessorButton;
+private:
+    QScopedPointer<CppEditorWidgetPrivate> d;
 };
 
 } // namespace Internal

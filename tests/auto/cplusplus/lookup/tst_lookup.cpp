@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -85,9 +86,11 @@ class tst_Lookup: public QObject
 {
     Q_OBJECT
 
-private Q_SLOTS:
+private slots:
     void base_class_defined_1();
-    void document_functionAt_1();
+
+    void document_functionAt_data();
+    void document_functionAt();
 
     // Objective-C
     void simple_class_1();
@@ -154,28 +157,74 @@ void tst_Lookup::base_class_defined_1()
     QVERIFY(classToAST.value(derivedClass) != 0);
 }
 
-void tst_Lookup::document_functionAt_1()
+void tst_Lookup::document_functionAt_data()
 {
-    const QByteArray source = "\n"
-            "void Foo::Bar() {\n" // line 1
-            "    \n" // line 2
-            "    for (int i=0; i < 10; ++i) {\n"
-            "        \n" // line 4
-            "    }\n"
-            "}\n"; // line 7
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<int>("line");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<QString>("expectedFunction");
+    QTest::addColumn<int>("expectedOpeningDeclaratorParenthesisLine");
+    QTest::addColumn<int>("expectedClosingBraceLine");
 
-    Document::Ptr doc = Document::create("document_functionAt_1");
+    QByteArray source = "\n"
+            "void Foo::Bar() {\n" // line 1
+            "    \n"
+            "    for (int i=0; i < 10; ++i) {\n" // line 3
+            "        \n"
+            "    }\n" // line 5
+            "}\n";
+    QString expectedFunction = QString::fromLatin1("Foo::Bar");
+    QTest::newRow("nonInline1") << source << 1 << 2 << QString() << -1 << -1;
+    QTest::newRow("nonInline2") << source << 1 << 11 << expectedFunction << 1 << 6;
+    QTest::newRow("nonInline3") << source << 2 << 2 << expectedFunction << 1 << 6;
+    QTest::newRow("nonInline4") << source << 3 << 10 << expectedFunction << 1 << 6;
+    QTest::newRow("nonInline5") << source << 4 << 3 << expectedFunction << 1 << 6;
+    QTest::newRow("nonInline6") << source << 6 << 1 << expectedFunction << 1 << 6;
+
+    source = "\n"
+            "namespace N {\n" // line 1
+            "class C {\n"
+            "    void f()\n" // line 3
+            "    {\n"
+            "    }\n" // line 5
+            "};\n"
+            "}\n"; // line 7
+    expectedFunction = QString::fromLatin1("N::C::f");
+    QTest::newRow("inline1") << source << 1 << 2 << QString() << -1 << -1;
+    QTest::newRow("inline2") << source << 2 << 10 << QString() << -1 << -1;
+    QTest::newRow("inline2") << source << 3 << 10 << expectedFunction << 3 << 5;
+
+    source = "\n"
+            "void f(Helper helper = [](){})\n" // line 1
+            "{\n"
+            "}\n"; // line 3
+    expectedFunction = QString::fromLatin1("f");
+    QTest::newRow("inlineWithLambdaArg1") << source << 2 << 1 << expectedFunction << 1 << 3;
+}
+
+void tst_Lookup::document_functionAt()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(int, line);
+    QFETCH(int, column);
+    QFETCH(QString, expectedFunction);
+    QFETCH(int, expectedOpeningDeclaratorParenthesisLine);
+    QFETCH(int, expectedClosingBraceLine);
+
+    Document::Ptr doc = Document::create("document_functionAt");
     doc->setUtf8Source(source);
     doc->parse();
     doc->check();
-
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->functionAt(1,  2), QString());
-    QCOMPARE(doc->functionAt(1, 11), QString(QLatin1String("Foo::Bar")));
-    QCOMPARE(doc->functionAt(2,  2), QString(QLatin1String("Foo::Bar")));
-    QCOMPARE(doc->functionAt(3, 10), QString(QLatin1String("Foo::Bar")));
-    QCOMPARE(doc->functionAt(4, 3), QString(QLatin1String("Foo::Bar")));
-    QCOMPARE(doc->functionAt(6, 1), QString(QLatin1String("Foo::Bar")));
+
+    int actualOpeningDeclaratorParenthesisLine = -1;
+    int actualClosingBraceLine = -1;
+    const QString actualFunction = doc->functionAt(line, column,
+                                                   &actualOpeningDeclaratorParenthesisLine,
+                                                   &actualClosingBraceLine);
+    QCOMPARE(actualFunction, expectedFunction);
+    QCOMPARE(actualOpeningDeclaratorParenthesisLine, expectedOpeningDeclaratorParenthesisLine);
+    QCOMPARE(actualClosingBraceLine, expectedClosingBraceLine);
 }
 
 void tst_Lookup::simple_class_1()

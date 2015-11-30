@@ -1,0 +1,50 @@
+
+The timeline library can be used to display timeline data, primarily for performance analysis. It
+provides a comprehensive set of visual components as well as a set of models that can be extended to
+hold custom timeline data. You can use all the provided QML to get a complete GUI similar to the QML
+profiler or you can mix and match the QML components with your own.
+
+Models
+------
+
+At the core of the timeline library is the TimelineModel. You can create multiple TimelineModels to
+represent different categories of data. The TimelineModelAggregator class is then used to manage
+those models. TimelineModels are expected to load their contents all at once and then only change if
+you clear() and possibly reload them. To complement that, you can use the TimelineNotesModel. The
+TimelineNotesModel is designed to hold less, but mutable, data that spans all TimelineModels in a
+TimelineModelAggregator.
+
+Views
+-----
+
+Expose the TimelineRenderer class to QML and add a TimelineModel to it to get a visualization of the
+data in the model. TimelineRenderer will generally use the TimelineRenderPasses the TimelineModel
+suggests. It contains a caching system for keeping different versions of the visualization,
+depending on position and zoom level, so that the picture always stays sharp and numerical overflows
+are avoided. To do that it needs a TimelineZoomControl which manages zooming and scrolling.
+
+A simplified display for the contents of a TimelineModel, based on the same render passes as the
+TimelineRenderer, can be found in TimelineOverviewRenderer. TimelineOverviewRenderer will squeeze
+the data into a fixed height and only allow all the data to be displayed at once. It won't react to
+zooming or scrolling and can easily be used for a more concise overview.
+
+Various utilities are provided in the QML code. CategoryLabels can be used to provide a legend for
+data rendered using a TimelineRenderer. TimeMarks provides colored bars that can be layered behind
+a TimelineRenderer to make the rows easier to distinguish. TimeDisplay provides a legend for the
+time spanned by a timeline.
+
+Render Passes
+-------------
+
+Render passes for TimelineRenderer and TimelineOverviewRenderer are used to create the scene graph
+nodes to display data from TimelineModels. You can add your own RenderPasses. For an example, see
+QmlProfilerBindingLoopsRenderPass in the qmlprofiler plugin. In general, a render pass is stateless
+and will update only the render pass state specific to itself and the model being rendered. A render
+pass state can contain scene graph subtrees for each row in both the expanded and collapsed states
+of the view, as well as scene graph subtrees to be overlayed on top of the whole category. The
+renderer will layer the subtrees according to the order in which the render passes are given.
+
+Each render pass has to provide an update() method which is called to update data in the given
+render state or create a new render state. The rows in expanded state can be vertically resized. To
+deal with this, keep the nodes in rows with a QSGTransformNode as parent for each of them. The
+overlay mode should only be used for things that span multiple rows.

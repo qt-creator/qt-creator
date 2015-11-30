@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,7 +31,7 @@
 #include "debuggerkitconfigwidget.h"
 
 #include "debuggeritemmanager.h"
-#include "debuggeritemmodel.h"
+#include "debuggeritem.h"
 #include "debuggerkitinformation.h"
 
 #include <coreplugin/icore.h>
@@ -56,7 +57,6 @@
 #include <QPushButton>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include <QTreeView>
 #include <QUuid>
 
 using namespace ProjectExplorer;
@@ -64,36 +64,25 @@ using namespace ProjectExplorer;
 namespace Debugger {
 namespace Internal {
 
-class DebuggerItemConfigWidget;
-
 // -----------------------------------------------------------------------
 // DebuggerKitConfigWidget
 // -----------------------------------------------------------------------
 
 DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInformation *ki)
-    : KitConfigWidget(workingCopy, ki)
+    : KitConfigWidget(workingCopy, ki),
+      m_ignoreChanges(false)
 {
     m_comboBox = new QComboBox;
     m_comboBox->setEnabled(true);
-    m_comboBox->setToolTip(toolTip());
-    m_comboBox->addItem(tr("None"), QString());
-    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
-        m_comboBox->addItem(item.displayName(), item.id());
 
     refresh();
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentDebuggerChanged(int)));
+    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &DebuggerKitConfigWidget::currentDebuggerChanged);
 
     m_manageButton = new QPushButton(KitConfigWidget::msgManage());
     m_manageButton->setContentsMargins(0, 0, 0, 0);
-    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageDebuggers()));
-
-    QObject *manager = DebuggerItemManager::instance();
-    connect(manager, SIGNAL(debuggerAdded(QVariant)),
-            this, SLOT(onDebuggerAdded(QVariant)));
-    connect(manager, SIGNAL(debuggerUpdated(QVariant)),
-            this, SLOT(onDebuggerUpdated(QVariant)));
-    connect(manager, SIGNAL(debuggerRemoved(QVariant)),
-            this, SLOT(onDebuggerRemoved(QVariant)));
+    connect(m_manageButton, &QAbstractButton::clicked,
+            this, &DebuggerKitConfigWidget::manageDebuggers);
 }
 
 DebuggerKitConfigWidget::~DebuggerKitConfigWidget()
@@ -120,8 +109,16 @@ void DebuggerKitConfigWidget::makeReadOnly()
 
 void DebuggerKitConfigWidget::refresh()
 {
+    m_ignoreChanges = true;
+    m_comboBox->clear();
+    m_comboBox->setToolTip(toolTip());
+    m_comboBox->addItem(tr("None"), QString());
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
+        m_comboBox->addItem(item.displayName(), item.id());
+
     const DebuggerItem *item = DebuggerKitInformation::debugger(m_kit);
     updateComboBox(item ? item->id() : QVariant());
+    m_ignoreChanges = false;
 }
 
 QWidget *DebuggerKitConfigWidget::buttonWidget() const
@@ -136,40 +133,18 @@ QWidget *DebuggerKitConfigWidget::mainWidget() const
 
 void DebuggerKitConfigWidget::manageDebuggers()
 {
-    Core::ICore::showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                                   ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
+    Core::ICore::showOptionsDialog(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID,
+                                   buttonWidget());
 }
 
 void DebuggerKitConfigWidget::currentDebuggerChanged(int)
 {
+    if (m_ignoreChanges)
+        return;
+
     int currentIndex = m_comboBox->currentIndex();
     QVariant id = m_comboBox->itemData(currentIndex);
     m_kit->setValue(DebuggerKitInformation::id(), id);
-}
-
-void DebuggerKitConfigWidget::onDebuggerAdded(const QVariant &id)
-{
-    const DebuggerItem *item = DebuggerItemManager::findById(id);
-    QTC_ASSERT(item, return);
-    m_comboBox->addItem(item->displayName(), id);
-}
-
-void DebuggerKitConfigWidget::onDebuggerUpdated(const QVariant &id)
-{
-    const DebuggerItem *item = DebuggerItemManager::findById(id);
-    QTC_ASSERT(item, return);
-    const int pos = indexOf(id);
-    if (pos < 0)
-        return;
-    m_comboBox->setItemText(pos, item->displayName());
-}
-
-void DebuggerKitConfigWidget::onDebuggerRemoved(const QVariant &id)
-{
-    if (const int pos = indexOf(id)) {
-        m_comboBox->removeItem(pos);
-        refresh();
-    }
 }
 
 int DebuggerKitConfigWidget::indexOf(const QVariant &id)

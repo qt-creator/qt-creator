@@ -1,9 +1,9 @@
 /**************************************************************************
 **
-** Copyright (C) 2014 Openismus GmbH.
+** Copyright (C) 2015 Openismus GmbH.
 ** Authors: Peter Penz (ppenz@openismus.com)
 **          Patricia Santana Cruz (patriciasantanacruz@gmail.com)
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -11,20 +11,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -69,19 +70,19 @@ QList<Core::Id> AutogenStepFactory::availableCreationIds(BuildStepList *parent) 
     return QList<Core::Id>() << Core::Id(AUTOGEN_STEP_ID);
 }
 
-QString AutogenStepFactory::displayNameForId(const Core::Id id) const
+QString AutogenStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == AUTOGEN_STEP_ID)
         return tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id.");
     return QString();
 }
 
-bool AutogenStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool AutogenStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     return canHandle(parent) && Core::Id(AUTOGEN_STEP_ID) == id;
 }
 
-BuildStep *AutogenStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *AutogenStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -133,7 +134,7 @@ AutogenStep::AutogenStep(BuildStepList *bsl) :
     ctor();
 }
 
-AutogenStep::AutogenStep(BuildStepList *bsl, const Core::Id id) :
+AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) :
     AbstractProcessStep(bsl, id)
 {
     ctor();
@@ -151,19 +152,20 @@ void AutogenStep::ctor()
     setDefaultDisplayName(tr("Autogen"));
 }
 
-bool AutogenStep::init()
+bool AutogenStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
-    pp->setCommand(QLatin1String("autogen.sh"));
+    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    pp->setWorkingDirectory(projectDir);
+    pp->setCommand(QLatin1String("./autogen.sh"));
     pp->setArguments(additionalArguments());
     pp->resolveAll();
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void AutogenStep::run(QFutureInterface<bool> &interface)
@@ -171,10 +173,10 @@ void AutogenStep::run(QFutureInterface<bool> &interface)
     BuildConfiguration *bc = buildConfiguration();
 
     // Check whether we need to run autogen.sh
-    const QString buildDir = bc->buildDirectory().toString();
-    const QFileInfo configureInfo(buildDir + QLatin1String("/configure"));
-    const QFileInfo configureAcInfo(buildDir + QLatin1String("/configure.ac"));
-    const QFileInfo makefileAmInfo(buildDir + QLatin1String("/Makefile.am"));
+    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    const QFileInfo configureInfo(projectDir + QLatin1String("/configure"));
+    const QFileInfo configureAcInfo(projectDir + QLatin1String("/configure.ac"));
+    const QFileInfo makefileAmInfo(projectDir + QLatin1String("/Makefile.am"));
 
     if (!configureInfo.exists()
         || configureInfo.lastModified() < configureAcInfo.lastModified()
@@ -276,8 +278,9 @@ void AutogenStepConfigWidget::updateDetails()
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
-    param.setWorkingDirectory(bc->buildDirectory().toString());
-    param.setCommand(QLatin1String("autogen.sh"));
+    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    param.setWorkingDirectory(projectDir);
+    param.setCommand(QLatin1String("./autogen.sh"));
     param.setArguments(m_autogenStep->additionalArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();

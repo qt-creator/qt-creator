@@ -1,10 +1,7 @@
 import qbs
 
-import QtcPlugin
-
 QtcPlugin {
     name: "BareMetal"
-    provider: "Sander"
 
     Depends { name: "Qt"; submodules: ["network", "widgets"]; }
     Depends { name: "QtcSsh" }
@@ -16,18 +13,28 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
+        "baremetal.qrc",
         "baremetalconstants.h",
+        "baremetalcustomrunconfiguration.cpp", "baremetalcustomrunconfiguration.h",
         "baremetaldevice.cpp", "baremetaldevice.h",
         "baremetaldeviceconfigurationfactory.cpp", "baremetaldeviceconfigurationfactory.h",
         "baremetaldeviceconfigurationwidget.cpp", "baremetaldeviceconfigurationwidget.h",
         "baremetaldeviceconfigurationwizard.cpp", "baremetaldeviceconfigurationwizard.h",
         "baremetaldeviceconfigurationwizardpages.cpp", "baremetaldeviceconfigurationwizardpages.h",
-        "baremetaldeviceconfigurationwizardsetuppage.ui",
         "baremetalgdbcommandsdeploystep.cpp", "baremetalgdbcommandsdeploystep.h",
         "baremetalplugin.cpp", "baremetalplugin.h",
         "baremetalrunconfiguration.cpp", "baremetalrunconfiguration.h",
         "baremetalrunconfigurationfactory.cpp", "baremetalrunconfigurationfactory.h",
-        "baremetalrunconfigurationwidget.cpp", "baremetalrunconfigurationwidget.h", "baremetaldeviceconfigurationwidget.ui",
+        "baremetalrunconfigurationwidget.cpp", "baremetalrunconfigurationwidget.h",
         "baremetalruncontrolfactory.cpp", "baremetalruncontrolfactory.h",
+        "baremetaldebugsupport.cpp", "baremetaldebugsupport.h",
+        "gdbserverproviderprocess.cpp", "gdbserverproviderprocess.h",
+        "gdbserverproviderssettingspage.cpp", "gdbserverproviderssettingspage.h",
+        "gdbserverprovider.cpp", "gdbserverprovider.h",
+        "gdbserverproviderchooser.cpp", "gdbserverproviderchooser.h",
+        "gdbserverprovidermanager.cpp", "gdbserverprovidermanager.h",
+        "openocdgdbserverprovider.cpp", "openocdgdbserverprovider.h",
+        "defaultgdbserverprovider.cpp", "defaultgdbserverprovider.h",
+        "stlinkutilgdbserverprovider.cpp", "stlinkutilgdbserverprovider.h",
     ]
 }

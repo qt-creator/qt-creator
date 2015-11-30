@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -812,11 +813,15 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         if (oldDoc && oldDoc->editorRevision() == it.value().second)
             continue;
 
-        Language::Enum language;
+        Dialect language;
         if (oldDoc)
             language = oldDoc->language();
         else
             language = ModelManagerInterface::guessLanguageOfFile(fileName);
+        if (language == Dialect::NoLanguage) {
+            qCDebug(qmljsLog) << "NoLanguage in qmljsfindreferences.cpp find_helper for " << fileName;
+            language = Dialect::AnyLanguage;
+        }
 
         Document::MutablePtr newDoc = snapshot.documentFromSource(
                     it.value().first, fileName, language);
@@ -829,9 +834,9 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     if (!doc)
         return;
 
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
-    Link link(snapshot, modelManager->defaultVContext(), modelManager->builtins(doc));
+    Link link(snapshot, modelManager->defaultVContext(doc->language(), doc), modelManager->builtins(doc));
     ContextPtr context = link();
 
     ScopeChain scopeChain(doc, context);
@@ -915,6 +920,33 @@ void FindReferences::renameUsages(const QString &fileName, quint32 offset,
     m_watcher.setFuture(result);
 }
 
+QList<FindReferences::Usage> FindReferences::findUsageOfType(const QString &fileName, const QString typeName)
+{
+    QList<Usage> usages;
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+
+    Document::Ptr doc = modelManager->snapshot().document(fileName);
+    if (!doc)
+        return usages;
+
+    Link link(modelManager->snapshot(), modelManager->defaultVContext(doc->language(), doc), modelManager->builtins(doc));
+    ContextPtr context = link();
+    ScopeChain scopeChain(doc, context);
+
+    const ObjectValue *targetValue = scopeChain.context()->lookupType(doc.data(), QStringList(typeName));
+
+    QmlJS::Snapshot snapshot =  modelManager->snapshot();
+
+    foreach (const QmlJS::Document::Ptr &doc, snapshot) {
+        FindTypeUsages findUsages(doc, context);
+        FindTypeUsages::Result results = findUsages(typeName, targetValue);
+        foreach (const AST::SourceLocation &loc, results) {
+            usages.append(Usage(doc->fileName(), matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
+        }
+    }
+    return usages;
+}
+
 void FindReferences::displayResults(int first, int last)
 {
     // the first usage is always a dummy to indicate we now start searching
@@ -925,11 +957,12 @@ void FindReferences::displayResults(int first, int last)
         const QString label = tr("QML/JS Usages:");
 
         if (replacement.isEmpty()) {
-            m_currentSearch = Core::SearchResultWindow::instance()->startNewSearch(
-                        label, QString(), symbolName, Core::SearchResultWindow::SearchOnly);
+            m_currentSearch = SearchResultWindow::instance()->startNewSearch(
+                        label, QString(), symbolName, SearchResultWindow::SearchOnly);
         } else {
-            m_currentSearch = Core::SearchResultWindow::instance()->startNewSearch(
-                        label, QString(), symbolName, Core::SearchResultWindow::SearchAndReplace);
+            m_currentSearch = SearchResultWindow::instance()->startNewSearch(
+                        label, QString(), symbolName, SearchResultWindow::SearchAndReplace,
+                        SearchResultWindow::PreserveCaseDisabled);
             m_currentSearch->setTextToReplace(replacement);
             connect(m_currentSearch, SIGNAL(replaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)),
                     SLOT(onReplaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)));
@@ -938,10 +971,10 @@ void FindReferences::displayResults(int first, int last)
                 this, SLOT(openEditor(Core::SearchResultItem)));
         connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
         connect(m_currentSearch, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
-        Core::SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
+        SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
 
         FutureProgress *progress = ProgressManager::addTask(
-                    m_watcher.future(), tr("Searching"),
+                    m_watcher.future(), tr("Searching for Usages"),
                     QmlJSEditor::Constants::TASK_SEARCH);
         connect(progress, SIGNAL(clicked()), m_currentSearch, SLOT(popup()));
 
@@ -981,7 +1014,7 @@ void FindReferences::setPaused(bool paused)
         m_watcher.setPaused(paused);
 }
 
-void FindReferences::openEditor(const Core::SearchResultItem &item)
+void FindReferences::openEditor(const SearchResultItem &item)
 {
     if (item.path.size() > 0) {
         EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
@@ -991,25 +1024,24 @@ void FindReferences::openEditor(const Core::SearchResultItem &item)
     }
 }
 
-void FindReferences::onReplaceButtonClicked(const QString &text, const QList<Core::SearchResultItem> &items, bool preserveCase)
+void FindReferences::onReplaceButtonClicked(const QString &text, const QList<SearchResultItem> &items, bool preserveCase)
 {
     const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
 
     // files that are opened in an editor are changed, but not saved
     QStringList changedOnDisk;
     QStringList changedUnsavedEditors;
-    DocumentModel *documentModel = EditorManager::documentModel();
     foreach (const QString &fileName, fileNames) {
-        if (documentModel->documentForFilePath(fileName))
+        if (DocumentModel::documentForFilePath(fileName))
             changedOnDisk += fileName;
         else
             changedUnsavedEditors += fileName;
     }
 
     if (!changedOnDisk.isEmpty())
-        QmlJS::ModelManagerInterface::instance()->updateSourceFiles(changedOnDisk, true);
+        ModelManagerInterface::instance()->updateSourceFiles(changedOnDisk, true);
     if (!changedUnsavedEditors.isEmpty())
-        QmlJS::ModelManagerInterface::instance()->updateSourceFiles(changedUnsavedEditors, false);
+        ModelManagerInterface::instance()->updateSourceFiles(changedUnsavedEditors, false);
 
-    Core::SearchResultWindow::instance()->hide();
+    SearchResultWindow::instance()->hide();
 }

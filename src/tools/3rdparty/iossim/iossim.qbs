@@ -1,11 +1,10 @@
-import qbs.base 1.0
-import QtcTool
-
+import qbs 1.0
 
 QtcTool {
     name: "iossim"
     condition: qbs.targetOS.contains("osx")
 
+    Depends { name: "bundle" }
     Depends { name: "Qt"; submodules: ["widgets"] }
     Depends { name: "app_version_header" }
 
@@ -18,13 +17,14 @@ QtcTool {
         "nsprintf.h",
         "nsstringexpandpath.h",
         "version.h",
-        "iphonesimulatorremoteclient/iphonesimulatorremoteclient.h"
+        "dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h"
     ]
-    cpp.linkerFlags: base.concat(["-sectcreate", "__TEXT", "__info_plist", path + "/Info.plist",
-                                  "-fobjc-link-runtime"])
+    cpp.includePaths: ["."]
+    cpp.linkerFlags: base.concat(["-fobjc-link-runtime"])
     cpp.frameworks: base.concat(["Foundation", "CoreServices", "ApplicationServices", "IOKit",
                                  "AppKit"])
     cpp.frameworkPaths: base.concat("/System/Library/PrivateFrameworks")
+    bundle.infoPlistFile: "Info.plist"
 
-    toolInstallDir: project.ide_libexec_path + "/ios"
+    installDir: project.ide_libexec_path + "/ios"
 }

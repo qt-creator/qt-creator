@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,8 +36,9 @@
 
 #include <languageutils/fakemetaobject.h>
 
+#include "qmljsdialect.h"
 #include "parser/qmldirparser_p.h"
-#include "parser/qmljsengine_p.h"
+#include "parser/qmljsastfwd_p.h"
 #include "qmljs_global.h"
 #include "qmljsconstants.h"
 #include "qmljsimportdependencies.h"
@@ -44,32 +46,30 @@
 namespace QmlJS {
 
 class Bind;
+class DiagnosticMessage;
+class Engine;
 class Snapshot;
 class ImportDependencies;
 
 class QMLJS_EXPORT Document
 {
+    Q_DISABLE_COPY(Document)
 public:
     typedef QSharedPointer<const Document> Ptr;
     typedef QSharedPointer<Document> MutablePtr;
-
-    static bool isQmlLikeLanguage(Language::Enum languge);
-    static bool isFullySupportedLanguage(Language::Enum language);
-    static bool isQmlLikeOrJsLanguage(Language::Enum language);
-    static QList<Language::Enum> companionLanguages(Language::Enum language);
 protected:
-    Document(const QString &fileName, Language::Enum language);
+    Document(const QString &fileName, Dialect language);
 
 public:
     ~Document();
 
-    static MutablePtr create(const QString &fileName, Language::Enum language);
+    static MutablePtr create(const QString &fileName, Dialect language);
 
     Document::Ptr ptr() const;
 
     bool isQmlDocument() const;
-    Language::Enum language() const;
-    void setLanguage(Language::Enum l);
+    Dialect language() const;
+    void setLanguage(Dialect l);
 
     QString importId() const;
     QByteArray fingerprint() const;
@@ -117,7 +117,7 @@ private:
     QWeakPointer<Document> _ptr;
     QByteArray _fingerprint;
     int _editorRevision;
-    Language::Enum _language;
+    Dialect _language;
     bool _parsedCorrectly;
 
     // for documentFromSource
@@ -216,7 +216,7 @@ public:
 
 class QMLJS_EXPORT Snapshot
 {
-    typedef QHash<QString, Document::Ptr> _Base;
+    typedef QHash<QString, Document::Ptr> Base;
     QHash<QString, Document::Ptr> _documents;
     QHash<QString, QList<Document::Ptr> > _documentsByPath;
     QHash<QString, LibraryInfo> _libraries;
@@ -227,8 +227,8 @@ public:
     Snapshot(const Snapshot &o);
     ~Snapshot();
 
-    typedef _Base::iterator iterator;
-    typedef _Base::const_iterator const_iterator;
+    typedef Base::iterator iterator;
+    typedef Base::const_iterator const_iterator;
 
     const_iterator begin() const { return _documents.begin(); }
     const_iterator end() const { return _documents.end(); }
@@ -246,7 +246,7 @@ public:
 
     Document::MutablePtr documentFromSource(const QString &code,
                                      const QString &fileName,
-                                     Language::Enum language) const;
+                                     Dialect language) const;
 };
 
 } // namespace QmlJS

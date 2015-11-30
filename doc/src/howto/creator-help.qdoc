@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-help-overview.html
     \page creator-help.html
     \nextpage creator-faq.html
@@ -35,7 +35,7 @@
 
     \list
 
-        \li To view documentation, switch to \gui Help mode.
+        \li To view documentation, switch to \uicontrol Help mode.
 
         \li To view context sensitive help on a Qt class or function as a
             tooltip, move the mouse cursor over the class or function. If help
@@ -45,58 +45,58 @@
         \li To display the full help on a Qt class or function, press \key F1.
             The documentation is displayed in a
             pane next to the code editor, or, if there is not enough vertical
-            space, in the fullscreen \gui Help mode.
+            space, in the fullscreen \uicontrol Help mode.
 
         \li To select and configure how the documentation is displayed in the
-            \gui Help mode, select \gui Tools > \gui Options > \gui Help.
+            \uicontrol Help mode, select \uicontrol Tools > \uicontrol Options > \uicontrol Help.
 
     \endlist
 
-    The following image displays the context sensitive help in the \gui Edit
+    The following image displays the context sensitive help in the \uicontrol Edit
     mode.
 
     \image qtcreator-context-sensitive-help.png
 
     \section1 Viewing Function Tooltips
 
-    To hide function tooltips by default, select \gui {Tools > Options >
+    To hide function tooltips by default, select \uicontrol {Tools > Options >
     Text Editor > Behavior > Show help tooltips using the mouse >
     On Shift+Mouseover}. You
     can still view the tooltips by pressing and holding down the \key Shift
     key.
 
     To use a keyboard shortcut for viewing help tooltips, select
-    \gui {Show help tooltips using keyboard shortcut (Alt)}.
+    \uicontrol {Show help tooltips using keyboard shortcut (Alt)}.
 
     \section1 Finding Information in Qt Documentation
 
     \QC, \QSDK and other Qt deliverables contain documentation
-    as .qch files. All the documentation is accessible in the \gui Help mode.
+    as .qch files. All the documentation is accessible in the \uicontrol Help mode.
 
     To find information in the documentation, select:
 
     \list
 
-        \li \gui Bookmarks to view a list of pages on which you have added
+        \li \uicontrol Bookmarks to view a list of pages on which you have added
             bookmarks.
 
-        \li \gui Contents to see all the documentation installed on the
+        \li \uicontrol Contents to see all the documentation installed on the
             development PC and to browse the documentation contents.
 
-        \li \gui Index to find information based on a list of keywords in all
+        \li \uicontrol Index to find information based on a list of keywords in all
             the installed documents.
 
-        \li \gui {Open Pages} to view a list of currently open documentation
+        \li \uicontrol {Open Pages} to view a list of currently open documentation
             pages.
 
-        \li \gui Search to search from all the installed documents.
+        \li \uicontrol Search to search from all the installed documents.
 
     \endlist
 
     \section2 Adding Bookmarks to Help Pages
 
     You can add bookmarks to useful help pages to easily find them later
-    in the \gui Bookmarks view. You can either use the page title as the
+    in the \uicontrol Bookmarks view. You can either use the page title as the
     bookmark or change it to any text. You can organize the bookmarks in
     folders in the view.
 
@@ -108,21 +108,21 @@
 
         \li Click the
             \inlineimage qtcreator-help-add-bookmark.png
-            (\gui {Add Bookmark}) button on the toolbar.
+            (\uicontrol {Add Bookmark}) button on the toolbar.
 
-        \li In the \gui {Add Bookmark} dialog, click \gui OK to save the
+        \li In the \uicontrol {Add Bookmark} dialog, click \uicontrol OK to save the
             page title as a bookmark in the selected folder.
 
     \endlist
 
-    To import and export bookmarks, select \gui {Tools > Options > Help >
-    General Settings > Import} or \gui Export.
+    To import and export bookmarks, select \uicontrol {Tools > Options > Help >
+    General Settings > Import} or \uicontrol Export.
 
     \section2 Full-text Search
 
-    In the \gui Search pane, you can use full-text search for finding a
-    particular word in all the installed documents. In the \gui {Search for}
-    field, enter the term you are looking for, and select the \gui Search
+    In the \uicontrol Search pane, you can use full-text search for finding a
+    particular word in all the installed documents. In the \uicontrol {Search for}
+    field, enter the term you are looking for, and select the \uicontrol Search
     button. All documents that contain the specified term are listed. The list
     is sorted by the number of search hits that the documents contain. Select a
     document in the list to open it.
@@ -147,21 +147,20 @@
 
     \endlist
 
-    For more flexibility, use the \gui {Advanced search}. Specify words to
+    For more flexibility, use the \uicontrol {Advanced search}. Specify words to
     exclude from the search hits, or search for an exact phrase or for similar
     words. For example, searching for \c{QStin}, \c{QSting}, or \c{QStrin} lists
     all the documents with titles that are similar, such as \c{QString}.
     Combine options to improve the search results.
 
     Full-text search is based on indexing all the installed documents the first
-    time when you open the \gui Search pane. If you add or remove documents,
+    time when you open the \uicontrol Search pane. If you add or remove documents,
     \QC recreates the index.
 
     If you cannot find words that you know are there, indexing might not have
-    been completed for some reason. Remove the \c {.helpcollection} folder and
-    open the \gui Search pane again to recreate the index. The folder is located
-    in \c { ~/.config/QtProject/qtcreator/.helpcollection} on Linux and Mac OS X and
-    in \c {\AppData\Roaming\QtProject\qtcreator\} on Windows.
+    been completed for some reason. To regenerate the index, click
+    \inlineimage qtcreator-regenerate-index.png
+    (\uicontrol {Regenerate Index}).
 
     Punctuation is not included in indexed terms. To find terms that contain
     punctuation, such as domain names, use the asterisk as a wild card. For
@@ -169,7 +168,7 @@
 
     \section1 Adding External Documentation
 
-    You can display external documentation in the \gui Help mode.
+    You can display external documentation in the \uicontrol Help mode.
     To augment or replace the documentation that ships with \QC and Qt:
 
     \list 1
@@ -179,8 +178,8 @@
             For information on how to prepare your documentation and create a
             .qch file, see \l{The Qt Help Framework}.
 
-        \li To add the .qch file to \QC, select \gui Tools > \gui Options >
-            \gui Help > \gui Documentation > \gui Add.
+        \li To add the .qch file to \QC, select \uicontrol Tools > \uicontrol Options >
+            \uicontrol Help > \uicontrol Documentation > \uicontrol Add.
 
     \endlist
 
@@ -191,32 +190,32 @@
     space, the help opens in the full-screen help mode.
 
     You can specify that the help always opens in full-screen mode or
-    is detached to an external window. Select \gui {Tools > Options > Help >
+    is detached to an external window. Select \uicontrol {Tools > Options > Help >
     General Settings} and specify settings for displaying context-sensitive help
-    in the \gui {On context help} field. To detach the help window, select
-    \gui {Always Show Help in External Window}.
+    in the \uicontrol {On context help} field. To detach the help window, select
+    \uicontrol {Always Show Help in External Window}.
 
     \section1 Selecting the Start Page
 
-    You can select the page to display when you open the \gui Help mode in the
-    \gui {Tools > Options > Help > General Settings > On help start} field.
+    You can select the page to display when you open the \uicontrol Help mode in the
+    \uicontrol {Tools > Options > Help > General Settings > On help start} field.
     To display the page and help panes that were open when you exited the mode,
-    select the \gui {Show My Tabs from Last Session} option. However, Web pages
-    are not opened, because loading them would slow down opening the \gui Help
+    select the \uicontrol {Show My Tabs from Last Session} option. However, Web pages
+    are not opened, because loading them would slow down opening the \uicontrol Help
     mode.
 
-    To display a particular page, select \gui {Show My Home Page}, and specify
-    the page in the \gui {Home Page} field.
+    To display a particular page, select \uicontrol {Show My Home Page}, and specify
+    the page in the \uicontrol {Home Page} field.
 
-    To display a blank page, select the \gui {Show a Blank Page} option. You can
-    also select the \gui {Use Blank Page} button to set a blank page as your
+    To display a blank page, select the \uicontrol {Show a Blank Page} option. You can
+    also select the \uicontrol {Use Blank Page} button to set a blank page as your
     home page.
 
     \section1 Using Documentation Filters
 
-    You can filter the documents displayed in the \gui Help mode to find
+    You can filter the documents displayed in the \uicontrol Help mode to find
     relevant information faster. Select from a list of filters in the
-    \gui {Filtered by} field (1). The contents of the \gui Index and \gui Contents
+    \uicontrol {Filtered by} field (1). The contents of the \uicontrol Index and \uicontrol Contents
     pane in the sidebar change accordingly.
 
     \image qtcreator-help-filters.png "Help filters"
@@ -232,25 +231,25 @@
 
     \list 1
 
-        \li Select \gui {Tools > Options > Help > Filters > Add}.
+        \li Select \uicontrol {Tools > Options > Help > Filters > Add}.
 
-        \li Enter a name for the filter and press \gui {OK}.
+        \li Enter a name for the filter and press \uicontrol {OK}.
 
-        \li In \gui Attributes, select the documents that you want to include
+        \li In \uicontrol Attributes, select the documents that you want to include
             in the filter.
 
             \image qtcreator-help-filter-attributes.png "Help filter attributes"
 
-        \li Click \gui OK.
+        \li Click \uicontrol OK.
 
-        \li In the \gui Help mode, select the filter in the \gui {Filtered by}
+        \li In the \uicontrol Help mode, select the filter in the \uicontrol {Filtered by}
             field to see the filtered documentation in the sidebar.
 
     \endlist
 
-    To modify filters, select a filter in \gui Filters, select the attributes,
-    and then click \gui Apply.
+    To modify filters, select a filter in \uicontrol Filters, select the attributes,
+    and then click \uicontrol Apply.
 
-    To remove filters, select them in \gui Filters, and click \gui Remove.
+    To remove filters, select them in \uicontrol Filters, and click \uicontrol Remove.
 
 */

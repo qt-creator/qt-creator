@@ -9,8 +9,6 @@ SOURCES += mercurialplugin.cpp \
     srcdestdialog.cpp \
     mercurialcommitwidget.cpp \
     commiteditor.cpp \
-    clonewizardpage.cpp \
-    clonewizard.cpp \
     mercurialsettings.cpp \
     authenticationdialog.cpp
 HEADERS += mercurialplugin.h \
@@ -24,8 +22,6 @@ HEADERS += mercurialplugin.h \
     srcdestdialog.h \
     mercurialcommitwidget.h \
     commiteditor.h \
-    clonewizardpage.h \
-    clonewizard.h \
     mercurialsettings.h \
     authenticationdialog.h
 FORMS += optionspage.ui \
@@ -33,4 +29,3 @@ FORMS += optionspage.ui \
     srcdestdialog.ui \
     mercurialcommitpanel.ui \
     authenticationdialog.ui
-RESOURCES += mercurial.qrc

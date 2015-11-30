@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -34,12 +35,18 @@ srcPath = os.path.realpath(srcPath)
 projectName = "gitProject"
 
 # TODO: Make selecting changes possible
-def commit(commitMessage, expectedLogMessage):
-    ensureChecked(waitForObject(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"))
+def commit(commitMessage, expectedLogMessage, uncheckUntracked=False):
+    openVcsLog()
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     invokeMenuItem("Tools", "Git", "Local Repository", "Commit...")
     replaceEditorContent(waitForObject(":Description.description_Utils::CompletingTextEdit"), commitMessage)
     ensureChecked(waitForObject(":Files.Check all_QCheckBox"))
+    if uncheckUntracked:
+        treeView = waitForObject("{container=':splitter.Files_QGroupBox' name='fileView' type='QTreeView' visible='1'}")
+        model = treeView.model()
+        for indexStr in dumpItems(model):
+            if 'untracked' in indexStr:
+                clickItem(treeView, indexStr, 5, 5, 0, Qt.LeftButton)
     checkOrFixCommitterInformation('invalidAuthorLabel', 'authorLineEdit', 'Nobody')
     checkOrFixCommitterInformation('invalidEmailLabel', 'emailLineEdit', 'nobody@nowhere.com')
     clickButton(waitForObject(":splitter.Commit File(s)_VcsBase::QActionPushButton"))
@@ -50,7 +57,7 @@ def commit(commitMessage, expectedLogMessage):
 
 def verifyItemsInGit(commitMessages):
     gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
-    waitFor("str(gitEditor.plainText) != 'Waiting for data...'", 20000)
+    waitFor("len(str(gitEditor.plainText)) > 0 and str(gitEditor.plainText) != 'Working...'", 20000)
     plainText = str(gitEditor.plainText)
     verifyItemOrder(commitMessages, plainText)
     return plainText
@@ -71,23 +78,26 @@ def checkOrFixCommitterInformation(labelName, lineEditName, expected):
         test.log("Commit information invalid or missing - entering dummy value (%s)" % expected)
         replaceEditorContent(lineEd, expected)
 
-def verifyClickCommit():
+# Opens a commit's diff from a diff log
+# param count is the number of the commit (1-based) in chronologic order
+def __clickCommit__(count):
     gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
     fileName = waitForObject(":Qt Creator_FilenameQComboBox")
     test.verify(waitFor('str(fileName.currentText).startswith("Git Log")', 1000),
                 "Verifying Qt Creator still displays git log inside editor.")
+    waitFor("'Initial Commit' in str(gitEditor.plainText)", 3000)
     content = str(gitEditor.plainText)
-    noOfCommits = content.count("commit")
     commit = None
-    # find second commit
+    # find commit
     try:
-        line = filter(lambda line: line.startswith("commit"), content.splitlines())[-2]
+        # Commits are listed in reverse chronologic order, so we have to invert count
+        line = filter(lambda line: line.startswith("commit"), content.splitlines())[-count]
         commit = line.split(" ", 1)[1]
     except:
-        test.fail("Could not find the second commit - leaving test")
-        return
+        test.fail("Could not find the %d. commit - leaving test" % count)
+        return False
     placeCursorToLine(gitEditor, line)
-    for i in range(5):
+    for i in range(30):
         type(gitEditor, "<Left>")
     # get the current cursor rectangle which should be positioned on the commit ID
     rect = gitEditor.cursorRect()
@@ -96,13 +106,14 @@ def verifyClickCommit():
     expected = 'Git Show "%s"' % commit
     test.verify(waitFor('str(fileName.currentText) == expected', 5000),
                 "Verifying editor switches to Git Show.")
-    diffShow = waitForObject(":Qt Creator_DiffEditor::Internal::DescriptionEditorWidget")
-    waitFor('len(str(diffShow.plainText)) != 0', 5000)
-    show = str(diffShow.plainText)
+    description = waitForObject(":Qt Creator_DiffEditor::Internal::DescriptionEditorWidget")
+    waitFor('len(str(description.plainText)) != 0', 5000)
+    show = str(description.plainText)
+    id = "Nobody <nobody@nowhere\.com>"
+    time = "\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.* seconds ago\)"
     expected = [{"commit %s" % commit:False},
-                {"Author: Nobody <nobody@nowhere.com>": False},
-                {"Date:\s+\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.*":True},
-                {"Branches: master":False}]
+                {"Author: %s, %s" % (id, time): True},
+                {"Committer: %s, %s" % (id, time): True}]
     for line, exp in zip(show.splitlines(), expected):
         expLine = exp.keys()[0]
         isRegex = exp.values()[0]
@@ -110,36 +121,50 @@ def verifyClickCommit():
             test.verify(re.match(expLine, line), "Verifying commit header line '%s'" % line)
         else:
             test.compare(line, expLine, "Verifying commit header line.")
-    changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
-    original = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget2")
-    waitFor('str(changed.plainText) != "Waiting for data..." '
-            'and str(original.plainText) != "Waiting for data..."', 5000)
-    # content of diff editors is merge of modified files
-    diffOriginal = str(original.plainText)
-    diffChanged = str(changed.plainText)
-    # diffChanged must completely contain the pointless_header.h
-    pointlessHeader = readFile(os.path.join(srcPath, projectName, "pointless_header.h"))
-    test.verify(pointlessHeader in diffChanged,
-                "Verifying whether diff editor contains pointless_header.h file.")
-    test.verify(pointlessHeader not in diffOriginal,
-                "Verifying whether original does not contain pointless_header.h file.")
-    test.verify("HEADERS  += mainwindow.h \\\n    pointless_header.h\n" in diffChanged,
-                "Verifying whether diff editor has pointless_header.h listed in pro file.")
-    test.verify("HEADERS  += mainwindow.h\n\n" in diffOriginal
-                and "pointless_header.h" not in diffOriginal,
-                "Verifying whether original has no additional header in pro file.")
-    test.verify(original.readOnly and changed.readOnly and diffShow.readOnly,
-                "Verifying all diff editor widgets are readonly.")
+    test.verify(description.readOnly,
+                "Verifying description editor widget is readonly.")
+    return True
+
+def verifyClickCommit():
+    for i in range(1, 3):
+        if not __clickCommit__(i):
+            continue
+        changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
+        original = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget2")
+        waitFor('str(changed.plainText) != "Waiting for data..." '
+                'and str(original.plainText) != "Waiting for data..."', 5000)
+        # content of diff editors is merge of modified files
+        diffOriginal = str(original.plainText)
+        diffChanged = str(changed.plainText)
+        if i == 1:
+            # diffChanged must completely contain main.cpp
+            mainCPP = readFile(os.path.join(srcPath, projectName, "main.cpp"))
+            test.verify(mainCPP in diffChanged,
+                        "Verifying whether diff editor contains main.cpp file.")
+            test.verify(mainCPP not in diffOriginal,
+                        "Verifying whether original does not contain main.cpp file.")
+        elif i == 2:
+            # diffChanged must completely contain the pointless_header.h
+            pointlessHeader = readFile(os.path.join(srcPath, projectName, "pointless_header.h"))
+            test.verify(pointlessHeader in diffChanged,
+                        "Verifying whether diff editor contains pointless_header.h file.")
+            test.verify(pointlessHeader not in diffOriginal,
+                        "Verifying whether original does not contain pointless_header.h file.")
+            test.verify("HEADERS  += mainwindow.h \\\n    pointless_header.h\n" in diffChanged,
+                        "Verifying whether diff editor has pointless_header.h listed in pro file.")
+            test.verify("HEADERS  += mainwindow.h\n\n" in diffOriginal
+                        and "pointless_header.h" not in diffOriginal,
+                        "Verifying whether original has no additional header in pro file.")
+        test.verify(original.readOnly and changed.readOnly,
+                    "Verifying that the actual diff editor widgets are readonly.")
+        invokeMenuItem("Tools", "Git", "Local Repository", "Log")
 
 def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
     createProject_Qt_GUI(srcPath, projectName, addToVersionControl = "Git")
-    if not object.exists(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"):
-        clickButton(waitForObject(":Qt Creator_Core::Internal::OutputPaneManageButton"))
-        activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Version Control"))
-    ensureChecked(waitForObject(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"))
+    openVcsLog()
     vcsLog = waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
                            "window=':Qt Creator_Core::Internal::MainWindow'}").plainText
     test.verify("Initialized empty Git repository in %s"
@@ -148,19 +173,20 @@ def main():
     createLocalGitConfig(os.path.join(srcPath, projectName, ".git"))
     commitMessages = [commit("Initial Commit", "Committed 5 file(s).")]
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
-    addCPlusPlusFileToCurrentProject("pointless_header.h", "C++ Header File", addToVCS = "Git")
+    headerName = "pointless_header.h"
+    addCPlusPlusFileToCurrentProject(headerName, "C++ Header File", addToVCS="Git",
+                                     expectedHeaderName=headerName)
     commitMessages.insert(0, commit("Added pointless header file", "Committed 2 file(s)."))
-    __createProjectOrFileSelectType__("  General", "Text File", isProject=False)
-    readmeName = "README"
+    __createProjectOrFileSelectType__("  General", "Empty File", isProject=False)
+    readmeName = "README.txt"
     replaceEditorContent(waitForObject(":New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit"), readmeName)
     clickButton(waitForObject(":Next_QPushButton"))
-    readmeName += ".txt"
     __createProjectHandleLastPage__([readmeName], "Git", "<None>")
-    replaceEditorContent(waitForObject(":Qt Creator_TextEditor::PlainTextEditorWidget"),
+    replaceEditorContent(waitForObject(":Qt Creator_TextEditor::TextEditorWidget"),
                          "Some important advice in the README")
     invokeMenuItem("File", "Save All")
     commitsInProject = list(commitMessages) # deep copy
-    commitOutsideProject = commit("Added README file", "Committed 2 file(s).") # QTCREATORBUG-11074
+    commitOutsideProject = commit("Added README file", "Committed 2 file(s).", True) # QTCREATORBUG-11074
     commitMessages.insert(0, commitOutsideProject)
 
     invokeMenuItem('Tools', 'Git', 'Current File', 'Log of "%s"' % readmeName)

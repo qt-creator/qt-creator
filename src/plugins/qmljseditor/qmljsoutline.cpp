@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,34 +9,35 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qmljsoutline.h"
 #include "qmloutlinemodel.h"
-#include "qmljseditoreditable.h"
+#include "qmljseditor.h"
 #include "qmljsoutlinetreeview.h"
 
+#include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QDebug>
 #include <QSettings>
 #include <QAction>
 #include <QVBoxLayout>
@@ -82,6 +83,11 @@ QVariant QmlJSOutlineFilterModel::data(const QModelIndex &index, int role) const
     return QSortFilterProxyModel::data(index, role);
 }
 
+Qt::DropActions QmlJSOutlineFilterModel::supportedDragActions() const
+{
+    return sourceModel()->supportedDragActions();
+}
+
 bool QmlJSOutlineFilterModel::filterBindings() const
 {
     return m_filterBindings;
@@ -104,12 +110,13 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     m_filterModel->setFilterBindings(false);
 
     m_treeView->setModel(m_filterModel);
+    setFocusProxy(m_treeView);
 
     QVBoxLayout *layout = new QVBoxLayout;
 
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addWidget(m_treeView);
+    layout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_treeView));
 
     m_showBindingsAction = new QAction(this);
     m_showBindingsAction->setText(tr("Show All Bindings"));
@@ -120,7 +127,7 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     setLayout(layout);
 }
 
-void QmlJSOutlineWidget::setEditor(QmlJSTextEditorWidget *editor)
+void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
 {
     m_editor = editor;
 
@@ -130,8 +137,8 @@ void QmlJSOutlineWidget::setEditor(QmlJSTextEditorWidget *editor)
     connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateSelectionInText(QItemSelection)));
 
-    connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(updateTextCursor(QModelIndex)));
+    connect(m_treeView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(focusEditor()));
 
     connect(m_editor, SIGNAL(outlineModelIndexChanged(QModelIndex)),
             this, SLOT(updateSelectionInTree(QModelIndex)));
@@ -153,19 +160,17 @@ void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
         updateSelectionInTree(m_editor->outlineModelIndex());
 }
 
-void QmlJSOutlineWidget::restoreSettings(int position)
+void QmlJSOutlineWidget::restoreSettings(const QVariantMap &map)
 {
-    QSettings *settings = Core::ICore::settings();
-    bool showBindings = settings->value(
-                QString::fromLatin1("QmlJSOutline.%1.ShowBindings").arg(position), true).toBool();
+    bool showBindings = map.value(QString::fromLatin1("QmlJSOutline.ShowBindings"), true).toBool();
     m_showBindingsAction->setChecked(showBindings);
 }
 
-void QmlJSOutlineWidget::saveSettings(int position)
+QVariantMap QmlJSOutlineWidget::settings() const
 {
-    QSettings *settings = Core::ICore::settings();
-    settings->setValue(QString::fromLatin1("QmlJSOutline.%1.ShowBindings").arg(position),
-                       m_showBindingsAction->isChecked());
+    QVariantMap map;
+    map.insert(QLatin1String("QmlJSOutline.ShowBindings"), m_showBindingsAction->isChecked());
+    return map;
 }
 
 void QmlJSOutlineWidget::modelUpdated()
@@ -187,7 +192,7 @@ void QmlJSOutlineWidget::updateSelectionInTree(const QModelIndex &index)
         filterIndex = m_filterModel->mapFromSource(baseIndex);
     }
 
-    m_treeView->selectionModel()->select(filterIndex, QItemSelectionModel::ClearAndSelect);
+    m_treeView->setCurrentIndex(filterIndex);
     m_treeView->scrollTo(filterIndex);
     m_blockCursorSync = false;
 }
@@ -226,8 +231,12 @@ void QmlJSOutlineWidget::updateTextCursor(const QModelIndex &index)
     textCursor.setPosition(location.offset);
     m_editor->setTextCursor(textCursor);
     m_editor->centerCursor();
-    m_editor->setFocus();
     m_blockCursorSync = false;
+}
+
+void QmlJSOutlineWidget::focusEditor()
+{
+    m_editor->setFocus();
 }
 
 void QmlJSOutlineWidget::setShowBindings(bool showBindings)
@@ -254,7 +263,7 @@ TextEditor::IOutlineWidget *QmlJSOutlineWidgetFactory::createWidget(Core::IEdito
     QmlJSOutlineWidget *widget = new QmlJSOutlineWidget;
 
     QmlJSEditor *qmlJSEditable = qobject_cast<QmlJSEditor*>(editor);
-    QmlJSTextEditorWidget *qmlJSEditor = qobject_cast<QmlJSTextEditorWidget*>(qmlJSEditable->widget());
+    QmlJSEditorWidget *qmlJSEditor = qobject_cast<QmlJSEditorWidget*>(qmlJSEditable->widget());
     Q_ASSERT(qmlJSEditor);
 
     widget->setEditor(qmlJSEditor);

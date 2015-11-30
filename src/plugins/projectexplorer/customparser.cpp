@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Andre Hartmann.
+** Copyright (C) 2015 Andre Hartmann.
 ** Contact: aha_1980@gmx.de
 **
 ** This file is part of Qt Creator.
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,11 +31,13 @@
 #include "customparser.h"
 #include "task.h"
 #include "projectexplorerconstants.h"
+#include "buildmanager.h"
 
 #include <utils/qtcassert.h>
 
 #include <QString>
 
+using namespace Utils;
 using namespace ProjectExplorer;
 
 CustomParserSettings::CustomParserSettings() :
@@ -137,12 +140,12 @@ bool CustomParser::parseLine(const QString &rawLine)
     if (m_errorRegExp.indexIn(rawLine.trimmed()) == -1)
         return false;
 
-    const Utils::FileName fileName =
-            Utils::FileName::fromUserInput(m_errorRegExp.cap(m_fileNameCap));
+    const FileName fileName = FileName::fromUserInput(m_errorRegExp.cap(m_fileNameCap));
     const int lineNumber = m_errorRegExp.cap(m_lineNumberCap).toInt();
     const QString message = m_errorRegExp.cap(m_messageCap);
 
-    emit addTask(Task(Task::Error, message, fileName, lineNumber, Constants::TASK_CATEGORY_COMPILE));
+    Task task = Task(Task::Error, message, fileName, lineNumber, Constants::TASK_CATEGORY_COMPILE);
+    emit addTask(task, 1);
     return true;
 }
 
@@ -155,8 +158,6 @@ bool CustomParser::parseLine(const QString &rawLine)
 #   include "metatypedeclarations.h"
 #   include "outputparser_test.h"
 
-using namespace Utils;
-
 void ProjectExplorerPlugin::testCustomOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
@@ -167,12 +168,12 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
     QTest::addColumn<int>("messageCap");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
+    QTest::addColumn<QList<Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
     const Core::Id categoryCompile = Constants::TASK_CATEGORY_COMPILE;
     const QString simplePattern = QLatin1String("^([a-z]+\\.[a-z]+):(\\d+): error: ([^\\s].+)$");
-    const Utils::FileName fileName = Utils::FileName::fromUserInput(QLatin1String("main.c"));
+    const FileName fileName = FileName::fromUserInput(QLatin1String("main.c"));
 
     QTest::newRow("empty pattern")
             << QString::fromLatin1("Sometext")
@@ -180,7 +181,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << QString::fromLatin1("")
             << 1 << 2 << 3
             << QString::fromLatin1("Sometext\n") << QString()
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
 
     QTest::newRow("pass-through stdout")
@@ -189,7 +190,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern
             << 1 << 2 << 3
             << QString::fromLatin1("Sometext\n") << QString()
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
 
     QTest::newRow("pass-through stderr")
@@ -198,7 +199,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern
             << 1 << 2 << 3
             << QString() << QString::fromLatin1("Sometext\n")
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
 
     const QString simpleError = QLatin1String("main.c:9: error: `sfasdf' undeclared (first use this function)");
@@ -210,7 +211,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern
             << 1 << 2 << 3
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error, message, fileName, 9, categoryCompile)
                 )
             << QString();
@@ -225,7 +226,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern2
             << 1 << 2 << 3
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error, message, fileName, lineNumber2, categoryCompile)
                 )
             << QString();
@@ -236,7 +237,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << simplePattern2
             << 1 << 2 << 3
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error, message, fileName, lineNumber2, categoryCompile)
                 )
             << QString();
@@ -253,7 +254,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << unitTestPattern
             << 1 << 2 << 3
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error, unitTestMessage, unitTestFileName, unitTestLineNumber, categoryCompile)
                 )
             << QString();

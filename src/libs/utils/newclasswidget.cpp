@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -70,7 +71,7 @@ struct NewClassWidgetPrivate {
 };
 
 NewClassWidgetPrivate:: NewClassWidgetPrivate() :
-    m_headerExtension(QLatin1String("h")),
+    m_headerExtension(QLatin1Char('h')),
     m_sourceExtension(QLatin1String("cpp")),
     m_formExtension(QLatin1String("ui")),
     m_valid(false),
@@ -97,44 +98,45 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
 
     setNamesDelimiter(QLatin1String("::"));
 
-    connect(d->m_ui.classLineEdit, SIGNAL(updateFileName(QString)),
-            this, SLOT(slotUpdateFileNames(QString)));
-    connect(d->m_ui.classLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(classNameEdited()));
-    connect(d->m_ui.baseClassComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(suggestClassNameFromBase()));
-    connect(d->m_ui.baseClassComboBox, SIGNAL(editTextChanged(QString)),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.classLineEdit, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.headerFileLineEdit, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.sourceFileLineEdit, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.formFileLineEdit, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.pathChooser, SIGNAL(validChanged()),
-            this, SLOT(slotValidChanged()));
-    connect(d->m_ui.generateFormCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(slotValidChanged()));
+    connect(d->m_ui.classLineEdit, &ClassNameValidatingLineEdit::updateFileName,
+            this, &NewClassWidget::slotUpdateFileNames);
+    connect(d->m_ui.classLineEdit, &QLineEdit::textEdited,
+            this, &NewClassWidget::classNameEdited);
+    connect(d->m_ui.baseClassComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &NewClassWidget::suggestClassNameFromBase);
+    connect(d->m_ui.baseClassComboBox, &QComboBox::editTextChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.classLineEdit, &FancyLineEdit::validChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.headerFileLineEdit, &FancyLineEdit::validChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.sourceFileLineEdit, &FancyLineEdit::validChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.formFileLineEdit, &FancyLineEdit::validChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.pathChooser, &PathChooser::validChanged,
+            this, &NewClassWidget::slotValidChanged);
+    connect(d->m_ui.generateFormCheckBox, &QAbstractButton::toggled,
+            this, &NewClassWidget::slotValidChanged);
 
-    connect(d->m_ui.classLineEdit, SIGNAL(validReturnPressed()),
-            this, SLOT(slotActivated()));
-    connect(d->m_ui.headerFileLineEdit, SIGNAL(validReturnPressed()),
-            this, SLOT(slotActivated()));
-    connect(d->m_ui.sourceFileLineEdit, SIGNAL(validReturnPressed()),
-            this, SLOT(slotActivated()));
-    connect(d->m_ui.formFileLineEdit, SIGNAL(validReturnPressed()),
-            this, SLOT(slotActivated()));
-    connect(d->m_ui.formFileLineEdit, SIGNAL(validReturnPressed()),
-            this, SLOT(slotActivated()));
-    connect(d->m_ui.pathChooser, SIGNAL(returnPressed()),
-             this, SLOT(slotActivated()));
+    connect(d->m_ui.classLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &NewClassWidget::slotActivated);
+    connect(d->m_ui.headerFileLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &NewClassWidget::slotActivated);
+    connect(d->m_ui.sourceFileLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &NewClassWidget::slotActivated);
+    connect(d->m_ui.formFileLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &NewClassWidget::slotActivated);
+    connect(d->m_ui.formFileLineEdit, &FancyLineEdit::validReturnPressed,
+            this, &NewClassWidget::slotActivated);
+    connect(d->m_ui.pathChooser, &PathChooser::returnPressed,
+             this, &NewClassWidget::slotActivated);
 
-    connect(d->m_ui.generateFormCheckBox, SIGNAL(stateChanged(int)),
-            this, SLOT(slotFormInputChecked()));
-    connect(d->m_ui.baseClassComboBox, SIGNAL(editTextChanged(QString)),
-            this, SLOT(slotBaseClassEdited(QString)));
+    connect(d->m_ui.generateFormCheckBox, &QCheckBox::stateChanged,
+            this, &NewClassWidget::slotFormInputChecked);
+    connect(d->m_ui.baseClassComboBox, &QComboBox::editTextChanged,
+            this, &NewClassWidget::slotBaseClassEdited);
     d->m_ui.generateFormCheckBox->setChecked(true);
     setFormInputCheckable(false, true);
     setClassType(NoClassType);
@@ -502,13 +504,13 @@ bool NewClassWidget::isValid(QString *error) const
 
     if (isHeaderInputVisible() && !d->m_ui.headerFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid header file name: '%1'").arg(d->m_ui.headerFileLineEdit->errorMessage());
+            *error = tr("Invalid header file name: \"%1\"").arg(d->m_ui.headerFileLineEdit->errorMessage());
         return false;
     }
 
     if (isSourceInputVisible() && !d->m_ui.sourceFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid source file name: '%1'").arg(d->m_ui.sourceFileLineEdit->errorMessage());
+            *error = tr("Invalid source file name: \"%1\"").arg(d->m_ui.sourceFileLineEdit->errorMessage());
         return false;
     }
 
@@ -516,7 +518,7 @@ bool NewClassWidget::isValid(QString *error) const
         (!d->m_formInputCheckable || d->m_ui.generateFormCheckBox->isChecked())) {
         if (!d->m_ui.formFileLineEdit->isValid()) {
             if (error)
-                *error = tr("Invalid form file name: '%1'").arg(d->m_ui.formFileLineEdit->errorMessage());
+                *error = tr("Invalid form file name: \"%1\"").arg(d->m_ui.formFileLineEdit->errorMessage());
             return false;
         }
     }
@@ -529,11 +531,6 @@ bool NewClassWidget::isValid(QString *error) const
         }
     }
     return true;
-}
-
-void NewClassWidget::triggerUpdateFileNames()
-{
-    d->m_ui.classLineEdit->triggerChanged();
 }
 
 void NewClassWidget::slotUpdateFileNames(const QString &baseName)
@@ -572,7 +569,7 @@ static QString ensureSuffix(QString f, const QString &extension)
 }
 
 // If a non-empty name was passed, expand to directory and suffix
-static QString expandFileName(const QDir &dir, const QString name, const QString &extension)
+static QString expandFileName(const QDir &dir, const QString &name, const QString &extension)
 {
     if (name.isEmpty())
         return QString();

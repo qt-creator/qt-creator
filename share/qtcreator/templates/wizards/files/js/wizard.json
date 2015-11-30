@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "Z.Js",
+    "category": "R.Qt",
+    "trDescription": "Creates a JavaScript file.",
+    "trDisplayName": "JS File",
+    "trDisplayCategory": "Qt",
+    "icon": "../../global/genericfilewizard.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlJSEditor') >= 0}",
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Options",
+            "trShortTitle": "Options",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "Stateless",
+                    "trDisplayName": "Stateless library",
+                    "type": "CheckBox",
+                    "span": true,
+                    "data":
+                    {
+                        "checked": false
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.js",
+                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('application/javascript')}')}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

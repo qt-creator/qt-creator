@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,12 +32,16 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggericons.h"
+#include "debuggerengine.h"
+#include "debuggerprotocol.h"
+#include "simplifytype.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
 #include <QDebug>
-#include <QFileInfo>
 
 namespace Debugger {
 namespace Internal {
@@ -53,17 +58,18 @@ namespace Internal {
     QTreeView.
  */
 
-StackHandler::StackHandler()
-  : m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
-    m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))
+StackHandler::StackHandler(DebuggerEngine *engine)
+  : m_engine(engine),
+    m_positionIcon(Icons::LOCATION.icon()),
+    m_emptyIcon(Icons::EMPTY.icon())
 {
     setObjectName(QLatin1String("StackModel"));
     m_resetLocationScheduled = false;
     m_contentsValid = false;
     m_currentIndex = -1;
     m_canExpand = false;
-    connect(debuggerCore()->action(OperateByInstruction), SIGNAL(triggered()),
-        this, SLOT(resetModel()));
+    connect(action(OperateByInstruction), &QAction::triggered,
+        this, &StackHandler::resetModel);
 }
 
 StackHandler::~StackHandler()
@@ -78,7 +84,7 @@ int StackHandler::rowCount(const QModelIndex &parent) const
 
 int StackHandler::columnCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : 5;
+    return parent.isValid() ? 0 : StackColumnCount;
 }
 
 QVariant StackHandler::data(const QModelIndex &index, int role) const
@@ -87,11 +93,11 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (index.row() == m_stackFrames.size()) {
-        if (role == Qt::DisplayRole && index.column() == 0)
+        if (role == Qt::DisplayRole && index.column() == StackLevelColumn)
             return tr("...");
-        if (role == Qt::DisplayRole && index.column() == 1)
+        if (role == Qt::DisplayRole && index.column() == StackFunctionNameColumn)
             return tr("<More>");
-        if (role == Qt::DecorationRole && index.column() == 0)
+        if (role == Qt::DecorationRole && index.column() == StackLevelColumn)
             return m_emptyIcon;
         return QVariant();
     }
@@ -100,15 +106,15 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
-        case 0: // Stack frame level
-            return QString::number(frame.level);
-        case 1: // Function name
-            return frame.function;
-        case 2: // File name
-            return frame.file.isEmpty() ? frame.from : QFileInfo(frame.file).fileName();
-        case 3: // Line number
+        case StackLevelColumn:
+            return QString::number(index.row() + 1);
+        case StackFunctionNameColumn:
+            return simplifyType(frame.function);
+        case StackFileNameColumn:
+            return frame.file.isEmpty() ? frame.module : Utils::FileName::fromString(frame.file).fileName();
+        case StackLineNumberColumn:
             return frame.line > 0 ? QVariant(frame.line) : QVariant();
-        case 4: // Address
+        case StackAddressColumn:
             if (frame.address)
                 return QString::fromLatin1("0x%1").arg(frame.address, 0, 16);
             return QString();
@@ -116,13 +122,13 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if (role == Qt::DecorationRole && index.column() == 0) {
+    if (role == Qt::DecorationRole && index.column() == StackLevelColumn) {
         // Return icon that indicates whether this is the active stack frame
         return (m_contentsValid && index.row() == m_currentIndex)
             ? m_positionIcon : m_emptyIcon;
     }
 
-    if (role == Qt::ToolTipRole && debuggerCore()->boolSetting(UseToolTipsInStackView))
+    if (role == Qt::ToolTipRole && boolSetting(UseToolTipsInStackView))
         return frame.toToolTip();
 
     return QVariant();
@@ -150,8 +156,7 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
     if (index.row() == m_stackFrames.size())
         return QAbstractTableModel::flags(index);
     const StackFrame &frame = m_stackFrames.at(index.row());
-    const bool isValid = frame.isUsable()
-        || debuggerCore()->boolSetting(OperateByInstruction);
+    const bool isValid = frame.isUsable() || boolSetting(OperateByInstruction);
     return isValid && m_contentsValid
         ? QAbstractTableModel::flags(index) : Qt::ItemFlags();
 }
@@ -205,6 +210,45 @@ void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
     emit stackChanged();
 }
 
+void StackHandler::setFramesAndCurrentIndex(const GdbMi &frames, bool isFull)
+{
+    int targetFrame = -1;
+
+    StackFrames stackFrames;
+    const int n = frames.childCount();
+    for (int i = 0; i != n; ++i) {
+        stackFrames.append(StackFrame::parseFrame(frames.childAt(i), m_engine->runParameters()));
+        const StackFrame &frame = stackFrames.back();
+
+        // Initialize top frame to the first valid frame.
+        const bool isValid = frame.isUsable() && !frame.function.isEmpty();
+        if (isValid && targetFrame == -1)
+            targetFrame = i;
+    }
+
+    bool canExpand = !isFull && (n >= action(MaximalStackDepth)->value().toInt());
+    action(ExpandStack)->setEnabled(canExpand);
+    setFrames(stackFrames, canExpand);
+
+    // We can't jump to any file if we don't have any frames.
+    if (stackFrames.isEmpty())
+        return;
+
+    // targetFrame contains the top most frame for which we have source
+    // information. That's typically the frame we'd like to jump to, with
+    // a few exceptions:
+
+    // Always jump to frame #0 when stepping by instruction.
+    if (boolSetting(OperateByInstruction))
+        targetFrame = 0;
+
+    // If there is no frame with source, jump to frame #0.
+    if (targetFrame == -1)
+        targetFrame = 0;
+
+    setCurrentIndex(targetFrame);
+}
+
 void StackHandler::prependFrames(const StackFrames &frames)
 {
     if (frames.isEmpty())
@@ -221,7 +265,7 @@ void StackHandler::prependFrames(const StackFrames &frames)
 
 int StackHandler::firstUsableIndex() const
 {
-    if (!debuggerCore()->boolSetting(OperateByInstruction)) {
+    if (!boolSetting(OperateByInstruction)) {
         for (int i = 0, n = m_stackFrames.size(); i != n; ++i)
             if (m_stackFrames.at(i).isUsable())
                 return i;

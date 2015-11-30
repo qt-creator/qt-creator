@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "ResourceEditor"
@@ -22,7 +20,6 @@ QtcPlugin {
             "resourceeditorfactory.cpp", "resourceeditorfactory.h",
             "resourceeditorplugin.cpp", "resourceeditorplugin.h",
             "resourceeditorw.cpp", "resourceeditorw.h",
-            "resourcewizard.cpp", "resourcewizard.h",
             "resource_global.h", "resourcenode.cpp", "resourcenode.h"
         ]
     }

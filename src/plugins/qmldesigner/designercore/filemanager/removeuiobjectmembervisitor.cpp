@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -35,24 +31,22 @@
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
-using namespace QmlJS;
-using namespace QmlJS::AST;
 
-RemoveUIObjectMemberVisitor::RemoveUIObjectMemberVisitor(QmlDesigner::TextModifier &modifier,
+RemoveUIObjectMemberVisitor::RemoveUIObjectMemberVisitor(TextModifier &modifier,
                                                          quint32 objectLocation):
     QMLRewriter(modifier),
     objectLocation(objectLocation)
 {
 }
 
-bool RemoveUIObjectMemberVisitor::preVisit(Node *ast)
+bool RemoveUIObjectMemberVisitor::preVisit(QmlJS::AST::Node *ast)
 {
     parents.push(ast);
 
     return true;
 }
 
-void RemoveUIObjectMemberVisitor::postVisit(Node *)
+void RemoveUIObjectMemberVisitor::postVisit(QmlJS::AST::Node *)
 {
     parents.pop();
 }
@@ -74,13 +68,13 @@ bool RemoveUIObjectMemberVisitor::visitObjectMember(QmlJS::AST::UiObjectMember *
         int start = objectLocation;
         int end = ast->lastSourceLocation().end();
 
-        if (UiArrayBinding *parentArray = containingArray())
+        if (QmlJS::AST::UiArrayBinding *parentArray = containingArray())
             extendToLeadingOrTrailingComma(parentArray, ast, start, end);
         else
             includeSurroundingWhitespace(start, end);
 
         includeLeadingEmptyLine(start);
-        replace(start, end - start, QLatin1String(""));
+        replace(start, end - start, QStringLiteral(""));
 
         setDidRewriting(true);
 
@@ -94,11 +88,11 @@ bool RemoveUIObjectMemberVisitor::visitObjectMember(QmlJS::AST::UiObjectMember *
     }
 }
 
-UiArrayBinding *RemoveUIObjectMemberVisitor::containingArray() const
+QmlJS::AST::UiArrayBinding *RemoveUIObjectMemberVisitor::containingArray() const
 {
     if (parents.size() > 2) {
-        if (cast<UiArrayMemberList*>(parents[parents.size() - 2]))
-            return cast<UiArrayBinding*>(parents[parents.size() - 3]);
+        if (QmlJS::AST::cast<QmlJS::AST::UiArrayMemberList*>(parents[parents.size() - 2]))
+            return QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parents[parents.size() - 3]);
     }
 
     return 0;
@@ -110,8 +104,8 @@ void RemoveUIObjectMemberVisitor::extendToLeadingOrTrailingComma(QmlJS::AST::UiA
                                                                  int &start,
                                                                  int &end) const
 {
-    UiArrayMemberList *currentMember = 0;
-    for (UiArrayMemberList *it = parentArray->members; it; it = it->next) {
+    QmlJS::AST::UiArrayMemberList *currentMember = 0;
+    for (QmlJS::AST::UiArrayMemberList *it = parentArray->members; it; it = it->next) {
         if (it->member == ast) {
             currentMember = it;
             break;

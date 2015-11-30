@@ -4,19 +4,16 @@
     and the working directory to use. The working directory defaults to
     the directory of the build result.
 
-    For console applications, check the \gui{Run in Terminal} check box.
+    For console applications, check the \uicontrol{Run in Terminal} check box.
     If you need to run with special environment variables set up, you
     also do it in the run configuration settings.
 
     \image qtcreator-pprunsettings.png
 
-    The \gui {Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)} option
-    (available on Mac OS, only) enables you to debug (for example, step into)
+    The \uicontrol {Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)} option
+    (only available on OS X) enables you to debug (for example, step into)
     linked frameworks, such as the Qt framework itself. You do not need this
-    option for debugging your application code. If you select this option, a
-    crash might occur when debugging applications on Mac OS X Snow Leopard. For
-    more information, see
-    \l{Application Crashes when Debugging on Mac OS X Snow Leopard}.
+    option for debugging your application code.
 
     You can also create custom executable run configurations where you
     can set the executable to be run. For more information, see

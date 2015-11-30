@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -43,7 +44,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 class CommandLocator;
-class IEditorFactory;
 class IVersionControl;
 }
 
@@ -75,15 +75,13 @@ class CvsPlugin : public VcsBase::VcsBasePlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CVS.json")
 
 public:
-    CvsPlugin();
     ~CvsPlugin();
+
+    CvsClient *client() const;
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
-
-    CvsSettings settings() const;
-    void setSettings(const CvsSettings &s);
 
     // IVersionControl
     bool vcsAdd(const QString &workingDir, const QString &fileName);
@@ -100,17 +98,31 @@ public slots:
                      const QString &revision, int lineNumber);
 
 private slots:
+    void slotDescribe(const QString &source, const QString &changeNr);
+
+#ifdef WITH_TESTS
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+#endif
+
+protected:
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose();
+
+private:
     void addCurrentFile();
     void revertCurrentFile();
     void diffProject();
     void diffCurrentFile();
     void revertAll();
     void startCommitAll();
+    void startCommitDirectory();
     void startCommitCurrentFile();
     void filelogCurrentFile();
     void annotateCurrentFile();
     void projectStatus();
-    void slotDescribe(const QString &source, const QString &changeNr);
+    void updateDirectory();
     void updateProject();
     void submitCurrentLog();
     void diffCommitFiles(const QStringList &);
@@ -123,17 +135,7 @@ private slots:
     void editCurrentFile();
     void uneditCurrentFile();
     void uneditCurrentRepository();
-#ifdef WITH_TESTS
-    void testDiffFileResolving_data();
-    void testDiffFileResolving();
-    void testLogResolving();
-#endif
 
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
-
-private:
     bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
                                       int editorType, const QString &source,
@@ -141,7 +143,7 @@ private:
 
     CvsResponse runCvs(const QString &workingDirectory,
                        const QStringList &arguments,
-                       int timeOut,
+                       int timeOutS,
                        unsigned flags,
                        QTextCodec *outputCodec = 0) const;
 
@@ -166,40 +168,42 @@ private:
     inline CvsControl *cvsVersionControl() const;
 
     CvsSettings m_settings;
-    CvsClient *m_client;
+    CvsClient *m_client = nullptr;
 
     QString m_commitMessageFileName;
     QString m_commitRepository;
 
-    Core::CommandLocator *m_commandLocator;
-    Utils::ParameterAction *m_addAction;
-    Utils::ParameterAction *m_deleteAction;
-    Utils::ParameterAction *m_revertAction;
-    Utils::ParameterAction *m_editCurrentAction;
-    Utils::ParameterAction *m_uneditCurrentAction;
-    QAction *m_uneditRepositoryAction;
-    Utils::ParameterAction *m_diffProjectAction;
-    Utils::ParameterAction *m_diffCurrentAction;
-    Utils::ParameterAction *m_logProjectAction;
-    QAction *m_logRepositoryAction;
-    QAction *m_commitAllAction;
-    QAction *m_revertRepositoryAction;
-    Utils::ParameterAction *m_commitCurrentAction;
-    Utils::ParameterAction *m_filelogCurrentAction;
-    Utils::ParameterAction *m_annotateCurrentAction;
-    Utils::ParameterAction *m_statusProjectAction;
-    Utils::ParameterAction *m_updateProjectAction;
-    Utils::ParameterAction *m_commitProjectAction;
-    QAction *m_diffRepositoryAction;
-    QAction *m_updateRepositoryAction;
-    QAction *m_statusRepositoryAction;
+    Core::CommandLocator *m_commandLocator = nullptr;
+    Utils::ParameterAction *m_addAction = nullptr;
+    Utils::ParameterAction *m_deleteAction = nullptr;
+    Utils::ParameterAction *m_revertAction = nullptr;
+    Utils::ParameterAction *m_editCurrentAction = nullptr;
+    Utils::ParameterAction *m_uneditCurrentAction = nullptr;
+    QAction *m_uneditRepositoryAction = nullptr;
+    Utils::ParameterAction *m_diffProjectAction = nullptr;
+    Utils::ParameterAction *m_diffCurrentAction = nullptr;
+    Utils::ParameterAction *m_logProjectAction = nullptr;
+    QAction *m_logRepositoryAction = nullptr;
+    QAction *m_commitAllAction = nullptr;
+    QAction *m_revertRepositoryAction = nullptr;
+    Utils::ParameterAction *m_commitCurrentAction = nullptr;
+    Utils::ParameterAction *m_filelogCurrentAction = nullptr;
+    Utils::ParameterAction *m_annotateCurrentAction = nullptr;
+    Utils::ParameterAction *m_statusProjectAction = nullptr;
+    Utils::ParameterAction *m_updateProjectAction = nullptr;
+    Utils::ParameterAction *m_commitProjectAction = nullptr;
+    Utils::ParameterAction *m_updateDirectoryAction = nullptr;
+    Utils::ParameterAction *m_commitDirectoryAction = nullptr;
+    QAction *m_diffRepositoryAction = nullptr;
+    QAction *m_updateRepositoryAction = nullptr;
+    QAction *m_statusRepositoryAction = nullptr;
 
-    QAction *m_submitCurrentLogAction;
-    QAction *m_submitDiffAction;
-    QAction *m_submitUndoAction;
-    QAction *m_submitRedoAction;
-    QAction *m_menuAction;
-    bool    m_submitActionTriggered;
+    QAction *m_submitCurrentLogAction = nullptr;
+    QAction *m_submitDiffAction = nullptr;
+    QAction *m_submitUndoAction = nullptr;
+    QAction *m_submitRedoAction = nullptr;
+    QAction *m_menuAction = nullptr;
+    bool m_submitActionTriggered = false;
 
     static CvsPlugin *m_cvsPluginInstance;
 };

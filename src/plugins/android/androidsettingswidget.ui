@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>573</width>
-    <height>429</height>
+    <width>843</width>
+    <height>625</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,27 +31,9 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="OpenJDKLocationLineEdit"/>
+    <widget class="Utils::PathChooser" name="OpenJDKLocationPathChooser" native="true"/>
    </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="OpenJDKLocationPushButton">
-     <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="QToolButton" name="downloadOpenJDKToolButton">
-     <property name="toolTip">
-      <string>Download JDK</string>
-     </property>
-     <property name="icon">
-      <iconset resource="android.qrc">
-       <normaloff>:/android/images/download.png</normaloff>:/android/images/download.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1" colspan="3">
+   <item row="1" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
       <widget class="QLabel" name="jdkWarningIconLabel">
@@ -63,9 +45,6 @@
        </property>
        <property name="text">
         <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap>:/projectexplorer/images/compile_warning.png</pixmap>
        </property>
       </widget>
      </item>
@@ -87,6 +66,17 @@
      </item>
     </layout>
    </item>
+   <item row="0" column="2">
+    <widget class="QToolButton" name="downloadOpenJDKToolButton">
+     <property name="toolTip">
+      <string>Download JDK</string>
+     </property>
+     <property name="icon">
+      <iconset resource="android.qrc">
+       <normaloff>:/android/images/download.png</normaloff>:/android/images/download.png</iconset>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="0">
     <widget class="QLabel" name="SDKLocationLabel">
      <property name="sizePolicy">
@@ -104,16 +94,9 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QLineEdit" name="SDKLocationLineEdit"/>
+    <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
    </item>
    <item row="2" column="2">
-    <widget class="QPushButton" name="SDKLocationPushButton">
-     <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3">
     <widget class="QToolButton" name="downloadSDKToolButton">
      <property name="toolTip">
       <string>Download Android SDK</string>
@@ -124,7 +107,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1" colspan="3">
+   <item row="3" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QLabel" name="sdkWarningIconLabel">
@@ -136,9 +119,6 @@
        </property>
        <property name="text">
         <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
        </property>
       </widget>
      </item>
@@ -177,16 +157,9 @@
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="QLineEdit" name="NDKLocationLineEdit"/>
+    <widget class="Utils::PathChooser" name="NDKLocationPathChooser" native="true"/>
    </item>
    <item row="4" column="2">
-    <widget class="QPushButton" name="NDKLocationPushButton">
-     <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="3">
     <widget class="QToolButton" name="downloadNDKToolButton">
      <property name="toolTip">
       <string>Download Android NDK</string>
@@ -197,7 +170,40 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1" colspan="3">
+   <item row="5" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="gdbWarningIconLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="gdbWarningLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&lt;a href=&quot;xx&quot;&gt;The GDB in the NDK appears to have broken python support.&lt;/a&gt;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="6" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <property name="spacing">
       <number>2</number>
@@ -212,9 +218,6 @@
        </property>
        <property name="text">
         <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
        </property>
       </widget>
      </item>
@@ -233,7 +236,7 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="1" colspan="3">
+   <item row="8" column="1">
     <widget class="QCheckBox" name="CreateKitCheckBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -249,7 +252,7 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1" colspan="3">
+   <item row="9" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="spacing">
       <number>2</number>
@@ -264,9 +267,6 @@
        </property>
        <property name="text">
         <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
        </property>
       </widget>
      </item>
@@ -288,7 +288,20 @@
      </item>
     </layout>
    </item>
-   <item row="8" column="0">
+   <item row="10" column="1">
+    <widget class="QCheckBox" name="UseGradleCheckBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Use Gradle instead of Ant</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
     <widget class="QLabel" name="AntLocationLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -304,17 +317,10 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
-    <widget class="QLineEdit" name="AntLocationLineEdit"/>
+   <item row="11" column="1">
+    <widget class="Utils::PathChooser" name="AntLocationPathChooser" native="true"/>
    </item>
-   <item row="8" column="2">
-    <widget class="QPushButton" name="AntLocationPushButton">
-     <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="3">
+   <item row="11" column="2">
     <widget class="QToolButton" name="downloadAntToolButton">
      <property name="toolTip">
       <string>Download Ant</string>
@@ -325,7 +331,7 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="4">
+   <item row="12" column="0" colspan="2">
     <widget class="QFrame" name="AVDManagerFrame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -446,138 +452,18 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="android.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>NDKLocationLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>ndkLocationEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>420</x>
-     <y>49</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>NDKLocationPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>browseNDKLocation()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>657</x>
-     <y>49</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SDKLocationLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>sdkLocationEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>420</x>
-     <y>17</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SDKLocationPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>browseSDKLocation()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>657</x>
-     <y>17</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>AntLocationLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>antLocationEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>420</x>
-     <y>113</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>AntLocationPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>browseAntLocation()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>657</x>
-     <y>113</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>OpenJDKLocationLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>openJDKLocationEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>420</x>
-     <y>49</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>OpenJDKLocationPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>browseOpenJDKLocation()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>657</x>
-     <y>49</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>AVDAddPushButton</sender>
    <signal>clicked()</signal>
@@ -585,8 +471,8 @@
    <slot>addAVD()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>693</x>
-     <y>199</y>
+     <x>793</x>
+     <y>394</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -601,8 +487,8 @@
    <slot>removeAVD()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>693</x>
-     <y>230</y>
+     <x>793</x>
+     <y>427</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -617,8 +503,8 @@
    <slot>startAVD()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>693</x>
-     <y>261</y>
+     <x>793</x>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -633,8 +519,8 @@
    <slot>avdActivated(QModelIndex)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>309</x>
-     <y>260</y>
+     <x>328</x>
+     <y>605</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -649,8 +535,8 @@
    <slot>avdActivated(QModelIndex)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>309</x>
-     <y>260</y>
+     <x>328</x>
+     <y>605</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -665,8 +551,8 @@
    <slot>dataPartitionSizeEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>543</x>
-     <y>153</y>
+     <x>614</x>
+     <y>360</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -681,8 +567,8 @@
    <slot>manageAVD()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>568</x>
-     <y>268</y>
+     <x>792</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
      <x>339</x>
@@ -697,8 +583,8 @@
    <slot>createKitToggled()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>358</x>
-     <y>99</y>
+     <x>543</x>
+     <y>228</y>
     </hint>
     <hint type="destinationlabel">
      <x>339</x>
@@ -711,40 +597,92 @@
    <signal>clicked()</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>openSDKDownloadUrl()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>830</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>downloadNDKToolButton</sender>
    <signal>clicked()</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>openNDKDownloadUrl()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>830</x>
+     <y>141</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>downloadAntToolButton</sender>
    <signal>clicked()</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>openAntDownloadUrl()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>830</x>
+     <y>313</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>downloadOpenJDKToolButton</sender>
    <signal>clicked()</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>openOpenJDKDownloadUrl()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>830</x>
+     <y>29</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>UseGradleCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>useGradleToggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>395</x>
+     <y>238</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>324</x>
+     <y>223</y>
+    </hint>
+   </hints>
   </connection>
  </connections>
  <slots>
   <slot>sdkLocationEditingFinished()</slot>
   <slot>ndkLocationEditingFinished()</slot>
-  <slot>browseSDKLocation()</slot>
-  <slot>browseNDKLocation()</slot>
   <slot>antLocationEditingFinished()</slot>
-  <slot>browseAntLocation()</slot>
   <slot>addAVD()</slot>
   <slot>removeAVD()</slot>
   <slot>startAVD()</slot>
   <slot>avdActivated(QModelIndex)</slot>
   <slot>dataPartitionSizeEditingFinished()</slot>
   <slot>openJDKLocationEditingFinished()</slot>
-  <slot>browseOpenJDKLocation()</slot>
   <slot>manageAVD()</slot>
   <slot>createKitToggled()</slot>
   <slot>openSDKDownloadUrl()</slot>

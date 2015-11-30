@@ -1,27 +1,28 @@
 <RCC>
     <qresource prefix="/projectexplorer">
         <file>images/build_small.png</file>
+        <file>images/category_buildrun.png</file>
         <file>images/clean.png</file>
         <file>images/clean_small.png</file>
         <file>images/closetab.png</file>
         <file>images/debugger_start.png</file>
-        <file>images/debugger_start_small.png</file>
+        <file>images/debugger_start@2x.png</file>
+        <file>images/mode_project.png</file>
+        <file>images/mode_project@2x.png</file>
         <file>images/projectexplorer.png</file>
         <file>images/rebuild.png</file>
         <file>images/rebuild_small.png</file>
         <file>images/run.png</file>
+        <file>images/run@2x.png</file>
         <file>images/run_small.png</file>
+        <file>images/run_small@2x.png</file>
         <file>images/session.png</file>
-        <file>images/stop.png</file>
-        <file>images/targetbuildselected.png</file>
         <file>images/targetrunselected.png</file>
+        <file>images/targetrunselected@2x.png</file>
         <file>images/targetseparatorbackground.png</file>
         <file>images/targetunselected.png</file>
-        <file>images/leftselection.png</file>
-        <file>images/rightselection.png</file>
-        <file>images/midselection.png</file>
-        <file>images/compile_error.png</file>
-        <file>images/compile_warning.png</file>
+        <file>images/selection.png</file>
+        <file>images/selection@2x.png</file>
         <file>images/BuildSettings.png</file>
         <file>images/CodeStyleSettings.png</file>
         <file>images/RunSettings.png</file>
@@ -33,15 +34,22 @@
         <file>images/DeviceDisconnected.png</file>
         <file>images/DeviceReadyToUse.png</file>
         <file>images/build.png</file>
+        <file>images/build@2x.png</file>
         <file>images/targetpanel_bottom.png</file>
         <file>images/targetpanel_gradient.png</file>
         <file>images/window.png</file>
         <file>images/stop_small.png</file>
+        <file>images/stop_small@2x.png</file>
         <file>images/disabledbuildstep.png</file>
+        <file>images/disabledbuildstep@2x.png</file>
+        <file>images/lightdisabledbuildstep.png</file>
+        <file>images/lightdisabledbuildstep@2x.png</file>
         <file>images/unconfigured.png</file>
-        <file>images/targetleftbutton.png</file>
         <file>images/targetrightbutton.png</file>
+        <file>images/targetrightbutton@2x.png</file>
         <file>images/targetchangebutton.png</file>
+        <file>images/targetchangebutton@2x.png</file>
         <file>images/targetchangebutton2.png</file>
+        <file>images/targetchangebutton2@2x.png</file>
     </qresource>
 </RCC>

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,8 +33,10 @@
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/fancylineedit.h>
+#include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QDialogButtonBox>
@@ -44,6 +47,8 @@
 #include <QListView>
 #include <QPointer>
 #include <QPushButton>
+#include <QResizeEvent>
+#include <QScrollArea>
 #include <QScrollBar>
 #include <QSettings>
 #include <QSortFilterProxyModel>
@@ -52,7 +57,6 @@
 #include <QStyle>
 #include <QStyledItemDelegate>
 
-static const char categoryKeyC[] = "General/LastPreferenceCategory";
 static const char pageKeyC[] = "General/LastPreferencePage";
 const int categoryIconSize = 24;
 
@@ -61,12 +65,38 @@ namespace Internal {
 
 static QPointer<SettingsDialog> m_instance = 0;
 
+bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
+{
+    if (p1->category() != p2->category())
+        return p1->category().alphabeticallyBefore(p2->category());
+    return p1->id().alphabeticallyBefore(p2->id());
+}
+
+static inline QList<IOptionsPage*> sortedOptionsPages()
+{
+    QList<IOptionsPage*> rc = ExtensionSystem::PluginManager::getObjects<IOptionsPage>();
+    qStableSort(rc.begin(), rc.end(), optionsPageLessThan);
+    return rc;
+}
+
 // ----------- Category model
 
 class Category
 {
 public:
     Category() : index(-1), providerPagesCreated(false) { }
+
+    bool findPageById(const Id id, int *pageIndex) const
+    {
+        for (int j = 0; j < pages.size(); ++j) {
+            IOptionsPage *page = pages.at(j);
+            if (page->id() == id) {
+                *pageIndex = j;
+                return true;
+            }
+        }
+        return false;
+    }
 
     Id id;
     int index;
@@ -89,12 +119,14 @@ public:
 
     void setPages(const QList<IOptionsPage*> &pages,
                   const QList<IOptionsPageProvider *> &providers);
+    void ensurePages(Category *category);
     const QList<Category*> &categories() const { return m_categories; }
 
 private:
     Category *findCategoryById(Id id);
 
     QList<Category*> m_categories;
+    QSet<Id> m_pageIds;
     QIcon m_emptyIcon;
 };
 
@@ -140,9 +172,13 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
     // Clear any previous categories
     qDeleteAll(m_categories);
     m_categories.clear();
+    m_pageIds.clear();
 
     // Put the pages in categories
     foreach (IOptionsPage *page, pages) {
+        QTC_ASSERT(!m_pageIds.contains(page->id()),
+                   qWarning("duplicate options page id '%s'", qPrintable(page->id().toString())));
+        m_pageIds.insert(page->id());
         const Id categoryId = page->category();
         Category *category = findCategoryById(categoryId);
         if (!category) {
@@ -176,7 +212,29 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
         category->providers.append(provider);
     }
 
+    Utils::sort(m_categories, [](const Category *c1, const Category *c2) {
+       return c1->id.alphabeticallyBefore(c2->id);
+    });
     endResetModel();
+}
+
+void CategoryModel::ensurePages(Category *category)
+{
+    if (!category->providerPagesCreated) {
+        QList<IOptionsPage *> createdPages;
+        foreach (const IOptionsPageProvider *provider, category->providers)
+            createdPages += provider->pages();
+
+        // check for duplicate ids
+        foreach (IOptionsPage *page, createdPages) {
+            QTC_ASSERT(!m_pageIds.contains(page->id()),
+                       qWarning("duplicate options page id '%s'", qPrintable(page->id().toString())));
+        }
+
+        category->pages += createdPages;
+        category->providerPagesCreated = true;
+        qStableSort(category->pages.begin(), category->pages.end(), optionsPageLessThan);
+    }
 }
 
 Category *CategoryModel::findCategoryById(Id id)
@@ -265,8 +323,7 @@ public:
     virtual QSize sizeHint() const
     {
         int width = sizeHintForColumn(0) + frameWidth() * 2 + 5;
-        if (verticalScrollBar()->isVisible())
-            width += verticalScrollBar()->width();
+        width += verticalScrollBar()->width();
         return QSize(width, 100);
     }
 
@@ -281,22 +338,69 @@ public:
     }
 };
 
+// ----------- SmartScrollArea
+
+class SmartScrollArea : public QScrollArea
+{
+public:
+    SmartScrollArea(QWidget *parent = 0)
+        : QScrollArea(parent)
+    {
+        setFrameStyle(QFrame::NoFrame | QFrame::Plain);
+        viewport()->setAutoFillBackground(false);
+    }
+private:
+    void resizeEvent(QResizeEvent *event) override
+    {
+        QWidget *inner = widget();
+        if (inner) {
+            int fw = frameWidth() * 2;
+            QSize innerSize = event->size() - QSize(fw, fw);
+            QSize innerSizeHint = inner->minimumSizeHint();
+
+            if (innerSizeHint.height() > innerSize.height()) { // Widget wants to be bigger than available space
+                innerSize.setWidth(innerSize.width() - scrollBarWidth());
+                innerSize.setHeight(innerSizeHint.height());
+            }
+            inner->resize(innerSize);
+        }
+        QScrollArea::resizeEvent(event);
+    }
+
+    QSize minimumSizeHint() const override {
+        QWidget *inner = widget();
+        if (inner) {
+            int fw = frameWidth() * 2;
+
+            QSize minSize = inner->minimumSizeHint();
+            minSize += QSize(fw, fw);
+            minSize += QSize(scrollBarWidth(), 0);
+            minSize.setHeight(qMin(minSize.height(), 450));
+            minSize.setWidth(qMin(minSize.width(), 810));
+            return minSize;
+        }
+        return QSize(0, 0);
+    }
+
+    bool event(QEvent *event) override {
+        if (event->type() == QEvent::LayoutRequest)
+            updateGeometry();
+        return QScrollArea::event(event);
+    }
+
+    int scrollBarWidth() const
+    {
+        auto that = const_cast<SmartScrollArea *>(this);
+        QWidgetList list = that->scrollBarWidgets(Qt::AlignRight);
+        if (list.isEmpty())
+            return 0;
+        return list.first()->sizeHint().width();
+    }
+
+};
+
+
 // ----------- SettingsDialog
-
-// Helpers to sort by category. id
-bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
-{
-    if (p1->category() != p2->category())
-        return p1->category().alphabeticallyBefore(p2->category());
-    return p1->id().alphabeticallyBefore(p2->id());
-}
-
-static inline QList<Core::IOptionsPage*> sortedOptionsPages()
-{
-    QList<Core::IOptionsPage*> rc = ExtensionSystem::PluginManager::getObjects<IOptionsPage>();
-    qStableSort(rc.begin(), rc.end(), optionsPageLessThan);
-    return rc;
-}
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
@@ -331,42 +435,62 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_categoryList->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-    connect(m_categoryList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(currentChanged(QModelIndex)));
+    connect(m_categoryList->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &SettingsDialog::currentChanged);
 
     // The order of the slot connection matters here, the filter slot
     // opens the matching page after the model has filtered.
-    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
-                m_proxyModel, SLOT(setFilterFixedString(QString)));
-    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)), this, SLOT(filter(QString)));
+    connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
+    connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            this, &SettingsDialog::filter);
     m_categoryList->setFocus();
 }
 
-void SettingsDialog::showPage(Id categoryId, Id pageId)
+void SettingsDialog::showPage(const Id pageId)
 {
     // handle the case of "show last page"
-    Id initialCategory = categoryId;
-    Id initialPage = pageId;
-    if (!initialCategory.isValid() && !initialPage.isValid()) {
+    Id initialPageId = pageId;
+    if (!initialPageId.isValid()) {
         QSettings *settings = ICore::settings();
-        initialCategory = Id::fromSetting(settings->value(QLatin1String(categoryKeyC)));
-        initialPage = Id::fromSetting(settings->value(QLatin1String(pageKeyC)));
+        initialPageId = Id::fromSetting(settings->value(QLatin1String(pageKeyC)));
     }
 
     int initialCategoryIndex = -1;
     int initialPageIndex = -1;
+
     const QList<Category*> &categories = m_model->categories();
-    for (int i = 0; i < categories.size(); ++i) {
-        Category *category = categories.at(i);
-        if (category->id == initialCategory) {
-            initialCategoryIndex = i;
-            for (int j = 0; j < category->pages.size(); ++j) {
-                IOptionsPage *page = category->pages.at(j);
-                if (page->id() == initialPage)
-                    initialPageIndex = j;
+    if (initialPageId.isValid()) {
+        // First try categories without lazy items.
+        for (int i = 0; i < categories.size(); ++i) {
+            Category *category = categories.at(i);
+            if (category->providers.isEmpty()) {  // no providers
+                ensureCategoryWidget(category);
+                if (category->findPageById(initialPageId, &initialPageIndex)) {
+                    initialCategoryIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (initialPageIndex == -1) {
+            // On failure, expand the remaining items.
+            for (int i = 0; i < categories.size(); ++i) {
+                Category *category = categories.at(i);
+                if (!category->providers.isEmpty()) { // has providers
+                    ensureCategoryWidget(category);
+                    if (category->findPageById(initialPageId, &initialPageIndex)) {
+                        initialCategoryIndex = i;
+                        break;
+                    }
+                }
             }
         }
     }
+
+    if (initialPageId.isValid() && initialPageIndex == -1)
+        return; // Unknown settings page, probably due to missing plugin.
+
     if (initialCategoryIndex != -1) {
         const QModelIndex modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));
         m_categoryList->setCurrentIndex(modelIndex);
@@ -397,10 +521,11 @@ void SettingsDialog::createGui()
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
                                                        QDialogButtonBox::Apply |
                                                        QDialogButtonBox::Cancel);
-    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    connect(buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
+            this, &SettingsDialog::apply);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &SettingsDialog::reject);
 
     QGridLayout *mainGridLayout = new QGridLayout;
     mainGridLayout->addWidget(m_filterLineEdit, 0, 0, 1, 1);
@@ -410,9 +535,10 @@ void SettingsDialog::createGui()
     mainGridLayout->addWidget(buttonBox,        2, 0, 1, 2);
     mainGridLayout->setColumnStretch(1, 4);
     setLayout(mainGridLayout);
-    setMinimumSize(1000, 550);
-    if (Utils::HostOsInfo::isMacHost())
-        setMinimumHeight(minimumHeight() * 1.1);
+
+    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+
+    mainGridLayout->setSizeConstraint(QLayout::SetMinimumSize);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -442,23 +568,20 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
 {
     if (category->tabWidget != 0)
         return;
-    if (!category->providerPagesCreated) {
-        foreach (const IOptionsPageProvider *provider, category->providers)
-            category->pages += provider->pages();
-        category->providerPagesCreated = true;
-    }
 
-    qStableSort(category->pages.begin(), category->pages.end(), optionsPageLessThan);
-
+    m_model->ensurePages(category);
     QTabWidget *tabWidget = new QTabWidget;
     for (int j = 0; j < category->pages.size(); ++j) {
         IOptionsPage *page = category->pages.at(j);
         QWidget *widget = page->widget();
-        tabWidget->addTab(widget, page->displayName());
+        SmartScrollArea *ssa = new SmartScrollArea(this);
+        ssa->setWidget(widget);
+        widget->setAutoFillBackground(false);
+        tabWidget->addTab(ssa, page->displayName());
     }
 
-    connect(tabWidget, SIGNAL(currentChanged(int)),
-            this, SLOT(currentTabChanged(int)));
+    connect(tabWidget, &QTabWidget::currentChanged,
+            this, &SettingsDialog::currentTabChanged);
 
     category->tabWidget = tabWidget;
     category->index = m_stackedLayout->addWidget(tabWidget);
@@ -468,8 +591,8 @@ void SettingsDialog::disconnectTabWidgets()
 {
     foreach (Category *category, m_model->categories()) {
         if (category->tabWidget)
-            disconnect(category->tabWidget, SIGNAL(currentChanged(int)),
-                    this, SLOT(currentTabChanged(int)));
+            disconnect(category->tabWidget, &QTabWidget::currentChanged,
+                       this, &SettingsDialog::currentTabChanged);
     }
 }
 
@@ -499,7 +622,7 @@ void SettingsDialog::currentChanged(const QModelIndex &current)
         showCategory(m_proxyModel->mapToSource(current).row());
     } else {
         m_stackedLayout->setCurrentIndex(0);
-        m_headerLabel->setText(QString());
+        m_headerLabel->clear();
     }
 }
 
@@ -568,7 +691,6 @@ void SettingsDialog::apply()
 void SettingsDialog::done(int val)
 {
     QSettings *settings = ICore::settings();
-    settings->setValue(QLatin1String(categoryKeyC), m_currentCategory.toSetting());
     settings->setValue(QLatin1String(pageKeyC), m_currentPage.toSetting());
 
     ICore::saveSettings(); // save all settings
@@ -592,12 +714,11 @@ QSize SettingsDialog::sizeHint() const
     return minimumSize();
 }
 
-SettingsDialog *SettingsDialog::getSettingsDialog(QWidget *parent,
-    Id initialCategory, Id initialPage)
+SettingsDialog *SettingsDialog::getSettingsDialog(QWidget *parent, Id initialPage)
 {
     if (!m_instance)
         m_instance = new SettingsDialog(parent);
-    m_instance->showPage(initialCategory, initialPage);
+    m_instance->showPage(initialPage);
     return m_instance;
 }
 
@@ -606,9 +727,13 @@ bool SettingsDialog::execDialog()
     if (!m_running) {
         m_running = true;
         m_finished = false;
+        static const QLatin1String kPreferenceDialogSize("Core/PreferenceDialogSize");
+        if (ICore::settings()->contains(kPreferenceDialogSize))
+            resize(ICore::settings()->value(kPreferenceDialogSize).toSize());
         exec();
         m_running = false;
         m_instance = 0;
+        ICore::settings()->setValue(kPreferenceDialogSize, size());
         // make sure that the current "single" instance is deleted
         // we can't delete right away, since we still access the m_applied member
         deleteLater();

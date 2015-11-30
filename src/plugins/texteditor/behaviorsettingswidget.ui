@@ -360,7 +360,7 @@ Specifies how backspace interacts with indentation.
         <item>
          <widget class="QCheckBox" name="keyboardTooltips">
           <property name="toolTip">
-           <string>Press Alt to display context-sensitive help or type information as tooltips.</string>
+           <string>Pressing Alt displays context-sensitive help or type information as tooltips.</string>
           </property>
           <property name="text">
            <string>Show help tooltips using keyboard shortcut (Alt)</string>

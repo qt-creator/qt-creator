@@ -1,0 +1,48 @@
+Qt Creator version 3.2.1 is a bugfix release.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v3.2.0..v3.2.1
+
+General
+   * Fixed freeze when using shortcut for all projects or current project
+     locator filters (QTCREATORBUG-12875)
+   * Fixed crash when activating timers by removing the unsupported UpdateInfo
+     plugin that triggered it (QTCREATORBUG-11262)
+
+Qbs Projects
+   * Fixed adding and removing files when project file is write protected by VCS
+   * Fixed crash when removing empty install step
+
+C++ Support
+   * Fixed crash when opening context menu on macro parameter (QTCREATORBUG-12853)
+
+QML Support
+   * Added missing members to date objects
+   * Added templates for Qt Quick 2.3 and Qt Quick Controls 1.2 applications
+   * Fixed keyboard shortcuts in QML/JS console (QTCREATORBUG-12956)
+
+Qt Quick Designer
+   * Added option to use fallback QML puppet and set it to be the default
+   * Fixed updating of color properties (QTCREATORBUG-12841)
+   * Fixed duplication of ApplicationWindow properties (QTCREATORBUG-12910)
+
+Platform Specific
+
+OS X
+   * Fixed deployment of Clang library in binary packages
+   * Fixed deployment of fallback QML puppets in binary packages
+   * Removed wrong File > Exit menu item
+
+iOS
+   * Fixed determination of newest SDK version when no version is explicitly stated
+
+Remote Linux
+   * Fixed mixed QML and C++ debugging (QTCREATORBUG-12928)
+   * Fixed check for maximum packet size for SSH connections (QTCREATORBUG-12884)
+
+Windows Phone
+   * Fixed font deployment for Windows Phone 8.0

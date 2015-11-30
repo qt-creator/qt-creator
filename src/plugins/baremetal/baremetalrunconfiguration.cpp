@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Tim Sander <tim@krieglstein.org>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -48,36 +49,12 @@ const char ArgumentsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.Arguments";
 const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
 const char WorkingDirectoryKey[] = "BareMetal.RunConfig.WorkingDirectory";
 
-class BareMetalRunConfigurationPrivate
-{
-public:
-    BareMetalRunConfigurationPrivate(const QString &projectFilePath)
-        : projectFilePath(projectFilePath)
-    {
-    }
 
-    BareMetalRunConfigurationPrivate(const BareMetalRunConfigurationPrivate *other)
-        : projectFilePath(other->projectFilePath),
-          gdbPath(other->gdbPath),
-          arguments(other->arguments),
-          workingDirectory(other->workingDirectory)
-    {
-    }
-
-    QString projectFilePath;
-    QString gdbPath;
-    QString arguments;
-    QString disabledReason;
-    QString workingDirectory;
-};
-
-} // namespace Internal
-
-using namespace Internal;
-
-BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent, BareMetalRunConfiguration *source)
-    : RunConfiguration(parent, source),
-      d(new BareMetalRunConfigurationPrivate(source->d))
+BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent, BareMetalRunConfiguration *other)
+    : RunConfiguration(parent, other),
+      m_projectFilePath(other->m_projectFilePath),
+      m_arguments(other->m_arguments),
+      m_workingDirectory(other->m_workingDirectory)
 {
     init();
 }
@@ -85,36 +62,33 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent, BareMetalRu
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent,
                                                      const Core::Id id,
                                                      const QString &projectFilePath)
-    : RunConfiguration(parent,id),
-      d(new BareMetalRunConfigurationPrivate(projectFilePath))
+    : RunConfiguration(parent, id),
+      m_projectFilePath(projectFilePath)
 {
     init();
-}
-
-BareMetalRunConfiguration::~BareMetalRunConfiguration()
-{
-    delete d;
 }
 
 void BareMetalRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
 
-    connect(target(), SIGNAL(deploymentDataChanged()), SLOT(handleBuildSystemDataUpdated()));
-    connect(target(), SIGNAL(applicationTargetsChanged()), SLOT(handleBuildSystemDataUpdated()));
-    connect(target(), SIGNAL(kitChanged()),
-            this, SLOT(handleBuildSystemDataUpdated())); // Handles device changes, etc.
+    connect(target(), &Target::deploymentDataChanged,
+            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated);
+    connect(target(), &Target::applicationTargetsChanged,
+            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated);
+    connect(target(), &Target::kitChanged,
+            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated); // Handles device changes, etc.
 }
 
 bool BareMetalRunConfiguration::isEnabled() const
 {
-    d->disabledReason.clear();
+    m_disabledReason.clear(); // FIXME: Check this makes sense.
     return true;
 }
 
 QString BareMetalRunConfiguration::disabledReason() const
 {
-    return d->disabledReason;
+    return m_disabledReason;
 }
 
 QWidget *BareMetalRunConfiguration::createConfigurationWidget()
@@ -130,10 +104,10 @@ OutputFormatter *BareMetalRunConfiguration::createOutputFormatter() const
 QVariantMap BareMetalRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
-    map.insert(QLatin1String(ArgumentsKey), d->arguments);
-    const QDir dir = QDir(target()->project()->projectDirectory());
-    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(d->projectFilePath));
-    map.insert(QLatin1String(WorkingDirectoryKey), d->workingDirectory);
+    map.insert(QLatin1String(ArgumentsKey), m_arguments);
+    const QDir dir = QDir(target()->project()->projectDirectory().toString());
+    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(m_projectFilePath));
+    map.insert(QLatin1String(WorkingDirectoryKey), m_workingDirectory);
     return map;
 }
 
@@ -142,11 +116,11 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    d->arguments = map.value(QLatin1String(ArgumentsKey)).toString();
-    const QDir dir = QDir(target()->project()->projectDirectory());
-    d->projectFilePath
+    m_arguments = map.value(QLatin1String(ArgumentsKey)).toString();
+    const QDir dir = QDir(target()->project()->projectDirectory().toString());
+    m_projectFilePath
             = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
-    d->workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
+    m_workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
 
     setDefaultDisplayName(defaultDisplayName());
 
@@ -155,9 +129,9 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
 
 QString BareMetalRunConfiguration::defaultDisplayName()
 {
-    if (!d->projectFilePath.isEmpty())
+    if (!m_projectFilePath.isEmpty())
         //: %1 is the name of the project run via hardware debugger
-        return tr("%1 (via GDB server or hardware debugger)").arg(QFileInfo(d->projectFilePath).completeBaseName());
+        return tr("%1 (via GDB server or hardware debugger)").arg(QFileInfo(m_projectFilePath).completeBaseName());
     //: Bare Metal run configuration default run name
     return tr("Run on GDB server or hardware debugger");
 }
@@ -165,37 +139,37 @@ QString BareMetalRunConfiguration::defaultDisplayName()
 QString BareMetalRunConfiguration::localExecutableFilePath() const
 {
     return target()->applicationTargets()
-            .targetForProject(Utils::FileName::fromString(d->projectFilePath)).toString();
+            .targetForProject(FileName::fromString(m_projectFilePath)).toString();
 }
 
 QString BareMetalRunConfiguration::arguments() const
 {
-    return d->arguments;
+    return m_arguments;
 }
 
 void BareMetalRunConfiguration::setArguments(const QString &args)
 {
-    d->arguments = args;
+    m_arguments = args;
 }
 
 QString BareMetalRunConfiguration::workingDirectory() const
 {
-    return d->workingDirectory;
+    return m_workingDirectory;
 }
 
 void BareMetalRunConfiguration::setWorkingDirectory(const QString &wd)
 {
-    d->workingDirectory = wd;
+    m_workingDirectory = wd;
 }
 
 QString BareMetalRunConfiguration::projectFilePath() const
 {
-    return d->projectFilePath;
+    return m_projectFilePath;
 }
 
 void BareMetalRunConfiguration::setDisabledReason(const QString &reason) const
 {
-    d->disabledReason = reason;
+    m_disabledReason = reason;
 }
 
 void BareMetalRunConfiguration::handleBuildSystemDataUpdated()
@@ -204,7 +178,8 @@ void BareMetalRunConfiguration::handleBuildSystemDataUpdated()
     updateEnableState();
 }
 
-const char *BareMetalRunConfiguration::IdPrefix = "BareMetalRunConfiguration";
+const char *BareMetalRunConfiguration::IdPrefix = "BareMetal";
 
+} // namespace Internal
 } // namespace BareMetal
 

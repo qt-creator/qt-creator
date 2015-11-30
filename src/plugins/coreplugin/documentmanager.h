@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -42,6 +43,8 @@ class QMainWindow;
 class QMenu;
 QT_END_NAMESPACE
 
+namespace Utils { class FileName; }
+
 namespace Core {
 
 class IContext;
@@ -60,7 +63,7 @@ public:
 
     typedef QPair<QString, Id> RecentFile;
 
-    static QObject *instance();
+    static DocumentManager *instance();
 
     // file pool to monitor
     static void addDocuments(const QList<IDocument *> &documents, bool addWatcher = true);
@@ -74,15 +77,11 @@ public:
     static void unexpectFileChange(const QString &fileName);
 
     // recent files
-    static void addToRecentFiles(const QString &fileName, const Id &editorId = Id());
+    static void addToRecentFiles(const QString &fileName, Id editorId = Id());
     Q_SLOT void clearRecentFiles();
     static QList<RecentFile> recentFiles();
 
     static void saveSettings();
-
-    // current file
-    static void setCurrentFile(const QString &filePath);
-    static QString currentFile();
 
     // helper functions
     static QString fixFileName(const QString &fileName, FixMode fixmode);
@@ -90,8 +89,8 @@ public:
     static bool saveDocument(IDocument *document, const QString &fileName = QString(), bool *isReadOnly = 0);
 
     static QStringList getOpenFileNames(const QString &filters,
-                                 const QString path = QString(),
-                                 QString *selectedFilter = 0);
+                                        const QString &path = QString(),
+                                        QString *selectedFilter = 0);
     static QString getSaveFileName(const QString &title, const QString &pathIn,
                             const QString &filter = QString(), QString *selectedFilter = 0);
     static QString getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
@@ -126,6 +125,9 @@ public:
 
     static QString fileDialogInitialDirectory();
 
+    static QString defaultLocationForNewFiles();
+    static void setDefaultLocationForNewFiles(const QString &location);
+
     static bool useProjectsDirectory();
     static void setUseProjectsDirectory(bool);
 
@@ -135,17 +137,11 @@ public:
     static QString buildDirectory();
     static void setBuildDirectory(const QString &directory);
 
-    static void populateOpenWithMenu(QMenu *menu, const QString &fileName);
-
     /* Used to notify e.g. the code model to update the given files. Does *not*
        lead to any editors to reload or any other editor manager actions. */
     static void notifyFilesChangedInternally(const QStringList &files);
 
-public slots:
-    static void executeOpenWithMenuAction(QAction *action);
-
 signals:
-    void currentFileChanged(const QString &filePath);
     /* Used to notify e.g. the code model to update the given files. Does *not*
        lead to any editors to reload or any other editor manager actions. */
     void filesChangedInternally(const QStringList &files);
@@ -159,15 +155,15 @@ protected:
 
 private slots:
     void documentDestroyed(QObject *obj);
-    void filePathChanged(const QString &oldName, const QString &newName);
     void checkForNewFileName();
     void checkForReload();
     void changedFile(const QString &file);
-    void syncWithEditor(const QList<Core::IContext *> &context);
 
 private:
     explicit DocumentManager(QObject *parent);
     ~DocumentManager();
+
+    void filePathChanged(const Utils::FileName &oldName, const Utils::FileName &newName);
 
     friend class Core::Internal::MainWindow;
 };

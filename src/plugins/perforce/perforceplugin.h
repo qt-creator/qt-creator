@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -53,7 +54,10 @@ namespace Utils {
     class TempFileSaver;
 }
 
-namespace Core { class CommandLocator; }
+namespace Core {
+class ActionContainer;
+class CommandLocator;
+}
 
 namespace Perforce {
 namespace Internal {
@@ -108,7 +112,17 @@ public slots:
                      const QString &revision, int lineNumber);
     void p4Diff(const Perforce::Internal::PerforceDiffParameters &p);
 
+#ifdef WITH_TESTS
 private slots:
+    void testLogResolving();
+#endif
+
+protected:
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose();
+
+
+private:
     void openCurrentFile();
     void addCurrentFile();
     void revertCurrentFile();
@@ -123,30 +137,33 @@ private slots:
     void startSubmitProject();
     void describeChange();
     void annotateCurrentFile();
-    void annotate();
+    void annotateFile();
     void filelogCurrentFile();
-    void filelog();
+    void filelogFile();
     void logProject();
     void logRepository();
 
     void submitCurrentLog();
     void printPendingChanges();
     void slotSubmitDiff(const QStringList &files);
-    void slotTopLevelFound(const QString &);
+    void setTopLevel(const QString &);
     void slotTopLevelFailed(const QString &);
 
-#ifdef WITH_TESTS
-    void testLogResolving();
-#endif
-protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
+    class DirectoryCacheEntry
+    {
+    public:
+        DirectoryCacheEntry(bool isManaged, const QString &topLevel):
+            m_isManaged(isManaged), m_topLevel(topLevel)
+        {
+        }
 
+        bool m_isManaged;
+        QString m_topLevel;
+    };
 
-private:
-    typedef QHash<QString, bool> ManagedDirectoryCache;
+    typedef QHash<QString, DirectoryCacheEntry> ManagedDirectoryCache;
 
-    Core::IEditor *showOutputInEditor(const QString& title, const QString output,
+    Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
                                       int editorType, const QString &source,
                                       QTextCodec *codec = 0);
 
@@ -188,11 +205,13 @@ private:
                   const QString &changeList = QString(), int lineNumber = -1);
     void filelog(const QString &workingDir, const QString &fileName = QString(),
                  bool enableAnnotationContextMenu = false);
+    void changelists(const QString &workingDir, const QString &fileName = QString());
     void cleanCommitMessageFile();
     bool isCommitEditorOpen() const;
     static QSharedPointer<Utils::TempFileSaver> createTemporaryArgumentFile(const QStringList &extraArgs,
                                                                             QString *errorString);
-    static void getTopLevel();
+
+    static void getTopLevel(const QString &workingDirectory = QString(), bool isSync = false);
     QString pendingChangesData();
 
     void updateCheckout(const QString &workingDir = QString(),
@@ -228,7 +247,6 @@ private:
     bool m_submitActionTriggered;
     QAction *m_diffSelectedFiles;
     QString m_commitMessageFileName;
-    QString m_commitWorkingDirectory;
     mutable QString m_tempFilePattern;
     QAction *m_undoAction;
     QAction *m_redoAction;

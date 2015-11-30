@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,24 +35,30 @@
 #include "gitsubmiteditorwidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/submitfilemodel.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QDebug>
 #include <QStringList>
 #include <QTextCodec>
+#include <QtConcurrentRun>
+
+static const char TASK_UPDATE_COMMIT[] = "Git.UpdateCommit";
+
+using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
 
-class GitSubmitFileModel : public VcsBase::SubmitFileModel
+class GitSubmitFileModel : public SubmitFileModel
 {
 public:
-    GitSubmitFileModel(QObject *parent = 0) : VcsBase::SubmitFileModel(parent)
+    GitSubmitFileModel(QObject *parent = 0) : SubmitFileModel(parent)
     { }
 
-    void updateSelections(SubmitFileModel *source)
+    void updateSelections(SubmitFileModel *source) override
     {
         QTC_ASSERT(source, return);
         GitSubmitFileModel *gitSource = static_cast<GitSubmitFileModel *>(source);
@@ -80,19 +87,58 @@ private:
     }
 };
 
+class CommitDataFetcher : public QObject
+{
+    Q_OBJECT
+
+public:
+    CommitDataFetcher(CommitType commitType, const QString &workingDirectory) :
+        m_commitData(commitType),
+        m_workingDirectory(workingDirectory)
+    {
+    }
+
+    void start()
+    {
+        GitClient *client = GitPlugin::instance()->client();
+        QString commitTemplate;
+        bool success = client->getCommitData(m_workingDirectory, &commitTemplate,
+                                             m_commitData, &m_errorMessage);
+        emit finished(success);
+    }
+
+    const CommitData &commitData() const { return m_commitData; }
+    const QString &errorMessage() const { return m_errorMessage; }
+
+signals:
+    void finished(bool result);
+
+private:
+    CommitData m_commitData;
+    QString m_workingDirectory;
+    QString m_errorMessage;
+};
+
 /* The problem with git is that no diff can be obtained to for a random
  * multiselection of staged/unstaged files; it requires the --cached
  * option for staged files. So, we sort apart the diff file lists
  * according to a type flag we add to the model. */
 
-GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent) :
-    VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget(parent)),
+GitSubmitEditor::GitSubmitEditor(const VcsBaseSubmitEditorParameters *parameters) :
+    VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget),
     m_model(0),
+    m_commitEncoding(0),
     m_commitType(SimpleCommit),
-    m_forceClose(false)
+    m_firstUpdate(true),
+    m_commitDataFetcher(0)
 {
-    connect(this, SIGNAL(diffSelectedFiles(QList<int>)), this, SLOT(slotDiffSelected(QList<int>)));
-    connect(submitEditorWidget(), SIGNAL(show(QString)), this, SLOT(showCommit(QString)));
+    connect(this, &VcsBaseSubmitEditor::diffSelectedRows, this, &GitSubmitEditor::slotDiffSelected);
+    connect(submitEditorWidget(), &GitSubmitEditorWidget::show, this, &GitSubmitEditor::showCommit);
+}
+
+GitSubmitEditor::~GitSubmitEditor()
+{
+    resetCommitDataFetcher();
 }
 
 GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
@@ -103,6 +149,14 @@ GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
 const GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget() const
 {
     return static_cast<GitSubmitEditorWidget *>(widget());
+}
+
+void GitSubmitEditor::resetCommitDataFetcher()
+{
+    if (!m_commitDataFetcher)
+        return;
+    disconnect(m_commitDataFetcher, &CommitDataFetcher::finished, this, &GitSubmitEditor::commitDataRetrieved);
+    connect(m_commitDataFetcher, &CommitDataFetcher::finished, m_commitDataFetcher, &QObject::deleteLater);
 }
 
 void GitSubmitEditor::setCommitData(const CommitData &d)
@@ -119,25 +173,41 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     setEmptyFileListEnabled(m_commitType == AmendCommit); // Allow for just correcting the message
 
     m_model = new GitSubmitFileModel(this);
+    m_model->setRepositoryRoot(d.panelInfo.repository);
+    m_model->setFileStatusQualifier([](const QString &, const QVariant &extraData)
+                                    -> SubmitFileModel::FileStatusHint
+    {
+        const FileStates state = static_cast<FileStates>(extraData.toInt());
+        if (state.testFlag(AddedFile) || state.testFlag(UntrackedFile))
+            return SubmitFileModel::FileAdded;
+        if (state.testFlag(ModifiedFile))
+            return SubmitFileModel::FileModified;
+        if (state.testFlag(DeletedFile))
+            return SubmitFileModel::FileDeleted;
+        if (state.testFlag(RenamedFile))
+            return SubmitFileModel::FileRenamed;
+        return SubmitFileModel::FileStatusUnknown;
+    } );
+
     if (!d.files.isEmpty()) {
         for (QList<CommitData::StateFilePair>::const_iterator it = d.files.constBegin();
              it != d.files.constEnd(); ++it) {
             const FileStates state = it->first;
             const QString file = it->second;
-            VcsBase::CheckMode checkMode;
+            CheckMode checkMode;
             if (state & UnmergedFile) {
-                checkMode = VcsBase::Uncheckable;
+                checkMode = Uncheckable;
                 w->setHasUnmerged(true);
             } else if (state & StagedFile) {
-                checkMode = VcsBase::Checked;
+                checkMode = Checked;
             } else {
-                checkMode = VcsBase::Unchecked;
+                checkMode = Unchecked;
             }
             m_model->addFile(file, CommitData::stateDisplayName(state), checkMode,
                              QVariant(static_cast<int>(state)));
         }
     }
-    setFileModel(m_model, d.panelInfo.repository);
+    setFileModel(m_model);
 }
 
 void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
@@ -149,12 +219,23 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
     foreach (int row, rows) {
         const QString fileName = m_model->file(row);
         const FileStates state = static_cast<FileStates>(m_model->extraData(row).toInt());
-        if (state & UnmergedFile)
+        if (state & UnmergedFile) {
             unmergedFiles.push_back(fileName);
-        else if (state & StagedFile)
+        } else if (state & StagedFile) {
+            if (state & (RenamedFile | CopiedFile)) {
+                const int arrow = fileName.indexOf(QLatin1String(" -> "));
+                if (arrow != -1) {
+                    stagedFiles.push_back(fileName.left(arrow));
+                    stagedFiles.push_back(fileName.mid(arrow + 4));
+                    continue;
+                }
+            }
             stagedFiles.push_back(fileName);
-        else if (state != UntrackedFile)
+        } else if (state == UntrackedFile) {
+            Core::EditorManager::openEditor(m_workingDirectory + QLatin1Char('/') + fileName);
+        } else {
             unstagedFiles.push_back(fileName);
+        }
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())
         emit diff(unstagedFiles, stagedFiles);
@@ -170,19 +251,41 @@ void GitSubmitEditor::showCommit(const QString &commit)
 
 void GitSubmitEditor::updateFileModel()
 {
-    if (m_workingDirectory.isEmpty())
+    // Commit data is set when the editor is initialized, and updateFileModel immediately follows,
+    // when the editor is activated. Avoid another call to git status
+    if (m_firstUpdate) {
+        m_firstUpdate = false;
         return;
-    GitClient *client = GitPlugin::instance()->gitClient();
-    QString errorMessage, commitTemplate;
-    CommitData data(m_commitType);
-    if (client->getCommitData(m_workingDirectory, &commitTemplate, data, &errorMessage)) {
-        setCommitData(data);
-        submitEditorWidget()->refreshLog(m_workingDirectory);
-    } else {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
-        m_forceClose = true;
-        Core::EditorManager::closeEditor(this);
     }
+    GitSubmitEditorWidget *w = submitEditorWidget();
+    if (w->updateInProgress() || m_workingDirectory.isEmpty())
+        return;
+    w->setUpdateInProgress(true);
+    resetCommitDataFetcher();
+    m_commitDataFetcher = new CommitDataFetcher(m_commitType, m_workingDirectory);
+    connect(m_commitDataFetcher, &CommitDataFetcher::finished, this, &GitSubmitEditor::commitDataRetrieved);
+    QFuture<void> future = QtConcurrent::run(m_commitDataFetcher, &CommitDataFetcher::start);
+    Core::ProgressManager::addTask(future, tr("Refreshing Commit Data"), TASK_UPDATE_COMMIT);
+
+    GitPlugin::instance()->client()->addFuture(future);
+}
+
+void GitSubmitEditor::commitDataRetrieved(bool success)
+{
+    GitSubmitEditorWidget *w = submitEditorWidget();
+    if (success) {
+        setCommitData(m_commitDataFetcher->commitData());
+        w->refreshLog(m_workingDirectory);
+        w->setEnabled(true);
+    } else {
+        // Nothing to commit left!
+        VcsOutputWindow::appendError(m_commitDataFetcher->errorMessage());
+        m_model->clear();
+        w->setEnabled(false);
+    }
+    m_commitDataFetcher->deleteLater();
+    m_commitDataFetcher = 0;
+    w->setUpdateInProgress(false);
 }
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const
@@ -198,15 +301,12 @@ QString GitSubmitEditor::amendSHA1() const
 
 QByteArray GitSubmitEditor::fileContents() const
 {
-    const QString &text = submitEditorWidget()->descriptionText();
+    const QString &text = description();
 
-    if (!m_commitEncoding.isEmpty()) {
-        // Do the encoding convert, When use user-defined encoding
-        // e.g. git config --global i18n.commitencoding utf-8
-        QTextCodec *codec = QTextCodec::codecForName(m_commitEncoding.toLocal8Bit());
-        if (codec)
-            return codec->fromUnicode(text);
-    }
+    // Do the encoding convert, When use user-defined encoding
+    // e.g. git config --global i18n.commitencoding utf-8
+    if (m_commitEncoding)
+        return m_commitEncoding->fromUnicode(text);
 
     // Using utf-8 as the default encoding
     return text.toUtf8();
@@ -214,3 +314,5 @@ QByteArray GitSubmitEditor::fileContents() const
 
 } // namespace Internal
 } // namespace Git
+
+#include "gitsubmiteditor.moc"

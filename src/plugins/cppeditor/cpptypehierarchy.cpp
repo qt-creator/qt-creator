@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,17 +35,22 @@
 #include "cppelementevaluator.h"
 #include "cppeditorplugin.h"
 
-#include <utils/navigationtreeview.h>
+#include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <utils/algorithm.h>
 #include <utils/annotateditemdelegate.h>
+#include <utils/navigationtreeview.h>
+#include <utils/dropsupport.h>
 
+#include <QApplication>
+#include <QLabel>
 #include <QLatin1String>
 #include <QModelIndex>
+#include <QStackedLayout>
 #include <QVBoxLayout>
-#include <QStandardItemModel>
-#include <QLabel>
 
 using namespace CppEditor;
-using namespace Internal;
+using namespace CppEditor::Internal;
 using namespace Utils;
 
 namespace {
@@ -57,27 +63,25 @@ enum ItemRole {
 QStandardItem *itemForClass(const CppClass &cppClass)
 {
     QStandardItem *item = new QStandardItem;
+    item->setFlags(item->flags() | Qt::ItemIsDragEnabled);
     item->setData(cppClass.name, Qt::DisplayRole);
     if (cppClass.name != cppClass.qualifiedName)
         item->setData(cppClass.qualifiedName, AnnotationRole);
     item->setData(cppClass.icon, Qt::DecorationRole);
     QVariant link;
-    link.setValue(CPPEditorWidget::Link(cppClass.link));
+    link.setValue(CppEditorWidget::Link(cppClass.link));
     item->setData(link, LinkRole);
     return item;
-}
-
-bool compareCppClassNames(const CppClass &c1, const CppClass &c2)
-{
-    const QString key1 = c1.name + QLatin1String("::") + c1.qualifiedName;
-    const QString key2 = c2.name + QLatin1String("::") + c2.qualifiedName;
-    return key1 < key2;
 }
 
 QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
 {
     QList<CppClass> sorted = cppClasses;
-    qSort(sorted.begin(), sorted.end(), compareCppClassNames);
+    Utils::sort(sorted, [](const CppClass &c1, const CppClass &c2) -> bool {
+        const QString key1 = c1.name + QLatin1String("::") + c1.qualifiedName;
+        const QString key2 = c2.name + QLatin1String("::") + c2.qualifiedName;
+        return key1 < key2;
+    });
     return sorted;
 }
 
@@ -85,40 +89,6 @@ QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
 
 namespace CppEditor {
 namespace Internal {
-
-class CppClassLabel : public QLabel
-{
-public:
-    CppClassLabel(QWidget *parent)
-        : QLabel(parent)
-    {}
-
-    void setup(CppClass *cppClass)
-    {
-        setText(cppClass->name);
-        m_link = cppClass->link;
-    }
-
-    void clear()
-    {
-        QLabel::clear();
-        m_link = CPPEditorWidget::Link();
-    }
-
-private:
-    void mousePressEvent(QMouseEvent *)
-    {
-        if (!m_link.hasValidTarget())
-            return;
-
-        Core::EditorManager::openEditorAt(m_link.targetFileName,
-                                          m_link.targetLine,
-                                          m_link.targetColumn,
-                                          Constants::CPPEDITOR_ID);
-    }
-
-    CPPEditorWidget::Link m_link;
-};
 
 // CppTypeHierarchyWidget
 CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
@@ -128,10 +98,11 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     m_delegate(0),
     m_noTypeHierarchyAvailableLabel(0)
 {
-    m_inspectedClass = new CppClassLabel(this);
+    m_inspectedClass = new TextEditor::TextEditorLinkLabel(this);
     m_inspectedClass->setMargin(5);
-    m_model = new QStandardItemModel(this);
+    m_model = new CppTypeHierarchyModel(this);
     m_treeView = new NavigationTreeView(this);
+    m_treeView->setActivationMode(SingleClickActivation);
     m_delegate = new AnnotatedItemDelegate(this);
     m_delegate->setDelimiter(QLatin1String(" "));
     m_delegate->setAnnotationRole(AnnotationRole);
@@ -139,21 +110,29 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_treeView->setItemDelegate(m_delegate);
     m_treeView->setRootIsDecorated(false);
-    connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
+    m_treeView->setDragEnabled(true);
+    m_treeView->setDragDropMode(QAbstractItemView::DragOnly);
+    m_treeView->setDefaultDropAction(Qt::MoveAction);
+    connect(m_treeView, &QTreeView::activated, this, &CppTypeHierarchyWidget::onItemActivated);
 
     m_noTypeHierarchyAvailableLabel = new QLabel(tr("No type hierarchy available"), this);
     m_noTypeHierarchyAvailableLabel->setAlignment(Qt::AlignCenter);
     m_noTypeHierarchyAvailableLabel->setAutoFillBackground(true);
     m_noTypeHierarchyAvailableLabel->setBackgroundRole(QPalette::Base);
 
+    m_hierarchyWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_inspectedClass);
-    layout->addWidget(m_treeView);
-    layout->addWidget(m_noTypeHierarchyAvailableLabel);
+    layout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_treeView));
+    m_hierarchyWidget->setLayout(layout);
 
-    setLayout(layout);
+    m_stackLayout = new QStackedLayout;
+    m_stackLayout->addWidget(m_hierarchyWidget);
+    m_stackLayout->addWidget(m_noTypeHierarchyAvailableLabel);
+    m_stackLayout->setCurrentWidget(m_noTypeHierarchyAvailableLabel);
+    setLayout(m_stackLayout);
 
     connect(CppEditorPlugin::instance(), SIGNAL(typeHierarchyRequested()), SLOT(perform()));
 }
@@ -165,11 +144,11 @@ void CppTypeHierarchyWidget::perform()
 {
     showNoTypeHierarchyLabel();
 
-    CPPEditor *editor = qobject_cast<CPPEditor *>(Core::EditorManager::currentEditor());
+    CppEditor *editor = qobject_cast<CppEditor *>(Core::EditorManager::currentEditor());
     if (!editor)
         return;
 
-    CPPEditorWidget *widget = qobject_cast<CPPEditorWidget *>(editor->widget());
+    CppEditorWidget *widget = qobject_cast<CppEditorWidget *>(editor->widget());
     if (!widget)
         return;
 
@@ -183,7 +162,8 @@ void CppTypeHierarchyWidget::perform()
         const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
         CppElement *element = cppElement.data();
         if (CppClass *cppClass = dynamic_cast<CppClass *>(element)) {
-            m_inspectedClass->setup(cppClass);
+            m_inspectedClass->setText(cppClass->name);
+            m_inspectedClass->setLink(cppClass->link);
             QStandardItem *bases = new QStandardItem(tr("Bases"));
             m_model->invisibleRootItem()->appendRow(bases);
             buildHierarchy(*cppClass, bases, true, &CppClass::bases);
@@ -211,16 +191,12 @@ void CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, QStandardI
 
 void CppTypeHierarchyWidget::showNoTypeHierarchyLabel()
 {
-    m_inspectedClass->hide();
-    m_treeView->hide();
-    m_noTypeHierarchyAvailableLabel->show();
+    m_stackLayout->setCurrentWidget(m_noTypeHierarchyAvailableLabel);
 }
 
 void CppTypeHierarchyWidget::showTypeHierarchy()
 {
-    m_inspectedClass->show();
-    m_treeView->show();
-    m_noTypeHierarchyAvailableLabel->hide();
+    m_stackLayout->setCurrentWidget(m_hierarchyWidget);
 }
 
 void CppTypeHierarchyWidget::clearTypeHierarchy()
@@ -229,10 +205,9 @@ void CppTypeHierarchyWidget::clearTypeHierarchy()
     m_model->clear();
 }
 
-void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
+void CppTypeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
-    const TextEditor::BaseTextEditorWidget::Link link
-            = index.data(LinkRole).value<TextEditor::BaseTextEditorWidget::Link>();
+    auto link = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
     if (link.hasValidTarget())
         Core::EditorManager::openEditorAt(link.targetFileName,
                                           link.targetLine,
@@ -240,53 +215,50 @@ void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
                                           Constants::CPPEDITOR_ID);
 }
 
-// CppTypeHierarchyStackedWidget
-CppTypeHierarchyStackedWidget::CppTypeHierarchyStackedWidget(QWidget *parent) :
-    QStackedWidget(parent),
-    m_typeHiearchyWidgetInstance(new CppTypeHierarchyWidget)
-{
-    addWidget(m_typeHiearchyWidgetInstance);
-}
-
-CppTypeHierarchyStackedWidget::~CppTypeHierarchyStackedWidget()
-{
-    delete m_typeHiearchyWidgetInstance;
-}
-
 // CppTypeHierarchyFactory
 CppTypeHierarchyFactory::CppTypeHierarchyFactory()
-{}
-
-CppTypeHierarchyFactory::~CppTypeHierarchyFactory()
-{}
-
-QString CppTypeHierarchyFactory::displayName() const
 {
-    return tr("Type Hierarchy");
-}
-
-int CppTypeHierarchyFactory::priority() const
-{
-    return Constants::TYPE_HIERARCHY_PRIORITY;
-}
-
-Core::Id CppTypeHierarchyFactory::id() const
-{
-    return Core::Id(Constants::TYPE_HIERARCHY_ID);
-}
-
-QKeySequence CppTypeHierarchyFactory::activationSequence() const
-{
-    return QKeySequence();
+    setDisplayName(tr("Type Hierarchy"));
+    setPriority(700);
+    setId(Constants::TYPE_HIERARCHY_ID);
 }
 
 Core::NavigationView CppTypeHierarchyFactory::createWidget()
 {
-    CppTypeHierarchyStackedWidget *w = new CppTypeHierarchyStackedWidget;
-    static_cast<CppTypeHierarchyWidget *>(w->currentWidget())->perform();
-    Core::NavigationView navigationView;
-    navigationView.widget = w;
-    return navigationView;
+    auto w = new CppTypeHierarchyWidget;
+    w->perform();
+    return Core::NavigationView(w);
+}
+
+CppTypeHierarchyModel::CppTypeHierarchyModel(QObject *parent)
+    : QStandardItemModel(parent)
+{
+}
+
+Qt::DropActions CppTypeHierarchyModel::supportedDragActions() const
+{
+    // copy & move actions to avoid idiotic behavior of drag and drop:
+    // standard item model removes nodes automatically that are
+    // dropped anywhere with move action, but we do not want the '+' sign in the
+    // drag handle that would appear when only allowing copy action
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
+QStringList CppTypeHierarchyModel::mimeTypes() const
+{
+    return DropSupport::mimeTypesForFilePaths();
+}
+
+QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
+{
+    auto data = new DropMimeData;
+    data->setOverrideFileDropAction(Qt::CopyAction); // do not remove the item from the model
+    foreach (const QModelIndex &index, indexes) {
+        auto link = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        if (link.hasValidTarget())
+            data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
+    }
+    return data;
 }
 
 } // namespace Internal

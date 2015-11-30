@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,32 +9,34 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "cpptoolsplugin.h"
 
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
 #include "typehierarchybuilder.h"
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/SymbolVisitor.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
@@ -48,12 +50,6 @@ Q_DECLARE_METATYPE(QList<Tests::TestDocument>)
 
 namespace {
 
-bool hierarchySorter(const TypeHierarchy &h1, const TypeHierarchy &h2)
-{
-    Overview oo;
-    return oo.prettyName(h1.symbol()->name()) < oo.prettyName(h2.symbol()->name());
-}
-
 QString toString(const TypeHierarchy &hierarchy, int indent = 0)
 {
     Symbol *symbol = hierarchy.symbol();
@@ -61,7 +57,10 @@ QString toString(const TypeHierarchy &hierarchy, int indent = 0)
         + Overview().prettyName(symbol->name()) + QLatin1Char('\n');
 
     QList<TypeHierarchy> sortedHierarchy = hierarchy.hierarchy();
-    qSort(sortedHierarchy.begin(), sortedHierarchy.end(), hierarchySorter);
+    Overview oo;
+    Utils::sort(sortedHierarchy, [&oo](const TypeHierarchy &h1, const TypeHierarchy &h2) -> bool {
+        return oo.prettyName(h1.symbol()->name()) < oo.prettyName(h2.symbol()->name());
+    });
     foreach (TypeHierarchy childHierarchy, sortedHierarchy)
         result += toString(childHierarchy, indent + 2);
     return result;
@@ -96,7 +95,7 @@ private:
     Class *m_clazz;
 };
 
-class TypeHierarchyBuilderTestCase : public CppTools::Tests::TestCase
+class TypeHierarchyBuilderTestCase : public Tests::TestCase
 {
 public:
     TypeHierarchyBuilderTestCase(const QList<Tests::TestDocument> &documents,
@@ -104,11 +103,17 @@ public:
     {
         QVERIFY(succeededSoFar());
 
+        Tests::TemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+
+        QList<Tests::TestDocument> documents_ = documents;
+
         // Write files
-        QStringList filePaths;
-        foreach (const Tests::TestDocument &document, documents) {
-            QVERIFY(document.writeToDisk());
-            filePaths << document.filePath();
+        QSet<QString> filePaths;
+        for (int i = 0, size = documents_.size(); i < size; ++i) {
+            documents_[i].setBaseDirectory(temporaryDir.path());
+            QVERIFY(documents_[i].writeToDisk());
+            filePaths << documents_[i].filePath();
         }
 
         // Parse files
@@ -116,7 +121,9 @@ public:
         const Snapshot snapshot = globalSnapshot();
 
         // Get class for which to generate the hierarchy
-        const Document::Ptr firstDocument = snapshot.document(filePaths.first());
+        const Document::Ptr firstDocument = snapshot.document(documents_.first().filePath());
+        QVERIFY(firstDocument);
+        QVERIFY(firstDocument->diagnosticMessages().isEmpty());
         Class *clazz = FindFirstClassInDocument()(firstDocument);
         QVERIFY(clazz);
 

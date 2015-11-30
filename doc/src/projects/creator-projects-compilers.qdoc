@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-project-qmake.html
     \page creator-tool-chains.html
     \nextpage creator-debuggers.html
@@ -37,68 +37,77 @@
     application on a particular platform.
 
     \QC automatically detects the compilers that are registered by your system
-    or by an SDK. You can add compilers to build applications by using other
+    or by an installer. You can add compilers to build applications by using other
     compilers or by using additional versions of the automatically detected
     compilers:
 
     \list
 
         \li GNU Compiler Collection (GCC) is a compiler for Linux and
-            Mac OS X.
+            OS X.
 
         \li MinGW (Minimalist GNU for Windows) is a native software port of GCC
             and GNU Binutils for use in the development of native Microsoft
             Windows applications on Windows. MinGW is
-            distributed together with \QC and Qt SDK for Windows.
+            distributed together with \QC and Qt installers for Windows.
 
         \li Linux ICC (Intel C++ Compiler) is a group of C and C++ compilers
             for Linux.
 
         \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
-            LLVM compiler for Windows, Linux, and Mac OS X.
+            LLVM compiler for Windows, Linux, and OS X.
+
+        \li QCC is the interface for compiling C++ applications for QNX.
 
     \endlist
 
-    To build an application using GCC, MinGW, or Clang, specify the path
+    To build an application using GCC, MinGW, Clang, or QCC, specify the path
     to the directory where the compiler is located and select
     the application binary interface (ABI) version from the list of available
     versions. You can also create a custom ABI definition.
+    For QCC, also specify the path to the QNX Software Development Platform (SDP).
 
-    You specify the compiler to use for each kit in \gui Tools >
-    \gui Options > \gui {Build & Run} > \gui Kits.
+    You specify the compiler to use for each kit in \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits.
 
     To add compilers:
 
     \list 1
 
-        \li Select \gui {Tools > Options > Build & Run > Compilers > Add} and
-            select a compiler in the list.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Build & Run} > \uicontrol Compilers > \uicontrol Add
+            and select a compiler in the list.
 
             \image qtcreator-toolchains.png
 
-            To clone the selected compiler, select \gui {Clone}.
+            To clone the selected compiler, select \uicontrol Clone.
 
-        \li In the \gui Name column, double-click the name to change it.
+        \li In the \uicontrol Name field, enter a name for the compiler to
+            identify it in \QC.
 
-        \li In the \gui{Compiler path} field, enter the path to the directory
-            where the compiler is located.
+        \li In the \uicontrol {Compiler path} field, enter the path to the
+            directory where the compiler is located.
 
-        \li In the \gui {Platform codegen flags} field, check the flags passed
+        \li In the \uicontrol {Platform codegen flags} field, check the flags passed
             to the compiler that specify the architecture on the target
             platform.
 
-        \li In the \gui {Platform linker flags} field, check the flags passed to
+        \li In the \uicontrol {Platform linker flags} field, check the flags passed to
             the linker that specify the architecture on the target platform.
             The linker flags are used only when building with Qbs.
 
             The other settings to specify depend on the compiler.
+
+        \li In the \uicontrol ABI field, provide an identification for the
+            target architecture. This is used to warn about ABI mismatches
+            within the kits.
 
     \endlist
 
     \section1 Adding Custom Compilers
 
     To add a compiler that is not listed above or a remote compiler, use the
-    \gui Custom option and specify the paths to the directories where the
+    \uicontrol Custom option and specify the paths to the directories where the
     compiler and make tool are located and options for the compiler.
 
     \image creator-compilers-custom.png
@@ -107,55 +116,55 @@
 
     \list 1
 
-        \li Select \gui Tools > \gui Options > \gui {Build & Run} >
-            \gui Compilers > \gui Add > \gui Custom.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Compilers > \uicontrol Add > \uicontrol Custom.
 
-        \li In the \gui Name field, enter a name for the compiler.
+        \li In the \uicontrol Name field, enter a name for the compiler.
 
-        \li In the \gui {Compiler path} field, enter the path to the directory
+        \li In the \uicontrol {Compiler path} field, enter the path to the directory
             where the compiler is located.
 
-        \li In the \gui {Make path} field, enter the path to the directory where
+        \li In the \uicontrol {Make path} field, enter the path to the directory where
             the make tool is located.
 
-       \li  In the \gui ABI field, specify the ABI version.
+       \li  In the \uicontrol ABI field, specify the ABI version.
 
-        \li In the \gui {Predefined macros} field, specify the macros that the
+        \li In the \uicontrol {Predefined macros} field, specify the macros that the
             compiler enables by default. Specify each macro on a separate line,
             in the following format: MACRO[=value].
 
-        \li In the \gui {Header paths} field, specify the paths to directories
+        \li In the \uicontrol {Header paths} field, specify the paths to directories
             that the compiler checks for headers. Specify each path on a
             separate line.
 
-        \li In the \gui {C++11 flags} field, specify the flags that turn on
+        \li In the \uicontrol {C++11 flags} field, specify the flags that turn on
             C++11 support in the compiler.
 
-        \li In the \gui {Qt mkspecs} field, specify the path to the directory
+        \li In the \uicontrol {Qt mkspecs} field, specify the path to the directory
             where mkspecs are located. Usually, the path is specified relative
             to the Qt mkspecs directory.
 
-        \li In the \gui {Error parser} field, select the error parser to use.
-            Select \gui Custom, and then select \gui {Customer Parser Settings}
+        \li In the \uicontrol {Error parser} field, select the error parser to use.
+            Select \uicontrol Custom, and then select \uicontrol {Customer Parser Settings}
             to specify settings for a custom parser:
 
             \image qtcreator-custom-parser.png
 
             \list 1
 
-                \li In the \gui {Error message capture pattern} field, specify
+                \li In the \uicontrol {Error message capture pattern} field, specify
                     a regular expression to define what is an error. The custom
                     parser matches the compile output line by line against the
-                    regular expression and displays errors in the \gui Issues
+                    regular expression and displays errors in the \uicontrol Issues
                     output pane. Create regular expression groups that contain
                     the file name, line number and error message.
 
-                \li In the \gui {Capture Positions} field, map the regular
-                    expression groups to \gui {File name}, \gui {Line number},
-                    and \gui Message.
+                \li In the \uicontrol {Capture Positions} field, map the regular
+                    expression groups to \uicontrol {File name}, \uicontrol {Line number},
+                    and \uicontrol Message.
 
-                \li In the \gui {Test} group, you can test how the message that
-                    you enter in the \gui {Error message} field is matched when
+                \li In the \uicontrol {Test} group, you can test how the message that
+                    you enter in the \uicontrol {Error message} field is matched when
                     using the current settings.
 
             \endlist
@@ -164,8 +173,8 @@
 
     \section1 Troubleshooting MinGW Compilation Errors
 
-    If error messages displayed in the \gui {Compile Output} pane contain
-    paths where slashes are missing (for example, C:QtSDK),
+    If error messages displayed in the \uicontrol {Compile Output} pane contain
+    paths where slashes are missing (for example, \c {C:QtSDK}),
     check your PATH variable. At the command line, enter the following commands:
 
     \code

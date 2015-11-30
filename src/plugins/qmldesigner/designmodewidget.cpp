@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -33,6 +29,7 @@
 #include "crumblebar.h"
 
 #include <rewriterview.h>
+#include <nodeinstanceview.h>
 #include <itemlibrarywidget.h>
 
 #include <coreplugin/coreconstants.h>
@@ -42,6 +39,8 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
 #include <coreplugin/editortoolbar.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -85,7 +84,7 @@ DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
     m_errorMessage->setForegroundRole(QPalette::ToolTipText);
     m_goToError->setText(tr("<a href=\"goToError\">Go to error</a>"));
     m_goToError->setForegroundRole(QPalette::Link);
-    connect(m_goToError, SIGNAL(linkActivated(QString)), this, SLOT(goToError()));
+    connect(m_goToError, &QLabel::linkActivated, this, &DocumentWarningWidget::goToError);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(20);
@@ -94,17 +93,19 @@ DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
     layout->addWidget(m_goToError, 1, Qt::AlignRight);
 }
 
-void DocumentWarningWidget::setError(const RewriterView::Error &error)
+void DocumentWarningWidget::setError(const RewriterError &error)
 {
     m_error = error;
     QString str;
-    if (error.type() == RewriterView::Error::ParseError) {
+    if (error.type() == RewriterError::ParseError) {
         str = tr("%3 (%1:%2)").arg(QString::number(error.line()), QString::number(error.column()), error.description());
         m_goToError->show();
-    }  else if (error.type() == RewriterView::Error::InternalError) {
+    }  else if (error.type() == RewriterError::InternalError) {
         str = tr("Internal error (%1)").arg(error.description());
         m_goToError->hide();
     }
+
+    str.prepend(tr("Cannot open this QML document because of an error in the QML file:\n\n"));
 
     m_errorMessage->setText(str);
     resize(layout()->totalSizeHint());
@@ -172,10 +173,8 @@ void DocumentWarningWidget::goToError()
 DesignModeWidget::DesignModeWidget(QWidget *parent) :
     QWidget(parent),
     m_mainSplitter(0),
-    m_toolBar(Core::EditorManager::createToolBar(this)),
+    m_toolBar(new Core::EditorToolBar(this)),
     m_crumbleBar(new CrumbleBar(this)),
-    m_outputPanePlaceholder(0),
-    m_outputPlaceholderSplitter(0),
     m_isDisabled(false),
     m_showSidebars(true),
     m_initStatus(NotInitialized),
@@ -183,10 +182,18 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_navigatorHistoryCounter(-1),
     m_keepNavigatorHistory(false)
 {
+    QObject::connect(viewManager().nodeInstanceView(), SIGNAL(qmlPuppetCrashed()), this, SLOT(showQmlPuppetCrashedError()));
 }
 
 DesignModeWidget::~DesignModeWidget()
 {
+    m_leftSideBar.reset();
+    m_rightSideBar.reset();
+
+    foreach (QPointer<QWidget> widget, m_viewWidgets) {
+        if (widget)
+            widget.clear();
+    }
 }
 
 void DesignModeWidget::restoreDefaultView()
@@ -223,6 +230,8 @@ void DesignModeWidget::toggleSidebars()
         m_leftSideBar->setVisible(m_showSidebars);
     if (m_rightSideBar)
         m_rightSideBar->setVisible(m_showSidebars);
+    if (m_topSideBar)
+        m_topSideBar->setVisible(m_showSidebars);
 }
 
 void DesignModeWidget::readSettings()
@@ -230,8 +239,8 @@ void DesignModeWidget::readSettings()
     QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup("Bauhaus");
-    m_leftSideBar->readSettings(settings, QLatin1String("LeftSideBar"));
-    m_rightSideBar->readSettings(settings, QLatin1String("RightSideBar"));
+    m_leftSideBar->readSettings(settings, QStringLiteral("LeftSideBar"));
+    m_rightSideBar->readSettings(settings, QStringLiteral("RightSideBar"));
     if (settings->contains("MainSplitter")) {
         const QByteArray splitterState = settings->value("MainSplitter").toByteArray();
         m_mainSplitter->restoreState(splitterState);
@@ -245,8 +254,8 @@ void DesignModeWidget::saveSettings()
     QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup("Bauhaus");
-    m_leftSideBar->saveSettings(settings, QLatin1String("LeftSideBar"));
-    m_rightSideBar->saveSettings(settings, QLatin1String("RightSideBar"));
+    m_leftSideBar->saveSettings(settings, QStringLiteral("LeftSideBar"));
+    m_rightSideBar->saveSettings(settings, QStringLiteral("RightSideBar"));
     settings->setValue("MainSplitter", m_mainSplitter->saveState());
     settings->endGroup();
 }
@@ -273,7 +282,7 @@ void DesignModeWidget::disableWidgets()
     m_isDisabled = true;
 }
 
-void DesignModeWidget::updateErrorStatus(const QList<RewriterView::Error> &errors)
+void DesignModeWidget::updateErrorStatus(const QList<RewriterError> &errors)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << errors.count();
@@ -286,7 +295,7 @@ void DesignModeWidget::updateErrorStatus(const QList<RewriterView::Error> &error
     }
 }
 
-TextEditor::ITextEditor *DesignModeWidget::textEditor() const
+TextEditor::BaseTextEditor *DesignModeWidget::textEditor() const
 {
     return currentDesignDocument()->textEditor();
 }
@@ -299,6 +308,12 @@ void DesignModeWidget::setCurrentDesignDocument(DesignDocument *newDesignDocumen
     //viewManager().setDesignDocument(newDesignDocument);
 
 
+}
+
+static void hideToolButtons(QList<QToolButton*> &buttons)
+{
+    foreach (QToolButton *button, buttons)
+        button->hide();
 }
 
 void DesignModeWidget::setup()
@@ -316,14 +331,17 @@ void DesignModeWidget::setup()
         if (factory->id() == "Projects") {
             navigationView = factory->createWidget();
             projectsExplorer = navigationView.widget;
+            hideToolButtons(navigationView.dockToolBarWidgets);
             projectsExplorer->setWindowTitle(tr("Projects"));
         } else if (factory->id() == "File System") {
             navigationView = factory->createWidget();
             fileSystemExplorer = navigationView.widget;
+            hideToolButtons(navigationView.dockToolBarWidgets);
             fileSystemExplorer->setWindowTitle(tr("File System"));
         } else if (factory->id() == "Open Documents") {
             navigationView = factory->createWidget();
             openDocumentsWidget = navigationView.widget;
+            hideToolButtons(navigationView.dockToolBarWidgets);
             openDocumentsWidget->setWindowTitle(tr("Open Documents"));
         }
 
@@ -336,9 +354,12 @@ void DesignModeWidget::setup()
     }
 
 
-    QToolBar *toolBar = new QToolBar(m_toolBar);
+
+    QToolBar *toolBar = new QToolBar;
 
     toolBar->addAction(viewManager().componentViewAction());
+
+    toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     m_toolBar->addCenterToolBar(toolBar);
 
     m_mainSplitter = new MiniSplitter(this);
@@ -363,7 +384,9 @@ void DesignModeWidget::setup()
             Core::SideBarItem *sideBarItem = new DesignerSideBarItem(widgetInfo.widget, widgetInfo.toolBarWidgetFactory, widgetInfo.uniqueId);
             sideBarItems.append(sideBarItem);
             rightSideBarItems.append(sideBarItem);
+
         }
+        m_viewWidgets.append(widgetInfo.widget);
     }
 
     if (projectsExplorer) {
@@ -393,8 +416,8 @@ void DesignModeWidget::setup()
     m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
     m_toolBar->setNavigationVisible(true);
 
-    connect(m_toolBar, SIGNAL(goForwardClicked()), this, SLOT(toolBarOnGoForwardClicked()));
-    connect(m_toolBar, SIGNAL(goBackClicked()), this, SLOT(toolBarOnGoBackClicked()));
+    connect(m_toolBar, &Core::EditorToolBar::goForwardClicked, this, &DesignModeWidget::toolBarOnGoForwardClicked);
+    connect(m_toolBar, &Core::EditorToolBar::goBackClicked, this, &DesignModeWidget::toolBarOnGoBackClicked);
 
     if (currentDesignDocument())
         setupNavigatorHistory(currentDesignDocument()->textEditor());
@@ -417,8 +440,8 @@ void DesignModeWidget::setup()
     viewManager().enableWidgets();
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
-    m_leftSideBar->setCloseWhenEmpty(true);
-    m_rightSideBar->setCloseWhenEmpty(true);
+    m_leftSideBar->setCloseWhenEmpty(false);
+    m_rightSideBar->setCloseWhenEmpty(false);
 
     readSettings();
 
@@ -443,10 +466,10 @@ void DesignModeWidget::deleteSidebarWidgets()
     m_rightSideBar.reset();
 }
 
-void DesignModeWidget::qmlPuppetCrashed()
+void DesignModeWidget::showQmlPuppetCrashedError()
 {
-    QList<RewriterView::Error> errorList;
-    RewriterView::Error error(tr("Qt Quick emulation layer crashed"));
+    QList<RewriterError> errorList;
+    RewriterError error(tr("Qt Quick emulation layer crashed"));
     errorList.append(error);
 
     disableWidgets();
@@ -487,15 +510,17 @@ ViewManager &DesignModeWidget::viewManager()
 
 void DesignModeWidget::resizeEvent(QResizeEvent *event)
 {
-    if (m_warningWidget)
-        m_warningWidget->move(QPoint(event->size().width() / 2, event->size().height() / 2));
+    if (m_warningWidget) {
+        QPoint warningWidgetCenterPoint = m_warningWidget->rect().center();
+        m_warningWidget->move(QPoint(event->size().width() / 2, event->size().height() / 2) - warningWidgetCenterPoint);
+    }
     QWidget::resizeEvent(event);
 }
 
 void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
 {
     if (!m_keepNavigatorHistory)
-        addNavigatorHistoryEntry(editor->document()->filePath());
+        addNavigatorHistoryEntry(editor->document()->filePath().toString());
 
     const bool canGoBack = m_navigatorHistoryCounter > 0;
     const bool canGoForward = m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1);
@@ -524,50 +549,62 @@ static QWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos)
     return tabWidget;
 }
 
-QWidget *DesignModeWidget::createCenterWidget()
+static QWidget *createTopSideBarWidget(const QList<WidgetInfo> &widgetInfos)
 {
-    QWidget *centerWidget = new QWidget;
-
-    QVBoxLayout *rightLayout = new QVBoxLayout(centerWidget);
-    rightLayout->setMargin(0);
-    rightLayout->setSpacing(0);
-
-    rightLayout->addWidget(m_toolBar);
-    rightLayout->addWidget(createCrumbleBarFrame());
-
     //### we now own these here
     QList<WidgetInfo> topWidgetInfos;
-    foreach (const WidgetInfo &widgetInfo, viewManager().widgetInfos()) {
+    foreach (const WidgetInfo &widgetInfo, widgetInfos) {
         if (widgetInfo.placementHint == widgetInfo.TopPane)
             topWidgetInfos.append(widgetInfo);
     }
 
     if (topWidgetInfos.count() == 1)
-        rightLayout->addWidget(topWidgetInfos.first().widget);
+        return topWidgetInfos.first().widget;
     else
-        rightLayout->addWidget(createWidgetsInTabWidget(topWidgetInfos));
+        return createWidgetsInTabWidget(topWidgetInfos);
+}
 
+static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widgetInfos)
+{
     QList<WidgetInfo> centralWidgetInfos;
-    foreach (const WidgetInfo &widgetInfo, viewManager().widgetInfos()) {
+    foreach (const WidgetInfo &widgetInfo, widgetInfos) {
         if (widgetInfo.placementHint == widgetInfo.CentralPane)
             centralWidgetInfos.append(widgetInfo);
     }
 
     // editor and output panes
-    m_outputPlaceholderSplitter = new Core::MiniSplitter;
-    m_outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::DesignMode::instance(), m_outputPlaceholderSplitter);
+    Core::MiniSplitter *outputPlaceholderSplitter = new Core::MiniSplitter;
+    outputPlaceholderSplitter->setStretchFactor(0, 10);
+    outputPlaceholderSplitter->setStretchFactor(1, 0);
+    outputPlaceholderSplitter->setOrientation(Qt::Vertical);
+
+    StyledOutputpanePlaceHolder *outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::DesignMode::instance(), outputPlaceholderSplitter);
 
     if (centralWidgetInfos.count() == 1)
-        m_outputPlaceholderSplitter->addWidget(centralWidgetInfos.first().widget);
+        outputPlaceholderSplitter->addWidget(centralWidgetInfos.first().widget);
     else
-         m_outputPlaceholderSplitter->addWidget(createWidgetsInTabWidget(centralWidgetInfos));
+         outputPlaceholderSplitter->addWidget(createWidgetsInTabWidget(centralWidgetInfos));
 
-    m_outputPlaceholderSplitter->addWidget(m_outputPanePlaceholder);
-    m_outputPlaceholderSplitter->setStretchFactor(0, 10);
-    m_outputPlaceholderSplitter->setStretchFactor(1, 0);
-    m_outputPlaceholderSplitter->setOrientation(Qt::Vertical);
+    outputPlaceholderSplitter->addWidget(outputPanePlaceholder);
 
-    rightLayout->addWidget(m_outputPlaceholderSplitter);
+    return outputPlaceholderSplitter;
+}
+
+QWidget *DesignModeWidget::createCenterWidget()
+{
+    QWidget *centerWidget = new QWidget;
+
+    QVBoxLayout *horizontalLayout = new QVBoxLayout(centerWidget);
+    horizontalLayout->setMargin(0);
+    horizontalLayout->setSpacing(0);
+
+    horizontalLayout->addWidget(m_toolBar);
+    horizontalLayout->addWidget(createCrumbleBarFrame());
+
+    m_topSideBar = createTopSideBarWidget(viewManager().widgetInfos());
+    horizontalLayout->addWidget(m_topSideBar.data());
+
+    horizontalLayout->addWidget(createCentralSplitter(viewManager().widgetInfos()));
 
     return centerWidget;
 }
@@ -588,7 +625,7 @@ QWidget *DesignModeWidget::createCrumbleBarFrame()
     return frame;
 }
 
-void DesignModeWidget::showErrorMessage(const QList<RewriterView::Error> &errors)
+void DesignModeWidget::showErrorMessage(const QList<RewriterError> &errors)
 {
     Q_ASSERT(!errors.isEmpty());
     m_warningWidget->setError(errors.first());

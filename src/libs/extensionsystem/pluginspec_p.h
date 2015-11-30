@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,10 +34,13 @@
 #include "pluginspec.h"
 #include "iplugin.h"
 
+#include <QJsonObject>
 #include <QObject>
-#include <QStringList>
-#include <QXmlStreamReader>
+#include <QPluginLoader>
 #include <QRegExp>
+#include <QStringList>
+#include <QVector>
+#include <QXmlStreamReader>
 
 namespace ExtensionSystem {
 
@@ -62,11 +66,19 @@ public:
     IPlugin::ShutdownFlag stop();
     void kill();
 
+    void setEnabledBySettings(bool value);
+    void setEnabledByDefault(bool value);
+    void setForceEnabled(bool value);
+    void setForceDisabled(bool value);
+
+    QPluginLoader loader;
+
     QString name;
     QString version;
     QString compatVersion;
+    bool required;
     bool experimental;
-    bool disabledByDefault;
+    bool enabledByDefault;
     QString vendor;
     QString copyright;
     QString license;
@@ -74,9 +86,9 @@ public:
     QString url;
     QString category;
     QRegExp platformSpecification;
-    QList<PluginDependency> dependencies;
-    bool enabledInSettings;
-    bool disabledIndirectly;
+    QVector<PluginDependency> dependencies;
+    bool enabledBySettings;
+    bool enabledIndirectly;
     bool forceEnabled;
     bool forceDisabled;
 
@@ -95,20 +107,14 @@ public:
     static bool isValidVersion(const QString &version);
     static int versionCompare(const QString &version1, const QString &version2);
 
-    void disableIndirectlyIfDependencyDisabled();
+    void enableDependenciesIndirectly();
 
+    bool readMetaData(const QJsonObject &metaData);
 
 private:
     PluginSpec *q;
 
     bool reportError(const QString &err);
-    void readPluginSpec(QXmlStreamReader &reader);
-    void readDependencies(QXmlStreamReader &reader);
-    void readDependencyEntry(QXmlStreamReader &reader);
-    void readArgumentDescriptions(QXmlStreamReader &reader);
-    void readArgumentDescription(QXmlStreamReader &reader);
-    bool readBooleanValue(QXmlStreamReader &reader, const char *key);
-
     static QRegExp &versionRegExp();
 };
 

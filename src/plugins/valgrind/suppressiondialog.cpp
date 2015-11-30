@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 ** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -43,6 +44,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 
+#include <utils/algorithm.h>
 #include <utils/pathchooser.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -116,11 +118,6 @@ static bool equalSuppression(const Error &error, const Error &suppressed)
     return true;
 }
 
-bool sortIndizesReverse(const QModelIndex &l, const QModelIndex &r)
-{
-    return l.row() > r.row();
-}
-
 SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error> &errors)
   : m_view(view),
     m_settings(view->settings()),
@@ -169,10 +166,14 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
 
     m_suppressionEdit->setPlainText(suppressions);
 
-    connect(m_fileChooser, SIGNAL(validChanged()), SLOT(validate()));
-    connect(m_suppressionEdit->document(), SIGNAL(contentsChanged()), SLOT(validate()));
-    connect(m_buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(m_buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    connect(m_fileChooser, &Utils::PathChooser::validChanged,
+            this, &SuppressionDialog::validate);
+    connect(m_suppressionEdit->document(), &QTextDocument::contentsChanged,
+            this, &SuppressionDialog::validate);
+    connect(m_buttonBox, &QDialogButtonBox::accepted,
+            this, &SuppressionDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected,
+            this, &SuppressionDialog::reject);
 }
 
 void SuppressionDialog::maybeShow(MemcheckErrorView *view)
@@ -212,9 +213,9 @@ void SuppressionDialog::accept()
         return;
 
     // Add file to project if there is a project containing this file on the file system.
-    if (!ProjectExplorer::SessionManager::projectForFile(path)) {
+    if (!ProjectExplorer::SessionManager::projectForFile(Utils::FileName::fromString(path))) {
         foreach (ProjectExplorer::Project *p, ProjectExplorer::SessionManager::projects()) {
-            if (path.startsWith(p->projectDirectory())) {
+            if (path.startsWith(p->projectDirectory().toString())) {
                 p->rootProjectNode()->addFiles(QStringList() << path);
                 break;
             }
@@ -224,7 +225,9 @@ void SuppressionDialog::accept()
     m_settings->addSuppressionFiles(QStringList(path));
 
     QModelIndexList indices = m_view->selectionModel()->selectedRows();
-    qSort(indices.begin(), indices.end(), sortIndizesReverse);
+    Utils::sort(indices, [](const QModelIndex &l, const QModelIndex &r) {
+        return l.row() > r.row();
+    });
     QAbstractItemModel *model = m_view->model();
     foreach (const QModelIndex &index, indices) {
         bool removed = model->removeRow(index.row());

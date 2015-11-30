@@ -6,7 +6,7 @@
 	<!ENTITY name    "(?![0-9])[\w_:][\w.:_-]*">
 	<!ENTITY entref  "&amp;(#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="XML" version="2.03" kateversion="2.4" section="Markup" extensions="*.docbook;*.xml;*.rc;*.daml;*.rdf;*.rss;*.xspf;*.xsd;*.svg;*.ui;*.kcfg;*.qrc;*.wsdl" mimetype="text/xml;text/book;text/daml;text/rdf;application/rss+xml;application/xspf+xml;image/svg+xml;application/x-designer;application/xml" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="XML" version="2.03" kateversion="3.4" section="Markup" extensions="*.docbook;*.xml;*.rc;*.daml;*.rdf;*.rss;*.xspf;*.xsd;*.svg;*.ui;*.kcfg;*.qrc;*.wsdl" mimetype="text/xml;text/book;text/daml;text/rdf;application/rss+xml;application/xspf+xml;image/svg+xml;application/x-designer;application/xml" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <highlighting>
 <contexts>
@@ -134,7 +134,7 @@
   <itemData name="Doctype" defStyleNum="dsDataType" bold="1" spellChecking="false" />
   <itemData name="Element" defStyleNum="dsKeyword" spellChecking="false" />
   <itemData name="Attribute" defStyleNum="dsOthers" spellChecking="false" />
-  <itemData name="Value" defStyleNum="dsString" color="#a00" spellChecking="false" />
+  <itemData name="Value" defStyleNum="dsString" spellChecking="false" />
   <itemData name="EntityRef" defStyleNum="dsDecVal" spellChecking="false" />
   <itemData name="PEntityRef" defStyleNum="dsDecVal" spellChecking="false" />
   <itemData name="Error" defStyleNum="dsError" spellChecking="false" />

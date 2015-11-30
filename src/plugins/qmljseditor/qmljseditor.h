@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,58 +35,49 @@
 
 #include <qmljs/qmljsscanner.h>
 #include <qmljstools/qmljssemanticinfo.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/quickfix.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/uncommentselection.h>
 
-#include <QSharedPointer>
 #include <QModelIndex>
-#include <QTextLayout>
-#include <QVector>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
-class QTimer;
 QT_END_NAMESPACE
-
-namespace Core { class ICore; }
 
 namespace QmlJS {
     class ModelManagerInterface;
     class IContextPane;
-    class LookupContext;
 namespace AST { class UiObjectMember; }
 }
 
-/*!
-    The top-level namespace of the QmlJSEditor plug-in.
- */
 namespace QmlJSEditor {
+
 class QmlJSEditorDocument;
 class FindReferences;
 
 namespace Internal {
 
-class QmlJSEditor;
-class QmlOutlineModel;
-
-class QmlJSTextEditorWidget : public TextEditor::BaseTextEditorWidget
+class QmlJSEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
 
 public:
-    QmlJSTextEditorWidget(QWidget *parent = 0);
-    QmlJSTextEditorWidget(QmlJSTextEditorWidget *other);
-    ~QmlJSTextEditorWidget();
+    QmlJSEditorWidget();
 
-    virtual void unCommentSelection();
+    void finalizeInitialization() override;
 
     QmlJSEditorDocument *qmlJsEditorDocument() const;
 
     QModelIndex outlineModelIndex();
 
-    TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
-                                                        TextEditor::AssistReason reason) const;
+    TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
+                           TextEditor::AssistReason reason) const override;
+
+    void inspectElementUnderCursor() const;
+
 public slots:
     void findUsages();
     void renameUsages();
@@ -106,28 +98,25 @@ private slots:
     void updateUses();
 
     void semanticInfoUpdated(const QmlJSTools::SemanticInfo &semanticInfo);
-    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
     void performQuickFix(int index);
     void updateCodeWarnings(QmlJS::Document::Ptr doc);
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *e);
-    bool event(QEvent *e);
-    void wheelEvent(QWheelEvent *event);
-    void resizeEvent(QResizeEvent *event);
-    void scrollContentsBy(int dx, int dy);
-    void applyFontSettings();
-    TextEditor::BaseTextEditor *createEditor();
-    void createToolBar(QmlJSEditor *editable);
-    TextEditor::BaseTextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
+    void contextMenuEvent(QContextMenuEvent *e) override;
+    bool event(QEvent *e) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void scrollContentsBy(int dx, int dy) override;
+    void applyFontSettings() override;
+    void createToolBar();
+    TextEditor::TextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
                                                       bool resolveTarget = true,
-                                                      bool inNextSplit = false);
-    QString foldReplacementText(const QTextBlock &block) const;
+                                                      bool inNextSplit = false) override;
+    QString foldReplacementText(const QTextBlock &block) const override;
+    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
 private:
-    QmlJSTextEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
-    void ctor();
     bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
 
     void setSelectedElements();
@@ -137,19 +126,38 @@ private:
     bool hideContextPane();
 
     QmlJSEditorDocument *m_qmlJsEditorDocument;
-    QTimer *m_updateUsesTimer; // to wait for multiple text cursor position changes
-    QTimer *m_updateOutlineIndexTimer;
-    QTimer *m_contextPaneTimer;
+    QTimer m_updateUsesTimer; // to wait for multiple text cursor position changes
+    QTimer m_updateOutlineIndexTimer;
+    QTimer m_contextPaneTimer;
     QComboBox *m_outlineCombo;
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
 
-    QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
+    TextEditor::QuickFixOperations m_quickFixes;
 
     QmlJS::IContextPane *m_contextPane;
     int m_oldCursorPosition;
 
     FindReferences *m_findReferences;
+};
+
+
+class QmlJSEditor : public TextEditor::BaseTextEditor
+{
+    Q_OBJECT
+
+public:
+    QmlJSEditor();
+
+    bool isDesignModePreferred() const override;
+};
+
+class QmlJSEditorFactory : public TextEditor::TextEditorFactory
+{
+    Q_OBJECT
+
+public:
+    QmlJSEditorFactory();
 };
 
 } // namespace Internal

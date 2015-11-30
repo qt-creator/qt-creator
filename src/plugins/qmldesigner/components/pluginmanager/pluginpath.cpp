@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,24 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "pluginpath.h"
 #include "pluginmanager.h"
+
+#include <utils/fileutils.h>
 
 #include <iplugin.h>
 #include <QLibrary>
@@ -40,7 +38,7 @@
 #include <QObject>
 #include <QDebug>
 
-enum { debug = 1 };
+enum { debug = 0 };
 
 namespace QmlDesigner {
 
@@ -113,8 +111,8 @@ QStringList PluginPath::libraryFilePaths(const QDir &dir)
       // Load symbolic links but make sure all file names are unique as not
     // to fall for something like 'libplugin.so.1 -> libplugin.so'
     QStringList result;
-    const QFileInfoList::const_iterator icend = infoList.constEnd();
-    for (QFileInfoList::const_iterator it = infoList.constBegin(); it != icend; ++it) {
+    const auto icend = infoList.constEnd();
+    for (auto it = infoList.constBegin(); it != icend; ++it) {
         QString fileName;
         if (it->isSymLink()) {
             const QFileInfo linkTarget = QFileInfo(it->symLinkTarget());
@@ -156,8 +154,8 @@ void PluginPath::getInstances(PluginManager::IPluginList *list)
     // Compile list of instances
     if (m_plugins.empty())
         return;
-    const PluginDataList::iterator end = m_plugins.end();
-    for (PluginDataList::iterator it = m_plugins.begin(); it != end; ++it)
+    const auto end = m_plugins.end();
+    for (auto it = m_plugins.begin(); it != end; ++it)
         if (IPlugin *i = instance(*it))
             list->push_back(i);
 }
@@ -170,9 +168,9 @@ QStandardItem *PluginPath::createModelItem()
     // category at the end
     QStandardItem *pathItem = new QStandardItem(m_path.absolutePath());
     QStandardItem *failedCategory = 0;
-    const PluginDataList::iterator end = m_plugins.end();
-    for (PluginDataList::iterator it = m_plugins.begin(); it != end; ++it) {
-        QStandardItem *pluginItem = new QStandardItem(QFileInfo(it->path).fileName());
+    const auto end = m_plugins.end();
+    for (auto it = m_plugins.begin(); it != end; ++it) {
+        QStandardItem *pluginItem = new QStandardItem(Utils::FileName::fromString(it->path).fileName());
         if (instance(*it)) {
             pluginItem->appendRow(new QStandardItem(QString::fromUtf8(it->instanceGuard->metaObject()->className())));
             pathItem->appendRow(pluginItem);

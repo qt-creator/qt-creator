@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,31 +9,35 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "insertionpointlocator.h"
 
+#include "cppprojectfile.h"
 #include "cpptoolsreuse.h"
 #include "symbolfinder.h"
 #include "cpptoolsconstants.h"
 
 #include <coreplugin/icore.h>
+
+#include <cplusplus/LookupContext.h>
 
 #include <utils/qtcassert.h>
 
@@ -112,7 +116,7 @@ protected:
     {
         if (!ast->lbrace_token || !ast->rbrace_token)
             return true;
-        if (!ast->symbol || !ast->symbol->isEqualTo(_clazz))
+        if (!ast->symbol || !ast->symbol->match(_clazz))
             return true;
 
         QList<AccessRange> ranges = collectAccessRanges(
@@ -134,7 +138,7 @@ protected:
         if (needsLeadingEmptyLine)
             prefix += QLatin1String("\n");
         if (needsPrefix)
-            prefix += InsertionPointLocator::accessSpecToString(_xsSpec);
+            prefix += InsertionPointLocator::accessSpecToString(_xsSpec) + QLatin1String(":\n");
 
         QString suffix;
         if (needsSuffix)
@@ -277,25 +281,25 @@ QString InsertionPointLocator::accessSpecToString(InsertionPointLocator::AccessS
     switch (xsSpec) {
     default:
     case InsertionPointLocator::Public:
-        return QLatin1String("public:\n");
+        return QLatin1String("public");
 
     case InsertionPointLocator::Protected:
-        return QLatin1String("protected:\n");
+        return QLatin1String("protected");
 
     case InsertionPointLocator::Private:
-        return QLatin1String("private:\n");
+        return QLatin1String("private");
 
     case InsertionPointLocator::PublicSlot:
-        return QLatin1String("public slots:\n");
+        return QLatin1String("public slots");
 
     case InsertionPointLocator::ProtectedSlot:
-        return QLatin1String("protected slots:\n");
+        return QLatin1String("protected slots");
 
     case InsertionPointLocator::PrivateSlot:
-        return QLatin1String("private slots:\n");
+        return QLatin1String("private slots");
 
     case InsertionPointLocator::Signals:
-        return QLatin1String("signals:\n");
+        return QLatin1String("signals");
     }
 }
 
@@ -496,7 +500,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
         return noResult;
 
     // scan preceding declarations for a function declaration (and see if it is defined)
-    CppTools::SymbolFinder symbolFinder;
+    SymbolFinder symbolFinder;
     Function *definitionFunction = 0;
     QString prefix, suffix;
     Declaration *surroundingFunctionDecl = 0;
@@ -571,7 +575,7 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(Symbol *declara
         return result;
 
     if (useSymbolFinder) {
-        CppTools::SymbolFinder symbolFinder;
+        SymbolFinder symbolFinder;
         if (symbolFinder.findMatchingDefinition(declaration, m_refactoringChanges.snapshot(), true))
             return result;
     }
@@ -613,8 +617,16 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(Symbol *declara
     } else {
         QTC_ASSERT(column, return result);
 
-        prefix = QLatin1String("\n\n");
         int firstNonSpace = targetFile->position(line, column);
+        prefix = QLatin1String("\n\n");
+        // Only one new line if at the end of file
+        if (const QTextDocument *doc = targetFile->document()) {
+            if (firstNonSpace + 1 == doc->characterCount() /* + 1 because zero based index */
+                    && doc->characterAt(firstNonSpace) == QChar::ParagraphSeparator) {
+                prefix = QLatin1String("\n");
+            }
+        }
+
         QChar c = targetFile->charAt(firstNonSpace);
         while (c == QLatin1Char(' ') || c == QLatin1Char('\t')) {
             ++firstNonSpace;

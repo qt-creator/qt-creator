@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -113,7 +114,7 @@ void PchManager::setPCHInfo(const QList<ProjectPart::Ptr> &projectParts,
                                 pchInfo->fileName()), Core::MessageManager::Silent);
         }
         if (!msgs.second.isEmpty())
-            emit pchMessage(msgs.second.join(QLatin1String("\n")), Core::MessageManager::Flash);
+            emit pchMessage(msgs.second.join(QLatin1Char('\n')), Core::MessageManager::Flash);
     }
 }
 
@@ -142,12 +143,10 @@ void PchManager::onProjectPartsUpdated(ProjectExplorer::Project *project)
     ClangProjectSettings *cps = settingsForProject(project);
     Q_ASSERT(cps);
 
-    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
     const QList<ProjectPart::Ptr> projectParts = mmi->projectInfo(
                 cps->project()).projectParts();
     updatePchInfo(cps, projectParts);
-
-    emit pchInfoUpdated();
 }
 
 void PchManager::updatePchInfo(ClangProjectSettings *cps,
@@ -184,7 +183,7 @@ void PchManager::updatePchInfo(ClangProjectSettings *cps,
     QFuture<void> future = QtConcurrent::run(updateFunction,
                                              UpdateParams(customPchFile, projectParts));
     m_pchGenerationWatcher.setFuture(future);
-    Core::ProgressManager::addTask(future, tr("Precompiling..."), "Key.Tmp.Precompiling");
+    Core::ProgressManager::addTask(future, tr("Precompiling"), "Key.Tmp.Precompiling");
 }
 
 namespace {
@@ -249,14 +248,14 @@ void PchManager::doPchInfoUpdateNone(QFutureInterface<void> &future,
 void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
                                       const PchManager::UpdateParams params)
 {
-    QHash<QString, QSet<QString> > includes, frameworks;
+    typedef ProjectPart::HeaderPath HeaderPath;
+    QHash<QString, QSet<HeaderPath>> headers;
     QHash<QString, QSet<QByteArray> > definesPerPCH;
     QHash<QString, bool> objc;
     QHash<QString, bool> cplusplus;
     QHash<QString, ProjectPart::QtVersion> qtVersions;
-    QHash<QString, ProjectPart::CVersion> cVersions;
-    QHash<QString, ProjectPart::CXXVersion> cxxVersions;
-    QHash<QString, ProjectPart::CXXExtensions> cxxExtensionsMap;
+    QHash<QString, ProjectPart::LanguageVersion> languageVersions;
+    QHash<QString, ProjectPart::LanguageExtensions> languageExtensionsMap;
     QHash<QString, QList<ProjectPart::Ptr> > inputToParts;
     foreach (const ProjectPart::Ptr &projectPart, params.projectParts) {
         if (projectPart->precompiledHeaders.isEmpty())
@@ -266,11 +265,10 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
             continue;
         inputToParts[pch].append(projectPart);
 
-        includes[pch].unite(QSet<QString>::fromList(projectPart->includePaths));
-        frameworks[pch].unite(QSet<QString>::fromList(projectPart->frameworkPaths));
-        cVersions[pch] = std::max(cVersions.value(pch, ProjectPart::C89), projectPart->cVersion);
-        cxxVersions[pch] = std::max(cxxVersions.value(pch, ProjectPart::CXX98), projectPart->cxxVersion);
-        cxxExtensionsMap[pch] = cxxExtensionsMap[pch] | projectPart->cxxExtensions;
+        headers[pch].unite(QSet<HeaderPath>::fromList(projectPart->headerPaths));
+        languageVersions[pch] = std::max(languageVersions.value(pch, ProjectPart::C89),
+                                         projectPart->languageVersion);
+        languageExtensionsMap[pch] = languageExtensionsMap[pch] | projectPart->languageExtensions;
 
         if (hasObjCFiles(projectPart))
             objc[pch] = true;
@@ -303,11 +301,10 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
             return;
         ProjectPart::Ptr projectPart(new ProjectPart);
         projectPart->qtVersion = qtVersions[pch];
-        projectPart->cVersion = cVersions[pch];
-        projectPart->cxxVersion = cxxVersions[pch];
-        projectPart->cxxExtensions = cxxExtensionsMap[pch];
-        projectPart->includePaths = includes[pch].toList();
-        projectPart->frameworkPaths = frameworks[pch].toList();
+        projectPart->languageVersion = languageVersions[pch];
+        projectPart->languageExtensions = languageExtensionsMap[pch];
+        projectPart->headerPaths = headers[pch].toList();
+        projectPart->updateLanguageFeatures();
 
         QList<QByteArray> defines = definesPerPCH[pch].toList();
         if (!defines.isEmpty()) {
@@ -322,7 +319,7 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
                 getPrefixFileKind(objc.value(pch, false), cplusplus.value(pch, false));
 
         QStringList options = Utils::createClangOptions(projectPart, prefixFileKind);
-        projectPart.reset();
+        projectPart.clear();
 
         PchManager *pchManager = PchManager::instance();
         PchInfo::Ptr pchInfo = pchManager->findMatchingPCH(pch, options, true);
@@ -378,22 +375,20 @@ void PchManager::doPchInfoUpdateCustom(QFutureInterface<void> &future,
     future.setProgressRange(0, 1);
     future.setProgressValue(0);
 
-    QSet<QString> includes, frameworks;
+    ProjectPart::HeaderPaths headers;
     bool objc = false;
     bool cplusplus = false;
     ProjectPart::Ptr united(new ProjectPart());
-    united->cxxVersion = ProjectPart::CXX98;
+    united->languageVersion = ProjectPart::C89;
     foreach (const ProjectPart::Ptr &projectPart, params.projectParts) {
-        includes.unite(QSet<QString>::fromList(projectPart->includePaths));
-        frameworks.unite(QSet<QString>::fromList(projectPart->frameworkPaths));
-        united->cVersion = std::max(united->cVersion, projectPart->cVersion);
-        united->cxxVersion = std::max(united->cxxVersion, projectPart->cxxVersion);
+        headers += projectPart->headerPaths;
+        united->languageVersion = std::max(united->languageVersion, projectPart->languageVersion);
         united->qtVersion = std::max(united->qtVersion, projectPart->qtVersion);
         objc |= hasObjCFiles(projectPart);
         cplusplus |= hasCppFiles(projectPart);
     }
-    united->frameworkPaths = frameworks.toList();
-    united->includePaths = includes.toList();
+    united->updateLanguageFeatures();
+    united->headerPaths = headers;
     QStringList opts = Utils::createClangOptions(
                 united, getPrefixFileKind(objc, cplusplus));
     united.clear();
@@ -443,8 +438,8 @@ void PchManager::updateActivePchFiles()
     QMutexLocker locker(&m_mutex);
 
     QSet<ProjectPart::Ptr> activeParts;
-    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
-    foreach (const CppTools::CppModelManagerInterface::ProjectInfo &pi, mmi->projectInfos())
+    CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
+    foreach (const CppTools::ProjectInfo &pi, mmi->projectInfos())
         activeParts.unite(QSet<ProjectPart::Ptr>::fromList(pi.projectParts()));
     QList<ProjectPart::Ptr> partsWithPCHFiles = m_activePchFiles.keys();
     foreach (ProjectPart::Ptr pPart, partsWithPCHFiles)

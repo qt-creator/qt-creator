@@ -25,7 +25,7 @@
 
 namespace CPlusPlus {
 
-template <typename _Tp> class List;
+template <typename Tptr> class List;
 
 class AST;
 class ASTVisitor;
@@ -33,18 +33,19 @@ class ASTMatcher;
 
 class AccessDeclarationAST;
 class AliasDeclarationAST;
+class AlignmentSpecifierAST;
 class AlignofExpressionAST;
 class AnonymousNameAST;
 class ArrayAccessAST;
 class ArrayDeclaratorAST;
 class ArrayInitializerAST;
 class AsmDefinitionAST;
-class AttributeAST;
 class AttributeSpecifierAST;
 class BaseSpecifierAST;
 class BinaryExpressionAST;
 class BoolLiteralAST;
 class BracedInitializerAST;
+class BracketDesignatorAST;
 class BreakStatementAST;
 class CallAST;
 class CaptureAST;
@@ -68,8 +69,11 @@ class DeclaratorAST;
 class DeclaratorIdAST;
 class DecltypeSpecifierAST;
 class DeleteExpressionAST;
+class DesignatedInitializerAST;
+class DesignatorAST;
 class DestructorNameAST;
 class DoStatementAST;
+class DotDesignatorAST;
 class DynamicExceptionSpecificationAST;
 class ElaboratedTypeSpecifierAST;
 class EmptyDeclarationAST;
@@ -85,6 +89,8 @@ class ForStatementAST;
 class ForeachStatementAST;
 class FunctionDeclaratorAST;
 class FunctionDefinitionAST;
+class GnuAttributeAST;
+class GnuAttributeSpecifierAST;
 class GotoStatementAST;
 class IdExpressionAST;
 class IfStatementAST;
@@ -107,6 +113,7 @@ class NestedNameSpecifierAST;
 class NewArrayDeclaratorAST;
 class NewExpressionAST;
 class NewTypeIdAST;
+class NoExceptOperatorExpressionAST;
 class NoExceptSpecificationAST;
 class NumericLiteralAST;
 class ObjCClassDeclarationAST;
@@ -197,7 +204,7 @@ typedef List<MemInitializerAST *> MemInitializerListAST;
 typedef List<NewArrayDeclaratorAST *> NewArrayDeclaratorListAST;
 typedef List<PostfixAST *> PostfixListAST;
 typedef List<PostfixDeclaratorAST *> PostfixDeclaratorListAST;
-typedef List<AttributeAST *> AttributeListAST;
+typedef List<GnuAttributeAST *> GnuAttributeListAST;
 typedef List<NestedNameSpecifierAST *> NestedNameSpecifierListAST;
 typedef List<CatchClauseAST *> CatchClauseListAST;
 typedef List<PtrOperatorAST *> PtrOperatorListAST;
@@ -214,6 +221,8 @@ typedef List<ObjCSelectorArgumentAST *> ObjCSelectorArgumentListAST;
 typedef List<ObjCPropertyAttributeAST *> ObjCPropertyAttributeListAST;
 typedef List<ObjCMessageArgumentDeclarationAST *> ObjCMessageArgumentDeclarationListAST;
 typedef List<ObjCSynthesizedPropertyAST *> ObjCSynthesizedPropertyListAST;
+
+typedef List<DesignatorAST *> DesignatorListAST;
 
 } // namespace CPlusPlus
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "cleandialog.h"
 #include "ui_cleandialog.h"
-#include "vcsbaseoutputwindow.h"
+#include "vcsoutputwindow.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -168,10 +169,12 @@ CleanDialog::CleanDialog(QWidget *parent) :
     d->ui.filesTreeView->setSelectionMode(QAbstractItemView::NoSelection);
     d->ui.filesTreeView->setAllColumnsShowFocus(true);
     d->ui.filesTreeView->setRootIsDecorated(false);
-    connect(d->ui.filesTreeView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(slotDoubleClicked(QModelIndex)));
-    connect(d->ui.selectAllCheckBox, SIGNAL(clicked(bool)), this, SLOT(selectAllItems(bool)));
-    connect(d->ui.filesTreeView, SIGNAL(clicked(QModelIndex)), this, SLOT(updateSelectAllCheckBox()));
+    connect(d->ui.filesTreeView, &QAbstractItemView::doubleClicked,
+            this, &CleanDialog::slotDoubleClicked);
+    connect(d->ui.selectAllCheckBox, &QAbstractButton::clicked,
+            this, &CleanDialog::selectAllItems);
+    connect(d->ui.filesTreeView, &QAbstractItemView::clicked,
+            this, &CleanDialog::updateSelectAllCheckBox);
 }
 
 CleanDialog::~CleanDialog()
@@ -213,7 +216,7 @@ void CleanDialog::addFile(const QString &workingDirectory, QString fileName, boo
     bool isDir = fi.isDir();
     if (isDir)
         checked = false;
-    QStandardItem *nameItem = new QStandardItem(QDir::toNativeSeparators(fileName));
+    auto nameItem = new QStandardItem(QDir::toNativeSeparators(fileName));
     nameItem->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
     nameItem->setIcon(isDir ? folderIcon : fileIcon);
     nameItem->setCheckable(true);
@@ -223,7 +226,7 @@ void CleanDialog::addFile(const QString &workingDirectory, QString fileName, boo
     // Tooltip with size information
     if (fi.isFile()) {
         const QString lastModified = fi.lastModified().toString(Qt::DefaultLocaleShortDate);
-        nameItem->setToolTip(tr("%n bytes, last modified %1", 0, fi.size()).arg(lastModified));
+        nameItem->setToolTip(tr("%n bytes, last modified %1.", 0, fi.size()).arg(lastModified));
     }
     d->m_filesModel->appendRow(nameItem);
 }
@@ -260,13 +263,13 @@ bool CleanDialog::promptToDelete()
         return false;
 
     // Remove in background
-    Internal::CleanFilesTask *cleanTask = new Internal::CleanFilesTask(d->m_workingDirectory, selectedFiles);
-    connect(cleanTask, SIGNAL(error(QString)),
-            VcsBase::VcsBaseOutputWindow::instance(), SLOT(appendSilently(QString)),
+    auto cleanTask = new Internal::CleanFilesTask(d->m_workingDirectory, selectedFiles);
+    connect(cleanTask, &Internal::CleanFilesTask::error,
+            VcsOutputWindow::instance(), &VcsOutputWindow::appendSilently,
             Qt::QueuedConnection);
 
     QFuture<void> task = QtConcurrent::run(cleanTask, &Internal::CleanFilesTask::run);
-    const QString taskName = tr("Cleaning %1").
+    const QString taskName = tr("Cleaning \"%1\"").
                              arg(QDir::toNativeSeparators(d->m_workingDirectory));
     Core::ProgressManager::addTask(task, taskName, "VcsBase.cleanRepository");
     return true;

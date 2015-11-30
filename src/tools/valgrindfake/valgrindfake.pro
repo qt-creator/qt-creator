@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = valgrind-fake
 
-QT += network xml
+QT += network
 QT -= gui widgets
 
 macx:CONFIG -= app_bundle

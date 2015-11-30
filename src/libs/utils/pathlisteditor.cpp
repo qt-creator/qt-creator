@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,7 +34,6 @@
 
 #include <QVBoxLayout>
 #include <QPlainTextEdit>
-#include <QToolButton>
 #include <QFileDialog>
 #include <QTextBlock>
 #include <QMenu>
@@ -42,6 +42,7 @@
 #include <QMimeData>
 #include <QSharedPointer>
 #include <QDebug>
+#include <QPushButton>
 
 /*!
     \class Utils::PathListEditor
@@ -63,6 +64,8 @@
  */
 
 namespace Utils {
+
+const int PathListEditor::lastInsertButtonIndex = 0;
 
 // ------------ PathListPlainTextEdit:
 // Replaces the platform separator ';',':' by '\n'
@@ -104,26 +107,20 @@ struct PathListEditorPrivate {
 
     QHBoxLayout *layout;
     QVBoxLayout *buttonLayout;
-    QToolButton *toolButton;
-    QMenu *buttonMenu;
     QPlainTextEdit *edit;
-    QSignalMapper *envVarMapper;
     QString fileDialogTitle;
 };
 
 PathListEditorPrivate::PathListEditorPrivate()   :
         layout(new QHBoxLayout),
         buttonLayout(new QVBoxLayout),
-        toolButton(new QToolButton),
-        buttonMenu(new QMenu),
-        edit(new PathListPlainTextEdit),
-        envVarMapper(0)
+        edit(new PathListPlainTextEdit)
 {
     layout->setMargin(0);
     layout->addWidget(edit);
-    buttonLayout->addWidget(toolButton);
-    buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     layout->addLayout(buttonLayout);
+    buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored,
+                                          QSizePolicy::MinimumExpanding));
 }
 
 PathListEditor::PathListEditor(QWidget *parent) :
@@ -131,14 +128,17 @@ PathListEditor::PathListEditor(QWidget *parent) :
         d(new PathListEditorPrivate)
 {
     setLayout(d->layout);
-    d->toolButton->setPopupMode(QToolButton::MenuButtonPopup);
-    d->toolButton->setText(tr("Insert..."));
-    d->toolButton->setMenu(d->buttonMenu);
-    connect(d->toolButton, SIGNAL(clicked()), this, SLOT(slotInsert()));
-
-    addAction(tr("Add..."), this, SLOT(slotAdd()));
-    addAction(tr("Delete Line"), this, SLOT(deletePathAtCursor()));
-    addAction(tr("Clear"), this, SLOT(clear()));
+    addButton(tr("Insert..."), this, [this](){
+        const QString dir = QFileDialog::getExistingDirectory(this, d->fileDialogTitle);
+        if (!dir.isEmpty())
+            insertPathAtCursor(QDir::toNativeSeparators(dir));
+    });
+    addButton(tr("Delete Line"), this, [this](){
+        deletePathAtCursor();
+    });
+    addButton(tr("Clear"), this, [this](){
+        d->edit->clear();
+    });
 }
 
 PathListEditor::~PathListEditor()
@@ -146,40 +146,19 @@ PathListEditor::~PathListEditor()
     delete d;
 }
 
-static inline QAction *createAction(QObject *parent, const QString &text, QObject * receiver, const char *slotFunc)
+QPushButton *PathListEditor::addButton(const QString &text, QObject *parent,
+                                       std::function<void()> slotFunc)
 {
-    QAction *rc = new QAction(text, parent);
-    QObject::connect(rc, SIGNAL(triggered()), receiver, slotFunc);
-    return rc;
+    return insertButton(d->buttonLayout->count() - 1, text, parent, slotFunc);
 }
 
-QAction *PathListEditor::addAction(const QString &text, QObject * receiver, const char *slotFunc)
+QPushButton *PathListEditor::insertButton(int index /* -1 */, const QString &text, QObject *parent,
+                                          std::function<void()> slotFunc)
 {
-    QAction *rc = createAction(this, text, receiver, slotFunc);
-    d->buttonMenu->addAction(rc);
+    QPushButton *rc = new QPushButton(text, this);
+    QObject::connect(rc, &QPushButton::pressed, parent, slotFunc);
+    d->buttonLayout->insertWidget(index, rc);
     return rc;
-}
-
-QAction *PathListEditor::insertAction(int index /* -1 */, const QString &text, QObject * receiver, const char *slotFunc)
-{
-    // Find the 'before' action
-    QAction *beforeAction = 0;
-    if (index >= 0) {
-        const QList<QAction*> actions = d->buttonMenu->actions();
-        if (index < actions.size())
-            beforeAction = actions.at(index);
-    }
-    QAction *rc = createAction(this, text, receiver, slotFunc);
-    if (beforeAction)
-        d->buttonMenu->insertAction(beforeAction, rc);
-    else
-        d->buttonMenu->addAction(rc);
-    return rc;
-}
-
-int PathListEditor::lastAddActionIndex()
-{
-    return 0; // Insert/Add
 }
 
 QString PathListEditor::pathListString() const
@@ -202,7 +181,7 @@ QStringList PathListEditor::pathList() const
 
 void PathListEditor::setPathList(const QStringList &l)
 {
-    d->edit->setPlainText(l.join(QString(QLatin1Char('\n'))));
+    d->edit->setPlainText(l.join(QLatin1Char('\n')));
 }
 
 void PathListEditor::setPathList(const QString &pathString)
@@ -213,11 +192,6 @@ void PathListEditor::setPathList(const QString &pathString)
         setPathList(pathString.split(HostOsInfo::pathListSeparator(),
                 QString::SkipEmptyParts));
     }
-}
-
-void PathListEditor::setPathListFromEnvVariable(const QString &var)
-{
-    setPathList(QString::fromLocal8Bit(qgetenv(var.toLocal8Bit())));
 }
 
 QString PathListEditor::fileDialogTitle() const
@@ -233,33 +207,6 @@ void PathListEditor::setFileDialogTitle(const QString &l)
 void PathListEditor::clear()
 {
     d->edit->clear();
-}
-
-void PathListEditor::slotAdd()
-{
-    const QString dir = QFileDialog::getExistingDirectory(this, d->fileDialogTitle);
-    if (!dir.isEmpty())
-        appendPath(QDir::toNativeSeparators(dir));
-}
-
-void PathListEditor::slotInsert()
-{
-    const QString dir = QFileDialog::getExistingDirectory(this, d->fileDialogTitle);
-    if (!dir.isEmpty())
-        insertPathAtCursor(QDir::toNativeSeparators(dir));
-}
-
-// Add a button "Import from 'Path'"
-void PathListEditor::addEnvVariableImportAction(const QString &var)
-{
-    if (!d->envVarMapper) {
-        d->envVarMapper = new QSignalMapper(this);
-        connect(d->envVarMapper, SIGNAL(mapped(QString)), this, SLOT(setPathListFromEnvVariable(QString)));
-    }
-
-    QAction *a = insertAction(lastAddActionIndex() + 1,
-                              tr("From \"%1\"").arg(var), d->envVarMapper, SLOT(map()));
-    d->envVarMapper->setMapping(a, var);
 }
 
 QString PathListEditor::text() const
@@ -289,15 +236,6 @@ void PathListEditor::insertPathAtCursor(const QString &path)
         cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
         d->edit->setTextCursor(cursor);
     }
-}
-
-void PathListEditor::appendPath(const QString &path)
-{
-    QString paths = text().trimmed();
-    if (!paths.isEmpty())
-        paths += QLatin1Char('\n');
-    paths += path;
-    setText(paths);
 }
 
 void PathListEditor::deletePathAtCursor()

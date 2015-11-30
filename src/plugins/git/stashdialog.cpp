@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,6 +34,7 @@
 #include "gitutils.h"
 #include "ui_stashdialog.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -51,17 +53,17 @@ namespace Internal {
 
 static inline GitClient *gitClient()
 {
-    return GitPlugin::instance()->gitClient();
+    return GitPlugin::instance()->client();
 }
 
 static inline QList<QStandardItem*> stashModelRowItems(const Stash &s)
 {
     Qt::ItemFlags itemFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    QStandardItem *nameItem = new QStandardItem(s.name);
+    auto nameItem = new QStandardItem(s.name);
     nameItem->setFlags(itemFlags);
-    QStandardItem *branchItem = new QStandardItem(s.branch);
+    auto branchItem = new QStandardItem(s.branch);
     branchItem->setFlags(itemFlags);
-    QStandardItem *messageItem = new QStandardItem(s.message);
+    auto messageItem = new QStandardItem(s.message);
     messageItem->setFlags(itemFlags);
     QList<QStandardItem*> rc;
     rc << nameItem << branchItem << messageItem;
@@ -118,31 +120,40 @@ StashDialog::StashDialog(QWidget *parent) :
     ui->filterLineEdit->setFiltering(true);
     // Buttons
     ui->buttonBox->addButton(m_showCurrentButton, QDialogButtonBox::ActionRole);
-    connect(m_showCurrentButton, SIGNAL(clicked()), this, SLOT(showCurrent()));
+    connect(m_showCurrentButton, &QPushButton::clicked,
+            this, &StashDialog::showCurrent);
     ui->buttonBox->addButton(m_refreshButton, QDialogButtonBox::ActionRole);
-    connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(forceRefresh()));
+    connect(m_refreshButton, &QPushButton::clicked,
+            this, &StashDialog::forceRefresh);
     ui->buttonBox->addButton(m_restoreCurrentButton, QDialogButtonBox::ActionRole);
-    connect(m_restoreCurrentButton, SIGNAL(clicked()), this, SLOT(restoreCurrent()));
+    connect(m_restoreCurrentButton, &QPushButton::clicked,
+            this, &StashDialog::restoreCurrent);
     ui->buttonBox->addButton(m_restoreCurrentInBranchButton, QDialogButtonBox::ActionRole);
-    connect(m_restoreCurrentInBranchButton, SIGNAL(clicked()), this, SLOT(restoreCurrentInBranch()));
+    connect(m_restoreCurrentInBranchButton, &QPushButton::clicked,
+            this, &StashDialog::restoreCurrentInBranch);
     ui->buttonBox->addButton(m_deleteSelectionButton, QDialogButtonBox::ActionRole);
-    connect(m_deleteSelectionButton, SIGNAL(clicked()), this, SLOT(deleteSelection()));
+    connect(m_deleteSelectionButton, &QPushButton::clicked,
+            this, &StashDialog::deleteSelection);
     ui->buttonBox->addButton(m_deleteAllButton, QDialogButtonBox::ActionRole);
-    connect(m_deleteAllButton, SIGNAL(clicked()), this, SLOT(deleteAll()));
+    connect(m_deleteAllButton, &QPushButton::clicked,
+            this, &StashDialog::deleteAll);
     // Models
     m_proxyModel->setSourceModel(m_model);
     m_proxyModel->setFilterKeyColumn(-1);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    ui->stashView->setActivationMode(Utils::DoubleClickActivation);
     ui->stashView->setModel(m_proxyModel);
     ui->stashView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->stashView->setAllColumnsShowFocus(true);
     ui->stashView->setUniformRowHeights(true);
-    connect(ui->filterLineEdit, SIGNAL(filterChanged(QString)), m_proxyModel, SLOT(setFilterFixedString(QString)));
-    connect(ui->stashView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(enableButtons()));
-    connect(ui->stashView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(enableButtons()));
-    connect(ui->stashView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showCurrent()));
+    connect(ui->filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            m_proxyModel, &QSortFilterProxyModel::setFilterFixedString);
+    connect(ui->stashView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &StashDialog::enableButtons);
+    connect(ui->stashView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &StashDialog::enableButtons);
+    connect(ui->stashView, &Utils::TreeView::activated,
+            this, &StashDialog::showCurrent);
     ui->stashView->setFocus();
 }
 
@@ -206,7 +217,7 @@ void StashDialog::deleteSelection()
             errors.push_back(errorMessage);
     refresh(m_repository, true);
     if (!errors.isEmpty())
-        warning(title, errors.join(QString(QLatin1Char('\n'))));
+        warning(title, errors.join(QLatin1Char('\n')));
 }
 
 void StashDialog::showCurrent()
@@ -366,7 +377,7 @@ QList<int> StashDialog::selectedRows() const
         if (index.isValid())
             rc.push_back(index.row());
     }
-    qSort(rc);
+    Utils::sort(rc);
     return rc;
 }
 

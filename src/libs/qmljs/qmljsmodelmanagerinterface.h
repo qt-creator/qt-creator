@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,10 +33,9 @@
 
 #include "qmljs_global.h"
 #include "qmljsbundle.h"
-#include "qmljsconstants.h"
 #include "qmljsdocument.h"
 #include "qmljsqrcparser.h"
-#include "qmljsviewercontext.h"
+#include "qmljsdialect.h"
 
 #include <cplusplus/CppDocument.h>
 #include <utils/environment.h>
@@ -43,12 +43,11 @@
 #include <QFuture>
 #include <QFutureSynchronizer>
 #include <QHash>
-#include <QMultiHash>
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
-#include <QStringList>
-#include <QTimer>
+
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace ProjectExplorer { class Project; }
 
@@ -79,7 +78,7 @@ public:
             , tryQmlDump(false), qmlDumpHasRelocatableFlag(true)
         { }
 
-        operator bool() const
+        explicit operator bool() const
         { return ! project.isNull(); }
 
         bool isValid() const
@@ -88,12 +87,10 @@ public:
         bool isNull() const
         { return project.isNull(); }
 
-        QStringList completeImportPaths();
-
     public: // attributes
         QPointer<ProjectExplorer::Project> project;
         QStringList sourceFiles;
-        QStringList importPaths;
+        PathsAndLanguages importPaths;
         QStringList activeResourceFiles;
         QStringList allResourceFiles;
 
@@ -142,13 +139,14 @@ public:
     };
 
     typedef QHash<QString, CppData> CppDataHash;
+    typedef QHashIterator<QString, CppData> CppDataHashIterator;
 
 public:
     ModelManagerInterface(QObject *parent = 0);
-    virtual ~ModelManagerInterface();
+    ~ModelManagerInterface() override;
 
-    static Language::Enum guessLanguageOfFile(const QString &fileName);
-    static QStringList globPatternsForLanguages(const QList<Language::Enum> languages);
+    static Dialect guessLanguageOfFile(const QString &fileName);
+    static QStringList globPatternsForLanguages(const QList<Dialect> languages);
     static ModelManagerInterface *instance();
     static void writeWarning(const QString &msg);
     static WorkingCopy workingCopy();
@@ -156,6 +154,7 @@ public:
     QmlJS::Snapshot snapshot() const;
     QmlJS::Snapshot newestSnapshot() const;
 
+    void activateScan();
     void updateSourceFiles(const QStringList &files,
                            bool emitDocumentOnDiskChanged);
     void fileChangedOnDisk(const QString &path);
@@ -170,16 +169,19 @@ public:
                                              QrcResourceSelector resources = AllQrcResources);
 
     QList<ProjectInfo> projectInfos() const;
-    ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
+    ProjectInfo projectInfo(ProjectExplorer::Project *project,
+                            const ModelManagerInterface::ProjectInfo &defaultValue = ProjectInfo()) const;
     void updateProjectInfo(const ProjectInfo &pinfo, ProjectExplorer::Project *p);
 
     void updateDocument(QmlJS::Document::Ptr doc);
     void updateLibraryInfo(const QString &path, const QmlJS::LibraryInfo &info);
     void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
     void updateQrcFile(const QString &path);
-    ProjectInfo projectInfoForPath(QString path);
+    ProjectInfo projectInfoForPath(const QString &path) const;
+    QList<ProjectInfo> allProjectInfosForPath(const QString &path) const;
+    bool isIdle() const ;
 
-    QStringList importPaths() const;
+    PathsAndLanguages importPaths() const;
     QmlJS::QmlLanguageBundles activeBundles() const;
     QmlJS::QmlLanguageBundles extendedBundles() const;
 
@@ -188,17 +190,25 @@ public:
 
     CppDataHash cppData() const;
     LibraryInfo builtins(const Document::Ptr &doc) const;
-    virtual ViewerContext completeVContext(const ViewerContext &vCtx,
-                                           const Document::Ptr &doc = Document::Ptr(0)) const;
-    virtual ViewerContext defaultVContext(bool autoComplete = true,
-                                          const Document::Ptr &doc = Document::Ptr(0)) const;
-    virtual void setDefaultVContext(const ViewerContext &vContext);
+    ViewerContext completeVContext(const ViewerContext &vCtx,
+                                   const Document::Ptr &doc = Document::Ptr(0)) const;
+    ViewerContext defaultVContext(Dialect language = Dialect::Qml,
+                                  const Document::Ptr &doc = Document::Ptr(0),
+                                  bool autoComplete = true) const;
+    void setDefaultVContext(const ViewerContext &vContext);
+    virtual ProjectInfo defaultProjectInfo() const;
+    virtual ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const;
+
 
     // Blocks until all parsing threads are done. Used for testing.
     void joinAllThreads();
 
-    virtual ModelManagerInterface::ProjectInfo defaultProjectInfo() const;
-
+    QmlJS::Document::Ptr ensuredGetDocumentForPath(const QString &filePath);
+    static void importScan(QFutureInterface<void> &future,
+                    WorkingCopy workingCopyInternal,
+                    PathsAndLanguages paths,
+                    ModelManagerInterface *modelManager,
+                    bool emitDocChangedOnDisk, bool libOnly = true);
 public slots:
     virtual void resetCodeModel();
     void removeProjectInfo(ProjectExplorer::Project *project);
@@ -215,7 +225,8 @@ protected slots:
     void asyncReset();
     virtual void startCppQmlTypeUpdate();
 protected:
-    virtual QHash<QString,Language::Enum> languageForSuffix() const;
+    QMutex *mutex() const;
+    virtual QHash<QString,Dialect> languageForSuffix() const;
     virtual void writeMessageInternal(const QString &msg) const;
     virtual WorkingCopy workingCopyInternal() const;
     virtual void addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const;
@@ -225,37 +236,33 @@ protected:
 
     static void parseLoop(QSet<QString> &scannedPaths, QSet<QString> &newLibraries,
                           WorkingCopy workingCopyInternal, QStringList files, ModelManagerInterface *modelManager,
-                          QmlJS::Language::Enum mainLanguage, bool emitDocChangedOnDisk,
-                          Utils::function<bool (qreal)> reportProgress);
+                          QmlJS::Dialect mainLanguage, bool emitDocChangedOnDisk,
+                          std::function<bool (qreal)> reportProgress);
     static void parse(QFutureInterface<void> &future,
                       WorkingCopy workingCopyInternal,
                       QStringList files,
                       ModelManagerInterface *modelManager,
-                      QmlJS::Language::Enum mainLanguage,
+                      QmlJS::Dialect mainLanguage,
                       bool emitDocChangedOnDisk);
-    static void importScan(QFutureInterface<void> &future,
-                    WorkingCopy workingCopyInternal,
-                    QStringList paths,
-                    ModelManagerInterface *modelManager,
-                    QmlJS::Language::Enum mainLanguage,
-                    bool emitDocChangedOnDisk);
     static void updateCppQmlTypes(QFutureInterface<void> &interface,
                                   ModelManagerInterface *qmlModelManager,
                                   CPlusPlus::Snapshot snapshot,
                                   QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents);
 
+    void maybeScan(const PathsAndLanguages &importPaths);
     void updateImportPaths();
     void loadQmlTypeDescriptionsInternal(const QString &path);
+    void setDefaultProject(const ProjectInfo &pInfo, ProjectExplorer::Project *p);
 
 private:
     mutable QMutex m_mutex;
     QmlJS::Snapshot m_validSnapshot;
     QmlJS::Snapshot m_newestSnapshot;
-    QStringList m_allImportPaths;
+    PathsAndLanguages m_allImportPaths;
     QStringList m_defaultImportPaths;
     QmlJS::QmlLanguageBundles m_activeBundles;
     QmlJS::QmlLanguageBundles m_extendedBundles;
-    QmlJS::ViewerContext m_vContext;
+    QHash<Dialect, QmlJS::ViewerContext> m_defaultVContexts;
     bool m_shouldScanImports;
     QSet<QString> m_scannedPaths;
 
@@ -270,11 +277,14 @@ private:
 
     // project integration
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
+    ProjectInfo m_defaultProjectInfo;
+    ProjectExplorer::Project *m_defaultProject;
     QMultiHash<QString, ProjectExplorer::Project *> m_fileToProject;
 
     PluginDumper *m_pluginDumper;
 
     QFutureSynchronizer<void> m_synchronizer;
+    bool m_indexerEnabled;
 };
 
 } // namespace QmlJS

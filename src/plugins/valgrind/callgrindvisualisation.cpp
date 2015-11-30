@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -53,7 +54,7 @@
 // Margin from hardcoded value in:
 // QGraphicsView::fitInView(const QRectF &rect,
 //                          Qt::AspectRatioMode aspectRatioMode)
-// Bug report here: https://bugreports.qt-project.org/browse/QTBUG-11945
+// Bug report here: https://bugreports.qt.io/browse/QTBUG-11945
 static const int FIT_IN_VIEW_MARGIN = 2;
 
 using namespace Valgrind::Callgrind;
@@ -233,9 +234,8 @@ Visualisation::Private::Private(Visualisation *qq)
 
     // setup model
     m_model->setMinimumInclusiveCostRatio(0.1);
-    connect(m_model,
-            SIGNAL(filterFunctionChanged(const Function*,const Function*)),
-            qq, SLOT(populateScene()));
+    connect(m_model, &DataProxyModel::filterFunctionChanged,
+            qq, &Visualisation::populateScene);
 }
 
 void Visualisation::Private::handleMousePressEvent(QMouseEvent *event,
@@ -325,32 +325,24 @@ void Visualisation::setModel(QAbstractItemModel *model)
     QTC_ASSERT(!d->m_model->sourceModel() && model, return); // only set once!
     d->m_model->setSourceModel(model);
 
-    connect(model,
-            SIGNAL(columnsInserted(QModelIndex,int,int)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(columnsMoved(QModelIndex,int,int,QModelIndex,int)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(columnsRemoved(QModelIndex,int,int)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
-            SLOT(populateScene()));
-    connect(model, SIGNAL(layoutChanged()), SLOT(populateScene()));
-    connect(model, SIGNAL(modelReset()), SLOT(populateScene()));
-    connect(model,
-            SIGNAL(rowsInserted(QModelIndex,int,int)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
-            SLOT(populateScene()));
-    connect(model,
-            SIGNAL(rowsRemoved(QModelIndex,int,int)),
-            SLOT(populateScene()));
+    connect(model, &QAbstractItemModel::columnsInserted,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::columnsMoved,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::columnsRemoved,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::dataChanged,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::headerDataChanged,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::layoutChanged, this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::modelReset, this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::rowsInserted,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::rowsMoved,
+            this, &Visualisation::populateScene);
+    connect(model, &QAbstractItemModel::rowsRemoved,
+            this, &Visualisation::populateScene);
 
     populateScene();
 }

@@ -1,0 +1,104 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+#include "clangcompletionassistinterface.h"
+
+#include "clangutils.h"
+
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
+#include <cpptools/cppworkingcopy.h>
+
+#include <texteditor/texteditor.h>
+
+#include <cplusplus/Token.h>
+
+namespace ClangCodeModel {
+namespace Internal {
+
+ClangCompletionAssistInterface::ClangCompletionAssistInterface(
+        IpcCommunicator &ipcCommunicator,
+        const TextEditor::TextEditorWidget *textEditorWidget,
+        int position,
+        const QString &fileName,
+        TextEditor::AssistReason reason,
+        const CppTools::ProjectPart::HeaderPaths &headerPaths,
+        const PchInfo::Ptr &pchInfo,
+        const CPlusPlus::LanguageFeatures &features)
+    : AssistInterface(textEditorWidget->document(), position, fileName, reason)
+    , m_ipcCommunicator(ipcCommunicator)
+    , m_headerPaths(headerPaths)
+    , m_savedPchPointer(pchInfo)
+    , m_languageFeatures(features)
+    , m_textEditorWidget(textEditorWidget)
+{
+    m_unsavedFiles = Utils::createUnsavedFiles(
+                CppTools::CppModelManager::instance()->workingCopy(),
+                CppTools::modifiedFiles());
+}
+
+bool ClangCompletionAssistInterface::objcEnabled() const
+{
+    return true; // TODO:
+}
+
+const CppTools::ProjectPart::HeaderPaths &ClangCompletionAssistInterface::headerPaths() const
+{
+    return m_headerPaths;
+}
+
+CPlusPlus::LanguageFeatures ClangCompletionAssistInterface::languageFeatures() const
+{
+    return m_languageFeatures;
+}
+
+void ClangCompletionAssistInterface::setHeaderPaths(const CppTools::ProjectPart::HeaderPaths &headerPaths)
+{
+    m_headerPaths = headerPaths;
+}
+
+const TextEditor::TextEditorWidget *ClangCompletionAssistInterface::textEditorWidget() const
+{
+    return m_textEditorWidget;
+}
+
+IpcCommunicator &ClangCompletionAssistInterface::ipcCommunicator() const
+{
+    return m_ipcCommunicator;
+}
+
+const UnsavedFiles &ClangCompletionAssistInterface::unsavedFiles() const
+{
+    return m_unsavedFiles;
+}
+
+} // namespace Internal
+} // namespace ClangCodeModel
+

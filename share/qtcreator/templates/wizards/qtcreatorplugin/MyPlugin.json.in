@@ -1,0 +1,11 @@
+{
+    \"Name\" : \"%PluginName%\",
+    \"Version\" : \"0.0.1\",
+    \"CompatVersion\" : \"0.0.1\",
+    \"Vendor\" : \"%VendorName%\",
+    \"Copyright\" : \"%Copyright%\",
+    \"License\" : \"%License%\",
+    \"Description\" : \"%Description%\",
+    \"Url\" : \"%URL%\",
+    $$dependencyList
+}

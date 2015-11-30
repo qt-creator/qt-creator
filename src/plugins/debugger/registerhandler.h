@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,71 +31,120 @@
 #ifndef DEBUGGER_REGISTERHANDLER_H
 #define DEBUGGER_REGISTERHANDLER_H
 
+#include <utils/treemodel.h>
+
 #include <QAbstractTableModel>
+#include <QHash>
 #include <QVector>
 
 namespace Debugger {
 namespace Internal {
 
+class DebuggerEngine;
+
+enum RegisterColumns
+{
+    RegisterNameColumn,
+    RegisterValueColumn,
+    RegisterColumnCount
+};
+
+enum RegisterDataRole
+{
+    RegisterNameRole = Qt::UserRole,
+    RegisterIsBigRole,
+    RegisterChangedRole,
+    RegisterFormatRole,
+    RegisterAsAddressRole
+};
+
+enum RegisterKind
+{
+    UnknownRegister,
+    IntegerRegister,
+    FloatRegister,
+    VectorRegister,
+    FlagRegister,
+    OtherRegister
+};
+
+enum RegisterFormat
+{
+    CharacterFormat,
+    HexadecimalFormat,
+    DecimalFormat,
+    SignedDecimalFormat,
+    OctalFormat,
+    BinaryFormat
+};
+
+class RegisterValue
+{
+public:
+    RegisterValue() { known = false; v.u64[1] = v.u64[0] = 0; }
+    bool operator==(const RegisterValue &other);
+    bool operator!=(const RegisterValue &other) { return !operator==(other); }
+
+    void fromByteArray(const QByteArray &ba, RegisterFormat format);
+    QByteArray toByteArray(RegisterKind kind, int size, RegisterFormat format,
+                           bool forEdit = false) const;
+
+    RegisterValue subValue(int size, int index) const;
+    void setSubValue(int size, int index, RegisterValue subValue);
+
+    void shiftOneDigit(uint digit, RegisterFormat format);
+
+    union {
+        quint8  u8[16];
+        quint16 u16[8];
+        quint32 u32[4];
+        quint64 u64[2];
+        float     f[4];
+        double    d[2];
+    } v;
+    bool known;
+};
+
 class Register
 {
 public:
-    Register() : type(0), changed(true) {}
-    Register(const QByteArray &name_);
+    Register() { size = 0; kind = UnknownRegister; }
+    void guessMissingData();
 
-    QVariant editValue() const;
-    QString displayValue(int base, int strlen) const;
-
-public:
     QByteArray name;
-    /* Value should be an integer for which autodetection by passing
-     * base=0 to QString::toULongLong() should work (C-language conventions).
-     * Values that cannot be converted (such as 128bit MMX-registers) are
-     * passed through. */
-    QByteArray value;
-    int type;
-    bool changed;
+    QByteArray reportedType;
+    RegisterValue value;
+    RegisterValue previousValue;
+    QByteArray description;
+    int size;
+    RegisterKind kind;
 };
 
-typedef QVector<Register> Registers;
+class RegisterItem;
+typedef QMap<quint64, QByteArray> RegisterMap;
 
-class RegisterHandler : public QAbstractTableModel
+class RegisterHandler : public Utils::TreeModel
 {
     Q_OBJECT
 
 public:
-    RegisterHandler();
+    explicit RegisterHandler(DebuggerEngine *engine);
 
     QAbstractItemModel *model() { return this; }
+    DebuggerEngine *engine() const { return m_engine; }
 
-    bool isEmpty() const; // nothing known so far?
-    // Set up register names (gdb)
-    void setRegisters(const Registers &registers);
-    // Set register values
-    void setAndMarkRegisters(const Registers &registers);
-    Registers registers() const;
-    Register registerAt(int i) const { return m_registers.at(i); }
-    void removeAll();
-    Q_SLOT void setNumberBase(int base);
-    int numberBase() const { return m_base; }
+    void updateRegister(const Register &reg);
+
+    void setNumberFormat(const QByteArray &name, RegisterFormat format);
+    void commitUpdates() { emit layoutChanged(); }
+    RegisterMap registerMap() const;
 
 signals:
-    void registerSet(const QModelIndex &r); // Register was set, for memory views
+    void registerChanged(const QByteArray &name, quint64 value); // For memory views
 
 private:
-    void calculateWidth();
-    int rowCount(const QModelIndex &idx = QModelIndex()) const;
-    int columnCount(const QModelIndex &idx = QModelIndex()) const;
-    QModelIndex index(int row, int col, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &idx) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
-        int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &idx) const;
-
-    Registers m_registers;
-    int m_base;
-    int m_strlen; // approximate width of a value in chars.
+    QHash<QByteArray, RegisterItem *> m_registerByName;
+    DebuggerEngine * const m_engine;
 };
 
 } // namespace Internal

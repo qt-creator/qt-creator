@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,7 +35,11 @@
 #include "commitdata.h"
 
 #include <coreplugin/editormanager/ieditor.h>
+#include <vcsbase/vcsbaseclient.h>
 
+#include <utils/fileutils.h>
+
+#include <QFutureSynchronizer>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -45,20 +50,27 @@ class QCheckBox;
 class QSignalMapper;
 class QDebug;
 class QProcessEnvironment;
+class QMenu;
 QT_END_NAMESPACE
 
 namespace Core { class ICore; }
 
 namespace VcsBase {
-    class Command;
+    class VcsCommand;
     class SubmitFileModel;
     class VcsBaseEditorWidget;
     class VcsBaseEditorParameterWidget;
 }
 
-namespace Utils { struct SynchronousProcessResponse; }
+namespace Utils {
+class ExitCodeInterpreter;
+struct SynchronousProcessResponse;
+} // namespace Utils
 
-namespace DiffEditor { class DiffEditorDocument; }
+namespace DiffEditor {
+class DiffEditorDocument;
+class DiffEditorController;
+}
 
 namespace Git {
 namespace Internal {
@@ -90,7 +102,7 @@ public:
 
 typedef QMap<QString, SubmoduleData> SubmoduleDataMap;
 
-class GitClient : public QObject
+class GitClient : public VcsBase::VcsBaseClientImpl
 {
     Q_OBJECT
 
@@ -126,31 +138,35 @@ public:
 
     static const char *stashNamePrefix;
 
-    explicit GitClient(GitSettings *settings);
-    ~GitClient();
+    explicit GitClient();
 
-    QString gitBinaryPath(bool *ok = 0, QString *errorMessage = 0) const;
+    Utils::FileName vcsBinary() const override;
     unsigned gitVersion(QString *errorMessage = 0) const;
 
-    QString findRepositoryForDirectory(const QString &dir);
+    VcsBase::VcsCommand *vcsExecAbortable(const QString &workingDirectory, const QStringList &arguments);
+
+    QString findRepositoryForDirectory(const QString &dir) const;
     QString findGitDirForRepository(const QString &repositoryDir) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 
-    void diff(const QString &workingDirectory, const QString &fileName);
-    void diff(const QString &workingDirectory,
-              const QStringList &unstagedFileNames,
-              const QStringList &stagedFileNames = QStringList());
+    void diffFile(const QString &workingDirectory, const QString &fileName) const;
+    void diffFiles(const QString &workingDirectory,
+                   const QStringList &unstagedFileNames,
+                   const QStringList &stagedFileNames) const;
+    void diffProject(const QString &workingDirectory,
+                     const QString &projectDirectory) const;
+    void diffRepository(const QString &workingDirectory);
     void diffBranch(const QString &workingDirectory,
-                    const QStringList &diffArgs,
-                    const QString &branchName);
+                    const QString &branchName) const;
     void merge(const QString &workingDirectory, const QStringList &unmergedFileNames = QStringList());
 
     void status(const QString &workingDirectory);
     void log(const QString &workingDirectory, const QString &fileName = QString(),
              bool enableAnnotationContextMenu = false, const QStringList &args = QStringList());
     void reflog(const QString &workingDirectory);
-    void blame(const QString &workingDirectory, const QStringList &args, const QString &fileName,
-               const QString &revision = QString(), int lineNumber = -1);
+    void annotate(const QString &workingDir, const QString &file,
+                  const QString &revision = QString(), int lineNumber = -1,
+                  const QStringList &extraOptions = QStringList()) override;
     void reset(const QString &workingDirectory, const QString &argument, const QString &commit = QString());
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousLog(const QString &workingDirectory,
@@ -187,64 +203,61 @@ public:
     enum { StashPromptDescription = 0x1, StashImmediateRestore = 0x2, StashIgnoreUnchanged = 0x4 };
     QString synchronousStash(const QString &workingDirectory,
                              const QString &messageKeyword = QString(),
-                             unsigned flags = 0, bool *unchanged = 0);
+                             unsigned flags = 0, bool *unchanged = 0) const;
 
     bool executeSynchronousStash(const QString &workingDirectory,
                                  const QString &message = QString(),
-                                 QString *errorMessage = 0);
+                                 bool unstagedOnly = false,
+                                 QString *errorMessage = 0) const;
     bool synchronousStashRestore(const QString &workingDirectory,
                                  const QString &stash,
                                  bool pop = false,
-                                 const QString &branch = QString());
+                                 const QString &branch = QString()) const;
     bool synchronousStashRemove(const QString &workingDirectory,
                                 const QString &stash = QString(),
-                                QString *errorMessage = 0);
+                                QString *errorMessage = 0) const;
     bool synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
-                              QString *output, QString *errorMessage);
+                              QString *output, QString *errorMessage) const;
     bool synchronousTagCmd(const QString &workingDirectory, QStringList tagArgs,
-                           QString *output, QString *errorMessage);
+                           QString *output, QString *errorMessage) const;
     bool synchronousForEachRefCmd(const QString &workingDirectory, QStringList args,
-                               QString *output, QString *errorMessage = 0);
+                               QString *output, QString *errorMessage = 0) const;
     bool synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
-                              QString *output, QString *errorMessage);
+                              QString *output = 0, QString *errorMessage = 0, bool silent = false) const;
 
     QMap<QString,QString> synchronousRemotesList(const QString &workingDirectory,
-                                                 QString *errorMessage = 0);
+                                                 QString *errorMessage = 0) const;
     QStringList synchronousSubmoduleStatus(const QString &workingDirectory,
-                                           QString *errorMessage = 0);
-    SubmoduleDataMap submoduleList(const QString &workingDirectory);
+                                           QString *errorMessage = 0) const;
+    SubmoduleDataMap submoduleList(const QString &workingDirectory) const;
     bool synchronousShow(const QString &workingDirectory, const QString &id,
-                              QString *output, QString *errorMessage);
+                              QString *output, QString *errorMessage) const;
 
     bool synchronousRevListCmd(const QString &workingDirectory, const QStringList &arguments,
-                               QString *output, QString *errorMessage = 0);
+                               QString *output, QString *errorMessage = 0) const;
 
     bool synchronousParentRevisions(const QString &workingDirectory,
-                                    const QStringList &files /* = QStringList() */,
                                     const QString &revision,
                                     QStringList *parents,
-                                    QString *errorMessage);
-    QString synchronousShortDescription(const QString &workingDirectory, const QString &revision);
+                                    QString *errorMessage) const;
+    QString synchronousShortDescription(const QString &workingDirectory, const QString &revision) const;
     QString synchronousShortDescription(const QString &workingDirectory, const QString &revision,
-                                     const QString &format);
+                                     const QString &format) const;
 
-    QString synchronousCurrentLocalBranch(const QString &workingDirectory);
+    QString synchronousCurrentLocalBranch(const QString &workingDirectory) const;
 
     bool synchronousHeadRefs(const QString &workingDirectory, QStringList *output,
-                             QString *errorMessage = 0);
-    QString synchronousTopic(const QString &workingDirectory);
+                             QString *errorMessage = 0) const;
+    QString synchronousTopic(const QString &workingDirectory) const;
     bool synchronousRevParseCmd(const QString &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = 0) const;
     QString synchronousTopRevision(const QString &workingDirectory, QString *errorMessage = 0);
     void synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,
-                                  QString &precedes, QString &follows);
-    QStringList synchronousBranchesForCommit(const QString &workingDirectory,
-                                             const QString &revision);
+                                  QString &precedes, QString &follows) const;
     bool isRemoteCommit(const QString &workingDirectory, const QString &commit);
     bool isFastForwardMerge(const QString &workingDirectory, const QString &branch);
 
     bool cloneRepository(const QString &directory, const QByteArray &url);
-    QString vcsGetRepositoryURL(const QString &directory);
     void fetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());
@@ -254,8 +267,7 @@ public:
     void rebase(const QString &workingDirectory, const QString &argument);
     void cherryPick(const QString &workingDirectory, const QString &argument);
     void revert(const QString &workingDirectory, const QString &argument);
-    void asyncCommand(const QString &workingDirectory, const QStringList &arguments,
-                      bool hasProgress = false);
+
     bool synchronousRevert(const QString &workingDirectory, const QString &commit);
     bool synchronousCherryPick(const QString &workingDirectory, const QString &commit);
     void interactiveRebase(const QString &workingDirectory, const QString &commit, bool fixup);
@@ -270,21 +282,23 @@ public:
     void synchronousSubversionFetch(const QString &workingDirectory);
     void subversionLog(const QString &workingDirectory);
 
-    void stashPop(const QString &workingDirectory, const QString &stash);
-    void stashPop(const QString &workingDirectory);
+    void stashPop(const QString &workingDirectory, const QString &stash = QString());
     void revert(const QStringList &files, bool revertStaging);
     bool synchronousStashList(const QString &workingDirectory,
                               QList<Stash> *stashes,
-                              QString *errorMessage = 0);
+                              QString *errorMessage = 0) const;
     // Resolve a stash name from message (for IVersionControl's names).
     bool stashNameFromMessage(const QString &workingDirectory,
                               const QString &messge, QString *name,
-                              QString *errorMessage = 0);
+                              QString *errorMessage = 0) const;
 
-    QString readConfig(const QString &workingDirectory, const QStringList &configVar) const;
-
+    QString readGitVar(const QString &workingDirectory, const QString &configVar) const;
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
+    QTextCodec *encoding(const QString &workingDirectory, const QByteArray &configVar) const;
+    bool readDataFromCommit(const QString &repoDirectory, const QString &commit,
+                            CommitData &commitData, QString *errorMessage = 0,
+                            QString *commitTemplate = 0);
     bool getCommitData(const QString &workingDirectory, QString *commitTemplate,
                        CommitData &commitData, QString *errorMessage);
 
@@ -299,28 +313,26 @@ public:
     StatusResult gitStatus(const QString &workingDirectory,
                            StatusMode mode,
                            QString *output = 0,
-                           QString *errorMessage = 0);
+                           QString *errorMessage = 0) const;
 
-    CommandInProgress checkCommandInProgress(const QString &workingDirectory);
-    QString commandInProgressDescription(const QString &workingDirectory);
+    CommandInProgress checkCommandInProgress(const QString &workingDirectory) const;
+    QString commandInProgressDescription(const QString &workingDirectory) const;
 
-    void continueCommandIfNeeded(const QString &workingDirectory);
-    void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle, QString msgBoxText,
-                                    const QString &buttonName, const QString &gitCommand, bool requireChanges = true);
+    void continueCommandIfNeeded(const QString &workingDirectory, bool allowContinue = true);
 
-    QString extendedShowDescription(const QString &workingDirectory, const QString &text);
+    QString extendedShowDescription(const QString &workingDirectory, const QString &text) const;
 
     void launchGitK(const QString &workingDirectory, const QString &fileName);
     void launchGitK(const QString &workingDirectory) { launchGitK(workingDirectory, QString()); }
     bool launchGitGui(const QString &workingDirectory);
+    Utils::FileName gitBinDirectory();
 
     void launchRepositoryBrowser(const QString &workingDirectory);
 
-    QStringList synchronousRepositoryBranches(const QString &repositoryURL);
+    QStringList synchronousRepositoryBranches(const QString &repositoryURL,
+                                              const QString &workingDirectory = QString()) const;
 
-    GitSettings *settings() const;
-
-    QProcessEnvironment processEnvironment() const;
+    QProcessEnvironment processEnvironment() const override;
 
     bool beginStashScope(const QString &workingDirectory, const QString &command,
                          StashFlag flag = Default, PushAction pushAction = NoPush);
@@ -328,91 +340,69 @@ public:
     void endStashScope(const QString &workingDirectory);
     bool isValidRevision(const QString &revision) const;
     void handleMergeConflicts(const QString &workingDir, const QString &commit, const QStringList &files, const QString &abortCommand);
+    void addFuture(const QFuture<void> &future);
 
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
 
 public slots:
-    void show(const QString &source,
-              const QString &id,
-              const QStringList &args = QStringList(),
-              const QString &name = QString());
-    void saveSettings();
+    void show(const QString &source, const QString &id, const QString &name = QString());
 
 private slots:
-    void slotBlameRevisionRequested(const QString &workingDirectory, const QString &file,
-                                    QString change, int lineNumber);
     void finishSubmoduleUpdate();
     void fetchFinished(const QVariant &cookie);
+    void slotChunkActionsRequested(QMenu *menu, bool isValid);
+    void slotStageChunk();
+    void slotUnstageChunk();
+    void branchesForCommit(const QString &revision);
 
 private:
-    QTextCodec *getSourceCodec(const QString &file) const;
-    VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
-                                                        const QString &dynamicPropertyValue) const;
+    void stage(const QString &patch, bool revert);
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
-    VcsBase::VcsBaseEditorWidget *createVcsEditor(const Core::Id &kind,
-                                            QString title,
-                                            const QString &source,
-                                            CodecType codecType,
-                                            const char *registerDynamicProperty,
-                                            const QString &dynamicPropertyValue,
-                                            VcsBase::VcsBaseEditorParameterWidget *configWidget) const;
-    DiffEditor::DiffEditorDocument *createDiffEditor(const QString documentId,
-                                             const QString &source,
-                                             const QString &title) const;
+    QTextCodec *codecFor(CodecType codecType, const QString &source = QString()) const;
 
-    VcsBase::Command *createCommand(const QString &workingDirectory,
-                             VcsBase::VcsBaseEditorWidget* editor = 0,
-                             bool useOutputToWindow = false,
-                             int editorLineNumber = -1);
-
-    VcsBase::Command *executeGit(const QString &workingDirectory,
-                                 const QStringList &arguments,
-                                 VcsBase::VcsBaseEditorWidget* editor = 0,
-                                 bool useOutputToWindow = false,
-                                 unsigned additionalFlags = 0,
-                                 int editorLineNumber = -1);
-
-    // Fully synchronous git execution (QProcess-based).
-    bool fullySynchronousGit(const QString &workingDirectory,
-                             const QStringList &arguments,
-                             QByteArray* outputText,
-                             QByteArray* errorText = 0,
-                             unsigned flags = 0) const;
-
-    // Synchronous git execution using Utils::SynchronousProcess, with
-    // log windows updating (using VcsBasePlugin::runVcs with flags).
-    inline Utils::SynchronousProcessResponse
-            synchronousGit(const QString &workingDirectory, const QStringList &arguments,
-                           unsigned flags = 0, QTextCodec *outputCodec = 0);
+    void requestReload(const QString &documentId, const QString &source, const QString &title,
+                       std::function<DiffEditor::DiffEditorController *(Core::IDocument *)> factory) const;
 
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
     unsigned synchronousGitVersion(QString *errorMessage = 0) const;
+
+    QString readOneLine(const QString &workingDirectory, const QStringList &arguments) const;
 
     enum RevertResult { RevertOk, RevertUnchanged, RevertCanceled, RevertFailed };
     RevertResult revertI(QStringList files,
                          bool *isDirectory,
                          QString *errorMessage,
                          bool revertStaging);
-    void connectRepositoryChanged(const QString & repository, VcsBase::Command *cmd);
+    void connectRepositoryChanged(const QString & repository, VcsBase::VcsCommand *cmd);
     bool executeAndHandleConflicts(const QString &workingDirectory, const QStringList &arguments,
-                                   const QString &abortCommand = QString());
+                                   const QString &abortCommand = QString()) const;
     bool tryLauchingGitK(const QProcessEnvironment &env,
                          const QString &workingDirectory,
                          const QString &fileName,
                          const QString &gitBinDirectory);
     bool cleanList(const QString &workingDirectory, const QString &flag, QStringList *files, QString *errorMessage);
 
-    mutable QString m_gitVersionForBinary;
+    enum ContinueCommandMode {
+        ContinueOnly,
+        SkipOnly,
+        SkipIfNoChanges
+    };
+
+    void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle,
+                                    QString msgBoxText, const QString &buttonName,
+                                    const QString &gitCommand, ContinueCommandMode continueMode);
+
+    mutable Utils::FileName m_gitVersionForBinary;
     mutable unsigned m_cachedGitVersion;
 
-    const QString m_msgWait;
-    GitSettings *m_settings;
     QString m_gitQtcEditor;
     QMap<QString, StashInfo> m_stashInfo;
     QStringList m_updatedSubmodules;
     bool m_disableEditor;
+    QPointer<DiffEditor::DiffEditorController> m_contextController;
+    QFutureSynchronizer<void> m_synchronizer; // for commit updates
 };
 
 } // namespace Internal

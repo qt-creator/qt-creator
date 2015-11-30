@@ -1,0 +1,24 @@
+{
+    "IID" : "plugin",
+    "MetaData" : {
+        "Name" : "test",
+        "Version" : "1.0.1",
+        "CompatVersion" : "1.0.0",
+        "Vendor" : "The Qt Company Ltd",
+        "Copyright" : "(C) 2015 The Qt Company Ltd",
+        "License" : [
+            "This is a default license bla",
+            "blubbblubb",
+            "end of terms"
+        ],
+        "Description" : [
+            "This plugin is just a test.",
+            "    it demonstrates the great use of the plugin spec."
+        ],
+        "Url" : "http://www.qt.io",
+        "Dependencies" : [
+            { "Name" : "SomeOtherPlugin", "Version" : "2.3.0_2" },
+            { "Name" : "EvenOther", "Version" : "1.0.0" }
+        ]
+    }
+}

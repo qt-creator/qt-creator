@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,13 +37,13 @@
 #include <QDebug>
 #include <QSettings>
 
-#include <QAbstractButton>
+#include <QCheckBox>
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QTextEdit>
 
-using namespace Utils;
+namespace Utils {
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -61,7 +62,7 @@ SavedAction::SavedAction(QObject *parent)
   : QAction(parent)
 {
     m_widget = 0;
-    connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
+    connect(this, &QAction::triggered, this, &SavedAction::actionTriggered);
 }
 
 
@@ -172,56 +173,12 @@ void SavedAction::setSettingsGroup(const QString &group)
     m_settingsGroup = group;
 }
 
-QString SavedAction::textPattern() const
-{
-    return m_textPattern;
-}
-
-void SavedAction::setTextPattern(const QString &value)
-{
-    m_textPattern = value;
-}
-
 QString SavedAction::toString() const
 {
     return QLatin1String("value: ") + m_value.toString()
         + QLatin1String("  defaultvalue: ") + m_defaultValue.toString()
         + QLatin1String("  settingskey: ") + m_settingsGroup
         + QLatin1Char('/') + m_settingsKey;
-}
-
-/*!
-    Adjust the \c text() of the underlying action.
-
-    This can be used to update the item shortly before e.g. a menu is shown.
-
-    If the item's \c textPattern() is empty the \a text will be used
-    verbatim.
-
-    Otherwise, the behaviour depends on \a text: if it is non-empty,
-    \c QString(textPattern()).arg(text), otherwise, \c textPattern()
-    with the "%1" placeholder removed will be used.
-
-    \sa textPattern(), setTextPattern()
-*/
-QAction *SavedAction::updatedAction(const QString &text0)
-{
-    QString text = text0;
-    bool enabled = true;
-    if (!m_textPattern.isEmpty()) {
-        if (text.isEmpty()) {
-            text = m_textPattern;
-            text.remove(QLatin1String("\"%1\""));
-            text.remove(QLatin1String("%1"));
-            enabled = false;
-        } else {
-            text = m_textPattern.arg(text0);
-        }
-    }
-    this->setEnabled(enabled);
-    this->setData(text0);
-    this->setText(text);
-    return this;
 }
 
 /*
@@ -239,8 +196,6 @@ void SavedAction::readSettings(const QSettings *settings)
     if (isCheckable() && !var.isValid())
         var = false;
     setValue(var);
-    //qDebug() << "READING: " << var.isValid() << m_settingsKey << " -> " << m_value
-    //    << " (default: " << m_defaultValue << ")" << var;
 }
 
 /*
@@ -255,7 +210,6 @@ void SavedAction::writeSettings(QSettings *settings)
         return;
     settings->beginGroup(m_settingsGroup);
     settings->setValue(m_settingsKey, m_value);
-    //qDebug() << "WRITING: " << m_settingsKey << " -> " << toString();
     settings->endGroup();
 }
 
@@ -275,48 +229,58 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
     QTC_ASSERT(!m_widget,
         qDebug() << "ALREADY CONNECTED: " << widget << m_widget << toString(); return);
     m_widget = widget;
-    m_applyMode = applyMode;
 
-    if (QAbstractButton *button = qobject_cast<QAbstractButton *>(widget)) {
-        if (button->isCheckable()) {
-            button->setChecked(m_value.toBool());
-            connect(button, SIGNAL(clicked(bool)),
-                this, SLOT(checkableButtonClicked(bool)));
-        } else {
-            connect(button, SIGNAL(clicked()),
-                this, SLOT(uncheckableButtonClicked()));
+    if (auto button = qobject_cast<QCheckBox *>(widget)) {
+        if (!m_dialogText.isEmpty())
+            button->setText(m_dialogText);
+        button->setChecked(m_value.toBool());
+        if (applyMode == ImmediateApply) {
+            connect(button, &QCheckBox::clicked,
+                    this, [this, button] { setValue(button->isChecked()); });
         }
-    } else if (QSpinBox *spinBox = qobject_cast<QSpinBox *>(widget)) {
+    } else if (auto spinBox = qobject_cast<QSpinBox *>(widget)) {
         spinBox->setValue(m_value.toInt());
-        //qDebug() << "SETTING VALUE" << spinBox->value();
-        connect(spinBox, SIGNAL(valueChanged(int)),
-            this, SLOT(spinBoxValueChanged(int)));
-        connect(spinBox, SIGNAL(valueChanged(QString)),
-            this, SLOT(spinBoxValueChanged(QString)));
-    } else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            connect(spinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+                    this, [this, spinBox]() { setValue(spinBox->value()); });
+        }
+    } else if (auto lineEdit = qobject_cast<QLineEdit *>(widget)) {
         lineEdit->setText(m_value.toString());
-        //qDebug() << "SETTING TEXT" << lineEdit->text();
-        connect(lineEdit, SIGNAL(editingFinished()),
-            this, SLOT(lineEditEditingFinished()));
-    } else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            connect(lineEdit, &QLineEdit::editingFinished,
+                    this, [this, lineEdit] { setValue(lineEdit->text()); });
+        }
+
+    } else if (auto pathChooser = qobject_cast<PathChooser *>(widget)) {
         pathChooser->setPath(m_value.toString());
-        connect(pathChooser, SIGNAL(editingFinished()),
-            this, SLOT(pathChooserEditingFinished()));
-        connect(pathChooser, SIGNAL(browsingFinished()),
-            this, SLOT(pathChooserEditingFinished()));
-    } else if (QGroupBox *groupBox = qobject_cast<QGroupBox *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            auto finished = [this, pathChooser] { setValue(pathChooser->path()); };
+            connect(pathChooser, &PathChooser::editingFinished, this, finished);
+            connect(pathChooser, &PathChooser::browsingFinished, this, finished);
+        }
+    } else if (auto groupBox = qobject_cast<QGroupBox *>(widget)) {
         if (!groupBox->isCheckable())
             qDebug() << "connectWidget to non-checkable group box" << widget << toString();
         groupBox->setChecked(m_value.toBool());
-        connect(groupBox, SIGNAL(toggled(bool)), this, SLOT(groupBoxToggled(bool)));
-    } else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            connect(groupBox, &QGroupBox::toggled,
+                    this, [this, groupBox] { setValue(QVariant(groupBox->isChecked())); });
+        }
+    } else if (auto textEdit = qobject_cast<QTextEdit *>(widget)) {
         textEdit->setPlainText(m_value.toString());
-        connect(textEdit, SIGNAL(textChanged()), this, SLOT(textEditTextChanged()));
-    } else if (PathListEditor *editor = qobject_cast<PathListEditor *>(widget)) {
+        if (applyMode == ImmediateApply) {
+            connect(textEdit, &QTextEdit::textChanged,
+                    this, [this, textEdit] { setValue(textEdit->toPlainText()); });
+        }
+    } else if (auto editor = qobject_cast<PathListEditor *>(widget)) {
         editor->setPathList(m_value.toStringList());
     } else {
         qDebug() << "Cannot connect widget " << widget << toString();
     }
+
+    // Copy tooltip, but only if there's nothing explcitly set on the widget yet.
+    if (widget->toolTip().isEmpty())
+        widget->setToolTip(toolTip());
 }
 
 /*
@@ -331,85 +295,42 @@ void SavedAction::disconnectWidget()
 
 void SavedAction::apply(QSettings *s)
 {
-    if (QAbstractButton *button = qobject_cast<QAbstractButton *>(m_widget))
+    if (auto button = qobject_cast<QCheckBox *>(m_widget))
         setValue(button->isChecked());
-    else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(m_widget))
+    else if (auto lineEdit = qobject_cast<QLineEdit *>(m_widget))
         setValue(lineEdit->text());
-    else if (QSpinBox *spinBox = qobject_cast<QSpinBox *>(m_widget))
+    else if (auto spinBox = qobject_cast<QSpinBox *>(m_widget))
         setValue(spinBox->value());
-    else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(m_widget))
+    else if (auto pathChooser = qobject_cast<PathChooser *>(m_widget))
         setValue(pathChooser->path());
-    else if (const QGroupBox *groupBox = qobject_cast<QGroupBox *>(m_widget))
+    else if (auto groupBox = qobject_cast<QGroupBox *>(m_widget))
         setValue(groupBox->isChecked());
-    else if (const QTextEdit *textEdit = qobject_cast<QTextEdit *>(m_widget))
+    else if (auto textEdit = qobject_cast<QTextEdit *>(m_widget))
         setValue(textEdit->toPlainText());
-    else if (const PathListEditor *editor = qobject_cast<PathListEditor *>(m_widget))
+    else if (auto editor = qobject_cast<PathListEditor *>(m_widget))
         setValue(editor->pathList());
     if (s)
        writeSettings(s);
 }
 
-void SavedAction::uncheckableButtonClicked()
+/*
+    Default text to be used in labels if this SavedAction is
+    used in a settings dialog.
+
+    This typically is similar to the text this SavedAction shows
+    when used in menus, but differs in capitalization.
+
+
+    \sa text()
+*/
+QString SavedAction::dialogText() const
 {
-    QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
-    QTC_ASSERT(button, return);
-    //qDebug() << "UNCHECKABLE BUTTON: " << sender();
-    QAction::trigger();
+    return m_dialogText;
 }
 
-void SavedAction::checkableButtonClicked(bool)
+void SavedAction::setDialogText(const QString &dialogText)
 {
-    QAbstractButton *button = qobject_cast<QAbstractButton *>(sender());
-    QTC_ASSERT(button, return);
-    //qDebug() << "CHECKABLE BUTTON: " << sender();
-    if (m_applyMode == ImmediateApply)
-        setValue(button->isChecked());
-}
-
-void SavedAction::lineEditEditingFinished()
-{
-    QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender());
-    QTC_ASSERT(lineEdit, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(lineEdit->text());
-}
-
-void SavedAction::spinBoxValueChanged(int value)
-{
-    QSpinBox *spinBox = qobject_cast<QSpinBox *>(sender());
-    QTC_ASSERT(spinBox, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(value);
-}
-
-void SavedAction::spinBoxValueChanged(QString value)
-{
-    QSpinBox *spinBox = qobject_cast<QSpinBox *>(sender());
-    QTC_ASSERT(spinBox, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(value);
-}
-
-void SavedAction::pathChooserEditingFinished()
-{
-    PathChooser *pathChooser = qobject_cast<PathChooser *>(sender());
-    QTC_ASSERT(pathChooser, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(pathChooser->path());
-}
-
-void SavedAction::textEditTextChanged()
-{
-    QTextEdit *textEdit = qobject_cast<QTextEdit *>(sender());
-    QTC_ASSERT(textEdit, return);
-    if (m_applyMode == ImmediateApply)
-        setValue(textEdit->toPlainText());
-}
-
-void SavedAction::groupBoxToggled(bool checked)
-{
-    if (m_applyMode == ImmediateApply)
-        setValue(QVariant(checked));
+    m_dialogText = dialogText;
 }
 
 void SavedAction::actionTriggered(bool)
@@ -455,16 +376,4 @@ void SavedActionSet::finish()
         action->disconnectWidget();
 }
 
-QString SavedActionSet::searchKeyWords() const
-{
-    const QChar blank = QLatin1Char(' ');
-    QString rc;
-    foreach (SavedAction *action, m_list) {
-        if (!rc.isEmpty())
-            rc += blank;
-        rc += action->text();
-    }
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
+} // namespace Utils

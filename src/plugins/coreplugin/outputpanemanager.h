@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,7 @@
 
 #include <coreplugin/id.h>
 
+#include <QMap>
 #include <QToolButton>
 
 QT_BEGIN_NAMESPACE
@@ -126,14 +128,33 @@ private:
     QVector<OutputPaneToggleButton *> m_buttons;
     QVector<QAction *> m_actions;
     QVector<Id> m_ids;
+    QMap<Id, bool> m_buttonVisibility;
 
     QStackedWidget *m_outputWidgetPane;
     QStackedWidget *m_opToolBarWidgets;
     QWidget *m_buttonsWidget;
-    QPixmap m_minimizeIcon;
-    QPixmap m_maximizeIcon;
+    QIcon m_minimizeIcon;
+    QIcon m_maximizeIcon;
     bool m_maximised;
     int m_outputPaneHeight;
+};
+
+class BadgeLabel
+{
+public:
+    BadgeLabel();
+    void paint(QPainter *p, int x, int y, bool isChecked);
+    void setText(const QString &text);
+    QString text() const;
+    QSize sizeHint() const;
+
+private:
+    void calculateSize();
+
+    QSize m_size;
+    QString m_text;
+    QFont m_font;
+    static const int m_padding = 6;
 };
 
 class OutputPaneToggleButton : public QToolButton
@@ -143,8 +164,7 @@ public:
     OutputPaneToggleButton(int number, const QString &text, QAction *action,
                            QWidget *parent = 0);
     QSize sizeHint() const;
-    void resizeEvent(QResizeEvent *event);
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent*);
     void flash(int count = 3);
     void setIconBadgeNumber(int number);
 
@@ -158,7 +178,7 @@ private:
     QString m_text;
     QAction *m_action;
     QTimeLine *m_flashTimer;
-    QLabel *m_label;
+    BadgeLabel m_badgeNumberLabel;
 };
 
 class OutputPaneManageButton : public QToolButton
@@ -167,7 +187,7 @@ class OutputPaneManageButton : public QToolButton
 public:
     OutputPaneManageButton();
     QSize sizeHint() const;
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent*);
 };
 
 } // namespace Internal

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -43,7 +44,8 @@
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsutils.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/tabsettings.h>
 #include <coreplugin/icore.h>
 
@@ -78,8 +80,8 @@ static inline const ObjectValue * getPropertyChangesTarget(Node *node, const Sco
 }
 
 QuickToolBar::QuickToolBar(QObject *parent)
-    : ::QmlJS::IContextPane(parent)
-    , m_editor(0)
+    : ::IContextPane(parent)
+    , m_editorWidget(0)
     , m_blockWriting(false)
 {
     m_node = 0;
@@ -111,13 +113,11 @@ QuickToolBar::QuickToolBar(QObject *parent)
 
 QuickToolBar::~QuickToolBar()
 {
-    //if the pane was never activated the widget is not in a widget tree
-    if (!m_widget.isNull())
-        delete m_widget.data();
-        m_widget = 0;
+    delete m_widget.data();
+    m_widget = 0;
 }
 
-void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr document, const ScopeChain *scopeChain, AST::Node *node, bool update, bool force)
+void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::Ptr document, const ScopeChain *scopeChain, Node *node, bool update, bool force)
 {
     if (!QuickToolBarSettings::get().enableContextPane && !force && !update) {
         contextWidget()->hide();
@@ -127,7 +127,7 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
     if (document.isNull())
         return;
 
-    if (update && editor != m_editor)
+    if (update && editorWidget != m_editorWidget)
         return; //do not update for different editor
 
     m_blockWriting = true;
@@ -157,9 +157,9 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
     }
 
     setEnabled(document->isParsedCorrectly());
-    m_editor = editor;
-    contextWidget()->setParent(editor->widget()->parentWidget());
-    contextWidget()->colorDialog()->setParent(editor->widget()->parentWidget());
+    m_editorWidget = editorWidget;
+    contextWidget()->setParent(editorWidget->parentWidget());
+    contextWidget()->colorDialog()->setParent(editorWidget->parentWidget());
 
     if (cast<UiObjectDefinition*>(node) || cast<UiObjectBinding*>(node)) {
         UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node);
@@ -194,12 +194,12 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
         int column1;
         int line2;
         int column2;
-        m_editor->convertPosition(offset, &line1, &column1); //get line
-        m_editor->convertPosition(end, &line2, &column2); //get line
+        m_editorWidget->convertPosition(offset, &line1, &column1); //get line
+        m_editorWidget->convertPosition(end, &line2, &column2); //get line
 
         QRegion reg;
         if (line1 > -1 && line2 > -1)
-            reg = m_editor->editorWidget()->translatedLineRegion(line1 - 1, line2);
+            reg = m_editorWidget->translatedLineRegion(line1 - 1, line2);
 
         QRect rect;
         rect.setHeight(widget()->height() + 10);
@@ -210,15 +210,15 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
         if (contextWidget()->acceptsType(m_prototypes)) {
             m_node = 0;
             PropertyReader propertyReader(document, initializer);
-            QTextCursor tc(editor->editorWidget()->document());
+            QTextCursor tc = m_editorWidget->textCursor();
             tc.setPosition(offset);
-            QPoint p1 = editor->editorWidget()->mapToParent(editor->editorWidget()->viewport()->mapToParent(editor->editorWidget()->cursorRect(tc).topLeft()) - QPoint(0, contextWidget()->height() + 10));
+            QPoint p1 = m_editorWidget->mapToParent(m_editorWidget->viewport()->mapToParent(m_editorWidget->cursorRect(tc).topLeft()) - QPoint(0, contextWidget()->height() + 10));
             tc.setPosition(end);
-            QPoint p2 = editor->editorWidget()->mapToParent(editor->editorWidget()->viewport()->mapToParent(editor->editorWidget()->cursorRect(tc).bottomLeft()) + QPoint(0, 10));
+            QPoint p2 = m_editorWidget->mapToParent(m_editorWidget->viewport()->mapToParent(m_editorWidget->cursorRect(tc).bottomLeft()) + QPoint(0, 10));
             QPoint offset = QPoint(10, 0);
             if (reg.boundingRect().width() < 400)
                 offset = QPoint(400 - reg.boundingRect().width() + 10 ,0);
-            QPoint p3 = editor->editorWidget()->mapToParent(editor->editorWidget()->viewport()->mapToParent(reg.boundingRect().topRight()) + offset);
+            QPoint p3 = m_editorWidget->mapToParent(m_editorWidget->viewport()->mapToParent(reg.boundingRect().topRight()) + offset);
             p2.setX(p1.x());
             contextWidget()->setIsPropertyChanges(isPropertyChanges);
             if (!update)
@@ -247,7 +247,7 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
 
 }
 
-bool QuickToolBar::isAvailable(TextEditor::BaseTextEditor *, Document::Ptr document, AST::Node *node)
+bool QuickToolBar::isAvailable(TextEditor::TextEditorWidget *, Document::Ptr document, Node *node)
 {
     if (document.isNull())
         return false;
@@ -320,12 +320,12 @@ void QuickToolBar::setProperty(const QString &propertyName, const QVariant &valu
 
         int changeSetPos = changeSet.operationList().last().pos1;
         int changeSetLength = changeSet.operationList().last().text.length();
-        QTextCursor tc = m_editor->editorWidget()->textCursor();
+        QTextCursor tc = m_editorWidget->textCursor();
         tc.beginEditBlock();
         changeSet.apply(&tc);
 
-        m_editor->convertPosition(changeSetPos, &line, &column); //get line
-        m_editor->convertPosition(changeSetPos + changeSetLength, &endLine, &column); //get line
+        m_editorWidget->convertPosition(changeSetPos, &line, &column); //get line
+        m_editorWidget->convertPosition(changeSetPos + changeSetLength, &endLine, &column); //get line
 
         indentLines(line, endLine);
         tc.endEditBlock();
@@ -349,7 +349,7 @@ void QuickToolBar::removeProperty(const QString &propertyName)
             Utils::ChangeSet changeSet;
             Rewriter rewriter(m_doc->source(), &changeSet, m_propertyOrder);
             rewriter.removeBindingByName(initializer, propertyName);
-            QTextCursor tc(m_editor->editorWidget()->document());
+            QTextCursor tc(m_editorWidget->document());
             changeSet.apply(&tc);
         }
     }
@@ -389,7 +389,7 @@ void QuickToolBar::onPropertyRemovedAndChange(const QString &remove, const QStri
     if (!m_doc)
         return;
 
-    QTextCursor tc(m_editor->editorWidget()->document());
+    QTextCursor tc = m_editorWidget->textCursor();
     tc.beginEditBlock();
 
     if (removeFirst) {
@@ -425,13 +425,13 @@ void QuickToolBar::onEnabledChanged(bool b)
 void QuickToolBar::indentLines(int startLine, int endLine)
 {
     if (startLine > 0) {
-        TextEditor::TabSettings tabSettings = m_editor->baseTextDocument()->tabSettings();
+        TextEditor::TabSettings tabSettings = m_editorWidget->textDocument()->tabSettings();
         for (int i = startLine; i <= endLine; i++) {
-            QTextBlock start = m_editor->editorWidget()->document()->findBlockByNumber(i);
+            QTextBlock start = m_editorWidget->document()->findBlockByNumber(i);
 
             if (start.isValid()) {
                 QmlJSEditor::Internal::Indenter indenterMy;
-                indenterMy.indentBlock(m_editor->editorWidget()->document(), start, QChar::Null, tabSettings);
+                indenterMy.indentBlock(m_editorWidget->document(), start, QChar::Null, tabSettings);
             }
         }
     }

@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -47,7 +48,7 @@ def modifyRunSettingsForHookInto(projectName, kitCount, port):
     result = __configureCustomExecutable__(projectName, port, mkspec, qtVersion)
     if result:
         ensureChecked(":RunSettingsEnvironmentDetails_Utils::DetailsButton")
-        envVarsTableView = waitForObject("{type='QTableView' visible='1' unnamed='1'}")
+        envVarsTableView = waitForObject("{type='QTreeView' visible='1' unnamed='1'}")
         model = envVarsTableView.model()
         changingVars = []
         for index in dumpIndices(model):
@@ -90,9 +91,9 @@ def batchEditRunEnvironment(kitCount, currentTarget, modifications, alreadyOnRun
     clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' visible='1' "
                               "window=':Edit Environment_ProjectExplorer::EnvironmentItemsDialog'}"))
 
-def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, port, quickVersion="1.1"):
+def modifyRunSettingsForHookIntoQtQuickUI(kitCount, kit, workingDir, projectName, port, quickVersion="1.1"):
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.RUN, True)
+    switchToBuildOrRunSettingsFor(kitCount, kit, ProjectSettings.RUN, True)
 
     qtVersion, mkspec, qtLibPath, qmake = getQtInformationForQmlProject()
     if None in (qtVersion, mkspec, qtLibPath, qmake):
@@ -227,17 +228,6 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
     args = "--verbose --port=%d %s%s" % (port, debOrRel, projectName)
     __invokeAddCustomExecutable__(startAUT, args)
     return True
-
-# function that retrieves a specific child object by its class
-# this is sometimes the best way to avoid using waitForObject() on objects that
-# occur more than once - but could easily be found by using a compound object
-# (e.g. search for Utils::PathChooser instead of Utils::FancyLineEdit and get the child)
-def getChildByClass(parent, classToSearchFor, occurence=1):
-    children = [child for child in object.children(parent) if className(child) == classToSearchFor]
-    if len(children) < occurence:
-        return None
-    else:
-        return children[occurence - 1]
 
 # get the Squish path that is needed to successfully hook into the compiled app
 def getSquishPath(mkspec, qmakev):

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -40,6 +41,7 @@
 
 static const int TARGET_HEIGHT = 43;
 static const int NAVBUTTON_WIDTH = 27;
+static const int KITNAME_MARGINS = 6;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -76,16 +78,17 @@ using namespace ProjectExplorer::Internal;
 TargetSelector::TargetSelector(QWidget *parent) :
     QWidget(parent),
     m_unselected(QLatin1String(":/projectexplorer/images/targetunselected.png")),
-    m_runselected(QLatin1String(":/projectexplorer/images/targetrunselected.png")),
-    m_buildselected(QLatin1String(":/projectexplorer/images/targetbuildselected.png")),
-    m_targetRightButton(QLatin1String(":/projectexplorer/images/targetrightbutton.png")),
-    m_targetLeftButton(QLatin1String(":/projectexplorer/images/targetleftbutton.png")),
-    m_targetChangePixmap(QLatin1String(":/projectexplorer/images/targetchangebutton.png")),
-    m_targetChangePixmap2(QLatin1String(":/projectexplorer/images/targetchangebutton2.png")),
+    m_runselected(Utils::StyleHelper::dpiSpecificImageFile(QLatin1String(":/projectexplorer/images/targetrunselected.png"))),
+    m_buildselected(m_runselected.mirrored(true, false)),
+    m_targetRightButton(Utils::StyleHelper::dpiSpecificImageFile(QLatin1String(":/projectexplorer/images/targetrightbutton.png"))),
+    m_targetLeftButton(QPixmap::fromImage(m_targetRightButton.toImage().mirrored(true, false))),
+    m_targetChangePixmap(Utils::StyleHelper::dpiSpecificImageFile(QLatin1String(":/projectexplorer/images/targetchangebutton.png"))),
+    m_targetChangePixmap2(Utils::StyleHelper::dpiSpecificImageFile(QLatin1String(":/projectexplorer/images/targetchangebutton2.png"))),
     m_currentTargetIndex(-1),
     m_currentHoveredTargetIndex(-1),
     m_startIndex(0),
-    m_menuShown(false)
+    m_menuShown(false),
+    m_targetWidthNeedsUpdate(true)
 {
     QFont f = font();
     f.setPixelSize(10);
@@ -128,6 +131,7 @@ void TargetSelector::insertTarget(int index, int subIndex, const QString &name)
 
     if (m_currentTargetIndex >= index)
         setCurrentIndex(m_currentTargetIndex + 1);
+    m_targetWidthNeedsUpdate = true;
     updateGeometry();
     update();
 }
@@ -135,6 +139,8 @@ void TargetSelector::insertTarget(int index, int subIndex, const QString &name)
 void TargetSelector::renameTarget(int index, const QString &name)
 {
     m_targets[index].name = name;
+    m_targetWidthNeedsUpdate = true;
+    updateGeometry();
     update();
 }
 
@@ -149,6 +155,7 @@ void TargetSelector::removeTarget(int index)
         // force a signal since the index has changed
         emit currentChanged(m_currentTargetIndex, m_targets.at(m_currentTargetIndex).currentSubIndex);
     }
+    m_targetWidthNeedsUpdate = true;
     updateGeometry();
     update();
 }
@@ -165,9 +172,33 @@ void TargetSelector::setCurrentIndex(int index)
 
     m_currentTargetIndex = index;
 
+    if (isVisible())
+        ensureCurrentIndexVisible();
+
     update();
     emit currentChanged(m_currentTargetIndex,
                              m_currentTargetIndex >= 0 ? m_targets.at(m_currentTargetIndex).currentSubIndex : -1);
+}
+
+void TargetSelector::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+    ensureCurrentIndexVisible();
+}
+
+void TargetSelector::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    ensureCurrentIndexVisible();
+}
+
+void TargetSelector::ensureCurrentIndexVisible()
+{
+    if (m_currentTargetIndex < m_startIndex)
+        m_startIndex = m_currentTargetIndex;
+    const int lastIndex = m_startIndex + maxVisibleTargets() - 1;
+    if (m_currentTargetIndex > lastIndex)
+        m_startIndex = m_currentTargetIndex - maxVisibleTargets() + 1;
 }
 
 void TargetSelector::setCurrentSubIndex(int subindex)
@@ -211,10 +242,16 @@ void TargetSelector::setTargetMenu(QMenu *menu)
 int TargetSelector::targetWidth() const
 {
     static int width = -1;
-    if (width < 0) {
+    if (width < 0 || m_targetWidthNeedsUpdate) {
+        m_targetWidthNeedsUpdate = false;
         QFontMetrics fm = fontMetrics();
-        width = qMax(fm.width(runButtonString()), fm.width(buildButtonString()));
-        width = qMax(149, width * 2 + 31);
+        width = 149; // minimum
+        // let it grow for the kit names ...
+        foreach (const Target &target, m_targets)
+            width = qMax(width, fm.width(target.name) + KITNAME_MARGINS + 2/*safety measure*/);
+        width = qMin(width, 299); // ... but not too much
+        int buttonWidth = qMax(fm.width(runButtonString()), fm.width(buildButtonString()));
+        width = qMax(width, buttonWidth * 2 + 31); // run & build button strings must be fully visible
     }
     return width;
 }
@@ -226,7 +263,7 @@ QSize TargetSelector::sizeHint() const
 
 int TargetSelector::maxVisibleTargets() const
 {
-    return (width() - ((NAVBUTTON_WIDTH + 1) * 2 + 3))/(targetWidth() + 1);
+    return qMax((width() - ((NAVBUTTON_WIDTH + 1) * 2 + 3))/(targetWidth() + 1), 1);
 }
 
 void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex)
@@ -349,7 +386,9 @@ void TargetSelector::updateButtons()
     } else {
         int tx = NAVBUTTON_WIDTH + 3 + (m_currentHoveredTargetIndex - m_startIndex) * (targetWidth() + 1);
 
-        QPoint buttonTopLeft(tx + targetWidth() - m_targetChangePixmap.width() - 1, 3);
+        const int pixmapWidth =
+                static_cast<int>(m_targetChangePixmap.width() / m_targetChangePixmap.devicePixelRatio());
+        const QPoint buttonTopLeft(tx + targetWidth() - pixmapWidth - 1, 3);
         m_targetChangeButton->move(buttonTopLeft);
         m_targetChangeButton->setVisible(true);
         m_targetChangeButton->setFirst(m_currentHoveredTargetIndex == m_currentTargetIndex);
@@ -388,10 +427,10 @@ void TargetSelector::paintEvent(QPaintEvent *event)
     //draw left button
     if (m_startIndex > 0)
         p.drawPixmap(x, 1, m_targetLeftButton);
-    x += m_targetLeftButton.width();
+    x += static_cast<int>(m_targetLeftButton.width() / m_targetLeftButton.devicePixelRatio());
     if (m_startIndex == 0) {
         p.setPen(borderColor);
-        p.drawLine(x, 1, x, TARGET_HEIGHT);
+        p.drawLine(QLineF(x + 0.5, 1.5, x + 0.5, TARGET_HEIGHT + 0.5));
     }
     x += 1;
     // draw targets
@@ -412,10 +451,10 @@ void TargetSelector::paintEvent(QPaintEvent *event)
             p.setPen(Qt::black);
         }
 
-        QRect buttonRect(x, 1, targetWidth() , image.height());
-        Utils::StyleHelper::drawCornerImage(image, &p, buttonRect, 16, 0, 16, 0);
+        QRect buttonRect(x, 1, targetWidth(), static_cast<int>(image.height() / image.devicePixelRatio()));
+        Utils::StyleHelper::drawCornerImage(image, &p, buttonRect, 13, 0, 13, 0);
         const QString nameText = QFontMetrics(font()).elidedText(target.name, Qt::ElideRight,
-                                                                 targetWidth() - 6);
+                                                                 targetWidth() - KITNAME_MARGINS);
         p.drawText(x + (targetWidth()- fm.width(nameText))/2 + 1, 7 + fm.ascent(),
             nameText);
 
@@ -441,14 +480,15 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         x += targetWidth();
 
         p.setPen(index == m_currentTargetIndex ? QColor(0x222222) : QColor(0xcccccc));
-        p.drawLine(x, 1, x, TARGET_HEIGHT);
+        p.drawLine(QLineF(x + 0.5, 1.5, x + 0.5, TARGET_HEIGHT + 0.5));
         ++x;
     }
     // draw right button and frame (left hand part already done)
     p.setPen(borderColor);
-    p.drawLine(2 + m_targetLeftButton.width(), 0, x - 1, 0);
+    p.drawLine(QLineF(2.5 + m_targetLeftButton.width() / m_targetLeftButton.devicePixelRatio(),
+               0.5, x - 0.5, 0.5));
     if (lastIndex < m_targets.size() - 1)
         p.drawPixmap(x, 1, m_targetRightButton);
     else
-        p.drawLine(x - 1, 1, x - 1, TARGET_HEIGHT);
+        p.drawLine(QLineF(x - 0.5, 1.5, x - 0.5, TARGET_HEIGHT + 0.5));
 }

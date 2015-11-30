@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Petar Perisin <petar.perisin@gmail.com>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Petar Perisin <petar.perisin@gmail.com>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,30 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "unstartedappwatcherdialog.h"
 
+#include "debuggeritem.h"
 #include "debuggerdialogs.h"
+#include "debuggerkitinformation.h"
 
 #include <utils/pathchooser.h>
 
@@ -37,7 +40,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
@@ -86,7 +89,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     m_kitChooser->populate();
     m_kitChooser->setVisible(true);
 
-    Project *project = ProjectExplorerPlugin::currentProject();
+    Project *project = ProjectTree::currentProject();
     if (project && project->activeTarget() && project->activeTarget()->kit())
         m_kitChooser->setCurrentKitId(project->activeTarget()->kit()->id());
     else if (KitManager::defaultKit())
@@ -145,11 +148,19 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     mainLayout->addRow(buttonsLine);
     setLayout(mainLayout);
 
-    connect(m_pathChooser, SIGNAL(beforeBrowsing()), this, SLOT(selectExecutable()));
-    connect(m_watchingPushButton, SIGNAL(toggled(bool)), this, SLOT(startStopWatching(bool)));
-    connect(m_pathChooser, SIGNAL(pathChanged(QString)), this, SLOT(stopAndCheckExecutable()));
-    connect(m_closePushButton, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(findProcess()));
+    connect(m_pathChooser, &Utils::PathChooser::beforeBrowsing,
+            this, &UnstartedAppWatcherDialog::selectExecutable);
+    connect(m_watchingPushButton, &QAbstractButton::toggled,
+            this, &UnstartedAppWatcherDialog::startStopWatching);
+    connect(m_pathChooser, &Utils::PathChooser::pathChanged, this,
+            &UnstartedAppWatcherDialog::stopAndCheckExecutable);
+    connect(m_closePushButton, &QAbstractButton::clicked,
+            this, &QDialog::reject);
+    connect(&m_timer, &QTimer::timeout,
+            this, &UnstartedAppWatcherDialog::findProcess);
+    connect(m_kitChooser, &KitChooser::currentIndexChanged,
+            this, &UnstartedAppWatcherDialog::kitChanged);
+    kitChanged();
 
     setWaitingState(checkExecutableString() ? NotWatchingState : InvalidWacherState);
 }
@@ -158,7 +169,7 @@ void UnstartedAppWatcherDialog::selectExecutable()
 {
     QString path;
 
-    Project *project = ProjectExplorerPlugin::currentProject();
+    Project *project = ProjectTree::currentProject();
 
     if (project && project->activeTarget() && project->activeTarget()->activeRunConfiguration()) {
 
@@ -174,7 +185,7 @@ void UnstartedAppWatcherDialog::selectExecutable()
                 project->activeTarget()->activeBuildConfiguration()) {
             path = project->activeTarget()->activeBuildConfiguration()->buildDirectory().toString();
         } else if (project) {
-            path = project->projectDirectory();
+            path = project->projectDirectory().toString();
         }
     }
     m_pathChooser->setInitialBrowsePathBackup(path);
@@ -223,10 +234,10 @@ void UnstartedAppWatcherDialog::startStopTimer(bool start)
 
 void UnstartedAppWatcherDialog::findProcess()
 {
-    QString appName = m_pathChooser->path();
+    const QString &appName = Utils::FileUtils::normalizePathName(m_pathChooser->path());
     DeviceProcessItem fallback;
     foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses()) {
-        if (p.exe == appName) {
+        if (Utils::FileUtils::normalizePathName(p.exe) == appName) {
             pidFound(p);
             return;
         }
@@ -241,6 +252,19 @@ void UnstartedAppWatcherDialog::stopAndCheckExecutable()
 {
     startStopTimer(false);
     setWaitingState(checkExecutableString() ? NotWatchingState : InvalidWacherState);
+}
+
+void UnstartedAppWatcherDialog::kitChanged()
+{
+    const DebuggerItem *debugger = DebuggerKitInformation::debugger(m_kitChooser->currentKit());
+    if (!debugger)
+        return;
+    if (debugger->engineType() == Debugger::CdbEngineType) {
+        m_continueOnAttachCheckBox->setEnabled(false);
+        m_continueOnAttachCheckBox->setChecked(true);
+    } else {
+        m_continueOnAttachCheckBox->setEnabled(true);
+    }
 }
 
 bool UnstartedAppWatcherDialog::checkExecutableString() const
@@ -269,7 +293,7 @@ bool UnstartedAppWatcherDialog::hideOnAttach() const
 
 bool UnstartedAppWatcherDialog::continueOnAttach() const
 {
-    return m_continueOnAttachCheckBox->isChecked();
+    return m_continueOnAttachCheckBox->isEnabled() && m_continueOnAttachCheckBox->isChecked();
 }
 
 void UnstartedAppWatcherDialog::setWaitingState(UnstartedAppWacherState state)

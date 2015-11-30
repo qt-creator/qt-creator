@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -49,7 +50,6 @@ private slots:
     void addRemoveObjects();
     void getObject();
     void getObjects();
-    void plugins();
     void circularPlugins();
     void correctPlugins1();
 
@@ -82,7 +82,9 @@ static QString pluginFolder(const QLatin1String &folder)
 
 void tst_PluginManager::init()
 {
+    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
     m_pm = new PluginManager;
+    m_pm->setPluginIID(QLatin1String("plugin"));
     m_objectAdded = new QSignalSpy(m_pm, SIGNAL(objectAdded(QObject*)));
     m_aboutToRemoveObject = new QSignalSpy(m_pm, SIGNAL(aboutToRemoveObject(QObject*)));
     m_pluginsChanged = new QSignalSpy(m_pm, SIGNAL(pluginsChanged()));
@@ -138,6 +140,9 @@ void tst_PluginManager::getObject()
 {
     MyClass2 *object2 = new MyClass2;
     MyClass11 *object11 = new MyClass11;
+    MyClass2 *object2b = new MyClass2;
+    const QString objectName = QLatin1String("OBJECTNAME");
+    object2b->setObjectName(objectName);
     m_pm->addObject(object2);
     QCOMPARE(m_pm->getObject<MyClass11>(), (MyClass11*)0);
     QCOMPARE(m_pm->getObject<MyClass1>(), (MyClass1*)0);
@@ -146,10 +151,17 @@ void tst_PluginManager::getObject()
     QCOMPARE(m_pm->getObject<MyClass11>(), object11);
     QCOMPARE(m_pm->getObject<MyClass1>(), qobject_cast<MyClass1*>(object11));
     QCOMPARE(m_pm->getObject<MyClass2>(), object2);
+    QCOMPARE(m_pm->getObjectByName(objectName), (QObject*)0);
+    m_pm->addObject(object2b);
+    QCOMPARE(m_pm->getObjectByName(objectName), object2b);
+    QCOMPARE(m_pm->getObject<MyClass2>(
+                    [&objectName](MyClass2 *obj) { return obj->objectName() == objectName;}), object2b);
     m_pm->removeObject(object2);
     m_pm->removeObject(object11);
+    m_pm->removeObject(object2b);
     delete object2;
     delete object11;
+    delete object2b;
 }
 
 void tst_PluginManager::getObjects()
@@ -172,30 +184,18 @@ void tst_PluginManager::getObjects()
     QCOMPARE(m_pm->getObjects<MyClass1>(), QList<MyClass1*>() << object11 << object1);
     QCOMPARE(m_pm->getObjects<MyClass2>(), QList<MyClass2*>() << object2);
     QCOMPARE(m_pm->allObjects(), QList<QObject*>() << object2 << object11 << object1);
+
+    QCOMPARE(m_pm->getObjects<MyClass1>(
+                 [](MyClass1 *o){
+                    return !qobject_cast<MyClass11 *>(o);} ),
+             QList<MyClass1 *>() << object1);
+
     m_pm->removeObject(object2);
     m_pm->removeObject(object11);
     m_pm->removeObject(object1);
     delete object1;
     delete object2;
     delete object11;
-}
-
-void tst_PluginManager::plugins()
-{
-    m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("plugins")));
-    QCOMPARE(m_pluginsChanged->count(), 1);
-    QList<PluginSpec *> plugins = m_pm->plugins();
-    QCOMPARE(plugins.count(), 3);
-    foreach (const QString &expected, QStringList() << "helloworld" << "MyPlugin" << "dummyPlugin") {
-        bool found = false;
-        foreach (PluginSpec *spec, plugins) {
-            if (spec->name() == expected) {
-                found = true;
-                break;
-            }
-        }
-        QVERIFY2(found, QString("plugin '%1' not found").arg(expected).toLocal8Bit().constData());
-    }
 }
 
 void tst_PluginManager::circularPlugins()
@@ -222,15 +222,20 @@ void tst_PluginManager::circularPlugins()
 
 void tst_PluginManager::correctPlugins1()
 {
-    m_pm->setFileExtension("spec");
     m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("correctplugins1")));
     m_pm->loadPlugins();
+    bool specError = false;
+    bool runError = false;
     foreach (PluginSpec *spec, m_pm->plugins()) {
-        if (spec->hasError())
+        if (spec->hasError()) {
+            qDebug() << spec->filePath();
             qDebug() << spec->errorString();
-        QVERIFY(!spec->hasError());
-        QCOMPARE(spec->state(), PluginSpec::Running);
+        }
+        specError = specError || spec->hasError();
+        runError = runError || (spec->state() != PluginSpec::Running);
     }
+    QVERIFY(!specError);
+    QVERIFY(!runError);
     bool plugin1running = false;
     bool plugin2running = false;
     bool plugin3running = false;

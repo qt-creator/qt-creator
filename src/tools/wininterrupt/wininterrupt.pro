@@ -1,7 +1,7 @@
-CONFIG          += warn_on console use_c_linker static
-CONFIG          -= qt app_bundle
+CONFIG          += warn_on use_c_linker static
+CONFIG          -= qt
 
-include(../../../qtcreator.pri)
+include(../../qtcreatortool.pri)
 
 # Switch to statically linked CRT. Note: There will be only one
 # global state of the CRT, reconsider if other DLLs are required!
@@ -18,9 +18,6 @@ win32-msvc* {
 
 SOURCES = wininterrupt.c
 
-TEMPLATE        = app
-DESTDIR         = $$IDE_LIBEXEC_PATH
-
 build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release
@@ -35,6 +32,3 @@ contains(ENV_CPU, ^AMD64$) {
 } else {
     TARGET = win32interrupt
 }
-
-target.path  = $$QTC_PREFIX/bin # FIXME: libexec, more or less
-INSTALLS    += target

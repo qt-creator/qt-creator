@@ -46,21 +46,20 @@ const char *token_names[] = {
     ("|="), ("||"), ("+"), ("+="), ("++"), ("#"), ("##"), ("?"), ("}"),
     ("]"), (")"), (";"), ("*"), ("*="), ("~"), ("~="),
 
-    ("alignas"), ("alignof"), ("asm"), ("auto"), ("bool"), ("break"), ("case"), ("catch"),
-    ("char"), ("char16_t"), ("char32_t"),
+    ("alignas"), ("alignof"), ("asm"), ("auto"), ("break"), ("case"), ("catch"),
     ("class"), ("const"), ("const_cast"), ("constexpr"), ("continue"),
     ("decltype"), ("default"),
-    ("delete"), ("do"), ("double"), ("dynamic_cast"), ("else"), ("enum"),
-    ("explicit"), ("export"), ("extern"), ("false"), ("float"), ("for"),
-    ("friend"), ("goto"), ("if"), ("inline"), ("int"), ("long"),
+    ("delete"), ("do"), ("dynamic_cast"), ("else"), ("enum"),
+    ("explicit"), ("export"), ("extern"), ("false"), ("for"),
+    ("friend"), ("goto"), ("if"), ("inline"),
     ("mutable"), ("namespace"), ("new"), ("noexcept"),
     ("nullptr"), ("operator"), ("private"),
     ("protected"), ("public"), ("register"), ("reinterpret_cast"),
-    ("return"), ("short"), ("signed"), ("sizeof"), ("static"),("static_assert"),
+    ("return"), ("sizeof"), ("static"), ("static_assert"),
     ("static_cast"), ("struct"), ("switch"), ("template"), ("this"), ("thread_local"),
     ("throw"), ("true"), ("try"), ("typedef"), ("typeid"), ("typename"),
-    ("union"), ("unsigned"), ("using"), ("virtual"), ("void"),
-    ("volatile"), ("wchar_t"), ("while"),
+    ("union"), ("using"), ("virtual"),
+    ("volatile"), ("while"),
 
     // gnu
     ("__attribute__"), ("__thread"), ("__typeof__"),
@@ -71,6 +70,10 @@ const char *token_names[] = {
     ("@not_keyword"), ("@optional"), ("@package"), ("@private"), ("@property"),
     ("@protected"), ("@protocol"), ("@public"), ("@required"), ("@selector"),
     ("@synchronized"), ("@synthesize"), ("@throw"), ("@try"),
+
+    // Primitive types
+    ("bool"), ("char"), ("char16_t"), ("char32_t"), ("double"), ("float"), ("int"),
+    ("long"), ("short"), ("signed"), ("unsigned"), ("void"), ("wchar_t"),
 
     // Qt keywords
     ("emit"), ("SIGNAL"), ("SLOT"), ("Q_SIGNAL"), ("Q_SLOT"), ("signals"), ("slots"),
@@ -84,7 +87,8 @@ const char *token_names[] = {
 void Token::reset()
 {
     flags = 0;
-    offset = 0;
+    byteOffset = 0;
+    utf16charOffset = 0;
     ptr = 0;
 }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -68,8 +64,6 @@ FormEditorView::FormEditorView(QObject *parent)
 
     connect(formEditorWidget()->zoomAction(), SIGNAL(zoomLevelChanged(double)), SLOT(updateGraphicsIndicators()));
     connect(formEditorWidget()->showBoundingRectAction(), SIGNAL(toggled(bool)), scene(), SLOT(setShowBoundingRects(bool)));
-    connect(formEditorWidget()->selectOnlyContentItemsAction(), SIGNAL(toggled(bool)), this, SLOT(setSelectOnlyContentItemsAction(bool)));
-
 }
 
 FormEditorScene* FormEditorView::scene() const
@@ -122,6 +116,16 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
             setupFormEditorItemTree(nextNode.toQmlItemNode());
 }
 
+static void deleteWithoutChildren(const QList<FormEditorItem*> &items)
+{
+    foreach (FormEditorItem *item, items) {
+        foreach (QGraphicsItem *child, item->childItems()) {
+            child->setParentItem(item->scene()->rootFormEditorItem());
+        }
+        delete item;
+    }
+}
+
 void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
 {
     if (qmlItemNode.isValid()) {
@@ -130,10 +134,14 @@ void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
         nodeList.append(qmlItemNode);
 
         QList<FormEditorItem*> removedItemList;
+
         removedItemList.append(scene()->itemsForQmlItemNodes(nodeList));
         m_currentTool->itemsAboutToRemoved(removedItemList);
 
-        qDeleteAll(removedItemList);
+        //The destructor of QGraphicsItem does delete all its children.
+        //We have to keep the children if they are not children in the model anymore.
+        //Otherwise we delete the children explicitly anyway.
+        deleteWithoutChildren(removedItemList);
     }
 }
 
@@ -251,18 +259,6 @@ void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractPro
         hideNodeFromScene(node);
 }
 
-void FormEditorView::variantPropertiesChanged(const QList<VariantProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/)
-{
-}
-
-void FormEditorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 WidgetInfo FormEditorView::widgetInfo()
 {
     return createWidgetInfo(m_formEditorWidget.data(), 0, "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"));
@@ -291,12 +287,10 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     m_scene->update();
 }
 
-void FormEditorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
+void FormEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
 {
-}
-
-void FormEditorView::propertiesRemoved(const QList<AbstractProperty> &/*propertyList*/)
-{
+    if (identifier == QStringLiteral("puppet crashed"))
+        m_dragTool->clearMoveDelay();
 }
 
 AbstractFormEditorTool* FormEditorView::currentTool() const
@@ -402,7 +396,7 @@ void FormEditorView::changeToCustomTool()
 {
     if (hasSelectedModelNodes()) {
         int handlingRank = 0;
-        AbstractCustomTool *selectedCustomTool;
+        AbstractCustomTool *selectedCustomTool = 0;
 
         ModelNode selectedModelNode = selectedModelNodes().first();
 
@@ -417,9 +411,11 @@ void FormEditorView::changeToCustomTool()
         if (handlingRank > 0) {
             m_scene->updateAllFormEditorItems();
             m_currentTool->clear();
-            m_currentTool = selectedCustomTool;
-            m_currentTool->clear();
-            m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+            if (selectedCustomTool) {
+                m_currentTool = selectedCustomTool;
+                m_currentTool->clear();
+                m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+            }
         }
     }
 }
@@ -437,21 +433,6 @@ void FormEditorView::registerTool(AbstractCustomTool *tool)
 {
     tool->setView(this);
     m_customToolList.append(tool);
-}
-
-void FormEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int /*newIndex*/, int /*oldIndex*/)
-{
-    QList<ModelNode> newOrderModelNodeList = listProperty.toModelNodeList();
-    foreach (const ModelNode &node, newOrderModelNodeList) {
-        FormEditorItem *item = m_scene->itemForQmlItemNode(QmlItemNode(node));
-        if (item) {
-            FormEditorItem *oldParentItem = item->parentItem();
-            item->setParentItem(0);
-            item->setParentItem(oldParentItem);
-        }
-    }
-
-    m_currentTool->formEditorItemsChanged(scene()->allFormEditorItems());
 }
 
 void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
@@ -474,7 +455,6 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
     foreach (const ModelNode &node, completedNodeList) {
         QmlItemNode qmlItemNode(node);
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
-            scene()->synchronizeParent(qmlItemNode);
             itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
         }
     }
@@ -490,6 +470,23 @@ void FormEditorView::instanceInformationsChange(const QMultiHash<ModelNode, Info
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(qmlItemNode);
             if (qmlItemNode.isRootModelNode() && informationChangeHash.values(node).contains(Size)) {
+                if (qmlItemNode.instanceBoundingRect().isEmpty() &&
+                        !(qmlItemNode.propertyAffectedByCurrentState("width")
+                          && qmlItemNode.propertyAffectedByCurrentState("height"))) {
+                    rootModelNode().setAuxiliaryData("width", 640);
+                    rootModelNode().setAuxiliaryData("height", 480);
+                    rootModelNode().setAuxiliaryData("autoSize", true);
+                    formEditorWidget()->updateActions();
+                } else {
+                    if (rootModelNode().hasAuxiliaryData("autoSize")
+                            && (qmlItemNode.propertyAffectedByCurrentState("width")
+                                || qmlItemNode.propertyAffectedByCurrentState("height"))) {
+                        rootModelNode().setAuxiliaryData("width", QVariant());
+                        rootModelNode().setAuxiliaryData("height", QVariant());
+                        rootModelNode().removeAuxiliaryData("autoSize");
+                        formEditorWidget()->updateActions();
+                    }
+                }
                 formEditorWidget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
                 formEditorWidget()->centerScene();
             }
@@ -508,15 +505,6 @@ void FormEditorView::instancesRenderImageChanged(const QVector<ModelNode> &nodeL
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode))
            scene()->itemForQmlItemNode(qmlItemNode)->update();
     }
-}
-
-void FormEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void FormEditorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
-{
 }
 
 void FormEditorView::instancesChildrenChanged(const QVector<ModelNode> &nodeList)
@@ -602,12 +590,6 @@ void FormEditorView::updateGraphicsIndicators()
     m_currentTool->formEditorItemsChanged(scene()->allFormEditorItems());
 }
 
-
-void FormEditorView::setSelectOnlyContentItemsAction(bool selectOnlyContentItems)
-{
-    m_selectionTool->setSelectOnlyContentItems(selectOnlyContentItems);
-}
-
 bool FormEditorView::isMoveToolAvailable() const
 {
     if (hasSingleSelectedModelNode() && QmlItemNode::isValidQmlItemNode(singleSelectedModelNode())) {
@@ -618,30 +600,6 @@ bool FormEditorView::isMoveToolAvailable() const
     }
 
     return true;
-}
-
-void FormEditorView::currentStateChanged(const ModelNode &/*node*/)
-{
-}
-
-void FormEditorView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void FormEditorView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void FormEditorView::nodeSourceChanged(const ModelNode &/*modelNode*/, const QString &/*newNodeSource*/)
-{
-
-}
-
-void FormEditorView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
-{
-
 }
 
 void FormEditorView::reset()
@@ -656,7 +614,7 @@ void FormEditorView::delayedReset()
     m_resizeTool->clear();
     m_dragTool->clear();
     m_scene->clearFormEditorItems();
-    if (QmlItemNode::isValidQmlItemNode(rootModelNode()))
+    if (isAttached() && QmlItemNode::isValidQmlItemNode(rootModelNode()))
         setupFormEditorItemTree(rootModelNode());
 }
 

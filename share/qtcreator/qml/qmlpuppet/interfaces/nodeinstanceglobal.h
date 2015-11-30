@@ -1,6 +1,9 @@
 #ifndef NODEINSTANCEGLOBAL_H
 #define NODEINSTANCEGLOBAL_H
 
+#include <QByteArray>
+#include <QList>
+
 namespace QmlDesigner {
 
 typedef QByteArray PropertyName;

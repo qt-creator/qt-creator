@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -31,7 +27,7 @@
 #define MODELNODE_H
 
 #include "qmldesignercorelib_global.h"
-#include <QWeakPointer>
+#include <QPointer>
 #include <QList>
 #include <QVariant>
 
@@ -91,7 +87,7 @@ public:
 
     ModelNode();
     ModelNode(const Internal::InternalNodePointer &internalNode, Model *model, const AbstractView *view);
-    ModelNode(const ModelNode modelNode, AbstractView *view);
+    ModelNode(const ModelNode &modelNode, AbstractView *view);
     ModelNode(const ModelNode &other);
     ~ModelNode();
 
@@ -110,8 +106,9 @@ public:
     void setParentProperty(const ModelNode &newParentNode, const PropertyName &propertyName);
     bool hasParentProperty() const;
 
-    const QList<ModelNode> allDirectSubModelNodes() const;
+    const QList<ModelNode> directSubModelNodes() const;
     const QList<ModelNode> allSubModelNodes() const;
+    const QList<ModelNode> allSubModelNodesAndThisNode() const;
     bool hasAnySubModelNodes() const;
 
     //###
@@ -124,8 +121,10 @@ public:
     NodeProperty nodeProperty(const PropertyName &name) const;
     NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
     NodeAbstractProperty defaultNodeAbstractProperty() const;
+    NodeListProperty defaultNodeListProperty() const;
+    NodeProperty defaultNodeProperty() const;
 
-    void removeProperty(const PropertyName &name); //### also implement in AbstractProperty
+    void removeProperty(const PropertyName &name) const; //### also implement in AbstractProperty
     QList<AbstractProperty> properties() const;
     QList<VariantProperty> variantProperties() const;
     QList<NodeAbstractProperty> nodeAbstractProperties() const;
@@ -138,8 +137,10 @@ public:
     bool hasProperty(const PropertyName &name) const;
     bool hasVariantProperty(const PropertyName &name) const;
     bool hasBindingProperty(const PropertyName &name) const;
-    bool hasNodeAbstracProperty(const PropertyName &name) const;
-    bool hasDefaultNodeAbstracProperty() const;
+    bool hasNodeAbstractProperty(const PropertyName &name) const;
+    bool hasDefaultNodeAbstractProperty() const;
+    bool hasDefaultNodeListProperty() const;
+    bool hasDefaultNodeProperty() const;
     bool hasNodeProperty(const PropertyName &name) const;
     bool hasNodeListProperty(const PropertyName &name) const;
 
@@ -151,8 +152,10 @@ public:
 
     QString id() const;
     QString validId();
-    void setId(const QString &id);
+    void setIdWithRefactoring(const QString &id);
+    void setIdWithoutRefactoring(const QString &id);
     static bool isValidId(const QString &id);
+    bool hasId() const;
 
     Model *model() const;
     AbstractView *view() const;
@@ -172,6 +175,7 @@ public:
 
     QVariant auxiliaryData(const PropertyName &name) const;
     void setAuxiliaryData(const PropertyName &name, const QVariant &data) const;
+    void removeAuxiliaryData(const PropertyName &name);
     bool hasAuxiliaryData(const PropertyName &name) const;
     QHash<PropertyName, QVariant> auxiliaryData() const;
 
@@ -185,6 +189,7 @@ public:
     NodeSourceType nodeSourceType() const;
 
     bool isComponent() const;
+    bool isSubclassOf(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
 
 private: // functions
     Internal::InternalNodePointer internalNode() const;
@@ -192,8 +197,8 @@ private: // functions
 
 private: // variables
     Internal::InternalNodePointer m_internalNode;
-    QWeakPointer<Model> m_model;
-    QWeakPointer<AbstractView> m_view;
+    QPointer<Model> m_model;
+    QPointer<AbstractView> m_view;
 };
 
 QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
@@ -205,6 +210,5 @@ QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const ModelN
 }
 
 Q_DECLARE_METATYPE(QmlDesigner::ModelNode)
-Q_DECLARE_METATYPE(QList<QmlDesigner::ModelNode>)
 
 #endif // MODELNODE_H

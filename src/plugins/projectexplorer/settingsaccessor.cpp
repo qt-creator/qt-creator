@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,29 +31,38 @@
 #include "settingsaccessor.h"
 
 #include "abi.h"
-#include "buildconfiguration.h"
 #include "devicesupport/devicemanager.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
-#include "target.h"
 #include "toolchain.h"
 #include "toolchainmanager.h"
 #include "kit.h"
 #include "kitmanager.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/persistentsettings.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QApplication>
-#include <QFile>
-#include <QMessageBox>
+#include <QDir>
 
 using namespace Utils;
+
+namespace {
+static QString generateSuffix(const QString &alt1, const QString &alt2)
+{
+    QString suffix = alt1;
+    if (suffix.isEmpty())
+        suffix = alt2;
+    suffix.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_.-]")), QString(QLatin1Char('_'))); // replace fishy characters:
+    if (!suffix.startsWith(QLatin1Char('.')))
+        suffix.prepend(QLatin1Char('.'));
+    return suffix;
+}
+} // end namespace
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -69,14 +79,15 @@ public:
 
     virtual int version() const = 0;
     virtual QString backupExtension() const = 0;
-    virtual QVariantMap upgrade(Project *project, const QVariantMap &map) = 0;
+
+    virtual QVariantMap upgrade(const QVariantMap &data) = 0;
 
 protected:
     typedef QPair<QLatin1String,QLatin1String> Change;
     QVariantMap renameKeys(const QList<Change> &changes, QVariantMap map) const;
 };
 
-/**
+/*!
  * Performs a simple renaming of the listed keys in \a changes recursively on \a map.
  */
 QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMap map) const
@@ -105,27 +116,18 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
 } // ProjectExplorer
 
 using namespace ProjectExplorer;
-using namespace Internal;
+using namespace ProjectExplorer::Internal;
 
 namespace {
 
-const char USER_STICKY_KEYS_KEY[] = "ProjectExplorer.Project.UserStickyKeys";
+const char USER_STICKY_KEYS_KEY[] = "UserStickyKeys";
 const char SHARED_SETTINGS[] = "SharedSettings";
+const char ENVIRONMENT_ID_KEY[] = "EnvironmentId";
+const char VERSION_KEY[] = "Version";
+const char ORIGINAL_VERSION_KEY[] = "OriginalVersion";
 
-// Version 0 is used in Qt Creator 1.3.x and
-// (in a slighly different flavour) post 1.3 master.
-class UserFileVersion0Upgrader : public VersionUpgrader
-{
-public:
-    int version() const { return 0; }
-    QString backupExtension() const { return QLatin1String("1.3"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
-
-private:
-    QVariantMap convertBuildConfigurations(Project *project, const QVariantMap &map);
-    QVariantMap convertRunConfigurations(Project *project, const QVariantMap &map);
-    QVariantMap convertBuildSteps(Project *project, const QVariantMap &map);
-};
+// for compatibility with QtC 3.1 and older:
+const char OBSOLETE_VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
 
 // Version 1 is used in master post Qt Creator 1.3.x.
 // It was never used in any official release but is required for the
@@ -133,11 +135,10 @@ private:
 class UserFileVersion1Upgrader : public VersionUpgrader
 {
 public:
+    UserFileVersion1Upgrader(UserFileAccessor *a) : m_accessor(a) { }
     int version() const { return 1; }
-
     QString backupExtension() const { return QLatin1String("1.3+git"); }
-
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 
 private:
     struct TargetDescription
@@ -157,6 +158,8 @@ private:
         QString id;
         QString displayName;
     };
+
+    UserFileAccessor *m_accessor;
 };
 
 // Version 2 is used in master post Qt Creator 2.0 alpha.
@@ -165,7 +168,7 @@ class UserFileVersion2Upgrader : public VersionUpgrader
 public:
     int version() const { return 2; }
     QString backupExtension() const { return QLatin1String("2.0-alpha+git"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 3 reflect the move of symbian signing from run to build step.
@@ -174,7 +177,7 @@ class UserFileVersion3Upgrader : public VersionUpgrader
 public:
     int version() const { return 3; }
     QString backupExtension() const { return QLatin1String("2.0-alpha2+git"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 4 reflects the introduction of deploy steps
@@ -183,7 +186,7 @@ class UserFileVersion4Upgrader : public VersionUpgrader
 public:
     int version() const { return 4; }
     QString backupExtension() const { return QLatin1String("2.1pre1"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 5 reflects the introduction of new deploy steps for Symbian/Maemo
@@ -192,7 +195,7 @@ class UserFileVersion5Upgrader : public VersionUpgrader
 public:
     int version() const { return 5; }
     QString backupExtension() const { return QLatin1String("2.1pre2"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 6 reflects the introduction of new deploy steps for Symbian/Maemo
@@ -201,7 +204,7 @@ class UserFileVersion6Upgrader : public VersionUpgrader
 public:
     int version() const { return 6; }
     QString backupExtension() const { return QLatin1String("2.1pre3"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 7 reflects the introduction of new deploy configuration for Symbian
@@ -210,7 +213,7 @@ class UserFileVersion7Upgrader : public VersionUpgrader
 public:
     int version() const { return 7; }
     QString backupExtension() const { return QLatin1String("2.1pre4"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 8 reflects the change of environment variable expansion rules,
@@ -224,7 +227,7 @@ public:
         // pre5 because we renamed 2.2 to 2.1 later, so people already have 2.2pre4 files
         return QLatin1String("2.2pre5");
     }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 9 reflects the refactoring of the Maemo deploy step.
@@ -233,7 +236,7 @@ class UserFileVersion9Upgrader : public VersionUpgrader
 public:
     int version() const { return 9; }
     QString backupExtension() const { return QLatin1String("2.3pre1"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 10 introduces disabling buildsteps, and handles upgrading custom process steps
@@ -242,18 +245,19 @@ class UserFileVersion10Upgrader : public VersionUpgrader
 public:
     int version() const { return 10; }
     QString backupExtension() const { return QLatin1String("2.5pre1"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 11 introduces kits
 class UserFileVersion11Upgrader : public VersionUpgrader
 {
 public:
+    UserFileVersion11Upgrader(UserFileAccessor *a) : m_accessor(a) { }
     ~UserFileVersion11Upgrader();
 
     int version() const { return 11; }
     QString backupExtension() const { return QLatin1String("2.6pre1"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 
 private:
     Kit *uniqueKit(Kit *k);
@@ -279,6 +283,7 @@ private:
     QHash<int, QString> m_qtVersionExtras;
 
     QHash<Kit *, QVariantMap> m_targets;
+    UserFileAccessor *m_accessor;
 };
 
 // Version 12 reflects the move of environment settings from CMake/Qt4/Custom into
@@ -288,7 +293,7 @@ class UserFileVersion12Upgrader : public VersionUpgrader
 public:
     int version() const { return 12; }
     QString backupExtension() const { return QLatin1String("2.7pre1"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 13 reflects the move of environment settings from LocalApplicationRunConfiguration
@@ -298,7 +303,7 @@ class UserFileVersion13Upgrader : public VersionUpgrader
 public:
     int version() const { return 13; }
     QString backupExtension() const { return QLatin1String("2.8"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
 };
 
 // Version 14 Move builddir into BuildConfiguration
@@ -307,7 +312,60 @@ class UserFileVersion14Upgrader : public VersionUpgrader
 public:
     int version() const { return 14; }
     QString backupExtension() const { return QLatin1String("3.0-pre1"); }
-    QVariantMap upgrade(Project *project, const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map);
+};
+
+// Version 15 Use settingsaccessor based class for user file reading/writing
+class UserFileVersion15Upgrader : public VersionUpgrader
+{
+public:
+    int version() const { return 15; }
+    QString backupExtension() const { return QLatin1String("3.2-pre1"); }
+    QVariantMap upgrade(const QVariantMap &map);
+};
+
+// Version 16 Changed android deployment
+class UserFileVersion16Upgrader : public VersionUpgrader
+{
+public:
+    int version() const { return 16; }
+    QString backupExtension() const { return QLatin1String("3.3-pre1"); }
+    QVariantMap upgrade(const QVariantMap &data);
+private:
+    class OldStepMaps
+    {
+    public:
+        QString defaultDisplayName;
+        QString displayName;
+        QVariantMap androidPackageInstall;
+        QVariantMap androidDeployQt;
+        bool isEmpty()
+        {
+            return androidPackageInstall.isEmpty() || androidDeployQt.isEmpty();
+        }
+    };
+
+
+    QVariantMap removeAndroidPackageStep(QVariantMap deployMap);
+    OldStepMaps extractStepMaps(const QVariantMap &deployMap);
+    enum NamePolicy { KeepName, RenameBuildConfiguration };
+    QVariantMap insertSteps(QVariantMap buildConfigurationMap,
+                            const OldStepMaps &oldStepMap,
+                            NamePolicy policy);
+};
+
+// Version 17 Apply user sticky keys per map
+class UserFileVersion17Upgrader : public VersionUpgrader
+{
+public:
+    int version() const { return 17; }
+    QString backupExtension() const { return QLatin1String("3.3-pre2"); }
+    QVariantMap upgrade(const QVariantMap &map);
+
+    QVariant process(const QVariant &entry);
+
+private:
+    QVariantList m_sticky;
 };
 
 } // namespace
@@ -370,26 +428,14 @@ static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMa
     return result;
 }
 
-// -------------------------------------------------------------------------
-// UserFileAccessor
-// -------------------------------------------------------------------------
-SettingsAccessor::SettingsAccessor(Project *project) :
-    m_firstVersion(-1),
-    m_lastVersion(-1),
-    m_userFileAcessor(QLatin1String(".user"),
-                      QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")),
-                      true,
-                      this),
-    m_sharedFileAcessor(QLatin1String(".shared"),
-                        QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")),
-                        false,
-                        this),
-    m_project(project)
+// --------------------------------------------------------------------
+// UserFileAccessor:
+// --------------------------------------------------------------------
+UserFileAccessor::UserFileAccessor(Project *project)
+    : SettingsAccessor(project)
 {
-    QTC_CHECK(m_project);
-
-    addVersionUpgrader(new UserFileVersion0Upgrader);
-    addVersionUpgrader(new UserFileVersion1Upgrader);
+    // Register Upgraders:
+    addVersionUpgrader(new UserFileVersion1Upgrader(this));
     addVersionUpgrader(new UserFileVersion2Upgrader);
     addVersionUpgrader(new UserFileVersion3Upgrader);
     addVersionUpgrader(new UserFileVersion4Upgrader);
@@ -399,15 +445,168 @@ SettingsAccessor::SettingsAccessor(Project *project) :
     addVersionUpgrader(new UserFileVersion8Upgrader);
     addVersionUpgrader(new UserFileVersion9Upgrader);
     addVersionUpgrader(new UserFileVersion10Upgrader);
-    addVersionUpgrader(new UserFileVersion11Upgrader);
+    addVersionUpgrader(new UserFileVersion11Upgrader(this));
     addVersionUpgrader(new UserFileVersion12Upgrader);
     addVersionUpgrader(new UserFileVersion13Upgrader);
     addVersionUpgrader(new UserFileVersion14Upgrader);
+    addVersionUpgrader(new UserFileVersion15Upgrader);
+    addVersionUpgrader(new UserFileVersion16Upgrader);
+    addVersionUpgrader(new UserFileVersion17Upgrader);
+}
+
+QVariantMap UserFileAccessor::prepareSettings(const QVariantMap &data) const
+{
+    // Move from old Version field to new one:
+    // This can not be done in a normal upgrader since the version information is needed
+    // to decide which upgraders to run
+    QVariantMap result = SettingsAccessor::prepareSettings(data);
+    const QString obsoleteKey = QLatin1String(OBSOLETE_VERSION_KEY);
+    if (data.contains(obsoleteKey)) {
+        result = setVersionInMap(result, data.value(obsoleteKey, versionFromMap(data)).toInt());
+        result.remove(obsoleteKey);
+    }
+    return result;
+}
+
+QVariantMap UserFileAccessor::prepareToSaveSettings(const QVariantMap &data) const
+{
+    QVariantMap tmp = SettingsAccessor::prepareToSaveSettings(data);
+
+    // for compatibility with QtC 3.1 and older:
+    tmp.insert(QLatin1String(OBSOLETE_VERSION_KEY), currentVersion());
+    return tmp;
+}
+
+namespace ProjectExplorer {
+// --------------------------------------------------------------------
+// SettingsAccessorPrivate:
+// --------------------------------------------------------------------
+class SettingsAccessorPrivate
+{
+public:
+    SettingsAccessorPrivate() :
+        m_writer(0)
+    { }
+
+    ~SettingsAccessorPrivate()
+    {
+        qDeleteAll(m_upgraders);
+        delete m_writer;
+    }
+
+    // The relevant data from the settings currently in use.
+    class Settings
+    {
+    public:
+        bool isValid() const;
+
+        QVariantMap map;
+        FileName path;
+    };
+
+    int firstVersion() const { return m_upgraders.isEmpty() ? -1 : m_upgraders.first()->version(); }
+    int lastVersion() const { return m_upgraders.isEmpty() ? -1 : m_upgraders.last()->version(); }
+    int currentVersion() const { return lastVersion() + 1; }
+    VersionUpgrader *upgrader(const int version) const
+    {
+        int pos = version - firstVersion();
+        if (pos >= 0 && pos < m_upgraders.count())
+            return m_upgraders.at(pos);
+        return 0;
+    }
+    Settings bestSettings(const SettingsAccessor *accessor, const FileNameList &pathList);
+
+    QList<VersionUpgrader *> m_upgraders;
+    PersistentSettingsWriter *m_writer;
+};
+
+// Return path to shared directory for .user files, create if necessary.
+static inline QString determineSharedUserFileDir()
+{
+    const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
+    if (!qEnvironmentVariableIsSet(userFilePathVariable))
+        return QString();
+    const QFileInfo fi(QFile::decodeName(qgetenv(userFilePathVariable)));
+    const QString path = fi.absoluteFilePath();
+    if (fi.isDir() || fi.isSymLink())
+        return path;
+    if (fi.exists()) {
+        qWarning() << userFilePathVariable << '=' << QDir::toNativeSeparators(path)
+            << " points to an existing file";
+        return QString();
+    }
+    QDir dir;
+    if (!dir.mkpath(path)) {
+        qWarning() << "Cannot create: " << QDir::toNativeSeparators(path);
+        return QString();
+    }
+    return path;
+}
+
+static QString sharedUserFileDir()
+{
+    static const QString sharedDir = determineSharedUserFileDir();
+    return sharedDir;
+}
+
+// Return a suitable relative path to be created under the shared .user directory.
+static QString makeRelative(QString path)
+{
+    const QChar slash(QLatin1Char('/'));
+    // Windows network shares: "//server.domain-a.com/foo' -> 'serverdomainacom/foo'
+    if (path.startsWith(QLatin1String("//"))) {
+        path.remove(0, 2);
+        const int nextSlash = path.indexOf(slash);
+        if (nextSlash > 0) {
+            for (int p = nextSlash; p >= 0; --p) {
+                if (!path.at(p).isLetterOrNumber())
+                    path.remove(p, 1);
+            }
+        }
+        return path;
+    }
+    // Windows drives: "C:/foo' -> 'c/foo'
+    if (path.size() > 3 && path.at(1) == QLatin1Char(':')) {
+        path.remove(1, 1);
+        path[0] = path.at(0).toLower();
+        return path;
+    }
+    if (path.startsWith(slash)) // Standard UNIX paths: '/foo' -> 'foo'
+        path.remove(0, 1);
+    return path;
+}
+
+// Return complete file path of the .user file.
+static FileName userFilePath(const Project *project, const QString &suffix)
+{
+    FileName result;
+    const FileName projectFilePath = project->projectFilePath();
+    if (sharedUserFileDir().isEmpty()) {
+        result = projectFilePath;
+    } else {
+        // Recreate the relative project file hierarchy under the shared directory.
+        // PersistentSettingsWriter::write() takes care of creating the path.
+        result = FileName::fromString(sharedUserFileDir());
+        result.appendString(QLatin1Char('/') + makeRelative(projectFilePath.toString()));
+    }
+    result.appendString(suffix);
+    return result;
+}
+
+} // end namespace
+
+SettingsAccessor::SettingsAccessor(Project *project) :
+    m_project(project),
+    d(new SettingsAccessorPrivate)
+{
+    QTC_CHECK(m_project);
+    m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), QLatin1String(".user"));
+    m_sharedSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), QLatin1String(".shared"));
 }
 
 SettingsAccessor::~SettingsAccessor()
 {
-    qDeleteAll(m_handlers);
+    delete d;
 }
 
 Project *SettingsAccessor::project() const
@@ -428,6 +627,8 @@ public:
 
         for (; it != eit; ++it) {
             const QString &key = it.key();
+            if (key == QLatin1String(VERSION_KEY) || key == QLatin1String(ENVIRONMENT_ID_KEY))
+                continue;
             const QVariant &sharedValue = it.value();
             const QVariant &userValue = userMap.value(key);
             if (sharedValue.type() == QVariant::Map) {
@@ -451,16 +652,14 @@ public:
 class MergeSettingsOperation : public Operation
 {
 public:
-    MergeSettingsOperation(const QSet<QString> &sticky) : m_userSticky(sticky) { }
-
     void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue)
     {
-        if (!m_userSticky.contains(key))
+        // Do not override bookkeeping settings:
+        if (key == QLatin1String(ORIGINAL_VERSION_KEY) || key == QLatin1String(VERSION_KEY))
+            return;
+        if (!userMap.value(QLatin1String(USER_STICKY_KEYS_KEY)).toList().contains(key))
             userMap.insert(key, sharedValue);
     }
-
-private:
-    QSet<QString> m_userSticky;
 };
 
 
@@ -469,16 +668,214 @@ class TrackStickyness : public Operation
 public:
     void apply(QVariantMap &userMap, const QString &key, const QVariant &)
     {
-        m_userSticky.insert(key);
+        const QString stickyKey = QLatin1String(USER_STICKY_KEYS_KEY);
+        QVariantList sticky = userMap.value(stickyKey).toList();
+        sticky.append(key);
+        userMap.insert(stickyKey, sticky);
     }
-
-    QStringList stickySettings() const { return m_userSticky.toList(); }
-
-private:
-    QSet<QString> m_userSticky;
 };
 
 } // namespace
+
+int SettingsAccessor::versionFromMap(const QVariantMap &data)
+{
+    return data.value(QLatin1String(VERSION_KEY), -1).toInt();
+}
+
+int SettingsAccessor::originalVersionFromMap(const QVariantMap &data)
+{
+    return data.value(QLatin1String(ORIGINAL_VERSION_KEY), versionFromMap(data)).toInt();
+}
+
+QVariantMap SettingsAccessor::setOriginalVersionInMap(const QVariantMap &data, int version)
+{
+    QVariantMap result = data;
+    result.insert(QLatin1String(ORIGINAL_VERSION_KEY), version);
+    return result;
+}
+
+QVariantMap SettingsAccessor::setVersionInMap(const QVariantMap &data, int version)
+{
+    QVariantMap result = data;
+    result.insert(QLatin1String(VERSION_KEY), version);
+    return result;
+}
+
+/*!
+ * Run directly after reading the \a data.
+ *
+ * This method is called right after reading the data before any attempt at interpreting the data
+ * is made.
+ *
+ * Returns the prepared data.
+ */
+QVariantMap SettingsAccessor::prepareSettings(const QVariantMap &data) const
+{
+    return data;
+}
+
+/*!
+ * Check which of two sets of data are a better match to load.
+ *
+ * This method is used to compare data extracted from two XML settings files.
+ * It will never be called with a version too old or too new to be read by
+ * the current instance of Qt Creator.
+ *
+ * Compares \a newData against \a origData.
+ *
+ * Returns \c true if \a newData is a better match than \a origData and \c false otherwise.
+ */
+bool SettingsAccessor::isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const
+{
+    if (origData.isEmpty())
+        return true;
+
+    int origVersion = versionFromMap(origData);
+    QByteArray origEnv = environmentIdFromMap(origData);
+
+    int newVersion = versionFromMap(newData);
+    QByteArray newEnv = environmentIdFromMap(newData);
+
+    if (origEnv != newEnv) {
+        if (origEnv == creatorId())
+            return false;
+        if (newEnv == creatorId())
+            return true;
+    }
+
+    return newVersion > origVersion;
+}
+
+/*!
+ * Upgrade the settings in \a data to the version \a toVersion.
+ *
+ * Returns settings of the requested version.
+ */
+QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data) const
+{
+    const int version = versionFromMap(data);
+
+    if (data.isEmpty())
+        return data;
+
+    QVariantMap result;
+    if (!data.contains(QLatin1String(ORIGINAL_VERSION_KEY)))
+        result = setOriginalVersionInMap(data, version);
+    else
+        result = data;
+
+    const int toVersion = currentVersion();
+    if (version >= toVersion || version < d->firstVersion())
+        return result;
+
+    for (int i = version; i < toVersion; ++i) {
+        VersionUpgrader *upgrader = d->upgrader(i);
+        QTC_CHECK(upgrader && upgrader->version() == i);
+        result = upgrader->upgrade(result);
+        result = setVersionInMap(result, i + 1);
+    }
+
+    return result;
+}
+
+/*!
+ * Find issues with the settings file and warn the user about them.
+ *
+ * \a data is the data from the settings file.
+ * \a path is the full path to the settings used.
+ * \a parent is the widget to be set as parent of any dialogs that are opened.
+ *
+ * Returns \c true if the settings are not usable anymore and \c false otherwise.
+ */
+SettingsAccessor::ProceedInfo SettingsAccessor::reportIssues(const QVariantMap &data,
+                                                             const FileName &path,
+                                                             QWidget *parent) const
+{
+    IssueInfo issue = findIssues(data, path);
+    QMessageBox::Icon icon = QMessageBox::Information;
+
+    if (issue.buttons.count() > 1)
+        icon = QMessageBox::Question;
+
+    QMessageBox::StandardButtons buttons = QMessageBox::NoButton;
+    foreach (QMessageBox::StandardButton b, issue.buttons.keys())
+        buttons |= b;
+
+    if (buttons == QMessageBox::NoButton)
+        return Continue;
+
+    QMessageBox msgBox(icon, issue.title, issue.message, buttons, parent);
+    if (issue.defaultButton != QMessageBox::NoButton)
+        msgBox.setDefaultButton(issue.defaultButton);
+    if (issue.escapeButton != QMessageBox::NoButton)
+        msgBox.setEscapeButton(issue.escapeButton);
+
+    int boxAction = msgBox.exec();
+    return issue.buttons.value(static_cast<QMessageBox::StandardButton>(boxAction));
+}
+
+/*!
+ * Checks \a data located at \a path for issues to be displayed with reportIssues.
+ *
+ * Returns a IssueInfo object which is then used by reportIssues.
+ */
+SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data, const FileName &path) const
+{
+    SettingsAccessor::IssueInfo result;
+
+    const FileName defaultSettingsPath = userFilePath(project(), m_userSuffix);
+
+    int version = versionFromMap(data);
+    if (!path.exists()) {
+        return result;
+    } else if (data.isEmpty() || version < firstSupportedVersion() || version > currentVersion()) {
+        result.title = QApplication::translate("Utils::SettingsAccessor", "No Valid Settings Found");
+        result.message = QApplication::translate("Utils::SettingsAccessor",
+                                                 "<p>No valid settings file could be found.</p>"
+                                                 "<p>All settings files found in directory \"%1\" "
+                                                 "were either too new or too old to be read.</p>")
+                .arg(path.toUserOutput());
+        result.buttons.insert(QMessageBox::Ok, DiscardAndContinue);
+    } else if ((path != defaultSettingsPath) && (version < currentVersion())) {
+        result.title = QApplication::translate("Utils::SettingsAccessor", "Using Old Settings");
+        result.message = QApplication::translate("Utils::SettingsAccessor",
+                                                 "<p>The versioned backup \"%1\" of the settings "
+                                                 "file is used, because the non-versioned file was "
+                                                 "created by an incompatible version of Qt Creator.</p>"
+                                                 "<p>Settings changes made since the last time this "
+                                                 "version of Qt Creator was used are ignored, and "
+                                                 "changes made now will <b>not</b> be propagated to "
+                                                 "the newer version.</p>").arg(path.toUserOutput());
+        result.buttons.insert(QMessageBox::Ok, Continue);
+    }
+
+    if (!result.buttons.isEmpty())
+        return result;
+
+    QByteArray readId = environmentIdFromMap(data);
+    if (!readId.isEmpty() && readId != creatorId()) {
+        result.title = differentEnvironmentMsg(project()->displayName());
+        result.message = QApplication::translate("ProjectExplorer::EnvironmentIdAccessor",
+                                                 "<p>No .user settings file created by this instance "
+                                                 "of Qt Creator was found.</p>"
+                                                 "<p>Did you work with this project on another machine or "
+                                                 "using a different settings path before?</p>"
+                                                 "<p>Do you still want to load the settings file \"%1\"?</p>")
+                .arg(path.toUserOutput());
+        result.defaultButton = QMessageBox::No;
+        result.escapeButton = QMessageBox::No;
+        result.buttons.insert(QMessageBox::Yes, SettingsAccessor::Continue);
+        result.buttons.insert(QMessageBox::No, SettingsAccessor::DiscardAndContinue);
+    }
+    return result;
+}
+
+QString SettingsAccessor::differentEnvironmentMsg(const QString &projectName)
+{
+    return QApplication::translate("ProjectExplorer::EnvironmentIdAccessor",
+                                   "Settings File for \"%1\" from a different Environment?")
+            .arg(projectName);
+}
 
 namespace {
 
@@ -495,18 +892,7 @@ QVariantMap mergeSharedSettings(const QVariantMap &userMap, const QVariantMap &s
     if (userMap.isEmpty())
         return sharedMap;
 
-    QSet<QString> stickyKeys;
-    const QVariant stickyList = result.take(QLatin1String(USER_STICKY_KEYS_KEY)).toList();
-    if (stickyList.isValid()) {
-        if (stickyList.type() != QVariant::List) {
-            // File is messed up... The user probably changed something.
-            return result;
-        }
-        foreach (const QVariant &v, stickyList.toList())
-            stickyKeys.insert(v.toString());
-    }
-
-    MergeSettingsOperation op(stickyKeys);
+    MergeSettingsOperation op;
     op.synchronize(result, sharedMap);
     return result;
 }
@@ -526,92 +912,98 @@ void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
 
     TrackStickyness op;
     op.synchronize(userMap, sharedMap);
-
-    userMap.insert(QLatin1String(USER_STICKY_KEYS_KEY), QVariant(op.stickySettings()));
 }
 
 } // Anonymous
 
-
-QVariantMap SettingsAccessor::restoreSettings() const
+QByteArray SettingsAccessor::environmentIdFromMap(const QVariantMap &data)
 {
-    if (m_lastVersion < 0)
-        return QVariantMap();
-
-    SettingsData userSettings = readUserSettings();
-    SettingsData sharedSettings = readSharedSettings();
-    userSettings = mergeSettings(userSettings, sharedSettings);
-
-    if (!userSettings.isValid())
-        return QVariantMap();
-
-    return userSettings.m_map;
+    return data.value(QLatin1String(ENVIRONMENT_ID_KEY)).toByteArray();
 }
 
-bool SettingsAccessor::saveSettings(const QVariantMap &map) const
+QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
+{
+    if (d->lastVersion() < 0)
+        return QVariantMap();
+
+    QVariantMap userSettings = readUserSettings(parent);
+    QVariantMap sharedSettings = readSharedSettings(parent);
+    return mergeSettings(userSettings, sharedSettings);
+}
+
+QVariantMap SettingsAccessor::prepareToSaveSettings(const QVariantMap &data) const
+{
+    QVariantMap tmp = data;
+    const QVariant &shared = m_project->property(SHARED_SETTINGS);
+    if (shared.isValid())
+        trackUserStickySettings(tmp, shared.toMap());
+
+    tmp.insert(QLatin1String(VERSION_KEY), d->currentVersion());
+    tmp.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
+
+    return tmp;
+}
+
+bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) const
 {
     if (map.isEmpty())
         return false;
 
     backupUserFile();
 
-    SettingsData settings(map);
-    settings.m_fileName = FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
-    const QVariant &shared = m_project->property(SHARED_SETTINGS);
-    if (shared.isValid())
-        trackUserStickySettings(settings.m_map, shared.toMap());
+    QVariantMap data = prepareToSaveSettings(map);
 
-    return m_userFileAcessor.writeFile(&settings);
-}
-
-void SettingsAccessor::addVersionUpgrader(VersionUpgrader *handler)
-{
-    const int version(handler->version());
-    QTC_ASSERT(handler, return);
-    QTC_ASSERT(version >= 0, return);
-    QTC_ASSERT(!m_handlers.contains(version), return);
-    QTC_ASSERT(m_handlers.isEmpty() ||
-               (version == m_lastVersion + 1 || version == m_firstVersion - 1), return);
-
-    if (m_handlers.isEmpty()) {
-        m_firstVersion = version;
-        m_lastVersion = version;
-    } else {
-        if (version < m_firstVersion)
-            m_firstVersion = version;
-        if (version > m_lastVersion)
-            m_lastVersion = version;
+    FileName path = FileName::fromString(defaultFileName(m_userSuffix));
+    if (!d->m_writer || d->m_writer->fileName() != path) {
+        delete d->m_writer;
+        d->m_writer = new PersistentSettingsWriter(path, QLatin1String("QtCreatorProject"));
     }
 
-    m_handlers.insert(version, handler);
-
-    // Postconditions:
-    Q_ASSERT(m_lastVersion >= 0);
-    Q_ASSERT(m_firstVersion >= 0);
-    Q_ASSERT(m_lastVersion >= m_firstVersion);
-    Q_ASSERT(m_handlers.count() == m_lastVersion - m_firstVersion + 1);
-    for (int i = m_firstVersion; i < m_lastVersion; ++i)
-        Q_ASSERT(m_handlers.contains(i));
+    return d->m_writer->save(data, parent);
 }
 
-/* Will always return the default name first */
-QStringList SettingsAccessor::findSettingsFiles(const QString &suffix) const
+bool SettingsAccessor::addVersionUpgrader(VersionUpgrader *upgrader)
 {
-    const QString defaultName = defaultFileName(suffix);
-    QDir projectDir = QDir(project()->projectDirectory());
+    QTC_ASSERT(upgrader, return false);
+    int version = upgrader->version();
+    QTC_ASSERT(version >= 0, return false);
 
-    QStringList result;
-    if (QFileInfo(defaultName).exists())
-        result << defaultName;
+    if (d->m_upgraders.isEmpty() || d->currentVersion() == version)
+        d->m_upgraders.append(upgrader);
+    else if (d->firstVersion() - 1 == version)
+        d->m_upgraders.prepend(upgrader);
+    else
+        QTC_ASSERT(false, return false); // Upgrader was added out of sequence or twice
 
-    QFileInfoList fiList = projectDir.entryInfoList(
-                QStringList(QFileInfo(defaultName).fileName() + QLatin1String("*")), QDir::Files);
+    return true;
+}
 
-    foreach (const QFileInfo &fi, fiList) {
-        const QString path = fi.absoluteFilePath();
-        if (!result.contains(path))
-            result.append(path);
+/* Will always return the default name first (if applicable) */
+FileNameList SettingsAccessor::settingsFiles(const QString &suffix) const
+{
+    FileNameList result;
+
+    QFileInfoList list;
+    const QFileInfo pfi = project()->projectFilePath().toFileInfo();
+    const QStringList filter(pfi.fileName() + suffix + QLatin1Char('*'));
+
+    if (!sharedUserFileDir().isEmpty()) {
+        const QString sharedPath = sharedUserFileDir() + QLatin1Char('/')
+            + makeRelative(pfi.absolutePath());
+        list.append(QDir(sharedPath).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
     }
+    list.append(QDir(pfi.dir()).entryInfoList(filter, QDir::Files | QDir::Hidden | QDir::System));
+
+    foreach (const QFileInfo &fi, list) {
+        const FileName path = FileName::fromString(fi.absoluteFilePath());
+        if (!result.contains(path)) {
+            if (path.endsWith(suffix))
+                result.prepend(path);
+            else
+                result.append(path);
+        }
+    }
+
     return result;
 }
 
@@ -622,116 +1014,77 @@ QByteArray SettingsAccessor::creatorId()
 
 QString SettingsAccessor::defaultFileName(const QString &suffix) const
 {
-    return project()->projectFilePath() + suffix;
+    return userFilePath(project(), suffix).toString();
 }
 
 int SettingsAccessor::currentVersion() const
 {
-    return m_lastVersion + 1;
+    return d->currentVersion();
+}
+
+int SettingsAccessor::firstSupportedVersion() const
+{
+    return d->firstVersion();
+}
+
+FileName SettingsAccessor::backupName(const QVariantMap &data) const
+{
+    QString backupName = defaultFileName(m_userSuffix);
+    const QByteArray oldEnvironmentId = environmentIdFromMap(data);
+    if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != creatorId())
+        backupName += QLatin1Char('.') + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
+    const int oldVersion = versionFromMap(data);
+    if (oldVersion != currentVersion()) {
+        VersionUpgrader *upgrader = d->upgrader(oldVersion);
+        if (upgrader)
+            backupName += QLatin1Char('.') + upgrader->backupExtension();
+        else
+            backupName += QLatin1Char('.') + QString::number(oldVersion);
+    }
+    return FileName::fromString(backupName);
 }
 
 void SettingsAccessor::backupUserFile() const
 {
-    SettingsData oldSettings;
-    oldSettings.m_fileName = FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
-    if (!m_userFileAcessor.readFile(&oldSettings))
+    SettingsAccessorPrivate::Settings oldSettings;
+    oldSettings.path = FileName::fromString(defaultFileName(m_userSuffix));
+    oldSettings.map = readFile(oldSettings.path);
+    if (oldSettings.map.isEmpty())
         return;
 
     // Do we need to do a backup?
-    const QString origName = oldSettings.fileName().toString();
-    QString backupName = origName;
-    if (!oldSettings.environmentId().isEmpty() && oldSettings.environmentId() != creatorId())
-        backupName += QLatin1String(".") + QString::fromLatin1(oldSettings.environmentId()).mid(1, 7);
-    if (oldSettings.version() != currentVersion()) {
-        if (m_handlers.contains(oldSettings.version()))
-            backupName += QLatin1String(".") + m_handlers.value(oldSettings.version())->backupExtension();
-        else
-            backupName += QLatin1String(".") + QString::number(oldSettings.version());
-    }
-    if (backupName != origName)
-        QFile::copy(origName, backupName);
+    const QString origName = oldSettings.path.toString();
+    QString backupFileName = backupName(oldSettings.map).toString();
+    if (backupFileName != origName)
+        QFile::copy(origName, backupFileName);
 }
 
-void SettingsAccessor::incrementVersion(SettingsAccessor::SettingsData &data) const
+QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 {
-    data.m_map = m_handlers.value(data.version())->upgrade(m_project, data.m_map);
-    ++data.m_version;
-}
-
-SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
-{
-    SettingsData result;
-    QStringList fileList = findSettingsFiles(m_userFileAcessor.suffix());
+    SettingsAccessorPrivate::Settings result;
+    FileNameList fileList = settingsFiles(m_userSuffix);
     if (fileList.isEmpty()) // No settings found at all.
-        return result;
+        return result.map;
 
-    result = findBestSettings(fileList);
+    result = d->bestSettings(this, fileList);
+    if (result.path.isEmpty())
+        result.path = project()->projectDirectory();
 
-    // Error handling:
-    if (!result.isValid()) {
-        QMessageBox::information(
-            Core::ICore::mainWindow(),
-            QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "No valid .user file found for '%1'")
-                    .arg(project()->displayName()),
-            QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "<p>No valid settings file could be found "
-                                    "for this installation of Qt Creator.</p>"
-                                    "<p>All settings files were either too new or too "
-                                    "old to be read.</p>"),
-            QMessageBox::Ok);
-    } else if (!result.environmentId().isEmpty() && result.environmentId() != creatorId()) {
-        // Wrong environment!
-        QMessageBox msgBox(
-            QMessageBox::Question,
-            QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "Settings File for '%1' from a different Environment?")
-                    .arg(project()->displayName()),
-            QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "<p>No .user settings file created by this instance "
-                                    "of Qt Creator was found.</p>"
-                                    "<p>Did you work with this project on another machine or "
-                                    "using a different settings path before?</p>"
-                                    "<p>Do you still want to load the settings file '%1'?</p>")
-                    .arg(result.fileName().toUserOutput()),
-            QMessageBox::Yes | QMessageBox::No,
-            Core::ICore::mainWindow());
-        msgBox.setDefaultButton(QMessageBox::No);
-        msgBox.setEscapeButton(QMessageBox::No);
-        if (msgBox.exec() == QMessageBox::No)
-            result.clear();
-    } else if ((result.fileName().toString() != defaultFileName(m_userFileAcessor.suffix()))
-               && (result.version() < currentVersion())) {
-        QMessageBox::information(
-                    Core::ICore::mainWindow(),
-                    QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                            "Using Old Settings File for '%1'")
-                    .arg(project()->displayName()),
-                    QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                            "<p>The versioned backup '%1' of the .user settings "
-                                            "file is used, because the non-versioned file was "
-                                            "created by an incompatible version of Qt Creator.</p>"
-                                            "<p>Project settings changes made since "
-                                            "the last time this version of Qt Creator was used "
-                                            "with this project are ignored, and changes made now "
-                                            "will <b>not</b> be propagated to the newer version."
-                                            "</p>")
-                    .arg(result.fileName().toUserOutput()),
-                    QMessageBox::Ok);
-    }
-    return result;
+    ProceedInfo proceed = reportIssues(result.map, result.path, parent);
+    if (proceed == DiscardAndContinue)
+        return QVariantMap();
+
+    return result.map;
 }
 
-SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings() const
+QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 {
-    SettingsData sharedSettings;
-    QString fn = project()->projectFilePath() + m_sharedFileAcessor.suffix();
-    sharedSettings.m_fileName = FileName::fromString(fn);
+    SettingsAccessorPrivate::Settings sharedSettings;
+    QString fn = project()->projectFilePath().toString() + m_sharedSuffix;
+    sharedSettings.path = FileName::fromString(fn);
+    sharedSettings.map = readFile(sharedSettings.path);
 
-    if (!m_sharedFileAcessor.readFile(&sharedSettings))
-        return sharedSettings;
-
-    if (sharedSettings.m_version > currentVersion()) {
+    if (versionFromMap(sharedSettings.map) > currentVersion()) {
         // The shared file version is newer than Creator... If we have valid user
         // settings we prompt the user whether we could try an *unsupported* update.
         // This makes sense since the merging operation will only replace shared settings
@@ -747,639 +1100,80 @@ SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings() const
                                             "supported by Qt Creator. "
                                             "Do you want to try loading it anyway?"),
                     QMessageBox::Yes | QMessageBox::No,
-                    Core::ICore::mainWindow());
+                    parent);
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setEscapeButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::No)
-            sharedSettings.clear();
+            sharedSettings.map.clear();
         else
-            sharedSettings.m_version = currentVersion();
+            sharedSettings.map = setVersionInMap(sharedSettings.map, currentVersion());
     }
-    return sharedSettings;
+    return sharedSettings.map;
 }
 
-SettingsAccessor::SettingsData SettingsAccessor::findBestSettings(const QStringList &candidates) const
+SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor,
+                                                                        const FileNameList &pathList)
 {
-    SettingsData newestNonMatching;
-    SettingsData newestMatching;
-    SettingsData tmp;
+    Settings bestMatch;
+    foreach (const FileName &path, pathList) {
+        QVariantMap tmp = accessor->readFile(path);
 
-    foreach (const QString &file, candidates) {
-        tmp.clear();
-        tmp.m_fileName = FileName::fromString(file);
-        if (!m_userFileAcessor.readFile(&tmp))
+        int version = SettingsAccessor::versionFromMap(tmp);
+        if (version < firstVersion() || version > currentVersion())
             continue;
 
-        if (tmp.version() > currentVersion()) {
-            qWarning() << "Skipping settings file" << tmp.fileName().toUserOutput() << "(too new).";
-            continue;
+        if (accessor->isBetterMatch(bestMatch.map, tmp)) {
+            bestMatch.path = path;
+            bestMatch.map = tmp;
         }
-        if (tmp.version() < m_firstVersion) {
-            qWarning() << "Skipping settings file" << tmp.fileName().toUserOutput() << "(too old).";
-            continue;
-        }
-
-        if (tmp.environmentId().isEmpty() || tmp.environmentId() == creatorId()) {
-            if (tmp.version() > newestMatching.version())
-                newestMatching = tmp;
-        } else {
-            if (tmp.version() > newestNonMatching.version())
-                newestNonMatching = tmp;
-        }
-        if (newestMatching.version() == m_lastVersion + 1)
-            break;
     }
-
-    SettingsData result;
-    if (newestMatching.isValid())
-        result = newestMatching;
-    else if (newestNonMatching.isValid())
-        result = newestNonMatching;
-
-    return result;
+    return bestMatch;
 }
 
-SettingsAccessor::SettingsData SettingsAccessor::mergeSettings(const SettingsAccessor::SettingsData &user,
-                                                               const SettingsAccessor::SettingsData &shared) const
+QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
+                                            const QVariantMap &sharedMap) const
 {
-    SettingsData newUser = user;
-    SettingsData newShared = shared;
-    SettingsData result;
-    if (shared.isValid() && user.isValid()) {
-        while (newUser.version() < newShared.version())
-            incrementVersion(newUser);
-
-        while (newShared.version() < newUser.version())
-            incrementVersion(newShared);
-        result = newUser;
-        result.m_map = mergeSharedSettings(newUser.m_map, newShared.m_map);
-    } else if (shared.isValid()) {
-        result = shared;
-    } else if (user.isValid()) {
-        result = user;
+    QVariantMap newUser = userMap;
+    QVariantMap newShared = sharedMap;
+    QVariantMap result;
+    if (!newUser.isEmpty() && !newShared.isEmpty()) {
+        newUser = upgradeSettings(newUser);
+        newShared = upgradeSettings(newShared);
+        result = mergeSharedSettings(newUser, newShared);
+    } else if (!sharedMap.isEmpty()) {
+        result = sharedMap;
+    } else if (!userMap.isEmpty()) {
+        result = userMap;
     }
 
-    m_project->setProperty(SHARED_SETTINGS, newShared.m_map);
-
-    if (!result.isValid())
-        return result;
+    m_project->setProperty(SHARED_SETTINGS, newShared);
 
     // Update from the base version to Creator's version.
-    for (int i = result.version(); i < currentVersion(); ++i)
-        incrementVersion(result);
-
-    return result;
+    return upgradeSettings(result);
 }
 
 // -------------------------------------------------------------------------
 // SettingsData
 // -------------------------------------------------------------------------
-void SettingsAccessor::SettingsData::clear()
+bool SettingsAccessorPrivate::Settings::isValid() const
 {
-    m_version = -1;
-    m_usingBackup = false;
-    m_map.clear();
-    m_fileName.clear();
-    m_environmentId.clear();
+    return SettingsAccessor::versionFromMap(map) > -1 && !path.isEmpty();
 }
 
-bool SettingsAccessor::SettingsData::isValid() const
+QVariantMap SettingsAccessor::readFile(const FileName &path) const
 {
-    return m_version > -1 && !m_fileName.isEmpty();
-}
-
-// -------------------------------------------------------------------------
-// FileAcessor
-// -------------------------------------------------------------------------
-
-static const char VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
-static const char ENVIRONMENT_ID_KEY[] = "ProjectExplorer.Project.Updater.EnvironmentId";
-
-SettingsAccessor::FileAccessor::FileAccessor(const QString &defaultSuffix,
-                                             const QString &environmentSuffix,
-                                             bool envSpecific,
-                                             SettingsAccessor *accessor)
-    : m_environmentSpecific(envSpecific)
-    , m_accessor(accessor)
-    , m_writer(0)
-{
-    assignSuffix(defaultSuffix, environmentSuffix);
-}
-
-SettingsAccessor::FileAccessor::~FileAccessor()
-{
-    delete m_writer;
-}
-
-void SettingsAccessor::FileAccessor::assignSuffix(const QString &defaultSuffix,
-                                                  const QString &environmentSuffix)
-{
-    if (!environmentSuffix.isEmpty()) {
-        m_suffix = environmentSuffix;
-        m_suffix.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_.-]")), QString(QLatin1Char('_'))); // replace fishy characters:
-        m_suffix.prepend(QLatin1Char('.'));
-    } else {
-        m_suffix = defaultSuffix;
-    }
-}
-
-bool SettingsAccessor::FileAccessor::readFile(SettingsData *settings) const
-{
-    if (settings->fileName().isEmpty()) {
-        settings->clear();
-        return false;
-    }
-
     PersistentSettingsReader reader;
-    if (!reader.load(settings->fileName())) {
-        settings->clear();
-        return false;
-    }
-
-    settings->m_map = reader.restoreValues();
-
-    // Get environment Id:
-    if (m_environmentSpecific) {
-        settings->m_environmentId = settings->m_map.value(QLatin1String(ENVIRONMENT_ID_KEY)).toByteArray();
-        settings->m_map.remove(QLatin1String(ENVIRONMENT_ID_KEY));
-    }
-
-    // Get and verify file version
-    settings->m_version = settings->m_map.value(QLatin1String(VERSION_KEY), 0).toInt();
-    return true;
-}
-
-bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings) const
-{
-    if (!m_writer || m_writer->fileName() != settings->fileName()) {
-        delete m_writer;
-        m_writer = new PersistentSettingsWriter(settings->fileName(), QLatin1String("QtCreatorProject"));
-    }
-
-    QVariantMap data;
-
-    for (QVariantMap::const_iterator i = settings->m_map.constBegin();
-         i != settings->m_map.constEnd();
-         ++i) {
-        data.insert(i.key(), i.value());
-    }
-
-    data.insert(QLatin1String(VERSION_KEY), m_accessor->m_lastVersion + 1);
-
-    if (m_environmentSpecific)
-        data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
-    return m_writer->save(data, Core::ICore::mainWindow());
-}
-
-// -------------------------------------------------------------------------
-// UserFileVersion0Upgrader:
-// -------------------------------------------------------------------------
-
-QVariantMap UserFileVersion0Upgrader::convertBuildConfigurations(Project *project, const QVariantMap &map)
-{
-    Q_ASSERT(project);
-    QVariantMap result;
-
-    // Find a valid Id to use:
-    QString id;
-    if (project->id() == "GenericProjectManager.GenericProject") {
-        id = QLatin1String("GenericProjectManager.GenericBuildConfiguration");
-    } else if (project->id() == "CMakeProjectManager.CMakeProject") {
-        id = QLatin1String("CMakeProjectManager.CMakeBuildConfiguration");
-    } else if (project->id() == "Qt4ProjectManager.Qt4Project") {
-        result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.NeedsV0Update"), QVariant());
-        id = QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration");
-    } else {
-        return QVariantMap(); // QmlProjects do not(/no longer) have BuildConfigurations,
-                              // or we do not know how to handle this.
-    }
-    result.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), id);
-
-    for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i) {
-        if (i.key() == QLatin1String("ProjectExplorer.BuildConfiguration.DisplayName")) {
-            result.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"),
-                         i.value());
-            continue;
-        }
-
-        if (id == QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration") ||
-            id.startsWith(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration."))) {
-            // QmakeBuildConfiguration:
-            if (i.key() == QLatin1String("QtVersionId")) {
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.QtVersionId"),
-                              i.value().toInt());
-            } else if (i.key() == QLatin1String("ToolChain")) {
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.ToolChain"),
-                              i.value());
-            } else if (i.key() == QLatin1String("buildConfiguration")) {
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration"),
-                              i.value());
-            } else if (i.key() == QLatin1String("userEnvironmentChanges")) {
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.UserEnvironmentChanges"),
-                              i.value());
-            } else if (i.key() == QLatin1String("useShadowBuild")) {
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild"),
-                              i.value());
-            } else if (i.key() == QLatin1String("clearSystemEnvironment")) {
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.ClearSystemEnvironment"),
-                              i.value());
-            } else if (i.key() == QLatin1String("buildDirectory")) {
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.BuildDirectory"),
-                              i.value());
-            } else {
-                qWarning() << "Unknown QmakeBuildConfiguration Key found:" << i.key() << i.value();
-            }
-            continue;
-        } else if (id == QLatin1String("CMakeProjectManager.CMakeBuildConfiguration")) {
-            if (i.key() == QLatin1String("userEnvironmentChanges")) {
-                result.insert(QLatin1String("CMakeProjectManager.CMakeBuildConfiguration.UserEnvironmentChanges"),
-                              i.value());
-            } else if (i.key() == QLatin1String("msvcVersion")) {
-                result.insert(QLatin1String("CMakeProjectManager.CMakeBuildConfiguration.MsvcVersion"),
-                              i.value());
-            } else if (i.key() == QLatin1String("buildDirectory")) {
-                result.insert(QLatin1String("CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory"),
-                              i.value());
-            } else {
-                qWarning() << "Unknown CMakeBuildConfiguration Key found:" << i.key() << i.value();
-            }
-            continue;
-        } else if (id == QLatin1String("GenericProjectManager.GenericBuildConfiguration")) {
-            if (i.key() == QLatin1String("buildDirectory")) {
-                result.insert(QLatin1String("GenericProjectManager.GenericBuildConfiguration.BuildDirectory"),
-                              i.value());
-            } else {
-                qWarning() << "Unknown GenericBuildConfiguration Key found:" << i.key() << i.value();
-            }
-            continue;
-        }
-        qWarning() << "Unknown BuildConfiguration Key found:" << i.key() << i.value();
-        qWarning() << "BuildConfiguration Id is:" << id;
-    }
-    return result;
-}
-
-QVariantMap UserFileVersion0Upgrader::convertRunConfigurations(Project *project, const QVariantMap &map)
-{
-    Q_UNUSED(project);
-    QVariantMap result;
-    QString id;
-
-    // Convert Id:
-    id = map.value(QLatin1String("Id")).toString();
-    if (id.isEmpty())
-        id = map.value(QLatin1String("type")).toString();
-    if (id.isEmpty())
+    if (!reader.load(path))
         return QVariantMap();
 
-    if (QLatin1String("Qt4ProjectManager.DeviceRunConfiguration") == id)
-        id = QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration");
-    if (QLatin1String("Qt4ProjectManager.EmulatorRunConfiguration") == id)
-        id = QLatin1String("Qt4ProjectManager.S60EmulatorRunConfiguration");
-    // no need to change the CMakeRunConfiguration, CustomExecutableRunConfiguration,
-    //                       MaemoRunConfiguration or Qt4RunConfiguration
-
-    result.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), id);
-
-    // Convert everything else:
-    for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i) {
-        if (i.key() == QLatin1String("Id") || i.key() == QLatin1String("type"))
-            continue;
-        if (i.key() == QLatin1String("RunConfiguration.name")) {
-            result.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"),
-                         i.value());
-        } else if (QLatin1String("CMakeProjectManager.CMakeRunConfiguration") == id) {
-            if (i.key() == QLatin1String("CMakeRunConfiguration.Target"))
-                result.insert(QLatin1String("CMakeProjectManager.CMakeRunConfiguration.Target"), i.value());
-            else if (i.key() == QLatin1String("CMakeRunConfiguration.WorkingDirectory"))
-                result.insert(QLatin1String("CMakeProjectManager.CMakeRunConfiguration.WorkingDirectory"), i.value());
-            else if (i.key() == QLatin1String("CMakeRunConfiguration.UserWorkingDirectory"))
-                result.insert(QLatin1String("CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"), i.value());
-            else if (i.key() == QLatin1String("CMakeRunConfiguration.UseTerminal"))
-                result.insert(QLatin1String("CMakeProjectManager.CMakeRunConfiguration.UseTerminal"), i.value());
-            else if (i.key() == QLatin1String("CMakeRunConfiguation.Title"))
-                result.insert(QLatin1String("CMakeProjectManager.CMakeRunConfiguation.Title"), i.value());
-            else if (i.key() == QLatin1String("CMakeRunConfiguration.Arguments"))
-                result.insert(QLatin1String("CMakeProjectManager.CMakeRunConfiguration.Arguments"), i.value());
-            else if (i.key() == QLatin1String("CMakeRunConfiguration.UserEnvironmentChanges"))
-                result.insert(QLatin1String("CMakeProjectManager.CMakeRunConfiguration.UserEnvironmentChanges"), i.value());
-            else if (i.key() == QLatin1String("BaseEnvironmentBase"))
-                result.insert(QLatin1String("CMakeProjectManager.BaseEnvironmentBase"), i.value());
-            else
-                qWarning() << "Unknown CMakeRunConfiguration key found:" << i.key() << i.value();
-        } else if (QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration") == id) {
-            if (i.key() == QLatin1String("ProFile"))
-                result.insert(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.ProFile"), i.value());
-            else if (i.key() == QLatin1String("SigningMode"))
-                result.insert(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.SigningMode"), i.value());
-            else if (i.key() == QLatin1String("CustomSignaturePath"))
-                result.insert(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CustomSignaturePath"), i.value());
-            else if (i.key() == QLatin1String("CustomKeyPath"))
-                result.insert(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CustomKeyPath"), i.value());
-            else if (i.key() == QLatin1String("SerialPortName"))
-                result.insert(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.SerialPortName"), i.value());
-            else if (i.key() == QLatin1String("CommunicationType"))
-                result.insert(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CommunicationType"), i.value());
-            else if (i.key() == QLatin1String("CommandLineArguments"))
-                result.insert(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments"), i.value());
-            else
-                qWarning() << "Unknown S60DeviceRunConfiguration key found:" << i.key() << i.value();
-        } else if (QLatin1String("Qt4ProjectManager.S60EmulatorRunConfiguration") == id) {
-            if (i.key() == QLatin1String("ProFile"))
-                result.insert(QLatin1String("Qt4ProjectManager.S60EmulatorRunConfiguration.ProFile"), i.value());
-            else
-                qWarning() << "Unknown S60EmulatorRunConfiguration key found:" << i.key() << i.value();
-        } else if (QLatin1String("Qt4ProjectManager.Qt4RunConfiguration") == id) {
-            if (i.key() == QLatin1String("ProFile"))
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.ProFile"), i.value());
-            else if (i.key() == QLatin1String("CommandLineArguments"))
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"), i.value());
-            else if (i.key() == QLatin1String("UserSetName"))
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.UserSetName"), i.value());
-            else if (i.key() == QLatin1String("UseTerminal"))
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.UseTerminal"), i.value());
-            else if (i.key() == QLatin1String("UseDyldImageSuffix"))
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix"), i.value());
-            else if (i.key() == QLatin1String("UserEnvironmentChanges"))
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.UserEnvironmentChanges"), i.value());
-            else if (i.key() == QLatin1String("BaseEnvironmentBase"))
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.BaseEnvironmentBase"), i.value());
-            else if (i.key() == QLatin1String("UserSetWorkingDirectory"))
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.UserSetWorkingDirectory"), i.value());
-            else if (i.key() == QLatin1String("UserWorkingDirectory"))
-                result.insert(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"), i.value());
-            else
-                qWarning() << "Unknown Qt4RunConfiguration key found:" << i.key() << i.value();
-        } else if (QLatin1String("Qt4ProjectManager.MaemoRunConfiguration") == id) {
-            if (i.key() == QLatin1String("ProFile"))
-                result.insert(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.ProFile"), i.value());
-            else if (i.key() == QLatin1String("Arguments"))
-                result.insert(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.Arguments"), i.value());
-            else if (i.key() == QLatin1String("Simulator"))
-                result.insert(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.Simulator"), i.value());
-            else if (i.key() == QLatin1String("DeviceId"))
-                result.insert(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DeviceId"), i.value());
-            else if (i.key() == QLatin1String("LastDeployed"))
-                result.insert(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.LastDeployed"), i.value());
-            else
-                qWarning() << "Unknown MaemoRunConfiguration key found:" << i.key() << i.value();
-        } else if (QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration") == id) {
-            if (i.key() == QLatin1String("Executable"))
-                result.insert(QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.Executable"), i.value());
-            else if (i.key() == QLatin1String("Arguments"))
-                result.insert(QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.Arguments"), i.value());
-            else if (i.key() == QLatin1String("WorkingDirectory"))
-                result.insert(QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory"), i.value());
-            else if (i.key() == QLatin1String("UseTerminal"))
-                result.insert(QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal"), i.value());
-            else if (i.key() == QLatin1String("UserSetName"))
-                result.insert(QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.UserSetName"), i.value());
-            else if (i.key() == QLatin1String("UserName"))
-                result.insert(QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.UserName"), i.value());
-            else if (i.key() == QLatin1String("UserEnvironmentChanges"))
-                result.insert(QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.UserEnvironmentChanges"), i.value());
-            else if (i.key() == QLatin1String("BaseEnvironmentBase"))
-                result.insert(QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase"), i.value());
-            else
-                qWarning() << "Unknown CustomExecutableRunConfiguration key found:" << i.key() << i.value();
-        } else {
-            result.insert(i.key(), i.value());
-        }
-    }
-
-    return result;
-}
-
-QVariantMap UserFileVersion0Upgrader::convertBuildSteps(Project *project, const QVariantMap &map)
-{
-    Q_UNUSED(project);
-    QVariantMap result;
-
-    QString id(map.value(QLatin1String("Id")).toString());
-    if (QLatin1String("GenericProjectManager.MakeStep") == id)
-        id = QLatin1String("GenericProjectManager.GenericMakeStep");
-    if (QLatin1String("projectexplorer.processstep") == id)
-        id = QLatin1String("ProjectExplorer.ProcessStep");
-    if (QLatin1String("trolltech.qt4projectmanager.make") == id)
-        id = QLatin1String("Qt4ProjectManager.MakeStep");
-    if (QLatin1String("trolltech.qt4projectmanager.qmake") == id)
-        id = QLatin1String("QtProjectManager.QMakeBuildStep");
-    // No need to change the CMake MakeStep.
-    result.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), id);
-
-    for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i) {
-        if (i.key() == QLatin1String("Id"))
-            continue;
-        if (i.key() == QLatin1String("ProjectExplorer.BuildConfiguration.DisplayName")) {
-            // skip this: Not needed.
-            continue;
-        }
-
-        if (QLatin1String("GenericProjectManager.GenericMakeStep") == id) {
-            if (i.key() == QLatin1String("buildTargets"))
-                result.insert(QLatin1String("GenericProjectManager.GenericMakeStep.BuildTargets"), i.value());
-            else if (i.key() == QLatin1String("makeArguments"))
-                result.insert(QLatin1String("GenericProjectManager.GenericMakeStep.MakeArguments"), i.value());
-            else if (i.key() == QLatin1String("makeCommand"))
-                result.insert(QLatin1String("GenericProjectManager.GenericMakeStep.MakeCommand"), i.value());
-            else
-                qWarning() << "Unknown GenericMakeStep value found:" << i.key() << i.value();
-            continue;
-        } else if (QLatin1String("ProjectExplorer.ProcessStep") == id) {
-            if (i.key() == QLatin1String("ProjectExplorer.ProcessStep.DisplayName"))
-                result.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"), i.value());
-            else if (i.key() == QLatin1String("abstractProcess.command"))
-                result.insert(QLatin1String("ProjectExplorer.ProcessStep.Command"), i.value());
-            else if ((i.key() == QLatin1String("abstractProcess.workingDirectory") ||
-                      i.key() == QLatin1String("workingDirectory")) &&
-                     !i.value().toString().isEmpty())
-                    result.insert(QLatin1String("ProjectExplorer.ProcessStep.WorkingDirectory"), i.value());
-            else if (i.key() == QLatin1String("abstractProcess.arguments"))
-                result.insert(QLatin1String("ProjectExplorer.ProcessStep.Arguments"), i.value());
-            else if (i.key() == QLatin1String("abstractProcess.enabled"))
-                result.insert(QLatin1String("ProjectExplorer.ProcessStep.Enabled"), i.value());
-            else
-                qWarning() << "Unknown ProcessStep value found:" << i.key() << i.value();
-        } else if (QLatin1String("Qt4ProjectManager.MakeStep") == id) {
-            if (i.key() == QLatin1String("makeargs"))
-                result.insert(QLatin1String("Qt4ProjectManager.MakeStep.MakeArguments"), i.value());
-            else if (i.key() == QLatin1String("makeCmd"))
-                result.insert(QLatin1String("Qt4ProjectManager.MakeStep.MakeCommand"), i.value());
-            else if (i.key() == QLatin1String("clean"))
-                result.insert(QLatin1String("Qt4ProjectManager.MakeStep.Clean"), i.value());
-            else
-                qWarning() << "Unknown Qt4MakeStep value found:" << i.key() << i.value();
-        } else if (QLatin1String("QtProjectManager.QMakeBuildStep") == id) {
-            if (i.key() == QLatin1String("qmakeArgs"))
-                result.insert(QLatin1String("QtProjectManager.QMakeBuildStep.QMakeArguments"), i.value());
-            else
-                qWarning() << "Unknown Qt4QMakeStep value found:" << i.key() << i.value();
-        } else if (QLatin1String("CMakeProjectManager.MakeStep") == id) {
-            if (i.key() == QLatin1String("buildTargets"))
-                result.insert(QLatin1String("CMakeProjectManager.MakeStep.BuildTargets"), i.value());
-            else if (i.key() == QLatin1String("additionalArguments"))
-                result.insert(QLatin1String("CMakeProjectManager.MakeStep.AdditionalArguments"), i.value());
-            else if (i.key() == QLatin1String("clean"))
-                result.insert(QLatin1String("CMakeProjectManager.MakeStep.Clean"), i.value());
-            else
-                qWarning() << "Unknown CMakeMakeStep value found:" << i.key() << i.value();
-        } else {
-            result.insert(i.key(), i.value());
-        }
-    }
-    return result;
-}
-
-QVariantMap UserFileVersion0Upgrader::upgrade(Project *project, const QVariantMap &map)
-{
-    QVariantMap result;
-
-    // "project": section is unused, just ignore it.
-
-    // "buildconfigurations" and "buildConfiguration-":
-    QStringList bcs(map.value(QLatin1String("buildconfigurations")).toStringList());
-    QString active(map.value(QLatin1String("activebuildconfiguration")).toString());
-
-    int count(0);
-    foreach (const QString &bc, bcs) {
-        // convert buildconfiguration:
-        QString oldBcKey(QString::fromLatin1("buildConfiguration-") + bc);
-        if (bc == active)
-            result.insert(QLatin1String("ProjectExplorer.Project.ActiveBuildConfiguration"), count);
-
-        QVariantMap tmp(map.value(oldBcKey).toMap());
-        QVariantMap bcMap(convertBuildConfigurations(project, tmp));
-        if (bcMap.isEmpty())
-            continue;
-
-        // buildsteps
-        QStringList buildSteps(map.value(oldBcKey + QLatin1String("-buildsteps")).toStringList());
-
-        if (buildSteps.isEmpty())
-            // try lowercase version, too:-(
-            buildSteps = map.value(QString::fromLatin1("buildconfiguration-") + bc + QLatin1String("-buildsteps")).toStringList();
-        if (buildSteps.isEmpty())
-            buildSteps = map.value(QLatin1String("buildsteps")).toStringList();
-
-        int pos(0);
-        foreach (const QString &bs, buildSteps) {
-            // Watch out: Capitalization differs from oldBcKey!
-            const QString localKey(QLatin1String("buildconfiguration-") + bc + QString::fromLatin1("-buildstep") + QString::number(pos));
-            const QString globalKey(QString::fromLatin1("buildstep") + QString::number(pos));
-
-            QVariantMap local(map.value(localKey).toMap());
-            QVariantMap global(map.value(globalKey).toMap());
-
-            for (QVariantMap::const_iterator i = global.constBegin(); i != global.constEnd(); ++i) {
-                if (!local.contains(i.key()))
-                    local.insert(i.key(), i.value());
-                if (i.key() == QLatin1String("ProjectExplorer.BuildConfiguration.DisplayName") &&
-                    local.value(i.key()).toString().isEmpty())
-                    local.insert(i.key(), i.value());
-            }
-            local.insert(QLatin1String("Id"), bs);
-
-            bcMap.insert(QString::fromLatin1("ProjectExplorer.BuildConfiguration.BuildStep.") + QString::number(pos),
-                         convertBuildSteps(project, local));
-            ++pos;
-        }
-        bcMap.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount"), pos);
-
-        // cleansteps
-        QStringList cleanSteps(map.value(oldBcKey + QLatin1String("-cleansteps")).toStringList());
-        if (cleanSteps.isEmpty())
-            // try lowercase version, too:-(
-            cleanSteps = map.value(QString::fromLatin1("buildconfiguration-") + bc + QLatin1String("-cleansteps")).toStringList();
-        if (cleanSteps.isEmpty())
-            cleanSteps = map.value(QLatin1String("cleansteps")).toStringList();
-
-        pos = 0;
-        foreach (const QString &bs, cleanSteps) {
-            // Watch out: Capitalization differs from oldBcKey!
-            const QString localKey(QLatin1String("buildconfiguration-") + bc + QString::fromLatin1("-cleanstep") + QString::number(pos));
-            const QString globalKey(QString::fromLatin1("cleanstep") + QString::number(pos));
-
-            QVariantMap local(map.value(localKey).toMap());
-            QVariantMap global(map.value(globalKey).toMap());
-
-            for (QVariantMap::const_iterator i = global.constBegin(); i != global.constEnd(); ++i) {
-                if (!local.contains(i.key()))
-                    local.insert(i.key(), i.value());
-                if (i.key() == QLatin1String("ProjectExplorer.BuildConfiguration.DisplayName") &&
-                    local.value(i.key()).toString().isEmpty())
-                    local.insert(i.key(), i.value());
-            }
-            local.insert(QLatin1String("Id"), bs);
-            bcMap.insert(QString::fromLatin1("ProjectExplorer.BuildConfiguration.CleanStep.") + QString::number(pos),
-                         convertBuildSteps(project, local));
-            ++pos;
-        }
-        bcMap.insert(QLatin1String("ProjectExplorer.BuildConfiguration.CleanStepsCount"), pos);
-
-        // Merge into result set:
-        result.insert(QString::fromLatin1("ProjectExplorer.Project.BuildConfiguration.") + QString::number(count), bcMap);
-        ++count;
-    }
-    result.insert(QLatin1String("ProjectExplorer.Project.BuildConfigurationCount"), count);
-
-    // "RunConfiguration*":
-    active = map.value(QLatin1String("activeRunConfiguration")).toString();
-    count = 0;
-    forever {
-        QString prefix(QLatin1String("RunConfiguration") + QString::number(count) + QLatin1Char('-'));
-        QVariantMap rcMap;
-        for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i) {
-            if (!i.key().startsWith(prefix))
-                continue;
-            QString newKey(i.key().mid(prefix.size()));
-            rcMap.insert(newKey, i.value());
-        }
-        if (rcMap.isEmpty()) {
-            result.insert(QLatin1String("ProjectExplorer.Project.RunConfigurationCount"), count);
-            break;
-        }
-
-        result.insert(QString::fromLatin1("ProjectExplorer.Project.RunConfiguration.") + QString::number(count),
-                      convertRunConfigurations(project, rcMap));
-        ++count;
-    }
-
-    // "defaultFileEncoding" (EditorSettings):
-    QVariant codecVariant(map.value(QLatin1String("defaultFileEncoding")));
-    if (codecVariant.isValid()) {
-        QByteArray codec(codecVariant.toByteArray());
-        QVariantMap editorSettingsMap;
-        editorSettingsMap.insert(QLatin1String("EditorConfiguration.Codec"), codec);
-        result.insert(QLatin1String("ProjectExplorer.Project.EditorSettings"),
-                      editorSettingsMap);
-    }
-
-    QVariant toolchain(map.value(QLatin1String("toolChain")));
-    if (toolchain.isValid()) {
-        bool ok;
-        int type(toolchain.toInt(&ok));
-        if (!ok) {
-            QString toolChainName(toolchain.toString());
-            if (toolChainName == QLatin1String("gcc"))
-                type = 0;
-            else if (toolChainName == QLatin1String("mingw"))
-                type = 2;
-            else if (toolChainName == QLatin1String("msvc"))
-                type = 3;
-            else if (toolChainName == QLatin1String("wince"))
-                type = 4;
-        }
-        result.insert(QLatin1String("GenericProjectManager.GenericProject.Toolchain"), type);
-    }
-
-    return result;
+    return prepareSettings(reader.restoreValues());
 }
 
 // -------------------------------------------------------------------------
 // UserFileVersion1Upgrader:
 // -------------------------------------------------------------------------
 
-QVariantMap UserFileVersion1Upgrader::upgrade(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion1Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
 
@@ -1387,6 +1181,7 @@ QVariantMap UserFileVersion1Upgrader::upgrade(Project *project, const QVariantMa
     // we need to add targets.
 
     // Generate a list of all possible targets for the project:
+    Project *project = m_accessor->project();
     QList<TargetDescription> targets;
     if (project->id() == "GenericProjectManager.GenericProject")
         targets << TargetDescription(QString::fromLatin1("GenericProjectManager.GenericTarget"),
@@ -1481,7 +1276,7 @@ QVariantMap UserFileVersion1Upgrader::upgrade(Project *project, const QVariantMa
 // UserFileVersion2Upgrader:
 // -------------------------------------------------------------------------
 
-QVariantMap UserFileVersion2Upgrader::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion2Upgrader::upgrade(const QVariantMap &map)
 {
     QList<Change> changes;
     changes.append(qMakePair(QLatin1String("CMakeProjectManager.CMakeBuildConfiguration.UserEnvironmentChanges"),
@@ -1524,7 +1319,7 @@ QVariantMap UserFileVersion2Upgrader::upgrade(Project *, const QVariantMap &map)
 // <value key="Qt4ProjectManager.S60DeviceRunConfiguration.SigningMode" type="int">0</value>
 //</valuemap>
 
-QVariantMap UserFileVersion3Upgrader::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion3Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -1542,13 +1337,12 @@ QVariantMap UserFileVersion3Upgrader::upgrade(Project *, const QVariantMap &map)
     return result;
 }
 
-
 // -------------------------------------------------------------------------
 // UserFileVersion4Upgrader:
 // -------------------------------------------------------------------------
 
 // Move packaging steps from build steps into deploy steps
-QVariantMap UserFileVersion4Upgrader::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion4Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -1643,7 +1437,7 @@ QVariantMap UserFileVersion4Upgrader::upgrade(Project *, const QVariantMap &map)
 // -------------------------------------------------------------------------
 
 // Move packaging steps from build steps into deploy steps
-QVariantMap UserFileVersion5Upgrader::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion5Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -1703,7 +1497,7 @@ QVariantMap UserFileVersion5Upgrader::upgrade(Project *, const QVariantMap &map)
 // -------------------------------------------------------------------------
 
 // Introduce DeployConfiguration and BuildStepLists
-QVariantMap UserFileVersion6Upgrader::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion6Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -1807,7 +1601,7 @@ QVariantMap UserFileVersion6Upgrader::upgrade(Project *, const QVariantMap &map)
 // -------------------------------------------------------------------------
 
 // new implementation of DeployConfiguration
-QVariantMap UserFileVersion7Upgrader::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion7Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -2125,7 +1919,7 @@ static QVariant version8VarNodeHandler(const QVariant &var)
     return vl;
 }
 
-QVariantMap UserFileVersion8Upgrader::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion8Upgrader::upgrade(const QVariantMap &map)
 {
     const char * const *p1 = argListKeys;
     QVariantMap rmap1 = processHandlerNodes(buildHandlerNodes(&p1), map, version8ArgNodeHandler);
@@ -2141,10 +1935,8 @@ QVariantMap UserFileVersion8Upgrader::upgrade(Project *, const QVariantMap &map)
 // UserFileVersion9Upgrader:
 // --------------------------------------------------------------------
 
-QVariantMap UserFileVersion9Upgrader::upgrade(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion9Upgrader::upgrade(const QVariantMap &map)
 {
-    Q_UNUSED(project);
-
     QVariantMap result;
     QMapIterator<QString, QVariant> globalIt(map);
     while (globalIt.hasNext()) {
@@ -2194,9 +1986,8 @@ QVariantMap UserFileVersion9Upgrader::upgrade(Project *project, const QVariantMa
 // UserFileVersion10Upgrader:
 // --------------------------------------------------------------------
 
-QVariantMap UserFileVersion10Upgrader::upgrade(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion10Upgrader::upgrade(const QVariantMap &map)
 {
-    Q_UNUSED(project);
     QList<Change> changes;
     changes.append(qMakePair(QLatin1String("ProjectExplorer.ProcessStep.Enabled"),
                              QLatin1String("ProjectExplorer.BuildStep.Enabled")));
@@ -2222,7 +2013,7 @@ static inline int targetId(const QString &targetKey)
     return targetKey.mid(targetKey.lastIndexOf(QLatin1Char('.')) + 1).toInt();
 }
 
-QVariantMap UserFileVersion11Upgrader::upgrade(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)
 {
     // Read in old data to help with the transition:
     parseQtversionFile();
@@ -2369,7 +2160,7 @@ QVariantMap UserFileVersion11Upgrader::upgrade(Project *project, const QVariantM
                 foreach (ToolChain *tc, ToolChainManager::toolChains()) {
                     if ((tc->compilerCommand() == FileName::fromString(compilerPath))
                             && (tc->targetAbi() == compilerAbi)) {
-                        tcId = tc->id();
+                        tcId = QString::fromUtf8(tc->id());
                         break;
                     }
                 }
@@ -2386,7 +2177,7 @@ QVariantMap UserFileVersion11Upgrader::upgrade(Project *project, const QVariantM
             if (m_toolChainExtras.contains(origTcId)) {
                 debuggerPath = m_toolChainExtras.value(origTcId).m_debugger;
                 if (!debuggerPath.isEmpty() && !QFileInfo(debuggerPath).isAbsolute())
-                    debuggerPath = Environment::systemEnvironment().searchInPath(debuggerPath);
+                    debuggerPath = Environment::systemEnvironment().searchInPath(debuggerPath).toString();
                 if (debuggerPath.contains(QLatin1String("cdb")))
                     debuggerEngine = 4; // CDB
                 mkspec = m_toolChainExtras.value(origTcId).m_mkspec;
@@ -2413,13 +2204,13 @@ QVariantMap UserFileVersion11Upgrader::upgrade(Project *project, const QVariantM
                 tmpKit->setValue("PE.Profile.Device", devId);
 
                 // Set display name last:
-                tmpKit->setDisplayName(extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName")).toString());
+                tmpKit->setUnexpandedDisplayName(extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName")).toString());
 
                 Kit *k = uniqueKit(tmpKit);
 
                 addBuildConfiguration(k, bc, bcPos, activeBc);
                 addDeployConfiguration(k, dc, dcPos, activeDc);
-                addRunConfigurations(k, rcs, activeRc, project->projectDirectory());
+                addRunConfigurations(k, rcs, activeRc, m_accessor->project()->projectDirectory().toString());
                 if (targetPos == activeTarget && bcPos == activeBc && dcPos == activeDc)
                     m_targets[k].insert(QLatin1String("Update.IsActive"), true);
             } // dcs
@@ -2569,13 +2360,9 @@ static QString maddeRoot(const QString &qmakePath)
 
 void UserFileVersion11Upgrader::parseQtversionFile()
 {
-    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    FileName fileName = FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml"));
     PersistentSettingsReader reader;
-    if (!reader.load(fileName)) {
-        qWarning("Failed to open legacy qtversions.xml file.");
-        return;
-    }
+    QFileInfo settingsLocation = QFileInfo(Core::ICore::settings()->fileName());
+    reader.load(FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml")));
     QVariantMap data = reader.restoreValues();
 
     int count = data.value(QLatin1String("QtVersion.Count"), 0).toInt();
@@ -2612,13 +2399,9 @@ void UserFileVersion11Upgrader::parseQtversionFile()
 
 void UserFileVersion11Upgrader::parseToolChainFile()
 {
-    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    FileName fileName = FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml"));
     PersistentSettingsReader reader;
-    if (!reader.load(fileName)) {
-        qWarning("Failed to open legacy toolChains.xml file.");
-        return;
-    }
+    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
+    reader.load(FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml")));
     QVariantMap data = reader.restoreValues();
     int count = data.value(QLatin1String("ToolChain.Count"), 0).toInt();
     for (int i = 0; i < count; ++i) {
@@ -2641,21 +2424,20 @@ void UserFileVersion11Upgrader::parseToolChainFile()
 // UserFileVersion12Upgrader:
 // --------------------------------------------------------------------
 
-QVariantMap UserFileVersion12Upgrader::upgrade(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion12Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
     while (it.hasNext()) {
         it.next();
         if (it.value().type() == QVariant::Map)
-            result.insert(it.key(), upgrade(project, it.value().toMap()));
+            result.insert(it.key(), upgrade(it.value().toMap()));
         else if (it.key() == QLatin1String("CMakeProjectManager.CMakeRunConfiguration.UserEnvironmentChanges")
                  || it.key() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.UserEnvironmentChanges")
                  || it.key() == QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.UserEnvironmentChanges")
                  || it.key() == QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.UserEnvironmentChanges"))
             result.insert(QLatin1String("PE.UserEnvironmentChanges"), it.value());
         else if (it.key() == QLatin1String("CMakeProjectManager.BaseEnvironmentBase")
-                 || it.key() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase")
                  || it.key() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase")
                  || it.key() == QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.BaseEnvironmentBase"))
             result.insert(QLatin1String("PE.BaseEnvironmentBase"), it.value());
@@ -2669,14 +2451,14 @@ QVariantMap UserFileVersion12Upgrader::upgrade(Project *project, const QVariantM
 // UserFileVersion13Upgrader:
 // --------------------------------------------------------------------
 
-QVariantMap UserFileVersion13Upgrader::upgrade(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion13Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
     while (it.hasNext()) {
         it.next();
         if (it.value().type() == QVariant::Map)
-            result.insert(it.key(), upgrade(project, it.value().toMap()));
+            result.insert(it.key(), upgrade(it.value().toMap()));
         else if (it.key() == QLatin1String("PE.UserEnvironmentChanges"))
             result.insert(QLatin1String("PE.EnvironmentAspect.Changes"), it.value());
         else if (it.key() == QLatin1String("PE.BaseEnvironmentBase"))
@@ -2691,14 +2473,14 @@ QVariantMap UserFileVersion13Upgrader::upgrade(Project *project, const QVariantM
 // UserFileVersion14Upgrader:
 // --------------------------------------------------------------------
 
-QVariantMap UserFileVersion14Upgrader::upgrade(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion14Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
     while (it.hasNext()) {
         it.next();
         if (it.value().type() == QVariant::Map)
-            result.insert(it.key(), upgrade(project, it.value().toMap()));
+            result.insert(it.key(), upgrade(it.value().toMap()));
         else if (it.key() == QLatin1String("AutotoolsProjectManager.AutotoolsBuildConfiguration.BuildDirectory")
                  || it.key() == QLatin1String("CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory")
                  || it.key() == QLatin1String("GenericProjectManager.GenericBuildConfiguration.BuildDirectory")
@@ -2709,4 +2491,271 @@ QVariantMap UserFileVersion14Upgrader::upgrade(Project *project, const QVariantM
             result.insert(it.key(), it.value());
     }
     return result;
+}
+
+// --------------------------------------------------------------------
+// UserFileVersion15Upgrader:
+// --------------------------------------------------------------------
+
+QVariantMap UserFileVersion15Upgrader::upgrade(const QVariantMap &map)
+{
+    QList<Change> changes;
+    changes.append(qMakePair(QLatin1String("ProjectExplorer.Project.Updater.EnvironmentId"),
+                             QLatin1String("EnvironmentId")));
+    // This is actually handled in the SettingsAccessor itself:
+    // changes.append(qMakePair(QLatin1String("ProjectExplorer.Project.Updater.FileVersion"),
+    //                          QLatin1String("Version")));
+    changes.append(qMakePair(QLatin1String("ProjectExplorer.Project.UserStickyKeys"),
+                             QLatin1String("UserStickyKeys")));
+
+    return renameKeys(changes, QVariantMap(map));
+}
+
+// --------------------------------------------------------------------
+// UserFileVersion16Upgrader:
+// --------------------------------------------------------------------
+
+UserFileVersion16Upgrader::OldStepMaps UserFileVersion16Upgrader::extractStepMaps(const QVariantMap &deployMap)
+{
+    OldStepMaps result;
+    result.defaultDisplayName = deployMap.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DefaultDisplayName")).toString();
+    result.displayName = deployMap.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName")).toString();
+    const QString stepListKey = QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepList.0");
+    QVariantMap stepListMap = deployMap.value(stepListKey).toMap();
+    int stepCount = stepListMap.value(QLatin1String("ProjectExplorer.BuildStepList.StepsCount"), 0).toInt();
+    QString stepKey = QLatin1String("ProjectExplorer.BuildStepList.Step.");
+    for (int i = 0; i < stepCount; ++i) {
+        QVariantMap stepMap = stepListMap.value(stepKey + QString::number(i)).toMap();
+        const QString id = stepMap.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
+        if (id == QLatin1String("Qt4ProjectManager.AndroidDeployQtStep"))
+            result.androidDeployQt = stepMap;
+        else if (id == QLatin1String("Qt4ProjectManager.AndroidPackageInstallationStep"))
+            result.androidPackageInstall = stepMap;
+        if (!result.isEmpty())
+            return result;
+
+    }
+    return result;
+}
+
+QVariantMap UserFileVersion16Upgrader::removeAndroidPackageStep(QVariantMap deployMap)
+{
+    const QString stepListKey = QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepList.0");
+    QVariantMap stepListMap = deployMap.value(stepListKey).toMap();
+    const QString stepCountKey = QLatin1String("ProjectExplorer.BuildStepList.StepsCount");
+    int stepCount = stepListMap.value(stepCountKey, 0).toInt();
+    QString stepKey = QLatin1String("ProjectExplorer.BuildStepList.Step.");
+    int targetPosition = 0;
+    for (int sourcePosition = 0; sourcePosition < stepCount; ++sourcePosition) {
+        QVariantMap stepMap = stepListMap.value(stepKey + QString::number(sourcePosition)).toMap();
+        if (stepMap.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString()
+                != QLatin1String("Qt4ProjectManager.AndroidPackageInstallationStep")) {
+            stepListMap.insert(stepKey + QString::number(targetPosition), stepMap);
+            ++targetPosition;
+        }
+    }
+
+    stepListMap.insert(stepCountKey, targetPosition);
+
+    for (int i = targetPosition; i < stepCount; ++i)
+        stepListMap.remove(stepKey + QString::number(i));
+
+    deployMap.insert(stepListKey, stepListMap);
+    return deployMap;
+}
+
+QVariantMap UserFileVersion16Upgrader::insertSteps(QVariantMap buildConfigurationMap,
+                                                   const OldStepMaps &oldStepMap,
+                                                   NamePolicy policy)
+{
+    const QString bslCountKey = QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepListCount");
+    int stepListCount = buildConfigurationMap.value(bslCountKey).toInt();
+
+    const QString bslKey = QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepList.");
+    const QString bslTypeKey = QLatin1String("ProjectExplorer.ProjectConfiguration.Id");
+    for (int bslNumber = 0; bslNumber < stepListCount; ++bslNumber) {
+        QVariantMap buildStepListMap = buildConfigurationMap.value(bslKey + QString::number(bslNumber)).toMap();
+        if (buildStepListMap.value(bslTypeKey) != QLatin1String("ProjectExplorer.BuildSteps.Build"))
+            continue;
+
+        const QString bslStepCountKey = QLatin1String("ProjectExplorer.BuildStepList.StepsCount");
+
+        int stepCount = buildStepListMap.value(bslStepCountKey).toInt();
+        buildStepListMap.insert(bslStepCountKey, stepCount + 2);
+
+        QVariantMap androidPackageInstallStep;
+        QVariantMap androidBuildApkStep;
+
+        // common settings of all buildsteps
+        const QString enabledKey = QLatin1String("ProjectExplorer.BuildStep.Enabled");
+        const QString idKey = QLatin1String("ProjectExplorer.ProjectConfiguration.Id");
+        const QString displayNameKey = QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName");
+        const QString defaultDisplayNameKey = QLatin1String("ProjectExplorer.ProjectConfiguration.DefaultDisplayName");
+
+        QString displayName = oldStepMap.androidPackageInstall.value(displayNameKey).toString();
+        QString defaultDisplayName = oldStepMap.androidPackageInstall.value(defaultDisplayNameKey).toString();
+        bool enabled = oldStepMap.androidPackageInstall.value(enabledKey).toBool();
+
+        androidPackageInstallStep.insert(idKey, Core::Id("Qt4ProjectManager.AndroidPackageInstallationStep").toSetting());
+        androidPackageInstallStep.insert(displayNameKey, displayName);
+        androidPackageInstallStep.insert(defaultDisplayNameKey, defaultDisplayName);
+        androidPackageInstallStep.insert(enabledKey, enabled);
+
+        displayName = oldStepMap.androidDeployQt.value(displayName).toString();
+        defaultDisplayName = oldStepMap.androidDeployQt.value(defaultDisplayNameKey).toString();
+        enabled = oldStepMap.androidDeployQt.value(enabledKey).toBool();
+
+        androidBuildApkStep.insert(idKey, Core::Id("QmakeProjectManager.AndroidBuildApkStep").toSetting());
+        androidBuildApkStep.insert(displayNameKey, displayName);
+        androidBuildApkStep.insert(defaultDisplayNameKey, defaultDisplayName);
+        androidBuildApkStep.insert(enabledKey, enabled);
+
+        // settings transferred from AndroidDeployQtStep to QmakeBuildApkStep
+        const QString ProFilePathForInputFile = QLatin1String("ProFilePathForInputFile");
+        const QString DeployActionKey = QLatin1String("Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction");
+        const QString KeystoreLocationKey = QLatin1String("KeystoreLocation");
+        const QString BuildTargetSdkKey = QLatin1String("BuildTargetSdk");
+        const QString VerboseOutputKey = QLatin1String("VerboseOutput");
+
+        QString inputFile = oldStepMap.androidDeployQt.value(ProFilePathForInputFile).toString();
+        int oldDeployAction = oldStepMap.androidDeployQt.value(DeployActionKey).toInt();
+        QString keyStorePath = oldStepMap.androidDeployQt.value(KeystoreLocationKey).toString();
+        QString buildTargetSdk = oldStepMap.androidDeployQt.value(BuildTargetSdkKey).toString();
+        bool verbose = oldStepMap.androidDeployQt.value(VerboseOutputKey).toBool();
+        androidBuildApkStep.insert(ProFilePathForInputFile, inputFile);
+        androidBuildApkStep.insert(DeployActionKey, oldDeployAction);
+        androidBuildApkStep.insert(KeystoreLocationKey, keyStorePath);
+        androidBuildApkStep.insert(BuildTargetSdkKey, buildTargetSdk);
+        androidBuildApkStep.insert(VerboseOutputKey, verbose);
+
+        const QString buildStepKey = QLatin1String("ProjectExplorer.BuildStepList.Step.");
+        buildStepListMap.insert(buildStepKey + QString::number(stepCount), androidPackageInstallStep);
+        buildStepListMap.insert(buildStepKey + QString::number(stepCount + 1), androidBuildApkStep);
+
+        buildConfigurationMap.insert(bslKey + QString::number(bslNumber), buildStepListMap);
+    }
+
+    if (policy == RenameBuildConfiguration) {
+        const QString displayNameKey = QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName");
+        const QString defaultDisplayNameKey = QLatin1String("ProjectExplorer.ProjectConfiguration.DefaultDisplayName");
+
+        QString defaultDisplayName = buildConfigurationMap.value(defaultDisplayNameKey).toString();
+        QString displayName = buildConfigurationMap.value(displayNameKey).toString();
+        if (displayName.isEmpty())
+            displayName = defaultDisplayName;
+        QString oldDisplayname = oldStepMap.displayName;
+        if (oldDisplayname.isEmpty())
+            oldDisplayname = oldStepMap.defaultDisplayName;
+
+        displayName.append(QLatin1String(" - "));
+        displayName.append(oldDisplayname);
+        buildConfigurationMap.insert(displayNameKey, displayName);
+
+        defaultDisplayName.append(QLatin1String(" - "));
+        defaultDisplayName.append(oldStepMap.defaultDisplayName);
+        buildConfigurationMap.insert(defaultDisplayNameKey, defaultDisplayName);
+    }
+
+    return buildConfigurationMap;
+}
+
+QVariantMap UserFileVersion16Upgrader::upgrade(const QVariantMap &data)
+{
+    int targetCount = data.value(QLatin1String("ProjectExplorer.Project.TargetCount"), 0).toInt();
+    if (!targetCount)
+        return data;
+
+    QVariantMap result = data;
+
+    for (int i = 0; i < targetCount; ++i) {
+        QString targetKey = QLatin1String("ProjectExplorer.Project.Target.") + QString::number(i);
+        QVariantMap targetMap = data.value(targetKey).toMap();
+
+        const QString dcCountKey = QLatin1String("ProjectExplorer.Target.DeployConfigurationCount");
+        int deployconfigurationCount = targetMap.value(dcCountKey).toInt();
+        if (!deployconfigurationCount) // should never happen
+            continue;
+
+        QList<OldStepMaps> oldSteps;
+        QList<QVariantMap> oldBuildConfigurations;
+
+        QString deployKey = QLatin1String("ProjectExplorer.Target.DeployConfiguration.");
+        for (int j = 0; j < deployconfigurationCount; ++j) {
+            QVariantMap deployConfigurationMap
+                    = targetMap.value(deployKey + QString::number(j)).toMap();
+            OldStepMaps oldStep = extractStepMaps(deployConfigurationMap);
+            if (!oldStep.isEmpty()) {
+                oldSteps.append(oldStep);
+                deployConfigurationMap = removeAndroidPackageStep(deployConfigurationMap);
+                targetMap.insert(deployKey + QString::number(j), deployConfigurationMap);
+            }
+        }
+
+        if (oldSteps.isEmpty()) // no android target?
+            continue;
+
+        const QString bcCountKey = QLatin1String("ProjectExplorer.Target.BuildConfigurationCount");
+        int buildConfigurationCount
+                = targetMap.value(bcCountKey).toInt();
+
+        if (!buildConfigurationCount) // should never happen
+            continue;
+
+        QString bcKey = QLatin1String("ProjectExplorer.Target.BuildConfiguration.");
+        for (int j = 0; j < buildConfigurationCount; ++j) {
+            QVariantMap oldBuildConfigurationMap = targetMap.value(bcKey + QString::number(j)).toMap();
+            oldBuildConfigurations.append(oldBuildConfigurationMap);
+        }
+
+        QList<QVariantMap> newBuildConfigurations;
+
+        NamePolicy policy = oldSteps.size() > 1 ? RenameBuildConfiguration : KeepName;
+
+        foreach (const QVariantMap &oldBuildConfiguration, oldBuildConfigurations) {
+            foreach (const OldStepMaps &oldStep, oldSteps) {
+                QVariantMap newBuildConfiguration = insertSteps(oldBuildConfiguration, oldStep, policy);
+                if (!newBuildConfiguration.isEmpty())
+                    newBuildConfigurations.append(newBuildConfiguration);
+            }
+        }
+
+        targetMap.insert(bcCountKey, newBuildConfigurations.size());
+
+        for (int j = 0; j < newBuildConfigurations.size(); ++j)
+            targetMap.insert(bcKey + QString::number(j), newBuildConfigurations.at(j));
+        result.insert(targetKey, targetMap);
+    }
+
+    return result;
+}
+
+QVariantMap UserFileVersion17Upgrader::upgrade(const QVariantMap &map)
+{
+    m_sticky = map.value(QLatin1String(USER_STICKY_KEYS_KEY)).toList();
+    if (m_sticky.isEmpty())
+        return map;
+    return process(map).toMap();
+}
+
+QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
+{
+    switch (entry.type()) {
+    case QVariant::List: {
+        QVariantList result;
+        foreach (const QVariant &item, entry.toList())
+            result.append(process(item));
+        return result;
+    }
+    case QVariant::Map: {
+        QVariantMap result = entry.toMap();
+        for (QVariantMap::iterator i = result.begin(), end = result.end(); i != end; ++i) {
+            QVariant &v = i.value();
+            v = process(v);
+        }
+        result.insert(QLatin1String(USER_STICKY_KEYS_KEY), m_sticky);
+        return result;
+    }
+    default:
+        return entry;
+    }
 }

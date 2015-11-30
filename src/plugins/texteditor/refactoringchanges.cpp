@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,29 +9,32 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "refactoringchanges.h"
-#include "basetexteditor.h"
+#include "texteditor.h"
+#include "textdocument.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
@@ -43,7 +46,10 @@
 #include <QDebug>
 #include <QApplication>
 
-using namespace TextEditor;
+using namespace Core;
+using namespace Utils;
+
+namespace TextEditor {
 
 RefactoringChanges::RefactoringChanges()
     : m_data(new RefactoringChangesData)
@@ -56,10 +62,10 @@ RefactoringChanges::RefactoringChanges(RefactoringChangesData *data)
 RefactoringChanges::~RefactoringChanges()
 {}
 
-QList<QPair<QTextCursor, QTextCursor > > RefactoringChanges::rangesToSelections(QTextDocument *document,
-                                                                                const QList<Range> &ranges)
+RefactoringSelections RefactoringChanges::rangesToSelections(QTextDocument *document,
+                                                             const QList<Range> &ranges)
 {
-    QList<QPair<QTextCursor, QTextCursor> > selections;
+    RefactoringSelections selections;
 
     foreach (const Range &range, ranges) {
         QTextCursor start(document);
@@ -93,8 +99,8 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
     cursor.endEditBlock();
 
     // Write the file to disk:
-    Utils::TextFileFormat format;
-    format.codec = Core::EditorManager::defaultTextCodec();
+    TextFileFormat format;
+    format.codec = EditorManager::defaultTextCodec();
     QString error;
     bool saveOk = format.writeFile(fileName, document->toPlainText(), &error);
     delete document;
@@ -119,25 +125,24 @@ bool RefactoringChanges::removeFile(const QString &fileName) const
     return true;
 }
 
-BaseTextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bool activate, int line, int column)
+TextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bool activate, int line, int column)
 {
-    Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::IgnoreNavigationHistory;
+    EditorManager::OpenEditorFlags flags = EditorManager::IgnoreNavigationHistory;
     if (!activate)
-        flags |= Core::EditorManager::DoNotChangeCurrentEditor;
+        flags |= EditorManager::DoNotChangeCurrentEditor;
     if (line != -1) {
         // openEditorAt uses a 1-based line and a 0-based column!
         column -= 1;
     }
-    Core::IEditor *editor = Core::EditorManager::openEditorAt(
-                fileName, line, column, Core::Id(), flags);
+    IEditor *editor = EditorManager::openEditorAt(fileName, line, column, Id(), flags);
 
     if (editor)
-        return qobject_cast<BaseTextEditorWidget *>(editor->widget());
+        return qobject_cast<TextEditorWidget *>(editor->widget());
     else
         return 0;
 }
 
-RefactoringFilePtr RefactoringChanges::file(BaseTextEditorWidget *editor)
+RefactoringFilePtr RefactoringChanges::file(TextEditorWidget *editor)
 {
     return RefactoringFilePtr(new RefactoringFile(editor));
 }
@@ -157,8 +162,8 @@ RefactoringFile::RefactoringFile(QTextDocument *document, const QString &fileNam
     , m_appliedOnce(false)
 { }
 
-RefactoringFile::RefactoringFile(BaseTextEditorWidget *editor)
-    : m_fileName(editor->baseTextDocument()->filePath())
+RefactoringFile::RefactoringFile(TextEditorWidget *editor)
+    : m_fileName(editor->textDocument()->filePath().toString())
     , m_document(0)
     , m_editor(editor)
     , m_openEditor(false)
@@ -177,9 +182,9 @@ RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<R
     , m_editorCursorPosition(-1)
     , m_appliedOnce(false)
 {
-    QList<Core::IEditor *> editors = Core::EditorManager::documentModel()->editorsForFilePath(fileName);
+    QList<IEditor *> editors = DocumentModel::editorsForFilePath(fileName);
     if (!editors.isEmpty())
-        m_editor = qobject_cast<TextEditor::BaseTextEditorWidget *>(editors.first()->widget());
+        m_editor = qobject_cast<TextEditorWidget *>(editors.first()->widget());
 }
 
 RefactoringFile::~RefactoringFile()
@@ -207,12 +212,12 @@ QTextDocument *RefactoringFile::mutableDocument() const
         QString fileContents;
         if (!m_fileName.isEmpty()) {
             QString error;
-            QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
-            Utils::TextFileFormat::ReadResult result = Utils::TextFileFormat::readFile(
+            QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
+            TextFileFormat::ReadResult result = TextFileFormat::readFile(
                         m_fileName, defaultCodec,
                         &fileContents, &m_textFileFormat,
                         &error);
-            if (result != Utils::TextFileFormat::ReadSuccess) {
+            if (result != TextFileFormat::ReadSuccess) {
                 qWarning() << "Could not read " << m_fileName << ". Error: " << error;
                 m_textFileFormat.codec = 0;
             }
@@ -240,7 +245,7 @@ QString RefactoringFile::fileName() const
     return m_fileName;
 }
 
-BaseTextEditorWidget *RefactoringFile::editor() const
+TextEditorWidget *RefactoringFile::editor() const
 {
     return m_editor;
 }
@@ -285,7 +290,7 @@ QString RefactoringFile::textOf(const Range &range) const
     return textOf(range.start, range.end);
 }
 
-void RefactoringFile::setChangeSet(const Utils::ChangeSet &changeSet)
+void RefactoringFile::setChangeSet(const ChangeSet &changeSet)
 {
     if (m_fileName.isEmpty())
         return;
@@ -321,11 +326,11 @@ void RefactoringFile::apply()
     // test file permissions
     if (!QFileInfo(fileName()).isWritable()) {
         const QString &path = fileName();
-        Core::Internal::ReadOnlyFilesDialog roDialog(path, Core::ICore::mainWindow());
+        ReadOnlyFilesDialog roDialog(path, ICore::mainWindow());
         const QString &failDetailText = QApplication::translate("RefactoringFile::apply",
                                                                 "Refactoring cannot be applied.");
         roDialog.setShowFailWarning(true, failDetailText);
-        if (roDialog.exec() == Core::Internal::ReadOnlyFilesDialog::RO_Cancel)
+        if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel)
             return;
     }
 
@@ -351,10 +356,10 @@ void RefactoringFile::apply()
                 c.beginEditBlock();
 
             // build indent selections now, applying the changeset will change locations
-            const QList<QPair<QTextCursor, QTextCursor> > &indentSelections =
+            const RefactoringSelections &indentSelections =
                     RefactoringChanges::rangesToSelections(doc, m_indentRanges);
             m_indentRanges.clear();
-            const QList<QPair<QTextCursor, QTextCursor> > &reindentSelections =
+            const RefactoringSelections &reindentSelections =
                     RefactoringChanges::rangesToSelections(doc, m_reindentRanges);
             m_reindentRanges.clear();
 
@@ -384,8 +389,8 @@ void RefactoringFile::apply()
 
 void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const QTextCursor &,
                                                                           const QString &,
-                                                                          const BaseTextDocument *) const,
-                                       const QList<QPair<QTextCursor, QTextCursor> > &ranges)
+                                                                          const TextDocument *) const,
+                                       const RefactoringSelections &ranges)
 {
     typedef QPair<QTextCursor, QTextCursor> CursorPair;
 
@@ -393,7 +398,7 @@ void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const 
         QTextCursor selection(p.first.document());
         selection.setPosition(p.first.position());
         selection.setPosition(p.second.position(), QTextCursor::KeepAnchor);
-        ((*m_data).*(mf))(selection, m_fileName, m_editor ? m_editor->baseTextDocument() : 0);
+        ((*m_data).*(mf))(selection, m_fileName, m_editor ? m_editor->textDocument() : 0);
     }
 }
 
@@ -406,12 +411,12 @@ void RefactoringFile::fileChanged()
 RefactoringChangesData::~RefactoringChangesData()
 {}
 
-void RefactoringChangesData::indentSelection(const QTextCursor &, const QString &, const BaseTextDocument *) const
+void RefactoringChangesData::indentSelection(const QTextCursor &, const QString &, const TextDocument *) const
 {
     qWarning() << Q_FUNC_INFO << "not implemented";
 }
 
-void RefactoringChangesData::reindentSelection(const QTextCursor &, const QString &, const BaseTextDocument *) const
+void RefactoringChangesData::reindentSelection(const QTextCursor &, const QString &, const TextDocument *) const
 {
     qWarning() << Q_FUNC_INFO << "not implemented";
 }
@@ -419,3 +424,5 @@ void RefactoringChangesData::reindentSelection(const QTextCursor &, const QStrin
 void RefactoringChangesData::fileChanged(const QString &)
 {
 }
+
+} // namespace TextEditor

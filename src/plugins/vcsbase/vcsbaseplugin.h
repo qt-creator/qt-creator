@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -43,9 +44,14 @@ class QAction;
 class QTextCodec;
 QT_END_NAMESPACE
 
-namespace Utils { struct SynchronousProcessResponse; }
+namespace Utils
+{
+class FileName;
+struct SynchronousProcessResponse;
+}
 
 namespace Core {
+class Context;
 class IVersionControl;
 class Id;
 class IDocument;
@@ -53,7 +59,7 @@ class IDocument;
 
 namespace VcsBase {
 
-namespace Internal { struct State; }
+namespace Internal { class State; }
 
 class VcsBaseSubmitEditor;
 class VcsBasePluginPrivate;
@@ -129,11 +135,11 @@ class VCSBASE_EXPORT VcsBasePlugin : public ExtensionSystem::IPlugin
 protected:
     explicit VcsBasePlugin();
 
-    void initializeVcs(Core::IVersionControl *vc);
-    virtual void extensionsInitialized();
+    void initializeVcs(Core::IVersionControl *vc, const Core::Context &context);
+    void extensionsInitialized();
 
 public:
-    virtual ~VcsBasePlugin();
+    ~VcsBasePlugin();
 
     const VcsBasePluginState &currentState() const;
     Core::IVersionControl *versionControl() const;
@@ -161,37 +167,15 @@ public:
     // Returns the source of editor contents.
     static QString source(Core::IDocument *document);
 
-    // Convenience to synchronously run VCS commands
-    enum RunVcsFlags {
-        ShowStdOutInLogWindow = 0x1, // Append standard output to VCS output window.
-        MergeOutputChannels = 0x2,   // see QProcess: Merge stderr/stdout.
-        SshPasswordPrompt = 0x4,    // Disable terminal on UNIX to force graphical prompt.
-        SuppressStdErrInLogWindow = 0x8, // No standard error output to VCS output window.
-        SuppressFailMessageInLogWindow = 0x10, // No message VCS about failure in VCS output window.
-        SuppressCommandLogging = 0x20, // No command log entry in VCS output window.
-        ShowSuccessMessage = 0x40,      // Show message about successful completion in VCS output window.
-        ForceCLocale = 0x80,            // Force C-locale for commands whose output is parsed.
-        FullySynchronously = 0x100,     // Suppress local event loop (in case UI actions are
-                                        // triggered by file watchers).
-        ExpectRepoChanges = 0x200,      // Expect changes in repository by the command
-        SilentOutput = 0x400,           // With ShowStdOutInLogWindow - append output silently
-        NoOutput = SuppressStdErrInLogWindow | SuppressFailMessageInLogWindow
-                   | SuppressCommandLogging
-    };
-
     static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
-                                                    const QString &binary,
+                                                    const Utils::FileName &binary,
                                                     const QStringList &arguments,
-                                                    int timeOutMS,
+                                                    int timeOutS,
                                                     unsigned flags = 0,
                                                     QTextCodec *outputCodec = 0,
                                                     const QProcessEnvironment &env = QProcessEnvironment());
 
-    // Utility to run the 'patch' command
-    static bool runPatch(const QByteArray &input, const QString &workingDirectory = QString(),
-                         int strip = 0, bool reverse = false);
-
-public slots:
+protected:
     // Convenience slot for "Delete current file" action. Prompts to
     // delete the file via VcsManager.
     void promptToDeleteCurrentFile();
@@ -199,7 +183,6 @@ public slots:
     // pointing to the current project.
     void createRepository();
 
-protected:
     enum ActionState { NoVcsEnabled, OtherVcsEnabled, VcsEnabled };
 
     // Sets the current submit editor for this specific version control plugin.

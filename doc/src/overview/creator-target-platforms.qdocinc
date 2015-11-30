@@ -8,7 +8,7 @@
 
         \li Android
 
-        \li BlackBerry 10
+        \li Embedded
 
         \li Generic remote Linux
 
@@ -20,54 +20,64 @@
 
     \endlist
 
+    \section2 Embedded Devices
+
+    The Boot to Qt stack can be made to run on a variety of hardware. For
+    Qt for Device Creation license holders, tooling is provided to customize the
+    contents of the stack as well as to take it into desired production
+    hardware.
+
+    For more information about the supported device groups and reference devices,
+    see \l{http://doc.qt.io/QtForDeviceCreation/qtee-supported-platforms.html}
+    {Supported Platforms} in the \l{http://doc.qt.io/QtForDeviceCreation/index.html}
+    {Qt for Device Creation} documentation.
+
+    \section2 Mobile Devices
+
     The following table summarizes operating system support for developing
     applications for mobile device platforms.
 
     \table
         \header
-            \li {1,3} Target Platform
+            \li {1,2} Target Platform
             \li {3,1} Development Platform
         \header
             \li Linux
-            \li Mac OS X
+            \li OS X
             \li Windows
 
         \row
             \li Android
-            \li Yes
-            \li Yes
-            \li Yes
-         \row
-            \li BlackBerry 10
-            \li Yes
-            \li Yes
-            \li Yes
+            \li \image ok
+            \li \image ok
+            \li \image ok
         \row
             \li Generic Remote Linux
-            \li Yes
-            \li Yes
-            \li Yes
+            \li \image ok
+            \li \image ok
+            \li \image ok
         \row
             \li iOS
-            \li No
-            \li Yes
-            \li No
+            \li
+            \li \image ok
+            \li
         \row
             \li QNX
-            \li Yes
-            \li Yes
-            \li Yes (see \l{Running on QNX Devices} for limitations)
+            \li \image ok
+            \li \image ok
+            \li \inlineimage ok
+                *
         \row
             \li Windows Runtime
-            \li No
-            \li No
-            \li Yes
+            \li
+            \li
+            \li \image ok
     \endtable
 
-    \note Symbian support has been removed from \QC 2.6. To develop for Symbian,
-    install \QSDK 1.2.1 or \QSDK 1.1.2 (that contains the Qt 4.6.3 for Symbian
-    and Qt 4.7.3 for Symbian^3 and Symbian Anna targets) and use \QC 2.4.
+    * See \l{Running on QNX Devices} for limitations.
 
     \note Madde support has been removed from \QC 3.0. To develop for Maemo or Harmattan,
-    install \QSDK 1.2.1 or \QSDK 1.1.2 and use \QC 2.8.
+    use \QC 2.8.
+
+    \note BlackBerry 10 support has been removed from \QC 3.5. Use \QC 3.4 instead.
 

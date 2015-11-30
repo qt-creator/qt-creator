@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,6 +34,7 @@
 #include "qtsupport_global.h"
 
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
 
 #include <projectexplorer/abi.h>
 
@@ -40,7 +42,6 @@
 #include <QVariantMap>
 
 namespace Utils { class Environment; }
-
 namespace Core { class FeatureSet; }
 
 namespace ProjectExplorer {
@@ -67,9 +68,14 @@ public:
     QtVersionNumber(const QString &versionString);
     QtVersionNumber();
 
+    Core::FeatureSet features() const;
+
     int majorVersion;
     int minorVersion;
     int patchVersion;
+
+    bool matches(int major = -1, int minor = -1, int patch = -1) const;
+
     bool operator <(const QtVersionNumber &b) const;
     bool operator <=(const QtVersionNumber &b) const;
     bool operator >(const QtVersionNumber &b) const;
@@ -96,7 +102,8 @@ public:
     QString autodetectionSource() const;
 
     QString displayName() const;
-    void setDisplayName(const QString &name);
+    QString unexpandedDisplayName() const;
+    void setUnexpandedDisplayName(const QString &name);
 
     // All valid Ids are >= 0
     int uniqueId() const;
@@ -107,8 +114,6 @@ public:
     virtual bool isValid() const;
     virtual QString invalidReason() const;
     virtual QStringList warningReason() const;
-
-    virtual ProjectExplorer::ToolChain *preferredToolChain(const Utils::FileName &ms) const;
 
     virtual QString description() const = 0;
     virtual QString toHtml(bool verbose) const;
@@ -124,6 +129,9 @@ public:
     virtual Utils::Environment qmakeRunEnvironment() const;
 
     virtual Utils::FileName sourcePath() const;
+    bool isInSourceDirectory(const Utils::FileName &filePath);
+    bool isSubProject(const Utils::FileName &filePath);
+
     // used by UiCodeModelSupport
     virtual QString uicCommand() const;
     virtual QString designerCommand() const;
@@ -143,7 +151,6 @@ public:
     bool hasDemos() const;
     QString demosPath() const;
 
-    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPathes(const ProjectExplorer::Kit *k) const;
     virtual QString frameworkInstallPath() const;
 
     // former local functions
@@ -169,7 +176,6 @@ public:
 
     virtual QmakeBuildConfigs defaultBuildConfig() const;
     virtual void recheckDumper();
-    virtual bool supportsShadowBuilds() const;
 
     /// Check a .pro-file/Qt version combination on possible issues
     /// @return a list of tasks, ordered on severity (errors first, then
@@ -184,8 +190,8 @@ public:
 
     static bool isQmlDebuggingSupported(ProjectExplorer::Kit *k, QString *reason = 0);
     bool isQmlDebuggingSupported(QString *reason = 0) const;
-    static void buildDebuggingHelper(ProjectExplorer::Kit *k, int tools);
-    void buildDebuggingHelper(ProjectExplorer::ToolChain *tc, int tools);
+    static bool isQtQuickCompilerSupported(ProjectExplorer::Kit *k, QString *reason = 0);
+    bool isQtQuickCompilerSupported(QString *reason = 0) const;
 
     virtual QString qmlDumpTool(bool debugVersion) const;
 
@@ -196,8 +202,7 @@ public:
 
     virtual QtConfigWidget *createConfigurationWidget() const;
 
-    static QString defaultDisplayName(const QString &versionString,
-                                      const Utils::FileName &qmakePath,
+    static QString defaultUnexpandedDisplayName(const Utils::FileName &qmakePath,
                                       bool fromPath = false);
 
     virtual Core::FeatureSet availableFeatures() const;
@@ -224,9 +229,12 @@ public:
     QStringList configValues() const;
     QStringList qtConfigValues() const;
 
+    Utils::MacroExpander *macroExpander() const; // owned by the Qt version
+
 protected:
     BaseQtVersion();
     BaseQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    BaseQtVersion(const BaseQtVersion &other);
 
     static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name,
                                  PropertyVariant variant = PropertyVariantGet);
@@ -234,16 +242,18 @@ protected:
     virtual QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
 
     // helper function for desktop and simulator to figure out the supported abis based on the libraries
-    static QList<Utils::FileName> qtCorePaths(const QHash<QString,QString> &versionInfo,
-                                              const QString &versionString);
-    static QList<ProjectExplorer::Abi> qtAbisFromLibrary(const QList<Utils::FileName> &coreLibraries);
+    static Utils::FileNameList qtCorePaths(const QHash<QString,QString> &versionInfo,
+                                           const QString &versionString);
+    static QList<ProjectExplorer::Abi> qtAbisFromLibrary(const Utils::FileNameList &coreLibraries);
 
     void ensureMkSpecParsed() const;
     virtual void parseMkSpec(ProFileEvaluator *) const;
+
 private:
     void setAutoDetectionSource(const QString &autodetectionSource);
     static int getUniqueId();
     void ctor(const Utils::FileName &qmakePath);
+    void setupExpander();
     void updateSourcePath() const;
     void updateVersionInfo() const;
     enum Binaries { QmlViewer, QmlScene, Designer, Linguist, Uic };
@@ -272,7 +282,7 @@ private:
     mutable QStringList m_configValues;
     mutable QStringList m_qtConfigValues;
 
-    QString m_displayName;
+    QString m_unexpandedDisplayName;
     QString m_autodetectionSource;
     mutable Utils::FileName m_sourcePath;
 
@@ -283,7 +293,7 @@ private:
 
     mutable QHash<QString,QString> m_versionInfo;
 
-    mutable Utils::FileName m_qmakeCommand;
+    Utils::FileName m_qmakeCommand;
     mutable QString m_qtVersionString;
     mutable QString m_uicCommand;
     mutable QString m_designerCommand;
@@ -292,6 +302,8 @@ private:
     mutable QString m_qmlviewerCommand;
 
     mutable QList<ProjectExplorer::Abi> m_qtAbis;
+
+    mutable Utils::MacroExpander m_expander;
 };
 }
 

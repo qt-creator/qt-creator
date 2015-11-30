@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,30 +9,25 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "modelnodeoperations.h"
 #include "modelnodecontextmenu_helper.h"
+#include "layoutingridlayout.h"
 
 #include <cmath>
-#include <QMessageBox>
-#include <QByteArray>
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
 #include <modelnode.h>
@@ -42,7 +37,23 @@
 #include <rewritertransaction.h>
 #include <documentmanager.h>
 #include <qmlanchors.h>
+#include <nodelistproperty.h>
+
 #include <limits>
+#include <qmldesignerplugin.h>
+
+#include <coreplugin/messagebox.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <utils/algorithm.h>
+
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
+#include <qmljseditor/qmljsfindreferences.h>
+
+#include <QCoreApplication>
+#include <QByteArray>
+
+#include <functional>
 
 namespace QmlDesigner {
 
@@ -53,7 +64,7 @@ static inline QList<QmlItemNode> siblingsForNode(const QmlItemNode &itemNode)
     QList<QmlItemNode> siblingList;
 
     if (itemNode.isValid() && itemNode.modelNode().hasParentProperty()) {
-        QList<ModelNode> modelNodes = itemNode.modelNode().parentProperty().parentModelNode().allDirectSubModelNodes();
+        QList<ModelNode> modelNodes = itemNode.modelNode().parentProperty().parentModelNode().directSubModelNodes();
         foreach (const ModelNode &node, modelNodes) {
             QmlItemNode childItemNode = node;
             if (childItemNode.isValid())
@@ -98,15 +109,6 @@ static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
             parentProperty = parent.nodeAbstractProperty("data");
 
         parentProperty.reparentHere(node);
-    }
-}
-
-static void reparentToNodeAndRemovePositionForModelNodes(const ModelNode &parentModelNode, const QList<ModelNode> &modelNodeList)
-{
-    foreach (ModelNode modelNode, modelNodeList) {
-        reparentTo(modelNode, parentModelNode);
-        modelNode.removeProperty("x");
-        modelNode.removeProperty("y");
     }
 }
 
@@ -183,8 +185,8 @@ void toFront(const SelectionContext &selectionState)
             maximumZ++;
             node.setVariantProperty("z", maximumZ);
         }
-    } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+    } catch (const RewritingException &e) { //better save then sorry
+        e.showException();
     }
 }
 
@@ -201,8 +203,8 @@ void toBack(const SelectionContext &selectionState)
             node.setVariantProperty("z", minimumZ);
         }
 
-    } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+    } catch (const RewritingException &e) { //better save then sorry
+        e.showException();
     }
 }
 
@@ -221,8 +223,8 @@ void raise(const SelectionContext &selectionState)
                 node.setVariantProperty("z", z);
             }
         }
-    } catch (RewritingException &e) { //better save then sorry
-         QMessageBox::warning(0, "Error", e.description());
+    } catch (const RewritingException &e) { //better save then sorry
+         e.showException();
     }
 }
 
@@ -242,8 +244,8 @@ void lower(const SelectionContext &selectionState)
                 node.setVariantProperty("z", z);
             }
         }
-    } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+    } catch (const RewritingException &e) { //better save then sorry
+        e.showException();
     }
 }
 
@@ -266,8 +268,8 @@ void setVisible(const SelectionContext &selectionState)
 
     try {
         selectionState.selectedModelNodes().first().variantProperty("visible").setValue(selectionState.toggled());
-    } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+    } catch (const RewritingException &e) { //better save then sorry
+        e.showException();
     }
 }
 
@@ -279,8 +281,8 @@ void setFillWidth(const SelectionContext &selectionState)
 
     try {
         selectionState.firstSelectedModelNode().variantProperty("Layout.fillWidth").setValue(selectionState.toggled());
-    } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+    } catch (const RewritingException &e) { //better save then sorry
+        e.showException();
     }
 }
 
@@ -292,8 +294,8 @@ void setFillHeight(const SelectionContext &selectionState)
 
     try {
         selectionState.firstSelectedModelNode().variantProperty("Layout.fillHeight").setValue(selectionState.toggled());
-    } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+    } catch (const RewritingException &e) { //better save then sorry
+        e.showException();
     }
 }
 
@@ -308,8 +310,8 @@ void resetSize(const SelectionContext &selectionState)
             node.removeProperty("width");
             node.removeProperty("height");
         }
-    } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+    } catch (const RewritingException &e) { //better save then sorry
+        e.showException();
     }
 }
 
@@ -324,8 +326,8 @@ void resetPosition(const SelectionContext &selectionState)
             node.removeProperty("x");
             node.removeProperty("y");
         }
-    } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+    } catch (const RewritingException &e) { //better save then sorry
+        e.showException();
     }
 }
 
@@ -363,7 +365,7 @@ static inline void backupPropertyAndRemove(ModelNode node, const PropertyName &p
 }
 
 
-static inline void restoreProperty(ModelNode node, const PropertyName &propertyName)
+static inline void restoreProperty(const ModelNode &node, const PropertyName &propertyName)
 {
     if (node.hasAuxiliaryData(auxDataString + propertyName))
         node.variantProperty(propertyName).setValue(node.auxiliaryData(auxDataString + propertyName));
@@ -389,8 +391,8 @@ void anchorsFill(const SelectionContext &selectionState)
         }
 
         transaction.commit();
-    } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+    } catch (const RewritingException &e) { //better save then sorry
+        e.showException();
     }
 }
 
@@ -414,38 +416,38 @@ void anchorsReset(const SelectionContext &selectionState)
     }
 }
 
-typedef bool (*LessThan)(const ModelNode &node1, const ModelNode &node2);
+typedef std::function<bool(const ModelNode &node1, const ModelNode &node2)> LessThan;
 
 bool compareByX(const ModelNode &node1, const ModelNode &node2)
 {
-        QmlItemNode itemNode1 = QmlItemNode(node1);
-        QmlItemNode itemNode2 = QmlItemNode(node2);
-        if (itemNode1.isValid() && itemNode2.isValid())
-            return itemNode1.instancePosition().x() < itemNode2.instancePosition().x();
-        return false;
+    QmlItemNode itemNode1 = QmlItemNode(node1);
+    QmlItemNode itemNode2 = QmlItemNode(node2);
+    if (itemNode1.isValid() && itemNode2.isValid())
+        return itemNode1.instancePosition().x() < itemNode2.instancePosition().x();
+    return false;
 }
 
 bool compareByY(const ModelNode &node1, const ModelNode &node2)
 {
-        QmlItemNode itemNode1 = QmlItemNode(node1);
-        QmlItemNode itemNode2 = QmlItemNode(node2);
-        if (itemNode1.isValid() && itemNode2.isValid())
-            return itemNode1.instancePosition().y() < itemNode2.instancePosition().y();
-        return false;
+    QmlItemNode itemNode1 = QmlItemNode(node1);
+    QmlItemNode itemNode2 = QmlItemNode(node2);
+    if (itemNode1.isValid() && itemNode2.isValid())
+        return itemNode1.instancePosition().y() < itemNode2.instancePosition().y();
+    return false;
 }
 
 bool compareByGrid(const ModelNode &node1, const ModelNode &node2)
 {
-        QmlItemNode itemNode1 = QmlItemNode(node1);
-        QmlItemNode itemNode2 = QmlItemNode(node2);
-        if (itemNode1.isValid() && itemNode2.isValid()) {
-            if ((itemNode1.instancePosition().y() + itemNode1.instanceSize().height())  < itemNode2.instancePosition().y())
-                return true;
-            if ((itemNode2.instancePosition().y() + itemNode2.instanceSize().height())  < itemNode1.instancePosition().y())
-                return false; //first sort y (rows)
-            return itemNode1.instancePosition().x() < itemNode2.instancePosition().x();
-        }
-        return false;
+    QmlItemNode itemNode1 = QmlItemNode(node1);
+    QmlItemNode itemNode2 = QmlItemNode(node2);
+    if (itemNode1.isValid() && itemNode2.isValid()) {
+        if ((itemNode1.instancePosition().y() + itemNode1.instanceSize().height())  < itemNode2.instancePosition().y())
+            return true;
+        if ((itemNode2.instancePosition().y() + itemNode2.instanceSize().height())  < itemNode1.instancePosition().y() +  itemNode1.instanceSize().height())
+            return false; //first sort y (rows)
+        return itemNode1.instancePosition().x() < itemNode2.instancePosition().x();
+    }
+    return false;
 }
 
 
@@ -480,10 +482,12 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
                 RewriterTransaction transaction(selectionContext.view(), QByteArrayLiteral("DesignerActionManager|layoutHelperFunction2"));
 
                 QList<ModelNode> sortedSelectedNodes =  selectionContext.selectedModelNodes();
-                qSort(sortedSelectedNodes.begin(), sortedSelectedNodes.end(), lessThan);
+                Utils::sort(sortedSelectedNodes, lessThan);
 
                 setUpperLeftPostionToNode(layoutNode, sortedSelectedNodes);
-                reparentToNodeAndRemovePositionForModelNodes(layoutNode, sortedSelectedNodes);
+                LayoutInGridLayout::reparentToNodeAndRemovePositionForModelNodes(layoutNode, sortedSelectedNodes);
+                if (layoutType.contains("Layout"))
+                    LayoutInGridLayout::setSizeAsPreferredSize(sortedSelectedNodes);
             }
         }
     }
@@ -511,17 +515,98 @@ void layoutFlowPositioner(const SelectionContext &selectionContext)
 
 void layoutRowLayout(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
+    try {
+        LayoutInGridLayout::ensureLayoutImport(selectionContext);
+        layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
+    } catch (RewritingException &e) { //better save then sorry
+        e.showException();
+    }
 }
 
 void layoutColumnLayout(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
+    try {
+        LayoutInGridLayout::ensureLayoutImport(selectionContext);
+        layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
+    } catch (RewritingException &e) { //better save then sorry
+        e.showException();
+    }
 }
 
 void layoutGridLayout(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Layouts.GridLayout", compareByGrid);
+    try {
+        LayoutInGridLayout::ensureLayoutImport(selectionContext);
+        LayoutInGridLayout::layout(selectionContext);
+    } catch (RewritingException &e) { //better save then sorry
+        e.showException();
+    }
+}
+
+void gotoImplementation(const SelectionContext &/*selectionState*/)
+{
+    const QString fileName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toString();
+    const QString typeName = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toFileInfo().baseName();
+
+    QList<QmlJSEditor::FindReferences::Usage> usages = QmlJSEditor::FindReferences::findUsageOfType(fileName, typeName);
+
+    if (usages.isEmpty()) {
+        QString title = QCoreApplication::translate("ModelNodeOperations", "Go to Implementation");
+        QString description = QCoreApplication::translate("ModelNodeOperations", "Cannot find an implementation.");
+        Core::AsynchronousMessageBox::warning(title, description);
+        return;
+    }
+
+    Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    Core::EditorManager::openEditorAt(usages.first().path, usages.first().line, usages.first().col);
+
+}
+
+void removeLayout(const SelectionContext &selectionContext)
+{
+    if (!selectionContext.view()
+            || !selectionContext.hasSingleSelectedModelNode())
+        return;
+
+    ModelNode layout = selectionContext.currentSingleSelectedNode();
+
+    if (!QmlItemNode::isValidQmlItemNode(layout))
+        return;
+
+    QmlItemNode layoutItem(layout);
+
+    QmlItemNode parent = layoutItem.instanceParentItem();
+
+    if (!parent.isValid())
+        return;
+
+    {
+        RewriterTransaction transaction(selectionContext.view(), QByteArrayLiteral("DesignerActionManager|removeLayout"));
+
+        foreach (const ModelNode &modelNode, selectionContext.currentSingleSelectedNode().directSubModelNodes()) {
+            if (QmlItemNode::isValidQmlItemNode(modelNode)) {
+
+                QmlItemNode qmlItem(modelNode);
+                if (modelNode.simplifiedTypeName() == "Item"
+                        && modelNode.id().contains("spacer")) {
+                    qmlItem.destroy();
+                } else {
+                    QPointF pos = qmlItem.instancePosition();
+                    pos = layoutItem.instanceTransform().map(pos);
+                    modelNode.variantProperty("x").setValue(pos.x());
+                    modelNode.variantProperty("y").setValue(pos.y());
+                }
+            }
+            if (modelNode.isValid())
+                parent.modelNode().defaultNodeListProperty().reparentHere(modelNode);
+        }
+        layoutItem.destroy();
+    }
+}
+
+void removePositioner(const SelectionContext &selectionContext)
+{
+    removeLayout(selectionContext);
 }
 
 } // namespace Mode

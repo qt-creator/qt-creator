@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,59 +9,63 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "cppelementevaluator.h"
 
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/symbolfinder.h>
 #include <cpptools/typehierarchybuilder.h>
+
+#include <texteditor/textdocument.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <QDir>
-#include <QFileInfo>
 #include <QSet>
 #include <QQueue>
 
-using namespace CppEditor;
-using namespace Internal;
 using namespace CPlusPlus;
 
-namespace {
-    QStringList stripName(const QString &name) {
-        QStringList all;
-        all << name;
-        int colonColon = 0;
-        const int size = name.size();
-        while ((colonColon = name.indexOf(QLatin1String("::"), colonColon)) != -1) {
-            all << name.right(size - colonColon - 2);
-            colonColon += 2;
-        }
-        return all;
+namespace CppEditor {
+namespace Internal {
+
+static QStringList stripName(const QString &name)
+{
+    QStringList all;
+    all << name;
+    int colonColon = 0;
+    const int size = name.size();
+    while ((colonColon = name.indexOf(QLatin1String("::"), colonColon)) != -1) {
+        all << name.right(size - colonColon - 2);
+        colonColon += 2;
     }
+    return all;
 }
 
-CppElementEvaluator::CppElementEvaluator(CPPEditorWidget *editor) :
+CppElementEvaluator::CppElementEvaluator(TextEditor::TextEditorWidget *editor) :
     m_editor(editor),
-    m_modelManager(CppTools::CppModelManagerInterface::instance()),
+    m_modelManager(CppTools::CppModelManager::instance()),
     m_tc(editor->textCursor()),
     m_lookupBaseClasses(false),
     m_lookupDerivedClasses(false)
@@ -76,7 +80,7 @@ void CppElementEvaluator::setLookupBaseClasses(const bool lookup)
 void CppElementEvaluator::setLookupDerivedClasses(const bool lookup)
 { m_lookupDerivedClasses = lookup; }
 
-// @todo: Consider refactoring code from CPPEditor::findLinkAt into here.
+// @todo: Consider refactoring code from CppEditor::findLinkAt into here.
 void CppElementEvaluator::execute()
 {
     clear();
@@ -85,7 +89,7 @@ void CppElementEvaluator::execute()
         return;
 
     const Snapshot &snapshot = m_modelManager->snapshot();
-    Document::Ptr doc = snapshot.document(m_editor->baseTextDocument()->filePath());
+    Document::Ptr doc = snapshot.document(m_editor->textDocument()->filePath());
     if (!doc)
         return;
 
@@ -100,7 +104,7 @@ void CppElementEvaluator::execute()
         CppTools::moveCursorToEndOfIdentifier(&m_tc);
 
         // Fetch the expression's code
-        ExpressionUnderCursor expressionUnderCursor;
+        ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
         const QString &expression = expressionUnderCursor(m_tc);
         Scope *scope = doc->scopeAt(line, column);
 
@@ -120,7 +124,7 @@ void CppElementEvaluator::execute()
 void CppElementEvaluator::checkDiagnosticMessage(int pos)
 {
     foreach (const QTextEdit::ExtraSelection &sel,
-             m_editor->extraSelections(TextEditor::BaseTextEditorWidget::CodeWarningsSelection)) {
+             m_editor->extraSelections(TextEditor::TextEditorWidget::CodeWarningsSelection)) {
         if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
             m_diagnosis = sel.format.toolTip();
             break;
@@ -128,7 +132,7 @@ void CppElementEvaluator::checkDiagnosticMessage(int pos)
     }
 }
 
-bool CppElementEvaluator::matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line)
+bool CppElementEvaluator::matchIncludeFile(const Document::Ptr &document, unsigned line)
 {
     foreach (const Document::Include &includeFile, document->resolvedIncludes()) {
         if (includeFile.line() == line) {
@@ -139,12 +143,12 @@ bool CppElementEvaluator::matchIncludeFile(const CPlusPlus::Document::Ptr &docum
     return false;
 }
 
-bool CppElementEvaluator::matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos)
+bool CppElementEvaluator::matchMacroInUse(const Document::Ptr &document, unsigned pos)
 {
     foreach (const Document::MacroUse &use, document->macroUses()) {
-        if (use.contains(pos)) {
-            const unsigned begin = use.begin();
-            if (pos < begin + use.macro().name().length()) {
+        if (use.containsUtf16charOffset(pos)) {
+            const unsigned begin = use.utf16charsBegin();
+            if (pos < begin + use.macro().nameToQString().size()) {
                 m_element = QSharedPointer<CppElement>(new CppMacro(use.macro()));
                 return true;
             }
@@ -163,7 +167,7 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
         const QString &type = Overview().prettyType(lookupItem.type(), QString());
         //  special case for bug QTCREATORBUG-4780
         if (scope && scope->isFunction()
-                && lookupItem.type().isEqualTo(scope->asFunction()->returnType())) {
+                && lookupItem.type().match(scope->asFunction()->returnType())) {
             return;
         }
         m_element = QSharedPointer<CppElement>(new Unknown(type));
@@ -177,9 +181,11 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
                        && (declaration->asTemplate()->declaration()->isClass()
                            || declaration->asTemplate()->declaration()->isForwardClassDeclaration()))) {
             LookupContext contextToUse = context;
-            if (declaration->isForwardClassDeclaration())
-                if (Symbol *classDeclaration =
-                        m_symbolFinder.findMatchingClassDeclaration(declaration, snapshot)) {
+            if (declaration->isForwardClassDeclaration()) {
+                const auto symbolFinder = m_modelManager->symbolFinder();
+                Symbol *classDeclaration = symbolFinder->findMatchingClassDeclaration(declaration,
+                                                                                      snapshot);
+                if (classDeclaration) {
                     declaration = classDeclaration;
                     const QString fileName = QString::fromUtf8(declaration->fileName(),
                                                                declaration->fileNameLength());
@@ -187,6 +193,7 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
                     if (declarationDocument != context.thisDocument())
                         contextToUse = LookupContext(declarationDocument, snapshot);
                 }
+            }
 
             CppClass *cppClass = new CppClass(declaration);
             if (m_lookupBaseClasses)
@@ -233,7 +240,7 @@ const QString &CppElementEvaluator::diagnosis() const
     return m_diagnosis;
 }
 
-void CppEditor::Internal::CppElementEvaluator::clear()
+void CppElementEvaluator::clear()
 {
     m_element.clear();
     m_diagnosis.clear();
@@ -257,12 +264,12 @@ Unknown::Unknown(const QString &type) : type(type)
 
 CppInclude::CppInclude(const Document::Include &includeFile) :
     path(QDir::toNativeSeparators(includeFile.resolvedFileName())),
-    fileName(QFileInfo(includeFile.resolvedFileName()).fileName())
+    fileName(Utils::FileName::fromString(includeFile.resolvedFileName()).fileName())
 {
     helpCategory = TextEditor::HelpItem::Brief;
     helpIdCandidates = QStringList(fileName);
     helpMark = fileName;
-    link = CPPEditorWidget::Link(path);
+    link = TextEditor::TextEditorWidget::Link(path);
     tooltip = path;
 }
 
@@ -270,10 +277,10 @@ CppInclude::CppInclude(const Document::Include &includeFile) :
 CppMacro::CppMacro(const Macro &macro)
 {
     helpCategory = TextEditor::HelpItem::Macro;
-    const QString macroName = QLatin1String(macro.name());
+    const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
     helpIdCandidates = QStringList(macroName);
     helpMark = macroName;
-    link = CPPEditorWidget::Link(macro.fileName(), macro.line());
+    link = TextEditor::TextEditorWidget::Link(macro.fileName(), macro.line());
     tooltip = macro.toStringWithLineBreaks();
 }
 
@@ -299,7 +306,7 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
     }
 
     tooltip = overview.prettyType(declaration->type(), qualifiedName);
-    link = CPPEditorWidget::linkToSymbol(declaration);
+    link = CppTools::linkToSymbol(declaration);
     helpMark = name;
 }
 
@@ -322,7 +329,7 @@ bool CppClass::operator==(const CppClass &other)
     return this->declaration == other.declaration;
 }
 
-void CppClass::lookupBases(Symbol *declaration, const CPlusPlus::LookupContext &context)
+void CppClass::lookupBases(Symbol *declaration, const LookupContext &context)
 {
     typedef QPair<ClassOrNamespace *, CppClass *> Data;
 
@@ -353,7 +360,7 @@ void CppClass::lookupBases(Symbol *declaration, const CPlusPlus::LookupContext &
     }
 }
 
-void CppClass::lookupDerived(CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot)
+void CppClass::lookupDerived(Symbol *declaration, const Snapshot &snapshot)
 {
     typedef QPair<CppClass *, CppTools::TypeHierarchy> Data;
 
@@ -446,14 +453,14 @@ CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scop
     }
 }
 
-CppEnumerator::CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration)
+CppEnumerator::CppEnumerator(EnumeratorDeclaration *declaration)
     : CppDeclarableElement(declaration)
 {
     helpCategory = TextEditor::HelpItem::Enum;
 
     Overview overview;
 
-    Symbol *enumSymbol = declaration->enclosingScope()->asEnum();
+    Symbol *enumSymbol = declaration->enclosingScope();
     const QString enumName = overview.prettyName(LookupContext::fullyQualifiedName(enumSymbol));
     const QString enumeratorName = overview.prettyName(declaration->name());
     QString enumeratorValue;
@@ -468,3 +475,6 @@ CppEnumerator::CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration)
     if (!enumeratorValue.isEmpty())
         tooltip.append(QLatin1String(" = ") + enumeratorValue);
 }
+
+} // namespace Internal
+} // namespace CppEditor

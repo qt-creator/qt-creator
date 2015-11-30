@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,13 +37,12 @@
 #include <QTimer>
 #include <QThread>
 #include <QSettings>
+#include <QRegExp>
+#include <QUrl>
 #include <mach/error.h>
+
 /* // annoying to import, do without
-#if QT_VERSION < 0x050000
-#include <private/qcore_mac_p.h>
-#else
 #include <QtCore/private/qcore_mac_p.h>
-#endif
 */
 /* standard calling convention under Win32 is __stdcall */
 /* Note: When compiling Intel EFI (Extensible Firmware Interface) under MS Visual Studio, the */
@@ -62,6 +62,7 @@
 
 static const bool debugGdbServer = false;
 static const bool debugAll = false;
+static const bool verbose = true;
 
 // ------- MobileDeviceLib interface --------
 namespace {
@@ -78,7 +79,7 @@ enum ADNCI_MSG {
 
 extern "C" {
 typedef unsigned int ServiceSocket; // match_port_t (i.e. natural_t) or socket (on windows, i.e sock_t)
-typedef int am_res_t; // mach_error_t
+typedef unsigned int am_res_t; // mach_error_t
 
 #ifndef MOBILE_DEV_DIRECT_LINK
 class AMDeviceNotification;
@@ -126,42 +127,9 @@ typedef am_res_t (MDEV_API *AMDeviceUninstallApplicationPtr)(ServiceSocket, CFSt
                                                                 AMDeviceInstallApplicationCallback,
                                                                 void*);
 typedef am_res_t (MDEV_API *AMDeviceLookupApplicationsPtr)(AMDeviceRef, CFDictionaryRef, CFDictionaryRef *);
+typedef am_res_t (MDEV_API *USBMuxConnectByPortPtr)(unsigned int, int, ServiceSocket*);
+
 } // extern C
-
-QString CFStringRef2QString(CFStringRef s)
-{
-    if (!s)
-        return QString();
-    if (CFGetTypeID(s) != CFStringGetTypeID()) {
-        qDebug() << "CFStringRef2QString argument is not a string!";
-        return QLatin1String("*NON CFStringRef*");
-    }
-    unsigned char buf[250];
-    CFIndex len = CFStringGetLength(s);
-    CFIndex usedBufLen;
-    CFIndex converted = CFStringGetBytes(s, CFRangeMake(0,len), kCFStringEncodingUTF8,
-                                         '?', false, &buf[0], sizeof(buf), &usedBufLen);
-    if (converted == len)
-        return QString::fromUtf8(reinterpret_cast<char *>(&buf[0]), usedBufLen);
-    size_t bufSize = sizeof(buf)
-            + CFStringGetMaximumSizeForEncoding(len - converted, kCFStringEncodingUTF8);
-    unsigned char *bigBuf = new unsigned char[bufSize];
-    memcpy(bigBuf, buf, usedBufLen);
-    CFIndex newUseBufLen;
-    CFStringGetBytes(s, CFRangeMake(converted,len), kCFStringEncodingUTF8,
-                     '?', false, &bigBuf[usedBufLen], bufSize, &newUseBufLen);
-    QString res = QString::fromUtf8(reinterpret_cast<char *>(bigBuf), usedBufLen + newUseBufLen);
-    delete[] bigBuf;
-    return res;
-}
-
-CFStringRef CFStringCreateWithQString(const QString &s)
-{
-    QByteArray bytes = s.toUtf8();
-    CFStringRef res = CFStringCreateWithBytes ( 0, reinterpret_cast<const unsigned char *>(bytes.constBegin()), bytes.length(),
-                                                kCFStringEncodingUTF8, false);
-    return res;
-}
 
 } // anonymous namespace
 
@@ -205,6 +173,7 @@ public :
                                                                     AMDeviceInstallApplicationCallback,
                                                                     void*);
     am_res_t deviceLookupApplications(AMDeviceRef, CFDictionaryRef, CFDictionaryRef *);
+    am_res_t connectByPort(unsigned int connectionId, int port, ServiceSocket *resFd);
 
     void addError(const QString &msg);
     void addError(const char *msg);
@@ -231,6 +200,7 @@ private:
     AMDeviceInstallApplicationPtr m_AMDeviceInstallApplication;
     AMDeviceUninstallApplicationPtr m_AMDeviceUninstallApplication;
     AMDeviceLookupApplicationsPtr m_AMDeviceLookupApplications;
+    USBMuxConnectByPortPtr m_USBMuxConnectByPort;
 };
 
 extern "C" {
@@ -244,7 +214,8 @@ public:
     void *userData;
 };
 
-class CommandSession {
+class CommandSession : public DeviceSession
+{
 public:
     virtual ~CommandSession();
     explicit CommandSession(const QString &deviceId);
@@ -262,6 +233,8 @@ public:
     bool startService(const QString &service, ServiceSocket &fd);
     void stopService(ServiceSocket fd);
     void startDeviceLookup(int timeout);
+    bool connectToPort(quint16 port, ServiceSocket *fd) override;
+    int qmljsDebugPort() const override;
     void addError(const QString &msg);
     bool writeAll(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
     bool sendGdbCommand(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
@@ -271,7 +244,6 @@ public:
 
     MobileDeviceLib *lib();
 
-    QString deviceId;
     AMDeviceRef device;
     int progressBase;
     int unexpectedChars;
@@ -300,13 +272,15 @@ public:
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
                         Ios::IosDeviceManager::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
-                     Ios::IosDeviceManager::OpStatus status, int fd);
+                     Ios::IosDeviceManager::OpStatus status, int gdbFd, DeviceSession *deviceSession);
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
                            const QString &info);
     void deviceWithId(QString deviceId, int timeout, DeviceAvailableCallback callback, void *userData);
     int processGdbServer(int fd);
+    void stopGdbServer(int fd, int phase);
 private:
     IosDeviceManager *q;
+    QMutex m_sendMutex;
     QHash<QString, AMDeviceRef> m_devices;
     QMultiHash<QString, PendingDeviceLookup *> m_pendingLookups;
     AMDeviceNotificationRef m_notification;
@@ -331,18 +305,30 @@ public:
     AppOpSession(const QString &deviceId, const QString &bundlePath,
                         const QStringList &extraArgs, Ios::IosDeviceManager::AppOp appOp);
 
-    void deviceCallbackReturned();
+    void deviceCallbackReturned() override;
     bool installApp();
     bool runApp();
-    am_res_t appTransferCallback(CFDictionaryRef dict);
-    am_res_t appInstallCallback(CFDictionaryRef dict);
-    void reportProgress2(int progress, const QString &status);
+    int qmljsDebugPort() const override;
+    am_res_t appTransferCallback(CFDictionaryRef dict) override;
+    am_res_t appInstallCallback(CFDictionaryRef dict) override;
+    void reportProgress2(int progress, const QString &status) override;
     QString appPathOnDevice();
     QString appId();
-    QString commandName();
+    QString commandName() override;
 };
 
-} // namespace Internal
+}
+
+DeviceSession::DeviceSession(const QString &deviceId) :
+    deviceId(deviceId)
+{
+}
+
+DeviceSession::~DeviceSession()
+{
+}
+
+// namespace Internal
 } // namespace Ios
 
 
@@ -481,7 +467,7 @@ void IosDeviceManagerPrivate::addError(QString errorMsg)
 void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
 {
     CFStringRef s = m_lib.deviceCopyDeviceIdentifier(device);
-    QString devId = CFStringRef2QString(s);
+    QString devId = QString::fromCFString(s);
     if (s) CFRelease(s);
     CFRetain(device);
     if (debugAll)
@@ -513,7 +499,7 @@ void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
 void IosDeviceManagerPrivate::removeDevice(AMDeviceRef device)
 {
     CFStringRef s = m_lib.deviceCopyDeviceIdentifier(device);
-    QString devId = CFStringRef2QString(s);
+    QString devId = QString::fromCFString(s);
     if (s)
         CFRelease(s);
     if (debugAll)
@@ -556,9 +542,11 @@ void IosDeviceManagerPrivate::didTransferApp(const QString &bundlePath, const QS
 }
 
 void IosDeviceManagerPrivate::didStartApp(const QString &bundlePath, const QString &deviceId,
-                                       IosDeviceManager::OpStatus status, int fd)
+                                          IosDeviceManager::OpStatus status, int gdbFd,
+                                          DeviceSession *deviceSession)
 {
-    emit IosDeviceManagerPrivate::instance()->q->didStartApp(bundlePath, deviceId, status, fd);
+    emit IosDeviceManagerPrivate::instance()->q->didStartApp(bundlePath, deviceId, status, gdbFd,
+                                                             deviceSession);
 }
 
 void IosDeviceManagerPrivate::isTransferringApp(const QString &bundlePath, const QString &deviceId,
@@ -611,7 +599,10 @@ enum GdbServerStatus {
 int IosDeviceManagerPrivate::processGdbServer(int fd)
 {
     CommandSession session((QString()));
-    session.sendGdbCommand(fd, "vCont;c"); // resume all threads
+    {
+        QMutexLocker l(&m_sendMutex);
+        session.sendGdbCommand(fd, "vCont;c"); // resume all threads
+    }
     GdbServerStatus state = NORMAL_PROCESS;
     int maxRetry = 10;
     int maxSignal = 5;
@@ -691,10 +682,17 @@ int IosDeviceManagerPrivate::processGdbServer(int fd)
                     addError(QLatin1String("hit maximum number of consecutive signals, stopping"));
                     break;
                 }
-                if (session.sendGdbCommand(fd, "vCont;c"))
-                    state = NORMAL_PROCESS;
-                else
-                    break;
+                {
+                    if (signal == 17) {
+                        state = NORMAL_PROCESS; // Ctrl-C to kill the process
+                    } else {
+                        QMutexLocker l(&m_sendMutex);
+                        if (session.sendGdbCommand(fd, "vCont;c"))
+                            state = NORMAL_PROCESS;
+                        else
+                            break;
+                    }
+                }
             } else {
                 maxSignal = 5;
             }
@@ -707,9 +705,19 @@ int IosDeviceManagerPrivate::processGdbServer(int fd)
     return state != INFERIOR_EXITED;
 }
 
+void IosDeviceManagerPrivate::stopGdbServer(int fd, int phase)
+{
+    CommandSession session((QString()));
+    QMutexLocker l(&m_sendMutex);
+    if (phase == 0)
+        session.writeAll(fd,"\x03",1);
+    else
+        session.sendGdbCommand(fd, "k", 1);
+}
+
 // ------- ConnectSession implementation --------
 
-CommandSession::CommandSession(const QString &deviceId) : deviceId(deviceId), device(0),
+CommandSession::CommandSession(const QString &deviceId) : DeviceSession(deviceId), device(0),
     progressBase(0), unexpectedChars(0), aknowledge(true)
 { }
 
@@ -765,7 +773,7 @@ bool CommandSession::startService(const QString &serviceName, ServiceSocket &fd)
     fd = 0;
     if (!connectDevice())
         return false;
-    CFStringRef cfsService = CFStringCreateWithQString(serviceName);
+    CFStringRef cfsService = serviceName.toCFString();
     if (am_res_t error = lib()->deviceStartService(device, cfsService, &fd, 0)) {
         addError(QString::fromLatin1("startService on device %1 failed, AMDeviceStartService returned %2")
                  .arg(deviceId).arg(error));
@@ -775,6 +783,32 @@ bool CommandSession::startService(const QString &serviceName, ServiceSocket &fd)
     CFRelease(cfsService);
     disconnectDevice();
     return !failure;
+}
+
+bool CommandSession::connectToPort(quint16 port, ServiceSocket *fd)
+{
+    if (!fd)
+        return false;
+    bool failure = false;
+    *fd = 0;
+    ServiceSocket fileDescriptor;
+    if (!connectDevice())
+        return false;
+    if (am_res_t error = lib()->connectByPort(lib()->deviceGetConnectionID(device), htons(port), &fileDescriptor)) {
+        addError(QString::fromLatin1("connectByPort on device %1 port %2 failed, AMDeviceStartService returned %3")
+                 .arg(deviceId).arg(port).arg(error));
+        failure = true;
+        *fd = -1;
+    } else {
+        *fd = fileDescriptor;
+    }
+    disconnectDevice();
+    return !failure;
+}
+
+int CommandSession::qmljsDebugPort() const
+{
+    return 0;
 }
 
 void CommandSession::stopService(ServiceSocket fd)
@@ -791,7 +825,7 @@ void CommandSession::startDeviceLookup(int timeout)
 
 void CommandSession::addError(const QString &msg)
 {
-    if (debugAll)
+    if (verbose)
         qDebug() << "CommandSession ERROR: " << msg;
     IosDeviceManagerPrivate::instance()->addError(commandName() + msg);
 }
@@ -959,7 +993,7 @@ void CommandSession::reportProgress(CFDictionaryRef dict)
     CFStringRef cfStatus;
     if (CFDictionaryGetValueIfPresent(dict, CFSTR("Status"), reinterpret_cast<const void **>(&cfStatus))) {
         if (cfStatus && CFGetTypeID(cfStatus) == CFStringGetTypeID())
-            status = CFStringRef2QString(cfStatus);
+            status = QString::fromCFString(cfStatus);
     }
     quint32 progress = 0;
     CFNumberRef cfProgress;
@@ -985,7 +1019,7 @@ bool CommandSession::expectGdbReply(ServiceSocket gdbFd, QByteArray expected)
 {
     QByteArray repl = readGdbReply(gdbFd);
     if (repl != expected) {
-        addError(QString::fromLatin1("Unexpected reply: %1 (%2) vs %3 (%3)")
+        addError(QString::fromLatin1("Unexpected reply: %1 (%2) vs %3 (%4)")
                  .arg(QString::fromLocal8Bit(repl.constData(), repl.size()))
                  .arg(QString::fromLatin1(repl.toHex().constData(), 2*repl.size()))
                  .arg(QString::fromLocal8Bit(expected.constData(), expected.size()))
@@ -1015,6 +1049,218 @@ QString AppOpSession::commandName()
     return QString::fromLatin1("TransferAppSession(%1, %2)").arg(deviceId, bundlePath);
 }
 
+static QString mobileDeviceErrorString(am_res_t code)
+{
+    static const char *errorStrings[] = {
+        "kAMDSuccess", // 0x0
+        "kAMDUndefinedError", // 0xe8000001
+        "kAMDBadHeaderError",
+        "kAMDNoResourcesError",
+        "kAMDReadError",
+        "kAMDWriteError",
+        "kAMDUnknownPacketError",
+        "kAMDInvalidArgumentError",
+        "kAMDNotFoundError",
+        "kAMDIsDirectoryError",
+        "kAMDPermissionError",
+        "kAMDNotConnectedError",
+        "kAMDTimeOutError",
+        "kAMDOverrunError",
+        "kAMDEOFError",
+        "kAMDUnsupportedError",
+        "kAMDFileExistsError",
+        "kAMDBusyError",
+        "kAMDCryptoError",
+        "kAMDInvalidResponseError",
+        "kAMDMissingKeyError",
+        "kAMDMissingValueError",
+        "kAMDGetProhibitedError",
+        "kAMDSetProhibitedError",
+        "kAMDRemoveProhibitedError",
+        "kAMDImmutableValueError",
+        "kAMDPasswordProtectedError",
+        "kAMDMissingHostIDError",
+        "kAMDInvalidHostIDError",
+        "kAMDSessionActiveError",
+        "kAMDSessionInactiveError",
+        "kAMDMissingSessionIDError",
+        "kAMDInvalidSessionIDError",
+        "kAMDMissingServiceError",
+        "kAMDInvalidServiceError",
+        "kAMDInvalidCheckinError",
+        "kAMDCheckinTimeoutError",
+        "kAMDMissingPairRecordError",
+        "kAMDInvalidActivationRecordError",
+        "kAMDMissingActivationRecordError",
+        "kAMDWrongDroidError",
+        "kAMDSUVerificationError",
+        "kAMDSUPatchError",
+        "kAMDSUFirmwareError",
+        "kAMDProvisioningProfileNotValid",
+        "kAMDSendMessageError",
+        "kAMDReceiveMessageError",
+        "kAMDMissingOptionsError",
+        "kAMDMissingImageTypeError",
+        "kAMDDigestFailedError",
+        "kAMDStartServiceError",
+        "kAMDInvalidDiskImageError",
+        "kAMDMissingDigestError",
+        "kAMDMuxError",
+        "kAMDApplicationAlreadyInstalledError",
+        "kAMDApplicationMoveFailedError",
+        "kAMDApplicationSINFCaptureFailedError",
+        "kAMDApplicationSandboxFailedError",
+        "kAMDApplicationVerificationFailedError",
+        "kAMDArchiveDestructionFailedError",
+        "kAMDBundleVerificationFailedError",
+        "kAMDCarrierBundleCopyFailedError",
+        "kAMDCarrierBundleDirectoryCreationFailedError",
+        "kAMDCarrierBundleMissingSupportedSIMsError",
+        "kAMDCommCenterNotificationFailedError",
+        "kAMDContainerCreationFailedError",
+        "kAMDContainerP0wnFailedError",
+        "kAMDContainerRemovalFailedError",
+        "kAMDEmbeddedProfileInstallFailedError",
+        "kAMDErrorError",
+        "kAMDExecutableTwiddleFailedError",
+        "kAMDExistenceCheckFailedError",
+        "kAMDInstallMapUpdateFailedError",
+        "kAMDManifestCaptureFailedError",
+        "kAMDMapGenerationFailedError",
+        "kAMDMissingBundleExecutableError",
+        "kAMDMissingBundleIdentifierError",
+        "kAMDMissingBundlePathError",
+        "kAMDMissingContainerError",
+        "kAMDNotificationFailedError",
+        "kAMDPackageExtractionFailedError",
+        "kAMDPackageInspectionFailedError",
+        "kAMDPackageMoveFailedError",
+        "kAMDPathConversionFailedError",
+        "kAMDRestoreContainerFailedError",
+        "kAMDSeatbeltProfileRemovalFailedError",
+        "kAMDStageCreationFailedError",
+        "kAMDSymlinkFailedError",
+        "kAMDiTunesArtworkCaptureFailedError",
+        "kAMDiTunesMetadataCaptureFailedError",
+        "kAMDAlreadyArchivedError",
+        "kAMDServiceLimitError",
+        "kAMDInvalidPairRecordError",
+        "kAMDServiceProhibitedError",
+        "kAMDCheckinSetupFailedError",
+        "kAMDCheckinConnectionFailedError",
+        "kAMDCheckinReceiveFailedError",
+        "kAMDCheckinResponseFailedError",
+        "kAMDCheckinSendFailedError",
+        "kAMDMuxCreateListenerError",
+        "kAMDMuxGetListenerError",
+        "kAMDMuxConnectError",
+        "kAMDUnknownCommandError",
+        "kAMDAPIInternalError",
+        "kAMDSavePairRecordFailedError",
+        "kAMDCheckinOutOfMemoryError",
+        "kAMDDeviceTooNewError",
+        "kAMDDeviceRefNoGood",
+        "kAMDCannotTranslateError",
+        "kAMDMobileImageMounterMissingImageSignature",
+        "kAMDMobileImageMounterResponseCreationFailed",
+        "kAMDMobileImageMounterMissingImageType",
+        "kAMDMobileImageMounterMissingImagePath",
+        "kAMDMobileImageMounterImageMapLoadFailed",
+        "kAMDMobileImageMounterAlreadyMounted",
+        "kAMDMobileImageMounterImageMoveFailed",
+        "kAMDMobileImageMounterMountPathMissing",
+        "kAMDMobileImageMounterMountPathNotEmpty",
+        "kAMDMobileImageMounterImageMountFailed",
+        "kAMDMobileImageMounterTrustCacheLoadFailed",
+        "kAMDMobileImageMounterDigestFailed",
+        "kAMDMobileImageMounterDigestCreationFailed",
+        "kAMDMobileImageMounterImageVerificationFailed",
+        "kAMDMobileImageMounterImageInfoCreationFailed",
+        "kAMDMobileImageMounterImageMapStoreFailed",
+        "kAMDBonjourSetupError",
+        "kAMDDeviceOSVersionTooLow",
+        "kAMDNoWifiSyncSupportError",
+        "kAMDDeviceFamilyNotSupported",
+        "kAMDEscrowLockedError",
+        "kAMDPairingProhibitedError",
+        "kAMDProhibitedBySupervision",
+        "kAMDDeviceDisconnectedError",
+        "kAMDTooBigError",
+        "kAMDPackagePatchFailedError",
+        "kAMDIncorrectArchitectureError",
+        "kAMDPluginCopyFailedError",
+        "kAMDBreadcrumbFailedError",
+        "kAMDBreadcrumbUnlockError",
+        "kAMDGeoJSONCaptureFailedError",
+        "kAMDNewsstandArtworkCaptureFailedError",
+        "kAMDMissingCommandError",
+        "kAMDNotEntitledError",
+        "kAMDMissingPackagePathError",
+        "kAMDMissingContainerPathError",
+        "kAMDMissingApplicationIdentifierError",
+        "kAMDMissingAttributeValueError",
+        "kAMDLookupFailedError",
+        "kAMDDictCreationFailedError",
+        "kAMDUserDeniedPairingError",
+        "kAMDPairingDialogResponsePendingError",
+        "kAMDInstallProhibitedError",
+        "kAMDUninstallProhibitedError",
+        "kAMDFMiPProtectedError",
+        "kAMDMCProtected",
+        "kAMDMCChallengeRequired",
+        "kAMDMissingBundleVersionError" // 0xe800009c
+    };
+
+    CFStringRef key = NULL;
+    static const size_t errorStringLast = ((sizeof(errorStrings) / sizeof(char *)) - 1) | 0xe8000000;
+    if (code <= errorStringLast) {
+        // Mask off some bits to get an index into the known error names array
+        key = QString::fromLatin1(errorStrings[code & ~0xe8000000]).toCFString();
+    } else {
+        // Some errors don't have constant names; check a few other known error codes
+        switch (code) {
+        case 0xe8008015:
+            key = CFSTR("A valid provisioning profile for this executable was not found.");
+            break;
+        case 0xe8008016:
+            key = CFSTR("The executable was signed with invalid entitlements.");
+            break;
+        case 0xe8008017:
+            key = CFSTR("A signed resource has been added, modified, or deleted.");
+            break;
+        case 0xe8008018:
+            key = CFSTR("The identity used to sign the executable is no longer valid.");
+            break;
+        case 0xe8008019:
+            key = CFSTR("The application does not have a valid signature.");
+            break;
+        case 0xe800801c:
+            key = CFSTR("The signature was not valid.");
+            break;
+        default:
+            return QString();
+        }
+
+        CFRetain(key);
+    }
+
+    CFURLRef url = QUrl::fromLocalFile(
+        QStringLiteral("/System/Library/PrivateFrameworks/MobileDevice.framework")).toCFURL();
+    CFBundleRef mobileDeviceBundle = CFBundleCreate(kCFAllocatorDefault, url);
+    CFRelease(url);
+
+    QString s;
+    if (mobileDeviceBundle) {
+        CFStringRef str = CFCopyLocalizedStringFromTableInBundle(key, CFSTR("Localizable"),
+                                                                 mobileDeviceBundle, nil);
+
+        s = QString::fromCFString(str);
+        CFRelease(str);
+    }
+
+    CFRelease(key);
+    return s;
+}
 
 bool AppOpSession::installApp()
 {
@@ -1023,7 +1269,7 @@ bool AppOpSession::installApp()
     if (!failure) {
         failure = !startService(QLatin1String("com.apple.afc"), fd);
         if (!failure) {
-            CFStringRef cfsBundlePath = CFStringCreateWithQString(bundlePath);
+            CFStringRef cfsBundlePath = bundlePath.toCFString();
             if (am_res_t error = lib()->deviceTransferApplication(fd, cfsBundlePath, 0,
                                                              &appTransferSessionCallback,
                                                              static_cast<CommandSession *>(this))) {
@@ -1041,7 +1287,7 @@ bool AppOpSession::installApp()
     if (!failure) {
         failure = !startService(QLatin1String("com.apple.mobile.installation_proxy"), fd);
         if (!failure) {
-            CFStringRef cfsBundlePath = CFStringCreateWithQString(bundlePath);
+            CFStringRef cfsBundlePath = bundlePath.toCFString();
 
             CFStringRef key[1] = {CFSTR("PackageType")};
             CFStringRef value[1] = {CFSTR("Developer")};
@@ -1053,8 +1299,16 @@ bool AppOpSession::installApp()
             if (am_res_t error = lib()->deviceInstallApplication(fd, cfsBundlePath, options,
                                                                    &appInstallSessionCallback,
                                                                    static_cast<CommandSession *>(this))) {
-                addError(QString::fromLatin1("InstallAppSession(%1,%2) failed, AMDeviceInstallApplication returned %3")
-                         .arg(bundlePath, deviceId).arg(error));
+                const QString errorString = mobileDeviceErrorString(error);
+                if (!errorString.isEmpty())
+                    addError(errorString
+                             + QStringLiteral(" (0x")
+                             + QString::number(error, 16)
+                             + QStringLiteral(")"));
+                else
+                    addError(QString::fromLatin1("InstallAppSession(%1,%2) failed, "
+                                                 "AMDeviceInstallApplication returned 0x%3")
+                             .arg(bundlePath, deviceId).arg(QString::number(error, 16)));
                 failure = true;
             }
             progressBase += 100;
@@ -1088,6 +1342,20 @@ void AppOpSession::deviceCallbackReturned()
         runApp();
         break;
     }
+}
+
+int AppOpSession::qmljsDebugPort() const
+{
+    QRegExp qmlPortRe = QRegExp(QLatin1String("-qmljsdebugger=port:([0-9]+)"));
+    foreach (const QString &arg, extraArgs) {
+        if (qmlPortRe.indexIn(arg) == 0) {
+            bool ok;
+            int res = qmlPortRe.cap(1).toInt(&ok);
+            if (ok && res >0 && res <= 0xFFFF)
+                return res;
+        }
+    }
+    return 0;
 }
 
 bool AppOpSession::runApp()
@@ -1128,7 +1396,7 @@ bool AppOpSession::runApp()
     }
     IosDeviceManagerPrivate::instance()->didStartApp(
                 bundlePath, deviceId,
-                (failure ? IosDeviceManager::Failure : IosDeviceManager::Success), gdbFd);
+                (failure ? IosDeviceManager::Failure : IosDeviceManager::Success), gdbFd, this);
     return !failure;
 }
 
@@ -1171,16 +1439,16 @@ QString AppOpSession::appPathOnDevice()
     if (debugAll)
         CFShow(apps);
     if (apps && CFGetTypeID(apps) == CFDictionaryGetTypeID()) {
-        CFStringRef cfAppId = CFStringCreateWithQString(appId());
+        CFStringRef cfAppId = appId().toCFString();
         CFDictionaryRef cfAppInfo = 0;
         if (CFDictionaryGetValueIfPresent(apps, cfAppId, reinterpret_cast<const void**>(&cfAppInfo))) {
             if (cfAppInfo && CFGetTypeID(cfAppInfo) == CFDictionaryGetTypeID()) {
                 CFStringRef cfPath, cfBundleExe;
                 QString path, bundleExe;
                 if (CFDictionaryGetValueIfPresent(cfAppInfo, CFSTR("Path"), reinterpret_cast<const void **>(&cfPath)))
-                    path = CFStringRef2QString(cfPath);
+                    path = QString::fromCFString(cfPath);
                 if (CFDictionaryGetValueIfPresent(cfAppInfo, CFSTR("CFBundleExecutable"), reinterpret_cast<const void **>(&cfBundleExe)))
-                    bundleExe = CFStringRef2QString(cfBundleExe);
+                    bundleExe = QString::fromCFString(cfBundleExe);
                 if (!path.isEmpty() && ! bundleExe.isEmpty())
                     res = path + QLatin1Char('/') + bundleExe;
             }
@@ -1238,7 +1506,7 @@ void DevInfoSession::deviceCallbackReturned()
             // CFShow(cfDeviceName);
             if (cfDeviceName) {
                 if (CFGetTypeID(cfDeviceName) == CFStringGetTypeID())
-                    res[deviceNameKey] = CFStringRef2QString(reinterpret_cast<CFStringRef>(cfDeviceName));
+                    res[deviceNameKey] = QString::fromCFString(reinterpret_cast<CFStringRef>(cfDeviceName));
                 CFRelease(cfDeviceName);
             }
             if (!res.contains(deviceNameKey))
@@ -1251,7 +1519,7 @@ void DevInfoSession::deviceCallbackReturned()
             // CFShow(cfDevStatus);
             if (cfDevStatus) {
                 if (CFGetTypeID(cfDevStatus) == CFStringGetTypeID())
-                    res[developerStatusKey] = CFStringRef2QString(reinterpret_cast<CFStringRef>(cfDevStatus));
+                    res[developerStatusKey] = QString::fromCFString(reinterpret_cast<CFStringRef>(cfDevStatus));
                 CFRelease(cfDevStatus);
             }
             if (!res.contains(developerStatusKey))
@@ -1269,13 +1537,13 @@ void DevInfoSession::deviceCallbackReturned()
             QString versionString;
             if (cfProductVersion) {
                 if (CFGetTypeID(cfProductVersion) == CFStringGetTypeID())
-                    versionString = CFStringRef2QString(reinterpret_cast<CFStringRef>(cfProductVersion));
+                    versionString = QString::fromCFString(reinterpret_cast<CFStringRef>(cfProductVersion));
                 CFRelease(cfProductVersion);
             }
             if (cfBuildVersion) {
                 if (!versionString.isEmpty() && CFGetTypeID(cfBuildVersion) == CFStringGetTypeID())
                     versionString += QString::fromLatin1(" (%1)").arg(
-                                CFStringRef2QString(reinterpret_cast<CFStringRef>(cfBuildVersion)));
+                                QString::fromCFString(reinterpret_cast<CFStringRef>(cfBuildVersion)));
                     CFRelease(cfBuildVersion);
             }
             if (!versionString.isEmpty())
@@ -1326,6 +1594,7 @@ bool MobileDeviceLib::load()
     m_AMDeviceInstallApplication = &AMDeviceInstallApplication;
     //m_AMDeviceUninstallApplication = &AMDeviceUninstallApplication;
     //m_AMDeviceLookupApplications = &AMDeviceLookupApplications;
+    m_USBMuxConnectByPort = &USBMuxConnectByPort;
 #else
     QLibrary *libAppleFSCompression = new QLibrary(QLatin1String("/System/Library/PrivateFrameworks/AppleFSCompression.framework/AppleFSCompression"));
     if (!libAppleFSCompression->load())
@@ -1395,6 +1664,9 @@ bool MobileDeviceLib::load()
     m_AMDeviceLookupApplications = reinterpret_cast<AMDeviceLookupApplicationsPtr>(lib.resolve("AMDeviceLookupApplications"));
     if (m_AMDeviceLookupApplications == 0)
         addError("MobileDeviceLib does not define AMDeviceLookupApplications");
+    m_USBMuxConnectByPort = reinterpret_cast<USBMuxConnectByPortPtr>(lib.resolve("USBMuxConnectByPort"));
+    if (m_USBMuxConnectByPort == 0)
+        addError("MobileDeviceLib does not define USBMuxConnectByPort");
 #endif
     return true;
 }
@@ -1557,6 +1829,13 @@ am_res_t MobileDeviceLib::deviceLookupApplications(AMDeviceRef device, CFDiction
     return -1;
 }
 
+am_res_t MobileDeviceLib::connectByPort(unsigned int connectionId, int port, ServiceSocket *resFd)
+{
+    if (m_USBMuxConnectByPort)
+        return m_USBMuxConnectByPort(connectionId, port, resFd);
+    return -1;
+}
+
 void MobileDeviceLib::addError(const QString &msg)
 {
     qDebug() << "MobileDeviceLib ERROR:" << msg;
@@ -1613,6 +1892,11 @@ void IosDeviceManager::requestDeviceInfo(const QString &deviceId, int timeout)
 int IosDeviceManager::processGdbServer(int fd)
 {
     return d->processGdbServer(fd);
+}
+
+void IosDeviceManager::stopGdbServer(int fd, int phase)
+{
+    return d->stopGdbServer(fd, phase);
 }
 
 QStringList IosDeviceManager::errors() {

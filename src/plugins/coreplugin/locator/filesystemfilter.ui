@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add Filter Configuration</string>
+   <string notr="true">Filter Configuration</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="prefixLabel">
      <property name="text">
-      <string>Prefix:</string>
+      <string notr="true">Prefix:</string>
      </property>
      <property name="buddy">
       <cstring>shortcutEdit</cstring>
@@ -28,9 +28,9 @@
     <widget class="QLineEdit" name="shortcutEdit"/>
    </item>
    <item row="1" column="2">
-    <widget class="QCheckBox" name="limitCheck">
+    <widget class="QCheckBox" name="includeByDefault">
      <property name="text">
-      <string>Limit to prefix</string>
+      <string notr="true">Include by default</string>
      </property>
     </widget>
    </item>

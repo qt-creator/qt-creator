@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,6 +34,7 @@
 #include <coreplugin/find/findplugin.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -54,7 +56,7 @@ FindInFiles::FindInFiles()
     m_directory(0)
 {
     m_instance = this;
-    connect(Core::EditorManager::instance(), SIGNAL(findOnFileSystemRequest(QString)),
+    connect(EditorManager::instance(), SIGNAL(findOnFileSystemRequest(QString)),
             this, SLOT(findOnFileSystem(QString)));
 }
 
@@ -69,10 +71,10 @@ QString FindInFiles::id() const
 
 QString FindInFiles::displayName() const
 {
-    return tr("Files on File System");
+    return tr("Files in File System");
 }
 
-void FindInFiles::findAll(const QString &txt, Core::FindFlags findFlags)
+void FindInFiles::findAll(const QString &txt, FindFlags findFlags)
 {
     updateComboEntries(m_directory, true);
     BaseFileFind::findAll(txt, findFlags);
@@ -83,7 +85,7 @@ Utils::FileIterator *FindInFiles::files(const QStringList &nameFilters,
 {
     return new Utils::SubDirFileIterator(QStringList() << additionalParameters.toString(),
                                          nameFilters,
-                                         Core::EditorManager::defaultTextCodec());
+                                         EditorManager::defaultTextCodec());
 }
 
 QVariant FindInFiles::additionalParameters() const
@@ -96,7 +98,7 @@ QString FindInFiles::label() const
     const QChar slash = QLatin1Char('/');
     const QStringList &nonEmptyComponents = path().toFileInfo().absoluteFilePath()
             .split(slash, QString::SkipEmptyParts);
-    return tr("Directory '%1':").arg(nonEmptyComponents.isEmpty() ? QString(slash) : nonEmptyComponents.last());
+    return tr("Directory \"%1\":").arg(nonEmptyComponents.isEmpty() ? QString(slash) : nonEmptyComponents.last());
 }
 
 QString FindInFiles::toolTip() const
@@ -104,7 +106,7 @@ QString FindInFiles::toolTip() const
     //: %3 is filled by BaseFileFind::runNewSearch
     return tr("Path: %1\nFilter: %2\n%3")
             .arg(path().toUserOutput())
-            .arg(fileNameFilters().join(QLatin1String(",")));
+            .arg(fileNameFilters().join(QLatin1Char(',')));
 }
 
 QWidget *FindInFiles::createConfigWidget()
@@ -128,7 +130,7 @@ QWidget *FindInFiles::createConfigWidget()
         syncComboWithSettings(m_directory, m_directorySetting.toUserOutput());
         dirLabel->setBuddy(m_directory);
         gridLayout->addWidget(m_directory, 0, 1);
-        QPushButton *browseButton = new QPushButton(tr("&Browse..."));
+        QPushButton *browseButton = new QPushButton(Utils::PathChooser::browseButtonLabel());
         gridLayout->addWidget(browseButton, 0, 2);
         connect(browseButton, SIGNAL(clicked()), this, SLOT(openFileBrowser()));
 

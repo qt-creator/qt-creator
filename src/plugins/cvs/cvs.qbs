@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "CVS"
@@ -15,10 +13,6 @@ QtcPlugin {
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
-        "checkoutwizard.cpp",
-        "checkoutwizard.h",
-        "checkoutwizardpage.cpp",
-        "checkoutwizardpage.h",
         "cvs.qrc",
         "cvsclient.cpp",
         "cvsclient.h",

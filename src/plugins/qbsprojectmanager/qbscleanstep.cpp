@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -38,6 +39,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
@@ -78,8 +80,9 @@ QbsCleanStep::~QbsCleanStep()
     }
 }
 
-bool QbsCleanStep::init()
+bool QbsCleanStep::init(QList<const BuildStep *> &earlierSteps)
 {
+    Q_UNUSED(earlierSteps);
     if (static_cast<QbsProject *>(project())->isParsing() || m_job)
         return false;
 
@@ -104,6 +107,7 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
 
     if (!m_job) {
         m_fi->reportResult(false);
+        emit finished();
         return;
     }
 
@@ -181,7 +185,7 @@ void QbsCleanStep::cleaningDone(bool success)
     // Report errors:
     foreach (const qbs::ErrorItem &item, m_job->error().items()) {
         createTaskAndOutput(ProjectExplorer::Task::Error, item.description(),
-                            item.codeLocation().fileName(), item.codeLocation().line());
+                            item.codeLocation().filePath(), item.codeLocation().line());
     }
 
     QTC_ASSERT(m_fi, return);
@@ -209,9 +213,10 @@ void QbsCleanStep::handleProgress(int value)
 
 void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message, const QString &file, int line)
 {
-    emit addTask(ProjectExplorer::Task(type, message,
-                                       Utils::FileName::fromString(file), line,
-                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
+    ProjectExplorer::Task task = ProjectExplorer::Task(type, message,
+                                                       Utils::FileName::fromString(file), line,
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+    emit addTask(task, 1);
     emit addOutput(message, NormalOutput);
 }
 
@@ -270,6 +275,11 @@ QbsCleanStepConfigWidget::QbsCleanStepConfigWidget(QbsCleanStep *step) :
     updateState();
 }
 
+QbsCleanStepConfigWidget::~QbsCleanStepConfigWidget()
+{
+    delete m_ui;
+}
+
 QString QbsCleanStepConfigWidget::summaryText() const
 {
     return m_summary;
@@ -286,13 +296,7 @@ void QbsCleanStepConfigWidget::updateState()
     m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
     m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
 
-    QString command = QLatin1String("qbs clean ");
-    if (m_step->dryRun())
-        command += QLatin1String("--dry-run ");
-    if (m_step->keepGoing())
-        command += QLatin1String("--keep-going ");
-    if (m_step->cleanAll())
-        command += QLatin1String(" --all-artifacts");
+    QString command = QbsBuildConfiguration::equivalentCommandLine(m_step);
     m_ui->commandLineTextEdit->setPlainText(command);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
@@ -338,14 +342,14 @@ QList<Core::Id> QbsCleanStepFactory::availableCreationIds(ProjectExplorer::Build
     return QList<Core::Id>();
 }
 
-QString QbsCleanStepFactory::displayNameForId(const Core::Id id) const
+QString QbsCleanStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == Core::Id(Constants::QBS_CLEANSTEP_ID))
         return tr("Qbs Clean");
     return QString();
 }
 
-bool QbsCleanStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
+bool QbsCleanStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const
 {
     if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
             || !qobject_cast<QbsBuildConfiguration *>(parent->parent()))
@@ -353,7 +357,7 @@ bool QbsCleanStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, cons
     return id == Core::Id(Constants::QBS_CLEANSTEP_ID);
 }
 
-ProjectExplorer::BuildStep *QbsCleanStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
+ProjectExplorer::BuildStep *QbsCleanStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

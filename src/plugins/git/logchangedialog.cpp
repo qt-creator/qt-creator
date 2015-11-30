@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,8 +32,8 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 
-#include <vcsbase/vcsbaseoutputwindow.h>
-#include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsoutputwindow.h>
+#include <vcsbase/vcscommand.h>
 
 #include <utils/qtcassert.h>
 
@@ -59,7 +60,7 @@ enum Columns
 };
 
 LogChangeWidget::LogChangeWidget(QWidget *parent)
-    : QTreeView(parent)
+    : Utils::TreeView(parent)
     , m_model(new QStandardItemModel(0, ColumnCount, this))
     , m_hasCustomDelegate(false)
 {
@@ -71,7 +72,8 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     setUniformRowHeights(true);
     setRootIsDecorated(false);
     setSelectionBehavior(QAbstractItemView::SelectRows);
-    connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(emitDoubleClicked(QModelIndex)));
+    setActivationMode(Utils::DoubleClickActivation);
+    connect(this, &LogChangeWidget::activated, this, &LogChangeWidget::emitCommitActivated);
 }
 
 bool LogChangeWidget::init(const QString &repository, const QString &commit, LogFlags flags)
@@ -81,8 +83,8 @@ bool LogChangeWidget::init(const QString &repository, const QString &commit, Log
     if (m_model->rowCount() > 0)
         return true;
     if (!(flags & Silent)) {
-        VcsBaseOutputWindow::instance()->appendError(
-                    GitPlugin::instance()->gitClient()->msgNoCommits(flags & IncludeRemotes));
+        VcsOutputWindow::appendError(
+                    GitPlugin::instance()->client()->msgNoCommits(flags & IncludeRemotes));
     }
     return false;
 }
@@ -114,23 +116,23 @@ QString LogChangeWidget::earliestCommit() const
 
 void LogChangeWidget::setItemDelegate(QAbstractItemDelegate *delegate)
 {
-    QTreeView::setItemDelegate(delegate);
+    Utils::TreeView::setItemDelegate(delegate);
     m_hasCustomDelegate = true;
 }
 
-void LogChangeWidget::emitDoubleClicked(const QModelIndex &index)
+void LogChangeWidget::emitCommitActivated(const QModelIndex &index)
 {
     if (index.isValid()) {
         QString commit = index.sibling(index.row(), Sha1Column).data().toString();
         if (!commit.isEmpty())
-            emit doubleClicked(commit);
+            emit commitActivated(commit);
     }
 }
 
 void LogChangeWidget::selectionChanged(const QItemSelection &selected,
                                        const QItemSelection &deselected)
 {
-    QTreeView::selectionChanged(selected, deselected);
+    Utils::TreeView::selectionChanged(selected, deselected);
     if (!m_hasCustomDelegate)
         return;
     const QModelIndexList previousIndexes = deselected.indexes();
@@ -155,21 +157,21 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
         m_model->removeRows(0, rowCount);
 
     // Retrieve log using a custom format "Sha1:Subject [(refs)]"
-    GitClient *client = GitPlugin::instance()->gitClient();
+    GitClient *client = GitPlugin::instance()->client();
     QStringList arguments;
     arguments << QLatin1String("--max-count=1000") << QLatin1String("--format=%h:%s %d");
     arguments << (commit.isEmpty() ? QLatin1String("HEAD") : commit);
     if (!(flags & IncludeRemotes))
         arguments << QLatin1String("--not") << QLatin1String("--remotes");
     QString output;
-    if (!client->synchronousLog(repository, arguments, &output, 0, VcsBasePlugin::NoOutput))
+    if (!client->synchronousLog(repository, arguments, &output, 0, VcsCommand::NoOutput))
         return false;
     foreach (const QString &line, output.split(QLatin1Char('\n'))) {
         const int colonPos = line.indexOf(QLatin1Char(':'));
         if (colonPos != -1) {
             QList<QStandardItem *> row;
             for (int c = 0; c < ColumnCount; ++c) {
-                QStandardItem *item = new QStandardItem;
+                auto item = new QStandardItem;
                 item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
                 if (line.endsWith(QLatin1Char(')'))) {
                     QFont font = item->font();
@@ -204,18 +206,18 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     , m_dialogButtonBox(new QDialogButtonBox(this))
     , m_resetTypeComboBox(0)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->addWidget(new QLabel(isReset ? tr("Reset to:") : tr("Select change:"), this));
     layout->addWidget(m_widget);
-    QHBoxLayout *popUpLayout = new QHBoxLayout;
+    auto popUpLayout = new QHBoxLayout;
     if (isReset) {
         popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
         m_resetTypeComboBox = new QComboBox(this);
         m_resetTypeComboBox->addItem(tr("Hard"), QLatin1String("--hard"));
         m_resetTypeComboBox->addItem(tr("Mixed"), QLatin1String("--mixed"));
         m_resetTypeComboBox->addItem(tr("Soft"), QLatin1String("--soft"));
-        GitClient *client = GitPlugin::instance()->gitClient();
-        m_resetTypeComboBox->setCurrentIndex(client->settings()->intValue(
+        GitClient *client = GitPlugin::instance()->client();
+        m_resetTypeComboBox->setCurrentIndex(client->settings().intValue(
                                                  GitSettings::lastResetIndexKey));
         popUpLayout->addWidget(m_resetTypeComboBox);
         popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
@@ -226,10 +228,10 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     QPushButton *okButton = m_dialogButtonBox->addButton(QDialogButtonBox::Ok);
     layout->addLayout(popUpLayout);
 
-    connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    connect(m_widget, SIGNAL(doubleClicked(QModelIndex)), okButton, SLOT(animateClick()));
+    connect(m_widget, &LogChangeWidget::activated, okButton, [okButton] { okButton->animateClick(); });
 
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     resize(600, 400);
@@ -244,9 +246,9 @@ bool LogChangeDialog::runDialog(const QString &repository,
 
     if (QDialog::exec() == QDialog::Accepted) {
         if (m_resetTypeComboBox) {
-            GitClient *client = GitPlugin::instance()->gitClient();
-            client->settings()->setValue(GitSettings::lastResetIndexKey,
-                                         m_resetTypeComboBox->currentIndex());
+            GitClient *client = GitPlugin::instance()->client();
+            client->settings().setValue(GitSettings::lastResetIndexKey,
+                                        m_resetTypeComboBox->currentIndex());
         }
         return true;
     }

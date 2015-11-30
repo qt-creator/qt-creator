@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,32 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "directoryfilter.h"
 
-#include <QFileDialog>
+#include <coreplugin/coreconstants.h>
 #include <utils/filesearch.h>
+
+#include <QFileDialog>
+#include <QTimer>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -58,7 +62,7 @@ QByteArray DirectoryFilter::saveState() const
     out << m_filters;
     out << shortcutString();
     out << isIncludedByDefault();
-    out << files();
+    out << m_files;
     return value;
 }
 
@@ -76,13 +80,13 @@ bool DirectoryFilter::restoreState(const QByteArray &state)
     in >> m_filters;
     in >> shortcut;
     in >> defaultFilter;
-    in >> files();
+    in >> m_files;
 
     setDisplayName(name);
     setShortcutString(shortcut);
     setIncludedByDefault(defaultFilter);
 
-    generateFileNames();
+    updateFileIterator();
     return true;
 }
 
@@ -92,22 +96,26 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     QDialog dialog(parent);
     m_dialog = &dialog;
     m_ui.setupUi(&dialog);
-    dialog.setWindowTitle(tr("Filter Configuration"));
-    connect(m_ui.addButton, SIGNAL(clicked()),
-            this, SLOT(addDirectory()), Qt::DirectConnection);
-    connect(m_ui.editButton, SIGNAL(clicked()),
-            this, SLOT(editDirectory()), Qt::DirectConnection);
-    connect(m_ui.removeButton, SIGNAL(clicked()),
-            this, SLOT(removeDirectory()), Qt::DirectConnection);
-    connect(m_ui.directoryList, SIGNAL(itemSelectionChanged()),
-            this, SLOT(updateOptionButtons()), Qt::DirectConnection);
+    dialog.setWindowTitle(ILocatorFilter::msgConfigureDialogTitle());
+    m_ui.prefixLabel->setText(ILocatorFilter::msgPrefixLabel());
+    m_ui.prefixLabel->setToolTip(ILocatorFilter::msgPrefixToolTip());
+    m_ui.defaultFlag->setText(ILocatorFilter::msgIncludeByDefault());
+    m_ui.defaultFlag->setToolTip(ILocatorFilter::msgIncludeByDefaultToolTip());
+    connect(m_ui.addButton, &QPushButton::clicked,
+            this, &DirectoryFilter::addDirectory, Qt::DirectConnection);
+    connect(m_ui.editButton, &QPushButton::clicked,
+            this, &DirectoryFilter::editDirectory, Qt::DirectConnection);
+    connect(m_ui.removeButton, &QPushButton::clicked,
+            this, &DirectoryFilter::removeDirectory, Qt::DirectConnection);
+    connect(m_ui.directoryList, &QListWidget::itemSelectionChanged,
+            this, &DirectoryFilter::updateOptionButtons, Qt::DirectConnection);
     m_ui.nameEdit->setText(displayName());
     m_ui.nameEdit->selectAll();
     m_ui.directoryList->clear();
     m_ui.directoryList->addItems(m_directories);
-    m_ui.fileTypeEdit->setText(m_filters.join(QString(QLatin1Char(','))));
+    m_ui.fileTypeEdit->setText(m_filters.join(QLatin1Char(',')));
     m_ui.shortcutEdit->setText(shortcutString());
-    m_ui.defaultFlag->setChecked(!isIncludedByDefault());
+    m_ui.defaultFlag->setChecked(isIncludedByDefault());
     updateOptionButtons();
     if (dialog.exec() == QDialog::Accepted) {
         QMutexLocker locker(&m_lock);
@@ -127,7 +135,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
         }
         m_filters = m_ui.fileTypeEdit->text().trimmed().split(QLatin1Char(','));
         setShortcutString(m_ui.shortcutEdit->text().trimmed());
-        setIncludedByDefault(!m_ui.defaultFlag->isChecked());
+        setIncludedByDefault(m_ui.defaultFlag->isChecked());
         if (directoriesChanged || oldFilters != m_filters)
             needsRefresh = true;
         success = true;
@@ -168,38 +176,46 @@ void DirectoryFilter::updateOptionButtons()
     m_ui.removeButton->setEnabled(haveSelectedItem);
 }
 
+void DirectoryFilter::updateFileIterator()
+{
+    setFileIterator(new BaseFileFilter::ListIterator(m_files));
+}
+
 void DirectoryFilter::refresh(QFutureInterface<void> &future)
 {
     QStringList directories;
     {
         QMutexLocker locker(&m_lock);
         if (m_directories.count() < 1) {
-            files().clear();
-            generateFileNames();
+            m_files.clear();
+            QTimer::singleShot(0, this, SLOT(updateFileIterator()));
             future.setProgressRange(0, 1);
             future.setProgressValueAndText(1, tr("%1 filter update: 0 files").arg(displayName()));
             return;
         }
         directories = m_directories;
     }
-    Utils::SubDirFileIterator it(directories, m_filters);
-    future.setProgressRange(0, it.maxProgress());
+    Utils::SubDirFileIterator subDirIterator(directories, m_filters);
+    future.setProgressRange(0, subDirIterator.maxProgress());
     QStringList filesFound;
-    while (!future.isCanceled() && it.hasNext()) {
-        filesFound << it.next();
+    auto end = subDirIterator.end();
+    for (auto it = subDirIterator.begin(); it != end; ++it) {
+        if (future.isCanceled())
+            break;
+        filesFound << (*it).filePath;
         if (future.isProgressUpdateNeeded()
                 || future.progressValue() == 0 /*workaround for regression in Qt*/) {
-            future.setProgressValueAndText(it.currentProgress(),
+            future.setProgressValueAndText(subDirIterator.currentProgress(),
                                            tr("%1 filter update: %n files", 0, filesFound.size()).arg(displayName()));
         }
     }
 
     if (!future.isCanceled()) {
         QMutexLocker locker(&m_lock);
-        files() = filesFound;
-        generateFileNames();
-        future.setProgressValue(it.maxProgress());
+        m_files = filesFound;
+        QTimer::singleShot(0, this, SLOT(updateFileIterator()));
+        future.setProgressValue(subDirIterator.maxProgress());
     } else {
-        future.setProgressValueAndText(it.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));
+        future.setProgressValueAndText(subDirIterator.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));
     }
 }

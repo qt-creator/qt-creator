@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,29 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "historycompleter.h"
 #include "fancylineedit.h"
+#include "theme/theme.h"
+#include "utilsicons.h"
 
 #include "qtcassert.h"
 
@@ -47,19 +50,20 @@ static QSettings *theSettings = 0;
 class HistoryCompleterPrivate : public QAbstractListModel
 {
 public:
-    HistoryCompleterPrivate() : maxLines(30), lineEdit(0) {}
+    HistoryCompleterPrivate() : maxLines(30) {}
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
     void clearHistory();
-    void saveEntry(const QString &str);
+    void addEntry(const QString &str);
 
     QStringList list;
     QString historyKey;
+    bool isLastItemEmpty;
+    QString historyKeyIsLastItemEmpty;
     int maxLines;
-    FancyLineEdit *lineEdit;
 };
 
 class HistoryLineDelegate : public QItemDelegate
@@ -67,7 +71,7 @@ class HistoryLineDelegate : public QItemDelegate
 public:
     HistoryLineDelegate(QObject *parent)
         : QItemDelegate(parent)
-        , pixmap(QLatin1String(":/core/images/editclear.png"))
+        , pixmap(Icons::EDIT_CLEAR.pixmap())
     {}
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -146,43 +150,54 @@ void HistoryCompleterPrivate::clearHistory()
     endResetModel();
 }
 
-void HistoryCompleterPrivate::saveEntry(const QString &str)
+void HistoryCompleterPrivate::addEntry(const QString &str)
 {
-    QTC_ASSERT(theSettings, return);
-    const QString &entry = str.trimmed();
+    const QString entry = str.trimmed();
+    if (entry.isEmpty()) {
+        isLastItemEmpty = true;
+        theSettings->setValue(historyKeyIsLastItemEmpty, isLastItemEmpty);
+        return;
+    }
     int removeIndex = list.indexOf(entry);
+    beginResetModel();
     if (removeIndex != -1)
-        removeRow(removeIndex);
-    beginInsertRows (QModelIndex(), list.count(), list.count());
+        list.removeAt(removeIndex);
     list.prepend(entry);
-    list = list.mid(0, maxLines);
-    endInsertRows();
+    list = list.mid(0, maxLines - 1);
+    endResetModel();
     theSettings->setValue(historyKey, list);
+    isLastItemEmpty = false;
+    theSettings->setValue(historyKeyIsLastItemEmpty, isLastItemEmpty);
 }
 
-HistoryCompleter::HistoryCompleter(FancyLineEdit *lineEdit, const QString &historyKey, QObject *parent)
+HistoryCompleter::HistoryCompleter(const QString &historyKey, QObject *parent)
     : QCompleter(parent),
       d(new HistoryCompleterPrivate)
 {
-    QTC_ASSERT(lineEdit, return);
     QTC_ASSERT(!historyKey.isEmpty(), return);
     QTC_ASSERT(theSettings, return);
+    setCompletionMode(QCompleter::UnfilteredPopupCompletion);
 
     d->historyKey = QLatin1String("CompleterHistory/") + historyKey;
     d->list = theSettings->value(d->historyKey).toStringList();
-    d->lineEdit = lineEdit;
-    if (d->list.count() && lineEdit->text().isEmpty())
-        lineEdit->setText(d->list.at(0));
+    d->historyKeyIsLastItemEmpty = QLatin1String("CompleterHistory/")
+        + historyKey + QLatin1String(".IsLastItemEmpty");
+    d->isLastItemEmpty = theSettings->value(d->historyKeyIsLastItemEmpty, false).toBool();
 
     setModel(d);
     setPopup(new HistoryLineView(d));
-
-    connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(saveHistory()));
 }
 
 bool HistoryCompleter::removeHistoryItem(int index)
 {
     return d->removeRow(index);
+}
+
+QString HistoryCompleter::historyItem() const
+{
+    if (historySize() == 0 || d->isLastItemEmpty)
+        return QString();
+    return d->list.at(0);
 }
 
 HistoryCompleter::~HistoryCompleter()
@@ -210,9 +225,9 @@ void HistoryCompleter::clearHistory()
     d->clearHistory();
 }
 
-void HistoryCompleter::saveHistory()
+void HistoryCompleter::addEntry(const QString &str)
 {
-    d->saveEntry(d->lineEdit->text());
+    d->addEntry(str);
 }
 
 void HistoryCompleter::setSettings(QSettings *settings)

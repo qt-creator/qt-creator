@@ -27,6 +27,7 @@
 #include "TranslationUnit.h"
 #include "MemoryPool.h"
 #include <map>
+#include <stack>
 
 namespace CPlusPlus {
 
@@ -136,13 +137,12 @@ public:
     bool parseTypenameCallExpression(ExpressionAST *&node);
     bool parseCorePostfixExpression(ExpressionAST *&node);
     bool parsePostfixExpression(ExpressionAST *&node);
-    bool parsePostfixExpressionInternal(ExpressionAST *&node);
     bool parsePrimaryExpression(ExpressionAST *&node);
     bool parseNestedExpression(ExpressionAST *&node);
     bool parsePtrOperator(PtrOperatorListAST *&node);
     bool parseRelationalExpression(ExpressionAST *&node);
     bool parseShiftExpression(ExpressionAST *&node);
-    bool parseStatement(StatementAST *&node);
+    bool parseStatement(StatementAST *&node, bool blockLabeledStatement = false);
     bool parseThisExpression(ExpressionAST *&node);
     bool parseBoolLiteral(ExpressionAST *&node);
     bool parseNumericLiteral(ExpressionAST *&node);
@@ -155,6 +155,7 @@ public:
     bool parseTemplateParameter(DeclarationAST *&node);
     bool parseTemplateParameterList(DeclarationListAST *&node);
     bool parseThrowExpression(ExpressionAST *&node);
+    bool parseNoExceptOperatorExpression(ExpressionAST *&node);
     bool parseTryBlockStatement(StatementAST *&node, CtorInitializerAST **placeholder);
     bool parseCatchClause(CatchClauseListAST *&node);
     bool parseTypeId(ExpressionAST *&node);
@@ -164,18 +165,23 @@ public:
     bool parseTypeParameter(DeclarationAST *&node);
 
     bool parseBuiltinTypeSpecifier(SpecifierListAST *&node);
-    bool parseAttributeSpecifier(SpecifierListAST *&node);
-    bool parseAttributeList(AttributeListAST *&node);
+    bool parseOptionalAttributeSpecifierSequence(SpecifierListAST *&attribute_list);
+    bool parseAttributeSpecifier(SpecifierListAST *&attribute_list);
+    bool parseGnuAttributeSpecifier(SpecifierListAST *&node);
+    bool parseGnuAttributeList(GnuAttributeListAST *&node);
 
+    bool parseDeclSpecifierSeq(SpecifierListAST *&node,
+                               bool noStorageSpecifiers = false,
+                               bool onlySimpleTypeSpecifiers = false);
+
+    bool parseTrailingTypeSpecifierSeq(SpecifierListAST *&node)
+    { return parseDeclSpecifierSeq(node, true); }
+    /// This actually parses a trailing-type-specifier sequence
+    bool parseTypeSpecifier(SpecifierListAST *&node)
+    { return parseTrailingTypeSpecifierSeq(node); }
     bool parseSimpleTypeSpecifier(SpecifierListAST *&node)
     { return parseDeclSpecifierSeq(node, true, true); }
 
-    bool parseTypeSpecifier(SpecifierListAST *&node)
-    { return parseDeclSpecifierSeq(node, true); }
-
-    bool parseDeclSpecifierSeq(SpecifierListAST *&node,
-                               bool onlyTypeSpecifiers = false,
-                               bool simplified = false);
     bool parseUnaryExpression(ExpressionAST *&node);
     bool parseUnqualifiedName(NameAST *&node, bool acceptTemplateId = true);
     bool parseUsing(DeclarationAST *&node);
@@ -202,7 +208,6 @@ public:
     bool parseCapture(CaptureAST *&node);
     bool parseCaptureList(CaptureListAST *&node);
     bool parseTrailingReturnType(TrailingReturnTypeAST *&node);
-    bool parseTrailingTypeSpecifierSeq(SpecifierListAST *&node);
 
     // ObjC++
     bool parseObjCExpression(ExpressionAST *&node);
@@ -243,6 +248,10 @@ public:
     bool parseObjCContextKeyword(int kind, unsigned &in_token);
 
     bool lookAtObjCSelector() const;
+
+    // c99
+    bool parseDesignatedInitializer(ExpressionAST *&node);
+    bool parseDesignator(DesignatorAST *&node);
 
     bool skipUntil(int token);
     void skipUntilDeclaration();
@@ -309,16 +318,17 @@ private:
     unsigned _tokenIndex;
     bool _templateArguments: 1;
     bool _inFunctionBody: 1;
-    bool _inObjCImplementationContext: 1;
     bool _inExpressionStatement: 1;
     int _expressionDepth;
     int _statementDepth;
+    std::stack<int> _initializerClauseDepth;
 
     MemoryPool _expressionStatementTempPool;
     std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
 
-    class Rewind;
-    friend class Rewind;
+    class ASTCache;
+    ASTCache *_astCache;
+    ASTCache *_expressionStatementAstCache;
 
 private:
     Parser(const Parser& source);

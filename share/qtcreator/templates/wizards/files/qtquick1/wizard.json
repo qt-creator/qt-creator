@@ -1,0 +1,37 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "Q.Qml.1",
+    "category": "R.Qt",
+    "trDescription": "Creates a QML file with boilerplate code, starting with \"import QtQuick 1.1\".",
+    "trDisplayName": "QML File (Qt Quick 1)",
+    "trDisplayCategory": "Qt",
+    "icon": "../../global/genericfilewizard.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlJSEditor') >= 0}",
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.qml.tpl",
+                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-qml')}')}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

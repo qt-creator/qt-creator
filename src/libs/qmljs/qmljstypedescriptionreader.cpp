@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,32 +9,36 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qmljstypedescriptionreader.h"
 
+#include "qmljsdocument.h"
 #include "parser/qmljsparser_p.h"
 #include "parser/qmljslexer_p.h"
 #include "parser/qmljsengine_p.h"
 
 #include "qmljsinterpreter.h"
 #include "qmljsutils.h"
+
+#include <utils/qtcassert.h>
 
 #include <QDir>
 
@@ -197,7 +201,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 readEnum(component, fmo);
             else
                 addWarning(component->firstSourceLocation(),
-                           tr("Expected only Property, Method, Signal and Enum object definitions, not '%1'.")
+                           tr("Expected only Property, Method, Signal and Enum object definitions, not \"%1\".")
                            .arg(name));
         } else if (script) {
             QString name = toString(script->qualifiedId);
@@ -221,9 +225,9 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 fmo->setIsComposite(readBoolBinding(script));
             } else {
                 addWarning(script->firstSourceLocation(),
-                           tr("Expected only name, prototype, defaultProperty, attachedType, exports "
+                           tr("Expected only name, prototype, defaultProperty, attachedType, exports, "
                               "isSingleton, isCreatable, isComposite and exportMetaObjectRevisions "
-                              "script bindings, not '%1'.").arg(name));
+                              "script bindings, not \"%1\".").arg(name));
             }
         } else {
             addWarning(member->firstSourceLocation(), tr("Expected only script bindings and object definitions."));
@@ -418,7 +422,9 @@ void TypeDescriptionReader::readParameter(UiObjectDefinition *ast, FakeMetaMetho
 
 QString TypeDescriptionReader::readStringBinding(UiScriptBinding *ast)
 {
-    if (!ast || !ast->statement) {
+    QTC_ASSERT(ast, return QString());
+
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected string after colon."));
         return QString();
     }
@@ -440,7 +446,9 @@ QString TypeDescriptionReader::readStringBinding(UiScriptBinding *ast)
 
 bool TypeDescriptionReader::readBoolBinding(AST::UiScriptBinding *ast)
 {
-    if (!ast || !ast->statement) {
+    QTC_ASSERT(ast, return false);
+
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected boolean after colon."));
         return false;
     }
@@ -463,7 +471,9 @@ bool TypeDescriptionReader::readBoolBinding(AST::UiScriptBinding *ast)
 
 double TypeDescriptionReader::readNumericBinding(AST::UiScriptBinding *ast)
 {
-    if (!ast || !ast->statement) {
+    QTC_ASSERT(ast, return qQNaN());
+
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected numeric literal after colon."));
         return 0;
     }
@@ -488,7 +498,7 @@ ComponentVersion TypeDescriptionReader::readNumericVersionBinding(UiScriptBindin
     ComponentVersion invalidVersion;
 
     if (!ast || !ast->statement) {
-        addError(ast->colonToken, tr("Expected numeric literal after colon."));
+        addError((ast ? ast->colonToken : SourceLocation()), tr("Expected numeric literal after colon."));
         return invalidVersion;
     }
 
@@ -522,7 +532,9 @@ int TypeDescriptionReader::readIntBinding(AST::UiScriptBinding *ast)
 
 void TypeDescriptionReader::readExports(UiScriptBinding *ast, FakeMetaObject::Ptr fmo)
 {
-    if (!ast || !ast->statement) {
+    QTC_ASSERT(ast, return);
+
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected array of strings after colon."));
         return;
     }
@@ -566,7 +578,9 @@ void TypeDescriptionReader::readExports(UiScriptBinding *ast, FakeMetaObject::Pt
 
 void TypeDescriptionReader::readMetaObjectRevisions(UiScriptBinding *ast, FakeMetaObject::Ptr fmo)
 {
-    if (!ast || !ast->statement) {
+    QTC_ASSERT(ast, return);
+
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected array of numbers after colon."));
         return;
     }

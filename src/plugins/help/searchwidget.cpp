@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,47 +9,51 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "searchwidget.h"
+#include "helpconstants.h"
+#include "helpplugin.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/styledbar.h>
 
-#include <QMap>
-#include <QString>
-#include <QStringList>
-
-#include <QMenu>
-#include <QLayout>
-#include <QKeyEvent>
-#include <QClipboard>
 #include <QApplication>
-#include <QTextBrowser>
-
+#include <QClipboard>
 #include <QHelpEngine>
 #include <QHelpSearchEngine>
 #include <QHelpSearchQueryWidget>
 #include <QHelpSearchResultWidget>
+#include <QKeyEvent>
+#include <QLayout>
+#include <QMap>
+#include <QMenu>
+#include <QString>
+#include <QStringList>
+#include <QTextBrowser>
+#include <QToolButton>
 
 using namespace Help::Internal;
 
@@ -95,6 +99,12 @@ void SearchWidget::resetZoom()
     }
 }
 
+void SearchWidget::reindexDocumentation()
+{
+    if (searchEngine)
+        searchEngine->reindexDocumentation();
+}
+
 void SearchWidget::showEvent(QShowEvent *event)
 {
     if (!event->spontaneous() && !searchEngine) {
@@ -102,7 +112,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         vLayout->setMargin(0);
         vLayout->setSpacing(0);
 
-        searchEngine = (&LocalHelpManager::helpEngine())->searchEngine();
+        searchEngine = new QHelpSearchEngine(&LocalHelpManager::helpEngine(), this);
 
         Utils::StyledBar *toolbar = new Utils::StyledBar(this);
         toolbar->setSingleRow(false);
@@ -127,8 +137,10 @@ void SearchWidget::showEvent(QShowEvent *event)
         setFocusProxy(queryWidget);
 
         connect(queryWidget, SIGNAL(search()), this, SLOT(search()));
-        connect(resultWidget, SIGNAL(requestShowLink(QUrl)), this,
-            SIGNAL(linkActivated(QUrl)));
+        connect(resultWidget, &QHelpSearchResultWidget::requestShowLink, this,
+                [this](const QUrl &url) {
+                    emit linkActivated(url, currentSearchTerms(), false/*newPage*/);
+                });
 
         connect(searchEngine, SIGNAL(searchingStarted()), this,
             SLOT(searchingStarted()));
@@ -194,9 +206,9 @@ void SearchWidget::indexingStarted()
 {
     Q_ASSERT(!m_progress);
     m_progress = new QFutureInterface<void>();
-    Core::ProgressManager::addTask(m_progress->future(), tr("Indexing"), "Help.Indexer");
+    Core::ProgressManager::addTask(m_progress->future(), tr("Indexing Documentation"), "Help.Indexer");
     m_progress->setProgressRange(0, 2);
-    m_progress->setProgressValueAndText(1, tr("Indexing Documentation..."));
+    m_progress->setProgressValueAndText(1, tr("Indexing Documentation"));
     m_progress->reportStarted();
 
     m_watcher.setFuture(m_progress->future());
@@ -222,7 +234,7 @@ bool SearchWidget::eventFilter(QObject *o, QEvent *e)
             bool controlPressed = me->modifiers() & Qt::ControlModifier;
             if ((me->button() == Qt::LeftButton && controlPressed)
                 || (me->button() == Qt::MidButton)) {
-                    OpenPagesManager::instance().createPageFromSearch(link);
+                    emit linkActivated(link, currentSearchTerms(), true/*newPage*/);
             }
         }
     }
@@ -259,9 +271,51 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 
     QAction *usedAction = menu.exec(mapToGlobal(contextMenuEvent->pos()));
     if (usedAction == openLink)
-        browser->selectAll();
+        emit linkActivated(link, currentSearchTerms(), false/*newPage*/);
     else if (usedAction == openLinkInNewTab)
-        OpenPagesManager::instance().createPageFromSearch(link);
+        emit linkActivated(link, currentSearchTerms(), true/*newPage*/);
     else if (usedAction == copyAnchorAction)
         QApplication::clipboard()->setText(link.toString());
+}
+
+QStringList SearchWidget::currentSearchTerms() const
+{
+    QList<QHelpSearchQuery> queryList = searchEngine->query();
+
+    QStringList terms;
+    foreach (const QHelpSearchQuery &query, queryList) {
+        switch (query.fieldName) {
+        case QHelpSearchQuery::ALL:
+        case QHelpSearchQuery::PHRASE:
+        case QHelpSearchQuery::DEFAULT:
+        case QHelpSearchQuery::ATLEAST: {
+                foreach (QString term, query.wordList)
+                    terms.append(term.remove(QLatin1Char('"')));
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return terms;
+}
+
+// #pragma mark -- SearchSideBarItem
+
+SearchSideBarItem::SearchSideBarItem()
+    : SideBarItem(new SearchWidget, QLatin1String(Constants::HELP_SEARCH))
+{
+    widget()->setWindowTitle(HelpPlugin::tr(Constants::SB_SEARCH));
+    connect(widget(), SIGNAL(linkActivated(QUrl,QStringList,bool)),
+            this, SIGNAL(linkActivated(QUrl,QStringList,bool)));
+}
+
+QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()
+{
+    QToolButton *reindexButton = new QToolButton;
+    reindexButton->setIcon(Core::Icons::RELOAD_GRAY.icon());
+    reindexButton->setToolTip(tr("Regenerate Index"));
+    connect(reindexButton, SIGNAL(clicked()),
+            widget(), SLOT(reindexDocumentation()));
+    return QList<QToolButton *>() << reindexButton;
 }

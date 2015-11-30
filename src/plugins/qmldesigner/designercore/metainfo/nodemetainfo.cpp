@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -31,6 +27,7 @@
 #include "model.h"
 
 #include "metainfo.h"
+#include <enumeration.h>
 #include <rewriterview.h>
 #include <propertyparser.h>
 
@@ -40,6 +37,7 @@
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsvalueowner.h>
 #include <languageutils/fakemetaobject.h>
 
 namespace QmlDesigner {
@@ -94,8 +92,12 @@ static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPt
                 return type;
 
             if (const ASTObjectValue * astObjectValue = value->asAstObjectValue()) {
-                if (astObjectValue->typeName())
+                if (astObjectValue->typeName()) {
                     type = astObjectValue->typeName()->name.toUtf8();
+                    const ObjectValue *  objectValue =  context->lookupType(astObjectValue->document(), astObjectValue->typeName());;
+                    if (objectValue)
+                        dotProperties = getObjectTypes(objectValue, context);
+                }
             } else if (const ObjectValue * objectValue = value->asObjectValue()) {
                 type = objectValue->className().toUtf8();
                 dotProperties = getObjectTypes(objectValue, context);
@@ -118,12 +120,163 @@ static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPt
     return type;
 }
 
+static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
+                                           const ViewerContext &vContext,
+                                           const ImportDependencies &dep)
+{
+    QString cppName;
+    QStringList packages;
+    if (const CppComponentValue *cppComponent = value_cast<CppComponentValue>(objectValue)) {
+        QString className = cppComponent->className();
+        foreach (const LanguageUtils::FakeMetaObject::Export &e, cppComponent->metaObject()->exports()) {
+            if (e.type == className)
+                packages << e.package;
+            if (e.package == CppQmlTypes::cppPackage)
+                cppName = e.type;
+        }
+        if (packages.size() == 1 && packages.at(0) == CppQmlTypes::cppPackage)
+            return packages.at(0) + QLatin1Char('.') + className;
+    }
+    // try to recover a "global context name"
+    QStringList possibleLibraries;
+    QStringList possibleQrcFiles;
+    QStringList possibleFiles;
+    bool hasQtQuick = false;
+    do {
+        if (objectValue->originId().isEmpty())
+            break;
+        CoreImport cImport = dep.coreImport(objectValue->originId());
+        if (!cImport.valid())
+            break;
+        foreach (const Export &e, cImport.possibleExports) {
+            if (e.pathRequired.isEmpty() || vContext.paths.contains(e.pathRequired)) {
+                switch (e.exportName.type) {
+                case ImportType::Library:
+                {
+                    QString typeName = objectValue->className();
+                    if (!e.typeName.isEmpty() && e.typeName != Export::libraryTypeName()) {
+                        typeName = e.typeName;
+                        if (typeName != objectValue->className())
+                            qCWarning(qmljsLog) << "Outdated classname " << objectValue->className()
+                                                << " vs " << typeName
+                                                << " for " << e.exportName.toString();
+                    }
+                    if (packages.isEmpty() || packages.contains(e.exportName.libraryQualifiedPath())) {
+                        if (e.exportName.splitPath.value(0) == QLatin1String("QtQuick"))
+                            hasQtQuick = true;
+                        possibleLibraries.append(e.exportName.libraryQualifiedPath() + '.' + typeName);
+                    }
+                    break;
+                }
+                case ImportType::File:
+                {
+                    // remove the search path prefix.
+                    // this means that the same relative path wrt. different import paths will clash
+                    QString filePath = e.exportName.path();
+                    foreach (const QString &path, vContext.paths) {
+                        if (filePath.startsWith(path) && filePath.size() > path.size()
+                                && filePath.at(path.size()) == QLatin1Char('/'))
+                        {
+                            filePath = filePath.mid(path.size() + 1);
+                            break;
+                        }
+                    }
+
+                    if (filePath.startsWith(QLatin1Char('/')))
+                        filePath = filePath.mid(1);
+                    QFileInfo fileInfo(filePath);
+                    QStringList splitName = fileInfo.path().split(QLatin1Char('/'));
+                    QString typeName = fileInfo.baseName();
+                    if (!e.typeName.isEmpty()) {
+                        if (e.typeName != fileInfo.baseName())
+                            qCWarning(qmljsLog) << "type renaming in file import " << e.typeName
+                                                << " for " << e.exportName.path();
+                        typeName = e.typeName;
+                    }
+                    if (typeName != objectValue->className())
+                        qCWarning(qmljsLog) << "Outdated classname " << objectValue->className()
+                                            << " vs " << typeName
+                                            << " for " << e.exportName.toString();
+                    splitName.append(typeName);
+                    possibleFiles.append(splitName.join(QLatin1Char('.')));
+                    break;
+                }
+                case ImportType::QrcFile:
+                {
+                    QString filePath = e.exportName.path();
+                    if (filePath.startsWith(QLatin1Char('/')))
+                        filePath = filePath.mid(1);
+                    QFileInfo fileInfo(filePath);
+                    QStringList splitName = fileInfo.path().split(QLatin1Char('/'));
+                    QString typeName = fileInfo.baseName();
+                    if (!e.typeName.isEmpty()) {
+                        if (e.typeName != fileInfo.baseName())
+                            qCWarning(qmljsLog) << "type renaming in file import " << e.typeName
+                                                << " for " << e.exportName.path();
+                        typeName = e.typeName;
+                    }
+                    if (typeName != objectValue->className())
+                        qCWarning(qmljsLog) << "Outdated classname " << objectValue->className()
+                                            << " vs " << typeName
+                                            << " for " << e.exportName.toString();
+                    splitName.append(typeName);
+                    possibleQrcFiles.append(splitName.join(QLatin1Char('.')));
+                    break;
+                }
+                case ImportType::Invalid:
+                case ImportType::UnknownFile:
+                    break;
+                case ImportType::Directory:
+                case ImportType::ImplicitDirectory:
+                case ImportType::QrcDirectory:
+                    qCWarning(qmljsLog) << "unexpected import type in export "
+                                        << e.exportName.toString() << " of coreExport "
+                                        << objectValue->originId();
+                    break;
+                }
+            }
+        }
+        auto optimalName = [] (const QStringList &list) -> QString {
+            QString res = list.at(0);
+            for (int i = 1; i < list.size(); ++i) {
+                const QString &nameNow = list.at(i);
+                if (nameNow.size() < res.size()
+                        || (nameNow.size() == res.size() && nameNow < res))
+                    res = nameNow;
+            }
+            return res;
+        };
+        if (!possibleLibraries.isEmpty()) {
+            if (hasQtQuick) {
+                foreach (const QString &libImport, possibleLibraries)
+                    if (!libImport.startsWith(QLatin1String("QtQuick")))
+                        possibleLibraries.removeAll(libImport);
+            }
+            return optimalName(possibleLibraries);
+        }
+        if (!possibleQrcFiles.isEmpty())
+            return optimalName(possibleQrcFiles);
+        if (!possibleFiles.isEmpty())
+            return optimalName(possibleFiles);
+    } while (false);
+    if (!cppName.isEmpty())
+        return CppQmlTypes::cppPackage + QLatin1Char('.') + cppName;
+    if (const CppComponentValue *cppComponent = value_cast<CppComponentValue>(objectValue)) {
+        if (cppComponent->moduleName().isEmpty())
+            return cppComponent->className();
+        else
+            return cppComponent->moduleName() + QLatin1Char('.') + cppComponent->className();
+    } else {
+        return objectValue->className();
+    }
+}
+
 class PropertyMemberProcessor : public MemberProcessor
 {
 public:
     PropertyMemberProcessor(const ContextPtr &context) : m_context(context)
     {}
-    bool processProperty(const QString &name, const Value *value)
+    bool processProperty(const QString &name, const Value *value, const QmlJS::PropertyInfo &) override
     {
         PropertyName propertyName = name.toUtf8();
         const ASTPropertyReference *ref = value_cast<ASTPropertyReference>(value);
@@ -140,8 +293,10 @@ public:
                 }
             }
         } else {
+
             if (const CppComponentValue * cppComponentValue = value_cast<CppComponentValue>(value)) {
-                TypeName qualifiedTypeName = cppComponentValue->moduleName().isEmpty() ? cppComponentValue->className().toUtf8() : cppComponentValue->moduleName().toUtf8() + '.' + cppComponentValue->className().toUtf8();
+                TypeName qualifiedTypeName = qualifiedTypeNameForContext(cppComponentValue,
+                    m_context->viewerContext(), *m_context->snapshot().importDependencies()).toUtf8();
                 m_properties.append(qMakePair(propertyName, qualifiedTypeName));
             } else {
                 TypeId typeId;
@@ -159,7 +314,7 @@ public:
         return true;
     }
 
-    virtual bool processSignal(const QString &name, const Value * /*value*/)
+    bool processSignal(const QString &name, const Value * /*value*/) override
     {
         m_signals.append(name.toUtf8());
         return true;
@@ -408,13 +563,13 @@ public:
 private:
     NodeMetaInfoPrivate(Model *model, TypeName type, int maj = -1, int min = -1);
 
-    const QmlJS::CppComponentValue *getCppComponentValue() const;
-    const QmlJS::ObjectValue *getObjectValue() const;
+    const CppComponentValue *getCppComponentValue() const;
+    const ObjectValue *getObjectValue() const;
     void setupPropertyInfo(QList<PropertyInfo> propertyInfos);
     void setupLocalPropertyInfo(QList<PropertyInfo> propertyInfos);
     QString lookupName() const;
     QStringList lookupNameComponent() const;
-    const QmlJS::CppComponentValue *getNearestCppComponentValue() const;
+    const CppComponentValue *getNearestCppComponentValue() const;
     QString fullQualifiedImportAliasType() const;
 
     TypeName m_qualfiedTypeName;
@@ -432,7 +587,7 @@ private:
     QSet<QString> m_prototypeCacheNegatives;
 
     //storing the pointer would not be save
-    QmlJS::ContextPtr context() const;
+    ContextPtr context() const;
     const Document *document() const;
 
     QPointer<Model> m_model;
@@ -515,19 +670,19 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                                         m_model(model)
 {
     if (context()) {
-        const CppComponentValue *objectValue = getCppComponentValue();
+        const CppComponentValue *cppObjectValue = getCppComponentValue();
 
-        if (objectValue) {
+        if (cppObjectValue) {
             if (m_majorVersion == -1 && m_minorVersion == -1) {
-                m_majorVersion = objectValue->componentVersion().majorVersion();
-                m_minorVersion = objectValue->componentVersion().minorVersion();
+                m_majorVersion = cppObjectValue->componentVersion().majorVersion();
+                m_minorVersion = cppObjectValue->componentVersion().minorVersion();
             }
-            setupPropertyInfo(getTypes(objectValue, context()));
-            setupLocalPropertyInfo(getTypes(objectValue, context(), true));
-            m_defaultPropertyName = objectValue->defaultPropertyName().toUtf8();
+            setupPropertyInfo(getTypes(cppObjectValue, context()));
+            setupLocalPropertyInfo(getTypes(cppObjectValue, context(), true));
+            m_defaultPropertyName = cppObjectValue->defaultPropertyName().toUtf8();
             m_isValid = true;
             setupPrototypes();
-            m_signals = getSignals(objectValue, context());
+            m_signals = getSignals(cppObjectValue, context());
         } else {
             const ObjectValue *objectValue = getObjectValue();
             if (objectValue) {
@@ -562,7 +717,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
     }
 }
 
-const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
+const CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
 {
     const QList<TypeName> nameComponents = m_qualfiedTypeName.split('.');
     if (nameComponents.size() < 2)
@@ -589,29 +744,29 @@ const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() cons
             return cppValue;
     }
 
-    const QmlJS::CppComponentValue *value = value_cast<CppComponentValue>(getObjectValue());
+    const CppComponentValue *value = value_cast<CppComponentValue>(getObjectValue());
     if (value)
         return value;
 
     // maybe 'type' is a cpp name
-    const QmlJS::CppComponentValue *cppValue = context()->valueOwner()->cppQmlTypes().objectByCppName(type);
+    const CppComponentValue *cppValue = context()->valueOwner()->cppQmlTypes().objectByCppName(type);
 
     return cppValue;
 }
 
-const QmlJS::ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
+const ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
 {
     return context()->lookupType(document(), lookupNameComponent());
 }
 
-QmlJS::ContextPtr NodeMetaInfoPrivate::context() const
+ContextPtr NodeMetaInfoPrivate::context() const
 {
     if (m_model && m_model->rewriterView() && m_model->rewriterView()->scopeChain())
         return m_model->rewriterView()->scopeChain()->context();
-    return QmlJS::ContextPtr(0);
+    return ContextPtr(0);
 }
 
-const QmlJS::Document *NodeMetaInfoPrivate::document() const
+const Document *NodeMetaInfoPrivate::document() const
 {
     if (m_model && m_model->rewriterView())
         return m_model->rewriterView()->document();
@@ -628,8 +783,10 @@ void NodeMetaInfoPrivate::setupLocalPropertyInfo(QList<PropertyInfo> localProper
 void NodeMetaInfoPrivate::setupPropertyInfo(QList<PropertyInfo> propertyInfos)
 {
     foreach (const PropertyInfo &propertyInfo, propertyInfos) {
-        m_properties.append(propertyInfo.first);
-        m_propertyTypes.append(propertyInfo.second);
+        if (!m_properties.contains(propertyInfo.first)) {
+            m_properties.append(propertyInfo.first);
+            m_propertyTypes.append(propertyInfo.second);
+        }
     }
 }
 
@@ -654,7 +811,7 @@ bool NodeMetaInfoPrivate::isPropertyWritable(const PropertyName &propertyName) c
             return true;
     }
 
-    const QmlJS::CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
+    const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return true;
     if (qmlObjectValue->hasProperty(propertyName))
@@ -685,7 +842,7 @@ bool NodeMetaInfoPrivate::isPropertyList(const PropertyName &propertyName) const
             return true;
     }
 
-    const QmlJS::CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
+    const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return false;
     return qmlObjectValue->isListProperty(propertyName);
@@ -712,7 +869,7 @@ bool NodeMetaInfoPrivate::isPropertyPointer(const PropertyName &propertyName) co
             return true;
     }
 
-    const QmlJS::CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
+    const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return false;
     return qmlObjectValue->isPointer(propertyName);
@@ -754,7 +911,7 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const PropertyName &propertyName)
         return QString();
 
     if (propertyType(propertyName).contains("Qt::"))
-        return QLatin1String("Qt");
+        return QStringLiteral("Qt");
 
     if (propertyName.contains('.')) {
         const PropertyNameList parts = propertyName.split('.');
@@ -780,7 +937,7 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const PropertyName &propertyName)
     if (definedIn) {
         QString nonCppPackage;
         foreach (const LanguageUtils::FakeMetaObject::Export &qmlExport, definedIn->metaObject()->exports()) {
-            if (qmlExport.package != QLatin1String("<cpp>"))
+            if (qmlExport.package != QStringLiteral("<cpp>"))
                 nonCppPackage = qmlExport.package;
         }
 
@@ -810,7 +967,7 @@ static QString getPackage(const QString &name)
         return QString();
     nameComponents.removeLast();
 
-    return nameComponents.join(QLatin1String("."));
+    return nameComponents.join(QLatin1Char('.'));
 }
 
 bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
@@ -955,10 +1112,15 @@ QString NodeMetaInfoPrivate::importDirectoryPath() const
             return importInfo.path();
         } else if (importInfo.type() == ImportType::Library) {
             if (modelManager) {
-                foreach (const QString &importPath, modelManager->importPaths()) {
+                foreach (const QString &importPath, model()->importPaths()) {
                     const QString targetPath = QDir(importPath).filePath(importInfo.path());
                     if (QDir(targetPath).exists())
                         return targetPath;
+                    const QString targetPathVersion = QDir(importPath).filePath(importInfo.path()
+                                                                                + QLatin1Char('.')
+                                                                                + QString::number(importInfo.version().majorVersion()));
+                    if (QDir(targetPathVersion).exists())
+                        return targetPathVersion;
                 }
             }
         }
@@ -974,7 +1136,7 @@ QString NodeMetaInfoPrivate::lookupName() const
     QStringList packageClassName = className.split(QLatin1Char('.'));
     if (packageClassName.size() > 1) {
         className = packageClassName.takeLast();
-        packageName = packageClassName.join(QLatin1String("."));
+        packageName = packageClassName.join(QLatin1Char('.'));
     }
 
     return CppQmlTypes::qualifiedName(
@@ -1061,9 +1223,9 @@ void NodeMetaInfoPrivate::setupPrototypes()
 
                 if (importInfo.isValid()) {
                     QString uri = importInfo.name();
-                    uri.replace(QLatin1String(","), QLatin1String("."));
+                    uri.replace(QStringLiteral(","), QStringLiteral("."));
                     if (!uri.isEmpty())
-                        description.className = QString(uri + QString::fromLatin1(".") + QString::fromLatin1(description.className)).toLatin1();
+                        description.className = QString(uri + QString::fromLatin1(".") + QString::fromUtf8(description.className)).toUtf8();
                 }
 
                 m_prototypes.append(description);
@@ -1078,7 +1240,7 @@ QList<TypeDescription> NodeMetaInfoPrivate::prototypes() const
     return m_prototypes;
 }
 
-const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getNearestCppComponentValue() const
+const CppComponentValue *NodeMetaInfoPrivate::getNearestCppComponentValue() const
 {
     if (m_isFileComponent)
         return findQmlPrototype(getObjectValue(), context());
@@ -1201,7 +1363,8 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
 
     const QVariant variant = value;
     QVariant copyVariant = variant;
-    if (propertyIsEnumType(propertyName))
+    if (propertyIsEnumType(propertyName)
+            || variant.canConvert<Enumeration>())
         return variant;
 
     const QString typeName = propertyTypeName(propertyName);
@@ -1210,13 +1373,13 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
 
     if (variant.type() == QVariant::UserType && variant.userType() == ModelNode::variantUserType()) {
         return variant;
-    } else if (typeId == QVariant::UserType && typeName == QLatin1String("QVariant")) {
+    } else if (typeId == QVariant::UserType && typeName == QStringLiteral("QVariant")) {
         return variant;
-    } else if (typeId == QVariant::UserType && typeName == QLatin1String("variant")) {
+    } else if (typeId == QVariant::UserType && typeName == QStringLiteral("variant")) {
         return variant;
-    } else if (typeId == QVariant::UserType && typeName == QLatin1String("var")) {
+    } else if (typeId == QVariant::UserType && typeName == QStringLiteral("var")) {
         return variant;
-    } else if (variant.type() == QVariant::List && variant.type() == QVariant::List) {
+    } else if (variant.type() == QVariant::List) {
         // TODO: check the contents of the list
         return variant;
     } else if (typeName == "var" || typeName == "variant") {
@@ -1342,7 +1505,7 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
 
 bool NodeMetaInfo::isGraphicalItem() const
 {
-    return isSubclassOf("QtQuick.Item", -1, -1) || isSubclassOf("QtQuick.Window", -1, -1);
+    return isSubclassOf("QtQuick.Item", -1, -1) || isSubclassOf("QtQuick.Window.Window", -1, -1);
 }
 
 void NodeMetaInfo::clearCache()
@@ -1355,7 +1518,9 @@ bool NodeMetaInfo::isLayoutable() const
     if (isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1))
         return true; //QtQuick 1
 
-    return isSubclassOf("QtQuick.Positioner", -1, -1) || isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
+    return isSubclassOf("QtQuick.Positioner", -1, -1)
+            || isSubclassOf("QtQuick.Layouts.Layout", -1, -1)
+            || isSubclassOf("QtQuick.Controls.SplitView", -1, -1);
 }
 
 bool NodeMetaInfo::isView() const
@@ -1364,6 +1529,11 @@ bool NodeMetaInfo::isView() const
             (isSubclassOf("QtQuick.ListView", -1, -1) ||
              isSubclassOf("QtQuick.GridView", -1, -1) ||
              isSubclassOf("QtQuick.PathView", -1, -1));
+}
+
+bool NodeMetaInfo::isTabView() const
+{
+    return isSubclassOf("QtQuick.Controls.TabView", -1, -1);
 }
 
 } // namespace QmlDesigner

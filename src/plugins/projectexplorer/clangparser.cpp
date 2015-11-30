@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -47,30 +48,30 @@ static const char * const FILE_PATTERN = "(<command line>|([A-Za-z]:)?[^:]+\\.[^
 
 ClangParser::ClangParser() :
     m_commandRegExp(QLatin1String("^clang(\\+\\+)?: +(fatal +)?(warning|error|note): (.*)$")),
-    m_inLineRegExp(QLatin1String("^In (.*) included from (.*):(\\d+):$")),
-    m_messageRegExp(QLatin1String("^") + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$")),
+    m_inLineRegExp(QLatin1String("^In (.*?) included from (.*?):(\\d+):$")),
+    m_messageRegExp(QLatin1Char('^') + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$")),
     m_summaryRegExp(QLatin1String("^\\d+ (warnings?|errors?)( and \\d (warnings?|errors?))? generated.$")),
     m_codesignRegExp(QLatin1String("^Code ?Sign error: (.*)$")),
     m_expectSnippet(false)
 {
     setObjectName(QLatin1String("ClangParser"));
-
-    appendOutputParser(new LdParser);
 }
 
 void ClangParser::stdError(const QString &line)
 {
     const QString lne = rightTrimmed(line);
-    if (m_summaryRegExp.indexIn(lne) > -1) {
+    QRegularExpressionMatch match = m_summaryRegExp.match(lne);
+    if (match.hasMatch()) {
         doFlush();
         m_expectSnippet = false;
         return;
     }
 
-    if (m_commandRegExp.indexIn(lne) > -1) {
+    match = m_commandRegExp.match(lne);
+    if (match.hasMatch()) {
         m_expectSnippet = true;
-        Task task(taskType(m_commandRegExp.cap(3)),
-                  m_commandRegExp.cap(4),
+        Task task(taskType(match.captured(3)),
+                  match.captured(4),
                   Utils::FileName(), /* filename */
                   -1, /* line */
                   Constants::TASK_CATEGORY_COMPILE);
@@ -78,35 +79,38 @@ void ClangParser::stdError(const QString &line)
         return;
     }
 
-    if (m_inLineRegExp.indexIn(lne) > -1) {
+    match = m_inLineRegExp.match(lne);
+    if (match.hasMatch()) {
         m_expectSnippet = true;
         newTask(Task(Task::Unknown,
                      lne.trimmed(),
-                     Utils::FileName::fromUserInput(m_inLineRegExp.cap(2)), /* filename */
-                     m_inLineRegExp.cap(3).toInt(), /* line */
+                     Utils::FileName::fromUserInput(match.captured(2)), /* filename */
+                     match.captured(3).toInt(), /* line */
                      Constants::TASK_CATEGORY_COMPILE));
         return;
     }
 
-    if (m_messageRegExp.indexIn(lne) > -1) {
+    match = m_messageRegExp.match(lne);
+    if (match.hasMatch()) {
         m_expectSnippet = true;
         bool ok = false;
-        int lineNo = m_messageRegExp.cap(4).toInt(&ok);
+        int lineNo = match.captured(4).toInt(&ok);
         if (!ok)
-            lineNo = m_messageRegExp.cap(5).toInt(&ok);
-        Task task(taskType(m_messageRegExp.cap(7)),
-                  m_messageRegExp.cap(8),
-                  Utils::FileName::fromUserInput(m_messageRegExp.cap(1)), /* filename */
+            lineNo = match.captured(5).toInt(&ok);
+        Task task(taskType(match.captured(7)),
+                  match.captured(8),
+                  Utils::FileName::fromUserInput(match.captured(1)), /* filename */
                   lineNo,
                   Core::Id(Constants::TASK_CATEGORY_COMPILE));
         newTask(task);
         return;
     }
 
-    if (m_codesignRegExp.indexIn(lne) > -1) {
+    match = m_codesignRegExp.match(lne);
+    if (match.hasMatch()) {
         m_expectSnippet = true;
         Task task(Task::Error,
-                  m_codesignRegExp.cap(1),
+                  match.captured(1),
                   Utils::FileName(),
                   -1,
                   Core::Id(Constants::TASK_CATEGORY_COMPILE));
@@ -137,7 +141,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
+    QTest::addColumn<QList<Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
     const Core::Id categoryCompile = Constants::TASK_CATEGORY_COMPILE;
@@ -145,19 +149,19 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext\n") << QString()
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("Sometext\n")
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
 
     QTest::newRow("clang++ warning")
             << QString::fromLatin1("clang++: warning: argument unused during compilation: '-mthreads'")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Warning,
                         QLatin1String("argument unused during compilation: '-mthreads'"),
                         Utils::FileName(), -1,
@@ -167,7 +171,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
             << QString::fromLatin1("clang++: error: no input files [err_drv_no_input_files]")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error,
                         QLatin1String("no input files [err_drv_no_input_files]"),
                         Utils::FileName(), -1,
@@ -180,7 +184,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                    "      ^")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Unknown,
                         QLatin1String("In file included from ..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h:45:"),
                         Utils::FileName::fromUserInput(QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h")), 45,
@@ -198,7 +202,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                        "                          ^")
                 << OutputParserTester::STDERR
                 << QString() << QString()
-                << (QList<ProjectExplorer::Task>()
+                << (QList<Task>()
                     << Task(Task::Unknown,
                             QLatin1String("instantiated from:\n"
                                           "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
@@ -212,7 +216,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                        "         ^")
                 << OutputParserTester::STDERR
                 << QString() << QString()
-                << (QList<ProjectExplorer::Task>()
+                << (QList<Task>()
                     << Task(Task::Error,
                             QLatin1String("'bits/c++config.h' file not found\n"
                                           "#include <bits/c++config.h>\n"
@@ -227,7 +231,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                        "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^")
                 << OutputParserTester::STDERR
                 << QString() << QString()
-                << (QList<ProjectExplorer::Task>()
+                << (QList<Task>()
                     << Task(Task::Warning,
                             QLatin1String("?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
                                           "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
@@ -241,7 +245,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                        "CodeSign error: code signing is required for product type 'Application' in SDK 'iOS 7.0'")
                 << OutputParserTester::STDERR
                 << QString() << QString::fromLatin1("Check dependencies\n")
-                << (QList<ProjectExplorer::Task>()
+                << (QList<Task>()
                     << Task(Task::Error,
                             QLatin1String("No matching provisioning profiles found: No provisioning profiles with a valid signing identity (i.e. certificate and private key pair) were found."),
                             Utils::FileName(), -1,

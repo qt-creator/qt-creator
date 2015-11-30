@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,7 @@
 #include "insertionpointlocator.h"
 
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QtTest>
 #include <QDebug>
@@ -45,6 +47,34 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
 
+namespace {
+
+Document::Ptr createDocument(const QString filePath, const QByteArray text,
+                             unsigned expectedGlobalSymbolCount)
+{
+    Document::Ptr document = Document::create(filePath);
+    document->setUtf8Source(text);
+    document->check();
+    QTC_ASSERT(document->diagnosticMessages().isEmpty(), return Document::Ptr());
+    QTC_ASSERT(document->globalSymbolCount() == expectedGlobalSymbolCount, return Document::Ptr());
+
+    return document;
+}
+
+Document::Ptr createDocumentAndFile(Tests::TemporaryDir *temporaryDir,
+                                    const QByteArray relativeFilePath,
+                                    const QByteArray text,
+                                    unsigned expectedGlobalSymbolCount)
+{
+    QTC_ASSERT(temporaryDir, return Document::Ptr());
+    const QString absoluteFilePath = temporaryDir->createFile(relativeFilePath, text);
+    QTC_ASSERT(!absoluteFilePath.isEmpty(), return Document::Ptr());
+
+    return createDocument(absoluteFilePath, text, expectedGlobalSymbolCount);
+}
+
+} // anonymous namespace
+
 /*!
     Should insert at line 3, column 1, with "public:\n" as prefix and without suffix.
  */
@@ -55,14 +85,8 @@ void CppToolsPlugin::test_codegen_public_in_empty_class()
             "{\n"
             "};\n"
             "\n";
-
-    Document::Ptr doc = Document::create(QLatin1String("public_in_empty_class"));
-    doc->setUtf8Source(src);
-    doc->parse();
-    doc->check();
-
-    QCOMPARE(doc->diagnosticMessages().size(), 0);
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    Document::Ptr doc = createDocument(QLatin1String("public_in_empty_class"), src, 1U);
+    QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
@@ -95,14 +119,8 @@ void CppToolsPlugin::test_codegen_public_in_nonempty_class()
             "public:\n"   // line 3
             "};\n"        // line 4
             "\n";
-
-    Document::Ptr doc = Document::create(QLatin1String("public_in_nonempty_class"));
-    doc->setUtf8Source(src);
-    doc->parse();
-    doc->check();
-
-    QCOMPARE(doc->diagnosticMessages().size(), 0);
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    Document::Ptr doc = createDocument(QLatin1String("public_in_nonempty_class"), src, 1U);
+    QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
@@ -135,14 +153,8 @@ void CppToolsPlugin::test_codegen_public_before_protected()
             "protected:\n" // line 3
             "};\n"
             "\n";
-
-    Document::Ptr doc = Document::create(QLatin1String("public_before_protected"));
-    doc->setUtf8Source(src);
-    doc->parse();
-    doc->check();
-
-    QCOMPARE(doc->diagnosticMessages().size(), 0);
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    Document::Ptr doc = createDocument(QLatin1String("public_before_protected"), src, 1U);
+    QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
@@ -176,14 +188,8 @@ void CppToolsPlugin::test_codegen_private_after_protected()
             "protected:\n" // line 3
             "};\n"
             "\n";
-
-    Document::Ptr doc = Document::create(QLatin1String("private_after_protected"));
-    doc->setUtf8Source(src);
-    doc->parse();
-    doc->check();
-
-    QCOMPARE(doc->diagnosticMessages().size(), 0);
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    Document::Ptr doc = createDocument(QLatin1String("private_after_protected"), src, 1U);
+    QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
@@ -217,14 +223,8 @@ void CppToolsPlugin::test_codegen_protected_in_nonempty_class()
             "public:\n"   // line 3
             "};\n"        // line 4
             "\n";
-
-    Document::Ptr doc = Document::create(QLatin1String("protected_in_nonempty_class"));
-    doc->setUtf8Source(src);
-    doc->parse();
-    doc->check();
-
-    QCOMPARE(doc->diagnosticMessages().size(), 0);
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    Document::Ptr doc = createDocument(QLatin1String("protected_in_nonempty_class"), src, 1U);
+    QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
@@ -258,14 +258,8 @@ void CppToolsPlugin::test_codegen_protected_between_public_and_private()
             "private:\n"  // line 4
             "};\n"        // line 5
             "\n";
-
-    Document::Ptr doc = Document::create(QLatin1String("protected_betwee_public_and_private"));
-    doc->setUtf8Source(src);
-    doc->parse();
-    doc->check();
-
-    QCOMPARE(doc->diagnosticMessages().size(), 0);
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    Document::Ptr doc = createDocument(QLatin1String("protected_betwee_public_and_private"), src, 1U);
+    QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
@@ -320,13 +314,8 @@ void CppToolsPlugin::test_codegen_qtdesigner_integration()
             "\n"
             "#endif // MAINWINDOW_H\n";
 
-    Document::Ptr doc = Document::create(QLatin1String("qtdesigner_integration"));
-    doc->setUtf8Source(src);
-    doc->parse();
-    doc->check();
-
-    QCOMPARE(doc->diagnosticMessages().size(), 0);
-    QCOMPARE(doc->globalSymbolCount(), 2U);
+    Document::Ptr doc = createDocument(QLatin1String("qtdesigner_integration"), src, 2U);
+    QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(1)->asClass();
     QVERIFY(foo);
@@ -350,38 +339,29 @@ void CppToolsPlugin::test_codegen_qtdesigner_integration()
 
 void CppToolsPlugin::test_codegen_definition_empty_class()
 {
-    const QByteArray srcText = "\n"
+    Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+
+    const QByteArray headerText = "\n"
             "class Foo\n"  // line 1
             "{\n"
             "void foo();\n" // line 3
             "};\n"
             "\n";
+    Document::Ptr headerDocument = createDocumentAndFile(&temporaryDir, "file.h", headerText, 1U);
+    QVERIFY(headerDocument);
 
-    const QByteArray dstText = "\n"
+    const QByteArray sourceText = "\n"
             "int x;\n"  // line 1
             "\n";
-
-    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
-    src->setUtf8Source(srcText);
-    src->parse();
-    src->check();
-    QCOMPARE(src->diagnosticMessages().size(), 0);
-    QCOMPARE(src->globalSymbolCount(), 1U);
-
-    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
-    dst->setUtf8Source(dstText);
-    dst->parse();
-    dst->check();
-    QCOMPARE(dst->diagnosticMessages().size(), 0);
-    QCOMPARE(dst->globalSymbolCount(), 1U);
+    Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 1U);
+    QVERIFY(sourceDocument);
 
     Snapshot snapshot;
-    snapshot.insert(src);
-    snapshot.insert(dst);
+    snapshot.insert(headerDocument);
+    snapshot.insert(sourceDocument);
 
-    Class *foo = src->globalSymbolAt(0)->asClass();
+    Class *foo = headerDocument->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
     QCOMPARE(foo->line(), 1U);
     QCOMPARE(foo->column(), 7U);
@@ -396,7 +376,7 @@ void CppToolsPlugin::test_codegen_definition_empty_class()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), dst->fileName());
+    QCOMPARE(loc.fileName(), sourceDocument->fileName());
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
     QCOMPARE(loc.suffix(), QString());
     QCOMPARE(loc.line(), 3U);
@@ -405,49 +385,41 @@ void CppToolsPlugin::test_codegen_definition_empty_class()
 
 void CppToolsPlugin::test_codegen_definition_first_member()
 {
-    const QByteArray srcText = "\n"
+    Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+
+    const QByteArray headerText = "\n"
             "class Foo\n"  // line 1
             "{\n"
             "void foo();\n" // line 3
             "void bar();\n" // line 4
             "};\n"
             "\n";
+    Document::Ptr headerDocument = createDocumentAndFile(&temporaryDir, "file.h", headerText, 1U);
+    QVERIFY(headerDocument);
 
-    const QByteArray dstText = QString::fromLatin1(
-                "\n"
-                "#include \"%1/file.h\"\n" // line 1
-                "int x;\n"
-                "\n"
-                "void Foo::bar()\n" // line 4
-                "{\n"
-                "\n"
-                "}\n"
-                "\n"
-                "int y;\n").arg(QDir::tempPath()).toLatin1();
-
-    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
-    src->setUtf8Source(srcText);
-    src->parse();
-    src->check();
-    QCOMPARE(src->diagnosticMessages().size(), 0);
-    QCOMPARE(src->globalSymbolCount(), 1U);
-
-    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
-    dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
-                                          Client::IncludeLocal));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
-    dst->setUtf8Source(dstText);
-    dst->parse();
-    dst->check();
-    QCOMPARE(dst->diagnosticMessages().size(), 0);
-    QCOMPARE(dst->globalSymbolCount(), 3U);
+    const QByteArray sourceText = QString::fromLatin1(
+            "\n"
+            "#include \"%1/file.h\"\n" // line 1
+            "int x;\n"
+            "\n"
+            "void Foo::bar()\n" // line 4
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            "int y;\n").arg(temporaryDir.path()).toLatin1();
+    Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 3U);
+    QVERIFY(sourceDocument);
+    sourceDocument->addIncludeFile(Document::Include(QLatin1String("file.h"),
+                                                     headerDocument->fileName(), 1,
+                                                     Client::IncludeLocal));
 
     Snapshot snapshot;
-    snapshot.insert(src);
-    snapshot.insert(dst);
+    snapshot.insert(headerDocument);
+    snapshot.insert(sourceDocument);
 
-    Class *foo = src->globalSymbolAt(0)->asClass();
+    Class *foo = headerDocument->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
     QCOMPARE(foo->line(), 1U);
     QCOMPARE(foo->column(), 7U);
@@ -462,7 +434,7 @@ void CppToolsPlugin::test_codegen_definition_first_member()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), dst->fileName());
+    QCOMPARE(loc.fileName(), sourceDocument->fileName());
     QCOMPARE(loc.line(), 4U);
     QCOMPARE(loc.column(), 1U);
     QCOMPARE(loc.suffix(), QLatin1String("\n\n"));
@@ -471,49 +443,42 @@ void CppToolsPlugin::test_codegen_definition_first_member()
 
 void CppToolsPlugin::test_codegen_definition_last_member()
 {
-    const QByteArray srcText = "\n"
+    Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+
+    const QByteArray headerText = "\n"
             "class Foo\n"  // line 1
             "{\n"
             "void foo();\n" // line 3
             "void bar();\n" // line 4
             "};\n"
             "\n";
+    Document::Ptr headerDocument = createDocumentAndFile(&temporaryDir, "file.h", headerText, 1U);
+    QVERIFY(headerDocument);
 
-    const QByteArray dstText = QString::fromLatin1(
-                "\n"
-                "#include \"%1/file.h\"\n" // line 1
-                "int x;\n"
-                "\n"
-                "void Foo::foo()\n" // line 4
-                "{\n"
-                "\n"
-                "}\n" // line 7
-                "\n"
-                "int y;\n").arg(QDir::tempPath()).toLatin1();
+    const QByteArray sourceText = QString::fromLatin1(
+            "\n"
+            "#include \"%1/file.h\"\n" // line 1
+            "int x;\n"
+            "\n"
+            "void Foo::foo()\n" // line 4
+            "{\n"
+            "\n"
+            "}\n" // line 7
+            "\n"
+            "int y;\n").arg(temporaryDir.path()).toLatin1();
 
-    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
-    src->setUtf8Source(srcText);
-    src->parse();
-    src->check();
-    QCOMPARE(src->diagnosticMessages().size(), 0);
-    QCOMPARE(src->globalSymbolCount(), 1U);
-
-    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
-    dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
-                                          Client::IncludeLocal));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
-    dst->setUtf8Source(dstText);
-    dst->parse();
-    dst->check();
-    QCOMPARE(dst->diagnosticMessages().size(), 0);
-    QCOMPARE(dst->globalSymbolCount(), 3U);
+    Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 3U);
+    QVERIFY(sourceDocument);
+    sourceDocument->addIncludeFile(Document::Include(QLatin1String("file.h"),
+                                                     headerDocument->fileName(), 1,
+                                                     Client::IncludeLocal));
 
     Snapshot snapshot;
-    snapshot.insert(src);
-    snapshot.insert(dst);
+    snapshot.insert(headerDocument);
+    snapshot.insert(sourceDocument);
 
-    Class *foo = src->globalSymbolAt(0)->asClass();
+    Class *foo = headerDocument->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
     QCOMPARE(foo->line(), 1U);
     QCOMPARE(foo->column(), 7U);
@@ -528,7 +493,7 @@ void CppToolsPlugin::test_codegen_definition_last_member()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), dst->fileName());
+    QCOMPARE(loc.fileName(), sourceDocument->fileName());
     QCOMPARE(loc.line(), 7U);
     QCOMPARE(loc.column(), 2U);
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
@@ -537,7 +502,10 @@ void CppToolsPlugin::test_codegen_definition_last_member()
 
 void CppToolsPlugin::test_codegen_definition_middle_member()
 {
-    const QByteArray srcText = "\n"
+    Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+
+    const QByteArray headerText = "\n"
             "class Foo\n"  // line 1
             "{\n"
             "void foo();\n" // line 3
@@ -546,46 +514,37 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
             "};\n"
             "\n";
 
-    const QByteArray dstText = QString::fromLatin1(
-                "\n"
-                "#include \"%1/file.h\"\n" // line 1
-                "int x;\n"
-                "\n"
-                "void Foo::foo()\n" // line 4
-                "{\n"
-                "\n"
-                "}\n" // line 7
-                "\n"
-                "void Foo::car()\n" // line 9
-                "{\n"
-                "\n"
-                "}\n"
-                "\n"
-                "int y;\n").arg(QDir::tempPath()).toLatin1();
+    Document::Ptr headerDocument = createDocumentAndFile(&temporaryDir, "file.h", headerText, 1U);
+    QVERIFY(headerDocument);
 
-    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
-    src->setUtf8Source(srcText);
-    src->parse();
-    src->check();
-    QCOMPARE(src->diagnosticMessages().size(), 0);
-    QCOMPARE(src->globalSymbolCount(), 1U);
+    const QByteArray sourceText = QString::fromLatin1(
+            "\n"
+            "#include \"%1/file.h\"\n" // line 1
+            "int x;\n"
+            "\n"
+            "void Foo::foo()\n" // line 4
+            "{\n"
+            "\n"
+            "}\n" // line 7
+            "\n"
+            "void Foo::car()\n" // line 9
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            "int y;\n").arg(QDir::tempPath()).toLatin1();
 
-    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
-    dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
-                                          Client::IncludeLocal));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
-    dst->setUtf8Source(dstText);
-    dst->parse();
-    dst->check();
-    QCOMPARE(dst->diagnosticMessages().size(), 0);
-    QCOMPARE(dst->globalSymbolCount(), 4U);
+    Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 4U);
+    QVERIFY(sourceDocument);
+    sourceDocument->addIncludeFile(Document::Include(QLatin1String("file.h"),
+                                                     headerDocument->fileName(), 1,
+                                                     Client::IncludeLocal));
 
     Snapshot snapshot;
-    snapshot.insert(src);
-    snapshot.insert(dst);
+    snapshot.insert(headerDocument);
+    snapshot.insert(sourceDocument);
 
-    Class *foo = src->globalSymbolAt(0)->asClass();
+    Class *foo = headerDocument->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
     QCOMPARE(foo->line(), 1U);
     QCOMPARE(foo->column(), 7U);
@@ -600,7 +559,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), dst->fileName());
+    QCOMPARE(loc.fileName(), sourceDocument->fileName());
     QCOMPARE(loc.line(), 7U);
     QCOMPARE(loc.column(), 2U);
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
@@ -609,7 +568,10 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
 
 void CppToolsPlugin::test_codegen_definition_middle_member_surrounded_by_undefined()
 {
-    const QByteArray srcText = "\n"
+    Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+
+    const QByteArray headerText = "\n"
             "class Foo\n"  // line 1
             "{\n"
             "void foo();\n" // line 3
@@ -618,8 +580,10 @@ void CppToolsPlugin::test_codegen_definition_middle_member_surrounded_by_undefin
             "void car();\n" // line 6
             "};\n"
             "\n";
+    Document::Ptr headerDocument = createDocumentAndFile(&temporaryDir, "file.h", headerText, 1U);
+    QVERIFY(headerDocument);
 
-    const QByteArray dstText = QString::fromLatin1(
+    const QByteArray sourceText = QString::fromLatin1(
             "\n"
             "#include \"%1/file.h\"\n" // line 1
             "int x;\n"
@@ -629,31 +593,18 @@ void CppToolsPlugin::test_codegen_definition_middle_member_surrounded_by_undefin
             "\n"
             "}\n"
             "\n"
-            "int y;\n").arg(QDir::tempPath()).toLatin1();
-
-    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
-    src->setUtf8Source(srcText);
-    src->parse();
-    src->check();
-    QCOMPARE(src->diagnosticMessages().size(), 0);
-    QCOMPARE(src->globalSymbolCount(), 1U);
-
-    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
-    dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
-                                          Client::IncludeLocal));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
-    dst->setUtf8Source(dstText);
-    dst->parse();
-    dst->check();
-    QCOMPARE(dst->diagnosticMessages().size(), 0);
-    QCOMPARE(dst->globalSymbolCount(), 3U);
+            "int y;\n").arg(temporaryDir.path()).toLatin1();
+    Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 3U);
+    QVERIFY(sourceDocument);
+    sourceDocument->addIncludeFile(Document::Include(QLatin1String("file.h"),
+                                                     headerDocument->fileName(), 1,
+                                                     Client::IncludeLocal));
 
     Snapshot snapshot;
-    snapshot.insert(src);
-    snapshot.insert(dst);
+    snapshot.insert(headerDocument);
+    snapshot.insert(sourceDocument);
 
-    Class *foo = src->globalSymbolAt(0)->asClass();
+    Class *foo = headerDocument->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
     QCOMPARE(foo->line(), 1U);
     QCOMPARE(foo->column(), 7U);
@@ -668,7 +619,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member_surrounded_by_undefin
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), dst->fileName());
+    QCOMPARE(loc.fileName(), sourceDocument->fileName());
     QCOMPARE(loc.line(), 4U);
     QCOMPARE(loc.column(), 1U);
     QCOMPARE(loc.prefix(), QString());
@@ -677,7 +628,10 @@ void CppToolsPlugin::test_codegen_definition_middle_member_surrounded_by_undefin
 
 void CppToolsPlugin::test_codegen_definition_member_specific_file()
 {
-    const QByteArray srcText = "\n"
+    Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+
+    const QByteArray headerText = "\n"
             "class Foo\n"  // line 1
             "{\n"
             "void foo();\n" // line 3
@@ -689,42 +643,31 @@ void CppToolsPlugin::test_codegen_definition_member_specific_file()
             "{\n"
             "\n"
             "}\n";
+    Document::Ptr headerDocument = createDocumentAndFile(&temporaryDir, "file.h", headerText, 2U);
+    QVERIFY(headerDocument);
 
-    const QByteArray dstText = QString::fromLatin1(
-                "\n"
-                "#include \"%1/file.h\"\n" // line 1
-                "int x;\n"
-                "\n"
-                "void Foo::foo()\n" // line 4
-                "{\n"
-                "\n"
-                "}\n" // line 7
-                "\n"
-                "int y;\n").arg(QDir::tempPath()).toLatin1();
-
-    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
-    src->setUtf8Source(srcText);
-    src->parse();
-    src->check();
-    QCOMPARE(src->diagnosticMessages().size(), 0);
-    QCOMPARE(src->globalSymbolCount(), 2U);
-
-    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
-    dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
-                                          Client::IncludeLocal));
-    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
-    dst->setUtf8Source(dstText);
-    dst->parse();
-    dst->check();
-    QCOMPARE(dst->diagnosticMessages().size(), 0);
-    QCOMPARE(dst->globalSymbolCount(), 3U);
+    const QByteArray sourceText = QString::fromLatin1(
+            "\n"
+            "#include \"%1/file.h\"\n" // line 1
+            "int x;\n"
+            "\n"
+            "void Foo::foo()\n" // line 4
+            "{\n"
+            "\n"
+            "}\n" // line 7
+            "\n"
+            "int y;\n").arg(temporaryDir.path()).toLatin1();
+    Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 3U);
+    QVERIFY(sourceDocument);
+    sourceDocument->addIncludeFile(Document::Include(QLatin1String("file.h"),
+                                                     headerDocument->fileName(), 1,
+                                                     Client::IncludeLocal));
 
     Snapshot snapshot;
-    snapshot.insert(src);
-    snapshot.insert(dst);
+    snapshot.insert(headerDocument);
+    snapshot.insert(sourceDocument);
 
-    Class *foo = src->globalSymbolAt(0)->asClass();
+    Class *foo = headerDocument->globalSymbolAt(0)->asClass();
     QVERIFY(foo);
     QCOMPARE(foo->line(), 1U);
     QCOMPARE(foo->column(), 7U);
@@ -736,10 +679,10 @@ void CppToolsPlugin::test_codegen_definition_member_specific_file()
 
     CppRefactoringChanges changes(snapshot);
     InsertionPointLocator find(changes);
-    QList<InsertionLocation> locList = find.methodDefinition(decl, true, dst->fileName());
+    QList<InsertionLocation> locList = find.methodDefinition(decl, true, sourceDocument->fileName());
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), dst->fileName());
+    QCOMPARE(loc.fileName(), sourceDocument->fileName());
     QCOMPARE(loc.line(), 7U);
     QCOMPARE(loc.column(), 2U);
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));

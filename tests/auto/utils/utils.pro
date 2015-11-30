@@ -1,6 +1,8 @@
 TEMPLATE = subdirs
-CONFIG += ordered
 
 SUBDIRS = \
     fileutils \
-    ansiescapecodehandler
+    ansiescapecodehandler \
+    stringutils \
+    templateengine \
+    treemodel

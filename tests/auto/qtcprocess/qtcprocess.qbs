@@ -1,10 +1,8 @@
 import qbs
-import "../autotest.qbs" as Autotest
 
-Autotest {
+QtcAutotest {
     name: "QtcProcess autotest"
     Depends { name: "Utils" }
-    Depends { name: "Qt.widgets" } // TODO: qbs bug, remove when fixed
     files: "tst_qtcprocess.cpp"
     Properties {
         condition: qbs.targetOS === "windows"

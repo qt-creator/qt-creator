@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -44,10 +45,10 @@ const QByteArray TestData("Urgsblubb?");
 
 using namespace QSsh;
 
-Tunnel::Tunnel(const QSsh::SshConnectionParameters &parameters, QObject *parent)
+Tunnel::Tunnel(const SshConnectionParameters &parameters, QObject *parent)
     : QObject(parent),
       m_connection(new SshConnection(parameters, this)),
-      m_tunnelServer(new QTcpServer(this)),
+      m_targetServer(new QTcpServer(this)),
       m_expectingChannelClose(false)
 {
     connect(m_connection, SIGNAL(connected()), SLOT(handleConnected()));
@@ -73,16 +74,17 @@ void Tunnel::handleConnectionError()
 void Tunnel::handleConnected()
 {
     std::cout << "Opening server side..." << std::endl;
-    if (!m_tunnelServer->listen(QHostAddress::LocalHost)) {
+    if (!m_targetServer->listen(QHostAddress::LocalHost)) {
         std::cerr << "Error opening port: "
-                << m_tunnelServer->errorString().toLocal8Bit().constData() << std::endl;
+                << m_targetServer->errorString().toLocal8Bit().constData() << std::endl;
         qApp->exit(EXIT_FAILURE);
         return;
     }
-    m_forwardedPort = m_tunnelServer->serverPort();
-    connect(m_tunnelServer, SIGNAL(newConnection()), SLOT(handleNewConnection()));
+    m_targetPort = m_targetServer->serverPort();
+    connect(m_targetServer, SIGNAL(newConnection()), SLOT(handleNewConnection()));
 
-    m_tunnel = m_connection->createTunnel(m_forwardedPort);
+    m_tunnel = m_connection->createTunnel(QLatin1String("localhost"), 1024, // made-up values
+                                          QLatin1String("localhost"), m_targetPort);
     connect(m_tunnel.data(), SIGNAL(initialized()), SLOT(handleInitialized()));
     connect(m_tunnel.data(), SIGNAL(error(QString)), SLOT(handleTunnelError(QString)));
     connect(m_tunnel.data(), SIGNAL(readyRead()), SLOT(handleServerData()));
@@ -107,7 +109,7 @@ void Tunnel::handleServerData()
     if (m_dataReceivedFromServer == ServerDataPrefix + TestData) {
         std::cout << "Data exchange successful. Closing server socket..." << std::endl;
         m_expectingChannelClose = true;
-        m_tunnelSocket->close();
+        m_targetSocket->close();
     }
 }
 
@@ -131,27 +133,27 @@ void Tunnel::handleTunnelClosed()
 
 void Tunnel::handleNewConnection()
 {
-    m_tunnelSocket = m_tunnelServer->nextPendingConnection();
-    m_tunnelServer->close();
-    connect(m_tunnelSocket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(handleSocketError()));
-    connect(m_tunnelSocket, SIGNAL(readyRead()), SLOT(handleClientData()));
+    m_targetSocket = m_targetServer->nextPendingConnection();
+    m_targetServer->close();
+    connect(m_targetSocket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(handleSocketError()));
+    connect(m_targetSocket, SIGNAL(readyRead()), SLOT(handleClientData()));
     handleClientData();
 }
 
 void Tunnel::handleSocketError()
 {
-    std::cerr << "Socket error: " << m_tunnelSocket->errorString().toLocal8Bit().constData()
+    std::cerr << "Socket error: " << m_targetSocket->errorString().toLocal8Bit().constData()
             << std::endl;
     qApp->exit(EXIT_FAILURE);
 }
 
 void Tunnel::handleClientData()
 {
-    m_dataReceivedFromClient += m_tunnelSocket->readAll();
+    m_dataReceivedFromClient += m_targetSocket->readAll();
     if (m_dataReceivedFromClient == TestData) {
         std::cout << "Client data successfully received by server, now sending data to client..."
                 << std::endl;
-        m_tunnelSocket->write(ServerDataPrefix + m_dataReceivedFromClient);
+        m_targetSocket->write(ServerDataPrefix + m_dataReceivedFromClient);
     }
 }
 

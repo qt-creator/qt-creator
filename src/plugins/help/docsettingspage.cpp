@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -62,9 +63,13 @@ QWidget *DocSettingsPage::widget()
         m_ui.docsListWidget->installEventFilter(this);
 
         const QStringList nameSpaces = HelpManager::registeredNamespaces();
+        const QSet<QString> userDocumentationPaths = HelpManager::userDocumentationPaths();
         foreach (const QString &nameSpace, nameSpaces) {
-            addItem(nameSpace, HelpManager::fileFromNamespace(nameSpace));
-            m_filesToRegister.insert(nameSpace, HelpManager::fileFromNamespace(nameSpace));
+            const QString filePath = HelpManager::fileFromNamespace(nameSpace);
+            bool user = userDocumentationPaths.contains(filePath);
+            addItem(nameSpace, filePath, user);
+            m_filesToRegister.insert(nameSpace, filePath);
+            m_filesToRegisterUserManaged.insert(nameSpace, user);
         }
 
         m_filesToUnregister.clear();
@@ -97,8 +102,9 @@ void DocSettingsPage::addDocumentation()
             continue;
         }
 
-        addItem(nameSpace, file);
-        m_filesToRegister.insert(nameSpace, QDir::toNativeSeparators(filePath));
+        addItem(nameSpace, file, true/*user managed*/);
+        m_filesToRegister.insert(nameSpace, filePath);
+        m_filesToRegisterUserManaged.insert(nameSpace, true/*user managed*/);
 
         // If the files to unregister contains the namespace, grab a copy of all paths added and try to
         // remove the current file path. Afterwards remove the whole entry and add the clean list back.
@@ -149,7 +155,14 @@ void DocSettingsPage::removeDocumentation()
 void DocSettingsPage::apply()
 {
     HelpManager::unregisterDocumentation(m_filesToUnregister.keys());
-    HelpManager::registerDocumentation(m_filesToRegister.values());
+    QStringList files;
+    auto it = m_filesToRegisterUserManaged.constBegin();
+    while (it != m_filesToRegisterUserManaged.constEnd()) {
+        if (it.value()/*userManaged*/)
+            files << m_filesToRegister.value(it.key());
+        ++it;
+    }
+    HelpManager::registerUserDocumentation(files);
 
     m_filesToUnregister.clear();
 }
@@ -177,16 +190,17 @@ bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)
     return IOptionsPage::eventFilter(object, event);
 }
 
-void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> items)
+void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> &items)
 {
     if (items.isEmpty())
         return;
 
     int row = 0;
     foreach (QListWidgetItem* item, items) {
-        const QString nameSpace = item->text();
+        const QString nameSpace = item->data(Qt::UserRole).toString();
 
         m_filesToRegister.remove(nameSpace);
+        m_filesToRegisterUserManaged.remove(nameSpace);
         m_filesToUnregister.insertMulti(nameSpace, QDir::cleanPath(HelpManager::fileFromNamespace(nameSpace)));
 
         row = m_ui.docsListWidget->row(item);
@@ -197,9 +211,11 @@ void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> items)
         QItemSelectionModel::ClearAndSelect);
 }
 
-void DocSettingsPage::addItem(const QString &nameSpace, const QString &fileName)
+void DocSettingsPage::addItem(const QString &nameSpace, const QString &fileName, bool userManaged)
 {
-    QListWidgetItem* item = new QListWidgetItem(nameSpace);
+    const QString name = userManaged ? nameSpace : tr("%1 (auto-detected)").arg(nameSpace);
+    QListWidgetItem* item = new QListWidgetItem(name);
     item->setToolTip(fileName);
+    item->setData(Qt::UserRole, nameSpace);
     m_ui.docsListWidget->addItem(item);
 }

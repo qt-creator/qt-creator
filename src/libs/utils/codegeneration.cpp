@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,31 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "codegeneration.h"
 
+#include "algorithm.h"
+
 #include <QTextStream>
+#include <QSet>
 #include <QStringList>
 #include <QFileInfo>
 
@@ -81,6 +85,65 @@ void writeIncludeFileDirective(const QString &file, bool globalInclude,
 QTCREATOR_UTILS_EXPORT void writeBeginQtVersionCheck(QTextStream &str)
 {
     str << QLatin1String("#if QT_VERSION >= 0x050000\n");
+}
+
+static void qtSection(const QStringList &qtIncludes, QTextStream &str)
+{
+    QStringList sorted = qtIncludes;
+    Utils::sort(sorted);
+    foreach (const QString &inc, sorted) {
+        if (!inc.isEmpty())
+            str << QStringLiteral("#include <%1>\n").arg(inc);
+    }
+}
+
+QTCREATOR_UTILS_EXPORT
+void writeQtIncludeSection(const QStringList &qt4,
+                           const QStringList &qt5,
+                           bool addQtVersionCheck,
+                           bool includeQtModule,
+                           QTextStream &str)
+{
+    std::function<QString(const QString &)> trans;
+    if (includeQtModule)
+        trans = [](const QString &i) { return i; };
+    else
+        trans = [](const QString &i) { return i.mid(i.indexOf(QLatin1Char('/')) + 1); };
+
+    QSet<QString> qt4Only = Utils::transform<QSet>(qt4, trans);
+    QSet<QString> qt5Only = Utils::transform<QSet>(qt5, trans);
+
+    if (addQtVersionCheck) {
+        QSet<QString> common = qt4Only;
+        common.intersect(qt5Only);
+
+        // qglobal.h is needed for QT_VERSION
+        if (includeQtModule)
+            common.insert(QLatin1String("QtCore/qglobal.h"));
+        else
+            common.insert(QLatin1String("qglobal.h"));
+
+        qt4Only.subtract(common);
+        qt5Only.subtract(common);
+
+        qtSection(common.toList(), str);
+
+        if (!qt4Only.isEmpty() || !qt5Only.isEmpty()) {
+            if (addQtVersionCheck)
+                writeBeginQtVersionCheck(str);
+            qtSection(qt5Only.toList(), str);
+            if (addQtVersionCheck)
+                str << QLatin1String("#else\n");
+            qtSection(qt4Only.toList(), str);
+            if (addQtVersionCheck)
+                str << QLatin1String("#endif\n");
+        }
+    } else {
+        if (!qt5Only.isEmpty()) // default to Qt5
+            qtSection(qt5Only.toList(), str);
+        else
+            qtSection(qt4Only.toList(), str);
+    }
 }
 
 QTCREATOR_UTILS_EXPORT

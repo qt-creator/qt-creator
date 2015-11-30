@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Dmitry Savchenko
-** Copyright (c) 2014 Vasiliy Sorokin
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Dmitry Savchenko
+** Copyright (C) 2015 Vasiliy Sorokin
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,8 +36,12 @@
 #include "todoitemsmodel.h"
 #include "todoitemsscanner.h"
 
+#include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 #include <projectexplorer/session.h>
 
 #include <QTimer>
@@ -64,12 +69,19 @@ TodoItemsModel *TodoItemsProvider::todoItemsModel()
 
 void TodoItemsProvider::settingsChanged(const Settings &newSettings)
 {
-    if (newSettings.keywords != m_settings.keywords)
+    if (newSettings.keywords != m_settings.keywords) {
         foreach (TodoItemsScanner *scanner, m_scanners)
-            scanner->setKeywordList(newSettings.keywords);
+            scanner->setParams(newSettings.keywords);
+    }
 
     m_settings = newSettings;
 
+    updateList();
+}
+
+void TodoItemsProvider::projectSettingsChanged(Project *project)
+{
+    Q_UNUSED(project);
     updateList();
 }
 
@@ -80,11 +92,14 @@ void TodoItemsProvider::updateList()
     // Show only items of the current file if any
     if (m_settings.scanningScope == ScanningScopeCurrentFile) {
         if (m_currentEditor)
-            m_itemsList = m_itemsHash.value(m_currentEditor->document()->filePath());
-    // Show only items of the startup project if any
-    } else {
+            m_itemsList = m_itemsHash.value(m_currentEditor->document()->filePath().toString());
+    // Show only items of the current sub-project
+    } else if (m_settings.scanningScope == ScanningScopeSubProject) {
         if (m_startupProject)
-            setItemsListWithinStartupProject();
+            setItemsListWithinSubproject();
+    // Show only items of the startup project if any
+    } else if (m_startupProject) {
+        setItemsListWithinStartupProject();
     }
 
     m_itemsModel->todoItemsListUpdated();
@@ -94,25 +109,68 @@ void TodoItemsProvider::createScanners()
 {
     qRegisterMetaType<QList<TodoItem> >("QList<TodoItem>");
 
-    if (CppTools::CppModelManagerInterface::instance())
+    if (CppTools::CppModelManager::instance())
         m_scanners << new CppTodoItemsScanner(m_settings.keywords, this);
 
     if (QmlJS::ModelManagerInterface::instance())
         m_scanners << new QmlJsTodoItemsScanner(m_settings.keywords, this);
 
-    foreach (TodoItemsScanner *scanner, m_scanners)
+    foreach (TodoItemsScanner *scanner, m_scanners) {
         connect(scanner, SIGNAL(itemsFetched(QString,QList<TodoItem>)), this,
             SLOT(itemsFetched(QString,QList<TodoItem>)), Qt::QueuedConnection);
+    }
 }
 
 void TodoItemsProvider::setItemsListWithinStartupProject()
 {
     QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
-    QSet<QString> fileNames = QSet<QString>::fromList(m_startupProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
+    QSet<QString> fileNames = QSet<QString>::fromList(m_startupProject->files(Project::ExcludeGeneratedFiles));
+
+    QVariantMap settings = m_startupProject->namedSettings(QLatin1String(Constants::SETTINGS_NAME_KEY)).toMap();
+
     while (it.hasNext()) {
         it.next();
-        if (fileNames.contains(it.key()))
-            m_itemsList << it.value();
+        QString fileName = it.key();
+        if (fileNames.contains(fileName)) {
+            bool skip = false;
+            for (const QVariant &pattern : settings[QLatin1String(Constants::EXCLUDES_LIST_KEY)].toList()) {
+                QRegExp re(pattern.toString());
+                if (re.indexIn(fileName) != -1) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip)
+                m_itemsList << it.value();
+        }
+    }
+}
+
+void TodoItemsProvider::setItemsListWithinSubproject()
+{
+    // TODO prefer current editor as source of sub-project
+    Node *node = ProjectTree::currentNode();
+    if (node) {
+        ProjectNode *projectNode = node->projectNode();
+        if (projectNode) {
+
+            FindAllFilesVisitor filesVisitor;
+            projectNode->accept(&filesVisitor);
+
+            // files must be both in the current subproject and the startup-project.
+            QSet<Utils::FileName> subprojectFileNames =
+                    QSet<Utils::FileName>::fromList(filesVisitor.filePaths());
+            QSet<QString> fileNames = QSet<QString>::fromList(
+                        m_startupProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
+            QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
+            while (it.hasNext()) {
+                it.next();
+                if (subprojectFileNames.contains(Utils::FileName::fromString(it.key()))
+                        && fileNames.contains(it.key())) {
+                    m_itemsList << it.value();
+                }
+            }
+        }
     }
 }
 
@@ -124,7 +182,7 @@ void TodoItemsProvider::itemsFetched(const QString &fileName, const QList<TodoIt
     m_shouldUpdateList = true;
 }
 
-void TodoItemsProvider::startupProjectChanged(ProjectExplorer::Project *project)
+void TodoItemsProvider::startupProjectChanged(Project *project)
 {
     m_startupProject = project;
     updateList();
@@ -138,8 +196,10 @@ void TodoItemsProvider::projectsFilesChanged()
 void TodoItemsProvider::currentEditorChanged(Core::IEditor *editor)
 {
     m_currentEditor = editor;
-    if (m_settings.scanningScope == ScanningScopeCurrentFile)
+    if (m_settings.scanningScope == ScanningScopeCurrentFile
+            || m_settings.scanningScope == ScanningScopeSubProject) {
         updateList();
+    }
 }
 
 void TodoItemsProvider::updateListTimeoutElapsed()
@@ -169,7 +229,7 @@ void TodoItemsProvider::setupUpdateListTimer()
 {
     m_shouldUpdateList = false;
     QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), SLOT(updateListTimeoutElapsed()));
+    connect(timer, &QTimer::timeout, this, &TodoItemsProvider::updateListTimeoutElapsed);
     timer->start(Constants::OUTPUT_PANE_UPDATE_INTERVAL);
 }
 

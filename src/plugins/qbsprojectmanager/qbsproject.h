@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,37 +33,28 @@
 
 #include "qbsprojectmanager.h"
 
+#include <cpptools/cppprojects.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/task.h>
 
 #include <utils/environment.h>
 
+#include <qbs.h>
+
 #include <QFuture>
 #include <QTimer>
-#include <QVariantMap>
-
-namespace qbs {
-class BuildJob;
-class CleanJob;
-class Error;
-class ProjectData;
-class SetupProjectJob;
-class CleanOptions;
-class InstallJob;
-class InstallOptions;
-class Project;
-class ErrorInfo;
-class BuildOptions;
-} // namespace qbs
 
 namespace Core { class IDocument; }
 namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace QbsProjectManager {
 namespace Internal {
-
+class QbsBaseProjectNode;
 class QbsProjectNode;
+class QbsRootProjectNode;
+class QbsProjectParser;
 class QbsBuildConfiguration;
 
 class QbsProject : public ProjectExplorer::Project
@@ -81,7 +73,18 @@ public:
 
     QStringList files(FilesMode fileMode) const;
 
-    qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products = QStringList());
+    bool isProjectEditable() const;
+    bool addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
+                           const qbs::ProductData &productData, const qbs::GroupData &groupData,
+                           QStringList *notAdded);
+    bool removeFilesFromProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
+            const qbs::ProductData &productData, const qbs::GroupData &groupData,
+            QStringList *notRemoved);
+    bool renameFileInProduct(QbsBaseProjectNode *node, const QString &oldPath,
+            const QString &newPath, const qbs::ProductData &productData,
+            const qbs::GroupData &groupData);
+
+    qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products, QString &error);
     qbs::CleanJob *clean(const qbs::CleanOptions &opts);
     qbs::InstallJob *install(const qbs::InstallOptions &opts);
 
@@ -90,20 +93,27 @@ public:
     QString profileForTarget(const ProjectExplorer::Target *t) const;
     bool isParsing() const;
     bool hasParseResult() const;
-    void parseCurrentBuildConfiguration(bool force);
+    void parseCurrentBuildConfiguration();
+    void scheduleParsing() { m_parsingScheduled = true; }
+    bool parsingScheduled() const { return m_parsingScheduled; }
+    void cancelParsing();
+    void updateAfterBuild();
 
-    Utils::FileName defaultBuildDirectory() const;
-    static Utils::FileName defaultBuildDirectory(const QString &path);
+    void registerQbsProjectParser(QbsProjectParser *p);
 
     qbs::Project qbsProject() const;
-    const qbs::ProjectData qbsProjectData() const;
+    qbs::ProjectData qbsProjectData() const;
 
     bool needsSpecialDeployment() const;
+    void generateErrors(const qbs::ErrorInfo &e);
+
+    static QString productDisplayName(const qbs::Project &project,
+                                      const qbs::ProductData &product);
+    static QString uniqueProductName(const qbs::ProductData &product);
 
 public slots:
     void invalidate();
     void delayParsing();
-    void delayForcedParsing();
 
 signals:
     void projectParsingStarted();
@@ -111,8 +121,6 @@ signals:
 
 private slots:
     void handleQbsParsingDone(bool success);
-    void handleQbsParsingProgress(int progress);
-    void handleQbsParsingTaskSetup(const QString &description, int maximumProgressValue);
 
     void targetWasAdded(ProjectExplorer::Target *t);
     void changeActiveTarget(ProjectExplorer::Target *t);
@@ -120,33 +128,45 @@ private slots:
     void startParsing();
 
 private:
-    bool fromMap(const QVariantMap &map);
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
 
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
 
-    void generateErrors(const qbs::ErrorInfo &e);
     void prepareForParsing();
     void updateDocuments(const QSet<QString> &files);
-    void updateCppCodeModel(const qbs::ProjectData &prj);
-    void updateQmlJsCodeModel(const qbs::ProjectData &prj);
-    void updateApplicationTargets(const qbs::ProjectData &projectData);
-    void updateDeploymentInfo(const qbs::Project &project);
-    QString resourcesBaseDirectory() const;
-    QString pluginsBaseDirectory() const;
+    void updateCppCodeModel();
+    void updateCppCompilerCallData();
+    void updateQmlJsCodeModel();
+    void updateApplicationTargets();
+    void updateDeploymentInfo();
+    void updateBuildTargetData();
+
+    static bool ensureWriteableQbsFile(const QString &file);
+
+    qbs::GroupData reRetrieveGroupData(const qbs::ProductData &oldProduct,
+                                       const qbs::GroupData &oldGroup);
 
     QbsManager *const m_manager;
     const QString m_projectName;
     const QString m_fileName;
+    qbs::Project m_qbsProject;
+    qbs::ProjectData m_projectData;
     QSet<Core::IDocument *> m_qbsDocuments;
-    QbsProjectNode *m_rootProjectNode;
+    QbsRootProjectNode *m_rootProjectNode;
 
-    qbs::SetupProjectJob *m_qbsSetupProjectJob;
+    QbsProjectParser *m_qbsProjectParser;
 
-    QFutureInterface<void> *m_qbsUpdateFutureInterface;
-    int m_currentProgressBase;
-    bool m_forceParsing;
+    QFutureInterface<bool> *m_qbsUpdateFutureInterface;
+    bool m_parsingScheduled;
+
+    enum CancelStatus {
+        CancelStatusNone,
+        CancelStatusCancelingForReparse,
+        CancelStatusCancelingAltoghether
+    } m_cancelStatus;
 
     QFuture<void> m_codeModelFuture;
+    CppTools::ProjectInfo m_codeModelProjectInfo;
 
     QbsBuildConfiguration *m_currentBc;
 

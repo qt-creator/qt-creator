@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -39,10 +40,6 @@
 
 namespace QmlJSTools {
 
-namespace {
-typedef QmlJS::QmlBundle QmlBundle;
-typedef QmlJS::QmlLanguageBundles QmlLanguageBundles;
-}
 using namespace QmlJS;
 
 /*!
@@ -62,7 +59,7 @@ QmlBundle BasicBundleProvider::defaultBundle(const QString &bundleInfoName)
     QString defaultBundlePath = Core::ICore::resourcePath()
             + QLatin1String("/qml-type-descriptions/")
             + bundleInfoName;
-    if (!QFileInfo(defaultBundlePath).exists()) {
+    if (!QFileInfo::exists(defaultBundlePath)) {
         qWarning() << "BasicBundleProvider: ERROR " << defaultBundlePath
                    << " not found";
         return res;
@@ -112,30 +109,29 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
 {
     QHash<QString,QString> myReplacements = replacements;
 
-    bundles.mergeBundleForLanguage(Language::QmlQbs, defaultQbsBundle());
-    bundles.mergeBundleForLanguage(Language::QmlTypeInfo, defaultQmltypesBundle());
-    bundles.mergeBundleForLanguage(Language::QmlProject, defaultQmlprojectBundle());
+    bundles.mergeBundleForLanguage(Dialect::QmlQbs, defaultQbsBundle());
+    bundles.mergeBundleForLanguage(Dialect::QmlTypeInfo, defaultQmltypesBundle());
+    bundles.mergeBundleForLanguage(Dialect::QmlProject, defaultQmlprojectBundle());
 
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit);
     if (!qtVersion) {
         QmlBundle b1(defaultQt4QtQuick1Bundle());
-        bundles.mergeBundleForLanguage(Language::Qml, b1);
-        bundles.mergeBundleForLanguage(Language::QmlQtQuick1, b1);
+        bundles.mergeBundleForLanguage(Dialect::Qml, b1);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick1, b1);
         QmlBundle b11(defaultQt5QtQuick1Bundle());
-        bundles.mergeBundleForLanguage(Language::Qml, b11);
-        bundles.mergeBundleForLanguage(Language::QmlQtQuick1, b11);
+        bundles.mergeBundleForLanguage(Dialect::Qml, b11);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick1, b11);
         QmlBundle b2(defaultQt5QtQuick2Bundle());
-        bundles.mergeBundleForLanguage(Language::Qml, b2);
-        bundles.mergeBundleForLanguage(Language::QmlQtQuick2, b2);
+        bundles.mergeBundleForLanguage(Dialect::Qml, b2);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2, b2);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2Ui, b2);
         return;
     }
     QString qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
     QString qtQmlPath = qtVersion->qmakeProperty("QT_INSTALL_QML");
 
     Core::FeatureSet features = qtVersion->availableFeatures();
-    if (features.contains(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK))
-            || features.contains(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1))
-            || features.contains(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1_1))) {
+    if (features.contains(Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_QUICK_PREFIX))) {
         myReplacements.insert(QLatin1String("$(CURRENT_DIRECTORY)"), qtImportsPath);
         QDir qtQuick1Bundles(qtImportsPath);
         qtQuick1Bundles.setNameFilters(QStringList(QLatin1String("*-bundle.json")));
@@ -157,10 +153,10 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
                 qtQuick1Bundle.merge(defaultQt5QtQuick1Bundle());
         }
         qtQuick1Bundle.replaceVars(myReplacements);
-        bundles.mergeBundleForLanguage(Language::Qml, qtQuick1Bundle);
-        bundles.mergeBundleForLanguage(Language::QmlQtQuick1, qtQuick1Bundle);
+        bundles.mergeBundleForLanguage(Dialect::Qml, qtQuick1Bundle);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick1, qtQuick1Bundle);
     }
-    if (features.contains(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2))) {
+    if (features.contains(Core::Feature::versionedFeature(QtSupport::Constants::FEATURE_QT_QUICK_PREFIX, 2))) {
         myReplacements.insert(QLatin1String("$(CURRENT_DIRECTORY)"), qtQmlPath);
         QDir qtQuick2Bundles(qtQmlPath);
         qtQuick2Bundles.setNameFilters(QStringList(QLatin1String("*-bundle.json")));
@@ -179,8 +175,9 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
             qtQuick2Bundle.merge(defaultQt5QtQuick2Bundle());
         }
         qtQuick2Bundle.replaceVars(myReplacements);
-        bundles.mergeBundleForLanguage(Language::Qml, qtQuick2Bundle);
-        bundles.mergeBundleForLanguage(Language::QmlQtQuick2, qtQuick2Bundle);
+        bundles.mergeBundleForLanguage(Dialect::Qml, qtQuick2Bundle);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2, qtQuick2Bundle);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2Ui, qtQuick2Bundle);
     }
 }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,18 +31,21 @@
 #include "externaltoolconfig.h"
 #include "ui_externaltoolconfig.h"
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/fancylineedit.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/variablechooser.h>
-#include <coreplugin/variablemanager.h>
 
+#include <QDialogButtonBox>
 #include <QTextStream>
 #include <QMimeData>
 #include <QMenu>
+#include <QPlainTextEdit>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -56,7 +60,6 @@ static const Qt::ItemFlags TOOL_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEn
 ExternalToolModel::ExternalToolModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    setSupportedDragActions(Qt::MoveAction);
 }
 
 ExternalToolModel::~ExternalToolModel()
@@ -257,7 +260,7 @@ bool ExternalToolModel::setData(const QModelIndex &modelIndex, const QVariant &v
             int previousIndex = categories.indexOf(category);
             categories.removeAt(previousIndex);
             categories.append(string);
-            qSort(categories);
+            Utils::sort(categories);
             int newIndex = categories.indexOf(string);
             if (newIndex != previousIndex) {
                 // we have same parent so we have to do special stuff for beginMoveRows...
@@ -327,7 +330,7 @@ QModelIndex ExternalToolModel::addCategory()
     }
     QList<QString> categories = m_tools.keys();
     categories.append(category);
-    qSort(categories);
+    Utils::sort(categories);
     int pos = categories.indexOf(category);
 
     beginInsertRows(QModelIndex(), pos, pos);
@@ -395,6 +398,44 @@ void ExternalToolModel::removeTool(const QModelIndex &modelIndex)
     delete tool;
 }
 
+EnvironmentChangesDialog::EnvironmentChangesDialog(QWidget *parent) :
+    QDialog(parent),
+    m_editor(0)
+{
+    setWindowTitle(tr("Edit Environment Changes"));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setModal(true);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    QLabel *label = new QLabel(this);
+    label->setText(tr("Change system environment by assigning one environment variable per line:"));
+    layout->addWidget(label);
+
+    m_editor = new QPlainTextEdit(this);
+    if (Utils::HostOsInfo::isWindowsHost())
+        m_editor->setPlaceholderText(tr("PATH=C:\\dev\\bin;${PATH}"));
+    else
+        m_editor->setPlaceholderText(tr("PATH=/opt/bin:${PATH}"));
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+
+    layout->addWidget(m_editor);
+    layout->addWidget(buttons);
+
+    connect(buttons, &QDialogButtonBox::accepted, this, &EnvironmentChangesDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, this, &EnvironmentChangesDialog::reject);
+}
+
+QStringList EnvironmentChangesDialog::changes() const
+{
+    return m_editor->toPlainText().split(QLatin1Char('\n'));
+}
+
+void EnvironmentChangesDialog::setChanges(const QStringList &changes)
+{
+    m_editor->setPlainText(changes.join(QLatin1Char('\n')));
+}
+
 // #pragma mark -- ExternalToolConfig
 
 ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
@@ -409,10 +450,11 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->toolTree->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(handleCurrentChanged(QModelIndex,QModelIndex)));
 
-    Core::VariableChooser::addVariableSupport(ui->executable->lineEdit());
-    Core::VariableChooser::addVariableSupport(ui->arguments);
-    Core::VariableChooser::addVariableSupport(ui->workingDirectory->lineEdit());
-    Core::VariableChooser::addVariableSupport(ui->inputText);
+    auto chooser = new VariableChooser(this);
+    chooser->addSupportedWidget(ui->executable->lineEdit());
+    chooser->addSupportedWidget(ui->arguments);
+    chooser->addSupportedWidget(ui->workingDirectory->lineEdit());
+    chooser->addSupportedWidget(ui->inputText);
 
     connect(ui->description, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->executable, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
@@ -421,6 +463,7 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->arguments, SIGNAL(editingFinished()), this, SLOT(updateEffectiveArguments()));
     connect(ui->workingDirectory, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->workingDirectory, SIGNAL(browsingFinished()), this, SLOT(updateCurrentItem()));
+    connect(ui->environmentButton, SIGNAL(clicked()), this, SLOT(editEnvironmentChanges()));
     connect(ui->outputBehavior, SIGNAL(activated(int)), this, SLOT(updateCurrentItem()));
     connect(ui->errorOutputBehavior, SIGNAL(activated(int)), this, SLOT(updateCurrentItem()));
     connect(ui->modifiesDocumentCheckbox, SIGNAL(clicked()), this, SLOT(updateCurrentItem()));
@@ -440,27 +483,11 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
 
     showInfoForItem(QModelIndex());
 
-    new VariableChooser(this);
 }
 
 ExternalToolConfig::~ExternalToolConfig()
 {
     delete ui;
-}
-
-QString ExternalToolConfig::searchKeywords() const
-{
-    QString keywords;
-    QTextStream(&keywords)
-            << ui->descriptionLabel->text()
-            << ui->executableLabel->text()
-            << ui->argumentsLabel->text()
-            << ui->workingDirectoryLabel->text()
-            << ui->outputLabel->text()
-            << ui->errorOutputLabel->text()
-            << ui->modifiesDocumentCheckbox->text()
-            << ui->inputLabel->text();
-    return keywords;
 }
 
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)
@@ -524,6 +551,7 @@ void ExternalToolConfig::updateItem(const QModelIndex &index)
     tool->setExecutables(executables);
     tool->setArguments(ui->arguments->text());
     tool->setWorkingDirectory(ui->workingDirectory->rawPath());
+    tool->setEnvironment(Utils::EnvironmentItem::fromStringList(m_environment));
     tool->setOutputHandling((ExternalTool::OutputHandling)ui->outputBehavior->currentIndex());
     tool->setErrorHandling((ExternalTool::OutputHandling)ui->errorOutputBehavior->currentIndex());
     tool->setModifiesCurrentDocument(ui->modifiesDocumentCheckbox->checkState());
@@ -535,12 +563,13 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     updateButtons(index);
     ExternalTool *tool = m_model->toolForIndex(index);
     if (!tool) {
-        ui->description->setText(QString());
+        ui->description->clear();
         ui->executable->setPath(QString());
-        ui->arguments->setText(QString());
+        ui->arguments->clear();
         ui->workingDirectory->setPath(QString());
-        ui->inputText->setPlainText(QString());
+        ui->inputText->clear();
         ui->infoWidget->setEnabled(false);
+        m_environment.clear();
         return;
     }
     ui->infoWidget->setEnabled(true);
@@ -551,6 +580,7 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     ui->outputBehavior->setCurrentIndex((int)tool->outputHandling());
     ui->errorOutputBehavior->setCurrentIndex((int)tool->errorHandling());
     ui->modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());
+    m_environment = Utils::EnvironmentItem::toStringList(tool->environment());
 
     bool blocked = ui->inputText->blockSignals(true);
     ui->inputText->setPlainText(tool->input());
@@ -558,6 +588,7 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
 
     ui->description->setCursorPosition(0);
     ui->arguments->setCursorPosition(0);
+    updateEnvironmentLabel();
     updateEffectiveArguments();
 }
 
@@ -608,6 +639,23 @@ void ExternalToolConfig::addCategory()
 
 void ExternalToolConfig::updateEffectiveArguments()
 {
-    ui->arguments->setToolTip(Utils::QtcProcess::expandMacros(ui->arguments->text(),
-            Core::VariableManager::macroExpander()));
+    ui->arguments->setToolTip(Utils::globalMacroExpander()->expandProcessArgs(ui->arguments->text()));
+}
+
+void ExternalToolConfig::editEnvironmentChanges()
+{
+    EnvironmentChangesDialog dialog(ui->environmentLabel);
+    dialog.setChanges(m_environment);
+    if (dialog.exec() == QDialog::Accepted) {
+        m_environment = dialog.changes();
+        updateEnvironmentLabel();
+    }
+}
+
+void ExternalToolConfig::updateEnvironmentLabel()
+{
+    QString shortSummary = m_environment.join(QLatin1String("; "));
+    QFontMetrics fm(ui->environmentLabel->font());
+    shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, ui->environmentLabel->width());
+    ui->environmentLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
 }

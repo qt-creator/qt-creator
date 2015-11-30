@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,6 +37,7 @@
 #include <debugger/shared/hostutils.h>
 #include <debugger/threaddata.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -86,7 +88,7 @@ static inline QString cdbBreakPointFileName(const BreakpointParameters &bp,
     if (bp.fileName.isEmpty())
         return bp.fileName;
     if (bp.pathUsage == BreakpointUseShortPath)
-        return QFileInfo(bp.fileName).fileName();
+        return Utils::FileName::fromString(bp.fileName).fileName();
     return cdbSourcePathMapping(QDir::toNativeSeparators(bp.fileName), sourcePathMapping, SourceToDebugger);
 }
 
@@ -132,7 +134,21 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
 
 int breakPointIdToCdbId(const BreakpointModelId &id)
 {
-    return cdbBreakPointStartId +  id.majorPart();
+    return cdbBreakPointStartId + id.majorPart() * cdbBreakPointIdMinorPart + id.minorPart();
+}
+
+template <class ModelId>
+inline ModelId cdbIdToBreakpointId(const int &id)
+{
+    if (id >= cdbBreakPointStartId) {
+        int major = (id - cdbBreakPointStartId) / cdbBreakPointIdMinorPart;
+        int minor = id % cdbBreakPointIdMinorPart;
+        if (minor)
+            return ModelId(major, minor);
+        else
+            return ModelId(major);
+    }
+    return ModelId();
 }
 
 template <class ModelId>
@@ -141,8 +157,8 @@ inline ModelId cdbIdToBreakpointId(const GdbMi &data)
     if (data.isValid()) { // Might not be valid if there is not id
         bool ok;
         const int id = data.data().toInt(&ok);
-        if (ok && id >= cdbBreakPointStartId)
-            return ModelId(id - cdbBreakPointStartId);
+        if (ok)
+            return cdbIdToBreakpointId<ModelId>(id);
     }
     return ModelId();
 }
@@ -220,44 +236,14 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     return rc;
 }
 
-// Fix a CDB integer value: '00000000`0012a290' -> '12a290', '0n10' ->'10'
-QByteArray fixCdbIntegerValue(QByteArray t, bool stripLeadingZeros, int *basePtr /* = 0 */)
+QByteArray cdbClearBreakpointCommand(const BreakpointModelId &id)
 {
-    if (t.isEmpty())
-        return t;
-    int base = 16;
-    // Prefixes
-    if (t.startsWith("0x")) {
-        t.remove(0, 2);
-    } else if (t.startsWith("0n")) {
-        base = 10;
-        t.remove(0, 2);
-    }
-    if (base == 16 && t.size() >= 9 && t.at(8) == '`')
-        t.remove(8, 1);
-    if (stripLeadingZeros) { // Strip all but last '0'
-        const int last = t.size() - 1;
-        int pos = 0;
-        for ( ; pos < last && t.at(pos) == '0'; pos++) ;
-        if (pos)
-            t.remove(0, pos);
-    }
-    if (basePtr)
-        *basePtr = base;
-    return t;
-}
-
-// Convert a CDB integer value: '00000000`0012a290' -> '12a290', '0n10' ->'10'
-QVariant cdbIntegerValue(const QByteArray &t)
-{
-    int base;
-    const QByteArray fixed = fixCdbIntegerValue(t, false, &base);
-    bool ok;
-    const QVariant converted = base == 16 ?
-                               fixed.toULongLong(&ok, base) :
-                               fixed.toLongLong(&ok, base);
-    QTC_ASSERT(ok, return QVariant());
-    return converted;
+    const int firstBreakPoint = breakPointIdToCdbId(id);
+    if (id.isMinor())
+        return "bc " + QByteArray::number(firstBreakPoint);
+    // If this is a major break point we also want to delete all sub break points
+    const int lastBreakPoint = firstBreakPoint + cdbBreakPointIdMinorPart - 1;
+    return "bc " + QByteArray::number(firstBreakPoint) + '-' + QByteArray::number(lastBreakPoint);
 }
 
 // Helper to retrieve an int child from GDBMI
@@ -300,6 +286,13 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     const GdbMi moduleG = gdbmi["module"];
     if (moduleG.isValid())
         r->module = QString::fromLocal8Bit(moduleG.data());
+    const GdbMi sourceFileName = gdbmi["srcfile"];
+    if (sourceFileName.isValid()) {
+        r->fileName = QString::fromLocal8Bit(sourceFileName.data());
+        const GdbMi lineNumber = gdbmi["srcline"];
+        if (lineNumber.isValid())
+            r->lineNumber = lineNumber.data().toULongLong(0, 0);
+    }
     if (expression) {
         const GdbMi expressionG = gdbmi["expression"];
         if (expressionG.isValid())
@@ -481,7 +474,7 @@ bool parseCdbDisassemblerFunctionLine(const QString &l,
     const int linePos = l.indexOf(QLatin1String(" @ "), filePos + 1);
     if (linePos == -1)
         return false;
-        *sourceFile = l.mid(filePos + 1, linePos - filePos - 1).trimmed();
+    *sourceFile = l.mid(filePos + 1, linePos - filePos - 1).trimmed();
     if (debugDisAsm)
         qDebug() << "Function with source: " << l << currentFunction
                  << functionOffset << sourceFile;
@@ -545,7 +538,7 @@ bool parseCdbDisassemblerLine(const QString &line, DisassemblerLine *dLine, uint
     return true;
 }
 
-DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a)
+DisassemblerLines parseCdbDisassembler(const QByteArray &a)
 {
     DisassemblerLines result;
     quint64 functionAddress = 0;
@@ -554,7 +547,7 @@ DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a)
     quint64 functionOffset = 0;
     QString sourceFile;
 
-    foreach (const QByteArray &lineBA, a) {
+    foreach (const QByteArray &lineBA, a.split('\n')) {
         const QString line = QString::fromLatin1(lineBA);
         // New function. Append as comment line.
         if (parseCdbDisassemblerFunctionLine(line, &currentFunction, &functionOffset, &sourceFile)) {

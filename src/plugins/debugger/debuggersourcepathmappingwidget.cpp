@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,32 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "debuggersourcepathmappingwidget.h"
-#include "debuggerstartparameters.h"
+#include "debuggerengine.h"
+
+#include <coreplugin/variablechooser.h>
 
 #include <utils/buildablehelperlibrary.h>
+#include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -86,7 +90,7 @@ public:
     bool isNewPlaceHolderAt(int row) { return isNewPlaceHolder(rawMappingAt(row)); }
 
     void addMapping(const QString &source, const QString &target)
-        { addRawMapping(QDir::toNativeSeparators(source), QDir::toNativeSeparators(target)); }
+        { addRawMapping(source, QDir::toNativeSeparators(target)); }
 
     void addNewMappingPlaceHolder()
         { addRawMapping(m_newSourcePlaceHolder, m_newTargetPlaceHolder); }
@@ -176,7 +180,7 @@ void SourcePathMappingModel::setSource(int row, const QString &s)
 {
     QStandardItem *sourceItem = item(row, SourceColumn);
     QTC_ASSERT(sourceItem, return);
-    sourceItem->setText(s.isEmpty() ? m_newSourcePlaceHolder : QDir::toNativeSeparators(s));
+    sourceItem->setText(s.isEmpty() ? m_newSourcePlaceHolder : s);
 }
 
 void SourcePathMappingModel::setTarget(int row, const QString &t)
@@ -206,67 +210,77 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     m_targetChooser(new PathChooser(this))
 {
     setTitle(tr("Source Paths Mapping"));
-    setToolTip(tr("<html><head/><body><p>Mappings of source file folders to "
+    setToolTip(tr("<p>Mappings of source file folders to "
                   "be used in the debugger can be entered here.</p>"
                   "<p>This is useful when using a copy of the source tree "
                   "at a location different from the one "
                   "at which the modules where built, for example, while "
-                  "doing remote debugging.</body></html>"));
+                  "doing remote debugging.</p>"
+                  "<p>If source is specified as a regular expression by starting it with an "
+                  "open parenthesis, Qt Creator matches the paths in the ELF with the "
+                  "regular expression to automatically determine the source path.</p>"
+                  "<p>Example: <b>(/home/.*/Project)/KnownSubDir -> D:\\Project</b> will "
+                  "substitute ELF built by any user to your local project directory.</p>"));
     // Top list/left part.
     m_treeView->setRootIsDecorated(false);
     m_treeView->setUniformRowHeights(true);
     m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeView->setModel(m_model);
-    connect(m_treeView->selectionModel(),
-            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            SLOT(slotCurrentRowChanged(QModelIndex,QModelIndex)));
+    connect(m_treeView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &DebuggerSourcePathMappingWidget::slotCurrentRowChanged);
 
     // Top list/Right part: Buttons.
-    QVBoxLayout *buttonLayout = new QVBoxLayout;
+    auto buttonLayout = new QVBoxLayout;
     buttonLayout->addWidget(m_addButton);
     buttonLayout->addWidget(m_addQtButton);
     m_addQtButton->setVisible(sizeof(qtBuildPaths) > 0);
-    m_addQtButton->setToolTip(tr("Add a mapping for Qt's source folders "
+    m_addQtButton->setToolTip(tr("<p>Add a mapping for Qt's source folders "
         "when using an unpatched version of Qt."));
     buttonLayout->addWidget(m_removeButton);
-    connect(m_addButton, SIGNAL(clicked()), this, SLOT(slotAdd()));
-    connect(m_addQtButton, SIGNAL(clicked()), this, SLOT(slotAddQt()));
-
-    connect(m_removeButton, SIGNAL(clicked()), this, SLOT(slotRemove()));
+    connect(m_addButton, &QAbstractButton::clicked,
+            this, &DebuggerSourcePathMappingWidget::slotAdd);
+    connect(m_addQtButton, &QAbstractButton::clicked,
+            this, &DebuggerSourcePathMappingWidget::slotAddQt);
+    connect(m_removeButton, &QAbstractButton::clicked,
+            this, &DebuggerSourcePathMappingWidget::slotRemove);
     buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
 
     // Assemble top
-    QHBoxLayout *treeHLayout = new QHBoxLayout;
+    auto treeHLayout = new QHBoxLayout;
     treeHLayout->addWidget(m_treeView);
     treeHLayout->addLayout(buttonLayout);
 
     // Edit part
     m_targetChooser->setExpectedKind(PathChooser::ExistingDirectory);
     m_targetChooser->setHistoryCompleter(QLatin1String("Debugger.MappingTarget.History"));
-    connect(m_sourceLineEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(slotEditSourceFieldChanged()));
-    connect(m_targetChooser, SIGNAL(changed(QString)),
-            this, SLOT(slotEditTargetFieldChanged()));
-    QFormLayout *editLayout = new QFormLayout;
-    const QString sourceToolTip = tr("The source path contained in the "
+    connect(m_sourceLineEdit, &QLineEdit::textChanged,
+            this, &DebuggerSourcePathMappingWidget::slotEditSourceFieldChanged);
+    connect(m_targetChooser, &PathChooser::rawPathChanged,
+            this, &DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged);
+    auto editLayout = new QFormLayout;
+    const QString sourceToolTip = tr("<p>The source path contained in the "
         "debug information of the executable as reported by the debugger");
-    QLabel *editSourceLabel = new QLabel(tr("&Source path:"));
+    auto editSourceLabel = new QLabel(tr("&Source path:"));
     editSourceLabel->setToolTip(sourceToolTip);
     m_sourceLineEdit->setToolTip(sourceToolTip);
     editSourceLabel->setBuddy(m_sourceLineEdit);
     editLayout->addRow(editSourceLabel, m_sourceLineEdit);
 
-    const QString targetToolTip = tr("The actual location of the source "
+    const QString targetToolTip = tr("<p>The actual location of the source "
         "tree on the local machine");
-    QLabel *editTargetLabel = new QLabel(tr("&Target path:"));
+    auto editTargetLabel = new QLabel(tr("&Target path:"));
     editTargetLabel->setToolTip(targetToolTip);
     editTargetLabel->setBuddy(m_targetChooser);
     m_targetChooser->setToolTip(targetToolTip);
     editLayout->addRow(editTargetLabel, m_targetChooser);
+    editLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_targetChooser->lineEdit());
 
     // Main layout
-    QVBoxLayout *mainLayout = new QVBoxLayout;
+    auto mainLayout = new QVBoxLayout;
     mainLayout->addLayout(treeHLayout);
     mainLayout->addLayout(editLayout);
     setLayout(mainLayout);
@@ -285,7 +299,7 @@ QString DebuggerSourcePathMappingWidget::editTargetField() const
 
 void DebuggerSourcePathMappingWidget::setEditFieldMapping(const Mapping &m)
 {
-    m_sourceLineEdit->setText(QDir::toNativeSeparators(m.first));
+    m_sourceLineEdit->setText(m.first);
     m_targetChooser->setPath(m.second);
 }
 
@@ -423,7 +437,7 @@ static QString findQtInstallPath(const FileName &qmakePath)
 /* Merge settings for an installed Qt (unless another setting
  * is already in the map. */
 DebuggerSourcePathMappingWidget::SourcePathMap
-    DebuggerSourcePathMappingWidget::mergePlatformQtPath(const DebuggerStartParameters &sp,
+    DebuggerSourcePathMappingWidget::mergePlatformQtPath(const DebuggerRunParameters &sp,
                                                          const SourcePathMap &in)
 {
     const FileName qmake = BuildableHelperLibrary::findSystemQt(sp.environment);

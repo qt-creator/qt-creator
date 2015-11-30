@@ -4,7 +4,9 @@
         <file>images/wholewords.png</file>
         <file>images/regexp.png</file>
         <file>images/expand.png</file>
+        <file>images/expand@2x.png</file>
         <file>images/wrapindicator.png</file>
+        <file>images/wrapindicator@2x.png</file>
         <file>images/preservecase.png</file>
     </qresource>
 </RCC>

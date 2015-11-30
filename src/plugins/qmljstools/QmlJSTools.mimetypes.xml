@@ -1,38 +1,35 @@
 <?xml version="1.0"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="application/x-qml">
-        <alias type="text/x-qml"/>
+    <mime-type type="text/x-qml">
+        <alias type="application/x-qml"/>
+        <!-- sub class is missing in the freedesktop.org definition -->
         <sub-class-of type="text/plain"/>
         <comment>QML file</comment>
         <glob pattern="*.qml"/>
     </mime-type>
     <mime-type type="application/x-qt.qbs+qml">
         <alias type="text/x-qt.qbs+qml"/>
-        <sub-class-of type="application/x-qml"/>
+        <sub-class-of type="text/x-qml"/>
         <comment>Qt Build Suite file</comment>
         <glob pattern="*.qbs"/>
     </mime-type>
+    <mime-type type="application/x-qt.ui+qml">
+        <alias type="text/x-qt.ui+qml"/>
+        <sub-class-of type="text/x-qml"/>
+        <comment>QtQuick Designer ui file</comment>
+        <glob pattern="*.ui.qml"/>
+    </mime-type>
     <mime-type type="application/x-qmlproject">
         <alias type="text/x-qmlproject"/>
-        <sub-class-of type="application/x-qml"/>
+        <sub-class-of type="text/x-qml"/>
         <comment>Qt Creator Qt UI project file</comment>
         <glob pattern="*.qmlproject"/>
     </mime-type>
     <mime-type type="application/x-qt.meta-info+qml">
         <alias type="text/x-qt.meta-info+qml"/>
-        <sub-class-of type="application/x-qml"/>
+        <sub-class-of type="text/x-qml"/>
         <comment>QML file</comment>
         <glob pattern="*.qmltypes"/>
-    </mime-type>
-    <mime-type type="application/javascript">
-        <alias type="application/x-javascript"/>
-        <alias type="text/javascript"/>
-        <alias type="text/x-javascript"/>
-        <sub-class-of type="text/plain"/>
-        <comment>Qt Script file</comment>
-        <glob pattern="*.js"/>
-        <glob pattern="*.qs"/>
-        <glob pattern="*.qtt"/>
     </mime-type>
     <mime-type type="application/json">
         <sub-class-of type="text/plain"/>

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,8 +32,15 @@
 #include "androidmanager.h"
 #include "ui_androiddevicedialog.h"
 
+#include <utils/environment.h>
+#include <utils/progressindicator.h>
+#include <utils/algorithm.h>
+
+#include <QMessageBox>
 #include <QPainter>
 #include <QStyledItemDelegate>
+#include <QToolTip>
+#include <QtConcurrentRun>
 
 using namespace Android;
 using namespace Android::Internal;
@@ -101,6 +109,7 @@ private:
 
 class AndroidDeviceModelDelegate : public QStyledItemDelegate
 {
+    Q_OBJECT
 public:
     AndroidDeviceModelDelegate(QObject * parent = 0)
         : QStyledItemDelegate(parent)
@@ -160,15 +169,35 @@ public:
 
             QFontMetrics fm(opt.font);
             // TopLeft
-            QString topLeft = device.serialNumber;
+            QString topLeft;
             if (device.type == AndroidDeviceInfo::Hardware)
                 topLeft = AndroidConfigurations::currentConfig().getProductModel(device.serialNumber);
+            else
+                topLeft = device.avdname;
             painter->drawText(size + 12, 2 + opt.rect.top() + fm.ascent(), topLeft);
 
-            QString topRight = device.serialNumber;
+
             // topRight
-            if (device.type == AndroidDeviceInfo::Hardware) // otherwise it's not very informative
-                painter->drawText(opt.rect.right() - fm.width(topRight) - 6 , 2 + opt.rect.top() + fm.ascent(), topRight);
+            auto drawTopRight = [&](const QString text, const QFontMetrics &fm) {
+                painter->drawText(opt.rect.right() - fm.width(text) - 6 , 2 + opt.rect.top() + fm.ascent(), text);
+            };
+
+            if (device.type == AndroidDeviceInfo::Hardware) {
+                drawTopRight(device.serialNumber, fm);
+            } else {
+                AndroidConfig::OpenGl openGl = AndroidConfigurations::currentConfig().getOpenGLEnabled(device.avdname);
+                if (openGl == AndroidConfig::OpenGl::Enabled) {
+                    drawTopRight(tr("OpenGL enabled"), fm);
+                } else if (openGl == AndroidConfig::OpenGl::Disabled) {
+                    QFont font = painter->font();
+                    font.setBold(true);
+                    painter->setFont(font);
+                    QFontMetrics fmBold(font);
+                    drawTopRight(tr("OpenGL disabled"), fmBold);
+                    font.setBold(false);
+                    painter->setFont(font);
+                }
+            }
 
             // Directory
             QColor mix;
@@ -180,9 +209,12 @@ public:
             QString lineText;
             if (node->incompatibleReason().isEmpty()) {
                 lineText = AndroidManager::androidNameForApiLevel(device.sdk) + QLatin1String("  ");
-                lineText += AndroidDeviceDialog::tr("ABI:") + device.cpuAbi.join(QLatin1String(" "));
+                lineText += AndroidDeviceDialog::tr("ABI:") + device.cpuAbi.join(QLatin1Char(' '));
             } else {
                 lineText = node->incompatibleReason();
+                QFont f = painter->font();
+                f.setBold(true);
+                painter->setFont(f);
             }
             painter->drawText(size + 12, opt.rect.top() + fm.ascent() + fm.height() + 6, lineText);
         }
@@ -208,8 +240,9 @@ public:
 
 class AndroidDeviceModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
-    AndroidDeviceModel(int apiLevel, const QString &abi);
+    AndroidDeviceModel(int apiLevel, const QString &abi, AndroidConfigurations::Options options);
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &child) const;
@@ -221,10 +254,11 @@ public:
     AndroidDeviceInfo device(QModelIndex index);
     void setDevices(const QVector<AndroidDeviceInfo> &devices);
 
-    QModelIndex indexFor(const QString &serial);
+    QModelIndex indexFor(AndroidDeviceInfo::AndroidDeviceType type, const QString &serial);
 private:
     int m_apiLevel;
     QString m_abi;
+    AndroidConfigurations::Options m_options;
     AndroidDeviceModelNode *m_root;
 };
 
@@ -233,8 +267,8 @@ private:
 /////////////////
 // AndroidDeviceModel
 /////////////////
-AndroidDeviceModel::AndroidDeviceModel(int apiLevel, const QString &abi)
-    : m_apiLevel(apiLevel), m_abi(abi), m_root(0)
+AndroidDeviceModel::AndroidDeviceModel(int apiLevel, const QString &abi, AndroidConfigurations::Options options)
+    : m_apiLevel(apiLevel), m_abi(abi), m_options(options), m_root(0)
 {
 }
 
@@ -339,10 +373,12 @@ void AndroidDeviceModel::setDevices(const QVector<AndroidDeviceInfo> &devices)
                     .arg(device.serialNumber);
         } else if (!device.cpuAbi.contains(m_abi)) {
             error = AndroidDeviceDialog::tr("ABI is incompatible, device supports ABIs: %1.")
-                    .arg(device.cpuAbi.join(QLatin1String(" ")));
+                    .arg(device.cpuAbi.join(QLatin1Char(' ')));
         } else if (device.sdk < m_apiLevel) {
             error = AndroidDeviceDialog::tr("API Level of device is: %1.")
                     .arg(device.sdk);
+        } else if (device.sdk > 20 && (m_options & AndroidConfigurations::FilterAndroid5)) {
+            error = AndroidDeviceDialog::tr("Android 5 devices are incompatible with deploying Qt to a temporary directory.");
         } else {
             new AndroidDeviceModelNode(compatibleDevices, device);
             continue;
@@ -354,12 +390,16 @@ void AndroidDeviceModel::setDevices(const QVector<AndroidDeviceInfo> &devices)
     endResetModel();
 }
 
-QModelIndex AndroidDeviceModel::indexFor(const QString &serial)
+QModelIndex AndroidDeviceModel::indexFor(AndroidDeviceInfo::AndroidDeviceType type, const QString &serial)
 {
     foreach (AndroidDeviceModelNode *topLevelNode, m_root->children()) {
         QList<AndroidDeviceModelNode *> deviceNodes = topLevelNode->children();
         for (int i = 0; i < deviceNodes.size(); ++i) {
-            if (deviceNodes.at(i)->deviceInfo().serialNumber == serial)
+            const AndroidDeviceInfo &info = deviceNodes.at(i)->deviceInfo();
+            if (info.type != type)
+                continue;
+            if ((type == AndroidDeviceInfo::Hardware && serial == info.serialNumber)
+                    || (type == AndroidDeviceInfo::Emulator && serial == info.avdname))
                 return createIndex(i, 0, deviceNodes.at(i));
         }
     }
@@ -369,12 +409,27 @@ QModelIndex AndroidDeviceModel::indexFor(const QString &serial)
 /////////////////
 // AndroidDeviceDialog
 /////////////////
-AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, QWidget *parent) :
+
+static inline QString msgConnect()
+{
+    return AndroidDeviceDialog::tr("<p>Connect an Android device via USB and activate developer mode on it. "
+                                   "Some devices require the installation of a USB driver.</p>");
+
+}
+
+static inline QString msgAdbListDevices()
+{
+    return AndroidDeviceDialog::tr("<p>The adb tool in the Android SDK lists all connected devices if run via &quot;adb devices&quot;.</p>");
+}
+
+AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, AndroidConfigurations::Options options,
+                                         const QString &serialNumber, QWidget *parent) :
     QDialog(parent),
-    m_model(new AndroidDeviceModel(apiLevel, abi)),
+    m_model(new AndroidDeviceModel(apiLevel, abi, options)),
     m_ui(new Ui::AndroidDeviceDialog),
     m_apiLevel(apiLevel),
-    m_abi(abi)
+    m_abi(abi),
+    m_defaultDevice(serialNumber)
 {
     m_ui->setupUi(this);
     m_ui->deviceView->setModel(m_model);
@@ -386,17 +441,54 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, QWidg
 
     m_ui->defaultDeviceCheckBox->setText(tr("Always use this device for architecture %1").arg(abi));
 
+    m_ui->noDeviceFoundLabel->setText(QLatin1String("<p align=\"center\"><span style=\" font-size:16pt;\">")
+                                      + tr("No Device Found") + QLatin1String("</span></p><br/>")
+                                      + msgConnect() + QLatin1String("<br/>")
+                                      + msgAdbListDevices());
+    connect(m_ui->missingLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(showHelp()));
+
     connect(m_ui->refreshDevicesButton, SIGNAL(clicked()),
             this, SLOT(refreshDeviceList()));
 
     connect(m_ui->createAVDButton, SIGNAL(clicked()),
             this, SLOT(createAvd()));
+    connect(m_ui->deviceView, SIGNAL(doubleClicked(QModelIndex)),
+            this, SLOT(accept()));
+
+    connect(&m_futureWatcherAddDevice, SIGNAL(finished()),
+            this, SLOT(avdAdded()));
+    connect(&m_futureWatcherRefreshDevices, &QFutureWatcherBase::finished,
+            this, &AndroidDeviceDialog::devicesRefreshed);
 
     refreshDeviceList();
+
+    connect(m_ui->deviceView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &AndroidDeviceDialog::enableOkayButton);
+
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large, this);
+    m_progressIndicator->attachToWidget(m_ui->deviceView);
+
+    if (serialNumber.isEmpty()) {
+        m_ui->lookingForDevice->setVisible(false);
+        m_ui->lookingForDeviceCancel->setVisible(false);
+    } else {
+        m_ui->lookingForDevice->setVisible(true);
+        m_ui->lookingForDevice->setText(tr("Looking for default device <b>%1</b>.").arg(serialNumber));
+        m_ui->lookingForDeviceCancel->setVisible(true);
+    }
+
+    connect(m_ui->lookingForDeviceCancel, &QPushButton::clicked,
+            this, &AndroidDeviceDialog::defaultDeviceClear);
+    m_defaultDeviceTimer.start();
 }
 
 AndroidDeviceDialog::~AndroidDeviceDialog()
 {
+    m_futureWatcherAddDevice.waitForFinished();
+    m_futureWatcherRefreshDevices.waitForFinished();
     delete m_ui;
 }
 
@@ -419,17 +511,43 @@ bool AndroidDeviceDialog::saveDeviceSelection()
 
 void AndroidDeviceDialog::refreshDeviceList()
 {
+    m_ui->refreshDevicesButton->setEnabled(false);
+    m_futureWatcherRefreshDevices.setFuture(QtConcurrent::run(&AndroidDeviceDialog::refreshDevices,
+                                                              AndroidConfigurations::currentConfig().adbToolPath().toString(),
+                                                              AndroidConfigurations::currentConfig().androidToolPath().toString(),
+                                                              AndroidConfigurations::currentConfig().androidToolEnvironment()));
+}
+
+QVector<AndroidDeviceInfo> AndroidDeviceDialog::refreshDevices(const QString &adbToolPath,
+                                                               const QString &androidToolPath,
+                                                               const Utils::Environment &environment)
+{
+    QVector<AndroidDeviceInfo> devices = AndroidConfig::connectedDevices(adbToolPath);
+
+    QSet<QString> startedAvds = Utils::transform<QSet>(devices,
+                                                       [] (const AndroidDeviceInfo &info) {
+                                                           return info.avdname;
+                                                       });
+
+    for (const AndroidDeviceInfo &dev : AndroidConfig::androidVirtualDevices(androidToolPath, environment))
+        if (!startedAvds.contains(dev.avdname))
+            devices << dev;
+    return devices;
+}
+
+void AndroidDeviceDialog::devicesRefreshed()
+{
+    m_progressIndicator->hide();
     QString serialNumber;
+    AndroidDeviceInfo::AndroidDeviceType deviceType = AndroidDeviceInfo::Hardware;
     QModelIndex currentIndex = m_ui->deviceView->currentIndex();
-    if (currentIndex.isValid())
-        serialNumber = m_model->device(currentIndex).serialNumber;
+    if (currentIndex.isValid()) { // save currently selected index
+        AndroidDeviceInfo info = m_model->device(currentIndex);
+        deviceType = info.type;
+        serialNumber = deviceType == AndroidDeviceInfo::Hardware ? info.serialNumber : info.avdname;
+    }
 
-    QVector<AndroidDeviceInfo> devices;
-    foreach (const AndroidDeviceInfo &info, AndroidConfigurations::currentConfig().connectedDevices())
-        if (info.type == AndroidDeviceInfo::Hardware)
-            devices << info;
-
-    devices += AndroidConfigurations::currentConfig().androidVirtualDevices();
+    QVector<AndroidDeviceInfo> devices = m_futureWatcherRefreshDevices.result();
     m_model->setDevices(devices);
 
     m_ui->deviceView->expand(m_model->index(0, 0));
@@ -438,23 +556,86 @@ void AndroidDeviceDialog::refreshDeviceList()
 
     // Smartly select a index
     QModelIndex newIndex;
-    if (!serialNumber.isEmpty())
-        newIndex = m_model->indexFor(serialNumber);
+    if (!m_defaultDevice.isEmpty()) {
+        newIndex = m_model->indexFor(AndroidDeviceInfo::Hardware, m_defaultDevice);
+        if (!newIndex.isValid())
+            newIndex = m_model->indexFor(AndroidDeviceInfo::Emulator, m_defaultDevice);
+        if (!newIndex.isValid()) // not found the default device
+            defaultDeviceClear();
+    }
 
-    if (!newIndex.isValid() && !devices.isEmpty())
-        newIndex = m_model->indexFor(devices.first().serialNumber);
+    if (!newIndex.isValid() && !m_avdNameFromAdd.isEmpty()) {
+        newIndex = m_model->indexFor(AndroidDeviceInfo::Emulator, m_avdNameFromAdd);
+        m_avdNameFromAdd.clear();
+    }
+
+    if (!newIndex.isValid() && !serialNumber.isEmpty())
+        newIndex = m_model->indexFor(deviceType, serialNumber);
+
+    if (!newIndex.isValid() && !devices.isEmpty()) {
+        AndroidDeviceInfo info = devices.first();
+        const QString &name = info.type == AndroidDeviceInfo::Hardware ? info.serialNumber : info.avdname;
+        newIndex = m_model->indexFor(info.type, name);
+    }
 
     m_ui->deviceView->setCurrentIndex(newIndex);
+
+    m_ui->stackedWidget->setCurrentIndex(devices.isEmpty() ? 1 : 0);
+
+    m_ui->refreshDevicesButton->setEnabled(true);
+
+    if (!m_defaultDevice.isEmpty()) {
+        int elapsed = m_defaultDeviceTimer.elapsed();
+        if (elapsed > 4000)
+            accept();
+        else
+            QTimer::singleShot(4000 - elapsed, this, &AndroidDeviceDialog::useDefaultDevice);
+    }
+}
+
+void AndroidDeviceDialog::useDefaultDevice()
+{
+    if (m_defaultDevice.isEmpty())
+        return;
+    AndroidDeviceInfo info = m_model->device(m_ui->deviceView->currentIndex());
+    if (info.serialNumber == m_defaultDevice
+            || info.avdname == m_defaultDevice)
+        accept();
+    else // something different is selected
+        defaultDeviceClear();
 }
 
 void AndroidDeviceDialog::createAvd()
 {
-    QString avd = AndroidConfigurations::currentConfig().createAVD(this, m_apiLevel, m_abi);
-    if (avd.isEmpty())
+    m_ui->createAVDButton->setEnabled(false);
+    AndroidConfig::CreateAvdInfo info = AndroidConfigurations::currentConfig().gatherCreateAVDInfo(this, m_apiLevel, m_abi);
+
+    if (info.target.isEmpty()) {
+        m_ui->createAVDButton->setEnabled(true);
         return;
+    }
+
+    m_futureWatcherAddDevice.setFuture(AndroidConfigurations::currentConfig().createAVD(info));
+}
+
+void AndroidDeviceDialog::avdAdded()
+{
+    m_ui->createAVDButton->setEnabled(true);
+    AndroidConfig::CreateAvdInfo info = m_futureWatcherAddDevice.result();
+    if (!info.error.isEmpty()) {
+        QMessageBox::critical(this, QApplication::translate("AndroidConfig", "Error Creating AVD"), info.error);
+        return;
+    }
+
+    m_avdNameFromAdd = info.name;
     refreshDeviceList();
-    QModelIndex index = m_model->indexFor(avd);
-    m_ui->deviceView->setCurrentIndex(index);
+}
+
+void AndroidDeviceDialog::enableOkayButton()
+{
+    AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(m_ui->deviceView->currentIndex().internalPointer());
+    bool enable = node && (!node->deviceInfo().serialNumber.isEmpty() || !node->deviceInfo().avdname.isEmpty());
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }
 
 // Does not work.
@@ -470,3 +651,19 @@ void AndroidDeviceDialog::clickedOnView(const QModelIndex &idx)
         }
     }
 }
+
+void AndroidDeviceDialog::showHelp()
+{
+    QPoint pos = m_ui->missingLabel->pos();
+    pos = m_ui->missingLabel->parentWidget()->mapToGlobal(pos);
+    QToolTip::showText(pos, msgConnect() + msgAdbListDevices(), this);
+}
+
+void AndroidDeviceDialog::defaultDeviceClear()
+{
+    m_ui->lookingForDevice->setVisible(false);
+    m_ui->lookingForDeviceCancel->setVisible(false);
+    m_defaultDevice.clear();
+}
+
+#include "androiddevicedialog.moc"

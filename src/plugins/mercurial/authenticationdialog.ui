@@ -19,7 +19,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="usernameLabel">
        <property name="text">
-        <string>User name:</string>
+        <string>Username:</string>
        </property>
       </widget>
      </item>

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,10 +32,9 @@
 #define OPENEDITORSVIEW_H
 
 #include <coreplugin/inavigationwidgetfactory.h>
+#include <coreplugin/opendocumentstreeview.h>
 
 #include <QAbstractProxyModel>
-#include <QStyledItemDelegate>
-#include <QTreeView>
 
 namespace Core {
 class IEditor;
@@ -56,10 +56,10 @@ public:
 
     void setSourceModel(QAbstractItemModel *sourceModel);
 
-#if QT_VERSION >= 0x050000
     // QAbstractProxyModel::sibling is broken in Qt 5
     QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
-#endif
+    // QAbstractProxyModel::supportedDragActions delegation is missing in Qt 5
+    Qt::DropActions supportedDragActions() const;
 
 private slots:
     void sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -69,18 +69,7 @@ private slots:
     void sourceRowsAboutToBeInserted(const QModelIndex &parent, int start, int end);
 };
 
-class OpenEditorsDelegate : public QStyledItemDelegate
-{
-public:
-    explicit OpenEditorsDelegate(QObject *parent = 0);
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
-
-    mutable QModelIndex pressedIndex;
-};
-
-class OpenEditorsWidget : public QTreeView
+class OpenEditorsWidget : public OpenDocumentsTreeView
 {
     Q_OBJECT
 
@@ -88,34 +77,24 @@ public:
     OpenEditorsWidget();
     ~OpenEditorsWidget();
 
-    bool eventFilter(QObject *obj, QEvent *event);
-
-private slots:
-    void handleClicked(const QModelIndex &);
-    void handlePressed(const QModelIndex &);
-    void updateCurrentItem(Core::IEditor*);
-    void contextMenuRequested(QPoint pos);
-
 private:
+    void handleActivated(const QModelIndex &);
+    void updateCurrentItem(IEditor*);
+    void contextMenuRequested(QPoint pos);
     void activateEditor(const QModelIndex &index);
-    void closeEditor(const QModelIndex &index);
-    using QAbstractItemView::closeEditor;
+    void closeDocument(const QModelIndex &index);
 
-    OpenEditorsDelegate *m_delegate;
     ProxyModel *m_model;
 };
 
-class OpenEditorsViewFactory : public Core::INavigationWidgetFactory
+class OpenEditorsViewFactory : public INavigationWidgetFactory
 {
     Q_OBJECT
+
 public:
     OpenEditorsViewFactory();
-    ~OpenEditorsViewFactory();
-    QString displayName() const;
-    int priority() const;
-    Id id() const;
-    QKeySequence activationSequence() const;
-    Core::NavigationView createWidget();
+
+    NavigationView createWidget();
 };
 
 } // namespace Internal

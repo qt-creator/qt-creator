@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -198,12 +194,12 @@ void MoveTool::keyReleaseEvent(QKeyEvent *keyEvent)
     }
 }
 
-void  MoveTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+void  MoveTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
 
 }
 
-void  MoveTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+void  MoveTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
 
 }
@@ -319,35 +315,7 @@ void MoveTool::beginWithPoint(const QPointF &beginPoint)
     m_moveManipulator.begin(beginPoint);
 }
 
-static bool isNotAncestorOfItemInList(FormEditorItem *formEditorItem, const QList<FormEditorItem*> &itemList)
-{
-    foreach (FormEditorItem *item, itemList) {
-        if (item
-            && item->qmlItemNode().isValid()
-            && item->qmlItemNode().isAncestorOf(formEditorItem->qmlItemNode()))
-            return false;
-    }
 
-    return true;
-}
-
-FormEditorItem* MoveTool::containerFormEditorItem(const QList<QGraphicsItem*> &itemUnderMouseList,
-                                        const QList<FormEditorItem*> &selectedItemList)
-{
-    Q_ASSERT(!selectedItemList.isEmpty());
-
-    foreach (QGraphicsItem* item, itemUnderMouseList) {
-        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-        if (formEditorItem
-           && !selectedItemList.contains(formEditorItem)
-           && isNotAncestorOfItemInList(formEditorItem, selectedItemList)
-           && formEditorItem->isContainer())
-                return formEditorItem;
-
-    }
-
-    return 0;
-}
 
 QList<FormEditorItem*> movalbeItems(const QList<FormEditorItem*> &itemList)
 {

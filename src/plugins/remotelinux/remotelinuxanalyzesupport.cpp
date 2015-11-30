@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -41,7 +42,9 @@
 #include <projectexplorer/kitinformation.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <qmldebug/qmloutputparser.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QPointer>
 
@@ -55,9 +58,9 @@ namespace Internal {
 class RemoteLinuxAnalyzeSupportPrivate
 {
 public:
-    RemoteLinuxAnalyzeSupportPrivate(AnalyzerRunControl *rc, RunMode runMode)
+    RemoteLinuxAnalyzeSupportPrivate(AnalyzerRunControl *rc, Core::Id runMode)
         : runControl(rc),
-          qmlProfiling(runMode == QmlProfilerRunMode),
+          qmlProfiling(runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE),
           qmlPort(-1)
     {
     }
@@ -73,30 +76,38 @@ public:
 
 using namespace Internal;
 
-AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RemoteLinuxRunConfiguration *runConfig,
-                                                                   RunMode runMode)
+AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RunConfiguration *runConfig,
+                                                                   Core::Id runMode)
 {
     AnalyzerStartParameters params;
-    if (runMode == QmlProfilerRunMode)
-        params.startMode = StartLocal;
     params.runMode = runMode;
     params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
     params.displayName = runConfig->displayName();
     params.sysroot = SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
     params.analyzerHost = params.connParams.host;
 
+    auto rc = qobject_cast<const AbstractRemoteLinuxRunConfiguration *>(runConfig);
+    QTC_ASSERT(rc, return params);
+
+    params.debuggee = rc->remoteExecutableFilePath();
+    params.debuggeeArgs = Utils::QtcProcess::Arguments::createUnixArgs(rc->arguments()).toString();
+    params.workingDirectory = rc->workingDirectory();
+    params.environment = rc->environment();
+
     return params;
 }
 
-RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RemoteLinuxRunConfiguration *runConfig,
-                                                     AnalyzerRunControl *engine, RunMode runMode)
+RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
+                                                     AnalyzerRunControl *engine, Core::Id runMode)
     : AbstractRemoteLinuxRunSupport(runConfig, engine),
       d(new RemoteLinuxAnalyzeSupportPrivate(engine, runMode))
 {
     connect(d->runControl, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
             SLOT(handleRemoteSetupRequested()));
-    connect(&d->outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
-            SLOT(remoteIsRunning()));
+    connect(&d->outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
+            this, &RemoteLinuxAnalyzeSupport::remoteIsRunning);
+    connect(engine, &RunControl::finished,
+            this, &RemoteLinuxAnalyzeSupport::handleProfilingFinished);
 }
 
 RemoteLinuxAnalyzeSupport::~RemoteLinuxAnalyzeSupport()
@@ -132,15 +143,22 @@ void RemoteLinuxAnalyzeSupport::startExecution()
     setState(StartingRunner);
 
     DeviceApplicationRunner *runner = appRunner();
-    connect(runner, SIGNAL(remoteStderr(QByteArray)), SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
-    connect(runner, SIGNAL(remoteProcessStarted()), SLOT(handleRemoteProcessStarted()));
-    connect(runner, SIGNAL(finished(bool)), SLOT(handleAppRunnerFinished(bool)));
-    connect(runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
-    connect(runner, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
+    connect(runner, &DeviceApplicationRunner::remoteStderr,
+            this, &RemoteLinuxAnalyzeSupport::handleRemoteErrorOutput);
+    connect(runner, &DeviceApplicationRunner::remoteStdout,
+            this, &RemoteLinuxAnalyzeSupport::handleRemoteOutput);
+    connect(runner, &DeviceApplicationRunner::remoteProcessStarted,
+            this, &RemoteLinuxAnalyzeSupport::handleRemoteProcessStarted);
+    connect(runner, &DeviceApplicationRunner::finished,
+            this, &RemoteLinuxAnalyzeSupport::handleAppRunnerFinished);
+    connect(runner, &DeviceApplicationRunner::reportProgress,
+            this, &RemoteLinuxAnalyzeSupport::handleProgressReport);
+    connect(runner, &DeviceApplicationRunner::reportError,
+            this, &RemoteLinuxAnalyzeSupport::handleAppRunnerError);
 
     const QStringList args = arguments()
-            << QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(d->qmlPort);
+            << QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, d->qmlPort);
+
     runner->setWorkingDirectory(workingDirectory());
     runner->setEnvironment(environment());
     runner->start(device(), remoteFilePath(), args);
@@ -160,7 +178,7 @@ void RemoteLinuxAnalyzeSupport::handleAppRunnerFinished(bool success)
     reset();
     if (!success)
         showMessage(tr("Failure running remote process."), Utils::NormalMessageFormat);
-    d->runControl->notifyRemoteFinished(success);
+    d->runControl->notifyRemoteFinished();
 }
 
 void RemoteLinuxAnalyzeSupport::handleProfilingFinished()

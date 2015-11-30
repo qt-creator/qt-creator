@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,13 +31,16 @@
 #include "snapshothandler.h"
 
 #include "debuggerinternalconstants.h"
+#include "debuggericons.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerstartparameters.h"
 
 #include <utils/qtcassert.h>
 
+#include <QIcon>
 #include <QDebug>
+#include <QFile>
 
 namespace Debugger {
 namespace Internal {
@@ -120,8 +124,8 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 */
 
 SnapshotHandler::SnapshotHandler()
-  : m_positionIcon(QIcon(QLatin1String(":/debugger/images/location_16.png"))),
-    m_emptyIcon(QIcon(QLatin1String(":/debugger/images/debugger_empty_14.png")))
+  : m_positionIcon(Icons::LOCATION.icon()),
+    m_emptyIcon(Icons::EMPTY.icon())
 {
     m_currentIndex = -1;
 }
@@ -130,9 +134,9 @@ SnapshotHandler::~SnapshotHandler()
 {
     for (int i = m_snapshots.size(); --i >= 0; ) {
         if (DebuggerEngine *engine = at(i)) {
-            const DebuggerStartParameters &sp = engine->startParameters();
-            if (sp.isSnapshot && !sp.coreFile.isEmpty())
-                QFile::remove(sp.coreFile);
+            const DebuggerRunParameters &rp = engine->runParameters();
+            if (rp.isSnapshot && !rp.coreFile.isEmpty())
+                QFile::remove(rp.coreFile);
         }
     }
 }
@@ -161,15 +165,15 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
     if (!engine)
         return QLatin1String("<finished>");
 
-    const DebuggerStartParameters &sp = engine->startParameters();
+    const DebuggerRunParameters &rp = engine->runParameters();
 
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
         case 0:
-            return sp.displayName;
+            return rp.displayName;
         case 1:
-            return sp.coreFile.isEmpty() ? sp.executable : sp.coreFile;
+            return rp.coreFile.isEmpty() ? rp.executable : rp.coreFile;
         }
         return QVariant();
 
@@ -213,7 +217,7 @@ void SnapshotHandler::activateSnapshot(int index)
     beginResetModel();
     m_currentIndex = index;
     //qDebug() << "ACTIVATING INDEX: " << m_currentIndex << " OF " << size();
-    debuggerCore()->displayDebugger(at(index), true);
+    Internal::displayDebugger(at(index), true);
     endResetModel();
 }
 

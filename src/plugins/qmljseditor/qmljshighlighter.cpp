@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,50 +31,50 @@
 #include "qmljshighlighter.h"
 
 #include <QSet>
-#include <QtAlgorithms>
-#include <QDebug>
 
 #include <utils/qtcassert.h>
 
-using namespace QmlJSEditor;
 using namespace QmlJS;
+using namespace TextEditor;
 
-Highlighter::Highlighter(QTextDocument *parent)
-    : TextEditor::SyntaxHighlighter(parent),
+namespace QmlJSEditor {
+
+QmlJSHighlighter::QmlJSHighlighter(QTextDocument *parent)
+    : SyntaxHighlighter(parent),
       m_qmlEnabled(true),
       m_braceDepth(0),
       m_foldingIndent(0),
       m_inMultilineComment(false)
 {
     m_currentBlockParentheses.reserve(20);
-    static QVector<TextEditor::TextStyle> categories;
+    static QVector<TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << TextEditor::C_NUMBER
-                   << TextEditor::C_STRING
-                   << TextEditor::C_TYPE
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_FIELD
-                   << TextEditor::C_COMMENT
-                   << TextEditor::C_VISUAL_WHITESPACE;
+        categories << C_NUMBER
+                   << C_STRING
+                   << C_TYPE
+                   << C_KEYWORD
+                   << C_FIELD
+                   << C_COMMENT
+                   << C_VISUAL_WHITESPACE;
     }
     setTextFormatCategories(categories);
 }
 
-Highlighter::~Highlighter()
+QmlJSHighlighter::~QmlJSHighlighter()
 {
 }
 
-bool Highlighter::isQmlEnabled() const
+bool QmlJSHighlighter::isQmlEnabled() const
 {
     return m_qmlEnabled;
 }
 
-void Highlighter::setQmlEnabled(bool qmlEnabled)
+void QmlJSHighlighter::setQmlEnabled(bool qmlEnabled)
 {
     m_qmlEnabled = qmlEnabled;
 }
 
-void Highlighter::highlightBlock(const QString &text)
+void QmlJSHighlighter::highlightBlock(const QString &text)
 {
     const QList<Token> tokens = m_scanner(text, onBlockStart());
 
@@ -202,7 +203,7 @@ void Highlighter::highlightBlock(const QString &text)
     onBlockEnd(m_scanner.state());
 }
 
-bool Highlighter::maybeQmlKeyword(const QStringRef &text) const
+bool QmlJSHighlighter::maybeQmlKeyword(const QStringRef &text) const
 {
     if (text.isEmpty())
         return false;
@@ -226,7 +227,7 @@ bool Highlighter::maybeQmlKeyword(const QStringRef &text) const
         return false;
 }
 
-bool Highlighter::maybeQmlBuiltinType(const QStringRef &text) const
+bool QmlJSHighlighter::maybeQmlBuiltinType(const QStringRef &text) const
 {
     if (text.isEmpty())
         return false;
@@ -283,13 +284,13 @@ bool Highlighter::maybeQmlBuiltinType(const QStringRef &text) const
         return false;
 }
 
-int Highlighter::onBlockStart()
+int QmlJSHighlighter::onBlockStart()
 {
     m_currentBlockParentheses.clear();
     m_braceDepth = 0;
     m_foldingIndent = 0;
     m_inMultilineComment = false;
-    if (TextEditor::TextBlockUserData *userData = TextEditor::BaseTextDocumentLayout::testUserData(currentBlock())) {
+    if (TextBlockUserData *userData = TextDocumentLayout::testUserData(currentBlock())) {
         userData->setFoldingIndent(0);
         userData->setFoldingStartIncluded(false);
         userData->setFoldingEndIncluded(false);
@@ -307,34 +308,35 @@ int Highlighter::onBlockStart()
     return state;
 }
 
-void Highlighter::onBlockEnd(int state)
+void QmlJSHighlighter::onBlockEnd(int state)
 {
     setCurrentBlockState((m_braceDepth << 8) | state);
-    TextEditor::BaseTextDocumentLayout::setParentheses(currentBlock(), m_currentBlockParentheses);
-    TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), m_foldingIndent);
+    TextDocumentLayout::setParentheses(currentBlock(), m_currentBlockParentheses);
+    TextDocumentLayout::setFoldingIndent(currentBlock(), m_foldingIndent);
 }
 
-void Highlighter::onOpeningParenthesis(QChar parenthesis, int pos, bool atStart)
+void QmlJSHighlighter::onOpeningParenthesis(QChar parenthesis, int pos, bool atStart)
 {
     if (parenthesis == QLatin1Char('{') || parenthesis == QLatin1Char('[') || parenthesis == QLatin1Char('+')) {
         ++m_braceDepth;
         // if a folding block opens at the beginning of a line, treat the entire line
         // as if it were inside the folding block
         if (atStart)
-            TextEditor::BaseTextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
+            TextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
     }
     m_currentBlockParentheses.push_back(Parenthesis(Parenthesis::Opened, parenthesis, pos));
 }
 
-void Highlighter::onClosingParenthesis(QChar parenthesis, int pos, bool atEnd)
+void QmlJSHighlighter::onClosingParenthesis(QChar parenthesis, int pos, bool atEnd)
 {
     if (parenthesis == QLatin1Char('}') || parenthesis == QLatin1Char(']') || parenthesis == QLatin1Char('-')) {
         --m_braceDepth;
         if (atEnd)
-            TextEditor::BaseTextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
+            TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
         else
             m_foldingIndent = qMin(m_braceDepth, m_foldingIndent); // folding indent is the minimum brace depth of a block
     }
     m_currentBlockParentheses.push_back(Parenthesis(Parenthesis::Closed, parenthesis, pos));
 }
 
+} // namespace QmlJSEditor

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -60,11 +61,6 @@ using namespace Help::Internal;
 GeneralSettingsPage::GeneralSettingsPage()
     : m_ui(0)
 {
-    m_font = qApp->font();
-#if !defined(QT_NO_WEBKIT)
-    QWebSettings* webSettings = QWebSettings::globalSettings();
-    m_font.setPointSize(webSettings->fontSize(QWebSettings::DefaultFontSize));
-#endif
     setId("A.General settings");
     setDisplayName(tr("General"));
     setCategory(Help::Constants::HELP_CATEGORY);
@@ -81,42 +77,39 @@ QWidget *GeneralSettingsPage::widget()
         m_ui->sizeComboBox->setEditable(false);
         m_ui->styleComboBox->setEditable(false);
 
-        m_font = qvariant_cast<QFont>(HelpManager::customValue(QLatin1String("font"), m_font));
+        m_font = LocalHelpManager::fallbackFont();
 
         updateFontSize();
         updateFontStyle();
         updateFontFamily();
 
-        m_homePage = HelpManager::customValue(QLatin1String("HomePage"), QString())
-                .toString();
-        if (m_homePage.isEmpty()) {
-            m_homePage = HelpManager::customValue(QLatin1String("DefaultHomePage"),
-                                                  Help::Constants::AboutBlank).toString();
-        }
+        m_homePage = LocalHelpManager::homePage();
         m_ui->homePageLineEdit->setText(m_homePage);
 
-        m_startOption = HelpManager::customValue(QLatin1String("StartOption"),
-                                                 Help::Constants::ShowLastPages).toInt();
+        m_startOption = LocalHelpManager::startOption();
         m_ui->helpStartComboBox->setCurrentIndex(m_startOption);
 
-        m_contextOption = HelpManager::customValue(QLatin1String("ContextHelpOption"),
-                                                   Help::Constants::SideBySideIfPossible).toInt();
+        m_contextOption = LocalHelpManager::contextHelpOption();
         m_ui->contextHelpComboBox->setCurrentIndex(m_contextOption);
 
-        connect(m_ui->currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
-        connect(m_ui->blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
-        connect(m_ui->defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
+        connect(m_ui->currentPageButton, &QPushButton::clicked,
+                this, &GeneralSettingsPage::setCurrentPage);
+        connect(m_ui->blankPageButton, &QPushButton::clicked,
+                this, &GeneralSettingsPage::setBlankPage);
+        connect(m_ui->defaultPageButton, &QPushButton::clicked,
+                this, &GeneralSettingsPage::setDefaultPage);
 
-        HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
+        HelpViewer *viewer = CentralWidget::instance()->currentViewer();
         if (!viewer)
             m_ui->currentPageButton->setEnabled(false);
 
         m_ui->errorLabel->setVisible(false);
-        connect(m_ui->importButton, SIGNAL(clicked()), this, SLOT(importBookmarks()));
-        connect(m_ui->exportButton, SIGNAL(clicked()), this, SLOT(exportBookmarks()));
+        connect(m_ui->importButton, &QPushButton::clicked,
+                this, &GeneralSettingsPage::importBookmarks);
+        connect(m_ui->exportButton, &QPushButton::clicked,
+                this, &GeneralSettingsPage::exportBookmarks);
 
-        m_returnOnClose = HelpManager::customValue(QLatin1String("ReturnOnClose"),
-                                                   false).toBool();
+        m_returnOnClose = LocalHelpManager::returnOnClose();
         m_ui->m_returnOnClose->setChecked(m_returnOnClose);
     }
     return m_widget;
@@ -154,7 +147,7 @@ void GeneralSettingsPage::apply()
 
     if (newFont != m_font) {
         m_font = newFont;
-        HelpManager::setCustomValue(QLatin1String("font"), newFont);
+        LocalHelpManager::setFallbackFont(newFont);
         emit fontChanged();
     }
 
@@ -164,39 +157,31 @@ void GeneralSettingsPage::apply()
     m_ui->homePageLineEdit->setText(homePage);
     if (m_homePage != homePage) {
         m_homePage = homePage;
-        HelpManager::setCustomValue(QLatin1String("HomePage"), homePage);
+        LocalHelpManager::setHomePage(homePage);
     }
 
     const int startOption = m_ui->helpStartComboBox->currentIndex();
     if (m_startOption != startOption) {
         m_startOption = startOption;
-        HelpManager::setCustomValue(QLatin1String("StartOption"), startOption);
+        LocalHelpManager::setStartOption((LocalHelpManager::StartOption)m_startOption);
     }
 
     const int helpOption = m_ui->contextHelpComboBox->currentIndex();
     if (m_contextOption != helpOption) {
         m_contextOption = helpOption;
-        HelpManager::setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
-
-        QSettings *settings = Core::ICore::settings();
-        settings->beginGroup(QLatin1String(Help::Constants::ID_MODE_HELP));
-        settings->setValue(QLatin1String("ContextHelpOption"), helpOption);
-        settings->endGroup();
-
-        emit contextHelpOptionChanged();
+        LocalHelpManager::setContextHelpOption((HelpManager::HelpViewerLocation)m_contextOption);
     }
 
     const bool close = m_ui->m_returnOnClose->isChecked();
     if (m_returnOnClose != close) {
         m_returnOnClose = close;
-        HelpManager::setCustomValue(QLatin1String("ReturnOnClose"), close);
-        emit returnOnCloseChanged();
+        LocalHelpManager::setReturnOnClose(m_returnOnClose);
     }
 }
 
 void GeneralSettingsPage::setCurrentPage()
 {
-    HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
+    HelpViewer *viewer = CentralWidget::instance()->currentViewer();
     if (viewer)
         m_ui->homePageLineEdit->setText(viewer->source().toString());
 }
@@ -208,15 +193,14 @@ void GeneralSettingsPage::setBlankPage()
 
 void GeneralSettingsPage::setDefaultPage()
 {
-    m_ui->homePageLineEdit->setText(
-        HelpManager::customValue(QLatin1String("DefaultHomePage"), QString()).toString());
+    m_ui->homePageLineEdit->setText(LocalHelpManager::defaultHomePage());
 }
 
 void GeneralSettingsPage::importBookmarks()
 {
     m_ui->errorLabel->setVisible(false);
 
-    QString fileName = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
+    QString fileName = QFileDialog::getOpenFileName(ICore::dialogParent(),
         tr("Import Bookmarks"), QDir::currentPath(), tr("Files (*.xbel)"));
 
     if (fileName.isEmpty())
@@ -238,7 +222,7 @@ void GeneralSettingsPage::exportBookmarks()
 {
     m_ui->errorLabel->setVisible(false);
 
-    QString fileName = QFileDialog::getSaveFileName(Core::ICore::dialogParent(),
+    QString fileName = QFileDialog::getSaveFileName(ICore::dialogParent(),
         tr("Save File"), QLatin1String("untitled.xbel"), tr("Files (*.xbel)"));
 
     QLatin1String suffix(".xbel");

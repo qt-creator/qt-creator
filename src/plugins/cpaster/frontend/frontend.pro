@@ -1,21 +1,14 @@
-TEMPLATE = app
 TARGET=cpaster
 
 QTC_LIB_DEPENDS += \
     extensionsystem \
     utils
+QTC_PLUGIN_DEPENDS += \
+    coreplugin
 
-include(../../../../qtcreator.pri)
-include(../../../rpath.pri)
+include(../../../qtcreatortool.pri)
 
-CONFIG += console
-CONFIG -= app_bundle
 QT += network
-
-LIBS *= -L$$IDE_PLUGIN_PATH/QtProject -l$$qtLibraryName(Core)
-QMAKE_RPATHDIR *= $$IDE_PLUGIN_PATH/QtProject
-
-DESTDIR=$$IDE_LIBEXEC_PATH
 
 HEADERS = ../protocol.h \
     ../cpasterconstants.h \

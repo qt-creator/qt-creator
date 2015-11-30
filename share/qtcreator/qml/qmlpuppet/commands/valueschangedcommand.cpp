@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,23 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "valueschangedcommand.h"
 
-#include <QSharedMemory>
+#include "sharedmemory.h"
 #include <QCache>
 #include <QDebug>
 
@@ -37,7 +33,9 @@
 
 namespace QmlDesigner {
 
-static QCache<qint32, QSharedMemory> globalSharedMemoryCache(10000);
+// using cache as a container which deletes sharedmemory pointers at process exit
+typedef QCache<qint32, SharedMemory> GlobalSharedMemoryContainer;
+Q_GLOBAL_STATIC_WITH_ARGS(GlobalSharedMemoryContainer, globalSharedMemoryContainer, (10000))
 
 ValuesChangedCommand::ValuesChangedCommand()
     : m_keyNumber(0)
@@ -63,7 +61,7 @@ quint32 ValuesChangedCommand::keyNumber() const
 void ValuesChangedCommand::removeSharedMemorys(const QVector<qint32> &keyNumberVector)
 {
     foreach (qint32 keyNumber, keyNumberVector) {
-        QSharedMemory *sharedMemory = globalSharedMemoryCache.take(keyNumber);
+        SharedMemory *sharedMemory = globalSharedMemoryContainer()->take(keyNumber);
         delete sharedMemory;
     }
 }
@@ -75,21 +73,17 @@ void ValuesChangedCommand::sort()
 
 static const QLatin1String valueKeyTemplateString("Values-%1");
 
-static QSharedMemory *createSharedMemory(qint32 key, int byteCount)
+static SharedMemory *createSharedMemory(qint32 key, int byteCount)
 {
-    QSharedMemory *sharedMemory = new QSharedMemory(QString(valueKeyTemplateString).arg(key));
+    SharedMemory *sharedMemory = new SharedMemory(QString(valueKeyTemplateString).arg(key));
 
     bool sharedMemoryIsCreated = sharedMemory->create(byteCount);
-    if (!sharedMemoryIsCreated) {
-        if (sharedMemory->isAttached())
-            sharedMemory->attach();
-        sharedMemory->detach();
-        sharedMemoryIsCreated = sharedMemory->create(byteCount);
-    }
 
     if (sharedMemoryIsCreated) {
-        globalSharedMemoryCache.insert(key, sharedMemory);
+        globalSharedMemoryContainer()->insert(key, sharedMemory);
         return sharedMemory;
+    } else {
+        delete sharedMemory;
     }
 
     return 0;
@@ -109,10 +103,13 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
 
         temporaryOutDataStream << command.valueChanges();
 
-        QSharedMemory *sharedMemory = createSharedMemory(keyCounter, outDataStreamByteArray.size());
+        SharedMemory *sharedMemory = createSharedMemory(keyCounter, outDataStreamByteArray.size());
 
         if (sharedMemory) {
+            sharedMemory->lock();
             std::memcpy(sharedMemory->data(), outDataStreamByteArray.constData(), sharedMemory->size());
+            sharedMemory->unlock();
+
             out << command.keyNumber();
             return out;
         }
@@ -126,13 +123,18 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
 
 void readSharedMemory(qint32 key, QVector<PropertyValueContainer> *valueChangeVector)
 {
-    QSharedMemory sharedMemory(QString(valueKeyTemplateString).arg(key));
+    SharedMemory sharedMemory(QString(valueKeyTemplateString).arg(key));
     bool canAttach = sharedMemory.attach(QSharedMemory::ReadOnly);
 
     if (canAttach) {
+        sharedMemory.lock();
+
         QDataStream in(QByteArray::fromRawData(static_cast<const char*>(sharedMemory.constData()), sharedMemory.size()));
         in.setVersion(QDataStream::Qt_4_8);
         in >> *valueChangeVector;
+
+        sharedMemory.unlock();
+        sharedMemory.detach();
     }
 }
 

@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Nicolas Arnaud-Cormos
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Nicolas Arnaud-Cormos
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,7 +34,8 @@
 #include <QVariant>
 #include <QDataStream>
 
-using namespace Macros::Internal;
+namespace Macros {
+namespace Internal {
 
 /*!
     \class Macros::MacroEvent
@@ -49,57 +51,21 @@ using namespace Macros::Internal;
     The information are stored in a map of QVariants (using quint8 for keys).
 */
 
-class MacroEvent::MacroEventPrivate
-{
-public:
-    Core::Id id;
-    QMap<quint8, QVariant> values;
-};
-
-
-// ---------- MacroEvent ------------
-
-MacroEvent::MacroEvent():
-    d(new MacroEventPrivate)
-{
-}
-
-MacroEvent::MacroEvent(const MacroEvent &other):
-    d(new MacroEventPrivate)
-{
-    d->id = other.d->id;
-    d->values = other.d->values;
-}
-
-MacroEvent::~MacroEvent()
-{
-    delete d;
-}
-
-MacroEvent& MacroEvent::operator=(const MacroEvent &other)
-{
-    if (this == &other)
-        return *this;
-    d->id = other.d->id;
-    d->values = other.d->values;
-    return *this;
-}
-
 QVariant MacroEvent::value(quint8 id) const
 {
-    return d->values.value(id);
+    return m_values.value(id);
 }
 
 void MacroEvent::setValue(quint8 id, const QVariant &value)
 {
-    d->values[id] = value;
+    m_values[id] = value;
 }
 
 void MacroEvent::load(QDataStream &stream)
 {
     QByteArray ba;
     stream >> ba;
-    d->id = Core::Id::fromName(ba);
+    m_id = Core::Id::fromName(ba);
     int count;
     stream >> count;
     quint8 id;
@@ -107,15 +73,15 @@ void MacroEvent::load(QDataStream &stream)
     for (int i = 0; i < count; ++i) {
         stream >> id;
         stream >> value;
-        d->values[id] = value;
+        m_values[id] = value;
     }
 }
 
 void MacroEvent::save(QDataStream &stream) const
 {
-    stream << d->id.name();
-    stream << d->values.count();
-    QMapIterator<quint8, QVariant> i(d->values);
+    stream << m_id.name();
+    stream << m_values.count();
+    QMapIterator<quint8, QVariant> i(m_values);
     while (i.hasNext()) {
         i.next();
         stream << i.key() << i.value();
@@ -124,10 +90,13 @@ void MacroEvent::save(QDataStream &stream) const
 
 Core::Id MacroEvent::id() const
 {
-    return d->id;
+    return m_id;
 }
 
 void MacroEvent::setId(Core::Id id)
 {
-    d->id = id;
+    m_id = id;
 }
+
+} // namespace Internal
+} // namespace Macro

@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 AudioCodes Ltd.
+** Copyright (C) 2015 AudioCodes Ltd.
 ** Author: Orgad Shaneh <orgad.shaneh@audiocodes.com>
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -41,6 +42,8 @@ static const char commandKeyC[] = "Command";
 static const char historyCountKeyC[] = "HistoryCount";
 static const char timeOutKeyC[] = "TimeOut";
 static const char autoCheckOutKeyC[] = "AutoCheckOut";
+static const char noCommentKeyC[] = "NoComment";
+static const char keepFileUndoCheckoutKeyC[] = "KeepFileUnDoCheckout";
 static const char diffTypeKeyC[] = "DiffType";
 static const char diffArgsKeyC[] = "DiffArgs";
 static const char autoAssignActivityKeyC[] = "AutoAssignActivityName";
@@ -62,24 +65,28 @@ using namespace ClearCase::Internal;
 
 ClearCaseSettings::ClearCaseSettings() :
     ccCommand(defaultCommand()),
-    historyCount(defaultHistoryCount),
-    timeOutS(defaultTimeOutS),
     diffType(GraphicalDiff),
     diffArgs(QLatin1String(defaultDiffArgs)),
     autoAssignActivityName(true),
     autoCheckOut(true),
+    noComment(false),
+    keepFileUndoCheckout(true),
     promptToCheckIn(false),
-    disableIndexer(false)
-{
-}
+    disableIndexer(false),
+    extDiffAvailable(false),
+    historyCount(defaultHistoryCount),
+    timeOutS(defaultTimeOutS)
+{ }
 
 void ClearCaseSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(groupC));
     ccCommand = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
-    ccBinaryPath = Utils::Environment::systemEnvironment().searchInPath(ccCommand);
+    ccBinaryPath = Utils::Environment::systemEnvironment().searchInPath(ccCommand).toString();
     timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     autoCheckOut = settings->value(QLatin1String(autoCheckOutKeyC), false).toBool();
+    noComment = settings->value(QLatin1String(noCommentKeyC), false).toBool();
+    keepFileUndoCheckout = settings->value(QLatin1String(keepFileUndoCheckoutKeyC), true).toBool();
     QString sDiffType = settings->value(QLatin1String(diffTypeKeyC), QLatin1String("Graphical")).toString();
     switch (sDiffType[0].toUpper().toLatin1()) {
         case 'G': diffType = GraphicalDiff; break;
@@ -107,6 +114,8 @@ void ClearCaseSettings::toSettings(QSettings *settings) const
     settings->beginGroup(QLatin1String(groupC));
     settings->setValue(QLatin1String(commandKeyC), ccCommand);
     settings->setValue(QLatin1String(autoCheckOutKeyC), autoCheckOut);
+    settings->setValue(QLatin1String(noCommentKeyC), noComment);
+    settings->setValue(QLatin1String(keepFileUndoCheckoutKeyC), keepFileUndoCheckout);
     settings->setValue(QLatin1String(timeOutKeyC), timeOutS);
     QString sDiffType;
     switch (diffType) {
@@ -131,15 +140,17 @@ void ClearCaseSettings::toSettings(QSettings *settings) const
 
 bool ClearCaseSettings::equals(const ClearCaseSettings &s) const
 {
-    return ccCommand       == s.ccCommand
-        && historyCount    == s.historyCount
-        && timeOutS        == s.timeOutS
-        && autoCheckOut    == s.autoCheckOut
-        && diffType        == s.diffType
-        && diffArgs     == s.diffArgs
+    return ccCommand              == s.ccCommand
+        && historyCount           == s.historyCount
+        && timeOutS               == s.timeOutS
+        && autoCheckOut           == s.autoCheckOut
+        && noComment              == s.noComment
+        && keepFileUndoCheckout   == s.keepFileUndoCheckout
+        && diffType               == s.diffType
+        && diffArgs               == s.diffArgs
         && autoAssignActivityName == s.autoAssignActivityName
-        && promptToCheckIn == s.promptToCheckIn
-        && disableIndexer  == s.disableIndexer
-        && indexOnlyVOBs   == s.indexOnlyVOBs
-        && totalFiles      == s.totalFiles;
+        && promptToCheckIn        == s.promptToCheckIn
+        && disableIndexer         == s.disableIndexer
+        && indexOnlyVOBs          == s.indexOnlyVOBs
+        && totalFiles             == s.totalFiles;
 }

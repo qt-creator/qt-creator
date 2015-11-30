@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -34,18 +30,30 @@
 #include "settingspage.h"
 #include "designmodecontext.h"
 
+#include <connectionview.h>
+#include <sourcetool/sourcetool.h>
+#include <colortool/colortool.h>
+#include <texttool/texttool.h>
+#include <pathtool/pathtool.h>
+
 #include <qmljseditor/qmljseditorconstants.h>
 
+#include <qmljstools/qmljstoolsconstants.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginspec.h>
-
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QTimer>
@@ -56,12 +64,20 @@
 
 namespace QmlDesigner {
 
-QmlDesignerPlugin *QmlDesignerPlugin::m_instance = 0;
+class QmlDesignerPluginData {
+public:
+    ViewManager viewManager;
+    DocumentManager documentManager;
+    ShortCutManager shortCutManager;
 
-static bool isQmlFile(Core::IEditor *editor)
-{
-    return editor && editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID;
-}
+    Internal::DesignModeWidget *mainWidget;
+
+    QmlDesigner::PluginManager pluginManager;
+    DesignerSettings settings;
+    Internal::DesignModeContext *context;
+};
+
+QmlDesignerPlugin *QmlDesignerPlugin::m_instance = 0;
 
 static bool isInDesignerMode()
 {
@@ -74,10 +90,10 @@ bool shouldAssertInException()
     return !processEnvironment.value("QMLDESIGNER_ASSERT_ON_EXCEPTION").isEmpty();
 }
 
-QmlDesignerPlugin::QmlDesignerPlugin() :
-    m_isActive(false)
+QmlDesignerPlugin::QmlDesignerPlugin()
+    : data(0)
 {
-
+    m_instance = this;
     // Exceptions should never ever assert: they are handled in a number of
     // places where it is actually VALID AND EXPECTED BEHAVIOUR to get an
     // exception.
@@ -94,9 +110,12 @@ QmlDesignerPlugin::QmlDesignerPlugin() :
 
 QmlDesignerPlugin::~QmlDesignerPlugin()
 {
-    Core::DesignMode::instance()->unregisterDesignWidget(m_mainWidget);
-    Core::ICore::removeContextObject(m_context);
-    m_context = 0;
+    if (data) {
+        Core::DesignMode::instance()->unregisterDesignWidget(data->mainWidget);
+        Core::ICore::removeContextObject(data->context);
+        data->context = 0;
+    }
+    delete data;
     m_instance = 0;
 }
 
@@ -107,6 +126,19 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 ////////////////////////////////////////////////////
 bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/) // =0;
 {
+    if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
+        return false;
+
+    data = new QmlDesignerPluginData;
+
+    data->settings.fromSettings(Core::ICore::settings());
+
+    data->viewManager.registerViewTakingOwnership(new QmlDesigner::Internal::ConnectionView());
+    data->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::SourceTool);
+    data->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::ColorTool);
+    data->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TextTool);
+    data->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::PathTool);
+
     const Core::Context switchContext(QmlDesigner::Constants::C_QMLDESIGNER,
         QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
 
@@ -115,43 +147,51 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
                 switchAction, QmlDesigner::Constants::SWITCH_TEXT_DESIGN, switchContext);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
 
-    m_instance = this;
+
 
     const QString pluginPath = Utils::HostOsInfo::isMacHost()
             ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
             : QString(QCoreApplication::applicationDirPath() + "/../"
-                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/qmldesigner");
-    m_pluginManager.setPluginPaths(QStringList() << pluginPath);
+                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/plugins/qmldesigner");
+    data->pluginManager.setPluginPaths(QStringList() << pluginPath);
 
     createDesignModeWidget();
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchTextDesign()));
 
     addAutoReleasedObject(new Internal::SettingsPage);
 
-
-    m_settings.fromSettings(Core::ICore::settings());
-
-    errorMessage->clear();
-
     return true;
+}
+
+void QmlDesignerPlugin::extensionsInitialized()
+{
+    QStringList mimeTypes;
+    mimeTypes.append(QmlJSTools::Constants::QML_MIMETYPE);
+    mimeTypes.append(QmlJSTools::Constants::QMLUI_MIMETYPE);
+
+    Core::DesignMode::instance()->registerDesignWidget(data->mainWidget, mimeTypes, data->context->context());
+    connect(Core::DesignMode::instance(),
+            SIGNAL(actionsUpdated(Core::IEditor*)),
+            &data->shortCutManager,
+            SLOT(updateActions(Core::IEditor*)));
 }
 
 void QmlDesignerPlugin::createDesignModeWidget()
 {
-    m_mainWidget = new Internal::DesignModeWidget;
+    data->mainWidget = new Internal::DesignModeWidget;
 
-    m_context = new Internal::DesignModeContext(m_mainWidget);
-    Core::ICore::addContextObject(m_context);
+    data->context = new Internal::DesignModeContext(data->mainWidget);
+    Core::ICore::addContextObject(data->context);
     Core::Context qmlDesignerMainContext(Constants::C_QMLDESIGNER);
     Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
     Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
 
-    m_context->context().add(qmlDesignerMainContext);
-    m_context->context().add(qmlDesignerFormEditorContext);
-    m_context->context().add(qmlDesignerNavigatorContext);
-    m_context->context().add(ProjectExplorer::Constants::LANG_QMLJS);
+    data->context->context().add(qmlDesignerMainContext);
+    data->context->context().add(qmlDesignerFormEditorContext);
+    data->context->context().add(qmlDesignerNavigatorContext);
+    data->context->context().add(ProjectExplorer::Constants::LANG_QMLJS);
 
-    m_shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext, qmlDesignerNavigatorContext);
+    data->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext, qmlDesignerNavigatorContext);
 
     connect(Core::EditorManager::instance(),
             SIGNAL(currentEditorChanged(Core::IEditor*)),
@@ -163,12 +203,6 @@ void QmlDesignerPlugin::createDesignModeWidget()
             this,
             SLOT(onTextEditorsClosed(QList<Core::IEditor*>)));
 
-//    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-//            &m_documentManager, SLOT(currentTextEditorChanged(Core::IEditor*)));
-
-//    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*,Core::Context)),
-//            this, SLOT(contextChanged(Core::IContext*,Core::Context)));
-
     connect(Core::ModeManager::instance(),
             SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
             SLOT(onCurrentModeChanged(Core::IMode*,Core::IMode*)));
@@ -177,81 +211,81 @@ void QmlDesignerPlugin::createDesignModeWidget()
 
 void QmlDesignerPlugin::showDesigner()
 {
-    Q_ASSERT(!m_documentManager.hasCurrentDesignDocument());
+    QTC_ASSERT(!data->documentManager.hasCurrentDesignDocument(), return);
 
-    m_shortCutManager.disconnectUndoActions(currentDesignDocument());
+    data->shortCutManager.disconnectUndoActions(currentDesignDocument());
 
-    m_documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
+    data->documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
 
-    m_shortCutManager.connectUndoActions(currentDesignDocument());
+    data->shortCutManager.connectUndoActions(currentDesignDocument());
 
-    m_mainWidget->initialize();
+    data->mainWidget->initialize();
 
-    if (m_documentManager.hasCurrentDesignDocument()) {
+    if (data->documentManager.hasCurrentDesignDocument()) {
         activateAutoSynchronization();
-        m_shortCutManager.updateActions(currentDesignDocument()->textEditor());
-        m_viewManager.pushFileOnCrumbleBar(m_documentManager.currentDesignDocument()->fileName());
+        data->shortCutManager.updateActions(currentDesignDocument()->textEditor());
+        data->viewManager.pushFileOnCrumbleBar(data->documentManager.currentDesignDocument()->fileName().fileName());
     }
 
-    m_shortCutManager.updateUndoActions(currentDesignDocument());
+    data->shortCutManager.updateUndoActions(currentDesignDocument());
 }
 
 void QmlDesignerPlugin::hideDesigner()
 {
     if (currentDesignDocument()
-            && currentDesignDocument()->currentModel()
+            && currentModel()
             && !currentDesignDocument()->hasQmlSyntaxErrors())
         jumpTextCursorToSelectedModelNode();
 
 
-    if (m_documentManager.hasCurrentDesignDocument()) {
+    if (data->documentManager.hasCurrentDesignDocument()) {
         deactivateAutoSynchronization();
-        m_mainWidget->saveSettings();
+        data->mainWidget->saveSettings();
     }
 
-    m_shortCutManager.disconnectUndoActions(currentDesignDocument());
+    data->shortCutManager.disconnectUndoActions(currentDesignDocument());
 
-    m_documentManager.setCurrentDesignDocument(0);
+    data->documentManager.setCurrentDesignDocument(0);
 
-    m_shortCutManager.updateUndoActions(0);
+    data->shortCutManager.updateUndoActions(0);
 }
 
 void QmlDesignerPlugin::changeEditor()
 {
-    if (m_documentManager.hasCurrentDesignDocument()) {
+    if (data->documentManager.hasCurrentDesignDocument()) {
         deactivateAutoSynchronization();
-        m_mainWidget->saveSettings();
+        data->mainWidget->saveSettings();
     }
 
-    m_shortCutManager.disconnectUndoActions(currentDesignDocument());
+    data->shortCutManager.disconnectUndoActions(currentDesignDocument());
 
-    m_documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
+    data->documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
 
-    m_mainWidget->initialize();
+    data->mainWidget->initialize();
 
-    m_shortCutManager.connectUndoActions(currentDesignDocument());
+    data->shortCutManager.connectUndoActions(currentDesignDocument());
 
-    if (m_documentManager.hasCurrentDesignDocument()) {
+    if (data->documentManager.hasCurrentDesignDocument()) {
         activateAutoSynchronization();
-        m_viewManager.pushFileOnCrumbleBar(m_documentManager.currentDesignDocument()->fileName());
-        m_viewManager.setComponentViewToMaster();
+        data->viewManager.pushFileOnCrumbleBar(data->documentManager.currentDesignDocument()->fileName().fileName());
+        data->viewManager.setComponentViewToMaster();
     }
 
-    m_shortCutManager.updateUndoActions(currentDesignDocument());
+    data->shortCutManager.updateUndoActions(currentDesignDocument());
 }
 
 void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
 {
     // visual editor -> text editor
     ModelNode selectedNode;
-    if (!currentDesignDocument()->rewriterView()->selectedModelNodes().isEmpty())
-        selectedNode = currentDesignDocument()->rewriterView()->selectedModelNodes().first();
+    if (!rewriterView()->selectedModelNodes().isEmpty())
+        selectedNode = rewriterView()->selectedModelNodes().first();
 
     if (selectedNode.isValid()) {
-        const int nodeOffset = currentDesignDocument()->rewriterView()->nodeOffset(selectedNode);
+        const int nodeOffset = rewriterView()->nodeOffset(selectedNode);
         if (nodeOffset > 0) {
             const ModelNode currentSelectedNode
-                    = currentDesignDocument()->rewriterView()->nodeAtTextCursorPosition(currentDesignDocument()->plainTextEdit()->textCursor().position());
+                    = rewriterView()->nodeAtTextCursorPosition(currentDesignDocument()->plainTextEdit()->textCursor().position());
             if (currentSelectedNode != selectedNode) {
                 int line, column;
                 currentDesignDocument()->textEditor()->convertPosition(nodeOffset, &line, &column);
@@ -263,10 +297,10 @@ void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
 
 void QmlDesignerPlugin::selectModelNodeUnderTextCursor()
 {
-    const int cursorPos = currentDesignDocument()->plainTextEdit()->textCursor().position();
-    ModelNode node = currentDesignDocument()->rewriterView()->nodeAtTextCursorPosition(cursorPos);
-    if (currentDesignDocument()->rewriterView() && node.isValid())
-        currentDesignDocument()->rewriterView()->setSelectedModelNodes(QList<ModelNode>() << node);
+    const int cursorPosition = currentDesignDocument()->plainTextEdit()->textCursor().position();
+    ModelNode modelNode = rewriterView()->nodeAtTextCursorPosition(cursorPosition);
+    if (modelNode.isValid())
+        rewriterView()->setSelectedModelNode(modelNode);
 }
 
 void QmlDesignerPlugin::activateAutoSynchronization()
@@ -283,22 +317,22 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     viewManager().attachComponentView();
     viewManager().attachViewsExceptRewriterAndComponetView();
 
-    QList<RewriterView::Error> errors = currentDesignDocument()->qmlSyntaxErrors();
+    QList<RewriterError> errors = currentDesignDocument()->qmlSyntaxErrors();
     if (errors.isEmpty()) {
         selectModelNodeUnderTextCursor();
-        m_mainWidget->enableWidgets();
-        m_mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
+        data->mainWidget->enableWidgets();
+        data->mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
     } else {
-        m_mainWidget->disableWidgets();
-        m_mainWidget->showErrorMessage(errors);
+        data->mainWidget->disableWidgets();
+        data->mainWidget->showErrorMessage(errors);
     }
 
     currentDesignDocument()->updateSubcomponentManager();
 
-    connect(currentDesignDocument()->rewriterView(),
-            SIGNAL(errorsChanged(QList<RewriterView::Error>)),
-            m_mainWidget,
-            SLOT(updateErrorStatus(QList<RewriterView::Error>)));
+    connect(rewriterView(),
+            SIGNAL(errorsChanged(QList<RewriterError>)),
+            data->mainWidget,
+            SLOT(updateErrorStatus(QList<RewriterError>)));
 }
 
 void QmlDesignerPlugin::deactivateAutoSynchronization()
@@ -308,26 +342,52 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
     viewManager().detachRewriterView();
     documentManager().currentDesignDocument()->resetToDocumentModel();
 
-    disconnect(currentDesignDocument()->rewriterView(),
-               SIGNAL(errorsChanged(QList<RewriterView::Error>)),
-               m_mainWidget,
-               SLOT(updateErrorStatus(QList<RewriterView::Error>)));
+    disconnect(rewriterView(),
+               SIGNAL(errorsChanged(QList<RewriterError>)),
+               data->mainWidget,
+               SLOT(updateErrorStatus(QList<RewriterError>)));
 
 }
 
 void QmlDesignerPlugin::resetModelSelection()
 {
-    if (currentDesignDocument()->rewriterView() && currentDesignDocument()->currentModel())
-        currentDesignDocument()->rewriterView()->setSelectedModelNodes(QList<ModelNode>());
+    if (rewriterView() && currentModel())
+        rewriterView()->setSelectedModelNodes(QList<ModelNode>());
 }
 
+RewriterView *QmlDesignerPlugin::rewriterView() const
+{
+    return currentDesignDocument()->rewriterView();
+}
 
+Model *QmlDesignerPlugin::currentModel() const
+{
+    return currentDesignDocument()->currentModel();
+}
+
+static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
+{
+    if (editor)
+    if (editor && editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+        QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+        QmlJS::Document::Ptr document = modelManager->ensuredGetDocumentForPath(editor->document()->filePath().toString());
+        if (!document.isNull())
+            return document->language() == QmlJS::Dialect::QmlQtQuick1
+                    || document->language() == QmlJS::Dialect::QmlQtQuick2
+                    || document->language() == QmlJS::Dialect::QmlQtQuick2Ui
+                    || document->language() == QmlJS::Dialect::Qml;
+    }
+
+    return false;
+}
 
 void QmlDesignerPlugin::onCurrentEditorChanged(Core::IEditor *editor)
 {
-    if (isQmlFile(editor) && isInDesignerMode())
+    if (data
+            && checkIfEditorIsQtQuick(editor)
+            && isInDesignerMode())
     {
-        m_shortCutManager.updateActions(editor);
+        data->shortCutManager.updateActions(editor);
         changeEditor();
     }
 }
@@ -337,35 +397,46 @@ static bool isDesignerMode(Core::IMode *mode)
     return mode == Core::DesignMode::instance();
 }
 
+
+
+static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor *editor, Core::IMode *newMode)
+{
+    return designDocument
+            && editor == designDocument->editor()
+            && isDesignerMode(newMode);
+}
+
 void QmlDesignerPlugin::onCurrentModeChanged(Core::IMode *newMode, Core::IMode *oldMode)
 {
-    if (!isQmlFile(Core::EditorManager::currentEditor()))
-        return;
+    if (data
+            && Core::EditorManager::currentEditor()
+            && checkIfEditorIsQtQuick(Core::EditorManager::currentEditor())
+            && !documentIsAlreadyOpen(currentDesignDocument(), Core::EditorManager::currentEditor(), newMode)) {
 
-    if ((currentDesignDocument()
-         && Core::EditorManager::currentEditor() == currentDesignDocument()->editor())
-            && isDesignerMode(newMode))
-        return;
-
-    if (!isDesignerMode(newMode) && isDesignerMode(oldMode))
-        hideDesigner();
-    else  if (Core::EditorManager::currentEditor()
-              && isDesignerMode(newMode)
-              && isQmlFile(Core::EditorManager::currentEditor()))
-        showDesigner();
-    else if (currentDesignDocument())
-        hideDesigner();
-
+        if (!isDesignerMode(newMode) && isDesignerMode(oldMode))
+            hideDesigner();
+        else  if (Core::EditorManager::currentEditor()
+                  && isDesignerMode(newMode))
+            showDesigner();
+        else if (currentDesignDocument())
+            hideDesigner();
+    }
 }
 
 DesignDocument *QmlDesignerPlugin::currentDesignDocument() const
 {
-    return m_documentManager.currentDesignDocument();
+    if (data)
+        return data->documentManager.currentDesignDocument();
+
+    return 0;
 }
 
 Internal::DesignModeWidget *QmlDesignerPlugin::mainWidget() const
 {
-    return m_mainWidget;
+    if (data)
+        return data->mainWidget;
+
+    return 0;
 }
 
 void QmlDesignerPlugin::switchToTextModeDeferred()
@@ -375,23 +446,13 @@ void QmlDesignerPlugin::switchToTextModeDeferred()
 
 void QmlDesignerPlugin::onTextEditorsClosed(QList<Core::IEditor*> editors)
 {
-    if (m_documentManager.hasCurrentDesignDocument()
-            && editors.contains(m_documentManager.currentDesignDocument()->textEditor()))
-        hideDesigner();
+    if (data) {
+        if (data->documentManager.hasCurrentDesignDocument()
+                && editors.contains(data->documentManager.currentDesignDocument()->textEditor()))
+            hideDesigner();
 
-    m_documentManager.removeEditors(editors);
-}
-
-void QmlDesignerPlugin::extensionsInitialized()
-{
-    QStringList mimeTypes;
-    mimeTypes.append("application/x-qml");
-
-    Core::DesignMode::instance()->registerDesignWidget(m_mainWidget, mimeTypes, m_context->context());
-    connect(Core::DesignMode::instance(),
-            SIGNAL(actionsUpdated(Core::IEditor*)),
-            &m_shortCutManager,
-            SLOT(updateActions(Core::IEditor*)));
+        data->documentManager.removeEditors(editors);
+    }
 }
 
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
@@ -401,38 +462,39 @@ QmlDesignerPlugin *QmlDesignerPlugin::instance()
 
 DocumentManager &QmlDesignerPlugin::documentManager()
 {
-    return m_documentManager;
+    return data->documentManager;
 }
 
 const DocumentManager &QmlDesignerPlugin::documentManager() const
 {
-    return m_documentManager;
+    return data->documentManager;
 }
 
 ViewManager &QmlDesignerPlugin::viewManager()
 {
-    return m_viewManager;
+    return data->viewManager;
 }
 
 const ViewManager &QmlDesignerPlugin::viewManager() const
 {
-    return m_viewManager;
+    return data->viewManager;
 }
 
 DesignerActionManager &QmlDesignerPlugin::designerActionManager()
 {
-    return m_viewManager.designerActionManager();
+    return data->viewManager.designerActionManager();
 }
 
 const DesignerActionManager &QmlDesignerPlugin::designerActionManager() const
 {
-    return m_viewManager.designerActionManager();
+    return data->viewManager.designerActionManager();
 }
 
 void QmlDesignerPlugin::switchTextDesign()
 {
     if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_EDIT) {
-        if (isQmlFile(Core::EditorManager::currentEditor()))
+        Core::IEditor *editor = Core::EditorManager::currentEditor();
+        if (checkIfEditorIsQtQuick(editor))
             Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
     } else if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_DESIGN) {
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
@@ -446,18 +508,16 @@ void QmlDesignerPlugin::switschToTextMode()
 
 DesignerSettings QmlDesignerPlugin::settings()
 {
-    m_settings.fromSettings(Core::ICore::settings());
-    return m_settings;
+    data->settings.fromSettings(Core::ICore::settings());
+    return data->settings;
 }
 
 void QmlDesignerPlugin::setSettings(const DesignerSettings &s)
 {
-    if (s != m_settings) {
-        m_settings = s;
-        m_settings.toSettings(Core::ICore::settings());
+    if (s != data->settings) {
+        data->settings = s;
+        data->settings.toSettings(Core::ICore::settings());
     }
 }
 
 }
-
-Q_EXPORT_PLUGIN(QmlDesigner::QmlDesignerPlugin)

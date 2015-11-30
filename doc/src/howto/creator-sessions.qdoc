@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-sharing-project-settings.html
     \page creator-project-managing-sessions.html
     \nextpage creator-design-mode.html
@@ -32,7 +32,7 @@
 
     When you exit \QC, a snapshot of your current workspace is stored as a
     \e session. To restore the session automatically when you start \QC,
-    select \gui {File > Session Manager > Restore last session on startup}.
+    select \uicontrol {File > Session Manager > Restore last session on startup}.
 
     When you open or create any of the following items, they automatically
     become a part of the session:
@@ -55,23 +55,25 @@
     developers working on the same projects.
 
     For example, if you work on a project and need to switch to another project
-    for a while, you can save your workspace as a session and then close the
-    project and all the files in it. Everything that you open after saving the
-    session becomes a part of a new session. When you want to return to working
-    on the first project, open the saved session. \QC opens the projects and
-    files that belong to the session.
+    for a while, you can clone the current session to save it under a name and
+    create a new session for the other project. Everything that you open after
+    switching to the new session becomes a part of it. When you want to return
+    to working on the first project, switch to the saved session. \QC opens the
+    projects and files that belong to the session.
 
-    To create a new session or remove existing sessions, select \gui File >
-    \gui{Session Manager}.
+    To save a session under a new name, select \uicontrol File >
+    \uicontrol {Session Manager} > \uicontrol Clone.
+
+    To create a new session, select \uicontrol File >
+    \uicontrol {Session Manager} > \uicontrol New.
 
     \image qtcreator-session-manager.png
 
-    To switch between sessions, choose \gui {File > Session Manager}. If you do
-    not create or select a session, \QC always uses the default session, which
-    was created the last time you exited \QC.
+    To switch between sessions, choose \uicontrol {File > Session Manager} >
+    \uicontrol {Switch to}.
 
     When you launch \QC, a list of existing sessions is displayed in the
-    \gui Welcome mode.
+    \uicontrol Welcome mode.
 
     \image qtcreator-welcome-session.png
 

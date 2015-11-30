@@ -15,74 +15,54 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QGroupBox" name="theGroupBox">
-     <property name="title">
-      <string>Code Completion and Semantic Highlighting</string>
+    <widget class="QLabel" name="activateClangCodeModelPluginHint">
+     <property name="text">
+      <string>&lt;i&gt;Activate the Clang Code Model plugin to enable the options here.&lt;/i&gt;</string>
      </property>
-     <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="cLabel">
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="clangSettingsGroupBox">
+     <property name="title">
+      <string>Use Clang Code Model</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QLabel" name="clangOptionsGeneralHintLabel">
         <property name="text">
-         <string>C</string>
+         <string>Append additional command line options to Clang, one per line. &lt;i&gt;Use this with care.&lt;/i&gt;</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="cChooser">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
+      <item>
+       <widget class="QPlainTextEdit" name="clangOptionsToAppendTextEdit"/>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="cppLabel">
-        <property name="text">
-         <string>C++</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="cppChooser">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="objcLabel">
-        <property name="text">
-         <string>Objective C</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="objcChooser"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="objcppLabel">
-        <property name="text">
-         <string>Objective C++</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QComboBox" name="objcppChooser"/>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="hLabel">
-        <property name="text">
-         <string>Headers</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QComboBox" name="hChooser"/>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="clangOptionsResetButton">
+          <property name="text">
+           <string>Reset Options</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

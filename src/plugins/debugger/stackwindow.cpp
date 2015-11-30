@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,6 +37,7 @@
 #include "debuggerdialogs.h"
 #include "memoryagent.h"
 
+#include <coreplugin/messagebox.h>
 
 #include <utils/savedaction.h>
 
@@ -49,35 +51,30 @@
 #include <QContextMenuEvent>
 #include <QInputDialog>
 #include <QFileDialog>
-#include <QMessageBox>
 #include <QMenu>
 
 namespace Debugger {
 namespace Internal {
 
-static DebuggerEngine *currentEngine()
-{
-    return debuggerCore()->currentEngine();
-}
-
-StackTreeView::StackTreeView(QWidget *parent)
-    : BaseTreeView(parent)
+StackTreeView::StackTreeView()
 {
     setWindowTitle(tr("Stack"));
-    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustStackColumnWidths));
 
-    connect(debuggerCore()->action(UseAddressInStackView), SIGNAL(toggled(bool)),
-        SLOT(showAddressColumn(bool)));
-    connect(debuggerCore()->action(ExpandStack), SIGNAL(triggered()),
-        SLOT(reloadFullStack()));
-    connect(debuggerCore()->action(MaximalStackDepth), SIGNAL(triggered()),
-        SLOT(reloadFullStack()));
+    connect(action(UseAddressInStackView), &QAction::toggled,
+        this, &StackTreeView::showAddressColumn);
+    connect(action(ExpandStack), &QAction::triggered,
+        this, &StackTreeView::reloadFullStack);
+    connect(action(MaximalStackDepth), &QAction::triggered,
+        this, &StackTreeView::reloadFullStack);
     showAddressColumn(false);
 }
 
 void StackTreeView::showAddressColumn(bool on)
 {
-    setColumnHidden(4, !on);
+    setColumnHidden(StackAddressColumn, !on);
+    resizeColumnToContents(StackLevelColumn);
+    resizeColumnToContents(StackLineNumberColumn);
+    resizeColumnToContents(StackAddressColumn);
 }
 
 void StackTreeView::rowActivated(const QModelIndex &index)
@@ -88,9 +85,9 @@ void StackTreeView::rowActivated(const QModelIndex &index)
 void StackTreeView::setModel(QAbstractItemModel *model)
 {
     BaseTreeView::setModel(model);
-    resizeColumnToContents(0);
-    resizeColumnToContents(3);
-    showAddressColumn(debuggerCore()->action(UseAddressInStackView)->isChecked());
+    resizeColumnToContents(StackLevelColumn);
+    resizeColumnToContents(StackLineNumberColumn);
+    showAddressColumn(action(UseAddressInStackView)->isChecked());
 }
 
 // Input a function to be disassembled. Accept CDB syntax
@@ -111,7 +108,7 @@ static inline StackFrame inputFunctionForDisassembly()
         return frame;
     const int bangPos = function.indexOf(QLatin1Char('!'));
     if (bangPos != -1) {
-        frame.from = function.left(bangPos);
+        frame.module = function.left(bangPos);
         frame.function = function.mid(bangPos + 1);
     } else {
         frame.function = function;
@@ -133,7 +130,7 @@ void saveTaskFile(QWidget *parent, const StackHandler *sh)
         const QString fileName = fileDialog.selectedFiles().front();
         file.setFileName(fileName);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QMessageBox::warning(parent, StackTreeView::tr("Cannot Open Task File"),
+            Core::AsynchronousMessageBox::warning(StackTreeView::tr("Cannot Open Task File"),
                                  StackTreeView::tr("Cannot open \"%1\": %2").arg(QDir::toNativeSeparators(fileName), file.errorString()));
         }
     }
@@ -157,7 +154,7 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
     const quint64 address = frame.address;
 
     QMenu menu;
-    menu.addAction(debuggerCore()->action(ExpandStack));
+    menu.addAction(action(ExpandStack));
 
     QAction *actCopyContents = menu.addAction(tr("Copy Contents to Clipboard"));
     actCopyContents->setEnabled(model() != 0);
@@ -166,7 +163,7 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
     actSaveTaskFile->setEnabled(model() != 0);
 
     if (engine->hasCapability(CreateFullBacktraceCapability))
-        menu.addAction(debuggerCore()->action(CreateFullBacktrace));
+        menu.addAction(action(CreateFullBacktrace));
 
     QAction *additionalQmlStackAction = 0;
     if (engine->hasCapability(AdditionalQmlStackCapability))
@@ -205,17 +202,13 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
     if (engine->hasCapability(ShowModuleSymbolsCapability))
         actLoadSymbols = menu.addAction(tr("Try to Load Unknown Symbols"));
 
-#if 0 // @TODO: not implemented
-    menu.addAction(debuggerCore()->action(UseToolTipsInStackView));
-#endif
     if (engine->hasCapability(MemoryAddressCapability))
-        menu.addAction(debuggerCore()->action(UseAddressInStackView));
+        menu.addAction(action(UseAddressInStackView));
 
     menu.addSeparator();
-    menu.addAction(debuggerCore()->action(UseToolTipsInStackView));
+    menu.addAction(action(UseToolTipsInStackView));
     menu.addSeparator();
-
-    addBaseContextActions(&menu);
+    menu.addAction(action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
     if (!act)
@@ -224,12 +217,13 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
     if (act == actCopyContents) {
         copyContentsToClipboard();
     } else if (act == actShowMemory) {
-        const QString title = tr("Memory at Frame #%1 (%2) 0x%3").
-        arg(row).arg(frame.function).arg(address, 0, 16);
-        QList<MemoryMarkup> ml;
-        ml.push_back(MemoryMarkup(address, 1, QColor(Qt::blue).lighter(),
+        MemoryViewSetupData data;
+        data.startAddress = address;
+        data.title = tr("Memory at Frame #%1 (%2) 0x%3").
+            arg(row).arg(frame.function).arg(address, 0, 16);
+        data.markup.push_back(MemoryMarkup(address, 1, QColor(Qt::blue).lighter(),
                                   tr("Frame #%1 (%2)").arg(row).arg(frame.function)));
-        engine->openMemoryView(address, 0, ml, QPoint(), title);
+        engine->openMemoryView(data);
     } else if (act == actShowDisassemblerAtAddress) {
         AddressDialog dialog;
         if (address)
@@ -248,8 +242,6 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
         saveTaskFile(this, handler);
     else if (act == additionalQmlStackAction)
         engine->loadAdditionalQmlStack();
-    else
-        handleBaseContextAction(act);
 }
 
 void StackTreeView::copyContentsToClipboard()

@@ -1,5 +1,5 @@
 DEFINES += QTSUPPORT_LIBRARY
-QT += network
+QT += network quick
 
 include(../../qtcreatorplugin.pri)
 
@@ -7,6 +7,10 @@ DEFINES += QMAKE_LIBRARY
 include(../../shared/proparser/proparser.pri)
 
 HEADERS += \
+    codegenerator.h \
+    codegensettings.h \
+    codegensettingspage.h \
+    gettingstartedwelcomepage.h \
     qtsupportplugin.h \
     qtsupport_global.h \
     qtkitconfigwidget.h \
@@ -27,15 +31,16 @@ HEADERS += \
     exampleslistmodel.h \
     screenshotcropper.h \
     qtconfigwidget.h \
-    qtfeatureprovider.h \
     desktopqtversionfactory.h \
-    simulatorqtversionfactory.h \
     desktopqtversion.h \
-    simulatorqtversion.h \
     winceqtversionfactory.h \
     winceqtversion.h
 
 SOURCES += \
+    codegenerator.cpp \
+    codegensettings.cpp \
+    codegensettingspage.cpp \
+    gettingstartedwelcomepage.cpp \
     qtsupportplugin.cpp \
     qtkitconfigwidget.cpp \
     qtkitinformation.cpp \
@@ -55,19 +60,12 @@ SOURCES += \
     screenshotcropper.cpp \
     qtconfigwidget.cpp \
     desktopqtversionfactory.cpp \
-    simulatorqtversionfactory.cpp \
     desktopqtversion.cpp \
-    simulatorqtversion.cpp \
     winceqtversionfactory.cpp \
     winceqtversion.cpp
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += quick
-    HEADERS += gettingstartedwelcomepage.h
-    SOURCES += gettingstartedwelcomepage.cpp
-}
-
 FORMS   +=  \
+    codegensettingspagewidget.ui \
     showbuildlog.ui \
     qtversioninfo.ui \
     debugginghelper.ui \

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,17 +23,18 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-running-targets.html
     \page creator-deployment.html
     \nextpage creator-deploying-android.html
 
     \title Deploying to Mobile Devices
 
-    Deploy configurations in the \gui Project mode \gui {Run Settings} handle
-    the packaging of the application as an executable and copying it to a
-    location you want to run the executable at. The files can be copied to a
-    location in the file system of the development PC or a mobile device.
+    Deploy configurations in the \uicontrol Project mode
+    \uicontrol {Run Settings} handle the packaging of the application as an
+    executable and copying it to a location you want to run the executable at.
+    The files can be copied to a location in the file system of the development
+    PC or a mobile device.
 
     \list
 
@@ -42,21 +43,14 @@
             When you deploy the application to an Android device, \QC copies
             the application files to the device. In addition, you can determine
             the Qt libraries to use.
-        \li  \l{Deploying Applications to BlackBerry 10 Devices}
-
-            When you deploy the application to a BlackBerry 10 device, \QC generates a
-            BAR package in the build directory and deploys it to the connected
-            device.
         \li \l{Deploying Applications to Embedded Linux Devices}
 
             When you deploy the application to a generic Linux-based device, \QC
-            copies the application files to the connected device. You
-            can test and debug the application on the device.
-        \li  \l{Deploying Applications to QNX Devices}
+            copies the application files to the connected device. You can test
+            and debug the application on the device.
+        \li  \l{Deploying Applications to QNX Neutrino Devices}
 
-            When you deploy the application to a BlackBerry, \QC  generates a
-            BAR package in the build directory and deploys it to the connected
-            device. When you deploy it to a QNX Neutrino device, \QC copies
+            When you deploy the application to a QNX Neutrino device, \QC copies
             the application files to the connected device. You can test and
             debug the application on the device.
     \endlist

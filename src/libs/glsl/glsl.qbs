@@ -1,5 +1,4 @@
-import qbs.base 1.0
-import QtcLibrary
+import qbs 1.0
 
 QtcLibrary {
     name: "GLSL"

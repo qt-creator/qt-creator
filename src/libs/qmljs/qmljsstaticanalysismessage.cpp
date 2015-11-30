@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,30 +9,33 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qmljsstaticanalysismessage.h"
 #include "qmljsconstants.h"
+#include "parser/qmljsengine_p.h"
 
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QRegExp>
 
 using namespace QmlJS;
 using namespace QmlJS::StaticAnalysis;
@@ -63,7 +66,7 @@ public:
 
 static inline QString msgInvalidConstructor(const char *what)
 {
-    return StaticAnalysisMessages::tr("Do not use '%1' as a constructor.").arg(QLatin1String(what));
+    return StaticAnalysisMessages::tr("Do not use \"%1\" as a constructor.").arg(QLatin1String(what));
 }
 
 StaticAnalysisMessages::StaticAnalysisMessages()
@@ -97,11 +100,11 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(ErrDuplicateId, Error,
            tr("Duplicate id."));
     newMsg(ErrInvalidPropertyName, Error,
-           tr("Invalid property name '%1'."), 1);
+           tr("Invalid property name \"%1\"."), 1);
     newMsg(ErrDoesNotHaveMembers, Error,
-           tr("'%1' does not have members."), 1);
+           tr("\"%1\" does not have members."), 1);
     newMsg(ErrInvalidMember, Error,
-           tr("'%1' is not a member of '%2'."), 2);
+           tr("\"%1\" is not a member of \"%2\"."), 2);
     newMsg(WarnAssignmentInCondition, Warning,
            tr("Assignment in condition."));
     newMsg(WarnCaseWithoutFlowControl, Warning,
@@ -115,19 +118,19 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnComma, Warning,
            tr("Do not use comma expressions."));
     newMsg(WarnAlreadyFormalParameter, Warning,
-           tr("'%1' already is a formal parameter."), 1);
+           tr("\"%1\" already is a formal parameter."), 1);
     newMsg(WarnUnnecessaryMessageSuppression, Warning,
            tr("Unnecessary message suppression."));
     newMsg(WarnAlreadyFunction, Warning,
-           tr("'%1' already is a function."), 1);
+           tr("\"%1\" already is a function."), 1);
     newMsg(WarnVarUsedBeforeDeclaration, Warning,
-           tr("var '%1' is used before its declaration."), 1);
+           tr("var \"%1\" is used before its declaration."), 1);
     newMsg(WarnAlreadyVar, Warning,
-           tr("'%1' already is a var."), 1);
+           tr("\"%1\" already is a var."), 1);
     newMsg(WarnDuplicateDeclaration, Warning,
-           tr("'%1' is declared more than once."), 1);
+           tr("\"%1\" is declared more than once."), 1);
     newMsg(WarnFunctionUsedBeforeDeclaration, Warning,
-           tr("Function '%1' is used before its declaration."), 1);
+           tr("Function \"%1\" is used before its declaration."), 1);
     newMsg(WarnBooleanConstructor, Warning,
            msgInvalidConstructor("Boolean"));
     newMsg(WarnStringConstructor, Warning,
@@ -163,13 +166,13 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(ErrUnknownComponent, Error,
            tr("Unknown component."));
     newMsg(ErrCouldNotResolvePrototypeOf, Error,
-           tr("Could not resolve the prototype '%1' of '%2'."), 2);
+           tr("Could not resolve the prototype \"%1\" of \"%2\"."), 2);
     newMsg(ErrCouldNotResolvePrototype, Error,
-           tr("Could not resolve the prototype '%1'."), 1);
+           tr("Could not resolve the prototype \"%1\"."), 1);
     newMsg(ErrPrototypeCycle, Error,
-           tr("Prototype cycle, the last non-repeated component is '%1'."), 1);
+           tr("Prototype cycle, the last non-repeated component is \"%1\"."), 1);
     newMsg(ErrInvalidPropertyType, Error,
-           tr("Invalid property type '%1'."), 1);
+           tr("Invalid property type \"%1\"."), 1);
     newMsg(WarnEqualityTypeCoercion, Error,
            tr("== and != perform type coercion, use === or !== to avoid it."));
     newMsg(WarnExpectedNewWithUppercaseFunction, Error,
@@ -185,7 +188,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(HintPreferNonVarPropertyType, Hint,
            tr("Use %1 instead of 'var' or 'variant' to improve performance."), 1);
     newMsg(ErrMissingRequiredProperty, Error,
-           tr("Missing property '%1'."), 1);
+           tr("Missing property \"%1\"."), 1);
     newMsg(ErrObjectValueExpected, Error,
            tr("Object value expected."));
     newMsg(ErrArrayValueExpected, Error,
@@ -211,7 +214,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnImperativeCodeNotEditableInVisualDesigner, Warning,
             tr("Imperative code is not supported in the Qt Quick Designer."));
     newMsg(WarnUnsupportedTypeInVisualDesigner, Warning,
-            tr("This type is not supported in the Qt Quick Designer."));
+            tr("This type (%1) is not supported in the Qt Quick Designer."), 1);
     newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Warning,
             tr("Reference to parent item cannot be resolved correctly by the Qt Quick Designer."));
     newMsg(WarnUndefinedValueForVisualDesigner, Warning,
@@ -221,6 +224,22 @@ StaticAnalysisMessages::StaticAnalysisMessages()
             tr("Qt Quick Designer only supports states in the root item."));
     newMsg(WarnAboutQtQuick1InsteadQtQuick2, Warning,
             tr("Using Qt Quick 1 code model instead of Qt Quick 2."));
+    newMsg(ErrUnsupportedRootTypeInVisualDesigner, Error,
+           tr("This type (%1) is not supported as a root element by Qt Quick Designer."), 1);
+    newMsg(ErrUnsupportedRootTypeInQmlUi, Error,
+           tr("This type (%1) is not supported as a root element of a Qt Quick UI form."), 1);
+    newMsg(ErrUnsupportedTypeInQmlUi, Error,
+            tr("This type (%1) is not supported in a Qt Quick UI form."), 1);
+    newMsg(ErrFunctionsNotSupportedInQmlUi, Error,
+            tr("Functions are not supported in a Qt Quick UI form."));
+    newMsg(ErrBlocksNotSupportedInQmlUi, Error,
+            tr("JavaScript blocks are not supported in a Qt Quick UI form."));
+    newMsg(ErrBehavioursNotSupportedInQmlUi, Error,
+            tr("Behavior type is not supported in a Qt Quick UI form."));
+    newMsg(ErrStatesOnlyInRootItemInQmlUi, Error,
+            tr("States are only supported in the root item in a Qt Quick UI form."));
+    newMsg(ErrReferenceToParentItemNotSupportedInQmlUi, Error,
+            tr("Referencing the parent of the root item is not supported in a Qt Quick UI form."));
 }
 
 } // anonymous namespace

@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "QmlJSTools"
@@ -19,7 +17,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
-        "QmlJSTools.mimetypes.xml",
         "qmljsbundleprovider.cpp",
         "qmljsbundleprovider.h",
         "qmljscodestylepreferencesfactory.cpp",
@@ -34,8 +31,6 @@ QtcPlugin {
         "qmljslocatordata.cpp",
         "qmljslocatordata.h",
         "qmljsmodelmanager.cpp",
-        "qmljsmodelmanager.cpp",
-        "qmljsmodelmanager.h",
         "qmljsmodelmanager.h",
         "qmljsqtstylecodeformatter.cpp",
         "qmljsqtstylecodeformatter.h",

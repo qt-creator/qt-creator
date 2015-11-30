@@ -1,11 +1,9 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "Debugger"
 
-    Depends { name: "Qt"; submodules: ["widgets", "network", "script"] }
+    Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Aggregation" }
     Depends { name: "CPlusPlus" }
     Depends { name: "QtcSsh" }
@@ -17,9 +15,10 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "CppTools" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
 
-    cpp.includePaths: base.concat(["../../shared/registryaccess"])
+    cpp.includePaths: base.concat([project.sharedSourcesDir + "/registryaccess"])
 
     pluginRecommends: [
         "CppEditor"
@@ -28,42 +27,37 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
-            "basewindow.cpp", "basewindow.h",
             "breakhandler.cpp", "breakhandler.h",
             "breakpoint.cpp", "breakpoint.h",
-            "breakpointmarker.cpp", "breakpointmarker.h",
             "breakwindow.cpp", "breakwindow.h",
             "commonoptionspage.cpp", "commonoptionspage.h",
             "debugger.qrc",
             "debugger_global.h",
             "debuggeractions.cpp", "debuggeractions.h",
             "debuggerconstants.h",
+            "debuggericons.h",
             "debuggercore.h",
             "debuggerdialogs.cpp", "debuggerdialogs.h",
             "debuggerengine.cpp", "debuggerengine.h",
             "debuggerinternalconstants.h",
             "debuggeritem.cpp", "debuggeritem.h",
             "debuggeritemmanager.cpp", "debuggeritemmanager.h",
-            "debuggeritemmodel.cpp", "debuggeritemmodel.h",
             "debuggerkitconfigwidget.cpp", "debuggerkitconfigwidget.h",
             "debuggerkitinformation.cpp", "debuggerkitinformation.h",
             "debuggermainwindow.cpp", "debuggermainwindow.h",
             "debuggeroptionspage.cpp", "debuggeroptionspage.h",
             "debuggerplugin.cpp", "debuggerplugin.h",
             "debuggerprotocol.cpp", "debuggerprotocol.h",
-            "debuggerruncontrolfactory.h",
             "debuggerrunconfigurationaspect.cpp", "debuggerrunconfigurationaspect.h",
-            "debuggerrunner.cpp", "debuggerrunner.h",
+            "debuggerruncontrol.cpp", "debuggerruncontrol.h",
             "debuggersourcepathmappingwidget.cpp", "debuggersourcepathmappingwidget.h",
             "debuggerstartparameters.h",
-            "debuggerstreamops.cpp", "debuggerstreamops.h",
             "debuggerstringutils.h",
             "debuggertooltipmanager.cpp", "debuggertooltipmanager.h",
             "disassembleragent.cpp", "disassembleragent.h",
             "disassemblerlines.cpp", "disassemblerlines.h",
             "imageviewer.cpp", "imageviewer.h",
             "loadcoredialog.cpp", "loadcoredialog.h",
-            "localsandexpressionsoptionspage.ui",
             "localsandexpressionswindow.cpp", "localsandexpressionswindow.h",
             "logwindow.cpp", "logwindow.h",
             "memoryagent.cpp", "memoryagent.h",
@@ -83,6 +77,7 @@ QtcPlugin {
             "stackframe.cpp", "stackframe.h",
             "stackhandler.cpp", "stackhandler.h",
             "stackwindow.cpp", "stackwindow.h",
+            "terminal.cpp", "terminal.h",
             "threaddata.h",
             "threadshandler.cpp", "threadshandler.h",
             "threadswindow.cpp", "threadswindow.h",
@@ -114,10 +109,8 @@ QtcPlugin {
         files: [
             "attachgdbadapter.cpp", "attachgdbadapter.h",
             "coregdbadapter.cpp", "coregdbadapter.h",
-            "gdb.qrc",
             "gdbengine.cpp", "gdbengine.h",
-            "gdboptionspage.cpp", "gdboptionspage.h",
-            "gdbprocess.cpp", "gdbprocess.h",
+            "gdboptionspage.cpp",
             "gdbplainengine.cpp", "gdbplainengine.h",
             "remotegdbserveradapter.cpp", "remotegdbserveradapter.h",
             "startgdbserverdialog.cpp", "startgdbserverdialog.h",
@@ -154,17 +147,12 @@ QtcPlugin {
         name: "QML Debugger"
         prefix: "qml/"
         files: [
-            "baseqmldebuggerclient.cpp", "baseqmldebuggerclient.h",
             "interactiveinterpreter.cpp", "interactiveinterpreter.h",
-            "qmladapter.cpp", "qmladapter.h",
             "qmlcppengine.cpp", "qmlcppengine.h",
             "qmlengine.cpp", "qmlengine.h",
-            "qmlinspectoradapter.cpp", "qmlinspectoradapter.h",
+            "qmlengineutils.cpp", "qmlengineutils.h",
             "qmlinspectoragent.cpp", "qmlinspectoragent.h",
-            "qmllivetextpreview.cpp", "qmllivetextpreview.h",
-            "qmlv8debuggerclient.cpp", "qmlv8debuggerclient.h",
-            "qmlv8debuggerclientconstants.h",
-            "qscriptdebuggerclient.cpp", "qscriptdebuggerclient.h"
+            "qmlv8debuggerclientconstants.h"
         ]
     }
 
@@ -184,46 +172,19 @@ QtcPlugin {
     Group {
         name: "Images"
         prefix: "images/"
-        files: [
-            "breakpoint_16.png",
-            "breakpoint_24.png",
-            "breakpoint_disabled_16.png",
-            "breakpoint_disabled_24.png",
-            "breakpoint_disabled_32.png",
-            "breakpoint_pending_16.png",
-            "breakpoint_pending_24.png",
-            "debugger_breakpoints.png",
-            "debugger_continue.png",
-            "debugger_continue_32.png",
-            "debugger_continue_small.png",
-            "debugger_empty_14.png",
-            "debugger_interrupt.png",
-            "debugger_interrupt_32.png",
-            "debugger_interrupt_small.png",
-            "debugger_reversemode_16.png",
-            "debugger_singleinstructionmode.png",
-            "debugger_snapshot_small.png",
-            "debugger_start.png",
-            "debugger_start_small.png",
-            "debugger_stepinto_small.png",
-            "debugger_steponeproc_small.png",
-            "debugger_stepout_small.png",
-            "debugger_stepover_small.png",
-            "debugger_stepoverproc_small.png",
-            "debugger_stop.png",
-            "debugger_stop_32.png",
-            "debugger_stop_small.png",
-            "location_16.png",
-            "location_24.png",
-            "tracepoint.png",
-            "watchpoint.png",
-        ]
+        files: ["*.png", "*.xpm"]
+    }
+
+    Group {
+        name: "Images/qml"
+        prefix: "images/qml/"
+        files: ["*.png"]
     }
 
     Group {
         name: "RegistryAccess"
         condition: qbs.targetOS.contains("windows")
-        prefix: "../../shared/registryaccess/"
+        prefix: project.sharedSourcesDir + "/registryaccess/"
         files: [
             "registryaccess.cpp",
             "registryaccess.h",

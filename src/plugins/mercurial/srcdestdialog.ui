@@ -36,7 +36,7 @@
      <item row="2" column="0">
       <widget class="QRadioButton" name="urlButton">
        <property name="toolTip">
-        <string>e.g. https://[user[:pass]@]host[:port]/[path]</string>
+        <string>For example: 'https://[user[:pass]@]host[:port]/[path]'.</string>
        </property>
        <property name="text">
         <string>Specify URL:</string>
@@ -56,7 +56,7 @@
         <bool>false</bool>
        </property>
        <property name="toolTip">
-        <string>e.g. https://[user[:pass]@]host[:port]/[path]</string>
+        <string>For example: 'https://[user[:pass]@]host[:port]/[path]'.</string>
        </property>
       </widget>
      </item>

@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "AnalyzerBase"
@@ -18,6 +16,7 @@ QtcPlugin {
         "analyzerbase.qrc",
         "analyzerbase_global.h",
         "analyzerconstants.h",
+        "analyzericons.h",
         "analyzermanager.cpp",
         "analyzermanager.h",
         "analyzerplugin.cpp",
@@ -29,17 +28,23 @@ QtcPlugin {
         "analyzerstartparameters.h",
         "analyzerutils.cpp",
         "analyzerutils.h",
+        "detailederrorview.cpp",
+        "detailederrorview.h",
+        "diagnosticlocation.cpp",
+        "diagnosticlocation.h",
         "ianalyzertool.cpp",
         "ianalyzertool.h",
         "startremotedialog.cpp",
         "startremotedialog.h",
-        "images/analyzer_category.png",
-        "images/analyzer_mode.png",
-        "images/analyzer_start_small.png",
     ]
+
+    Group {
+        name: "Images"
+        prefix: "images/"
+        files: ["*.png"]
+    }
 
     Export {
         Depends { name: "CPlusPlus" }
     }
 }
-

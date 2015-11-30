@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,29 +23,28 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-troubleshooting-debugging.html
     \page creator-analyze-mode.html
     \nextpage creator-qml-performance-monitor.html
 
     \title Analyzing Code
 
-    You can use the code analysis tools in the \gui Analyze mode. To switch to
-    \gui Analyze mode, select \gui Analyze in the mode selector, or select the
-    \gui {Analyze} menu and then select a tool. When you are in the
-    \gui Analyze mode, you can switch between tools by selecting them in the
-    menu on the toolbar.
+    You can use the code analysis tools in the \uicontrol Analyze mode. To
+    switch to \uicontrol Analyze mode, select \uicontrol Analyze in the mode
+    selector, or select the \uicontrol {Analyze} menu and then select a tool.
+    When you are in the \uicontrol Analyze mode, you can switch between tools by
+    selecting them in the menu on the toolbar.
 
     \image qtcreator-analyze-menu.png "Analyze mode menu"
 
-    By default, the views in the \gui Analyze mode are locked into place in the
-    workspace. Select \gui {Window > Views > Locked} to unlock the views. Drag
-    and drop the views into new positions on the screen. Drag view borders to
-    resize the views. The size and position of views are saved for future
-    sessions. Select \gui {Window > Views > Reset to Default Layout} to reset
-    the views to their original sizes and positions.
+    You can drag and drop the views in the \uicontrol Analyze mode to new
+    positions on the screen. The size and position of views are saved for future
+    sessions. Select \uicontrol {Window > Views > Reset to Default Layout} to
+    reset the views to their original sizes and positions.
 
-    You can use the following code analysis tools in the \gui Analyze mode:
+    You can use the following code analysis tools in the \uicontrol Analyze
+    mode:
 
     \list
 
@@ -61,7 +60,19 @@
             You can detect problems in memory management by using the Memcheck
             tool and find cache misses in the code by using the Callgrind tool.
 
+        \li \l{Using Clang Static Analyzer}{Clang Static Analyzer}
+
+            You can detect problems in C, C++, and
+            Objective-C programs by using the experimental plugin that
+            integrates the Clang Static Analyzer source code analysis tool
+            (commercial only).
+
+        \li \l{Analyzing CPU Usage}{CPU Usage Analyzer}
+
+            You can analyze the CPU usage of embedded applications and Linux
+            desktop applications with the CPU Usage Analyzer (commercial only)
+            that integrates the Linux Perf tool.
+
     \endlist
 
 */
-

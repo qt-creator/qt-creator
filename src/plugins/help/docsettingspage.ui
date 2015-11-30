@@ -23,7 +23,7 @@
       <item>
        <widget class="QListWidget" name="docsListWidget">
         <property name="selectionMode">
-         <enum>QAbstractItemView::ContiguousSelection</enum>
+         <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
         <property name="uniformItemSizes">
          <bool>true</bool>
@@ -35,12 +35,6 @@
       </item>
       <item>
        <layout class="QVBoxLayout" name="_4">
-        <property name="spacing">
-         <number>6</number>
-        </property>
-        <property name="margin">
-         <number>0</number>
-        </property>
         <item>
          <widget class="QPushButton" name="addButton">
           <property name="text">

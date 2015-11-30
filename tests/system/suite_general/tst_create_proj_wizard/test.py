@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,31 +9,38 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
 
 source("../../shared/qtcreator.py")
 
-import re
-
 def main():
     global tmpSettingsDir
-    quickCombinations = [["1.1",None], ["2.1",None], ["2.2",None], ["2.1","1.0"], ["2.2","1.1"]]
+    qtVersionsForQuick = ["5.3"]
+    availableBuildSystems = ["qmake", "Qbs"]
+    if platform.system() != 'Darwin':
+        qtVersionsForQuick.append("5.4")
+    if which("cmake"):
+        availableBuildSystems.append("CMake")
+    else:
+        test.warning("Could not find cmake in PATH - several tests won't run without.")
+
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
@@ -47,12 +54,12 @@ def main():
     test.compare("Projects", str(projects.data()))
     comboBox = findObject(":New.comboBox_QComboBox")
     targets = zip(*kits.values())[0]
-    maddeTargets = Targets.getTargetsAsStrings([Targets.MAEMO5, Targets.HARMATTAN])
-    maddeInTargets = len(set(targets) & set(maddeTargets)) > 0
     test.verify(comboBox.enabled, "Verifying whether combobox is enabled.")
-    test.verify(not maddeInTargets, "Verify there are no leftovers of Madde")
-    test.compare(comboBox.currentText, "Desktop Templates")
-    selectFromCombo(comboBox, "All Templates")
+    test.compare(comboBox.currentText, "All Templates")
+    try:
+        selectFromCombo(comboBox, "All Templates")
+    except:
+        test.warning("Could not explicitly select 'All Templates' from combobox.")
     for category in [item.replace(".", "\\.") for item in dumpItems(catModel, projects)]:
         # skip non-configurable
         if "Import" in category:
@@ -63,32 +70,39 @@ def main():
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
             template = template.replace(".", "\\.")
             # skip non-configurable
-            if (template != "Qt Quick UI" and "(CMake Build)" not in template
-                and "(Qbs Build)" not in template):
+            if not template in ["Qt Quick UI", "Qt Quick Controls UI", "Qt Canvas 3D Application"]:
                 availableProjectTypes.append({category:template})
-    clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}"))
+    safeClickButton("Cancel")
     for current in availableProjectTypes:
         category = current.keys()[0]
         template = current.values()[0]
         displayedPlatforms = __createProject__(category, template)
-        if template == "Qt Quick Application":
-            for counter, qComb in enumerate(quickCombinations):
-                requiredQtVersion = __createProjectHandleQtQuickSelection__(qComb[0], qComb[1])
+        if template == "Qt Quick Application" or template == "Qt Quick Controls Application":
+            for counter, qtVersion in enumerate(qtVersionsForQuick):
+                requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
                 __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
                 verifyKitCheckboxes(kits, displayedPlatforms)
                 # FIXME: if QTBUG-35203 is fixed replace by triggering the shortcut for Back
-                clickButton(waitForObject("{type='QPushButton' text='Cancel'}"))
+                safeClickButton("Cancel")
                 # are there more Quick combinations - then recreate this project
-                if counter < len(quickCombinations) - 1:
+                if counter < len(qtVersionsForQuick) - 1:
                     displayedPlatforms = __createProject__(category, template)
             continue
-        try:
-            waitForObject("{name='mainQmlFileGroupBox' title='Main HTML File' type='QGroupBox' visible='1'}", 1000)
-            clickButton(waitForObject(":Next_QPushButton"))
-        except LookupError:
-            pass
+        elif template.startswith("Plain C"):
+            for counter, buildSystem in enumerate(availableBuildSystems):
+                combo = "{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}"
+                selectFromCombo(combo, buildSystem)
+                clickButton(waitForObject(":Next_QPushButton"))
+                verifyKitCheckboxes(kits, displayedPlatforms)
+                # FIXME: if QTBUG-35203 is fixed replace by triggering the shortcut for Back
+                safeClickButton("Cancel")
+                if counter < len(availableBuildSystems) - 1:
+                    displayedPlatforms = __createProject__(category, template)
+            continue
+
         verifyKitCheckboxes(kits, displayedPlatforms)
-        clickButton(waitForObject("{type='QPushButton' text='Cancel'}"))
+        safeClickButton("Cancel")
+
     invokeMenuItem("File", "Exit")
 
 def verifyKitCheckboxes(kits, displayedPlatforms):
@@ -112,18 +126,41 @@ def verifyKitCheckboxes(kits, displayedPlatforms):
                   % str(availableCheckboxes))
 
 def __createProject__(category, template):
+    def safeGetTextBrowserText():
+        try:
+            return str(waitForObject(":frame.templateDescription_QTextBrowser", 500).plainText)
+        except:
+            return ""
+
     invokeMenuItem("File", "New File or Project...")
     selectFromCombo(waitForObject(":New.comboBox_QComboBox"), "All Templates")
     categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
     clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
     templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}")
+
     test.log("Verifying '%s' -> '%s'" % (category.replace("\\.", "."), template.replace("\\.", ".")))
-    textBrowser = findObject(":frame.templateDescription_QTextBrowser")
-    origTxt = str(textBrowser.plainText)
+    origTxt = safeGetTextBrowserText()
     clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
-    waitFor("origTxt != str(textBrowser.plainText)", 2000)
-    displayedPlatforms = __getSupportedPlatforms__(str(textBrowser.plainText), template, True)[0]
-    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}"))
+    waitFor("origTxt != safeGetTextBrowserText() != ''", 2000)
+    displayedPlatforms = __getSupportedPlatforms__(safeGetTextBrowserText(), template, True)[0]
+    safeClickButton("Choose...")
     # don't check because project could exist
     __createProjectSetNameAndPath__(os.path.expanduser("~"), 'untitled', False)
     return displayedPlatforms
+
+def safeClickButton(buttonLabel):
+    buttonString = "{type='QPushButton' text='%s' visible='1' unnamed='1'}"
+    for _ in range(5):
+        try:
+            clickButton(buttonString % buttonLabel)
+            return
+        except:
+            if buttonLabel == "Cancel":
+                try:
+                    clickButton("{name='qt_wizard_cancel' type='QPushButton' text='Cancel' "
+                                "visible='1'}")
+                    return
+                except:
+                    pass
+            snooze(1)
+    test.fatal("Even safeClickButton failed...")

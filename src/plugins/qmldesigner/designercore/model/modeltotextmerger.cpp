@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -35,6 +31,8 @@
 
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
+#include <qmljs/parser/qmljsengine_p.h>
+#include <utils/algorithm.h>
 
 #include <QDebug>
 
@@ -153,7 +151,7 @@ void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstract
         if (oldPropertyParent.isNodeProperty()) {
             // ignore, the subsequent remove property will take care of all
         } else if (oldPropertyParent.isNodeListProperty()) {
-            if (!oldPropertyParent.isDefaultProperty() && oldPropertyParent.toNodeListProperty().toModelNodeList().size() == 0)
+            if (!oldPropertyParent.isDefaultProperty() && oldPropertyParent.count() == 0)
                 schedule(new RemovePropertyRewriteAction(oldPropertyParent));
             else
                 schedule(new RemoveNodeRewriteAction(node));
@@ -213,21 +211,21 @@ void ModelToTextMerger::applyChanges()
     if (m_rewriteActions.isEmpty())
         return;
 
-    dumpRewriteActions(QLatin1String("Before compression"));
+    dumpRewriteActions(QStringLiteral("Before compression"));
     RewriteActionCompressor compress(getPropertyOrder());
     compress(m_rewriteActions);
-    dumpRewriteActions(QLatin1String("After compression"));
+    dumpRewriteActions(QStringLiteral("After compression"));
 
     if (m_rewriteActions.isEmpty())
         return;
 
-    Document::MutablePtr tmpDocument(Document::create(QLatin1String("<ModelToTextMerger>"), Language::Qml));
+    Document::MutablePtr tmpDocument(Document::create(QStringLiteral("<ModelToTextMerger>"), Dialect::Qml));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
     if (!tmpDocument->parseQml()) {
         qDebug() << "*** Possible problem: QML file wasn't parsed correctly.";
         qDebug() << "*** QML text:" << m_rewriterView->textModifier()->text();
 
-        QString errorMessage = QLatin1String("Error while rewriting");
+        QString errorMessage = QStringLiteral("Error while rewriting");
         if (!tmpDocument->diagnosticMessages().isEmpty())
             errorMessage = tmpDocument->diagnosticMessages().first().message;
 
@@ -238,10 +236,12 @@ void ModelToTextMerger::applyChanges()
     TextModifier *textModifier = m_rewriterView->textModifier();
 
     try {
+        bool reindentAllFlag = false;
+
         ModelNodePositionRecalculator positionRecalculator(m_rewriterView->positionStorage(), m_rewriterView->positionStorage()->modelNodes());
         positionRecalculator.connectTo(textModifier);
 
-        QmlDesigner::QmlRefactoring refactoring(tmpDocument, *textModifier, getPropertyOrder());
+        QmlRefactoring refactoring(tmpDocument, *textModifier, getPropertyOrder());
 
         textModifier->deactivateChangeSignals();
         textModifier->startGroup();
@@ -250,6 +250,13 @@ void ModelToTextMerger::applyChanges()
             RewriteAction* action = m_rewriteActions.at(i);
             if (DebugRewriteActions)
                 qDebug() << "Next rewrite action:" << qPrintable(action->info());
+
+            if (action->asReparentNodeRewriteAction())
+                reindentAllFlag = true; /*If a node is reparented we indent all,
+                                          because reparenting can have side effects
+                                          regarding indentation
+                                          to otherwise untouched nodes.
+                                          */
 
             ModelNodePositionStorage *positionStore = m_rewriterView->positionStorage();
             bool success = action->execute(refactoring, *positionStore);
@@ -261,7 +268,7 @@ void ModelToTextMerger::applyChanges()
             // don't merge these two if statements, because the previous then-part changes the value
             // of "success" !
             if (!success) {
-                m_rewriterView->enterErrorState(QLatin1String("Error rewriting document"));
+                m_rewriterView->enterErrorState(QStringLiteral("Error rewriting document"));
 
                 if (true || DebugRewriteActions) {
                     qDebug() << "*** QML source code: ***";
@@ -276,12 +283,15 @@ void ModelToTextMerger::applyChanges()
         qDeleteAll(m_rewriteActions);
         m_rewriteActions.clear();
 
-        reindent(positionRecalculator.dirtyAreas());
+        if (reindentAllFlag)
+            reindentAll();
+        else
+            reindent(positionRecalculator.dirtyAreas());
 
         textModifier->commitGroup();
 
         textModifier->reactivateChangeSignals();
-    } catch (Exception &e) {
+    } catch (const Exception &e) {
         m_rewriterView->enterErrorState(e.description());
 
         qDeleteAll(m_rewriteActions);
@@ -294,13 +304,19 @@ void ModelToTextMerger::applyChanges()
 void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
 {
     QList<int> offsets = dirtyAreas.keys();
-    qSort(offsets);
+    Utils::sort(offsets);
     TextModifier *textModifier = m_rewriterView->textModifier();
 
     foreach (const int offset, offsets) {
         const int length = dirtyAreas[offset];
         textModifier->indent(offset, length);
     }
+}
+
+void ModelToTextMerger::reindentAll() const
+{
+    TextModifier *textModifier = m_rewriterView->textModifier();
+    textModifier->indent(0, textModifier->text().length() - 1);
 }
 
 void ModelToTextMerger::schedule(RewriteAction *action)
@@ -310,26 +326,26 @@ void ModelToTextMerger::schedule(RewriteAction *action)
     m_rewriteActions.append(action);
 }
 
-QmlDesigner::QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property, const QString &textValue)
+QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property, const QString &textValue)
 {
     if (property.isBindingProperty() || property.isSignalHandlerProperty()) {
         QString val = textValue.trimmed();
         if (val.isEmpty())
-            return QmlDesigner::QmlRefactoring::ObjectBinding;
+            return QmlRefactoring::ObjectBinding;
         const QChar lastChar = val.at(val.size() - 1);
         if (lastChar == '}' || lastChar == ';')
-            return QmlDesigner::QmlRefactoring::ObjectBinding;
+            return QmlRefactoring::ObjectBinding;
         else
-            return QmlDesigner::QmlRefactoring::ScriptBinding;
+            return QmlRefactoring::ScriptBinding;
     } else if (property.isNodeListProperty())
-        return QmlDesigner::QmlRefactoring::ArrayBinding;
+        return QmlRefactoring::ArrayBinding;
     else if (property.isNodeProperty())
-        return QmlDesigner::QmlRefactoring::ObjectBinding;
+        return QmlRefactoring::ObjectBinding;
     else if (property.isVariantProperty())
-        return QmlDesigner::QmlRefactoring::ScriptBinding;
+        return QmlRefactoring::ScriptBinding;
 
     Q_ASSERT(!"cannot convert property type");
-    return (QmlDesigner::QmlRefactoring::PropertyType) -1;
+    return (QmlRefactoring::PropertyType) -1;
 }
 
 PropertyNameList ModelToTextMerger::m_propertyOrder;

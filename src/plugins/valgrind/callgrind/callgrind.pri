@@ -17,7 +17,7 @@ HEADERS += \
     $$PWD/callgrindstackbrowser.h \
     $$PWD/callgrindrunner.h
 
-SOURCES += \ 
+SOURCES += \
     $$PWD/callgrindparser.cpp \
     $$PWD/callgrindparsedata.cpp \
     $$PWD/callgrindfunction.cpp \

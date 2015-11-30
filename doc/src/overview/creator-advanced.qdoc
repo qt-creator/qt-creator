@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,8 +23,8 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
-    \previouspage creator-running-valgrind-remotely.html
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-autotest.html
     \page creator-advanced.html
     \nextpage creator-os-supported-platforms.html
 
@@ -48,14 +48,15 @@
         \li \l{Supported Platforms}
 
             You can install and run \QC on several operating systems to create
-            applications for multiple desktop and mobile device platforms.
+            applications for multiple desktop, embedded, and mobile device
+            platforms.
 
         \li \l{Using Other Build Systems}
 
             \QC is integrated with cross-platform systems for build automation:
-            qmake and CMake. In addition, you can import generic projects that
-            do not use qmake or CMake, and specify that \QC ignores your build
-            system.
+            qmake, Qbs, CMake, and Autotools. In addition, you can import
+            generic projects that do not use those systems, and specify that \QC
+            ignores your build system.
 
         \li \l{Using Command Line Options}
 
@@ -72,9 +73,9 @@
 
             You can use external tools directly from \QC. Qt Linguist,
             QML preview tools (QML Viewer and QML Scene), the default text
-            editor for your system, and the \c sort
-            tool are preconfigured for use. You can change their default
-            configurations and configure new tools.
+            editor for your system, and the \c sort tool are preconfigured for
+            use. You can change their default configurations and configure new
+            tools.
 
     \endlist
 
@@ -85,8 +86,9 @@
         \li \l{Showing Task List Files in Issues Pane}
 
             You can load report files created by code scanning and analysis
-            tools to the \gui Issues output pane. You can navigate to the
-            corresponding source code by clicking the error message.
+            tools to the \uicontrol Issues output pane. You can navigate to the
+            corresponding source code by clicking the error message or by using
+            keyboard shortcuts.
 
     \endlist
 

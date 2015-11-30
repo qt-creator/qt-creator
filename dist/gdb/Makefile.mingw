@@ -1,14 +1,13 @@
 broot=${PWD}
 source=${broot}/source
-targets=arm-none-linux-gnueabi i686-pc-mingw32
+targets=arm-none-eabi,arm-none-linux-gnueabi,i686-pc-mingw32
 staging=${broot}/staging
 pyversion=2.7
 pydir=${broot}/python
 expatversion=2.1.0
 iconvversion=1.14
-version=7.7
+version=7.10
 targetdir=${broot}/qtcreator-gdb-${version}
-gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
 packageparts=${targetdir}/lib ${targetdir}/data-directory ${targetdir}/libiconv-2.dll ${targetdir}/python27.dll ${targetdir}/libexpat-1.dll
 arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
 packagename=qtcreator-gdb-${version}-${arch}.tar.gz
@@ -36,7 +35,7 @@ checkunzip:
 ${source}/python.zip: | makesourcedir checkwget
 	cd ${source} && \
 	echo "Downloading python..." && \
-	wget -q http://download.qt-project.org/development_releases/prebuilt/gdb/build-prerequisites/python.zip && \
+	wget -q http://download.qt.io/development_releases/prebuilt/gdb/build-prerequisites/python.zip && \
 	touch python.zip
 
 ${broot}/python/python.exe: ${source}/python.zip | checkunzip
@@ -48,12 +47,12 @@ ${broot}/python/python.exe: ${source}/python.zip | checkunzip
 checkwget:
 	wget -V &> /dev/null || mingw-get install msys-wget-bin
 
-${source}/gdb-${version}.tar.bz2: | makesourcedir checkwget
+${source}/gdb-${version}.tar.xz: | makesourcedir checkwget
 	cd ${source} && \
 	echo "Downloading gdb..." && \
-	wget -q http://ftp.gnu.org/gnu/gdb/gdb-${version}.tar.bz2 || \
-	wget -Oq gdb-${version}.tar.bz2 http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.bz2 && \
-	touch gdb-${version}.tar.bz2
+	wget -q http://ftp.gnu.org/gnu/gdb/gdb-${version}.tar.xz || \
+	wget -Oq gdb-${version}.tar.xz http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.xz && \
+	touch gdb-${version}.tar.xz
 
 ${source}/libiconv-${iconvversion}.tar.gz: | makesourcedir checkwget
 	cd ${source} && \
@@ -67,10 +66,10 @@ ${source}/expat-${expatversion}.tar.gz: | makesourcedir checkwget
 	wget -q http://sourceforge.net/projects/expat/files/expat/${expatversion}/expat-${expatversion}.tar.gz/download && \
 	touch ${source}/expat-${expatversion}.tar.gz
 
-${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestagingdir
+${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.xz | makestagingdir
 	cd ${staging} && \
 	echo "Extracting gdb..." && \
-	tar xf ${source}/gdb-${version}.tar.bz2 && \
+	tar xf ${source}/gdb-${version}.tar.xz && \
 	cd gdb-${version} && \
 	touch configure
 
@@ -90,13 +89,13 @@ ${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.gz | makestagingd
 	./configure -prefix=${staging} --enable-static --build=i686-pc-mingw32 && \
 	${MAKE} && ${MAKE} install
 
-${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libiconv.a ${staging}/gdb-${version}/configure | maketargetdir ${broot}/python/python.exe
-	test -e ${staging}/gdb-${version}-$* || mkdir ${staging}/gdb-${version}-$*
+${targetdir}/gdb.exe: ${staging}/lib/libexpat.a ${staging}/lib/libiconv.a ${staging}/gdb-${version}/configure | maketargetdir ${broot}/python/python.exe
+	test -e ${staging}/gdb-${version}-build || mkdir ${staging}/gdb-${version}-build
 	export PYTHONHOME=${pydir} && \
 	LDFLAGS="L${pydir} -lpthread -ldl -lutil -lpython27" && \
 	CFLAGS="-I${pydir}/include" && \
-	cd ${staging}/gdb-${version}-$* && \
-	${staging}/gdb-${version}/configure --target=$* --disable-nls --disable-werror --build=i686-pc-mingw32 \
+	cd ${staging}/gdb-${version}-build && \
+	${staging}/gdb-${version}/configure --enable-targets=${targets} --disable-nls --disable-werror --build=i686-pc-mingw32 \
 	--with-libiconv-prefix=${staging} \
 	--with-expat --with-libexpat-prefix=${staging} \
 	--with-separate-debug-dir="" \
@@ -104,13 +103,13 @@ ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libi
 	${MAKE} MAKEFLAGS+= -j1 && \
 	strip -o ${targetdir}/gdb-$*.exe gdb/gdb.exe
 
-package: ${gdbtargets} ${broot}/python/python.exe
+package: ${targetdir}/gdb.exe ${broot}/python/python.exe
 	cp ${staging}/bin/libiconv* ${targetdir} && \
 	cp ${staging}/bin/libexpat* ${targetdir} && \
 	cp ${pydir}/python*.dll ${targetdir} && \
 	cp -r ${pydir}/lib ${targetdir} && \
 	mkdir -p ${targetdir}/data-directory && \
-	cp -r ${staging}/gdb-${version}-i686-pc-mingw32/gdb/data-directory/{python,syscalls} ${targetdir}/data-directory && \
+	cp -r ${staging}/gdb-${version}-build/gdb/data-directory/{python,syscalls} ${targetdir}/data-directory && \
 	mv ${targetdir} ${targetdir}-${arch} && \
 	echo "Packing..." && \
 	tar czf ${packagename} qtcreator-gdb-${version}-${arch} && \

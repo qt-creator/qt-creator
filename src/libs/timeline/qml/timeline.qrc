@@ -1,0 +1,38 @@
+<RCC>
+    <qresource prefix="/timeline">
+        <file>Detail.qml</file>
+        <file>CategoryLabel.qml</file>
+        <file>MainView.qml</file>
+        <file>RangeDetails.qml</file>
+        <file>RangeMover.qml</file>
+        <file>TimeDisplay.qml</file>
+        <file>lock_closed.png</file>
+        <file>lock_open.png</file>
+        <file>ico_edit.png</file>
+        <file>TimeMarks.qml</file>
+        <file>Overview.qml</file>
+        <file>SelectionRange.qml</file>
+        <file>SelectionRangeDetails.qml</file>
+        <file>arrow_down.png</file>
+        <file>arrow_right.png</file>
+        <file>dialog_shadow.png</file>
+        <file>range_handle.png</file>
+        <file>ico_selectionmode.png</file>
+        <file>ico_zoom.png</file>
+        <file>ico_prev.png</file>
+        <file>ico_next.png</file>
+        <file>ico_rangeselection.png</file>
+        <file>ico_rangeselected.png</file>
+        <file>ico_note.png</file>
+        <file>ButtonsBar.qml</file>
+        <file>timelineitems.vert</file>
+        <file>timelineitems.frag</file>
+        <file>notes.vert</file>
+        <file>notes.frag</file>
+        <file>TimelineLabels.qml</file>
+        <file>TimelineContent.qml</file>
+        <file>RowLabel.qml</file>
+        <file>SynchronousReloader.qml</file>
+        <file>TimelineText.qml</file>
+    </qresource>
+</RCC>

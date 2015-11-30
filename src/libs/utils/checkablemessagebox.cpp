@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -120,20 +121,15 @@ CheckableMessageBox::CheckableMessageBox(QWidget *parent) :
 {
     setModal(true);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
-    connect(d->buttonBox, SIGNAL(clicked(QAbstractButton*)),
-        SLOT(slotClicked(QAbstractButton*)));
+    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(d->buttonBox, &QDialogButtonBox::clicked,
+            this, [this](QAbstractButton *b) { d->clickedButton = b; });
 }
 
 CheckableMessageBox::~CheckableMessageBox()
 {
     delete d;
-}
-
-void CheckableMessageBox::slotClicked(QAbstractButton *b)
-{
-    d->clickedButton = b;
 }
 
 QAbstractButton *CheckableMessageBox::clickedButton() const
@@ -287,6 +283,49 @@ QMessageBox::StandardButton CheckableMessageBox::dialogButtonBoxToMessageBoxButt
     return static_cast<QMessageBox::StandardButton>(int(db));
 }
 
+bool askAgain(QSettings *settings, const QString &settingsSubKey)
+{
+    QTC_CHECK(settings);
+    if (settings) {
+        settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+        bool shouldNotAsk = settings->value(settingsSubKey, false).toBool();
+        settings->endGroup();
+        if (shouldNotAsk)
+            return false;
+    }
+    return true;
+}
+
+enum DoNotAskAgainType{Question, Information};
+
+void initDoNotAskAgainMessageBox(CheckableMessageBox &messageBox, const QString &title,
+                                 const QString &text, QDialogButtonBox::StandardButtons buttons,
+                                 QDialogButtonBox::StandardButton defaultButton,
+                                 DoNotAskAgainType type)
+{
+    messageBox.setWindowTitle(title);
+    messageBox.setIconPixmap(QMessageBox::standardIcon(type == Information
+                                               ? QMessageBox::Information
+                                               : QMessageBox::Question));
+    messageBox.setText(text);
+    messageBox.setCheckBoxVisible(true);
+    messageBox.setCheckBoxText(type == Information ? CheckableMessageBox::msgDoNotShowAgain()
+                                                   : CheckableMessageBox::msgDoNotAskAgain());
+    messageBox.setChecked(false);
+    messageBox.setStandardButtons(buttons);
+    messageBox.setDefaultButton(defaultButton);
+}
+
+void doNotAskAgain(QSettings *settings, const QString &settingsSubKey)
+{
+    if (!settings)
+        return;
+
+    settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+    settings->setValue(settingsSubKey, true);
+    settings->endGroup();
+}
+
 /*!
     Shows a message box with given \a title and \a text, and a \gui {Do not ask again} check box.
     If the user checks the check box and accepts the dialog with the \a acceptButton,
@@ -305,35 +344,44 @@ CheckableMessageBox::doNotAskAgainQuestion(QWidget *parent, const QString &title
                                            QDialogButtonBox::StandardButton acceptButton)
 
 {
-    QTC_CHECK(settings);
-    if (settings) {
-        settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-        bool shouldNotAsk = settings->value(settingsSubKey, false).toBool();
-        settings->endGroup();
-        if (shouldNotAsk)
-            return acceptButton;
-    }
+    if (!askAgain(settings, settingsSubKey))
+        return acceptButton;
 
-    CheckableMessageBox mb(parent);
-    mb.setWindowTitle(title);
-    mb.setIconPixmap(QMessageBox::standardIcon(QMessageBox::Question));
-    mb.setText(text);
-    mb.setCheckBoxVisible(true);
-    mb.setCheckBoxText(CheckableMessageBox::msgDoNotAskAgain());
-    mb.setChecked(false);
-    mb.setStandardButtons(buttons);
-    mb.setDefaultButton(defaultButton);
-    mb.exec();
+    CheckableMessageBox messageBox(parent);
+    initDoNotAskAgainMessageBox(messageBox, title, text, buttons, defaultButton, Question);
+    messageBox.exec();
+    if (messageBox.isChecked() && (messageBox.clickedStandardButton() == acceptButton))
+        doNotAskAgain(settings, settingsSubKey);
 
-    if (settings) {
-        settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-        if (mb.isChecked() && (mb.clickedStandardButton() == acceptButton))
-            settings->setValue(settingsSubKey, true);
-        else // clean up doesn't hurt
-            settings->remove(settingsSubKey);
-        settings->endGroup();
-    }
-    return mb.clickedStandardButton();
+    return messageBox.clickedStandardButton();
+}
+
+/*!
+    Shows a message box with given \a title and \a text, and a \gui {Do not show again} check box.
+    If the user checks the check box and quits the dialog, further invocations of this
+    function with the same \a settings and \a settingsSubKey will not show the dialog, but instantly return.
+
+    Returns the clicked button, or QDialogButtonBox::NoButton if the user rejects the dialog
+    with the escape key, or \a defaultButton if the dialog is suppressed.
+*/
+QDialogButtonBox::StandardButton
+CheckableMessageBox::doNotShowAgainInformation(QWidget *parent, const QString &title,
+                                           const QString &text, QSettings *settings,
+                                           const QString &settingsSubKey,
+                                           QDialogButtonBox::StandardButtons buttons,
+                                           QDialogButtonBox::StandardButton defaultButton)
+
+{
+    if (!askAgain(settings, settingsSubKey))
+            return defaultButton;
+
+    CheckableMessageBox messageBox(parent);
+    initDoNotAskAgainMessageBox(messageBox, title, text, buttons, defaultButton, Information);
+    messageBox.exec();
+    if (messageBox.isChecked())
+        doNotAskAgain(settings, settingsSubKey);
+
+    return messageBox.clickedStandardButton();
 }
 
 /*!
@@ -374,6 +422,15 @@ bool CheckableMessageBox::hasSuppressedQuestions(QSettings *settings)
 QString CheckableMessageBox::msgDoNotAskAgain()
 {
     return QApplication::translate("Utils::CheckableMessageBox", "Do not &ask again");
+}
+
+/*!
+    Returns the standard \gui {Do not show again} check box text.
+    \sa doNotShowAgainInformation()
+*/
+QString CheckableMessageBox::msgDoNotShowAgain()
+{
+    return QApplication::translate("Utils::CheckableMessageBox", "Do not &show again");
 }
 
 } // namespace Utils

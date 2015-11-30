@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,30 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "debuggerdialogs.h"
-#include "debuggerstartparameters.h"
 
 #include "debuggerkitinformation.h"
+#include "debuggerstartparameters.h"
+#include "debuggerruncontrol.h"
 #include "debuggerstringutils.h"
 #include "cdb/cdbengine.h"
 
@@ -104,22 +106,20 @@ namespace Internal {
 ///////////////////////////////////////////////////////////////////////
 
 DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
-    : ProjectExplorer::KitChooser(parent)
-    , m_hostAbi(ProjectExplorer::Abi::hostAbi())
+    : KitChooser(parent)
+    , m_hostAbi(Abi::hostAbi())
     , m_mode(mode)
 {
-}
-
-// Match valid debuggers and restrict local debugging to compatible toolchains.
-bool DebuggerKitChooser::kitMatches(const ProjectExplorer::Kit *k) const
-{
-    if (!DebuggerKitInformation::isValidDebugger(k))
-        return false;
-    if (m_mode == LocalDebugging) {
-        const ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(k);
-        return tc && tc->targetAbi().os() == m_hostAbi.os();
-    }
-    return true;
+    setKitMatcher([this](const Kit *k) {
+        // Match valid debuggers and restrict local debugging to compatible toolchains.
+        if (!DebuggerKitInformation::isValidDebugger(k))
+            return false;
+        if (m_mode == LocalDebugging) {
+            const ToolChain *tc = ToolChainKitInformation::toolChain(k);
+            return tc && tc->targetAbi().os() == m_hostAbi.os();
+        }
+        return true;
+    });
 }
 
 QString DebuggerKitChooser::kitToolTip(Kit *k) const
@@ -180,7 +180,7 @@ QString StartApplicationParameters::displayName() const
 {
     const int maxLength = 60;
 
-    QString name = QFileInfo(localExecutable).fileName() + QLatin1Char(' ') + processArgs;
+    QString name = FileName::fromString(localExecutable).fileName() + QLatin1Char(' ') + processArgs;
     if (name.size() > 60) {
         int index = name.lastIndexOf(QLatin1Char(' '), maxLength);
         if (index == -1)
@@ -281,11 +281,11 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
         "If empty, $SYSROOT/usr/lib/debug will be chosen."));
     d->debuginfoPathChooser->setHistoryCompleter(QLatin1String("Debugger.DebugLocation.History"));
 
-    QFrame *line = new QFrame(this);
+    auto line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
 
-    QFrame *line2 = new QFrame(this);
+    auto line2 = new QFrame(this);
     line2->setFrameShape(QFrame::HLine);
     line2->setFrameShadow(QFrame::Sunken);
 
@@ -295,7 +295,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     d->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
-    QFormLayout *formLayout = new QFormLayout();
+    auto formLayout = new QFormLayout();
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(tr("&Kit:"), d->kitChooser);
     formLayout->addRow(d->serverPortLabel, d->serverPortSpinBox);
@@ -310,17 +310,18 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     formLayout->addRow(line2);
     formLayout->addRow(tr("&Recent:"), d->historyComboBox);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
     verticalLayout->addStretch();
     verticalLayout->addWidget(line);
     verticalLayout->addWidget(d->buttonBox);
 
-    connect(d->localExecutablePathChooser, SIGNAL(changed(QString)), SLOT(updateState()));
-    connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
-    connect(d->historyComboBox, SIGNAL(currentIndexChanged(int)),
-            SLOT(historyIndexChanged(int)));
+    connect(d->localExecutablePathChooser, &PathChooser::rawPathChanged,
+            this, &StartApplicationDialog::updateState);
+    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(d->historyComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &StartApplicationDialog::historyIndexChanged);
 
     updateState();
 }
@@ -355,9 +356,9 @@ void StartApplicationDialog::updateState()
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(okEnabled);
 }
 
-bool StartApplicationDialog::run(QWidget *parent, DebuggerStartParameters *sp)
+bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit **kit)
 {
-    const bool attachRemote = sp->startMode == AttachToRemoteServer;
+    const bool attachRemote = rp->startMode == AttachToRemoteServer;
     const QString settingsGroup = QLatin1String("DebugMode");
     const QString arrayName = QLatin1String("StartApplication");
 
@@ -406,29 +407,29 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerStartParameters *sp)
         settings->endGroup();
     }
 
-    Kit *kit = dialog.d->kitChooser->currentKit();
-    QTC_ASSERT(kit && fillParameters(sp, kit), return false);
-
-    sp->executable = newParameters.localExecutable;
+    rp->executable = newParameters.localExecutable;
     const QString inputAddress = dialog.d->serverAddressEdit->text();
     if (!inputAddress.isEmpty())
-        sp->remoteChannel = inputAddress;
+        rp->remoteChannel = inputAddress;
     else
-        sp->remoteChannel = sp->connParams.host;
-    sp->remoteChannel += QLatin1Char(':') + QString::number(newParameters.serverPort);
-    sp->displayName = newParameters.displayName();
-    sp->workingDirectory = newParameters.workingDirectory;
-    sp->useTerminal = newParameters.runInTerminal;
+        rp->remoteChannel = rp->connParams.host;
+    rp->remoteChannel += QLatin1Char(':') + QString::number(newParameters.serverPort);
+    rp->displayName = newParameters.displayName();
+    rp->workingDirectory = newParameters.workingDirectory;
+    rp->useTerminal = newParameters.runInTerminal;
     if (!newParameters.processArgs.isEmpty())
-        sp->processArgs = newParameters.processArgs;
-    sp->breakOnMain = newParameters.breakAtMain;
-    sp->serverStartScript = newParameters.serverStartScript;
-    sp->debugInfoLocation = newParameters.debugInfoLocation;
+        rp->processArgs = newParameters.processArgs;
+    rp->breakOnMain = newParameters.breakAtMain;
+    rp->serverStartScript = newParameters.serverStartScript;
+    rp->debugInfoLocation = newParameters.debugInfoLocation;
 
-    IDevice::ConstPtr dev = DeviceKitInformation::device(kit);
+    Kit *k = dialog.d->kitChooser->currentKit();
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     if (!attachRemote)
-        sp->startMode = isLocal ? StartExternal : StartRemoteProcess;
+        rp->startMode = isLocal ? StartExternal : StartRemoteProcess;
+    if (kit)
+        *kit = k;
     return true;
 }
 
@@ -483,27 +484,27 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::RemoteDebugging, this);
+    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::AnyDebugging, this);
     d->kitChooser->populate();
 
     d->portSpinBox = new QSpinBox(this);
     d->portSpinBox->setMaximum(65535);
     d->portSpinBox->setValue(3768);
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
+    auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
-    QFormLayout *formLayout = new QFormLayout();
+    auto formLayout = new QFormLayout();
     formLayout->addRow(tr("Kit:"), d->kitChooser);
     formLayout->addRow(tr("&Port:"), d->portSpinBox);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
     verticalLayout->addWidget(buttonBox);
 
-    connect(buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 AttachToQmlPortDialog::~AttachToQmlPortDialog()
@@ -526,7 +527,7 @@ Kit *AttachToQmlPortDialog::kit() const
     return d->kitChooser->currentKit();
 }
 
-void AttachToQmlPortDialog::setKitId(const Id &id)
+void AttachToQmlPortDialog::setKitId(Id id)
 {
     d->kitChooser->setCurrentKitId(id);
 }
@@ -564,34 +565,38 @@ StartRemoteCdbDialog::StartRemoteCdbDialog(QWidget *parent) :
     setWindowTitle(tr("Start a CDB Remote Session"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    QGroupBox *groupBox = new QGroupBox;
+    auto groupBox = new QGroupBox;
 
-    QLabel *helpLabel = new QLabel(cdbRemoteHelp());
+    auto helpLabel = new QLabel(cdbRemoteHelp());
     helpLabel->setWordWrap(true);
     helpLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
-    QLabel *label = new QLabel(tr("&Connection:"));
+    auto label = new QLabel(tr("&Connection:"));
     label->setBuddy(m_lineEdit);
     m_lineEdit->setMinimumWidth(400);
 
-    QDialogButtonBox *box = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+    auto box = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
 
-    QFormLayout *formLayout = new QFormLayout;
+    auto formLayout = new QFormLayout;
     formLayout->addRow(helpLabel);
     formLayout->addRow(label, m_lineEdit);
     groupBox->setLayout(formLayout);
 
-    QVBoxLayout *vLayout = new QVBoxLayout(this);
+    auto vLayout = new QVBoxLayout(this);
     vLayout->addWidget(groupBox);
     vLayout->addWidget(box);
 
     m_okButton = box->button(QDialogButtonBox::Ok);
     m_okButton->setEnabled(false);
 
-    connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textChanged(QString)));
-    connect(m_lineEdit, SIGNAL(returnPressed()), m_okButton, SLOT(animateClick()));
-    connect(box, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(box, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_lineEdit, &QLineEdit::textChanged,
+            this, &StartRemoteCdbDialog::textChanged);
+    connect(m_lineEdit, &QLineEdit::returnPressed,
+            [this] { m_okButton->animateClick(); });
+    connect(box, &QDialogButtonBox::accepted,
+            this, &StartRemoteCdbDialog::accept);
+    connect(box, &QDialogButtonBox::rejected,
+            this, &QDialog::reject);
 }
 
 void StartRemoteCdbDialog::accept()
@@ -633,18 +638,20 @@ AddressDialog::AddressDialog(QWidget *parent) :
 {
     setWindowTitle(tr("Select Start Address"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    QHBoxLayout *hLayout = new QHBoxLayout;
+
+    auto hLayout = new QHBoxLayout;
     hLayout->addWidget(new QLabel(tr("Enter an address:") + QLatin1Char(' ')));
     hLayout->addWidget(m_lineEdit);
-    QVBoxLayout *vLayout = new QVBoxLayout;
+
+    auto vLayout = new QVBoxLayout;
     vLayout->addLayout(hLayout);
     vLayout->addWidget(m_box);
     setLayout(vLayout);
 
-    connect(m_box, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_box, SIGNAL(rejected()), this, SLOT(reject()));
-    connect(m_lineEdit, SIGNAL(returnPressed()), this, SLOT(accept()));
-    connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textChanged()));
+    connect(m_box, &QDialogButtonBox::accepted, this, &AddressDialog::accept);
+    connect(m_box, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(m_lineEdit, &QLineEdit::returnPressed, this, &AddressDialog::accept);
+    connect(m_lineEdit, &QLineEdit::textChanged, this, &AddressDialog::textChanged);
 
     setOkButtonEnabled(false);
 }
@@ -729,20 +736,20 @@ StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent)
     d->buttonBox = new QDialogButtonBox(this);
     d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    QFormLayout *formLayout = new QFormLayout();
+    auto formLayout = new QFormLayout();
     formLayout->addRow(tr("&Host:"), d->host);
     formLayout->addRow(tr("&Username:"), d->username);
     formLayout->addRow(tr("&Password:"), d->password);
     formLayout->addRow(tr("&Engine path:"), d->enginePath);
     formLayout->addRow(tr("&Inferior path:"), d->inferiorPath);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
     verticalLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     verticalLayout->addWidget(d->buttonBox);
 
-    connect(d->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(d->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 StartRemoteEngineDialog::~StartRemoteEngineDialog()
@@ -796,7 +803,7 @@ public:
     }
 
     void addTypeFormats(const QString &type,
-        const QStringList &typeFormats, int current)
+        const DisplayFormats &typeFormats, int current)
     {
         const int row = m_layout->rowCount();
         int column = 0;
@@ -804,7 +811,8 @@ public:
         m_layout->addWidget(new QLabel(type), row, column++);
         for (int i = -1; i != typeFormats.size(); ++i) {
             QRadioButton *choice = new QRadioButton(this);
-            choice->setText(i == -1 ? TypeFormatsDialog::tr("Reset") : typeFormats.at(i));
+            choice->setText(i == -1 ? TypeFormatsDialog::tr("Reset")
+                                    : WatchHandler::nameForFormat(typeFormats.at(i)));
             m_layout->addWidget(choice, row, column++);
             if (i == current)
                 choice->setChecked(true);
@@ -857,7 +865,6 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-
 TypeFormatsDialog::TypeFormatsDialog(QWidget *parent)
    : QDialog(parent), m_ui(new TypeFormatsDialogUi(this))
 {
@@ -877,7 +884,7 @@ TypeFormatsDialog::~TypeFormatsDialog()
 }
 
 void TypeFormatsDialog::addTypeFormats(const QString &type0,
-    const QStringList &typeFormats, int current)
+    const DisplayFormats &typeFormats, int current)
 {
     QString type = type0;
     type.replace(QLatin1String("__"), QLatin1String("::"));
@@ -887,11 +894,6 @@ void TypeFormatsDialog::addTypeFormats(const QString &type0,
     else if (type.startsWith(QLatin1String("std::")))
         pos = 1;
     m_ui->pages[pos]->addTypeFormats(type, typeFormats, current);
-}
-
-TypeFormats TypeFormatsDialog::typeFormats() const
-{
-    return TypeFormats();
 }
 
 } // namespace Internal

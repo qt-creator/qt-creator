@@ -1,0 +1,140 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "U.QtQuickApplication",
+    "category": "F.Application",
+    "trDescription": "Creates a deployable Qt Quick 2 application.",
+    "trDisplayName": "Qt Quick Application",
+    "trDisplayCategory": "Application",
+    "icon": "qml_wizard.png",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt.5.3" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0 }",
+
+    "options":
+    [
+        { "key": "ProFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
+        { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
+        { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.qtQuickVersion}" },
+        { "key": "QtQuickWindowVersion", "value": "%{JS: %{QtVersion}.qtQuickWindowVersion}" },
+        { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
+        { "key": "UiSupport", "value": "%{JS: '%{QtQuickVersion}' !== '2.3' }" },
+        { "key": "IsUiFileInUse", "value": "%{JS: %{UiSupport} && %{QmlUiSplit} }" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "QtVersion",
+                    "trDisplayName": "Minimal required Qt version:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 2,
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt 5.5",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.5',
+                                    'qtQuickWindowVersion': '2.2'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.4",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.4',
+                                    'qtQuickWindowVersion': '2.2'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.3",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.3',
+                                    'qtQuickWindowVersion': '2.2'
+                                }"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "QmlUiSplit",
+                    "trDisplayName": "With ui.qml file",
+                    "type": "CheckBox",
+                    "visible": "%{UiSupport}",
+                    "data":
+                    {
+                        "checked": true
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "data": {
+                "projectFilePath": "%{ProFileName}",
+                "requiredFeatures": [ "QtSupport.Wizards.FeatureQt", "%{QtQuickFeature}" ]
+            }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "app.pro",
+                    "target": "%{ProFileName}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "main.cpp",
+                    "target": "%{MainCppFileName}"
+                },
+                {
+                    "source": "main.qml.tpl",
+                    "target": "main.qml",
+                    "openInEditor": true
+                },
+                {
+                    "source": "MainForm.ui.qml.tpl",
+                    "target": "MainForm.ui.qml",
+                    "condition": "%{IsUiFileInUse}"
+                },
+                {
+                    "source": "qml.qrc"
+                },
+                {
+                    "source": "../../../../shared/qrcdeployment.pri",
+                    "target": "%{ProjectDirectory}/deployment.pri"
+                },
+                {
+                    "source": "../../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: !%{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}

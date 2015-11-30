@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-task-lists.html
     \page creator-help-overview.html
     \nextpage creator-help.html
@@ -38,7 +38,7 @@
 
             \QC comes fully integrated with Qt documentation and examples using
             the Qt Help plugin. You can add external documentation to the
-            \gui Help mode and filter the documents displayed to find relevant
+            \uicontrol Help mode and filter the documents displayed to find relevant
             information faster. In addition, you can add bookmarks to help
             pages.
 

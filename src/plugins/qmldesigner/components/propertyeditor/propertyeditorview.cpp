@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -45,7 +41,9 @@
 #include <nodeabstractproperty.h>
 #include <rewriterview.h>
 
+#include <coreplugin/icore.h>
 #include <utils/fileutils.h>
+#include <coreplugin/messagebox.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -54,7 +52,6 @@
 #include <QDebug>
 #include <QTimer>
 #include <QShortcut>
-#include <QMessageBox>
 #include <QApplication>
 
 enum {
@@ -62,6 +59,11 @@ enum {
 };
 
 namespace QmlDesigner {
+
+static bool propertyIsAttachedLayoutProperty(const PropertyName &propertyName)
+{
+    return propertyName.contains("Layout.");
+}
 
 PropertyEditorView::PropertyEditorView(QWidget *parent) :
         AbstractView(parent),
@@ -74,11 +76,13 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
         m_setupCompleted(false),
         m_singleShotTimer(new QTimer(this))
 {
-    m_updateShortcut = new QShortcut(QKeySequence("F3"), m_stackedWidget);
+    m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
+
+    m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F3), m_stackedWidget);
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
 
     m_stackedWidget->setStyleSheet(
-            QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
+            QString::fromUtf8(Utils::FileReader::fetchQrc(QStringLiteral(":/qmldesigner/stylesheet.css"))));
     m_stackedWidget->setMinimumWidth(320);
     m_stackedWidget->move(0, 0);
     connect(m_stackedWidget, SIGNAL(resized()), this, SLOT(updateSize()));
@@ -86,7 +90,6 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
     m_stackedWidget->insertWidget(0, new QWidget(m_stackedWidget));
 
     Quick2PropertyEditorView::registerQmlTypes();
-    setQmlDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
     m_stackedWidget->setWindowTitle(tr("Properties"));
 }
 
@@ -99,7 +102,7 @@ void PropertyEditorView::setupPane(const TypeName &typeName)
 {
     NodeMetaInfo metaInfo = model()->metaInfo(typeName);
 
-    QUrl qmlFile = PropertyEditorQmlBackend::getQmlFileUrl(QLatin1String("Qt/ItemPane"), metaInfo);
+    QUrl qmlFile = PropertyEditorQmlBackend::getQmlFileUrl(QStringLiteral("Qt/ItemPane"), metaInfo);
     QUrl qmlSpecificsFile;
 
     qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(typeName + "Specifics", metaInfo);
@@ -147,33 +150,20 @@ void PropertyEditorView::changeValue(const QString &name)
         if (newId == m_selectedNode.id())
             return;
 
-        if (m_selectedNode.isValidId(newId)  && !modelNodeForId(newId).isValid() ) {
-            if (m_selectedNode.id().isEmpty() || newId.isEmpty()) { //no id
-                try {
-                    m_selectedNode.setId(newId);
-                } catch (InvalidIdException &e) { //better save then sorry
-                    m_locked = true;
-                    value->setValue(m_selectedNode.id());
-                    m_locked = false;
-                    QMessageBox::warning(0, tr("Invalid Id"), e.description());
-                }
-            } else { //there is already an id, so we refactor
-                if (rewriterView())
-                    rewriterView()->renameId(m_selectedNode.id(), newId);
-            }
+        if (m_selectedNode.isValidId(newId)  && !hasId(newId)) {
+            m_selectedNode.setIdWithRefactoring(newId);
         } else {
             m_locked = true;
             value->setValue(m_selectedNode.id());
             m_locked = false;
             if (!m_selectedNode.isValidId(newId))
-                QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
+                Core::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
             else
-                QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
+                Core::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
         }
         return;
     }
 
-    //.replace(QLatin1Char('.'), QLatin1Char('_'))
     PropertyName underscoreName(propertyName);
     underscoreName.replace('.', '_');
     PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(underscoreName);
@@ -187,6 +177,8 @@ void PropertyEditorView::changeValue(const QString &name)
 
     if (qmlObjectNode.modelNode().metaInfo().isValid() && qmlObjectNode.modelNode().metaInfo().hasProperty(propertyName)) {
         castedValue = qmlObjectNode.modelNode().metaInfo().propertyCastedValue(propertyName, value->value());
+    } else if (propertyIsAttachedLayoutProperty(propertyName)) {
+        castedValue = value->value();
     } else {
         qWarning() << "PropertyEditor:" <<propertyName << "cannot be casted (metainfo)";
         return ;
@@ -225,8 +217,8 @@ void PropertyEditorView::changeValue(const QString &name)
                 }
             }
         }
-        catch (RewritingException &e) {
-            QMessageBox::warning(0, "Error", e.description());
+        catch (const RewritingException &e) {
+            e.showException();
         }
 }
 
@@ -251,6 +243,11 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
 
         QmlObjectNode qmlObjectNode(m_selectedNode);
         PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(underscoreName);
+
+        if (!value) {
+            qWarning() << "PropertyEditor::changeExpression no value for " << underscoreName;
+            return;
+        }
 
         if (qmlObjectNode.modelNode().metaInfo().isValid() && qmlObjectNode.modelNode().metaInfo().hasProperty(name)) {
             if (qmlObjectNode.modelNode().metaInfo().propertyTypeName(name) == "QColor") {
@@ -287,11 +284,6 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
             }
         }
 
-        if (!value) {
-            qWarning() << "PropertyEditor::changeExpression no value for " << underscoreName;
-            return;
-        }
-
         if (value->expression().isEmpty())
             return;
 
@@ -301,8 +293,8 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
         transaction.commit(); //committing in the try block
     }
 
-    catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+    catch (const RewritingException &e) {
+        e.showException();
     }
 }
 
@@ -324,16 +316,6 @@ void PropertyEditorView::setupPanes()
         m_setupCompleted = true;
         QApplication::restoreOverrideCursor();
     }
-}
-
-void PropertyEditorView::setQmlDir(const QString &qmlDir)
-{
-    m_qmlDir = qmlDir;
-
-
-    QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
-    watcher->addPath(m_qmlDir);
-    connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(reloadQml()));
 }
 
 void PropertyEditorView::delayedResetView()
@@ -366,6 +348,9 @@ void PropertyEditorView::resetView()
 
     setupQmlBackend();
 
+    if (m_qmlBackEndForCurrentType)
+        m_qmlBackEndForCurrentType->emitSelectionChanged();
+
     m_locked = false;
 
     if (m_timerId)
@@ -391,7 +376,7 @@ void PropertyEditorView::setupQmlBackend()
         foreach (const NodeMetaInfo &metaInfo, hierarchy) {
             if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;
-            qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + QLatin1String("Specifics"), metaInfo);
+            qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + QStringLiteral("Specifics"), metaInfo);
             diffClassName = metaInfo.typeName();
         }
     }
@@ -406,7 +391,7 @@ void PropertyEditorView::setupQmlBackend()
 
     PropertyEditorQmlBackend *currentQmlBackend = m_qmlBackendHash.value(qmlFile.toString());
 
-    QString currentStateName = currentState().isBaseState() ? currentState().name() : QLatin1String("invalid state");
+    QString currentStateName = currentState().isBaseState() ? currentState().name() : QStringLiteral("invalid state");
 
     if (!currentQmlBackend) {
         currentQmlBackend = new PropertyEditorQmlBackend(this);
@@ -508,6 +493,16 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& proper
         ModelNode node(property.parentModelNode());
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
+
+            if (propertyIsAttachedLayoutProperty(property.name()))
+                m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, property.name());
+
+            if ("width" == property.name() || "height" == property.name()) {
+                QmlItemNode qmlItemNode = m_selectedNode;
+                if (qmlItemNode.isValid() && qmlItemNode.isInLayout())
+                    resetPuppet();
+            }
+
             if (property.name().contains("anchor"))
                 m_qmlBackEndForCurrentType->backendAnchorBinding().invalidate(m_selectedNode);
         }
@@ -525,6 +520,9 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
 
     foreach (const VariantProperty &property, propertyList) {
         ModelNode node(property.parentModelNode());
+
+        if (propertyIsAttachedLayoutProperty(property.name()))
+            m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, property.name());
 
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             if ( QmlObjectNode(m_selectedNode).modelNode().property(property.name()).isBindingProperty())
@@ -557,11 +555,6 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
     }
 }
 
-void PropertyEditorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> & /*propertyList*/,
-                                                    AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-}
-
 void PropertyEditorView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     if (!m_selectedNode.isValid())
@@ -590,12 +583,11 @@ void PropertyEditorView::nodeIdChanged(const ModelNode& node, const QString& new
     }
 }
 
-void PropertyEditorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
-{
-}
-
 void PropertyEditorView::select(const ModelNode &node)
 {
+    if (m_qmlBackEndForCurrentType)
+        m_qmlBackEndForCurrentType->emitSelectionToBeChanged();
+
     if (QmlObjectNode(node).isValid())
         m_selectedNode = node;
     else
@@ -611,7 +603,7 @@ bool PropertyEditorView::hasWidget() const
 
 WidgetInfo PropertyEditorView::widgetInfo()
 {
-    return createWidgetInfo(m_stackedWidget, 0, QLatin1String("Properties"), WidgetInfo::RightPane, 0);
+    return createWidgetInfo(m_stackedWidget, 0, QStringLiteral("Properties"), WidgetInfo::RightPane, 0);
 }
 
 void PropertyEditorView::currentStateChanged(const ModelNode &node)
@@ -651,84 +643,9 @@ void PropertyEditorView::instancePropertyChange(const QList<QPair<ModelNode, Pro
 
 }
 
-void PropertyEditorView::nodeCreated(const ModelNode &/*createdNode*/)
-{
-
-}
-
-void PropertyEditorView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void PropertyEditorView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void PropertyEditorView::nodeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-
-}
-
-void PropertyEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &/*propertyList*/)
-{
-
-}
-
 void PropertyEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
     // TODO: we should react to this case
-}
-
-void PropertyEditorView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
-{
-
-}
-
-void PropertyEditorView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void PropertyEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void PropertyEditorView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
-{
-
-}
-
-void PropertyEditorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
-{
-
-}
-
-void PropertyEditorView::nodeSourceChanged(const ModelNode &/*modelNode*/, const QString &/*newNodeSource*/)
-{
-
-}
-
-void PropertyEditorView::rewriterBeginTransaction()
-{
-
-}
-
-void PropertyEditorView::rewriterEndTransaction()
-{
-
-}
-
-void PropertyEditorView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
-{
-
-}
-
-void PropertyEditorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
-{
-
 }
 
 void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode, const PropertyName &name, const QVariant &value)

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -53,7 +54,7 @@ namespace Internal {
 */
 
 MemoryView::MemoryView(QWidget *binEditor, QWidget *parent) :
-    QWidget(parent, Qt::Tool|Qt::WindowStaysOnTopHint), m_binEditor(binEditor)
+    QWidget(parent, Qt::Tool), m_binEditor(binEditor)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -81,9 +82,9 @@ void MemoryView::setBinEditorNewWindowRequestAllowed(QWidget *w, bool a)
 void MemoryView::setBinEditorMarkup(QWidget *w, const QList<MemoryMarkup> &ml)
 {
     // Convert into bin editor markup and set.
-    QList<BINEditor::Markup> bml;
+    QList<BinEditor::Markup> bml;
     foreach (const MemoryMarkup &m, ml)
-        bml.push_back(BINEditor::Markup(m.address, m.length, m.color, m.toolTip));
+        bml.push_back(BinEditor::Markup(m.address, m.length, m.color, m.toolTip));
     w->setProperty("markup", qVariantFromValue(bml));
 }
 
@@ -137,24 +138,27 @@ void MemoryView::setMarkup(const QList<MemoryMarkup> &m)
     \sa Debugger::Internal::MemoryAgent, Debugger::DebuggerEngine
 */
 
-RegisterMemoryView::RegisterMemoryView(QWidget *binEditor, QWidget *parent) :
+RegisterMemoryView::RegisterMemoryView(QWidget *binEditor, quint64 addr,
+                                       const QByteArray &regName,
+                                       RegisterHandler *handler, QWidget *parent) :
     MemoryView(binEditor, parent),
-    m_registerIndex(0), m_registerAddress(0)
+    m_registerName(regName), m_registerAddress(addr)
 {
+    connect(handler, &QAbstractItemModel::modelReset, this, &QWidget::close);
+    connect(handler, &RegisterHandler::registerChanged, this, &RegisterMemoryView::onRegisterChanged);
+    updateContents();
 }
 
-void RegisterMemoryView::slotRegisterSet(const QModelIndex &index)
+void RegisterMemoryView::onRegisterChanged(const QByteArray &name, quint64 value)
 {
-    if (m_registerIndex != index.row())
-        return;
-    const QVariant newAddressV = index.data(Qt::EditRole);
-    if (newAddressV.type() == QVariant::ULongLong)
-        setRegisterAddress(newAddressV.toULongLong());
+    if (name == m_registerName)
+        setRegisterAddress(value);
 }
 
-QString RegisterMemoryView::title(const QString &registerName, quint64 a)
+QString RegisterMemoryView::title(const QByteArray &registerName, quint64 a)
 {
-    return tr("Memory at Register '%1' (0x%2)").arg(registerName).arg(a, 0, 16);
+    return tr("Memory at Register \"%1\" (0x%2)")
+            .arg(QString::fromUtf8(registerName)).arg(a, 0, 16);
 }
 
 void RegisterMemoryView::setRegisterAddress(quint64 v)
@@ -170,24 +174,12 @@ void RegisterMemoryView::setRegisterAddress(quint64 v)
         setMarkup(registerMarkup(v, m_registerName));
 }
 
-QList<MemoryMarkup> RegisterMemoryView::registerMarkup(quint64 a, const QString &name)
+QList<MemoryMarkup> RegisterMemoryView::registerMarkup(quint64 a, const QByteArray &regName)
 {
     QList<MemoryMarkup> result;
     result.push_back(MemoryMarkup(a, 1, QColor(Qt::blue).lighter(),
-                                  tr("Register '%1'").arg(name)));
+        tr("Register \"%1\"").arg(QString::fromUtf8(regName))));
     return result;
-}
-
-void RegisterMemoryView::init(RegisterHandler *h, int registerIndex)
-{
-    m_registerIndex = registerIndex;
-    m_registerName = QString::fromLatin1(h->registerAt(registerIndex).name);
-    // Known issue: CDB might reset the model by changing the special
-    // registers it reports.
-    connect(h, SIGNAL(modelReset()), this, SLOT(close()));
-    connect(h, SIGNAL(registerSet(QModelIndex)),
-            this, SLOT(slotRegisterSet(QModelIndex)));
-    setRegisterAddress(h->registerAt(m_registerIndex).editValue().toULongLong());
 }
 
 } // namespace Internal

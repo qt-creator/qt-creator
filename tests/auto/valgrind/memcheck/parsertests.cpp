@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 ** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,9 @@
 #include <valgrind/xmlprotocol/parser.h>
 #include <valgrind/xmlprotocol/stack.h>
 #include <valgrind/xmlprotocol/suppression.h>
+
+#include <projectexplorer/projectexplorer.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include "parsertests.h"
 
@@ -48,12 +52,6 @@
 #include <iostream>
 #include <QProcess>
 
-#if  QT_VERSION >= 0x050000
-#define MSKIP_SINGLE(x) QSKIP(x)
-#else
-#define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
-#endif
-
 using namespace Valgrind;
 using namespace Valgrind::XmlProtocol;
 
@@ -61,7 +59,7 @@ QT_BEGIN_NAMESPACE
 namespace QTest {
 
 template<>
-inline bool qCompare(int const &t1, Valgrind::XmlProtocol::MemcheckErrorKind const &t2,
+inline bool qCompare(int const &t1, MemcheckErrorKind const &t2,
                      char const *actual, char const *expected, char const *file, int line)
 {
     return qCompare(t1, int(t2), actual, expected, file, line);
@@ -72,7 +70,7 @@ QT_END_NAMESPACE
 
 void dumpFrame(const Frame &f)
 {
-    qDebug() << f.instructionPointer() << f.directory() << f.file() << f.functionName()
+    qDebug() << f.instructionPointer() << f.directory() << f.fileName() << f.functionName()
              << f.line() << f.object();
 }
 
@@ -101,6 +99,8 @@ static QString dataFile(const QLatin1String &file)
 
 void ParserTests::initTestCase()
 {
+    new ExtensionSystem::PluginManager;
+    new ProjectExplorer::ProjectExplorerPlugin;
     m_server = new QTcpServer(this);
     QVERIFY(m_server->listen());
 
@@ -150,7 +150,7 @@ void ParserTests::cleanup()
 
 void ParserTests::testHelgrindSample1()
 {
-    MSKIP_SINGLE("testfile does not exist");
+    QSKIP("testfile does not exist");
 
     initTest(QLatin1String("helgrind-output-sample1.xml"));
 
@@ -168,14 +168,14 @@ void ParserTests::testHelgrindSample1()
         frame11.setObject(QLatin1String("/usr/lib/valgrind/vgpreload_helgrind-amd64-linux.so"));
         frame11.setFunctionName(QLatin1String("QMutex::lock()"));
         frame11.setDirectory(QLatin1String("/build/buildd/valgrind-3.6.0~svn20100212/helgrind"));
-        frame11.setFile(QLatin1String("hg_intercepts.c"));
+        frame11.setFileName(QLatin1String("hg_intercepts.c"));
         frame11.setLine(1988);
         Frame frame12;
         frame12.setInstructionPointer(0x72E57EE);
         frame12.setObject(QLatin1String("/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3"));
         frame12.setFunctionName(QLatin1String("QMutexLocker::relock()"));
         frame12.setDirectory(QLatin1String("/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread"));
-        frame12.setFile(QLatin1String("qmutex.h"));
+        frame12.setFileName(QLatin1String("qmutex.h"));
         frame12.setLine(120);
         stack1.setFrames(QVector<Frame>() << frame11 << frame12);
 
@@ -186,14 +186,14 @@ void ParserTests::testHelgrindSample1()
         frame21.setObject(QLatin1String("/usr/lib/valgrind/vgpreload_helgrind-amd64-linux.so"));
         frame21.setFunctionName(QLatin1String("QMutex::lock()"));
         frame21.setDirectory(QLatin1String("/build/buildd/valgrind-3.6.0~svn20100212/helgrind"));
-        frame21.setFile(QLatin1String("hg_intercepts.c"));
+        frame21.setFileName(QLatin1String("hg_intercepts.c"));
         frame21.setLine(1989);
         Frame frame22;
         frame22.setInstructionPointer(0x72E57EE);
         frame22.setObject(QLatin1String("/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3"));
         frame22.setFunctionName(QLatin1String("QMutexLocker::relock()"));
         frame22.setDirectory(QLatin1String("/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread"));
-        frame22.setFile(QLatin1String("qmutex.h"));
+        frame22.setFileName(QLatin1String("qmutex.h"));
         frame22.setLine(121);
         stack2.setFrames(QVector<Frame>() << frame21 << frame22);
 
@@ -204,14 +204,14 @@ void ParserTests::testHelgrindSample1()
         frame31.setObject(QLatin1String("/usr/lib/valgrind/vgpreload_helgrind-amd64-linux.so"));
         frame31.setFunctionName(QLatin1String("QMutex::lock()"));
         frame31.setDirectory(QLatin1String("/build/buildd/valgrind-3.6.0~svn20100212/helgrind"));
-        frame31.setFile(QLatin1String("hg_intercepts.c"));
+        frame31.setFileName(QLatin1String("hg_intercepts.c"));
         frame31.setLine(1990);
         Frame frame32;
         frame32.setInstructionPointer(0x72E57EE);
         frame32.setObject(QLatin1String("/home/frank/local/qt4-4.6.3-shared-debug/lib/libQtCore.so.4.6.3"));
         frame32.setFunctionName(QLatin1String("QMutexLocker::relock()"));
         frame32.setDirectory(QLatin1String("/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread"));
-        frame32.setFile(QLatin1String("qmutex.h"));
+        frame32.setFileName(QLatin1String("qmutex.h"));
         frame32.setLine(122);
 
         stack3.setFrames(QVector<Frame>() << frame31 << frame32);
@@ -219,7 +219,7 @@ void ParserTests::testHelgrindSample1()
         expectedErrors.append(error1);
     }
 
-    Valgrind::XmlProtocol::Parser parser;
+    Parser parser;
     Recorder rec(&parser);
 
     parser.parse(m_socket);
@@ -260,7 +260,7 @@ void ParserTests::testMemcheckSample1()
         f1.setObject(QLatin1String("/usr/lib/libQtGui.so.4.7.0"));
         f1.setFunctionName(QLatin1String("QFrame::frameStyle() const"));
         f1.setDirectory(QLatin1String("/build/buildd/qt4-x11-4.7.0/src/gui/widgets"));
-        f1.setFile(QLatin1String("qframe.cpp"));
+        f1.setFileName(QLatin1String("qframe.cpp"));
         f1.setLine(252);
         Frame f2;
         f2.setInstructionPointer(0x118F2AF7);
@@ -270,13 +270,13 @@ void ParserTests::testMemcheckSample1()
         f3.setObject(QLatin1String("/usr/lib/libQtGui.so.4.7.0"));
         f3.setFunctionName(QLatin1String("QWidget::event(QEvent*)"));
         f3.setDirectory(QLatin1String("/build/buildd/qt4-x11-4.7.0/src/gui/kernel"));
-        f3.setFile(QLatin1String("qwidget.cpp"));
+        f3.setFileName(QLatin1String("qwidget.cpp"));
         f3.setLine(8273);
         Frame f4;
         f4.setInstructionPointer(0x6A2B6EB);
         f4.setObject(QLatin1String("/usr/lib/libQtGui.so.4.7.0"));
         f4.setDirectory(QLatin1String("/build/buildd/qt4-x11-4.7.0/src/gui/kernel"));
-        f4.setFile(QLatin1String("qapplication.cpp"));
+        f4.setFileName(QLatin1String("qapplication.cpp"));
         f4.setFunctionName(QLatin1String("QApplicationPrivate::notify_helper(QObject*, QEvent*)"));
         f4.setLine(4396);
         Stack s1;
@@ -295,7 +295,7 @@ void ParserTests::testMemcheckSample1()
     expectedSuppCounts.push_back(qMakePair(QString::fromLatin1("dl-hack3-cond-1"), static_cast<qint64>(2)));
     expectedSuppCounts.push_back(qMakePair(QString::fromLatin1("glibc-2.5.x-on-SUSE-10.2-(PPC)-2a"), static_cast<qint64>(2)));
 
-    Valgrind::XmlProtocol::Parser parser;
+    Parser parser;
     Recorder rec(&parser);
 
     parser.parse(m_socket);
@@ -322,11 +322,11 @@ void ParserTests::testMemcheckSample1()
 
 void ParserTests::testMemcheckSample2()
 {
-    MSKIP_SINGLE("testfile does not exist");
+    QSKIP("testfile does not exist");
 
     initTest(QLatin1String("memcheck-output-sample2.xml"));
 
-    Valgrind::XmlProtocol::Parser parser;
+    Parser parser;
     Recorder rec(&parser);
 
     parser.parse(m_socket);
@@ -348,11 +348,11 @@ void ParserTests::testMemcheckSample2()
 
 void ParserTests::testMemcheckSample3()
 {
-    MSKIP_SINGLE("testfile does not exist");
+    QSKIP("testfile does not exist");
 
     initTest(QLatin1String("memcheck-output-sample3.xml"));
 
-    Valgrind::XmlProtocol::Parser parser;
+    Parser parser;
     Recorder rec(&parser);
 
     parser.parse(m_socket);
@@ -400,12 +400,12 @@ void ParserTests::testMemcheckSample3()
 
 void ParserTests::testMemcheckCharm()
 {
-    MSKIP_SINGLE("testfile does not exist");
+    QSKIP("testfile does not exist");
 
     // a somewhat larger file, to make sure buffering and partial I/O works ok
     initTest(QLatin1String("memcheck-output-untitled.xml"));
 
-    Valgrind::XmlProtocol::Parser parser;
+    Parser parser;
     Recorder rec(&parser);
 
     parser.parse(m_socket);
@@ -423,7 +423,7 @@ void ParserTests::testValgrindCrash()
 {
     initTest(QLatin1String("memcheck-output-sample1.xml"), QStringList() << "--crash");
 
-    Valgrind::XmlProtocol::Parser parser;
+    Parser parser;
     parser.parse(m_socket);
     m_process->waitForFinished();
     QCOMPARE(m_process->state(), QProcess::NotRunning);
@@ -438,7 +438,7 @@ void ParserTests::testValgrindGarbage()
 {
     initTest(QLatin1String("memcheck-output-sample1.xml"), QStringList() << "--garbage");
 
-    Valgrind::XmlProtocol::Parser parser;
+    Parser parser;
     parser.parse(m_socket);
     m_process->waitForFinished();
     QCOMPARE(m_process->state(), QProcess::NotRunning);
@@ -451,7 +451,7 @@ void ParserTests::testValgrindGarbage()
 void ParserTests::testParserStop()
 {
     ThreadedParser parser;
-    Valgrind::Memcheck::MemcheckRunner runner;
+    Memcheck::MemcheckRunner runner;
     runner.setValgrindExecutable(fakeValgrindExecutable());
     runner.setParser(&parser);
     runner.setValgrindArguments(QStringList() << QLatin1String("-i")
@@ -471,7 +471,7 @@ void ParserTests::testRealValgrind()
     qDebug() << "running exe:" << executable << " HINT: set VALGRIND_TEST_BIN to change this";
     ThreadedParser parser;
 
-    Valgrind::Memcheck::MemcheckRunner runner;
+    Memcheck::MemcheckRunner runner;
     runner.setValgrindExecutable(QLatin1String("valgrind"));
     runner.setDebuggeeExecutable(executable);
     runner.setParser(&parser);
@@ -507,7 +507,7 @@ void ParserTests::testValgrindStartError()
 
     ThreadedParser parser;
 
-    Valgrind::Memcheck::MemcheckRunner runner;
+    Memcheck::MemcheckRunner runner;
     runner.setParser(&parser);
     runner.setValgrindExecutable(valgrindExe);
     runner.setValgrindArguments(valgrindArgs);

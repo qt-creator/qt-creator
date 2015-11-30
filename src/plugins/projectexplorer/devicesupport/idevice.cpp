@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,12 +32,15 @@
 #include "devicemanager.h"
 #include "deviceprocesslist.h"
 
+#include "../kit.h"
+#include "../kitinformation.h"
+
 #include <ssh/sshconnection.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
-#include <QDesktopServices>
+#include <QStandardPaths>
 
 #include <QString>
 #include <QUuid>
@@ -119,6 +123,8 @@ const char AuthKey[] = "Authentication";
 const char KeyFileKey[] = "KeyFile";
 const char PasswordKey[] = "Password";
 const char TimeoutKey[] = "Timeout";
+const char HostKeyCheckingKey[] = "HostKeyChecking";
+const char SshOptionsKey[] = "SshOptions";
 
 const char DebugServerKey[] = "DebugServerKey";
 
@@ -157,7 +163,9 @@ PortsGatheringMethod::~PortsGatheringMethod() { }
 DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
 
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
-{ }
+{
+    d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
+}
 
 IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id)
     : d(new Internal::IDevicePrivate)
@@ -167,6 +175,7 @@ IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id
     d->machineType = machineType;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
     d->id = id.isValid() ? id : newId();
+    d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
 }
 
 IDevice::IDevice(const IDevice &other) : d(new Internal::IDevicePrivate)
@@ -239,6 +248,16 @@ Core::Id IDevice::id() const
     return d->id;
 }
 
+/*!
+    Tests whether a device can be compatible with the given kit. The default
+    implementation will match the device type specified in the kit against
+    the device's own type.
+*/
+bool IDevice::isCompatibleWith(const Kit *k) const
+{
+    return DeviceTypeKitInformation::deviceTypeId(k) == type();
+}
+
 PortsGatheringMethod::Ptr IDevice::portsGatheringMethod() const
 {
     return PortsGatheringMethod::Ptr();
@@ -308,6 +327,11 @@ void IDevice::fromMap(const QVariantMap &map)
     d->sshParameters.password = map.value(QLatin1String(PasswordKey)).toString();
     d->sshParameters.privateKeyFile = map.value(QLatin1String(KeyFileKey), defaultPrivateKeyFilePath()).toString();
     d->sshParameters.timeout = map.value(QLatin1String(TimeoutKey), DefaultTimeout).toInt();
+    d->sshParameters.hostKeyCheckingMode = static_cast<QSsh::SshHostKeyCheckingMode>
+            (map.value(QLatin1String(HostKeyCheckingKey), QSsh::SshHostKeyCheckingNone).toInt());
+    const QVariant optionsVariant = map.value(QLatin1String(SshOptionsKey));
+    if (optionsVariant.isValid())  // false for QtC < 3.4
+        d->sshParameters.options = QSsh::SshConnectionOptions(optionsVariant.toInt());
 
     d->freePorts = Utils::PortList::fromString(map.value(QLatin1String(PortsSpecKey),
         QLatin1String("10000-10100")).toString());
@@ -339,6 +363,8 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(PasswordKey), d->sshParameters.password);
     map.insert(QLatin1String(KeyFileKey), d->sshParameters.privateKeyFile);
     map.insert(QLatin1String(TimeoutKey), d->sshParameters.timeout);
+    map.insert(QLatin1String(HostKeyCheckingKey), d->sshParameters.hostKeyCheckingMode);
+    map.insert(QLatin1String(SshOptionsKey), static_cast<int>(d->sshParameters.options));
 
     map.insert(QLatin1String(PortsSpecKey), d->freePorts.toString());
     map.insert(QLatin1String(VersionKey), d->version);
@@ -378,6 +404,7 @@ QSsh::SshConnectionParameters IDevice::sshParameters() const
 void IDevice::setSshParameters(const QSsh::SshConnectionParameters &sshParameters)
 {
     d->sshParameters = sshParameters;
+    d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
 }
 
 QString IDevice::qmlProfilerHost() const
@@ -417,7 +444,7 @@ int IDevice::version() const
 
 QString IDevice::defaultPrivateKeyFilePath()
 {
-    return QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+    return QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
         + QLatin1String("/.ssh/id_rsa");
 }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,8 +33,11 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
 
+#include <QAction>
 #include <QLabel>
+#include <QMenu>
 #include <QImage>
 #include <QVBoxLayout>
 #include <QMouseEvent>
@@ -103,18 +107,22 @@ ImageViewer::ImageViewer(QWidget *parent)
     , m_imageWidget(new ImageWidget)
     , m_infoLabel(new QLabel)
 {
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    auto mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(m_infoLabel);
     mainLayout->addWidget(m_scrollArea);
     m_scrollArea->setWidget(m_imageWidget);
-    connect(m_imageWidget, SIGNAL(clicked(QString)), this, SLOT(clicked(QString)));
+    connect(m_imageWidget, &ImageWidget::clicked, this, &ImageViewer::clicked);
 }
 
-void ImageViewer::setImage(const QImage &i)
+void ImageViewer::setImage(const QImage &image)
 {
-    m_imageWidget->setImage(i);
-    m_info = tr("Size: %1x%2, %3 byte, format: %4, depth: %5")
-            .arg(i.width()).arg(i.height()).arg(i.byteCount()).arg(i.format()).arg(i.depth());
+    m_imageWidget->setImage(image);
+    clicked(QString());
+}
+
+void ImageViewer::setInfo(const QString &info)
+{
+    m_info = info;
     clicked(QString());
 }
 
@@ -159,6 +167,79 @@ void ImageViewer::contextMenuEvent(QContextMenuEvent *ev)
         QApplication::clipboard()->setImage(image);
     else if (action == imageViewerAction)
         openImageViewer(image);
+}
+
+
+//
+//
+//
+
+PlotViewer::PlotViewer(QWidget *parent)
+    : QWidget(parent)
+{
+}
+
+void PlotViewer::setData(const PlotViewer::Data &data)
+{
+    m_data = data;
+    update();
+}
+
+void PlotViewer::setInfo(const QString &description)
+{
+    m_info = description;
+    update();
+}
+
+void PlotViewer::paintEvent(QPaintEvent *)
+{
+    QPainter pain(this);
+
+    const int n = int(m_data.size());
+    const int w = width();
+    const int h = height();
+    const int b = 10; // Border width.
+
+    pain.fillRect(rect(), Qt::white);
+
+    double ymin = 0;
+    double ymax = 0;
+    for (int i = 0; i < n; ++i) {
+        const double v = m_data.at(i);
+        if (v < ymin)
+            ymin = v;
+        else if (v > ymax)
+            ymax = v;
+    }
+
+    const double d = ymin == ymax ? (h / 2 - b) : (ymax - ymin);
+    const int k = 1; // Length of cross marker arms.
+
+    for (int i = 0; i + 1 < n; ++i) {
+        // Lines between points.
+        const int x1 = b + i * (w - 2 * b) / (n - 1);
+        const int x2 = b + (i + 1) * (w - 2 * b) / (n - 1);
+        const int y1 = h - (b + int((m_data[i] - ymin) * (h - 2 * b) / d));
+        const int y2 = h - (b + int((m_data[i + 1] - ymin) * (h - 2 * b) / d));
+        pain.drawLine(x1, y1, x2, y2);
+
+        if (i == 0) {
+            // Little cross marker on first point
+            pain.drawLine(x1 - k, y1 - k, x1 + k, y1 + k);
+            pain.drawLine(x1 + k, y1 - k, x1 - k, y1 + k);
+        }
+        // ... and all subsequent points.
+        pain.drawLine(x2 - k, y2 - k, x2 + k, y2 + k);
+        pain.drawLine(x2 + k, y2 - k, x2 - k, y2 + k);
+    }
+
+    if (n) {
+        pain.drawText(10, 10,
+        QString::fromLatin1("%5 items. X: %1..%2, Y: %3...%4").arg(0).arg(n).arg(ymin).arg(ymax).arg(n));
+    } else {
+        pain.drawText(10, 10,
+        QString::fromLatin1("Container is empty"));
+    }
 }
 
 #include "imageviewer.moc"

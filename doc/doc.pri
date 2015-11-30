@@ -1,13 +1,7 @@
-greaterThan(QT_MAJOR_VERSION, 4) {
-    HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator) -platform minimal
-    QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc)
-    COMPAT =
-} else {
-    HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator)
-    QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc3)
-    COMPAT = -qt4
-}
-
+HELPGENERATOR = $$shell_path($$[QT_INSTALL_BINS]/qhelpgenerator) -platform minimal
+QDOC_BIN = $$shell_path($$[QT_INSTALL_BINS]/qdoc)
+QDOC_GLOBAL = QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS/src] QDOC_INDEX_DIR=$$[QT_INSTALL_DOCS]
+COMPAT =
 
 VERSION_TAG = $$replace(QTCREATOR_VERSION, "[-.]", )
 
@@ -23,27 +17,22 @@ defineReplace(cmdEnv) {
 }
 
 defineReplace(qdoc) {
-    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG QTC_LICENSE_TYPE=$$LICENSE_TYPE QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS]) $$QDOC_BIN")
+    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG QTC_LICENSE_TYPE=$$LICENSE_TYPE $$QDOC_GLOBAL) $$QDOC_BIN")
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
 QCH_FILE = $$IDE_DOC_PATH/qtcreator.qch
 
 HELP_DEP_FILES = $$PWD/src/qtcreator.qdoc \
-                 $$PWD/addressbook-sdk.qdoc \
-                 $$PWD/config/compat.qdocconf \
                  $$PWD/config/macros.qdocconf \
                  $$PWD/config/qt-cpp-ignore.qdocconf \
-                 $$PWD/config/qt-defines.qdocconf \
-                 $$PWD/config/qt-html-templates.qdocconf \
-                 $$PWD/config/qt-html-default-styles.qdocconf \
-                 $$PWD/qtcreator$${COMPAT}.qdocconf
+                 $$PWD/config/qt-defines.qdocconf
 
-html_docs.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator$${COMPAT}.qdocconf
+html_docs.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator.qdocconf
 html_docs.depends += $$HELP_DEP_FILES
 html_docs.files = $$QHP_FILE
 
-html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator-online$${COMPAT}.qdocconf
+html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator-online.qdocconf
 html_docs_online.depends += $$HELP_DEP_FILES
 
 qch_docs.commands = $$HELPGENERATOR -o \"$$QCH_FILE\" $$QHP_FILE
@@ -61,15 +50,17 @@ DEV_HELP_DEP_FILES = \
     $$PWD/api/creating-plugins.qdoc \
     $$PWD/api/getting-and-building.qdoc \
     $$PWD/api/first-plugin.qdoc \
-    $$PWD/api/plugin-specifications.qdoc \
+    $$PWD/api/plugin-metadata.qdoc \
     $$PWD/api/plugin-lifecycle.qdoc \
     $$PWD/api/pluginmanager.qdoc \
-    $$PWD/api/qtcreator-dev$${COMPAT}.qdocconf
+    $$PWD/api/qtcreator-documentation.qdoc \
+    $$PWD/api/qtcreator-ui-text.qdoc \
+    $$PWD/api/qtcreator-dev.qdocconf
 
-dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev$${COMPAT}.qdocconf
+dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev.qdocconf
 dev_html_docs.depends += $$DEV_HELP_DEP_FILES
 
-dev_html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev-online$${COMPAT}.qdocconf
+dev_html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev-online.qdocconf
 dev_html_docs_online.depends += $$DEV_HELP_DEP_FILES
 
 dev_qch_docs.commands = $$HELPGENERATOR -o \"$$DEV_QCH_FILE\" $$DEV_QHP_FILE
@@ -77,12 +68,12 @@ dev_qch_docs.depends += dev_html_docs
 
 !macx {
     inst_qch_docs.files = $$QCH_FILE
-    inst_qch_docs.path = $$QTC_PREFIX/share/doc/qtcreator
+    inst_qch_docs.path = $$INSTALL_DOC_PATH
     inst_qch_docs.CONFIG += no_check_exist no_default_install
     INSTALLS += inst_qch_docs
 
     inst_dev_qch_docs.files = $$DEV_QCH_FILE
-    inst_dev_qch_docs.path = $$QTC_PREFIX/share/doc/qtcreator
+    inst_dev_qch_docs.path = $$INSTALL_DOC_PATH
     inst_dev_qch_docs.CONFIG += no_check_exist no_default_install
     INSTALLS += inst_dev_qch_docs
 
@@ -94,9 +85,9 @@ docs_online.depends = html_docs_online dev_html_docs_online
 docs.depends = qch_docs dev_qch_docs
 QMAKE_EXTRA_TARGETS += html_docs dev_html_docs html_docs_online dev_html_docs_online qch_docs dev_qch_docs docs docs_online
 
-OTHER_FILES = $$HELP_DEP_FILES $$DEV_HELP_DEP_FILES
+DISTFILES = $$HELP_DEP_FILES $$DEV_HELP_DEP_FILES
 
 fixnavi.commands = \
-    cd $$targetPath($$PWD) && \
+    cd $$shell_path($$PWD) && \
     perl fixnavi.pl -Dqcmanual -Dqtquick src
 QMAKE_EXTRA_TARGETS += fixnavi

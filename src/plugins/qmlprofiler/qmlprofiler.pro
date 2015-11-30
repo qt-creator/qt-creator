@@ -1,86 +1,75 @@
 DEFINES += QMLPROFILER_LIBRARY
 
-QT += network qml quick
+QT += network qml quick quickwidgets
 
 include(../../qtcreatorplugin.pri)
 
 SOURCES += \
-    qmlprofilerplugin.cpp \
-    qmlprofilertool.cpp \
-    qmlprofilerengine.cpp \
-    qmlprofilerattachdialog.cpp \
     localqmlprofilerrunner.cpp \
-    qmlprofilereventview.cpp \
-    qv8profilereventview.cpp \
-    qmlprofilerdetailsrewriter.cpp \
-    qmlprofilertraceview.cpp \
-    timelinerenderer.cpp \
-    qmlprofilerstatemanager.cpp \
-    qv8profilerdatamodel.cpp \
+    qmlprofileranimationsmodel.cpp \
+    qmlprofilerattachdialog.cpp \
+    qmlprofilerbindingloopsrenderpass.cpp \
     qmlprofilerclientmanager.cpp \
-    qmlprofilerviewmanager.cpp \
-    qmlprofilerstatewidget.cpp \
-    qmlprofilerruncontrolfactory.cpp \
-    qmlprofilermodelmanager.cpp \
+    qmlprofilerconfigwidget.cpp \
+    qmlprofilerdatamodel.cpp \
+    qmlprofilerdetailsrewriter.cpp \
     qmlprofilereventsmodelproxy.cpp \
-    qmlprofilertimelinemodelproxy.cpp \
-    qmlprofilertreeview.cpp \
+    qmlprofilereventview.cpp \
+    qmlprofilermodelmanager.cpp \
+    qmlprofilernotesmodel.cpp \
+    qmlprofileroptionspage.cpp \
+    qmlprofilerplugin.cpp \
+    qmlprofilerrangemodel.cpp \
+    qmlprofilerrunconfigurationaspect.cpp \
+    qmlprofilerruncontrol.cpp \
+    qmlprofilerruncontrolfactory.cpp \
+    qmlprofilersettings.cpp \
+    qmlprofilerstatemanager.cpp \
+    qmlprofilerstatewidget.cpp \
+    qmlprofilertimelinemodel.cpp \
+    qmlprofilertimelinemodelfactory.cpp \
+    qmlprofilertool.cpp \
     qmlprofilertracefile.cpp \
-    abstracttimelinemodel.cpp \
-    timelinemodelaggregator.cpp \
-    qmlprofilerpainteventsmodelproxy.cpp \
-    sortedtimelinemodel.cpp \
-    qmlprofilerbasemodel.cpp \
-    singlecategorytimelinemodel.cpp \
-    qmlprofilerdatamodel.cpp
+    qmlprofilertraceview.cpp \
+    qmlprofilerviewmanager.cpp
 
 HEADERS += \
-    qmlprofilerconstants.h \
-    qmlprofiler_global.h \
-    qmlprofilerplugin.h \
-    qmlprofilertool.h \
-    qmlprofilerengine.h \
-    qmlprofilerattachdialog.h \
-    abstractqmlprofilerrunner.h \
     localqmlprofilerrunner.h \
-    qmlprofilereventview.h \
-    qv8profilereventview.h \
-    qmlprofilerdetailsrewriter.h \
-    qmlprofilertraceview.h \
-    timelinerenderer.h \
-    qmlprofilerstatemanager.h \
-    qv8profilerdatamodel.h \
+    qmlprofiler_global.h \
+    qmlprofileranimationsmodel.h \
+    qmlprofilerattachdialog.h \
+    qmlprofilerbindingloopsrenderpass.h \
     qmlprofilerclientmanager.h \
-    qmlprofilerviewmanager.h \
-    qmlprofilerstatewidget.h \
-    qmlprofilerruncontrolfactory.h \
-    qmlprofilermodelmanager.h \
-    qmlprofilereventsmodelproxy.h \
-    qmlprofilertimelinemodelproxy.h \
-    qmlprofilertreeview.h \
-    qmlprofilertracefile.h \
-    abstracttimelinemodel.h \
-    timelinemodelaggregator.h \
-    qmlprofilerpainteventsmodelproxy.h \
-    sortedtimelinemodel.h \
-    qmlprofilerbasemodel.h \
-    abstracttimelinemodel_p.h \
-    singlecategorytimelinemodel.h \
-    singlecategorytimelinemodel_p.h \
+    qmlprofilerconfigwidget.h \
+    qmlprofilerconstants.h \
     qmlprofilerdatamodel.h \
-    qmlprofilerbasemodel_p.h
+    qmlprofilerdetailsrewriter.h \
+    qmlprofilereventsmodelproxy.h \
+    qmlprofilereventview.h \
+    qmlprofilermodelmanager.h \
+    qmlprofilernotesmodel.h \
+    qmlprofileroptionspage.h \
+    qmlprofilerplugin.h \
+    qmlprofilerrangemodel.h \
+    qmlprofilerrunconfigurationaspect.h \
+    qmlprofilerruncontrol.h \
+    qmlprofilerruncontrolfactory.h \
+    qmlprofilersettings.h \
+    qmlprofilerstatemanager.h \
+    qmlprofilerstatewidget.h \
+    qmlprofilertimelinemodel.h \
+    qmlprofilertimelinemodelfactory.h \
+    qmlprofilertool.h \
+    qmlprofilertracefile.h \
+    qmlprofilertraceview.h \
+    qmlprofilerviewmanager.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc
 
-OTHER_FILES += \
-    qml/Detail.qml \
-    qml/CategoryLabel.qml \
-    qml/MainView.qml \
-    qml/RangeDetails.qml \
-    qml/RangeMover.qml \
-    qml/TimeDisplay.qml \
-    qml/TimeMarks.qml \
-    qml/SelectionRange.qml \
-    qml/SelectionRangeDetails.qml \
-    qml/Overview.qml
+DISTFILES += \
+    qml/bindingloops.frag \
+    qml/bindingloops.vert
+
+FORMS += \
+    qmlprofilerconfigwidget.ui

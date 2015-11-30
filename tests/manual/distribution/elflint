@@ -9,7 +9,7 @@ find "${rootdir}" -type f -a -executable | while read file ; do
         #echo "${file}"
         result=`eu-elflint --gnu-ld --strict "${file}" | grep -v RPATH`
         if test -n "${result}" ; then
-            echo "${file}: ${result}" 
+            echo "${file}: ${result}"
         fi
     fi
 done

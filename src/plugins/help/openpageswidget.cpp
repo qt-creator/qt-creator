@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,84 +35,33 @@
 
 #include <coreplugin/coreconstants.h>
 
+#include <QAbstractItemModel>
 #include <QApplication>
-#include <QPainter>
-
-#include <QHeaderView>
-#include <QKeyEvent>
-#include <QMouseEvent>
 #include <QMenu>
 
 using namespace Help::Internal;
 
-// -- OpenPagesDelegate
-
-OpenPagesDelegate::OpenPagesDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
-{
-}
-
-void OpenPagesDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-           const QModelIndex &index) const
-{
-    if (option.state & QStyle::State_MouseOver) {
-        if ((QApplication::mouseButtons() & Qt::LeftButton) == 0)
-            pressedIndex = QModelIndex();
-        QBrush brush = option.palette.alternateBase();
-        if (index == pressedIndex)
-            brush = option.palette.dark();
-        painter->fillRect(option.rect, brush);
-    }
-
-
-    QStyledItemDelegate::paint(painter, option, index);
-
-    if (index.column() == 1 && index.model()->rowCount() > 1
-        && option.state & QStyle::State_MouseOver) {
-        const QIcon icon(QLatin1String((option.state & QStyle::State_Selected) ?
-                                       Core::Constants::ICON_CLOSE : Core::Constants::ICON_CLOSE_DARK));
-
-        const QRect iconRect(option.rect.right() - option.rect.height(),
-            option.rect.top(), option.rect.height(), option.rect.height());
-
-        icon.paint(painter, iconRect, Qt::AlignRight | Qt::AlignVCenter);
-    }
-
-}
-
 // -- OpenPagesWidget
 
-OpenPagesWidget::OpenPagesWidget(OpenPagesModel *model, QWidget *parent)
-    : QTreeView(parent)
+OpenPagesWidget::OpenPagesWidget(OpenPagesModel *sourceModel, QWidget *parent)
+    : OpenDocumentsTreeView(parent)
     , m_allowContextMenu(true)
 {
-    setModel(model);
-    setIndentation(0);
-    setItemDelegate((m_delegate = new OpenPagesDelegate(this)));
+    setModel(sourceModel);
 
-    setTextElideMode(Qt::ElideMiddle);
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-
-    viewport()->setAttribute(Qt::WA_Hover);
-    setSelectionBehavior(QAbstractItemView::SelectRows);
-    setSelectionMode(QAbstractItemView::SingleSelection);
-
-    header()->hide();
-    header()->setStretchLastSection(false);
-    header()->setResizeMode(0, QHeaderView::Stretch);
-    header()->setResizeMode(1, QHeaderView::Fixed);
-    header()->resizeSection(1, 18);
-
-    installEventFilter(this);
-    setUniformRowHeights(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
+    updateCloseButtonVisibility();
 
-    connect(this, SIGNAL(clicked(QModelIndex)), this,
-        SLOT(handleClicked(QModelIndex)));
-    connect(this, SIGNAL(pressed(QModelIndex)), this,
-        SLOT(handlePressed(QModelIndex)));
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)), this,
-        SLOT(contextMenuRequested(QPoint)));
+    connect(this, &OpenDocumentsTreeView::activated,
+            this, &OpenPagesWidget::handleActivated);
+    connect(this, &OpenDocumentsTreeView::closeActivated,
+            this, &OpenPagesWidget::handleCloseActivated);
+    connect(this, &OpenDocumentsTreeView::customContextMenuRequested,
+            this, &OpenPagesWidget::contextMenuRequested);
+    connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)),
+            this, SLOT(updateCloseButtonVisibility()));
+    connect(model(), SIGNAL(rowsRemoved(QModelIndex,int,int)),
+            this, SLOT(updateCloseButtonVisibility()));
 }
 
 OpenPagesWidget::~OpenPagesWidget()
@@ -160,47 +110,29 @@ void OpenPagesWidget::contextMenuRequested(QPoint pos)
         emit closePagesExcept(index);
 }
 
-void OpenPagesWidget::handlePressed(const QModelIndex &index)
+void OpenPagesWidget::handleActivated(const QModelIndex &index)
 {
-    if (index.column() == 0)
+    if (index.column() == 0) {
         emit setCurrentPage(index);
-
-    if (index.column() == 1)
-        m_delegate->pressedIndex = index;
-}
-
-void OpenPagesWidget::handleClicked(const QModelIndex &index)
-{
-    // implemented here to handle the funky close button and to  work around a
-    // bug in item views where the delegate wouldn't get the QStyle::State_MouseOver
-    if (index.column() == 1) {
+    } else if (index.column() == 1) { // the funky close button
         if (model()->rowCount() > 1)
             emit closePage(index);
 
+        // work around a bug in itemviews where the delegate wouldn't get the QStyle::State_MouseOver
         QWidget *vp = viewport();
         const QPoint &cursorPos = QCursor::pos();
-        QMouseEvent e(QEvent::MouseMove, vp->mapFromGlobal(cursorPos), cursorPos,
-            Qt::NoButton, 0, 0);
+        QMouseEvent e(QEvent::MouseMove, vp->mapFromGlobal(cursorPos), cursorPos, Qt::NoButton, 0, 0);
         QCoreApplication::sendEvent(vp, &e);
     }
 }
 
-// -- private
-
-bool OpenPagesWidget::eventFilter(QObject *obj, QEvent *event)
+void OpenPagesWidget::handleCloseActivated(const QModelIndex &index)
 {
-    if (obj == this && event->type() == QEvent::KeyPress) {
-        if (currentIndex().isValid()) {
-            QKeyEvent *ke = static_cast<QKeyEvent*>(event);
-            const int key = ke->key();
-            if ((key == Qt::Key_Return || key == Qt::Key_Enter || key == Qt::Key_Space)
-                && ke->modifiers() == 0) {
-                emit setCurrentPage(currentIndex());
-            } else if ((key == Qt::Key_Delete || key == Qt::Key_Backspace)
-                && ke->modifiers() == 0 && model()->rowCount() > 1) {
-                emit closePage(currentIndex());
-            }
-        }
-    }
-    return QWidget::eventFilter(obj, event);
+    if (model()->rowCount() > 1)
+        emit closePage(index);
+}
+
+void OpenPagesWidget::updateCloseButtonVisibility()
+{
+    setCloseButtonVisible(model() && model()->rowCount() > 1);
 }

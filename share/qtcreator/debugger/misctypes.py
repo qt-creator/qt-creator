@@ -1,7 +1,7 @@
 ############################################################################
 #
-# Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-# Contact: http://www.qt-project.org/legal
+# Copyright (C) 2015 The Qt Company Ltd.
+# Contact: http://www.qt.io/licensing
 #
 # This file is part of Qt Creator.
 #
@@ -9,20 +9,21 @@
 # Licensees holding valid commercial Qt licenses may use this file in
 # accordance with the commercial license agreement provided with the
 # Software or, alternatively, in accordance with the terms contained in
-# a written agreement between you and Digia.  For licensing terms and
-# conditions see http://qt.digia.com/licensing.  For further information
-# use the contact form at http://qt.digia.com/contact-us.
+# a written agreement between you and The Qt Company.  For licensing terms and
+# conditions see http://www.qt.io/terms-conditions.  For further information
+# use the contact form at http://www.qt.io/contact-us.
 #
 # GNU Lesser General Public License Usage
 # Alternatively, this file may be used under the terms of the GNU Lesser
-# General Public License version 2.1 as published by the Free Software
-# Foundation and appearing in the file LICENSE.LGPL included in the
-# packaging of this file.  Please review the following information to
-# ensure the GNU Lesser General Public License version 2.1 requirements
-# will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+# General Public License version 2.1 or version 3 as published by the Free
+# Software Foundation and appearing in the file LICENSE.LGPLv21 and
+# LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+# following information to ensure the GNU Lesser General Public License
+# requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+# http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 #
-# In addition, as a special exception, Digia gives you certain additional
-# rights.  These rights are described in the Digia Qt LGPL Exception
+# In addition, as a special exception, The Qt Company gives you certain additional
+# rights.  These rights are described in The Qt Company LGPL Exception
 # version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 #
 #############################################################################
@@ -39,87 +40,59 @@ def qdump____m128(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(d.lookupType("float"), value.address, 4)
+        d.putArrayData(value.address, 4, d.lookupType("float"))
 
 def qdump____m256(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(d.lookupType("float"), value.address, 8)
+        d.putArrayData(value.address, 8, d.lookupType("float"))
 
 def qdump____m512(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(d.lookupType("float"), value.address, 16)
+        d.putArrayData(value.address, 16, d.lookupType("float"))
 
 def qdump____m128d(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(d.lookupType("double"), value.address, 2)
+        d.putArrayData(value.address, 2, d.lookupType("double"))
 
 def qdump____m256d(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(d.lookupType("double"), value.address, 4)
+        d.putArrayData(value.address, 4, d.lookupType("double"))
 
 def qdump____m512d(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        d.putArrayData(d.lookupType("double"), value.address, 8)
+        d.putArrayData(value.address, 8, d.lookupType("double"))
 
 def qdump____m128i(d, value):
     data = d.readMemory(value.address, 16)
     d.putValue(':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4)))
     d.putNumChild(4)
     if d.isExpanded():
-        # fake 4 children as arrays
         with Children(d):
-            with SubItem(d, "uint8x16"):
-                d.putEmptyValue()
-                d.putType("unsigned char [16]")
-                d.putArrayData(d.lookupType("unsigned char"), value.address, 16)
-                d.putAddress(value.address)
-            with SubItem(d, "uint16x8"):
-                d.putEmptyValue()
-                d.putType("unsigned short [8]")
-                d.putArrayData(d.lookupType("unsigned short"), value.address, 8)
-            with SubItem(d, "uint32x4"):
-                d.putEmptyValue()
-                d.putType("unsigned int [4]")
-                d.putArrayData(d.lookupType("unsigned int"), value.address, 4)
-            with SubItem(d, "uint64x2"):
-                d.putEmptyValue()
-                d.putType("unsigned long long [2]")
-                d.putArrayData(d.lookupType("unsigned long long"), value.address, 2)
+            d.putArrayItem("uint8x16", value.address, 16, "unsigned char")
+            d.putArrayItem("uint16x8", value.address, 8, "unsigned short")
+            d.putArrayItem("uint32x4", value.address, 4, "unsigned int")
+            d.putArrayItem("uint64x2", value.address, 2, "unsigned long long")
 
 def qdump____m256i(d, value):
     data = d.readMemory(value.address, 32)
     d.putValue(':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(0, 64, 4)))
     d.putNumChild(4)
     if d.isExpanded():
-        # fake 4 children as arrays
         with Children(d):
-            with SubItem(d, "uint8x32"):
-                d.putEmptyValue()
-                d.putType("unsigned char [32]")
-                d.putArrayData(d.lookupType("unsigned char"), value.address, 32)
-                d.putAddress(value.address)
-            with SubItem(d, "uint16x8"):
-                d.putEmptyValue()
-                d.putType("unsigned short [16]")
-                d.putArrayData(d.lookupType("unsigned short"), value.address, 16)
-            with SubItem(d, "uint32x8"):
-                d.putEmptyValue()
-                d.putType("unsigned int [8]")
-                d.putArrayData(d.lookupType("unsigned int"), value.address, 8)
-            with SubItem(d, "uint64x4"):
-                d.putEmptyValue()
-                d.putType("unsigned long long [4]")
-                d.putArrayData(d.lookupType("unsigned long long"), value.address, 4)
+            d.putArrayItem("uint8x32", value.address, 32, "unsigned char")
+            d.putArrayItem("uint16x16", value.address, 16, "unsigned short")
+            d.putArrayItem("uint32x8", value.address, 8, "unsigned int")
+            d.putArrayItem("uint64x4", value.address, 4, "unsigned long long")
 
 def qdump____m512i(d, value):
     data = d.readMemory(value.address, 64)
@@ -127,16 +100,9 @@ def qdump____m512i(d, value):
                + ', ' + ':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(64, 128, 4)))
     d.putNumChild(2)
     if d.isExpanded():
-        # fake 2 children as arrays
         with Children(d):
-            with SubItem(d, "uint32x16"):
-                d.putEmptyValue()
-                d.putType("unsigned int [16]")
-                d.putArrayData(d.lookupType("unsigned int"), value.address, 16)
-            with SubItem(d, "uint64x8"):
-                d.putEmptyValue()
-                d.putType("unsigned long long [8]")
-                d.putArrayData(d.lookupType("unsigned long long"), value.address, 8)
+            d.putArrayItem("uint32x16", value.address, 16, "unsigned int")
+            d.putArrayItem("uint64x8", value.address, 8, "unsigned long long")
 
 #######################################################################
 #
@@ -149,16 +115,25 @@ def qdump____m512i(d, value):
 
 def qdump__Eigen__Matrix(d, value):
     innerType = d.templateArgument(value.type, 0)
-    storage = value["m_storage"]
     options = d.numericTemplateArgument(value.type, 3)
     rowMajor = (int(options) & 0x1)
     argRow = d.numericTemplateArgument(value.type, 1)
     argCol = d.numericTemplateArgument(value.type, 2)
-    nrows = value["m_storage"]["m_rows"] if argRow == -1 else int(argRow)
-    ncols = value["m_storage"]["m_cols"] if argCol == -1 else int(argCol)
-    p = storage["m_data"]
-    if d.isStructType(p.type): # Static
-        p = p["array"].cast(innerType.pointer())
+    # The magic dimension value is -1 in Eigen3, but 10000 in Eigen2.
+    # 10000 x 10000 matrices are rare, vectors of dim 10000 less so.
+    # So "fix" only the matrix case:
+    if argCol == 10000 and argRow == 10000:
+        argCol = -1
+        argRow = -1
+    if argCol != -1 and argRow != -1:
+        nrows = argRow
+        ncols = argCol
+        p = d.createPointerValue(d.addressOf(value), innerType)
+    else:
+        storage = value["m_storage"]
+        nrows = toInteger(storage["m_rows"]) if argRow == -1 else argRow
+        ncols = toInteger(storage["m_cols"]) if argCol == -1 else argCol
+        p = d.createValue(d.addressOf(value), innerType.pointer())
     d.putValue("(%s x %s), %s" % (nrows, ncols, ["ColumnMajor", "RowMajor"][rowMajor]))
     d.putField("keeporder", "1")
     d.putNumChild(nrows * ncols)
@@ -392,14 +367,9 @@ if False:
 def qdump__KDSoapValue1(d, value):
     inner = value["d"]["d"].dereference()
     d.putStringValue(inner["m_name"])
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(inner)
+    d.putPlainChildren(inner)
 
 def qdump__KDSoapValue(d, value):
     p = (value.cast(lookupType("char*")) + 4).dereference().cast(lookupType("QString"))
     d.putStringValue(p)
-    if d.isExpanded():
-        with Children(d):
-            data = value["d"]["d"].dereference()
-            d.putFields(data)
+    d.putPlainChildren(value["d"]["d"].dereference())

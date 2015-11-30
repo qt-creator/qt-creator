@@ -8,7 +8,7 @@ mkdir valgrind-test
 cd valgrind-test
 
 # make library paths known to ldconfig
-export LD_LIBRARY_PATH=/path/to/qtc-build/lib/qtcreator:/path/to/qtc-build/lib/qtcreator/plugins/QtProject
+export LD_LIBRARY_PATH=/path/to/qtc-build/lib/qtcreator:/path/to/qtc-build/lib/qtcreator/plugins
 
 # run qmake, make
 qmake CONFIG+=debug IDE_BUILD_TREE=$(readlink -f ..) ../../path/to/qtc/tests/auto/valgrind

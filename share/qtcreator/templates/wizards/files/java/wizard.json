@@ -1,0 +1,39 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "Wizard.Java",
+    "category": "U.Java",
+    "trDescription": "Creates a Java file with boilerplate code.",
+    "trDisplayName": "Java File",
+    "trDisplayCategory": "Java",
+    "icon": "../../global/genericfilewizard.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Android') >= 0}",
+
+    "options": [ { "key": "ClassName", "value": "%{JS: '%{FileName}'.charAt(0).toUpperCase() + '%{FileName}'.substr(1)}" } ],
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "source.java",
+                "target": "%{JS: Util.fileName('%{Path}/%{ClassName}', '%{JS: Util.preferredSuffix('text/x-java')}')}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

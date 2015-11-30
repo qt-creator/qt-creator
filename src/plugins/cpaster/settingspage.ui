@@ -71,7 +71,7 @@
    <item row="2" column="1">
     <widget class="QSpinBox" name="expirySpinBox">
      <property name="suffix">
-      <string>Days</string>
+      <string> Days</string>
      </property>
      <property name="minimum">
       <number>1</number>

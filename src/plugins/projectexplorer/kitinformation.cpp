@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -39,6 +40,10 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
+#include <ssh/sshconnection.h>
+
+#include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -46,7 +51,7 @@
 namespace ProjectExplorer {
 
 // --------------------------------------------------------------------------
-// SysRootInformation:
+// SysRootKitInformation:
 // --------------------------------------------------------------------------
 
 SysRootKitInformation::SysRootKitInformation()
@@ -108,7 +113,7 @@ void SysRootKitInformation::setSysRoot(Kit *k, const Utils::FileName &v)
 }
 
 // --------------------------------------------------------------------------
-// ToolChainInformation:
+// ToolChainKitInformation:
 // --------------------------------------------------------------------------
 
 ToolChainKitInformation::ToolChainKitInformation()
@@ -130,12 +135,10 @@ QVariant ToolChainKitInformation::defaultValue(Kit *k) const
 
     Abi abi = Abi::hostAbi();
 
-    foreach (ToolChain *tc, tcList) {
-        if (tc->targetAbi() == abi)
-            return tc->id();
-    }
+    ToolChain *tc = Utils::findOr(tcList, tcList.first(),
+                                  Utils::equal(&ToolChain::targetAbi, abi));
 
-    return tcList.at(0)->id();
+    return tc->id();
 }
 
 QList<Task> ToolChainKitInformation::validate(const Kit *k) const
@@ -166,7 +169,7 @@ void ToolChainKitInformation::fix(Kit *k)
 void ToolChainKitInformation::setup(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
-    const QString id = k->value(ToolChainKitInformation::id()).toString();
+    const QByteArray id = k->value(ToolChainKitInformation::id()).toByteArray();
     if (id.isEmpty())
         return;
 
@@ -176,7 +179,7 @@ void ToolChainKitInformation::setup(Kit *k)
 
     // ID is not found: Might be an ABI string...
     foreach (ToolChain *current, ToolChainManager::toolChains()) {
-        if (current->targetAbi().toString() == id)
+        if (current->targetAbi().toString() == QString::fromUtf8(id))
             return setToolChain(k, current);
     }
 }
@@ -205,6 +208,17 @@ void ToolChainKitInformation::addToEnvironment(const Kit *k, Utils::Environment 
         tc->addToEnvironment(env);
 }
 
+void ToolChainKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
+{
+    // FIXME: Use better strings
+    expander->registerVariable("Compiler:Name", tr("Compiler"),
+                               [this, kit]() -> QString {
+                                   const ToolChain *tc = toolChain(kit);
+                                   return tc ? tc->displayName() : tr("None");
+                               });
+}
+
+
 IOutputParser *ToolChainKitInformation::createOutputParser(const Kit *k) const
 {
     ToolChain *tc = toolChain(k);
@@ -223,12 +237,12 @@ ToolChain *ToolChainKitInformation::toolChain(const Kit *k)
     QTC_ASSERT(ToolChainManager::isLoaded(), return 0);
     if (!k)
         return 0;
-    return ToolChainManager::findToolChain(k->value(ToolChainKitInformation::id()).toString());
+    return ToolChainManager::findToolChain(k->value(ToolChainKitInformation::id()).toByteArray());
 }
 
 void ToolChainKitInformation::setToolChain(Kit *k, ToolChain *tc)
 {
-    k->setValue(ToolChainKitInformation::id(), tc ? tc->id() : QString());
+    k->setValue(ToolChainKitInformation::id(), tc ? QString::fromUtf8(tc->id()) : QString());
 }
 
 QString ToolChainKitInformation::msgNoToolChainInTarget()
@@ -249,7 +263,8 @@ void ToolChainKitInformation::kitsWereLoaded()
 
 void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
 {
-    foreach (Kit *k, KitManager::matchingKits(ToolChainMatcher(tc)))
+    auto matcher = KitMatcher([tc, this](const Kit *k) { return toolChain(k) == tc; });
+    foreach (Kit *k, KitManager::matchingKits(matcher))
         notifyAboutUpdate(k);
 }
 
@@ -261,7 +276,7 @@ void ToolChainKitInformation::toolChainRemoved(ToolChain *tc)
 }
 
 // --------------------------------------------------------------------------
-// DeviceTypeInformation:
+// DeviceTypeKitInformation:
 // --------------------------------------------------------------------------
 
 DeviceTypeKitInformation::DeviceTypeKitInformation()
@@ -293,14 +308,13 @@ KitInformation::ItemList DeviceTypeKitInformation::toUserOutput(const Kit *k) co
     Core::Id type = deviceTypeId(k);
     QString typeDisplayName = tr("Unknown device type");
     if (type.isValid()) {
-        QList<IDeviceFactory *> factories
-                = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
-        foreach (IDeviceFactory *factory, factories) {
-            if (factory->availableCreationIds().contains(type)) {
-                typeDisplayName = factory->displayNameForId(type);
-                break;
-            }
-        }
+        IDeviceFactory *factory = ExtensionSystem::PluginManager::getObject<IDeviceFactory>(
+            [&type](IDeviceFactory *factory) {
+                return factory->availableCreationIds().contains(type);
+            });
+
+        if (factory)
+            typeDisplayName = factory->displayNameForId(type);
     }
     return ItemList() << qMakePair(tr("Device type"), typeDisplayName);
 }
@@ -320,8 +334,24 @@ void DeviceTypeKitInformation::setDeviceTypeId(Kit *k, Core::Id type)
     k->setValue(DeviceTypeKitInformation::id(), type.toSetting());
 }
 
+KitMatcher DeviceTypeKitInformation::deviceTypeMatcher(Core::Id type)
+{
+    return std::function<bool(const Kit *)>([type](const Kit *kit) {
+        return type.isValid() && deviceTypeId(kit) == type;
+    });
+}
+
+Core::FeatureSet DeviceTypeKitInformation::availableFeatures(const Kit *k) const
+{
+    Core::Id id = DeviceTypeKitInformation::deviceTypeId(k);
+    Core::FeatureSet result;
+    if (id.isValid())
+        result |= Core::Feature::fromString(QString::fromLatin1("DeviceType.") + id.toString());
+    return result;
+}
+
 // --------------------------------------------------------------------------
-// DeviceInformation:
+// DeviceKitInformation:
 // --------------------------------------------------------------------------
 
 DeviceKitInformation::DeviceKitInformation()
@@ -337,28 +367,40 @@ DeviceKitInformation::DeviceKitInformation()
 QVariant DeviceKitInformation::defaultValue(Kit *k) const
 {
     Core::Id type = DeviceTypeKitInformation::deviceTypeId(k);
+    // Use default device if that is compatible:
     IDevice::ConstPtr dev = DeviceManager::instance()->defaultDevice(type);
-    return dev.isNull() ? QString() : dev->id().toString();
+    if (dev && dev->isCompatibleWith(k))
+        return dev->id().toString();
+    // Use any other device that is compatible:
+    for (int i = 0; i < DeviceManager::instance()->deviceCount(); ++i) {
+        dev = DeviceManager::instance()->deviceAt(i);
+        if (dev && dev->isCompatibleWith(k))
+            return dev->id().toString();
+    }
+    // Fail: No device set up.
+    return QString();
 }
 
 QList<Task> DeviceKitInformation::validate(const Kit *k) const
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     QList<Task> result;
-    if (!dev.isNull() && dev->type() != DeviceTypeKitInformation::deviceTypeId(k))
-        result.append(Task(Task::Error, tr("Device does not match device type."),
-                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
     if (dev.isNull())
         result.append(Task(Task::Warning, tr("No device set."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    else if (!dev->isCompatibleWith(k))
+        result.append(Task(Task::Error, tr("Device is incompatible with this kit."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+
     return result;
 }
 
 void DeviceKitInformation::fix(Kit *k)
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
-    if (!dev.isNull() && dev->type() != DeviceTypeKitInformation::deviceTypeId(k)) {
-        qWarning("Device is no longer known, removing from kit \"%s\".", qPrintable(k->displayName()));
+    if (!dev.isNull() && !dev->isCompatibleWith(k)) {
+        qWarning("Device is no longer compatible with kit \"%s\", removing it.",
+                 qPrintable(k->displayName()));
         setDeviceId(k, Core::Id());
     }
 }
@@ -367,7 +409,7 @@ void DeviceKitInformation::setup(Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return);
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
-    if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
+    if (!dev.isNull() && dev->isCompatibleWith(k))
         return;
 
     setDeviceId(k, Core::Id::fromSetting(defaultValue(k)));
@@ -388,6 +430,30 @@ KitInformation::ItemList DeviceKitInformation::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = device(k);
     return ItemList() << qMakePair(tr("Device"), dev.isNull() ? tr("Unconfigured") : dev->displayName());
+}
+
+void DeviceKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
+{
+    expander->registerVariable("Device:HostAddress", tr("Host address"),
+        [this, kit]() -> QString {
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? device->sshParameters().host : QString();
+    });
+    expander->registerVariable("Device:SshPort", tr("SSH port"),
+        [this, kit]() -> QString {
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? QString::number(device->sshParameters().port) : QString();
+    });
+    expander->registerVariable("Device:UserName", tr("User name"),
+        [this, kit]() -> QString {
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? device->sshParameters().userName : QString();
+    });
+    expander->registerVariable("Device:KeyFile", tr("Private key file"),
+        [this, kit]() -> QString {
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? device->sshParameters().privateKeyFile : QString();
+    });
 }
 
 Core::Id DeviceKitInformation::id()
@@ -411,7 +477,7 @@ void DeviceKitInformation::setDevice(Kit *k, IDevice::ConstPtr dev)
     setDeviceId(k, dev ? dev->id() : Core::Id());
 }
 
-void DeviceKitInformation::setDeviceId(Kit *k, const Core::Id id)
+void DeviceKitInformation::setDeviceId(Kit *k, Core::Id id)
 {
     k->setValue(DeviceKitInformation::id(), id.toSetting());
 }
@@ -433,7 +499,7 @@ void DeviceKitInformation::kitsWereLoaded()
             this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
 }
 
-void DeviceKitInformation::deviceUpdated(const Core::Id &id)
+void DeviceKitInformation::deviceUpdated(Core::Id id)
 {
     foreach (Kit *k, KitManager::kits()) {
         if (deviceId(k) == id)
@@ -450,6 +516,83 @@ void DeviceKitInformation::devicesChanged()
 {
     foreach (Kit *k, KitManager::kits())
         setup(k); // Set default device if necessary
+}
+
+// --------------------------------------------------------------------------
+// EnvironmentKitInformation:
+// --------------------------------------------------------------------------
+
+EnvironmentKitInformation::EnvironmentKitInformation()
+{
+    setObjectName(QLatin1String("EnvironmentKitInformation"));
+    setId(EnvironmentKitInformation::id());
+    setPriority(29000);
+}
+
+QVariant EnvironmentKitInformation::defaultValue(Kit *k) const
+{
+    Q_UNUSED(k)
+    return QStringList();
+}
+
+QList<Task> EnvironmentKitInformation::validate(const Kit *k) const
+{
+    QList<Task> result;
+    const QVariant variant = k->value(EnvironmentKitInformation::id());
+    if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
+        result.append(Task(Task::Error, tr("The environment setting value is invalid."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    }
+    return result;
+}
+
+void EnvironmentKitInformation::fix(Kit *k)
+{
+    const QVariant variant = k->value(EnvironmentKitInformation::id());
+    if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
+        qWarning("Kit \"%s\" has a wrong environment value set.", qPrintable(k->displayName()));
+        setEnvironmentChanges(k, QList<Utils::EnvironmentItem>());
+    }
+}
+
+void EnvironmentKitInformation::addToEnvironment(const Kit *k, Utils::Environment &env) const
+{
+    const QVariant envValue = k->value(EnvironmentKitInformation::id());
+    if (envValue.isValid())
+        env.modify(Utils::EnvironmentItem::fromStringList(envValue.toStringList()));
+}
+
+KitConfigWidget *EnvironmentKitInformation::createConfigWidget(Kit *k) const
+{
+    return new Internal::KitEnvironmentConfigWidget(k, this);
+}
+
+KitInformation::ItemList EnvironmentKitInformation::toUserOutput(const Kit *k) const
+{
+    ItemList retVal;
+    QVariant envValue = k->value(EnvironmentKitInformation::id());
+    if (envValue.isValid())
+        retVal << qMakePair(QLatin1Literal("Environment"), envValue.toStringList().join(QLatin1Literal("\n")));
+
+    return retVal;
+}
+
+Core::Id EnvironmentKitInformation::id()
+{
+    return "PE.Profile.Environment";
+}
+
+QList<Utils::EnvironmentItem> EnvironmentKitInformation::environmentChanges(const Kit *k)
+{
+     if (k)
+         return Utils::EnvironmentItem::fromStringList(k->value(EnvironmentKitInformation::id()).toStringList());
+     return QList<Utils::EnvironmentItem>();
+}
+
+void EnvironmentKitInformation::setEnvironmentChanges(Kit *k, const QList<Utils::EnvironmentItem> &changes)
+{
+    if (k)
+        k->setValue(EnvironmentKitInformation::id(), Utils::EnvironmentItem::toStringList(changes));
 }
 
 } // namespace ProjectExplorer

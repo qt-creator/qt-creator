@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -354,28 +355,28 @@ private:
 
     static bool maybeSchemaName(const QString &s);
 
-    static const QString kType;
-    static const QString kProperties;
-    static const QString kPatternProperties;
-    static const QString kAdditionalProperties;
-    static const QString kItems;
-    static const QString kAdditionalItems;
-    static const QString kRequired;
-    static const QString kDependencies;
-    static const QString kMinimum;
-    static const QString kMaximum;
-    static const QString kExclusiveMinimum;
-    static const QString kExclusiveMaximum;
-    static const QString kMinItems;
-    static const QString kMaxItems;
-    static const QString kUniqueItems;
-    static const QString kPattern;
-    static const QString kMinLength;
-    static const QString kMaxLength;
-    static const QString kTitle;
-    static const QString kDescription;
-    static const QString kExtends;
-    static const QString kRef;
+    static QString kType();
+    static QString kProperties();
+    static QString kPatternProperties();
+    static QString kAdditionalProperties();
+    static QString kItems();
+    static QString kAdditionalItems();
+    static QString kRequired();
+    static QString kDependencies();
+    static QString kMinimum();
+    static QString kMaximum();
+    static QString kExclusiveMinimum();
+    static QString kExclusiveMaximum();
+    static QString kMinItems();
+    static QString kMaxItems();
+    static QString kUniqueItems();
+    static QString kPattern();
+    static QString kMinLength();
+    static QString kMaxLength();
+    static QString kTitle();
+    static QString kDescription();
+    static QString kExtends();
+    static QString kRef();
 
     struct Context
     {
@@ -398,22 +399,22 @@ public:
     JsonSchemaManager(const QStringList &searchPaths);
     ~JsonSchemaManager();
 
-    Utils::JsonSchema *schemaForFile(const QString &fileName) const;
-    Utils::JsonSchema *schemaByName(const QString &baseName) const;
+    JsonSchema *schemaForFile(const QString &fileName) const;
+    JsonSchema *schemaByName(const QString &baseName) const;
 
 private:
     struct JsonSchemaData
     {
-        JsonSchemaData(const QString &absoluteFileName, Utils::JsonSchema *schema = 0)
+        JsonSchemaData(const QString &absoluteFileName, JsonSchema *schema = 0)
             : m_absoluteFileName(absoluteFileName)
             , m_schema(schema)
         {}
         QString m_absoluteFileName;
-        Utils::JsonSchema *m_schema;
+        JsonSchema *m_schema;
         QDateTime m_lastParseAttempt;
     };
 
-    Utils::JsonSchema *parseSchema(const QString &schemaFileName) const;
+    JsonSchema *parseSchema(const QString &schemaFileName) const;
 
     QStringList m_searchPaths;
     mutable QHash<QString, JsonSchemaData> m_schemas;

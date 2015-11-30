@@ -1,0 +1,97 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-deploying-android.html
+    \page creator-deployment-embedded-linux.html
+    \nextpage creator-deployment-qnx.html
+
+    \title Deploying Applications to Embedded Linux Devices
+
+    You can specify settings for deploying applications to generic Linux devices
+    in the project .pro file. You can view the settings in the
+    \uicontrol {Run Settings}.
+
+    \image qtcreator-embedded-linux-deployment-overview.png "Deploy to device"
+
+    The files to be installed are listed in the \uicontrol {Deployment} step,
+    the \uicontrol {Files to deploy} field. The \uicontrol {Local File Path}
+    field displays the location of the file on the development PC. The
+    \uicontrol {Remote Directory} field displays the folder where the file is
+    installed on the device. Text in red color indicates that the information is
+    missing. Edit the qmake \l{Variables#installs} {INSTALLS variable} in the
+    project \c .pro file to add the missing files.
+
+    When you run the application, \QC copies the necessary files to the device
+    and starts the application on it.
+
+    For example, adding
+
+    \code
+      target.path = /root
+      INSTALLS += target
+    \endcode
+
+    to the project .pro file will copy the binary of your project to \c /root
+    on the remote device. Additional files can be deployed by adding them to
+    further targets and adding those to \c INSTALLS as well.
+
+    \section1 Deploying on Embedded Linux
+
+    \image qtcreator-embedded-linux-deployment-details.png "Deploy to embedded Linux"
+
+    When you run the application on the \uicontrol {Embedded Linux} device, \QC
+    deploys the application as specified by the deploy steps. By default, \QC
+    copies the application files to the device by using the SSH file transfer
+    protocol (SFTP), as specified by the \uicontrol {Upload files via SFTP}
+    step.
+
+    If you have a lot of data to copy, select \uicontrol Details in the
+    \uicontrol {Upload Files via SFTP} step, and then select the
+    \uicontrol {Incremental deployment} check box. \QC takes note of the
+    deployment time and only copies files that have changed since the last
+    deployment. However, when you make major changes on the device, such as
+    removing files from the device manually or flashing a new disk image, or
+    when you use another device with the same IP address, deselect the check box
+    once, to have \QC deploy all files again.
+
+    To only create a tarball and not copy the files to the device, select
+    \uicontrol {Add Deploy Step} > \uicontrol {Create tarball}. Then remove all
+    other deploy steps.
+
+    The \uicontrol {Deploy tarball via SFTP upload} step specifies that \QC
+    uploads the tarball to the device and extracts it.
+
+    The \uicontrol {Check for free disk space} step is by default the first
+    deploy step. Use it to find out whether the remote file system has enough
+    space left to deploy your project. Errors due to lack of disk space can
+    otherwise be hard to detect.
+
+    \note If the SFTP upload fails, make sure that the remote device has SFTP
+    enabled in its SSH daemon. Some versions of Dropbear that come without SFTP
+    support will crash when an SFTP upload is being attempted. This is not a bug
+    in \QC.
+
+*/

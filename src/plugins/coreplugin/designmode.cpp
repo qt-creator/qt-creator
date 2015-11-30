@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,12 +31,11 @@
 #include "designmode.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icorelistener.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <QPointer>
 #include <QStringList>
@@ -46,36 +46,6 @@
 static Core::DesignMode *m_instance = 0;
 
 namespace Core {
-
-class EditorManager;
-
-enum {
-    debug = false
-};
-
-namespace Internal {
-
-class DesignModeCoreListener : public Core::ICoreListener
-{
-public:
-    DesignModeCoreListener(DesignMode* mode);
-    bool coreAboutToClose();
-private:
-    DesignMode *m_mode;
-};
-
-DesignModeCoreListener::DesignModeCoreListener(DesignMode *mode) :
-        m_mode(mode)
-{
-}
-
-bool DesignModeCoreListener::coreAboutToClose()
-{
-    m_mode->currentEditorChanged(0);
-    return true;
-}
-
-} // namespace Internal
 
 struct DesignEditorInfo
 {
@@ -88,11 +58,10 @@ struct DesignEditorInfo
 class DesignModePrivate
 {
 public:
-    explicit DesignModePrivate(DesignMode *q);
+    DesignModePrivate();
 
 public:
-    Internal::DesignModeCoreListener *m_coreListener;
-    QPointer<Core::IEditor> m_currentEditor;
+    QPointer<IEditor> m_currentEditor;
     bool m_isActive;
     bool m_isRequired;
     QList<DesignEditorInfo*> m_editors;
@@ -100,18 +69,22 @@ public:
     Context m_activeContext;
 };
 
-DesignModePrivate::DesignModePrivate(DesignMode *q)
-  : m_coreListener(new Internal::DesignModeCoreListener(q)),
-    m_isActive(false),
-    m_isRequired(false),
-    m_stackWidget(new QStackedWidget)
-{
-}
+DesignModePrivate::DesignModePrivate()
+    : m_isActive(false),
+      m_isRequired(false),
+      m_stackWidget(new QStackedWidget)
+{}
 
 DesignMode::DesignMode()
-    : d(new DesignModePrivate(this))
+    : d(new DesignModePrivate)
 {
     m_instance = this;
+
+    ICore::addPreCloseListener([]() -> bool {
+        m_instance->currentEditorChanged(0);
+        return true;
+    });
+
     setObjectName(QLatin1String("DesignMode"));
     setEnabled(false);
     setContext(Context(Constants::C_DESIGN_MODE));
@@ -121,20 +94,15 @@ DesignMode::DesignMode()
     setPriority(Constants::P_MODE_DESIGN);
     setId(Constants::MODE_DESIGN);
 
-    ExtensionSystem::PluginManager::addObject(d->m_coreListener);
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &DesignMode::currentEditorChanged);
 
-    connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(currentEditorChanged(Core::IEditor*)));
-
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
-            this, SLOT(updateContext(Core::IMode*,Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &DesignMode::updateContext);
 }
 
 DesignMode::~DesignMode()
 {
-    ExtensionSystem::PluginManager::removeObject(d->m_coreListener);
-    delete d->m_coreListener;
-
     qDeleteAll(d->m_editors);
     delete d;
 }
@@ -188,13 +156,14 @@ void DesignMode::unregisterDesignWidget(QWidget *widget)
     foreach (DesignEditorInfo *info, d->m_editors) {
         if (info->widget == widget) {
             d->m_editors.removeAll(info);
+            delete info;
             break;
         }
     }
 }
 
 // if editor changes, check if we have valid mimetype registered.
-void DesignMode::currentEditorChanged(Core::IEditor *editor)
+void DesignMode::currentEditorChanged(IEditor *editor)
 {
     if (editor && (d->m_currentEditor.data() == editor))
         return;
@@ -225,7 +194,7 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
     if (!mimeEditorAvailable) {
         setActiveContext(Context());
         if (ModeManager::currentMode() == this)
-            ModeManager::activateMode(Core::Constants::MODE_EDIT);
+            ModeManager::activateMode(Constants::MODE_EDIT);
         setEnabled(false);
         d->m_currentEditor = 0;
         emit actionsUpdated(d->m_currentEditor.data());
@@ -244,15 +213,12 @@ void DesignMode::updateActions()
     emit actionsUpdated(d->m_currentEditor.data());
 }
 
-void DesignMode::updateContext(Core::IMode *newMode, Core::IMode *oldMode)
+void DesignMode::updateContext(IMode *newMode, IMode *oldMode)
 {
-    if (newMode == this) {
-        // Apply active context
-        Core::ICore::updateAdditionalContexts(Context(), d->m_activeContext);
-    } else if (oldMode == this) {
-        // Remove active context
-        Core::ICore::updateAdditionalContexts(d->m_activeContext, Context());
-    }
+    if (newMode == this)
+        ICore::addAdditionalContext(d->m_activeContext);
+    else if (oldMode == this)
+        ICore::removeAdditionalContext(d->m_activeContext);
 }
 
 void DesignMode::setActiveContext(const Context &context)
@@ -261,7 +227,7 @@ void DesignMode::setActiveContext(const Context &context)
         return;
 
     if (ModeManager::currentMode() == this)
-        Core::ICore::updateAdditionalContexts(d->m_activeContext, context);
+        ICore::updateAdditionalContexts(d->m_activeContext, context);
 
     d->m_activeContext = context;
 }

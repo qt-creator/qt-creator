@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,31 +9,34 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
+#include "buildmanager.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
-static const char FILE_POS_PATTERN[] = "(cl|LINK|.+) : ";
+// As of MSVC 2015: "foo.cpp(42) :" -> "foo.cpp(42):"
+static const char FILE_POS_PATTERN[] = "(cl|LINK|.+[^ ]) ?: ";
 static const char ERROR_PATTERN[] = "[A-Z]+\\d\\d\\d\\d ?:";
 
 static QPair<Utils::FileName, int> parseFileName(const QString &input)
@@ -68,7 +71,6 @@ MsvcParser::MsvcParser()
     m_compileRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN)
                                + QLatin1String("(Command line |fatal )?(warning|error) (")
                                + QLatin1String(ERROR_PATTERN) + QLatin1String(".*)$"));
-    m_compileRegExp.setMinimal(true);
     QTC_CHECK(m_compileRegExp.isValid());
     m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        (?:(could be |or )\\s*')?(.*)\\((\\d+)\\) : (.*)$"));
     QTC_CHECK(m_additionalInfoRegExp.isValid());
@@ -76,8 +78,8 @@ MsvcParser::MsvcParser()
 
 void MsvcParser::stdOutput(const QString &line)
 {
-    int infoPos = m_additionalInfoRegExp.indexIn(line);
-    if (line.startsWith(QLatin1String("        ")) && infoPos < 0) {
+    QRegularExpressionMatch match = m_additionalInfoRegExp.match(line);
+    if (line.startsWith(QLatin1String("        ")) && !match.hasMatch()) {
         if (m_lastTask.isNull())
             return;
 
@@ -100,6 +102,7 @@ void MsvcParser::stdOutput(const QString &line)
         } else {
             m_lastTask.formats[0].length = m_lastTask.description.length() - m_lastTask.formats[0].start;
         }
+        ++m_lines;
         return;
     }
 
@@ -111,6 +114,7 @@ void MsvcParser::stdOutput(const QString &line)
                           Utils::FileName(), /* fileName */
                           -1, /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
+        m_lines = 1;
         return;
     }
     if (line.startsWith(QLatin1String("Warning:"))) {
@@ -119,17 +123,19 @@ void MsvcParser::stdOutput(const QString &line)
                           Utils::FileName(), /* fileName */
                           -1, /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
+        m_lines = 1;
         return;
     }
-    if (infoPos > -1) {
-        QString description = m_additionalInfoRegExp.cap(1)
-                + m_additionalInfoRegExp.cap(4).trimmed();
-        if (!m_additionalInfoRegExp.cap(1).isEmpty())
+    if (match.hasMatch()) {
+        QString description = match.captured(1)
+                + match.captured(4).trimmed();
+        if (!match.captured(1).isEmpty())
             description.chop(1); // Remove trailing quote
         m_lastTask = Task(Task::Unknown, description,
-                          Utils::FileName::fromUserInput(m_additionalInfoRegExp.cap(2)), /* fileName */
-                          m_additionalInfoRegExp.cap(3).toInt(), /* linenumber */
+                          Utils::FileName::fromUserInput(match.captured(2)), /* fileName */
+                          match.captured(3).toInt(), /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
+        m_lines = 1;
         return;
     }
     IOutputParser::stdOutput(line);
@@ -146,6 +152,7 @@ void MsvcParser::stdError(const QString &line)
                           Utils::FileName(), /* fileName */
                           -1, /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
+        m_lines = 1;
         return;
     }
     IOutputParser::stdError(line);
@@ -155,17 +162,19 @@ bool MsvcParser::processCompileLine(const QString &line)
 {
     doFlush();
 
-    if (m_compileRegExp.indexIn(line) > -1) {
-        QPair<Utils::FileName, int> position = parseFileName( m_compileRegExp.cap(1));
+    QRegularExpressionMatch match = m_compileRegExp.match(line);
+    if (match.hasMatch()) {
+        QPair<Utils::FileName, int> position = parseFileName(match.captured(1));
         Task::TaskType type = Task::Unknown;
-        const QString category = m_compileRegExp.cap(3);
+        const QString category = match.captured(3);
         if (category == QLatin1String("warning"))
             type = Task::Warning;
         else if (category == QLatin1String("error"))
             type = Task::Error;
-        m_lastTask = Task(type, m_compileRegExp.cap(4).trimmed() /* description */,
+        m_lastTask = Task(type, match.captured(4).trimmed() /* description */,
                           position.first, position.second,
                           Constants::TASK_CATEGORY_COMPILE);
+        m_lines = 1;
         return true;
     }
     return false;
@@ -178,7 +187,7 @@ void MsvcParser::doFlush()
 
     Task t = m_lastTask;
     m_lastTask.clear();
-    emit addTask(t);
+    emit addTask(t, m_lines, 1);
 }
 
 // Unit tests:
@@ -216,6 +225,16 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
 
     QTest::newRow("labeled error")
             << QString::fromLatin1("qmlstandalone\\main.cpp(54) : error C4716: 'findUnresolvedModule' : must return a value") << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QLatin1String("C4716: 'findUnresolvedModule' : must return a value"),
+                        Utils::FileName::fromUserInput(QLatin1String("qmlstandalone\\main.cpp")), 54,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
+    QTest::newRow("labeled error-2015")
+            << QString::fromLatin1("qmlstandalone\\main.cpp(54): error C4716: 'findUnresolvedModule' : must return a value") << OutputParserTester::STDOUT
             << QString() << QString()
             << (QList<Task>()
                 << Task(Task::Error,

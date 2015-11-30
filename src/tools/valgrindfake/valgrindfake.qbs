@@ -2,7 +2,7 @@ import qbs
 
 CppApplication {
     name: "valgrind-fake"
-    type: "application"
+    consoleApplication: true
     destinationDirectory: project.ide_bin_path
     Depends { name: "Qt"; submodules: ["network", "xml"]; }
     files: [

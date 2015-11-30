@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,7 +31,7 @@
 #ifndef CUSTOMWIZARDPARAMETERS_H
 #define CUSTOMWIZARDPARAMETERS_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/iwizardfactory.h>
 
 #include <QStringList>
 #include <QMap>
@@ -40,7 +41,7 @@ QT_BEGIN_NAMESPACE
 class QIODevice;
 class QDebug;
 class QTemporaryFile;
-class QScriptEngine;
+class QJSEngine;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -63,7 +64,8 @@ public:
     bool mandatory;
 };
 
-struct CustomWizardFile {
+class CustomWizardFile {
+public:
     CustomWizardFile();
 
     QString source;
@@ -74,18 +76,20 @@ struct CustomWizardFile {
 };
 
 // Documentation inside.
-struct CustomWizardValidationRule {
+class CustomWizardValidationRule {
+public:
     // Validate a set of rules and return false + message on the first failing one.
     static bool validateRules(const QList<CustomWizardValidationRule> &rules,
                               const QMap<QString, QString> &replacementMap,
                               QString *errorMessage);
-    bool validate(QScriptEngine &, const QMap<QString, QString> &replacementMap) const;
+    bool validate(QJSEngine &, const QMap<QString, QString> &replacementMap) const;
     QString condition;
     QString message;
 };
 
 // Documentation inside.
-struct GeneratorScriptArgument {
+class GeneratorScriptArgument {
+public:
     enum Flags {
         // Omit this arguments if all field placeholders expanded to empty strings.
         OmitEmpty = 0x1,
@@ -107,12 +111,10 @@ public:
     CustomWizardParameters();
     void clear();
     ParseResult parse(QIODevice &device, const QString &configFileFullPath,
-                      Core::IWizard::Data *bp, QString *errorMessage);
-    ParseResult parse(const QString &configFileFullPath,
-                      Core::IWizard::Data *bp, QString *errorMessage);
-    QString toString() const;
+                      QString *errorMessage);
+    ParseResult parse(const QString &configFileFullPath, QString *errorMessage);
 
-    QString id;
+    Core::Id id;
     QString directory;
     QString klass;
     QList<CustomWizardFile> files;
@@ -124,6 +126,16 @@ public:
     QList<CustomWizardField> fields;
     QList<CustomWizardValidationRule> rules;
     int firstPageId;
+
+    // Wizard Factory data:
+    Core::IWizardFactory::WizardKind kind;
+    QIcon icon;
+    QString description;
+    QString displayName;
+    QString category;
+    QString displayCategory;
+    Core::FeatureSet requiredFeatures;
+    Core::IWizardFactory::WizardFlags flags;
 };
 
 // Documentation inside.

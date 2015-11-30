@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,7 @@
 #include "progressbar.h"
 #include "progressview.h"
 #include "../actionmanager/actionmanager.h"
+#include "../actionmanager/command.h"
 #include "../icontext.h"
 #include "../coreconstants.h"
 #include "../icore.h"
@@ -42,6 +44,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QEvent>
@@ -54,11 +57,14 @@
 #include <QTimer>
 #include <QVariant>
 
+#include <math.h>
+
 static const char kSettingsGroup[] = "Progress";
 static const char kDetailsPinned[] = "DetailsPinned";
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Utils;
 
 /*!
     \mainclass
@@ -262,6 +268,8 @@ using namespace Core::Internal;
     Sent when all tasks of a \a type have finished.
 */
 
+static ProgressManagerPrivate *m_instance = 0;
+
 ProgressManagerPrivate::ProgressManagerPrivate()
   : m_applicationTask(0),
     m_currentStatusDetailsWidget(0),
@@ -269,6 +277,7 @@ ProgressManagerPrivate::ProgressManagerPrivate()
     m_progressViewPinned(false),
     m_hovered(false)
 {
+    m_instance = this;
     m_progressView = new ProgressView;
     // withDelay, so the statusBarWidget has the chance to get the enter event
     connect(m_progressView, SIGNAL(hoveredChanged(bool)), this, SLOT(updateVisibilityWithDelay()));
@@ -277,18 +286,20 @@ ProgressManagerPrivate::ProgressManagerPrivate()
 
 ProgressManagerPrivate::~ProgressManagerPrivate()
 {
+    stopFadeOfSummaryProgress();
     qDeleteAll(m_taskList);
     m_taskList.clear();
     ExtensionSystem::PluginManager::removeObject(m_statusBarWidgetContainer);
     delete m_statusBarWidgetContainer;
     cleanup();
+    m_instance = 0;
 }
 
 void ProgressManagerPrivate::readSettings()
 {
     QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String(kSettingsGroup));
-    m_progressViewPinned = settings->value(QLatin1String(kDetailsPinned), true).toBool();
+    m_progressViewPinned = settings->value(QLatin1String(kDetailsPinned), false).toBool();
     settings->endGroup();
 }
 
@@ -296,7 +307,7 @@ void ProgressManagerPrivate::init()
 {
     readSettings();
 
-    m_statusBarWidgetContainer = new Core::StatusBarWidget;
+    m_statusBarWidgetContainer = new StatusBarWidget;
     m_statusBarWidget = new QWidget;
     QHBoxLayout *layout = new QHBoxLayout(m_statusBarWidget);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -319,7 +330,7 @@ void ProgressManagerPrivate::init()
     ToggleButton *toggleButton = new ToggleButton(m_statusBarWidget);
     layout->addWidget(toggleButton);
     m_statusBarWidgetContainer->setWidget(m_statusBarWidget);
-    m_statusBarWidgetContainer->setPosition(Core::StatusBarWidget::RightCorner);
+    m_statusBarWidgetContainer->setPosition(StatusBarWidget::RightCorner);
     ExtensionSystem::PluginManager::addObject(m_statusBarWidgetContainer);
     m_statusBarWidget->installEventFilter(this);
 
@@ -331,9 +342,8 @@ void ProgressManagerPrivate::init()
     p.fill(Qt::transparent);
     toggleProgressView->setIcon(QIcon(p));
     Command *cmd = ActionManager::registerAction(toggleProgressView,
-                                                 "QtCreator.ToggleProgressDetails",
-                                                 Context(Constants::C_GLOBAL));
-    cmd->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
+                                                 "QtCreator.ToggleProgressDetails");
+    cmd->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
                                                ? tr("Ctrl+Shift+0")
                                                : tr("Alt+Shift+0")));
     connect(toggleProgressView, SIGNAL(toggled(bool)), this, SLOT(progressDetailsToggled(bool)));
@@ -522,7 +532,7 @@ void ProgressManagerPrivate::fadeAwaySummaryProgress()
 {
     stopFadeOfSummaryProgress();
     m_opacityAnimation = new QPropertyAnimation(m_opacityEffect, "opacity");
-    m_opacityAnimation->setDuration(Utils::StyleHelper::progressFadeAnimationDuration);
+    m_opacityAnimation->setDuration(StyleHelper::progressFadeAnimationDuration);
     m_opacityAnimation->setEndValue(0.);
     connect(m_opacityAnimation, SIGNAL(finished()), this, SLOT(summaryProgressFinishedFading()));
     m_opacityAnimation->start(QAbstractAnimation::DeleteWhenStopped);
@@ -696,38 +706,38 @@ ToggleButton::ToggleButton(QWidget *parent)
     : QToolButton(parent)
 {
     setToolButtonStyle(Qt::ToolButtonIconOnly);
+    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+        QPalette p = palette();
+        p.setBrush(QPalette::Base, creatorTheme()->color(Theme::ToggleButtonBackgroundColor));
+        setPalette(p);
+    }
 }
 
 QSize ToggleButton::sizeHint() const
 {
-    return QSize(12, 12);
+    return QSize(13, 12); // Uneven width, because the arrow's width is also uneven.
 }
 
 void ToggleButton::paintEvent(QPaintEvent *event)
 {
     QToolButton::paintEvent(event);
     QPainter p(this);
-    QStyle *s = style();
     QStyleOption arrowOpt;
     arrowOpt.initFrom(this);
-    arrowOpt.rect = QRect(rect().center().x() - 3, rect().center().y() - 6, 9, 9);
-    s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
+    arrowOpt.rect.adjust(2, 0, -1, -2);
+    StyleHelper::drawArrow(QStyle::PE_IndicatorArrowUp, &p, &arrowOpt);
 }
 
 
-static ProgressManager *m_instance = 0;
-
 ProgressManager::ProgressManager()
 {
-    m_instance = this;
 }
 
 ProgressManager::~ProgressManager()
 {
-    m_instance = 0;
 }
 
-QObject *ProgressManager::instance()
+ProgressManager *ProgressManager::instance()
 {
     return m_instance;
 }
@@ -737,13 +747,64 @@ FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QStr
     return m_instance->doAddTask(future, title, type, flags);
 }
 
+/*!
+    Shows a progress indicator for task given by the QFuture given by
+    the QFutureInterface \a futureInterface.
+    The progress indicator shows the specified \a title along with the progress bar.
+    The progress indicator will increase monotonically with time, at \a expectedSeconds
+    it will reach about 80%, and continue to increase with a decreasingly slower rate.
+
+    \sa addTask
+*/
+
+FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futureInterface, const QString &title,
+                                              Id type, int expectedSeconds, ProgressFlags flags)
+{
+    QFutureInterface<void> dummy(futureInterface); // Need mutable to access .future()
+    FutureProgress *fp = m_instance->doAddTask(dummy.future(), title, type, flags);
+    (void) new ProgressTimer(fp, futureInterface, expectedSeconds);
+    return fp;
+}
+
 void ProgressManager::setApplicationLabel(const QString &text)
 {
     m_instance->doSetApplicationLabel(text);
 }
 
-void ProgressManager::cancelTasks(const Id type)
+void ProgressManager::cancelTasks(Id type)
 {
     if (m_instance)
         m_instance->doCancelTasks(type);
 }
+
+
+ProgressTimer::ProgressTimer(QObject *parent,
+                             const QFutureInterface<void> &futureInterface,
+                             int expectedSeconds)
+    : QTimer(parent),
+      m_futureInterface(futureInterface),
+      m_expectedTime(expectedSeconds),
+      m_currentTime(0)
+{
+    m_futureWatcher.setFuture(m_futureInterface.future());
+
+    m_futureInterface.setProgressRange(0, 100);
+    m_futureInterface.setProgressValue(0);
+
+    setInterval(1000); // 1 second
+    connect(this, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+    connect(&m_futureWatcher, SIGNAL(started()), this, SLOT(start()));
+}
+
+void ProgressTimer::handleTimeout()
+{
+    ++m_currentTime;
+
+    // This maps expectation to atan(1) to Pi/4 ~= 0.78, i.e. snaps
+    // from 78% to 100% when expectations are met at the time the
+    // future finishes. That's not bad for a random choice.
+    const double mapped = atan2(double(m_currentTime), double(m_expectedTime));
+    const double progress = 100 * 2 * mapped / 3.14;
+    m_futureInterface.setProgressValue(int(progress));
+}
+

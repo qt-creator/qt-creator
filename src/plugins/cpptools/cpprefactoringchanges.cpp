@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,26 +33,30 @@
 #include "cppqtstyleindenter.h"
 #include "cppcodeformatter.h"
 #include "cppmodelmanager.h"
+#include "cppworkingcopy.h"
+
 #include <projectexplorer/editorconfiguration.h>
 
 #include <utils/qtcassert.h>
 
-using namespace CPlusPlus;
-using namespace CppTools;
-using namespace Utils;
+#include <QTextDocument>
 
-class CppTools::CppRefactoringChangesData : public TextEditor::RefactoringChangesData
+using namespace CPlusPlus;
+
+namespace CppTools {
+
+class CppRefactoringChangesData : public TextEditor::RefactoringChangesData
 {
 public:
     CppRefactoringChangesData(const Snapshot &snapshot)
         : m_snapshot(snapshot)
-        , m_modelManager(Internal::CppModelManager::instance())
+        , m_modelManager(CppModelManager::instance())
         , m_workingCopy(m_modelManager->workingCopy())
     {}
 
     virtual void indentSelection(const QTextCursor &selection,
                                  const QString &fileName,
-                                 const TextEditor::BaseTextDocument *textDocument) const
+                                 const TextEditor::TextDocument *textDocument) const
     {
         const TextEditor::TabSettings &tabSettings =
             ProjectExplorer::actualTabSettings(fileName, textDocument);
@@ -62,7 +67,7 @@ public:
 
     virtual void reindentSelection(const QTextCursor &selection,
                                    const QString &fileName,
-                                   const TextEditor::BaseTextDocument *textDocument) const
+                                   const TextEditor::TextDocument *textDocument) const
     {
         const TextEditor::TabSettings &tabSettings =
             ProjectExplorer::actualTabSettings(fileName, textDocument);
@@ -73,12 +78,12 @@ public:
 
     virtual void fileChanged(const QString &fileName)
     {
-        m_modelManager->updateSourceFiles(QStringList(fileName));
+        m_modelManager->updateSourceFiles(QSet<QString>() << fileName);
     }
 
     Snapshot m_snapshot;
-    CppModelManagerInterface *m_modelManager;
-    CppModelManagerInterface::WorkingCopy m_workingCopy;
+    CppModelManager *m_modelManager;
+    WorkingCopy m_workingCopy;
 
 };
 
@@ -92,7 +97,7 @@ CppRefactoringChangesData *CppRefactoringChanges::data() const
     return static_cast<CppRefactoringChangesData *>(m_data.data());
 }
 
-CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::BaseTextEditorWidget *editor, const Document::Ptr &document)
+CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::TextEditorWidget *editor, const Document::Ptr &document)
 {
     CppRefactoringFilePtr result(new CppRefactoringFile(editor));
     result->setCppDocument(document);
@@ -113,10 +118,6 @@ CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const QString &fi
     CppRefactoringFilePtr result(new CppRefactoringFile(document, fileName));
     result->m_data = m_data;
 
-    Document::Ptr cppDocument = data()->m_snapshot.document(fileName);
-    if (cppDocument)
-        result->setCppDocument(cppDocument);
-
     return result;
 }
 
@@ -136,7 +137,7 @@ CppRefactoringFile::CppRefactoringFile(QTextDocument *document, const QString &f
     : RefactoringFile(document, fileName)
 { }
 
-CppRefactoringFile::CppRefactoringFile(TextEditor::BaseTextEditorWidget *editor)
+CppRefactoringFile::CppRefactoringFile(TextEditor::TextEditorWidget *editor)
     : RefactoringFile(editor)
 { }
 
@@ -195,24 +196,24 @@ bool CppRefactoringFile::isCursorOn(const AST *ast) const
     return false;
 }
 
-ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
+Utils::ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
 {
     const Token &token = tokenAt(tokenIndex);
     unsigned line, column;
-    cppDocument()->translationUnit()->getPosition(token.begin(), &line, &column);
+    cppDocument()->translationUnit()->getPosition(token.utf16charsBegin(), &line, &column);
     const int start = document()->findBlockByNumber(line - 1).position() + column - 1;
-    return ChangeSet::Range(start, start + token.length());
+    return Utils::ChangeSet::Range(start, start + token.utf16chars());
 }
 
-ChangeSet::Range CppRefactoringFile::range(AST *ast) const
+Utils::ChangeSet::Range CppRefactoringFile::range(AST *ast) const
 {
-    return ChangeSet::Range(startOf(ast), endOf(ast));
+    return Utils::ChangeSet::Range(startOf(ast), endOf(ast));
 }
 
 int CppRefactoringFile::startOf(unsigned index) const
 {
     unsigned line, column;
-    cppDocument()->translationUnit()->getPosition(tokenAt(index).begin(), &line, &column);
+    cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsBegin(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
@@ -224,7 +225,7 @@ int CppRefactoringFile::startOf(const AST *ast) const
 int CppRefactoringFile::endOf(unsigned index) const
 {
     unsigned line, column;
-    cppDocument()->translationUnit()->getPosition(tokenAt(index).end(), &line, &column);
+    cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsEnd(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
@@ -239,9 +240,9 @@ void CppRefactoringFile::startAndEndOf(unsigned index, int *start, int *end) con
 {
     unsigned line, column;
     Token token(tokenAt(index));
-    cppDocument()->translationUnit()->getPosition(token.begin(), &line, &column);
+    cppDocument()->translationUnit()->getPosition(token.utf16charsBegin(), &line, &column);
     *start = document()->findBlockByNumber(line - 1).position() + column - 1;
-    *end = *start + token.length();
+    *end = *start + token.utf16chars();
 }
 
 QString CppRefactoringFile::textOf(const AST *ast) const
@@ -264,3 +265,5 @@ void CppRefactoringFile::fileChanged()
     m_cppDocument.clear();
     RefactoringFile::fileChanged();
 }
+
+} // namespace CppTools

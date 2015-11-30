@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,32 +9,34 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "settingspage.h"
-#include "designersettings.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
+#include "designersettings.h"
+#include "puppetcreator.h"
+
+#include <coreplugin/icore.h>
 
 #include <qmljseditor/qmljseditorconstants.h>
+#include <qmljstools/qmljstoolsconstants.h>
 
+#include <QLineEdit>
 #include <QTextStream>
+#include <QMessageBox>
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
@@ -43,7 +45,14 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-    connect(m_ui.designerEnableDebuggerCheckBox, SIGNAL(toggled(bool)), this, SLOT(debugViewEnabledToggled(bool)));
+    connect(m_ui.designerEnableDebuggerCheckBox, &QCheckBox::toggled,
+            this, &SettingsPageWidget::debugViewEnabledToggled);
+    m_ui.resetFallbackPuppetPathButton->hide();
+    connect(m_ui.resetFallbackPuppetPathButton, &QPushButton::clicked, this, &SettingsPageWidget::resetFallbackPuppetPath);
+    connect(m_ui.resetQmlPuppetBuildPathButton, &QPushButton::clicked, this, &SettingsPageWidget::resetQmlPuppetBuildPath);
+    connect(m_ui.useDefaultPuppetRadioButton, &QRadioButton::toggled, m_ui.fallbackPuppetPathLineEdit, &QLineEdit::setEnabled);
+    connect(m_ui.useQtRelatedPuppetRadioButton, &QRadioButton::toggled, m_ui.puppetBuildPathLineEdit, &QLineEdit::setEnabled);
+    connect(m_ui.resetStyle, &QPushButton::clicked, this, &SettingsPageWidget::resetQmlStyle);
 }
 
 DesignerSettings SettingsPageWidget::settings() const
@@ -57,6 +66,18 @@ DesignerSettings SettingsPageWidget::settings() const
     designerSettings.designerWarningsInEditor = m_ui.designerWarningsInEditorCheckBox->isChecked();
     designerSettings.showDebugView = m_ui.designerShowDebuggerCheckBox->isChecked();
     designerSettings.enableDebugView = m_ui.designerEnableDebuggerCheckBox->isChecked();
+    designerSettings.useOnlyFallbackPuppet = m_ui.useDefaultPuppetRadioButton->isChecked();
+    designerSettings.controlsStyle = m_ui.styleLineEdit->text();
+
+    if (!m_ui.fallbackPuppetPathLineEdit->path().isEmpty() &&
+        m_ui.fallbackPuppetPathLineEdit->path() != PuppetCreator::defaultPuppetFallbackDirectory()) {
+        designerSettings.puppetFallbackDirectory = m_ui.fallbackPuppetPathLineEdit->path();
+    }
+
+    if (!m_ui.puppetBuildPathLineEdit->path().isEmpty() &&
+        m_ui.puppetBuildPathLineEdit->path() != PuppetCreator::defaultPuppetToplevelBuildDirectory()) {
+        designerSettings.puppetToplevelBuildDirectory = m_ui.puppetBuildPathLineEdit->path();
+    }
 
     return designerSettings;
 }
@@ -71,6 +92,34 @@ void SettingsPageWidget::setSettings(const DesignerSettings &designerSettings)
     m_ui.designerWarningsInEditorCheckBox->setChecked(designerSettings.designerWarningsInEditor);
     m_ui.designerShowDebuggerCheckBox->setChecked(designerSettings.showDebugView);
     m_ui.designerEnableDebuggerCheckBox->setChecked(designerSettings.enableDebugView);
+    m_ui.useDefaultPuppetRadioButton->setChecked(designerSettings.useOnlyFallbackPuppet);
+    m_ui.useQtRelatedPuppetRadioButton->setChecked(!designerSettings.useOnlyFallbackPuppet);
+    m_ui.styleLineEdit->setText(designerSettings.controlsStyle);
+
+    if (designerSettings.puppetFallbackDirectory.isEmpty())
+        resetFallbackPuppetPath();
+    else
+        m_ui.fallbackPuppetPathLineEdit->setPath(designerSettings.puppetFallbackDirectory);
+
+    if (designerSettings.puppetToplevelBuildDirectory.isEmpty())
+        resetQmlPuppetBuildPath();
+    else
+        m_ui.puppetBuildPathLineEdit->setPath(designerSettings.puppetToplevelBuildDirectory);
+}
+
+void SettingsPageWidget::resetFallbackPuppetPath()
+{
+    m_ui.fallbackPuppetPathLineEdit->setPath(PuppetCreator::defaultPuppetFallbackDirectory());
+}
+
+void SettingsPageWidget::resetQmlPuppetBuildPath()
+{
+    m_ui.puppetBuildPathLineEdit->setPath(PuppetCreator::defaultPuppetToplevelBuildDirectory());
+}
+
+void SettingsPageWidget::resetQmlStyle()
+{
+    m_ui.styleLineEdit->setText(QString());
 }
 
 void SettingsPageWidget::debugViewEnabledToggled(bool b)
@@ -87,7 +136,7 @@ SettingsPage::SettingsPage() :
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
     setDisplayCategory(QCoreApplication::translate("QmlJSEditor",
         QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
-    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_QML_ICON));
+    setCategoryIcon(QLatin1String(QmlJSTools::Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
 QWidget *SettingsPage::widget()
@@ -103,7 +152,17 @@ void SettingsPage::apply()
 {
     if (!m_widget) // page was never shown
         return;
-    QmlDesignerPlugin::instance()->setSettings(m_widget->settings());
+
+    DesignerSettings currentDesignerSettings(QmlDesignerPlugin::instance()->settings());
+    DesignerSettings newDesignerSettings(m_widget->settings());
+
+    if (currentDesignerSettings.puppetFallbackDirectory != newDesignerSettings.puppetFallbackDirectory ||
+        currentDesignerSettings.puppetToplevelBuildDirectory != newDesignerSettings.puppetToplevelBuildDirectory) {
+        QMessageBox::information(Core::ICore::mainWindow(), tr("Restart Required"),
+            tr("The QML emulation layer path changes will take effect after a restart of the QML Emulation layer or Qt Creator."));
+    }
+
+    QmlDesignerPlugin::instance()->setSettings(newDesignerSettings);
 }
 
 void SettingsPage::finish()

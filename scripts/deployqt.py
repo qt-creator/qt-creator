@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 ################################################################################
-# Copyright (C) 2014 Digia Plc
+# Copyright (C) The Qt Company Ltd.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
 #   * Redistributions in binary form must reproduce the above copyright notice,
 #     this list of conditions and the following disclaimer in the documentation
 #     and/or other materials provided with the distribution.
-#   * Neither the name of Digia Plc, nor the names of its contributors
+#   * Neither the name of The Qt Company Ltd, nor the names of its contributors
 #     may be used to endorse or promote products derived from this software
 #     without specific prior written permission.
 #
@@ -32,9 +32,10 @@ import sys
 import getopt
 import subprocess
 import re
-import string
 import shutil
 from glob import glob
+
+import common
 
 ignoreErrors = False
 debug_build = False
@@ -46,11 +47,11 @@ def which(program):
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
-    fpath, fname = os.path.split(program)
+    fpath = os.path.dirname(program)
     if fpath:
         if is_exe(program):
             return program
-        if sys.platform.startswith('win'):
+        if common.is_windows_platform():
             if is_exe(program + ".exe"):
                 return program  + ".exe"
     else:
@@ -58,7 +59,7 @@ def which(program):
             exe_file = os.path.join(path, program)
             if is_exe(exe_file):
                 return exe_file
-            if sys.platform.startswith('win'):
+            if common.is_windows_platform():
                 if is_exe(exe_file + ".exe"):
                     return exe_file  + ".exe"
 
@@ -72,7 +73,7 @@ def is_debug(fpath):
     if coredebug.search(fpath):
         return True
     output = subprocess.check_output(['dumpbin', '/imports', fpath])
-    return coredebug.search(output)
+    return coredebug.search(output) != None
 
 def is_debug_build(install_dir):
     return is_debug(os.path.join(install_dir, 'bin', 'qtcreator.exe'))
@@ -86,121 +87,88 @@ def op_failed(details = None):
     else:
         print("Error: operation failed, but proceeding gracefully.")
 
-def fix_rpaths_helper(chrpath_bin, install_dir, dirpath, filenames):
-    # patch file
-    for filename in filenames:
-        fpath = os.path.join(dirpath, filename)
-        relpath = os.path.relpath(install_dir+'/lib/qtcreator', dirpath)
-        command = [chrpath_bin, '-r', '$ORIGIN/'+relpath, fpath]
-        print fpath, ':', command
-        try:
-            subprocess.check_call(command)
-        except:
-            op_failed()
-
-def check_unix_binary_exec_helper(dirpath, filename):
-    """ Whether a file is really a binary executable and not a script (unix only)"""
-    fpath = os.path.join(dirpath, filename)
-    if os.path.exists(fpath) and os.access(fpath, os.X_OK):
-        with open(fpath) as f:
-            return f.read(2) != "#!"
-
-def check_unix_library_helper(dirpath, filename):
-    """ Whether a file is really a library and not a symlink (unix only)"""
-    fpath = os.path.join(dirpath, filename)
-    return filename.find('.so') != -1 and not os.path.islink(fpath)
-
-def fix_rpaths(chrpath_bin, install_dir):
-    print "fixing rpaths..."
-    for dirpath, dirnames, filenames in os.walk(os.path.join(install_dir, 'bin')):
-        #TODO remove library_helper once all libs moved out of bin/ on linux
-        filenames = [filename for filename in filenames if check_unix_binary_exec_helper(dirpath, filename) or check_unix_library_helper(dirpath, filename)]
-        fix_rpaths_helper(chrpath_bin, install_dir, dirpath, filenames)
-    for dirpath, dirnames, filenames in os.walk(os.path.join(install_dir, 'lib')):
-        filenames = [filename for filename in filenames if check_unix_library_helper(dirpath, filename)]
-        fix_rpaths_helper(chrpath_bin, install_dir, dirpath, filenames)
-
-def windows_debug_files_filter(filename):
+def is_ignored_windows_file(use_debug, basepath, filename):
     ignore_patterns = ['.lib', '.pdb', '.exp', '.ilk']
     for ip in ignore_patterns:
         if filename.endswith(ip):
             return True
+    if filename.endswith('.dll'):
+        filepath = os.path.join(basepath, filename)
+        if use_debug != is_debug(filepath):
+            return True
     return False
 
-def copy_ignore_patterns_helper(dir, filenames):
-    if not sys.platform.startswith('win'):
-        return filenames
+def ignored_qt_lib_files(path, filenames):
+    if not common.is_windows_platform():
+        return []
+    return [fn for fn in filenames if is_ignored_windows_file(debug_build, path, fn)]
 
-    if debug_build:
-        wrong_dlls = filter(lambda filename: filename.endswith('.dll') and not is_debug(os.path.join(dir, filename)), filenames)
-    else:
-        wrong_dlls = filter(lambda filename: filename.endswith('.dll') and is_debug(os.path.join(dir, filename)), filenames)
-
-    filenames = wrong_dlls + filter(windows_debug_files_filter, filenames)
-    return filenames
-
-def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_dir, plugins, imports):
+def copy_qt_libs(target_qt_prefix_path, qt_libs_dir, qt_plugin_dir, qt_import_dir, qt_qml_dir, plugins, imports):
     print "copying Qt libraries..."
 
-    if sys.platform.startswith('win'):
+    if common.is_windows_platform():
         libraries = glob(os.path.join(qt_libs_dir, '*.dll'))
     else:
         libraries = glob(os.path.join(qt_libs_dir, '*.so.*'))
 
-    if sys.platform.startswith('win'):
-        dest = os.path.join(install_dir, 'bin')
+    if common.is_windows_platform():
+        lib_dest = os.path.join(target_qt_prefix_path)
     else:
-        dest = os.path.join(install_dir, 'lib', 'qtcreator')
+        lib_dest = os.path.join(target_qt_prefix_path, 'lib')
 
-    if sys.platform.startswith('win'):
-        if debug_build:
-            libraries = filter(lambda library: is_debug(library), libraries)
-        else:
-            libraries = filter(lambda library: not is_debug(library), libraries)
+    if not os.path.exists(lib_dest):
+        os.makedirs(lib_dest)
+
+    if common.is_windows_platform():
+        libraries = [lib for lib in libraries if debug_build == is_debug(lib)]
 
     for library in libraries:
-        print library, '->', dest
+        print library, '->', lib_dest
         if os.path.islink(library):
             linkto = os.readlink(library)
             try:
-                os.symlink(linkto, os.path.join(dest, os.path.basename(library)))
-            except:
+                os.symlink(linkto, os.path.join(lib_dest, os.path.basename(library)))
+            except OSError:
                 op_failed("Link already exists!")
         else:
-            shutil.copy(library, dest)
-
-    copy_ignore_func = None
-    if sys.platform.startswith('win'):
-        copy_ignore_func = copy_ignore_patterns_helper
+            shutil.copy(library, lib_dest)
 
     print "Copying plugins:", plugins
     for plugin in plugins:
-        target = os.path.join(install_dir, 'bin', 'plugins', plugin)
+        target = os.path.join(target_qt_prefix_path, 'plugins', plugin)
         if (os.path.exists(target)):
             shutil.rmtree(target)
         pluginPath = os.path.join(qt_plugin_dir, plugin)
         if (os.path.exists(pluginPath)):
-            shutil.copytree(pluginPath, target, ignore=copy_ignore_func, symlinks=True)
+            print('{0} -> {1}'.format(pluginPath, target))
+            common.copytree(pluginPath, target, ignore=ignored_qt_lib_files, symlinks=True)
 
     print "Copying imports:", imports
     for qtimport in imports:
-        target = os.path.join(install_dir, 'bin', 'imports', qtimport)
+        target = os.path.join(target_qt_prefix_path, 'imports', qtimport)
         if (os.path.exists(target)):
             shutil.rmtree(target)
-        shutil.copytree(os.path.join(qt_import_dir, qtimport), target, ignore=copy_ignore_func, symlinks=True)
+        import_path = os.path.join(qt_import_dir, qtimport)
+        if os.path.exists(import_path):
+            print('{0} -> {1}'.format(import_path, target))
+            common.copytree(import_path, target, ignore=ignored_qt_lib_files, symlinks=True)
 
     if (os.path.exists(qt_qml_dir)):
         print "Copying qt quick 2 imports"
-        target = os.path.join(install_dir, 'bin', 'qml')
+        target = os.path.join(target_qt_prefix_path, 'qml')
         if (os.path.exists(target)):
             shutil.rmtree(target)
-        shutil.copytree(qt_qml_dir, target, ignore=copy_ignore_func, symlinks=True)
+        print('{0} -> {1}'.format(qt_qml_dir, target))
+        common.copytree(qt_qml_dir, target, ignore=ignored_qt_lib_files, symlinks=True)
 
-def add_qt_conf(install_dir):
-    print "Creating qt.conf:"
-    f = open(install_dir + '/bin/qt.conf', 'w')
+def add_qt_conf(target_path, qt_prefix_path):
+    qtconf_filepath = os.path.join(target_path, 'qt.conf')
+    prefix_path = os.path.relpath(qt_prefix_path, target_path).replace('\\', '/')
+    print('Creating qt.conf in "{0}":'.format(qtconf_filepath))
+    f = open(qtconf_filepath, 'w')
     f.write('[Paths]\n')
-    f.write('Libraries=../lib/qtcreator\n')
+    f.write('Prefix={0}\n'.format(prefix_path))
+    f.write('Libraries={0}\n'.format('lib' if common.is_linux_platform() else '.'))
     f.write('Plugins=plugins\n')
     f.write('Imports=imports\n')
     f.write('Qml2Imports=qml\n')
@@ -215,36 +183,68 @@ def copy_translations(install_dir, qt_tr_dir):
         print translation, '->', tr_dir
         shutil.copy(translation, tr_dir)
 
-def copy_libclang(install_dir, llvm_install_dir):
-    libsource = ""
-    libtarget = ""
-    if sys.platform.startswith("win"):
-        libsource = os.path.join(llvm_install_dir, 'bin', 'libclang.dll')
-        libtarget = os.path.join(install_dir, 'bin')
+def copyPreservingLinks(source, destination):
+    if os.path.islink(source):
+        linkto = os.readlink(source)
+        destFilePath = destination
+        if os.path.isdir(destination):
+            destFilePath = os.path.join(destination, os.path.basename(source))
+        os.symlink(linkto, destFilePath)
     else:
-        libsource = os.path.join(llvm_install_dir, 'lib', 'libclang.so')
-        libtarget = os.path.join(install_dir, 'lib', 'qtcreator')
+        shutil.copy(source, destination)
+
+def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
+    # contains pairs of (source, target directory)
+    deployinfo = []
+    if common.is_windows_platform():
+        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'libclang.dll'),
+                           os.path.join(install_dir, 'bin')))
+        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang.exe'),
+                           os.path.join(install_dir, 'bin')))
+        deployinfo.append((os.path.join(llvm_install_dir, 'bin', 'clang-cl.exe'),
+                           os.path.join(install_dir, 'bin')))
+    else:
+        libsources = glob(os.path.join(llvm_install_dir, 'lib', 'libclang.so*'))
+        for libsource in libsources:
+            deployinfo.append((libsource, os.path.join(install_dir, 'lib', 'qtcreator')))
+        clangbinary = os.path.join(llvm_install_dir, 'bin', 'clang')
+        clangbinary_targetdir = os.path.join(install_dir, 'libexec', 'qtcreator')
+        deployinfo.append((clangbinary, clangbinary_targetdir))
+        # copy link target if clang is actually a symlink
+        if os.path.islink(clangbinary):
+            linktarget = os.readlink(clangbinary)
+            deployinfo.append((os.path.join(os.path.dirname(clangbinary), linktarget),
+                               os.path.join(clangbinary_targetdir, linktarget)))
+
     resourcesource = os.path.join(llvm_install_dir, 'lib', 'clang')
     resourcetarget = os.path.join(install_dir, 'share', 'qtcreator', 'cplusplus', 'clang')
+
     print "copying libclang..."
-    print libsource, '->', libtarget
-    shutil.copy(libsource, libtarget)
+    for source, target in deployinfo:
+        print source, '->', target
+        copyPreservingLinks(source, target)
+
+    if common.is_linux_platform():
+        # libclang was statically compiled, so there is no need for the RPATHs
+        # and they are confusing when fixing RPATHs later in the process
+        print "removing libclang RPATHs..."
+        for source, target in deployinfo:
+            if not os.path.islink(target):
+                targetfilepath = target if not os.path.isdir(target) else os.path.join(target, os.path.basename(source))
+                subprocess.check_call([chrpath_bin, '-d', targetfilepath])
+
     print resourcesource, '->', resourcetarget
     if (os.path.exists(resourcetarget)):
         shutil.rmtree(resourcetarget)
-    shutil.copytree(resourcesource, resourcetarget, symlinks=True)
-
-def readQmakeVar(qmake_bin, var):
-    pipe = os.popen(' '.join([qmake_bin, '-query', var]))
-    return pipe.read().rstrip('\n')
+    common.copytree(resourcesource, resourcetarget, symlinks=True)
 
 def main():
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], 'hi', ['help', 'ignore-errors'])
-    except:
+    except getopt.GetoptError:
         usage()
         sys.exit(2)
-    for o, a in opts:
+    for o, _ in opts:
         if o in ('-h', '--help'):
             usage()
             sys.exit(0)
@@ -258,7 +258,10 @@ def main():
         sys.exit(2)
 
     install_dir = args[0]
-
+    if common.is_linux_platform():
+        qt_deploy_prefix = os.path.join(install_dir, 'lib', 'Qt')
+    else:
+        qt_deploy_prefix = os.path.join(install_dir, 'bin')
     qmake_bin = 'qmake'
     if len(args) > 1:
         qmake_bin = args[1]
@@ -268,40 +271,44 @@ def main():
         print "Cannot find required binary 'qmake'."
         sys.exit(2)
 
-    if not sys.platform.startswith('win'):
+    chrpath_bin = None
+    if common.is_linux_platform():
         chrpath_bin = which('chrpath')
         if chrpath_bin == None:
             print "Cannot find required binary 'chrpath'."
             sys.exit(2)
 
-    QT_INSTALL_LIBS = readQmakeVar(qmake_bin, 'QT_INSTALL_LIBS')
-    QT_INSTALL_BINS = readQmakeVar(qmake_bin, 'QT_INSTALL_BINS')
-    QT_INSTALL_PLUGINS = readQmakeVar(qmake_bin, 'QT_INSTALL_PLUGINS')
-    QT_INSTALL_IMPORTS = readQmakeVar(qmake_bin, 'QT_INSTALL_IMPORTS')
-    QT_INSTALL_QML = readQmakeVar(qmake_bin, 'QT_INSTALL_QML')
-    QT_INSTALL_TRANSLATIONS = readQmakeVar(qmake_bin, 'QT_INSTALL_TRANSLATIONS')
+    qt_install_info = common.get_qt_install_info(qmake_bin)
+    QT_INSTALL_LIBS = qt_install_info['QT_INSTALL_LIBS']
+    QT_INSTALL_BINS = qt_install_info['QT_INSTALL_BINS']
+    QT_INSTALL_PLUGINS = qt_install_info['QT_INSTALL_PLUGINS']
+    QT_INSTALL_IMPORTS = qt_install_info['QT_INSTALL_IMPORTS']
+    QT_INSTALL_QML = qt_install_info['QT_INSTALL_QML']
+    QT_INSTALL_TRANSLATIONS = qt_install_info['QT_INSTALL_TRANSLATIONS']
 
-    plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platforminputcontexts', 'platforms', 'printsupport', 'sqldrivers']
+    plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes', 'platforminputcontexts', 'platforms', 'printsupport', 'sqldrivers', 'xcbglintegrations']
     imports = ['Qt', 'QtWebKit']
 
-    if sys.platform.startswith('win'):
+    if common.is_windows_platform():
         global debug_build
         debug_build = is_debug_build(install_dir)
 
-    if sys.platform.startswith('win'):
-      copy_qt_libs(install_dir, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
+    if common.is_windows_platform():
+        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     else:
-      copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
+        copy_qt_libs(qt_deploy_prefix, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
     if "LLVM_INSTALL_DIR" in os.environ:
-      copy_libclang(install_dir, os.environ["LLVM_INSTALL_DIR"])
+        deploy_libclang(install_dir, os.environ["LLVM_INSTALL_DIR"], chrpath_bin)
 
-    if not sys.platform.startswith('win'):
-        fix_rpaths(chrpath_bin, install_dir)
-    add_qt_conf(install_dir)
+    if not common.is_windows_platform():
+        print "fixing rpaths..."
+        common.fix_rpaths(install_dir, os.path.join(qt_deploy_prefix, 'lib'), qt_install_info, chrpath_bin)
+        add_qt_conf(os.path.join(install_dir, 'libexec', 'qtcreator'), qt_deploy_prefix) # e.g. for qml2puppet
+    add_qt_conf(os.path.join(install_dir, 'bin'), qt_deploy_prefix)
 
 if __name__ == "__main__":
-    if sys.platform == 'darwin':
+    if common.is_mac_platform():
         print "Mac OS is not supported by this script, please use macqtdeploy!"
         sys.exit(2)
     else:

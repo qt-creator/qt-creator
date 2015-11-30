@@ -10,10 +10,10 @@ defineReplace(prependAll) {
     return($$result)
 }
 
-XMLPATTERNS = $$targetPath($$[QT_INSTALL_BINS]/xmlpatterns)
-LUPDATE = $$targetPath($$[QT_INSTALL_BINS]/lupdate) -locations relative -no-ui-lines -no-sort
-LRELEASE = $$targetPath($$[QT_INSTALL_BINS]/lrelease)
-LCONVERT = $$targetPath($$[QT_INSTALL_BINS]/lconvert)
+XMLPATTERNS = $$shell_path($$[QT_INSTALL_BINS]/xmlpatterns)
+LUPDATE = $$shell_path($$[QT_INSTALL_BINS]/lupdate) -locations relative -no-ui-lines -no-sort
+LRELEASE = $$shell_path($$[QT_INSTALL_BINS]/lrelease)
+LCONVERT = $$shell_path($$[QT_INSTALL_BINS]/lconvert)
 
 wd = $$replace(IDE_SOURCE_TREE, /, $$QMAKE_DIR_SEP)
 
@@ -21,35 +21,41 @@ TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/qtcreator_,.ts)
 
 MIME_TR_H = $$OUT_PWD/mime_tr.h
 CUSTOMWIZARD_TR_H = $$OUT_PWD/customwizard_tr.h
+JSONWIZARD_TR_H = $$OUT_PWD/jsonwizard_tr.h
 QMLWIZARD_TR_H = $$OUT_PWD/qmlwizard_tr.h
 QTQUICKWIZARD_TR_H = $$OUT_PWD/qtquickwizard_tr.h
 EXTERNALTOOLS_TR_H = $$OUT_PWD/externaltools_tr.h
 
+win32: \
+    PREFIX = "file:///"
+else: \
+    PREFIX = "file://"
+
 for(dir, $$list($$files($$IDE_SOURCE_TREE/src/plugins/*))):MIMETYPES_FILES += $$files($$dir/*.mimetypes.xml)
-MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, |)\"
+MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/wizards/*, true))):CUSTOMWIZARD_FILES += $$files($$dir/wizard.xml)
-CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, |)\"
+CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/qml/*))):QMLWIZARD_FILES += $$files($$dir/template.xml)
-QMLWIZARD_FILES = \"$$join(QMLWIZARD_FILES, |)\"
+QMLWIZARD_FILES = \"$$join(QMLWIZARD_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/qtquick/*))):QTQUICKWIZARD_FILES += $$files($$dir/template.xml)
-QTQUICKWIZARD_FILES = \"$$join(QTQUICKWIZARD_FILES, |)\"
+QTQUICKWIZARD_FILES = \"$$join(QTQUICKWIZARD_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 for(file, $$list($$files($$IDE_SOURCE_TREE/src/share/qtcreator/externaltools/*))):EXTERNALTOOLS_FILES += $$files($$file)
-EXTERNALTOOLS_FILES = \"$$join(EXTERNALTOOLS_FILES, |)\"
+EXTERNALTOOLS_FILES = \"$$join(EXTERNALTOOLS_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 extract.commands += \
     $$XMLPATTERNS -output $$MIME_TR_H -param files=$$MIMETYPES_FILES $$PWD/extract-mimetypes.xq $$escape_expand(\\n\\t) \
     $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq $$escape_expand(\\n\\t) \
     $$XMLPATTERNS -output $$QMLWIZARD_TR_H -param files=$$QMLWIZARD_FILES $$PWD/extract-qmlwizards.xq $$escape_expand(\\n\\t) \
     $$XMLPATTERNS -output $$QTQUICKWIZARD_TR_H -param files=$$QTQUICKWIZARD_FILES $$PWD/extract-qtquickwizards.xq $$escape_expand(\\n\\t) \
-    $$XMLPATTERNS -output $$EXTERNALTOOLS_TR_H -param files=$$EXTERNALTOOLS_FILES $$PWD/extract-externaltools.xq
+    $$XMLPATTERNS -output $$EXTERNALTOOLS_TR_H -param files=$$EXTERNALTOOLS_FILES $$PWD/extract-externaltools.xq $$escape_expand(\\n\\t) \
+    $(QMAKE) -o Makefile.jsonwizard JSONWIZARD_TR_H=\"$$JSONWIZARD_TR_H\" TOP_LEVEL=\"$$IDE_SOURCE_TREE/share/qtcreator/templates/wizards\" $$PWD/jsonwizard_tr.pro
 QMAKE_EXTRA_TARGETS += extract
 
 plugin_sources = $$files($$IDE_SOURCE_TREE/src/plugins/*)
-win32:plugin_sources ~= s,\\\\,/,g
 plugin_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g$$i_flag
 plugin_sources -= src/plugins/plugins.pro \
     src/plugins/helloworld \ # just an example
@@ -57,19 +63,23 @@ plugin_sources -= src/plugins/plugins.pro \
     src/plugins/qtestlib \
     src/plugins/snippets \
     src/plugins/regexp
-sources = src/app src/libs $$plugin_sources src/shared share/qtcreator/qmldesigner \
+shared_sources = $$files($$IDE_SOURCE_TREE/src/shared/*)
+shared_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g$$i_flag
+shared_sources -= \
+    src/shared/qbs
+sources = src/app src/libs $$plugin_sources $$shared_sources share/qtcreator/qmldesigner \
           share/qtcreator/welcomescreen share/qtcreator/welcomescreen/widgets
 
 files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
 for(file, files) {
     lang = $$replace(file, .*_([^/]*)\\.ts, \\1)
     v = ts-$${lang}.commands
-    $$v = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$QMLWIZARD_TR_H $$QTQUICKWIZARD_TR_H $$EXTERNALTOOLS_TR_H -ts $$file
+    $$v = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$JSONWIZARD_TR_H $$QMLWIZARD_TR_H $$QTQUICKWIZARD_TR_H $$EXTERNALTOOLS_TR_H -ts $$file
     v = ts-$${lang}.depends
     $$v = extract
     QMAKE_EXTRA_TARGETS += ts-$$lang
 }
-ts-all.commands = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$QMLWIZARD_TR_H $$QTQUICKWIZARD_TR_H $$EXTERNALTOOLS_TR_H -ts $$files
+ts-all.commands = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$JSONWIZARD_TR_H $$QMLWIZARD_TR_H $$QTQUICKWIZARD_TR_H $$EXTERNALTOOLS_TR_H -ts $$files
 ts-all.depends = extract
 QMAKE_EXTRA_TARGETS += ts-all
 
@@ -132,6 +142,6 @@ isEmpty(vcproj) {
 }
 
 qmfiles.files = $$prependAll(LANGUAGES, $$OUT_PWD/qtcreator_,.qm)
-qmfiles.path = $$QTC_PREFIX/share/qtcreator/translations
+qmfiles.path = $$INSTALL_DATA_PATH/translations
 qmfiles.CONFIG += no_check_exist
 INSTALLS += qmfiles

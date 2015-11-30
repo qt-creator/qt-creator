@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -37,12 +38,14 @@
 #include "qmljsqrcparser.h"
 #include "qmljsconstants.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QDir>
-#include <QDebug>
 
 using namespace LanguageUtils;
-using namespace QmlJS;
 using namespace QmlJS::AST;
+
+namespace QmlJS {
 
 namespace {
 class ImportCacheKey
@@ -76,8 +79,7 @@ bool operator==(const ImportCacheKey &i1, const ImportCacheKey &i2)
 }
 }
 
-
-class QmlJS::LinkPrivate
+class LinkPrivate
 {
 public:
     Snapshot snapshot;
@@ -148,10 +150,14 @@ Link::Link(const Snapshot &snapshot, const ViewerContext &vContext, const Librar
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
     if (modelManager) {
         ModelManagerInterface::CppDataHash cppDataHash = modelManager->cppData();
-
-        // populate engine with types from C++
-        foreach (const ModelManagerInterface::CppData &cppData, cppDataHash) {
-            d->valueOwner->cppQmlTypes().load(cppData.exportedTypes);
+        {
+            // populate engine with types from C++
+            ModelManagerInterface::CppDataHashIterator cppDataHashIterator(cppDataHash);
+            while (cppDataHashIterator.hasNext()) {
+                cppDataHashIterator.next();
+                d->valueOwner->cppQmlTypes().load(cppDataHashIterator.key(),
+                                                  cppDataHashIterator.value().exportedTypes);
+            }
         }
 
         // build an object with the context properties from C++
@@ -198,17 +204,24 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
     // load builtin objects
     if (builtins.pluginTypeInfoStatus() == LibraryInfo::DumpDone
             || builtins.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileDone) {
-        valueOwner->cppQmlTypes().load(builtins.metaObjects());
+        valueOwner->cppQmlTypes().load(QLatin1String("<builtins>"), builtins.metaObjects());
     } else {
-        valueOwner->cppQmlTypes().load(CppQmlTypesLoader::defaultQtObjects);
+        valueOwner->cppQmlTypes().load(QLatin1String("<defaults>"), CppQmlTypesLoader::defaultQtObjects);
     }
 
     // load library objects shipped with Creator
-    valueOwner->cppQmlTypes().load(CppQmlTypesLoader::defaultLibraryObjects);
+    valueOwner->cppQmlTypes().load(QLatin1String("<defaultQt4>"), CppQmlTypesLoader::defaultLibraryObjects);
 
     if (document) {
         // do it on document first, to make sure import errors are shown
         Imports *imports = new Imports(valueOwner);
+
+        // Add custom imports for the opened document
+        auto providers = ExtensionSystem::PluginManager::getObjects<CustomImportsProvider>();
+        foreach (const auto &provider, providers)
+            foreach (const auto &import, provider->imports(valueOwner, document.data()))
+                importCache.insert(ImportCacheKey(import.info), import);
+
         populateImportedTypes(imports, document);
         importsPerDocument.insert(document.data(), QSharedPointer<Imports>(imports));
     }
@@ -260,7 +273,7 @@ void LinkPrivate::populateImportedTypes(Imports *imports, Document::Ptr doc)
                 imports->setImportFailed();
                 if (info.ast()) {
                     error(doc, info.ast()->fileNameToken,
-                          Link::tr("file or directory not found"));
+                          Link::tr("File or directory not found."));
                 }
                 break;
             default:
@@ -330,7 +343,7 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
                                                ->filesInQrcPath(path));
         while (iter.hasNext()) {
             iter.next();
-            if (Document::isQmlLikeLanguage(ModelManagerInterface::guessLanguageOfFile(iter.key()))) {
+            if (ModelManagerInterface::guessLanguageOfFile(iter.key()).isQmlLikeLanguage()) {
                 Document::Ptr importedDoc = snapshot.document(iter.value().at(0));
                 if (importedDoc && importedDoc->bind()->rootObjectValue()) {
                     const QString targetName = QFileInfo(iter.key()).baseName();
@@ -423,27 +436,35 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
         error(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
                                      importInfo.ast()->lastSourceLocation()),
               Link::tr(
-                  "QML module not found\n\n"
+                  "QML module not found.\n\n"
                   "Import paths:\n"
                   "%1\n\n"
                   "For qmake projects, use the QML_IMPORT_PATH variable to add import paths.\n"
+                  "For Qbs projects, declare and set a qmlImportPaths property in your product "
+                  "to add import paths.\n"
                   "For qmlproject projects, use the importPaths property to add import paths.").arg(
-                  importPaths.join(QLatin1String("\n"))));
+                  importPaths.join(QLatin1Char('\n'))));
     }
 
     return import;
 }
 
 bool LinkPrivate::importLibrary(Document::Ptr doc,
-                         const QString &libraryPath,
+                         const QString &libraryPath_,
                          Import *import,
                          const QString &importPath)
 {
     const ImportInfo &importInfo = import->info;
+    QString libraryPath = libraryPath_;
 
-    const LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-    if (!libraryInfo.isValid())
-        return false;
+    LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
+    if (!libraryInfo.isValid()) {
+        // try canonical path
+        libraryPath = QFileInfo(libraryPath).canonicalFilePath();
+        libraryInfo = snapshot.libraryInfo(libraryPath);
+        if (!libraryInfo.isValid())
+            return false;
+    }
 
     import->libraryPath = libraryPath;
 
@@ -452,7 +473,7 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
     if (const UiImport *ast = importInfo.ast())
         errorLoc = locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation());
 
-    if (!libraryInfo.plugins().isEmpty()) {
+    if (!libraryInfo.plugins().isEmpty() || !libraryInfo.typeInfos().isEmpty()) {
         if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::NoTypeInfo) {
             ModelManagerInterface *modelManager = ModelManagerInterface::instance();
             if (modelManager) {
@@ -477,14 +498,16 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
         } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError
                    || libraryInfo.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileError) {
             // Only underline import if package isn't described in .qmltypes anyway
+            // and is not a private package
             QString packageName = importInfo.name();
-            if (errorLoc.isValid() && (packageName.isEmpty() || !valueOwner->cppQmlTypes().hasModule(packageName))) {
+            if (errorLoc.isValid() && (packageName.isEmpty() || !valueOwner->cppQmlTypes().hasModule(packageName))
+                    && !packageName.endsWith(QLatin1String("private"), Qt::CaseInsensitive)) {
                 error(doc, errorLoc, libraryInfo.pluginTypeInfoError());
                 import->valid = false;
             }
         } else {
             const QString packageName = importInfo.name();
-            valueOwner->cppQmlTypes().load(libraryInfo.metaObjects(), packageName);
+            valueOwner->cppQmlTypes().load(libraryPath, libraryInfo.metaObjects(), packageName);
             foreach (const CppComponentValue *object, valueOwner->cppQmlTypes().createObjectsForImport(packageName, version)) {
                 import->object->setMember(object->className(), object);
             }
@@ -548,7 +571,7 @@ void LinkPrivate::loadQmldirComponents(ObjectValue *import, ComponentVersion ver
 
         importedTypes.insert(component.typeName);
         if (Document::Ptr importedDoc = snapshot.document(
-                    libraryPath + QDir::separator() + component.fileName)) {
+                    libraryPath + QLatin1Char('/') + component.fileName)) {
             if (ObjectValue *v = importedDoc->bind()->rootObjectValue())
                 import->setMember(component.typeName, v);
         }
@@ -579,7 +602,7 @@ void LinkPrivate::loadImplicitDefaultImports(Imports *imports)
         if (!import.object) {
             import.valid = true;
             import.info = info;
-            import.object = new ObjectValue(valueOwner);
+            import.object = new ObjectValue(valueOwner, QLatin1String("<defaults>"));
             foreach (const CppComponentValue *object,
                      valueOwner->cppQmlTypes().createObjectsForImport(
                          defaultPackage, maxVersion)) {
@@ -590,3 +613,5 @@ void LinkPrivate::loadImplicitDefaultImports(Imports *imports)
         imports->append(import);
     }
 }
+
+} // namespace QmlJS

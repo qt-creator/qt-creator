@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,55 +9,62 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "texteditorplugin.h"
 
-#include "findinfiles.h"
+#include "texteditor.h"
 #include "findincurrentfile.h"
+#include "findinfiles.h"
 #include "findinopenfiles.h"
 #include "fontsettings.h"
+#include "generichighlighter/manager.h"
 #include "linenumberfilter.h"
-#include "texteditorsettings.h"
-#include "textfilewizard.h"
-#include "plaintexteditorfactory.h"
-#include "plaintexteditor.h"
 #include "outlinefactory.h"
+#include "plaintexteditorfactory.h"
 #include "snippets/plaintextsnippetprovider.h"
-#include "basetextmarkregistry.h"
-#include <texteditor/generichighlighter/manager.h>
+#include "texteditoractionhandler.h"
+#include "texteditorsettings.h"
+#include "textmarkregistry.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/variablemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/texteditoractionhandler.h>
+
+#include <texteditor/icodestylepreferences.h>
+#include <texteditor/tabsettings.h>
+
 #include <utils/qtcassert.h>
+#include <utils/macroexpander.h>
 
 #include <QtPlugin>
 #include <QAction>
 #include <QDir>
 #include <QTemporaryFile>
 
-using namespace TextEditor;
-using namespace TextEditor::Internal;
+using namespace Core;
+
+namespace TextEditor {
+namespace Internal {
 
 static const char kCurrentDocumentSelection[] = "CurrentDocument:Selection";
 static const char kCurrentDocumentRow[] = "CurrentDocument:Row";
@@ -66,13 +73,11 @@ static const char kCurrentDocumentRowCount[] = "CurrentDocument:RowCount";
 static const char kCurrentDocumentColumnCount[] = "CurrentDocument:ColumnCount";
 static const char kCurrentDocumentFontSize[] = "CurrentDocument:FontSize";
 
-TextEditorPlugin *TextEditorPlugin::m_instance = 0;
+static TextEditorPlugin *m_instance = 0;
 
 TextEditorPlugin::TextEditorPlugin()
   : m_settings(0),
-    m_editorFactory(0),
-    m_lineNumberFilter(0),
-    m_searchResultWindow(0)
+    m_lineNumberFilter(0)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
@@ -83,111 +88,43 @@ TextEditorPlugin::~TextEditorPlugin()
     m_instance = 0;
 }
 
-TextEditorPlugin *TextEditorPlugin::instance()
-{
-    return m_instance;
-}
-
-static const char wizardCategoryC[] = "U.General";
-
-static inline QString wizardDisplayCategory()
-{
-    return TextEditorPlugin::tr("General");
-}
-
-// A wizard that quickly creates a scratch buffer
-// based on a temporary file without prompting for a path.
-class ScratchFileWizard : public Core::IWizard
-{
-    Q_OBJECT
-
-public:
-    ScratchFileWizard()
-    {
-        setWizardKind(FileWizard);
-        setDescription(TextEditorPlugin::tr("Creates a scratch buffer using a temporary file."));
-        setDisplayName(TextEditorPlugin::tr("Scratch Buffer"));
-        setId(QLatin1String("Z.ScratchFile"));
-        setCategory(QLatin1String(wizardCategoryC));
-        setDisplayCategory(wizardDisplayCategory());
-        setFlags(Core::IWizard::PlatformIndependent);
-    }
-
-    void runWizard(const QString &, QWidget *, const QString &, const QVariantMap &)
-    { createFile(); }
-
-public Q_SLOTS:
-    virtual void createFile();
-};
-
-void ScratchFileWizard::createFile()
-{
-    QString tempPattern = QDir::tempPath();
-    if (!tempPattern.endsWith(QLatin1Char('/')))
-        tempPattern += QLatin1Char('/');
-    tempPattern += QLatin1String("scratchXXXXXX.txt");
-    QTemporaryFile file(tempPattern);
-    file.setAutoRemove(false);
-    QTC_ASSERT(file.open(), return; );
-    file.close();
-    Core::EditorManager::openEditor(file.fileName());
-}
-
 // ExtensionSystem::PluginInterface
 bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
-        return false;
-
-    TextFileWizard *wizard = new TextFileWizard(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT),
-                                                QLatin1String("text$"));
-    wizard->setWizardKind(Core::IWizard::FileWizard);
-    wizard->setDescription(tr("Creates a text file. The default file extension is <tt>.txt</tt>. "
-                                       "You can specify a different extension as part of the filename."));
-    wizard->setDisplayName(tr("Text File"));
-    wizard->setCategory(QLatin1String(wizardCategoryC));
-    wizard->setDisplayCategory(wizardDisplayCategory());
-    wizard->setFlags(Core::IWizard::PlatformIndependent);
-
-    // Add text file wizard
-    addAutoReleasedObject(wizard);
-    ScratchFileWizard *scratchFile = new ScratchFileWizard;
-    addAutoReleasedObject(scratchFile);
+    Q_UNUSED(errorMessage)
 
     m_settings = new TextEditorSettings(this);
 
     // Add plain text editor factory
-    m_editorFactory = new PlainTextEditorFactory;
-    addAutoReleasedObject(m_editorFactory);
+    addAutoReleasedObject(new PlainTextEditorFactory);
 
     // Goto line functionality for quick open
     m_lineNumberFilter = new LineNumberFilter;
     addAutoReleasedObject(m_lineNumberFilter);
 
-    Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
+    Context context(TextEditor::Constants::C_TEXTEDITOR);
 
     // Add shortcut for invoking automatic completion
     QAction *completionAction = new QAction(tr("Trigger Completion"), this);
-    Core::Command *command = Core::ActionManager::registerAction(completionAction, Constants::COMPLETE_THIS, context);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
-    connect(completionAction, SIGNAL(triggered()), this, SLOT(invokeCompletion()));
+    Command *command = ActionManager::registerAction(completionAction, Constants::COMPLETE_THIS, context);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
+    connect(completionAction, &QAction::triggered, []() {
+        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+            editor->editorWidget()->invokeAssist(Completion);
+    });
 
     // Add shortcut for invoking quick fix options
-    QAction *quickFixAction = new QAction(tr("Trigger Quick Fix"), this);
-    Core::Command *quickFixCommand = Core::ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
+    QAction *quickFixAction = new QAction(tr("Trigger Refactoring Action"), this);
+    Command *quickFixCommand = ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
     quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
-    connect(quickFixAction, SIGNAL(triggered()), this, SLOT(invokeQuickFix()));
-
-    // Add shortcut for create a scratch buffer
-    QAction *scratchBufferAction = new QAction(tr("Create Scratch Buffer Using a Temporary File"), this);
-    Core::ActionManager::registerAction(scratchBufferAction, Constants::CREATE_SCRATCH_BUFFER, context);
-    connect(scratchBufferAction, SIGNAL(triggered()), scratchFile, SLOT(createFile()));
+    connect(quickFixAction, &QAction::triggered, []() {
+        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+            editor->editorWidget()->invokeAssist(QuickFix);
+    });
 
     // Generic highlighter.
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()),
-            Manager::instance(), SLOT(registerMimeTypes()));
+    connect(ICore::instance(), &ICore::coreOpened, Manager::instance(), &Manager::registerHighlightingFiles);
 
     // Add text snippet provider.
     addAutoReleasedObject(new PlainTextSnippetProvider);
@@ -195,108 +132,114 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_outlineFactory = new OutlineFactory;
     addAutoReleasedObject(m_outlineFactory);
 
-    m_baseTextMarkRegistry = new BaseTextMarkRegistry(this);
+    m_baseTextMarkRegistry = new TextMarkRegistry(this);
 
     return true;
 }
 
 void TextEditorPlugin::extensionsInitialized()
 {
-    m_searchResultWindow = Core::SearchResultWindow::instance();
-
     m_outlineFactory->setWidgetFactories(ExtensionSystem::PluginManager::getObjects<TextEditor::IOutlineWidgetFactory>());
 
-    connect(m_settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            this, SLOT(updateSearchResultsFont(TextEditor::FontSettings)));
+    connect(m_settings, &TextEditorSettings::fontSettingsChanged,
+            this, &TextEditorPlugin::updateSearchResultsFont);
 
     updateSearchResultsFont(m_settings->fontSettings());
+
+    connect(m_settings->codeStyle(), &ICodeStylePreferences::currentTabSettingsChanged,
+            this, &TextEditorPlugin::updateSearchResultsTabWidth);
+
+    updateSearchResultsTabWidth(m_settings->codeStyle()->currentTabSettings());
 
     addAutoReleasedObject(new FindInFiles);
     addAutoReleasedObject(new FindInCurrentFile);
     addAutoReleasedObject(new FindInOpenFiles);
 
-    Core::VariableManager::registerVariable(kCurrentDocumentSelection,
-        tr("Selected text within the current document."));
-    Core::VariableManager::registerVariable(kCurrentDocumentRow,
-        tr("Line number of the text cursor position in current document (starts with 1)."));
-    Core::VariableManager::registerVariable(kCurrentDocumentColumn,
-        tr("Column number of the text cursor position in current document (starts with 0)."));
-    Core::VariableManager::registerVariable(kCurrentDocumentRowCount,
-        tr("Number of lines visible in current document."));
-    Core::VariableManager::registerVariable(kCurrentDocumentColumnCount,
-        tr("Number of columns visible in current document."));
-    Core::VariableManager::registerVariable(kCurrentDocumentFontSize,
-        tr("Current document's font size in points."));
-    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
-            this, SLOT(updateVariable(QByteArray)));
-    connect(Core::ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
+    Utils::MacroExpander *expander = Utils::globalMacroExpander();
+
+    expander->registerVariable(kCurrentDocumentSelection,
+        tr("Selected text within the current document."),
+        []() -> QString {
+            QString value;
+            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
+                value = editor->selectedText();
+                value.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
+            }
+            return value;
+        });
+
+    expander->registerIntVariable(kCurrentDocumentRow,
+        tr("Line number of the text cursor position in current document (starts with 1)."),
+        []() -> int {
+            BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
+            return editor ? editor->currentLine() : 0;
+        });
+
+    expander->registerIntVariable(kCurrentDocumentColumn,
+        tr("Column number of the text cursor position in current document (starts with 0)."),
+        []() -> int {
+            BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
+            return editor ? editor->currentColumn() : 0;
+        });
+
+    expander->registerIntVariable(kCurrentDocumentRowCount,
+        tr("Number of lines visible in current document."),
+        []() -> int {
+            BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
+            return editor ? editor->rowCount() : 0;
+        });
+
+    expander->registerIntVariable(kCurrentDocumentColumnCount,
+        tr("Number of columns visible in current document."),
+        []() -> int {
+            BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
+            return editor ? editor->columnCount() : 0;
+        });
+
+    expander->registerIntVariable(kCurrentDocumentFontSize,
+        tr("Current document's font size in points."),
+        []() -> int {
+            BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
+            return editor ? editor->widget()->font().pointSize() : 0;
+        });
+
+
+    connect(ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
             this, SLOT(updateCurrentSelection(QString)));
 }
 
-void TextEditorPlugin::invokeCompletion()
+LineNumberFilter *TextEditorPlugin::lineNumberFilter()
 {
-    Core::IEditor *iface = Core::EditorManager::currentEditor();
-    if (BaseTextEditorWidget *w = qobject_cast<BaseTextEditorWidget *>(iface->widget()))
-        w->invokeAssist(Completion);
+    return m_instance->m_lineNumberFilter;
 }
 
-void TextEditorPlugin::invokeQuickFix()
+TextMarkRegistry *TextEditorPlugin::baseTextMarkRegistry()
 {
-    Core::IEditor *iface = Core::EditorManager::currentEditor();
-    if (BaseTextEditorWidget *w = qobject_cast<BaseTextEditorWidget *>(iface->widget()))
-        w->invokeAssist(QuickFix);
+    return m_instance->m_baseTextMarkRegistry;
 }
 
 void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 {
-    if (m_searchResultWindow) {
-        m_searchResultWindow->setTextEditorFont(QFont(settings.family(),
-                                                      settings.fontSize() * settings.fontZoom() / 100),
-                                                settings.formatFor(TextEditor::C_TEXT).foreground(),
-                                                settings.formatFor(TextEditor::C_TEXT).background(),
-                                                settings.formatFor(TextEditor::C_SEARCH_RESULT).foreground(),
-                                                settings.formatFor(TextEditor::C_SEARCH_RESULT).background());
+    if (auto window = SearchResultWindow::instance()) {
+        window->setTextEditorFont(QFont(settings.family(), settings.fontSize() * settings.fontZoom() / 100),
+                                  settings.formatFor(C_TEXT).foreground(),
+                                  settings.formatFor(C_TEXT).background(),
+                                  settings.formatFor(C_SEARCH_RESULT).foreground(),
+                                  settings.formatFor(C_SEARCH_RESULT).background());
     }
 }
 
-void TextEditorPlugin::updateVariable(const QByteArray &variable)
+void TextEditorPlugin::updateSearchResultsTabWidth(const TabSettings &tabSettings)
 {
-    static QSet<QByteArray> variables = QSet<QByteArray>()
-            << kCurrentDocumentSelection
-            << kCurrentDocumentRow
-            << kCurrentDocumentColumn
-            << kCurrentDocumentRowCount
-            << kCurrentDocumentColumnCount
-            << kCurrentDocumentFontSize;
-    if (variables.contains(variable)) {
-        QString value;
-        Core::IEditor *iface = Core::EditorManager::currentEditor();
-        ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
-        if (editor) {
-            if (variable == kCurrentDocumentSelection) {
-                value = editor->selectedText();
-                value.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
-            } else if (variable == kCurrentDocumentRow) {
-                value = QString::number(editor->currentLine());
-            } else if (variable == kCurrentDocumentColumn) {
-                value = QString::number(editor->currentColumn());
-            } else if (variable == kCurrentDocumentRowCount) {
-                value = QString::number(editor->rowCount());
-            } else if (variable == kCurrentDocumentColumnCount) {
-                value = QString::number(editor->columnCount());
-            } else if (variable == kCurrentDocumentFontSize) {
-                value = QString::number(editor->widget()->font().pointSize());
-            }
-        }
-        Core::VariableManager::insert(variable, value);
-    }
+    if (auto window = SearchResultWindow::instance())
+        window->setTabWidth(tabSettings.m_tabSize);
 }
 
 void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
-    if (ITextEditor *editor = qobject_cast<ITextEditor *>(Core::EditorManager::currentEditor())) {
+    if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
         const int pos = editor->position();
-        int anchor = editor->position(ITextEditor::Anchor);
+        int anchor = editor->position(AnchorPosition);
         if (anchor < 0) // no selection
             anchor = pos;
         int selectionLength = pos - anchor;
@@ -312,6 +255,5 @@ void TextEditorPlugin::updateCurrentSelection(const QString &text)
     }
 }
 
-Q_EXPORT_PLUGIN(TextEditorPlugin)
-
-#include "texteditorplugin.moc"
+} // namespace Internal
+} // namespace TextEditor

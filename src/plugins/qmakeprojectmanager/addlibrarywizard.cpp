@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -58,24 +59,17 @@ QStringList qt_clean_filter_list(const QString &filter)
     return f.split(QLatin1Char(' '), QString::SkipEmptyParts);
 }
 
-LibraryPathChooser::LibraryPathChooser(QWidget *parent)
-    : Utils::PathChooser(parent)
+static bool validateLibraryPath(const QString &path, const Utils::PathChooser *pathChooser,
+                                QString *errorMessage)
 {
-}
-
-bool LibraryPathChooser::validatePath(const QString &path, QString *errorMessage)
-{
-    bool result = PathChooser::validatePath(path, errorMessage);
-    if (!result)
-        return false;
-
+    Q_UNUSED(errorMessage);
     QFileInfo fi(path);
     if (!fi.exists())
         return false;
 
     const QString fileName = fi.fileName();
 
-    QStringList filters = qt_clean_filter_list(promptDialogFilter());
+    QStringList filters = qt_clean_filter_list(pathChooser->promptDialogFilter());
     for (int i = 0; i < filters.count(); i++) {
         QRegExp regExp(filters.at(i));
         regExp.setPatternSyntax(QRegExp::Wildcard);
@@ -90,17 +84,11 @@ AddLibraryWizard::AddLibraryWizard(const QString &fileName, QWidget *parent) :
 {
     setWindowTitle(tr("Add Library"));
     m_libraryTypePage = new LibraryTypePage(this);
+    addPage(m_libraryTypePage);
     m_detailsPage = new DetailsPage(this);
+    addPage(m_detailsPage);
     m_summaryPage = new SummaryPage(this);
-    const int libraryTypePageId = addPage(m_libraryTypePage);
-    const int detailsPageId = addPage(m_detailsPage);
-    const int summaryPageId = addPage(m_summaryPage);
-
-    Utils::WizardProgress *progress = wizardProgress();
-
-    progress->item(libraryTypePageId)->setTitle(tr("Type"));
-    progress->item(detailsPageId)->setTitle(tr("Details"));
-    progress->item(summaryPageId)->setTitle(tr("Summary"));
+    addPage(m_summaryPage);
 }
 
 AddLibraryWizard::~AddLibraryWizard()
@@ -184,6 +172,8 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
 
     // select the default
     m_internalRadio->setChecked(true);
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Type"));
 }
 
 AddLibraryWizard::LibraryKind LibraryTypePage::libraryKind() const
@@ -200,10 +190,18 @@ AddLibraryWizard::LibraryKind LibraryTypePage::libraryKind() const
 /////////////
 
 DetailsPage::DetailsPage(AddLibraryWizard *parent)
-    : QWizardPage(parent), m_libraryWizard(parent), m_libraryDetailsController(0)
+    : QWizardPage(parent), m_libraryWizard(parent)
 {
     m_libraryDetailsWidget = new Ui::LibraryDetailsWidget();
     m_libraryDetailsWidget->setupUi(this);
+    Utils::PathChooser * const libPathChooser = m_libraryDetailsWidget->libraryPathChooser;
+    const auto pathValidator = [libPathChooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
+        return libPathChooser->defaultValidationFunction()(edit, errorMessage)
+                && validateLibraryPath(libPathChooser->fileName().toString(), libPathChooser,
+                                       errorMessage);
+    };
+    libPathChooser->setValidationFunction(pathValidator);
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
 }
 
 bool DetailsPage::isComplete() const
@@ -281,6 +279,8 @@ SummaryPage::SummaryPage(AddLibraryWizard *parent)
     m_summaryLabel->setTextFormat(Qt::RichText);
     m_snippetLabel->setTextFormat(Qt::RichText);
     m_snippetLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Summary"));
 }
 
 void SummaryPage::initializePage()

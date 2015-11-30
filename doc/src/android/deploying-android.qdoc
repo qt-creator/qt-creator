@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -18,16 +18,16 @@
 
     /*!
 
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-deployment.html
     \page creator-deploying-android.html
-    \nextpage creator-deployment-bb10.html
+    \nextpage creator-deployment-embedded-linux.html
 
     \title Deploying Applications to Android Devices
 
-    On Android, applications are distributed in specially structured type of ZIP
-    packages called APK. \QC supports the following methods of deployment for
-    Android applications:
+    On Android, applications are distributed in a specially structured type of
+    ZIP package called an APK. \QC supports the following methods of deployment
+    for Android applications:
 
      \list
 
@@ -45,18 +45,15 @@
 
     \endlist
 
-    The default option depends on whether you are developing with Qt 4 or Qt 5.
-    The Necessitas SDK does not support bundling Qt libraries with applications,
-    so you must use Ministro when developing with Qt 4. To specify the
-    deployment method, select \gui Projects > \gui Run >
-    \gui {Deploy configurations} > \gui Details
+    To specify settings for application packages, select \uicontrol Projects >
+    \uicontrol {Build Android APK} > \uicontrol Details.
 
     \section1 Creating Distributable APK Packages
 
     To copy Qt libraries and files to the project directory and to bundle them
-    as part of the APK, select the \gui {Bundle Qt libraries in APK} option.
-    This is the default option when developing with Qt 5. It is not supported
-    when developing with Qt 4.
+    as part of the APK, select the \uicontrol {Bundle Qt libraries in APK} option.
+
+    \note Android 5 devices support only this option.
 
     \section1 Using Ministro to Install Qt Libraries
 
@@ -73,9 +70,7 @@
     created by \QC.
 
     To use Ministro to install the Qt libraries, select the
-    \gui {Use Ministro service to install Qt} option.
-
-    This is the default option when developing with Qt 4.
+    \uicontrol {Use Ministro service to install Qt} option.
 
     \section1 Deploying Qt Libraries for Debugging
 
@@ -89,21 +84,17 @@
     turn-around time, and is therefore convenient for testing the application
     during development.
 
-    Select the \gui {Deploy local Qt libraries to temporary directory} option to
+    Select the \uicontrol {Deploy local Qt libraries to temporary directory} option to
     deploy Qt libraries to the \c{/data/local/tmp/qt} folder on the device and
     to run the application against them.
 
-    To deploy new Qt libraries to the device, select
-    \gui {Clean Temporary Libraries Directory on Device}. The next time you
-    deploy the application, Qt libraries are copied to the device again.
+    \section1 Packaging Applications
 
-    \section1 Packaging Qt 4 Applications
-
-    When you select a \gui {Qt for Android Kit} that specifies Qt 4 for a
-    project, \QC creates and maintains a set of files that are required to make
-    your application run on Android devices.
-
-    \QC adds the following files to your project:
+    Because bundling applications as APK packages is not
+    trivial, Qt 5 provides a deployment tool called \c androiddeployqt.
+    When you deploy an application using a \uicontrol {Qt for Android Kit}, \QC uses
+    the \c androiddeployqt tool to create the necessary files and to bundle them
+    into an APK:
 
     \list
 
@@ -121,61 +112,50 @@
         \li Libraries and QML files, which can be included in the project
             depending on the deployment method that you select.
 
+        \li Gradle wrappers that are needed to download and use Gradle.
+
+        \li Gradle script that is needed by Java IDEs, such as Android Studio.
+            It allows the user to extend the Java part without copying our Java
+            sources. It also allows the IDEs to provide code completion, syntax
+            highlighting, and so on.
+
     \endlist
 
-    \QC adds the files to the project to a subdirectory called \c android. The
-    contents of the \c android folder are used to create a distributable
-    application package.
-
-    To view the packages that \QC created, select the
-    \gui {Open package location after is complete} check box.
-
-    To specify information for the Android manifest file, open it in \QC. For
-    more information, see \l{Editing Manifest Files}.
-
-    \section2 Specifying Settings for Qt 4 Packages
-
-    \include creator-projects-settings-run-android.qdocinc
-
-    \section1 Packaging Qt 5 Applications
-
-    Because bundling applications as APK packages is not
-    trivial, Qt 5 provides a deployment tool called \c androiddeployqt.
-    When you deploy an application using a \gui {Qt for Android Kit}, \QC uses
-    the \c androiddeployqt tool to create the necessary files and to bundle them
-    into an APK.
+    The Gradle wrappers and scripts are bundled only if you use
+    \l{Selecting the APK Build Tool}{Gradle} to build the application packages.
 
     To view the packages that the \c androiddeployqt tool created, select the
-    \gui {Open package location after build} check box.
+    \uicontrol {Open package location after build} check box.
 
     The packages are deployed on the connected Android devices. To switch the
     device used as a default device for the selected kit, select
-    \gui {Reset Default Devices}. The setting applies until you restart \QC.
+    \uicontrol Projects > \uicontrol Run >
+    \uicontrol {Reset Default Devices}. The setting applies until you restart \QC.
     For more information, see \l{Selecting Android Devices}.
 
     For more information about the \c androiddeployqt tool, see
     \l{Deploying an Application on Android}.
 
-    \section2 Specifying Settings for Qt 5 Packages
+    \section2 Specifying Settings for Packages
 
     You can specify settings for the \c androiddeployqt tool in \QC and in the
-    project .pro file. To specify settings in \QC, select
-    \gui Projects > \gui Run > \gui {Deploy configurations} > \gui Details.
+    project .pro file. To specify settings in \QC, select \uicontrol Projects >
+    \uicontrol {Build Android APK} > \uicontrol Details.
 
     \image qtcreator-android-deploy-configurations.png "Deploy configurations"
 
     The anddroiddeployqt tool uses the information in the project .pro file to
     create APKs. For more information about the qmake variables
     that you can set in the .pro file to tailor the APK, see
-     \l{Deploying an Application on Android#qmake-variables}{qmake Variables}.
+    \l{Deploying an Application on Android}.
 
     You can view information about what the anddroiddeployqt tool is doing in
-    the \gui {Compile Output} pane. To view additional information, select the
-    \gui {Verbose output} check box.
+    the \uicontrol {Compile Output} pane. To view additional information, select the
+    \uicontrol {Verbose output} check box.
 
     \section3 Selecting API Level
 
-    In the \gui {Android target SDK} field, you can select the API level to use
+    In the \uicontrol {Android build SDK} field, you can select the API level to use
     for building the application. Usually, you should select the newest API
     level available.
 
@@ -187,19 +167,146 @@
 
     \section3 Signing Android Packages
 
-    In the \gui {Sign Package} group you can sign the Android package by using
-    a private key from the keystore. To create new keys, select \gui Create.
+    To publish your application, you must sign it by using a \e {public-private
+    key pair} that consists of a \e certificate and a corresponding
+    \e {private key} and is identified by an \e alias. The key pair is used to
+    verify that the future versions of your application are actually created by
+    you.
 
-    \section2 Adding External Libraries
+    \warning Keep the key pair in a safe place and take back up copies, because
+    you cannot update the application if you lose the key pair.
+
+    You can use \QC to generate a keystore and a \e {self-signed} certificate.
+    The generated certificate has the structure of an X.509 v3 digital
+    certificate. It contains information about the version, serial number, and
+    validity period of the certificate, the ID of the algorithm that is used to
+    encrypt the data, the organization that issued the certificate, and the
+    \e subject (owner) of the certificate. In case of a self-signed certificate,
+    the issuer and owner of the certificate are the same. In addition, the
+    certificate contains information about the algorithm that is used to sign
+    the certificate, as well as the signature of the certificate.
+
+    The keystore is protected by a password. In addition, you can protect each
+    alias with its individual password.
+
+    When you sign an Android application, you must select a keystore that
+    contains certificates and a certificate alias from the keystore. The public
+    key (certificate) for the alias is embedded into the APK during signing.
+
+    To create a keystore and a self-signed certificate:
+
+    \list 1
+
+        \li In the \uicontrol Keystore field, select \uicontrol Create to create a new
+            keystore that contains one key pair in the \uicontrol {Create Keystore and
+            a Certificate} dialog:
+
+            \image qtcreator-android-certificate.png
+
+        \li In the \uicontrol Keystore group, enter a password to protect the
+            keystore.
+
+        \li In the \uicontrol Certificate group, specify the key size and validity
+            period of the certificate. You can specify a separate password to
+            protect the key pair or use the keystore password.
+
+        \li In the \uicontrol {Certificate Distinguished Names} group, enter
+            information about yourself and your company or organization that
+            identifies the issuer and the owner of the key pair.
+
+        \li Select \uicontrol Save.
+
+        \li In the \uicontrol {Keystore File Name} dialog, enter a name for the
+            keystore and select a location for it.
+
+        \li In the \uicontrol Keystore dialog, enter the keystore password to create
+            the key pair in the keystore.
+
+    \endlist
+
+    To sign an Android package by using a key pair, specify settings in the
+    \uicontrol {Sign package} group:
+
+    \list 1
+
+        \li In the \uicontrol Keystore field, select \uicontrol Choose to select an existing
+            keystore.
+
+        \li In the \uicontrol {Certificate alias} field, select an alias from the list
+            of key pairs that the keystore contains.
+
+        \li Select the \uicontrol {Sign package} check box to use the alias to
+            sign the Android package.
+
+    \endlist
+
+    \section3 Adding External Libraries
 
     \QC automatically detects which Qt libraries the application uses and adds
     them as dependencies. If the application needs external libraries, specify
-    them in the \gui {Additional Libraries} field. The libraries are copied into
+    them in the \uicontrol {Additional Libraries} field. The libraries are copied into
     your application's library folder and loaded on startup.
 
     For example, to enable OpenSSL in your application, add the paths to the
     required \c libssl.so and \c libcrypto.so libraries to the
-    \gui {Additional Libraries} field.
+    \uicontrol {Additional Libraries} field.
+
+    \section3 Editing Manifest Files
+
+    You can use the qmake variables to specify all
+    the settings you need for the \c androiddeployqt tool and you do not need an
+    Android manifest file until you want to publish the package in an
+    application store. To specify additional settings for APK packages, you can
+    create an Android manifest file and edit it in \QC. Select
+    \uicontrol {Create Templates} to create the file and to open it in the
+    Android Manifest Editor.
+
+    \image qtcreator-android-manifest-editor.png "Android Manifest Editor"
+
+    \list 1
+
+    \li In the \uicontrol {Package name} field, enter a package name for the application.
+    The application is launched by an automatically generated Java launcher that
+    is packaged with the application into an Android package (.apk). For more
+    information, see
+    \l{http://developer.android.com/guide/components/fundamentals.html}
+    {Android Application Fundamentals}.
+
+    \li You can specify an internal version number for the package in the
+    \uicontrol {Version code} field. It is used to determine whether one version of
+    the application is more recent than another. In the \uicontrol {Version name}
+    field, specify the version number that is shown to users.
+
+    \li In the \uicontrol {Minimum required SDK} field, select the minimum API level
+    required to run the application. The minimum supported API level is
+    android-9. \QC does not allow you to select an API
+    level that the Qt version specified for the kit does not support.
+
+    \li In the \uicontrol {Target SDK} field, select the targeted API level of the
+    application. This affects the activation of some compatibility features in
+    the OS. The value used by the \c androiddeployqt tool by default is 14, which
+    means that the overflow button in the system navigation bar will not be
+    enabled by default.
+
+    \li In the \uicontrol Application group, you can give the application a name and
+    select an icon for it. The three icon fields can contain different versions
+    of the icon with low, medium, and high DPI values, from left to right.
+    You can also give an activity a name and select the activity to run.
+
+    \li In the \uicontrol Permissions field, you can specify the permissions that your
+    application needs. Users are asked to grant the permissions when they
+    install the application. Android OS then grants the application access to
+    the appropriate data and features.
+
+    \li Select the \uicontrol {Include default permissions for Qt modules} and
+    \uicontrol {Include default features for Qt modules} check boxes to add the
+    permissions needed by Qt libraries.
+
+    \li To add permissions, select them in the list, and then select \uicontrol Add.
+
+    \endlist
+
+    Select the \uicontrol {XML Source} tab to edit the file in XML format.
 
     \section1 Installing Ministro
 
@@ -211,65 +318,12 @@
     from the Google Market or from the
     \l{http://necessitas.kde.org/necessitas/ministro.php}{Ministro} home page.
 
-    Then select \gui {Install Ministro from APK}.
+    Then select \uicontrol Projects > \uicontrol Run > \uicontrol {Install Ministro from APK}.
 
     You can use this option also to install any Android package (.apk).
 
     You can use this option to install applications on an Android Virtual
     Device (AVD).
 
-    \section1 Editing Manifest Files
-
-    When you develop with Qt 4, \QC creates the Android manifest file for you,
-    and you can open it for editing in the Android Manifest Editor.
-
-    When you develop with Qt 5, you can use the qmake variables to specify all
-    the settings you need for the \c androiddeployqt tool and you do not need an
-    Android manifest file until you want to publish the package in an
-    application store. To specify additional settings for APK packages, you can
-    create an Android manifest file and edit it in \QC. Select
-    \gui {Create AndroidManifest.xml} to create the file and to open it in the
-    Android Manifest Editor.
-
-    \image qtcreator-android-manifest-editor.png "Android Manifest Editor"
-
-    Select the \gui {XML Source} tab to edit the file in XML format.
-
-    In the \gui {Package name} field, enter a package name for the application.
-    The application is launched by an automatically generated Java launcher that
-    is packaged with the application into an Android package (.apk). For more
-    information, see
-    \l{http://developer.android.com/guide/components/fundamentals.html}
-    {Android Application Fundamentals}.
-
-    You can specify an internal version number for the package in the
-    \gui {Version code} field. It is used to determine whether one version of
-    the application is more recent than another. In the \gui {Version name}
-    field, specify the version number that is shown to users.
-
-    In the \gui {Minimum required SDK} field, select the minimum API level
-    required to run the application. The minimum API level is android-4 for
-    Necessitas and android-9 for Qt 5. \QC does not allow you to select an API
-    level that the Qt version specified for the kit does not support.
-
-    \note The android-4 API level does not support multitouch. If your
-    application needs multitouch, select a higher API level.
-
-    In the \gui {Target SDK} field, select the targeted API level of the
-    application. This affects the activation of some compatibility features in
-    the OS. The value used by the \c androiddeployqt tool by default is 14, which
-    means that the overflow button in the system navigation bar will not be
-    enabled by default.
-
-    In the \gui Application group, you can give the application a name and
-    select an icon for it. The three icon fields can contain different versions
-    of the icon with low, medium, and high DPI values, from left to right.
-
-    In the \gui Permissions field, you can specify the permissions that your
-    application needs. Users are asked to grant the permissions when they
-    install the application. Android OS then grants the application access to
-    the appropriate data and features.
-
-    To add permissions, select \gui Add and select permissions from the list.
 */
 

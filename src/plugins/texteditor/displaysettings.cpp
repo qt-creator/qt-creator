@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -45,6 +46,7 @@ static const char autoFoldFirstCommentKey[] = "AutoFoldFirstComment";
 static const char centerCursorOnScrollKey[] = "CenterCursorOnScroll";
 static const char openLinksInNextSplitKey[] = "OpenLinksInNextSplitKey";
 static const char displayFileEncodingKey[] = "DisplayFileEncoding";
+static const char scrollBarHighlightsKey[] = "ScrollBarHighlights";
 static const char groupPostfix[] = "DisplaySettings";
 
 namespace TextEditor {
@@ -63,7 +65,8 @@ DisplaySettings::DisplaySettings() :
     m_centerCursorOnScroll(false),
     m_openLinksInNextSplit(false),
     m_forceOpenLinksInNextSplit(false),
-    m_displayFileEncoding(false)
+    m_displayFileEncoding(false),
+    m_scrollBarHighlights(true)
 {
 }
 
@@ -86,6 +89,7 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll);
     s->setValue(QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit);
     s->setValue(QLatin1String(displayFileEncodingKey), m_displayFileEncoding);
+    s->setValue(QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights);
     s->endGroup();
 }
 
@@ -111,6 +115,7 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_centerCursorOnScroll = s->value(group + QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll).toBool();
     m_openLinksInNextSplit = s->value(group + QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit).toBool();
     m_displayFileEncoding = s->value(group + QLatin1String(displayFileEncodingKey), m_displayFileEncoding).toBool();
+    m_scrollBarHighlights = s->value(group + QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights).toBool();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const
@@ -129,6 +134,7 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_openLinksInNextSplit == ds.m_openLinksInNextSplit
         && m_forceOpenLinksInNextSplit == ds.m_forceOpenLinksInNextSplit
         && m_displayFileEncoding == ds.m_displayFileEncoding
+        && m_scrollBarHighlights == ds.m_scrollBarHighlights
         ;
 }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -67,11 +68,11 @@ void tst_SimpleReader::testWellFormed()
                     "   propertyBlah: false\n"
                     "}\n";
 
-    QmlJS::SimpleReaderNode::WeakPtr weak01;
-    QmlJS::SimpleReaderNode::WeakPtr weak02;
+    SimpleReaderNode::WeakPtr weak01;
+    SimpleReaderNode::WeakPtr weak02;
     {
-        QmlJS::SimpleReader reader;
-        QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+        SimpleReader reader;
+        SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
         QVERIFY(reader.errors().isEmpty());
         QVERIFY(rootNode);
         QVERIFY(rootNode->isValid());
@@ -89,7 +90,7 @@ void tst_SimpleReader::testWellFormed()
         QVERIFY(rootNode->children().first()->properties().contains("property01"));
         QCOMPARE(rootNode->children().first()->property("property01").toInt(), 10);
 
-        QmlJS::SimpleReaderNode::Ptr secondChild = rootNode->children().at(1);
+        SimpleReaderNode::Ptr secondChild = rootNode->children().at(1);
 
         QVERIFY(secondChild);
         QVERIFY(secondChild->isValid());
@@ -101,7 +102,7 @@ void tst_SimpleReader::testWellFormed()
 
         QCOMPARE(secondChild->children().count(), 1);
 
-        QmlJS::SimpleReaderNode::Ptr innerChild = secondChild->children().first();
+        SimpleReaderNode::Ptr innerChild = secondChild->children().first();
 
         QVERIFY(innerChild);
         QVERIFY(innerChild->isValid());
@@ -133,8 +134,8 @@ void tst_SimpleReader::testIllFormed01()
                     "   }\n"
                     "   propertyBlah: false\n"
                     "}\n";
-    QmlJS::SimpleReader reader;
-    QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+    SimpleReader reader;
+    SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
 
     QVERIFY(!rootNode);
     QVERIFY(!reader.errors().empty());
@@ -156,8 +157,8 @@ void tst_SimpleReader::testIllFormed02()
                     "   }\n"
                     "}\n";
 
-        QmlJS::SimpleReader reader;
-        QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+        SimpleReader reader;
+        SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
 
         QVERIFY(rootNode);
         QVERIFY(rootNode->isValid());
@@ -166,7 +167,7 @@ void tst_SimpleReader::testIllFormed02()
         QVERIFY(!reader.errors().empty());
         QCOMPARE(reader.errors().count(), 2);
 
-        QmlJS::SimpleReaderNode::Ptr firstChild = rootNode->children().at(0);
+        SimpleReaderNode::Ptr firstChild = rootNode->children().at(0);
 
         QVERIFY(firstChild);
         QVERIFY(firstChild->isValid());
@@ -191,8 +192,8 @@ void tst_SimpleReader::testArrays()
         variantList << QVariant(QLatin1String("string01")) << QVariant(QLatin1String("string02"));
         const QVariant variant = variantList;
 
-        QmlJS::SimpleReader reader;
-        QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+        SimpleReader reader;
+        SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
 
         QVERIFY(rootNode);
         QVERIFY(rootNode->isValid());
@@ -201,7 +202,7 @@ void tst_SimpleReader::testArrays()
         QCOMPARE(rootNode->property("propertyArray"), variant);
 
 
-        QmlJS::SimpleReaderNode::Ptr firstChild = rootNode->children().at(0);
+        SimpleReaderNode::Ptr firstChild = rootNode->children().at(0);
 
         QVERIFY(firstChild);
         QVERIFY(firstChild->isValid());
@@ -242,8 +243,8 @@ void tst_SimpleReader::testBug01()
         "    }\n"
         "}\n";
 
-    QmlJS::SimpleReader reader;
-    QmlJS::SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+    SimpleReader reader;
+    SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
 
     QVERIFY(rootNode);
     QVERIFY(rootNode->isValid());

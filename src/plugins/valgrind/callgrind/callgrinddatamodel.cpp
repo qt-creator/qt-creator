@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,6 +34,7 @@
 #include "callgrindfunction.h"
 #include "callgrindcostitem.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QChar>
@@ -68,23 +70,13 @@ public:
     QVector<const Function *> m_functions;
 };
 
-struct SortFunctions {
-    SortFunctions(int event)
-    : m_event(event)
-    {
-    }
-    bool operator()(const Function *left, const Function *right)
-    {
-        return left->inclusiveCost(m_event) > right->inclusiveCost(m_event);
-    }
-    int m_event;
-};
-
 void DataModel::Private::updateFunctions()
 {
     if (m_data) {
         m_functions = m_data->functions(m_cycleDetection);
-        qSort(m_functions.begin(), m_functions.end(), SortFunctions(m_event));
+        Utils::sort(m_functions, [this](const Function *l, const Function *r) {
+            return l->inclusiveCost(m_event) > r->inclusiveCost(m_event);
+        });
     } else {
         m_functions.clear();
     }
@@ -194,7 +186,7 @@ QModelIndex DataModel::indexForObject(const Function *function) const
 }
 
 /**
- * Evil workaround for https://bugreports.qt-project.org/browse/QTBUG-1135
+ * Evil workaround for https://bugreports.qt.io/browse/QTBUG-1135
  * Just replace the bad hyphens by a 'NON-BREAKING HYPHEN' unicode char
  */
 static QString noWrap(const QString &str)
@@ -222,9 +214,8 @@ static QString shortenTemplate(QString str)
 
 QVariant DataModel::data(const QModelIndex &index, int role) const
 {
-    //QTC_ASSERT(index.isValid() && index.model() == this, return QVariant());
-    //QTC_ASSERT(index.column() >= 0 && index.column() < columnCount(index.parent()), return QVariant());
-    //QTC_ASSERT(index.row() >= 0 && index.row() < rowCount(index.parent()), return QVariant());
+    if (!index.isValid())
+        return QVariant();
 
     const Function *func = d->m_functions.at(index.row());
 
@@ -257,7 +248,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
 
         QString entry = QLatin1String("<dt>%1</dt><dd>%2</dd>\n");
         // body, function info first
-        ret += entry.arg(tr("Function:")).arg(Qt::escape(func->name()));
+        ret += entry.arg(tr("Function:")).arg(func->name().toHtmlEscaped());
         ret += entry.arg(tr("File:")).arg(func->file());
         if (!func->costItems().isEmpty()) {
             const CostItem *firstItem = func->costItems().first();

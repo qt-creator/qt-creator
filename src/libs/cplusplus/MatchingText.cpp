@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -102,7 +103,7 @@ bool MatchingText::shouldInsertMatchingText(QChar lookAhead)
 }
 
 QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess,
-                                          QChar la, int *skippedChars) const
+                                          QChar la, int *skippedChars)
 {
     QTextCursor tc = cursor;
     QTextDocument *doc = tc.document();
@@ -153,7 +154,8 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     if (text.isEmpty() || !shouldInsertMatchingText(la))
         return QString();
 
-    BackwardsScanner tk(tc, MAX_NUM_LINES, textToProcess.left(*skippedChars));
+    BackwardsScanner tk(tc, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES,
+                        textToProcess.left(*skippedChars));
     const int startToken = tk.startToken();
     int index = startToken;
 
@@ -193,7 +195,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     return result;
 }
 
-bool MatchingText::shouldInsertNewline(const QTextCursor &tc) const
+static bool shouldInsertNewline(const QTextCursor &tc)
 {
     QTextDocument *doc = tc.document();
     int pos = tc.selectionEnd();
@@ -205,19 +207,16 @@ bool MatchingText::shouldInsertNewline(const QTextCursor &tc) const
 
         if (! ch.isSpace())
             break;
-        else if (ch == QChar::ParagraphSeparator)
+        if (ch == QChar::ParagraphSeparator)
             ++newlines;
     }
 
-    if (newlines <= 1 && doc->characterAt(pos) != QLatin1Char('}'))
-        return true;
-
-    return false;
+    return newlines <= 1 && doc->characterAt(pos) != QLatin1Char('}');
 }
 
-QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
+QString MatchingText::insertParagraphSeparator(const QTextCursor &tc)
 {
-    BackwardsScanner tk(tc, MAX_NUM_LINES);
+    BackwardsScanner tk(tc, LanguageFeatures::defaultFeatures(), MAX_NUM_LINES);
     int index = tk.startToken();
 
     if (tk[index - 1].isNot(T_LBRACE))

@@ -7,8 +7,8 @@ win32-msvc* {
 include(../qttest.pri)
 
 win32-msvc* {
-    LIBS += -L$$IDE_PLUGIN_PATH/QtProject
-    DEFINES += Q_PLUGIN_PATH=\"\\\"$$IDE_PLUGIN_PATH/QtProject\\\"\"
+    LIBS *= -L$$IDE_PLUGIN_PATH
+    DEFINES += Q_PLUGIN_PATH=\"\\\"$$IDE_PLUGIN_PATH\\\"\"
 
     CDBEXT_PATH = $$IDE_BUILD_TREE\\$$IDE_LIBRARY_BASENAME
     # replace '\' with '\\'
@@ -32,8 +32,7 @@ HEADERS += \
     $$DEBUGGERDIR/debuggerprotocol.h \
     $$DEBUGGERDIR/simplifytype.h \
     $$DEBUGGERDIR/watchdata.h \
-    $$DEBUGGERDIR/watchutils.h \
-    temporarydir.h
+    $$DEBUGGERDIR/watchutils.h
 
 !isEmpty(vcproj) {
     DEFINES += DUMPERDIR=\"$$DUMPERDIR\"
@@ -43,3 +42,6 @@ HEADERS += \
 
 INCLUDEPATH += $$DEBUGGERDIR
 DEFINES += QT_NO_CAST_FROM_ASCII
+
+# clang 3.5 does not like to optimize long functions.
+clang: QMAKE_CXXFLAGS_RELEASE =

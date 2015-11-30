@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -183,6 +184,12 @@ private slots:
     void lambda_2();
 
     void diagnostic_error();
+
+    void enum_constantValue1();
+    void enum_constantValue2();
+    void enum_constantValue3();
+    void enum_constantValue4();
+    void enum_constantValue5();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -525,7 +532,7 @@ void tst_Semantic::expression_under_cursor_1()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(LanguageFeatures::defaultFeatures());
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("bar"));
@@ -541,7 +548,7 @@ void tst_Semantic::bracketed_expression_under_cursor_1()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(LanguageFeatures::defaultFeatures());
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("i"));
@@ -557,7 +564,7 @@ void tst_Semantic::bracketed_expression_under_cursor_2()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(LanguageFeatures::defaultFeatures());
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, plainText);
@@ -573,7 +580,7 @@ void tst_Semantic::bracketed_expression_under_cursor_3()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(LanguageFeatures::defaultFeatures());
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("[receiver message"));
@@ -589,7 +596,7 @@ void tst_Semantic::bracketed_expression_under_cursor_4()
     QTextCursor tc(&textDocument);
     tc.movePosition(QTextCursor::End);
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(LanguageFeatures::defaultFeatures());
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("i"));
@@ -780,6 +787,133 @@ void tst_Semantic::diagnostic_error()
 
     QCOMPARE(doc->errorCount, 1U);
     QCOMPARE(doc->globals->memberCount(), 1U);
+}
+
+namespace {
+void testEnumaratorDeclarator(Enum *e, int enumDeclIndex, const char *expectedConstantValue)
+{
+    Declaration *enumMemberDeclaration = e->memberAt(enumDeclIndex)->asDeclaration();
+    QVERIFY(enumMemberDeclaration);
+    EnumeratorDeclaration *enumeratorDeclaration = enumMemberDeclaration->asEnumeratorDeclarator();
+    QVERIFY(enumeratorDeclaration);
+    if (const StringLiteral *constantValue = enumeratorDeclaration->constantValue())
+        QCOMPARE(constantValue->chars(), expectedConstantValue);
+    else
+        QVERIFY(!expectedConstantValue);
+}
+} // anonymous
+
+void tst_Semantic::enum_constantValue1()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "enum {\n"
+                                            "E1,\n"
+                                            "E2,\n"
+                                            "E3\n"
+                                            "};\n"
+                                            );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 3U);
+
+    testEnumaratorDeclarator(e, 0, "0");
+    testEnumaratorDeclarator(e, 1, "1");
+    testEnumaratorDeclarator(e, 2, "2");
+}
+
+void tst_Semantic::enum_constantValue2()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "enum {\n"
+                                            "E1=10,\n"
+                                            "E2,\n"
+                                            "E3\n"
+                                            "};\n"
+                                            );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 3U);
+
+    testEnumaratorDeclarator(e, 0, "10");
+    testEnumaratorDeclarator(e, 1, "11");
+    testEnumaratorDeclarator(e, 2, "12");
+}
+
+void tst_Semantic::enum_constantValue3()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "enum {\n"
+                                            "E1,\n"
+                                            "E2=10,\n"
+                                            "E3\n"
+                                            "};\n"
+                                            );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 3U);
+
+    testEnumaratorDeclarator(e, 0, "0");
+    testEnumaratorDeclarator(e, 1, "10");
+    testEnumaratorDeclarator(e, 2, "11");
+}
+
+void tst_Semantic::enum_constantValue4()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "enum {\n"
+                                            "E1,\n"
+                                            "E2=E1+10,\n"
+                                            "E3,\n"
+                                            "E4=10,\n"
+                                            "E5\n"
+                                            "};\n"
+                                            );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 5U);
+
+    testEnumaratorDeclarator(e, 0, "0");
+    testEnumaratorDeclarator(e, 1, "E1+10");
+    testEnumaratorDeclarator(e, 2, NULL);
+    testEnumaratorDeclarator(e, 3, "10");
+    testEnumaratorDeclarator(e, 4, "11");
+}
+
+void tst_Semantic::enum_constantValue5()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "enum {\n"
+                                            "E1,\n"
+                                            "E2=E1,\n"
+                                            "E3,\n"
+                                            "E4=E3,\n"
+                                            "E5\n"
+                                            "};\n"
+                                            );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 5U);
+
+    testEnumaratorDeclarator(e, 0, "0");
+    testEnumaratorDeclarator(e, 1, "0");
+    testEnumaratorDeclarator(e, 2, "1");
+    testEnumaratorDeclarator(e, 3, "1");
+    testEnumaratorDeclarator(e, 4, "2");
 }
 
 QTEST_MAIN(tst_Semantic)

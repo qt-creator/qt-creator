@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -43,11 +44,11 @@ namespace Internal {
 
 enum { FileSpecRole = Qt::UserRole + 1 };
 
-PerforceSubmitEditor::PerforceSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent) :
-    VcsBaseSubmitEditor(parameters, new PerforceSubmitEditorWidget(parent)),
+PerforceSubmitEditor::PerforceSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters) :
+    VcsBaseSubmitEditor(parameters, new PerforceSubmitEditorWidget),
     m_fileModel(new VcsBase::SubmitFileModel(this))
 {
-    document()->setDisplayName(tr("Perforce Submit"));
+    document()->setPreferredDisplayName(tr("Perforce Submit"));
     setFileModel(m_fileModel);
 }
 
@@ -125,7 +126,7 @@ void PerforceSubmitEditor::updateFields()
                     m_entries.value(QLatin1String("Client")).trimmed(),
                     m_entries.value(QLatin1String("User")).trimmed());
 
-    const QString newLine = QString(QLatin1Char('\n'));
+    const QChar newLine = QLatin1Char('\n');
     QStringList lines = m_entries.value(QLatin1String("Description")).split(newLine);
     lines.removeFirst(); // that is the line break after 'Description:'
     lines.removeLast(); // that is the empty line at the end
@@ -150,8 +151,8 @@ void PerforceSubmitEditor::updateFields()
 
 void PerforceSubmitEditor::updateEntries()
 {
-    const QString newLine = QString(QLatin1Char('\n'));
-    const QString tab = QString(QLatin1Char('\t'));
+    const QChar newLine = QLatin1Char('\n');
+    const QChar tab = QLatin1Char('\t');
 
     QStringList lines = submitEditorWidget()->descriptionText().split(newLine);
 

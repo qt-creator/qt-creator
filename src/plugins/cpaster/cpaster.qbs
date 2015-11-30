@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "CodePaster"
@@ -11,12 +9,13 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
 
-    cpp.includePaths: base.concat("../../shared/cpaster")
+    cpp.includePaths: base.concat([project.sharedSourcesDir + "/cpaster"])
 
     files: [
         "columnindicatortextedit.cpp",
         "columnindicatortextedit.h",
         "cpasterconstants.h",
+        "cpaster.qrc",
         "cpasterplugin.cpp",
         "cpasterplugin.h",
         "fileshareprotocol.cpp",

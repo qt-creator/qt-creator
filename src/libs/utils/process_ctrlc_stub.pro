@@ -17,5 +17,5 @@ build_all:!build_pass {
     CONFIG += release
 }
 
-target.path  = $$QTC_PREFIX/bin # FIXME: libexec, more or less
+target.path  = $$INSTALL_LIBEXEC_PATH
 INSTALLS    += target

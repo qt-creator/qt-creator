@@ -42,6 +42,6 @@ FORMS += \
     contextpanetext.ui
 
 include(easingpane/easingpane.pri)
-    
 
-OTHER_FILES += qmleditorwidgets.pri
+
+DISTFILES += qmleditorwidgets.pri

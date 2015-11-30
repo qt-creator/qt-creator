@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -44,7 +45,8 @@ using namespace QmlJS;
     A ValueOwner also provides access to various default values.
 */
 
-namespace {
+namespace QmlJS {
+namespace Internal {
 
 class QtObjectPrototypeReference : public Reference
 {
@@ -52,19 +54,21 @@ public:
     QtObjectPrototypeReference(ValueOwner *owner)
         : Reference(owner)
     {}
-
+    const QtObjectPrototypeReference *asQtObjectPrototypeReference() const override
+    {
+        return this;
+    }
 private:
-    virtual const Value *value(ReferenceContext *referenceContext) const
+    const Value *value(ReferenceContext *referenceContext) const override
     {
         return referenceContext->context()->valueOwner()->cppQmlTypes().objectByCppName(QLatin1String("Qt"));
     }
 };
 
-} // end of anonymous namespace
-
+} // namespace Internal
 
 // globally shared data
-class QmlJS::SharedValueOwner : public ValueOwner
+class SharedValueOwner : public ValueOwner
 {
 public:
     enum SharedValueOwnerKind{
@@ -360,6 +364,8 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     addFunction(_datePrototype, QLatin1String("getTime"), numberValue(), 0);
     addFunction(_datePrototype, QLatin1String("getFullYear"), numberValue(), 0);
     addFunction(_datePrototype, QLatin1String("getUTCFullYear"), numberValue(), 0);
+    addFunction(_datePrototype, QLatin1String("getDay"), numberValue(), 0);
+    addFunction(_datePrototype, QLatin1String("getUTCDay"), numberValue(), 0);
     addFunction(_datePrototype, QLatin1String("getMonth"), numberValue(), 0);
     addFunction(_datePrototype, QLatin1String("getUTCMonth"), numberValue(), 0);
     addFunction(_datePrototype, QLatin1String("getDate"), numberValue(), 0);
@@ -478,7 +484,7 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
 
     // QML objects
     _qmlFontObject = newObject(/*prototype =*/ 0);
-    _qmlFontObject->setClassName(QLatin1String("Font"));
+    _qmlFontObject->setClassName(QLatin1String("font"));
     _qmlFontObject->setMember(QLatin1String("family"), stringValue());
     _qmlFontObject->setMember(QLatin1String("weight"), unknownValue()); // ### make me an object
     _qmlFontObject->setMember(QLatin1String("capitalization"), unknownValue()); // ### make me an object
@@ -577,12 +583,22 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     addFunction(_qmlMatrix4x4Object, QLatin1String("fuzzyEquals"), booleanValue(), 1, 1);
 
     // global Qt object, in alphabetic order
-    _qtObject = newObject(new QtObjectPrototypeReference(this));
+    _qtObject = newObject(new Internal::QtObjectPrototypeReference(this));
+
+    ObjectValue *applicationObject = newObject();
+    applicationObject->setMember(QLatin1String("active"), booleanValue());
+    applicationObject->setMember(QLatin1String("layoutDirection"), intValue());
+    _qtObject->setMember(QLatin1String("application"), applicationObject);
+    // FIXME: add inputMethod
+
+    addFunction(_qtObject, QLatin1String("binding"), objectInstance, 1);
     addFunction(_qtObject, QLatin1String("atob"), &_stringValue, 1);
     addFunction(_qtObject, QLatin1String("btoa"), &_stringValue, 1);
+    addFunction(_qtObject, QLatin1String("colorEqual"), booleanValue(), 2);
     addFunction(_qtObject, QLatin1String("createComponent"), 1);
     addFunction(_qtObject, QLatin1String("createQmlObject"), 3);
     addFunction(_qtObject, QLatin1String("darker"), &_colorValue, 1);
+    addFunction(_qtObject, QLatin1String("font"), qmlFontObject(), 1);
     addFunction(_qtObject, QLatin1String("fontFamilies"), 0);
     addFunction(_qtObject, QLatin1String("formatDate"), &_stringValue, 2);
     addFunction(_qtObject, QLatin1String("formatDateTime"), &_stringValue, 2);
@@ -591,10 +607,24 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     addFunction(_qtObject, QLatin1String("include"), 2);
     addFunction(_qtObject, QLatin1String("isQtObject"), &_booleanValue, 1);
     addFunction(_qtObject, QLatin1String("lighter"), &_colorValue, 1);
+    // FIXME: add locale
+    addFunction(_qtObject, QLatin1String("matrix4x4"), _qmlMatrix4x4Object, 16);
     addFunction(_qtObject, QLatin1String("md5"), &_stringValue, 1);
     addFunction(_qtObject, QLatin1String("openUrlExternally"), &_booleanValue, 1);
+
+    ObjectValue *platformObject = newObject();
+    platformObject->setMember(QLatin1String("os"), stringValue());
+    _qtObject->setMember(QLatin1String("platform"), platformObject);
+
     addFunction(_qtObject, QLatin1String("point"), _qmlPointObject, 2);
+    addFunction(_qtObject, QLatin1String("qsTr"), stringValue(), 1, 2);
+    addFunction(_qtObject, QLatin1String("qsTrId"), stringValue(), 1, 2);
+    addFunction(_qtObject, QLatin1String("qsTrIdNoOp"), stringValue(), 1, 2);
+    addFunction(_qtObject, QLatin1String("qsTranslate"), stringValue(), 1, 2);
+    addFunction(_qtObject, QLatin1String("qsTranslateNoOp"), stringValue(), 1, 2);
+    addFunction(_qtObject, QLatin1String("quaternion"), _qmlQuaternionObject, 4);
     addFunction(_qtObject, QLatin1String("quit"), 0);
+
     addFunction(_qtObject, QLatin1String("rect"), _qmlRectObject, 4);
     addFunction(_qtObject, QLatin1String("resolvedUrl"), &_urlValue, 1);
     addFunction(_qtObject, QLatin1String("rgba"), &_colorValue, 4);
@@ -603,8 +633,6 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     addFunction(_qtObject, QLatin1String("vector2d"), _qmlVector2DObject, 2);
     addFunction(_qtObject, QLatin1String("vector3d"), _qmlVector3DObject, 3);
     addFunction(_qtObject, QLatin1String("vector4d"), _qmlVector4DObject, 4);
-    addFunction(_qtObject, QLatin1String("quaternion"), _qmlQuaternionObject, 4);
-    addFunction(_qtObject, QLatin1String("matrix4x4"), _qmlMatrix4x4Object, 16);
     _globalObject->setMember(QLatin1String("Qt"), _qtObject);
 
     // firebug/webkit compat
@@ -939,3 +967,5 @@ const Value *ValueOwner::defaultValueForBuiltinType(const QString &name) const
     }
     return undefinedValue();
 }
+
+} // namespace QmlJS

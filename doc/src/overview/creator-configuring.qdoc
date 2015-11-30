@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-quick-tour.html
     \page creator-configuring.html
     \nextpage creator-build-example-application.html
@@ -60,30 +60,31 @@
     automatically become available in \QC. If they do not, you must add the kits
     yourself to tell \QC where everything is.
 
-    To add kits, select \gui Tools > \gui Options > \gui {Build & Run} >
-    \gui Kits > \gui Add.
+    To add kits, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Build & Run} > \uicontrol Kits > \uicontrol Add.
 
     For more information, see \l{Adding Kits}.
 
     Each kit consists of a set of values that define one environment, such as a
     device, compiler, and Qt version. If you know you have installed a Qt
-    version, but it is not listed in \gui Tools > \gui Options >
-    \gui {Build & Run} > \gui {Qt Versions}, you must add it.
+    version, but it is not listed in \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Build & Run} > \uicontrol {Qt Versions}, you must add it.
 
     For more information, see \l{Adding Qt Versions}.
 
-    Also check that your compiler is listed in \gui Tools > \gui Options >
-    \gui {Build & Run} > \gui {Compilers}.
+    Also check that your compiler is listed in \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol {Compilers}.
 
     For more information, see \l{Adding Compilers}.
 
-    You can connect mobile devices to the development PC to run, debug,
-    and analyze applications on them from \QC. You can connect the device to the
+    You can connect mobile devices to the development PC to run, debug, and
+    analyze applications on them from \QC. You can connect the device to the
     development PC via USB. Additionally, you can connect Linux-based devices
     over a WLAN. You must also configure a connection between \QC and the
     development PC and specify the device in a kit.
 
-    To add devices, select \gui Tools > \gui Options > \gui Devices > \gui Add.
+    To add devices, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Devices > \uicontrol Add.
 
     For more information, see \l{Connecting Mobile Devices}.
 
@@ -92,20 +93,26 @@
     You can use \QC with your favorite keyboard shortcuts.
 
     To view and edit all keyboard shortcuts defined in \QC, select
-    \gui Tools > \gui Options > \gui Environment > \gui Keyboard.
-
-    For more information, see \l{Keyboard Shortcuts}.
+    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol Keyboard. For more information, see \l{Keyboard Shortcuts}.
 
     \section1 Changing Color Schemes
 
-    You can use \QC with your favorite color scheme that defines how code
-    elements are highlighted and which background color is used. You can select
-    one of the predefined color schemes or create custom ones.
-    The color schemes apply to highlighting C++ files, QML files, and generic
-    files.
+    Themes enable you to customize the appearance of the \QC UI: widgets,
+    colors, and icons.
 
-    To change the color scheme, select \gui Tools > \gui Options >
-    \gui {Text Editor} > \gui {Fonts & Color}.
+    To switch from the default theme to a dark theme, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Environment, and then select \uicontrol Dark
+    in the \uicontrol Theme field.
+
+    You can use the \QC text and code editors with your favorite color scheme
+    that defines how code elements are highlighted and which background color is
+    used. You can select one of the predefined color schemes or create custom
+    ones. The color schemes apply to highlighting C++ files, QML files, and
+    generic files.
+
+    To change the color scheme, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
 
     For more information, see \l{Defining Color Schemes}.
 
@@ -114,8 +121,8 @@
     \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
     {Kate Editor}. You can download highlight definition files for use with \QC.
 
-    To download and use highlight definition files, select \gui Tools >
-    \gui Options > \gui {Text Editor} > \gui {Generic Highlighter}.
+    To download and use highlight definition files, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.
 
     For more information, see \l{Generic Highlighting}.
 
@@ -123,11 +130,11 @@
 
     As you write code, \QC suggests properties, IDs, and code snippets to
     complete the code. It provides a list of context-sensitive suggestions to
-    the statement currently under your cursor. You can add, modify,
-    and remove snippets in the snippet editor.
+    the statement currently under your cursor. You can add, modify, and remove
+    snippets in the snippet editor.
 
-    To open the snippet editor, select \gui Tools > \gui Options >
-    \gui {Text Editor} > \gui Snippets.
+    To open the snippet editor, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Text Editor} > \uicontrol Snippets.
 
     For more information, see \l{Editing Code Snippets}.
 
@@ -138,24 +145,24 @@
     \QC. Once it is set up correctly on the development PC, it should just work.
 
     However, some configuration options are available and you can set them in
-    \gui Tools > \gui Options > \gui{Version Control} > \gui Common.
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Version Control} >
+    \uicontrol Common.
 
     For more information about the supported functions, see
     \l{Using Version Control Systems}.
 
     \section1 Enabling and Disabling Plugins
 
-    New \QC plugins are often introduced as \e {experimental plugins} to let
-    you try them out before they are fully supported. Experimental plugins
-    are disabled by default and you must enable them for them to become visible
-    after you restart \QC.
+    New \QC plugins are often introduced as \e {experimental plugins} to let you
+    try them out before they are fully supported. Experimental plugins are
+    disabled by default and you must enable them for them to become visible
+    after you restart \QC. By default, all the plugins that the plugin depends
+    on are also enabled.
 
     You can also disable plugins that you do not use, to streamline \QC.
-    However, this might cause problems when using another plugin later if the
-    dependencies between plugins are changed between \QC versions. Once you
-    manually disable a plugin, it stays disabled even when you upgrade to a
-    new \QC version, and you must manually enable it to be able to use it.
+    By default, all the plugins that depend on the plugin are also disabled.
 
-    To enable and disable plugins, select \gui Help > \gui {About Plugins}.
+    To enable and disable plugins, select \uicontrol Help >
+    \uicontrol {About Plugins}.
 
 */

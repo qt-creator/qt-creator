@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,27 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "autocompleter.h"
-#include "basetextdocumentlayout.h"
+#include "textdocumentlayout.h"
 #include "tabsettings.h"
 
 #include <QDebug>
@@ -89,10 +90,10 @@ void AutoCompleter::countBrackets(QTextCursor cursor,
     cursor.setPosition(from);
     QTextBlock block = cursor.block();
     while (block.isValid() && block.position() < end) {
-        TextEditor::Parentheses parenList = TextEditor::BaseTextDocumentLayout::parentheses(block);
-        if (!parenList.isEmpty() && !TextEditor::BaseTextDocumentLayout::ifdefedOut(block)) {
+        Parentheses parenList = TextDocumentLayout::parentheses(block);
+        if (!parenList.isEmpty() && !TextDocumentLayout::ifdefedOut(block)) {
             for (int i = 0; i < parenList.count(); ++i) {
-                TextEditor::Parenthesis paren = parenList.at(i);
+                Parenthesis paren = parenList.at(i);
                 int position = block.position() + paren.pos;
                 if (position < from || position >= end)
                     continue;
@@ -110,7 +111,7 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
 
     if (m_surroundWithEnabled && cursor.hasSelection()) {
         if (textToInsert == QLatin1String("("))
-            return cursor.selectedText() + QLatin1String(")");
+            return cursor.selectedText() + QLatin1Char(')');
         if (textToInsert == QLatin1String("{")) {
             //If the text span multiple lines, insert on different lines
             QString str = cursor.selectedText();
@@ -119,20 +120,20 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
                 str = (str.startsWith(QChar::ParagraphSeparator) ? QString() : QString(QChar::ParagraphSeparator)) +
                       str;
                 if (str.endsWith(QChar::ParagraphSeparator))
-                    str += QLatin1String("}") + QString(QChar::ParagraphSeparator);
+                    str += QLatin1Char('}') + QString(QChar::ParagraphSeparator);
                 else
-                    str += QString(QChar::ParagraphSeparator) + QLatin1String("}");
+                    str += QString(QChar::ParagraphSeparator) + QLatin1Char('}');
             } else {
-                str += QLatin1String("}");
+                str += QLatin1Char('}');
             }
             return str;
         }
         if (textToInsert == QLatin1String("["))
-            return cursor.selectedText() + QLatin1String("]");
+            return cursor.selectedText() + QLatin1Char(']');
         if (textToInsert == QLatin1String("\""))
-            return cursor.selectedText() + QLatin1String("\"");
+            return cursor.selectedText() + QLatin1Char('"');
         if (textToInsert == QLatin1String("'"))
-            return cursor.selectedText() + QLatin1String("'");
+            return cursor.selectedText() + QLatin1Char('\'');
     }
 
     if (!m_autoParenthesesEnabled)
@@ -150,10 +151,10 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
     const QString brackets = QLatin1String("[]");
     if (parentheses.contains(character) || brackets.contains(character)) {
         QTextCursor tmp= cursor;
-        bool foundBlockStart = TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
+        bool foundBlockStart = TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
         int blockStart = foundBlockStart ? tmp.position() : 0;
         tmp = cursor;
-        bool foundBlockEnd = TextEditor::TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
+        bool foundBlockEnd = TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
         int blockEnd = foundBlockEnd ? tmp.position() : (cursor.document()->characterCount() - 1);
         const QChar openChar = parentheses.contains(character) ? QLatin1Char('(') : QLatin1Char('[');
         const QChar closeChar = parentheses.contains(character) ? QLatin1Char(')') : QLatin1Char(']');
@@ -217,10 +218,10 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
     const QChar character = lookBehind;
     if (character == QLatin1Char('(') || character == QLatin1Char('[')) {
         QTextCursor tmp = cursor;
-        TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
+        TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
         int blockStart = tmp.isNull() ? 0 : tmp.position();
         tmp = cursor;
-        TextEditor::TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
+        TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
         int blockEnd = tmp.isNull() ? (cursor.document()->characterCount()-1) : tmp.position();
         QChar openChar = character;
         QChar closeChar = (character == QLatin1Char('(')) ? QLatin1Char(')') : QLatin1Char(']');
@@ -273,7 +274,7 @@ int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
     // verify that we indeed do have an extra opening brace in the document
     QTextBlock block = cursor.block();
     const QString textFromCusror = block.text().mid(cursor.positionInBlock()).trimmed();
-    int braceDepth = BaseTextDocumentLayout::braceDepth(doc->lastBlock());
+    int braceDepth = TextDocumentLayout::braceDepth(doc->lastBlock());
 
     if (braceDepth <= 0 && (textFromCusror.isEmpty() || textFromCusror.at(0) != QLatin1Char('}')))
         return 0; // braces are all balanced or worse, no need to do anything and separator inserted not between '{' and '}'
@@ -326,6 +327,12 @@ bool AutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) c
 }
 
 bool AutoCompleter::isInComment(const QTextCursor &cursor) const
+{
+    Q_UNUSED(cursor);
+    return false;
+}
+
+bool AutoCompleter::isInString(const QTextCursor &cursor) const
 {
     Q_UNUSED(cursor);
     return false;

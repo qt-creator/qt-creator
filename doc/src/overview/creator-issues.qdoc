@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-tips.html
     \page creator-known-issues.html
     \nextpage creator-glossary.html
@@ -35,7 +35,7 @@
     bugs.
 
     For a list of fixed issues and added features, see the changelog file in
-    the \c{qtcreator\dist} folder or the \l{http://bugreports.qt-project.org}
+    the \c{qtcreator\dist} folder or the \l{https://bugreports.qt.io}
     {Qt Bug Tracker}.
 
     \section1 General Issues
@@ -56,7 +56,7 @@
 
         \li  Qt 4.7.4 is known to contain a bug exposed by g++ 4.6 which triggers
             a crash in \QC. For more information, see
-            \l{http://bugreports.qt-project.org/browse/QTBUG-21265}{QTBUG-21265}
+            \l{https://bugreports.qt.io/browse/QTBUG-21265}{QTBUG-21265}
 
         \li  The Okteta KDE custom widget plugin might be installed as part of
             some Linux distributions. It can cause Qt Designer to crash. For
@@ -67,7 +67,7 @@
                 \li  \l{http://bugs.launchpad.net/ubuntu/+source/kdeutils/+bug/662005}
                     {Ubuntu bug 662005}
 
-                \li  \l{http://bugreports.qt-project.org/browse/QTBUG-12025}
+                \li  \l{https://bugreports.qt.io/browse/QTBUG-12025}
                     {QTBUG-12025}
 
            \endlist
@@ -104,7 +104,7 @@
 
         \li  Creating new CMake projects with \QC is not supported.
 
-        \li  If error messages displayed in the \gui {Compile Output} pane contain
+        \li  If error messages displayed in the \uicontrol {Compile Output} pane contain
             paths where slashes are missing (for example, C:QtSDK),
             check your PATH variable. For more information, see
             \l{Troubleshooting MinGW Compilation Errors}.
@@ -117,7 +117,7 @@
 
         \li  When debugging executables created by the GNU Compiler version 4.5.0
             (all platforms), some data types will not be displayed in the
-            \gui{Locals and Expressions} view due to missing debug information.
+            \uicontrol{Locals and Expressions} view due to missing debug information.
 
         \li  GDB on Windows may not work if the 'Embassy \reg Security Center'
             software by 'Wave \reg Systems' is installed and active (causing
@@ -145,9 +145,9 @@
 
     \list
 
-        \li  \QMLD uses external processes (QML Puppet) to render and preview
+        \li  \QMLD uses a QML emulation layer (QML Puppet) to render and preview
             images and to collect data. Executing C++ code might cause the QML
-            Puppet to crash. If it crashes, an error message is displayed and
+            emulation layer to crash. If it crashes, an error message is displayed and
             you can continue editing the QML file in the code editor.
 
     \endlist

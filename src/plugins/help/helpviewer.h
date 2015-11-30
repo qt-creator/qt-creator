@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,60 +31,53 @@
 #ifndef HELPVIEWER_H
 #define HELPVIEWER_H
 
-#include <coreplugin/find/ifindsupport.h>
+#include <coreplugin/find/textfindconstants.h>
 
-#include <qglobal.h>
+#include <QFont>
+#include <QMenu>
+#include <QPrinter>
 #include <QString>
 #include <QUrl>
-#include <QVariant>
-
-#include <QAction>
-#include <QFont>
-
-#if defined(QT_NO_WEBKIT)
-#include <QTextBrowser>
-#else
-#include <QWebPage>
-#include <QWebView>
-#endif
+#include <QWidget>
 
 namespace Help {
 namespace Internal {
 
-#if !defined(QT_NO_WEBKIT)
-class HelpViewer : public QWebView
-#else
-class HelpViewer : public QTextBrowser
-#endif
+class HelpViewer : public QWidget
 {
     Q_OBJECT
-    class HelpViewerPrivate;
 
 public:
-    explicit HelpViewer(qreal zoom, QWidget *parent = 0);
-    ~HelpViewer();
+    explicit HelpViewer(QWidget *parent = 0);
+    ~HelpViewer() { }
 
-    QFont viewerFont() const;
-    void setViewerFont(const QFont &font);
+    virtual QFont viewerFont() const = 0;
+    virtual void setViewerFont(const QFont &font) = 0;
 
-    void scaleUp();
-    void scaleDown();
+    virtual qreal scale() const = 0;
+    virtual void setScale(qreal scale) = 0;
 
-    void resetScale();
-    qreal scale() const;
+    virtual QString title() const = 0;
 
-    QString title() const;
-    void setTitle(const QString &title);
+    virtual QUrl source() const = 0;
+    // metacall in HelpPlugin::updateSideBarSource
+    Q_INVOKABLE virtual void setSource(const QUrl &url) = 0;
+    virtual void scrollToAnchor(const QString &anchor) = 0;
+    virtual void highlightId(const QString &id) { Q_UNUSED(id) }
 
-    QUrl source() const;
-    void setSource(const QUrl &url);
+    virtual void setHtml(const QString &html) = 0;
 
-    QString selectedText() const;
-    bool isForwardAvailable() const;
-    bool isBackwardAvailable() const;
+    virtual QString selectedText() const = 0;
+    virtual bool isForwardAvailable() const = 0;
+    virtual bool isBackwardAvailable() const = 0;
+    virtual void addBackHistoryItems(QMenu *backMenu) = 0;
+    virtual void addForwardHistoryItems(QMenu *forwardMenu) = 0;
+    virtual void setOpenInNewPageActionVisible(bool visible) = 0;
 
-    bool findText(const QString &text, Core::FindFlags flags,
-        bool incremental, bool fromSearch, bool *wrapped = 0);
+    virtual bool findText(const QString &text, Core::FindFlags flags,
+        bool incremental, bool fromSearch, bool *wrapped = 0) = 0;
+
+    bool handleForwardBackwardMouseButtons(QMouseEvent *e);
 
     static bool isLocalUrl(const QUrl &url);
     static bool canOpenPage(const QString &url);
@@ -91,76 +85,29 @@ public:
     static bool launchWithExternalApp(const QUrl &url);
 
 public slots:
-    void copy();
     void home();
-    void stop();
 
-    void forward();
-    void backward();
+    virtual void scaleUp() = 0;
+    virtual void scaleDown() = 0;
+    virtual void resetScale() = 0;
+    virtual void copy() = 0;
+    virtual void stop() = 0;
+    virtual void forward() = 0;
+    virtual void backward() = 0;
+    virtual void print(QPrinter *printer) = 0;
 
 signals:
+    void sourceChanged(const QUrl &);
     void titleChanged();
     void printRequested();
-    void openFindToolBar();
+    void forwardAvailable(bool);
+    void backwardAvailable(bool);
+    void loadFinished();
 
-#if !defined(QT_NO_WEBKIT)
-    void sourceChanged(const QUrl &);
-    void forwardAvailable(bool enabled);
-    void backwardAvailable(bool enabled);
-#else
-    void loadFinished(bool finished);
-#endif
-
-protected:
-    void keyPressEvent(QKeyEvent *e);
-    void wheelEvent(QWheelEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-
-private slots:
-    void actionChanged();
+protected slots:
     void slotLoadStarted();
-    void slotLoadFinished(bool ok);
-#if !defined(QT_NO_WEBKIT)
-    void slotNetworkReplyFinished(QNetworkReply *reply);
-#endif
-
-private:
-    bool eventFilter(QObject *obj, QEvent *event);
-    void contextMenuEvent(QContextMenuEvent *event);
-    QVariant loadResource(int type, const QUrl &name);
-    bool handleForwardBackwardMouseButtons(QMouseEvent *e);
-
-private:
-    HelpViewerPrivate *d;
+    void slotLoadFinished();
 };
-
-#ifndef QT_NO_WEBKIT
-class HelpPage : public QWebPage
-{
-    Q_OBJECT
-public:
-    HelpPage(QObject *parent);
-
-protected:
-    virtual QWebPage *createWindow(QWebPage::WebWindowType);
-    virtual void triggerAction(WebAction action, bool checked = false);
-
-    virtual bool acceptNavigationRequest(QWebFrame *frame,
-        const QNetworkRequest &request, NavigationType type);
-
-private slots:
-    void onHandleUnsupportedContent(QNetworkReply *reply);
-
-private:
-    QUrl m_loadingUrl;
-    bool closeNewTabIfNeeded;
-
-    friend class Help::Internal::HelpViewer;
-    Qt::MouseButtons m_pressedButtons;
-    Qt::KeyboardModifiers m_keyboardModifiers;
-};
-#endif // QT_NO_WEBKIT
 
 }   // namespace Internal
 }   // namespace Help

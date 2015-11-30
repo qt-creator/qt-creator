@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -51,7 +47,8 @@ public:
           hasContent(false),
           isMovable(false),
           isResizable(false),
-          isInLayoutable(false)
+          isInLayoutable(false),
+          directUpdates(false)
     {}
 
     qint32 parentInstanceId;
@@ -71,6 +68,7 @@ public:
     bool isMovable;
     bool isResizable;
     bool isInLayoutable;
+    bool directUpdates;
 
 
     QHash<PropertyName, QVariant> propertyValues;
@@ -80,6 +78,8 @@ public:
 
     QPixmap renderPixmap;
     QPixmap blurredRenderPixmap;
+
+    QString errorMessage;
 
     QHash<PropertyName, QPair<PropertyName, qint32> > anchors;
 };
@@ -120,7 +120,7 @@ NodeInstance &NodeInstance::operator=(const NodeInstance &other)
 ModelNode NodeInstance::modelNode() const
 {
     if (d)
-        return  d->modelNode;
+        return d->modelNode;
     else
         return ModelNode();
 }
@@ -132,6 +132,60 @@ qint32 NodeInstance::instanceId() const
     else
         return -1;
 }
+
+void NodeInstance::setDirectUpdate(bool directUpdates)
+{
+    if (d)
+        d->directUpdates = directUpdates;
+}
+
+bool NodeInstance::directUpdates() const
+{
+    if (d)
+        return d->directUpdates && !(d->transform.isRotating() || d->transform.isScaling() || hasAnchors());
+    else
+        return true;
+}
+
+void NodeInstance::setX(double x)
+{
+    if (d && directUpdates()) {
+        double dx = x - d->transform.dx();
+        d->transform.translate(dx, 0.0);
+    }
+}
+
+void NodeInstance::setY(double y)
+{
+    if (d && directUpdates()) {
+        double dy = y - d->transform.dy();
+        d->transform.translate(0.0, dy);
+    }
+}
+
+bool NodeInstance::hasAnchors() const
+{
+    return hasAnchor("anchors.fill")
+            || hasAnchor("anchors.centerIn")
+            || hasAnchor("anchors.top")
+            || hasAnchor("anchors.left")
+            || hasAnchor("anchors.right")
+            || hasAnchor("anchors.bottom")
+            || hasAnchor("anchors.horizontalCenter")
+            || hasAnchor("anchors.verticalCenter")
+            || hasAnchor("anchors.baseline");
+}
+
+QString NodeInstance::error() const
+{
+    return d->errorMessage;
+}
+
+bool NodeInstance::hasError() const
+{
+    return !d->errorMessage.isEmpty();
+}
+
 
 bool NodeInstance::isValid() const
 {
@@ -147,7 +201,7 @@ void NodeInstance::makeInvalid()
 QRectF NodeInstance::boundingRect() const
 {
     if (isValid())
-        return  d->boundingRect;
+        return d->boundingRect;
     else
         return QRectF();
 }
@@ -155,7 +209,7 @@ QRectF NodeInstance::boundingRect() const
 QRectF NodeInstance::contentItemBoundingRect() const
 {
     if (isValid())
-        return  d->contentItemBoundingRect;
+        return d->contentItemBoundingRect;
     else
         return QRectF();
 }
@@ -270,6 +324,14 @@ QVariant NodeInstance::property(const PropertyName &name) const
     return QVariant();
 }
 
+bool NodeInstance::hasProperty(const PropertyName &name) const
+{
+    if (isValid())
+        return d->propertyValues.contains(name);
+
+    return false;
+}
+
 bool NodeInstance::hasBindingForProperty(const PropertyName &name) const
 {
     if (isValid())
@@ -334,10 +396,17 @@ QPixmap NodeInstance::blurredRenderPixmap() const
 
 void NodeInstance::setRenderPixmap(const QImage &image)
 {
-    if (!image.isNull()) {
-        d->renderPixmap = QPixmap::fromImage(image);
-        d->blurredRenderPixmap = QPixmap();
+    d->renderPixmap = QPixmap::fromImage(image);
+    d->blurredRenderPixmap = QPixmap();
+}
+
+bool NodeInstance::setError(const QString &errorMessage)
+{
+    if (d->errorMessage != errorMessage) {
+        d->errorMessage = errorMessage;
+        return true;
     }
+    return false;
 }
 
 void NodeInstance::setParentId(qint32 instanceId)
@@ -377,7 +446,7 @@ InformationName NodeInstance::setInformationContentItemBoundingRect(const QRectF
 
 InformationName NodeInstance::setInformationTransform(const QTransform &transform)
 {
-    if (d->transform != transform) {
+    if (!directUpdates() && d->transform != transform) {
         d->transform = transform;
         return Transform;
     }
@@ -437,9 +506,10 @@ InformationName NodeInstance::setInformationIsInLayoutable(bool isInLayoutable)
 
 InformationName NodeInstance::setInformationSceneTransform(const QTransform &sceneTransform)
 {
-    if (d->sceneTransform != sceneTransform) {
+  if (d->sceneTransform != sceneTransform) {
         d->sceneTransform = sceneTransform;
-        return SceneTransform;
+        if (!directUpdates())
+            return SceneTransform;
     }
 
     return NoInformationChange;
@@ -541,7 +611,7 @@ InformationName NodeInstance::setInformation(InformationName name, const QVarian
     switch (name) {
     case Size: return setInformationSize(information.toSizeF());
     case BoundingRect: return setInformationBoundingRect(information.toRectF());
-    case ContentItemBoundingRect: setInformationContentItemBoundingRect(information.toRectF());
+    case ContentItemBoundingRect: return setInformationContentItemBoundingRect(information.toRectF());
     case Transform: return setInformationTransform(information.value<QTransform>());
     case ContentTransform: return setInformationContentTransform(information.value<QTransform>());
     case ContentItemTransform: return setInformationContentItemTransform(information.value<QTransform>());

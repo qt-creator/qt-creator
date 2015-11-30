@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -42,7 +43,6 @@
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtparser.h>
-#include <coreplugin/variablemanager.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -94,23 +94,21 @@ void GenericMakeStep::ctor()
                                                       GENERIC_MS_DISPLAY_NAME));
 }
 
-GenericMakeStep::~GenericMakeStep()
-{
-}
-
-bool GenericMakeStep::init()
+bool GenericMakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
         bc = target()->activeBuildConfiguration();
+    if (!bc)
+        emit addTask(Task::buildConfigurationMissingTask());
 
-    m_tasks.clear();
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
-    if (!tc) {
-        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the kit options."),
-                            Utils::FileName(), -1,
-                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-        return true; // otherwise the tasks will not get reported
+    if (!tc)
+        emit addTask(Task::compilerMissingTask());
+
+    if (!bc || !tc) {
+        emitFaultyConfigurationMessage();
+        return false;
     }
 
     ProcessParameters *pp = processParameters();
@@ -136,7 +134,7 @@ bool GenericMakeStep::init()
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void GenericMakeStep::setClean(bool clean)
@@ -192,18 +190,6 @@ QString GenericMakeStep::makeCommand(const Utils::Environment &environment) cons
 
 void GenericMakeStep::run(QFutureInterface<bool> &fi)
 {
-    bool canContinue = true;
-    foreach (const Task &t, m_tasks) {
-        addTask(t);
-        canContinue = false;
-    }
-    if (!canContinue) {
-        emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
-        fi.reportResult(false);
-        emit finished();
-        return;
-    }
-
     AbstractProcessStep::run(fi);
 }
 
@@ -255,12 +241,12 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     updateMakeOverrrideLabel();
     updateDetails();
 
-    connect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)),
-            this, SLOT(itemChanged(QListWidgetItem*)));
-    connect(m_ui->makeLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(makeLineEditTextEdited()));
-    connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(makeArgumentsLineEditTextEdited()));
+    connect(m_ui->targetsList, &QListWidget::itemChanged,
+            this, &GenericMakeStepConfigWidget::itemChanged);
+    connect(m_ui->makeLineEdit, &QLineEdit::textEdited,
+            this, &GenericMakeStepConfigWidget::makeLineEditTextEdited);
+    connect(m_ui->makeArgumentsLineEdit, &QLineEdit::textEdited,
+            this, &GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited);
 
     connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateMakeOverrrideLabel()));
@@ -270,10 +256,10 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     connect(m_makeStep->target(), SIGNAL(kitChanged()),
             this, SLOT(updateMakeOverrrideLabel()));
 
-    connect(pro, SIGNAL(environmentChanged()),
-            this, SLOT(updateMakeOverrrideLabel()));
-    connect(pro, SIGNAL(environmentChanged()),
-            this, SLOT(updateDetails()));
+    connect(pro, &GenericProject::environmentChanged,
+            this, &GenericMakeStepConfigWidget::updateMakeOverrrideLabel);
+    connect(pro, &GenericProject::environmentChanged,
+            this, &GenericMakeStepConfigWidget::updateDetails);
 }
 
 GenericMakeStepConfigWidget::~GenericMakeStepConfigWidget()

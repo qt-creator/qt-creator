@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,7 +33,6 @@
 #include "qtkitinformation.h"
 #include "qtversionfactory.h"
 #include "baseqtversion.h"
-#include "qtfeatureprovider.h"
 #include "qtsupportconstants.h"
 
 #include <coreplugin/icore.h>
@@ -40,6 +40,9 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/toolchainmanager.h>
+
+#include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/hostosinfo.h>
@@ -51,6 +54,7 @@
 #include <QDir>
 #include <QFile>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QTextStream>
 #include <QStringList>
 #include <QTimer>
@@ -60,13 +64,6 @@ using namespace Utils;
 namespace QtSupport {
 
 using namespace Internal;
-
-struct QMakeAssignment
-{
-    QString variable;
-    QString op;
-    QString value;
-};
 
 const char QTVERSION_DATA_KEY[] = "QtVersion.";
 const char QTVERSION_TYPE_KEY[] = "QtVersion.Type";
@@ -104,36 +101,6 @@ bool qtVersionNumberCompare(BaseQtVersion *a, BaseQtVersion *b)
 {
     return a->qtVersion() > b->qtVersion() || (a->qtVersion() == b->qtVersion() && a->uniqueId() < b->uniqueId());
 }
-
-static QString findQMakeLine(const QString &makefile, const QString &key)
-{
-    QFile fi(makefile);
-    if (fi.exists() && fi.open(QFile::ReadOnly)) {
-        QTextStream ts(&fi);
-        while (!ts.atEnd()) {
-            const QString line = ts.readLine();
-            if (line.startsWith(key))
-                return line;
-        }
-    }
-    return QString();
-}
-
-/// This function trims the "#Command /path/to/qmake" from the line
-static QString trimLine(const QString line)
-{
-
-    // Actually the first space after #Command: /path/to/qmake
-    const int firstSpace = line.indexOf(QLatin1Char(' '), 11);
-    return line.mid(firstSpace).trimmed();
-}
-
-static void parseArgs(const QString &args,
-                      QList<QMakeAssignment> *assignments,
-                      QList<QMakeAssignment> *afterAssignments,
-                      QString *additionalArguments);
-static BaseQtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments,
-                                                                    BaseQtVersion::QmakeBuildConfigs defaultBuildConfig);
 static bool restoreQtVersions();
 static void findSystemQt();
 static void saveQtVersions();
@@ -159,8 +126,11 @@ QtVersionManager::QtVersionManager()
     connect(m_fileWatcherTimer, SIGNAL(timeout()), SLOT(updateFromInstaller()));
 }
 
-void QtVersionManager::extensionsInitialized()
+void QtVersionManager::triggerQtVersionRestore()
 {
+    disconnect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsLoaded()),
+               this, SLOT(triggerQtVersionRestore()));
+
     bool success = restoreQtVersions();
     m_instance->updateFromInstaller(false);
     if (!success) {
@@ -175,7 +145,7 @@ void QtVersionManager::extensionsInitialized()
     saveQtVersions();
 
     const FileName configFileName = globalSettingsFileName();
-    if (configFileName.toFileInfo().exists()) {
+    if (configFileName.exists()) {
         m_configFileWatcher = new FileSystemWatcher(m_instance);
         connect(m_configFileWatcher, SIGNAL(fileChanged(QString)),
                 m_fileWatcherTimer, SLOT(start()));
@@ -202,7 +172,13 @@ QtVersionManager::~QtVersionManager()
     m_versions.clear();
 }
 
-QObject *QtVersionManager::instance()
+void QtVersionManager::initialized()
+{
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsLoaded()),
+            QtVersionManager::instance(), SLOT(triggerQtVersionRestore()));
+}
+
+QtVersionManager *QtVersionManager::instance()
 {
     return m_instance;
 }
@@ -219,7 +195,7 @@ static bool restoreQtVersions()
     FileName filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
 
     // Read Qt Creator 2.5 qtversions.xml once:
-    if (!filename.toFileInfo().exists())
+    if (!filename.exists())
         filename = settingsFileName(QLatin1String(QTVERSION_LEGACY_FILENAME));
     if (!reader.load(filename))
         return false;
@@ -339,7 +315,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
                     qDebug() << " Qt version found with same autodetection source" << autoDetectionSource << " => Migrating id:" << id;
                 m_versions.remove(id);
                 qtversionMap[QLatin1String(Constants::QTVERSIONID)] = id;
-                qtversionMap[QLatin1String(Constants::QTVERSIONNAME)] = v->displayName();
+                qtversionMap[QLatin1String(Constants::QTVERSIONNAME)] = v->unexpandedDisplayName();
                 delete v;
 
                 if (BaseQtVersion *qtv = factory->restore(type, qtversionMap)) {
@@ -378,7 +354,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
             qDebug() << "";
         }
     }
-    foreach (BaseQtVersion *qtVersion, QtVersionManager::versions()) {
+    foreach (BaseQtVersion *qtVersion, m_versions) {
         if (qtVersion->autodetectionSource().startsWith(QLatin1String("SDK."))) {
             if (!sdkVersions.contains(qtVersion->autodetectionSource())) {
                 if (debug)
@@ -422,16 +398,66 @@ static void saveQtVersions()
     m_writer->save(data, Core::ICore::mainWindow());
 }
 
+// Executes qtchooser with arguments in a process and returns its output
+static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringList &arguments)
+{
+    QProcess p;
+    p.start(qtchooser, arguments);
+    p.waitForFinished();
+    const bool success = p.exitCode() == 0;
+    return success ? p.readAllStandardOutput().split('\n') : QList<QByteArray>();
+}
+
+// Asks qtchooser for the qmake path of a given version
+static QString qmakePath(const QString &qtchooser, const QString &version)
+{
+    QList<QByteArray> outputs = runQtChooser(qtchooser, QStringList()
+                                             << QStringLiteral("-qt=%1").arg(version)
+                                             << QStringLiteral("-print-env"));
+    foreach (const QByteArray &output, outputs) {
+        if (output.startsWith("QTTOOLDIR=\"")) {
+            QByteArray withoutVarName = output.mid(11); // remove QTTOOLDIR="
+            withoutVarName.chop(1); // remove trailing quote
+            return QStandardPaths::findExecutable(QStringLiteral("qmake"), QStringList()
+                                                  << QString::fromLocal8Bit(withoutVarName));
+        }
+    }
+    return QString();
+}
+
+static FileNameList gatherQmakePathsFromQtChooser()
+{
+    const QString qtchooser = QStandardPaths::findExecutable(QStringLiteral("qtchooser"));
+    if (qtchooser.isEmpty())
+        return FileNameList();
+
+    QList<QByteArray> versions = runQtChooser(qtchooser, QStringList() << QStringLiteral("-l"));
+    QSet<FileName> foundQMakes;
+    foreach (const QByteArray &version, versions) {
+        FileName possibleQMake = FileName::fromString(
+                    qmakePath(qtchooser, QString::fromLocal8Bit(version)));
+        if (!possibleQMake.isEmpty())
+            foundQMakes << possibleQMake;
+    }
+    return foundQMakes.toList();
+}
+
 static void findSystemQt()
 {
+    FileNameList systemQMakes;
     FileName systemQMakePath = BuildableHelperLibrary::findSystemQt(Environment::systemEnvironment());
-    if (systemQMakePath.isNull())
-        return;
+    if (!systemQMakePath.isEmpty())
+        systemQMakes << systemQMakePath;
 
-    BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(systemQMakePath);
-    if (version) {
-        version->setDisplayName(BaseQtVersion::defaultDisplayName(version->qtVersionString(), systemQMakePath, true));
-        m_versions.insert(version->uniqueId(), version);
+    systemQMakes.append(gatherQmakePathsFromQtChooser());
+
+    foreach (const FileName &qmakePath, Utils::filteredUnique(systemQMakes)) {
+        BaseQtVersion *version
+                = QtVersionFactory::createQtVersionFromQMakePath(qmakePath, false, QLatin1String("PATH"));
+        if (version) {
+            version->setUnexpandedDisplayName(BaseQtVersion::defaultUnexpandedDisplayName(qmakePath, true));
+            m_versions.insert(version->uniqueId(), version);
+        }
     }
 }
 
@@ -476,7 +502,7 @@ static void updateDocumentation()
 
 void QtVersionManager::updateDumpFor(const FileName &qmakeCommand)
 {
-    foreach (BaseQtVersion *v, versions()) {
+    foreach (BaseQtVersion *v, unsortedVersions()) {
         if (v->qmakeCommand() == qmakeCommand)
             v->recheckDumper();
     }
@@ -488,13 +514,20 @@ int QtVersionManager::getUniqueId()
     return m_idcount++;
 }
 
+QList<BaseQtVersion *> QtVersionManager::unsortedVersions()
+{
+    QList<BaseQtVersion *> versions;
+    QTC_ASSERT(isLoaded(), return versions);
+    return m_versions.values();
+}
+
 QList<BaseQtVersion *> QtVersionManager::versions()
 {
     QList<BaseQtVersion *> versions;
     QTC_ASSERT(isLoaded(), return versions);
     foreach (BaseQtVersion *version, m_versions)
         versions << version;
-    qSort(versions.begin(), versions.end(), &qtVersionNumberCompare);
+    Utils::sort(versions, qtVersionNumberCompare);
     return versions;
 }
 
@@ -506,7 +539,7 @@ QList<BaseQtVersion *> QtVersionManager::validVersions()
         if (v->isValid())
             results.append(v);
     }
-    qSort(results.begin(), results.end(), &qtVersionNumberCompare);
+    Utils::sort(results, qtVersionNumberCompare);
     return results;
 }
 
@@ -519,20 +552,11 @@ bool QtVersionManager::isValidId(int id)
 BaseQtVersion *QtVersionManager::version(int id)
 {
     QTC_ASSERT(isLoaded(), return 0);
-    QMap<int, BaseQtVersion *>::const_iterator it = m_versions.find(id);
+    QMap<int, BaseQtVersion *>::const_iterator it = m_versions.constFind(id);
     if (it == m_versions.constEnd())
         return 0;
     return it.value();
 }
-
-class SortByUniqueId
-{
-public:
-    bool operator()(BaseQtVersion *a, BaseQtVersion *b)
-    {
-        return a->uniqueId() < b->uniqueId();
-    }
-};
 
 // This function is really simplistic...
 static bool equals(BaseQtVersion *a, BaseQtVersion *b)
@@ -545,8 +569,9 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
     // We want to preserve the same order as in the settings dialog
     // so we sort a copy
     QList<BaseQtVersion *> sortedNewVersions = newVersions;
-    SortByUniqueId sortByUniqueId;
-    qSort(sortedNewVersions.begin(), sortedNewVersions.end(), sortByUniqueId);
+    Utils::sort(sortedNewVersions, [](const BaseQtVersion *l, const BaseQtVersion *r) {
+        return l->uniqueId() < r->uniqueId();
+    });
 
     QList<int> addedVersions;
     QList<int> removedVersions;
@@ -603,247 +628,9 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
         emit m_instance->qtVersionsChanged(addedVersions, removedVersions, changedVersions);
 }
 
-// Returns the version that was used to build the project in that directory
-// That is returns the directory
-// To find out whether we already have a qtversion for that directory call
-// QtVersion *QtVersionManager::qtVersionForDirectory(const QString directory);
-FileName QtVersionManager::findQMakeBinaryFromMakefile(const QString &makefile)
-{
-    bool debugAdding = false;
-    QFile fi(makefile);
-    if (fi.exists() && fi.open(QFile::ReadOnly)) {
-        QTextStream ts(&fi);
-        QRegExp r1(QLatin1String("QMAKE\\s*=(.*)"));
-        while (!ts.atEnd()) {
-            QString line = ts.readLine();
-            if (r1.exactMatch(line)) {
-                if (debugAdding)
-                    qDebug()<<"#~~ QMAKE is:"<<r1.cap(1).trimmed();
-                QFileInfo qmake(r1.cap(1).trimmed());
-                QString qmakePath = qmake.filePath();
-                if (HostOsInfo::isWindowsHost()
-                        && !qmakePath.endsWith(QLatin1String(".exe"))) {
-                    qmakePath.append(QLatin1String(".exe"));
-                }
-                // Is qmake still installed?
-                QFileInfo fi(qmakePath);
-                if (fi.exists())
-                    return FileName(fi);
-            }
-        }
-    }
-    return FileName();
-}
-
 BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const FileName &qmakePath)
 {
-    foreach (BaseQtVersion *version, versions()) {
-        if (version->qmakeCommand() == qmakePath) {
-            return version;
-            break;
-        }
-    }
-    return 0;
-}
-
-void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
-{
-    foreach (const QMakeAssignment &qa, list) {
-        qDebug()<<qa.variable<<qa.op<<qa.value;
-    }
-}
-
-QtVersionManager::MakefileCompatible QtVersionManager::makefileIsFor(const QString &makefile, const QString &proFile)
-{
-    if (proFile.isEmpty())
-        return CouldNotParse;
-
-    // The Makefile.Debug / Makefile.Release lack a # Command: line
-    if (findQMakeLine(makefile, QLatin1String("# Command:")).trimmed().isEmpty())
-        return CouldNotParse;
-
-    QString line = findQMakeLine(makefile, QLatin1String("# Project:")).trimmed();
-    if (line.isEmpty())
-        return CouldNotParse;
-
-    line.remove(0, line.indexOf(QLatin1Char(':')) + 1);
-    line = line.trimmed();
-
-    QFileInfo srcFileInfo(QFileInfo(makefile).absoluteDir(), line);
-    QFileInfo proFileInfo(proFile);
-    return (srcFileInfo == proFileInfo) ? SameProject : DifferentProject;
-}
-
-QPair<BaseQtVersion::QmakeBuildConfigs, QString> QtVersionManager::scanMakeFile(const QString &makefile, BaseQtVersion::QmakeBuildConfigs defaultBuildConfig)
-{
-    if (debug)
-        qDebug()<<"ScanMakeFile, the gory details:";
-    BaseQtVersion::QmakeBuildConfigs result = defaultBuildConfig;
-    QString result2;
-
-    QString line = findQMakeLine(makefile, QLatin1String("# Command:"));
-    if (!line.isEmpty()) {
-        if (debug)
-            qDebug()<<"Found line"<<line;
-        line = trimLine(line);
-        QList<QMakeAssignment> assignments;
-        QList<QMakeAssignment> afterAssignments;
-        parseArgs(line, &assignments, &afterAssignments, &result2);
-
-        if (debug) {
-            dumpQMakeAssignments(assignments);
-            if (!afterAssignments.isEmpty())
-                qDebug()<<"-after";
-            dumpQMakeAssignments(afterAssignments);
-        }
-
-        // Search in assignments for CONFIG(+=,-=,=)(debug,release,debug_and_release)
-        // Also remove them from the list
-        result = qmakeBuildConfigFromCmdArgs(&assignments, defaultBuildConfig);
-
-        if (debug)
-            dumpQMakeAssignments(assignments);
-
-        foreach (const QMakeAssignment &qa, assignments)
-            QtcProcess::addArg(&result2, qa.variable + qa.op + qa.value);
-        if (!afterAssignments.isEmpty()) {
-            QtcProcess::addArg(&result2, QLatin1String("-after"));
-            foreach (const QMakeAssignment &qa, afterAssignments)
-                QtcProcess::addArg(&result2, qa.variable + qa.op + qa.value);
-        }
-    }
-
-    // Dump the gathered information:
-    if (debug) {
-        qDebug()<<"\n\nDumping information from scanMakeFile";
-        qDebug()<<"QMake CONFIG variable parsing";
-        qDebug()<<"  "<< (result & BaseQtVersion::NoBuild ? QByteArray("No Build") : QByteArray::number(int(result)));
-        qDebug()<<"  "<< (result & BaseQtVersion::DebugBuild ? "debug" : "release");
-        qDebug()<<"  "<< (result & BaseQtVersion::BuildAll ? "debug_and_release" : "no debug_and_release");
-        qDebug()<<"\nAddtional Arguments";
-        qDebug()<<result2;
-        qDebug()<<"\n\n";
-    }
-    return qMakePair(result, result2);
-}
-
-static void parseArgs(const QString &args, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments, QString *additionalArguments)
-{
-    QRegExp regExp(QLatin1String("([^\\s\\+-]*)\\s*(\\+=|=|-=|~=)(.*)"));
-    bool after = false;
-    bool ignoreNext = false;
-    *additionalArguments = args;
-    QtcProcess::ArgIterator ait(additionalArguments);
-    while (ait.next()) {
-        if (ignoreNext) {
-            // Ignoring
-            ignoreNext = false;
-            ait.deleteArg();
-        } else if (ait.value() == QLatin1String("-after")) {
-            after = true;
-            ait.deleteArg();
-        } else if (ait.value().contains(QLatin1Char('='))) {
-            if (regExp.exactMatch(ait.value())) {
-                QMakeAssignment qa;
-                qa.variable = regExp.cap(1);
-                qa.op = regExp.cap(2);
-                qa.value = regExp.cap(3).trimmed();
-                if (after)
-                    afterAssignments->append(qa);
-                else
-                    assignments->append(qa);
-            } else {
-                qDebug()<<"regexp did not match";
-            }
-            ait.deleteArg();
-        } else if (ait.value() == QLatin1String("-o")) {
-            ignoreNext = true;
-            ait.deleteArg();
-#if defined(Q_OS_WIN32)
-        } else if (ait.value() == QLatin1String("-win32")) {
-#elif defined(Q_OS_MAC)
-        } else if (ait.value() == QLatin1String("-macx")) {
-#elif defined(Q_OS_QNX6)
-        } else if (ait.value() == QLatin1String("-qnx6")) {
-#else
-        } else if (ait.value() == QLatin1String("-unix")) {
-#endif
-            ait.deleteArg();
-        }
-    }
-    ait.deleteArg();  // The .pro file is always the last arg
-}
-
-/// This function extracts all the CONFIG+=debug, CONFIG+=release
-static BaseQtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, BaseQtVersion::QmakeBuildConfigs defaultBuildConfig)
-{
-    BaseQtVersion::QmakeBuildConfigs result = defaultBuildConfig;
-    QList<QMakeAssignment> oldAssignments = *assignments;
-    assignments->clear();
-    foreach (const QMakeAssignment &qa, oldAssignments) {
-        if (qa.variable == QLatin1String("CONFIG")) {
-            QStringList values = qa.value.split(QLatin1Char(' '));
-            QStringList newValues;
-            foreach (const QString &value, values) {
-                if (value == QLatin1String("debug")) {
-                    if (qa.op == QLatin1String("+="))
-                        result = result  | BaseQtVersion::DebugBuild;
-                    else
-                        result = result  & ~BaseQtVersion::DebugBuild;
-                } else if (value == QLatin1String("release")) {
-                    if (qa.op == QLatin1String("+="))
-                        result = result & ~BaseQtVersion::DebugBuild;
-                    else
-                        result = result | BaseQtVersion::DebugBuild;
-                } else if (value == QLatin1String("debug_and_release")) {
-                    if (qa.op == QLatin1String("+="))
-                        result = result | BaseQtVersion::BuildAll;
-                    else
-                        result = result & ~BaseQtVersion::BuildAll;
-                } else {
-                    newValues.append(value);
-                }
-                QMakeAssignment newQA = qa;
-                newQA.value = newValues.join(QLatin1String(" "));
-                if (!newValues.isEmpty())
-                    assignments->append(newQA);
-            }
-        } else {
-            assignments->append(qa);
-        }
-    }
-    return result;
-}
-
-Core::FeatureSet QtFeatureProvider::availableFeatures(const QString &platformName) const
-{
-    Core::FeatureSet features;
-    foreach (BaseQtVersion *const qtVersion, QtVersionManager::validVersions()) {
-        if (qtVersion->platformName() == platformName || platformName.isEmpty())
-            features |= qtVersion->availableFeatures();
-    }
-
-    return features;
-}
-
-QStringList QtFeatureProvider::availablePlatforms() const
-{
-    QStringList platforms;
-    foreach (BaseQtVersion *const qtVersion, QtVersionManager::validVersions()) {
-        if (!qtVersion->platformName().isEmpty())
-            platforms.append(qtVersion->platformName());
-    }
-    platforms.removeDuplicates();
-    return platforms;
-}
-
-QString QtFeatureProvider::displayNameForPlatform(const QString &string) const
-{
-    foreach (BaseQtVersion *const qtVersion, QtVersionManager::validVersions()) {
-        if (qtVersion->platformName() == string)
-            return qtVersion->platformDisplayName();
-    }
-    return QString();
+    return Utils::findOrDefault(unsortedVersions(), Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
 }
 
 } // namespace QtVersion

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,40 +35,25 @@
 #include "iplugin_p.h"
 #include "pluginmanager.h"
 
+#include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QXmlStreamReader>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QPluginLoader>
 #include <QRegExp>
-#include <QCoreApplication>
-#include <QDebug>
-
-#ifdef Q_OS_LINUX
-// Using the patched version breaks on Fedora 10, KDE4.2.2/Qt4.5.
-#   define USE_UNPATCHED_QPLUGINLOADER 1
-#else
-#   define USE_UNPATCHED_QPLUGINLOADER 1
-#endif
-
-#if USE_UNPATCHED_QPLUGINLOADER
-
-#   include <QPluginLoader>
-    typedef QT_PREPEND_NAMESPACE(QPluginLoader) PluginLoader;
-
-#else
-
-#   include "patchedpluginloader.cpp"
-    typedef PatchedPluginLoader PluginLoader;
-
-#endif
 
 /*!
     \class ExtensionSystem::PluginDependency
     \brief The PluginDependency class contains the name and required compatible
     version number of a plugin's dependency.
 
-    This reflects the data of a dependency tag in the plugin's XML description
-    file. The name and version are used to resolve the dependency. That is,
+    This reflects the data of a dependency object in the plugin's meta data.
+    The name and version are used to resolve the dependency. That is,
     a plugin with the given name and
     plugin \c {compatibility version <= dependency version <= plugin version} is searched for.
 
@@ -100,13 +86,14 @@
            Dependency is not necessarily needed. You need to make sure that
            the plugin is able to load without this dependency installed, so
            for example you may not link to the dependency's library.
+    \value Test
+           Dependency needs to be force-loaded for running tests of the plugin.
 */
 
 /*!
     \class ExtensionSystem::PluginSpec
-    \brief The PluginSpec class contains the information of the plugin's XML
-    description file and
-    information about the plugin's current state.
+    \brief The PluginSpec class contains the information of the plugin's embedded meta data
+    and information about the plugin's current state.
 
     The plugin spec is also filled with more information as the plugin
     goes through its loading process (see PluginSpec::State).
@@ -122,9 +109,9 @@
     The state gives a hint on what went wrong in case of an error.
 
     \value  Invalid
-            Starting point: Even the XML description file was not read.
+            Starting point: Even the plugin meta data was not read.
     \value  Read
-            The XML description file has been successfully read, and its
+            The plugin meta data has been successfully read, and its
             information is available via the PluginSpec.
     \value  Resolved
             The dependencies given in the description file have been
@@ -151,7 +138,7 @@ using namespace ExtensionSystem::Internal;
 /*!
     \internal
 */
-uint ExtensionSystem::qHash(const ExtensionSystem::PluginDependency &value)
+uint ExtensionSystem::qHash(const PluginDependency &value)
 {
     return qHash(value.name);
 }
@@ -265,6 +252,16 @@ QRegExp PluginSpec::platformSpecification() const
     return d->platformSpecification;
 }
 
+bool PluginSpec::isAvailableForHostPlatform() const
+{
+    return d->platformSpecification.isEmpty() || d->platformSpecification.exactMatch(PluginManager::platformName());
+}
+
+bool PluginSpec::isRequired() const
+{
+    return d->required;
+}
+
 /*!
     Returns whether the plugin has its experimental flag set.
 */
@@ -274,48 +271,49 @@ bool PluginSpec::isExperimental() const
 }
 
 /*!
-    Returns whether the plugin is disabled by default.
-    This might be because the plugin is experimental, or because
-    the plugin manager's settings define it as disabled by default.
+    Returns whether the plugin is enabled by default.
+    A plugin might be disabled because the plugin is experimental, or because
+    the install settings define it as disabled by default.
 */
-bool PluginSpec::isDisabledByDefault() const
+bool PluginSpec::isEnabledByDefault() const
 {
-    return d->disabledByDefault;
+    return d->enabledByDefault;
 }
 
 /*!
-    Returns whether the plugin should be loaded at startup. True by default.
+    Returns whether the plugin should be loaded at startup,
+    taking into account the default enabled state, and the user's settings.
 
-    The user can change it from the Plugin settings.
-
-    \note This function returns true even if a plugin is disabled because its
-    dependencies were not loaded, or an error occurred during loading it.
+    \note This function might return false even if the plugin is loaded as a requirement of another
+    enabled plugin.
+    \sa PluginSpec::isEffectivelyEnabled
 */
-bool PluginSpec::isEnabledInSettings() const
+bool PluginSpec::isEnabledBySettings() const
 {
-    return d->enabledInSettings;
+    return d->enabledBySettings;
 }
 
 /*!
     Returns whether the plugin is loaded at startup.
-    \see PluginSpec::isEnabled
+    \see PluginSpec::isEnabledBySettings
 */
 bool PluginSpec::isEffectivelyEnabled() const
 {
-    if (d->disabledIndirectly
-        || (!d->enabledInSettings && !d->forceEnabled)
-        || d->forceDisabled) {
+    if (!isAvailableForHostPlatform())
         return false;
-    }
-    return d->platformSpecification.isEmpty() || d->platformSpecification.exactMatch(PluginManager::platformName());
+    if (isForceEnabled() || isEnabledIndirectly())
+        return true;
+    if (isForceDisabled())
+        return false;
+    return isEnabledBySettings();
 }
 
 /*!
     Returns true if loading was not done due to user unselecting this plugin or its dependencies.
 */
-bool PluginSpec::isDisabledIndirectly() const
+bool PluginSpec::isEnabledIndirectly() const
 {
-    return d->disabledIndirectly;
+    return d->enabledIndirectly;
 }
 
 /*!
@@ -337,7 +335,7 @@ bool PluginSpec::isForceDisabled() const
 /*!
     The plugin dependencies. This is valid after the PluginSpec::Read state is reached.
 */
-QList<PluginDependency> PluginSpec::dependencies() const
+QVector<PluginDependency> PluginSpec::dependencies() const
 {
     return d->dependencies;
 }
@@ -456,54 +454,57 @@ QHash<PluginDependency, PluginSpec *> PluginSpec::dependencySpecs() const
 //==========PluginSpecPrivate==================
 
 namespace {
-    const char PLUGIN[] = "plugin";
-    const char PLUGIN_NAME[] = "name";
-    const char PLUGIN_VERSION[] = "version";
-    const char PLUGIN_COMPATVERSION[] = "compatVersion";
-    const char PLUGIN_EXPERIMENTAL[] = "experimental";
-    const char PLUGIN_DISABLED_BY_DEFAULT[] = "disabledByDefault";
-    const char VENDOR[] = "vendor";
-    const char COPYRIGHT[] = "copyright";
-    const char LICENSE[] = "license";
-    const char DESCRIPTION[] = "description";
-    const char URL[] = "url";
-    const char CATEGORY[] = "category";
-    const char PLATFORM[] = "platform";
-    const char DEPENDENCYLIST[] = "dependencyList";
-    const char DEPENDENCY[] = "dependency";
-    const char DEPENDENCY_NAME[] = "name";
-    const char DEPENDENCY_VERSION[] = "version";
-    const char DEPENDENCY_TYPE[] = "type";
+    const char PLUGIN_METADATA[] = "MetaData";
+    const char PLUGIN_NAME[] = "Name";
+    const char PLUGIN_VERSION[] = "Version";
+    const char PLUGIN_COMPATVERSION[] = "CompatVersion";
+    const char PLUGIN_REQUIRED[] = "Required";
+    const char PLUGIN_EXPERIMENTAL[] = "Experimental";
+    const char PLUGIN_DISABLED_BY_DEFAULT[] = "DisabledByDefault";
+    const char VENDOR[] = "Vendor";
+    const char COPYRIGHT[] = "Copyright";
+    const char LICENSE[] = "License";
+    const char DESCRIPTION[] = "Description";
+    const char URL[] = "Url";
+    const char CATEGORY[] = "Category";
+    const char PLATFORM[] = "Platform";
+    const char DEPENDENCIES[] = "Dependencies";
+    const char DEPENDENCY_NAME[] = "Name";
+    const char DEPENDENCY_VERSION[] = "Version";
+    const char DEPENDENCY_TYPE[] = "Type";
     const char DEPENDENCY_TYPE_SOFT[] = "optional";
     const char DEPENDENCY_TYPE_HARD[] = "required";
-    const char ARGUMENTLIST[] = "argumentList";
-    const char ARGUMENT[] = "argument";
-    const char ARGUMENT_NAME[] = "name";
-    const char ARGUMENT_PARAMETER[] = "parameter";
+    const char DEPENDENCY_TYPE_TEST[] = "test";
+    const char ARGUMENTS[] = "Arguments";
+    const char ARGUMENT_NAME[] = "Name";
+    const char ARGUMENT_PARAMETER[] = "Parameter";
+    const char ARGUMENT_DESCRIPTION[] = "Description";
 }
 /*!
     \internal
 */
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
-    :
-    experimental(false),
-    disabledByDefault(false),
-    enabledInSettings(true),
-    disabledIndirectly(false),
-    forceEnabled(false),
-    forceDisabled(false),
-    plugin(0),
-    state(PluginSpec::Invalid),
-    hasError(false),
-    q(spec)
+    : required(false),
+      experimental(false),
+      enabledByDefault(true),
+      enabledBySettings(true),
+      enabledIndirectly(false),
+      forceEnabled(false),
+      forceDisabled(false),
+      plugin(0),
+      state(PluginSpec::Invalid),
+      hasError(false),
+      q(spec)
 {
 }
 
 /*!
     \internal
+    Returns false if the file does not represent a Qt Creator plugin.
 */
 bool PluginSpecPrivate::read(const QString &fileName)
 {
+    qCDebug(pluginLog) << "\nReading meta data of" << fileName;
     name
         = version
         = compatVersion
@@ -519,61 +520,44 @@ bool PluginSpecPrivate::read(const QString &fileName)
     hasError = false;
     errorString.clear();
     dependencies.clear();
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly))
-        return reportError(tr("Cannot open file %1 for reading: %2")
-                           .arg(QDir::toNativeSeparators(file.fileName()), file.errorString()));
-    QFileInfo fileInfo(file);
+    QFileInfo fileInfo(fileName);
     location = fileInfo.absolutePath();
     filePath = fileInfo.absoluteFilePath();
-    QXmlStreamReader reader(&file);
-    while (!reader.atEnd()) {
-        reader.readNext();
-        switch (reader.tokenType()) {
-        case QXmlStreamReader::StartElement:
-            readPluginSpec(reader);
-            break;
-        default:
-            break;
-        }
+    loader.setFileName(filePath);
+    if (loader.fileName().isEmpty()) {
+        qCDebug(pluginLog) << "Cannot open file";
+        return false;
     }
-    if (reader.hasError())
-        return reportError(tr("Error parsing file %1: %2, at line %3, column %4")
-                .arg(QDir::toNativeSeparators(file.fileName()))
-                .arg(reader.errorString())
-                .arg(reader.lineNumber())
-                .arg(reader.columnNumber()));
+
+    if (!readMetaData(loader.metaData()))
+        return false;
+
     state = PluginSpec::Read;
     return true;
 }
 
-void PluginSpec::setEnabled(bool value)
+void PluginSpecPrivate::setEnabledBySettings(bool value)
 {
-    d->enabledInSettings = value;
+    enabledBySettings = value;
 }
 
-void PluginSpec::setDisabledByDefault(bool value)
+void PluginSpecPrivate::setEnabledByDefault(bool value)
 {
-    d->disabledByDefault = value;
+    enabledByDefault = value;
 }
 
-void PluginSpec::setDisabledIndirectly(bool value)
+void PluginSpecPrivate::setForceEnabled(bool value)
 {
-    d->disabledIndirectly = value;
-}
-
-void PluginSpec::setForceEnabled(bool value)
-{
-    d->forceEnabled = value;
+    forceEnabled = value;
     if (value)
-        d->forceDisabled = false;
+        forceDisabled = false;
 }
 
-void PluginSpec::setForceDisabled(bool value)
+void PluginSpecPrivate::setForceDisabled(bool value)
 {
     if (value)
-        d->forceEnabled = false;
-    d->forceDisabled = value;
+        forceEnabled = false;
+    forceDisabled = value;
 }
 
 /*!
@@ -583,237 +567,253 @@ bool PluginSpecPrivate::reportError(const QString &err)
 {
     errorString = err;
     hasError = true;
-    return false;
+    return true;
 }
 
-static inline QString msgAttributeMissing(const char *elt, const char *attribute)
+static inline QString msgValueMissing(const char *key)
 {
-    return QCoreApplication::translate("PluginSpec", "'%1' misses attribute '%2'").arg(QLatin1String(elt), QLatin1String(attribute));
+    return QCoreApplication::translate("PluginSpec", "\"%1\" is missing").arg(QLatin1String(key));
 }
 
-static inline QString msgInvalidFormat(const char *content)
+static inline QString msgValueIsNotAString(const char *key)
 {
-    return QCoreApplication::translate("PluginSpec", "'%1' has invalid format").arg(QLatin1String(content));
+    return QCoreApplication::translate("PluginSpec", "Value for key \"%1\" is not a string")
+            .arg(QLatin1String(key));
 }
 
-static inline QString msgInvalidElement(const QString &name)
+static inline QString msgValueIsNotABool(const char *key)
 {
-    return QCoreApplication::translate("PluginSpec", "Invalid element '%1'").arg(name);
+    return QCoreApplication::translate("PluginSpec", "Value for key \"%1\" is not a bool")
+            .arg(QLatin1String(key));
 }
 
-static inline QString msgUnexpectedClosing(const QString &name)
+static inline QString msgValueIsNotAObjectArray(const char *key)
 {
-    return QCoreApplication::translate("PluginSpec", "Unexpected closing element '%1'").arg(name);
+    return QCoreApplication::translate("PluginSpec", "Value for key \"%1\" is not an array of objects")
+            .arg(QLatin1String(key));
 }
 
-static inline QString msgUnexpectedToken()
+static inline QString msgValueIsNotAMultilineString(const char *key)
 {
-    return QCoreApplication::translate("PluginSpec", "Unexpected token");
+    return QCoreApplication::translate("PluginSpec", "Value for key \"%1\" is not a string and not an array of strings")
+            .arg(QLatin1String(key));
+}
+
+static inline QString msgInvalidFormat(const char *key, const QString &content)
+{
+    return QCoreApplication::translate("PluginSpec", "Value \"%2\" for key \"%1\" has invalid format")
+            .arg(QLatin1String(key), content);
+}
+
+static inline bool readMultiLineString(const QJsonValue &value, QString *out)
+{
+    if (!out) {
+        qCWarning(pluginLog) << Q_FUNC_INFO << "missing output parameter";
+        return false;
+    }
+    if (value.isString()) {
+        *out = value.toString();
+    } else if (value.isArray()) {
+        QJsonArray array = value.toArray();
+        QStringList lines;
+        foreach (const QJsonValue &v, array) {
+            if (!v.isString())
+                return false;
+            lines.append(v.toString());
+        }
+        *out = lines.join(QLatin1Char('\n'));
+    } else {
+        return false;
+    }
+    return true;
 }
 
 /*!
     \internal
 */
-void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
+bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData)
 {
-    if (reader.name() != QLatin1String(PLUGIN)) {
-        reader.raiseError(QCoreApplication::translate("PluginSpec", "Expected element '%1' as top level element")
-                          .arg(QLatin1String(PLUGIN)));
-        return;
+    qCDebug(pluginLog) << "MetaData:" << QJsonDocument(metaData).toJson();
+    QJsonValue value;
+    value = metaData.value(QLatin1String("IID"));
+    if (!value.isString()) {
+        qCDebug(pluginLog) << "Not a plugin (no string IID found)";
+        return false;
     }
-    name = reader.attributes().value(QLatin1String(PLUGIN_NAME)).toString();
-    if (name.isEmpty()) {
-        reader.raiseError(msgAttributeMissing(PLUGIN, PLUGIN_NAME));
-        return;
+    if (value.toString() != PluginManager::pluginIID()) {
+        qCDebug(pluginLog) << "Plugin ignored (IID does not match)";
+        return false;
     }
-    version = reader.attributes().value(QLatin1String(PLUGIN_VERSION)).toString();
-    if (version.isEmpty()) {
-        reader.raiseError(msgAttributeMissing(PLUGIN, PLUGIN_VERSION));
-        return;
-    }
-    if (!isValidVersion(version)) {
-        reader.raiseError(msgInvalidFormat(PLUGIN_VERSION));
-        return;
-    }
-    compatVersion = reader.attributes().value(QLatin1String(PLUGIN_COMPATVERSION)).toString();
-    if (!compatVersion.isEmpty() && !isValidVersion(compatVersion)) {
-        reader.raiseError(msgInvalidFormat(PLUGIN_COMPATVERSION));
-        return;
-    } else if (compatVersion.isEmpty()) {
-        compatVersion = version;
-    }
-    disabledByDefault = readBooleanValue(reader, PLUGIN_DISABLED_BY_DEFAULT);
-    experimental = readBooleanValue(reader, PLUGIN_EXPERIMENTAL);
-    if (reader.hasError())
-        return;
+
+    value = metaData.value(QLatin1String(PLUGIN_METADATA));
+    if (!value.isObject())
+        return reportError(tr("Plugin meta data not found"));
+    QJsonObject pluginInfo = value.toObject();
+
+    value = pluginInfo.value(QLatin1String(PLUGIN_NAME));
+    if (value.isUndefined())
+        return reportError(msgValueMissing(PLUGIN_NAME));
+    if (!value.isString())
+        return reportError(msgValueIsNotAString(PLUGIN_NAME));
+    name = value.toString();
+
+    value = pluginInfo.value(QLatin1String(PLUGIN_VERSION));
+    if (value.isUndefined())
+        return reportError(msgValueMissing(PLUGIN_VERSION));
+    if (!value.isString())
+        return reportError(msgValueIsNotAString(PLUGIN_VERSION));
+    version = value.toString();
+    if (!isValidVersion(version))
+        return reportError(msgInvalidFormat(PLUGIN_VERSION, version));
+
+    value = pluginInfo.value(QLatin1String(PLUGIN_COMPATVERSION));
+    if (!value.isUndefined() && !value.isString())
+        return reportError(msgValueIsNotAString(PLUGIN_COMPATVERSION));
+    compatVersion = value.toString(version);
+    if (!value.isUndefined() && !isValidVersion(compatVersion))
+        return reportError(msgInvalidFormat(PLUGIN_COMPATVERSION, compatVersion));
+
+    value = pluginInfo.value(QLatin1String(PLUGIN_REQUIRED));
+    if (!value.isUndefined() && !value.isBool())
+        return reportError(msgValueIsNotABool(PLUGIN_REQUIRED));
+    required = value.toBool(false);
+    qCDebug(pluginLog) << "required =" << required;
+
+    value = pluginInfo.value(QLatin1String(PLUGIN_EXPERIMENTAL));
+    if (!value.isUndefined() && !value.isBool())
+        return reportError(msgValueIsNotABool(PLUGIN_EXPERIMENTAL));
+    experimental = value.toBool(false);
+    qCDebug(pluginLog) << "experimental =" << experimental;
+
+    value = pluginInfo.value(QLatin1String(PLUGIN_DISABLED_BY_DEFAULT));
+    if (!value.isUndefined() && !value.isBool())
+        return reportError(msgValueIsNotABool(PLUGIN_DISABLED_BY_DEFAULT));
+    enabledByDefault = !value.toBool(false);
+    qCDebug(pluginLog) << "enabledByDefault =" << enabledByDefault;
+
     if (experimental)
-        disabledByDefault = true;
-    enabledInSettings = !disabledByDefault;
-    while (!reader.atEnd()) {
-        reader.readNext();
-        switch (reader.tokenType()) {
-        case QXmlStreamReader::StartElement: {
-            const QStringRef element = reader.name();
-            if (element == QLatin1String(VENDOR))
-                vendor = reader.readElementText().trimmed();
-            else if (element == QLatin1String(COPYRIGHT))
-                copyright = reader.readElementText().trimmed();
-            else if (element == QLatin1String(LICENSE))
-                license = reader.readElementText().trimmed();
-            else if (element == QLatin1String(DESCRIPTION))
-                description = reader.readElementText().trimmed();
-            else if (element == QLatin1String(URL))
-                url = reader.readElementText().trimmed();
-            else if (element == QLatin1String(CATEGORY))
-                category = reader.readElementText().trimmed();
-            else if (element == QLatin1String(PLATFORM)) {
-                const QString platformSpec = reader.readElementText().trimmed();
-                if (!platformSpec.isEmpty()) {
-                    platformSpecification.setPattern(platformSpec);
-                    if (!platformSpecification.isValid())
-                        reader.raiseError(QLatin1String("Invalid platform specification \"")
-                                          + platformSpec + QLatin1String("\": ")
-                                          + platformSpecification.errorString());
-                }
-            } else if (element == QLatin1String(DEPENDENCYLIST))
-                readDependencies(reader);
-            else if (element == QLatin1String(ARGUMENTLIST))
-                readArgumentDescriptions(reader);
-            else
-                reader.raiseError(msgInvalidElement(element.toString()));
-        }
-            break;
-        case QXmlStreamReader::EndDocument:
-        case QXmlStreamReader::Comment:
-        case QXmlStreamReader::EndElement:
-        case QXmlStreamReader::Characters:
-            break;
-        default:
-            reader.raiseError(msgUnexpectedToken());
-            break;
-        }
-    }
-}
+        enabledByDefault = false;
+    enabledBySettings = enabledByDefault;
 
-/*!
-    \internal
-*/
-void PluginSpecPrivate::readArgumentDescriptions(QXmlStreamReader &reader)
-{
-    while (!reader.atEnd()) {
-        reader.readNext();
-        switch (reader.tokenType()) {
-        case QXmlStreamReader::StartElement:
-            if (reader.name() == QLatin1String(ARGUMENT))
-                readArgumentDescription(reader);
-            else
-                reader.raiseError(msgInvalidElement(reader.name().toString()));
-            break;
-        case QXmlStreamReader::Comment:
-        case QXmlStreamReader::Characters:
-            break;
-        case QXmlStreamReader::EndElement:
-            if (reader.name() == QLatin1String(ARGUMENTLIST))
-                return;
-            reader.raiseError(msgUnexpectedClosing(reader.name().toString()));
-            break;
-        default:
-            reader.raiseError(msgUnexpectedToken());
-            break;
-        }
-    }
-}
+    value = pluginInfo.value(QLatin1String(VENDOR));
+    if (!value.isUndefined() && !value.isString())
+        return reportError(msgValueIsNotAString(VENDOR));
+    vendor = value.toString();
 
-/*!
-    \internal
-*/
-void PluginSpecPrivate::readArgumentDescription(QXmlStreamReader &reader)
-{
-    PluginArgumentDescription arg;
-    arg.name = reader.attributes().value(QLatin1String(ARGUMENT_NAME)).toString();
-    if (arg.name.isEmpty()) {
-        reader.raiseError(msgAttributeMissing(ARGUMENT, ARGUMENT_NAME));
-        return;
-    }
-    arg.parameter = reader.attributes().value(QLatin1String(ARGUMENT_PARAMETER)).toString();
-    arg.description = reader.readElementText();
-    if (reader.tokenType() != QXmlStreamReader::EndElement)
-        reader.raiseError(msgUnexpectedToken());
-    argumentDescriptions.push_back(arg);
-}
+    value = pluginInfo.value(QLatin1String(COPYRIGHT));
+    if (!value.isUndefined() && !value.isString())
+        return reportError(msgValueIsNotAString(COPYRIGHT));
+    copyright = value.toString();
 
-bool PluginSpecPrivate::readBooleanValue(QXmlStreamReader &reader, const char *key)
-{
-    const QStringRef valueString = reader.attributes().value(QLatin1String(key));
-    const bool isOn = valueString.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0;
-    if (!valueString.isEmpty() && !isOn
-            && valueString.compare(QLatin1String("false"), Qt::CaseInsensitive) != 0) {
-        reader.raiseError(msgInvalidFormat(key));
-    }
-    return isOn;
-}
+    value = pluginInfo.value(QLatin1String(DESCRIPTION));
+    if (!value.isUndefined() && !readMultiLineString(value, &description))
+        return reportError(msgValueIsNotAString(DESCRIPTION));
 
-/*!
-    \internal
-*/
-void PluginSpecPrivate::readDependencies(QXmlStreamReader &reader)
-{
-    while (!reader.atEnd()) {
-        reader.readNext();
-        switch (reader.tokenType()) {
-        case QXmlStreamReader::StartElement:
-            if (reader.name() == QLatin1String(DEPENDENCY))
-                readDependencyEntry(reader);
-            else
-                reader.raiseError(msgInvalidElement(reader.name().toString()));
-            break;
-        case QXmlStreamReader::Comment:
-        case QXmlStreamReader::Characters:
-            break;
-        case QXmlStreamReader::EndElement:
-            if (reader.name() == QLatin1String(DEPENDENCYLIST))
-                return;
-            reader.raiseError(msgUnexpectedClosing(reader.name().toString()));
-            break;
-        default:
-            reader.raiseError(msgUnexpectedToken());
-            break;
-        }
-    }
-}
+    value = pluginInfo.value(QLatin1String(URL));
+    if (!value.isUndefined() && !value.isString())
+        return reportError(msgValueIsNotAString(URL));
+    url = value.toString();
 
-/*!
-    \internal
-*/
-void PluginSpecPrivate::readDependencyEntry(QXmlStreamReader &reader)
-{
-    PluginDependency dep;
-    dep.name = reader.attributes().value(QLatin1String(DEPENDENCY_NAME)).toString();
-    if (dep.name.isEmpty()) {
-        reader.raiseError(msgAttributeMissing(DEPENDENCY, DEPENDENCY_NAME));
-        return;
+    value = pluginInfo.value(QLatin1String(CATEGORY));
+    if (!value.isUndefined() && !value.isString())
+        return reportError(msgValueIsNotAString(CATEGORY));
+    category = value.toString();
+
+    value = pluginInfo.value(QLatin1String(LICENSE));
+    if (!value.isUndefined() && !readMultiLineString(value, &license))
+        return reportError(msgValueIsNotAMultilineString(LICENSE));
+
+    value = pluginInfo.value(QLatin1String(PLATFORM));
+    if (!value.isUndefined() && !value.isString())
+        return reportError(msgValueIsNotAString(PLATFORM));
+    const QString platformSpec = value.toString().trimmed();
+    if (!platformSpec.isEmpty()) {
+        platformSpecification.setPattern(platformSpec);
+        if (!platformSpecification.isValid())
+            return reportError(tr("Invalid platform specification \"%1\": %2")
+                               .arg(platformSpec, platformSpecification.errorString()));
     }
-    dep.version = reader.attributes().value(QLatin1String(DEPENDENCY_VERSION)).toString();
-    if (!dep.version.isEmpty() && !isValidVersion(dep.version)) {
-        reader.raiseError(msgInvalidFormat(DEPENDENCY_VERSION));
-        return;
-    }
-    dep.type = PluginDependency::Required;
-    if (reader.attributes().hasAttribute(QLatin1String(DEPENDENCY_TYPE))) {
-        const QStringRef typeValue = reader.attributes().value(QLatin1String(DEPENDENCY_TYPE));
-        if (typeValue == QLatin1String(DEPENDENCY_TYPE_HARD)) {
+
+    value = pluginInfo.value(QLatin1String(DEPENDENCIES));
+    if (!value.isUndefined() && !value.isArray())
+        return reportError(msgValueIsNotAObjectArray(DEPENDENCIES));
+    if (!value.isUndefined()) {
+        QJsonArray array = value.toArray();
+        foreach (const QJsonValue &v, array) {
+            if (!v.isObject())
+                return reportError(msgValueIsNotAObjectArray(DEPENDENCIES));
+            QJsonObject dependencyObject = v.toObject();
+            PluginDependency dep;
+            value = dependencyObject.value(QLatin1String(DEPENDENCY_NAME));
+            if (value.isUndefined())
+                return reportError(tr("Dependency: %1").arg(msgValueMissing(DEPENDENCY_NAME)));
+            if (!value.isString())
+                return reportError(tr("Dependency: %1").arg(msgValueIsNotAString(DEPENDENCY_NAME)));
+            dep.name = value.toString();
+            value = dependencyObject.value(QLatin1String(DEPENDENCY_VERSION));
+            if (!value.isUndefined() && !value.isString())
+                return reportError(tr("Dependency: %1").arg(msgValueIsNotAString(DEPENDENCY_VERSION)));
+            dep.version = value.toString();
+            if (!isValidVersion(dep.version))
+                return reportError(tr("Dependency: %1").arg(msgInvalidFormat(DEPENDENCY_VERSION,
+                                                                             dep.version)));
             dep.type = PluginDependency::Required;
-        } else if (typeValue == QLatin1String(DEPENDENCY_TYPE_SOFT)) {
-            dep.type = PluginDependency::Optional;
-        } else {
-            reader.raiseError(msgInvalidFormat(DEPENDENCY_TYPE));
-            return;
+            value = dependencyObject.value(QLatin1String(DEPENDENCY_TYPE));
+            if (!value.isUndefined() && !value.isString())
+                return reportError(tr("Dependency: %1").arg(msgValueIsNotAString(DEPENDENCY_TYPE)));
+            if (!value.isUndefined()) {
+                const QString typeValue = value.toString();
+                if (typeValue.toLower() == QLatin1String(DEPENDENCY_TYPE_HARD)) {
+                    dep.type = PluginDependency::Required;
+                } else if (typeValue.toLower() == QLatin1String(DEPENDENCY_TYPE_SOFT)) {
+                    dep.type = PluginDependency::Optional;
+                } else if (typeValue.toLower() == QLatin1String(DEPENDENCY_TYPE_TEST)) {
+                    dep.type = PluginDependency::Test;
+                } else {
+                    return reportError(tr("Dependency: \"%1\" must be \"%2\" or \"%3\" (is \"%4\")")
+                                       .arg(QLatin1String(DEPENDENCY_TYPE),
+                                            QLatin1String(DEPENDENCY_TYPE_HARD),
+                                            QLatin1String(DEPENDENCY_TYPE_SOFT),
+                                            typeValue));
+                }
+            }
+            dependencies.append(dep);
         }
     }
-    dependencies.append(dep);
-    reader.readNext();
-    if (reader.tokenType() != QXmlStreamReader::EndElement)
-        reader.raiseError(msgUnexpectedToken());
+
+    value = pluginInfo.value(QLatin1String(ARGUMENTS));
+    if (!value.isUndefined() && !value.isArray())
+        return reportError(msgValueIsNotAObjectArray(ARGUMENTS));
+    if (!value.isUndefined()) {
+        QJsonArray array = value.toArray();
+        foreach (const QJsonValue &v, array) {
+            if (!v.isObject())
+                return reportError(msgValueIsNotAObjectArray(ARGUMENTS));
+            QJsonObject argumentObject = v.toObject();
+            PluginArgumentDescription arg;
+            value = argumentObject.value(QLatin1String(ARGUMENT_NAME));
+            if (value.isUndefined())
+                return reportError(tr("Argument: %1").arg(msgValueMissing(ARGUMENT_NAME)));
+            if (!value.isString())
+                return reportError(tr("Argument: %1").arg(msgValueIsNotAString(ARGUMENT_NAME)));
+            arg.name = value.toString();
+            if (arg.name.isEmpty())
+                return reportError(tr("Argument: \"%1\" is empty").arg(QLatin1String(ARGUMENT_NAME)));
+            value = argumentObject.value(QLatin1String(ARGUMENT_DESCRIPTION));
+            if (!value.isUndefined() && !value.isString())
+                return reportError(tr("Argument: %1").arg(msgValueIsNotAString(ARGUMENT_DESCRIPTION)));
+            arg.description = value.toString();
+            value = argumentObject.value(QLatin1String(ARGUMENT_PARAMETER));
+            if (!value.isUndefined() && !value.isString())
+                return reportError(tr("Argument: %1").arg(msgValueIsNotAString(ARGUMENT_PARAMETER)));
+            arg.parameter = value.toString();
+            argumentDescriptions.append(arg);
+            qCDebug(pluginLog) << "Argument:" << arg.name << "Parameter:" << arg.parameter
+                               << "Description:" << arg.description;
+        }
+    }
+
+    return true;
 }
 
 /*!
@@ -912,24 +912,18 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
     return true;
 }
 
-void PluginSpecPrivate::disableIndirectlyIfDependencyDisabled()
+void PluginSpecPrivate::enableDependenciesIndirectly()
 {
-    if (!enabledInSettings)
+    if (!q->isEffectivelyEnabled()) // plugin not enabled, nothing to do
         return;
-
-    if (disabledIndirectly)
-        return;
-
     QHashIterator<PluginDependency, PluginSpec *> it(dependencySpecs);
     while (it.hasNext()) {
         it.next();
-        if (it.key().type == PluginDependency::Optional)
+        if (it.key().type != PluginDependency::Required)
             continue;
         PluginSpec *dependencySpec = it.value();
-        if (!dependencySpec->isEffectivelyEnabled()) {
-            disabledIndirectly = true;
-            break;
-        }
+        if (!dependencySpec->isEffectivelyEnabled())
+            dependencySpec->d->enabledIndirectly = true;
     }
 }
 
@@ -947,32 +941,9 @@ bool PluginSpecPrivate::loadLibrary()
         hasError = true;
         return false;
     }
-#ifdef QT_NO_DEBUG
-
-#ifdef Q_OS_WIN
-    QString libName = QString::fromLatin1("%1/%2.dll").arg(location).arg(name);
-#elif defined(Q_OS_MAC)
-    QString libName = QString::fromLatin1("%1/lib%2.dylib").arg(location).arg(name);
-#else
-    QString libName = QString::fromLatin1("%1/lib%2.so").arg(location).arg(name);
-#endif
-
-#else //Q_NO_DEBUG
-
-#ifdef Q_OS_WIN
-    QString libName = QString::fromLatin1("%1/%2d.dll").arg(location).arg(name);
-#elif defined(Q_OS_MAC)
-    QString libName = QString::fromLatin1("%1/lib%2_debug.dylib").arg(location).arg(name);
-#else
-    QString libName = QString::fromLatin1("%1/lib%2.so").arg(location).arg(name);
-#endif
-
-#endif
-
-    PluginLoader loader(libName);
     if (!loader.load()) {
         hasError = true;
-        errorString = QDir::toNativeSeparators(libName)
+        errorString = QDir::toNativeSeparators(filePath)
             + QString::fromLatin1(": ") + loader.errorString();
         return false;
     }

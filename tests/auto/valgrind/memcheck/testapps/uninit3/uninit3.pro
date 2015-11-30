@@ -3,7 +3,8 @@ TARGET = uninit3
 
 CONFIG += debug console
 CONFIG -= qt
-QMAKE_CXXFLAGS = -O0
+win32-msvc*:QMAKE_CXXFLAGS += -w44700
+else:QMAKE_CXXFLAGS = -O0 -Wno-uninitialized
 
 macx:CONFIG -= app_bundle
 

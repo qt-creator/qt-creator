@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "genericproposalwidget.h"
-#include "igenericproposalmodel.h"
-#include "iassistproposalitem.h"
+#include "genericproposalmodel.h"
+#include "assistproposalitem.h"
 #include "codeassistant.h"
 
 #include <texteditor/texteditorsettings.h>
@@ -58,23 +59,23 @@ using namespace Utils;
 
 namespace TextEditor {
 
-namespace {
-
-QString cleanText(const QString &original)
+static QString cleanText(const QString &original)
 {
     QString clean = original;
     int ignore = 0;
     for (int i = clean.length() - 1; i >= 0; --i, ++ignore) {
         const QChar &c = clean.at(i);
-        if (c.isLetterOrNumber() || c == QLatin1Char('_'))
+        if (c.isLetterOrNumber() || c == QLatin1Char('_')
+                || c.isHighSurrogate() || c.isLowSurrogate()) {
             break;
+        }
     }
     if (ignore)
         clean.chop(ignore);
     return clean;
 }
 
-bool isPerfectMatch(const QString &prefix, const IGenericProposalModel *model)
+static bool isPerfectMatch(const QString &prefix, const GenericProposalModel *model)
 {
     if (prefix.isEmpty())
         return false;
@@ -99,8 +100,6 @@ bool isPerfectMatch(const QString &prefix, const IGenericProposalModel *model)
     return false;
 }
 
-}
-
 // ------------
 // ModelAdapter
 // ------------
@@ -109,16 +108,16 @@ class ModelAdapter : public QAbstractListModel
     Q_OBJECT
 
 public:
-    ModelAdapter(IGenericProposalModel *completionModel, QWidget *parent);
+    ModelAdapter(GenericProposalModel *completionModel, QWidget *parent);
 
     virtual int rowCount(const QModelIndex &) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
 
 private:
-    IGenericProposalModel *m_completionModel;
+    GenericProposalModel *m_completionModel;
 };
 
-ModelAdapter::ModelAdapter(IGenericProposalModel *completionModel, QWidget *parent)
+ModelAdapter::ModelAdapter(GenericProposalModel *completionModel, QWidget *parent)
     : QAbstractListModel(parent)
     , m_completionModel(completionModel)
 {}
@@ -146,16 +145,19 @@ QVariant ModelAdapter::data(const QModelIndex &index, int role) const
 // ------------------------
 // GenericProposalInfoFrame
 // ------------------------
-class GenericProposalInfoFrame : public Utils::FakeToolTip
+class GenericProposalInfoFrame : public FakeToolTip
 {
 public:
     GenericProposalInfoFrame(QWidget *parent = 0)
-        : Utils::FakeToolTip(parent), m_label(new QLabel(this))
+        : FakeToolTip(parent), m_label(new QLabel(this))
     {
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setMargin(0);
         layout->setSpacing(0);
         layout->addWidget(m_label);
+
+        // Limit horizontal width
+        m_label->setSizePolicy(QSizePolicy::Fixed, m_label->sizePolicy().verticalPolicy());
 
         m_label->setForegroundRole(QPalette::ToolTipText);
         m_label->setBackgroundRole(QPalette::ToolTipBase);
@@ -164,6 +166,20 @@ public:
     void setText(const QString &text)
     {
         m_label->setText(text);
+    }
+
+    // Workaround QTCREATORBUG-11653
+    void calculateMaximumWidth()
+    {
+        const QDesktopWidget *desktopWidget = QApplication::desktop();
+        const int desktopWidth = desktopWidget->isVirtualDesktop()
+                ? desktopWidget->width()
+                : desktopWidget->availableGeometry(desktopWidget->primaryScreen()).width();
+        const QMargins widgetMargins = contentsMargins();
+        const QMargins layoutMargins = layout()->contentsMargins();
+        const int margins = widgetMargins.left() + widgetMargins.right()
+                + layoutMargins.left() + layoutMargins.right();
+        m_label->setMaximumWidth(desktopWidth - this->pos().x() - margins);
     }
 
 private:
@@ -237,7 +253,7 @@ public:
 
     const QWidget *m_underlyingWidget;
     GenericProposalListView *m_completionListView;
-    IGenericProposalModel *m_model;
+    GenericProposalModel *m_model;
     QRect m_displayRect;
     bool m_isSynchronized;
     bool m_explicitlySelected;
@@ -296,6 +312,7 @@ void GenericProposalWidgetPrivate::maybeShowInfoTip()
 
     m_infoFrame->move(m_completionListView->infoFramePos());
     m_infoFrame->setText(infoTip);
+    m_infoFrame->calculateMaximumWidth();
     m_infoFrame->adjustSize();
     m_infoFrame->show();
     m_infoFrame->raise();
@@ -374,7 +391,7 @@ void GenericProposalWidget::setUnderlyingWidget(const QWidget *underlyingWidget)
 void GenericProposalWidget::setModel(IAssistProposalModel *model)
 {
     delete d->m_model;
-    d->m_model = static_cast<IGenericProposalModel *>(model);
+    d->m_model = static_cast<GenericProposalModel *>(model);
     d->m_completionListView->setModel(new ModelAdapter(d->m_model, d->m_completionListView));
 
     connect(d->m_completionListView->selectionModel(),
@@ -473,7 +490,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
             && d->m_justInvoked
             && d->m_isSynchronized) {
         if (d->m_model->size() == 1) {
-            IAssistProposalItem *item = d->m_model->proposalItem(0);
+            AssistProposalItem *item = d->m_model->proposalItem(0);
             if (item->implicitlyApplies()) {
                 d->m_completionListView->reset();
                 abort();
@@ -514,10 +531,10 @@ void GenericProposalWidget::updatePositionAndSize()
     QPoint pos = d->m_displayRect.bottomLeft();
     pos.rx() -= 16 + fw;    // Space for the icons
     if (pos.y() + height > screen.bottom())
-        pos.setY(d->m_displayRect.top() - height);
+        pos.setY(qMax(0, d->m_displayRect.top() - height));
     if (pos.x() + width > screen.right())
-        pos.setX(screen.right() - width);
-    setGeometry(pos.x(), pos.y(), width, height);
+        pos.setX(qMax(0, screen.right() - width));
+    setGeometry(pos.x(), pos.y(), qMin(width, screen.width()), qMin(height, screen.height()));
 }
 
 void GenericProposalWidget::turnOffAutoWidth()
@@ -531,27 +548,10 @@ void GenericProposalWidget::turnOnAutoWidth()
     updatePositionAndSize();
 }
 
-static bool useCarbonWorkaround()
-{
-#if (QT_VERSION < 0x050000) && defined(Q_OS_DARWIN) && ! defined(QT_MAC_USE_COCOA)
-    return true;
-#else
-    return false;
-#endif
-}
-
 bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::FocusOut) {
         abort();
-        if (useCarbonWorkaround()) {
-            QFocusEvent *fe = static_cast<QFocusEvent *>(e);
-            if (fe->reason() == Qt::OtherFocusReason) {
-                // Qt/carbon workaround
-                // focus out is received before the key press event.
-                activateCurrentProposalItem();
-            }
-        }
         if (d->m_infoFrame)
             d->m_infoFrame->close();
         return true;
@@ -591,10 +591,9 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 
         case Qt::Key_Tab:
         case Qt::Key_Return:
-            if (!useCarbonWorkaround()) {
-                abort();
-                activateCurrentProposalItem();
-            }
+        case Qt::Key_Enter:
+            abort();
+            activateCurrentProposalItem();
             return true;
 
         case Qt::Key_Up:
@@ -613,7 +612,6 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
             }
             return false;
 
-        case Qt::Key_Enter:
         case Qt::Key_PageDown:
         case Qt::Key_PageUp:
             return false;
@@ -637,7 +635,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
                 && d->m_completionListView->currentIndex().isValid()
                 && qApp->focusWidget() == o) {
             const QChar &typedChar = ke->text().at(0);
-            IAssistProposalItem *item =
+            AssistProposalItem *item =
                 d->m_model->proposalItem(d->m_completionListView->currentIndex().row());
             if (item->prematurelyApplies(typedChar)
                     && (d->m_reason == ExplicitlyInvoked || item->text().endsWith(typedChar))) {
@@ -666,11 +664,11 @@ bool GenericProposalWidget::activateCurrentProposalItem()
     return false;
 }
 
-IGenericProposalModel *GenericProposalWidget::model()
+GenericProposalModel *GenericProposalWidget::model()
 {
     return d->m_model;
 }
 
-#include "genericproposalwidget.moc"
+} // namespace TextEditor
 
-} // TextEditor
+#include "genericproposalwidget.moc"

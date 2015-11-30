@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -39,6 +40,7 @@
 #include "deployconfiguration.h"
 #include "project.h"
 #include "runconfiguration.h"
+#include "session.h"
 
 #include <limits>
 #include <coreplugin/coreconstants.h>
@@ -47,6 +49,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QDebug>
 #include <QIcon>
@@ -77,21 +80,21 @@ namespace ProjectExplorer {
 class TargetPrivate
 {
 public:
-    TargetPrivate();
+    TargetPrivate(Kit *k);
 
     QList<DeployConfigurationFactory *> deployFactories() const;
 
-    bool m_isEnabled;
+    bool m_isEnabled = true;
     QIcon m_icon;
     QIcon m_overlayIcon;
     QString m_toolTip;
 
     QList<BuildConfiguration *> m_buildConfigurations;
-    BuildConfiguration *m_activeBuildConfiguration;
+    BuildConfiguration *m_activeBuildConfiguration = 0;
     QList<DeployConfiguration *> m_deployConfigurations;
-    DeployConfiguration *m_activeDeployConfiguration;
+    DeployConfiguration *m_activeDeployConfiguration = 0;
     QList<RunConfiguration *> m_runConfigurations;
-    RunConfiguration* m_activeRunConfiguration;
+    RunConfiguration* m_activeRunConfiguration = 0;
     DeploymentData m_deploymentData;
     BuildTargetInfoList m_appTargets;
     QVariantMap m_pluginSettings;
@@ -100,20 +103,15 @@ public:
     QPixmap m_readyToUsePixmap;
     QPixmap m_disconnectedPixmap;
 
-    Kit *m_kit;
+    Kit *const m_kit;
 };
 
-TargetPrivate::TargetPrivate() :
-    m_isEnabled(true),
-    m_activeBuildConfiguration(0),
-    m_activeDeployConfiguration(0),
-    m_activeRunConfiguration(0),
+TargetPrivate::TargetPrivate(Kit *k) :
     m_connectedPixmap(QLatin1String(":/projectexplorer/images/DeviceConnected.png")),
     m_readyToUsePixmap(QLatin1String(":/projectexplorer/images/DeviceReadyToUse.png")),
     m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/DeviceDisconnected.png")),
-    m_kit(0)
-{
-}
+    m_kit(k)
+{ }
 
 QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
 {
@@ -122,20 +120,33 @@ QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
 
 Target::Target(Project *project, Kit *k) :
     ProjectConfiguration(project, k->id()),
-    d(new TargetPrivate)
+    d(new TargetPrivate(k))
 {
-    connect(DeviceManager::instance(), SIGNAL(updated()), this, SLOT(updateDeviceState()));
-
-    d->m_kit = k;
+    QTC_CHECK(d->m_kit);
+    connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
 
     setDisplayName(d->m_kit->displayName());
     setIcon(d->m_kit->icon());
 
-    QObject *km = KitManager::instance();
-    connect(km, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(handleKitUpdates(ProjectExplorer::Kit*)));
-    connect(km, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
-            this, SLOT(handleKitRemoval(ProjectExplorer::Kit*)));
+    KitManager *km = KitManager::instance();
+    connect(km, &KitManager::kitUpdated, this, &Target::handleKitUpdates);
+    connect(km, &KitManager::kitRemoved, this, &Target::handleKitRemoval);
+
+    Utils::MacroExpander *expander = macroExpander();
+    expander->setDisplayName(tr("Target Settings"));
+    expander->setAccumulating(true);
+
+    expander->registerSubProvider([this] { return kit()->macroExpander(); });
+
+    expander->registerVariable("sourceDir", tr("Source directory"),
+            [project] { return project->projectDirectory().toUserOutput(); });
+
+    // Legacy support.
+    expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
+            QCoreApplication::translate("ProjectExplorer", "Name of current project"),
+            [project] { return project->displayName(); },
+            false);
+
 }
 
 Target::~Target()
@@ -197,7 +208,6 @@ void Target::handleKitRemoval(Kit *k)
 {
     if (k != d->m_kit)
         return;
-    d->m_kit = 0;
     project()->removeTarget(this);
 }
 
@@ -218,9 +228,7 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
 
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = configuration->displayName();
-    QStringList displayNames;
-    foreach (const BuildConfiguration *bc, d->m_buildConfigurations)
-        displayNames << bc->displayName();
+    QStringList displayNames = Utils::transform(d->m_buildConfigurations, &BuildConfiguration::displayName);
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     if (configurationDisplayName != configuration->displayName()) {
         if (configuration->usesDefaultDisplayName())
@@ -234,12 +242,12 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
 
     emit addedBuildConfiguration(configuration);
 
-    connect(configuration, SIGNAL(environmentChanged()),
-            SLOT(changeEnvironment()));
-    connect(configuration, SIGNAL(enabledChanged()),
-            this, SLOT(changeBuildConfigurationEnabled()));
-    connect(configuration, SIGNAL(buildDirectoryChanged()),
-            SLOT(onBuildDirectoryChanged()));
+    connect(configuration, &BuildConfiguration::environmentChanged,
+            this, &Target::changeEnvironment);
+    connect(configuration, &BuildConfiguration::enabledChanged,
+            this, &Target::changeBuildConfigurationEnabled);
+    connect(configuration, &BuildConfiguration::buildDirectoryChanged,
+            this, &Target::onBuildDirectoryChanged);
 
     if (!activeBuildConfiguration())
         setActiveBuildConfiguration(configuration);
@@ -260,9 +268,9 @@ bool Target::removeBuildConfiguration(BuildConfiguration *configuration)
 
     if (activeBuildConfiguration() == configuration) {
         if (d->m_buildConfigurations.isEmpty())
-            setActiveBuildConfiguration(0);
+            SessionManager::setActiveBuildConfiguration(this, 0, SetActive::Cascade);
         else
-            setActiveBuildConfiguration(d->m_buildConfigurations.at(0));
+            SessionManager::setActiveBuildConfiguration(this, d->m_buildConfigurations.at(0), SetActive::Cascade);
     }
 
     delete configuration;
@@ -302,16 +310,15 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
 
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = dc->displayName();
-    QStringList displayNames;
-    foreach (const DeployConfiguration *current, d->m_deployConfigurations)
-        displayNames << current->displayName();
+    QStringList displayNames = Utils::transform(d->m_deployConfigurations, &DeployConfiguration::displayName);
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     dc->setDisplayName(configurationDisplayName);
 
     // add it
     d->m_deployConfigurations.push_back(dc);
 
-    connect(dc, SIGNAL(enabledChanged()), this, SLOT(changeDeployConfigurationEnabled()));
+    connect(dc, &DeployConfiguration::enabledChanged,
+            this, &Target::changeDeployConfigurationEnabled);
 
     emit addedDeployConfiguration(dc);
 
@@ -335,9 +342,10 @@ bool Target::removeDeployConfiguration(DeployConfiguration *dc)
 
     if (activeDeployConfiguration() == dc) {
         if (d->m_deployConfigurations.isEmpty())
-            setActiveDeployConfiguration(0);
+            SessionManager::setActiveDeployConfiguration(this, 0, SetActive::Cascade);
         else
-            setActiveDeployConfiguration(d->m_deployConfigurations.at(0));
+            SessionManager::setActiveDeployConfiguration(this, d->m_deployConfigurations.at(0),
+                                                         SetActive::Cascade);
     }
 
     delete dc;
@@ -405,15 +413,14 @@ void Target::addRunConfiguration(RunConfiguration* runConfiguration)
 
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = runConfiguration->displayName();
-    QStringList displayNames;
-    foreach (const RunConfiguration *rc, d->m_runConfigurations)
-        displayNames << rc->displayName();
+    QStringList displayNames = Utils::transform(d->m_runConfigurations, &RunConfiguration::displayName);
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     runConfiguration->setDisplayName(configurationDisplayName);
 
     d->m_runConfigurations.push_back(runConfiguration);
 
-    connect(runConfiguration, SIGNAL(enabledChanged()), this, SLOT(changeRunConfigurationEnabled()));
+    connect(runConfiguration, &RunConfiguration::enabledChanged,
+            this, &Target::changeRunConfigurationEnabled);
 
     emit addedRunConfiguration(runConfiguration);
 
@@ -530,7 +537,7 @@ void Target::updateDefaultBuildConfigurations()
         qWarning("No build configuration factory found for target id '%s'.", qPrintable(id().toString()));
         return;
     }
-    QList<BuildInfo *> infoList = bcFactory->availableSetups(this->kit(), project()->projectFilePath());
+    QList<BuildInfo *> infoList = bcFactory->availableSetups(this->kit(), project()->projectFilePath().toString());
     foreach (BuildInfo *info, infoList) {
         BuildConfiguration *bc = bcFactory->create(this, info);
         if (!bc)
@@ -599,33 +606,35 @@ void Target::updateDefaultRunConfigurations()
     int configuredCount = existingConfigured.count();
 
     // find all RC ids that can get created:
-    QList<Core::Id> factoryIds;
+    QList<Core::Id> availableFactoryIds;
     foreach (IRunConfigurationFactory *rcFactory, rcFactories)
-        factoryIds.append(rcFactory->availableCreationIds(this));
+        availableFactoryIds.append(rcFactory->availableCreationIds(this));
+
+    QList<Core::Id> autoCreateFactoryIds;
+    foreach (IRunConfigurationFactory *rcFactory, rcFactories)
+        autoCreateFactoryIds.append(rcFactory->availableCreationIds(this,
+                                                                    IRunConfigurationFactory::AutoCreate));
 
     // Put outdated RCs into toRemove, do not bother with factories
     // that produce already existing RCs
     QList<RunConfiguration *> toRemove;
     QList<Core::Id> toIgnore;
     foreach (RunConfiguration *rc, existingConfigured) {
-        if (factoryIds.contains(rc->id()))
+        if (availableFactoryIds.contains(rc->id()))
             toIgnore.append(rc->id()); // Already there
         else
             toRemove << rc;
     }
     foreach (Core::Id i, toIgnore)
-        factoryIds.removeAll(i);
+        autoCreateFactoryIds.removeAll(i);
     configuredCount -= toRemove.count();
 
     // Create new RCs and put them into newConfigured/newUnconfigured
-    foreach (Core::Id id, factoryIds) {
-        IRunConfigurationFactory *factory = 0;
-        foreach (IRunConfigurationFactory *i, rcFactories) {
-            if (i->canCreate(this, id)) {
-                factory = i;
-                break;
-            }
-        }
+    foreach (Core::Id id, autoCreateFactoryIds) {
+        IRunConfigurationFactory *factory = Utils::findOrDefault(rcFactories,
+                                                          [this, id] (IRunConfigurationFactory *i) {
+                                                                return i->canCreate(this, id);
+                                                          });
         if (!factory)
             continue;
 
@@ -682,12 +691,8 @@ void Target::updateDefaultRunConfigurations()
             RunConfiguration *selected = newConfigured.at(0);
             // Try to find a runconfiguration that matches the project name. That is a good
             // candidate for something to run initially.
-            foreach (RunConfiguration *rc, newConfigured) {
-                if (rc->displayName() == project()->displayName()) {
-                    selected = rc;
-                    break;
-                }
-            }
+            selected = Utils::findOr(newConfigured, selected,
+                                     Utils::equal(&RunConfiguration::displayName, project()->displayName()));
             setActiveRunConfiguration(selected);
         } else if (!newUnconfigured.isEmpty()){
             setActiveRunConfiguration(newUnconfigured.at(0));
@@ -782,9 +787,7 @@ bool Target::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
-    d->m_kit = KitManager::find(id());
-    if (!d->m_kit)
-        return false;
+    QTC_ASSERT(d->m_kit == KitManager::find(id()), return false);
 
     setDisplayName(d->m_kit->displayName()); // Overwrite displayname read from file
     setDefaultDisplayName(d->m_kit->displayName());

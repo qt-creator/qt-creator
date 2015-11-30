@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -55,17 +56,41 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/qtcassert.h>
 
+using namespace Utils;
 using namespace Core;
-using namespace BINEditor;
-using namespace BINEditor::Internal;
 
+namespace BinEditor {
 
-class BinEditorFind : public Core::IFindSupport
+///////////////////////////////// BinEditorWidgetFactory //////////////////////////////////
+
+/*!
+   \class BinEditor::BinEditorWidgetFactory
+   \brief The BinEditorWidgetFactory class offers a service registered with
+   PluginManager to create bin editor widgets for plugins
+   without direct linkage.
+
+   \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
+*/
+
+class BinEditorWidgetFactory : public QObject
+{
+    Q_OBJECT
+public:
+    BinEditorWidgetFactory() {}
+
+    Q_INVOKABLE QWidget *createWidget(QWidget *parent)
+    {
+        return new BinEditorWidget(parent);
+    }
+};
+
+namespace Internal {
+
+class BinEditorFind : public IFindSupport
 {
     Q_OBJECT
 
@@ -81,7 +106,7 @@ public:
     QString currentFindString() const { return QString(); }
     QString completedFindString() const { return QString(); }
 
-    Core::FindFlags supportedFindFlags() const
+    FindFlags supportedFindFlags() const
     {
         return FindBackward | FindCaseSensitively;
     }
@@ -92,17 +117,17 @@ public:
         m_incrementalWrappedState = false;
     }
 
-    virtual void highlightAll(const QString &txt, Core::FindFlags findFlags)
+    virtual void highlightAll(const QString &txt, FindFlags findFlags)
     {
         m_widget->highlightSearchResults(txt.toLatin1(), textDocumentFlagsForFindFlags(findFlags));
     }
 
-    void clearResults()
+    void clearHighlights()
     {
         m_widget->highlightSearchResults(QByteArray());
     }
 
-    int find(const QByteArray &pattern, int pos, Core::FindFlags findFlags, bool *wrapped)
+    int find(const QByteArray &pattern, int pos, FindFlags findFlags, bool *wrapped)
     {
         if (wrapped)
             *wrapped = false;
@@ -123,7 +148,7 @@ public:
         return res;
     }
 
-    Result findIncremental(const QString &txt, Core::FindFlags findFlags) {
+    Result findIncremental(const QString &txt, FindFlags findFlags) {
         QByteArray pattern = txt.toLatin1();
         if (pattern != m_lastPattern)
             resetIncrementalSearch(); // Because we don't search for nibbles.
@@ -158,7 +183,7 @@ public:
         return result;
     }
 
-    Result findStep(const QString &txt, Core::FindFlags findFlags) {
+    Result findStep(const QString &txt, FindFlags findFlags) {
         QByteArray pattern = txt.toLatin1();
         bool wasReset = (m_incrementalStartPos < 0);
         if (m_contPos == -1) {
@@ -198,27 +223,23 @@ private:
 };
 
 
-class BinEditorDocument : public Core::IDocument
+class BinEditorDocument : public IDocument
 {
     Q_OBJECT
 public:
     BinEditorDocument(BinEditorWidget *parent) :
-        Core::IDocument(parent)
+        IDocument(parent)
     {
         setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
+        setMimeType(QLatin1String(BinEditor::Constants::C_BINEDITOR_MIMETYPE));
         m_widget = parent;
         connect(m_widget, SIGNAL(dataRequested(quint64)),
             this, SLOT(provideData(quint64)));
         connect(m_widget, SIGNAL(newRangeRequested(quint64)),
             this, SLOT(provideNewRange(quint64)));
     }
-    ~BinEditorDocument() {}
 
-    QString mimeType() const {
-        return QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE);
-    }
-
-    bool setContents(const QByteArray &contents)
+    bool setContents(const QByteArray &contents) override
     {
         if (!contents.isEmpty())
             return false;
@@ -226,12 +247,17 @@ public:
         return true;
     }
 
-    bool save(QString *errorString, const QString &fn, bool autoSave)
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
+    {
+        Q_UNUSED(state)
+        return type == TypeRemoved ? BehaviorSilent : BehaviorAsk;
+    }
+
+    bool save(QString *errorString, const QString &fn, bool autoSave) override
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
-        const QString fileNameToUse
-                = fn.isEmpty() ? filePath() : fn;
-        if (m_widget->save(errorString, filePath(), fileNameToUse)) {
+        const FileName fileNameToUse = fn.isEmpty() ? filePath() : FileName::fromString(fn);
+        if (m_widget->save(errorString, filePath().toString(), fileNameToUse.toString())) {
             setFilePath(fileNameToUse);
             return true;
         } else {
@@ -239,41 +265,57 @@ public:
         }
     }
 
-    bool open(QString *errorString, const QString &fileName, quint64 offset = 0) {
+    OpenResult open(QString *errorString, const QString &fileName,
+                    const QString &realFileName) override
+    {
+        QTC_CHECK(fileName == realFileName); // The bineditor can do no autosaving
+        return openImpl(errorString, fileName);
+    }
+
+    OpenResult openImpl(QString *errorString, const QString &fileName, quint64 offset = 0)
+    {
         QFile file(fileName);
-        quint64 size = static_cast<quint64>(file.size());
-        if (size == 0 && !fileName.isEmpty()) {
-            QString msg = tr("The Binary Editor cannot open empty files.");
-            if (errorString)
-                *errorString = msg;
-            else
-                QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"), msg);
-            return false;
-        }
-        if (offset >= size)
-            return false;
         if (file.open(QIODevice::ReadOnly)) {
             file.close();
-            setFilePath(fileName);
+            quint64 size = static_cast<quint64>(file.size());
+            if (size == 0) {
+                QString msg = tr("The Binary Editor cannot open empty files.");
+                if (errorString)
+                    *errorString = msg;
+                else
+                    QMessageBox::critical(ICore::mainWindow(), tr("File Error"), msg);
+                return OpenResult::CannotHandle;
+            }
+            if (size > INT_MAX) {
+                QString msg = tr("The file is too big for the Binary Editor (max. 2GB).");
+                if (errorString)
+                    *errorString = msg;
+                else
+                    QMessageBox::critical(ICore::mainWindow(), tr("File Error"), msg);
+                return OpenResult::CannotHandle;
+            }
+            if (offset >= size)
+                return OpenResult::CannotHandle;
+            setFilePath(FileName::fromString(fileName));
             m_widget->setSizes(offset, file.size());
-            return true;
+            return OpenResult::Success;
         }
         QString errStr = tr("Cannot open %1: %2").arg(
                 QDir::toNativeSeparators(fileName), file.errorString());
         if (errorString)
             *errorString = errStr;
         else
-            QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"), errStr);
-        return false;
+            QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errStr);
+        return OpenResult::ReadError;
     }
 
 private slots:
     void provideData(quint64 block)
     {
-        const QString fn = filePath();
+        const FileName fn = filePath();
         if (fn.isEmpty())
             return;
-        QFile file(fn);
+        QFile file(fn.toString());
         if (file.open(QIODevice::ReadOnly)) {
             int blockSize = m_widget->dataBlockSize();
             file.seek(block * blockSize);
@@ -284,37 +326,39 @@ private slots:
                 data += QByteArray(blockSize - dataSize, 0);
             m_widget->addData(block, data);
         } else {
-            QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"),
+            QMessageBox::critical(ICore::mainWindow(), tr("File Error"),
                                   tr("Cannot open %1: %2").arg(
-                                        QDir::toNativeSeparators(fn), file.errorString()));
+                                        fn.toUserOutput(), file.errorString()));
         }
     }
 
     void provideNewRange(quint64 offset)
     {
-        open(0, filePath(), offset);
+        openImpl(0, filePath().toString(), offset);
     }
 
 public:
 
-    QString defaultPath() const { return QString(); }
+    QString defaultPath() const override { return QString(); }
 
-    QString suggestedFileName() const { return QString(); }
+    QString suggestedFileName() const override { return QString(); }
 
-    bool isModified() const { return isTemporary()/*e.g. memory view*/ ? false
-                                                                       : m_widget->isModified(); }
-
-    bool isFileReadOnly() const {
-        const QString fn = filePath();
-        if (fn.isEmpty())
-            return false;
-        const QFileInfo fi(fn);
-        return !fi.isWritable();
+    bool isModified() const override
+    {
+        return isTemporary()/*e.g. memory view*/ ? false
+                                                 : m_widget->isModified();
     }
 
-    bool isSaveAsAllowed() const { return true; }
+    bool isFileReadOnly() const override {
+        const FileName fn = filePath();
+        if (fn.isEmpty())
+            return false;
+        return !fn.toFileInfo().isWritable();
+    }
 
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) {
+    bool isSaveAsAllowed() const override { return true; }
+
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override {
         if (flag == FlagIgnore)
             return true;
         if (type == TypePermissions) {
@@ -323,7 +367,7 @@ public:
             emit aboutToReload();
             int cPos = m_widget->cursorPosition();
             m_widget->clear();
-            const bool success = open(errorString, filePath());
+            const bool success = (openImpl(errorString, filePath().toString()) == OpenResult::Success);
             m_widget->setCursorPosition(cPos);
             emit reloadFinished(success);
             return success;
@@ -335,17 +379,16 @@ private:
     BinEditorWidget *m_widget;
 };
 
-class BinEditor : public Core::IEditor
+class BinEditor : public IEditor
 {
     Q_OBJECT
 public:
     BinEditor(BinEditorWidget *widget)
     {
         setWidget(widget);
-        m_widget = widget;
-        m_file = new BinEditorDocument(m_widget);
+        m_file = new BinEditorDocument(widget);
         m_context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        m_context.add(BINEditor::Constants::C_BINEDITOR);
+        m_context.add(Constants::C_BINEDITOR);
         m_addressEdit = new QLineEdit;
         QRegExpValidator * const addressValidator
             = new QRegExpValidator(QRegExp(QLatin1String("[0-9a-fA-F]{1,16}")),
@@ -366,36 +409,39 @@ public:
 
         widget->setEditor(this);
 
-        connect(m_widget, SIGNAL(cursorPositionChanged(int)), SLOT(updateCursorPosition(int)));
+        connect(widget, SIGNAL(cursorPositionChanged(int)), SLOT(updateCursorPosition(int)));
         connect(m_addressEdit, SIGNAL(editingFinished()), SLOT(jumpToAddress()));
-        connect(m_widget, SIGNAL(modificationChanged(bool)), m_file, SIGNAL(changed()));
-        updateCursorPosition(m_widget->cursorPosition());
+        connect(widget, SIGNAL(modificationChanged(bool)), m_file, SIGNAL(changed()));
+        updateCursorPosition(widget->cursorPosition());
     }
 
-    ~BinEditor() {
+    ~BinEditor() override
+    {
         delete m_widget;
     }
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName) {
-        QTC_ASSERT(fileName == realFileName, return false); // The bineditor can do no autosaving
-        return m_file->open(errorString, fileName);
-    }
-    Core::IDocument *document() { return m_file; }
+    IDocument *document() override { return m_file; }
 
-    QWidget *toolBar() { return m_toolBar; }
+    QWidget *toolBar() override { return m_toolBar; }
 
 private slots:
     void updateCursorPosition(int position) {
-        m_addressEdit->setText(QString::number(m_widget->baseAddress() + position, 16));
+        m_addressEdit->setText(QString::number(editorWidget()->baseAddress() + position, 16));
     }
 
     void jumpToAddress() {
-        m_widget->jumpToAddress(m_addressEdit->text().toULongLong(0, 16));
-        updateCursorPosition(m_widget->cursorPosition());
+        editorWidget()->jumpToAddress(m_addressEdit->text().toULongLong(0, 16));
+        updateCursorPosition(editorWidget()->cursorPosition());
     }
 
 private:
-    BinEditorWidget *m_widget;
+    inline BinEditorWidget *editorWidget() const
+    {
+        QTC_ASSERT(qobject_cast<BinEditorWidget *>(m_widget.data()), return 0);
+        return static_cast<BinEditorWidget *>(m_widget.data());
+    }
+
+private:
     BinEditorDocument *m_file;
     QToolBar *m_toolBar;
     QLineEdit *m_addressEdit;
@@ -413,7 +459,7 @@ BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
     addMimeType(Constants::C_BINEDITOR_MIMETYPE);
 }
 
-Core::IEditor *BinEditorFactory::createEditor()
+IEditor *BinEditorFactory::createEditor()
 {
     BinEditorWidget *widget = new BinEditorWidget();
     BinEditor *editor = new BinEditor(widget);
@@ -422,25 +468,6 @@ Core::IEditor *BinEditorFactory::createEditor()
     return editor;
 }
 
-
-/*!
-   \class BINEditor::BinEditorWidgetFactory
-   \brief The BinEditorWidgetFactory class offers a service registered with
-   PluginManager to create bin editor widgets for plugins
-   without direct linkage.
-
-   \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
-*/
-
-BinEditorWidgetFactory::BinEditorWidgetFactory(QObject *parent) :
-    QObject(parent)
-{
-}
-
-QWidget *BinEditorWidgetFactory::createWidget(QWidget *parent)
-{
-    return new BinEditorWidget(parent);
-}
 
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
@@ -453,14 +480,14 @@ BinEditorPlugin::~BinEditorPlugin()
 {
 }
 
-QAction *BinEditorPlugin::registerNewAction(Core::Id id, const QString &title)
+QAction *BinEditorPlugin::registerNewAction(Id id, const QString &title)
 {
     QAction *result = new QAction(title, this);
-    Core::ActionManager::registerAction(result, id, m_context);
+    ActionManager::registerAction(result, id, m_context);
     return result;
 }
 
-QAction *BinEditorPlugin::registerNewAction(Core::Id id,
+QAction *BinEditorPlugin::registerNewAction(Id id,
                                             QObject *receiver,
                                             const char *slot,
                                             const QString &title)
@@ -509,7 +536,7 @@ void BinEditorPlugin::extensionsInitialized()
 {
 }
 
-void BinEditorPlugin::updateCurrentEditor(Core::IEditor *editor)
+void BinEditorPlugin::updateCurrentEditor(IEditor *editor)
 {
     BinEditorWidget *binEditor = 0;
     if (editor)
@@ -555,7 +582,7 @@ void BinEditorPlugin::selectAllAction()
         m_currentEditor->selectAll();
 }
 
-
-Q_EXPORT_PLUGIN(BinEditorPlugin)
+} // namespace Internal
+} // namespace BinEditor
 
 #include "bineditorplugin.moc"

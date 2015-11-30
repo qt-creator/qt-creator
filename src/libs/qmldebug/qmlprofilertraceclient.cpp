@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,70 +9,86 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qmlprofilertraceclient.h"
+#include "qmlenginecontrolclient.h"
+#include "qdebugmessageclient.h"
+#include "qpacketprotocol.h"
 
 namespace QmlDebug {
 
 class QmlProfilerTraceClientPrivate {
 public:
-    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q)
+    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q, QmlDebugConnection *client)
         : q(_q)
+        , engineControl(client)
         ,  inProgressRanges(0)
         , maximumTime(0)
         , recording(false)
+        , requestedFeatures(0)
+        , recordedFeatures(0)
+        , flushInterval(0)
     {
-        ::memset(rangeCount, 0, MaximumQmlEventType * sizeof(int));
+        ::memset(rangeCount, 0, MaximumRangeType * sizeof(int));
     }
 
-    void sendRecordingStatus();
+    void sendRecordingStatus(int engineId);
+    bool updateFeatures(QmlDebug::ProfileFeature feature);
 
     QmlProfilerTraceClient *q;
+    QmlEngineControlClient engineControl;
+    QScopedPointer<QDebugMessageClient> messageClient;
     qint64 inProgressRanges;
-    QStack<qint64> rangeStartTimes[MaximumQmlEventType];
-    QStack<QStringList> rangeDatas[MaximumQmlEventType];
-    QStack<QmlEventLocation> rangeLocations[MaximumQmlEventType];
+    QStack<qint64> rangeStartTimes[MaximumRangeType];
+    QStack<QString> rangeDatas[MaximumRangeType];
+    QStack<QmlEventLocation> rangeLocations[MaximumRangeType];
     QStack<BindingType> bindingTypes;
-    int rangeCount[MaximumQmlEventType];
+    int rangeCount[MaximumRangeType];
     qint64 maximumTime;
     bool recording;
+    quint64 requestedFeatures;
+    quint64 recordedFeatures;
+    quint32 flushInterval;
 };
 
 } // namespace QmlDebug
 
 using namespace QmlDebug;
 
-static const int GAP_TIME = 150;
-
-void QmlProfilerTraceClientPrivate::sendRecordingStatus()
+void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
-    QByteArray ba;
-    QDataStream stream(&ba, QIODevice::WriteOnly);
-    stream << recording;
-    q->sendMessage(ba);
+    QPacket stream(q->connection()->currentDataStreamVersion());
+    stream << recording << engineId; // engineId -1 is OK. It means "all of them"
+    if (recording)
+        stream << requestedFeatures << flushInterval;
+    q->sendMessage(stream.data());
 }
 
-QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client)
+QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client, quint64 features)
     : QmlDebugClient(QLatin1String("CanvasFrameRate"), client)
-    , d(new QmlProfilerTraceClientPrivate(this))
+    , d(new QmlProfilerTraceClientPrivate(this, client))
 {
+    setRequestedFeatures(features);
+    connect(&d->engineControl, &QmlEngineControlClient::engineAboutToBeAdded,
+            this, &QmlProfilerTraceClient::newEngine);
 }
 
 QmlProfilerTraceClient::~QmlProfilerTraceClient()
@@ -86,24 +102,23 @@ QmlProfilerTraceClient::~QmlProfilerTraceClient()
 
 void QmlProfilerTraceClient::clearData()
 {
-    ::memset(d->rangeCount, 0, MaximumQmlEventType * sizeof(int));
-    for (int eventType = 0; eventType < MaximumQmlEventType; eventType++) {
+    ::memset(d->rangeCount, 0, MaximumRangeType * sizeof(int));
+    for (int eventType = 0; eventType < MaximumRangeType; eventType++) {
         d->rangeDatas[eventType].clear();
         d->rangeLocations[eventType].clear();
         d->rangeStartTimes[eventType].clear();
     }
     d->bindingTypes.clear();
+    if (d->recordedFeatures != 0) {
+        d->recordedFeatures = 0;
+        emit recordedFeaturesChanged(0);
+    }
     emit cleared();
 }
 
-void QmlProfilerTraceClient::sendRecordingStatus()
+void QmlProfilerTraceClient::sendRecordingStatus(int engineId)
 {
-    d->sendRecordingStatus();
-}
-
-bool QmlProfilerTraceClient::isEnabled() const
-{
-    return status() == Enabled;
+    d->sendRecordingStatus(engineId);
 }
 
 bool QmlProfilerTraceClient::isRecording() const
@@ -118,10 +133,36 @@ void QmlProfilerTraceClient::setRecording(bool v)
 
     d->recording = v;
 
-    if (status() == Enabled)
+    if (state() == Enabled)
         sendRecordingStatus();
 
     emit recordingChanged(v);
+}
+
+quint64 QmlProfilerTraceClient::recordedFeatures() const
+{
+    return d->recordedFeatures;
+}
+
+void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
+{
+    d->requestedFeatures = features;
+    if (features & static_cast<quint64>(1) << ProfileDebugMessages) {
+        d->messageClient.reset(new QDebugMessageClient(connection()));
+        connect(d->messageClient.data(), &QDebugMessageClient::message, this, [this](QtMsgType type,
+                const QString &text, const QmlDebug::QDebugContextInfo &context)
+        {
+            emit debugMessage(type, context.timestamp, text,
+                              QmlDebug::QmlEventLocation(context.file, context.line, 1));
+        });
+    } else {
+        d->messageClient.reset();
+    }
+}
+
+void QmlProfilerTraceClient::setFlushInterval(quint32 flushInterval)
+{
+    d->flushInterval = flushInterval;
 }
 
 void QmlProfilerTraceClient::setRecordingFromServer(bool v)
@@ -132,42 +173,69 @@ void QmlProfilerTraceClient::setRecordingFromServer(bool v)
     emit recordingChanged(v);
 }
 
-void QmlProfilerTraceClient::statusChanged(ClientStatus /*status*/)
+bool QmlProfilerTraceClientPrivate::updateFeatures(ProfileFeature feature)
 {
-    emit enabledChanged();
+    quint64 flag = 1ULL << feature;
+    if (!(requestedFeatures & flag))
+        return false;
+    if (!(recordedFeatures & flag)) {
+        recordedFeatures |= flag;
+        emit q->recordedFeaturesChanged(recordedFeatures);
+    }
+    return true;
+}
+
+void QmlProfilerTraceClient::stateChanged(State status)
+{
+    if (status == Enabled)
+        sendRecordingStatus(-1);
 }
 
 void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 {
-    QByteArray rwData = data;
-    QDataStream stream(&rwData, QIODevice::ReadOnly);
+    QPacket stream(connection()->currentDataStreamVersion(), data);
 
     qint64 time;
     int messageType;
+    int subtype;
 
     stream >> time >> messageType;
+    if (!stream.atEnd())
+        stream >> subtype;
+    else
+        subtype = -1;
 
-    if (messageType >= MaximumMessage)
-        return;
-
-    if (time > (d->maximumTime + GAP_TIME) && 0 == d->inProgressRanges)
-        emit gap(time);
-
-    if (messageType == Event) {
-        int event;
-        stream >> event;
-
-        // stop with the first data
-        if (d->recording && event != StartTrace)
-            setRecordingFromServer(false);
-        else if ((!d->recording) && event == StartTrace)
-            setRecordingFromServer(true);
-
-        if (event == EndTrace) {
-            emit this->traceFinished(time);
+    switch (messageType) {
+    case Event: {
+        switch (subtype) {
+        case StartTrace: {
+            if (!d->recording)
+                setRecordingFromServer(true);
+            QList<int> engineIds;
+            while (!stream.atEnd()) {
+                int id;
+                stream >> id;
+                engineIds << id;
+            }
+            emit traceStarted(time, engineIds);
+            d->maximumTime = time;
+            break;
+        }
+        case EndTrace: {
+            QList<int> engineIds;
+            while (!stream.atEnd()) {
+                int id;
+                stream >> id;
+                engineIds << id;
+            }
+            emit traceFinished(time, engineIds);
             d->maximumTime = time;
             d->maximumTime = qMax(time, d->maximumTime);
-        } else if (event == AnimationFrame) {
+            break;
+        }
+        case AnimationFrame: {
+            if (!d->updateFeatures(ProfileAnimations))
+                break;
             int frameRate, animationCount;
             int threadId;
             stream >> frameRate >> animationCount;
@@ -175,115 +243,161 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 stream >> threadId;
             else
                 threadId = 0;
-            emit rangedEvent(QmlDebug::Painting, QmlDebug::AnimationFrame, time, 0,
-                       QStringList(), QmlDebug::QmlEventLocation(), frameRate, animationCount, threadId,0,0);
+
+            emit rangedEvent(Event, MaximumRangeType, AnimationFrame, time, 0, QString(),
+                             QmlEventLocation(), frameRate, animationCount, threadId,
+                             0, 0);
             d->maximumTime = qMax(time, d->maximumTime);
-        } else if (event == StartTrace) {
-            emit this->traceStarted(time);
-            d->maximumTime = time;
-        } else if (event < MaximumEventType) {
-            emit this->event((EventType)event, time);
-            d->maximumTime = qMax(time, d->maximumTime);
+            break;
         }
-    } else if (messageType == Complete) {
-        emit complete();
-    } else if (messageType == SceneGraphFrame) {
-        int sgEventType;
+        case Key:
+        case Mouse:
+            if (!d->updateFeatures(ProfileInputEvents))
+                break;
+            int inputType = (subtype == Key ? InputKeyUnknown : InputMouseUnknown);
+            if (!stream.atEnd())
+                stream >> inputType;
+            int a = -1;
+            if (!stream.atEnd())
+                stream >> a;
+            int b = -1;
+            if (!stream.atEnd())
+                stream >> b;
+
+            emit rangedEvent(Event, MaximumRangeType, subtype, time, 0, QString(),
+                             QmlEventLocation(), inputType, a, b, 0, 0);
+            d->maximumTime = qMax(time, d->maximumTime);
+            break;
+        }
+
+        break;
+    }
+    case Complete:
+        emit complete(d->maximumTime);
+        setRecordingFromServer(false);
+        break;
+    case SceneGraphFrame: {
+        if (!d->updateFeatures(ProfileSceneGraph))
+            break;
+
         int count = 0;
         qint64 params[5];
 
-        stream >> sgEventType;
         while (!stream.atEnd()) {
             stream >> params[count++];
         }
         while (count<5)
             params[count++] = 0;
-        emit rangedEvent(SceneGraphFrameEvent, sgEventType,time, 0, QStringList(),
-                         QmlDebug::QmlEventLocation(), params[0], params[1], params[2], params[3], params[4]);
-    } else if (messageType == PixmapCacheEvent) {
-        int pixEvTy, width = 0, height = 0, refcount = 0;
+        emit rangedEvent(SceneGraphFrame, MaximumRangeType, subtype,time, 0,
+                         QString(), QmlEventLocation(), params[0], params[1],
+                         params[2], params[3], params[4]);
+        break;
+    }
+    case PixmapCacheEvent: {
+        if (!d->updateFeatures(ProfilePixmapCache))
+            break;
+        int width = 0, height = 0, refcount = 0;
         QString pixUrl;
-        stream >> pixEvTy >> pixUrl;
-        if (pixEvTy == (int)PixmapReferenceCountChanged || pixEvTy == (int)PixmapCacheCountChanged) {
+        stream >> pixUrl;
+        if (subtype == (int)PixmapReferenceCountChanged || subtype == (int)PixmapCacheCountChanged) {
             stream >> refcount;
-        } else if (pixEvTy == (int)PixmapSizeKnown) {
+        } else if (subtype == (int)PixmapSizeKnown) {
             stream >> width >> height;
             refcount = 1;
         }
-        emit rangedEvent(QmlDebug::PixmapCacheEvent, pixEvTy, time, 0, QStringList(),
-                        QmlDebug::QmlEventLocation(pixUrl,0,0), width, height, refcount, 0, 0);
+        emit rangedEvent(PixmapCacheEvent, MaximumRangeType, subtype, time, 0,
+                         QString(), QmlEventLocation(pixUrl,0,0), width, height,
+                         refcount, 0, 0);
         d->maximumTime = qMax(time, d->maximumTime);
-    } else {
-        int range;
-        stream >> range;
+        break;
+    }
+    case MemoryAllocation: {
+        if (!d->updateFeatures(ProfileMemory))
+            break;
 
-        if (range >= MaximumQmlEventType)
-            return;
+        qint64 delta;
+        stream >> delta;
+        emit rangedEvent(MemoryAllocation, MaximumRangeType, subtype, time, 0,
+                         QString(), QmlEventLocation(), delta, 0, 0, 0, 0);
+        d->maximumTime = qMax(time, d->maximumTime);
+        break;
+    }
+    case RangeStart: {
+        if (!d->updateFeatures(featureFromRangeType(static_cast<RangeType>(subtype))))
+            break;
+        d->rangeStartTimes[subtype].push(time);
+        d->inProgressRanges |= (static_cast<qint64>(1) << subtype);
+        ++d->rangeCount[subtype];
 
-        if (messageType == RangeStart) {
-            d->rangeStartTimes[range].push(time);
-            d->inProgressRanges |= (static_cast<qint64>(1) << range);
-            ++d->rangeCount[range];
-
-            // read binding type
-            if ((QmlEventType)range == Binding) {
-                int bindingType = (int)QmlBinding;
-                if (!stream.atEnd())
-                    stream >> bindingType;
-                d->bindingTypes.push((BindingType)bindingType);
-            }
-
-            // stop with the first data
-            if (d->recording)
-                setRecordingFromServer(false);
-        } else if (messageType == RangeData) {
-            QString data;
-            stream >> data;
-
-            int count = d->rangeCount[range];
-            if (count > 0) {
-                while (d->rangeDatas[range].count() < count)
-                    d->rangeDatas[range].push(QStringList());
-                d->rangeDatas[range][count-1] << data;
-            }
-
-        } else if (messageType == RangeLocation) {
-            QString fileName;
-            int line;
-            int column = -1;
-            stream >> fileName >> line;
-
+        // read binding type
+        if ((RangeType)subtype == Binding) {
+            int bindingType = (int)QmlBinding;
             if (!stream.atEnd())
-                stream >> column;
-
-            if (d->rangeCount[range] > 0)
-                d->rangeLocations[range].push(QmlEventLocation(fileName, line, column));
-        } else {
-            if (d->rangeCount[range] > 0) {
-                --d->rangeCount[range];
-                if (d->inProgressRanges & (static_cast<qint64>(1) << range))
-                    d->inProgressRanges &= ~(static_cast<qint64>(1) << range);
-
-                d->maximumTime = qMax(time, d->maximumTime);
-                QStringList data = d->rangeDatas[range].count() ? d->rangeDatas[range].pop() : QStringList();
-                QmlEventLocation location = d->rangeLocations[range].count() ? d->rangeLocations[range].pop() : QmlEventLocation();
-
-                qint64 startTime = d->rangeStartTimes[range].pop();
-                BindingType bindingType = QmlBinding;
-                if ((QmlEventType)range == Binding)
-                    bindingType = d->bindingTypes.pop();
-                if ((QmlEventType)range == Painting)
-                    bindingType = QPainterEvent;
-                emit rangedEvent((QmlEventType)range, bindingType, startTime, time - startTime, data,
-                           location, 0, 0, 0, 0, 0);
-                if (d->rangeCount[range] == 0) {
-                    int count = d->rangeDatas[range].count() +
-                                d->rangeStartTimes[range].count() +
-                                d->rangeLocations[range].count();
-                    if (count != 0)
-                        qWarning() << "incorrectly nested data";
-                }
-            }
+                stream >> bindingType;
+            d->bindingTypes.push((BindingType)bindingType);
         }
+        break;
+    }
+    case RangeData: {
+        if (!d->updateFeatures(featureFromRangeType(static_cast<RangeType>(subtype))))
+            break;
+        QString data;
+        stream >> data;
+
+        int count = d->rangeCount[subtype];
+        if (count > 0) {
+            while (d->rangeDatas[subtype].count() < count)
+                d->rangeDatas[subtype].push(QString());
+            d->rangeDatas[subtype][count-1] = data;
+        }
+        break;
+    }
+    case RangeLocation: {
+        if (!d->updateFeatures(featureFromRangeType(static_cast<RangeType>(subtype))))
+            break;
+        QString fileName;
+        int line;
+        int column = -1;
+        stream >> fileName >> line;
+
+        if (!stream.atEnd())
+            stream >> column;
+
+        if (d->rangeCount[subtype] > 0)
+            d->rangeLocations[subtype].push(QmlEventLocation(fileName, line, column));
+        break;
+    }
+    case RangeEnd: {
+        if (!d->updateFeatures(featureFromRangeType(static_cast<RangeType>(subtype))))
+            break;
+        if (d->rangeCount[subtype] == 0)
+            break;
+        --d->rangeCount[subtype];
+        if (d->inProgressRanges & (static_cast<qint64>(1) << subtype))
+            d->inProgressRanges &= ~(static_cast<qint64>(1) << subtype);
+
+        d->maximumTime = qMax(time, d->maximumTime);
+        QString data = d->rangeDatas[subtype].count() ? d->rangeDatas[subtype].pop() : QString();
+        QmlEventLocation location = d->rangeLocations[subtype].count() ? d->rangeLocations[subtype].pop() : QmlEventLocation();
+
+        qint64 startTime = d->rangeStartTimes[subtype].pop();
+        BindingType bindingType = QmlBinding;
+        if ((RangeType)subtype == Binding)
+            bindingType = d->bindingTypes.pop();
+        if ((RangeType)subtype == Painting)
+            bindingType = QPainterEvent;
+        emit rangedEvent(MaximumMessage, (RangeType)subtype, bindingType, startTime,
+                         time - startTime, data, location, 0, 0, 0, 0, 0);
+        if (d->rangeCount[subtype] == 0) {
+            int count = d->rangeDatas[subtype].count() +
+                        d->rangeStartTimes[subtype].count() +
+                        d->rangeLocations[subtype].count();
+            if (count != 0)
+                qWarning() << "incorrectly nested data";
+        }
+        break;
+    }
+    default:
+        break;
     }
 }

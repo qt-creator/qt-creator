@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,79 +9,59 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "winrtruncontrol.h"
-#include "winrtrunconfiguration.h"
-#include "winrtconstants.h"
+
 #include "winrtdevice.h"
+#include "winrtrunconfiguration.h"
+#include "winrtrunnerhelper.h"
 
 #include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <qtsupport/qtkitinformation.h>
+
+#include <QTimer>
 
 using ProjectExplorer::DeviceKitInformation;
 using ProjectExplorer::IDevice;
 using ProjectExplorer::RunControl;
-using ProjectExplorer::RunMode;
+using Core::Id;
 using ProjectExplorer::Target;
-using Utils::QtcProcess;
 
 namespace WinRt {
 namespace Internal {
 
-WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, RunMode mode)
+WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, Core::Id mode)
     : RunControl(runConfiguration, mode)
+    , m_runConfiguration(runConfiguration)
     , m_state(StoppedState)
-    , m_process(0)
+    , m_runner(0)
 {
-    Target *target = runConfiguration->target();
-    IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
-    m_device = device.dynamicCast<const WinRtDevice>();
-
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target->kit());
-    if (!qt) {
-        appendMessage(tr("The current kit has no Qt version."),
-                      Utils::ErrorMessageFormat);
-        return;
-    }
-
-    m_isWinPhone = (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT));
-    m_runnerFilePath = qt->binPath().toString() + QStringLiteral("/winrtrunner.exe");
-    if (!QFile::exists(m_runnerFilePath)) {
-        appendMessage(tr("Cannot find winrtrunner.exe in \"%1\".").arg(
-                          QDir::toNativeSeparators(qt->binPath().toString())),
-                      Utils::ErrorMessageFormat);
-        return;
-    }
-
-    const Utils::FileName proFile = Utils::FileName::fromString(
-                target->project()->document()->filePath());
-    m_executableFilePath = target->applicationTargets().targetForProject(proFile).toString()
-                + QStringLiteral(".exe");   // ### we should not need to append ".exe" here.
-
-    m_arguments = runConfiguration->arguments();
-    m_uninstallAfterStop = runConfiguration->uninstallAfterStop();
+    setIcon(ProjectExplorer::Icons::RUN_SMALL);
 }
 
 void WinRtRunControl::start()
@@ -94,24 +74,16 @@ void WinRtRunControl::start()
 
 RunControl::StopResult WinRtRunControl::stop()
 {
-    if (m_state != StartedState) {
-        m_state = StoppedState;
+    if (m_state == StoppedState)
         return StoppedSynchronously;
-    }
 
-    QTC_ASSERT(m_process, return StoppedSynchronously);
-    m_process->interrupt();
+    m_runner->stop();
     return AsynchronousStop;
 }
 
 bool WinRtRunControl::isRunning() const
 {
     return m_state == StartedState;
-}
-
-QIcon WinRtRunControl::icon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void WinRtRunControl::onProcessStarted()
@@ -121,83 +93,31 @@ void WinRtRunControl::onProcessStarted()
     emit started();
 }
 
-void WinRtRunControl::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void WinRtRunControl::onProcessFinished()
 {
-    QTC_ASSERT(m_process, return);
     QTC_CHECK(m_state == StartedState);
-
-    if (exitStatus == QProcess::CrashExit) {
-        appendMessage(tr("winrtrunner crashed.") + QLatin1Char('\n'), Utils::ErrorMessageFormat);
-    } else if (exitCode != 0) {
-        appendMessage(tr("winrtrunner returned with exit code %1.").arg(exitCode)
-                      + QLatin1Char('\n'), Utils::ErrorMessageFormat);
-    } else {
-        appendMessage(tr("winrtrunner finished successfully.")
-                      + QLatin1Char('\n'), Utils::NormalMessageFormat);
-    }
-
-    m_process->disconnect();
-    m_process->deleteLater();
-    m_process = 0;
-    m_state = StoppedState;
-    emit finished();
+    onProcessError();
 }
 
 void WinRtRunControl::onProcessError()
 {
-    QTC_ASSERT(m_process, return);
-    appendMessage(tr("Error while executing winrtrunner: %1\n").arg(m_process->errorString()),
-            Utils::ErrorMessageFormat);
-    m_process->disconnect();
-    m_process->deleteLater();
-    m_process = 0;
+    QTC_ASSERT(m_runner, return);
+    m_runner->disconnect();
+    m_runner->deleteLater();
+    m_runner = 0;
     m_state = StoppedState;
     emit finished();
 }
 
-void WinRtRunControl::onProcessReadyReadStdOut()
-{
-    QTC_ASSERT(m_process, return);
-    appendMessage(QString::fromLocal8Bit(m_process->readAllStandardOutput()), Utils::StdOutFormat);
-}
-
-void WinRtRunControl::onProcessReadyReadStdErr()
-{
-    QTC_ASSERT(m_process, return);
-    appendMessage(QString::fromLocal8Bit(m_process->readAllStandardError()), Utils::StdErrFormat);
-}
-
 bool WinRtRunControl::startWinRtRunner()
 {
-    QString runnerArgs;
-    QtcProcess::addArg(&runnerArgs, QStringLiteral("--profile"));
-    QtcProcess::addArg(&runnerArgs, m_isWinPhone ? QStringLiteral("xap") : QStringLiteral("appx"));
-    if (m_device) {
-        QtcProcess::addArg(&runnerArgs, QStringLiteral("--device"));
-        QtcProcess::addArg(&runnerArgs, QString::number(m_device->deviceId()));
-    }
-    QtcProcess::addArgs(&runnerArgs, QStringLiteral("--install --start --stop --wait 0"));
-    QtcProcess::addArg(&runnerArgs, m_executableFilePath);
-    if (!m_arguments.isEmpty())
-        QtcProcess::addArgs(&runnerArgs, m_arguments);
-
-    appendMessage(QStringLiteral("winrtrunner ") + runnerArgs + QLatin1Char('\n'),
-                  Utils::NormalMessageFormat);
-
-    QTC_ASSERT(!m_process, m_process->deleteLater());
-    m_process = new QtcProcess(this);
-    connect(m_process, SIGNAL(started()), SLOT(onProcessStarted()));
-    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            SLOT(onProcessFinished(int,QProcess::ExitStatus)));
-    connect(m_process, SIGNAL(error(QProcess::ProcessError)), SLOT(onProcessError()));
-    connect(m_process, SIGNAL(readyReadStandardOutput()), SLOT(onProcessReadyReadStdOut()));
-    connect(m_process, SIGNAL(readyReadStandardError()), SLOT(onProcessReadyReadStdErr()));
-
+    QTC_ASSERT(!m_runner, return false);
+    m_runner = new WinRtRunnerHelper(this);
+    connect(m_runner, SIGNAL(started()), SLOT(onProcessStarted()));
+    connect(m_runner, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(onProcessFinished()));
+    connect(m_runner, SIGNAL(error(QProcess::ProcessError)), SLOT(onProcessError()));
     m_state = StartingState;
-    m_process->setUseCtrlCStub(true);
-    m_process->setCommand(m_runnerFilePath, runnerArgs);
-    m_process->setWorkingDirectory(QFileInfo(m_executableFilePath).absolutePath());
-    m_process->start();
+    m_runner->start();
     return true;
 }
 

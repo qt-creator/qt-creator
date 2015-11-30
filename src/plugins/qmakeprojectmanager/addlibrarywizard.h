@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -92,9 +93,9 @@ public:
 signals:
 
 private:
-    LibraryTypePage *m_libraryTypePage;
-    DetailsPage *m_detailsPage;
-    SummaryPage *m_summaryPage;
+    LibraryTypePage *m_libraryTypePage = nullptr;
+    DetailsPage *m_detailsPage = nullptr;
+    SummaryPage *m_summaryPage = nullptr;
     QString m_proFile;
 };
 
@@ -108,10 +109,10 @@ public:
     AddLibraryWizard::LibraryKind libraryKind() const;
 
 private:
-    QRadioButton *m_internalRadio;
-    QRadioButton *m_externalRadio;
-    QRadioButton *m_systemRadio;
-    QRadioButton *m_packageRadio;
+    QRadioButton *m_internalRadio = nullptr;
+    QRadioButton *m_externalRadio = nullptr;
+    QRadioButton *m_systemRadio = nullptr;
+    QRadioButton *m_packageRadio = nullptr;
 };
 
 class DetailsPage : public QWizardPage
@@ -125,8 +126,8 @@ public:
 
 private:
     AddLibraryWizard *m_libraryWizard;
-    Ui::LibraryDetailsWidget *m_libraryDetailsWidget;
-    LibraryDetailsController *m_libraryDetailsController;
+    Ui::LibraryDetailsWidget *m_libraryDetailsWidget = nullptr;
+    LibraryDetailsController *m_libraryDetailsController = nullptr;
 };
 
 class SummaryPage : public QWizardPage
@@ -137,20 +138,11 @@ public:
     virtual void initializePage();
     QString snippet() const;
 private:
-    AddLibraryWizard *m_libraryWizard;
-    QLabel *m_summaryLabel;
-    QLabel *m_snippetLabel;
+    AddLibraryWizard *m_libraryWizard = nullptr;
+    QLabel *m_summaryLabel = nullptr;
+    QLabel *m_snippetLabel = nullptr;
     QString m_snippet;
 };
-
-class LibraryPathChooser : public Utils::PathChooser
-{
-    Q_OBJECT
-public:
-    LibraryPathChooser(QWidget *parent);
-    virtual bool validatePath(const QString &path, QString *errorMessage);
-};
-
 
 } // namespace Internal
 } // namespace QmakeProjectManager

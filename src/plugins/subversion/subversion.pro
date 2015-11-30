@@ -8,8 +8,6 @@ HEADERS += annotationhighlighter.h \
     subversioneditor.h \
     subversionsubmiteditor.h \
     subversionsettings.h \
-    checkoutwizard.h \
-    checkoutwizardpage.h \
     subversionconstants.h
 
 SOURCES += annotationhighlighter.cpp \
@@ -19,9 +17,7 @@ SOURCES += annotationhighlighter.cpp \
     settingspage.cpp \
     subversioneditor.cpp \
     subversionsubmiteditor.cpp \
-    subversionsettings.cpp \
-    checkoutwizard.cpp \
-    checkoutwizardpage.cpp
+    subversionsettings.cpp
 
 FORMS += settingspage.ui
 

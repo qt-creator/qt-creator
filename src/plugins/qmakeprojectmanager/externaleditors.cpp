@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -46,6 +47,8 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 
+using namespace ProjectExplorer;
+
 enum { debug = 0 };
 
 namespace QmakeProjectManager {
@@ -55,7 +58,7 @@ namespace Internal {
 static inline QString msgStartFailed(const QString &binary, QStringList arguments)
 {
     arguments.push_front(binary);
-    return ExternalQtEditor::tr("Unable to start \"%1\"").arg(arguments.join(QString(QLatin1Char(' '))));
+    return ExternalQtEditor::tr("Unable to start \"%1\"").arg(arguments.join(QLatin1Char(' ')));
 }
 
 static inline QString msgAppNotFound(const QString &id)
@@ -129,11 +132,11 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
                                            QString *errorMessage) const
 {
     // Get the binary either from the current Qt version of the project or Path
-    if (ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(fileName)) {
-        if (const ProjectExplorer::Target *target = project->activeTarget()) {
+    if (Project *project = SessionManager::projectForFile(Utils::FileName::fromString(fileName))) {
+        if (const Target *target = project->activeTarget()) {
             if (const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit())) {
                 data->binary = (qtVersion->*commandAccessor)();
-                data->workingDirectory = project->projectDirectory();
+                data->workingDirectory = project->projectDirectory().toString();
             }
         }
     }
@@ -207,8 +210,7 @@ DesignerExternalEditor::DesignerExternalEditor(QObject *parent) :
     ExternalQtEditor(designerIdC,
                      QLatin1String(designerDisplayName),
                      QLatin1String(Designer::Constants::FORM_MIMETYPE),
-                     parent),
-    m_terminationMapper(0)
+                     parent)
 {
 }
 

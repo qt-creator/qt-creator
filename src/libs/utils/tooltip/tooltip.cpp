@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,31 +9,32 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "tooltip.h"
 #include "tips.h"
-#include "tipcontents.h"
 #include "effects.h"
 #include "reuse.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QString>
 #include <QColor>
@@ -50,8 +51,8 @@ using namespace Internal;
 
 ToolTip::ToolTip() : m_tip(0), m_widget(0)
 {
-    connect(&m_showTimer, SIGNAL(timeout()), this, SLOT(hideTipImmediately()));
-    connect(&m_hideDelayTimer, SIGNAL(timeout()), this, SLOT(hideTipImmediately()));
+    connect(&m_showTimer, &QTimer::timeout, this, &ToolTip::hideTipImmediately);
+    connect(&m_hideDelayTimer, &QTimer::timeout, this, &ToolTip::hideTipImmediately);
 }
 
 ToolTip::~ToolTip()
@@ -65,32 +66,73 @@ ToolTip *ToolTip::instance()
     return &tooltip;
 }
 
-void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect)
+void ToolTip::show(const QPoint &pos, const QString &content, QWidget *w, const QString &helpId, const QRect &rect)
 {
-    instance()->showInternal(pos, content, w, rect);
+    if (content.isEmpty())
+        instance()->hideTipWithDelay();
+    else
+        instance()->showInternal(pos, QVariant(content), TextContent, w, helpId, rect);
 }
 
-void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w)
+void ToolTip::show(const QPoint &pos, const QColor &color, QWidget *w, const QString &helpId, const QRect &rect)
 {
-    show(pos, content, w, QRect());
+    if (!color.isValid())
+        instance()->hideTipWithDelay();
+    else
+        instance()->showInternal(pos, QVariant(color), ColorContent, w, helpId, rect);
 }
 
-bool ToolTip::acceptShow(const TipContent &content,
+void ToolTip::show(const QPoint &pos, QWidget *content, QWidget *w, const QString &helpId, const QRect &rect)
+{
+    if (!content)
+        instance()->hideTipWithDelay();
+    else
+        instance()->showInternal(pos, QVariant::fromValue(content), WidgetContent, w, helpId, rect);
+}
+
+void ToolTip::move(const QPoint &pos, QWidget *w)
+{
+    if (isVisible())
+        instance()->placeTip(pos, w);
+}
+
+bool ToolTip::pinToolTip(QWidget *w, QWidget *parent)
+{
+    QTC_ASSERT(w, return false);
+    // Find the parent WidgetTip, tell it to pin/release the
+    // widget and close.
+    for (QWidget *p = w->parentWidget(); p ; p = p->parentWidget()) {
+        if (WidgetTip *wt = qobject_cast<WidgetTip *>(p)) {
+            wt->pinToolTipWidget(parent);
+            ToolTip::hide();
+            return true;
+        }
+    }
+    return false;
+}
+
+QString ToolTip::contextHelpId()
+{
+    return instance()->m_tip ? instance()->m_tip->helpId() : QString();
+}
+
+bool ToolTip::acceptShow(const QVariant &content,
+                         int typeId,
                          const QPoint &pos,
-                         QWidget *w,
+                         QWidget *w, const QString &helpId,
                          const QRect &rect)
 {
-    if (!validateContent(content))
-        return false;
-
     if (isVisible()) {
-        if (m_tip->canHandleContentReplacement(content)) {
+        if (m_tip->canHandleContentReplacement(typeId)) {
             // Reuse current tip.
             QPoint localPos = pos;
             if (w)
                 localPos = w->mapFromGlobal(pos);
-            if (tipChanged(localPos, content, w))
-                setUp(pos, content, w, rect);
+            if (tipChanged(localPos, content, typeId, w, helpId)) {
+                m_tip->setContent(content);
+                m_tip->setHelpId(helpId);
+                setUp(pos, w, rect);
+            }
             return false;
         }
         hideTipImmediately();
@@ -107,19 +149,8 @@ bool ToolTip::acceptShow(const TipContent &content,
     return true;
 }
 
-bool ToolTip::validateContent(const TipContent &content)
+void ToolTip::setUp(const QPoint &pos, QWidget *w, const QRect &rect)
 {
-    if (!content.isValid()) {
-        if (isVisible())
-            hideTipWithDelay();
-        return false;
-    }
-    return true;
-}
-
-void ToolTip::setUp(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect)
-{
-    m_tip->setContent(content);
     m_tip->configure(pos, w);
 
     placeTip(pos, w);
@@ -127,12 +158,13 @@ void ToolTip::setUp(const QPoint &pos, const TipContent &content, QWidget *w, co
 
     if (m_hideDelayTimer.isActive())
         m_hideDelayTimer.stop();
-    m_showTimer.start(content.showTime());
+    m_showTimer.start(m_tip->showTime());
 }
 
-bool ToolTip::tipChanged(const QPoint &pos, const TipContent &content, QWidget *w) const
+bool ToolTip::tipChanged(const QPoint &pos, const QVariant &content, int typeId, QWidget *w,
+                         const QString &helpId) const
 {
-    if (!m_tip->content().equals(content) || m_widget != w)
+    if (!m_tip->equals(typeId, content, helpId) || m_widget != w)
         return true;
     if (!m_rect.isNull())
         return !m_rect.contains(pos);
@@ -153,6 +185,11 @@ bool ToolTip::isVisible()
 {
     ToolTip *t = instance();
     return t->m_tip && t->m_tip->isVisible();
+}
+
+QPoint ToolTip::offsetFromPosition()
+{
+    return QPoint(2, HostOsInfo::isWindowsHost() ? 21 : 16);
 }
 
 void ToolTip::showTip()
@@ -190,39 +227,44 @@ void ToolTip::hideTipImmediately()
     m_showTimer.stop();
     m_hideDelayTimer.stop();
     qApp->removeEventFilter(this);
+    emit hidden();
 }
 
-void ToolTip::showInternal(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect)
+void ToolTip::showInternal(const QPoint &pos, const QVariant &content,
+                           int typeId, QWidget *w, const QString &helpId, const QRect &rect)
 {
-    if (acceptShow(content, pos, w, rect)) {
+    if (acceptShow(content, typeId, pos, w, helpId, rect)) {
         QWidget *target = 0;
         if (HostOsInfo::isWindowsHost())
             target = QApplication::desktop()->screen(Internal::screenNumber(pos, w));
         else
             target = w;
 
-        switch (content.typeId()) {
-            case TextContent::TEXT_CONTENT_ID:
-                m_tip = new TextTip(target);
-                break;
-            case ColorContent::COLOR_CONTENT_ID:
+        switch (typeId) {
+            case ColorContent:
                 m_tip = new ColorTip(target);
                 break;
-            case WidgetContent::WIDGET_CONTENT_ID:
+            case TextContent:
+                m_tip = new TextTip(target);
+                break;
+            case WidgetContent:
                 m_tip = new WidgetTip(target);
                 break;
         }
-        setUp(pos, content, w, rect);
+        m_tip->setContent(content);
+        m_tip->setHelpId(helpId);
+        setUp(pos, w, rect);
         qApp->installEventFilter(this);
         showTip();
     }
+    emit shown();
 }
 
 void ToolTip::placeTip(const QPoint &pos, QWidget *w)
 {
     QRect screen = Internal::screenGeometry(pos, w);
     QPoint p = pos;
-    p += QPoint(2, Utils::HostOsInfo::isWindowsHost() ? 21 : 16);
+    p += offsetFromPosition();
     if (p.x() + m_tip->width() > screen.x() + screen.width())
         p.rx() -= 4 + m_tip->width();
     if (p.y() + m_tip->height() > screen.y() + screen.height())

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,13 +34,17 @@
 #include "projectexplorer_export.h"
 
 #include <coreplugin/id.h>
+#include <coreplugin/featureprovider.h>
 
 #include <QObject>
 #include <QPair>
 
+#include <functional>
+
 namespace Utils {
-class FileName;
 class Environment;
+class FileName;
+class MacroExpander;
 }
 
 namespace ProjectExplorer {
@@ -90,6 +95,12 @@ public:
 
     virtual QString displayNamePostfix(const Kit *k) const;
 
+    virtual QSet<QString> availablePlatforms(const Kit *k) const;
+    virtual QString displayNameForPlatform(const Kit *k, const QString &platform) const;
+    virtual Core::FeatureSet availableFeatures(const Kit *k) const;
+
+    virtual void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
+
 protected:
     void setId(Core::Id id) { m_id = id; }
     void setPriority(int priority) { m_priority = priority; }
@@ -103,8 +114,15 @@ private:
 class PROJECTEXPLORER_EXPORT KitMatcher
 {
 public:
-    virtual ~KitMatcher() { }
-    virtual bool matches(const Kit *k) const = 0;
+    typedef std::function<bool(const Kit *)> Matcher;
+    KitMatcher(const Matcher &m) : m_matcher(m) {}
+    KitMatcher() {}
+
+    bool isValid() const { return !!m_matcher; }
+    bool matches(const Kit *kit) const { return m_matcher(kit); }
+
+private:
+    Matcher m_matcher;
 };
 
 class PROJECTEXPLORER_EXPORT KitManager : public QObject
@@ -112,12 +130,12 @@ class PROJECTEXPLORER_EXPORT KitManager : public QObject
     Q_OBJECT
 
 public:
-    static QObject *instance();
+    static KitManager *instance();
     ~KitManager();
 
     static QList<Kit *> kits();
     static QList<Kit *> matchingKits(const KitMatcher &matcher);
-    static Kit *find(const Core::Id &id);
+    static Kit *find(Core::Id id);
     static Kit *find(const KitMatcher &matcher);
     static Kit *defaultKit();
 
@@ -127,14 +145,18 @@ public:
 
     static void deleteKit(Kit *k);
 
-    static QString uniqueKitName(const Kit *k, const QString name, const QList<Kit *> &allKits);
+    static bool registerKit(Kit *k);
+    static void deregisterKit(Kit *k);
+    static void setDefaultKit(Kit *k);
 
-    static bool registerKit(ProjectExplorer::Kit *k);
-    static void deregisterKit(ProjectExplorer::Kit *k);
-    static void setDefaultKit(ProjectExplorer::Kit *k);
+    static void registerKitInformation(KitInformation *ki);
+    static void deregisterKitInformation(KitInformation *ki);
 
-    static void registerKitInformation(ProjectExplorer::KitInformation *ki);
-    static void deregisterKitInformation(ProjectExplorer::KitInformation *ki);
+    static QSet<QString> availablePlatforms();
+    static QString displayNameForPlatform(const QString &platform);
+    static Core::FeatureSet availableFeatures(const QString &platform);
+
+    static QList<Kit *> sortKits(const QList<Kit *> kits); // Avoid sorting whenever possible!
 
 public slots:
     void saveKits();
@@ -156,8 +178,6 @@ signals:
 private:
     explicit KitManager(QObject *parent = 0);
 
-    static bool setKeepDisplayNameUnique(bool unique);
-
     // Make sure the this is only called after all
     // KitInformation are registered!
     void restoreKits();
@@ -171,8 +191,7 @@ private:
     };
     KitList restoreKits(const Utils::FileName &fileName);
 
-    static void notifyAboutDisplayNameChange(ProjectExplorer::Kit *k);
-    static void notifyAboutUpdate(ProjectExplorer::Kit *k);
+    static void notifyAboutUpdate(Kit *k);
     void addKit(Kit *k);
 
     friend class ProjectExplorerPlugin; // for constructor

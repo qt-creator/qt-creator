@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,17 +32,25 @@
 
 #include "buildinfo.h"
 #include "buildconfiguration.h"
+#include "deployconfiguration.h"
 #include "editorconfiguration.h"
+#include "kit.h"
 #include "projectexplorer.h"
 #include "target.h"
+#include "session.h"
 #include "settingsaccessor.h"
 
 #include <coreplugin/idocument.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitmanager.h>
-#include <limits>
+
+#include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+
+#include <limits>
 
 /*!
     \class ProjectExplorer::Project
@@ -87,16 +96,20 @@ public:
     Core::Id m_id;
     QList<Target *> m_targets;
     Target *m_activeTarget;
-    EditorConfiguration *m_editorConfiguration;
+    EditorConfiguration m_editorConfiguration;
     Core::Context m_projectContext;
     Core::Context m_projectLanguages;
     QVariantMap m_pluginSettings;
-    SettingsAccessor *m_accessor;
+    Internal::UserFileAccessor *m_accessor;
+
+    KitMatcher m_requiredKitMatcher;
+    KitMatcher m_preferredKitMatcher;
+
+    Utils::MacroExpander m_macroExpander;
 };
 
 ProjectPrivate::ProjectPrivate() :
     m_activeTarget(0),
-    m_editorConfiguration(new EditorConfiguration()),
     m_accessor(0)
 { }
 
@@ -104,12 +117,15 @@ ProjectPrivate::~ProjectPrivate()
 { delete m_accessor; }
 
 Project::Project() : d(new ProjectPrivate)
-{ }
+{
+    d->m_macroExpander.setDisplayName(tr("Project"));
+    d->m_macroExpander.registerVariable("Project:Name", tr("Project Name"),
+            [this] { return displayName(); });
+}
 
 Project::~Project()
 {
     qDeleteAll(d->m_targets);
-    delete d->m_editorConfiguration;
     delete d;
 }
 
@@ -119,7 +135,7 @@ Core::Id Project::id() const
     return d->m_id;
 }
 
-QString Project::projectFilePath() const
+Utils::FileName Project::projectFilePath() const
 {
     return document()->filePath();
 }
@@ -187,11 +203,11 @@ bool Project::removeTarget(Target *target)
 
     if (target == activeTarget()) {
         if (d->m_targets.size() == 1)
-            setActiveTarget(0);
+            SessionManager::setActiveTarget(this, 0, SetActive::Cascade);
         else if (d->m_targets.first() == target)
-            setActiveTarget(d->m_targets.at(1));
+            SessionManager::setActiveTarget(this, d->m_targets.at(1), SetActive::Cascade);
         else
-            setActiveTarget(d->m_targets.at(0));
+            SessionManager::setActiveTarget(this, d->m_targets.at(0), SetActive::Cascade);
     }
 
     emit aboutToRemoveTarget(target);
@@ -223,22 +239,14 @@ void Project::setActiveTarget(Target *target)
     }
 }
 
-Target *Project::target(const Core::Id id) const
+Target *Project::target(Core::Id id) const
 {
-    foreach (Target *target, d->m_targets) {
-        if (target->id() == id)
-            return target;
-    }
-    return 0;
+    return Utils::findOrDefault(d->m_targets, Utils::equal(&Target::id, id));
 }
 
 Target *Project::target(Kit *k) const
 {
-    foreach (Target *target, d->m_targets) {
-        if (target->kit() == k)
-            return target;
-    }
-    return 0;
+    return Utils::findOrDefault(d->m_targets, Utils::equal(&Target::kit, k));
 }
 
 bool Project::supportsKit(Kit *k, QString *errorMessage) const
@@ -259,6 +267,138 @@ Target *Project::createTarget(Kit *k)
         return 0;
     }
     return t;
+}
+
+Target *Project::cloneTarget(Target *sourceTarget, Kit *k)
+{
+    Target *newTarget = new Target(this, k);
+
+    QStringList buildconfigurationError;
+    QStringList deployconfigurationError;
+    QStringList runconfigurationError;
+
+    foreach (BuildConfiguration *sourceBc, sourceTarget->buildConfigurations()) {
+        IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(newTarget, sourceBc);
+        if (!factory) {
+            buildconfigurationError << sourceBc->displayName();
+            continue;
+        }
+        BuildConfiguration *newBc = factory->clone(newTarget, sourceBc);
+        if (!newBc) {
+            buildconfigurationError << sourceBc->displayName();
+            continue;
+        }
+        newBc->setDisplayName(sourceBc->displayName());
+        newTarget->addBuildConfiguration(newBc);
+        if (sourceTarget->activeBuildConfiguration() == sourceBc)
+            SessionManager::setActiveBuildConfiguration(newTarget, newBc, SetActive::NoCascade);
+    }
+    if (!newTarget->activeBuildConfiguration()) {
+        QList<BuildConfiguration *> bcs = newTarget->buildConfigurations();
+        if (!bcs.isEmpty())
+            SessionManager::setActiveBuildConfiguration(newTarget, bcs.first(), SetActive::NoCascade);
+    }
+
+    foreach (DeployConfiguration *sourceDc, sourceTarget->deployConfigurations()) {
+        DeployConfigurationFactory *factory = DeployConfigurationFactory::find(newTarget, sourceDc);
+        if (!factory) {
+            deployconfigurationError << sourceDc->displayName();
+            continue;
+        }
+        DeployConfiguration *newDc = factory->clone(newTarget, sourceDc);
+        if (!newDc) {
+            deployconfigurationError << sourceDc->displayName();
+            continue;
+        }
+        newDc->setDisplayName(sourceDc->displayName());
+        newTarget->addDeployConfiguration(newDc);
+        if (sourceTarget->activeDeployConfiguration() == sourceDc)
+            SessionManager::setActiveDeployConfiguration(newTarget, newDc, SetActive::NoCascade);
+    }
+    if (!newTarget->activeBuildConfiguration()) {
+        QList<DeployConfiguration *> dcs = newTarget->deployConfigurations();
+        if (!dcs.isEmpty())
+            SessionManager::setActiveDeployConfiguration(newTarget, dcs.first(), SetActive::NoCascade);
+    }
+
+    foreach (RunConfiguration *sourceRc, sourceTarget->runConfigurations()) {
+        IRunConfigurationFactory *factory = IRunConfigurationFactory::find(newTarget, sourceRc);
+        if (!factory) {
+            runconfigurationError << sourceRc->displayName();
+            continue;
+        }
+        RunConfiguration *newRc = factory->clone(newTarget, sourceRc);
+        if (!newRc) {
+            runconfigurationError << sourceRc->displayName();
+            continue;
+        }
+        newRc->setDisplayName(sourceRc->displayName());
+        newTarget->addRunConfiguration(newRc);
+        if (sourceTarget->activeRunConfiguration() == sourceRc)
+            newTarget->setActiveRunConfiguration(newRc);
+    }
+    if (!newTarget->activeRunConfiguration()) {
+        QList<RunConfiguration *> rcs = newTarget->runConfigurations();
+        if (!rcs.isEmpty())
+            newTarget->setActiveRunConfiguration(rcs.first());
+    }
+
+    bool fatalError = false;
+    if (buildconfigurationError.count() == sourceTarget->buildConfigurations().count())
+        fatalError = true;
+
+    if (deployconfigurationError.count() == sourceTarget->deployConfigurations().count())
+        fatalError = true;
+
+    if (runconfigurationError.count() == sourceTarget->runConfigurations().count())
+        fatalError = true;
+
+    if (fatalError) {
+        // That could be a more granular error message
+        QMessageBox::critical(Core::ICore::mainWindow(),
+                              tr("Incompatible Kit"),
+                              tr("Kit %1 is incompatible with kit %2.")
+                              .arg(sourceTarget->kit()->displayName())
+                              .arg(k->displayName()));
+
+        delete newTarget;
+        newTarget = 0;
+    } else if (!buildconfigurationError.isEmpty()
+               || !deployconfigurationError.isEmpty()
+               || ! runconfigurationError.isEmpty()) {
+
+        QString error;
+        if (!buildconfigurationError.isEmpty())
+            error += tr("Build configurations:") + QLatin1Char('\n')
+                    + buildconfigurationError.join(QLatin1Char('\n'));
+
+        if (!deployconfigurationError.isEmpty()) {
+            if (!error.isEmpty())
+                error.append(QLatin1Char('\n'));
+            error += tr("Deploy configurations:") + QLatin1Char('\n')
+                    + deployconfigurationError.join(QLatin1Char('\n'));
+        }
+
+        if (!runconfigurationError.isEmpty()) {
+            if (!error.isEmpty())
+                error.append(QLatin1Char('\n'));
+            error += tr("Run configurations:") + QLatin1Char('\n')
+                    + runconfigurationError.join(QLatin1Char('\n'));
+        }
+
+        QMessageBox msgBox(Core::ICore::mainWindow());
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setWindowTitle(tr("Partially Incompatible Kit"));
+        msgBox.setText(tr("Some configurations could not be copied."));
+        msgBox.setDetailedText(error);
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        if (msgBox.exec() != QDialog::Accepted) {
+            delete newTarget;
+            newTarget = 0;
+        }
+    }
+
+    return newTarget;
 }
 
 bool Project::setupTarget(Target *t)
@@ -302,19 +442,20 @@ void Project::saveSettings()
 {
     emit aboutToSaveSettings();
     if (!d->m_accessor)
-        d->m_accessor = new SettingsAccessor(this);
-    d->m_accessor->saveSettings(toMap());
+        d->m_accessor = new Internal::UserFileAccessor(this);
+    if (!targets().isEmpty())
+        d->m_accessor->saveSettings(toMap(), Core::ICore::mainWindow());
 }
 
-bool Project::restoreSettings()
+Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 {
     if (!d->m_accessor)
-        d->m_accessor = new SettingsAccessor(this);
-    QVariantMap map(d->m_accessor->restoreSettings());
-    bool ok = fromMap(map);
-    if (ok)
+        d->m_accessor = new Internal::UserFileAccessor(this);
+    QVariantMap map(d->m_accessor->restoreSettings(Core::ICore::mainWindow()));
+    RestoreResult result = fromMap(map, errorMessage);
+    if (result == RestoreResult::Ok)
         emit settingsLoaded();
-    return ok;
+    return result;
 }
 
 
@@ -339,31 +480,31 @@ QVariantMap Project::toMap() const
     for (int i = 0; i < ts.size(); ++i)
         map.insert(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i), ts.at(i)->toMap());
 
-    map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration->toMap());
+    map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration.toMap());
     map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
 
     return map;
 }
 
-QString Project::projectDirectory() const
+Utils::FileName Project::projectDirectory() const
 {
-    return projectDirectory(document()->filePath());
+    return projectDirectory(projectFilePath());
 }
 
-QString Project::projectDirectory(const QString &top)
+Utils::FileName Project::projectDirectory(const Utils::FileName &top)
 {
     if (top.isEmpty())
-        return QString();
-    QFileInfo info(top);
-    return info.absoluteDir().path();
+        return Utils::FileName();
+    return Utils::FileName::fromString(top.toFileInfo().absoluteDir().path());
 }
 
 
-bool Project::fromMap(const QVariantMap &map)
+Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage);
     if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {
         QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
-        d->m_editorConfiguration->fromMap(values);
+        d->m_editorConfiguration.fromMap(values);
     }
 
     if (map.contains(QLatin1String(PLUGIN_SETTINGS_KEY)))
@@ -379,10 +520,8 @@ bool Project::fromMap(const QVariantMap &map)
 
     for (int i = 0; i < maxI; ++i) {
         const QString key(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i));
-        if (!map.contains(key)) {
-            qWarning() << key << "was not found in data.";
-            return false;
-        }
+        if (!map.contains(key))
+            continue;
         QVariantMap targetMap = map.value(key).toMap();
 
         Target *t = restoreTarget(targetMap);
@@ -394,15 +533,15 @@ bool Project::fromMap(const QVariantMap &map)
             setActiveTarget(t);
     }
 
-    return true;
+    return RestoreResult::Ok;
 }
 
 EditorConfiguration *Project::editorConfiguration() const
 {
-    return d->m_editorConfiguration;
+    return &d->m_editorConfiguration;
 }
 
-QString Project::generatedUiHeader(const QString & /* formFile */) const
+QString Project::generatedUiHeader(const Utils::FileName & /* formFile */) const
 {
     return QString();
 }
@@ -482,9 +621,9 @@ void Project::configureAsExampleProject(const QStringList &platforms)
     Q_UNUSED(platforms);
 }
 
-bool Project::supportsNoTargetPanel() const
+bool Project::requiresTargetPanel() const
 {
-    return false;
+    return true;
 }
 
 bool Project::needsSpecialDeployment() const
@@ -501,12 +640,7 @@ void Project::setup(QList<const BuildInfo *> infoList)
             continue;
         Target *t = target(k);
         if (!t) {
-            foreach (Target *i, toRegister) {
-                if (i->kit() == k) {
-                    t = i;
-                    break;
-                }
-            }
+            t = Utils::findOrDefault(toRegister, Utils::equal(&Target::kit, k));
         }
         if (!t) {
             t = new Target(this, k);
@@ -525,9 +659,34 @@ void Project::setup(QList<const BuildInfo *> infoList)
     }
 }
 
+Utils::MacroExpander *Project::macroExpander() const
+{
+    return &d->m_macroExpander;
+}
+
 ProjectImporter *Project::createProjectImporter() const
 {
     return 0;
+}
+
+KitMatcher Project::requiredKitMatcher() const
+{
+    return d->m_requiredKitMatcher;
+}
+
+void Project::setRequiredKitMatcher(const KitMatcher &matcher)
+{
+    d->m_requiredKitMatcher = matcher;
+}
+
+KitMatcher Project::preferredKitMatcher() const
+{
+    return d->m_preferredKitMatcher;
+}
+
+void Project::setPreferredKitMatcher(const KitMatcher &matcher)
+{
+    d->m_preferredKitMatcher = matcher;
 }
 
 void Project::onBuildDirectoryChanged()

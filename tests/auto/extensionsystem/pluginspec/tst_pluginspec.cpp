@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,12 +33,41 @@
 #include <extensionsystem/pluginmanager_p.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QObject>
 #include <QMetaObject>
 #include <QtTest>
 #include <QDir>
 
 using namespace ExtensionSystem;
+
+static QJsonObject metaData(const QString &fileName)
+{
+    QFile f(fileName);
+    if (!f.open(QIODevice::ReadOnly)) {
+        qWarning() << "Could not open" << fileName;
+        return QJsonObject();
+    }
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(f.readAll(), &error);
+    if (error.error != QJsonParseError::NoError) {
+        qWarning() << "Could not parse" << fileName << ":" << error.errorString();
+        return QJsonObject();
+    }
+    return doc.object();
+}
+
+static QString libraryName(const QString &basename)
+{
+#if defined(Q_OS_OSX)
+    return QLatin1String("lib") + basename + QLatin1String("_debug.dylib");
+#elif defined(Q_OS_UNIX)
+    return QLatin1String("lib") + basename + QLatin1String(".so");
+#else
+    return basename + QLatin1String("d.dll");
+#endif
+}
 
 class tst_PluginSpec : public QObject
 {
@@ -56,70 +86,86 @@ private slots:
     void initializePlugin();
     void initializeExtensions();
     void init();
+    void initTestCase();
+    void cleanupTestCase();
+
+private:
+    PluginManager *pm;
 };
 
 void tst_PluginSpec::init()
 {
+    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
     QVERIFY(QDir::setCurrent(QLatin1String(PLUGINSPEC_DIR)));
+}
+
+void tst_PluginSpec::initTestCase()
+{
+    pm = new PluginManager;
+    pm->setPluginIID(QLatin1String("plugin"));
+}
+
+void tst_PluginSpec::cleanupTestCase()
+{
+    delete pm;
+    pm = 0;
 }
 
 void tst_PluginSpec::read()
 {
     Internal::PluginSpecPrivate spec(0);
     QCOMPARE(spec.state, PluginSpec::Invalid);
-    QVERIFY(spec.read("testspecs/spec1.xml"));
-    QCOMPARE(spec.state, PluginSpec::Read);
+    QVERIFY(spec.readMetaData(metaData("testspecs/spec1.json")));
     QVERIFY(!spec.hasError);
     QVERIFY(spec.errorString.isEmpty());
     QCOMPARE(spec.name, QString("test"));
     QCOMPARE(spec.version, QString("1.0.1"));
     QCOMPARE(spec.compatVersion, QString("1.0.0"));
+    QCOMPARE(spec.required, false);
     QCOMPARE(spec.experimental, false);
-    QCOMPARE(spec.enabledInSettings, true);
-    QCOMPARE(spec.vendor, QString("Digia Plc"));
-    QCOMPARE(spec.copyright, QString("(C) 2014 Digia Plc"));
+    QCOMPARE(spec.enabledBySettings, true);
+    QCOMPARE(spec.vendor, QString("The Qt Company Ltd"));
+    QCOMPARE(spec.copyright, QString("(C) 2015 The Qt Company Ltd"));
     QCOMPARE(spec.license, QString("This is a default license bla\nblubbblubb\nend of terms"));
     QCOMPARE(spec.description, QString("This plugin is just a test.\n    it demonstrates the great use of the plugin spec."));
-    QCOMPARE(spec.url, QString("http://qt.digi.com"));
+    QCOMPARE(spec.url, QString("http://www.qt.io"));
     PluginDependency dep1;
     dep1.name = QString("SomeOtherPlugin");
     dep1.version = QString("2.3.0_2");
     PluginDependency dep2;
     dep2.name = QString("EvenOther");
     dep2.version = QString("1.0.0");
-    QCOMPARE(spec.dependencies, QList<PluginDependency>() << dep1 << dep2);
+    QCOMPARE(spec.dependencies, QVector<PluginDependency>() << dep1 << dep2);
 
     // test missing compatVersion behavior
-    QVERIFY(spec.read("testspecs/spec2.xml"));
+    // and 'required' attribute
+    QVERIFY(spec.readMetaData(metaData("testspecs/spec2.json")));
     QCOMPARE(spec.version, QString("3.1.4_10"));
     QCOMPARE(spec.compatVersion, QString("3.1.4_10"));
+    QCOMPARE(spec.required, true);
 }
 
 void tst_PluginSpec::readError()
 {
     Internal::PluginSpecPrivate spec(0);
     QCOMPARE(spec.state, PluginSpec::Invalid);
-    QVERIFY(!spec.read("non-existing-file.xml"));
+    QVERIFY(!spec.readMetaData(metaData("non-existing-file.json")));
+    QCOMPARE(spec.state, PluginSpec::Invalid);
+    QVERIFY(!spec.hasError);
+    QVERIFY(spec.errorString.isEmpty());
+    QVERIFY(spec.readMetaData(metaData("testspecs/spec_wrong2.json")));
     QCOMPARE(spec.state, PluginSpec::Invalid);
     QVERIFY(spec.hasError);
     QVERIFY(!spec.errorString.isEmpty());
-    QVERIFY(!spec.read("testspecs/spec_wrong1.xml"));
+    QVERIFY(spec.readMetaData(metaData("testspecs/spec_wrong3.json")));
     QCOMPARE(spec.state, PluginSpec::Invalid);
     QVERIFY(spec.hasError);
     QVERIFY(!spec.errorString.isEmpty());
-    QVERIFY(!spec.read("testspecs/spec_wrong2.xml"));
+    QVERIFY(spec.readMetaData(metaData("testspecs/spec_wrong4.json")));
     QCOMPARE(spec.state, PluginSpec::Invalid);
     QVERIFY(spec.hasError);
     QVERIFY(!spec.errorString.isEmpty());
-    QVERIFY(!spec.read("testspecs/spec_wrong3.xml"));
-    QCOMPARE(spec.state, PluginSpec::Invalid);
-    QVERIFY(spec.hasError);
-    QVERIFY(!spec.errorString.isEmpty());
-    QVERIFY(!spec.read("testspecs/spec_wrong4.xml"));
-    QCOMPARE(spec.state, PluginSpec::Invalid);
-    QVERIFY(spec.hasError);
-    QVERIFY(!spec.errorString.isEmpty());
-    QVERIFY(!spec.read("testspecs/spec_wrong5.xml"));
+    QVERIFY(spec.readMetaData(metaData("testspecs/spec_wrong5.json")));
     QCOMPARE(spec.state, PluginSpec::Invalid);
     QVERIFY(spec.hasError);
     QVERIFY(!spec.errorString.isEmpty());
@@ -165,7 +211,7 @@ void tst_PluginSpec::versionCompare()
 void tst_PluginSpec::provides()
 {
     Internal::PluginSpecPrivate spec(0);
-    QVERIFY(spec.read("testspecs/simplespec.xml"));
+    QVERIFY(spec.readMetaData(metaData("testspecs/simplespec.json")));
     QVERIFY(!spec.provides("SomeOtherPlugin", "2.2.3_9"));
     QVERIFY(!spec.provides("MyPlugin", "2.2.3_10"));
     QVERIFY(!spec.provides("MyPlugin", "2.2.4"));
@@ -190,23 +236,17 @@ void tst_PluginSpec::provides()
 void tst_PluginSpec::experimental()
 {
     Internal::PluginSpecPrivate spec(0);
-    QVERIFY(spec.read("testspecs/simplespec_experimental.xml"));
+    QVERIFY(spec.readMetaData(metaData("testspecs/simplespec_experimental.json")));
     QCOMPARE(spec.experimental, true);
-    QCOMPARE(spec.enabledInSettings, false);
+    QCOMPARE(spec.enabledBySettings, false);
 }
 
 void tst_PluginSpec::locationAndPath()
 {
     Internal::PluginSpecPrivate spec(0);
-    QVERIFY(spec.read("testspecs/simplespec.xml"));
-    QCOMPARE(spec.location, QString(QDir::currentPath()+"/testspecs"));
-    QCOMPARE(spec.filePath, QString(QDir::currentPath()+"/testspecs/simplespec.xml"));
-    QVERIFY(spec.read("testdir/../testspecs/simplespec.xml"));
-    QCOMPARE(spec.location, QString(QDir::currentPath()+"/testspecs"));
-    QCOMPARE(spec.filePath, QString(QDir::currentPath()+"/testspecs/simplespec.xml"));
-    QVERIFY(spec.read("testdir/spec.xml"));
-    QCOMPARE(spec.location, QString(QDir::currentPath()+"/testdir"));
-    QCOMPARE(spec.filePath, QString(QDir::currentPath()+"/testdir/spec.xml"));
+    QVERIFY(spec.read(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/") + libraryName(QLatin1String("test"))));
+    QCOMPARE(spec.location, QString(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin")));
+    QCOMPARE(spec.filePath, QString(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/") + libraryName(QLatin1String("test"))));
 }
 
 void tst_PluginSpec::resolveDependencies()
@@ -215,20 +255,33 @@ void tst_PluginSpec::resolveDependencies()
     PluginSpec *spec1 = Internal::PluginManagerPrivate::createSpec();
     specs.append(spec1);
     Internal::PluginSpecPrivate *spec1Priv = Internal::PluginManagerPrivate::privateSpec(spec1);
-    spec1Priv->read("testdependencies/spec1.xml");
+    spec1Priv->readMetaData(metaData("testdependencies/spec1.json"));
+    spec1Priv->state = PluginSpec::Read; // fake read state for plugin resolving
+
     PluginSpec *spec2 = Internal::PluginManagerPrivate::createSpec();
     specs.append(spec2);
-    Internal::PluginManagerPrivate::privateSpec(spec2)->read("testdependencies/spec2.xml");
+    Internal::PluginSpecPrivate *spec2Priv = Internal::PluginManagerPrivate::privateSpec(spec2);
+    spec2Priv->readMetaData(metaData("testdependencies/spec2.json"));
+    spec2Priv->state = PluginSpec::Read; // fake read state for plugin resolving
+
     PluginSpec *spec3 = Internal::PluginManagerPrivate::createSpec();
     specs.append(spec3);
-    Internal::PluginManagerPrivate::privateSpec(spec3)->read("testdependencies/spec3.xml");
+    Internal::PluginSpecPrivate *spec3Priv = Internal::PluginManagerPrivate::privateSpec(spec3);
+    spec3Priv->readMetaData(metaData("testdependencies/spec3.json"));
+    spec3Priv->state = PluginSpec::Read; // fake read state for plugin resolving
+
     PluginSpec *spec4 = Internal::PluginManagerPrivate::createSpec();
     specs.append(spec4);
     Internal::PluginSpecPrivate *spec4Priv = Internal::PluginManagerPrivate::privateSpec(spec4);
-    spec4Priv->read("testdependencies/spec4.xml");
+    spec4Priv->readMetaData(metaData("testdependencies/spec4.json"));
+    spec4Priv->state = PluginSpec::Read; // fake read state for plugin resolving
+
     PluginSpec *spec5 = Internal::PluginManagerPrivate::createSpec();
     specs.append(spec5);
-    Internal::PluginManagerPrivate::privateSpec(spec5)->read("testdependencies/spec5.xml");
+    Internal::PluginSpecPrivate *spec5Priv = Internal::PluginManagerPrivate::privateSpec(spec5);
+    spec5Priv->readMetaData(metaData("testdependencies/spec5.json"));
+    spec5Priv->state = PluginSpec::Read; // fake read state for plugin resolving
+
     QVERIFY(spec1Priv->resolveDependencies(specs));
     QCOMPARE(spec1Priv->dependencySpecs.size(), 2);
     QVERIFY(!spec1Priv->dependencySpecs.key(spec2).name.isEmpty());
@@ -243,8 +296,7 @@ void tst_PluginSpec::loadLibrary()
 {
     PluginSpec *ps = Internal::PluginManagerPrivate::createSpec();
     Internal::PluginSpecPrivate *spec = Internal::PluginManagerPrivate::privateSpec(ps);
-    PluginManager *manager = new PluginManager();
-    QVERIFY(spec->read("testplugin/testplugin.xml"));
+    QVERIFY(spec->read(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/") + libraryName(QLatin1String("test"))));
     QVERIFY(spec->resolveDependencies(QList<PluginSpec *>()));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString));
     QVERIFY(spec->plugin != 0);
@@ -252,14 +304,13 @@ void tst_PluginSpec::loadLibrary()
     QCOMPARE(spec->state, PluginSpec::Loaded);
     QVERIFY(!spec->hasError);
     QCOMPARE(spec->plugin->pluginSpec(), ps);
-    delete manager;
     delete ps;
 }
 
 void tst_PluginSpec::initializePlugin()
 {
     Internal::PluginSpecPrivate spec(0);
-    QVERIFY(spec.read("testplugin/testplugin.xml"));
+    QVERIFY(spec.read(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/") + libraryName(QLatin1String("test"))));
     QVERIFY(spec.resolveDependencies(QList<PluginSpec *>()));
     QVERIFY2(spec.loadLibrary(), qPrintable(spec.errorString));
     bool isInitialized;
@@ -277,7 +328,7 @@ void tst_PluginSpec::initializePlugin()
 void tst_PluginSpec::initializeExtensions()
 {
     Internal::PluginSpecPrivate spec(0);
-    QVERIFY(spec.read("testplugin/testplugin.xml"));
+    QVERIFY(spec.read(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/") + libraryName(QLatin1String("test"))));
     QVERIFY(spec.resolveDependencies(QList<PluginSpec *>()));
     QVERIFY2(spec.loadLibrary(), qPrintable(spec.errorString));
     bool isExtensionsInitialized;

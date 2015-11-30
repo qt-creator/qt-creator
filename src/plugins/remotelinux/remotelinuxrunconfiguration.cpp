@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,7 +33,6 @@
 #include "remotelinuxenvironmentaspect.h"
 #include "remotelinuxrunconfigurationwidget.h"
 
-#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
@@ -47,7 +47,7 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 const char ArgumentsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.Arguments";
-const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
+const char TargetNameKey[] = "Qt4ProjectManager.MaemoRunConfiguration.TargetName";
 const char UseAlternateExeKey[] = "RemoteLinux.RunConfig.UseAlternateRemoteExecutable";
 const char AlternateExeKey[] = "RemoteLinux.RunConfig.AlternateRemoteExecutable";
 const char WorkingDirectoryKey[] = "RemoteLinux.RunConfig.WorkingDirectory";
@@ -56,14 +56,14 @@ const char WorkingDirectoryKey[] = "RemoteLinux.RunConfig.WorkingDirectory";
 
 class RemoteLinuxRunConfigurationPrivate {
 public:
-    RemoteLinuxRunConfigurationPrivate(const QString &projectFilePath)
-        : projectFilePath(projectFilePath),
+    RemoteLinuxRunConfigurationPrivate(const QString &targetName)
+        : targetName(targetName),
           useAlternateRemoteExecutable(false)
     {
     }
 
     RemoteLinuxRunConfigurationPrivate(const RemoteLinuxRunConfigurationPrivate *other)
-        : projectFilePath(other->projectFilePath),
+        : targetName(other->targetName),
           arguments(other->arguments),
           useAlternateRemoteExecutable(other->useAlternateRemoteExecutable),
           alternateRemoteExecutable(other->alternateRemoteExecutable),
@@ -71,7 +71,7 @@ public:
     {
     }
 
-    QString projectFilePath;
+    QString targetName;
     QStringList arguments;
     bool useAlternateRemoteExecutable;
     QString alternateRemoteExecutable;
@@ -82,17 +82,17 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, const Core::Id id,
-        const QString &proFilePath)
-    : RunConfiguration(parent, id),
-      d(new RemoteLinuxRunConfigurationPrivate(proFilePath))
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, Core::Id id,
+        const QString &targetName)
+    : AbstractRemoteLinuxRunConfiguration(parent, id),
+      d(new RemoteLinuxRunConfigurationPrivate(targetName))
 {
     init();
 }
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent,
         RemoteLinuxRunConfiguration *source)
-    : RunConfiguration(parent, source),
+    : AbstractRemoteLinuxRunConfiguration(parent, source),
       d(new RemoteLinuxRunConfigurationPrivate(source->d))
 {
     init();
@@ -135,8 +135,7 @@ QVariantMap RemoteLinuxRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
     map.insert(QLatin1String(ArgumentsKey), d->arguments);
-    const QDir dir = QDir(target()->project()->projectDirectory());
-    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(d->projectFilePath));
+    map.insert(QLatin1String(TargetNameKey), d->targetName);
     map.insert(QLatin1String(UseAlternateExeKey), d->useAlternateRemoteExecutable);
     map.insert(QLatin1String(AlternateExeKey), d->alternateRemoteExecutable);
     map.insert(QLatin1String(WorkingDirectoryKey), d->workingDirectory);
@@ -149,9 +148,7 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     d->arguments = map.value(QLatin1String(ArgumentsKey)).toStringList();
-    const QDir dir = QDir(target()->project()->projectDirectory());
-    d->projectFilePath
-            = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
+    d->targetName = map.value(QLatin1String(TargetNameKey)).toString();
     d->useAlternateRemoteExecutable = map.value(QLatin1String(UseAlternateExeKey), false).toBool();
     d->alternateRemoteExecutable = map.value(QLatin1String(AlternateExeKey)).toString();
     d->workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
@@ -163,9 +160,9 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
 
 QString RemoteLinuxRunConfiguration::defaultDisplayName()
 {
-    if (!d->projectFilePath.isEmpty())
+    if (!d->targetName.isEmpty())
         //: %1 is the name of a project which is being run on remote Linux
-        return tr("%1 (on Remote Device)").arg(QFileInfo(d->projectFilePath).completeBaseName());
+        return tr("%1 (on Remote Device)").arg(d->targetName);
     //: Remote Linux run configuration default display name
     return tr("Run on Remote Device");
 }
@@ -179,18 +176,12 @@ Environment RemoteLinuxRunConfiguration::environment() const
 {
     RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinuxEnvironmentAspect>();
     QTC_ASSERT(aspect, return Environment());
-    Environment env(OsTypeLinux);
-    env.modify(aspect->userEnvironmentChanges());
-    const QString displayKey = QLatin1String("DISPLAY");
-    if (!env.hasKey(displayKey))
-        env.appendOrSet(displayKey, QLatin1String(":0.0"));
-    return env;
+    return aspect->environment();
 }
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
 {
-    return target()->applicationTargets()
-            .targetForProject(Utils::FileName::fromString(d->projectFilePath)).toString();
+    return target()->applicationTargets().targetFilePath(d->targetName).toString();
 }
 
 QString RemoteLinuxRunConfiguration::defaultRemoteExecutableFilePath() const
@@ -240,29 +231,11 @@ QString RemoteLinuxRunConfiguration::alternateRemoteExecutable() const
     return d->alternateRemoteExecutable;
 }
 
-int RemoteLinuxRunConfiguration::portsUsedByDebuggers() const
-{
-    int ports = 0;
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    if (aspect->useQmlDebugger())
-        ++ports;
-    if (aspect->useCppDebugger())
-        ++ports;
-
-    return ports;
-}
-
 void RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated()
 {
     emit deploySpecsChanged();
     emit targetInformationChanged();
     updateEnabledState();
-}
-
-QString RemoteLinuxRunConfiguration::projectFilePath() const
-{
-    return d->projectFilePath;
 }
 
 const char *RemoteLinuxRunConfiguration::IdPrefix = "RemoteLinuxRunConfiguration:";

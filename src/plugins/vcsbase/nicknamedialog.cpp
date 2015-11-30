@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -136,16 +137,16 @@ QList<QStandardItem *> NickNameEntry::toModelRow() const
 {
     const QVariant nickNameData = nickName();
     const Qt::ItemFlags flags = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
-    QStandardItem *i1 = new QStandardItem(name);
+    auto i1 = new QStandardItem(name);
     i1->setFlags(flags);
     i1->setData(nickNameData, NickNameRole);
-    QStandardItem *i2 = new QStandardItem(email);
+    auto i2 = new QStandardItem(email);
     i1->setFlags(flags);
     i2->setData(nickNameData, NickNameRole);
-    QStandardItem *i3 = new QStandardItem(aliasName);
+    auto i3 = new QStandardItem(aliasName);
     i3->setFlags(flags);
     i3->setData(nickNameData, NickNameRole);
-    QStandardItem *i4 = new QStandardItem(aliasEmail);
+    auto i4 = new QStandardItem(aliasEmail);
     i4->setFlags(flags);
     i4->setData(nickNameData, NickNameRole);
     QList<QStandardItem *> row;
@@ -179,6 +180,7 @@ NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
     m_filterModel->setSourceModel(model);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_ui->filterTreeView->setModel(m_filterModel);
+    m_ui->filterTreeView->setActivationMode(Utils::DoubleClickActivation);
     const int columnCount = m_filterModel->columnCount();
     int treeWidth = 0;
     for (int c = 0; c < columnCount; c++) {
@@ -186,12 +188,13 @@ NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
         treeWidth += m_ui->filterTreeView->columnWidth(c);
     }
     m_ui->filterTreeView->setMinimumWidth(treeWidth + 20);
-    connect(m_ui->filterTreeView, SIGNAL(doubleClicked(QModelIndex)), this,
-            SLOT(slotDoubleClicked(QModelIndex)));
-    connect(m_ui->filterTreeView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(slotCurrentItemChanged(QModelIndex)));
-    connect(m_ui->filterLineEdit, SIGNAL(filterChanged(QString)),
-            m_filterModel, SLOT(setFilterFixedString(QString)));
+    m_ui->filterLineEdit->setFiltering(true);
+    connect(m_ui->filterTreeView, &QAbstractItemView::activated, this,
+            &NickNameDialog::slotActivated);
+    connect(m_ui->filterTreeView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &NickNameDialog::slotCurrentItemChanged);
+    connect(m_ui->filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 NickNameDialog::~NickNameDialog()
@@ -209,10 +212,10 @@ void NickNameDialog::slotCurrentItemChanged(const QModelIndex &index)
     okButton()->setEnabled(index.isValid());
 }
 
-void NickNameDialog::slotDoubleClicked(const QModelIndex &)
+void NickNameDialog::slotActivated(const QModelIndex &)
 {
     if (okButton()->isEnabled())
-        okButton()->animateClick();
+        okButton()->click();
 }
 
 QString NickNameDialog::nickName() const
@@ -228,10 +231,10 @@ QString NickNameDialog::nickName() const
 
 QStandardItemModel *NickNameDialog::createModel(QObject *parent)
 {
-    QStandardItemModel *model = new QStandardItemModel(parent);
+    auto model = new QStandardItemModel(parent);
     QStringList headers;
-    headers << tr("Name") << tr("E-mail")
-            << tr("Alias") << tr("Alias e-mail");
+    headers << tr("Name") << tr("Email")
+            << tr("Alias") << tr("Alias email");
     model->setHorizontalHeaderLabels(headers);
     return model;
 }

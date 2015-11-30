@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,10 +32,15 @@
 #ifndef ANDROIDDEPLOYQTSTEP_H
 #define ANDROIDDEPLOYQTSTEP_H
 
+#include "androidbuildapkstep.h"
 #include "androidconfigurations.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <qtsupport/baseqtversion.h>
+
+namespace Utils {
+class QtcProcess;
+}
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -50,11 +56,10 @@ public:
     explicit AndroidDeployQtStepFactory(QObject *parent = 0);
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    QString displayNameForId(const Core::Id id) const;
+    QString displayNameForId(Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent,
-                   const Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
 
     bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
     ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
@@ -65,98 +70,83 @@ public:
                                       ProjectExplorer::BuildStep *product);
 };
 
-class AndroidDeployQtStep : public ProjectExplorer::AbstractProcessStep
+class AndroidDeployQtStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
     friend class AndroidDeployQtStepFactory;
 public:
-    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc);
-
-    enum AndroidDeployQtAction
-    {
-        MinistroDeployment, // use ministro
-        DebugDeployment,
-        BundleLibrariesDeployment
+    enum UninstallType {
+        Keep,
+        Uninstall,
+        ForceUnintall
     };
+public:
+    explicit AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc);
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
-    AndroidDeployQtStep::AndroidDeployQtAction deployAction() const;
-    QString deviceSerialNumber();
+    bool runInGuiThread() const override;
 
-    void setBuildTargetSdk(const QString &sdk);
-    QString buildTargetSdk() const;
+    UninstallType uninstallPreviousPackage();
 
-    // signing
-    Utils::FileName keystorePath();
-    void setKeystorePath(const Utils::FileName &path);
-    void setKeystorePassword(const QString &pwd);
-    void setCertificateAlias(const QString &alias);
-    void setCertificatePassword(const QString &pwd);
-
-    QAbstractItemModel *keystoreCertificates();
-    bool signPackage() const;
-    void setSignPackage(bool b);
-
-    bool openPackageLocation() const;
-    void setOpenPackageLocation(bool open);
-    bool verboseOutput() const;
-    void setVerboseOutput(bool verbose);
-
-    QString proFilePathForInputFile() const;
-    void setProFilePathForInputFile(const QString &path);
-
-    bool runInGuiThread() const;
-
-signals:
-    // also on purpose emitted if the possible values of this changed
-    void inputFileChanged();
+    AndroidDeviceInfo deviceInfo() const;
 
 public slots:
-    void setDeployAction(AndroidDeployQtAction deploy); // slot?
+    void setUninstallPreviousPackage(bool uninstall);
 
-private slots:
-    void showInGraphicalShell();
+signals:
+    void askForUninstall();
+    void setSerialNumber(const QString &serialNumber);
 
-    void updateInputFile();
 private:
-    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc,
-        AndroidDeployQtStep *other);
+    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc, AndroidDeployQtStep *other);
     void ctor();
-    bool keystorePassword();
-    bool certificatePassword();
     void runCommand(const QString &program, const QStringList &arguments);
 
-    bool init();
-    void run(QFutureInterface<bool> &fi);
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool immutable() const { return true; }
+    bool init(QList<const BuildStep *> &earlierSteps) override;
+    void run(QFutureInterface<bool> &fi) override;
+    enum DeployResult { Success, Failure, AskUinstall };
+    DeployResult runDeploy(QFutureInterface<bool> &fi);
+    void slotAskForUninstall();
+    void slotSetSerialNumber(const QString &serialNumber);
+
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    bool immutable() const override { return true; }
+
+    void processReadyReadStdOutput();
+    void stdOutput(const QString &line);
+    void processReadyReadStdError();
+    void stdError(const QString &line);
+
+    void slotProcessFinished(int, QProcess::ExitStatus);
     void processFinished(int exitCode, QProcess::ExitStatus status);
 
-    QString m_buildTargetSdk;
+    Utils::FileName m_manifestName;
     QString m_serialNumber;
-    AndroidDeployQtAction m_deployAction;
-    bool m_signPackage;
-    bool m_verbose;
-    bool m_openPackageLocation;
-    bool m_openPackageLocationForRun;
     QString m_buildDirectory;
-
-    Utils::FileName m_keystorePath;
-    QString m_keystorePasswd;
-    QString m_certificateAlias;
-    QString m_certificatePasswd;
     QString m_avdName;
     QString m_apkPath;
-    QString m_targetArch;
-    QString m_proFilePathForInputFile;
-    int m_deviceAPILevel;
+    QStringList m_appProcessBinaries;
+    QString m_libdir;
 
+    QString m_targetArch;
+    bool m_uninstallPreviousPackage;
+    bool m_uninstallPreviousPackageRun;
+    bool m_installOk;
+    bool m_useAndroiddeployqt;
+    bool m_askForUinstall;
     static const Core::Id Id;
+    QString m_androiddeployqtArgs;
+    QString m_adbPath;
+    QString m_command;
+    QString m_workingDirectory;
+    Utils::Environment m_environment;
+    Utils::QtcProcess *m_process;
+    AndroidDeviceInfo m_deviceInfo;
 };
 
 }
-}
+} // namespace Android
 
 #endif // ANDROIDDEPLOYQTSTEP_H

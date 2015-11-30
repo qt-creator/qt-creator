@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,12 +32,14 @@
 
 #include "nodesvisitor.h"
 #include "projectexplorerconstants.h"
+#include "projecttree.h"
 
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -61,68 +64,40 @@ using namespace ProjectExplorer;
   \sa ProjectExplorer::NodesWatcher, ProjectExplorer::NodesVisitor
 */
 
-Node::Node(NodeType nodeType,
-           const QString &filePath, int line)
-        : QObject(),
-          m_nodeType(nodeType),
+Node::Node(NodeType nodeType, const Utils::FileName &filePath, int line)
+        : m_nodeType(nodeType),
+          m_line(line),
           m_projectNode(0),
           m_folderNode(0),
-          m_path(filePath),
-          m_line(line)
+          m_filePath(filePath)
+{
+
+}
+
+Node::~Node()
 {
 
 }
 
 void Node::emitNodeSortKeyAboutToChange()
 {
-    if (ProjectNode *project = projectNode()) {
-        foreach (NodesWatcher *watcher, project->watchers())
-            emit watcher->nodeSortKeyAboutToChange(this);
-    }
+    if (parentFolderNode())
+        ProjectTree::instance()->emitNodeSortKeyAboutToChange(this);
 }
 
 void Node::emitNodeSortKeyChanged()
 {
-    if (ProjectNode *project = projectNode()) {
-        foreach (NodesWatcher *watcher, project->watchers())
-            emit watcher->nodeSortKeyChanged();
-    }
+    if (parentFolderNode())
+        ProjectTree::instance()->emitNodeSortKeyChanged(this);
 }
 
-/*!
- * The path of the file representing this node.
- *
- * This function does not emit any signals. That has to be done by the calling
- * class.
- */
-void Node::setPath(const QString &path)
+void Node::setAbsoluteFilePathAndLine(const Utils::FileName &path, int line)
 {
-    if (m_path == path)
+    if (m_filePath == path && m_line == line)
         return;
 
     emitNodeSortKeyAboutToChange();
-    m_path = path;
-    emitNodeSortKeyChanged();
-    emitNodeUpdated();
-}
-
-void Node::setLine(int line)
-{
-    if (m_line == line)
-        return;
-    emitNodeSortKeyAboutToChange();
-    m_line = line;
-    emitNodeSortKeyChanged();
-    emitNodeUpdated();
-}
-
-void Node::setPathAndLine(const QString &path, int line)
-{
-    if (m_path == path
-            && m_line == line)
-        return;
-    emitNodeSortKeyAboutToChange();
-    m_path = path;
+    m_filePath = path;
     m_line = line;
     emitNodeSortKeyChanged();
     emitNodeUpdated();
@@ -153,24 +128,24 @@ FolderNode *Node::parentFolderNode() const
 /*!
   The path of the file or folder in the filesystem the node represents.
   */
-QString Node::path() const
+const Utils::FileName &Node::filePath() const
 {
-    return m_path;
+    return m_filePath;
 }
 
 int Node::line() const
 {
-    return -1;
+    return m_line;
 }
 
 QString Node::displayName() const
 {
-    return QFileInfo(path()).fileName();
+    return filePath().fileName();
 }
 
 QString Node::tooltip() const
 {
-    return QDir::toNativeSeparators(path());
+    return filePath().toUserOutput();
 }
 
 bool Node::isEnabled() const
@@ -181,13 +156,8 @@ bool Node::isEnabled() const
 QList<ProjectAction> Node::supportedActions(Node *node) const
 {
     QList<ProjectAction> list = parentFolderNode()->supportedActions(node);
-    list.append(ProjectExplorer::InheritedFromParent);
+    list.append(InheritedFromParent);
     return list;
-}
-
-void Node::setNodeType(NodeType type)
-{
-    m_nodeType = type;
 }
 
 void Node::setProjectNode(ProjectNode *project)
@@ -197,9 +167,28 @@ void Node::setProjectNode(ProjectNode *project)
 
 void Node::emitNodeUpdated()
 {
-    if (ProjectNode *node = projectNode())
-        foreach (NodesWatcher *watcher, node->watchers())
-            emit watcher->nodeUpdated(this);
+    if (parentFolderNode())
+        ProjectTree::instance()->emitNodeUpdated(this);
+}
+
+FileNode *Node::asFileNode()
+{
+    return 0;
+}
+
+FolderNode *Node::asFolderNode()
+{
+    return 0;
+}
+
+ProjectNode *Node::asProjectNode()
+{
+    return 0;
+}
+
+SessionNode *Node::asSessionNode()
+{
+    return 0;
 }
 
 void Node::setParentFolderNode(FolderNode *parentFolder)
@@ -217,7 +206,7 @@ void Node::setParentFolderNode(FolderNode *parentFolder)
   \sa ProjectExplorer::FolderNode, ProjectExplorer::ProjectNode
 */
 
-FileNode::FileNode(const QString &filePath,
+FileNode::FileNode(const Utils::FileName &filePath,
                    const FileType fileType,
                    bool generated, int line)
         : Node(FileNodeType, filePath, line),
@@ -239,6 +228,11 @@ bool FileNode::isGenerated() const
     return m_generated;
 }
 
+FileNode *FileNode::asFileNode()
+{
+    return this;
+}
+
 /*!
   \class ProjectExplorer::FolderNode
 
@@ -246,10 +240,12 @@ bool FileNode::isGenerated() const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-FolderNode::FolderNode(const QString &folderPath, NodeType nodeType)  :
+FolderNode::FolderNode(const Utils::FileName &folderPath, NodeType nodeType, const QString &displayName) :
     Node(nodeType, folderPath),
-    m_displayName(QDir::toNativeSeparators(folderPath))
+    m_displayName(displayName)
 {
+    if (m_displayName.isEmpty())
+        m_displayName = folderPath.toUserOutput();
 }
 
 FolderNode::~FolderNode()
@@ -313,6 +309,11 @@ void FolderNode::setIcon(const QIcon &icon)
     m_icon = icon;
 }
 
+QString FolderNode::addFileFilter() const
+{
+    return parentFolderNode()->addFileFilter();
+}
+
 bool FolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
     if (projectNode())
@@ -334,6 +335,13 @@ bool FolderNode::deleteFiles(const QStringList &filePaths)
     return false;
 }
 
+bool FolderNode::canRenameFile(const QString &filePath, const QString &newFilePath)
+{
+    if (projectNode())
+        return projectNode()->canRenameFile(filePath, newFilePath);
+    return false;
+}
+
 bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
     if (projectNode())
@@ -344,7 +352,7 @@ bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files);
-    return AddNewInformation(QFileInfo(path()).fileName(), context == this ? 120 : 100);
+    return AddNewInformation(displayName(), context == this ? 120 : 100);
 }
 
 /*!
@@ -358,19 +366,17 @@ FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &f
 void FolderNode::addFileNodes(const QList<FileNode *> &files)
 {
     Q_ASSERT(projectNode());
-    ProjectNode *pn = projectNode();
     if (files.isEmpty())
         return;
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->filesAboutToBeAdded(this, files);
+    ProjectTree::instance()->emitFilesAboutToBeAdded(this, files);
 
     foreach (FileNode *file, files) {
         QTC_ASSERT(!file->parentFolderNode(),
                    qDebug("File node has already a parent folder"));
 
         file->setParentFolderNode(this);
-        file->setProjectNode(pn);
+        file->setProjectNode(projectNode());
         // Now find the correct place to insert file
         if (m_fileNodes.count() == 0
                 || m_fileNodes.last() < file) {
@@ -385,8 +391,7 @@ void FolderNode::addFileNodes(const QList<FileNode *> &files)
         }
     }
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->filesAdded();
+    ProjectTree::instance()->emitFilesAdded(this);
 }
 
 /*!
@@ -400,16 +405,14 @@ void FolderNode::addFileNodes(const QList<FileNode *> &files)
 void FolderNode::removeFileNodes(const QList<FileNode *> &files)
 {
     Q_ASSERT(projectNode());
-    ProjectNode *pn = projectNode();
 
     if (files.isEmpty())
         return;
 
     QList<FileNode*> toRemove = files;
-    qSort(toRemove.begin(), toRemove.end());
+    Utils::sort(toRemove);
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->filesAboutToBeRemoved(this, toRemove);
+    ProjectTree::instance()->emitFilesAboutToBeRemoved(this, toRemove);
 
     QList<FileNode*>::const_iterator toRemoveIter = toRemove.constBegin();
     QList<FileNode*>::iterator filesIter = m_fileNodes.begin();
@@ -423,8 +426,7 @@ void FolderNode::removeFileNodes(const QList<FileNode *> &files)
         filesIter = m_fileNodes.erase(filesIter);
     }
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->filesRemoved();
+    ProjectTree::instance()->emitFilesRemoved(this);
 }
 
 /*!
@@ -434,19 +436,16 @@ void FolderNode::removeFileNodes(const QList<FileNode *> &files)
 void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
 {
     Q_ASSERT(projectNode());
-    ProjectNode *pn = projectNode();
 
     if (subFolders.isEmpty())
         return;
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        watcher->foldersAboutToBeAdded(this, subFolders);
-
+    ProjectTree::instance()->emitFoldersAboutToBeAdded(this, subFolders);
     foreach (FolderNode *folder, subFolders) {
         QTC_ASSERT(!folder->parentFolderNode(),
                    qDebug("Project node has already a parent folder"));
         folder->setParentFolderNode(this);
-        folder->setProjectNode(pn);
+        folder->setProjectNode(projectNode());
 
         // Find the correct place to insert
         if (m_subFolderNodes.count() == 0
@@ -467,8 +466,7 @@ void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
                    qDebug("project nodes have to be added via addProjectNodes"));
     }
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->foldersAdded();
+    ProjectTree::instance()->emitFoldersAdded(this);
 }
 
 /*!
@@ -480,16 +478,14 @@ void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
 void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
 {
     Q_ASSERT(projectNode());
-    ProjectNode *pn = projectNode();
 
     if (subFolders.isEmpty())
         return;
 
     QList<FolderNode*> toRemove = subFolders;
-    qSort(toRemove.begin(), toRemove.end());
+    Utils::sort(toRemove);
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->foldersAboutToBeRemoved(this, toRemove);
+    ProjectTree::instance()->emitFoldersAboutToBeRemoved(this, toRemove);
 
     QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
     QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
@@ -505,8 +501,17 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
         folderIter = m_subFolderNodes.erase(folderIter);
     }
 
-    foreach (NodesWatcher *watcher, pn->watchers())
-        emit watcher->foldersRemoved();
+    ProjectTree::instance()->emitFoldersRemoved(this);
+}
+
+FolderNode *FolderNode::asFolderNode()
+{
+    return this;
+}
+
+bool FolderNode::showInSimpleTree() const
+{
+    return false;
 }
 
 /*!
@@ -520,7 +525,7 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-VirtualFolderNode::VirtualFolderNode(const QString &folderPath, int priority)
+VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int priority)
     : FolderNode(folderPath, VirtualFolderNodeType), m_priority(priority)
 {
 }
@@ -547,18 +552,17 @@ int VirtualFolderNode::priority() const
 /*!
   Creates an uninitialized project node object.
   */
-ProjectNode::ProjectNode(const QString &projectFilePath)
-        : FolderNode(projectFilePath)
+ProjectNode::ProjectNode(const Utils::FileName &projectFilePath)
+        : FolderNode(projectFilePath, ProjectNodeType)
 {
-    setNodeType(ProjectNodeType);
     // project node "manages" itself
     setProjectNode(this);
-    setDisplayName(QFileInfo(projectFilePath).fileName());
+    setDisplayName(projectFilePath.fileName());
 }
 
 QString ProjectNode::vcsTopic() const
 {
-    const QString dir = QFileInfo(path()).absolutePath();
+    const QString dir = filePath().toFileInfo().absolutePath();
 
     if (Core::IVersionControl *const vc =
             Core::VcsManager::findVersionControlForDirectory(dir))
@@ -572,37 +576,57 @@ QList<ProjectNode*> ProjectNode::subProjectNodes() const
     return m_subProjectNodes;
 }
 
-void ProjectNode::aboutToChangeHasBuildTargets()
+bool ProjectNode::canAddSubProject(const QString &proFilePath) const
 {
-    foreach (NodesWatcher *watcher, watchers())
-        emit watcher->aboutToChangeHasBuildTargets(this);
+    Q_UNUSED(proFilePath)
+    return false;
 }
 
-void ProjectNode::hasBuildTargetsChanged()
+bool ProjectNode::addSubProjects(const QStringList &proFilePaths)
 {
-    foreach (NodesWatcher *watcher, watchers())
-        emit watcher->hasBuildTargetsChanged(this);
+    Q_UNUSED(proFilePaths)
+    return false;
 }
 
-/*!
-  \function bool ProjectNode::addSubProjects(const QStringList &)
-  */
+bool ProjectNode::removeSubProjects(const QStringList &proFilePaths)
+{
+    Q_UNUSED(proFilePaths)
+    return false;
+}
 
-/*!
-  \function bool ProjectNode::removeSubProjects(const QStringList &)
-  */
+bool ProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
+{
+    Q_UNUSED(filePaths)
+    Q_UNUSED(notAdded)
+    return false;
+}
 
-/*!
-  \function bool ProjectNode::addFiles(const FileType, const QStringList &, QStringList *)
-  */
+bool ProjectNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
+{
+    Q_UNUSED(filePaths)
+    Q_UNUSED(notRemoved)
+    return false;
+}
 
-/*!
-  \function bool ProjectNode::removeFiles(const FileType, const QStringList &, QStringList *)
-  */
+bool ProjectNode::deleteFiles(const QStringList &filePaths)
+{
+    Q_UNUSED(filePaths)
+    return false;
+}
 
-/*!
-  \function bool ProjectNode::renameFile(const FileType, const QString &, const QString &)
-  */
+bool ProjectNode::canRenameFile(const QString &filePath, const QString &newFilePath)
+{
+    Q_UNUSED(filePath);
+    Q_UNUSED(newFilePath);
+    return true;
+}
+
+bool ProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(newFilePath)
+    return false;
+}
 
 bool ProjectNode::deploysFolder(const QString &folder) const
 {
@@ -610,38 +634,14 @@ bool ProjectNode::deploysFolder(const QString &folder) const
     return false;
 }
 
-QList<NodesWatcher*> ProjectNode::watchers() const
-{
-    return m_watchers;
-}
-
 /*!
-   Registers \a watcher for the current project and all subprojects.
+  \function bool ProjectNode::runConfigurations() const
 
-   It does not take ownership of the watcher.
-*/
-
-void ProjectNode::registerWatcher(NodesWatcher *watcher)
+  Returns a list of \c RunConfiguration suitable for this node.
+  */
+QList<RunConfiguration *> ProjectNode::runConfigurations() const
 {
-    if (!watcher)
-        return;
-    connect(watcher, SIGNAL(destroyed(QObject*)),
-            this, SLOT(watcherDestroyed(QObject*)));
-    m_watchers.append(watcher);
-    foreach (ProjectNode *subProject, m_subProjectNodes)
-        subProject->registerWatcher(watcher);
-}
-
-/*!
-    Removes \a watcher from the current project and all subprojects.
-*/
-void ProjectNode::unregisterWatcher(NodesWatcher *watcher)
-{
-    if (!watcher)
-        return;
-    m_watchers.removeOne(watcher);
-    foreach (ProjectNode *subProject, m_subProjectNodes)
-        subProject->unregisterWatcher(watcher);
+    return QList<RunConfiguration *>();
 }
 
 void ProjectNode::accept(NodesVisitor *visitor)
@@ -663,23 +663,19 @@ void ProjectNode::addProjectNodes(const QList<ProjectNode*> &subProjects)
         foreach (ProjectNode *projectNode, subProjects)
             folderNodes << projectNode;
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAboutToBeAdded(this, folderNodes);
+        ProjectTree::instance()->emitFoldersAboutToBeAdded(this, folderNodes);
 
         foreach (ProjectNode *project, subProjects) {
             QTC_ASSERT(!project->parentFolderNode() || project->parentFolderNode() == this,
                        qDebug("Project node has already a parent"));
             project->setParentFolderNode(this);
-            foreach (NodesWatcher *watcher, m_watchers)
-                project->registerWatcher(watcher);
             m_subFolderNodes.append(project);
             m_subProjectNodes.append(project);
         }
-        qSort(m_subFolderNodes.begin(), m_subFolderNodes.end());
-        qSort(m_subProjectNodes.begin(), m_subProjectNodes.end());
+        Utils::sort(m_subFolderNodes);
+        Utils::sort(m_subProjectNodes);
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAdded();
+        ProjectTree::instance()->emitFoldersAdded(this);
     }
 }
 
@@ -696,10 +692,9 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
         QList<FolderNode*> toRemove;
         foreach (ProjectNode *projectNode, subProjects)
             toRemove << projectNode;
-        qSort(toRemove.begin(), toRemove.end());
+        Utils::sort(toRemove);
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAboutToBeRemoved(this, toRemove);
+        ProjectTree::instance()->emitFoldersAboutToBeRemoved(this, toRemove);
 
         QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
         QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
@@ -720,15 +715,13 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
             folderIter = m_subFolderNodes.erase(folderIter);
         }
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersRemoved();
+        ProjectTree::instance()->emitFoldersRemoved(this);
     }
 }
 
-void ProjectNode::watcherDestroyed(QObject *watcher)
+ProjectNode *ProjectNode::asProjectNode()
 {
-    // cannot use qobject_cast here
-    unregisterWatcher(static_cast<NodesWatcher*>(watcher));
+    return this;
 }
 
 
@@ -736,11 +729,9 @@ void ProjectNode::watcherDestroyed(QObject *watcher)
   \class ProjectExplorer::SessionNode
 */
 
-SessionNode::SessionNode(QObject *parentObject)
-    : FolderNode(QLatin1String("session"))
+SessionNode::SessionNode()
+    : FolderNode(Utils::FileName::fromString(QLatin1String("session")), SessionNodeType)
 {
-    setParent(parentObject);
-    setNodeType(SessionNodeType);
 }
 
 QList<ProjectAction> SessionNode::supportedActions(Node *node) const
@@ -749,39 +740,6 @@ QList<ProjectAction> SessionNode::supportedActions(Node *node) const
     return QList<ProjectAction>();
 }
 
-QList<NodesWatcher*> SessionNode::watchers() const
-{
-    return m_watchers;
-}
-
-/*!
-   Registers \a watcher for the complete session tree.
-   It does not take ownership of the watcher.
-*/
-
-void SessionNode::registerWatcher(NodesWatcher *watcher)
-{
-    if (!watcher)
-        return;
-    connect(watcher, SIGNAL(destroyed(QObject*)),
-            this, SLOT(watcherDestroyed(QObject*)));
-    m_watchers.append(watcher);
-    foreach (ProjectNode *project, m_projectNodes)
-        project->registerWatcher(watcher);
-}
-
-/*!
-    Removes \a watcher from the complete session tree.
-*/
-
-void SessionNode::unregisterWatcher(NodesWatcher *watcher)
-{
-    if (!watcher)
-        return;
-    m_watchers.removeOne(watcher);
-    foreach (ProjectNode *project, m_projectNodes)
-        project->unregisterWatcher(watcher);
-}
 
 void SessionNode::accept(NodesVisitor *visitor)
 {
@@ -790,9 +748,30 @@ void SessionNode::accept(NodesVisitor *visitor)
         project->accept(visitor);
 }
 
+bool SessionNode::showInSimpleTree() const
+{
+    return true;
+}
+
+void SessionNode::projectDisplayNameChanged(Node *node)
+{
+    ProjectTree::instance()->emitNodeSortKeyAboutToChange(node);
+    ProjectTree::instance()->emitNodeSortKeyChanged(node);
+}
+
+SessionNode *SessionNode::asSessionNode()
+{
+    return this;
+}
+
 QList<ProjectNode*> SessionNode::projectNodes() const
 {
     return m_projectNodes;
+}
+
+QString SessionNode::addFileFilter() const
+{
+    return QLatin1String("*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;");
 }
 
 void SessionNode::addProjectNodes(const QList<ProjectNode*> &projectNodes)
@@ -802,24 +781,20 @@ void SessionNode::addProjectNodes(const QList<ProjectNode*> &projectNodes)
         foreach (ProjectNode *projectNode, projectNodes)
             folderNodes << projectNode;
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAboutToBeAdded(this, folderNodes);
+        ProjectTree::instance()->emitFoldersAboutToBeAdded(this, folderNodes);
 
         foreach (ProjectNode *project, projectNodes) {
             QTC_ASSERT(!project->parentFolderNode(),
                 qDebug("Project node has already a parent folder"));
             project->setParentFolderNode(this);
-            foreach (NodesWatcher *watcher, m_watchers)
-                project->registerWatcher(watcher);
             m_subFolderNodes.append(project);
             m_projectNodes.append(project);
         }
 
-        qSort(m_subFolderNodes);
-        qSort(m_projectNodes);
+        Utils::sort(m_subFolderNodes);
+        Utils::sort(m_projectNodes);
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAdded();
+        ProjectTree::instance()->emitFoldersAdded(this);
    }
 }
 
@@ -830,10 +805,9 @@ void SessionNode::removeProjectNodes(const QList<ProjectNode*> &projectNodes)
         foreach (ProjectNode *projectNode, projectNodes)
             toRemove << projectNode;
 
-        qSort(toRemove);
+        Utils::sort(toRemove);
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersAboutToBeRemoved(this, toRemove);
+        ProjectTree::instance()->emitFoldersAboutToBeRemoved(this, toRemove);
 
         QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
         QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
@@ -853,38 +827,6 @@ void SessionNode::removeProjectNodes(const QList<ProjectNode*> &projectNodes)
             folderIter = m_subFolderNodes.erase(folderIter);
         }
 
-        foreach (NodesWatcher *watcher, m_watchers)
-            emit watcher->foldersRemoved();
+        ProjectTree::instance()->emitFoldersRemoved(this);
     }
-}
-
-void SessionNode::watcherDestroyed(QObject *watcher)
-{
-    // cannot use qobject_cast here
-    unregisterWatcher(static_cast<NodesWatcher*>(watcher));
-}
-
-/*!
-  \class ProjectExplorer::NodesWatcher
-
-  \brief The NodesWatcher class enables you to keep track of changes in the
-  tree.
-
-  Add a watcher by calling ProjectNode::registerWatcher() or
-  SessionNode::registerWatcher(). Whenever the tree underneath the
-  project node or session node changes (for example, nodes are added or removed),
-  the corresponding signals of the watcher are emitted.
-  Watchers can be removed from the complete tree or a subtree
-  by calling ProjectNode::unregisterWatcher and
-  SessionNode::unregisterWatcher().
-
-  The NodesWatcher class is similar to the Observer class in the
-  well-known Observer pattern (Booch et al).
-
-  \sa ProjectExplorer::Node
-*/
-
-NodesWatcher::NodesWatcher(QObject *parent)
-        : QObject(parent)
-{
 }

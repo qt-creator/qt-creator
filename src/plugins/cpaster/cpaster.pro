@@ -13,7 +13,8 @@ HEADERS += cpasterplugin.h \
     fileshareprotocol.h \
     fileshareprotocolsettingspage.h \
     kdepasteprotocol.h \
-    urlopenprotocol.h
+    urlopenprotocol.h \
+    codepasterservice.h
 
 SOURCES += cpasterplugin.cpp \
     settingspage.cpp \
@@ -35,3 +36,6 @@ FORMS += settingspage.ui \
     pastebindotcomsettings.ui \
     fileshareprotocolsettingswidget.ui
 include(../../shared/cpaster/cpaster.pri)
+
+RESOURCES += \
+    cpaster.qrc

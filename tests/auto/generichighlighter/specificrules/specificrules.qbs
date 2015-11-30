@@ -1,7 +1,6 @@
 import qbs
-import "../../autotest.qbs" as Autotest
 
-Autotest {
+QtcAutotest {
     name: "Generic highlighter specific rules autotest"
     Depends { name: "Qt.widgets" }
     Group {

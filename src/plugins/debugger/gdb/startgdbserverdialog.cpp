@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,33 +9,35 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "startgdbserverdialog.h"
 
+#include <debugger/debuggerengine.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerruncontrolfactory.h>
-#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerruncontrol.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
@@ -44,7 +46,6 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
-#include <QMessageBox>
 #include <QFileInfo>
 
 using namespace Core;
@@ -59,10 +60,10 @@ namespace Internal {
 class StartGdbServerDialogPrivate
 {
 public:
-    StartGdbServerDialogPrivate() {}
+    StartGdbServerDialogPrivate() : dialog(0), kit(0) {}
 
     DeviceProcessesDialog *dialog;
-    bool startServerOnly;
+    bool attachToServer;
     DeviceProcessItem process;
     Kit *kit;
     IDevice::ConstPtr device;
@@ -71,7 +72,7 @@ public:
     SshRemoteProcessRunner runner;
 };
 
-GdbServerStarter::GdbServerStarter(DeviceProcessesDialog *dlg, bool startServerOnly)
+GdbServerStarter::GdbServerStarter(DeviceProcessesDialog *dlg, bool attachAfterServerStart)
   : QObject(dlg)
 {
     d = new StartGdbServerDialogPrivate;
@@ -79,7 +80,7 @@ GdbServerStarter::GdbServerStarter(DeviceProcessesDialog *dlg, bool startServerO
     d->kit = dlg->kitChooser()->currentKit();
     d->process = dlg->currentProcess();
     d->device = DeviceKitInformation::device(d->kit);
-    d->startServerOnly = startServerOnly;
+    d->attachToServer = attachAfterServerStart;
 }
 
 GdbServerStarter::~GdbServerStarter()
@@ -89,7 +90,7 @@ GdbServerStarter::~GdbServerStarter()
 
 void GdbServerStarter::handleRemoteError(const QString &errorMsg)
 {
-    QMessageBox::critical(0, tr("Remote Error"), errorMsg);
+    AsynchronousMessageBox::critical(tr("Remote Error"), errorMsg);
 }
 
 void GdbServerStarter::portGathererError(const QString &text)
@@ -102,8 +103,10 @@ void GdbServerStarter::portGathererError(const QString &text)
 void GdbServerStarter::run()
 {
     QTC_ASSERT(d->device, return);
-    connect(&d->gatherer, SIGNAL(error(QString)), SLOT(portGathererError(QString)));
-    connect(&d->gatherer, SIGNAL(portListReady()), SLOT(portListReady()));
+    connect(&d->gatherer, &DeviceUsedPortsGatherer::error,
+            this, &GdbServerStarter::portGathererError);
+    connect(&d->gatherer, &DeviceUsedPortsGatherer::portListReady,
+            this, &GdbServerStarter::portListReady);
     d->gatherer.start(d->device);
 }
 
@@ -117,11 +120,16 @@ void GdbServerStarter::portListReady()
         return;
     }
 
-    connect(&d->runner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(&d->runner, SIGNAL(processStarted()), SLOT(handleProcessStarted()));
-    connect(&d->runner, SIGNAL(readyReadStandardOutput()), SLOT(handleProcessOutputAvailable()));
-    connect(&d->runner, SIGNAL(readyReadStandardError()), SLOT(handleProcessErrorOutput()));
-    connect(&d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
+    connect(&d->runner, &SshRemoteProcessRunner::connectionError,
+            this, &GdbServerStarter::handleConnectionError);
+    connect(&d->runner, &SshRemoteProcessRunner::processStarted,
+            this, &GdbServerStarter::handleProcessStarted);
+    connect(&d->runner, &SshRemoteProcessRunner::readyReadStandardOutput,
+            this, &GdbServerStarter::handleProcessOutputAvailable);
+    connect(&d->runner, &SshRemoteProcessRunner::readyReadStandardError,
+            this, &GdbServerStarter::handleProcessErrorOutput);
+    connect(&d->runner, &SshRemoteProcessRunner::processClosed,
+            this, &GdbServerStarter::handleProcessClosed);
 
     QByteArray gdbServerPath = d->device->debugServerPath().toUtf8();
     if (gdbServerPath.isEmpty())
@@ -159,7 +167,7 @@ void GdbServerStarter::handleProcessErrorOutput()
             logMessage(tr("Port %1 is now accessible.").arg(port));
             logMessage(tr("Server started on %1:%2")
                 .arg(d->device->sshParameters().host).arg(port));
-            if (!d->startServerOnly)
+            if (d->attachToServer)
                 attach(port);
         }
     }
@@ -171,49 +179,49 @@ void GdbServerStarter::attach(int port)
     QString binary;
     QString localExecutable;
     QString candidate = sysroot + d->process.exe;
-    if (QFileInfo(candidate).exists())
+    if (QFileInfo::exists(candidate))
         localExecutable = candidate;
     if (localExecutable.isEmpty()) {
         binary = d->process.cmdLine.section(QLatin1Char(' '), 0, 0);
         candidate = sysroot + QLatin1Char('/') + binary;
-        if (QFileInfo(candidate).exists())
+        if (QFileInfo::exists(candidate))
             localExecutable = candidate;
     }
     if (localExecutable.isEmpty()) {
         candidate = sysroot + QLatin1String("/usr/bin/") + binary;
-        if (QFileInfo(candidate).exists())
+        if (QFileInfo::exists(candidate))
             localExecutable = candidate;
     }
     if (localExecutable.isEmpty()) {
         candidate = sysroot + QLatin1String("/bin/") + binary;
-        if (QFileInfo(candidate).exists())
+        if (QFileInfo::exists(candidate))
             localExecutable = candidate;
     }
     if (localExecutable.isEmpty()) {
-        QMessageBox::warning(ICore::mainWindow(), tr("Warning"),
+        AsynchronousMessageBox::warning(tr("Warning"),
             tr("Cannot find local executable for remote process \"%1\".")
                 .arg(d->process.exe));
         return;
     }
 
-    QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(localExecutable));
+    QList<Abi> abis = Abi::abisOfBinary(FileName::fromString(localExecutable));
     if (abis.isEmpty()) {
-        QMessageBox::warning(ICore::mainWindow(), tr("Warning"),
+        AsynchronousMessageBox::warning(tr("Warning"),
             tr("Cannot find ABI for remote process \"%1\".")
                 .arg(d->process.exe));
         return;
     }
 
-    DebuggerStartParameters sp;
-    QTC_ASSERT(fillParameters(&sp, d->kit), return);
-    sp.masterEngineType = GdbEngineType;
-    sp.connParams.port = port;
-    sp.remoteChannel = sp.connParams.host + QLatin1Char(':') + QString::number(sp.connParams.port);
-    sp.displayName = tr("Remote: \"%1:%2\"").arg(sp.connParams.host).arg(port);
-    sp.executable = localExecutable;
-    sp.startMode = AttachToRemoteServer;
-    sp.closeMode = KillAtClose;
-    DebuggerRunControlFactory::createAndScheduleRun(sp);
+    DebuggerRunParameters rp;
+    rp.masterEngineType = GdbEngineType;
+    rp.connParams.host = d->device->sshParameters().host;
+    rp.connParams.port = port;
+    rp.remoteChannel = rp.connParams.host + QLatin1Char(':') + QString::number(rp.connParams.port);
+    rp.displayName = tr("Remote: \"%1:%2\"").arg(rp.connParams.host).arg(port);
+    rp.executable = localExecutable;
+    rp.startMode = AttachToRemoteServer;
+    rp.closeMode = KillAtClose;
+    createAndScheduleRun(rp, d->kit);
 }
 
 void GdbServerStarter::handleProcessClosed(int status)

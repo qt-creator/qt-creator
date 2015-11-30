@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,64 +9,87 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 import QtQuick 2.1
+import QtQuick.Window 2.1
 import QtQuick.Layouts 1.0
 
 ColumnLayout {
+    id: root
+
     spacing: 0
 
     property alias currentIndex: tabs.currentIndex
-
     property alias model: tabs.model
 
-    property int __width: tabs.width + 16 * 2
-    id: root
-
     Item {
-        z: 1
-        width: __width
-        height: tabs.height + 51 * 2
+        id: modeArea
 
-        Image {
-            fillMode: Image.Tile
-            source: "images/background.png"
+        z: 1
+        Layout.fillWidth: true
+        Layout.preferredWidth: tabs.width + 16 * 2
+        Layout.preferredHeight: tabs.height + screenDependHeightDistance * 2
+
+        Component {
+            id: imageBackground
+            Image {
+                fillMode: Image.Tile
+                source: "images/background.png"
+                anchors.fill: parent
+            }
+        }
+        Component {
+            id: flatBackground
+            Rectangle {
+                color: creatorTheme.Welcome_SideBar_BackgroundColor
+            }
+        }
+        Loader {
+            id: topLeftLoader
             anchors.fill: parent
+            sourceComponent: creatorTheme.WidgetStyle === 'StyleFlat' ? flatBackground : imageBackground;
         }
 
         Tabs {
-            anchors.centerIn: parent
-            id: tabs
+            anchors.verticalCenter: parent.verticalCenter
+            x: 16
+            width: Math.max(modeArea.width - 16 * 2, implicitWidth)
 
+            id: tabs
+            spacing: Math.round((screenDependHeightDistance / count) + 10)
         }
 
         Rectangle {
-            color: "#737373"
+            color: creatorTheme.WidgetStyle === 'StyleFlat' ?
+                       creatorTheme.Welcome_SideBar_BackgroundColor : creatorTheme.Welcome_DividerColor
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 0
             height: 1
         }
+
         Rectangle {
-            color: "#737373"
+            color: creatorTheme.WidgetStyle === 'StyleFlat' ?
+                       creatorTheme.Welcome_SideBar_BackgroundColor : creatorTheme.Welcome_DividerColor
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
@@ -74,8 +97,10 @@ ColumnLayout {
             height: 1
             opacity: 0.6
         }
+
         Rectangle {
-            color: "#737373"
+            color: creatorTheme.WidgetStyle === 'StyleFlat' ?
+                       creatorTheme.Welcome_SideBar_BackgroundColor : creatorTheme.Welcome_DividerColor
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
@@ -86,96 +111,88 @@ ColumnLayout {
     }
 
     Rectangle {
-        color: "#ebebeb"
-        width: root.__width
-        Layout.minimumHeight: 320
+        color: creatorTheme.Welcome_SideBar_BackgroundColor
+
+        Layout.fillWidth: true
+        Layout.preferredWidth: innerColumn.width + 20
         Layout.fillHeight: true
 
-        Column {
-            spacing: 14
-            width: parent.width - 16 * 2
+        ColumnLayout {
+            id: innerColumn
+
             x: 12
 
+            spacing: 4
+
+            property int spacerHeight: screenDependHeightDistance - 14
+
             Item {
-                height: 24
-                width: parent.width
+                Layout.preferredHeight: innerColumn.spacerHeight
             }
 
             NativeText {
                 text: qsTr("New to Qt?")
+                color: creatorTheme.Welcome_TextColorNormal
                 font.pixelSize: 18
-                font.bold: false
             }
 
             NativeText {
+                id: gettingStartedText
+
+                Layout.preferredWidth: innerColumn.width
+
                 text: qsTr("Learn how to develop your own applications and explore Qt Creator.")
+                color: creatorTheme.Welcome_TextColorNormal
                 font.pixelSize: 12
-                wrapMode: Text.WordWrap
-                width: parent.width
+                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             }
 
             Item {
-                height: 8
-                width: parent.width
+                Layout.preferredHeight: innerColumn.spacerHeight
             }
 
             Button {
+                id: gettingStartedButton
+
+                x: 4
+
                 text: qsTr("Get Started Now")
                 onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/index.html")
             }
 
             Item {
-                height: 18
-                width: parent.width
+                Layout.preferredHeight: innerColumn.spacerHeight
             }
 
-            Column {
-                x: 14
+            ColumnLayout {
                 spacing: 16
-                Row {
-                    spacing: 7
-                    Image {
-                        width: 16
-                        height: 15
-                        source: "images/icons/onlineCommunity.png"
-                    }
-                    LinkedText {
-                        text: qsTr("Online Community")
-                        font.pixelSize: 11
-                        color: "black"
-                        onClicked: gettingStarted.openUrl("http://qt-project.org/forums")
-                    }
+
+                IconAndLink {
+                    iconSource: "images/icons/qt_account.png"
+                    title: qsTr("Qt Account")
+                    openUrl: "https://account.qt.io"
                 }
-                Row {
-                    spacing: 7
-                    Image {
-                        height: 15
-                        width: 15
-                        source: "images/icons/blogs.png"
-                    }
-                    LinkedText {
-                        text: qsTr("Blogs")
-                        font.pixelSize: 11
-                        color: "black"
-                        onClicked: gettingStarted.openUrl("http://planet.qt-project.org")
-                    }
+                IconAndLink {
+                    iconSource: "images/icons/qt_cloud.png"
+                    title: qsTr("Qt Cloud Services")
+                    openUrl: "https://developer.qtcloudservices.com"
                 }
-                Row {
-                    spacing: 7
-                    Image {
-                        width: 16
-                        height: 15
-                        source: "images/icons/userGuide.png"
-                    }
-                    LinkedText {
-                        text: qsTr("User Guide")
-                        font.pixelSize: 11
-                        color: "black"
-                        onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/index.html")
-                    }
+                IconAndLink {
+                    iconSource: "images/icons/onlineCommunity.png"
+                    title: qsTr("Online Community")
+                    openUrl: "http://forum.qt.io"
+                }
+                IconAndLink {
+                    iconSource: "images/icons/blogs.png"
+                    title: qsTr("Blogs")
+                    openUrl: "http://planet.qt.io"
+                }
+                IconAndLink {
+                    iconSource: "images/icons/userGuide.png"
+                    title: qsTr("User Guide")
+                    openHelpUrl: "qthelp://org.qt-project.qtcreator/doc/index.html"
                 }
             }
         }
-
     }
 }

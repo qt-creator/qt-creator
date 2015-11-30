@@ -68,7 +68,7 @@ bool AST::match(AST *pattern, ASTMatcher *matcher)
     return match0(pattern, matcher);
 }
 
-unsigned AttributeSpecifierAST::firstToken() const
+unsigned GnuAttributeSpecifierAST::firstToken() const
 {
     return attribute_token;
 }
@@ -89,7 +89,9 @@ unsigned BaseSpecifierAST::firstToken() const
 
 unsigned BaseSpecifierAST::lastToken() const
 {
-    if (name)
+    if (ellipsis_token)
+        return ellipsis_token;
+    else if (name)
         return name->lastToken();
     else if (virtual_token && access_specifier_token)
         return std::max(virtual_token, access_specifier_token) + 1;
@@ -242,7 +244,7 @@ unsigned AsmDefinitionAST::lastToken() const
 }
 
 /** \generated */
-unsigned AttributeAST::firstToken() const
+unsigned GnuAttributeAST::firstToken() const
 {
     if (identifier_token)
         return identifier_token;
@@ -259,7 +261,7 @@ unsigned AttributeAST::firstToken() const
 }
 
 /** \generated */
-unsigned AttributeAST::lastToken() const
+unsigned GnuAttributeAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
@@ -4194,7 +4196,7 @@ unsigned WhileStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned AttributeSpecifierAST::lastToken() const
+unsigned GnuAttributeSpecifierAST::lastToken() const
 {
     if (second_rparen_token)
         return second_rparen_token + 1;
@@ -4447,6 +4449,136 @@ unsigned AliasDeclarationAST::lastToken() const
             return candidate;
     if (using_token)
         return using_token + 1;
+    return 1;
+}
+
+/** \generated */
+unsigned DesignatedInitializerAST::firstToken() const
+{
+    if (designator_list)
+        if (unsigned candidate = designator_list->firstToken())
+            return candidate;
+    if (equal_token)
+        return equal_token;
+    if (initializer)
+        if (unsigned candidate = initializer->firstToken())
+            return candidate;
+    return 0;
+}
+
+/** \generated */
+unsigned DesignatedInitializerAST::lastToken() const
+{
+    if (initializer)
+        if (unsigned candidate = initializer->lastToken())
+            return candidate;
+    if (equal_token)
+        return equal_token + 1;
+    if (designator_list)
+        if (unsigned candidate = designator_list->lastToken())
+            return candidate;
+    return 1;
+}
+
+/** \generated */
+unsigned BracketDesignatorAST::firstToken() const
+{
+    if (lbracket_token)
+        return lbracket_token;
+    if (expression)
+        if (unsigned candidate = expression->firstToken())
+            return candidate;
+    if (rbracket_token)
+        return rbracket_token;
+    return 0;
+}
+
+/** \generated */
+unsigned BracketDesignatorAST::lastToken() const
+{
+    if (rbracket_token)
+        return rbracket_token + 1;
+    if (expression)
+        if (unsigned candidate = expression->lastToken())
+            return candidate;
+    if (lbracket_token)
+        return lbracket_token + 1;
+    return 1;
+}
+
+/** \generated */
+unsigned DotDesignatorAST::firstToken() const
+{
+    if (dot_token)
+        return dot_token;
+    if (identifier_token)
+        return identifier_token;
+    return 0;
+}
+
+/** \generated */
+unsigned DotDesignatorAST::lastToken() const
+{
+    if (identifier_token)
+        return identifier_token + 1;
+    if (dot_token)
+        return dot_token + 1;
+    return 1;
+}
+
+/** \generated */
+unsigned AlignmentSpecifierAST::firstToken() const
+{
+    if (align_token)
+        return align_token;
+    if (lparen_token)
+        return lparen_token;
+    if (typeIdExprOrAlignmentExpr)
+        if (unsigned candidate = typeIdExprOrAlignmentExpr->firstToken())
+            return candidate;
+    if (ellipses_token)
+        return ellipses_token;
+    if (rparen_token)
+        return rparen_token;
+    return 0;
+}
+
+/** \generated */
+unsigned AlignmentSpecifierAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+    if (ellipses_token)
+        return ellipses_token + 1;
+    if (typeIdExprOrAlignmentExpr)
+        if (unsigned candidate = typeIdExprOrAlignmentExpr->lastToken())
+            return candidate;
+    if (lparen_token)
+        return lparen_token + 1;
+    if (align_token)
+        return align_token + 1;
+    return 1;
+}
+
+/** \generated */
+unsigned NoExceptOperatorExpressionAST::firstToken() const
+{
+    if (noexcept_token)
+        return noexcept_token;
+    if (expression)
+        if (unsigned candidate = expression->firstToken())
+            return candidate;
+    return 0;
+}
+
+/** \generated */
+unsigned NoExceptOperatorExpressionAST::lastToken() const
+{
+    if (expression)
+        if (unsigned candidate = expression->lastToken())
+            return candidate;
+    if (noexcept_token)
+        return noexcept_token + 1;
     return 1;
 }
 

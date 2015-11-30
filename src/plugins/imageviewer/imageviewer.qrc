@@ -1,13 +1,10 @@
 <RCC>
     <qresource prefix="/imageviewer">
-        <file>ImageViewer.mimetypes.xml</file>
         <file>images/outline.png</file>
-        <file>images/zoomin.png</file>
-        <file>images/zoomout.png</file>
-        <file>images/fitinscreen.png</file>
         <file>images/originalsize.png</file>
         <file>images/background.png</file>
         <file>images/pause-small.png</file>
         <file>images/play-small.png</file>
+        <file>ImageViewer.mimetypes.xml</file>
     </qresource>
 </RCC>

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -55,29 +56,28 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory(QOb
     : DeployConfigurationFactory(parent)
 { setObjectName(QLatin1String("RemoteLinuxDeployConfiguration"));}
 
-QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *target) const
 {
     QList<Core::Id> ids;
-    if (!parent->project()->supportsKit(parent->kit()))
+    if (!target->project()->supportsKit(target->kit()))
         return ids;
-    ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainKitInformation::toolChain(parent->kit());
-    if (!tc || tc->targetAbi().os() != ProjectExplorer::Abi::LinuxOS)
+
+    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(target->kit());
+    if (deviceType != RemoteLinux::Constants::GenericLinuxOsType)
         return ids;
-    const Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
-    if (devType == Constants::GenericLinuxOsType)
-        ids << genericDeployConfigurationId();
+
+    ids << genericDeployConfigurationId();
     return ids;
 }
 
-QString RemoteLinuxDeployConfigurationFactory::displayNameForId(const Core::Id id) const
+QString RemoteLinuxDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == genericDeployConfigurationId())
         return genericLinuxDisplayName();
     return QString();
 }
 
-bool RemoteLinuxDeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool RemoteLinuxDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
@@ -113,6 +113,11 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::restore(Target *pare
         return 0;
     }
     return dc;
+}
+
+bool RemoteLinuxDeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *product) const
+{
+    return canCreate(parent, product->id());
 }
 
 DeployConfiguration *RemoteLinuxDeployConfigurationFactory::clone(Target *parent,

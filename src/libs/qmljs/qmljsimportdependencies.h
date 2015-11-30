@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,11 +31,10 @@
 #ifndef QMLJSIMPORTCACHE_H
 #define QMLJSIMPORTCACHE_H
 
-#include "qmljsviewercontext.h"
+#include "qmljsconstants.h"
+#include "qmljsdialect.h"
 
 #include <languageutils/componentversion.h>
-#include <utils/qtcoverride.h>
-#include <utils/function.h>
 
 #include <QObject>
 #include <QString>
@@ -44,12 +44,15 @@
 #include <QSet>
 #include <QSharedPointer>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QCryptographicHash;
 QT_END_NAMESPACE
 
 namespace QmlJS {
 class ImportInfo;
+class ViewerContext;
 namespace Internal { class ImportDependenciesPrivate; }
 class ImportDependencies;
 
@@ -107,6 +110,7 @@ public:
     int minorVersion;
 
     QString path() const;
+    QString libraryQualifiedPath() const;
 
     void addToHash(QCryptographicHash &hash) const;
     ImportKey flatKey() const;
@@ -127,10 +131,13 @@ bool operator <(const ImportKey &i1, const ImportKey &i2);
 class QMLJS_EXPORT Export
 {
 public:
+    static QString libraryTypeName();
     Export();
-    Export(ImportKey exportName, QString pathRequired, bool intrinsic = false);
+    Export(ImportKey exportName, QString pathRequired, bool intrinsic = false,
+           const QString &typeName = libraryTypeName());
     ImportKey exportName;
     QString pathRequired;
+    QString typeName;
     bool intrinsic;
     bool visibleInVContext(const ViewerContext &vContext) const;
 };
@@ -142,10 +149,10 @@ class QMLJS_EXPORT CoreImport
 public:
     CoreImport();
     CoreImport(const QString &importId, const QList<Export> &possibleExports = QList<Export>(),
-               Language::Enum language = Language::Qml, const QByteArray &fingerprint = QByteArray());
+               Dialect language = Dialect::Qml, const QByteArray &fingerprint = QByteArray());
     QString importId;
     QList<Export> possibleExports;
-    Language::Enum language;
+    Dialect language;
     QByteArray fingerprint;
     bool valid();
 };
@@ -192,7 +199,7 @@ public:
 
     CoreImport coreImport(const QString &importId) const;
     void iterateOnCandidateImports(const ImportKey &key, const ViewerContext &vContext,
-                                   Utils::function<bool(const ImportMatchStrength &,
+                                   std::function<bool(const ImportMatchStrength &,
                                                         const Export &,
                                                         const CoreImport &)> const &iterF) const;
     ImportElements candidateImports(const ImportKey &key, const ViewerContext &vContext) const;
@@ -204,18 +211,18 @@ public:
     void removeCoreImport(const QString &importId);
 
     void addExport(const QString &importId, const ImportKey &importKey,
-                     const QString &requiredPath);
+                     const QString &requiredPath, const QString &typeName = Export::libraryTypeName());
     void removeExport(const QString &importId, const ImportKey &importKey,
-                      const QString &requiredPath);
+                      const QString &requiredPath, const QString &typeName = Export::libraryTypeName());
 
     void iterateOnCoreImports(const ViewerContext &vContext,
-                              Utils::function<bool(const CoreImport &)> const &iterF) const;
+                              std::function<bool(const CoreImport &)> const &iterF) const;
     void iterateOnLibraryImports(const ViewerContext &vContext,
-                                 Utils::function<bool(const ImportMatchStrength &,
+                                 std::function<bool(const ImportMatchStrength &,
                                                       const Export &,
                                                       const CoreImport &)> const &iterF) const;
     void iterateOnSubImports(const ImportKey &baseKey, const ViewerContext &vContext,
-                             Utils::function<bool(const ImportMatchStrength &,
+                             std::function<bool(const ImportMatchStrength &,
                                                   const Export &,
                                                   const CoreImport &)> const &iterF) const;
 

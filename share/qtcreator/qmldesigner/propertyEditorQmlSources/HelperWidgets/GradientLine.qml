@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -39,6 +35,13 @@ Item {
 
     property bool hasGradient: gradientModel.hasGradient
 
+
+    property alias gradientPropertyName: gradientModel.gradientPropertyName
+
+    onHasGradientChanged: {
+        colorLine.invalidate()
+    }
+
     onCurrentColorChanged: {
         gradientModel.setColor(colorLine.selectedIndex, currentColor)
         colorLine.invalidate()
@@ -47,29 +50,19 @@ Item {
     function addGradient() {
         gradientModel.addGradient()
         colorLine.invalidate()
+        colorLine.select(0)
     }
 
     function deleteGradient() {
         gradientModel.deleteGradient()
     }
 
-    function dec2hex(integer) {
-        var string = Math.round(integer).toString(16)
-        if (integer < 16) {
-            string = "0" + string
+    Connections {
+        target: modelNodeBackend
+        onSelectionChanged: {
+            colorLine.invalidate()
+            colorLine.select(0)
         }
-        return string;
-    }
-
-    function colorToString(color) {
-        var string = "#"
-        if (color.a < 1)
-            string += dec2hex(color.a * 255)
-        string += dec2hex(color.r * 255)
-        string += dec2hex(color.g * 255)
-        string += dec2hex(color.b * 255)
-
-        return string;
     }
 
     Item {
@@ -90,7 +83,10 @@ Item {
 
             repeater.itemAt(index).item.highlighted = true
             colorLine.selectedIndex = index
+
+            gradientModel.lock()
             currentColor = repeater.itemAt(index).item.color
+            gradientModel.unlock()
         }
 
         function invalidate() {
@@ -122,8 +118,11 @@ Item {
                 onClicked: {
                     var currentPosition = mouseX / colorLine.effectiveWidth
 
-                    gradientModel.addStop(currentPosition, currentColor)
-                    colorLine.select(gradientModel.count - 1)
+                    var newIndex = gradientModel.addStop(currentPosition, currentColor)
+
+                    if (newIndex > 0)
+                        colorLine.select(newIndex)
+
                     colorLine.invalidate()
                 }
                 Item {
@@ -297,6 +296,7 @@ Item {
                         }
                         parent.y = 20
                         colorLine.invalidate()
+                        colorLine.select(colorLine.selectedIndex)
                     }
                 }
             }

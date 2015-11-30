@@ -6,7 +6,7 @@ DEFINES += SRCDIR=\\\"$$PWD\\\"
 
 SOURCES += main.cpp
 
-OTHER_FILES += qml/main.qml
+DISTFILES += qml/main.qml
 
 qml.files = qml
 qml.path = .

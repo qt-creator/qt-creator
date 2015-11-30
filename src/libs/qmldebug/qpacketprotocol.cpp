@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,27 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qpacketprotocol.h"
 
-#include <qbuffer.h>
 #include <qelapsedtimer.h>
 
 namespace QmlDebug {
@@ -108,26 +108,23 @@ public:
     {
         Q_ASSERT(4 == sizeof(qint32));
 
-        QObject::connect(this, SIGNAL(readyRead()),
-                         parent, SIGNAL(readyRead()));
-        QObject::connect(this, SIGNAL(packetWritten()),
-                         parent, SIGNAL(packetWritten()));
-        QObject::connect(this, SIGNAL(invalidPacket()),
-                         parent, SIGNAL(invalidPacket()));
-        QObject::connect(dev, SIGNAL(readyRead()),
-                         this, SLOT(readyToRead()));
-        QObject::connect(dev, SIGNAL(aboutToClose()),
-                         this, SLOT(aboutToClose()));
-        QObject::connect(dev, SIGNAL(bytesWritten(qint64)),
-                         this, SLOT(bytesWritten(qint64)));
+        QObject::connect(this, &QPacketProtocolPrivate::readyRead,
+                         parent, &QPacketProtocol::readyRead);
+        QObject::connect(this, &QPacketProtocolPrivate::invalidPacket,
+                         parent, &QPacketProtocol::invalidPacket);
+        QObject::connect(dev, &QIODevice::readyRead,
+                         this, &QPacketProtocolPrivate::readyToRead);
+        QObject::connect(dev, &QIODevice::aboutToClose,
+                         this, &QPacketProtocolPrivate::aboutToClose);
+        QObject::connect(dev, &QIODevice::bytesWritten,
+                         this, &QPacketProtocolPrivate::bytesWritten);
     }
 
-Q_SIGNALS:
+signals:
     void readyRead();
-    void packetWritten();
     void invalidPacket();
 
-public Q_SLOTS:
+public slots:
     void aboutToClose()
     {
         inProgress.clear();
@@ -146,7 +143,6 @@ public Q_SLOTS:
             } else {
                 bytes -= sendingPackets.at(0);
                 sendingPackets.removeFirst();
-                emit packetWritten();
             }
         }
     }
@@ -167,12 +163,12 @@ public Q_SLOTS:
 
                 // Check sizing constraints
                 if (inProgressSize > maxPacketSize) {
-                    QObject::disconnect(dev, SIGNAL(readyRead()),
-                                        this, SLOT(readyToRead()));
-                    QObject::disconnect(dev, SIGNAL(aboutToClose()),
-                                        this, SLOT(aboutToClose()));
-                    QObject::disconnect(dev, SIGNAL(bytesWritten(qint64)),
-                                        this, SLOT(bytesWritten(qint64)));
+                    QObject::disconnect(dev, &QIODevice::readyRead,
+                                        this, &QPacketProtocolPrivate::readyToRead);
+                    QObject::disconnect(dev, &QIODevice::aboutToClose,
+                                        this, &QPacketProtocolPrivate::aboutToClose);
+                    QObject::disconnect(dev, &QIODevice::bytesWritten,
+                                        this, &QPacketProtocolPrivate::bytesWritten);
                     dev = 0;
                     emit invalidPacket();
                     return;
@@ -217,69 +213,21 @@ QPacketProtocol::QPacketProtocol(QIODevice *dev, QObject *parent)
 }
 
 /*!
-  Destroys the QPacketProtocol instance.
- */
-QPacketProtocol::~QPacketProtocol()
-{
-}
-
-/*!
-  Returns the maximum packet size allowed.  By default this is
-  2,147,483,647 bytes.
-
-  If a packet claiming to be larger than the maximum packet size is received,
-  the QPacketProtocol::invalidPacket() signal is emitted.
-
-  \sa QPacketProtocol::setMaximumPacketSize()
- */
-qint32 QPacketProtocol::maximumPacketSize() const
-{
-    return d->maxPacketSize;
-}
-
-/*!
-  Sets the maximum allowable packet size to \a max.
-
-  \sa QPacketProtocol::maximumPacketSize()
- */
-qint32 QPacketProtocol::setMaximumPacketSize(qint32 max)
-{
-    if (max > (signed)sizeof(qint32))
-        d->maxPacketSize = max;
-    return d->maxPacketSize;
-}
-
-/*!
-  Returns a streamable object that is transmitted on destruction.  For example
-
-  \code
-  protocol.send() << "Hello world" << 123;
-  \endcode
-
-  will send a packet containing "Hello world" and 123.  To construct more
-  complex packets, explicitly construct a QPacket instance.
- */
-QPacketAutoSend QPacketProtocol::send()
-{
-    return QPacketAutoSend(this);
-}
-
-/*!
   Transmits the packet \a p.
  */
-void QPacketProtocol::send(const QPacket & p)
+void QPacketProtocol::send(const QByteArray &p)
 {
-    if (p.b.isEmpty())
+    if (p.isEmpty())
         return; // We don't send empty packets
 
-    qint64 sendSize = p.b.size() + sizeof(qint32);
+    qint64 sendSize = p.size() + sizeof(qint32);
 
     d->sendingPackets.append(sendSize);
     qint32 sendSize32 = sendSize;
     qint64 writeBytes = d->dev->write((char *)&sendSize32, sizeof(qint32));
     Q_ASSERT(writeBytes == sizeof(qint32));
-    writeBytes = d->dev->write(p.b);
-    Q_ASSERT(writeBytes == p.b.size());
+    writeBytes = d->dev->write(p);
+    Q_ASSERT(writeBytes == p.size());
     Q_UNUSED(writeBytes); // For building in release mode.
 }
 
@@ -292,25 +240,15 @@ qint64 QPacketProtocol::packetsAvailable() const
 }
 
 /*!
-  Discards any unread packets.
-  */
-void QPacketProtocol::clear()
-{
-    d->packets.clear();
-}
-
-/*!
   Returns the next unread packet, or an invalid QPacket instance if no packets
   are available.  This function does NOT block.
   */
-QPacket QPacketProtocol::read()
+QByteArray QPacketProtocol::read()
 {
     if (0 == d->packets.count())
-        return QPacket();
+        return QByteArray();
 
-    QPacket rv(d->packets.at(0));
-    d->packets.removeFirst();
-    return rv;
+    return d->packets.takeFirst();
 }
 
 
@@ -357,14 +295,6 @@ bool QPacketProtocol::waitForReadyRead(int msecs)
 }
 
 /*!
-  Returns the QIODevice passed to the QPacketProtocol constructor.
-*/
-QIODevice *QPacketProtocol::device()
-{
-    return d->dev;
-}
-
-/*!
   \fn void QPacketProtocol::readyRead()
 
   Emitted whenever a new packet is received.  Applications may use
@@ -377,13 +307,6 @@ QIODevice *QPacketProtocol::device()
   A packet larger than the maximum allowable packet size was received.  The
   packet will be discarded and, as it indicates corruption in the protocol, no
   further packets will be received.
- */
-
-/*!
-  \fn void QPacketProtocol::packetWritten()
-
-  Emitted each time a packet is completely written to the device.  This signal
-  may be used for communications flow control.
  */
 
 /*!
@@ -433,55 +356,22 @@ QIODevice *QPacketProtocol::device()
 /*!
   Constructs an empty write-only packet.
   */
-QPacket::QPacket()
-    : QDataStream(), buf(0)
+QPacket::QPacket(int version)
 {
-    buf = new QBuffer(&b);
-    buf->open(QIODevice::WriteOnly);
-    setDevice(buf);
-    setVersion(QDataStream::Qt_4_7);
+    buf.open(QIODevice::WriteOnly);
+    setDevice(&buf);
+    setVersion(version);
 }
 
 /*!
-  Destroys the QPacket instance.
-  */
-QPacket::~QPacket()
-{
-    if (buf) {
-        delete buf;
-        buf = 0;
-    }
-}
-
-/*!
-  Creates a copy of \a other.  The initial stream positions are shared, but the
-  two packets are otherwise independent.
+  Constructs a read-only packet.
  */
-QPacket::QPacket(const QPacket & other)
-    : QDataStream(), b(other.b), buf(0)
+QPacket::QPacket(int version, const QByteArray &data)
 {
-    buf = new QBuffer(&b);
-    buf->open(other.buf->openMode());
-    setDevice(buf);
-}
-
-/*!
-  \internal
-  */
-QPacket::QPacket(const QByteArray & ba)
-    : QDataStream(), b(ba), buf(0)
-{
-    buf = new QBuffer(&b);
-    buf->open(QIODevice::ReadOnly);
-    setDevice(buf);
-}
-
-/*!
-  Returns true if this packet is empty - that is, contains no data.
-  */
-bool QPacket::isEmpty() const
-{
-    return b.isEmpty();
+    buf.setData(data);
+    buf.open(QIODevice::ReadOnly);
+    setDevice(&buf);
+    setVersion(version);
 }
 
 /*!
@@ -489,48 +379,7 @@ bool QPacket::isEmpty() const
   */
 QByteArray QPacket::data() const
 {
-    return b;
-}
-
-/*!
-  Clears data in the packet.  This is useful for reusing one writable packet.
-  For example
-  \code
-  QPacketProtocol protocol(...);
-
-  QPacket packet;
-
-  packet << "Hello world!" << 123;
-  protocol.send(packet);
-
-  packet.clear();
-  packet << "Goodbyte world!" << 789;
-  protocol.send(packet);
-  \endcode
- */
-void QPacket::clear()
-{
-    QBuffer::OpenMode oldMode = buf->openMode();
-    buf->close();
-    b.clear();
-    buf->setBuffer(&b); // reset QBuffer internals with new size of b.
-    buf->open(oldMode);
-}
-
-/*!
-  \class QPacketAutoSend
-  \internal
-
-  */
-QPacketAutoSend::QPacketAutoSend(QPacketProtocol *_p)
-    : QPacket(), p(_p)
-{
-}
-
-QPacketAutoSend::~QPacketAutoSend()
-{
-    if (!b.isEmpty())
-        p->send(*this);
+    return buf.data();
 }
 
 } // namespace QmlDebug

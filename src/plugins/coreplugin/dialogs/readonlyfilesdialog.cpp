@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,7 +31,7 @@
 #include "readonlyfilesdialog.h"
 #include "ui_readonlyfilesdialog.h"
 
-#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -52,9 +53,29 @@ namespace Internal {
 
 class ReadOnlyFilesDialogPrivate
 {
+    Q_DECLARE_TR_FUNCTIONS(Core::ReadOnlyFilesDialog)
+
 public:
-    ReadOnlyFilesDialogPrivate(IDocument *document = 0, bool useSaveAs = false);
+    ReadOnlyFilesDialogPrivate(ReadOnlyFilesDialog *parent, IDocument *document = 0, bool useSaveAs = false);
     ~ReadOnlyFilesDialogPrivate();
+
+    enum ReadOnlyFilesTreeColumn {
+        MakeWritable = ReadOnlyFilesDialog::MakeWritable,
+        OpenWithVCS = ReadOnlyFilesDialog::OpenWithVCS,
+        SaveAs = ReadOnlyFilesDialog::SaveAs,
+        FileName = ReadOnlyFilesDialog::FileName,
+        Folder = ReadOnlyFilesDialog::Folder,
+        NumberOfColumns
+    };
+
+    void initDialog(const QStringList &fileNames);
+    void promptFailWarning(const QStringList &files, ReadOnlyFilesDialog::ReadOnlyResult type) const;
+    QRadioButton *createRadioButtonForItem(QTreeWidgetItem *item, QButtonGroup *group, ReadOnlyFilesTreeColumn type);
+
+    void setAll(int index);
+    void updateSelectAll();
+
+    ReadOnlyFilesDialog *q;
 
     // Buttongroups containing the operation for one file.
     struct ButtonGroupForFile
@@ -85,17 +106,20 @@ public:
     QString makeWritableText;
     QString versionControlOpenText;
     const QString saveAsText;
+
+    Ui::ReadOnlyFilesDialog ui;
 };
 
-ReadOnlyFilesDialogPrivate::ReadOnlyFilesDialogPrivate(IDocument *document, bool displaySaveAs)
-    : useSaveAs(displaySaveAs)
+ReadOnlyFilesDialogPrivate::ReadOnlyFilesDialogPrivate(ReadOnlyFilesDialog *parent, IDocument *document, bool displaySaveAs)
+    : q(parent)
+    , useSaveAs(displaySaveAs)
     , useVCS(false)
     , showWarnings(false)
     , document(document)
-    , mixedText(ReadOnlyFilesDialog::tr("Mixed"))
-    , makeWritableText(ReadOnlyFilesDialog::tr("Make Writable"))
-    , versionControlOpenText(ReadOnlyFilesDialog::tr("Open with VCS"))
-    , saveAsText(ReadOnlyFilesDialog::tr("Save As"))
+    , mixedText(tr("Mixed"))
+    , makeWritableText(tr("Make Writable"))
+    , versionControlOpenText(tr("Open with VCS"))
+    , saveAsText(tr("Save As"))
 {}
 
 ReadOnlyFilesDialogPrivate::~ReadOnlyFilesDialogPrivate()
@@ -103,6 +127,10 @@ ReadOnlyFilesDialogPrivate::~ReadOnlyFilesDialogPrivate()
     foreach (const ButtonGroupForFile &groupForFile, buttonGroups)
         delete groupForFile.group;
 }
+
+} // namespace Internal
+
+using namespace Internal;
 
 /*!
  * \class ReadOnlyFilesDialog
@@ -117,43 +145,38 @@ ReadOnlyFilesDialogPrivate::~ReadOnlyFilesDialogPrivate()
 
 ReadOnlyFilesDialog::ReadOnlyFilesDialog(const QList<QString> &fileNames, QWidget *parent)
     : QDialog(parent)
-    , d(new ReadOnlyFilesDialogPrivate)
-    , ui(new Ui::ReadOnlyFilesDialog)
+    , d(new ReadOnlyFilesDialogPrivate(this))
 {
-    initDialog(fileNames);
+    d->initDialog(fileNames);
 }
 
 ReadOnlyFilesDialog::ReadOnlyFilesDialog(const QString &fileName, QWidget *parent)
     : QDialog(parent)
-    , d(new ReadOnlyFilesDialogPrivate)
-    , ui(new Ui::ReadOnlyFilesDialog)
+    , d(new ReadOnlyFilesDialogPrivate(this))
 {
-    initDialog(QStringList() << fileName);
+    d->initDialog(QStringList(fileName));
 }
 
 ReadOnlyFilesDialog::ReadOnlyFilesDialog(IDocument *document, QWidget *parent,
                                          bool displaySaveAs)
     : QDialog(parent)
-    , d(new ReadOnlyFilesDialogPrivate(document, displaySaveAs))
-    , ui(new Ui::ReadOnlyFilesDialog)
+    , d(new ReadOnlyFilesDialogPrivate(this, document, displaySaveAs))
 {
-    initDialog(QStringList() << document->filePath());
+    d->initDialog(QStringList(document->filePath().toString()));
 }
 
-ReadOnlyFilesDialog::ReadOnlyFilesDialog(const QList<IDocument *> documents, QWidget *parent)
+ReadOnlyFilesDialog::ReadOnlyFilesDialog(const QList<IDocument *> &documents, QWidget *parent)
     : QDialog(parent)
-    , d(new ReadOnlyFilesDialogPrivate)
-    , ui(new Ui::ReadOnlyFilesDialog)
+    , d(new ReadOnlyFilesDialogPrivate(this))
 {
     QStringList files;
     foreach (IDocument *document, documents)
-        files << document->filePath();
-    initDialog(files);
+        files << document->filePath().toString();
+    d->initDialog(files);
 }
 
 ReadOnlyFilesDialog::~ReadOnlyFilesDialog()
 {
-    delete ui;
     delete d;
 }
 
@@ -163,7 +186,7 @@ ReadOnlyFilesDialog::~ReadOnlyFilesDialog()
  */
 void ReadOnlyFilesDialog::setMessage(const QString &message)
 {
-    ui->msgLabel->setText(message);
+    d->ui.msgLabel->setText(message);
 }
 
 /*!
@@ -181,7 +204,7 @@ void ReadOnlyFilesDialog::setShowFailWarning(bool show, const QString &warning)
  * Opens a message box with an error description according to the type.
  * \internal
  */
-void ReadOnlyFilesDialog::promptFailWarning(const QStringList &files, ReadOnlyResult type) const
+void ReadOnlyFilesDialogPrivate::promptFailWarning(const QStringList &files, ReadOnlyFilesDialog::ReadOnlyResult type) const
 {
     if (files.isEmpty())
         return;
@@ -191,52 +214,52 @@ void ReadOnlyFilesDialog::promptFailWarning(const QStringList &files, ReadOnlyRe
     if (files.count() == 1) {
         const QString file = files.first();
         switch (type) {
-        case RO_OpenVCS: {
-            if (IVersionControl *vc = d->versionControls[file]) {
+        case ReadOnlyFilesDialog::RO_OpenVCS: {
+            if (IVersionControl *vc = versionControls[file]) {
                 const QString openText = vc->vcsOpenText().remove(QLatin1Char('&'));
                 title = tr("Failed to %1 File").arg(openText);
                 message = tr("%1 file %2 from version control system %3 failed.")
                         .arg(openText)
                         .arg(QDir::toNativeSeparators(file))
-                        .arg(vc->displayName());
-                message += QLatin1Char('\n');
-                message += d->failWarning;
+                        .arg(vc->displayName())
+                    + QLatin1Char('\n')
+                    + failWarning;
             } else {
                 title = tr("No Version Control System Found");
                 message = tr("Cannot open file %1 from version control system.\n"
                              "No version control system found.")
-                        .arg(QDir::toNativeSeparators(file));
-                message += QLatin1Char('\n');
-                message += d->failWarning;
+                        .arg(QDir::toNativeSeparators(file))
+                    + QLatin1Char('\n')
+                    + failWarning;;
             }
             break;
         }
-        case RO_MakeWritable:
+        case ReadOnlyFilesDialog::RO_MakeWritable:
             title = tr("Cannot Set Permissions");
             message = tr("Cannot set permissions for %1 to writable.")
-                    .arg(QDir::toNativeSeparators(file));
-            message += QLatin1Char('\n');
-            message += d->failWarning;
+                    .arg(QDir::toNativeSeparators(file))
+                + QLatin1Char('\n')
+                + failWarning;
             break;
-        case RO_SaveAs:
+        case ReadOnlyFilesDialog::RO_SaveAs:
             title = tr("Cannot Save File");
-            message = tr("Cannot save file %1").arg(QDir::toNativeSeparators(file));
-            message += QLatin1Char('\n');
-            message += d->failWarning;
+            message = tr("Cannot save file %1").arg(QDir::toNativeSeparators(file))
+                + QLatin1Char('\n')
+                + failWarning;
             break;
         default:
             title = tr("Canceled Changing Permissions");
-            message = d->failWarning;
+            message = failWarning;
             break;
         }
     } else {
         title = tr("Could Not Change Permissions on Some Files");
-        message = d->failWarning;
-        message += QLatin1Char('\n');
-        message += tr("See details for a complete list of files.");
-        details = files.join(QLatin1String("\n"));
+        message = failWarning + QLatin1Char('\n')
+                + tr("See details for a complete list of files.");
+        details = files.join(QLatin1Char('\n'));
     }
-    QMessageBox msgBox(QMessageBox::Warning, title, message);
+    QMessageBox msgBox(QMessageBox::Warning, title, message,
+                       QMessageBox::Ok, ICore::dialogParent());
     msgBox.setDetailedText(details);
     msgBox.exec();
 }
@@ -274,7 +297,7 @@ int ReadOnlyFilesDialog::exec()
             }
             break;
         case RO_SaveAs:
-            if (!EditorManager::saveDocumentAs(d->document)) {
+            if (!EditorManagerPrivate::saveDocumentAs(d->document)) {
                 failedToMakeWritable << buttongroup.fileName;
                 continue;
             }
@@ -288,7 +311,7 @@ int ReadOnlyFilesDialog::exec()
     }
     if (!failedToMakeWritable.isEmpty()) {
         if (d->showWarnings)
-            promptFailWarning(failedToMakeWritable, result);
+            d->promptFailWarning(failedToMakeWritable, result);
     }
     return failedToMakeWritable.isEmpty() ? result : RO_Cancel;
 }
@@ -299,14 +322,14 @@ int ReadOnlyFilesDialog::exec()
  * Returns the created button.
  * \internal
  */
-QRadioButton* ReadOnlyFilesDialog::createRadioButtonForItem(QTreeWidgetItem *item, QButtonGroup *group,
-                                                            ReadOnlyFilesDialog::ReadOnlyFilesTreeColumn type)
+QRadioButton *ReadOnlyFilesDialogPrivate::createRadioButtonForItem(QTreeWidgetItem *item, QButtonGroup *group,
+                                                                   ReadOnlyFilesTreeColumn type)
 
 {
-    QRadioButton *radioButton = new QRadioButton(this);
+    QRadioButton *radioButton = new QRadioButton(q);
     group->addButton(radioButton, type);
     item->setTextAlignment(type, Qt::AlignHCenter);
-    ui->treeWidget->setItemWidget(item, type, radioButton);
+    ui.treeWidget->setItemWidget(item, type, radioButton);
     return radioButton;
 }
 
@@ -315,23 +338,23 @@ QRadioButton* ReadOnlyFilesDialog::createRadioButtonForItem(QTreeWidgetItem *ite
  * per file accordingly.
  * \internal
  */
-void ReadOnlyFilesDialog::setAll(int index)
+void ReadOnlyFilesDialogPrivate::setAll(int index)
 {
     // If mixed is the current index, no need to change the user selection.
-    if (index == d->setAllIndexForOperation[-1/*mixed*/])
+    if (index == setAllIndexForOperation[-1/*mixed*/])
         return;
 
     // Get the selected type from the select all combo box.
     ReadOnlyFilesTreeColumn type = NumberOfColumns;
-    if (index == d->setAllIndexForOperation[MakeWritable])
+    if (index == setAllIndexForOperation[MakeWritable])
         type = MakeWritable;
-    else if (index == d->setAllIndexForOperation[OpenWithVCS])
+    else if (index == setAllIndexForOperation[OpenWithVCS])
         type = OpenWithVCS;
-    else if (index == d->setAllIndexForOperation[SaveAs])
+    else if (index == setAllIndexForOperation[SaveAs])
         type = SaveAs;
 
     // Check for every file if the selected operation is available and change it to the operation.
-    foreach (ReadOnlyFilesDialogPrivate::ButtonGroupForFile groupForFile, d->buttonGroups) {
+    foreach (ReadOnlyFilesDialogPrivate::ButtonGroupForFile groupForFile, buttonGroups) {
         QRadioButton *radioButton = qobject_cast<QRadioButton*> (groupForFile.group->button(type));
         if (radioButton)
             radioButton->setChecked(true);
@@ -343,18 +366,18 @@ void ReadOnlyFilesDialog::setAll(int index)
  * the tree widget.
  * \internal
  */
-void ReadOnlyFilesDialog::updateSelectAll()
+void ReadOnlyFilesDialogPrivate::updateSelectAll()
 {
     int selectedOperation = -1;
-    foreach (ReadOnlyFilesDialogPrivate::ButtonGroupForFile groupForFile, d->buttonGroups) {
+    foreach (ReadOnlyFilesDialogPrivate::ButtonGroupForFile groupForFile, buttonGroups) {
         if (selectedOperation == -1) {
             selectedOperation = groupForFile.group->checkedId();
         } else if (selectedOperation != groupForFile.group->checkedId()) {
-            ui->setAll->setCurrentIndex(0);
+            ui.setAll->setCurrentIndex(0);
             return;
         }
     }
-    ui->setAll->setCurrentIndex(d->setAllIndexForOperation[selectedOperation]);
+    ui.setAll->setCurrentIndex(setAllIndexForOperation[selectedOperation]);
 }
 
 /*!
@@ -364,11 +387,11 @@ void ReadOnlyFilesDialog::updateSelectAll()
  * dialog.
  * \internal
  */
-void ReadOnlyFilesDialog::initDialog(const QStringList &fileNames)
+void ReadOnlyFilesDialogPrivate::initDialog(const QStringList &fileNames)
 {
-    ui->setupUi(this);
-    ui->buttonBox->addButton(tr("Change &Permission"), QDialogButtonBox::AcceptRole);
-    ui->buttonBox->addButton(QDialogButtonBox::Cancel);
+    ui.setupUi(q);
+    ui.buttonBox->addButton(tr("Change &Permission"), QDialogButtonBox::AcceptRole);
+    ui.buttonBox->addButton(QDialogButtonBox::Cancel);
 
     QString vcsOpenTextForAll;
     QString vcsMakeWritableTextForAll;
@@ -379,7 +402,7 @@ void ReadOnlyFilesDialog::initDialog(const QStringList &fileNames)
         const QString directory = info.absolutePath();
 
         // Setup a default entry with filename folder and make writable radio button.
-        QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeWidget);
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui.treeWidget);
         item->setText(FileName, visibleName);
         item->setIcon(FileName, FileIconProvider::icon(fileName));
         item->setText(Folder, Utils::FileUtils::shortNativePath(Utils::FileName(QFileInfo(directory))));
@@ -396,10 +419,10 @@ void ReadOnlyFilesDialog::initDialog(const QStringList &fileNames)
                     versionControlForFile->vcsOpenText().remove(QLatin1Char('&'));
             const QString vcsMakeWritableTextforFile =
                     versionControlForFile->vcsMakeWritableText().remove(QLatin1Char('&'));
-            if (!d->useVCS) {
+            if (!useVCS) {
                 vcsOpenTextForAll = vcsOpenTextForFile;
                 vcsMakeWritableTextForAll = vcsMakeWritableTextforFile;
-                d->useVCS = true;
+                useVCS = true;
             } else {
                 // If there are different open or make writable texts choose the default one.
                 if (vcsOpenTextForFile != vcsOpenTextForAll)
@@ -418,86 +441,87 @@ void ReadOnlyFilesDialog::initDialog(const QStringList &fileNames)
             createRadioButtonForItem(item, radioButtonGroup, MakeWritable)->setChecked(true);
         }
         // Add a Save As radio button if requested.
-        if (d->useSaveAs)
+        if (useSaveAs)
             createRadioButtonForItem(item, radioButtonGroup, SaveAs);
         // If the file is managed by a version control system save the vcs for this file.
-        d->versionControls[fileName] = fileManagedByVCS ? versionControlForFile : 0;
+        versionControls[fileName] = fileManagedByVCS ? versionControlForFile : 0;
 
         // Also save the buttongroup for every file to get the result for each entry.
         ReadOnlyFilesDialogPrivate::ButtonGroupForFile groupForFile;
         groupForFile.fileName = fileName;
         groupForFile.group = radioButtonGroup;
-        d->buttonGroups.append(groupForFile);
-        connect(radioButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(updateSelectAll()));
+        buttonGroups.append(groupForFile);
+        QObject::connect(radioButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked),
+                [this](int) { updateSelectAll(); });
     }
 
     // Apply the Mac file dialog style.
     if (Utils::HostOsInfo::isMacHost())
-        ui->treeWidget->setAlternatingRowColors(true);
+        ui.treeWidget->setAlternatingRowColors(true);
 
     // Do not show any options to the user if he has no choice.
-    if (!d->useSaveAs && (!d->useVCS || !useMakeWritable)) {
-        ui->treeWidget->setColumnHidden(MakeWritable, true);
-        ui->treeWidget->setColumnHidden(OpenWithVCS, true);
-        ui->treeWidget->setColumnHidden(SaveAs, true);
-        ui->treeWidget->resizeColumnToContents(FileName);
-        ui->treeWidget->resizeColumnToContents(Folder);
-        ui->setAll->setVisible(false);
-        ui->setAllLabel->setVisible(false);
-        ui->verticalLayout->removeItem(ui->setAllLayout);
-        if (d->useVCS)
-            ui->msgLabel->setText(tr("The following files are not checked out yet.\n"
+    if (!useSaveAs && (!useVCS || !useMakeWritable)) {
+        ui.treeWidget->setColumnHidden(MakeWritable, true);
+        ui.treeWidget->setColumnHidden(OpenWithVCS, true);
+        ui.treeWidget->setColumnHidden(SaveAs, true);
+        ui.treeWidget->resizeColumnToContents(FileName);
+        ui.treeWidget->resizeColumnToContents(Folder);
+        ui.setAll->setVisible(false);
+        ui.setAllLabel->setVisible(false);
+        ui.verticalLayout->removeItem(ui.setAllLayout);
+        if (useVCS)
+            ui.msgLabel->setText(tr("The following files are not checked out yet.\n"
                                      "Do you want to check them out now?"));
         return;
     }
 
     // If there is just one file entry, there is no need to show the select all combo box
     if (fileNames.count() < 2) {
-        ui->setAll->setVisible(false);
-        ui->setAllLabel->setVisible(false);
-        ui->verticalLayout->removeItem(ui->setAllLayout);
+        ui.setAll->setVisible(false);
+        ui.setAllLabel->setVisible(false);
+        ui.verticalLayout->removeItem(ui.setAllLayout);
     }
 
     // Add items to the Set all combo box.
-    ui->setAll->addItem(d->mixedText);
-    d->setAllIndexForOperation[-1/*mixed*/] = ui->setAll->count() - 1;
-    if (d->useVCS) {
+    ui.setAll->addItem(mixedText);
+    setAllIndexForOperation[-1/*mixed*/] = ui.setAll->count() - 1;
+    if (useVCS) {
         // If the files are managed by just one version control system, the Open and Make Writable
         // text for the specific system is used.
-        if (!vcsOpenTextForAll.isEmpty() && vcsOpenTextForAll != d->versionControlOpenText) {
-            d->versionControlOpenText = vcsOpenTextForAll;
-            ui->treeWidget->headerItem()->setText(OpenWithVCS, d->versionControlOpenText);
+        if (!vcsOpenTextForAll.isEmpty() && vcsOpenTextForAll != versionControlOpenText) {
+            versionControlOpenText = vcsOpenTextForAll;
+            ui.treeWidget->headerItem()->setText(OpenWithVCS, versionControlOpenText);
         }
-        if (!vcsMakeWritableTextForAll.isEmpty() && vcsMakeWritableTextForAll != d->makeWritableText) {
-            d->makeWritableText = vcsMakeWritableTextForAll;
-            ui->treeWidget->headerItem()->setText(MakeWritable, d->makeWritableText);
+        if (!vcsMakeWritableTextForAll.isEmpty() && vcsMakeWritableTextForAll != makeWritableText) {
+            makeWritableText = vcsMakeWritableTextForAll;
+            ui.treeWidget->headerItem()->setText(MakeWritable, makeWritableText);
         }
-        ui->setAll->addItem(d->versionControlOpenText);
-        ui->setAll->setCurrentIndex(ui->setAll->count() - 1);
-        d->setAllIndexForOperation[OpenWithVCS] = ui->setAll->count() - 1;
+        ui.setAll->addItem(versionControlOpenText);
+        ui.setAll->setCurrentIndex(ui.setAll->count() - 1);
+        setAllIndexForOperation[OpenWithVCS] = ui.setAll->count() - 1;
     }
     if (useMakeWritable) {
-        ui->setAll->addItem(d->makeWritableText);
-        d->setAllIndexForOperation[MakeWritable] = ui->setAll->count() - 1;
-        if (ui->setAll->currentIndex() == -1)
-            ui->setAll->setCurrentIndex(ui->setAll->count() - 1);
+        ui.setAll->addItem(makeWritableText);
+        setAllIndexForOperation[MakeWritable] = ui.setAll->count() - 1;
+        if (ui.setAll->currentIndex() == -1)
+            ui.setAll->setCurrentIndex(ui.setAll->count() - 1);
     }
-    if (d->useSaveAs) {
-        ui->setAll->addItem(d->saveAsText);
-        d->setAllIndexForOperation[SaveAs] = ui->setAll->count() - 1;
+    if (useSaveAs) {
+        ui.setAll->addItem(saveAsText);
+        setAllIndexForOperation[SaveAs] = ui.setAll->count() - 1;
     }
-    connect(ui->setAll, SIGNAL(activated(int)), this, SLOT(setAll(int)));
+    QObject::connect(ui.setAll, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+                     [this](int index) { setAll(index); });
 
     // Filter which columns should be visible and resize them to content.
     for (int i = 0; i < NumberOfColumns; ++i) {
-        if ((i == SaveAs && !d->useSaveAs) || (i == OpenWithVCS && !d->useVCS)
+        if ((i == SaveAs && !useSaveAs) || (i == OpenWithVCS && !useVCS)
                 || (i == MakeWritable && !useMakeWritable)) {
-            ui->treeWidget->setColumnHidden(i, true);
+            ui.treeWidget->setColumnHidden(i, true);
             continue;
         }
-        ui->treeWidget->resizeColumnToContents(i);
+        ui.treeWidget->resizeColumnToContents(i);
     }
 }
 
-}// namespace Internal
 }// namespace Core

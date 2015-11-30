@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-projects-autotools.html
     \page creator-project-generic.html
     \nextpage creator-cli.html
@@ -32,7 +32,7 @@
 
     Generic project support allows you to use \QC as a code editor. You
     can change the way your project is built by modifying the \c make command
-    in the \gui{Projects} mode under \gui{Build Settings}.
+    in the \uicontrol{Projects} mode under \uicontrol{Build Settings}.
 
     When you import a project, \QC creates the following files that
     allow you to specify which files belong to your project and which include
@@ -45,10 +45,10 @@
 
     \list 1
 
-        \li Select \gui File > \gui{New File or Project} > \gui{Import Project}
-            > \gui{Import Existing Project}.
+        \li Select \uicontrol File > \uicontrol{New File or Project} > \uicontrol{Import Project}
+            > \uicontrol{Import Existing Project}.
 
-        \li In \gui{Import Existing Project}, enter the project name
+        \li In \uicontrol{Import Existing Project}, enter the project name
             and select the location of the project file you want to import.
 
            \QC automatically generates the following files in the
@@ -96,7 +96,7 @@
     is modified externally, you have to restart \QC for the changes to
     take effect.
 
-    To update the \tt{.files} on the \gui Git repository use the following
+    To update the \tt{.files} on the \uicontrol Git repository use the following
     script:
 
     \code
@@ -123,12 +123,12 @@
 
     \QC cannot automatically determine which executable to run.
 
-    In the \gui{Projects} mode under \gui{Run Settings}, define the executable
+    In the \uicontrol{Projects} mode under \uicontrol{Run Settings}, define the executable
     file to run:
 
     \list 1
 
-        \li Click \gui Add and select \gui{Custom Executable}.
+        \li Click \uicontrol Add and select \uicontrol{Custom Executable}.
 
         \li Define the configuration name, the location of the executable, any
             additional arguments and the working directory.

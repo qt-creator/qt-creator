@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Dmitry Savchenko
-** Copyright (c) 2014 Vasiliy Sorokin
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Dmitry Savchenko
+** Copyright (C) 2015 Vasiliy Sorokin
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -46,7 +47,7 @@ KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alread
     m_alreadyUsedKeywordNames(alreadyUsedKeywordNames)
 {
     ui->setupUi(this);
-    setupListWidget(keyword.iconResource);
+    setupListWidget(keyword.iconType);
     setupColorWidgets(keyword.color);
     ui->keywordNameEdit->setText(keyword.name);
     ui->errorLabel->hide();
@@ -64,7 +65,7 @@ Keyword KeywordDialog::keyword()
 {
     Keyword result;
     result.name = keywordName();
-    result.iconResource = ui->listWidget->currentItem()->data(Qt::UserRole).toString();
+    result.iconType = static_cast<IconType>(ui->listWidget->currentItem()->data(Qt::UserRole).toInt());
     result.color = ui->colorEdit->text();
 
     return result;
@@ -81,31 +82,27 @@ void KeywordDialog::acceptButtonClicked()
         accept();
 }
 
-void KeywordDialog::setupListWidget(const QString &selectedIcon)
+void KeywordDialog::setupListWidget(IconType selectedIcon)
 {
     ui->listWidget->setViewMode(QListWidget::IconMode);
     ui->listWidget->setDragEnabled(false);
-    const QString infoIconName = QLatin1String(Constants::ICON_INFO);
-    QListWidgetItem *item = new QListWidgetItem(QIcon(infoIconName),
-                                                QLatin1String("information"));
-    item->setData(Qt::UserRole, infoIconName);
+
+    QListWidgetItem *item =
+            new QListWidgetItem(icon(IconType::Info), QLatin1String("information"));
+    item->setData(Qt::UserRole, static_cast<int>(IconType::Info));
     ui->listWidget->addItem(item);
 
-    const QString warningIconName = QLatin1String(Constants::ICON_WARNING);
-    item = new QListWidgetItem(QIcon(warningIconName),
-                               QLatin1String("warning"));
-    item->setData(Qt::UserRole, warningIconName);
+    item = new QListWidgetItem(icon(IconType::Warning), QLatin1String("warning"));
+    item->setData(Qt::UserRole, static_cast<int>(IconType::Warning));
     ui->listWidget->addItem(item);
 
-    const QString errorIconName = QLatin1String(Constants::ICON_ERROR);
-    item = new QListWidgetItem(QIcon(errorIconName),
-                               QLatin1String("error"));
-    item->setData(Qt::UserRole, errorIconName);
+    item = new QListWidgetItem(icon(IconType::Error), QLatin1String("error"));
+    item->setData(Qt::UserRole, static_cast<int>(IconType::Error));
     ui->listWidget->addItem(item);
 
     for (int i = 0; i < ui->listWidget->count(); ++i) {
         item = ui->listWidget->item(i);
-        if (item->data(Qt::UserRole).toString() == selectedIcon) {
+        if (static_cast<IconType>(item->data(Qt::UserRole).toInt()) == selectedIcon) {
             ui->listWidget->setCurrentItem(item);
             break;
         }

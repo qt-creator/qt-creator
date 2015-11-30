@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-usability.html
     \page creator-coding.html
     \nextpage creator-editor-functions.html
@@ -38,15 +38,15 @@
 
             Writing, editing, and navigating in source code are core tasks in
             application development. Therefore, the code editor is one of the
-            key components of \QC. You can use the code editor in the \gui Edit
-            mode.
+            key components of \QC. You can use the code editor in the
+            \uicontrol Edit mode.
 
         \li \l{Finding}
 
             Use the incremental and advanced search to search from currently
             open projects or files on the file system or use the locator to
-            browse through projects, files, classes, functions, documentation and
-            file systems.
+            browse through projects, files, classes, functions, documentation
+            and file systems.
 
         \li \l{Refactoring}
 
@@ -65,7 +65,7 @@
 
             You can change the fonts, colors, highlighting, and indentation.
             If you are used to the Vim editor, you can even run the main
-            editor in a manner similar to it in the \gui{FakeVim} mode.
+            editor in a manner similar to it in the \uicontrol{FakeVim} mode.
 
     \endlist
 
@@ -79,18 +79,11 @@
             to use for opening the file. If your files do not match the
             predefined MIME types, you can edit the MIME types.
 
-        \li \l{Comparing Files}
+        \li \l{Modeling}
 
-            You can use a diff editor to compare two versions of a file and
-            view the differences side-by-side in the \gui Edit mode.
-
-        \li \l{Parsing C++ Files}
-
-            An experimental Clang code model plugin enables you to replace the
-            built-in \QC code model with the Clang code model. Clang is a C
-            language family front end for LLVM. Clang provides you with more
-            accurate information than the built-in code model but can be slower
-            to use for large projects.
+            You can use the experimental model editor to create Universal
+            Modeling Language (UML) style models with structured diagrams and
+            store them in XML format.
 
     \endlist
 

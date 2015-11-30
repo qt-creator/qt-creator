@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,30 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qmlconsoleitemdelegate.h"
 #include "qmlconsoleedit.h"
+
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 
 #include <QPainter>
 #include <QTreeView>
@@ -68,9 +72,9 @@ namespace Internal {
 
 QmlConsoleItemDelegate::QmlConsoleItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent),
-    m_logIcon(QLatin1String(":/qmljstools/images/log.png")),
-    m_warningIcon(QLatin1String(":/qmljstools/images/warning.png")),
-    m_errorIcon(QLatin1String(":/qmljstools/images/error.png")),
+    m_logIcon(Core::Icons::INFO.icon()),
+    m_warningIcon(Core::Icons::WARNING.icon()),
+    m_errorIcon(Core::Icons::ERROR.icon()),
     m_expandIcon(QLatin1String(":/qmljstools/images/expand.png")),
     m_collapseIcon(QLatin1String(":/qmljstools/images/collapse.png")),
     m_prompt(QLatin1String(":/qmljstools/images/prompt.png")),
@@ -89,7 +93,7 @@ QColor QmlConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &re
 {
     painter->save();
     ConsoleItem::ItemType itemType = (ConsoleItem::ItemType)index.data(
-                QmlConsoleItemModel::TypeRole).toInt();
+                ConsoleItem::TypeRole).toInt();
     QColor backgroundColor;
     switch (itemType) {
     case ConsoleItem::DebugType:
@@ -135,7 +139,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     QColor textColor;
     QIcon taskIcon;
     ConsoleItem::ItemType type = (ConsoleItem::ItemType)index.data(
-                QmlConsoleItemModel::TypeRole).toInt();
+                ConsoleItem::TypeRole).toInt();
     switch (type) {
     case ConsoleItem::DebugType:
         textColor = QColor(CONSOLE_LOG_TEXT_COLOR);
@@ -172,7 +176,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     }
     int width = view->width() - level * view->indentation() - view->verticalScrollBar()->width();
     bool showTypeIcon = index.parent() == QModelIndex();
-    bool showExpandableIcon = type == ConsoleItem::UndefinedType;
+    bool showExpandableIcon = type == ConsoleItem::DefaultType;
 
     QRect rect(opt.rect.x(), opt.rect.top(), width, opt.rect.height());
     ConsoleItemPositions positions(rect, opt.font, showTypeIcon, showExpandableIcon);
@@ -203,7 +207,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     if (showExpandableIcon) {
         // Paint ExpandableIconArea:
         QIcon expandCollapseIcon;
-        if (index.model()->rowCount(index)) {
+        if (index.model()->rowCount(index) || index.model()->canFetchMore(index)) {
             if (view->isExpanded(index))
                 expandCollapseIcon = m_collapseIcon;
             else
@@ -216,7 +220,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 
     if (showFileLineInfo) {
         // Check for file info
-        QString file = index.data(QmlConsoleItemModel::FileRole).toString();
+        QString file = index.data(ConsoleItem::FileRole).toString();
         const QUrl fileUrl = QUrl(file);
         if (fileUrl.isLocalFile())
             file = fileUrl.toLocalFile();
@@ -241,7 +245,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
             }
 
             // Paint LineArea
-            QString lineText  = index.data(QmlConsoleItemModel::LineRole).toString();
+            QString lineText  = index.data(ConsoleItem::LineRole).toString();
             painter->setClipRect(positions.lineArea());
             const int realLineWidth = fm.width(lineText);
             painter->drawText(positions.lineAreaRight() - realLineWidth,
@@ -266,17 +270,15 @@ QSize QmlConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
         level++;
     }
     int width = view->width() - level * view->indentation() - view->verticalScrollBar()->width();
-    if (index.flags() & Qt::ItemIsEditable)
-        return QSize(width, view->height() * 1/2);
 
     const bool selected = (view->selectionModel()->currentIndex() == index);
     if (!selected && option.font == m_cachedFont && m_cachedHeight > 0)
         return QSize(width, m_cachedHeight);
 
     ConsoleItem::ItemType type = (ConsoleItem::ItemType)index.data(
-                QmlConsoleItemModel::TypeRole).toInt();
+                ConsoleItem::TypeRole).toInt();
     bool showTypeIcon = index.parent() == QModelIndex();
-    bool showExpandableIcon = type == ConsoleItem::UndefinedType;
+    bool showExpandableIcon = type == ConsoleItem::DefaultType;
 
     QRect rect(level * view->indentation(), 0, width, 0);
     ConsoleItemPositions positions(rect, opt.font, showTypeIcon, showExpandableIcon);
@@ -310,7 +312,20 @@ QWidget *QmlConsoleItemDelegate::createEditor(QWidget *parent,
 
 {
     QmlConsoleEdit *editor = new QmlConsoleEdit(index, parent);
-    connect(editor, SIGNAL(editingFinished()), this, SLOT(commitAndCloseEditor()));
+    // Fiddle the prompt into the margin so that we don't have to put it into the text.
+    // Apparently you can have both background-image and background-color, which conveniently
+    // prevents the painted text from shining through.
+    editor->setStyleSheet(QLatin1String("QTextEdit {"
+                                        "margin-left: 24px;"
+                                        "margin-top: 4px;"
+                                        "background-color: white;"
+                                        "background-image: url(:/qmljstools/images/prompt.png);"
+                                        "background-position: baseline left;"
+                                        "background-origin: margin;"
+                                        "background-repeat: none;"
+                                        "}"));
+    connect(editor, &QmlConsoleEdit::editingFinished,
+            this, &QmlConsoleItemDelegate::commitAndCloseEditor);
     return editor;
 }
 
@@ -318,7 +333,7 @@ void QmlConsoleItemDelegate::setEditorData(QWidget *editor,
                                            const QModelIndex &index) const
 {
     QmlConsoleEdit *edtr = qobject_cast<QmlConsoleEdit *>(editor);
-    edtr->insertPlainText(index.data(QmlConsoleItemModel::ExpressionRole).toString());
+    edtr->insertPlainText(index.data(ConsoleItem::ExpressionRole).toString());
 }
 
 void QmlConsoleItemDelegate::setModelData(QWidget *editor,
@@ -326,8 +341,8 @@ void QmlConsoleItemDelegate::setModelData(QWidget *editor,
                                           const QModelIndex &index) const
 {
     QmlConsoleEdit *edtr = qobject_cast<QmlConsoleEdit *>(editor);
-    model->setData(index, edtr->getCurrentScript(), Qt::DisplayRole);
-    model->setData(index, ConsoleItem::InputType, QmlConsoleItemModel::TypeRole);
+    model->setData(index, edtr->getCurrentScript(), ConsoleItem::ExpressionRole);
+    model->setData(index, ConsoleItem::InputType, ConsoleItem::TypeRole);
 }
 
 void QmlConsoleItemDelegate::updateEditorGeometry(QWidget *editor,

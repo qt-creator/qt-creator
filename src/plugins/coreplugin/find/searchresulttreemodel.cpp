@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -57,9 +58,23 @@ SearchResultTreeModel::~SearchResultTreeModel()
 void SearchResultTreeModel::setShowReplaceUI(bool show)
 {
     m_showReplaceUI = show;
+    // We cannot send dataChanged for the whole hierarchy in one go,
+    // because all items in a dataChanged must have the same parent.
+    // Send dataChanged for each parent of children individually...
+    QList<QModelIndex> changeQueue;
+    changeQueue.append(QModelIndex());
+    while (!changeQueue.isEmpty()) {
+        const QModelIndex current = changeQueue.takeFirst();
+        int childCount = rowCount(current);
+        if (childCount > 0) {
+            emit dataChanged(index(0, 0, current), index(childCount - 1, 0, current));
+            for (int r = 0; r < childCount; ++r)
+                changeQueue.append(index(r, 0, current));
+        }
+    }
 }
 
-void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColor color)
+void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColor &color)
 {
     layoutAboutToBeChanged();
     m_textEditorFont = font;
@@ -72,10 +87,8 @@ Qt::ItemFlags SearchResultTreeModel::flags(const QModelIndex &idx) const
     Qt::ItemFlags flags = QAbstractItemModel::flags(idx);
 
     if (idx.isValid()) {
-        if (const SearchResultTreeItem *item = treeItemAtIndex(idx)) {
-            if (item->isUserCheckable())
-                flags |= Qt::ItemIsUserCheckable;
-        }
+        if (m_showReplaceUI)
+            flags |= Qt::ItemIsUserCheckable;
     }
 
     return flags;
@@ -188,28 +201,24 @@ bool SearchResultTreeModel::setCheckState(const QModelIndex &idx, Qt::CheckState
         SearchResultTreeItem *currentItem = item;
         QModelIndex currentIndex = idx;
         while (SearchResultTreeItem *parent = currentItem->parent()) {
-            if (parent->isUserCheckable()) {
-                bool hasChecked = false;
-                bool hasUnchecked = false;
-                for (int i = 0; i < parent->childrenCount(); ++i) {
-                    SearchResultTreeItem *child = parent->childAt(i);
-                    if (!child->isUserCheckable())
-                        continue;
-                    if (child->checkState() == Qt::Checked)
-                        hasChecked = true;
-                    else if (child->checkState() == Qt::Unchecked)
-                        hasUnchecked = true;
-                    else if (child->checkState() == Qt::PartiallyChecked)
-                        hasChecked = hasUnchecked = true;
-                }
-                if (hasChecked && hasUnchecked)
-                    parent->setCheckState(Qt::PartiallyChecked);
-                else if (hasChecked)
-                    parent->setCheckState(Qt::Checked);
-                else
-                    parent->setCheckState(Qt::Unchecked);
-                emit dataChanged(idx.parent(), idx.parent());
+            bool hasChecked = false;
+            bool hasUnchecked = false;
+            for (int i = 0; i < parent->childrenCount(); ++i) {
+                SearchResultTreeItem *child = parent->childAt(i);
+                if (child->checkState() == Qt::Checked)
+                    hasChecked = true;
+                else if (child->checkState() == Qt::Unchecked)
+                    hasUnchecked = true;
+                else if (child->checkState() == Qt::PartiallyChecked)
+                    hasChecked = hasUnchecked = true;
             }
+            if (hasChecked && hasUnchecked)
+                parent->setCheckState(Qt::PartiallyChecked);
+            else if (hasChecked)
+                parent->setCheckState(Qt::Checked);
+            else
+                parent->setCheckState(Qt::Unchecked);
+            emit dataChanged(idx.parent(), idx.parent());
             currentItem = parent;
             currentIndex = idx.parent();
         }
@@ -233,8 +242,7 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
     switch (role)
     {
     case Qt::CheckStateRole:
-        if (row->isUserCheckable())
-            result = row->checkState();
+        result = row->checkState();
         break;
     case Qt::ToolTipRole:
         result = row->item.text.trimmed();
@@ -314,10 +322,8 @@ QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &p
             item.path = currentPath;
             item.text = part;
             partItem = new SearchResultTreeItem(item, currentItem);
-            if (m_showReplaceUI) {
-                partItem->setIsUserCheckable(true);
+            if (m_showReplaceUI)
                 partItem->setCheckState(Qt::Checked);
-            }
             partItem->setGenerated(true);
             beginInsertRows(currentItemIndex, insertionIndex, insertionIndex);
             currentItem->insertChild(insertionIndex, partItem);

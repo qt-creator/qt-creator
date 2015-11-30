@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,13 +33,15 @@
 #include "session.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <coreplugin/icore.h>
 #include <utils/detailswidget.h>
 
 #include <QDebug>
 #include <QSize>
 #include <QCoreApplication>
 
-#include <QHBoxLayout>
+#include <QCheckBox>
+#include <QGridLayout>
 #include <QTreeView>
 #include <QSpacerItem>
 #include <QMessageBox>
@@ -97,7 +100,7 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
     case Qt::CheckStateRole:
         return SessionManager::hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
     case Qt::DecorationRole:
-        return Core::FileIconProvider::icon(p->projectFilePath());
+        return Core::FileIconProvider::icon(p->projectFilePath().toString());
     default:
         return QVariant();
     }
@@ -114,7 +117,7 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
                 emit dataChanged(index, index);
                 return true;
             } else {
-                QMessageBox::warning(0, QCoreApplication::translate("DependenciesModel", "Unable to Add Dependency"),
+                QMessageBox::warning(Core::ICore::dialogParent(), QCoreApplication::translate("DependenciesModel", "Unable to Add Dependency"),
                                      QCoreApplication::translate("DependenciesModel", "This would create a circular dependency."));
             }
         } else if (c == Qt::Unchecked) {
@@ -221,47 +224,21 @@ DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent)
 
     QWidget *detailsWidget = new QWidget(m_detailsContainer);
     m_detailsContainer->setWidget(detailsWidget);
-    QHBoxLayout *layout = new QHBoxLayout(detailsWidget);
+    QGridLayout *layout = new QGridLayout(detailsWidget);
     layout->setContentsMargins(0, -1, 0, -1);
     DependenciesView *treeView = new DependenciesView(this);
     treeView->setModel(m_model);
     treeView->setHeaderHidden(true);
-    layout->addWidget(treeView);
-    layout->addSpacerItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed));
-}
+    layout->addWidget(treeView, 0 ,0);
+    layout->addItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed), 0, 1);
 
-//
-// DependenciesPanelFactory
-//
-
-QString DependenciesPanelFactory::id() const
-{
-    return QLatin1String("ProjectExplorer.DependenciesPanel");
-}
-
-QString DependenciesPanelFactory::displayName() const
-{
-    return QCoreApplication::translate("DependenciesPanelFactory", "Dependencies");
-}
-
-int DependenciesPanelFactory::priority() const
-{
-    return 50;
-}
-
-bool DependenciesPanelFactory::supports(Project *project)
-{
-    Q_UNUSED(project);
-    return true;
-}
-
-PropertiesPanel *DependenciesPanelFactory::createPanel(Project *project)
-{
-    PropertiesPanel *panel = new PropertiesPanel;
-    panel->setWidget(new DependenciesWidget(project));
-    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/ProjectDependencies.png")));
-    panel->setDisplayName(QCoreApplication::translate("DependenciesPanel", "Dependencies"));
-    return panel;
+    m_cascadeSetActiveCheckBox = new QCheckBox;
+    m_cascadeSetActiveCheckBox->setText(tr("Synchronize configuration"));
+    m_cascadeSetActiveCheckBox->setToolTip(tr("Synchronize active kit, build, and deploy configuration between projects."));
+    m_cascadeSetActiveCheckBox->setChecked(SessionManager::isProjectConfigurationCascading());
+    connect(m_cascadeSetActiveCheckBox, &QCheckBox::toggled,
+            SessionManager::instance(), &SessionManager::setProjectConfigurationCascading);
+    layout->addWidget(m_cascadeSetActiveCheckBox, 1, 0, 2, 1);
 }
 
 } // namespace Internal

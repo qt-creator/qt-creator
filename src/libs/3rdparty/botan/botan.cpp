@@ -6092,7 +6092,7 @@ algorithm_benchmark(const std::string& name,
       if(const BlockCipher* proto =
             af.prototype_block_cipher(name, provider))
          {
-         std::auto_ptr<BlockCipher> block_cipher(proto->clone());
+         std::unique_ptr<BlockCipher> block_cipher(proto->clone());
          results = bench_block_cipher(block_cipher.get(),
                                       ns_per_provider,
                                       &buf[0], buf.size());
@@ -6100,7 +6100,7 @@ algorithm_benchmark(const std::string& name,
       else if(const StreamCipher* proto =
                  af.prototype_stream_cipher(name, provider))
          {
-         std::auto_ptr<StreamCipher> stream_cipher(proto->clone());
+         std::unique_ptr<StreamCipher> stream_cipher(proto->clone());
          results = bench_stream_cipher(stream_cipher.get(),
                                        ns_per_provider,
                                        &buf[0], buf.size());
@@ -6108,14 +6108,14 @@ algorithm_benchmark(const std::string& name,
       else if(const HashFunction* proto =
                  af.prototype_hash_function(name, provider))
          {
-         std::auto_ptr<HashFunction> hash(proto->clone());
+         std::unique_ptr<HashFunction> hash(proto->clone());
          results = bench_hash(hash.get(), ns_per_provider,
                               &buf[0], buf.size());
          }
       else if(const MessageAuthenticationCode* proto =
                  af.prototype_mac(name, provider))
          {
-         std::auto_ptr<MessageAuthenticationCode> mac(proto->clone());
+         std::unique_ptr<MessageAuthenticationCode> mac(proto->clone());
          results = bench_mac(mac.get(), ns_per_provider,
                              &buf[0], buf.size());
          }
@@ -15420,7 +15420,7 @@ X509_Certificate X509_CA::sign_request(const PKCS10_Request& req,
       constraints = Key_Constraints(KEY_CERT_SIGN | CRL_SIGN);
    else
       {
-      std::auto_ptr<Public_Key> key(req.subject_public_key());
+      std::unique_ptr<Public_Key> key(req.subject_public_key());
       constraints = X509::find_constraints(*key, req.constraints());
       }
 
@@ -16351,7 +16351,7 @@ std::string X509_Object::hash_used_for_signature() const
 */
 bool X509_Object::check_signature(Public_Key* pub_key) const
    {
-   std::auto_ptr<Public_Key> key(pub_key);
+   std::unique_ptr<Public_Key> key(pub_key);
    return check_signature(*key);
    }
 
@@ -17275,7 +17275,7 @@ X509_Certificate create_self_signed_cert(const X509_Cert_Options& opts,
    opts.sanity_check();
 
    MemoryVector<byte> pub_key = X509::BER_encode(key);
-   std::auto_ptr<PK_Signer> signer(choose_sig_format(key, hash_fn, sig_algo));
+   std::unique_ptr<PK_Signer> signer(choose_sig_format(key, hash_fn, sig_algo));
    load_info(opts, subject_dn, subject_alt);
 
    Key_Constraints constraints;
@@ -17321,7 +17321,7 @@ PKCS10_Request create_cert_req(const X509_Cert_Options& opts,
    opts.sanity_check();
 
    MemoryVector<byte> pub_key = X509::BER_encode(key);
-   std::auto_ptr<PK_Signer> signer(choose_sig_format(key, hash_fn, sig_algo));
+   std::unique_ptr<PK_Signer> signer(choose_sig_format(key, hash_fn, sig_algo));
    load_info(opts, subject_dn, subject_alt);
 
    const size_t PKCS10_VERSION = 0;
@@ -17755,7 +17755,7 @@ X509_Code X509_Store::check_sig(const Cert_Info& cert_info,
 */
 X509_Code X509_Store::check_sig(const X509_Object& object, Public_Key* key)
    {
-   std::auto_ptr<Public_Key> pub_key(key);
+   std::unique_ptr<Public_Key> pub_key(key);
 
    try {
       std::vector<std::string> sig_info =
@@ -19576,7 +19576,7 @@ SecureVector<byte> rfc3394_keywrap(const MemoryRegion<byte>& key,
    if(key.size() % 8 != 0)
       throw std::invalid_argument("Bad input key size for NIST key wrap");
 
-   std::auto_ptr<BlockCipher> aes(make_aes(kek.length(), af));
+   std::unique_ptr<BlockCipher> aes(make_aes(kek.length(), af));
    aes->set_key(kek);
 
    const size_t n = key.size() / 8;
@@ -19618,7 +19618,7 @@ SecureVector<byte> rfc3394_keyunwrap(const MemoryRegion<byte>& key,
    if(key.size() < 16 || key.size() % 8 != 0)
       throw std::invalid_argument("Bad input key size for NIST key unwrap");
 
-   std::auto_ptr<BlockCipher> aes(make_aes(kek.length(), af));
+   std::unique_ptr<BlockCipher> aes(make_aes(kek.length(), af));
    aes->set_key(kek);
 
    const size_t n = (key.size() - 8) / 8;
@@ -19675,27 +19675,11 @@ BigInt hash_seq(const std::string& hash_id,
                 const BigInt& in1,
                 const BigInt& in2)
    {
-   std::auto_ptr<HashFunction> hash_fn(
+   std::unique_ptr<HashFunction> hash_fn(
       global_state().algorithm_factory().make_hash_function(hash_id));
 
    hash_fn->update(BigInt::encode_1363(in1, pad_to));
    hash_fn->update(BigInt::encode_1363(in2, pad_to));
-
-   return BigInt::decode(hash_fn->final());
-   }
-
-BigInt hash_seq(const std::string& hash_id,
-                size_t pad_to,
-                const BigInt& in1,
-                const BigInt& in2,
-                const BigInt& in3)
-   {
-   std::auto_ptr<HashFunction> hash_fn(
-      global_state().algorithm_factory().make_hash_function(hash_id));
-
-   hash_fn->update(BigInt::encode_1363(in1, pad_to));
-   hash_fn->update(BigInt::encode_1363(in2, pad_to));
-   hash_fn->update(BigInt::encode_1363(in3, pad_to));
 
    return BigInt::decode(hash_fn->final());
    }
@@ -19705,7 +19689,7 @@ BigInt compute_x(const std::string& hash_id,
                  const std::string& password,
                  const MemoryRegion<byte>& salt)
    {
-   std::auto_ptr<HashFunction> hash_fn(
+   std::unique_ptr<HashFunction> hash_fn(
       global_state().algorithm_factory().make_hash_function(hash_id));
 
    hash_fn->update(identifier);
@@ -20033,7 +20017,7 @@ RTSS_Share::reconstruct(const std::vector<RTSS_Share>& shares)
 
    byte hash_id = shares[0].contents[16];
 
-   std::auto_ptr<HashFunction> hash(get_rtss_hash_by_id(hash_id));
+   std::unique_ptr<HashFunction> hash(get_rtss_hash_by_id(hash_id));
 
    if(shares[0].size() != secret_len + hash->output_length() + RTSS_HEADER_SIZE + 1)
       throw Decoding_Error("Bad RTSS length field in header");
@@ -36916,7 +36900,7 @@ bool generate_dsa_primes(RandomNumberGenerator& rng,
          "Generating a DSA parameter set with a " + to_string(qbits) +
          "long q requires a seed at least as many bits long");
 
-   std::auto_ptr<HashFunction> hash(
+   std::unique_ptr<HashFunction> hash(
       af.make_hash_function("SHA-" + to_string(qbits)));
 
    const size_t HASH_SIZE = hash->output_length();
@@ -37544,6 +37528,7 @@ Power_Mod::Power_Mod(const BigInt& n, Usage_Hints hints)
 */
 Power_Mod::Power_Mod(const Power_Mod& other)
    {
+   Q_UNUSED(hints);
    core = 0;
    if(other.core)
       core = other.core->copy();
@@ -40282,8 +40267,9 @@ EMSA2::EMSA2(HashFunction* hash_in) : hash(hash_in)
 
    if(hash_id == 0)
       {
+      const std::string hashName = hash->name();
       delete hash;
-      throw Encoding_Error("EMSA2 cannot be used with " + hash->name());
+      throw Encoding_Error("EMSA2 cannot be used with " + hashName);
       }
    }
 
@@ -42887,7 +42873,7 @@ SecureVector<byte> PKCS8_decode(DataSource& source, const User_Interface& ui,
          if(is_encrypted)
             {
             DataSource_Memory params(pbe_alg_id.parameters);
-            std::auto_ptr<PBE> pbe(get_pbe(pbe_alg_id.oid, params));
+            std::unique_ptr<PBE> pbe(get_pbe(pbe_alg_id.oid, params));
 
             User_Interface::UI_Result result = User_Interface::OK;
             const std::string passphrase =
@@ -42960,7 +42946,7 @@ SecureVector<byte> BER_encode(const Private_Key& key,
    {
    const std::string DEFAULT_PBE = "PBE-PKCS5v20(SHA-1,AES-256/CBC)";
 
-   std::auto_ptr<PBE> pbe(get_pbe(((pbe_algo != "") ? pbe_algo : DEFAULT_PBE)));
+   std::unique_ptr<PBE> pbe(get_pbe(((pbe_algo != "") ? pbe_algo : DEFAULT_PBE)));
 
    pbe->new_params(rng);
    pbe->set_key(pass);
@@ -44297,10 +44283,12 @@ Randpool::Randpool(BlockCipher* cipher_in,
       !cipher->valid_keylength(OUTPUT_LENGTH) ||
       !mac->valid_keylength(OUTPUT_LENGTH))
       {
+      const std::string cipherName = cipher->name();
+      const std::string macName = mac->name();
       delete cipher;
       delete mac;
       throw Internal_Error("Randpool: Invalid algorithm combination " +
-                           cipher->name() + "/" + mac->name());
+                           cipherName + "/" + macName);
       }
 
    buffer.resize(BLOCK_SIZE);
@@ -44456,7 +44444,7 @@ void ANSI_X931_RNG::add_entropy(const byte input[], size_t length)
    }
 
 /*
-* Check if the the PRNG is seeded
+* Check if the PRNG is seeded
 */
 bool ANSI_X931_RNG::is_seeded() const
    {
@@ -46212,7 +46200,7 @@ bool caseless_cmp(char a, char b)
 #elif defined(BOTAN_BUILD_COMPILER_IS_INTEL)
 
   #include <ia32intrin.h>
-  #define CALL_CPUID(type, out) do { __cpuid(out, type); } while(0)
+  #define CALL_CPUID(type, out) do { __cpuid((int*)out, type); } while(0)
 
 #elif defined(BOTAN_BUILD_COMPILER_IS_GCC) && (BOTAN_GCC_VERSION >= 430)
 
@@ -46235,7 +46223,7 @@ namespace {
 }
 
 #elif defined(BOTAN_TARGET_ARCH_IS_X86_64) && \
-    (defined(BOTAN_BUILD_COMPILER_IS_CLANG) || defined(BOTAN_BUILD_COMPILER_IS_GCC) || defined(BOTAN_BUILD_COMPILER_IS_INTEL))
+    (defined(BOTAN_BUILD_COMPILER_IS_CLANG) || defined(BOTAN_BUILD_COMPILER_IS_GCC))
 
   /*
   * We can't safely use this on x86-32 as some 32-bit ABIs use ebx as
@@ -46666,6 +46654,8 @@ bool has_mlock()
 */
 bool lock_mem(void* ptr, size_t bytes)
    {
+   Q_UNUSED(ptr);
+   Q_UNUSED(bytes);
 #if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
    return (::mlock(static_cast<char*>(ptr), bytes) == 0);
 #elif defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)
@@ -46680,6 +46670,8 @@ bool lock_mem(void* ptr, size_t bytes)
 */
 void unlock_mem(void* ptr, size_t bytes)
    {
+    Q_UNUSED(ptr);
+    Q_UNUSED(bytes);
 #if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
    ::munlock(static_cast<char*>(ptr), bytes);
 #elif defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)

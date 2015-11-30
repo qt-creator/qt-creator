@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,21 +33,23 @@
 #include "androidconstants.h"
 #include "androidmanifestdocument.h"
 #include "androidmanager.h"
+#include "androidqtsupport.h"
 
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <texteditor/plaintexteditor.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectwindow.h>
-#include <projectexplorer/iprojectproperties.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitinformation.h>
+
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorsettings.h>
-#include <qmakeprojectmanager/qmakeproject.h>
+#include <texteditor/texteditor.h>
+#include <utils/algorithm.h>
 
 #include <QLineEdit>
 #include <QFileInfo>
@@ -66,13 +69,17 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QTimer>
+#include <QCheckBox>
+#include <QScrollArea>
+
+#include <limits>
 
 using namespace ProjectExplorer;
 using namespace Android;
 using namespace Android::Internal;
 
 namespace {
-const QLatin1String packageNameRegExp("^([a-z_]{1}[a-z0-9_]+(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$");
+const QLatin1String packageNameRegExp("^([a-z]{1}[a-z0-9_]+(\\.[a-zA-Z]{1}[a-zA-Z0-9_]*)*)$");
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
 const char androidManifestEditorGeneralPaneContextId[] = "AndroidManifestEditorWidget.GeneralWidget";
 
@@ -81,15 +88,14 @@ bool checkPackageName(const QString &packageName)
     return QRegExp(packageNameRegExp).exactMatch(packageName);
 }
 
-Project *androidProject(const QString &file)
+Project *androidProject(const Utils::FileName &fileName)
 {
-    Utils::FileName fileName = Utils::FileName::fromString(file);
     foreach (Project *project, SessionManager::projects()) {
         if (!project->activeTarget())
             continue;
         Kit *kit = project->activeTarget()->kit();
         if (DeviceTypeKitInformation::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE
-                && fileName.isChildOf(Utils::FileName::fromString(project->projectDirectory())))
+                && fileName.isChildOf(project->projectDirectory()))
             return project;
     }
     return 0;
@@ -98,14 +104,11 @@ Project *androidProject(const QString &file)
 } // anonymous namespace
 
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()
-    : QScrollArea(),
+    : QStackedWidget(),
       m_dirty(false),
-      m_stayClean(false),
-      m_setAppName(false),
-      m_appNameInStringsXml(false)
+      m_stayClean(false)
 {
     m_textEditorWidget = new AndroidManifestTextEditorWidget(this);
-    TextEditor::TextEditorSettings::initializeEditor(m_textEditorWidget);
 
     initializePage();
 
@@ -114,22 +117,21 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 
     m_editor = new AndroidManifestEditor(this);
 
-    setWidgetResizable(true);
-
     connect(&m_timerParseCheck, SIGNAL(timeout()),
             this, SLOT(delayedParseCheck()));
 
     connect(m_textEditorWidget->document(), SIGNAL(contentsChanged()),
             this, SLOT(startParseCheck()));
+    connect(m_textEditorWidget->textDocument(), &TextEditor::TextDocument::reloadFinished,
+            this, [this](bool success) { if (success) updateAfterFileLoad(); });
+    connect(m_textEditorWidget->textDocument(), &TextEditor::TextDocument::openFinishedSuccessfully,
+            this, &AndroidManifestEditorWidget::updateAfterFileLoad);
 }
 
 void AndroidManifestEditorWidget::initializePage()
 {
-    m_stackedWidget = new QStackedWidget(this);
-    setWidget(m_stackedWidget);
-
     Core::IContext *myContext = new Core::IContext(this);
-    myContext->setWidget(m_stackedWidget);
+    myContext->setWidget(this);
     myContext->setContext(Core::Context(androidManifestEditorGeneralPaneContextId)); // where is the context used?
     Core::ICore::addContextObject(myContext);
 
@@ -164,7 +166,7 @@ void AndroidManifestEditorWidget::initializePage()
         m_packageNameWarning->setVisible(false);
 
         m_packageNameWarningIcon = new QLabel;
-        m_packageNameWarningIcon->setPixmap(QPixmap(QString::fromUtf8(":/projectexplorer/images/compile_warning.png")));
+        m_packageNameWarningIcon->setPixmap(Core::Icons::WARNING.pixmap());
         m_packageNameWarningIcon->setVisible(false);
         m_packageNameWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -177,7 +179,7 @@ void AndroidManifestEditorWidget::initializePage()
 
 
         m_versionCode = new QSpinBox(packageGroupBox);
-        m_versionCode->setMaximum(99);
+        m_versionCode->setMaximum(std::numeric_limits<int>::max());
         m_versionCode->setValue(1);
         m_versionCode->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         formLayout->addRow(tr("Version code:"), m_versionCode);
@@ -202,6 +204,8 @@ void AndroidManifestEditorWidget::initializePage()
 
         packageGroupBox->setLayout(formLayout);
 
+        updateSdkVersions();
+
         connect(m_packageNameLineEdit, SIGNAL(textEdited(QString)),
                 this, SLOT(setPackageName()));
         connect(m_versionCode, SIGNAL(valueChanged(int)),
@@ -225,6 +229,9 @@ void AndroidManifestEditorWidget::initializePage()
 
         m_appNameLineEdit = new QLineEdit(applicationGroupBox);
         formLayout->addRow(tr("Application name:"), m_appNameLineEdit);
+
+        m_activityNameLineEdit = new QLineEdit(applicationGroupBox);
+        formLayout->addRow(tr("Activity name:"), m_activityNameLineEdit);
 
         m_targetLineEdit = new QComboBox(applicationGroupBox);
         m_targetLineEdit->setEditable(true);
@@ -260,7 +267,9 @@ void AndroidManifestEditorWidget::initializePage()
         applicationGroupBox->setLayout(formLayout);
 
         connect(m_appNameLineEdit, SIGNAL(textEdited(QString)),
-                this, SLOT(setAppName()));
+                this, SLOT(setDirty()));
+        connect(m_activityNameLineEdit, SIGNAL(textEdited(QString)),
+                this, SLOT(setDirty()));
         connect(m_targetLineEdit, SIGNAL(currentTextChanged(QString)),
                 this, SLOT(setDirty()));
 
@@ -278,16 +287,24 @@ void AndroidManifestEditorWidget::initializePage()
     {
         QGridLayout *layout = new QGridLayout(permissionsGroupBox);
 
+        m_defaultPermissonsCheckBox = new QCheckBox(this);
+        m_defaultPermissonsCheckBox->setText(tr("Include default permissions for Qt modules."));
+        layout->addWidget(m_defaultPermissonsCheckBox, 0, 0);
+
+        m_defaultFeaturesCheckBox = new QCheckBox(this);
+        m_defaultFeaturesCheckBox->setText(tr("Include default features for Qt modules."));
+        layout->addWidget(m_defaultFeaturesCheckBox, 1, 0);
+
         m_permissionsModel = new PermissionsModel(this);
 
         m_permissionsListView = new QListView(permissionsGroupBox);
         m_permissionsListView->setModel(m_permissionsModel);
         m_permissionsListView->setMinimumSize(QSize(0, 200));
-        layout->addWidget(m_permissionsListView, 0, 0, 3, 1);
+        layout->addWidget(m_permissionsListView, 2, 0, 3, 1);
 
         m_removePermissionButton = new QPushButton(permissionsGroupBox);
         m_removePermissionButton->setText(tr("Remove"));
-        layout->addWidget(m_removePermissionButton, 0, 1);
+        layout->addWidget(m_removePermissionButton, 2, 1);
 
         m_permissionsComboBox = new QComboBox(permissionsGroupBox);
         m_permissionsComboBox->insertItems(0, QStringList()
@@ -423,13 +440,18 @@ void AndroidManifestEditorWidget::initializePage()
          << QLatin1String("android.permission.WRITE_USER_DICTIONARY")
         );
         m_permissionsComboBox->setEditable(true);
-        layout->addWidget(m_permissionsComboBox, 4, 0);
+        layout->addWidget(m_permissionsComboBox, 6, 0);
 
         m_addPermissionButton = new QPushButton(permissionsGroupBox);
         m_addPermissionButton->setText(tr("Add"));
-        layout->addWidget(m_addPermissionButton, 4, 1);
+        layout->addWidget(m_addPermissionButton, 6, 1);
 
         permissionsGroupBox->setLayout(layout);
+
+        connect(m_defaultPermissonsCheckBox, SIGNAL(stateChanged(int)),
+                this, SLOT(defaultPermissionOrFeatureCheckBoxClicked()));
+        connect(m_defaultFeaturesCheckBox, SIGNAL(stateChanged(int)),
+                this, SLOT(defaultPermissionOrFeatureCheckBoxClicked()));
 
         connect(m_addPermissionButton, SIGNAL(clicked()),
                 this, SLOT(addPermission()));
@@ -441,8 +463,12 @@ void AndroidManifestEditorWidget::initializePage()
 
     topLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
 
-    m_stackedWidget->insertWidget(General, mainWidget);
-    m_stackedWidget->insertWidget(Source, m_textEditorWidget);
+    QScrollArea *mainWidgetScrollArea = new QScrollArea;
+    mainWidgetScrollArea->setWidgetResizable(true);
+    mainWidgetScrollArea->setWidget(mainWidget);
+
+    insertWidget(General, mainWidgetScrollArea);
+    insertWidget(Source, m_textEditorWidget);
 }
 
 bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
@@ -457,13 +483,12 @@ bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
 
 void AndroidManifestEditorWidget::updateTargetComboBox()
 {
-    const QString docPath(m_textEditorWidget->baseTextDocument()->filePath());
-    ProjectExplorer::Project *project = androidProject(docPath);
+    Project *project = androidProject(m_textEditorWidget->textDocument()->filePath());
     QStringList items;
     if (project) {
-        ProjectExplorer::Kit *kit = project->activeTarget()->kit();
-        if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE)
-            items = AndroidManager::availableTargetApplications(project->activeTarget());
+        Kit *kit = project->activeTarget()->kit();
+        if (DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE)
+            items = AndroidManager::androidQtSupport(project->activeTarget())->projectTargetApplications(project->activeTarget());
     }
 
     // QComboBox randomly resets what the user has entered
@@ -479,15 +504,8 @@ void AndroidManifestEditorWidget::updateTargetComboBox()
     m_targetLineEdit->addItems(items);
 }
 
-bool AndroidManifestEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
+void AndroidManifestEditorWidget::updateAfterFileLoad()
 {
-    bool result = m_textEditorWidget->open(errorString, fileName, realFileName);
-
-    updateSdkVersions();
-
-    if (!result)
-        return result;
-
     QString error;
     int errorLine;
     int errorColumn;
@@ -496,13 +514,12 @@ bool AndroidManifestEditorWidget::open(QString *errorString, const QString &file
         if (checkDocument(doc, &error, &errorLine, &errorColumn)) {
             if (activePage() != Source)
                 syncToWidgets(doc);
-            return true;
+            return;
         }
     }
     // some error occurred
     updateInfoBar(error, errorLine, errorColumn);
     setActivePage(Source);
-    return true;
 }
 
 void AndroidManifestEditorWidget::setDirty(bool dirty)
@@ -518,13 +535,12 @@ bool AndroidManifestEditorWidget::isModified() const
     return m_dirty
             || !m_hIconPath.isEmpty()
             || !m_mIconPath.isEmpty()
-            || !m_lIconPath.isEmpty()
-            || m_setAppName;
+            || !m_lIconPath.isEmpty();
 }
 
 AndroidManifestEditorWidget::EditorPage AndroidManifestEditorWidget::activePage() const
 {
-    return AndroidManifestEditorWidget::EditorPage(m_stackedWidget->currentIndex());
+    return AndroidManifestEditorWidget::EditorPage(currentIndex());
 }
 
 bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
@@ -536,19 +552,20 @@ bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
 
     if (page == Source) {
         syncToEditor();
-        setFocus();
     } else {
         if (!syncToWidgets())
             return false;
-// TODO?
-//        QWidget *fw = m_overlayWidget->focusWidget();
-//        if (fw && fw != m_overlayWidget)
-//            fw->setFocus();
-//        else
-//            m_packageNameLineEdit->setFocus();
     }
 
-    m_stackedWidget->setCurrentIndex(page);
+    setCurrentIndex(page);
+
+    QWidget *cw = currentWidget();
+    if (cw) {
+        if (cw->focusWidget())
+            cw->focusWidget()->setFocus();
+        else
+            cw->setFocus();
+    }
     return true;
 }
 
@@ -557,32 +574,7 @@ void AndroidManifestEditorWidget::preSave()
     if (activePage() != Source)
         syncToEditor();
 
-    if (m_setAppName && m_appNameInStringsXml) {
-        QString baseDir = QFileInfo(m_textEditorWidget->baseTextDocument()->filePath()).absolutePath();
-        QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
-        QFile f(fileName);
-        if (f.open(QIODevice::ReadOnly)) {
-            QDomDocument doc;
-            if (doc.setContent(f.readAll())) {
-                QDomElement metadataElem = doc.documentElement().firstChildElement(QLatin1String("string"));
-                while (!metadataElem.isNull()) {
-                    if (metadataElem.attribute(QLatin1String("name")) == QLatin1String("app_name")) {
-                        metadataElem.removeChild(metadataElem.firstChild());
-                        metadataElem.appendChild(doc.createTextNode(m_appNameLineEdit->text()));
-                        break;
-                    }
-                    metadataElem = metadataElem.nextSiblingElement(QLatin1String("string"));
-                }
-
-                f.close();
-                f.open(QIODevice::WriteOnly);
-                f.write(doc.toByteArray((4)));
-            }
-        }
-        m_setAppName = false;
-    }
-
-    QString baseDir = QFileInfo(m_textEditorWidget->baseTextDocument()->filePath()).absolutePath();
+    QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
     if (!m_lIconPath.isEmpty()) {
         copyIcon(LowDPI, baseDir, m_lIconPath);
         m_lIconPath.clear();
@@ -600,12 +592,24 @@ void AndroidManifestEditorWidget::preSave()
     updateInfoBar();
 }
 
+void AndroidManifestEditorWidget::postSave()
+{
+    const Utils::FileName docPath = m_textEditorWidget->textDocument()->filePath();
+    ProjectExplorer::Project *project = androidProject(docPath);
+    if (project) {
+        if (Target *target = project->activeTarget()) {
+            AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target);
+            androidQtSupport->manifestSaved(target);
+        }
+    }
+}
+
 Core::IEditor *AndroidManifestEditorWidget::editor() const
 {
     return m_editor;
 }
 
-TextEditor::PlainTextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() const
+TextEditor::TextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() const
 {
     return m_textEditorWidget;
 }
@@ -627,7 +631,8 @@ bool AndroidManifestEditorWidget::syncToWidgets()
     return false;
 }
 
-bool AndroidManifestEditorWidget::checkDocument(QDomDocument doc, QString *errorMessage, int *errorLine, int *errorColumn)
+bool AndroidManifestEditorWidget::checkDocument(const QDomDocument &doc, QString *errorMessage,
+                                                int *errorLine, int *errorColumn)
 {
     QDomElement manifest = doc.documentElement();
     if (manifest.tagName() != QLatin1String("manifest")) {
@@ -676,9 +681,7 @@ void AndroidManifestEditorWidget::updateInfoBar()
 
 void AndroidManifestEditorWidget::updateSdkVersions()
 {
-    const QString docPath(m_textEditorWidget->baseTextDocument()->filePath());
-    Project *project = androidProject(docPath);
-    QPair<int, int> apiLevels = AndroidManager::apiLevelRange(project ? project->activeTarget() : 0);
+    QPair<int, int> apiLevels = AndroidManager::apiLevelRange();
     for (int i = apiLevels.first; i < apiLevels.second + 1; ++i)
         m_androidMinSdkVersion->addItem(tr("API %1: %2")
                                         .arg(i)
@@ -694,14 +697,16 @@ void AndroidManifestEditorWidget::updateSdkVersions()
 
 void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int line, int column)
 {
-    Core::InfoBar *infoBar = m_textEditorWidget->baseTextDocument()->infoBar();
+    Core::InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
     QString text;
     if (line < 0)
-        text = tr("Could not parse file: '%1'.").arg(errorMessage);
+        text = tr("Could not parse file: \"%1\".").arg(errorMessage);
     else
-        text = tr("%2: Could not parse file: '%1'.").arg(errorMessage).arg(line);
+        text = tr("%2: Could not parse file: \"%1\".").arg(errorMessage).arg(line);
     Core::InfoBarEntry infoBarEntry(infoBarId, text);
-    infoBarEntry.setCustomButtonInfo(tr("Goto error"), this, SLOT(gotoError()));
+    infoBarEntry.setCustomButtonInfo(tr("Goto error"), [this]() {
+        m_textEditorWidget->gotoLine(m_errorLine, m_errorColumn);
+    });
     infoBar->removeInfo(infoBarId);
     infoBar->addInfo(infoBarEntry);
 
@@ -712,14 +717,9 @@ void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int
 
 void AndroidManifestEditorWidget::hideInfoBar()
 {
-    Core::InfoBar *infoBar = m_textEditorWidget->baseTextDocument()->infoBar();
+    Core::InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
         infoBar->removeInfo(infoBarId);
     m_timerParseCheck.stop();
-}
-
-void AndroidManifestEditorWidget::gotoError()
-{
-    m_textEditorWidget->gotoLine(m_errorLine, m_errorColumn);
 }
 
 void setApiLevel(QComboBox *box, const QDomElement &element, const QString &attribute)
@@ -751,31 +751,16 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     setApiLevel(m_androidMinSdkVersion, usesSdkElement, QLatin1String("android:minSdkVersion"));
     setApiLevel(m_androidTargetSdkVersion, usesSdkElement, QLatin1String("android:targetSdkVersion"));
 
-    QString baseDir = QFileInfo(m_textEditorWidget->baseTextDocument()->filePath()).absolutePath();
-    QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
+    QString baseDir = m_textEditorWidget->textDocument()->filePath().toFileInfo().absolutePath();
 
     QDomElement applicationElement = manifest.firstChildElement(QLatin1String("application"));
+    m_appNameLineEdit->setText(applicationElement.attribute(QLatin1String("android:label")));
 
-    QFile f(fileName);
-    if (f.exists() && f.open(QIODevice::ReadOnly)) {
-        QDomDocument doc;
-        if (doc.setContent(&f)) {
-            QDomElement metadataElem = doc.documentElement().firstChildElement(QLatin1String("string"));
-            while (!metadataElem.isNull()) {
-                if (metadataElem.attribute(QLatin1String("name")) == QLatin1String("app_name")) {
-                    m_appNameLineEdit->setText(metadataElem.text());
-                    break;
-                }
-                metadataElem = metadataElem.nextSiblingElement(QLatin1String("string"));
-            }
-        }
-        m_appNameInStringsXml = true;
-    } else {
-        m_appNameLineEdit->setText(applicationElement.attribute(QLatin1String("android:label")));
-        m_appNameInStringsXml = false;
-    }
+    QDomElement activityElem = applicationElement.firstChildElement(QLatin1String("activity"));
+    m_activityNameLineEdit->setText(activityElem.attribute(QLatin1String("android:label")));
 
-    QDomElement metadataElem = applicationElement.firstChildElement(QLatin1String("activity")).firstChildElement(QLatin1String("meta-data"));
+    QDomElement metadataElem = activityElem.firstChildElement(QLatin1String("meta-data"));
+
     while (!metadataElem.isNull()) {
         if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
             m_targetLineEdit->setEditText(metadataElem.attribute(QLatin1String("android:value")));
@@ -791,6 +776,35 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     m_mIconPath.clear();
     m_hIconPath.clear();
 
+    disconnect(m_defaultPermissonsCheckBox, SIGNAL(stateChanged(int)),
+            this, SLOT(defaultPermissionOrFeatureCheckBoxClicked()));
+    disconnect(m_defaultFeaturesCheckBox, SIGNAL(stateChanged(int)),
+            this, SLOT(defaultPermissionOrFeatureCheckBoxClicked()));
+
+    m_defaultPermissonsCheckBox->setChecked(false);
+    m_defaultFeaturesCheckBox->setChecked(false);
+    QDomNodeList manifestChilds = manifest.childNodes();
+    bool foundPermissionComment = false;
+    bool foundFeatureComment = false;
+    for (int i = 0; i < manifestChilds.size(); ++i) {
+        const QDomNode &child = manifestChilds.at(i);
+        if (child.isComment()) {
+            QDomComment comment = child.toComment();
+            if (comment.data().trimmed() == QLatin1String("%%INSERT_PERMISSIONS"))
+                foundPermissionComment = true;
+            else if (comment.data().trimmed() == QLatin1String("%%INSERT_FEATURES"))
+                foundFeatureComment = true;
+        }
+    }
+
+    m_defaultPermissonsCheckBox->setChecked(foundPermissionComment);
+    m_defaultFeaturesCheckBox->setChecked(foundFeatureComment);
+
+    connect(m_defaultPermissonsCheckBox, SIGNAL(stateChanged(int)),
+            this, SLOT(defaultPermissionOrFeatureCheckBoxClicked()));
+    connect(m_defaultFeaturesCheckBox, SIGNAL(stateChanged(int)),
+            this, SLOT(defaultPermissionOrFeatureCheckBoxClicked()));
+
     QStringList permissions;
     QDomElement permissionElem = manifest.firstChildElement(QLatin1String("uses-permission"));
     while (!permissionElem.isNull()) {
@@ -805,53 +819,6 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     m_dirty = false;
 }
 
-void setUsesSdk(QDomDocument &doc, QDomElement &manifest, int minimumSdk, int targetSdk)
-{
-    QDomElement usesSdk = manifest.firstChildElement(QLatin1String("uses-sdk"));
-    if (usesSdk.isNull()) { // doesn't exist yet
-        if (minimumSdk == 0 && targetSdk == 0) {
-            // and doesn't need to exist
-        } else {
-            usesSdk = doc.createElement(QLatin1String("uses-sdk"));
-            if (minimumSdk != 0)
-                usesSdk.setAttribute(QLatin1String("android:minSdkVersion"), minimumSdk);
-            if (targetSdk != 0)
-                usesSdk.setAttribute(QLatin1String("android:targetSdkVersion"), targetSdk);
-            manifest.appendChild(usesSdk);
-        }
-    } else {
-        if (minimumSdk == 0 && targetSdk == 0) {
-            // We might be able to remove the whole element
-            // check if there are other attributes
-            QDomNamedNodeMap usesSdkAttributes = usesSdk.attributes();
-            bool keepNode = false;
-            for (int i = 0; i < usesSdkAttributes.size(); ++i) {
-                if (usesSdkAttributes.item(i).nodeName() != QLatin1String("android:minSdkVersion")
-                        && usesSdkAttributes.item(i).nodeName() != QLatin1String("android:targetSdkVersion")) {
-                    keepNode = true;
-                    break;
-                }
-            }
-            if (keepNode) {
-                usesSdk.removeAttribute(QLatin1String("android:minSdkVersion"));
-                usesSdk.removeAttribute(QLatin1String("android:targetSdkVersion"));
-            } else {
-                manifest.removeChild(usesSdk);
-            }
-        } else {
-            if (minimumSdk == 0)
-                usesSdk.removeAttribute(QLatin1String("android:minSdkVersion"));
-            else
-                usesSdk.setAttribute(QLatin1String("android:minSdkVersion"), minimumSdk);
-
-            if (targetSdk == 0)
-                usesSdk.removeAttribute(QLatin1String("android:targetSdkVersion"));
-            else
-                usesSdk.setAttribute(QLatin1String("android:targetSdkVersion"), targetSdk);
-        }
-    }
-}
-
 int extractVersion(const QString &string)
 {
     if (!string.startsWith(QLatin1String("API")))
@@ -859,87 +826,372 @@ int extractVersion(const QString &string)
     int index = string.indexOf(QLatin1Char(':'));
     if (index == -1)
         return 0;
-#if QT_VERSION < 0x050100
-    return string.mid(4, index - 4).toInt();
-#else
     return string.midRef(4, index - 4).toInt();
-#endif
 }
 
 void AndroidManifestEditorWidget::syncToEditor()
 {
-    QDomDocument doc;
-    if (!doc.setContent(m_textEditorWidget->toPlainText())) {
-        // This should not happen
-        updateInfoBar();
-        return;
+    QString result;
+    QXmlStreamReader reader(m_textEditorWidget->toPlainText());
+    reader.setNamespaceProcessing(false);
+    QXmlStreamWriter writer(&result);
+    writer.setAutoFormatting(true);
+    writer.setAutoFormattingIndent(4);
+    while (!reader.atEnd()) {
+        reader.readNext();
+        if (reader.hasError()) {
+            // This should not happen
+            updateInfoBar();
+            return;
+        } else {
+            if (reader.name() == QLatin1String("manifest"))
+                parseManifest(reader, writer);
+            else if (reader.isStartElement())
+                parseUnknownElement(reader, writer);
+            else
+                writer.writeCurrentToken(reader);
+        }
     }
 
-    QDomElement manifest = doc.documentElement();
-    manifest.setAttribute(QLatin1String("package"), m_packageNameLineEdit->text());
-    manifest.setAttribute(QLatin1String("android:versionCode"), m_versionCode->value());
-    manifest.setAttribute(QLatin1String("android:versionName"), m_versionNameLinedit->text());
-
-    if (!m_appNameInStringsXml) {
-        QDomElement application = manifest.firstChildElement(QLatin1String("application"));
-        application.setAttribute(QLatin1String("android:label"), m_appNameLineEdit->text());
-    }
-
-    setUsesSdk(doc, manifest, extractVersion(m_androidMinSdkVersion->currentText()),
-               extractVersion(m_androidTargetSdkVersion->currentText()));
-
-    setAndroidAppLibName(doc, manifest.firstChildElement(QLatin1String("application"))
-                                      .firstChildElement(QLatin1String("activity")),
-                         m_targetLineEdit->currentText());
-
-    // permissions
-    QDomElement permissionElem = manifest.firstChildElement(QLatin1String("uses-permission"));
-    while (!permissionElem.isNull()) {
-        manifest.removeChild(permissionElem);
-        permissionElem = manifest.firstChildElement(QLatin1String("uses-permission"));
-    }
-
-    foreach (const QString &permission, m_permissionsModel->permissions()) {
-        permissionElem = doc.createElement(QLatin1String("uses-permission"));
-        permissionElem.setAttribute(QLatin1String("android:name"), permission);
-        manifest.appendChild(permissionElem);
-    }
-
-    bool ensureIconAttribute =  !m_lIconPath.isEmpty()
-            || !m_mIconPath.isEmpty()
-            || !m_hIconPath.isEmpty();
-
-    if (ensureIconAttribute) {
-        QDomElement applicationElem = manifest.firstChildElement(QLatin1String("application"));
-        applicationElem.setAttribute(QLatin1String("android:icon"), QLatin1String("@drawable/icon"));
-    }
-
-
-    QString newText = doc.toString(4);
-    if (newText == m_textEditorWidget->toPlainText())
+    if (result == m_textEditorWidget->toPlainText())
         return;
 
-    m_textEditorWidget->setPlainText(newText);
+    m_textEditorWidget->setPlainText(result);
     m_textEditorWidget->document()->setModified(true);
 
     m_dirty = false;
 }
 
-bool AndroidManifestEditorWidget::setAndroidAppLibName(QDomDocument document, QDomElement activity, const QString &name)
+namespace {
+QXmlStreamAttributes modifyXmlStreamAttributes(const QXmlStreamAttributes &input, const QStringList &keys,
+                                               const QStringList &values, const QStringList &remove = QStringList())
 {
-    QDomElement metadataElem = activity.firstChildElement(QLatin1String("meta-data"));
-    while (!metadataElem.isNull()) {
-        if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
-            metadataElem.setAttribute(QLatin1String("android:value"), name);
-            return true;
-        }
-        metadataElem = metadataElem.nextSiblingElement(QLatin1String("meta-data"));
+    Q_ASSERT(keys.size() == values.size());
+    QXmlStreamAttributes result;
+    result.reserve(input.size());
+    foreach (const QXmlStreamAttribute &attribute, input) {
+        const QString &name = attribute.qualifiedName().toString();
+        if (remove.contains(name))
+            continue;
+        int index = keys.indexOf(name);
+        if (index == -1)
+            result.push_back(attribute);
+        else
+            result.push_back(QXmlStreamAttribute(name,
+                                                 values.at(index)));
     }
-    QDomElement elem = document.createElement(QLatin1String("meta-data"));
-    elem.setAttribute(QLatin1String("android:name"), QLatin1String("android.app.lib_name"));
-    elem.setAttribute(QLatin1String("android:value"), name);
-    activity.appendChild(elem);
-    return true;
+
+    for (int i = 0; i < keys.size(); ++i) {
+        if (!result.hasAttribute(keys.at(i)))
+            result.push_back(QXmlStreamAttribute(keys.at(i), values.at(i)));
+    }
+    return result;
+}
+} // end namespace
+
+void AndroidManifestEditorWidget::parseManifest(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    Q_ASSERT(reader.isStartElement());
+    writer.writeStartElement(reader.name().toString());
+
+    QXmlStreamAttributes attributes = reader.attributes();
+    QStringList keys = QStringList()
+            << QLatin1String("package")
+            << QLatin1String("android:versionCode")
+            << QLatin1String("android:versionName");
+    QStringList values = QStringList()
+            << m_packageNameLineEdit->text()
+            << QString::number(m_versionCode->value())
+            << m_versionNameLinedit->text();
+
+    QXmlStreamAttributes result = modifyXmlStreamAttributes(attributes, keys, values);
+    writer.writeAttributes(result);
+
+    QSet<QString> permissions = m_permissionsModel->permissions().toSet();
+
+    bool foundUsesSdk = false;
+    bool foundPermissionComment = false;
+    bool foundFeatureComment = false;
+    reader.readNext();
+    while (!reader.atEnd()) {
+        if (reader.name() == QLatin1String("application")) {
+            parseApplication(reader, writer);
+        } else if (reader.name() == QLatin1String("uses-sdk")) {
+            parseUsesSdk(reader, writer);
+            foundUsesSdk = true;
+        } else if (reader.name() == QLatin1String("uses-permission")) {
+            permissions.remove(parseUsesPermission(reader, writer, permissions));
+        } else if (reader.isEndElement()) {
+            if (!foundUsesSdk) {
+                int minimumSdk = extractVersion(m_androidMinSdkVersion->currentText());
+                int targetSdk = extractVersion(m_androidTargetSdkVersion->currentText());
+                if (minimumSdk == 0 && targetSdk == 0) {
+                    // and doesn't need to exist
+                } else {
+                    writer.writeEmptyElement(QLatin1String("uses-sdk"));
+                    if (minimumSdk != 0)
+                        writer.writeAttribute(QLatin1String("android:minSdkVersion"),
+                                              QString::number(minimumSdk));
+                    if (targetSdk != 0)
+                        writer.writeAttribute(QLatin1String("android:targetSdkVersion"),
+                                              QString::number(targetSdk));
+                }
+            }
+
+            if (!foundPermissionComment && m_defaultPermissonsCheckBox->checkState() == Qt::Checked)
+                writer.writeComment(QLatin1String(" %%INSERT_PERMISSIONS "));
+
+            if (!foundFeatureComment && m_defaultFeaturesCheckBox->checkState() == Qt::Checked)
+                writer.writeComment(QLatin1String(" %%INSERT_FEATURES "));
+
+            if (!permissions.isEmpty()) {
+                foreach (const QString &permission, permissions) {
+                    writer.writeEmptyElement(QLatin1String("uses-permission"));
+                    writer.writeAttribute(QLatin1String("android:name"), permission);
+                }
+            }
+
+            writer.writeCurrentToken(reader);
+            return;
+        } else if (reader.isComment()) {
+            QString commentText = parseComment(reader, writer);
+            if (commentText == QLatin1String("%%INSERT_PERMISSIONS"))
+                foundPermissionComment = true;
+            else if (commentText == QLatin1String("%%INSERT_FEATURES"))
+                foundFeatureComment = true;
+        } else if (reader.isStartElement()) {
+            parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
+}
+
+void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    Q_ASSERT(reader.isStartElement());
+    writer.writeStartElement(reader.name().toString());
+
+    QXmlStreamAttributes attributes = reader.attributes();
+    QStringList keys = { QLatin1String("android:label") };
+    QStringList values = { m_appNameLineEdit->text() };
+    bool ensureIconAttribute =  !m_lIconPath.isEmpty()
+            || !m_mIconPath.isEmpty()
+            || !m_hIconPath.isEmpty();
+    if (ensureIconAttribute) {
+        keys << QLatin1String("android:icon");
+        values << QLatin1String("@drawable/icon");
+    }
+
+    QXmlStreamAttributes result = modifyXmlStreamAttributes(attributes, keys, values);
+    writer.writeAttributes(result);
+
+    reader.readNext();
+
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            writer.writeCurrentToken(reader);
+            return;
+        } else if (reader.isStartElement()) {
+            if (reader.name() == QLatin1String("activity"))
+                parseActivity(reader, writer);
+            else
+                parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+
+        reader.readNext();
+    }
+}
+
+void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    Q_ASSERT(reader.isStartElement());
+
+    writer.writeStartElement(reader.name().toString());
+    QXmlStreamAttributes attributes = reader.attributes();
+    QStringList keys = { QLatin1String("android:label") };
+    QStringList values = { m_activityNameLineEdit->text() };
+    QXmlStreamAttributes result = modifyXmlStreamAttributes(attributes, keys, values);
+    writer.writeAttributes(result);
+
+    reader.readNext();
+
+    bool found = false;
+
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            if (!found) {
+                writer.writeEmptyElement(QLatin1String("meta-data"));
+                writer.writeAttribute(QLatin1String("android:name"),
+                                      QLatin1String("android.app.lib_name"));
+                writer.writeAttribute(QLatin1String("android:value"),
+                                      m_targetLineEdit->currentText());
+            }
+            writer.writeCurrentToken(reader);
+            return;
+        } else if (reader.isStartElement()) {
+            if (reader.name() == QLatin1String("meta-data"))
+                found = parseMetaData(reader, writer) || found; // ORDER MATTERS
+            else
+                parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
+}
+
+bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    Q_ASSERT(reader.isStartElement());
+
+    bool found = false;
+    QXmlStreamAttributes attributes = reader.attributes();
+    QXmlStreamAttributes result;
+
+    if (attributes.value(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
+        QStringList keys = QStringList() << QLatin1String("android:value");
+        QStringList values = QStringList() << m_targetLineEdit->currentText();
+        result = modifyXmlStreamAttributes(attributes, keys, values);
+        found = true;
+    } else {
+        result = attributes;
+    }
+
+    writer.writeStartElement(QLatin1String("meta-data"));
+    writer.writeAttributes(result);
+
+    reader.readNext();
+
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            writer.writeCurrentToken(reader);
+            return found;
+        } else if (reader.isStartElement()) {
+            parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
+    return found; // should never be reached
+}
+
+void AndroidManifestEditorWidget::parseUsesSdk(QXmlStreamReader &reader, QXmlStreamWriter & writer)
+{
+    int minimumSdk = extractVersion(m_androidMinSdkVersion->currentText());
+    int targetSdk = extractVersion(m_androidTargetSdkVersion->currentText());
+
+    QStringList keys;
+    QStringList values;
+    QStringList remove;
+    if (minimumSdk == 0) {
+        remove << QLatin1String("android:minSdkVersion");
+    } else {
+        keys << QLatin1String("android:minSdkVersion");
+        values << QString::number(minimumSdk);
+    }
+    if (targetSdk == 0) {
+        remove << QLatin1String("android:targetSdkVersion");
+    } else {
+        keys << QLatin1String("android:targetSdkVersion");
+        values << QString::number(targetSdk);
+    }
+
+    QXmlStreamAttributes result = modifyXmlStreamAttributes(reader.attributes(),
+                                                            keys, values, remove);
+    bool removeUseSdk = result.isEmpty();
+    if (!removeUseSdk) {
+        writer.writeStartElement(reader.name().toString());
+        writer.writeAttributes(result);
+    }
+
+    reader.readNext();
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            if (!removeUseSdk)
+                writer.writeCurrentToken(reader);
+            return;
+        } else {
+            if (removeUseSdk) {
+                removeUseSdk = false;
+                writer.writeStartElement(QLatin1String("uses-sdk"));
+            }
+
+            if (reader.isStartElement())
+                parseUnknownElement(reader, writer);
+            else
+                writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
+}
+
+QString AndroidManifestEditorWidget::parseUsesPermission(QXmlStreamReader &reader,
+                                                         QXmlStreamWriter &writer,
+                                                         const QSet<QString> &permissions)
+{
+    Q_ASSERT(reader.isStartElement());
+
+
+    QString permissionName = reader.attributes().value(QLatin1String("android:name")).toString();
+    bool writePermission = permissions.contains(permissionName);
+    if (writePermission)
+        writer.writeCurrentToken(reader);
+    reader.readNext();
+
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            if (writePermission)
+                writer.writeCurrentToken(reader);
+            return permissionName;
+        } else if (reader.isStartElement()) {
+            parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
+    return permissionName; // should not be reached
+}
+
+QString AndroidManifestEditorWidget::parseComment(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    QString commentText = reader.text().toString().trimmed();
+    if (commentText == QLatin1String("%%INSERT_PERMISSIONS")) {
+        if (m_defaultPermissonsCheckBox->checkState() == Qt::Unchecked)
+            return commentText;
+    }
+
+    if (commentText == QLatin1String("%%INSERT_FEATURES")) {
+        if (m_defaultFeaturesCheckBox->checkState() == Qt::Unchecked)
+            return commentText;
+    }
+
+    writer.writeCurrentToken(reader);
+    return commentText;
+}
+
+void AndroidManifestEditorWidget::parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    Q_ASSERT(reader.isStartElement());
+    writer.writeCurrentToken(reader);
+    reader.readNext();
+
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            writer.writeCurrentToken(reader);
+            return;
+        } else if (reader.isStartElement()) {
+            parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
 }
 
 QString AndroidManifestEditorWidget::iconPath(const QString &baseDir, IconDPI dpi)
@@ -981,7 +1233,7 @@ QIcon AndroidManifestEditorWidget::icon(const QString &baseDir, IconDPI dpi)
 
 void AndroidManifestEditorWidget::copyIcon(IconDPI dpi, const QString &baseDir, const QString &filePath)
 {
-    if (!QFileInfo(filePath).exists())
+    if (!QFileInfo::exists(filePath))
         return;
 
     const QString targetPath = iconPath(baseDir, dpi);
@@ -1021,6 +1273,11 @@ void AndroidManifestEditorWidget::setHDPIIcon()
     setDirty(true);
 }
 
+void AndroidManifestEditorWidget::defaultPermissionOrFeatureCheckBoxClicked()
+{
+    setDirty(true);
+}
+
 void AndroidManifestEditorWidget::updateAddRemovePermissionButtons()
 {
     QStringList permissions = m_permissionsModel->permissions();
@@ -1042,12 +1299,6 @@ void AndroidManifestEditorWidget::removePermission()
     if (idx.isValid())
         m_permissionsModel->removePermission(idx.row());
     updateAddRemovePermissionButtons();
-    setDirty(true);
-}
-
-void AndroidManifestEditorWidget::setAppName()
-{
-    m_setAppName = true;
     setDirty(true);
 }
 
@@ -1073,7 +1324,7 @@ void PermissionsModel::setPermissions(const QStringList &permissions)
 {
     beginResetModel();
     m_permissions = permissions;
-    qSort(m_permissions);
+    Utils::sort(m_permissions);
     endResetModel();
 }
 
@@ -1091,7 +1342,7 @@ QModelIndex PermissionsModel::addPermission(const QString &permission)
     return index(idx);
 }
 
-bool PermissionsModel::updatePermission(QModelIndex index, const QString &permission)
+bool PermissionsModel::updatePermission(const QModelIndex &index, const QString &permission)
 {
     if (!index.isValid())
         return false;
@@ -1143,9 +1394,11 @@ int PermissionsModel::rowCount(const QModelIndex &parent) const
 
 
 AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent)
-    : TextEditor::PlainTextEditorWidget(new AndroidManifestDocument(parent), parent),
-      m_parent(parent)
+    : TextEditor::TextEditorWidget(parent)
 {
-    baseTextDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
+    setTextDocument(TextEditor::TextDocumentPtr(new AndroidManifestDocument(parent)));
+    textDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
+    setupGenericHighlighter();
+    setMarksVisible(false);
 }
 

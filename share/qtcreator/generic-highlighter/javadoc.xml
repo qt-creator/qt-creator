@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="Javadoc" version="1.04" kateversion="2.4" section="Markup" extensions="" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Javadoc" version="1.05" kateversion="2.4" section="Markup" extensions="" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<contexts>
 			<context name="Start" attribute="Normal Text" lineEndContext="#stay">
@@ -78,12 +78,12 @@
 				<RegExpr attribute="JavadocParam" context="#pop#pop" String="\S*(?=\*/)" />
 				<RegExpr attribute="JavadocParam" context="#pop" String="\S*(\s|$)" />
 			</context>
-			<context attribute="InlineTag" name="InlineTagar">
+			<context attribute="InlineTag" name="InlineTagar" lineEndContext="#stay">
 				<DetectChar attribute="InlineTag" context="#pop" char="}" />
 				<Detect2Chars attribute="JavadocFS" context="#pop#pop#pop" char="*" char1="/" />
 				<IncludeRules context="##HTML"/>
 			</context>
-			<context attribute="InlineTag" name="LiteralTagar">
+			<context attribute="InlineTag" name="LiteralTagar" lineEndContext="#stay">
 				<DetectChar attribute="InlineTag" context="#pop" char="}" />
 				<Detect2Chars attribute="JavadocFS" context="#pop#pop#pop" char="*" char1="/" />
 			</context>

@@ -56,17 +56,25 @@ bool SimpleSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
-bool AttributeSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
+bool AlignmentSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
 {
-    if (AttributeSpecifierAST *_other = pattern->asAttributeSpecifier())
+    if (AlignmentSpecifierAST *_other = pattern->asAlignmentSpecifier())
         return matcher->match(this, _other);
 
     return false;
 }
 
-bool AttributeAST::match0(AST *pattern, ASTMatcher *matcher)
+bool GnuAttributeSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
 {
-    if (AttributeAST *_other = pattern->asAttribute())
+    if (GnuAttributeSpecifierAST *_other = pattern->asGnuAttributeSpecifier())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool GnuAttributeAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (GnuAttributeAST *_other = pattern->asGnuAttribute())
         return matcher->match(this, _other);
 
     return false;
@@ -872,6 +880,14 @@ bool ThrowExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool NoExceptOperatorExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (NoExceptOperatorExpressionAST *_other = pattern->asNoExceptOperatorExpression())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool TranslationUnitAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (TranslationUnitAST *_other = pattern->asTranslationUnit())
@@ -1187,6 +1203,30 @@ bool TrailingReturnTypeAST::match0(AST *pattern, ASTMatcher *matcher)
 bool BracedInitializerAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (BracedInitializerAST *_other = pattern->asBracedInitializer())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool DotDesignatorAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (DotDesignatorAST *_other = pattern->asDotDesignator())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool BracketDesignatorAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (BracketDesignatorAST *_other = pattern->asBracketDesignator())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool DesignatedInitializerAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (DesignatedInitializerAST *_other = pattern->asDesignatedInitializer())
         return matcher->match(this, _other);
 
     return false;

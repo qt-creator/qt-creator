@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -87,12 +88,10 @@ public:
 protected:
     bool preVisit(Symbol *s)
     {
-        if (s->asBlock()) {
-            if (s->line() < line || (s->line() == line && s->column() <= column))
-                return true;
+        if (s->line() < line || (s->line() == line && s->column() <= column)) {
             // skip blocks
-        } if (s->line() < line || (s->line() == line && s->column() <= column)) {
-            symbol = s;
+            if (!s->asBlock())
+                symbol = s;
             return true;
         }
 
@@ -178,7 +177,7 @@ protected:
     virtual bool visit(Template *symbol)
     {
         if (Symbol *decl = symbol->declaration()) {
-            if (decl->isFunction() || decl->isClass())
+            if (decl->isFunction() || decl->isClass() || decl->isDeclaration())
                 return process(symbol);
         }
         return true;
@@ -284,22 +283,17 @@ Document::Document(const QString &fileName)
     const QByteArray localFileName = fileName.toUtf8();
     const StringLiteral *fileId = _control->stringLiteral(localFileName.constData(),
                                                                       localFileName.size());
-    LanguageFeatures features;
-    features.qtEnabled = true;
-    features.qtMocRunEnabled = true;
-    features.qtKeywordsEnabled = true;
-    features.cxx11Enabled = true;
-    features.objCEnabled = true;
     _translationUnit = new TranslationUnit(_control, fileId);
-    _translationUnit->setLanguageFeatures(features);
-    (void) _control->switchTranslationUnit(_translationUnit);
+    _translationUnit->setLanguageFeatures(LanguageFeatures::defaultFeatures());
 }
 
 Document::~Document()
 {
     delete _translationUnit;
+    _translationUnit = 0;
     delete _control->diagnosticClient();
     delete _control;
+    _control = 0;
 }
 
 Control *Document::control() const
@@ -365,25 +359,33 @@ void Document::appendMacro(const Macro &macro)
     _definedMacros.append(macro);
 }
 
-void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length,
+void Document::addMacroUse(const Macro &macro,
+                           unsigned bytesOffset, unsigned bytesLength,
+                           unsigned utf16charsOffset, unsigned utf16charLength,
                            unsigned beginLine,
                            const QVector<MacroArgumentReference> &actuals)
 {
-    MacroUse use(macro, offset, offset + length, beginLine);
+    MacroUse use(macro,
+                 bytesOffset, bytesOffset + bytesLength,
+                 utf16charsOffset, utf16charsOffset + utf16charLength,
+                 beginLine);
 
     foreach (const MacroArgumentReference &actual, actuals) {
-        const Block arg(actual.position(), actual.position() + actual.length());
-
+        const Block arg(actual.bytesOffset(),
+                        actual.bytesOffset() + actual.bytesLength(),
+                        actual.utf16charsOffset(),
+                        actual.utf16charsOffset() + actual.utf16charsLength());
         use.addArgument(arg);
     }
 
     _macroUses.append(use);
 }
 
-void Document::addUndefinedMacroUse(const QByteArray &name, unsigned offset)
+void Document::addUndefinedMacroUse(const QByteArray &name,
+                                    unsigned bytesOffset, unsigned utf16charsOffset)
 {
     QByteArray copy(name.data(), name.size());
-    UndefinedMacroUse use(copy, offset);
+    UndefinedMacroUse use(copy, bytesOffset, utf16charsOffset);
     _undefinedMacroUses.append(use);
 }
 
@@ -483,22 +485,24 @@ void Document::setGlobalNamespace(Namespace *globalNamespace)
  *
  * \param line the line number, starting with line 1
  * \param column the column number, starting with column 1
+ * \param lineOpeningDeclaratorParenthesis optional output parameter, the line of the opening
+          parenthesis of the declarator starting with 1
+ * \param lineClosingBrace optional output parameter, the line of the closing brace starting with 1
  */
-QString Document::functionAt(int line, int column) const
+QString Document::functionAt(int line, int column, int *lineOpeningDeclaratorParenthesis,
+                             int *lineClosingBrace) const
 {
     if (line < 1 || column < 1)
         return QString();
 
-    CPlusPlus::Symbol *symbol = lastVisibleSymbolAt(line, column);
+    Symbol *symbol = lastVisibleSymbolAt(line, column);
     if (!symbol)
         return QString();
 
     // Find the enclosing function scope (which might be several levels up, or we might be standing
     // on it)
-    Scope *scope;
-    if (symbol->isScope())
-        scope = symbol->asScope();
-    else
+    Scope *scope = symbol->asScope();
+    if (!scope)
         scope = symbol->enclosingScope();
 
     while (scope && !scope->isFunction() )
@@ -507,22 +511,21 @@ QString Document::functionAt(int line, int column) const
     if (!scope)
         return QString();
 
-    // We found the function scope, extract its name.
-    const Overview o;
-    QString rc = o.prettyName(scope->name());
-
-    // Prepend namespace "Foo::Foo::foo()" up to empty root namespace
-    for (const Symbol *owner = scope->enclosingNamespace();
-         owner; owner = owner->enclosingNamespace()) {
-        const QString name = o.prettyName(owner->name());
-        if (name.isEmpty()) {
-            break;
-        } else {
-            rc.prepend(QLatin1String("::"));
-            rc.prepend(name);
-        }
+    // We found the function scope
+    if (lineOpeningDeclaratorParenthesis) {
+        unsigned line;
+        translationUnit()->getPosition(scope->startOffset(), &line);
+        *lineOpeningDeclaratorParenthesis = static_cast<int>(line);
     }
-    return rc;
+
+    if (lineClosingBrace) {
+        unsigned line;
+        translationUnit()->getPosition(scope->endOffset(), &line);
+        *lineClosingBrace = static_cast<int>(line);
+    }
+
+    const QList<const Name *> fullyQualifiedName = LookupContext::fullyQualifiedName(scope);
+    return Overview().prettyName(fullyQualifiedName);
 }
 
 Scope *Document::scopeAt(unsigned line, unsigned column)
@@ -548,19 +551,23 @@ const Macro *Document::findMacroDefinitionAt(unsigned line) const
     return 0;
 }
 
-const Document::MacroUse *Document::findMacroUseAt(unsigned offset) const
+const Document::MacroUse *Document::findMacroUseAt(unsigned utf16charsOffset) const
 {
     foreach (const Document::MacroUse &use, _macroUses) {
-        if (use.contains(offset) && (offset < use.begin() + use.macro().name().length()))
+        if (use.containsUtf16charOffset(utf16charsOffset)
+                && (utf16charsOffset < use.utf16charsBegin() + use.macro().nameToQString().size())) {
             return &use;
+        }
     }
     return 0;
 }
 
-const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(unsigned offset) const
+const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(unsigned utf16charsOffset) const
 {
     foreach (const Document::UndefinedMacroUse &use, _undefinedMacroUses) {
-        if (use.contains(offset) && (offset < use.begin() + use.name().length()))
+        if (use.containsUtf16charOffset(utf16charsOffset)
+                && (utf16charsOffset < use.utf16charsBegin()
+                    + QString::fromUtf8(use.name(), use.name().size()).length()))
             return &use;
     }
     return 0;
@@ -581,21 +588,34 @@ void Document::setUtf8Source(const QByteArray &source)
     _translationUnit->setSource(_source.constBegin(), _source.size());
 }
 
-void Document::startSkippingBlocks(unsigned start)
+LanguageFeatures Document::languageFeatures() const
 {
-    _skippedBlocks.append(Block(start, 0));
+    if (TranslationUnit *tu = translationUnit())
+        return tu->languageFeatures();
+    return LanguageFeatures::defaultFeatures();
 }
 
-void Document::stopSkippingBlocks(unsigned stop)
+void Document::setLanguageFeatures(LanguageFeatures features)
+{
+    if (TranslationUnit *tu = translationUnit())
+        tu->setLanguageFeatures(features);
+}
+
+void Document::startSkippingBlocks(unsigned utf16charsOffset)
+{
+    _skippedBlocks.append(Block(0, 0, utf16charsOffset, 0));
+}
+
+void Document::stopSkippingBlocks(unsigned utf16charsOffset)
 {
     if (_skippedBlocks.isEmpty())
         return;
 
-    unsigned start = _skippedBlocks.back().begin();
-    if (start > stop)
+    unsigned start = _skippedBlocks.back().utf16charsBegin();
+    if (start > utf16charsOffset)
         _skippedBlocks.removeLast(); // Ignore this block, it's invalid.
     else
-        _skippedBlocks.back() = Block(start, stop);
+        _skippedBlocks.back() = Block(0, 0, start, utf16charsOffset);
 }
 
 bool Document::isTokenized() const
@@ -719,37 +739,40 @@ bool Snapshot::isEmpty() const
     return _documents.isEmpty();
 }
 
-Snapshot::const_iterator Snapshot::find(const QString &fileName) const
+Snapshot::const_iterator Snapshot::find(const Utils::FileName &fileName) const
 {
     return _documents.find(fileName);
 }
 
-void Snapshot::remove(const QString &fileName)
+void Snapshot::remove(const Utils::FileName &fileName)
 {
     _documents.remove(fileName);
 }
 
-bool Snapshot::contains(const QString &fileName) const
+bool Snapshot::contains(const Utils::FileName &fileName) const
 {
     return _documents.contains(fileName);
 }
 
 void Snapshot::insert(Document::Ptr doc)
 {
-    if (doc)
-        _documents.insert(doc->fileName(), doc);
+    if (doc) {
+        _documents.insert(Utils::FileName::fromString(doc->fileName()), doc);
+        m_deps.files.clear(); // Will trigger re-build when accessed.
+    }
 }
 
 Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
-                                             const QString &fileName) const
+                                             const Utils::FileName &fileName) const
 {
-    Document::Ptr newDoc = Document::create(fileName);
+    Document::Ptr newDoc = Document::create(fileName.toString());
     if (Document::Ptr thisDocument = document(fileName)) {
         newDoc->_revision = thisDocument->_revision;
         newDoc->_editorRevision = thisDocument->_editorRevision;
         newDoc->_lastModified = thisDocument->_lastModified;
         newDoc->_resolvedIncludes = thisDocument->_resolvedIncludes;
         newDoc->_unresolvedIncludes = thisDocument->_unresolvedIncludes;
+        newDoc->setLanguageFeatures(thisDocument->languageFeatures());
     }
 
     FastPreprocessor pp(*this);
@@ -771,6 +794,7 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
         newDoc->_unresolvedIncludes = thisDocument->_unresolvedIncludes;
         newDoc->_definedMacros = thisDocument->_definedMacros;
         newDoc->_macroUses = thisDocument->_macroUses;
+        newDoc->setLanguageFeatures(thisDocument->languageFeatures());
     }
 
     newDoc->setUtf8Source(preprocessedCode);
@@ -782,6 +806,36 @@ QSet<QString> Snapshot::allIncludesForDocument(const QString &fileName) const
     QSet<QString> result;
     allIncludesForDocument_helper(fileName, result);
     return result;
+}
+
+QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(const QString &fileName) const
+{
+    QList<IncludeLocation> result;
+    for (const_iterator cit = begin(), citEnd = end(); cit != citEnd; ++cit) {
+        const Document::Ptr doc = cit.value();
+        foreach (const Document::Include &includeFile, doc->resolvedIncludes()) {
+            if (includeFile.resolvedFileName() == fileName)
+                result.append(qMakePair(doc, includeFile.line()));
+        }
+    }
+    return result;
+}
+
+Utils::FileNameList Snapshot::filesDependingOn(const Utils::FileName &fileName) const
+{
+    updateDependencyTable();
+    return m_deps.filesDependingOn(fileName);
+}
+
+void Snapshot::updateDependencyTable() const
+{
+    if (m_deps.files.isEmpty())
+        m_deps.build(*this);
+}
+
+bool Snapshot::operator==(const Snapshot &other) const
+{
+    return _documents == other._documents;
 }
 
 void Snapshot::allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const
@@ -796,7 +850,7 @@ void Snapshot::allIncludesForDocument_helper(const QString &fileName, QSet<QStri
     }
 }
 
-Document::Ptr Snapshot::document(const QString &fileName) const
+Document::Ptr Snapshot::document(const Utils::FileName &fileName) const
 {
     return _documents.value(fileName);
 }

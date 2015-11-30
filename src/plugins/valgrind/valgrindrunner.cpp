@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 ** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -50,7 +51,8 @@ public:
           process(0),
           channelMode(QProcess::SeparateChannels),
           finished(false),
-          startMode(Analyzer::StartLocal)
+          useStartupProject(true),
+          localRunMode(ProjectExplorer::ApplicationLauncher::Gui)
     {
     }
 
@@ -66,7 +68,8 @@ public:
     QString debuggeeExecutable;
     QString debuggeeArguments;
     QString workingdir;
-    Analyzer::StartMode startMode;
+    bool useStartupProject;
+    ProjectExplorer::ApplicationLauncher::Mode localRunMode;
     QSsh::SshConnectionParameters connParams;
 };
 
@@ -87,25 +90,26 @@ void ValgrindRunner::Private::run(ValgrindProcess *_process)
 
     process->setWorkingDirectory(workingdir);
     process->setProcessChannelMode(channelMode);
+    process->setLocalRunMode(localRunMode);
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
-    QStringList valgrindArgs = valgrindArguments;
-    valgrindArgs << QString::fromLatin1("--tool=%1").arg(q->tool());
 
-    if (Utils::HostOsInfo::isMacHost())
-        // May be slower to start but without it we get no filenames for symbols.
-        valgrindArgs << QLatin1String("--dsymutil=yes");
+    QObject::connect(process, &ValgrindProcess::processOutput,
+                     q, &ValgrindRunner::processOutputReceived);
+    QObject::connect(process, &ValgrindProcess::started,
+                     q, &ValgrindRunner::started);
+    QObject::connect(process, &ValgrindProcess::finished,
+                     q, &ValgrindRunner::processFinished);
+    QObject::connect(process, &ValgrindProcess::error,
+                     q, &ValgrindRunner::processError);
+    QObject::connect(process, &ValgrindProcess::localHostAddressRetrieved, q,
+                     &ValgrindRunner::localHostAddressRetrieved);
 
-    QObject::connect(process, SIGNAL(processOutput(QByteArray,Utils::OutputFormat)),
-            q, SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)));
-    QObject::connect(process, SIGNAL(started()),
-            q, SLOT(processStarted()));
-    QObject::connect(process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            q, SLOT(processFinished(int,QProcess::ExitStatus)));
-    QObject::connect(process, SIGNAL(error(QProcess::ProcessError)),
-            q, SLOT(processError(QProcess::ProcessError)));
-
-    process->run(valgrindExecutable, valgrindArgs, debuggeeExecutable, debuggeeArguments);
+    process->setValgrindExecutable(valgrindExecutable);
+    process->setValgrindArguments(q->fullValgrindArguments());
+    process->setDebuggeeExecutable(debuggeeExecutable);
+    process->setDebugeeArguments(debuggeeArguments);
+    process->run();
 }
 
 ValgrindRunner::ValgrindRunner(QObject *parent)
@@ -144,6 +148,16 @@ QStringList ValgrindRunner::valgrindArguments() const
     return d->valgrindArguments;
 }
 
+QStringList ValgrindRunner::fullValgrindArguments() const
+{
+    QStringList fullArgs = valgrindArguments();
+    fullArgs << QString::fromLatin1("--tool=%1").arg(tool());
+    if (Utils::HostOsInfo::isMacHost())
+        // May be slower to start but without it we get no filenames for symbols.
+        fullArgs << QLatin1String("--dsymutil=yes");
+    return fullArgs;
+}
+
 QString ValgrindRunner::debuggeeExecutable() const
 {
     return d->debuggeeExecutable;
@@ -164,14 +178,14 @@ void ValgrindRunner::setDebuggeeArguments(const QString &arguments)
     d->debuggeeArguments = arguments;
 }
 
-Analyzer::StartMode ValgrindRunner::startMode() const
+void ValgrindRunner::setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode)
 {
-    return d->startMode;
+    d->localRunMode = localRunMode;
 }
 
-void ValgrindRunner::setStartMode(Analyzer::StartMode startMode)
+ProjectExplorer::ApplicationLauncher::Mode ValgrindRunner::localRunMode() const
 {
-    d->startMode = startMode;
+    return d->localRunMode;
 }
 
 const QSsh::SshConnectionParameters &ValgrindRunner::connectionParameters() const
@@ -204,19 +218,30 @@ void ValgrindRunner::setProcessChannelMode(QProcess::ProcessChannelMode mode)
     d->channelMode = mode;
 }
 
+void ValgrindRunner::setUseStartupProject(bool useStartupProject)
+{
+    d->useStartupProject = useStartupProject;
+}
+
+bool ValgrindRunner::useStartupProject() const
+{
+    return d->useStartupProject;
+}
+
 void ValgrindRunner::waitForFinished() const
 {
     if (d->finished || !d->process)
         return;
 
     QEventLoop loop;
-    connect(this, SIGNAL(finished()), &loop, SLOT(quit()));
+    connect(this, &ValgrindRunner::finished, &loop, &QEventLoop::quit);
     loop.exec();
 }
 
 bool ValgrindRunner::start()
 {
-    d->run(new ValgrindProcess(d->startMode == Analyzer::StartLocal, d->connParams, 0, this));
+    // FIXME: This wrongly uses "useStartupProject" for a Local/Remote decision.
+    d->run(new ValgrindProcess(d->useStartupProject, d->connParams, 0, this));
     return true;
 }
 
@@ -243,12 +268,12 @@ void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
     emit finished();
 
     if (ret != 0 || status == QProcess::CrashExit)
-        emit processErrorReceived(errorString(), d->process->error());
+        emit processErrorReceived(errorString(), d->process->processError());
 }
 
-void ValgrindRunner::processStarted()
+void ValgrindRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)
 {
-    emit started();
+    Q_UNUSED(localHostAddress);
 }
 
 QString ValgrindRunner::errorString() const

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "cppcodeformatter.h"
 
-#include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/textdocumentlayout.h>
 #include <cplusplus/Lexer.h>
 
 #include <utils/qtcassert.h>
@@ -80,7 +81,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         m_tokenIndex = 1;
     }
 
-    for (; m_tokenIndex < m_tokens.size(); ) {
+    while (m_tokenIndex < m_tokens.size()) {
         m_currentToken = tokenAt(m_tokenIndex);
         const int kind = m_currentToken.kind();
 
@@ -169,6 +170,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case T_LESS:        enter(template_param); break;
             case T_GREATER:     leave(); break;
+            case T_GREATER_GREATER: leave(); leave(); break; // call leave twice to pop both template_param states
             } break;
 
         case operator_declaration:
@@ -188,6 +190,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_LBRACE:      enter(defun_open); break;
             case T_COLON:       enter(member_init_open); enter(member_init_expected); break;
             case T_OPERATOR:    enter(operator_declaration); break;
+            case T_GREATER_GREATER: break;
             default:            tryExpression(true); break;
             } break;
 
@@ -457,7 +460,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (kind != T_CASE && kind != T_DEFAULT && tryStatement())
                 break;
             switch (kind) {
-            case T_RBRACE:      leave(); continue;
+            case T_RBRACE:
             case T_DEFAULT:
             case T_CASE:        leave(); continue;
             } break;
@@ -560,6 +563,13 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case cpp_macro:
         case cpp_macro_cont:
+            break;
+
+        case string_open:
+            if (!m_currentToken.isStringLiteral()) {
+                leave();
+                continue;
+            }
             break;
 
         default:
@@ -693,7 +703,7 @@ int CodeFormatter::tokenCount() const
     return m_tokens.size();
 }
 
-const CPlusPlus::Token &CodeFormatter::currentToken() const
+const Token &CodeFormatter::currentToken() const
 {
     return m_currentToken;
 }
@@ -816,6 +826,9 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
         newState = lambda_instroducer_or_subscribtion;
         break;
     }
+
+    if (m_currentToken.isStringLiteral())
+        newState = string_open;
 
     if (newState != -1) {
         if (alsoExpression)
@@ -1000,7 +1013,7 @@ int CodeFormatter::column(int index) const
 
 QStringRef CodeFormatter::currentTokenText() const
 {
-    return m_currentLine.midRef(m_currentToken.begin(), m_currentToken.length());
+    return m_currentLine.midRef(m_currentToken.utf16charsBegin(), m_currentToken.utf16chars());
 }
 
 void CodeFormatter::turnInto(int newState)
@@ -1078,7 +1091,7 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
         *endedJoined = tokenize.endedJoined();
 
     const int lexerState = tokenize.state();
-    BaseTextDocumentLayout::setLexerState(block, lexerState);
+    TextDocumentLayout::setLexerState(block, lexerState);
     return lexerState;
 }
 
@@ -1098,7 +1111,7 @@ void CodeFormatter::dump() const
 
 namespace CppTools {
 namespace Internal {
-    class CppCodeFormatterData: public TextEditor::CodeFormatterData
+    class CppCodeFormatterData: public CodeFormatterData
     {
     public:
         CodeFormatter::BlockData m_data;
@@ -1110,7 +1123,7 @@ QtStyleCodeFormatter::QtStyleCodeFormatter()
 {
 }
 
-QtStyleCodeFormatter::QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings,
+QtStyleCodeFormatter::QtStyleCodeFormatter(const TabSettings &tabSettings,
                                            const CppCodeStyleSettings &settings)
     : m_tabSettings(tabSettings)
     , m_styleSettings(settings)
@@ -1118,7 +1131,7 @@ QtStyleCodeFormatter::QtStyleCodeFormatter(const TextEditor::TabSettings &tabSet
     setTabSize(tabSettings.m_tabSize);
 }
 
-void QtStyleCodeFormatter::setTabSettings(const TextEditor::TabSettings &tabSettings)
+void QtStyleCodeFormatter::setTabSettings(const TabSettings &tabSettings)
 {
     m_tabSettings = tabSettings;
     setTabSize(tabSettings.m_tabSize);
@@ -1131,7 +1144,7 @@ void QtStyleCodeFormatter::setCodeStyleSettings(const CppCodeStyleSettings &sett
 
 void QtStyleCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &data) const
 {
-    TextBlockUserData *userData = BaseTextDocumentLayout::userData(*block);
+    TextBlockUserData *userData = TextDocumentLayout::userData(*block);
     CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
     if (!cppData) {
         cppData = new CppCodeFormatterData;
@@ -1142,7 +1155,7 @@ void QtStyleCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &dat
 
 bool QtStyleCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *data) const
 {
-    TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block);
+    TextBlockUserData *userData = TextDocumentLayout::testUserData(block);
     if (!userData)
         return false;
     CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
@@ -1155,12 +1168,12 @@ bool QtStyleCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *dat
 
 void QtStyleCodeFormatter::saveLexerState(QTextBlock *block, int state) const
 {
-    BaseTextDocumentLayout::setLexerState(*block, state);
+    TextDocumentLayout::setLexerState(*block, state);
 }
 
 int QtStyleCodeFormatter::loadLexerState(const QTextBlock &block) const
 {
-    return BaseTextDocumentLayout::lexerState(block);
+    return TextDocumentLayout::lexerState(block);
 }
 
 void QtStyleCodeFormatter::addContinuationIndent(int *paddingDepth) const
@@ -1177,10 +1190,10 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     const Token &tk = currentToken();
     const bool firstToken = (tokenIndex() == 0);
     const bool lastToken = (tokenIndex() == tokenCount() - 1);
-    const int tokenPosition = column(tk.begin());
-    const int nextTokenPosition = lastToken ? tokenPosition + tk.length()
-                                            : column(tokenAt(tokenIndex() + 1).begin());
-    const int spaceOrNextTokenPosition = lastToken ? tokenPosition + tk.length() + 1
+    const int tokenPosition = column(tk.utf16charsBegin());
+    const int nextTokenPosition = lastToken ? tokenPosition + tk.utf16chars()
+                                            : column(tokenAt(tokenIndex() + 1).utf16charsBegin());
+    const int spaceOrNextTokenPosition = lastToken ? tokenPosition + tk.utf16chars() + 1
                                                    : nextTokenPosition;
 
     if (shouldClearPaddingOnEnter(newState))
@@ -1423,6 +1436,10 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case cpp_macro_cont:
         *indentDepth = m_tabSettings.m_indentSize;
         break;
+
+    case string_open:
+        *paddingDepth = tokenPosition - *indentDepth;
+        break;
     }
 
     // ensure padding and indent are >= 0
@@ -1432,7 +1449,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     *savedPaddingDepth = qMax(0, *savedPaddingDepth);
 }
 
-void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, int lexerState, int *indentDepth, int *paddingDepth) const
+void QtStyleCodeFormatter::adjustIndent(const Tokens &tokens, int lexerState, int *indentDepth, int *paddingDepth) const
 {
     State topState = state();
     State previousState = state(1);
@@ -1450,16 +1467,25 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
 
     // adjusting the indentDepth here instead of in enter() gives 'else if' the correct indentation
     // ### could be moved?
-    if (topState.type == substatement)
+    switch (topState.type) {
+    case substatement:
         *indentDepth += m_tabSettings.m_indentSize;
-
+        break;
     // keep user-adjusted indent in multiline comments
-    if (topState.type == multiline_comment_start
-            || topState.type == multiline_comment_cont) {
+    case multiline_comment_start:
+    case multiline_comment_cont:
         if (!tokens.isEmpty()) {
-            *indentDepth = column(tokens.at(0).begin());
+            *indentDepth = column(tokens.at(0).utf16charsBegin());
             return;
         }
+        break;
+    case string_open:
+        if (!tokenAt(0).isStringLiteral()) {
+            *paddingDepth = topState.savedPaddingDepth;
+            topState = previousState;
+            previousState = state(2);
+        }
+        break;
     }
 
     const int kind = tokenAt(0).kind();
@@ -1575,8 +1601,6 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
             } else if (type == case_cont) {
                 *indentDepth = state(i).savedIndentDepth;
                 break;
-            } else if (type == topmost_intro) {
-                break;
             }
         }
         break;
@@ -1642,6 +1666,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
             if (m_styleSettings.indentControlFlowRelativeToSwitchLabels)
                 *indentDepth += m_tabSettings.m_indentSize;
         }
+        break;
     }
     // ensure padding and indent are >= 0
     *indentDepth = qMax(0, *indentDepth);

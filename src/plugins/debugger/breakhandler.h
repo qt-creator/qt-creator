@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,8 +32,12 @@
 #define DEBUGGER_BREAKHANDLER_H
 
 #include "breakpoint.h"
+#include "debuggerprotocol.h"
 
-#include <QAbstractTableModel>
+#include <utils/treemodel.h>
+
+#include <QCoreApplication>
+#include <QPointer>
 
 //////////////////////////////////////////////////////////////////
 //
@@ -41,20 +46,132 @@
 //////////////////////////////////////////////////////////////////
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
-class BreakpointMarker;
+class BreakpointItem;
+class BreakHandler;
+class DebuggerCommand;
+class DebuggerEngine;
 
-class BreakHandler : public QAbstractItemModel
+// Non-owning "deletion-safe" wrapper around a BreakpointItem *
+class Breakpoint
+{
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
+
+public:
+    Breakpoint() {}
+
+    bool isValid() const;
+    operator const void *() const { return isValid() ? this : 0; }
+    bool operator!() const { return !isValid(); }
+
+    uint hash() const;
+
+    const BreakpointParameters &parameters() const;
+    void addToCommand(DebuggerCommand *cmd) const;
+
+    BreakpointModelId id() const;
+    bool isLocatedAt(const QString &fileName, int lineNumber,
+                     bool useMarkerPosition) const;
+
+    QIcon icon() const;
+    BreakpointState state() const;
+    void setEngine(DebuggerEngine *engine);
+
+    // State transitions.
+    void notifyBreakpointChangeAfterInsertNeeded();
+    void notifyBreakpointInsertProceeding();
+    void notifyBreakpointInsertOk();
+    void notifyBreakpointInsertFailed();
+    void notifyBreakpointChangeOk();
+    void notifyBreakpointChangeProceeding();
+    void notifyBreakpointChangeFailed();
+    void notifyBreakpointPending();
+    void notifyBreakpointRemoveProceeding();
+    void notifyBreakpointRemoveOk();
+    void notifyBreakpointRemoveFailed();
+    void notifyBreakpointReleased();
+    void notifyBreakpointNeedsReinsertion();
+    void notifyBreakpointAdjusted(const BreakpointParameters &params);
+
+    void update();
+
+    void gotoLocation() const;
+
+    // Getter retrieves property value.
+    // Setter sets property value and triggers update if changed.
+    // Only use setters when it is safe to assume that the breakpoint still
+    // exist. That's not the case if the event loop could run after you
+    // obtained the BreakpointItem pointer.
+    BreakpointPathUsage pathUsage() const;
+    void setPathUsage(const BreakpointPathUsage &u);
+    QByteArray condition() const;
+    void setCondition(const QByteArray &condition);
+    int ignoreCount() const;
+    void setIgnoreCount(const int &count);
+    int threadSpec() const;
+    void setThreadSpec(const int &spec);
+    QString fileName() const;
+    void setFileName(const QString &fileName);
+    QString functionName() const;
+    void setFunctionName(const QString &functionName);
+    QString expression() const;
+    void setExpression(const QString &expression);
+    QString message() const;
+    void setMessage(const QString &m);
+    BreakpointType type() const;
+    void setType(const BreakpointType &type);
+    quint64 address() const;
+    void setAddress(const quint64 &address);
+    int lineNumber() const;
+    void changeBreakpointData(const BreakpointParameters &data);
+    bool isEnabled() const;
+    void setEnabled(bool on) const;
+    void updateFileNameFromMarker(const QString &fileName);
+    void updateLineNumberFromMarker(int lineNumber);
+    void changeLineNumberFromMarker(int lineNumber);
+    void setMarkerFileAndLine(const QString &fileName, int lineNumber);
+    bool isWatchpoint() const;
+    bool isTracepoint() const;
+    void setTracepoint(bool on);
+    DebuggerEngine *engine() const;
+    const BreakpointResponse &response() const;
+    void setResponse(const BreakpointResponse &data);
+    bool needsChange() const;
+    bool needsChildren() const;
+
+    bool isOneShot() const;
+    void insertSubBreakpoint(const BreakpointResponse &data);
+    void removeAlienBreakpoint();
+    void removeBreakpoint() const;
+
+    QString msgWatchpointByAddressTriggered(int number, quint64 address) const;
+    QString msgWatchpointByAddressTriggered(
+        int number, quint64 address, const QString &threadId) const;
+    QString msgWatchpointByExpressionTriggered(int number, const QString &expr) const;
+    QString msgWatchpointByExpressionTriggered(
+        int number, const QString &expr, const QString &threadId) const;
+    QString msgBreakpointTriggered(int number, const QString &threadId) const;
+
+private:
+    void gotoState(BreakpointState target, BreakpointState assumedCurrent);
+
+    friend class BreakHandler;
+    explicit Breakpoint(BreakpointItem *b);
+
+    QPointer<BreakpointItem> b;
+};
+
+inline uint qHash(const Debugger::Internal::Breakpoint &b) { return b.hash(); }
+
+typedef QList<Breakpoint> Breakpoints;
+
+class BreakHandler : public Utils::TreeModel
 {
     Q_OBJECT
 
 public:
     BreakHandler();
-    ~BreakHandler();
 
     void loadSessionData();
     void saveSessionData();
@@ -64,22 +181,19 @@ public:
     // The only way to add a new breakpoint.
     void appendBreakpoint(const BreakpointParameters &data);
     void handleAlienBreakpoint(const BreakpointResponse &response, DebuggerEngine *engine);
-    void insertSubBreakpoint(BreakpointModelId id, const BreakpointResponse &data);
-    void removeAlienBreakpoint(BreakpointModelId id);
 
-    BreakpointModelIds allBreakpointIds() const;
-    BreakpointModelIds engineBreakpointIds(DebuggerEngine *engine) const;
-    BreakpointModelIds unclaimedBreakpointIds() const;
-    int size() const { return m_storage.size(); }
+    Breakpoints allBreakpoints() const;
+    Breakpoints engineBreakpoints(DebuggerEngine *engine) const;
+    Breakpoints unclaimedBreakpoints() const;
     QStringList engineBreakpointPaths(DebuggerEngine *engine) const;
 
     // Find a breakpoint matching approximately the data in needle.
-    BreakpointModelId findSimilarBreakpoint(const BreakpointResponse &needle) const;
-    BreakpointModelId findBreakpointByResponseId(const BreakpointResponseId &resultId) const;
-    BreakpointModelId findWatchpoint(const BreakpointParameters &data) const;
-    BreakpointModelId findBreakpointByFunction(const QString &functionName) const;
-    BreakpointModelId findBreakpointByIndex(const QModelIndex &index) const;
-    BreakpointModelIds findBreakpointsByIndex(const QList<QModelIndex> &list) const;
+    Breakpoint findSimilarBreakpoint(const BreakpointResponse &needle) const;
+    Breakpoint findBreakpointByResponseId(const BreakpointResponseId &resultId) const;
+    Breakpoint findWatchpoint(const BreakpointParameters &data) const;
+    Breakpoint findBreakpointByFunction(const QString &functionName) const;
+    Breakpoint findBreakpointByIndex(const QModelIndex &index) const;
+    Breakpoints findBreakpointsByIndex(const QList<QModelIndex> &list) const;
     void updateMarkers();
 
     static QIcon breakpointIcon();
@@ -89,77 +203,11 @@ public:
     static QIcon watchpointIcon();
     static QIcon tracepointIcon();
 
-    BreakpointModelId findBreakpointByFileAndLine(const QString &fileName,
+    Breakpoint findBreakpointByFileAndLine(const QString &fileName,
         int lineNumber, bool useMarkerPosition = true);
-    BreakpointModelId findBreakpointByAddress(quint64 address) const;
+    Breakpoint findBreakpointByAddress(quint64 address) const;
 
     void breakByFunction(const QString &functionName);
-    void removeBreakpoint(BreakpointModelId id);
-    QIcon icon(BreakpointModelId id) const;
-    void gotoLocation(BreakpointModelId id) const;
-
-    // Getter retrieves property value.
-    // Setter sets property value and triggers update if changed.
-    BreakpointPathUsage pathUsage(BreakpointModelId id) const;
-    void setPathUsage(BreakpointModelId, const BreakpointPathUsage &u);
-    QByteArray condition(BreakpointModelId id) const;
-    void setCondition(BreakpointModelId, const QByteArray &condition);
-    int ignoreCount(BreakpointModelId id) const;
-    void setIgnoreCount(BreakpointModelId, const int &count);
-    int threadSpec(BreakpointModelId id) const;
-    void setThreadSpec(BreakpointModelId, const int &spec);
-    QString fileName(BreakpointModelId id) const;
-    void setFileName(BreakpointModelId, const QString &fileName);
-    QString functionName(BreakpointModelId id) const;
-    void setFunctionName(BreakpointModelId, const QString &functionName);
-    QString expression(BreakpointModelId id) const;
-    void setExpression(BreakpointModelId, const QString &expression);
-    QString message(BreakpointModelId id) const;
-    void setMessage(BreakpointModelId, const QString &m);
-    BreakpointType type(BreakpointModelId id) const;
-    void setType(BreakpointModelId id, const BreakpointType &type);
-    quint64 address(BreakpointModelId id) const;
-    void setAddress(BreakpointModelId id, const quint64 &address);
-    int lineNumber(BreakpointModelId id) const;
-    void changeBreakpointData(BreakpointModelId id, const BreakpointParameters &data,
-        BreakpointParts parts);
-    const BreakpointParameters &breakpointData(BreakpointModelId id) const;
-    BreakpointState state(BreakpointModelId id) const;
-    bool isEnabled(BreakpointModelId id) const;
-    void setEnabled(BreakpointModelId id, bool on);
-    void updateFileNameFromMarker(BreakpointModelId id, const QString &fileName);
-    void updateLineNumberFromMarker(BreakpointModelId id, int lineNumber);
-    void changeLineNumberFromMarker(BreakpointModelId id, int lineNumber);
-    void setMarkerFileAndLine(BreakpointModelId id,
-        const QString &fileName, int lineNumber);
-    bool isOneShot(BreakpointModelId id) const;
-    bool isWatchpoint(BreakpointModelId id) const;
-    bool isTracepoint(BreakpointModelId id) const;
-    void setTracepoint(BreakpointModelId, bool on);
-    DebuggerEngine *engine(BreakpointModelId id) const;
-    void setEngine(BreakpointModelId id, DebuggerEngine *engine);
-    const BreakpointResponse &response(BreakpointModelId id) const;
-    void setResponse(BreakpointModelId id, const BreakpointResponse &data);
-    bool needsChange(BreakpointModelId id) const;
-    bool needsChildren(BreakpointModelId id) const;
-
-    // State transitions.
-    void notifyBreakpointChangeAfterInsertNeeded(BreakpointModelId id);
-    void notifyBreakpointInsertProceeding(BreakpointModelId id);
-    void notifyBreakpointInsertOk(BreakpointModelId id);
-    void notifyBreakpointInsertFailed(BreakpointModelId id);
-    void notifyBreakpointChangeOk(BreakpointModelId id);
-    void notifyBreakpointChangeProceeding(BreakpointModelId id);
-    void notifyBreakpointChangeFailed(BreakpointModelId id);
-    void notifyBreakpointPending(BreakpointModelId id);
-    void notifyBreakpointRemoveProceeding(BreakpointModelId id);
-    void notifyBreakpointRemoveOk(BreakpointModelId id);
-    void notifyBreakpointRemoveFailed(BreakpointModelId id);
-    void notifyBreakpointReleased(BreakpointModelId id);
-    void notifyBreakpointNeedsReinsertion(BreakpointModelId id);
-    void notifyBreakpointAdjusted(BreakpointModelId id,
-            const BreakpointParameters &data);
-
     static QString displayFromThreadSpec(int spec);
     static int threadSpecFromDisplay(const QString &str);
 
@@ -167,53 +215,19 @@ public:
     void setWatchpointAtAddress(quint64 address, unsigned size);
     void setWatchpointAtExpression(const QString &exp);
 
-private:
-    // QAbstractItemModel implementation.
-    int columnCount(const QModelIndex &parent) const;
-    int rowCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    QModelIndex index(int row, int col, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &parent) const;
-    QModelIndex createIndex(int row, int column, quint32 id) const;
-    QModelIndex createIndex(int row, int column, void *ptr) const;
+    Breakpoint breakpointById(BreakpointModelId id) const;
 
-    int indexOf(BreakpointModelId id) const;
-    BreakpointModelId at(int index) const;
-    bool isEngineRunning(BreakpointModelId id) const;
-    void setState(BreakpointModelId id, BreakpointState state);
+private:
+    friend class BreakpointItem;
+    friend class Breakpoint;
+
     void loadBreakpoints();
     void saveBreakpoints();
-    void cleanupBreakpoint(BreakpointModelId id);
-    Q_SLOT void changeLineNumberFromMarkerHelper(Debugger::Internal::BreakpointModelId id, int lineNumber);
 
-    struct BreakpointItem
-    {
-        BreakpointItem();
+    void appendBreakpointInternal(const BreakpointParameters &data);
 
-        void destroyMarker();
-        bool needsChange() const;
-        bool isLocatedAt(const QString &fileName, int lineNumber,
-            bool useMarkerPosition) const;
-        void updateMarker(BreakpointModelId id);
-        void updateMarkerIcon();
-        QString toToolTip() const;
-        QString markerFileName() const;
-        int markerLineNumber() const;
-        QIcon icon() const;
-
-        BreakpointParameters data;
-        BreakpointState state;   // Current state of breakpoint.
-        DebuggerEngine *engine;  // Engine currently handling the breakpoint.
-        BreakpointResponse response;
-        BreakpointMarker *marker;
-        QList<BreakpointResponse> subItems;
-    };
-    typedef QHash<BreakpointModelId, BreakpointItem> BreakpointStorage;
-    typedef BreakpointStorage::ConstIterator ConstIterator;
-    typedef BreakpointStorage::Iterator Iterator;
-    BreakpointStorage m_storage;
+    Q_SLOT void changeLineNumberFromMarkerHelper(Debugger::Internal::BreakpointModelId id);
+    Q_SLOT void deletionHelper(Debugger::Internal::BreakpointModelId id);
 
     void scheduleSynchronization();
     void timerEvent(QTimerEvent *event);
@@ -222,5 +236,7 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::Breakpoint)
 
 #endif // DEBUGGER_BREAKHANDLER_H

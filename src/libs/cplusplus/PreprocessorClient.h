@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,7 +33,7 @@
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
-#include <QString>
+#include <QStringList>
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
@@ -46,19 +47,31 @@ class Macro;
 
 class CPLUSPLUS_EXPORT MacroArgumentReference
 {
-  unsigned _position;
-  unsigned _length;
+  unsigned _bytesOffset;
+  unsigned _bytesLength;
+  unsigned _utf16charsOffset;
+  unsigned _utf16charsLength;
 
 public:
-  explicit MacroArgumentReference(unsigned position = 0, unsigned length = 0)
-    : _position(position), _length(length)
+  explicit MacroArgumentReference(unsigned bytesOffset = 0, unsigned bytesLength = 0,
+                                  unsigned utf16charsOffset = 0, unsigned utf16charsLength = 0)
+    : _bytesOffset(bytesOffset)
+    , _bytesLength(bytesLength)
+    , _utf16charsOffset(utf16charsOffset)
+    , _utf16charsLength(utf16charsLength)
   { }
 
-  unsigned position() const
-  { return _position; }
+  unsigned bytesOffset() const
+  { return _bytesOffset; }
 
-  unsigned length() const
-  { return _length; }
+  unsigned bytesLength() const
+  { return _bytesLength; }
+
+  unsigned utf16charsOffset() const
+  { return _utf16charsOffset; }
+
+  unsigned utf16charsLength() const
+  { return _utf16charsLength; }
 };
 
 class CPLUSPLUS_EXPORT Client
@@ -79,26 +92,29 @@ public:
 
   virtual void macroAdded(const Macro &macro) = 0;
 
-  virtual void passedMacroDefinitionCheck(unsigned offset, unsigned line, const Macro &macro) = 0;
-  virtual void failedMacroDefinitionCheck(unsigned offset, const ByteArrayRef &name) = 0;
+  virtual void passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
+                                          unsigned line, const Macro &macro) = 0;
+  virtual void failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
+                                          const ByteArrayRef &name) = 0;
 
-  virtual void notifyMacroReference(unsigned offset, unsigned line, const Macro &macro) = 0;
+  virtual void notifyMacroReference(unsigned bytesOffset, unsigned utf16charsOffset,
+                                    unsigned line, const Macro &macro) = 0;
 
-  virtual void startExpandingMacro(unsigned offset,
-                                   unsigned line,
-                                   const Macro &macro,
+  virtual void startExpandingMacro(unsigned bytesOffset, unsigned utf16charsOffset,
+                                   unsigned line, const Macro &macro,
                                    const QVector<MacroArgumentReference> &actuals
                                             = QVector<MacroArgumentReference>()) = 0;
-  virtual void stopExpandingMacro(unsigned offset, const Macro &macro) = 0;
+  virtual void stopExpandingMacro(unsigned bytesOffset, const Macro &macro) = 0; // TODO: ?!
 
   /// Mark the given macro name as the include guard for the current file.
   virtual void markAsIncludeGuard(const QByteArray &macroName) = 0;
 
-  /// Start skipping from the given offset.
-  virtual void startSkippingBlocks(unsigned offset) = 0;
-  virtual void stopSkippingBlocks(unsigned offset) = 0;
+  /// Start skipping from the given utf16charsOffset.
+  virtual void startSkippingBlocks(unsigned utf16charsOffset) = 0;
+  virtual void stopSkippingBlocks(unsigned utf16charsOffset) = 0;
 
-  virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode) = 0;
+  virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode,
+                            const QStringList &initialIncludes = QStringList()) = 0;
 
   static inline bool isInjectedFile(const QString &fileName)
   {

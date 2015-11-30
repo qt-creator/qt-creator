@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -91,8 +92,8 @@ QActionPushButton::QActionPushButton(QAction *a) :
     setIcon(a->icon());
     setText(a->text());
     setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    connect(a, SIGNAL(changed()), this, SLOT(actionChanged()));
-    connect(this, SIGNAL(clicked()), a, SLOT(trigger()));
+    connect(a, &QAction::changed, this, &QActionPushButton::actionChanged);
+    connect(this, &QAbstractButton::clicked, a, &QAction::trigger);
     setEnabled(a->isEnabled());
 }
 
@@ -156,6 +157,8 @@ struct SubmitEditorWidgetPrivate
     bool m_commitEnabled;
     bool m_ignoreChange;
     bool m_descriptionMandatory;
+    bool m_updateInProgress;
+    QString m_description;
 
     QActionPushButton *m_submitButton;
 };
@@ -170,34 +173,34 @@ SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_commitEnabled(false),
     m_ignoreChange(false),
     m_descriptionMandatory(true),
+    m_updateInProgress(false),
     m_submitButton(0)
 {
 }
 
-SubmitEditorWidget::SubmitEditorWidget(QWidget *parent) :
-    QWidget(parent),
+SubmitEditorWidget::SubmitEditorWidget() :
     d(new SubmitEditorWidgetPrivate)
 {
     d->m_ui.setupUi(this);
     d->m_ui.description->setContextMenuPolicy(Qt::CustomContextMenu);
     d->m_ui.description->setLineWrapMode(QTextEdit::NoWrap);
     d->m_ui.description->setWordWrapMode(QTextOption::WordWrap);
-    connect(d->m_ui.description, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(editorCustomContextMenuRequested(QPoint)));
-    connect(d->m_ui.description, SIGNAL(textChanged()),
-            this, SLOT(descriptionTextChanged()));
+    connect(d->m_ui.description, &QWidget::customContextMenuRequested,
+            this, &SubmitEditorWidget::editorCustomContextMenuRequested);
+    connect(d->m_ui.description, &QTextEdit::textChanged,
+            this, &SubmitEditorWidget::descriptionTextChanged);
 
     // File List
     d->m_ui.fileView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(d->m_ui.fileView, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(fileListCustomContextMenuRequested(QPoint)));
+    connect(d->m_ui.fileView, &QWidget::customContextMenuRequested,
+            this, &SubmitEditorWidget::fileListCustomContextMenuRequested);
     d->m_ui.fileView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     d->m_ui.fileView->setRootIsDecorated(false);
-    connect(d->m_ui.fileView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(diffActivated(QModelIndex)));
+    connect(d->m_ui.fileView, &QAbstractItemView::doubleClicked,
+            this, &SubmitEditorWidget::diffActivated);
 
-    connect(d->m_ui.checkAllCheckBox, SIGNAL(stateChanged(int)),
-            this, SLOT(checkAllToggled()));
+    connect(d->m_ui.checkAllCheckBox, &QCheckBox::stateChanged,
+            this, &SubmitEditorWidget::checkAllToggled);
 
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(d->m_ui.description);
@@ -213,13 +216,15 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
 {
     if (editorUndoAction) {
         editorUndoAction->setEnabled(d->m_ui.description->document()->isUndoAvailable());
-        connect(d->m_ui.description, SIGNAL(undoAvailable(bool)), editorUndoAction, SLOT(setEnabled(bool)));
-        connect(editorUndoAction, SIGNAL(triggered()), d->m_ui.description, SLOT(undo()));
+        connect(d->m_ui.description, &QTextEdit::undoAvailable,
+                editorUndoAction, &QAction::setEnabled);
+        connect(editorUndoAction, &QAction::triggered, d->m_ui.description, &QTextEdit::undo);
     }
     if (editorRedoAction) {
         editorRedoAction->setEnabled(d->m_ui.description->document()->isRedoAvailable());
-        connect(d->m_ui.description, SIGNAL(redoAvailable(bool)), editorRedoAction, SLOT(setEnabled(bool)));
-        connect(editorRedoAction, SIGNAL(triggered()), d->m_ui.description, SLOT(redo()));
+        connect(d->m_ui.description, &QTextEdit::redoAvailable,
+                editorRedoAction, &QAction::setEnabled);
+        connect(editorRedoAction, &QAction::triggered, d->m_ui.description, &QTextEdit::redo);
     }
 
     if (submitAction) {
@@ -229,24 +234,27 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
             qDebug() << Q_FUNC_INFO << submitAction << count << "items";
         }
         d->m_commitEnabled = !canSubmit();
-        connect(this, SIGNAL(submitActionEnabledChanged(bool)), submitAction, SLOT(setEnabled(bool)));
+        connect(this, &SubmitEditorWidget::submitActionEnabledChanged,
+                submitAction, &QAction::setEnabled);
         // Wire setText via QActionSetTextSlotHelper.
-        QActionSetTextSlotHelper *actionSlotHelper = submitAction->findChild<QActionSetTextSlotHelper *>();
+        QActionSetTextSlotHelper *actionSlotHelper
+                = submitAction->findChild<QActionSetTextSlotHelper *>();
         if (!actionSlotHelper)
             actionSlotHelper = new QActionSetTextSlotHelper(submitAction);
-        connect(this, SIGNAL(submitActionTextChanged(QString)), actionSlotHelper, SLOT(setText(QString)));
+        connect(this, &SubmitEditorWidget::submitActionTextChanged,
+                actionSlotHelper, &QActionSetTextSlotHelper::setText);
         d->m_submitButton = new QActionPushButton(submitAction);
         d->m_ui.buttonLayout->addWidget(d->m_submitButton);
         if (!d->m_submitShortcut)
             d->m_submitShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Return), this);
-        connect(d->m_submitShortcut, SIGNAL(activated()), submitAction, SLOT(trigger()));
+        connect(d->m_submitShortcut, &QShortcut::activated, submitAction, &QAction::trigger);
     }
     if (diffAction) {
         if (debug)
             qDebug() << diffAction << d->m_filesSelected;
         diffAction->setEnabled(d->m_filesSelected);
-        connect(this, SIGNAL(fileSelectionChanged(bool)), diffAction, SLOT(setEnabled(bool)));
-        connect(diffAction, SIGNAL(triggered()), this, SLOT(triggerDiffSelected()));
+        connect(this, &SubmitEditorWidget::fileSelectionChanged, diffAction, &QAction::setEnabled);
+        connect(diffAction, &QAction::triggered, this, &SubmitEditorWidget::triggerDiffSelected);
         d->m_ui.buttonLayout->addWidget(new QActionPushButton(diffAction));
     }
 }
@@ -255,61 +263,79 @@ void SubmitEditorWidget::unregisterActions(QAction *editorUndoAction,  QAction *
                                            QAction *submitAction, QAction *diffAction)
 {
     if (editorUndoAction) {
-        disconnect(d->m_ui.description, SIGNAL(undoAvailableChanged(bool)), editorUndoAction, SLOT(setEnabled(bool)));
-        disconnect(editorUndoAction, SIGNAL(triggered()), d->m_ui.description, SLOT(undo()));
+        disconnect(d->m_ui.description, &Utils::CompletingTextEdit::undoAvailable,
+                   editorUndoAction, &QAction::setEnabled);
+        disconnect(editorUndoAction, &QAction::triggered,
+                   d->m_ui.description, &Utils::CompletingTextEdit::undo);
     }
     if (editorRedoAction) {
-        disconnect(d->m_ui.description, SIGNAL(redoAvailableChanged(bool)), editorRedoAction, SLOT(setEnabled(bool)));
-        disconnect(editorRedoAction, SIGNAL(triggered()), d->m_ui.description, SLOT(redo()));
+        disconnect(d->m_ui.description, &Utils::CompletingTextEdit::redoAvailable,
+                   editorRedoAction, &QAction::setEnabled);
+        disconnect(editorRedoAction, &QAction::triggered,
+                   d->m_ui.description, &Utils::CompletingTextEdit::redo);
     }
 
     if (submitAction) {
-        disconnect(this, SIGNAL(submitActionEnabledChanged(bool)), submitAction, SLOT(setEnabled(bool)));
+        disconnect(this, &SubmitEditorWidget::submitActionEnabledChanged,
+                   submitAction, &QAction::setEnabled);
         // Just deactivate the QActionSetTextSlotHelper on the action
-        disconnect(this, SIGNAL(submitActionTextChanged(QString)), 0, 0);
+        disconnect(this, &SubmitEditorWidget::submitActionTextChanged, 0, 0);
     }
 
     if (diffAction) {
-         disconnect(this, SIGNAL(fileSelectionChanged(bool)), diffAction, SLOT(setEnabled(bool)));
-         disconnect(diffAction, SIGNAL(triggered()), this, SLOT(triggerDiffSelected()));
+         disconnect(this, &SubmitEditorWidget::fileSelectionChanged,
+                    diffAction, &QAction::setEnabled);
+         disconnect(diffAction, &QAction::triggered,
+                    this, &SubmitEditorWidget::triggerDiffSelected);
     }
 }
 
 // Make sure we have one terminating NL. Do not trim front as leading space might be
 // required for some formattings.
-static inline QString trimMessageText(QString t)
+void SubmitEditorWidget::trimDescription()
 {
-    if (t.isEmpty())
-        return t;
+    if (d->m_description.isEmpty())
+        return;
     // Trim back of string.
-    const int last = t.size() - 1;
+    const int last = d->m_description.size() - 1;
     int lastWordCharacter = last;
-    for ( ; lastWordCharacter >= 0 && t.at(lastWordCharacter).isSpace() ; lastWordCharacter--) ;
+    for ( ; lastWordCharacter >= 0 && d->m_description.at(lastWordCharacter).isSpace() ;
+          lastWordCharacter--)
+    { }
     if (lastWordCharacter != last)
-        t.truncate(lastWordCharacter + 1);
-    t += QLatin1Char('\n');
-    return t;
+        d->m_description.truncate(lastWordCharacter + 1);
+    d->m_description += QLatin1Char('\n');
 }
 
 // Extract the wrapped text from a text edit, which performs
 // the wrapping only optically.
-static QString wrappedText(const QTextEdit *e)
+void SubmitEditorWidget::wrapDescription()
 {
+    if (!lineWrap())
+        return;
     const QChar newLine = QLatin1Char('\n');
-    QString rc;
-    QTextCursor cursor(e->document());
+    QTextEdit e;
+    e.setVisible(false);
+    e.setMinimumWidth(1000);
+    e.setFontPointSize(1.0);
+    e.setLineWrapColumnOrWidth(d->m_ui.description->lineWrapColumnOrWidth());
+    e.setLineWrapMode(d->m_ui.description->lineWrapMode());
+    e.setWordWrapMode(d->m_ui.description->wordWrapMode());
+    e.setPlainText(d->m_description);
+    d->m_description.clear();
+    QTextCursor cursor(e.document());
     cursor.movePosition(QTextCursor::Start);
     while (!cursor.atEnd()) {
         const QString block = cursor.block().text();
         if (block.startsWith(QLatin1Char('\t'))) { // Don't wrap
-            rc += block + newLine;
+            d->m_description += block + newLine;
             cursor.movePosition(QTextCursor::EndOfBlock);
         } else {
             forever {
                 cursor.select(QTextCursor::LineUnderCursor);
-                rc += cursor.selectedText();
-                rc += newLine;
-                cursor.movePosition(QTextCursor::EndOfLine); // Mac needs it
+                d->m_description += cursor.selectedText();
+                d->m_description += newLine;
+                cursor.clearSelection();
                 if (cursor.atBlockEnd())
                     break;
                 cursor.movePosition(QTextCursor::NextCharacter);
@@ -317,17 +343,11 @@ static QString wrappedText(const QTextEdit *e)
         }
         cursor.movePosition(QTextCursor::NextBlock);
     }
-    return rc;
 }
 
 QString SubmitEditorWidget::descriptionText() const
 {
-    QString rc = trimMessageText(lineWrap() ? wrappedText(d->m_ui.description) :
-                                              d->m_ui.description->toPlainText());
-    // append field entries
-    foreach (const SubmitFieldWidget *fw, d->m_fieldWidgets)
-        rc += fw->fieldValues();
-    return cleanupDescription(rc);
+    return d->m_description;
 }
 
 void SubmitEditorWidget::setDescriptionText(const QString &text)
@@ -400,20 +420,20 @@ void SubmitEditorWidget::setFileModel(SubmitFileModel *model)
             d->m_ui.fileView->resizeColumnToContents(c);
     }
 
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(updateSubmitAction()));
-    connect(model, SIGNAL(modelReset()),
-            this, SLOT(updateSubmitAction()));
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(updateCheckAllComboBox()));
-    connect(model, SIGNAL(modelReset()),
-            this, SLOT(updateCheckAllComboBox()));
-    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(updateSubmitAction()));
-    connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-            this, SLOT(updateSubmitAction()));
-    connect(d->m_ui.fileView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(updateDiffAction()));
+    connect(model, &QAbstractItemModel::dataChanged,
+            this, &SubmitEditorWidget::updateSubmitAction);
+    connect(model, &QAbstractItemModel::modelReset,
+            this, &SubmitEditorWidget::updateSubmitAction);
+    connect(model, &QAbstractItemModel::dataChanged,
+            this, &SubmitEditorWidget::updateCheckAllComboBox);
+    connect(model, &QAbstractItemModel::modelReset,
+            this, &SubmitEditorWidget::updateCheckAllComboBox);
+    connect(model, &QAbstractItemModel::rowsInserted,
+            this, &SubmitEditorWidget::updateSubmitAction);
+    connect(model, &QAbstractItemModel::rowsRemoved,
+            this, &SubmitEditorWidget::updateSubmitAction);
+    connect(d->m_ui.fileView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &SubmitEditorWidget::updateDiffAction);
     updateActions();
 }
 
@@ -457,7 +477,7 @@ void SubmitEditorWidget::diffActivated(const QModelIndex &index)
     // We need to delay the signal, otherwise, the diff editor will not
     // be in the foreground.
     d->m_activatedRow = index.row();
-    QTimer::singleShot(0, this, SLOT(diffActivatedDelayed()));
+    QTimer::singleShot(0, this, &SubmitEditorWidget::diffActivatedDelayed);
 }
 
 void SubmitEditorWidget::updateActions()
@@ -541,6 +561,11 @@ void SubmitEditorWidget::insertTopWidget(QWidget *w)
     d->m_ui.vboxLayout->insertWidget(0, w);
 }
 
+void SubmitEditorWidget::insertLeftWidget(QWidget *w)
+{
+    d->m_ui.splitter->insertWidget(0, w);
+}
+
 void SubmitEditorWidget::addSubmitButtonMenu(QMenu *menu)
 {
     d->m_submitButton->setMenu(menu);
@@ -554,23 +579,34 @@ void SubmitEditorWidget::hideDescription()
 
 void SubmitEditorWidget::descriptionTextChanged()
 {
-#if QT_VERSION < 0x050000 // Fix Qt-Bug, see QTCREATORBUG-5633 && QTCREATORBUG-6082
-    static QString lastText;
-    const QString text = d->m_ui.description->toPlainText();
-    if (lastText != text)
-        lastText = text;
-    else
-        return;
-#endif
+    d->m_description = cleanupDescription(d->m_ui.description->toPlainText());
+    wrapDescription();
+    trimDescription();
+    // append field entries
+    foreach (const SubmitFieldWidget *fw, d->m_fieldWidgets)
+        d->m_description += fw->fieldValues();
     updateSubmitAction();
 }
 
 bool SubmitEditorWidget::canSubmit() const
 {
-    if (isDescriptionMandatory() && cleanupDescription(descriptionText()).trimmed().isEmpty())
+    if (d->m_updateInProgress)
+        return false;
+    if (isDescriptionMandatory() && d->m_description.trimmed().isEmpty())
         return false;
     const unsigned checkedCount = checkedFilesCount();
     return d->m_emptyFileListEnabled || checkedCount > 0;
+}
+
+void SubmitEditorWidget::setUpdateInProgress(bool value)
+{
+    d->m_updateInProgress = value;
+    updateSubmitAction();
+}
+
+bool SubmitEditorWidget::updateInProgress() const
+{
+    return d->m_updateInProgress;
 }
 
 QString SubmitEditorWidget::commitName() const
@@ -583,7 +619,7 @@ void SubmitEditorWidget::addSubmitFieldWidget(SubmitFieldWidget *f)
     if (!d->m_fieldLayout) {
         // VBox with horizontal, expanding spacer
         d->m_fieldLayout = new QVBoxLayout;
-        QHBoxLayout *outerLayout = new QHBoxLayout;
+        auto outerLayout = new QHBoxLayout;
         outerLayout->addLayout(d->m_fieldLayout);
         outerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
         d->m_ui.descriptionLayout->addLayout(outerLayout);
@@ -599,19 +635,22 @@ QList<SubmitFieldWidget *> SubmitEditorWidget::submitFieldWidgets() const
 
 void SubmitEditorWidget::addDescriptionEditContextMenuAction(QAction *a)
 {
-    d->descriptionEditContextMenuActions.push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(-1, a));
+    d->descriptionEditContextMenuActions
+            .push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(-1, a));
 }
 
 void SubmitEditorWidget::insertDescriptionEditContextMenuAction(int pos, QAction *a)
 {
-    d->descriptionEditContextMenuActions.push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(pos, a));
+    d->descriptionEditContextMenuActions
+            .push_back(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(pos, a));
 }
 
 void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
 {
     QScopedPointer<QMenu> menu(d->m_ui.description->createStandardContextMenu());
     // Extend
-    foreach (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a, d->descriptionEditContextMenuActions) {
+    foreach (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a,
+             d->descriptionEditContextMenuActions) {
         if (a.second) {
             if (a.first >= 0)
                 menu->insertAction(menu->actions().at(a.first), a.second);
@@ -647,9 +686,9 @@ void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint & pos)
     // Execute menu offering to check/uncheck all
     QMenu menu;
     //: Check all for submit
-    QAction *checkAllAction = menu.addAction(tr("Check All"));
+    QAction *checkAllAction = menu.addAction(tr("Select All"));
     //: Uncheck all for submit
-    QAction *uncheckAllAction = menu.addAction(tr("Uncheck All"));
+    QAction *uncheckAllAction = menu.addAction(tr("Unselect All"));
     QAction *action = menu.exec(d->m_ui.fileView->mapToGlobal(pos));
     if (action == checkAllAction) {
         checkAll();

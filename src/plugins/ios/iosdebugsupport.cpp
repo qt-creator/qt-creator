@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,23 +34,22 @@
 #include "iosmanager.h"
 #include "iosdevice.h"
 
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/fileutils.h>
+#include <utils/qtcprocess.h>
 
+#include <QDateTime>
 #include <QDir>
 #include <QTcpServer>
+#include <QSettings>
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -61,7 +61,6 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 namespace Ios {
 namespace Internal {
@@ -72,11 +71,9 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     Target *target = runConfig->target();
     if (!target)
         return 0;
-    ProjectExplorer::IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
+    IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
     if (device.isNull())
         return 0;
-    QmakeProject *project = static_cast<QmakeProject *>(target->project());
-    Kit *kit = target->kit();
 
     DebuggerStartParameters params;
     if (device->type() == Core::Id(Ios::Constants::IOS_DEVICE_TYPE)) {
@@ -112,120 +109,126 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
         params.startMode = AttachExternal;
         params.platform = QLatin1String("ios-simulator");
     }
-    params.displayName = runConfig->appName();
+    params.displayName = runConfig->applicationName();
     params.remoteSetupNeeded = true;
-    if (!params.breakOnMain)
-        params.continueAfterAttach = true;
+    params.continueAfterAttach = true;
 
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    if (aspect->useCppDebugger()) {
-        params.languages |= CppLanguage;
-        params.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-        params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
-        if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
-            params.toolChainAbi = tc->targetAbi();
-        params.executable = runConfig->exePath().toString();
+    auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
+    bool cppDebug = aspect->useCppDebugger();
+    bool qmlDebug = aspect->useQmlDebugger();
+    if (cppDebug) {
+        params.executable = runConfig->localExecutable().toString();
         params.remoteChannel = QLatin1String("connect://localhost:0");
+
+        Utils::FileName xcodeInfo = IosConfigurations::developerPath().parentDir()
+                .appendPath(QLatin1String("Info.plist"));
+        bool buggyLldb = false;
+        if (xcodeInfo.exists()) {
+            QSettings settings(xcodeInfo.toString(), QSettings::NativeFormat);
+            QStringList version = settings.value(QLatin1String("CFBundleShortVersionString")).toString()
+                    .split(QLatin1Char('.'));
+            if (version.value(0).toInt() == 5 && version.value(1, QString::number(1)).toInt() == 0)
+                buggyLldb = true;
+        }
+        QString bundlePath = runConfig->bundleDirectory().toString();
+        bundlePath.chop(4);
+        Utils::FileName dsymPath = Utils::FileName::fromString(
+                    bundlePath.append(QLatin1String(".dSYM")));
+        if (!dsymPath.exists()) {
+            if (buggyLldb)
+                TaskHub::addTask(Task::Warning,
+                                 tr("Debugging with Xcode 5.0.x can be unreliable without a dSYM. "
+                                    "To create one, add a dsymutil deploystep."),
+                                 ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        } else if (dsymPath.toFileInfo().lastModified()
+                   < QFileInfo(runConfig->localExecutable().toUserOutput()).lastModified()) {
+            TaskHub::addTask(Task::Warning,
+                             tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
+                             .arg(dsymPath.toUserOutput()),
+                             ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        }
     }
-    if (aspect->useQmlDebugger()) {
-        params.languages |= QmlLanguage;
-        QTcpServer server;
-        QTC_ASSERT(server.listen(QHostAddress::LocalHost)
-                   || server.listen(QHostAddress::LocalHostIPv6), return 0);
-        params.qmlServerAddress = server.serverAddress().toString();
-        params.remoteSetupNeeded = true;
-        //TODO: Not sure if these are the right paths.
-        params.projectSourceDirectory = project->projectDirectory();
-        params.projectSourceFiles = project->files(QmakeProject::ExcludeGeneratedFiles);
-        params.projectBuildDirectory = project->rootQmakeProjectNode()->buildDir();
+    if (qmlDebug && !cppDebug) {
+        params.startMode = AttachToRemoteServer;
     }
 
-    DebuggerRunControl * const debuggerRunControl
-        = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
+    DebuggerRunControl *debuggerRunControl = createDebuggerRunControl(params, runConfig, errorMessage);
     if (debuggerRunControl)
-        new IosDebugSupport(runConfig, debuggerRunControl);
+        new IosDebugSupport(runConfig, debuggerRunControl, cppDebug, qmlDebug);
     return debuggerRunControl;
 }
 
 IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
-    DebuggerRunControl *runControl)
+    DebuggerRunControl *runControl, bool cppDebug, bool qmlDebug)
     : QObject(runControl), m_runControl(runControl),
-      m_runner(new IosRunner(this, runConfig, true)),
-      m_qmlPort(0)
+      m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug ? QmlDebug::QmlDebuggerServices :
+                                                                   QmlDebug::NoQmlDebugServices))
 {
+    connect(m_runControl, &DebuggerRunControl::requestRemoteSetup,
+            m_runner, &IosRunner::start);
+    connect(m_runControl, &RunControl::finished,
+            m_runner, &IosRunner::stop);
 
-    connect(m_runControl->engine(), SIGNAL(requestRemoteSetup()),
-            m_runner, SLOT(start()));
-    connect(m_runControl, SIGNAL(finished()),
-            m_runner, SLOT(stop()));
+    connect(m_runner, &IosRunner::gotServerPorts,
+        this, &IosDebugSupport::handleServerPorts);
+    connect(m_runner, &IosRunner::gotInferiorPid,
+        this, &IosDebugSupport::handleGotInferiorPid);
+    connect(m_runner, &IosRunner::finished,
+        this, &IosDebugSupport::handleRemoteProcessFinished);
 
-    connect(m_runner, SIGNAL(gotGdbserverPort(int)),
-        SLOT(handleGdbServerPort(int)));
-    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID)),
-        SLOT(handleGotInferiorPid(Q_PID)));
-    connect(m_runner, SIGNAL(finished(bool)),
-        SLOT(handleRemoteProcessFinished(bool)));
-
-    connect(m_runner, SIGNAL(errorMsg(QString)),
-        SLOT(handleRemoteErrorOutput(QString)));
-    connect(m_runner, SIGNAL(appOutput(QString)),
-        SLOT(handleRemoteOutput(QString)));
+    connect(m_runner, &IosRunner::errorMsg,
+        this, &IosDebugSupport::handleRemoteErrorOutput);
+    connect(m_runner, &IosRunner::appOutput,
+        this, &IosDebugSupport::handleRemoteOutput);
 }
 
 IosDebugSupport::~IosDebugSupport()
 {
 }
 
-void IosDebugSupport::handleGdbServerPort(int gdbServerPort)
+void IosDebugSupport::handleServerPorts(int gdbServerPort, int qmlPort)
 {
-    if (gdbServerPort > 0) {
-        m_runControl->engine()->notifyEngineRemoteSetupDone(gdbServerPort, m_qmlPort);
-    } else {
-        m_runControl->engine()->notifyEngineRemoteSetupFailed(
-                    tr("Could not get debug server file descriptor."));
-    }
+    RemoteSetupResult result;
+    result.gdbServerPort = gdbServerPort;
+    result.qmlServerPort = qmlPort;
+    result.success = gdbServerPort > 0 || (m_runner && !m_runner->cppDebug() && qmlPort > 0);
+    if (!result.success)
+        result.reason =  tr("Could not get debug server file descriptor.");
+    m_runControl->notifyEngineRemoteSetupFinished(result);
 }
 
-void IosDebugSupport::handleGotInferiorPid(Q_PID pid)
+void IosDebugSupport::handleGotInferiorPid(qint64 pid, int qmlPort)
 {
-    if (pid > 0) {
-        //m_runControl->engine()->notifyInferiorPid(pid);
-#ifndef Q_OS_WIN // Q_PID might be 64 bit pointer...
-        m_runControl->engine()->notifyEngineRemoteSetupDone(int(pid), m_qmlPort);
-#endif
-    } else {
-        m_runControl->engine()->notifyEngineRemoteSetupFailed(
-                    tr("Got an invalid process id."));
-    }
+    RemoteSetupResult result;
+    result.qmlServerPort = qmlPort;
+    result.inferiorPid = pid;
+    result.success = pid > 0;
+    if (!result.success)
+        result.reason =  tr("Got an invalid process id.");
+    m_runControl->notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
 {
-    if (!cleanEnd && m_runControl)
-        m_runControl->showMessage(tr("Run failed unexpectedly."), AppStuff);
-    //m_runControl->engine()->notifyInferiorIll();
-    m_runControl->engine()->abortDebugger();
+    if (m_runControl) {
+        if (!cleanEnd)
+            m_runControl->appendMessage(tr("Run ended with error."), Utils::DebugFormat);
+        else
+            m_runControl->appendMessage(tr("Run ended."), Utils::DebugFormat);
+        m_runControl->abortDebugger();
+    }
 }
 
 void IosDebugSupport::handleRemoteOutput(const QString &output)
 {
-    if (m_runControl) {
-        if (m_runControl->engine())
-            m_runControl->engine()->showMessage(output, AppOutput);
-        else
-            m_runControl->showMessage(output, AppOutput);
-    }
+    if (m_runControl)
+        m_runControl->showMessage(output, AppOutput);
 }
 
 void IosDebugSupport::handleRemoteErrorOutput(const QString &output)
 {
-    if (m_runControl) {
-        if (m_runControl->engine())
-            m_runControl->engine()->showMessage(output, AppError);
-        else
-            m_runControl->showMessage(output, AppError);
-    }
+    if (m_runControl)
+        m_runControl->showMessage(output, AppError);
 }
 
 } // namespace Internal

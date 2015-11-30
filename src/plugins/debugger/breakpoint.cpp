@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -37,14 +38,43 @@
 namespace Debugger {
 namespace Internal {
 
-//////////////////////////////////////////////////////////////////
-//
-// BreakpointModelId
-//
-//////////////////////////////////////////////////////////////////
+/*!
+    \class Debugger::Internal::BreakpointIdBase
+
+    Convenience base class for BreakpointModelId and
+    BreakpointResponseId.
+*/
+
+QDebug operator<<(QDebug d, const BreakpointIdBase &id)
+{
+    d << qPrintable(id.toString());
+    return d;
+}
+
+QByteArray BreakpointIdBase::toByteArray() const
+{
+    if (!isValid())
+        return "<invalid bkpt>";
+    QByteArray ba = QByteArray::number(m_majorPart);
+    if (isMinor()) {
+        ba.append('.');
+        ba.append(QByteArray::number(m_minorPart));
+    }
+    return ba;
+}
+
+QString BreakpointIdBase::toString() const
+{
+    if (!isValid())
+        return QLatin1String("<invalid bkpt>");
+    if (isMinor())
+        return QString::fromLatin1("%1.%2").arg(m_majorPart).arg(m_minorPart);
+    return QString::number(m_majorPart);
+}
+
 
 /*!
-    \class Debugger::Internal::ModelId
+    \class Debugger::Internal::BreakpointModelId
 
     This identifies a breakpoint in the \c BreakHandler. The
     major parts are strictly increasing over time.
@@ -53,12 +83,6 @@ namespace Internal {
     set for example by gdb in constructors.
 */
 
-
-QDebug operator<<(QDebug d, const BreakpointModelId &id)
-{
-    d << qPrintable(id.toString());
-    return d;
-}
 
 BreakpointModelId::BreakpointModelId(const QByteArray &ba)
 {
@@ -71,46 +95,6 @@ BreakpointModelId::BreakpointModelId(const QByteArray &ba)
         m_minorPart = ba.mid(pos + 1).toUShort();
     }
 }
-
-QByteArray BreakpointModelId::toByteArray() const
-{
-    if (!isValid())
-        return "<invalid bkpt>";
-    QByteArray ba = QByteArray::number(m_majorPart);
-    if (isMinor()) {
-        ba.append('.');
-        ba.append(QByteArray::number(m_minorPart));
-    }
-    return ba;
-}
-
-QString BreakpointModelId::toString() const
-{
-    if (!isValid())
-        return QLatin1String("<invalid bkpt>");
-    if (isMinor())
-        return QString::fromLatin1("%1.%2").arg(m_majorPart).arg(m_minorPart);
-    return QString::number(m_majorPart);
-}
-
-BreakpointModelId BreakpointModelId::parent() const
-{
-    QTC_ASSERT(isMinor(), return BreakpointModelId());
-    return BreakpointModelId(m_majorPart, 0);
-}
-
-BreakpointModelId BreakpointModelId::child(int row) const
-{
-    QTC_ASSERT(isMajor(), return BreakpointModelId());
-    return BreakpointModelId(m_majorPart, row + 1);
-}
-
-
-//////////////////////////////////////////////////////////////////
-//
-// BreakpointResponseId
-//
-//////////////////////////////////////////////////////////////////
 
 /*!
     \class Debugger::Internal::BreakpointResponseId
@@ -133,45 +117,6 @@ BreakpointResponseId::BreakpointResponseId(const QByteArray &ba)
         m_majorPart = ba.left(pos).toInt();
         m_minorPart = ba.mid(pos + 1).toInt();
     }
-}
-
-QDebug operator<<(QDebug d, const BreakpointResponseId &id)
-{
-    d << qPrintable(id.toString());
-    return d;
-}
-
-QByteArray BreakpointResponseId::toByteArray() const
-{
-    if (!isValid())
-        return "<invalid bkpt>";
-    QByteArray ba = QByteArray::number(m_majorPart);
-    if (isMinor()) {
-        ba.append('.');
-        ba.append(QByteArray::number(m_minorPart));
-    }
-    return ba;
-}
-
-QString BreakpointResponseId::toString() const
-{
-    if (!isValid())
-        return QLatin1String("<invalid bkpt>");
-    if (isMinor())
-        return QString::fromLatin1("%1.%2").arg(m_majorPart).arg(m_minorPart);
-    return QString::number(m_majorPart);
-}
-
-BreakpointResponseId BreakpointResponseId::parent() const
-{
-    QTC_ASSERT(isMinor(), return BreakpointResponseId());
-    return BreakpointResponseId(m_majorPart, 0);
-}
-
-BreakpointResponseId BreakpointResponseId::child(int row) const
-{
-    QTC_ASSERT(isMajor(), return BreakpointResponseId());
-    return BreakpointResponseId(m_majorPart, row + 1);
 }
 
 //////////////////////////////////////////////////////////////////
@@ -295,9 +240,17 @@ bool BreakpointParameters::isCppBreakpoint() const
         return false;
 
     // Qml is currently only file.
-    if (type == BreakpointByFileAndLine)
-        return !fileName.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive)
-                && !fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive);
+    if (type == BreakpointByFileAndLine) {
+        auto qmlExtensionString = QString::fromLocal8Bit(qgetenv("QTC_QMLDEBUGGER_FILEEXTENSIONS"));
+        if (qmlExtensionString.isEmpty())
+            qmlExtensionString = QLatin1Literal(".qml;.js");
+
+        auto qmlFileExtensions = qmlExtensionString.split(QLatin1Literal(";"), QString::SkipEmptyParts);
+        foreach (QString extension, qmlFileExtensions) {
+            if (fileName.endsWith(extension, Qt::CaseInsensitive))
+                return false;
+        }
+    }
 
     return true;
 }

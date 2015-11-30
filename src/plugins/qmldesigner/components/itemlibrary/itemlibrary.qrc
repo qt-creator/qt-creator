@@ -1,11 +1,5 @@
 <RCC>
     <qresource prefix="/ItemLibrary" >
-        <file>qml/ItemsView.qml</file>
-        <file>qml/ItemsViewStyle.qml</file>
-        <file>qml/SectionView.qml</file>
-        <file>qml/SingleItemView.qml</file>
-        <file>qml/Selector.qml</file>
-
         <file>images/item-default-icon.png</file>
         <file>images/item-invalid-icon.png</file>
     </qresource>

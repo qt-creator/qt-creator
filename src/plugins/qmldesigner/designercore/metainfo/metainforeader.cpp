@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -42,11 +38,11 @@ enum {
     debug = false
 };
 
-const char rootElementName[] = "MetaInfo";
-const char typeElementName[] = "Type";
-const char ItemLibraryEntryElementName[] = "ItemLibraryEntry";
-const char QmlSourceElementName[] = "QmlSource";
-const char PropertyElementName[] = "Property";
+const QString rootElementName = QStringLiteral("MetaInfo");
+const QString typeElementName = QStringLiteral("Type");
+const QString ItemLibraryEntryElementName = QStringLiteral("ItemLibraryEntry");
+const QString QmlSourceElementName = QStringLiteral("QmlSource");
+const QString PropertyElementName = QStringLiteral("Property");
 
 MetaInfoReader::MetaInfoReader(const MetaInfo &metaInfo)
         : m_parserState(Undefined),
@@ -138,7 +134,7 @@ void MetaInfoReader::propertyDefinition(const QString &name, const QVariant &val
 
 MetaInfoReader::ParserSate MetaInfoReader::readDocument(const QString &name)
 {
-    if (name == QLatin1String(rootElementName)) {
+    if (name == rootElementName) {
         m_currentClassName.clear();
         m_currentIcon.clear();
         return ParsingMetaInfo;
@@ -150,7 +146,7 @@ MetaInfoReader::ParserSate MetaInfoReader::readDocument(const QString &name)
 
 MetaInfoReader::ParserSate MetaInfoReader::readMetaInfoRootElement(const QString &name)
 {
-    if (name == QLatin1String(typeElementName)) {
+    if (name == typeElementName) {
         m_currentClassName.clear();
         m_currentIcon.clear();
         return ParsingType;
@@ -162,11 +158,10 @@ MetaInfoReader::ParserSate MetaInfoReader::readMetaInfoRootElement(const QString
 
 MetaInfoReader::ParserSate MetaInfoReader::readTypeElement(const QString &name)
 {
-    if (name == QLatin1String(ItemLibraryEntryElementName)) {
+    if (name == ItemLibraryEntryElementName) {
         m_currentEntry = ItemLibraryEntry();
-        m_currentEntry.setForceImport(false);
         m_currentEntry.setType(m_currentClassName, -1, -1);
-        m_currentEntry.setIcon(QIcon(m_currentIcon));
+        m_currentEntry.setTypeIcon(QIcon(m_currentIcon));
         return ParsingItemLibrary;
     } else {
         addErrorInvalidType(name);
@@ -207,7 +202,7 @@ void MetaInfoReader::readTypeProperty(const QString &name, const QVariant &value
         m_currentClassName = value.toString().toUtf8();
         if (!m_qualication.isEmpty()) //prepend qualification
             m_currentClassName = m_qualication + "." + m_currentClassName;
-    } else if (name == QLatin1String("icon")) {
+    } else if (name == QStringLiteral("icon")) {
         m_currentIcon = absoluteFilePathForDocument(value.toString());
     } else {
         addError(tr("Unknown property for Type %1").arg(name), currentSourceLocation());
@@ -217,18 +212,16 @@ void MetaInfoReader::readTypeProperty(const QString &name, const QVariant &value
 
 void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVariant &value)
 {
-    if (name == QLatin1String("name")) {
+    if (name == QStringLiteral("name")) {
         m_currentEntry.setName(value.toString());
-    } else if (name == QLatin1String("category")) {
+    } else if (name == QStringLiteral("category")) {
         m_currentEntry.setCategory(value.toString());
-    } else if (name == QLatin1String("libraryIcon")) {
-        m_currentEntry.setIconPath(absoluteFilePathForDocument(value.toString()));
-    } else if (name == QLatin1String("version")) {
+    } else if (name == QStringLiteral("libraryIcon")) {
+        m_currentEntry.setLibraryEntryIconPath(absoluteFilePathForDocument(value.toString()));
+    } else if (name == QStringLiteral("version")) {
         setVersion(value.toString());
-    } else if (name == QLatin1String("requiredImport")) {
+    } else if (name == QStringLiteral("requiredImport")) {
         m_currentEntry.setRequiredImport(value.toString());
-    } else if (name == QLatin1String("forceImport")) {
-        m_currentEntry.setForceImport(value.toBool());
     } else {
         addError(tr("Unknown property for ItemLibraryEntry %1").arg(name), currentSourceLocation());
         setParserState(Error);
@@ -237,11 +230,11 @@ void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVa
 
 void MetaInfoReader::readPropertyProperty(const QString &name, const QVariant &value)
 {
-    if (name == QLatin1String("name")) {
+    if (name == QStringLiteral("name")) {
        m_currentPropertyName = value.toByteArray();
-    } else if (name == QLatin1String("type")) {
+    } else if (name == QStringLiteral("type")) {
         m_currentPropertyType = value.toString();
-    } else if (name == QLatin1String("value")) {
+    } else if (name == QStringLiteral("value")) {
         m_currentPropertyValue = value;
     } else {
         addError(tr("Unknown property for Property %1").arg(name), currentSourceLocation());
@@ -251,7 +244,7 @@ void MetaInfoReader::readPropertyProperty(const QString &name, const QVariant &v
 
 void MetaInfoReader::readQmlSourceProperty(const QString &name, const QVariant &value)
 {
-    if (name == QLatin1String("source")) {
+    if (name == QStringLiteral("source")) {
         m_currentEntry.setQmlPath(absoluteFilePathForDocument(value.toString()));
     } else {
         addError(tr("Unknown property for QmlSource %1").arg(name), currentSourceLocation());
@@ -268,10 +261,10 @@ void MetaInfoReader::setVersion(const QString &versionNumber)
     if (!versionNumber.isEmpty()) {
         int val;
         bool ok;
-        if (versionNumber.contains('.')) {
-            val = versionNumber.split('.').first().toInt(&ok);
+        if (versionNumber.contains(QLatin1Char('.'))) {
+            val = versionNumber.split(QLatin1Char('.')).first().toInt(&ok);
             major = ok ? val : major;
-            val = versionNumber.split('.').last().toInt(&ok);
+            val = versionNumber.split(QLatin1Char('.')).last().toInt(&ok);
             minor = ok ? val : minor;
         } else {
             val = versionNumber.toInt(&ok);
@@ -303,7 +296,7 @@ void MetaInfoReader::insertItemLibraryEntry()
 
     try {
         m_metaInfo.itemLibraryInfo()->addEntry(m_currentEntry, m_overwriteDuplicates);
-    } catch (InvalidMetaInfoException &) {
+    } catch (const InvalidMetaInfoException &) {
         addError(tr("Invalid or duplicate item library entry %1").arg(m_currentEntry.name()), currentSourceLocation());
     }
 }
@@ -325,7 +318,7 @@ QString MetaInfoReader::absoluteFilePathForDocument(const QString &relativeFileP
     if (fileInfo.isAbsolute() && fileInfo.exists())
         return relativeFilePath;
 
-    return QFileInfo(QFileInfo(m_documentPath).absolutePath() + QLatin1String("/") + relativeFilePath).absoluteFilePath();
+    return QFileInfo(QFileInfo(m_documentPath).absolutePath() + QStringLiteral("/") + relativeFilePath).absoluteFilePath();
 }
 
 } //Internal

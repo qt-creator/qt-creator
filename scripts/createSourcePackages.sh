@@ -25,6 +25,7 @@ echo "Creating tar archive..."
 
 echo "  Creating tar sources of repositories..."
 git archive --format=tar --prefix=${PREFIX}/ HEAD > ${TEMPSOURCES}/__qtcreator_main.tar || exit 1
+echo "    qbs..."
 cd src/shared/qbs || exit 1
 git archive --format=tar --prefix=${PREFIX}/src/shared/qbs/ HEAD > ${TEMPSOURCES}/__qtcreator_qbs.tar || exit 1
 

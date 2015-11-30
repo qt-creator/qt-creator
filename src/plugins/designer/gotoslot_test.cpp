@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,36 +9,35 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "formeditorplugin.h"
 
-#if QT_VERSION < 0x050000
-#include <QtTest>
-#else
 #include "formeditorw.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/testdatadir.h>
+#include <cpptools/builtineditordocumentprocessor.h>
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolseditorsupport.h>
 #include <cpptools/cpptoolstestcase.h>
+#include <cpptools/editordocumenthandle.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
@@ -95,7 +94,7 @@ private:
 class DocumentContainsDeclaration: protected SymbolVisitor
 {
 public:
-    bool operator()(Scope *scope, const QString function)
+    bool operator()(Scope *scope, const QString &function)
     {
         if (!scope)
             return false;
@@ -139,13 +138,13 @@ private:
     Overview m_overview;
 };
 
-bool documentContainsFunctionDefinition(const Document::Ptr &document, const QString function)
+bool documentContainsFunctionDefinition(const Document::Ptr &document, const QString &function)
 {
     return DocumentContainsFunctionDefinition()(document->globalNamespace(), function);
 }
 
 bool documentContainsMemberFunctionDeclaration(const Document::Ptr &document,
-                                               const QString declaration)
+                                               const QString &declaration)
 {
     return DocumentContainsDeclaration()(document->globalNamespace(), declaration);
 }
@@ -166,63 +165,88 @@ public:
             closeEditorAtEndOfTestCase(editor);
             editors << e;
         }
-        TextEditor::BaseTextEditor *cppFileEditor = editors.at(0);
-        TextEditor::BaseTextEditor *hFileEditor = editors.at(1);
 
         const QString cppFile = files.at(0);
         const QString hFile = files.at(1);
 
-        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), files.size());
+        QCOMPARE(DocumentModel::openedDocuments().size(), files.size());
         waitForFilesInGlobalSnapshot(QStringList() << cppFile << hFile);
 
         // Execute "Go To Slot"
-        FormEditorW *few = FormEditorW::instance();
-        QDesignerIntegrationInterface *integration = few->designerEditor()->integration();
+        QDesignerIntegrationInterface *integration = FormEditorW::designerEditor()->integration();
         QVERIFY(integration);
         integration->emitNavigateToSlot(QLatin1String("pushButton"), QLatin1String("clicked()"),
                                         QStringList());
 
-        QCOMPARE(EditorManager::currentDocument()->filePath(), cppFile);
+        QCOMPARE(EditorManager::currentDocument()->filePath().toString(), cppFile);
         QVERIFY(EditorManager::currentDocument()->isModified());
 
         // Wait for updated documents
         foreach (TextEditor::BaseTextEditor *editor, editors) {
-            if (CppEditorSupport *editorSupport = m_modelManager->cppEditorSupport(editor)) {
-                while (editorSupport->isUpdatingDocument())
+            const QString filePath = editor->document()->filePath().toString();
+            if (auto parser = BuiltinEditorDocumentParser::get(filePath)) {
+                forever {
+                    if (Document::Ptr document = parser->document()) {
+                        if (document->editorRevision() == 2)
+                            break;
+                    }
                     QApplication::processEvents();
+                }
             }
         }
 
         // Compare
-        const Document::Ptr cppDocument
-            = m_modelManager->cppEditorSupport(cppFileEditor)->snapshotUpdater()->document();
-        const Document::Ptr hDocument
-            = m_modelManager->cppEditorSupport(hFileEditor)->snapshotUpdater()->document();
+        const auto cppDocumentParser = BuiltinEditorDocumentParser::get(cppFile);
+        QVERIFY(cppDocumentParser);
+        const Document::Ptr cppDocument = cppDocumentParser->document();
+        QVERIFY(checkDiagsnosticMessages(cppDocument));
+
+        const auto hDocumentParser = BuiltinEditorDocumentParser::get(hFile);
+        QVERIFY(hDocumentParser);
+        const Document::Ptr hDocument = hDocumentParser->document();
+        QVERIFY(checkDiagsnosticMessages(hDocument));
+
         QVERIFY(documentContainsFunctionDefinition(cppDocument,
             QLatin1String("Form::on_pushButton_clicked")));
         QVERIFY(documentContainsMemberFunctionDeclaration(hDocument,
             QLatin1String("Form::on_pushButton_clicked")));
     }
+
+    static bool checkDiagsnosticMessages(const Document::Ptr &document)
+    {
+        if (!document)
+            return false;
+
+        // Since no project is opened and the ui_*.h is not generated,
+        // the following diagnostic messages will be ignored.
+        const QStringList ignoreList = QStringList()
+            << QLatin1String("ui_form.h: No such file or directory")
+            << QLatin1String("QWidget: No such file or directory");
+        QList<Document::DiagnosticMessage> cleanedDiagnosticMessages;
+        foreach (const Document::DiagnosticMessage &message, document->diagnosticMessages()) {
+            if (!ignoreList.contains(message.text()))
+                cleanedDiagnosticMessages << message;
+        }
+
+        return cleanedDiagnosticMessages.isEmpty();
+    }
 };
 
 } // anonymous namespace
-#endif
+
+namespace Designer {
+namespace Internal {
 
 /// Check: Executes "Go To Slot..." on a QPushButton in a *.ui file and checks if the respective
 /// header and source files are correctly updated.
-void Designer::Internal::FormEditorPlugin::test_gotoslot()
+void FormEditorPlugin::test_gotoslot()
 {
-#if QT_VERSION >= 0x050000
     QFETCH(QStringList, files);
     (GoToSlotTestCase(files));
-#else
-    QSKIP("Available only with >= Qt5", SkipSingle);
-#endif
 }
 
-void Designer::Internal::FormEditorPlugin::test_gotoslot_data()
+void FormEditorPlugin::test_gotoslot_data()
 {
-#if QT_VERSION >= 0x050000
     typedef QLatin1String _;
     QTest::addColumn<QStringList>("files");
 
@@ -260,5 +284,7 @@ void Designer::Internal::FormEditorPlugin::test_gotoslot_data()
             << testDataDir.file(_("form.cpp"))
             << testDataDir.file(_("form.h"))
             << testDataDir.file(_("form.ui")));
-#endif
 }
+
+} // namespace Internal
+} // namespace Designer

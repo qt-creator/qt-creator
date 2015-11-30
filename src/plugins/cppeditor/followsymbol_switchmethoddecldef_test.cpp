@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,40 +9,59 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
-#include "cppeditor.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppelementevaluator.h"
+#include "cppfollowsymbolundercursor.h"
 #include "cppvirtualfunctionassistprovider.h"
 #include "cppvirtualfunctionproposalitem.h"
 
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <cpptools/cpptoolstestcase.h>
+
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
+
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 
 #include <utils/fileutils.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QtTest>
+
+//
+// The following "non-latin1" code points are used in the tests:
+//
+//   U+00FC  - 2 code units in UTF8, 1 in UTF16 - LATIN SMALL LETTER U WITH DIAERESIS
+//   U+4E8C  - 3 code units in UTF8, 1 in UTF16 - CJK UNIFIED IDEOGRAPH-4E8C
+//   U+10302 - 4 code units in UTF8, 2 in UTF16 - OLD ITALIC LETTER KE
+//
+
+#define UNICODE_U00FC "\xc3\xbc"
+#define UNICODE_U4E8C "\xe4\xba\x8c"
+#define UNICODE_U10302 "\xf0\x90\x8c\x82"
+#define TEST_UNICODE_IDENTIFIER UNICODE_U00FC UNICODE_U4E8C UNICODE_U10302
 
 /*!
     Tests for Follow Symbol Under Cursor and Switch Between Function Declaration/Definition
@@ -56,8 +75,6 @@
  */
 
 using namespace CPlusPlus;
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
 using namespace Core;
@@ -67,6 +84,10 @@ public:
     OverrideItem() : line(0) {}
     OverrideItem(const QString &text, int line = 0) : text(text), line(line) {}
     bool isValid() { return line != 0; }
+    QByteArray toByteArray() const
+    {
+        return "OverrideItem(" + text.toLatin1() + ", " + QByteArray::number(line) + ')';
+    }
 
     QString text;
     int line;
@@ -84,43 +105,50 @@ QT_BEGIN_NAMESPACE
 namespace QTest {
 template<> char *toString(const OverrideItem &data)
 {
-    QByteArray ba = "OverrideItem(";
-    ba += data.text.toLatin1() + ", " + QByteArray::number(data.line);
-    ba += ")";
-    return qstrdup(ba.data());
+    return qstrdup(data.toByteArray().data());
 }
+}
+
+QDebug &operator<<(QDebug &d, const OverrideItem &data)
+{
+    d << data.toByteArray();
+    return d;
 }
 QT_END_NAMESPACE
 
-namespace {
-
 typedef QByteArray _;
+
+namespace CppEditor {
+namespace Internal {
 
 /// A fake virtual functions assist provider that runs processor->perform() already in configure()
 class VirtualFunctionTestAssistProvider : public VirtualFunctionAssistProvider
 {
 public:
-    VirtualFunctionTestAssistProvider(CPPEditorWidget *editorWidget)
+    VirtualFunctionTestAssistProvider(CppEditorWidget *editorWidget)
         : m_editorWidget(editorWidget)
     {}
 
     // Invoke the processor already here to calculate the proposals. Return false in order to
     // indicate that configure failed, so the actual code assist invocation leading to a pop-up
     // will not happen.
-    bool configure(const VirtualFunctionAssistProvider::Parameters &params) QTC_OVERRIDE
+    bool configure(const VirtualFunctionAssistProvider::Parameters &params) override
     {
         VirtualFunctionAssistProvider::configure(params);
 
-        IAssistProcessor *processor = createProcessor();
-        IAssistInterface *assistInterface
+        const QScopedPointer<IAssistProcessor> processor(createProcessor());
+        AssistInterface *assistInterface
                 = m_editorWidget->createAssistInterface(FollowSymbol, ExplicitlyInvoked);
-        IAssistProposal *immediateProposal = processor->immediateProposal(assistInterface);
-        IAssistProposal *finalProposal = processor->perform(assistInterface);
+
+        using CppTools::Tests::IAssistProposalScopedPointer;
+        const IAssistProposalScopedPointer immediateProposal(
+            processor->immediateProposal(assistInterface));
+        const IAssistProposalScopedPointer finalProposal(processor->perform(assistInterface));
 
         VirtualFunctionAssistProvider::clearParams();
 
-        m_immediateItems = itemList(immediateProposal->model());
-        m_finalItems = itemList(finalProposal->model());
+        m_immediateItems = itemList(immediateProposal.d->model());
+        m_finalItems = itemList(finalProposal.d->model());
 
         return false;
     }
@@ -128,7 +156,7 @@ public:
     static OverrideItemList itemList(IAssistProposalModel *imodel)
     {
         OverrideItemList result;
-        BasicProposalItemListModel *model = dynamic_cast<BasicProposalItemListModel *>(imodel);
+        GenericProposalModel *model = dynamic_cast<GenericProposalModel *>(imodel);
         if (!model)
             return result;
 
@@ -157,7 +185,7 @@ public:
     OverrideItemList m_finalItems;
 
 private:
-    CPPEditorWidget *m_editorWidget;
+    CppEditorWidget *m_editorWidget;
 };
 
 class TestDocument;
@@ -170,12 +198,12 @@ typedef QSharedPointer<TestDocument> TestDocumentPtr;
  *   - a '@' character denotes the initial text cursor position
  *   - a '$' character denotes the target text cursor position
  */
-class TestDocument : public CppEditor::Internal::Tests::TestDocument
+class TestDocument : public Tests::TestDocument
 {
 public:
     TestDocument(const QByteArray &source, const QByteArray &fileName)
-        : CppEditor::Internal::Tests::TestDocument(fileName, source)
-        , m_targetCursorPosition(source.indexOf('$'))
+        : Tests::TestDocument(fileName, source)
+        , m_targetCursorPosition(m_source.indexOf(QLatin1Char('$')))
     {
         if (m_cursorPosition != -1 || m_targetCursorPosition != -1)
             QVERIFY(m_cursorPosition != m_targetCursorPosition);
@@ -216,7 +244,7 @@ QList<TestDocumentPtr> singleDocument(const QByteArray &source)
  * executing Follow Symbol Under Cursor or Switch Between Function Declaration/Definition
  * and checking the result.
  */
-class F2TestCase : public CppEditor::Internal::Tests::TestCase
+class F2TestCase : public Tests::TestCase
 {
 public:
     enum CppEditorAction {
@@ -225,7 +253,7 @@ public:
     };
 
     F2TestCase(CppEditorAction action,
-               const QList<TestDocumentPtr> testFiles,
+               const QList<TestDocumentPtr> &testFiles,
                const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
 
 private:
@@ -238,7 +266,7 @@ private:
 /// Exactly one test document must be provided that contains '$', the target position marker.
 /// It can be the same document.
 F2TestCase::F2TestCase(CppEditorAction action,
-                       const QList<TestDocumentPtr> testFiles,
+                       const QList<TestDocumentPtr> &testFiles,
                        const OverrideItemList &expectedVirtualFunctionProposal)
 {
     QVERIFY(succeededSoFar());
@@ -252,11 +280,16 @@ F2TestCase::F2TestCase(CppEditorAction action,
         "No test file with target cursor marker is provided.");
 
     // Write files to disk
-    foreach (TestDocumentPtr testFile, testFiles)
+    CppTools::Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    foreach (TestDocumentPtr testFile, testFiles) {
+        QVERIFY(testFile->baseDirectory().isEmpty());
+        testFile->setBaseDirectory(temporaryDir.path());
         QVERIFY(testFile->writeToDisk());
+    }
 
     // Update Code Model
-    QStringList filePaths;
+    QSet<QString> filePaths;
     foreach (const TestDocumentPtr &testFile, testFiles)
         filePaths << testFile->filePath();
     QVERIFY(parseFiles(filePaths));
@@ -272,8 +305,11 @@ F2TestCase::F2TestCase(CppEditorAction action,
         // that is the function bodies are processed.
         forever {
             const Document::Ptr document = waitForFileInGlobalSnapshot(testFile->filePath());
-            if (document->checkMode() == Document::FullCheck)
+            QVERIFY(document);
+            if (document->checkMode() == Document::FullCheck) {
+                QVERIFY(document->diagnosticMessages().isEmpty());
                 break;
+            }
         }
 
         // Rehighlight
@@ -293,7 +329,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     // Trigger the action
     switch (action) {
     case FollowSymbolUnderCursorAction: {
-        CPPEditorWidget *widget = initialTestFile->m_editorWidget;
+        CppEditorWidget *widget = initialTestFile->m_editorWidget;
         FollowSymbolUnderCursor *delegate = widget->followSymbolUnderCursorDelegate();
         VirtualFunctionAssistProvider *original = delegate->virtualFunctionAssistProvider();
 
@@ -324,7 +360,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     BaseTextEditor *currentTextEditor = dynamic_cast<BaseTextEditor*>(currentEditor);
     QVERIFY(currentTextEditor);
 
-    QCOMPARE(currentTextEditor->document()->filePath(), targetTestFile->filePath());
+    QCOMPARE(currentTextEditor->document()->filePath().toString(), targetTestFile->filePath());
     int expectedLine, expectedColumn;
     currentTextEditor->convertPosition(targetTestFile->m_targetCursorPosition,
                                        &expectedLine, &expectedColumn);
@@ -365,9 +401,13 @@ TestDocumentPtr F2TestCase::testFileWithTargetCursorMarker(const QList<TestDocum
     return TestDocumentPtr();
 }
 
-} // anonymous namespace
+} // namespace Internal
+} // namespace CppEditor
 
-Q_DECLARE_METATYPE(QList<TestDocumentPtr>)
+Q_DECLARE_METATYPE(QList<CppEditor::Internal::TestDocumentPtr>)
+
+namespace CppEditor {
+namespace Internal {
 
 void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
 {
@@ -496,6 +536,11 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
         "    void @$foo(int);\n"
         "    void foo();\n"
         "};\n"
+    ) << _();
+
+    QTest::newRow("unicodeIdentifier") << _(
+        "class Foo { void $" TEST_UNICODE_IDENTIFIER "(); };\n"
+        "void Foo::@" TEST_UNICODE_IDENTIFIER "() {}\n"
     ) << _();
 }
 
@@ -901,11 +946,104 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "    void foo();\n"
         "};\n"
     );
+
+    QTest::newRow("infiniteLoopLocalTypedef_QTCREATORBUG-11999") << _(
+        "template<class MyTree>\n"
+        "class TreeConstIterator\n"
+        "{\n"
+        "    typedef TreeConstIterator<MyTree> MyIter;\n"
+        "    void f() { return this->@$g(); }\n"
+        "};\n"
+        "\n"
+        "void h() { typedef TreeConstIterator<MyBase> const_iterator; }\n"
+    );
+
+    QTest::newRow("unicodeIdentifier") << _(
+        "class Foo { void $" TEST_UNICODE_IDENTIFIER "(); };\n"
+        "void Foo::@" TEST_UNICODE_IDENTIFIER "() {}\n"
+    );
+
+    QTest::newRow("trailingReturnType") << _(
+        "struct $Foo {};\n"
+        "auto foo() -> @Foo {}\n"
+    );
+
+    QTest::newRow("template_alias") << _(
+        "template<class $T>\n"
+        "using Foo = Bar<@T>;\n"
+    );
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor()
 {
     QFETCH(QByteArray, source);
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_followCall_data()
+{
+    QTest::addColumn<QByteArray>("variableDeclaration"); // without semicolon, can be ""
+    QTest::addColumn<QByteArray>("callArgument");
+    QTest::addColumn<QByteArray>("expectedSignature"); // you might need to add a function
+                                                       // declaration with such a signature
+
+    QTest::newRow("intLiteral-to-int")
+            << _("")
+            << _("5")
+            << _("int");
+    QTest::newRow("charLiteral-to-const-char-ptr")
+            << _("")
+            << _("\"hoo\"")
+            << _("const char *");
+    QTest::newRow("charLiteral-to-int")
+            << _("")
+            << _("'a'")
+            << _("char");
+
+    QTest::newRow("charPtr-to-constCharPtr")
+            << _("char *var = \"var\"")
+            << _("var")
+            << _("const char *");
+    QTest::newRow("charPtr-to-constCharPtr")
+            << _("char *var = \"var\"")
+            << _("var")
+            << _("const char *");
+    QTest::newRow("constCharPtr-to-constCharPtr")
+            << _("const char *var = \"var\"")
+            << _("var")
+            << _("const char *");
+
+    QTest::newRow("Bar-to-constBarRef")
+            << _("Bar var")
+            << _("var")
+            << _("const Bar &");
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_followCall()
+{
+    QFETCH(QByteArray, variableDeclaration);
+    QFETCH(QByteArray, callArgument);
+    QFETCH(QByteArray, expectedSignature);
+
+    const QByteArray templateSource =
+        "class Bar {};\n"
+        "void fun(int);\n"
+        "void fun(const char *);\n"
+        "void fun(const Bar &);\n"
+        "void fun(char);\n"
+        "void fun(double);\n"
+        "\n"
+        "void t()\n"
+        "{\n"
+        "   " + variableDeclaration + ";\n"
+        "   @fun(" + callArgument + ");\n"
+        "}\n";
+
+    const QByteArray matchText = " fun(" + expectedSignature + ")";
+    const QByteArray replaceText = " $fun(" + expectedSignature + ")";
+    QByteArray source = templateSource;
+    source.replace(matchText, replaceText);
+    QVERIFY(source != templateSource);
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
@@ -937,6 +1075,16 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
                                 "foo.h")
         << TestDocument::create("#include \"foo.h\"\n"
                                 "void Foo::$foo(int) {}\n",
+                                "foo.cpp")
+    );
+
+    QTest::newRow("matchFunctionSignature2") << (QList<TestDocumentPtr>()
+        << TestDocument::create("namespace N { class C; }\n"
+                                "bool *@fun(N::C *) const;\n",
+                                "foo.h")
+        << TestDocument::create("#include \"foo.h\"\n"
+                                "using namespace N;\n"
+                                "bool *$fun(C *) const {}\n",
                                 "foo.cpp")
     );
 }
@@ -1005,6 +1153,20 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect()
     QFETCH(char, target);
     QFETCH(bool, secondQObjectParam);
     QByteArray source =
+            "#define QT_STRINGIFY2(x) #x\n"
+            "#define QT_STRINGIFY(x) QT_STRINGIFY2(x)\n"
+            "#define QLOCATION \"\\0\" __FILE__ \":\" QT_STRINGIFY(__LINE__)\n"
+            "const char *qFlagLocation(const char *) { return 0; }\n"
+            "#define SLOT(a) qFlagLocation(\"1\"#a QLOCATION)\n"
+            "#define SIGNAL(a) qFlagLocation(\"2\"#a QLOCATION)\n"
+            "\n"
+            "#define slots\n"
+            "#define signals public\n"
+            "\n"
+            "class QObject {};\n"
+            "void connect(QObject *, const char *, QObject *, const char *) {}\n"
+            "\n"
+            "\n"
             "class Foo : public QObject\n"
             "{\n"
             "signals:\n"
@@ -1132,7 +1294,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             "void CD2::virt() {}\n"
             "\n"
             "int f(A *o) { o->$@virt(); }\n"
-            "}\n")
+            "\n")
         << (OverrideItemList()
             << OverrideItem(QLatin1String("A::virt = 0"), 2)
             << OverrideItem(QLatin1String("B::virt"), 5)
@@ -1158,7 +1320,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             "void CD2::virt() {}\n"
             "\n"
             "int f(B *o) { o->$@virt(); }\n"
-            "}\n")
+            "\n")
         << (OverrideItemList()
             << OverrideItem(QLatin1String("B::virt"), 5)
             << OverrideItem(QLatin1String("C::virt"), 8)
@@ -1411,6 +1573,9 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_multipleD
 
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, testFiles, finalResults);
 }
+
+} // namespace Internal
+} // namespace CppEditor
 
 /*
 Potential test cases improving name lookup.

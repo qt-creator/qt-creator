@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -46,6 +47,16 @@
 #include <stdio.h>
 #include <errno.h>
 #include <assert.h>
+
+#ifdef __linux__
+#include <sys/prctl.h>
+
+// Enable compilation with older header that doesn't contain this constant
+// for running on newer libraries that do support it
+#ifndef PR_SET_PTRACER
+#define PR_SET_PTRACER 0x59616d61
+#endif
+#endif
 
 /* For OpenBSD */
 #ifndef EPROTO
@@ -90,6 +101,7 @@ enum {
     ArgMsg,
     ArgDir,
     ArgEnv,
+    ArgPid,
     ArgExe
 };
 
@@ -206,7 +218,7 @@ int main(int argc, char *argv[])
 
     if (*argv[ArgEnv]) {
         FILE *envFd;
-        char *envdata, *edp;
+        char *envdata, *edp, *termEnv;
         long size;
         int count;
         if (!(envFd = fopen(argv[ArgEnv], "r"))) {
@@ -225,11 +237,13 @@ int main(int argc, char *argv[])
         fclose(envFd);
         for (count = 0, edp = envdata; edp < envdata + size; ++count)
             edp += strlen(edp) + 1;
-        env = malloc((count + 1) * sizeof(char *));
+        env = malloc((count + 2) * sizeof(char *));
         for (count = 0, edp = envdata; edp < envdata + size; ++count) {
             env[count] = edp;
             edp += strlen(edp) + 1;
         }
+        if ((termEnv = getenv("TERM")))
+            env[count++] = termEnv - 5;
         env[count] = 0;
     }
 
@@ -287,6 +301,7 @@ int main(int argc, char *argv[])
 
             /* Get a SIGTRAP after exec() has loaded the new program. */
 #ifdef __linux__
+            prctl(PR_SET_PTRACER, atoi(argv[ArgPid]));
             ptrace(PTRACE_TRACEME);
 #else
             ptrace(PT_TRACE_ME, 0, 0, 0);

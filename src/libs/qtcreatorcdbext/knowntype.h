@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -77,6 +78,8 @@ enum KnownType
     KT_QWindow = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 21,
     KT_QWidget = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 22,
     KT_QSharedPointer = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 23,
+    KT_QRegion = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 24,
+    KT_QWeakPointer = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 25,
     // Types: Various QT movable types
     KT_QPen = KT_Qt_Type + KT_Qt_MovableType + 30,
     KT_QUrl = KT_Qt_Type + KT_Qt_MovableType + 31 + KT_HasSimpleDumper,
@@ -142,6 +145,8 @@ enum KnownType
     KT_QScriptValue = KT_Qt_Type + KT_HasSimpleDumper + 91,
     KT_QHostAddress = KT_Qt_Type + KT_HasSimpleDumper + 92,
     KT_QProcess = KT_Qt_Type + KT_HasSimpleDumper + 93,
+    KT_QTimeZone = KT_Qt_Type + KT_HasSimpleDumper + 94,
+    KT_QIPv6Address = KT_Qt_Type + KT_HasSimpleDumper + 95,
     // Types: Qt primitive types
     KT_QFixed = KT_Qt_Type + KT_Qt_PrimitiveType + 90,
     KT_QTextItem = KT_Qt_Type + KT_Qt_PrimitiveType + 91,

@@ -8,12 +8,19 @@ conditions by using environment variables as follows:
 
    QTC_QMAKE_PATH_FOR_TEST - path to a Qt version
 
+   QTC_MAKE_PATH_FOR_TEST - path to a "make".
+      Used for GDB only, defaults to "make" except on Windows,
+      where it defaults to "mingw32-make"
+
    QTC_USE_GLIBCXXDEBUG_FOR_TEST - (0/1) to switch between GCC's
-       "normal" standard library, and the "debug" version
+      "normal" standard library, and the "debug" version
       (this will add DEFINES += _GLIBCXX_DEBUG) to the .pro
 
-  (QTC_MSVC_ENV_BAT - to set up MSVC)
+   QTC_BOOST_INCLUDE_PATH_FOR_TEST - include path for boost libraries
+      only necessary if you have more than one version in different
+      paths installed or if a non-standard path has been used
 
+  (QTC_MSVC_ENV_BAT - to set up MSVC)
 
 The tests should be used for automated testing, but can also
 be used for dumper development and fixing.

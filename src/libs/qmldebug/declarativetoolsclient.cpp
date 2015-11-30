@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -54,21 +55,12 @@ class InspectorProtocol : public QObject
 
 public:
     enum Message {
-        AnimationSpeedChanged  = 0,
-        AnimationPausedChanged = 19, // highest value
         ChangeTool             = 1,
-        ClearComponentCache    = 2,
         ColorChanged           = 3,
-        CreateObject           = 5,
         CurrentObjectsChanged  = 6,
-        DestroyObject          = 7,
-        MoveObject             = 8,
         ObjectIdList           = 9,
         Reload                 = 10,
         Reloaded               = 11,
-        SetAnimationSpeed      = 12,
-        SetAnimationPaused     = 18,
-        SetCurrentObjects      = 14,
         SetDesignMode          = 15,
         ShowAppOnTop           = 16,
         ToolChanged            = 17
@@ -155,16 +147,16 @@ void DeclarativeToolsClient::messageReceived(const QByteArray &message)
 
         log(LogReceive, type, QString::fromLatin1("%1 [list of debug ids]").arg(objectCount));
 
-        m_currentDebugIds.clear();
+        QList<int> currentDebugIds;
 
         for (int i = 0; i < objectCount; ++i) {
             int debugId;
             ds >> debugId;
             if (debugId != -1)
-                m_currentDebugIds << debugId;
+                currentDebugIds << debugId;
         }
 
-        emit currentObjectsChanged(m_currentDebugIds);
+        emit currentObjectsChanged(currentDebugIds);
         break;
     }
     case InspectorProtocol::ToolChanged: {
@@ -181,25 +173,6 @@ void DeclarativeToolsClient::messageReceived(const QByteArray &message)
             emit selectMarqueeToolActivated();
         break;
     }
-    case InspectorProtocol::AnimationSpeedChanged: {
-        qreal slowDownFactor;
-        ds >> slowDownFactor;
-
-        log(LogReceive, type, QString::number(slowDownFactor));
-
-        emit animationSpeedChanged(slowDownFactor);
-        break;
-    }
-    case InspectorProtocol::AnimationPausedChanged: {
-        bool paused;
-        ds >> paused;
-
-        log(LogReceive, type, paused ? QLatin1String("true")
-                                     : QLatin1String("false"));
-
-        emit animationPausedChanged(paused);
-        break;
-    }
     case InspectorProtocol::SetDesignMode: {
         bool inDesignMode;
         ds >> inDesignMode;
@@ -214,8 +187,6 @@ void DeclarativeToolsClient::messageReceived(const QByteArray &message)
         ds >> showAppOnTop;
 
         log(LogReceive, type, QLatin1String(showAppOnTop ? "true" : "false"));
-
-        emit showAppOnTopChanged(showAppOnTop);
         break;
     }
     case InspectorProtocol::Reloaded: {
@@ -226,37 +197,6 @@ void DeclarativeToolsClient::messageReceived(const QByteArray &message)
     default:
         log(LogReceive, type, QLatin1String("Warning: Not handling message"));
     }
-}
-
-QList<int> DeclarativeToolsClient::currentObjects() const
-{
-    return m_currentDebugIds;
-}
-
-void DeclarativeToolsClient::setCurrentObjects(const QList<int> &debugIds)
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    if (debugIds == m_currentDebugIds)
-        return;
-
-    m_currentDebugIds = debugIds;
-
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    InspectorProtocol::Message cmd = InspectorProtocol::SetCurrentObjects;
-    ds << cmd
-       << debugIds.length();
-
-    foreach (int id, debugIds) {
-        ds << id;
-    }
-
-    log(LogSend, cmd, QString::fromLatin1("%1 [list of ids]").arg(debugIds.length()));
-
-    sendMessage(message);
 }
 
 void DeclarativeToolsClient::setObjectIdList(
@@ -283,22 +223,6 @@ void DeclarativeToolsClient::setObjectIdList(
 
     log(LogSend, cmd,
         QString::fromLatin1("%1 %2 [list of debug / object ids]").arg(debugIds.length()));
-
-    sendMessage(message);
-}
-
-void DeclarativeToolsClient::clearComponentCache()
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    InspectorProtocol::Message cmd = InspectorProtocol::ClearComponentCache;
-    ds << cmd;
-
-    log(LogSend, cmd);
 
     sendMessage(message);
 }
@@ -335,41 +259,6 @@ void DeclarativeToolsClient::setDesignModeBehavior(bool inDesignMode)
        << inDesignMode;
 
     log(LogSend, cmd, QLatin1String(inDesignMode ? "true" : "false"));
-
-    sendMessage(message);
-}
-
-void DeclarativeToolsClient::setAnimationSpeed(qreal slowDownFactor)
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    InspectorProtocol::Message cmd = InspectorProtocol::SetAnimationSpeed;
-    ds << cmd
-       << slowDownFactor;
-
-
-    log(LogSend, cmd, QString::number(slowDownFactor));
-
-    sendMessage(message);
-}
-
-void DeclarativeToolsClient::setAnimationPaused(bool paused)
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    InspectorProtocol::Message cmd = InspectorProtocol::SetAnimationPaused;
-    ds << cmd
-       << paused;
-
-    log(LogSend, cmd, paused ? QLatin1String("true") : QLatin1String("false"));
 
     sendMessage(message);
 }
@@ -442,82 +331,6 @@ void DeclarativeToolsClient::showAppOnTop(bool showOnTop)
     log(LogSend, cmd, QLatin1String(showOnTop ? "true" : "false"));
 
     sendMessage(message);
-}
-
-void DeclarativeToolsClient::createQmlObject(const QString &qmlText,
-                                           int parentDebugId,
-                                           const QStringList &imports,
-                                           const QString &filename, int order)
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    InspectorProtocol::Message cmd = InspectorProtocol::CreateObject;
-    ds << cmd
-       << qmlText
-       << parentDebugId
-       << imports
-       << filename
-       << order;
-
-    log(LogSend, cmd, QString::fromLatin1("%1 %2 [%3] %4").arg(qmlText,
-                                                   QString::number(parentDebugId),
-                                                   imports.join(QLatin1String(",")), filename));
-
-    sendMessage(message);
-}
-
-void DeclarativeToolsClient::destroyQmlObject(int debugId)
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    InspectorProtocol::Message cmd = InspectorProtocol::DestroyObject;
-    ds << cmd << debugId;
-
-    log(LogSend, cmd, QString::number(debugId));
-
-    sendMessage(message);
-}
-
-void DeclarativeToolsClient::reparentQmlObject(int debugId, int newParent)
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    InspectorProtocol::Message cmd = InspectorProtocol::MoveObject;
-    ds << cmd
-       << debugId
-       << newParent;
-
-    log(LogSend, cmd, QString::fromLatin1("%1 %2").arg(QString::number(debugId),
-                                           QString::number(newParent)));
-
-    sendMessage(message);
-}
-
-
-void DeclarativeToolsClient::applyChangesToQmlFile()
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    // TODO
-}
-
-void DeclarativeToolsClient::applyChangesFromQmlFile()
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    // TODO
 }
 
 void DeclarativeToolsClient::log(LogDirection direction,

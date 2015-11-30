@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Brian McGillion
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Brian McGillion
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,8 +31,8 @@
 #include "mercurialclient.h"
 #include "constants.h"
 
-#include <vcsbase/command.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
@@ -46,17 +47,30 @@
 #include <QTextStream>
 #include <QVariant>
 
+using namespace Utils;
+using namespace VcsBase;
+
 namespace Mercurial {
 namespace Internal  {
 
-MercurialClient::MercurialClient(MercurialSettings *settings) :
-    VcsBase::VcsBaseClient(settings)
+// Parameter widget controlling whitespace diff mode, associated with a parameter
+class MercurialDiffParameterWidget : public VcsBaseEditorParameterWidget
 {
-}
+    Q_OBJECT
+public:
+    MercurialDiffParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0) :
+        VcsBaseEditorParameterWidget(parent)
+    {
+        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
+                   settings.boolPointer(MercurialSettings::diffIgnoreWhiteSpaceKey));
+        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
+                   settings.boolPointer(MercurialSettings::diffIgnoreBlankLinesKey));
+    }
+};
 
-MercurialSettings *MercurialClient::settings() const
+MercurialClient::MercurialClient() : VcsBaseClient(new MercurialSettings)
 {
-    return dynamic_cast<MercurialSettings *>(VcsBase::VcsBaseClient::settings());
+    setDiffParameterWidgetCreator([this] { return new MercurialDiffParameterWidget(settings()); });
 }
 
 bool MercurialClient::manifestSync(const QString &repository, const QString &relativeFilename)
@@ -88,9 +102,9 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
     Q_UNUSED(extraOptions);
     QDir workingDirectory(srcLocation);
     QByteArray output;
-    const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt |
-            VcsBase::VcsBasePlugin::ShowStdOutInLogWindow |
-            VcsBase::VcsBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VcsCommand::SshPasswordPrompt |
+            VcsCommand::ShowStdOut |
+            VcsCommand::ShowSuccessMessage;
 
     if (workingDirectory.exists()) {
         // Let's make first init
@@ -101,33 +115,33 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
         // Then pull remote repository
         arguments.clear();
         arguments << QLatin1String("pull") << dstLocation;
-        const Utils::SynchronousProcessResponse resp1 =
+        const SynchronousProcessResponse resp1 =
                 vcsSynchronousExec(workingDirectory.path(), arguments, flags);
-        if (resp1.result != Utils::SynchronousProcessResponse::Finished)
+        if (resp1.result != SynchronousProcessResponse::Finished)
             return false;
 
         // By now, there is no hgrc file -> create it
-        Utils::FileSaver saver(workingDirectory.path() + QLatin1String("/.hg/hgrc"));
+        FileSaver saver(workingDirectory.path() + QLatin1String("/.hg/hgrc"));
         const QString hgrc = QLatin1String("[paths]\ndefault = ") + dstLocation + QLatin1Char('\n');
         saver.write(hgrc.toUtf8());
         if (!saver.finalize()) {
-            VcsBase::VcsBaseOutputWindow::instance()->appendError(saver.errorString());
+            VcsOutputWindow::appendError(saver.errorString());
             return false;
         }
 
         // And last update repository
         arguments.clear();
         arguments << QLatin1String("update");
-        const Utils::SynchronousProcessResponse resp2 =
+        const SynchronousProcessResponse resp2 =
                 vcsSynchronousExec(workingDirectory.path(), arguments, flags);
-        return resp2.result == Utils::SynchronousProcessResponse::Finished;
+        return resp2.result == SynchronousProcessResponse::Finished;
     } else {
         QStringList arguments(QLatin1String("clone"));
         arguments << dstLocation << workingDirectory.dirName();
         workingDirectory.cdUp();
-        const Utils::SynchronousProcessResponse resp =
+        const SynchronousProcessResponse resp =
                 vcsSynchronousExec(workingDirectory.path(), arguments, flags);
-        return resp.result == Utils::SynchronousProcessResponse::Finished;
+        return resp.result == SynchronousProcessResponse::Finished;
     }
 }
 
@@ -137,18 +151,16 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
     // Disable UNIX terminals to suppress SSH prompting
     const unsigned flags =
-            VcsBase::VcsBasePlugin::SshPasswordPrompt
-            | VcsBase::VcsBasePlugin::ShowStdOutInLogWindow
-            | VcsBase::VcsBasePlugin::ShowSuccessMessage;
-    const QString binary = settings()->binaryPath();
-    const int timeoutSec = settings()->value(settings()->timeoutKey).toInt();
+            VcsCommand::SshPasswordPrompt
+            | VcsCommand::ShowStdOut
+            | VcsCommand::ShowSuccessMessage;
 
     // cause mercurial doesn`t understand LANG
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert(QLatin1String("LANGUAGE"), QLatin1String("C"));
-    const Utils::SynchronousProcessResponse resp = VcsBase::VcsBasePlugin::runVcs(
-                workingDir, binary, args, timeoutSec * 1000, flags, 0, env);
-    const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
+    const SynchronousProcessResponse resp = VcsBasePlugin::runVcs(
+                workingDir, vcsBinary(), args, vcsTimeoutS(), flags, 0, env);
+    const bool ok = resp.result == SynchronousProcessResponse::Finished;
 
     parsePullOutput(resp.stdOut.trimmed());
     return ok;
@@ -190,22 +202,21 @@ QStringList MercurialClient::parentRevisionsSync(const QString &workingDirectory
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
         return QStringList();
-    const QString output = Utils::SynchronousProcess::normalizeNewlines(
+    const QString output = SynchronousProcess::normalizeNewlines(
                 QString::fromLocal8Bit(outputData));
     /* Looks like: \code
 changeset:   0:031a48610fba
 user: ...
 \endcode   */
     // Obtain first line and split by blank-delimited tokens
-    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     const QStringList lines = output.split(QLatin1Char('\n'));
     if (lines.size() < 1) {
-        outputWindow->appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
+        VcsOutputWindow::appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
         return QStringList();
     }
     QStringList changeSets = lines.front().simplified().split(QLatin1Char(' '));
     if (changeSets.size() < 2) {
-        outputWindow->appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
+        VcsOutputWindow::appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
         return QStringList();
     }
     // Remove revision numbers
@@ -233,7 +244,7 @@ QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
         return revision;
-    description = Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(outputData));
+    description = commandOutputFromLocal8Bit(outputData);
     if (description.endsWith(QLatin1Char('\n')))
         description.truncate(description.size() - 1);
     return description;
@@ -246,18 +257,6 @@ QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
                                            const QString &revision)
 {
     return shortDescriptionSync(workingDirectory, revision, QLatin1String(defaultFormatC));
-}
-
-QString MercurialClient::vcsGetRepositoryURL(const QString &directory)
-{
-    QByteArray output;
-
-    QStringList arguments(QLatin1String("showconfig"));
-    arguments << QLatin1String("paths.default");
-
-    if (vcsFullySynchronousExec(directory, arguments, &output))
-        return QString::fromLocal8Bit(output);
-    return QString();
 }
 
 bool MercurialClient::managesFile(const QString &workingDirectory, const QString &fileName) const
@@ -277,16 +276,15 @@ void MercurialClient::incoming(const QString &repositoryRoot, const QString &rep
         args.append(repository);
 
     QString id = repositoryRoot;
-    if (!repository.isEmpty()) {
-        id += QDir::separator();
-        id += repository;
-    }
+    if (!repository.isEmpty())
+        id += QLatin1Char('/') + repository;
 
     const QString title = tr("Hg incoming %1").arg(id);
 
-    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG, title, repositoryRoot,
-                                                     true, "incoming", id);
-    VcsBase::Command *cmd = createCommand(repository, editor);
+    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
+                                                  VcsBaseEditor::getCodec(repositoryRoot),
+                                                  "incoming", id);
+    VcsCommand *cmd = createCommand(repository, editor);
     enqueueJob(cmd, args);
 }
 
@@ -298,15 +296,16 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
     const QString title = tr("Hg outgoing %1").
             arg(QDir::toNativeSeparators(repositoryRoot));
 
-    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG, title, repositoryRoot, true,
-                                                     "outgoing", repositoryRoot);
+    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
+                                                  VcsBaseEditor::getCodec(repositoryRoot),
+                                                  "outgoing", repositoryRoot);
 
-    VcsBase::Command *cmd = createCommand(repositoryRoot, editor);
+    VcsCommand *cmd = createCommand(repositoryRoot, editor);
     enqueueJob(cmd, args);
 }
 
 void MercurialClient::annotate(const QString &workingDir, const QString &file,
-                               const QString revision, int lineNumber,
+                               const QString &revision, int lineNumber,
                                const QStringList &extraOptions)
 {
     QStringList args(extraOptions);
@@ -349,7 +348,8 @@ void MercurialClient::view(const QString &source, const QString &id,
                            const QStringList &extraOptions)
 {
     QStringList args;
-    args << QLatin1String("log") << QLatin1String("-p") << QLatin1String("-g");
+    args << QLatin1String("-v") << QLatin1String("log")
+         << QLatin1String("-p") << QLatin1String("-g");
     VcsBaseClient::view(source, id, args << extraOptions);
 }
 
@@ -357,19 +357,19 @@ QString MercurialClient::findTopLevelForFile(const QFileInfo &file) const
 {
     const QString repositoryCheckFile = QLatin1String(Constants::MERCURIALREPO) + QLatin1String("/requires");
     return file.isDir() ?
-                VcsBase::VcsBasePlugin::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
-                VcsBase::VcsBasePlugin::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
+                VcsBasePlugin::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
+                VcsBasePlugin::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
 }
 
-Core::Id MercurialClient::vcsEditorKind(VcsCommand cmd) const
+Core::Id MercurialClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case AnnotateCommand:
-        return Constants::ANNOTATELOG;
+        return Constants::ANNOTATELOG_ID;
     case DiffCommand:
-        return Constants::DIFFLOG;
+        return Constants::DIFFLOG_ID;
     case LogCommand:
-        return Constants::FILELOG;
+        return Constants::FILELOG_ID;
     default:
         return Core::Id();
     }
@@ -403,7 +403,7 @@ MercurialClient::StatusItem MercurialClient::parseStatusLine(const QString &line
 
         //the status line should be similar to "M file_with_changes"
         //so just should take the file name part and store it
-        item.file = line.mid(2);
+        item.file = QDir::fromNativeSeparators(line.mid(2));
     }
     return item;
 }
@@ -420,50 +420,6 @@ void MercurialClient::parsePullOutput(const QString &output)
 
     if (output.endsWith(QLatin1String("'hg merge' to merge)")))
         emit needMerge();
-}
-
-// Collect all parameters required for a diff to be able to associate them
-// with a diff editor and re-run the diff with parameters.
-struct MercurialDiffParameters
-{
-    QString workingDir;
-    QStringList files;
-    QStringList extraOptions;
-};
-
-// Parameter widget controlling whitespace diff mode, associated with a parameter
-class MercurialDiffParameterWidget : public VcsBase::VcsBaseEditorParameterWidget
-{
-    Q_OBJECT
-public:
-    MercurialDiffParameterWidget(MercurialClient *client,
-                                 const MercurialDiffParameters &p, QWidget *parent = 0) :
-        VcsBase::VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
-    {
-        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
-                   client->settings()->boolPointer(MercurialSettings::diffIgnoreWhiteSpaceKey));
-        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
-                   client->settings()->boolPointer(MercurialSettings::diffIgnoreBlankLinesKey));
-    }
-
-    void executeCommand()
-    {
-        m_client->diff(m_params.workingDir, m_params.files, m_params.extraOptions);
-    }
-
-private:
-    MercurialClient *m_client;
-    const MercurialDiffParameters m_params;
-};
-
-VcsBase::VcsBaseEditorParameterWidget *MercurialClient::createDiffEditor(
-    const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
-{
-    MercurialDiffParameters parameters;
-    parameters.workingDir = workingDir;
-    parameters.files = files;
-    parameters.extraOptions = extraOptions;
-    return new MercurialDiffParameterWidget(this, parameters);
 }
 
 } // namespace Internal

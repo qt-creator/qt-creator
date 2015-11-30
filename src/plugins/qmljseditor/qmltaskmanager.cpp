@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,25 +9,27 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qmltaskmanager.h"
+#include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 
 #include <coreplugin/idocument.h>
@@ -35,16 +37,17 @@
 #include <projectexplorer/taskhub.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljscontext.h>
+#include <qmljs/qmljsconstants.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljscheck.h>
-#include <qmljseditor/qmljseditor.h>
-#include <qmljseditor/qmljseditoreditable.h>
+#include <utils/runextensions.h>
 
 #include <QDebug>
 #include <QtConcurrentRun>
-#include <utils/runextensions.h>
 
+using namespace ProjectExplorer;
 using namespace QmlJS;
+using namespace Utils;
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -65,23 +68,18 @@ QmlTaskManager::QmlTaskManager(QObject *parent) :
             SLOT(updateMessagesNow()));
 }
 
-static QList<ProjectExplorer::Task> convertToTasks(const QList<DiagnosticMessage> &messages, const Utils::FileName &fileName, const Core::Id &category)
+static QList<Task> convertToTasks(const QList<DiagnosticMessage> &messages, const FileName &fileName, Core::Id category)
 {
-    QList<ProjectExplorer::Task> result;
+    QList<Task> result;
     foreach (const DiagnosticMessage &msg, messages) {
-        ProjectExplorer::Task::TaskType type
-                = msg.isError() ? ProjectExplorer::Task::Error
-                                : ProjectExplorer::Task::Warning;
-
-        ProjectExplorer::Task task(type, msg.message, fileName, msg.loc.startLine,
-                                   category);
-
+        Task::TaskType type = msg.isError() ? Task::Error : Task::Warning;
+        Task task(type, msg.message, fileName, msg.loc.startLine, category);
         result += task;
     }
     return result;
 }
 
-static QList<ProjectExplorer::Task> convertToTasks(const QList<StaticAnalysis::Message> &messages, const Utils::FileName &fileName, const Core::Id &category)
+static QList<Task> convertToTasks(const QList<StaticAnalysis::Message> &messages, const FileName &fileName, Core::Id category)
 {
     QList<DiagnosticMessage> diagnostics;
     foreach (const StaticAnalysis::Message &msg, messages)
@@ -109,20 +107,20 @@ void QmlTaskManager::collectMessages(
 
             FileErrorMessages result;
             result.fileName = fileName;
-            if (Document::isFullySupportedLanguage(document->language())) {
+            if (document->language().isFullySupportedLanguage()) {
                 result.tasks = convertToTasks(document->diagnosticMessages(),
-                                              Utils::FileName::fromString(fileName),
-                                              Core::Id(Constants::TASK_CATEGORY_QML));
+                                              FileName::fromString(fileName),
+                                              Constants::TASK_CATEGORY_QML);
 
                 if (updateSemantic) {
                     result.tasks += convertToTasks(linkMessages.value(fileName),
-                                                   Utils::FileName::fromString(fileName),
-                                                   Core::Id(Constants::TASK_CATEGORY_QML_ANALYSIS));
+                                                   FileName::fromString(fileName),
+                                                   Constants::TASK_CATEGORY_QML_ANALYSIS);
 
                     Check checker(document, context);
                     result.tasks += convertToTasks(checker(),
-                                                   Utils::FileName::fromString(fileName),
-                                                   Core::Id(Constants::TASK_CATEGORY_QML_ANALYSIS));
+                                                   FileName::fromString(fileName),
+                                                   Constants::TASK_CATEGORY_QML_ANALYSIS);
                 }
             }
 
@@ -161,11 +159,11 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
     QFuture<FileErrorMessages> future =
             QtConcurrent::run<FileErrorMessages>(
                 &collectMessages, modelManager->newestSnapshot(), modelManager->projectInfos(),
-                modelManager->defaultVContext(), updateSemantic);
+                modelManager->defaultVContext(Dialect::AnyLanguage), updateSemantic);
     m_messageCollector.setFuture(future);
 }
 
-void QmlTaskManager::documentsRemoved(const QStringList path)
+void QmlTaskManager::documentsRemoved(const QStringList &path)
 {
     foreach (const QString &item, path)
         removeTasksForFile(item);
@@ -175,7 +173,7 @@ void QmlTaskManager::displayResults(int begin, int end)
 {
     for (int i = begin; i < end; ++i) {
         FileErrorMessages result = m_messageCollector.resultAt(i);
-        foreach (const ProjectExplorer::Task &task, result.tasks) {
+        foreach (const Task &task, result.tasks) {
             insertTask(task);
         }
     }
@@ -187,29 +185,29 @@ void QmlTaskManager::displayAllResults()
     m_updatingSemantic = false;
 }
 
-void QmlTaskManager::insertTask(const ProjectExplorer::Task &task)
+void QmlTaskManager::insertTask(const Task &task)
 {
-    QList<ProjectExplorer::Task> tasks = m_docsWithTasks.value(task.file.toString());
+    QList<Task> tasks = m_docsWithTasks.value(task.file.toString());
     tasks.append(task);
     m_docsWithTasks.insert(task.file.toString(), tasks);
-    ProjectExplorer::TaskHub::addTask(task);
+    TaskHub::addTask(task);
 }
 
 void QmlTaskManager::removeTasksForFile(const QString &fileName)
 {
     if (m_docsWithTasks.contains(fileName)) {
-        const QList<ProjectExplorer::Task> tasks = m_docsWithTasks.value(fileName);
-        foreach (const ProjectExplorer::Task &task, tasks)
-            ProjectExplorer::TaskHub::removeTask(task);
+        const QList<Task> tasks = m_docsWithTasks.value(fileName);
+        foreach (const Task &task, tasks)
+            TaskHub::removeTask(task);
         m_docsWithTasks.remove(fileName);
     }
 }
 
 void QmlTaskManager::removeAllTasks(bool clearSemantic)
 {
-    ProjectExplorer::TaskHub::clearTasks(Constants::TASK_CATEGORY_QML);
+    TaskHub::clearTasks(Constants::TASK_CATEGORY_QML);
     if (clearSemantic)
-        ProjectExplorer::TaskHub::clearTasks(Constants::TASK_CATEGORY_QML_ANALYSIS);
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_QML_ANALYSIS);
     m_docsWithTasks.clear();
 }
 

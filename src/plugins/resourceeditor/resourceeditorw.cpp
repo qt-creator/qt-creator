@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,15 +32,13 @@
 #include "resourceeditorplugin.h"
 #include "resourceeditorconstants.h"
 
+#include <resourceeditor/qrceditor/resourcefile_p.h>
 #include <resourceeditor/qrceditor/qrceditor.h>
 
-#include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/find/treeviewfind.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/fileutils.h>
 
@@ -53,6 +52,8 @@
 #include <QInputDialog>
 #include <QClipboard>
 
+using namespace Utils;
+
 namespace ResourceEditor {
 namespace Internal {
 
@@ -60,34 +61,29 @@ enum { debugResourceEditorW = 0 };
 
 
 
-ResourceEditorDocument::ResourceEditorDocument(ResourceEditorW *parent) :
+ResourceEditorDocument::ResourceEditorDocument(QObject *parent) :
     IDocument(parent),
-    m_mimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE)),
-    m_blockDirtyChanged(false),
-    m_parent(parent)
+    m_model(new RelativeResourceModel(this))
 {
     setId(ResourceEditor::Constants::RESOURCEEDITOR_ID);
-    setFilePath(parent->m_resourceEditor->fileName());
+    setMimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE));
+    connect(m_model, &RelativeResourceModel::dirtyChanged,
+            this, &ResourceEditorDocument::dirtyChanged);
+
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorFile::ResourceEditorFile()";
 }
 
-QString ResourceEditorDocument::mimeType() const
-{
-    return m_mimeType;
-}
-
-
 ResourceEditorW::ResourceEditorW(const Core::Context &context,
                                ResourceEditorPlugin *plugin,
                                QWidget *parent)
-      : m_resourceEditor(new QrcEditor(parent)),
-        m_resourceDocument(new ResourceEditorDocument(this)),
+      : m_resourceDocument(new ResourceEditorDocument(this)),
         m_plugin(plugin),
-        m_shouldAutoSave(false),
         m_contextMenu(new QMenu),
         m_toolBar(new QToolBar)
 {
+    m_resourceEditor = new QrcEditor(m_resourceDocument->model(), parent);
+
     setContext(context);
     setWidget(m_resourceEditor);
 
@@ -96,33 +92,22 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
     connect(refreshButton, SIGNAL(clicked()), this, SLOT(onRefresh()));
     m_toolBar->addWidget(refreshButton);
 
-    Aggregation::Aggregate * agg = new Aggregation::Aggregate;
-    agg->add(m_resourceEditor->treeView());
-    agg->add(new Core::TreeViewFind(m_resourceEditor->treeView()));
-
     m_resourceEditor->setResourceDragEnabled(true);
     m_contextMenu->addAction(tr("Open File"), this, SLOT(openCurrentFile()));
     m_openWithMenu = m_contextMenu->addMenu(tr("Open With"));
     m_renameAction = m_contextMenu->addAction(tr("Rename File..."), this, SLOT(renameCurrentFile()));
     m_copyFileNameAction = m_contextMenu->addAction(tr("Copy Resource Path to Clipboard"), this, SLOT(copyCurrentResourcePath()));
 
-    // Below we need QueuedConnection because otherwise, if this qrc file
-    // is inside of the qrc file, crashes happen when using "Open With" on it.
-    // (That is because this editor instance is deleted in executeOpenWithMenuAction
-    // in that case.)
-    connect(m_openWithMenu, SIGNAL(triggered(QAction*)),
-            Core::DocumentManager::instance(), SLOT(executeOpenWithMenuAction(QAction*)),
-            Qt::QueuedConnection);
-
-    connect(m_resourceEditor, SIGNAL(dirtyChanged(bool)), m_resourceDocument, SLOT(dirtyChanged(bool)));
+    connect(m_resourceDocument, &ResourceEditorDocument::loaded,
+            m_resourceEditor, &QrcEditor::loaded);
     connect(m_resourceEditor, SIGNAL(undoStackChanged(bool,bool)),
             this, SLOT(onUndoStackChanged(bool,bool)));
     connect(m_resourceEditor, SIGNAL(showContextMenu(QPoint,QString)),
             this, SLOT(showContextMenu(QPoint,QString)));
     connect(m_resourceEditor, SIGNAL(itemActivated(QString)),
             this, SLOT(openFile(QString)));
-    connect(m_resourceEditor->commandHistory(), SIGNAL(indexChanged(int)),
-            this, SLOT(setShouldAutoSave()));
+    connect(m_resourceEditor->commandHistory(), &QUndoStack::indexChanged,
+            m_resourceDocument, [this]() { m_resourceDocument->setShouldAutoSave(true); });
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::ResourceEditorW()";
 }
@@ -135,27 +120,32 @@ ResourceEditorW::~ResourceEditorW()
     delete m_toolBar;
 }
 
-bool ResourceEditorW::open(QString *errorString, const QString &fileName, const QString &realFileName)
+Core::IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
+                                                         const QString &fileName,
+                                                         const QString &realFileName)
 {
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::open: " << fileName;
 
-    if (fileName.isEmpty())
-        return true;
+    setBlockDirtyChanged(true);
 
-    m_resourceDocument->setBlockDirtyChanged(true);
-    if (!m_resourceEditor->load(realFileName)) {
-        *errorString = m_resourceEditor->errorMessage();
-        m_resourceDocument->setBlockDirtyChanged(false);
-        return false;
+    m_model->setFileName(realFileName);
+
+    OpenResult openResult = m_model->reload();
+    if (openResult != OpenResult::Success) {
+        *errorString = m_model->errorMessage();
+        setBlockDirtyChanged(false);
+        emit loaded(false);
+        return openResult;
     }
 
-    m_resourceDocument->setFilePath(fileName);
-    m_resourceDocument->setBlockDirtyChanged(false);
-    m_resourceEditor->setDirty(fileName != realFileName);
+    setFilePath(FileName::fromString(fileName));
+    setBlockDirtyChanged(false);
+    m_model->setDirty(fileName != realFileName);
     m_shouldAutoSave = false;
 
-    return true;
+    emit loaded(true);
+    return OpenResult::Success;
 }
 
 bool ResourceEditorDocument::save(QString *errorString, const QString &name, bool autoSave)
@@ -163,24 +153,24 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
     if (debugResourceEditorW)
         qDebug(">ResourceEditorW::save: %s", qPrintable(name));
 
-    const QString oldFileName = filePath();
-    const QString actualName = name.isEmpty() ? oldFileName : name;
+    const FileName oldFileName = filePath();
+    const FileName actualName = name.isEmpty() ? oldFileName : FileName::fromString(name);
     if (actualName.isEmpty())
         return false;
 
     m_blockDirtyChanged = true;
-    m_parent->m_resourceEditor->setFileName(actualName);
-    if (!m_parent->m_resourceEditor->save()) {
-        *errorString = m_parent->m_resourceEditor->errorMessage();
-        m_parent->m_resourceEditor->setFileName(oldFileName);
+    m_model->setFileName(actualName.toString());
+    if (!m_model->save()) {
+        *errorString = m_model->errorMessage();
+        m_model->setFileName(oldFileName.toString());
         m_blockDirtyChanged = false;
         return false;
     }
 
-    m_parent->m_shouldAutoSave = false;
+    m_shouldAutoSave = false;
     if (autoSave) {
-        m_parent->m_resourceEditor->setFileName(oldFileName);
-        m_parent->m_resourceEditor->setDirty(true);
+        m_model->setFileName(oldFileName.toString());
+        m_model->setDirty(true);
         m_blockDirtyChanged = false;
         return true;
     }
@@ -192,30 +182,48 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
     return true;
 }
 
+QString ResourceEditorDocument::plainText() const
+{
+    return m_model->contents();
+}
+
 bool ResourceEditorDocument::setContents(const QByteArray &contents)
 {
-    Utils::TempFileSaver saver;
+    TempFileSaver saver;
     saver.write(contents);
     if (!saver.finalize(Core::ICore::mainWindow()))
         return false;
 
-    const bool rc = m_parent->m_resourceEditor->load(saver.fileName());
-    m_parent->m_shouldAutoSave = false;
+    const QString originalFileName = m_model->fileName();
+    m_model->setFileName(saver.fileName());
+    const bool success = (m_model->reload() == OpenResult::Success);
+    m_model->setFileName(originalFileName);
+    m_shouldAutoSave = false;
     if (debugResourceEditorW)
-        qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.fileName() << ") returns " << rc;
-    return rc;
+        qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.fileName() << ") returns " << success;
+    emit loaded(success);
+    return success;
 }
 
-void ResourceEditorDocument::setFilePath(const QString &newName)
+void ResourceEditorDocument::setFilePath(const FileName &newName)
 {
-    if (newName != m_parent->m_resourceEditor->fileName())
-        m_parent->m_resourceEditor->setFileName(newName);
+    m_model->setFileName(newName.toString());
     IDocument::setFilePath(newName);
 }
 
 void ResourceEditorDocument::setBlockDirtyChanged(bool value)
 {
     m_blockDirtyChanged = value;
+}
+
+RelativeResourceModel *ResourceEditorDocument::model() const
+{
+    return m_model;
+}
+
+void ResourceEditorDocument::setShouldAutoSave(bool save)
+{
+    m_shouldAutoSave = save;
 }
 
 QWidget *ResourceEditorW::toolBar()
@@ -225,12 +233,12 @@ QWidget *ResourceEditorW::toolBar()
 
 bool ResourceEditorDocument::shouldAutoSave() const
 {
-    return m_parent->m_shouldAutoSave;
+    return m_shouldAutoSave;
 }
 
 bool ResourceEditorDocument::isModified() const
 {
-    return m_parent->m_resourceEditor->isDirty();
+    return m_model->dirty();
 }
 
 bool ResourceEditorDocument::isSaveAsAllowed() const
@@ -246,8 +254,8 @@ bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, Chang
         emit changed();
     } else {
         emit aboutToReload();
-        QString fn = filePath();
-        const bool success = m_parent->open(errorString, fn, fn);
+        QString fn = filePath().toString();
+        const bool success = (open(errorString, fn, fn) == OpenResult::Success);
         emit reloadFinished(success);
         return success;
     }
@@ -259,14 +267,9 @@ QString ResourceEditorDocument::defaultPath() const
     return QString();
 }
 
-void ResourceEditorW::setSuggestedFileName(const QString &fileName)
-{
-    m_suggestedName = fileName;
-}
-
 QString ResourceEditorDocument::suggestedFileName() const
 {
-    return m_parent->m_suggestedName;
+    return QString();
 }
 
 void ResourceEditorDocument::dirtyChanged(bool dirty)
@@ -286,7 +289,7 @@ void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)
 
 void ResourceEditorW::showContextMenu(const QPoint &globalPoint, const QString &fileName)
 {
-    Core::DocumentManager::populateOpenWithMenu(m_openWithMenu, fileName);
+    Core::EditorManager::populateOpenWithMenu(m_openWithMenu, fileName);
     m_currentFileName = fileName;
     m_renameAction->setEnabled(!document()->isFileReadOnly());
     m_contextMenu->popup(globalPoint);

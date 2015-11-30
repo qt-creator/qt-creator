@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -50,6 +51,7 @@ ConsoleProcessPrivate::ConsoleProcessPrivate() :
     m_appPid(0),
     m_stubSocket(0),
     m_tempFile(0),
+    m_error(QProcess::UnknownError),
     m_settings(0),
     m_stubConnected(false),
     m_stubPid(0),
@@ -60,7 +62,8 @@ ConsoleProcessPrivate::ConsoleProcessPrivate() :
 ConsoleProcess::ConsoleProcess(QObject *parent)  :
     QObject(parent), d(new ConsoleProcessPrivate)
 {
-    connect(&d->m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
+    connect(&d->m_stubServer, &QLocalServer::newConnection,
+            this, &ConsoleProcess::stubConnectionAvailable);
 
     d->m_process.setProcessChannelMode(QProcess::ForwardedChannels);
 }
@@ -80,6 +83,9 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     if (isRunning())
         return false;
 
+    d->m_errorString.clear();
+    d->m_error = QProcess::UnknownError;
+
     QtcProcess::SplitError perr;
     QtcProcess::Arguments pargs = QtcProcess::prepareArgs(args, &perr, HostOsInfo::hostOs(),
                                                           &d->m_environment, &d->m_workingDir);
@@ -88,12 +94,12 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         pcmd = program;
     } else {
         if (perr != QtcProcess::FoundMeta) {
-            emit processError(tr("Quoting error in command."));
+            emitError(QProcess::FailedToStart, tr("Quoting error in command."));
             return false;
         }
         if (d->m_mode == Debug) {
             // FIXME: QTCREATORBUG-2809
-            emit processError(tr("Debugging complex shell commands in a terminal"
+            emitError(QProcess::FailedToStart, tr("Debugging complex shell commands in a terminal"
                                  " is currently not supported."));
             return false;
         }
@@ -108,7 +114,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
                                                               HostOsInfo::hostOs(),
                                                               &d->m_environment, &d->m_workingDir);
     if (qerr != QtcProcess::SplitOk) {
-        emit processError(qerr == QtcProcess::BadQuoting
+        emitError(QProcess::FailedToStart, qerr == QtcProcess::BadQuoting
                           ? tr("Quoting error in terminal command.")
                           : tr("Terminal command may not be a shell command."));
         return false;
@@ -116,16 +122,17 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
 
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processError(msgCommChannelFailed(err));
+        emitError(QProcess::FailedToStart, msgCommChannelFailed(err));
         return false;
     }
 
+    d->m_environment.unset(QLatin1String("TERM"));
     QStringList env = d->m_environment.toStringList();
     if (!env.isEmpty()) {
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
             stubServerShutdown();
-            emit processError(msgCannotCreateTempFile(d->m_tempFile->errorString()));
+            emitError(QProcess::FailedToStart, msgCannotCreateTempFile(d->m_tempFile->errorString()));
             delete d->m_tempFile;
             d->m_tempFile = 0;
             return false;
@@ -137,19 +144,15 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         }
         if (d->m_tempFile->write(contents) != contents.size() || !d->m_tempFile->flush()) {
             stubServerShutdown();
-            emit processError(msgCannotWriteTempFile());
+            emitError(QProcess::FailedToStart, msgCannotWriteTempFile());
             delete d->m_tempFile;
             d->m_tempFile = 0;
             return false;
         }
     }
 
-    QString stubPath = QCoreApplication::applicationDirPath();
-    if (Utils::HostOsInfo::isMacHost())
-        stubPath.append(QLatin1String("/../Resources/qtcreator_process_stub"));
-    else
-        stubPath.append(QLatin1String("/qtcreator_process_stub"));
-
+    const QString stubPath = QCoreApplication::applicationDirPath()
+            + QLatin1String("/" QTC_REL_TOOLS_PATH "/qtcreator_process_stub");
     QStringList allArgs = xtermArgs.toUnixArgs();
     allArgs << stubPath
               << modeOption(d->m_mode)
@@ -157,20 +160,21 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
               << msgPromptToClose()
               << workingDirectory()
               << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
+              << QString::number(getpid())
               << pcmd << pargs.toUnixArgs();
 
     QString xterm = allArgs.takeFirst();
     d->m_process.start(xterm, allArgs);
     if (!d->m_process.waitForStarted()) {
         stubServerShutdown();
-        emit processError(tr("Cannot start the terminal emulator '%1', change the setting in the "
+        emitError(QProcess::UnknownError, tr("Cannot start the terminal emulator \"%1\", change the setting in the "
                              "Environment options.").arg(xterm));
         delete d->m_tempFile;
         d->m_tempFile = 0;
         return false;
     }
     d->m_stubConnectTimer = new QTimer(this);
-    connect(d->m_stubConnectTimer, SIGNAL(timeout()), SLOT(stop()));
+    connect(d->m_stubConnectTimer, &QTimer::timeout, this, &ConsoleProcess::stop);
     d->m_stubConnectTimer->setSingleShot(true);
     d->m_stubConnectTimer->start(10000);
     d->m_executable = program;
@@ -247,7 +251,7 @@ QString ConsoleProcess::stubServerListen()
     const QString stubServer  = stubFifoDir + QLatin1String("/stub-socket");
     if (!d->m_stubServer.listen(stubServer)) {
         ::rmdir(d->m_stubServerDir.constData());
-        return tr("Cannot create socket '%1': %2").arg(stubServer, d->m_stubServer.errorString());
+        return tr("Cannot create socket \"%1\": %2").arg(stubServer, d->m_stubServer.errorString());
     }
     return QString();
 }
@@ -275,8 +279,8 @@ void ConsoleProcess::stubConnectionAvailable()
     d->m_stubConnected = true;
     emit stubStarted();
     d->m_stubSocket = d->m_stubServer.nextPendingConnection();
-    connect(d->m_stubSocket, SIGNAL(readyRead()), SLOT(readStubOutput()));
-    connect(d->m_stubSocket, SIGNAL(disconnected()), SLOT(stubExited()));
+    connect(d->m_stubSocket, &QIODevice::readyRead, this, &ConsoleProcess::readStubOutput);
+    connect(d->m_stubSocket, &QLocalSocket::disconnected, this, &ConsoleProcess::stubExited);
 }
 
 static QString errorMsg(int code)
@@ -290,9 +294,9 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = d->m_stubSocket->readLine();
         out.chop(1); // \n
         if (out.startsWith("err:chdir ")) {
-            emit processError(msgCannotChangeToWorkDir(workingDirectory(), errorMsg(out.mid(10).toInt())));
+            emitError(QProcess::FailedToStart, msgCannotChangeToWorkDir(workingDirectory(), errorMsg(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emit processError(msgCannotExecute(d->m_executable, errorMsg(out.mid(9).toInt())));
+            emitError(QProcess::FailedToStart, msgCannotExecute(d->m_executable, errorMsg(out.mid(9).toInt())));
         } else if (out.startsWith("spid ")) {
             delete d->m_tempFile;
             d->m_tempFile = 0;
@@ -312,7 +316,7 @@ void ConsoleProcess::readStubOutput()
             d->m_appPid = 0;
             emit processStopped(d->m_appCode, d->m_appStatus);
         } else {
-            emit processError(msgUnexpectedOutput(out));
+            emitError(QProcess::UnknownError, msgUnexpectedOutput(out));
             d->m_stubPid = 0;
             d->m_process.terminate();
             break;
@@ -357,7 +361,7 @@ static const Terminal knownTerminals[] =
 
 QString ConsoleProcess::defaultTerminalEmulator()
 {
-    if (Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost()) {
         QString termCmd = QCoreApplication::applicationDirPath() + QLatin1String("/../Resources/scripts/openTerminal.command");
         if (QFile(termCmd).exists())
             return termCmd.replace(QLatin1Char(' '), QLatin1String("\\ "));
@@ -366,7 +370,7 @@ QString ConsoleProcess::defaultTerminalEmulator()
     const Environment env = Environment::systemEnvironment();
     const int terminalCount = int(sizeof(knownTerminals) / sizeof(knownTerminals[0]));
     for (int i = 0; i < terminalCount; ++i) {
-        QString result = env.searchInPath(QLatin1String(knownTerminals[i].binary));
+        QString result = env.searchInPath(QLatin1String(knownTerminals[i].binary)).toString();
         if (!result.isEmpty()) {
             result += QLatin1Char(' ');
             result += QLatin1String(knownTerminals[i].options);
@@ -382,7 +386,7 @@ QStringList ConsoleProcess::availableTerminalEmulators()
     const Environment env = Environment::systemEnvironment();
     const int terminalCount = int(sizeof(knownTerminals) / sizeof(knownTerminals[0]));
     for (int i = 0; i < terminalCount; ++i) {
-        QString terminal = env.searchInPath(QLatin1String(knownTerminals[i].binary));
+        QString terminal = env.searchInPath(QLatin1String(knownTerminals[i].binary)).toString();
         if (!terminal.isEmpty()) {
             terminal += QLatin1Char(' ');
             terminal += QLatin1String(knownTerminals[i].options);

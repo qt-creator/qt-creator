@@ -172,18 +172,6 @@ bool FullySpecifiedType::isUnavailable() const
 void FullySpecifiedType::setUnavailable(bool isUnavailable)
 { f._isUnavailable = isUnavailable; }
 
-bool FullySpecifiedType::isEqualTo(const FullySpecifiedType &other) const
-{
-    if (_flags != other._flags)
-        return false;
-    if (_type == other._type)
-        return true;
-    else if (! _type)
-        return false;
-    else
-        return _type->isEqualTo(other._type);
-}
-
 Type &FullySpecifiedType::operator*()
 { return *_type; }
 
@@ -226,29 +214,7 @@ unsigned FullySpecifiedType::flags() const
 void FullySpecifiedType::setFlags(unsigned flags)
 { _flags = flags; }
 
-void FullySpecifiedType::copySpecifiers(const FullySpecifiedType &type)
+bool FullySpecifiedType::match(const FullySpecifiedType &otherTy, Matcher *matcher) const
 {
-    // class storage specifiers
-    f._isFriend = type.f._isFriend;
-    f._isAuto = type.f._isAuto;
-    f._isRegister = type.f._isRegister;
-    f._isStatic = type.f._isStatic;
-    f._isExtern = type.f._isExtern;
-    f._isMutable = type.f._isMutable;
-    f._isTypedef = type.f._isTypedef;
-
-    // function specifiers
-    f._isInline = type.f._isInline;
-    f._isVirtual = type.f._isVirtual;
-    f._isOverride = type.f._isOverride;
-    f._isFinal = type.f._isFinal;
-    f._isExplicit = type.f._isExplicit;
-}
-
-bool FullySpecifiedType::match(const FullySpecifiedType &otherTy, TypeMatcher *matcher) const
-{
-    if (_flags != otherTy._flags)
-        return false;
-
-    return type()->matchType(otherTy.type(), matcher);
+    return type()->match(otherTy.type(), matcher);
 }

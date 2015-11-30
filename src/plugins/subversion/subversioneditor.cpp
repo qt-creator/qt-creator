@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,7 +35,7 @@
 #include "subversionconstants.h"
 
 #include <utils/qtcassert.h>
-#include <vcsbase/diffhighlighter.h>
+#include <vcsbase/diffandloghighlighter.h>
 
 #include <QDebug>
 #include <QFileInfo>
@@ -44,11 +45,9 @@
 using namespace Subversion;
 using namespace Subversion::Internal;
 
-SubversionEditor::SubversionEditor(const VcsBase::VcsBaseEditorParameters *type,
-                                   QWidget *parent) :
-    VcsBase::VcsBaseEditorWidget(type, parent),
-    m_changeNumberPattern(QLatin1String("^\\d+$")),
-    m_revisionNumberPattern(QLatin1String("^r\\d+$"))
+SubversionEditorWidget::SubversionEditorWidget() :
+    m_changeNumberPattern(QLatin1String("^\\s*(?<area>(?<rev>\\d+))\\s+.*$")),
+    m_revisionNumberPattern(QLatin1String("\\b(?<area>(r|[rR]evision )(?<rev>\\d+))\\b"))
 {
     QTC_ASSERT(m_changeNumberPattern.isValid(), return);
     QTC_ASSERT(m_revisionNumberPattern.isValid(), return);
@@ -66,7 +65,7 @@ SubversionEditor::SubversionEditor(const VcsBase::VcsBaseEditorParameters *type,
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
 }
 
-QSet<QString> SubversionEditor::annotationChanges() const
+QSet<QString> SubversionEditorWidget::annotationChanges() const
 {
     QSet<QString> changes;
     const QString txt = toPlainText();
@@ -90,31 +89,47 @@ QSet<QString> SubversionEditor::annotationChanges() const
     return changes;
 }
 
-QString SubversionEditor::changeUnderCursor(const QTextCursor &c) const
+QString SubversionEditorWidget::changeUnderCursor(const QTextCursor &c) const
 {
     QTextCursor cursor = c;
     // Any number is regarded as change number.
-    cursor.select(QTextCursor::WordUnderCursor);
+    cursor.select(QTextCursor::LineUnderCursor);
     if (!cursor.hasSelection())
         return QString();
     QString change = cursor.selectedText();
-    // Annotation output has number, log output has revision numbers
-    // as r1, r2...
-    if (m_changeNumberPattern.exactMatch(change))
-        return change;
-    if (m_revisionNumberPattern.exactMatch(change)) {
-        change.remove(0, 1);
-        return change;
+    const int pos = c.position() - cursor.selectionStart() + 1;
+    // Annotation output has number, log output has revision numbers,
+    // both at the start of the line.
+    auto matchIter = m_changeNumberPattern.globalMatch(change);
+    if (!matchIter.hasNext())
+        matchIter = m_revisionNumberPattern.globalMatch(change);
+
+    // We may have several matches of our regexp and we way have
+    // several () in the regexp
+    const QString areaName = QLatin1String("area");
+    while (matchIter.hasNext()) {
+        auto match = matchIter.next();
+        const QString rev = match.captured(QLatin1String("rev"));
+        if (rev.isEmpty())
+            continue;
+
+        const QString area = match.captured(areaName);
+        QTC_ASSERT(area.contains(rev), continue);
+
+        const int start = match.capturedStart(areaName);
+        const int end = match.capturedEnd(areaName);
+        if (pos > start && pos <= end)
+            return rev;
     }
     return QString();
 }
 
-VcsBase::BaseAnnotationHighlighter *SubversionEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *SubversionEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
     return new SubversionAnnotationHighlighter(changes);
 }
 
-QStringList SubversionEditor::annotationPreviousVersions(const QString &v) const
+QStringList SubversionEditorWidget::annotationPreviousVersions(const QString &v) const
 {
     bool ok;
     const int revision = v.toInt(&ok);

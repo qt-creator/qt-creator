@@ -4,7 +4,7 @@ include(../shared/shared.pri)
 DEFINES += SRCDIR=\\\"$$PWD\\\"
 
 SOURCES += tst_preprocessor.cpp
-OTHER_FILES = \
+DISTFILES = \
     data/noPP.1.cpp \
     data/noPP.2.cpp \
     data/identifier-expansion.1.cpp data/identifier-expansion.1.out.cpp \

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,24 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "abstractformeditortool.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
+#include "formeditorscene.h"
 
 #include <modelnodecontextmenu.h>
 
@@ -168,26 +165,22 @@ FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGr
     return 0;
 }
 
-FormEditorItem* AbstractFormEditorTool::topFormEditorItem(const QList<QGraphicsItem*> & itemList)
+FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &point, const QList<QGraphicsItem*> & itemList)
 {
+    FormEditorItem* nearestItem = 0;
     foreach (QGraphicsItem *item, itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-        if (formEditorItem && !formEditorItem->qmlItemNode().isRootNode())
-            return formEditorItem;
+
+        if (!formEditorItem || !formEditorItem->qmlItemNode().isValid())
+            continue;
+
+        if (!nearestItem)
+            nearestItem = formEditorItem;
+        else if (formEditorItem->selectionWeigth(point, 1) < nearestItem->selectionWeigth(point, 0))
+            nearestItem = formEditorItem;
     }
 
-    return 0;
-}
-
-FormEditorItem* AbstractFormEditorTool::topFormEditorItemWithRootItem(const QList<QGraphicsItem*> & itemList)
-{
-    foreach (QGraphicsItem *item, itemList) {
-        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-        if (formEditorItem)
-            return formEditorItem;
-    }
-
-    return 0;
+    return nearestItem;
 }
 
 QList<FormEditorItem *> AbstractFormEditorTool::filterSelectedModelNodes(const QList<FormEditorItem *> &itemList) const
@@ -202,17 +195,17 @@ QList<FormEditorItem *> AbstractFormEditorTool::filterSelectedModelNodes(const Q
     return filteredItemList;
 }
 
-void AbstractFormEditorTool::dropEvent(QGraphicsSceneDragDropEvent * /* event */)
+void AbstractFormEditorTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /* event */)
 {
 }
 
-void AbstractFormEditorTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
+void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
 {
-    if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
-        event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
+    if (event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.itemlibraryinfo")) ||
+        event->mimeData()->hasFormat(QLatin1String("application/vnd.bauhaus.libraryresource"))) {
         event->accept();
         view()->changeToDragTool();
-        view()->currentTool()->dragEnterEvent(event);
+        view()->currentTool()->dragEnterEvent(itemList, event);
     } else {
         event->ignore();
     }
@@ -224,9 +217,43 @@ void AbstractFormEditorTool::mousePressEvent(const QList<QGraphicsItem*> & /*ite
         event->accept();
 }
 
-void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & /*itemList*/, QGraphicsSceneMouseEvent *event)
+static bool containsItemNode(const QList<QGraphicsItem*> & itemList, const QmlItemNode &itemNode)
+{
+    foreach (QGraphicsItem *item, itemList) {
+        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
+        if (formEditorItem && formEditorItem->qmlItemNode() == itemNode)
+            return true;
+    }
+
+    return false;
+}
+
+void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & itemList, QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::RightButton) {
+
+        QmlItemNode currentSelectedNode;
+
+        if (view()->selectedModelNodes().count() == 1) {
+            currentSelectedNode = view()->selectedModelNodes().first();
+
+            if (!containsItemNode(itemList, currentSelectedNode)) {
+                QmlItemNode selectedNode;
+
+                FormEditorItem *formEditorItem = nearestFormEditorItem(event->scenePos(), itemList);
+
+                if (formEditorItem && formEditorItem->qmlItemNode().isValid())
+                    selectedNode = formEditorItem->qmlItemNode();
+
+                if (selectedNode.isValid()) {
+                    QList<ModelNode> nodeList;
+                    nodeList.append(selectedNode);
+
+                    view()->setSelectedModelNodes(nodeList);
+                }
+            }
+        }
+
         showContextMenu(event);
         event->accept();
     }
@@ -235,7 +262,7 @@ void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & /*i
 void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        FormEditorItem *formEditorItem = topFormEditorItem(itemList);
+        FormEditorItem *formEditorItem = nearestFormEditorItem(event->pos(), itemList);
         if (formEditorItem) {
             view()->setSelectedModelNode(formEditorItem->qmlItemNode().modelNode());
             view()->changeToCustomTool();
@@ -262,6 +289,32 @@ Snapper::Snapping AbstractFormEditorTool::generateUseSnapping(Qt::KeyboardModifi
     }
 
     return useSnapping;
+}
+
+static bool isNotAncestorOfItemInList(FormEditorItem *formEditorItem, const QList<FormEditorItem*> &itemList)
+{
+    foreach (FormEditorItem *item, itemList) {
+        if (item
+            && item->qmlItemNode().isValid()
+            && item->qmlItemNode().isAncestorOf(formEditorItem->qmlItemNode()))
+            return false;
+    }
+
+    return true;
+}
+
+FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGraphicsItem *> &itemUnderMouseList, const QList<FormEditorItem *> &selectedItemList) const
+{
+    foreach (QGraphicsItem* item, itemUnderMouseList) {
+        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
+        if (formEditorItem
+                && !selectedItemList.contains(formEditorItem)
+                && isNotAncestorOfItemInList(formEditorItem, selectedItemList)
+                && formEditorItem->isContainer())
+            return formEditorItem;
+    }
+
+    return 0;
 }
 
 void AbstractFormEditorTool::clear()

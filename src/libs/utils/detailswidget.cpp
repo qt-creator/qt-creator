@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,6 +31,7 @@
 #include "detailswidget.h"
 #include "detailsbutton.h"
 #include "hostosinfo.h"
+#include "theme/theme.h"
 
 #include <QGridLayout>
 #include <QLabel>
@@ -78,7 +80,7 @@ public:
     QLabel *m_summaryLabel;
     QCheckBox *m_summaryCheckBox;
     QLabel *m_additionalSummaryLabel;
-    Utils::FadingPanel *m_toolWidget;
+    FadingPanel *m_toolWidget;
     QWidget *m_widget;
 
     QPixmap m_collapsedPixmap;
@@ -147,21 +149,22 @@ QPixmap DetailsWidget::createBackground(const QSize &size, int topHeight, QWidge
     if (HostOsInfo::isMacHost())
         p.fillRect(fullRect, qApp->palette().window().color());
     else
-        p.fillRect(fullRect, QColor(255, 255, 255, 40));
+        p.fillRect(fullRect, creatorTheme()->color(Theme::DetailsWidgetBackgroundColor));
 
-    QLinearGradient lg(topRect.topLeft(), topRect.bottomLeft());
-    lg.setColorAt(0, QColor(255, 255, 255, 130));
-    lg.setColorAt(1, QColor(255, 255, 255, 0));
-    p.fillRect(topRect, lg);
-    p.setRenderHint(QPainter::Antialiasing, true);
-    p.translate(0.5, 0.5);
-    p.setPen(QColor(0, 0, 0, 40));
-    p.setBrush(Qt::NoBrush);
-    p.drawRoundedRect(fullRect.adjusted(0, 0, -1, -1), 2, 2);
-    p.setBrush(Qt::NoBrush);
-    p.setPen(QColor(255,255,255,140));
-    p.drawRoundedRect(fullRect.adjusted(1, 1, -2, -2), 2, 2);
-    p.setPen(QPen(widget->palette().color(QPalette::Mid)));
+    if (creatorTheme()->widgetStyle () == Theme::StyleDefault) {
+        QLinearGradient lg(topRect.topLeft(), topRect.bottomLeft());
+        lg.setStops(creatorTheme()->gradient(Theme::DetailsWidgetHeaderGradient));
+        p.fillRect(topRect, lg);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        p.translate(0.5, 0.5);
+        p.setPen(QColor(0, 0, 0, 40));
+        p.setBrush(Qt::NoBrush);
+        p.drawRoundedRect(fullRect.adjusted(0, 0, -1, -1), 2, 2);
+        p.setBrush(Qt::NoBrush);
+        p.setPen(QColor(255,255,255,140));
+        p.drawRoundedRect(fullRect.adjusted(1, 1, -2, -2), 2, 2);
+        p.setPen(QPen(widget->palette().color(QPalette::Mid)));
+    }
 
     return pixmap;
 }
@@ -206,12 +209,12 @@ DetailsWidget::DetailsWidget(QWidget *parent) :
 
     setUseCheckBox(false);
 
-    connect(d->m_detailsButton, SIGNAL(toggled(bool)),
-            this, SLOT(setExpanded(bool)));
-    connect(d->m_summaryCheckBox, SIGNAL(toggled(bool)),
-            this, SIGNAL(checked(bool)));
-    connect(d->m_summaryLabel, SIGNAL(linkActivated(QString)),
-            this, SIGNAL(linkActivated(QString)));
+    connect(d->m_detailsButton, &QAbstractButton::toggled,
+            this, &DetailsWidget::setExpanded);
+    connect(d->m_summaryCheckBox, &QAbstractButton::toggled,
+            this, &DetailsWidget::checked);
+    connect(d->m_summaryLabel, &QLabel::linkActivated,
+            this, &DetailsWidget::linkActivated);
     d->updateControls();
 }
 
@@ -375,7 +378,7 @@ void DetailsWidget::setWidget(QWidget *widget)
     d->updateControls();
 }
 
-void DetailsWidget::setToolWidget(Utils::FadingPanel *widget)
+void DetailsWidget::setToolWidget(FadingPanel *widget)
 {
     if (d->m_toolWidget == widget)
         return;

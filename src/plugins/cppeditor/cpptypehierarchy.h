@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,17 +36,20 @@
 #include <QString>
 #include <QWidget>
 #include <QStackedWidget>
+#include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
-class QStandardItemModel;
-class QStandardItem;
-class QModelIndex;
 class QLabel;
+class QModelIndex;
+class QStackedLayout;
+class QStandardItem;
 template <class> class QVector;
 template <class> class QList;
 QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
+
+namespace TextEditor { class TextEditorLinkLabel; }
 
 namespace Utils {
 class NavigationTreeView;
@@ -55,9 +59,21 @@ class AnnotatedItemDelegate;
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorWidget;
 class CppClass;
 class CppClassLabel;
+
+class CppTypeHierarchyModel : public QStandardItemModel
+{
+    Q_OBJECT
+
+public:
+    CppTypeHierarchyModel(QObject *parent);
+
+    Qt::DropActions supportedDragActions() const;
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+};
 
 class CppTypeHierarchyWidget : public QWidget
 {
@@ -69,9 +85,6 @@ public:
 public slots:
     void perform();
 
-private slots:
-    void onItemClicked(const QModelIndex &index);
-
 private:
     typedef QList<CppClass> CppClass::*HierarchyMember;
     void buildHierarchy(const CppClass &cppClass, QStandardItem *parent,
@@ -79,39 +92,25 @@ private:
     void showNoTypeHierarchyLabel();
     void showTypeHierarchy();
     void clearTypeHierarchy();
+    void onItemActivated(const QModelIndex &index);
 
-    CPPEditorWidget *m_cppEditor;
+    CppEditorWidget *m_cppEditor;
     Utils::NavigationTreeView *m_treeView;
+    QWidget *m_hierarchyWidget;
+    QStackedLayout *m_stackLayout;
     QStandardItemModel *m_model;
     Utils::AnnotatedItemDelegate *m_delegate;
-    CppClassLabel *m_inspectedClass;
+    TextEditor::TextEditorLinkLabel *m_inspectedClass;
     QLabel *m_noTypeHierarchyAvailableLabel;
-};
-
-// @todo: Pretty much the same design as the OutlineWidgetStack. Maybe we can generalize the
-// outline factory so that it works for different widgets that support the same editor.
-class CppTypeHierarchyStackedWidget : public QStackedWidget
-{
-    Q_OBJECT
-public:
-    CppTypeHierarchyStackedWidget(QWidget *parent = 0);
-    virtual ~CppTypeHierarchyStackedWidget();
-
-private:
-    CppTypeHierarchyWidget *m_typeHiearchyWidgetInstance;
 };
 
 class CppTypeHierarchyFactory : public Core::INavigationWidgetFactory
 {
     Q_OBJECT
+
 public:
     CppTypeHierarchyFactory();
-    virtual ~CppTypeHierarchyFactory();
 
-    virtual QString displayName() const;
-    virtual int priority() const;
-    virtual Core::Id id() const;
-    virtual QKeySequence activationSequence() const;
     virtual Core::NavigationView createWidget();
 };
 

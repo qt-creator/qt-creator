@@ -175,7 +175,7 @@
       <item row="6" column="0">
        <widget class="QCheckBox" name="promptToStopRunControlCheckBox">
         <property name="toolTip">
-         <string>Ask before terminating the running application in response to clicking the stop button in Application Output.</string>
+         <string>Asks before terminating the running application in response to clicking the stop button in Application Output.</string>
         </property>
         <property name="text">
          <string>Always ask before stopping applications</string>
@@ -183,6 +183,49 @@
        </widget>
       </item>
       <item row="7" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="labelStopBeforeBuild">
+          <property name="text">
+           <string>Stop applications before building:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="stopBeforeBuildComboBox">
+          <item>
+           <property name="text">
+            <string>None</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Same Project</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>All</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="8" column="0" colspan="2">
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
          <number>0</number>
@@ -200,7 +243,7 @@
         <item>
          <widget class="QLabel" name="jomLabel">
           <property name="text">
-           <string>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. The latest binary is available at &lt;a href=&quot;http://releases.qt-project.org/jom/&quot;&gt;http://releases.qt-project.org/jom/&lt;/a&gt;. Disable it if you experience problems with your builds.</string>
+           <string>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. The latest binary is available at &lt;a href=&quot;http://download.qt.io/official_releases/jom/&quot;&gt;http://download.qt.io/official_releases/jom/&lt;/a&gt;. Disable it if you experience problems with your builds.</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -215,7 +258,7 @@
         </item>
        </layout>
       </item>
-      <item row="8" column="0" colspan="2">
+      <item row="9" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <property name="topMargin">
          <number>12</number>

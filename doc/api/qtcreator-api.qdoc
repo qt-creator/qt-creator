@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -21,12 +21,11 @@
 
     \title Qt Creator API Reference
 
-    The core of Qt Creator is
-    basically only a \l{ExtensionSystem}{plugin loader}.
-    All functionality is implemented in plugins. The basis of Qt Creator is
-    implemented in the \l{Core} {Core} Plugin. The plugin manager provides
-    simple means for plugin cooperation that allow plugins to provide
-    hooks for other plugin's extensions.
+    The core of \QC is basically only a \l{ExtensionSystem}{plugin loader}. All
+    functionality is implemented in plugins. The basis of \QC is implemented in
+    the \l{Core}{Core} Plugin. The plugin manager provides simple means for
+    plugin cooperation that allow plugins to provide hooks for other plugin's
+    extensions.
 
     \section1 Libraries
 
@@ -35,88 +34,85 @@
     There are a few core libraries used by many parts of Qt Creator.
 
     \table
-    \header
-    \li Library Name
-    \li Description
+        \header
+            \li Library Name
+            \li Description
 
-    \row
-    \li \l{Aggregation}
-    \li Adds functionality for "glueing" QObjects of different
-        types together, so you can "cast" between them.
+        \row
+            \li \l{Aggregation}
+            \li Adds functionality for "glueing" QObjects of different types
+                together, so you can "cast" between them.
 
-    \row
-    \li \l{ExtensionSystem}
-    \li Implements the plugin loader framework. Provides a base class for plugins and
-        basic mechanisms for plugin interaction like an object pool.
+        \row
+            \li \l{ExtensionSystem}
+            \li Implements the plugin loader framework. Provides a base class
+                for plugins and basic mechanisms for plugin interaction like an
+                object pool.
 
-    \row
-    \li \l{Utils}
-    \li General utility library.
+        \row
+            \li \l{Utils}
+            \li General utility library.
 
-    \row
-    \li \l{QmlJS}
-    \li QML and JavaScript language support library.
+        \row
+            \li \l{QmlJS}
+            \li QML and JavaScript language support library.
 
     \endtable
 
     \section2 Additional libraries
 
     \table
-    \header
-    \li Library Name
-    \li Description
+        \header
+            \li Library Name
+            \li Description
 
-    \row
-    \li \l{qtcreatorcdbext}
-    \li Windows CDB debugger extension
-
-
+        \row
+            \li \l{qtcreatorcdbext}
+            \li Windows CDB debugger extension
     \endtable
 
     \section1 Plugins
 
-    As already mentioned, Qt Creator is basically only a plugin loader framework
+    As already mentioned, \QC is basically only a plugin loader framework
     which gets its IDE functionality through plugins. The most important plugin
-    is the Core plugin which provides all the basic functionality needed
+    is the \c Core plugin which provides all the basic functionality needed
     later to integrate e.g. editors or mode windows.
 
     \table
-    \header
-    \li Plugin Name
-    \li Description
+        \header
+            \li Plugin Name
+            \li Description
 
-    \row
-    \li \l{Core}
-    \li The core plugin. Provides the main window and managers for editors,
-    actions, mode windows and files, just to mention the most important ones.
+        \row
+            \li \l{Core}
+            \li The core plugin. Provides the main window and managers for
+                editors, actions, mode windows and files, just to mention the
+                most important ones.
 
-    \row
-    \li \l{ProjectExplorer}
-    \li The project explorer plugin. Provides base classes for project handling.
+                This plugin also contains classes necessary to hook into the
+                \l{Locator} as well as support for searching text in arbitrary
+                widgets.
 
-    \row
-    \li \l{Find}
-    \li Support for searching text in arbitrary widgets, and arbitrary other things.
+        \row
+            \li \l{ProjectExplorer}
+            \li The project explorer plugin. Provides base classes for project
+                handling.
 
-    \row
-    \li \l{Locator}
-    \li Hooks for providing content for Locator.
+        \row
+            \li \l{Debugger}
+            \li Debugging functionality.
 
-    \row
-    \li \l{Debugger}
-    \li Debugging functionality.
+        \row
+            \li \l{VcsBase}
+            \li Base classes for version control support.
 
-    \row
-    \li \l{VcsBase}
-    \li Base classes for version control support.
-
-    \row
-    \li \l{TextEditor}
-    \li This is where everything starts if you want to create a text editor. Besides
-    the base editor itself, this plugin contains APIs for supporting functionality
-    like \l{Snippets}{snippets}, highlighting, \l{CodeAssist}{code assist}, indentation
-    and style, and others.
-
+        \row
+            \li \l{TextEditor}
+            \li This is where everything starts if you want to create a text
+                editor. Besides the base editor itself, this plugin contains
+                APIs for supporting functionality like \l{Snippets}{snippets},
+                highlighting, \l{CodeAssist}{code assist}, indentation and
+                style, and others.
     \endtable
 */
 
@@ -154,95 +150,101 @@
     \title Common Extension Tasks
 
     This section summarizes the API functions that you can use to add UI
-    components to Qt Creator.
+    components to \QC.
 
     \table
-    \header
-    \li Task
-    \li Details
-    \li API
+        \header
+            \li Task
+            \li Details
+            \li API
 
-    \row
-    \li Add a menu or menu item.
-    \li You can extend existing menus or create new ones.
-    \li \l{Core::ActionManager}, \l{Core::Command}
+        \row
+            \li Add a menu or menu item.
+            \li You can extend existing menus or create new ones.
+            \li \l{Core::ActionManager}, \l{Core::Command}
 
-    \row
-    \li Add a configurable keyboard shortcut.
-    \li Registering shortcuts makes it possible for users to configure them in
-        the common shortcut settings dialog.
-    \li \l{Core::ActionManager}, \l{Core::Command}
+        \row
+            \li Add a configurable keyboard shortcut.
+            \li Registering shortcuts makes it possible for users to configure
+                them in the common shortcut settings dialog.
+            \li \l{Core::ActionManager}, \l{Core::Command}
 
-    \row
-    \li Add a mode.
-    \li Modes correspond to complete screens of controls, specialized for a task.
-    \li \l{Core::IMode}
+        \row
+            \li Add a mode.
+            \li Modes correspond to complete screens of controls, specialized
+                for a task.
+            \li \l{Core::IMode}
 
-    \row
-    \li Add a new editor type.
-    \li Such as an editor for XML files.
-    \li \l{Core::IEditorFactory}, \l{Core::IEditor}, \l{Core::IDocument}
+        \row
+            \li Add a new editor type.
+            \li Such as an editor for XML files.
+            \li \l{Core::IEditorFactory}, \l{Core::IEditor}, \l{Core::IDocument}
 
-    \row
-    \li Add a new wizard.
-    \li You can extend the wizards in File > New File or Project with your own
-        file and project templates.
-    \li \l{Core::IWizard}, \l{Core::StandardFileWizard},
-        \l{Core::BaseFileWizard}, \l{Core::BaseFileWizardParameters}
+        \row
+            \li Add a new wizard.
+            \li You can extend the wizards in File > New File or Project with
+                your own file and project templates.
+            \li \l{Core::IWizard}, \l{Core::StandardFileWizard},
+                \l{Core::BaseFileWizard}, \l{Core::BaseFileWizardParameters}
 
-    \row
-    \li Add support for a new version control system.
-    \li Version control systems integrated in QtCreator are Bazaar, CVS, Git,
-        Mecurial, Perforce, and Subversion.
-    \li \l{Core::IVersionControl}
+        \row
+            \li Add support for a new version control system.
+            \li Version control systems integrated in \QC are Bazaar, CVS, Git,
+                Mecurial, Perforce, and Subversion.
+            \li \l{Core::IVersionControl}
 
-    \row
-    \li Add a view to the navigation sidebar.
-    \li The one which shows the project tree, filesystem, open documents or bookmarks.
-    \li \l{Core::INavigationWidgetFactory}
+        \row
+            \li Add a view to the navigation sidebar.
+            \li The one which shows the project tree, filesystem, open documents
+                or bookmarks.
+            \li \l{Core::INavigationWidgetFactory}
 
-    \row
-    \li Add an options page to the \gui Options dialog.
-    \li Add a new page to existing or new category in Tools > Options.
-    \li \l{Core::IOptionsPage}
+        \row
+            \li Add an options page to the \uicontrol Options dialog.
+            \li Add a new page to existing or new category in
+                \uicontrol Tools > \uicontrol Options.
+            \li \l{Core::IOptionsPage}
 
-    \row
-    \li Add a find filter to the \gui Find dialog.
-    \li Implement any kind of search term based search.
-    \li \l{Find::IFindFilter}, \l{Core::SearchResultWindow}
+        \row
+            \li Add a find filter to the \uicontrol Find dialog.
+            \li Implement any kind of search term based search.
+            \li \l{Find::IFindFilter}, \l{Core::SearchResultWindow}
 
-    \row
-    \li Add support for the find tool bar to a widget.
-    \li The widget that has focus is asked whether it supports text search. You can
-        add support for widgets under your control.
-    \li \l{Core::IFindSupport}, \l{Find::BaseTextFind}
+        \row
+            \li Add support for the find tool bar to a widget.
+            \li The widget that has focus is asked whether it supports text
+                search. You can add support for widgets under your control.
+            \li \l{Core::IFindSupport}, \l{Find::BaseTextFind}
 
-    \row
-    \li Add a completely new project type.
-    \li
-    \li
+        \row
+            \li Add a completely new project type.
+            \li
+            \li
 
-    \row
-    \li Add a new type of build step.
-    \li
-    \li
+        \row
+            \li Add a new type of build step.
+            \li
+            \li
 
-    \row
-    \li Add a new filter to the locator.
-    \li For a text typed in by the user you provide a list of things to show in the popup.
-        When the user selects an entry you are requested to do whatever you want.
-    \li \l{Core::ILocatorFilter}, \l{Core::LocatorFilterEntry}, \l{Locator::BaseFileFilter}
+        \row
+            \li Add a new filter to the locator.
+            \li For a text typed in by the user you provide a list of things to
+                show in the popup. When the user selects an entry you are
+                requested to do whatever you want.
+            \li \l{Core::ILocatorFilter}, \l{Core::LocatorFilterEntry},
+                \l{Locator::BaseFileFilter}
 
-    \row
-    \li Show a progress indicator for a concurrently running task.
-    \li You can show a progress indicator for your tasks in the left hand tool bar,
-        and also in the application icon (on platforms that support it).
-    \li \l{Core::ProgressManager}, \l{Core::FutureProgress}
+        \row
+            \li Show a progress indicator for a concurrently running task.
+            \li You can show a progress indicator for your tasks in the left
+                hand tool bar, and also in the application icon (on platforms
+                that support it).
+            \li \l{Core::ProgressManager}, \l{Core::FutureProgress}
 
-    \row
-    \li
-    \li
-    \li
+        \row
+            \li
+            \li
+            \li
 
     \endtable
 */

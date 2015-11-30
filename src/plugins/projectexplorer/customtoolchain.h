@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -75,37 +76,37 @@ public:
         OutputParserCount
     };
 
-    QString type() const;
-    QString typeDisplayName() const;
-    Abi targetAbi() const;
+    QString typeDisplayName() const override;
+    Abi targetAbi() const override;
     void setTargetAbi(const Abi &);
 
-    bool isValid() const;
+    bool isValid() const override;
 
-    QByteArray predefinedMacros(const QStringList &cxxflags) const;
-    CompilerFlags compilerFlags(const QStringList &cxxflags) const;
-    WarningFlags warningFlags(const QStringList &cxxflags) const;
+    QByteArray predefinedMacros(const QStringList &cxxflags) const override;
+    CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
+    WarningFlags warningFlags(const QStringList &cxxflags) const override;
     const QStringList &rawPredefinedMacros() const;
     void setPredefinedMacros(const QStringList &list);
 
-    QList<HeaderPath> systemHeaderPaths(const QStringList &cxxFlags, const Utils::FileName &) const;
-    void addToEnvironment(Utils::Environment &env) const;
-    QList<Utils::FileName> suggestedMkspecList() const;
-    IOutputParser *outputParser() const;
+    QList<HeaderPath> systemHeaderPaths(const QStringList &cxxFlags,
+                                        const Utils::FileName &) const override;
+    void addToEnvironment(Utils::Environment &env) const override;
+    Utils::FileNameList suggestedMkspecList() const override;
+    IOutputParser *outputParser() const override;
     QStringList headerPathsList() const;
     void setHeaderPaths(const QStringList &list);
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &data) override;
 
-    ToolChainConfigWidget *configurationWidget();
+    ToolChainConfigWidget *configurationWidget() override;
 
-    bool operator ==(const ToolChain &) const;
+    bool operator ==(const ToolChain &) const override;
 
     void setCompilerCommand(const Utils::FileName &);
-    Utils::FileName compilerCommand() const;
+    Utils::FileName compilerCommand() const override;
     void setMakeCommand(const Utils::FileName &);
-    QString makeCommand(const Utils::Environment &environment) const;
+    QString makeCommand(const Utils::Environment &environment) const override;
 
     void setCxx11Flags(const QStringList &);
     const QStringList &cxx11Flags() const;
@@ -113,7 +114,7 @@ public:
     void setMkspecs(const QString &);
     QString mkspecs() const;
 
-    ToolChain *clone() const;
+    ToolChain *clone() const override;
 
     OutputParser outputParserType() const;
     void setOutputParserType(OutputParser parser);
@@ -122,8 +123,7 @@ public:
     static QString parserName(OutputParser parser);
 
 protected:
-    explicit CustomToolChain(const QString &id, Detection d);
-    CustomToolChain(const CustomToolChain &);
+    CustomToolChain(const CustomToolChain &) = default;
 
 private:
     explicit CustomToolChain(Detection d);
@@ -135,7 +135,7 @@ private:
     QStringList m_predefinedMacros;
     QList<HeaderPath> m_systemHeaderPaths;
     QStringList m_cxx11Flags;
-    QList<Utils::FileName> m_mkspecs;
+    Utils::FileNameList m_mkspecs;
 
     OutputParser m_outputParser;
     CustomParserSettings m_customParserSettings;
@@ -153,17 +153,12 @@ class CustomToolChainFactory : public ToolChainFactory
 public:
     CustomToolChainFactory();
 
-    bool canCreate();
-    ToolChain *create();
+    bool canCreate() override;
+    ToolChain *create() override;
 
     // Used by the ToolChainManager to restore user-generated tool chains
-    bool canRestore(const QVariantMap &data);
-    ToolChain *restore(const QVariantMap &data);
-
-protected:
-    virtual CustomToolChain *createToolChain(bool autoDetect);
-    QList<ToolChain *> autoDetectToolchains(const QString &compiler,
-                                            const Abi &);
+    bool canRestore(const QVariantMap &data) override;
+    ToolChain *restore(const QVariantMap &data) override;
 };
 
 // --------------------------------------------------------------------------
@@ -185,10 +180,10 @@ private slots:
     void openCustomParserSettingsDialog();
 
 protected:
-    void applyImpl();
-    void discardImpl() { setFromToolchain(); }
-    bool isDirtyImpl() const;
-    void makeReadOnlyImpl();
+    void applyImpl() override;
+    void discardImpl() override { setFromToolchain(); }
+    bool isDirtyImpl() const override;
+    void makeReadOnlyImpl() override;
 
     void setFromToolchain();
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,30 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "qrceditor.h"
 #include "undocommands_p.h"
+
+#include <aggregation/aggregate.h>
+#include <coreplugin/find/itemviewfind.h>
 
 #include <QDebug>
 #include <QScopedPointer>
@@ -39,9 +43,9 @@
 using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
-QrcEditor::QrcEditor(QWidget *parent)
+QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
   : QWidget(parent),
-    m_treeview(new ResourceView(&m_history)),
+    m_treeview(new ResourceView(model, &m_history)),
     m_addFileAction(0)
 {
     m_ui.setupUi(this);
@@ -53,6 +57,8 @@ QrcEditor::QrcEditor(QWidget *parent)
     layout->addWidget(m_treeview);
 
     connect(m_ui.removeButton, SIGNAL(clicked()), this, SLOT(onRemove()));
+    connect(m_ui.removeNonExistingButton, &QPushButton::clicked,
+            this, &QrcEditor::onRemoveNonExisting);
 
     // 'Add' button with menu
     QMenu *addMenu = new QMenu(this);
@@ -63,7 +69,6 @@ QrcEditor::QrcEditor(QWidget *parent)
     connect(m_treeview, SIGNAL(removeItem()), this, SLOT(onRemove()));
     connect(m_treeview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(updateCurrent()));
-    connect(m_treeview, SIGNAL(dirtyChanged(bool)), this, SIGNAL(dirtyChanged(bool)));
     connect(m_treeview, SIGNAL(itemActivated(QString)),
             this, SIGNAL(itemActivated(QString)));
     connect(m_treeview, SIGNAL(showContextMenu(QPoint,QString)),
@@ -94,6 +99,11 @@ QrcEditor::QrcEditor(QWidget *parent)
 
     connect(&m_history, SIGNAL(canRedoChanged(bool)), this, SLOT(updateHistoryControls()));
     connect(&m_history, SIGNAL(canUndoChanged(bool)), this, SLOT(updateHistoryControls()));
+
+    Aggregation::Aggregate * agg = new Aggregation::Aggregate;
+    agg->add(m_treeview);
+    agg->add(new Core::ItemViewFind(m_treeview));
+
     updateHistoryControls();
     updateCurrent();
 }
@@ -102,47 +112,19 @@ QrcEditor::~QrcEditor()
 {
 }
 
-QString QrcEditor::fileName() const
+void QrcEditor::loaded(bool success)
 {
-    return m_treeview->fileName();
-}
-
-void QrcEditor::setFileName(const QString &fileName)
-{
-    m_treeview->setFileName(fileName);
-}
-
-bool QrcEditor::load(const QString &fileName)
-{
-    const bool success = m_treeview->load(fileName);
-    if (success) {
-        // Set "focus"
-        m_treeview->setCurrentIndex(m_treeview->model()->index(0,0));
-
-        // Expand prefix nodes
-        m_treeview->expandAll();
-    }
-    return success;
+    if (!success)
+        return;
+    // Set "focus"
+    m_treeview->setCurrentIndex(m_treeview->model()->index(0,0));
+    // Expand prefix nodes
+    m_treeview->expandAll();
 }
 
 void QrcEditor::refresh()
 {
     m_treeview->refresh();
-}
-
-bool QrcEditor::save()
-{
-    return m_treeview->save();
-}
-
-bool QrcEditor::isDirty()
-{
-    return m_treeview->isDirty();
-}
-
-void QrcEditor::setDirty(bool dirty)
-{
-    m_treeview->setDirty(dirty);
 }
 
 // Propagates a change of selection in the tree
@@ -307,7 +289,7 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
             if (clickedButton == context.copyButton) {
                 const QFileInfo fi(file);
                 QFileInfo suggestion;
-                QDir tmpTarget(dir.path() + QDir::separator() + QLatin1String("Resources"));
+                QDir tmpTarget(dir.path() + QLatin1Char('/') + QLatin1String("Resources"));
                 if (tmpTarget.exists())
                     suggestion.setFile(tmpTarget, fi.fileName());
                 else
@@ -393,6 +375,16 @@ void QrcEditor::onRemove()
     const QModelIndex afterDeletionModelIndex
             = m_treeview->model()->index(afterDeletionArrayIndex, 0, afterDeletionParent);
     m_treeview->setCurrentIndex(afterDeletionModelIndex);
+    updateHistoryControls();
+}
+
+// Slot for 'Remove missing files' button
+void QrcEditor::onRemoveNonExisting()
+{
+    QList<QModelIndex> toRemove = m_treeview->nonExistingFiles();
+
+    QUndoCommand * const removeCommand = new RemoveMultipleEntryCommand(m_treeview, toRemove);
+    m_history.push(removeCommand);
     updateHistoryControls();
 }
 

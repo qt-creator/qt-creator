@@ -25,7 +25,6 @@ HEADERS += \
     $$PWD/qmljspropertyreader.h \
     $$PWD/qmljsrewriter.h \
     $$PWD/qmljsicons.h \
-    $$PWD/qmljsdelta.h \
     $$PWD/qmljsplugindumper.h \
     $$PWD/qmljstypedescriptionreader.h \
     $$PWD/qmljsscopeastpath.h \
@@ -43,7 +42,9 @@ HEADERS += \
     $$PWD/qmljsqrcparser.h \
     $$PWD/qmljsconstants.h \
     $$PWD/qmljsimportdependencies.h \
-    $$PWD/qmljsviewercontext.h
+    $$PWD/qmljsviewercontext.h \
+    $$PWD/qmljsdescribevalue.h \
+    $$PWD/qmljsdialect.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -62,7 +63,6 @@ SOURCES += \
     $$PWD/qmljspropertyreader.cpp \
     $$PWD/qmljsrewriter.cpp \
     $$PWD/qmljsicons.cpp \
-    $$PWD/qmljsdelta.cpp \
     $$PWD/qmljsplugindumper.cpp \
     $$PWD/qmljstypedescriptionreader.cpp \
     $$PWD/qmljsscopeastpath.cpp \
@@ -78,13 +78,15 @@ SOURCES += \
     $$PWD/persistenttrie.cpp \
     $$PWD/qmljsqrcparser.cpp \
     $$PWD/qmljsimportdependencies.cpp \
-    $$PWD/qmljsviewercontext.cpp
+    $$PWD/qmljsviewercontext.cpp \
+    $$PWD/qmljsdescribevalue.cpp \
+    $$PWD/qmljsdialect.cpp
 
 
 RESOURCES += \
     $$PWD/qmljs.qrc
 
-OTHER_FILES += \
+DISTFILES += \
     $$PWD/parser/qmljs.g
 
 contains(QT, gui) {

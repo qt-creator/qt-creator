@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,10 @@
 #include "gerritparameters.h"
 
 #include <utils/qtcassert.h>
+#include <utils/fancylineedit.h>
+#include <utils/itemviews.h>
+#include <utils/progressindicator.h>
+#include <utils/theme/theme.h>
 #include <coreplugin/icore.h>
 
 #include <QVBoxLayout>
@@ -56,39 +61,6 @@ namespace Internal {
 static const int layoutSpacing  = 5;
 static const int maxTitleWidth = 350;
 
-QueryValidatingLineEdit::QueryValidatingLineEdit(QWidget *parent)
-    : Utils::FancyLineEdit(parent)
-    , m_valid(true)
-    , m_okTextColor(palette().color(QPalette::Active, QPalette::Text))
-    , m_errorTextColor(Qt::red)
-{
-    setFiltering(true);
-    connect(this, SIGNAL(textChanged(QString)), this, SLOT(setValid()));
-}
-
-void QueryValidatingLineEdit::setTextColor(const QColor &c)
-{
-    QPalette pal;
-    pal.setColor(QPalette::Active, QPalette::Text, c);
-    setPalette(pal);
-}
-
-void QueryValidatingLineEdit::setValid()
-{
-    if (!m_valid) {
-        m_valid = true;
-        setTextColor(m_okTextColor);
-    }
-}
-
-void QueryValidatingLineEdit::setInvalid()
-{
-    if (m_valid) {
-        m_valid = false;
-        setTextColor(m_errorTextColor);
-    }
-}
-
 GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
                            QWidget *parent)
     : QDialog(parent)
@@ -96,9 +68,9 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_filterModel(new QSortFilterProxyModel(this))
     , m_model(new GerritModel(p, this))
     , m_queryModel(new QStringListModel(this))
-    , m_treeView(new QTreeView)
+    , m_treeView(new Utils::TreeView)
     , m_detailsBrowser(new QTextBrowser)
-    , m_queryLineEdit(new QueryValidatingLineEdit)
+    , m_queryLineEdit(new Utils::FancyLineEdit)
     , m_filterLineEdit(new Utils::FancyLineEdit)
     , m_repositoryChooser(new Utils::PathChooser)
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Close))
@@ -120,35 +92,54 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     QCompleter *completer = new QCompleter(this);
     completer->setModel(m_queryModel);
     m_queryLineEdit->setSpecialCompleter(completer);
+    m_queryLineEdit->setOkColor(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal));
+    m_queryLineEdit->setErrorColor(Utils::creatorTheme()->color(Utils::Theme::TextColorError));
+    m_queryLineEdit->setValidationFunction([this](Utils::FancyLineEdit *, QString *) {
+                                               return m_model->state() != GerritModel::Error;
+                                           });
     filterLayout->addWidget(queryLabel);
     filterLayout->addWidget(m_queryLineEdit);
     filterLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
     m_filterLineEdit->setFixedWidth(300);
     m_filterLineEdit->setFiltering(true);
     filterLayout->addWidget(m_filterLineEdit);
-    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
-            m_filterModel, SLOT(setFilterFixedString(QString)));
-    connect(m_queryLineEdit, SIGNAL(returnPressed()),
-            this, SLOT(slotRefresh()));
-    connect(m_model, SIGNAL(queryError()), m_queryLineEdit, SLOT(setInvalid()));
+    connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+            m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
+    connect(m_queryLineEdit, &QLineEdit::returnPressed, this, &GerritDialog::slotRefresh);
+    connect(m_model, &GerritModel::stateChanged, m_queryLineEdit, &Utils::FancyLineEdit::validate);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     changesLayout->addLayout(filterLayout);
     changesLayout->addWidget(m_treeView);
 
     m_filterModel->setSourceModel(m_model);
     m_filterModel->setFilterRole(GerritModel::FilterRole);
+    m_filterModel->setSortRole(GerritModel::SortRole);
+    m_treeView->setRootIsDecorated(true);
     m_treeView->setModel(m_filterModel);
     m_treeView->setMinimumWidth(600);
     m_treeView->setUniformRowHeights(true);
     m_treeView->setRootIsDecorated(false);
     m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeView->setSortingEnabled(true);
+    m_treeView->setActivationMode(Utils::DoubleClickActivation);
+
+    connect(&m_progressIndicatorTimer, &QTimer::timeout,
+            [this]() { setProgressIndicatorVisible(true); });
+    m_progressIndicatorTimer.setSingleShot(true);
+    m_progressIndicatorTimer.setInterval(50); // don't show progress for < 50ms tasks
+
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large,
+                                                       m_treeView);
+    m_progressIndicator->attachToWidget(m_treeView->viewport());
+    m_progressIndicator->hide();
+
+    connect(m_model, &GerritModel::stateChanged, this, &GerritDialog::manageProgressIndicator);
 
     QItemSelectionModel *selectionModel = m_treeView->selectionModel();
-    connect(selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(slotCurrentChanged()));
-    connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(slotDoubleClicked(QModelIndex)));
+    connect(selectionModel, &QItemSelectionModel::currentChanged,
+            this, &GerritDialog::slotCurrentChanged);
+    connect(m_treeView, &QAbstractItemView::activated,
+            this, &GerritDialog::slotActivated);
 
     QGroupBox *detailsGroup = new QGroupBox(tr("Details"));
     QVBoxLayout *detailsLayout = new QVBoxLayout(detailsGroup);
@@ -164,17 +155,17 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     repoPathLayout->addWidget(m_repositoryChooser);
     detailsLayout->addLayout(repoPathLayout);
 
-    m_displayButton = addActionButton(QString(), SLOT(slotFetchDisplay()));
-    m_cherryPickButton = addActionButton(QString(), SLOT(slotFetchCherryPick()));
-    m_checkoutButton = addActionButton(QString(), SLOT(slotFetchCheckout()));
-    m_refreshButton = addActionButton(tr("&Refresh"), SLOT(slotRefresh()));
+    m_displayButton = addActionButton(tr("&Show"), [this]() { slotFetchDisplay(); });
+    m_cherryPickButton = addActionButton(tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
+    m_checkoutButton = addActionButton(tr("C&heckout"), [this]() { slotFetchCheckout(); });
+    m_refreshButton = addActionButton(tr("&Refresh"), [this]() { slotRefresh(); });
 
-    connect(m_model, SIGNAL(refreshStateChanged(bool)),
-            m_refreshButton, SLOT(setDisabled(bool)));
-    connect(m_model, SIGNAL(refreshStateChanged(bool)),
-            this, SLOT(slotRefreshStateChanged(bool)));
-    connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_model, &GerritModel::refreshStateChanged,
+            m_refreshButton, &QWidget::setDisabled);
+    connect(m_model, &GerritModel::refreshStateChanged,
+            this, &GerritDialog::slotRefreshStateChanged);
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     QSplitter *splitter = new QSplitter(Qt::Vertical, this);
     splitter->addWidget(changesGroup);
@@ -190,6 +181,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
 
     resize(QSize(950, 600));
     m_treeView->setFocus();
+    m_refreshButton->setDefault(true);
 }
 
 QString GerritDialog::repositoryPath() const
@@ -197,34 +189,16 @@ QString GerritDialog::repositoryPath() const
     return m_repositoryChooser->path();
 }
 
-void GerritDialog::displayRepositoryPath()
+void GerritDialog::setCurrentPath(const QString &path)
 {
-    QTC_ASSERT(m_parameters, return);
-    m_repositoryChooser->setVisible(!m_parameters->promptPath);
-    m_repositoryChooserLabel->setVisible(!m_parameters->promptPath);
-    if (m_repositoryChooser->path().isEmpty())
-        m_repositoryChooser->setPath(m_parameters->repositoryPath);
-    if (m_parameters->promptPath) {
-        m_displayButton->setText(tr("&Show..."));
-        m_cherryPickButton->setText(tr("Cherry &Pick..."));
-        m_checkoutButton->setText(tr("&Checkout..."));
-    } else {
-        m_displayButton->setText(tr("&Show"));
-        m_cherryPickButton->setText(tr("Cherry &Pick"));
-        m_checkoutButton->setText(tr("&Checkout"));
-    }
+    m_repositoryChooser->setPath(path);
 }
 
-void GerritDialog::showEvent(QShowEvent *event)
-{
-    displayRepositoryPath();
-    QDialog::showEvent(event);
-}
-
-QPushButton *GerritDialog::addActionButton(const QString &text, const char *buttonSlot)
+QPushButton *GerritDialog::addActionButton(const QString &text,
+                                           const std::function<void()> &buttonSlot)
 {
     QPushButton *button = m_buttonBox->addButton(text, QDialogButtonBox::ActionRole);
-    connect(button, SIGNAL(clicked()), this, buttonSlot);
+    connect(button, &QPushButton::clicked, this, buttonSlot);
     return button;
 }
 
@@ -243,15 +217,17 @@ GerritDialog::~GerritDialog()
 {
 }
 
-void GerritDialog::slotDoubleClicked(const QModelIndex &i)
+void GerritDialog::slotActivated(const QModelIndex &i)
 {
-    if (const QStandardItem *item = itemAt(i))
-        QDesktopServices::openUrl(QUrl(m_model->change(item->row())->url));
+    const QModelIndex source = m_filterModel->mapToSource(i);
+    if (source.isValid())
+        QDesktopServices::openUrl(QUrl(m_model->change(source)->url));
 }
 
 void GerritDialog::slotRefreshStateChanged(bool v)
 {
     if (!v && m_model->rowCount()) {
+        m_treeView->expandAll();
         for (int c = 0; c < GerritModel::ColumnCount; ++c)
             m_treeView->resizeColumnToContents(c);
         if (m_treeView->columnWidth(GerritModel::TitleColumn) > maxTitleWidth)
@@ -261,20 +237,23 @@ void GerritDialog::slotRefreshStateChanged(bool v)
 
 void GerritDialog::slotFetchDisplay()
 {
-    if (const QStandardItem *item = currentItem())
-        emit fetchDisplay(m_model->change(item->row()));
+    const QModelIndex index = currentIndex();
+    if (index.isValid())
+        emit fetchDisplay(m_model->change(index));
 }
 
 void GerritDialog::slotFetchCherryPick()
 {
-    if (const QStandardItem *item = currentItem())
-        emit fetchCherryPick(m_model->change(item->row()));
+    const QModelIndex index = currentIndex();
+    if (index.isValid())
+        emit fetchCherryPick(m_model->change(index));
 }
 
 void GerritDialog::slotFetchCheckout()
 {
-    if (const QStandardItem *item = currentItem())
-        emit fetchCheckout(m_model->change(item->row()));
+    const QModelIndex index = currentIndex();
+    if (index.isValid())
+        emit fetchCheckout(m_model->change(index));
 }
 
 void GerritDialog::slotRefresh()
@@ -285,22 +264,20 @@ void GerritDialog::slotRefresh()
     m_treeView->sortByColumn(-1);
 }
 
-const QStandardItem *GerritDialog::itemAt(const QModelIndex &i, int column) const
+void GerritDialog::manageProgressIndicator()
 {
-    if (i.isValid()) {
-        const QModelIndex source = m_filterModel->mapToSource(i);
-        if (source.isValid())
-            return m_model->item(source.row(), column);
+    if (m_model->state() == GerritModel::Running) {
+        m_progressIndicatorTimer.start();
+    } else {
+        m_progressIndicatorTimer.stop();
+        setProgressIndicatorVisible(false);
     }
-    return 0;
 }
 
-const QStandardItem *GerritDialog::currentItem(int column) const
+QModelIndex GerritDialog::currentIndex() const
 {
     const QModelIndex index = m_treeView->selectionModel()->currentIndex();
-    if (index.isValid())
-        return itemAt(index, column);
-    return 0;
+    return index.isValid() ? m_filterModel->mapToSource(index) : QModelIndex();
 }
 
 void GerritDialog::updateButtons()
@@ -313,18 +290,12 @@ void GerritDialog::updateButtons()
 
 void GerritDialog::slotCurrentChanged()
 {
-    const QModelIndex current = m_treeView->selectionModel()->currentIndex();
-    const bool valid = current.isValid();
-    if (valid) {
-        const int row = m_filterModel->mapToSource(current).row();
-        m_detailsBrowser->setText(m_model->change(row)->toHtml());
-    } else {
-        m_detailsBrowser->setText(QString());
-    }
+    const QModelIndex current = currentIndex();
+    m_detailsBrowser->setText(current.isValid() ? m_model->toHtml(current) : QString());
     updateButtons();
 }
 
-void GerritDialog::fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change)
+void GerritDialog::fetchStarted(const QSharedPointer<GerritChange> &change)
 {
     // Disable buttons to prevent parallel gerrit operations which can cause mix-ups.
     m_fetchRunning = true;
@@ -342,6 +313,11 @@ void GerritDialog::fetchFinished()
     m_displayButton->setToolTip(QString());
     m_cherryPickButton->setToolTip(QString());
     m_checkoutButton->setToolTip(QString());
+}
+
+void GerritDialog::setProgressIndicatorVisible(bool v)
+{
+    m_progressIndicator->setVisible(v);
 }
 
 } // namespace Internal

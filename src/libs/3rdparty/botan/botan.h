@@ -11,10 +11,14 @@
 #ifdef USE_SYSTEM_BOTAN
 #include <botan/auto_rng.h>
 #include <botan/cbc.h>
+#include <botan/ctr.h>
 #include <botan/der_enc.h>
 #include <botan/dh.h>
 #include <botan/dl_group.h>
 #include <botan/dsa.h>
+#include <botan/ec_group.h>
+#include <botan/ecdh.h>
+#include <botan/ecdsa.h>
 #include <botan/hmac.h>
 #include <botan/init.h>
 #include <botan/lookup.h>

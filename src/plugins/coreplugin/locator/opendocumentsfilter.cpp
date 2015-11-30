@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,7 +34,9 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <utils/fileutils.h>
 
+#include <QAbstractItemModel>
 #include <QFileInfo>
+#include <QMutexLocker>
 
 using namespace Core;
 using namespace Core;
@@ -45,20 +48,23 @@ OpenDocumentsFilter::OpenDocumentsFilter()
     setId("Open documents");
     setDisplayName(tr("Open Documents"));
     setShortcutString(QString(QLatin1Char('o')));
+    setPriority(High);
     setIncludedByDefault(true);
 
-    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-            this, SLOT(refreshInternally()));
-    connect(EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
-            this, SLOT(refreshInternally()));
+    connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
+            this, &OpenDocumentsFilter::refreshInternally);
+    connect(DocumentModel::model(), &QAbstractItemModel::rowsInserted,
+            this, &OpenDocumentsFilter::refreshInternally);
+    connect(DocumentModel::model(), &QAbstractItemModel::rowsRemoved,
+            this, &OpenDocumentsFilter::refreshInternally);
 }
 
-QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry_)
+QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry_)
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
     QString entry = entry_;
-    const QString lineNoSuffix = EditorManager::splitLineNumber(&entry);
+    const QString lineNoSuffix = EditorManager::splitLineAndColumnNumber(&entry);
     const QChar asterisk = QLatin1Char('*');
     QString pattern = QString(asterisk);
     pattern += entry;
@@ -67,17 +73,16 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Core:
     if (!regexp.isValid())
         return goodEntries;
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
-    foreach (const DocumentModel::Entry &editorEntry, m_editors) {
+    foreach (const Entry &editorEntry, editors()) {
         if (future.isCanceled())
             break;
-        QString fileName = editorEntry.fileName();
+        QString fileName = editorEntry.fileName.toString();
         if (fileName.isEmpty())
             continue;
-        QString displayName = editorEntry.displayName();
+        QString displayName = editorEntry.displayName;
         if (regexp.exactMatch(displayName)) {
-            QFileInfo fi(fileName);
-            LocatorFilterEntry fiEntry(this, fi.fileName(), QString(fileName + lineNoSuffix));
-            fiEntry.extraInfo = FileUtils::shortNativePath(FileName(fi));
+            LocatorFilterEntry fiEntry(this, displayName, QString(fileName + lineNoSuffix));
+            fiEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
             fiEntry.fileName = fileName;
             QList<LocatorFilterEntry> &category = displayName.startsWith(entry, caseSensitivityForPrefix)
                     ? betterEntries : goodEntries;
@@ -90,15 +95,22 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Core:
 
 void OpenDocumentsFilter::refreshInternally()
 {
+    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     m_editors.clear();
-    foreach (DocumentModel::Entry *e, EditorManager::documentModel()->documents()) {
-        DocumentModel::Entry entry;
+    foreach (DocumentModel::Entry *e, DocumentModel::entries()) {
+        Entry entry;
         // create copy with only the information relevant to use
         // to avoid model deleting entries behind our back
-        entry.m_displayName = e->displayName();
-        entry.m_fileName = e->fileName();
+        entry.displayName = e->displayName();
+        entry.fileName = e->fileName();
         m_editors.append(entry);
     }
+}
+
+QList<OpenDocumentsFilter::Entry> OpenDocumentsFilter::editors() const
+{
+    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
+    return m_editors;
 }
 
 void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
@@ -110,5 +122,5 @@ void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
 void OpenDocumentsFilter::accept(LocatorFilterEntry selection) const
 {
     EditorManager::openEditor(selection.internalData.toString(), Id(),
-                              EditorManager::CanContainLineNumber);
+                              EditorManager::CanContainLineAndColumnNumber);
 }

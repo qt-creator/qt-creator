@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,18 +32,19 @@
 #include "actionmanager_p.h"
 #include "actioncontainer_p.h"
 #include "command_p.h"
-#include <coreplugin/id.h>
-#include <coreplugin/mainwindow.h>
 
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
+#include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 
-#include <QDebug>
-#include <QSettings>
-#include <QLabel>
-#include <QMenu>
 #include <QAction>
-#include <QShortcut>
+#include <QApplication>
+#include <QDebug>
+#include <QDesktopWidget>
+#include <QMenu>
 #include <QMenuBar>
+#include <QSettings>
 
 namespace {
     enum { warnAboutFindFailures = 0 };
@@ -98,9 +100,9 @@ using namespace Core::Internal;
     put the following in your plugin's IPlugin::initialize function:
     \code
         QAction *myAction = new QAction(tr("My Action"), this);
-        Core::Command *cmd = Core::ActionManager::registerAction(myAction,
+        Command *cmd = ActionManager::registerAction(myAction,
                                                  "myplugin.myaction",
-                                                 Core::Context(C_GLOBAL));
+                                                 Context(C_GLOBAL));
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+u")));
         connect(myAction, SIGNAL(triggered()), this, SLOT(performMyAction()));
     \endcode
@@ -122,7 +124,7 @@ using namespace Core::Internal;
 
     Following the example adding "My Action" to the "Tools" menu would be done by
     \code
-        Core::ActionManager::actionContainer(Core::M_TOOLS)->addAction(cmd);
+        ActionManager::actionContainer(M_TOOLS)->addAction(cmd);
     \endcode
 
     \section1 Important Guidelines:
@@ -199,14 +201,10 @@ ActionContainer *ActionManager::createMenu(Id id)
     if (it !=  d->m_idContainerMap.constEnd())
         return it.value();
 
-    QMenu *m = new QMenu(ICore::mainWindow());
-    m->setObjectName(QLatin1String(id.name()));
-
     MenuActionContainer *mc = new MenuActionContainer(id);
-    mc->setMenu(m);
 
     d->m_idContainerMap.insert(id, mc);
-    connect(mc, SIGNAL(destroyed()), d, SLOT(containerDestroyed()));
+    connect(mc, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
 
     return mc;
 }
@@ -231,7 +229,7 @@ ActionContainer *ActionManager::createMenuBar(Id id)
     mbc->setMenuBar(mb);
 
     d->m_idContainerMap.insert(id, mbc);
-    connect(mbc, SIGNAL(destroyed()), d, SLOT(containerDestroyed()));
+    connect(mbc, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
 
     return mbc;
 }
@@ -244,6 +242,8 @@ ActionContainer *ActionManager::createMenuBar(Id id)
     same \a id as long as the \a context is different. In this case
     a trigger of the actual action is forwarded to the registered QAction
     for the currently active context.
+    If the optional \a context argument is not specified, the global context
+    will be assumed.
     A scriptable action can be called from a script without the need for the user
     to interact with it.
 */
@@ -253,7 +253,7 @@ Command *ActionManager::registerAction(QAction *action, Id id, const Context &co
     if (a) {
         a->addOverrideAction(action, context, scriptable);
         emit m_instance->commandListChanged();
-        emit m_instance->commandAdded(id.toString());
+        emit m_instance->commandAdded(id);
     }
     return a;
 }
@@ -326,8 +326,9 @@ void ActionManager::unregisterAction(QAction *action, Id id)
     a->removeOverrideAction(action);
     if (a->isEmpty()) {
         // clean up
-        // ActionContainers listen to the commands' destroyed signals
+        d->saveSettings(a);
         ICore::mainWindow()->removeAction(a->action());
+        // ActionContainers listen to the commands' destroyed signals
         delete a->action();
         d->m_idCmdMap.remove(id);
         delete a;
@@ -349,42 +350,23 @@ void ActionManager::setPresentationModeEnabled(bool enabled)
     foreach (Command *c, commands()) {
         if (c->action()) {
             if (enabled)
-                connect(c->action(), SIGNAL(triggered()), d, SLOT(actionTriggered()));
+                connect(c->action(), &QAction::triggered, d, &ActionManagerPrivate::actionTriggered);
             else
-                disconnect(c->action(), SIGNAL(triggered()), d, SLOT(actionTriggered()));
+                disconnect(c->action(), &QAction::triggered, d, &ActionManagerPrivate::actionTriggered);
         }
     }
 
-    // The label for the shortcuts:
-    if (!d->m_presentationLabel) {
-        d->m_presentationLabel = new QLabel(0, Qt::ToolTip | Qt::WindowStaysOnTopHint);
-        QFont font = d->m_presentationLabel->font();
-        font.setPixelSize(45);
-        d->m_presentationLabel->setFont(font);
-        d->m_presentationLabel->setAlignment(Qt::AlignCenter);
-        d->m_presentationLabel->setMargin(5);
-
-        connect(&d->m_presentationLabelTimer, SIGNAL(timeout()), d->m_presentationLabel, SLOT(hide()));
-    } else {
-        d->m_presentationLabelTimer.stop();
-        delete d->m_presentationLabel;
-        d->m_presentationLabel = 0;
-    }
+    d->m_presentationModeEnabled = enabled;
 }
 
 bool ActionManager::isPresentationModeEnabled()
 {
-    return d->m_presentationLabel;
+    return d->m_presentationModeEnabled;
 }
 
-void ActionManager::initialize()
+void ActionManager::saveSettings()
 {
-    d->initialize();
-}
-
-void ActionManager::saveSettings(QSettings *settings)
-{
-    d->saveSettings(settings);
+    d->saveSettings();
 }
 
 void ActionManager::setContext(const Context &context)
@@ -398,17 +380,11 @@ void ActionManager::setContext(const Context &context)
     \internal
 */
 
-ActionManagerPrivate::ActionManagerPrivate()
-  : m_presentationLabel(0)
-{
-    m_presentationLabelTimer.setInterval(1000);
-}
-
 ActionManagerPrivate::~ActionManagerPrivate()
 {
     // first delete containers to avoid them reacting to command deletion
     foreach (ActionContainerPrivate *container, m_idContainerMap)
-        disconnect(container, SIGNAL(destroyed()), this, SLOT(containerDestroyed()));
+        disconnect(container, &QObject::destroyed, this, &ActionManagerPrivate::containerDestroyed);
     qDeleteAll(m_idContainerMap);
     qDeleteAll(m_idCmdMap);
 }
@@ -417,7 +393,7 @@ QDebug operator<<(QDebug d, const Context &context)
 {
     d << "CONTEXT: ";
     foreach (Id id, context)
-        d << "   " << id.uniqueIdentifier() << " " << id.toString();
+        d << "   " << id.toString();
     return d;
 }
 
@@ -459,15 +435,18 @@ void ActionManagerPrivate::showShortcutPopup(const QString &shortcut)
     if (shortcut.isEmpty() || !ActionManager::isPresentationModeEnabled())
         return;
 
-    m_presentationLabel->setText(shortcut);
-    m_presentationLabel->adjustSize();
+    QWidget *window = QApplication::activeWindow();
+    if (!window) {
+        if (!QApplication::topLevelWidgets().isEmpty()) {
+            window = QApplication::topLevelWidgets().first();
+        } else {
+            QTC_ASSERT(QApplication::desktop(), return);
+            window = QApplication::desktop()->screen();
+            QTC_ASSERT(window, return);
+        }
+    }
 
-    QPoint p = ICore::mainWindow()->mapToGlobal(ICore::mainWindow()->rect().center() - m_presentationLabel->rect().center());
-    m_presentationLabel->move(p);
-
-    m_presentationLabel->show();
-    m_presentationLabel->raise();
-    m_presentationLabelTimer.start();
+    Utils::FadingIndicator::showText(window, shortcut);
 }
 
 Action *ActionManagerPrivate::overridableAction(Id id)
@@ -483,7 +462,7 @@ Action *ActionManagerPrivate::overridableAction(Id id)
         a->setCurrentContext(m_context);
 
         if (ActionManager::isPresentationModeEnabled())
-            connect(a->action(), SIGNAL(triggered()), this, SLOT(actionTriggered()));
+            connect(a->action(), &QAction::triggered, this, &ActionManagerPrivate::actionTriggered);
     }
 
     return a;
@@ -491,58 +470,28 @@ Action *ActionManagerPrivate::overridableAction(Id id)
 
 void ActionManagerPrivate::readUserSettings(Id id, Action *cmd)
 {
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
     if (settings->contains(id.toString()))
         cmd->setKeySequence(QKeySequence(settings->value(id.toString()).toString()));
     settings->endGroup();
 }
 
-static const char oldSettingsGroup[] = "KeyBindings";
-static const char oldIdKey[] = "ID";
-static const char oldSequenceKey[] = "Keysequence";
-
-void ActionManagerPrivate::initialize()
+void ActionManagerPrivate::saveSettings(Action *cmd)
 {
-    // TODO remove me after some period after 3.1
-    // check if settings in old style (pre 3.1) exist
-    QSettings *settings = Core::ICore::settings();
-    if (settings->contains(QLatin1String(kKeyboardSettingsKey)))
-        return;
-    // move old settings style to new settings style
-    QMap<Id, QKeySequence> shortcutMap;
-    const int shortcuts = settings->beginReadArray(QLatin1String(oldSettingsGroup));
-    for (int i = 0; i < shortcuts; ++i) {
-        settings->setArrayIndex(i);
-        const QKeySequence key(settings->value(QLatin1String(oldSequenceKey)).toString());
-        const Id id = Id::fromSetting(settings->value(QLatin1String(oldIdKey)));
-        shortcutMap.insert(id, key);
-    }
-    settings->endArray();
-    // write settings in new style
-    settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
-    QMapIterator<Id, QKeySequence> it(shortcutMap);
-    while (it.hasNext()) {
-        it.next();
-        settings->setValue(it.key().toString(), it.value().toString());
-    }
-    settings->endGroup();
-    // remove old settings
-    settings->remove(QLatin1String(oldSettingsGroup));
+    const QString settingsKey = QLatin1String(kKeyboardSettingsKey) + QLatin1Char('/')
+            + cmd->id().toString();
+    QKeySequence key = cmd->keySequence();
+    if (key != cmd->defaultKeySequence())
+        ICore::settings()->setValue(settingsKey, key.toString());
+    else
+        ICore::settings()->remove(settingsKey);
 }
 
-void ActionManagerPrivate::saveSettings(QSettings *settings)
+void ActionManagerPrivate::saveSettings()
 {
-    settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
     const IdCmdMap::const_iterator cmdcend = m_idCmdMap.constEnd();
     for (IdCmdMap::const_iterator j = m_idCmdMap.constBegin(); j != cmdcend; ++j) {
-        const Id id = j.key();
-        Action *cmd = j.value();
-        QKeySequence key = cmd->keySequence();
-        if (key != cmd->defaultKeySequence())
-            settings->setValue(id.toString(), key.toString());
-        else
-            settings->remove(id.toString());
+        saveSettings(j.value());
     }
-    settings->endGroup();
 }

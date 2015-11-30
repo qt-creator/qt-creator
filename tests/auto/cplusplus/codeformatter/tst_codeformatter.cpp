@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -128,6 +129,7 @@ private Q_SLOTS:
     void attributeInAccessSpecifier();
     void braceReturn();
     void staticVarDeclWithTypeDecl();
+    void strings();
 };
 
 struct Line {
@@ -194,9 +196,9 @@ void checkIndent(QList<Line> data, QtStyleCodeFormatter formatter)
         if (l.expectedIndent != -1) {
             int indent, padding;
             formatter.indentFor(b, &indent, &padding);
-            QVERIFY2(indent == l.expectedIndent, qPrintable(QString("Wrong indent in line %1 with text '%2', expected indent %3, got %4")
+            QVERIFY2(indent == l.expectedIndent, qPrintable(QString("Wrong indent in line %1 with text \"%2\", expected indent %3, got %4")
                                                             .arg(QString::number(i+1), l.line, QString::number(l.expectedIndent), QString::number(indent))));
-            QVERIFY2(padding == l.expectedPadding, qPrintable(QString("Wrong padding in line %1 with text '%2', expected padding %3, got %4")
+            QVERIFY2(padding == l.expectedPadding, qPrintable(QString("Wrong padding in line %1 with text \"%2\", expected padding %3, got %4")
                                                               .arg(QString::number(i+1), l.line, QString::number(l.expectedPadding), QString::number(padding))));
         }
         formatter.updateLineStateChange(b);
@@ -251,7 +253,7 @@ void tst_CodeFormatter::ifStatementWithoutBraces1()
          << Line("                while (e)")
          << Line("                    bar;")
          << Line("    else")
-         << Line("        foo;")         
+         << Line("        foo;")
          << Line("}")
          ;
     checkIndent(data);
@@ -633,6 +635,8 @@ void tst_CodeFormatter::expressionContinuation1()
          << Line("    ~        << bar +")
          << Line("    ~           foo - blah(1)")
          << Line("    ~        << '?'")
+         << Line("    ~        << \"string\"")
+         << Line("    ~           \" concatenated\"")
          << Line("    ~        << \"\\n\";")
          << Line("}")
          ;
@@ -1177,6 +1181,8 @@ void tst_CodeFormatter::templates()
          << Line("~           class F, class D>,")
          << Line("~       typename F>")
          << Line("class Foo { };")
+         << Line("template <class A = std::vector<int>>")
+         << Line("")
          ;
     checkIndent(data);
 }
@@ -1282,6 +1288,9 @@ void tst_CodeFormatter::functionReturnType()
          << Line("template <class T>")
          << Line("const QList<QMap<T, T> > &")
          << Line("A::B::foo() {}")
+         << Line("std::map<int,std::vector<int>> indent() {}")
+         << Line("std::map<int,std::vector<int> > indent() {}")
+         << Line("")
          ;
     checkIndent(data);
 }
@@ -2145,6 +2154,23 @@ void tst_CodeFormatter::staticVarDeclWithTypeDecl()
          << Line("    green")
          << Line("} Loc;")
          << Line("")
+            ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::strings()
+{
+    QList<Line> data;
+    data << Line("char *a = \"foo\"")
+         << Line("~         \"bar\" \"why\"")
+         << Line("~         \"baz\";")
+         << Line("void foo()")
+         << Line("{")
+         << Line("    func(1, 2, \"foo\"")
+         << Line("    ~          \"bar\"")
+         << Line("    ~          \"baz\", 4,")
+         << Line("    ~    5, 6);")
+         << Line("}")
             ;
     checkIndent(data);
 }

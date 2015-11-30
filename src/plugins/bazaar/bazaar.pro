@@ -11,9 +11,6 @@ SOURCES += \
     annotationhighlighter.cpp \
     pullorpushdialog.cpp \
     branchinfo.cpp \
-    clonewizardpage.cpp \
-    clonewizard.cpp \
-    cloneoptionspanel.cpp \
     uncommitdialog.cpp
 HEADERS += \
     bazaarclient.h \
@@ -28,15 +25,10 @@ HEADERS += \
     annotationhighlighter.h \
     pullorpushdialog.h \
     branchinfo.h \
-    clonewizard.h \
-    clonewizardpage.h \
-    cloneoptionspanel.h \
     uncommitdialog.h
 FORMS += \
     optionspage.ui \
     revertdialog.ui \
     bazaarcommitpanel.ui \
     pullorpushdialog.ui \
-    cloneoptionspanel.ui \
     uncommitdialog.ui
-RESOURCES += bazaar.qrc

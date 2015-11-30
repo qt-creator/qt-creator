@@ -1,3 +1,4 @@
+DEFINES += CMAKEPROJECTMANAGER_LIBRARY
 include(../../qtcreatorplugin.pri)
 
 HEADERS = cmakebuildinfo.h \
@@ -10,14 +11,24 @@ HEADERS = cmakebuildinfo.h \
     cmakerunconfiguration.h \
     cmakeopenprojectwizard.h \
     cmakebuildconfiguration.h \
-    cmakeeditorfactory.h \
     cmakeeditor.h \
-    cmakehighlighter.h \
-    cmakehighlighterfactory.h \
     cmakelocatorfilter.h \
     cmakefilecompletionassist.h \
-    cmakevalidator.h \
-    cmakeparser.h
+    cmaketool.h \
+    cmakeparser.h \
+    generatorinfo.h \
+    cmakesettingspage.h \
+    cmaketoolmanager.h \
+    cmake_global.h \
+    cmakekitinformation.h \
+    cmakekitconfigwidget.h \
+    cmakecbpparser.h \
+    cmakefile.h \
+    cmakebuildsettingswidget.h \
+    cmakeindenter.h \
+    cmakeautocompleter.h \
+    cmakepreloadcachekitinformation.h \
+    cmakepreloadcachekitconfigwidget.h
 
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
@@ -27,14 +38,22 @@ SOURCES = cmakeproject.cpp \
     cmakerunconfiguration.cpp \
     cmakeopenprojectwizard.cpp \
     cmakebuildconfiguration.cpp \
-    cmakeeditorfactory.cpp \
     cmakeeditor.cpp \
-    cmakehighlighter.cpp \
-    cmakehighlighterfactory.cpp \
     cmakelocatorfilter.cpp \
     cmakefilecompletionassist.cpp \
-    cmakevalidator.cpp \
-    cmakeparser.cpp
-
+    cmaketool.cpp \
+    cmakeparser.cpp \
+    generatorinfo.cpp \
+    cmakesettingspage.cpp \
+    cmaketoolmanager.cpp \
+    cmakekitinformation.cpp \
+    cmakekitconfigwidget.cpp \
+    cmakecbpparser.cpp \
+    cmakefile.cpp \
+    cmakebuildsettingswidget.cpp \
+    cmakeindenter.cpp \
+    cmakeautocompleter.cpp \
+    cmakepreloadcachekitinformation.cpp \
+    cmakepreloadcachekitconfigwidget.cpp
 
 RESOURCES += cmakeproject.qrc

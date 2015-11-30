@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,13 +36,16 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <qtsingleapplication.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QLibraryInfo>
+#include <QLoggingCategory>
 #include <QSettings>
+#include <QStyle>
 #include <QTextStream>
 #include <QThreadPool>
 #include <QTimer>
@@ -52,8 +56,9 @@
 #include <QNetworkProxyFactory>
 
 #include <QApplication>
-#include <QDesktopServices>
 #include <QMessageBox>
+#include <QStandardPaths>
+#include <QTemporaryDir>
 
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>
@@ -91,41 +96,34 @@ const char PLUGINPATH_OPTION[] = "-pluginpath";
 typedef QList<PluginSpec *> PluginSpecSet;
 
 // Helpers for displaying messages. Note that there is no console on Windows.
-#ifdef Q_OS_WIN
+
 // Format as <pre> HTML
-static inline void toHtml(QString &t)
+static inline QString toHtml(const QString &t)
 {
-    t.replace(QLatin1Char('&'), QLatin1String("&amp;"));
-    t.replace(QLatin1Char('<'), QLatin1String("&lt;"));
-    t.replace(QLatin1Char('>'), QLatin1String("&gt;"));
-    t.insert(0, QLatin1String("<html><pre>"));
-    t.append(QLatin1String("</pre></html>"));
+    QString res = t;
+    res.replace(QLatin1Char('&'), QLatin1String("&amp;"));
+    res.replace(QLatin1Char('<'), QLatin1String("&lt;"));
+    res.replace(QLatin1Char('>'), QLatin1String("&gt;"));
+    res.insert(0, QLatin1String("<html><pre>"));
+    res.append(QLatin1String("</pre></html>"));
+    return res;
 }
-
-static void displayHelpText(QString t) // No console on Windows.
-{
-    toHtml(t);
-    QMessageBox::information(0, QLatin1String(appNameC), t);
-}
-
-static void displayError(const QString &t) // No console on Windows.
-{
-    QMessageBox::critical(0, QLatin1String(appNameC), t);
-}
-
-#else
 
 static void displayHelpText(const QString &t)
 {
-    qWarning("%s", qPrintable(t));
+    if (Utils::HostOsInfo::isWindowsHost())
+        QMessageBox::information(0, QLatin1String(appNameC), toHtml(t));
+    else
+        qWarning("%s", qPrintable(t));
 }
 
 static void displayError(const QString &t)
 {
-    qCritical("%s", qPrintable(t));
+    if (Utils::HostOsInfo::isWindowsHost())
+        QMessageBox::critical(0, QLatin1String(appNameC), t);
+    else
+        qCritical("%s", qPrintable(t));
 }
-
-#endif
 
 static void printVersion(const PluginSpec *coreplugin)
 {
@@ -161,6 +159,28 @@ static inline int askMsgSendFailed()
                                  QMessageBox::Retry);
 }
 
+static const char *setHighDpiEnvironmentVariable()
+{
+    const char* envVarName = 0;
+    static const char ENV_VAR_QT_DEVICE_PIXEL_RATIO[] = "QT_DEVICE_PIXEL_RATIO";
+#if (QT_VERSION < QT_VERSION_CHECK(5, 6, 0))
+    if (Utils::HostOsInfo().isWindowsHost()
+            && !qEnvironmentVariableIsSet(ENV_VAR_QT_DEVICE_PIXEL_RATIO)) {
+        envVarName = ENV_VAR_QT_DEVICE_PIXEL_RATIO;
+        qputenv(envVarName, "auto");
+    }
+#else
+    if (Utils::HostOsInfo().isWindowsHost()
+            && !qEnvironmentVariableIsSet(ENV_VAR_QT_DEVICE_PIXEL_RATIO) // legacy in 5.6, but still functional
+            && !qEnvironmentVariableIsSet("QT_AUTO_SCREEN_SCALE_FACTOR")
+            && !qEnvironmentVariableIsSet("QT_SCALE_FACTOR")
+            && !qEnvironmentVariableIsSet("QT_SCREEN_SCALE_FACTORS")) {
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    }
+#endif // < Qt 5.6
+    return envVarName;
+}
+
 // taken from utils/fileutils.cpp. We can not use utils here since that depends app_version.h.
 static bool copyRecursively(const QString &srcFilePath,
                             const QString &tgtFilePath)
@@ -169,7 +189,7 @@ static bool copyRecursively(const QString &srcFilePath,
     if (srcFileInfo.isDir()) {
         QDir targetDir(tgtFilePath);
         targetDir.cdUp();
-        if (!targetDir.mkdir(QFileInfo(tgtFilePath).fileName()))
+        if (!targetDir.mkdir(Utils::FileName::fromString(tgtFilePath).fileName()))
             return false;
         QDir sourceDir(srcFilePath);
         QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
@@ -195,33 +215,32 @@ static inline QStringList getPluginPaths()
     QDir rootDir = QApplication::applicationDirPath();
     rootDir.cdUp();
     const QString rootDirPath = rootDir.canonicalPath();
-#if !defined(Q_OS_MAC)
-    // 1) "plugins" (Win/Linux)
-    QString pluginPath = rootDirPath;
-    pluginPath += QLatin1Char('/');
-    pluginPath += QLatin1String(IDE_LIBRARY_BASENAME);
-    pluginPath += QLatin1String("/qtcreator/plugins");
-    rc.push_back(pluginPath);
-#else
-    // 2) "PlugIns" (OS X)
-    QString pluginPath = rootDirPath;
-    pluginPath += QLatin1String("/PlugIns");
-    rc.push_back(pluginPath);
-#endif
+    QString pluginPath;
+    if (Utils::HostOsInfo::isMacHost()) {
+        // 1) "PlugIns" (OS X)
+        pluginPath = rootDirPath + QLatin1String("/PlugIns");
+        rc.push_back(pluginPath);
+    } else {
+        // 2) "plugins" (Win/Linux)
+        pluginPath = rootDirPath;
+        pluginPath += QLatin1Char('/');
+        pluginPath += QLatin1String(IDE_LIBRARY_BASENAME);
+        pluginPath += QLatin1String("/qtcreator/plugins");
+        rc.push_back(pluginPath);
+    }
     // 3) <localappdata>/plugins/<ideversion>
     //    where <localappdata> is e.g.
     //    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
     //    "$XDG_DATA_HOME/data/QtProject/qtcreator" or "~/.local/share/data/QtProject/qtcreator" on Linux
     //    "~/Library/Application Support/QtProject/Qt Creator" on Mac
-    pluginPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+    pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+    pluginPath += QLatin1String("/data");
+#endif
     pluginPath += QLatin1Char('/')
             + QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR)
             + QLatin1Char('/');
-#if !defined(Q_OS_MAC)
-    pluginPath += QLatin1String("qtcreator");
-#else
-    pluginPath += QLatin1String("Qt Creator");
-#endif
+    pluginPath += QLatin1String(Utils::HostOsInfo::isMacHost() ? "Qt Creator" : "qtcreator");
     pluginPath += QLatin1String("/plugins/");
     pluginPath += QLatin1String(Core::Constants::IDE_VERSION_LONG);
     rc.push_back(pluginPath);
@@ -278,14 +297,14 @@ static inline QSettings *userSettings()
     return createUserSettings();
 }
 
-#ifdef Q_OS_MAC
-#  define SHARE_PATH "/../Resources"
-#else
-#  define SHARE_PATH "/../share/qtcreator"
-#endif
+static const char *SHARE_PATH =
+        Utils::HostOsInfo::isMacHost() ? "/../Resources" : "/../share/qtcreator";
 
 int main(int argc, char **argv)
 {
+    const char *highDpiEnvironmentVariable = setHighDpiEnvironmentVariable();
+
+    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
 #ifdef Q_OS_MAC
     // increase the number of file that can be opened in Qt Creator.
     struct rlimit rl;
@@ -295,28 +314,30 @@ int main(int argc, char **argv)
     setrlimit(RLIMIT_NOFILE, &rl);
 #endif
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    // QML is unusable with the xlib backend
-    QApplication::setGraphicsSystem(QLatin1String("raster"));
-#endif
-
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
 
+    if (highDpiEnvironmentVariable)
+        qunsetenv(highDpiEnvironmentVariable);
+
+    if (Utils::HostOsInfo().isWindowsHost()
+            && !qFuzzyCompare(qApp->devicePixelRatio(), 1.0)
+            && QApplication::style()->objectName().startsWith(
+                QLatin1String("windows"), Qt::CaseInsensitive)) {
+        QApplication::setStyle(QLatin1String("fusion"));
+    }
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
     QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
 
-    setupCrashHandler(); // Display a backtrace once a serious signal is delivered.
+    CrashHandlerSetup setupCrashHandler; // Display a backtrace once a serious signal is delivered.
 
 #ifdef ENABLE_QT_BREAKPAD
     QtSystemExceptionHandler systemExceptionHandler;
 #endif
 
-#if QT_VERSION >= 0x050100
     app.setAttribute(Qt::AA_UseHighDpiPixmaps);
-#endif
 
     // Manually determine -settingspath command line option
-    // We can't use the regular way of the plugin manager, because that needs to parse pluginspecs
+    // We can't use the regular way of the plugin manager, because that needs to parse plugin meta data
     // but the settings path can influence which plugins are enabled
     QString settingsPath;
     QStringList customPluginPaths;
@@ -341,10 +362,14 @@ int main(int argc, char **argv)
             testOptionProvided = true;
         }
     }
+    QScopedPointer<QTemporaryDir> temporaryCleanSettingsDir;
     if (settingsPath.isEmpty() && testOptionProvided) {
-        settingsPath = QDir::tempPath() + QString::fromLatin1("/qtc-%1-test-settings")
-                .arg(QLatin1String(Core::Constants::IDE_VERSION_LONG));
-        settingsPath = QDir::cleanPath(settingsPath);
+        const QString settingsPathTemplate = QDir::cleanPath(QDir::tempPath()
+            + QString::fromLatin1("/qtc-test-settings-XXXXXX"));
+        temporaryCleanSettingsDir.reset(new QTemporaryDir(settingsPathTemplate));
+        if (!temporaryCleanSettingsDir->isValid())
+            return 1;
+        settingsPath = temporaryCleanSettingsDir->path();
     }
     if (!settingsPath.isEmpty())
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsPath);
@@ -360,30 +385,21 @@ int main(int argc, char **argv)
                                               QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
                                               QLatin1String("QtCreator"));
     PluginManager pluginManager;
-    PluginManager::setFileExtension(QLatin1String("pluginspec"));
+    PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
     PluginManager::setGlobalSettings(globalSettings);
     PluginManager::setSettings(settings);
 
     QTranslator translator;
     QTranslator qtTranslator;
     QStringList uiLanguages;
-// uiLanguages crashes on Windows with 4.8.0 release builds
-#if (QT_VERSION >= 0x040801) || (QT_VERSION >= 0x040800 && !defined(Q_OS_WIN))
     uiLanguages = QLocale::system().uiLanguages();
-#else
-    uiLanguages << QLocale::system().name();
-#endif
     QString overrideLanguage = settings->value(QLatin1String("General/OverrideLanguage")).toString();
     if (!overrideLanguage.isEmpty())
         uiLanguages.prepend(overrideLanguage);
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
-            + QLatin1String(SHARE_PATH "/translations");
+            + QLatin1String(SHARE_PATH) + QLatin1String("/translations");
     foreach (QString locale, uiLanguages) {
-#if (QT_VERSION >= 0x050000)
         locale = QLocale(locale).name();
-#else
-        locale.replace(QLatin1Char('-'), QLatin1Char('_')); // work around QTBUG-25973
-#endif
         if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {
             const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
             const QString &qtTrFile = QLatin1String("qt_") + locale;
@@ -405,20 +421,8 @@ int main(int argc, char **argv)
     }
 
     // Make sure we honor the system's proxy settings
-#if defined(Q_OS_UNIX)
-    QUrl proxyUrl(QString::fromLatin1(qgetenv("http_proxy")));
-    if (proxyUrl.isValid()) {
-        QNetworkProxy proxy(QNetworkProxy::HttpProxy, proxyUrl.host(),
-                            proxyUrl.port(), proxyUrl.userName(), proxyUrl.password());
-        QNetworkProxy::setApplicationProxy(proxy);
-# if defined(Q_OS_MAC) // unix and mac
-    } else {
-        QNetworkProxyFactory::setUseSystemConfiguration(true);
-# endif
-    }
-#else // windows
     QNetworkProxyFactory::setUseSystemConfiguration(true);
-#endif
+
     // Load
     const QStringList pluginPaths = getPluginPaths() + customPluginPaths;
     PluginManager::setPluginPaths(pluginPaths);
@@ -450,8 +454,13 @@ int main(int argc, char **argv)
         }
     }
     if (!coreplugin) {
-        QString nativePaths = QDir::toNativeSeparators(pluginPaths.join(QLatin1String(",")));
-        const QString reason = QCoreApplication::translate("Application", "Could not find 'Core.pluginspec' in %1").arg(nativePaths);
+        QString nativePaths = QDir::toNativeSeparators(pluginPaths.join(QLatin1Char(',')));
+        const QString reason = QCoreApplication::translate("Application", "Could not find Core plugin in %1").arg(nativePaths);
+        displayError(msgCoreLoadFailure(reason));
+        return 1;
+    }
+    if (!coreplugin->isEffectivelyEnabled()) {
+        const QString reason = QCoreApplication::translate("Application", "Core plugin is disabled.");
         displayError(msgCoreLoadFailure(reason));
         return 1;
     }
@@ -509,12 +518,6 @@ int main(int argc, char **argv)
         displayError(msgCoreLoadFailure(coreplugin->errorString()));
         return 1;
     }
-    if (PluginManager::hasError()) {
-        PluginErrorOverview *errorOverview = new PluginErrorOverview(QApplication::activeWindow());
-        errorOverview->setAttribute(Qt::WA_DeleteOnClose);
-        errorOverview->setModal(true);
-        errorOverview->show();
-    }
 
     // Set up remote arguments.
     QObject::connect(&app, SIGNAL(messageReceived(QString,QObject*)),
@@ -523,14 +526,8 @@ int main(int argc, char **argv)
     QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(),
                      SLOT(fileOpenRequest(QString)));
 
-    // quit when last window (relevant window, see WA_QuitOnClose) is closed
-    // this should actually be the default, but doesn't work in Qt 5
-    // QTBUG-31569
-    QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
     // shutdown plugin manager on the exit
     QObject::connect(&app, SIGNAL(aboutToQuit()), &pluginManager, SLOT(shutdown()));
 
-    const int r = app.exec();
-    cleanupCrashHandler();
-    return r;
+    return app.exec();
 }

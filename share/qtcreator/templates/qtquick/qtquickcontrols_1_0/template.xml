@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<template openeditor="main.qml" priority="B"
-    featuresRequired="QtSupport.Wizards.FeatureQtQuick.Controls.1.0"
-    qrcdeployment="qrcdeployment.pri"
-    stubversionminor="1">
-    <displayname>Qt Quick Controls 1.0</displayname>
-    <description>Creates a deployable Qt Quick 2 application using Qt Quick Controls. Requires Qt 5.1 or newer.</description>
-</template>

@@ -1,7 +1,8 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2015 Denis Shienkov <denis.shienkov@gmail.com>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,89 +10,68 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "baremetaldeviceconfigurationwidget.h"
-
-#include "ui_baremetaldeviceconfigurationwidget.h"
 #include "baremetaldevice.h"
 
-#include <ssh/sshconnection.h>
-#include <utils/qtcassert.h>
-#include <QLabel>
+#include "gdbserverproviderchooser.h"
+#include "gdbserverprovider.h"
 
-using namespace QSsh;
+#include <utils/qtcassert.h>
+
+#include <QFormLayout>
+
 namespace BareMetal {
-using namespace Internal;
+namespace Internal {
 
 BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
-        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent) :
-   IDeviceWidget(deviceConfig, parent),
-   m_ui(new Ui::BareMetalDeviceConfigurationWidget)
+        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent)
+    : IDeviceWidget(deviceConfig, parent)
 {
-    m_ui->setupUi(this);
-    connect(m_ui->gdbHostLineEdit, SIGNAL(editingFinished()), SLOT(hostnameChanged()));
-    connect(m_ui->gdbPortSpinBox, SIGNAL(valueChanged(int)), SLOT(portChanged()));
-    connect(m_ui->gdbCommandsTextEdit, SIGNAL(textChanged()), SLOT(gdbInitCommandsChanged()));
-    initGui();
+    const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+    QTC_ASSERT(dev, return);
+
+    auto formLayout = new QFormLayout(this);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+    m_gdbServerProviderChooser = new GdbServerProviderChooser(true, this);
+    m_gdbServerProviderChooser->populate();
+    m_gdbServerProviderChooser->setCurrentProviderId(dev->gdbServerProviderId());
+    formLayout->addRow(tr("GDB server provider:"), m_gdbServerProviderChooser);
+
+    connect(m_gdbServerProviderChooser.data(), &GdbServerProviderChooser::providerChanged,
+            this, &BareMetalDeviceConfigurationWidget::gdbServerProviderChanged);
 }
 
-BareMetalDeviceConfigurationWidget::~BareMetalDeviceConfigurationWidget()
+void BareMetalDeviceConfigurationWidget::gdbServerProviderChanged()
 {
-    delete m_ui;
+    auto dev = qSharedPointerCast<BareMetalDevice>(device());
+    QTC_ASSERT(dev, return);
+    dev->setGdbServerProviderId(m_gdbServerProviderChooser->currentProviderId());
 }
 
-void BareMetalDeviceConfigurationWidget::hostnameChanged()
+void BareMetalDeviceConfigurationWidget::updateDeviceFromUi()
 {
-    SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.host = m_ui->gdbHostLineEdit->text().trimmed();
-    device()->setSshParameters(sshParams);
+    gdbServerProviderChanged();
 }
 
-void BareMetalDeviceConfigurationWidget::portChanged()
-{
-    SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.port = m_ui->gdbPortSpinBox->value();
-    device()->setSshParameters(sshParams);
-}
-
-void BareMetalDeviceConfigurationWidget::gdbInitCommandsChanged()
-{
-    QSharedPointer<BareMetalDevice> p = qSharedPointerCast<BareMetalDevice>(device());
-    QTC_ASSERT(!p.isNull(), return);
-    p->setGdbInitCommands(m_ui->gdbCommandsTextEdit->toPlainText());
-}
-
-void BareMetalDeviceConfigurationWidget::updateDeviceFromUi() {
-    hostnameChanged();
-    portChanged();
-    gdbInitCommandsChanged();
-}
-
-void BareMetalDeviceConfigurationWidget::initGui()
-{
-    SshConnectionParameters sshParams = device()->sshParameters();
-    m_ui->gdbHostLineEdit->setText(sshParams.host);
-    m_ui->gdbPortSpinBox->setValue(sshParams.port);
-    QSharedPointer<BareMetalDevice> p = qSharedPointerCast<BareMetalDevice>(device());
-    QTC_ASSERT(!p.isNull(), return);
-    m_ui->gdbCommandsTextEdit->setPlainText(p->getGdbInitCommands());
-}
-
-} //namespace BareMetal
+} // namespace Internal
+} // namespace BareMetal

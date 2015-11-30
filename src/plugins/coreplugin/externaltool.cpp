@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,80 +9,77 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "externaltool.h"
 #include "externaltoolmanager.h"
-#include "actionmanager/actionmanager.h"
-#include "actionmanager/actioncontainer.h"
-#include "coreconstants.h"
-#include "variablemanager.h"
+
+#include "idocument.h"
+#include "messagemanager.h"
+#include "documentmanager.h"
+#include "editormanager/editormanager.h"
+#include "editormanager/ieditor.h"
 
 #include <app/app_version.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <utils/qtcassert.h>
+
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
+#include <QDateTime>
+#include <QFileInfo>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <QDir>
-#include <QDateTime>
-#include <QAction>
 
-#include <QDebug>
-
-using namespace Core;
+using namespace Utils;
 using namespace Core::Internal;
 
-namespace {
-    const char kExternalTool[] = "externaltool";
-    const char kId[] = "id";
-    const char kDescription[] = "description";
-    const char kDisplayName[] = "displayname";
-    const char kCategory[] = "category";
-    const char kOrder[] = "order";
-    const char kExecutable[] = "executable";
-    const char kPath[] = "path";
-    const char kArguments[] = "arguments";
-    const char kInput[] = "input";
-    const char kWorkingDirectory[] = "workingdirectory";
+namespace Core {
+namespace Internal {
 
-    const char kXmlLang[] = "xml:lang";
-    const char kOutput[] = "output";
-    const char kError[] = "error";
-    const char kOutputShowInPane[] = "showinpane";
-    const char kOutputReplaceSelection[] = "replaceselection";
-    const char kOutputIgnore[] = "ignore";
-    const char kModifiesDocument[] = "modifiesdocument";
-    const char kYes[] = "yes";
-    const char kNo[] = "no";
-    const char kTrue[] = "true";
-    const char kFalse[] = "false";
+const char kExternalTool[] = "externaltool";
+const char kId[] = "id";
+const char kDescription[] = "description";
+const char kDisplayName[] = "displayname";
+const char kCategory[] = "category";
+const char kOrder[] = "order";
+const char kExecutable[] = "executable";
+const char kPath[] = "path";
+const char kArguments[] = "arguments";
+const char kInput[] = "input";
+const char kWorkingDirectory[] = "workingdirectory";
+const char kEnvironment[] = "environment";
 
-    const char kSpecialUncategorizedSetting[] = "SpecialEmptyCategoryForUncategorizedTools";
-}
+const char kXmlLang[] = "xml:lang";
+const char kOutput[] = "output";
+const char kError[] = "error";
+const char kOutputShowInPane[] = "showinpane";
+const char kOutputReplaceSelection[] = "replaceselection";
+const char kOutputIgnore[] = "ignore";
+const char kModifiesDocument[] = "modifiesdocument";
+const char kYes[] = "yes";
+const char kNo[] = "no";
+const char kTrue[] = "true";
+const char kFalse[] = "false";
 
 // #pragma mark -- ExternalTool
 
@@ -105,6 +102,7 @@ ExternalTool::ExternalTool(const ExternalTool *other)
       m_arguments(other->m_arguments),
       m_input(other->m_input),
       m_workingDirectory(other->m_workingDirectory),
+      m_environment(other->m_environment),
       m_outputHandling(other->m_outputHandling),
       m_errorHandling(other->m_errorHandling),
       m_modifiesCurrentDocument(other->m_modifiesCurrentDocument),
@@ -124,10 +122,12 @@ ExternalTool &ExternalTool::operator=(const ExternalTool &other)
     m_arguments = other.m_arguments;
     m_input = other.m_input;
     m_workingDirectory = other.m_workingDirectory;
+    m_environment = other.m_environment;
     m_outputHandling = other.m_outputHandling;
     m_errorHandling = other.m_errorHandling;
     m_modifiesCurrentDocument = other.m_modifiesCurrentDocument;
     m_fileName = other.m_fileName;
+    m_presetFileName = other.m_presetFileName;
     m_presetTool = other.m_presetTool;
     return *this;
 }
@@ -179,6 +179,11 @@ QString ExternalTool::input() const
 QString ExternalTool::workingDirectory() const
 {
     return m_workingDirectory;
+}
+
+QList<EnvironmentItem> ExternalTool::environment() const
+{
+    return m_environment;
 }
 
 ExternalTool::OutputHandling ExternalTool::outputHandling() const
@@ -278,6 +283,11 @@ void ExternalTool::setWorkingDirectory(const QString &workingDirectory)
     m_workingDirectory = workingDirectory;
 }
 
+void ExternalTool::setEnvironment(const QList<EnvironmentItem> &items)
+{
+    m_environment = items;
+}
+
 static QStringList splitLocale(const QString &locale)
 {
     QString value = locale;
@@ -316,7 +326,7 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
         if (*currentLocale < 0 && currentText->isEmpty()) {
             *currentText = QCoreApplication::translate("Core::Internal::ExternalTool",
                                                        reader->readElementText().toUtf8().constData(),
-                                                       "", QCoreApplication::UnicodeUTF8);
+                                                       "");
         } else {
             reader->skipCurrentElement();
         }
@@ -412,6 +422,15 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                         break;
                     }
                     tool->m_workingDirectory = reader.readElementText();
+                } else if (reader.name() == QLatin1String(kEnvironment)) {
+                    if (!tool->m_environment.isEmpty()) {
+                        reader.raiseError(QLatin1String("only one <environment> element allowed"));
+                        break;
+                    }
+                    QStringList lines = reader.readElementText().split(QLatin1Char(';'));
+                    for (auto iter = lines.begin(); iter != lines.end(); ++iter)
+                        *iter = QString::fromUtf8(QByteArray::fromPercentEncoding(iter->toUtf8()));
+                    tool->m_environment = EnvironmentItem::fromStringList(lines);
                 } else {
                     reader.raiseError(QString::fromLatin1("Unknown element <%1> as subelement of <%2>").arg(
                                           reader.qualifiedName().toString(), QLatin1String(kExecutable)));
@@ -434,7 +453,7 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
 ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *errorMessage, const QString &locale)
 {
     QString absFileName = QFileInfo(fileName).absoluteFilePath();
-    Utils::FileReader reader;
+    FileReader reader;
     if (!reader.fetch(absFileName, errorMessage))
         return 0;
     ExternalTool *tool = ExternalTool::createFromXml(reader.data(), errorMessage, locale);
@@ -461,7 +480,7 @@ bool ExternalTool::save(QString *errorMessage) const
 {
     if (m_fileName.isEmpty())
         return false;
-    Utils::FileSaver saver(m_fileName);
+    FileSaver saver(m_fileName);
     if (!saver.hasError()) {
         QXmlStreamWriter out(saver.file());
         out.setAutoFormatting(true);
@@ -488,6 +507,12 @@ bool ExternalTool::save(QString *errorMessage) const
             out.writeTextElement(QLatin1String(kInput), m_input);
         if (!m_workingDirectory.isEmpty())
             out.writeTextElement(QLatin1String(kWorkingDirectory), m_workingDirectory);
+        if (!m_environment.isEmpty()) {
+            QStringList envLines = EnvironmentItem::toStringList(m_environment);
+            for (auto iter = envLines.begin(); iter != envLines.end(); ++iter)
+                *iter = QString::fromUtf8(iter->toUtf8().toPercentEncoding());
+            out.writeTextElement(QLatin1String(kEnvironment), envLines.join(QLatin1Char(';')));
+        }
         out.writeEndElement();
 
         out.writeEndDocument();
@@ -508,6 +533,7 @@ bool ExternalTool::operator==(const ExternalTool &other) const
             && m_arguments == other.m_arguments
             && m_input == other.m_input
             && m_workingDirectory == other.m_workingDirectory
+            && m_environment == other.m_environment
             && m_outputHandling == other.m_outputHandling
             && m_modifiesCurrentDocument == other.m_modifiesCurrentDocument
             && m_errorHandling == other.m_errorHandling
@@ -548,20 +574,26 @@ bool ExternalToolRunner::resolve()
     m_resolvedExecutable.clear();
     m_resolvedArguments.clear();
     m_resolvedWorkingDirectory.clear();
-    { // executable
+    m_resolvedEnvironment = Environment::systemEnvironment();
+
+
+    MacroExpander *expander = globalMacroExpander();
+    m_resolvedEnvironment.modify(m_tool->environment());
+
+    {
+        // executable
         QStringList expandedExecutables; /* for error message */
         foreach (const QString &executable, m_tool->executables()) {
-            QString expanded = Core::VariableManager::expandedString(executable);
-            expandedExecutables << expanded;
-            m_resolvedExecutable =
-                    Utils::Environment::systemEnvironment().searchInPath(expanded);
+            QString expanded = expander->expand(executable);
+            expandedExecutables.append(expanded);
+            m_resolvedExecutable = m_resolvedEnvironment.searchInPath(expanded);
             if (!m_resolvedExecutable.isEmpty())
                 break;
         }
         if (m_resolvedExecutable.isEmpty()) {
             m_hasError = true;
             for (int i = 0; i < expandedExecutables.size(); ++i) {
-                m_errorString += tr("Could not find executable for '%1' (expanded '%2')")
+                m_errorString += tr("Could not find executable for \"%1\" (expanded \"%2\")")
                         .arg(m_tool->executables().at(i))
                         .arg(expandedExecutables.at(i));
                 m_errorString += QLatin1Char('\n');
@@ -571,16 +603,11 @@ bool ExternalToolRunner::resolve()
             return false;
         }
     }
-    { // arguments
-        m_resolvedArguments = Utils::QtcProcess::expandMacros(m_tool->arguments(),
-                                               Core::VariableManager::macroExpander());
-    }
-    { // input
-        m_resolvedInput = Core::VariableManager::expandedString(m_tool->input());
-    }
-    { // working directory
-        m_resolvedWorkingDirectory = Core::VariableManager::expandedString(m_tool->workingDirectory());
-    }
+
+    m_resolvedArguments = expander->expandProcessArgs(m_tool->arguments());
+    m_resolvedInput = expander->expand(m_tool->input());
+    m_resolvedWorkingDirectory = expander->expand(m_tool->workingDirectory());
+
     return true;
 }
 
@@ -592,7 +619,7 @@ void ExternalToolRunner::run()
     }
     if (m_tool->modifiesCurrentDocument()) {
         if (IDocument *document = EditorManager::currentDocument()) {
-            m_expectedFileName = document->filePath();
+            m_expectedFileName = document->filePath().toString();
             if (!DocumentManager::saveModifiedDocument(document)) {
                 deleteLater();
                 return;
@@ -600,7 +627,7 @@ void ExternalToolRunner::run()
             DocumentManager::expectFileChange(m_expectedFileName);
         }
     }
-    m_process = new Utils::QtcProcess(this);
+    m_process = new QtcProcess(this);
     connect(m_process, SIGNAL(started()), this, SLOT(started()));
     connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
     connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
@@ -608,9 +635,11 @@ void ExternalToolRunner::run()
     connect(m_process, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
-    m_process->setCommand(m_resolvedExecutable, m_resolvedArguments);
-    MessageManager::write(
-                tr("Starting external tool '%1' %2").arg(m_resolvedExecutable, m_resolvedArguments), MessageManager::Silent);
+    m_process->setCommand(m_resolvedExecutable.toString(), m_resolvedArguments);
+    m_process->setEnvironment(m_resolvedEnvironment);
+    MessageManager::write(tr("Starting external tool \"%1\" %2")
+                          .arg(m_resolvedExecutable.toUserOutput(), m_resolvedArguments),
+                          MessageManager::Silent);
     m_process->start();
 }
 
@@ -630,8 +659,8 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
     }
     if (m_tool->modifiesCurrentDocument())
         DocumentManager::unexpectFileChange(m_expectedFileName);
-    MessageManager::write(
-                tr("'%1' finished").arg(m_resolvedExecutable), MessageManager::Silent);
+    MessageManager::write(tr("\"%1\" finished")
+                          .arg(m_resolvedExecutable.toUserOutput()), MessageManager::Silent);
     deleteLater();
 }
 
@@ -668,295 +697,6 @@ void ExternalToolRunner::readStandardError()
         m_processOutput.append(output);
 }
 
-// ExternalToolManager
+} // namespace Internal
 
-struct ExternalToolManagerPrivate
-{
-    QMap<QString, ExternalTool *> m_tools;
-    QMap<QString, QList<ExternalTool *> > m_categoryMap;
-    QMap<QString, QAction *> m_actions;
-    QMap<QString, ActionContainer *> m_containers;
-    QAction *m_configureSeparator;
-    QAction *m_configureAction;
-};
-
-static ExternalToolManager *m_instance = 0;
-static ExternalToolManagerPrivate *d = 0;
-
-static void writeSettings();
-static void readSettings(const QMap<QString, ExternalTool *> &tools,
-                  QMap<QString, QList<ExternalTool*> > *categoryPriorityMap);
-
-static void parseDirectory(const QString &directory,
-                     QMap<QString, QMultiMap<int, ExternalTool*> > *categoryMenus,
-                     QMap<QString, ExternalTool *> *tools,
-                     bool isPreset = false);
-
-ExternalToolManager::ExternalToolManager()
-    : QObject(ICore::instance())
-{
-    m_instance = this;
-    d = new ExternalToolManagerPrivate;
-
-    d->m_configureSeparator = new QAction(this);
-    d->m_configureSeparator->setSeparator(true);
-    d->m_configureAction = new QAction(Core::ICore::msgShowOptionsDialog(), this);
-    connect(d->m_configureAction, SIGNAL(triggered()), this, SLOT(openPreferences()));
-
-    // add the external tools menu
-    ActionContainer *mexternaltools = ActionManager::createMenu(Id(Constants::M_TOOLS_EXTERNAL));
-    mexternaltools->menu()->setTitle(ExternalToolManager::tr("&External"));
-    ActionContainer *mtools = ActionManager::actionContainer(Constants::M_TOOLS);
-    mtools->addMenu(mexternaltools, Constants::G_DEFAULT_THREE);
-
-    QMap<QString, QMultiMap<int, ExternalTool*> > categoryPriorityMap;
-    QMap<QString, ExternalTool *> tools;
-    parseDirectory(ICore::userResourcePath() + QLatin1String("/externaltools"),
-                   &categoryPriorityMap,
-                   &tools);
-    parseDirectory(ICore::resourcePath() + QLatin1String("/externaltools"),
-                   &categoryPriorityMap,
-                   &tools,
-                   true);
-
-    QMap<QString, QList<ExternalTool *> > categoryMap;
-    QMapIterator<QString, QMultiMap<int, ExternalTool*> > it(categoryPriorityMap);
-    while (it.hasNext()) {
-        it.next();
-        categoryMap.insert(it.key(), it.value().values());
-    }
-
-    // read renamed categories and custom order
-    readSettings(tools, &categoryMap);
-    setToolsByCategory(categoryMap);
-}
-
-ExternalToolManager::~ExternalToolManager()
-{
-    writeSettings();
-    // TODO kill running tools
-    qDeleteAll(d->m_tools);
-    delete d;
-}
-
-QObject *ExternalToolManager::instance()
-{
-    return m_instance;
-}
-
-static void parseDirectory(const QString &directory,
-                           QMap<QString, QMultiMap<int, ExternalTool*> > *categoryMenus,
-                           QMap<QString, ExternalTool *> *tools,
-                           bool isPreset)
-{
-    QTC_ASSERT(categoryMenus, return);
-    QTC_ASSERT(tools, return);
-    QDir dir(directory, QLatin1String("*.xml"), QDir::Unsorted, QDir::Files | QDir::Readable);
-    foreach (const QFileInfo &info, dir.entryInfoList()) {
-        const QString &fileName = info.absoluteFilePath();
-        QString error;
-        ExternalTool *tool = ExternalTool::createFromFile(fileName, &error, ICore::userInterfaceLanguage());
-        if (!tool) {
-            qWarning() << ExternalTool::tr("Error while parsing external tool %1: %2").arg(fileName, error);
-            continue;
-        }
-        if (tools->contains(tool->id())) {
-            if (isPreset) {
-                // preset that was changed
-                ExternalTool *other = tools->value(tool->id());
-                other->setPreset(QSharedPointer<ExternalTool>(tool));
-            } else {
-                qWarning() << ExternalToolManager::tr("Error: External tool in %1 has duplicate id").arg(fileName);
-                delete tool;
-            }
-            continue;
-        }
-        if (isPreset) {
-            // preset that wasn't changed --> save original values
-            tool->setPreset(QSharedPointer<ExternalTool>(new ExternalTool(tool)));
-        }
-        tools->insert(tool->id(), tool);
-        (*categoryMenus)[tool->displayCategory()].insert(tool->order(), tool);
-    }
-}
-
-void ExternalToolManager::menuActivated()
-{
-    QAction *action = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(action, return);
-    ExternalTool *tool = d->m_tools.value(action->data().toString());
-    QTC_ASSERT(tool, return);
-    ExternalToolRunner *runner = new ExternalToolRunner(tool);
-    if (runner->hasError())
-        MessageManager::write(runner->errorString());
-}
-
-QMap<QString, QList<ExternalTool *> > ExternalToolManager::toolsByCategory()
-{
-    return d->m_categoryMap;
-}
-
-QMap<QString, ExternalTool *> ExternalToolManager::toolsById()
-{
-    return d->m_tools;
-}
-
-void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalTool *> > &tools)
-{
-    // clear menu
-    ActionContainer *mexternaltools = ActionManager::actionContainer(Id(Constants::M_TOOLS_EXTERNAL));
-    mexternaltools->clear();
-
-    // delete old tools and create list of new ones
-    QMap<QString, ExternalTool *> newTools;
-    QMap<QString, QAction *> newActions;
-    QMapIterator<QString, QList<ExternalTool *> > it(tools);
-    while (it.hasNext()) {
-        it.next();
-        foreach (ExternalTool *tool, it.value()) {
-            const QString id = tool->id();
-            if (d->m_tools.value(id) == tool) {
-                newActions.insert(id, d->m_actions.value(id));
-                // remove from list to prevent deletion
-                d->m_tools.remove(id);
-                d->m_actions.remove(id);
-            }
-            newTools.insert(id, tool);
-        }
-    }
-    qDeleteAll(d->m_tools);
-    QMapIterator<QString, QAction *> remainingActions(d->m_actions);
-    const Id externalToolsPrefix = "Tools.External.";
-    while (remainingActions.hasNext()) {
-        remainingActions.next();
-        ActionManager::unregisterAction(remainingActions.value(),
-            externalToolsPrefix.withSuffix(remainingActions.key()));
-        delete remainingActions.value();
-    }
-    d->m_actions.clear();
-    // assign the new stuff
-    d->m_tools = newTools;
-    d->m_actions = newActions;
-    d->m_categoryMap = tools;
-    // create menu structure and remove no-longer used containers
-    // add all the category menus, QMap is nicely sorted
-    QMap<QString, ActionContainer *> newContainers;
-    it.toFront();
-    while (it.hasNext()) {
-        it.next();
-        ActionContainer *container = 0;
-        const QString &containerName = it.key();
-        if (containerName.isEmpty()) { // no displayCategory, so put into external tools menu directly
-            container = mexternaltools;
-        } else {
-            if (d->m_containers.contains(containerName))
-                container = d->m_containers.take(containerName); // remove to avoid deletion below
-            else
-                container = ActionManager::createMenu(Id("Tools.External.Category.").withSuffix(containerName));
-            newContainers.insert(containerName, container);
-            mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
-            container->menu()->setTitle(containerName);
-        }
-        foreach (ExternalTool *tool, it.value()) {
-            const QString &toolId = tool->id();
-            // tool action and command
-            QAction *action = 0;
-            Command *command = 0;
-            if (d->m_actions.contains(toolId)) {
-                action = d->m_actions.value(toolId);
-                command = ActionManager::command(externalToolsPrefix.withSuffix(toolId));
-            } else {
-                action = new QAction(tool->displayName(), m_instance);
-                action->setData(toolId);
-                d->m_actions.insert(toolId, action);
-                connect(action, SIGNAL(triggered()), m_instance, SLOT(menuActivated()));
-                command = ActionManager::registerAction(action, externalToolsPrefix.withSuffix(toolId), Context(Constants::C_GLOBAL));
-                command->setAttribute(Command::CA_UpdateText);
-            }
-            action->setText(tool->displayName());
-            action->setToolTip(tool->description());
-            action->setWhatsThis(tool->description());
-            container->addAction(command, Constants::G_DEFAULT_TWO);
-        }
-    }
-
-    // delete the unused containers
-    qDeleteAll(d->m_containers);
-    // remember the new containers
-    d->m_containers = newContainers;
-
-    // (re)add the configure menu item
-    mexternaltools->menu()->addAction(d->m_configureSeparator);
-    mexternaltools->menu()->addAction(d->m_configureAction);
-}
-
-static void readSettings(const QMap<QString, ExternalTool *> &tools,
-                                       QMap<QString, QList<ExternalTool *> > *categoryMap)
-{
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("ExternalTools"));
-
-    if (categoryMap) {
-        settings->beginGroup(QLatin1String("OverrideCategories"));
-        foreach (const QString &settingsCategory, settings->childGroups()) {
-            QString displayCategory = settingsCategory;
-            if (displayCategory == QLatin1String(kSpecialUncategorizedSetting))
-                displayCategory = QLatin1String("");
-            int count = settings->beginReadArray(settingsCategory);
-            for (int i = 0; i < count; ++i) {
-                settings->setArrayIndex(i);
-                const QString &toolId = settings->value(QLatin1String("Tool")).toString();
-                if (tools.contains(toolId)) {
-                    ExternalTool *tool = tools.value(toolId);
-                    // remove from old category
-                    (*categoryMap)[tool->displayCategory()].removeAll(tool);
-                    if (categoryMap->value(tool->displayCategory()).isEmpty())
-                        categoryMap->remove(tool->displayCategory());
-                    // add to new category
-                    (*categoryMap)[displayCategory].append(tool);
-                }
-            }
-            settings->endArray();
-        }
-        settings->endGroup();
-    }
-
-    settings->endGroup();
-}
-
-static void writeSettings()
-{
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("ExternalTools"));
-    settings->remove(QLatin1String(""));
-
-    settings->beginGroup(QLatin1String("OverrideCategories"));
-    QMapIterator<QString, QList<ExternalTool *> > it(d->m_categoryMap);
-    while (it.hasNext()) {
-        it.next();
-        QString category = it.key();
-        if (category.isEmpty())
-            category = QLatin1String(kSpecialUncategorizedSetting);
-        settings->beginWriteArray(category, it.value().count());
-        int i = 0;
-        foreach (ExternalTool *tool, it.value()) {
-            settings->setArrayIndex(i);
-            settings->setValue(QLatin1String("Tool"), tool->id());
-            ++i;
-        }
-        settings->endArray();
-    }
-    settings->endGroup();
-
-    settings->endGroup();
-}
-
-void ExternalToolManager::openPreferences()
-{
-    ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::SETTINGS_ID_TOOLS);
-}
-
-void ExternalToolManager::emitReplaceSelectionRequested(const QString &output)
-{
-    emit m_instance->replaceSelectionRequested(output);
-}
+} // namespace Core

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,31 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "infobar.h"
 
-#include "coreconstants.h"
+#include "coreicons.h"
 #include "icore.h"
+
+#include <utils/theme/theme.h>
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -39,6 +42,8 @@
 
 static const char C_SUPPRESSED_WARNINGS[] = "SuppressedWarnings";
 
+using namespace Utils;
+
 namespace Core {
 
 QSet<Id> InfoBar::globallySuppressed;
@@ -46,32 +51,25 @@ QSet<Id> InfoBar::globallySuppressed;
 InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppressionMode _globalSuppression)
     : id(_id)
     , infoText(_infoText)
-    , object(0)
-    , buttonPressMember(0)
-    , cancelObject(0)
-    , cancelButtonPressMember(0)
     , globalSuppression(_globalSuppression)
 {
 }
 
-void InfoBarEntry::setCustomButtonInfo(const QString &_buttonText, QObject *_object, const char *_member)
+void InfoBarEntry::setCustomButtonInfo(const QString &_buttonText, CallBack callBack)
 {
     buttonText = _buttonText;
-    object = _object;
-    buttonPressMember = _member;
+    m_buttonCallBack = callBack;
 }
 
-void InfoBarEntry::setCancelButtonInfo(QObject *_object, const char *_member)
+void InfoBarEntry::setCancelButtonInfo(CallBack callBack)
 {
-    cancelObject = _object;
-    cancelButtonPressMember = _member;
+    m_cancelButtonCallBack = callBack;
 }
 
-void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, QObject *_object, const char *_member)
+void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, CallBack callBack)
 {
     cancelButtonText = _cancelButtonText;
-    cancelObject = _object;
-    cancelButtonPressMember = _member;
+    m_cancelButtonCallBack = callBack;
 }
 
 
@@ -179,8 +177,8 @@ void InfoBarDisplay::setInfoBar(InfoBar *infoBar)
         m_infoBar->disconnect(this);
     m_infoBar = infoBar;
     if (m_infoBar) {
-        connect(infoBar, SIGNAL(changed()), SLOT(update()));
-        connect(infoBar, SIGNAL(destroyed()), SLOT(infoBarDestroyed()));
+        connect(m_infoBar, SIGNAL(changed()), SLOT(update()));
+        connect(m_infoBar, SIGNAL(destroyed()), SLOT(infoBarDestroyed()));
     }
     update();
 }
@@ -208,8 +206,8 @@ void InfoBarDisplay::update()
         QFrame *infoWidget = new QFrame;
 
         QPalette pal;
-        pal.setColor(QPalette::Window, QColor(255, 255, 225));
-        pal.setColor(QPalette::WindowText, Qt::black);
+        pal.setColor(QPalette::Window, creatorTheme()->color(Theme::InfoBarBackground));
+        pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::InfoBarText));
 
         infoWidget->setPalette(pal);
         infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
@@ -226,32 +224,34 @@ void InfoBarDisplay::update()
         if (!info.buttonText.isEmpty()) {
             QToolButton *infoWidgetButton = new QToolButton;
             infoWidgetButton->setText(info.buttonText);
-            connect(infoWidgetButton, SIGNAL(clicked()), info.object, info.buttonPressMember);
+            connect(infoWidgetButton, &QAbstractButton::clicked, [info]() { info.m_buttonCallBack(); });
 
             hbox->addWidget(infoWidgetButton);
         }
 
+        const Id id = info.id;
         QToolButton *infoWidgetSuppressButton = 0;
         if (info.globalSuppression == InfoBarEntry::GlobalSuppressionEnabled) {
             infoWidgetSuppressButton = new QToolButton;
-            infoWidgetSuppressButton->setProperty("infoId", info.id.uniqueIdentifier());
-            infoWidgetSuppressButton->setText(tr("Do not show again"));
-            connect(infoWidgetSuppressButton, SIGNAL(clicked()), SLOT(suppressButtonClicked()));
+            infoWidgetSuppressButton->setText(tr("Do Not Show Again"));
+            connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, id] {
+                m_infoBar->removeInfo(id);
+                InfoBar::globallySuppressInfo(id);
+            });
         }
 
         QToolButton *infoWidgetCloseButton = new QToolButton;
-        infoWidgetCloseButton->setProperty("infoId", info.id.uniqueIdentifier());
-
         // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
         // because the latter removes the button and with it any connect
-        if (info.cancelObject)
-            connect(infoWidgetCloseButton, SIGNAL(clicked()),
-                    info.cancelObject, info.cancelButtonPressMember);
-        connect(infoWidgetCloseButton, SIGNAL(clicked()), SLOT(cancelButtonClicked()));
+        if (info.m_cancelButtonCallBack)
+            connect(infoWidgetCloseButton, &QAbstractButton::clicked, info.m_cancelButtonCallBack);
+        connect(infoWidgetCloseButton, &QAbstractButton::clicked, this, [this, id] {
+            m_infoBar->suppressInfo(id);
+        });
 
         if (info.cancelButtonText.isEmpty()) {
             infoWidgetCloseButton->setAutoRaise(true);
-            infoWidgetCloseButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAR)));
+            infoWidgetCloseButton->setIcon(Icons::CLEAR.icon());
             infoWidgetCloseButton->setToolTip(tr("Close"));
             if (infoWidgetSuppressButton)
                 hbox->addWidget(infoWidgetSuppressButton);
@@ -272,18 +272,6 @@ void InfoBarDisplay::update()
 void InfoBarDisplay::widgetDestroyed()
 {
     m_infoWidgets.removeOne(static_cast<QWidget *>(sender()));
-}
-
-void InfoBarDisplay::cancelButtonClicked()
-{
-    m_infoBar->suppressInfo(Id::fromUniqueIdentifier(sender()->property("infoId").toInt()));
-}
-
-void InfoBarDisplay::suppressButtonClicked()
-{
-    Id id = Id::fromUniqueIdentifier(sender()->property("infoId").toInt());
-    m_infoBar->removeInfo(id);
-    InfoBar::globallySuppressInfo(id);
 }
 
 } // namespace Core

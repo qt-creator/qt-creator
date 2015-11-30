@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,8 +35,11 @@
 #include <debugger/disassembleragent.h>
 #include <debugger/memoryagent.h>
 #include <debugger/watchhandler.h>
+#include <debugger/debuggertooltipmanager.h>
+#include <debugger/debuggerprotocol.h>
 
 #include <utils/consoleprocess.h>
+#include <utils/qtcprocess.h>
 
 #include <QPointer>
 #include <QProcess>
@@ -60,164 +64,108 @@ class LldbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit LldbEngine(const DebuggerStartParameters &startParameters);
+    explicit LldbEngine(const DebuggerRunParameters &runParameters);
     ~LldbEngine();
-
-private:
-    // Convenience struct to build up backend commands.
-    struct Command
-    {
-        Command() {}
-        Command(const char *f) : function(f) {}
-
-        const Command &arg(const char *name) const;
-        const Command &arg(const char *name, int value) const;
-        const Command &arg(const char *name, qlonglong value) const;
-        const Command &arg(const char *name, qulonglong value) const;
-        const Command &arg(const char *name, const QString &value) const;
-        const Command &arg(const char *name, const QByteArray &value) const;
-        const Command &arg(const char *name, const char *value) const;
-        const Command &beginList(const char *name = 0) const;
-        void endList() const;
-        const Command &beginGroup(const char *name = 0) const;
-        void endGroup() const;
-
-        static QByteArray toData(const QList<QByteArray> &value);
-        static QByteArray toData(const QHash<QByteArray, QByteArray> &value);
-
-        QByteArray function;
-        mutable QByteArray args;
-        private:
-        const Command &argHelper(const char *name, const QByteArray &value) const;
-    };
-
-    // DebuggerEngine implementation
-    void executeStep();
-    void executeStepOut();
-    void executeNext();
-    void executeStepI();
-    void executeNextI();
-
-    void setupEngine();
-    void startLldb();
-    void setupInferior();
-    void runEngine();
-    void shutdownInferior();
-    void shutdownEngine();
-    void abortDebugger();
-    void resetLocation();
-
-    bool setToolTipExpression(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, const DebuggerToolTipContext &);
-
-    void continueInferior();
-    void interruptInferior();
-
-    void executeRunToLine(const ContextData &data);
-    void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const ContextData &data);
-
-    void activateFrame(int index);
-    void selectThread(ThreadId threadId);
-
-    bool acceptsBreakpoint(BreakpointModelId id) const;
-    void attemptBreakpointSynchronization();
-    bool attemptBreakpointSynchronizationHelper(Command *command);
-
-    void assignValueInDebugger(const WatchData *data,
-        const QString &expr, const QVariant &value);
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
-
-    void loadSymbols(const QString &moduleName);
-    void loadAllSymbols();
-    void requestModuleSymbols(const QString &moduleName);
-    void reloadModules();
-    void reloadRegisters();
-    void reloadSourceFiles() {}
-    void reloadFullStack() {}
-    void fetchDisassembler(Internal::DisassemblerAgent *);
-    void refreshDisassembly(const GdbMi &data);
-
-    bool supportsThreads() const { return true; }
-    bool isSynchronous() const { return true; }
-    void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
-    void setRegisterValue(int regnr, const QString &value);
-
-    void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length);
-    void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data);
-    void refreshMemory(const GdbMi &data);
 
 signals:
     void outputReady(const QByteArray &data);
 
 private:
+    DebuggerEngine *cppEngine() override { return this; }
+
+    void executeStep() override;
+    void executeStepOut() override;
+    void executeNext() override;
+    void executeStepI() override;
+    void executeNextI() override;
+
+    void setupEngine() override;
+    void startLldb();
+    void startLldbStage2();
+    void setupInferior() override;
+    void runEngine() override;
+    void shutdownInferior() override;
+    void shutdownEngine() override;
+    void abortDebugger() override;
+
+    bool canHandleToolTip(const DebuggerToolTipContext &) const override;
+
+    void continueInferior() override;
+    void interruptInferior() override;
+
+    void executeRunToLine(const ContextData &data) override;
+    void executeRunToFunction(const QString &functionName) override;
+    void executeJumpToLine(const ContextData &data) override;
+
+    void activateFrame(int index) override;
+    void selectThread(ThreadId threadId) override;
+    void fetchFullBacktrace();
+
+    // This should be always the last call in a function.
+    bool stateAcceptsBreakpointChanges() const override;
+    bool acceptsBreakpoint(Breakpoint bp) const override;
+    void insertBreakpoint(Breakpoint bp) override;
+    void removeBreakpoint(Breakpoint bp) override;
+    void changeBreakpoint(Breakpoint bp) override;
+
+    void assignValueInDebugger(WatchItem *item, const QString &expr, const QVariant &value) override;
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
+
+    void loadSymbols(const QString &moduleName) override;
+    void loadAllSymbols() override;
+    void requestModuleSymbols(const QString &moduleName) override;
+    void reloadModules() override;
+    void reloadRegisters() override;
+    void reloadSourceFiles() override {}
+    void reloadFullStack() override;
+    void reloadDebuggingHelpers() override;
+    void fetchDisassembler(Internal::DisassemblerAgent *) override;
+
+    bool isSynchronous() const override { return true; }
+    void setRegisterValue(const QByteArray &name, const QString &value) override;
+
+    void fetchMemory(Internal::MemoryAgent *, QObject *, quint64 addr, quint64 length) override;
+    void changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data) override;
+
     QString errorMessage(QProcess::ProcessError error) const;
-    bool hasCapability(unsigned cap) const;
+    bool hasCapability(unsigned cap) const override;
 
-    Q_SLOT void handleLldbFinished(int, QProcess::ExitStatus status);
-    Q_SLOT void handleLldbError(QProcess::ProcessError error);
-    Q_SLOT void readLldbStandardOutput();
-    Q_SLOT void readLldbStandardError();
-    Q_SLOT void handleResponse(const QByteArray &data);
-    Q_SLOT void runEngine2();
-    Q_SLOT void updateAll();
-    Q_SLOT void updateLocals();
-    void doUpdateLocals(UpdateParameters params);
-    void refreshAll(const GdbMi &all);
-    void refreshThreads(const GdbMi &threads);
-    void refreshStack(const GdbMi &stack);
-    void refreshStackPosition(const GdbMi &position);
-    void refreshStackTop(const GdbMi &position);
-    void setStackPosition(int index);
-    void refreshRegisters(const GdbMi &registers);
-    void refreshLocals(const GdbMi &vars);
-    void refreshTypeInfo(const GdbMi &typeInfo);
-    void refreshState(const GdbMi &state);
-    void refreshLocation(const GdbMi &location);
-    void refreshModules(const GdbMi &modules);
-    void refreshSymbols(const GdbMi &symbols);
-    void refreshOutput(const GdbMi &output);
-    void refreshAddedBreakpoint(const GdbMi &bkpts);
-    void refreshChangedBreakpoint(const GdbMi &bkpts);
-    void refreshRemovedBreakpoint(const GdbMi &bkpts);
-    void runContinuation(const GdbMi &data);
+    void handleLldbFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void handleLldbError(QProcess::ProcessError error);
+    void readLldbStandardOutput();
+    void readLldbStandardError();
 
-    typedef void (LldbEngine::*LldbCommandContinuation)();
+    void handleStateNotification(const GdbMi &state);
+    void handleLocationNotification(const GdbMi &location);
+    void handleOutputNotification(const GdbMi &output);
 
-    void handleStop(const QByteArray &response);
-    void handleListLocals(const QByteArray &response);
-    void handleListModules(const QByteArray &response);
-    void handleListSymbols(const QByteArray &response);
-    void handleBreakpointsSynchronized(const QByteArray &response);
-    void updateBreakpointData(const GdbMi &bkpt, bool added);
-    void handleUpdateStack(const QByteArray &response);
-    void handleUpdateThreads(const QByteArray &response);
+    void handleResponse(const QByteArray &data);
+    void updateAll() override;
+    void doUpdateLocals(const UpdateParameters &params) override;
+    void updateBreakpointData(Breakpoint bp, const GdbMi &bkpt, bool added);
+    void fetchStack(int limit);
 
-    void notifyEngineRemoteSetupDone(int portOrPid, int qmlPort);
-    void notifyEngineRemoteSetupFailed(const QString &reason);
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 
-    void handleChildren(const WatchData &data0, const GdbMi &item,
-        QList<WatchData> *list);
+    void runCommand(const DebuggerCommand &cmd) override;
+    void debugLastCommand() override;
 
-    void runCommand(const Command &cmd);
-    void debugLastCommand();
-    Command m_lastDebuggableCommand;
+private:
+    DebuggerCommand m_lastDebuggableCommand;
 
     QByteArray m_inbuffer;
     QString m_scriptFileName;
-    QProcess m_lldbProc;
+    Utils::QtcProcess m_lldbProc;
     QString m_lldbCmd;
 
     // FIXME: Make generic.
     int m_lastAgentId;
-    int m_lastToken;
     int m_continueAtNextSpontaneousStop;
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
     QMap<QPointer<MemoryAgent>, int> m_memoryAgents;
     QHash<int, QPointer<QObject> > m_memoryAgentTokens;
-    QScopedPointer<DebuggerToolTipContext> m_toolTipContext;
 
-    void showToolTip();
+    QHash<int, DebuggerCommand> m_commandForToken;
 
     // Console handling.
     Q_SLOT void stubError(const QString &msg);

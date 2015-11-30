@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,19 +31,91 @@
 #include "environmentwidget.h"
 #include "environmentitemswidget.h"
 
+#include <coreplugin/find/itemviewfind.h>
+
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/environmentmodel.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/tooltip/tooltip.h>
 
 #include <QString>
-#include <QHeaderView>
 #include <QPushButton>
-#include <QTableView>
-#include <QTextDocument> // for Qt::escape
+#include <QTreeView>
 #include <QVBoxLayout>
+#include <QKeyEvent>
+#include <QStyledItemDelegate>
+#include <QLineEdit>
+#include <QDebug>
 
 namespace ProjectExplorer {
+
+class EnvironmentValidator : public QValidator
+{
+    Q_OBJECT
+public:
+    EnvironmentValidator(QWidget *parent, Utils::EnvironmentModel *model,
+                         QTreeView *view,
+                         const QModelIndex &index)
+        : QValidator(parent), m_model(model), m_view(view), m_index(index)
+    {
+        m_hideTipTimer.setInterval(2000);
+        m_hideTipTimer.setSingleShot(true);
+        connect(&m_hideTipTimer, &QTimer::timeout,
+                this, [](){Utils::ToolTip::hide();});
+    }
+
+    QValidator::State validate(QString &in, int &pos) const override
+    {
+        Q_UNUSED(pos)
+        QModelIndex idx = m_model->variableToIndex(in);
+        if (idx.isValid() && idx != m_index)
+            return QValidator::Intermediate;
+        Utils::ToolTip::hide();
+        m_hideTipTimer.stop();
+        return QValidator::Acceptable;
+    }
+
+    void fixup(QString &input) const override
+    {
+        Q_UNUSED(input)
+
+        QPoint pos = m_view->mapToGlobal(m_view->visualRect(m_index).topLeft());
+        pos -= Utils::ToolTip::offsetFromPosition();
+        Utils::ToolTip::show(pos, tr("Variable already exists."));
+        m_hideTipTimer.start();
+        // do nothing
+    }
+private:
+    Utils::EnvironmentModel *m_model;
+    QTreeView *m_view;
+    QModelIndex m_index;
+    mutable QTimer m_hideTipTimer;
+};
+
+class EnvironmentDelegate : public QStyledItemDelegate
+{
+public:
+    EnvironmentDelegate(Utils::EnvironmentModel *model,
+                        QTreeView *view)
+        : QStyledItemDelegate(view), m_model(model), m_view(view)
+    {}
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        QWidget *w = QStyledItemDelegate::createEditor(parent, option, index);
+        if (index.column() != 0)
+            return w;
+
+        if (QLineEdit *edit = qobject_cast<QLineEdit *>(w))
+            edit->setValidator(new EnvironmentValidator(edit, m_model, m_view, index));
+        return w;
+    }
+private:
+    Utils::EnvironmentModel *m_model;
+    QTreeView *m_view;
+};
+
 
 ////
 // EnvironmentWidget::EnvironmentWidget
@@ -55,7 +128,7 @@ public:
 
     QString m_baseEnvironmentText;
     Utils::DetailsWidget *m_detailsContainer;
-    QTableView *m_environmentView;
+    QTreeView *m_environmentView;
     QPushButton *m_editButton;
     QPushButton *m_addButton;
     QPushButton *m_resetButton;
@@ -92,18 +165,19 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     horizontalLayout->setMargin(0);
-    d->m_environmentView = new QTableView(this);
+    d->m_environmentView = new Internal::EnvironmentTreeView(this);
     d->m_environmentView->setModel(d->m_model);
+    d->m_environmentView->setItemDelegate(new EnvironmentDelegate(d->m_model, d->m_environmentView));
     d->m_environmentView->setMinimumHeight(400);
-    d->m_environmentView->setGridStyle(Qt::NoPen);
-    d->m_environmentView->horizontalHeader()->setStretchLastSection(true);
-    d->m_environmentView->horizontalHeader()->setHighlightSections(false);
-    new Utils::HeaderViewStretcher(d->m_environmentView->horizontalHeader(), 1);
-    d->m_environmentView->verticalHeader()->hide();
-    QFontMetrics fm(font());
-    d->m_environmentView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
+    d->m_environmentView->setRootIsDecorated(false);
+    d->m_environmentView->setUniformRowHeights(true);
+    new Utils::HeaderViewStretcher(d->m_environmentView->header(), 1);
     d->m_environmentView->setSelectionMode(QAbstractItemView::SingleSelection);
-    horizontalLayout->addWidget(d->m_environmentView);
+    d->m_environmentView->setSelectionBehavior(QAbstractItemView::SelectItems);
+    d->m_environmentView->setFrameShape(QFrame::NoFrame);
+    QFrame *findWrapper = Core::ItemViewFind::createSearchableWrapper(d->m_environmentView, Core::ItemViewFind::LightColored);
+    findWrapper->setFrameStyle(QFrame::StyledPanel);
+    horizontalLayout->addWidget(findWrapper);
 
     QVBoxLayout *buttonLayout = new QVBoxLayout();
 
@@ -125,12 +199,11 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     d->m_unsetButton->setText(tr("&Unset"));
     buttonLayout->addWidget(d->m_unsetButton);
 
-    QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    buttonLayout->addItem(verticalSpacer);
-
     d->m_batchEditButton = new QPushButton(this);
     d->m_batchEditButton->setText(tr("&Batch Edit..."));
     buttonLayout->addWidget(d->m_batchEditButton);
+
+    buttonLayout->addStretch();
 
     horizontalLayout->addLayout(buttonLayout);
     vbox2->addLayout(horizontalLayout);
@@ -204,9 +277,9 @@ void EnvironmentWidget::updateSummaryText()
         if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
             text.append(QLatin1String("<br>"));
             if (item.unset)
-                text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(Qt::escape(item.name)));
+                text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped()));
             else
-                text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b>").arg(Qt::escape(item.name), Qt::escape(item.value)));
+                text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
         }
     }
 
@@ -294,4 +367,48 @@ void EnvironmentWidget::invalidateCurrentIndex()
     environmentCurrentIndexChanged(QModelIndex());
 }
 
+Internal::EnvironmentTreeView::EnvironmentTreeView(QWidget *parent)
+    : QTreeView(parent)
+{
+
+}
+
+QModelIndex Internal::EnvironmentTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
+{
+    QModelIndex idx = currentIndex();
+    int column = idx.column();
+    int row = idx.row();
+
+    if (cursorAction == QAbstractItemView::MoveNext) {
+        if (column == 0)
+            return idx.sibling(row, 1);
+        else if (row + 1 < model()->rowCount())
+            return idx.sibling(row + 1, 0);
+        else // On last column in last row
+            return idx;
+    } else if (cursorAction == QAbstractItemView::MovePrevious) {
+        if (column == 1)
+            return idx.sibling(row, 0);
+        else if (row - 1 >= 0)
+            return idx.sibling(row - 1, 1);
+        else // On first column in first row
+            return idx;
+    }
+    return QTreeView::moveCursor(cursorAction, modifiers);
+}
+
+void Internal::EnvironmentTreeView::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+        if (!edit(currentIndex(), EditKeyPressed, event))
+            event->ignore();
+        return;
+    }
+
+    QTreeView::keyPressEvent(event);
+}
+
+
 } // namespace ProjectExplorer
+
+#include "environmentwidget.moc"

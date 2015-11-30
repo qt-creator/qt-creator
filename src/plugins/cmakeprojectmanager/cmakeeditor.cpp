@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,112 +31,128 @@
 #include "cmakeeditor.h"
 
 #include "cmakefilecompletionassist.h"
-#include "cmakehighlighter.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
+#include "cmakeindenter.h"
+#include "cmakeautocompleter.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
+#include <texteditor/highlighterutils.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
+
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
-#include <QSharedPointer>
 #include <QTextBlock>
 
-using namespace CMakeProjectManager;
-using namespace CMakeProjectManager::Internal;
+using namespace Core;
+using namespace ProjectExplorer;
+using namespace TextEditor;
 
-//
-// ProFileEditorEditable
-//
-
-CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
-  : BaseTextEditor(editor)
-{
-    setContext(Core::Context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
-              TextEditor::Constants::C_TEXTEDITOR));
-    connect(document(), SIGNAL(changed()), this, SLOT(markAsChanged()));
-}
-
-Core::IEditor *CMakeEditor::duplicate()
-{
-    CMakeEditorWidget *ret = new CMakeEditorWidget(
-                qobject_cast<CMakeEditorWidget *>(editorWidget()));
-    TextEditor::TextEditorSettings::initializeEditor(ret);
-    return ret->editor();
-}
-
-TextEditor::CompletionAssistProvider *CMakeEditor::completionAssistProvider()
-{
-    return ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>();
-}
-
-void CMakeEditor::markAsChanged()
-{
-    if (!document()->isModified())
-        return;
-    Core::InfoBar *infoBar = document()->infoBar();
-    Core::Id infoRunCmake("CMakeEditor.RunCMake");
-    if (!infoBar->canInfoBeAdded(infoRunCmake))
-        return;
-    Core::InfoBarEntry info(infoRunCmake,
-                            tr("Changes to cmake files are shown in the project tree after building."),
-                            Core::InfoBarEntry::GlobalSuppressionEnabled);
-    info.setCustomButtonInfo(tr("Build now"), this, SLOT(build()));
-    infoBar->addInfo(info);
-}
-
-void CMakeEditor::build()
-{
-    foreach (ProjectExplorer::Project *p, ProjectExplorer::SessionManager::projects()) {
-        CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
-        if (cmakeProject) {
-            if (cmakeProject->isProjectFile(document()->filePath())) {
-                ProjectExplorer::ProjectExplorerPlugin::instance()->buildProject(cmakeProject);
-                break;
-            }
-        }
-    }
-}
+namespace CMakeProjectManager {
+namespace Internal {
 
 //
 // CMakeEditor
 //
 
-CMakeEditorWidget::CMakeEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(new CMakeDocument(), parent)
+CMakeEditor::CMakeEditor()
 {
-    ctor();
 }
 
-CMakeEditorWidget::CMakeEditorWidget(CMakeEditorWidget *other)
-    : BaseTextEditorWidget(other)
+void CMakeEditor::finalizeInitialization()
 {
-    ctor();
+    connect(document(), &IDocument::changed, [this]() {
+        BaseTextDocument *document = textDocument();
+        if (!document->isModified())
+            return;
+        InfoBar *infoBar = document->infoBar();
+        Id infoRunCmake("CMakeEditor.RunCMake");
+        if (!infoBar->canInfoBeAdded(infoRunCmake))
+            return;
+        InfoBarEntry info(infoRunCmake,
+                          tr("Changes to cmake files are shown in the project tree after building."),
+                          InfoBarEntry::GlobalSuppressionEnabled);
+        info.setCustomButtonInfo(tr("Build now"), [document]() {
+            foreach (Project *p, SessionManager::projects()) {
+                if (CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p)) {
+                    if (cmakeProject->isProjectFile(document->filePath())) {
+                        ProjectExplorerPlugin::buildProject(cmakeProject);
+                        break;
+                    }
+                }
+            }
+        });
+        infoBar->addInfo(info);
+    });
 }
 
-void CMakeEditorWidget::ctor()
+QString CMakeEditor::contextHelpId() const
 {
-    m_commentDefinition.clearCommentStyles();
-    m_commentDefinition.singleLine = QLatin1Char('#');
+    int pos = position();
+
+    QChar chr;
+    do {
+        --pos;
+        if (pos < 0)
+            break;
+        chr = characterAt(pos);
+        if (chr == QLatin1Char('('))
+            return QString();
+    } while (chr.unicode() != QChar::ParagraphSeparator);
+
+    ++pos;
+    chr = characterAt(pos);
+    while (chr.isSpace()) {
+        ++pos;
+        chr = characterAt(pos);
+    }
+    int begin = pos;
+
+    do {
+        ++pos;
+        chr = characterAt(pos);
+    } while (chr.isLetterOrNumber() || chr == QLatin1Char('_'));
+    int end = pos;
+
+    while (chr.isSpace()) {
+        ++pos;
+        chr = characterAt(pos);
+    }
+
+    // Not a command
+    if (chr != QLatin1Char('('))
+        return QString();
+
+    QString command = textAt(begin, end - begin).toLower();
+    return QLatin1String("command/") + command;
 }
 
-TextEditor::BaseTextEditor *CMakeEditorWidget::createEditor()
-{
-    return new CMakeEditor(this);
-}
+//
+// CMakeEditorWidget
+//
 
-void CMakeEditorWidget::unCommentSelection()
+class CMakeEditorWidget : public TextEditorWidget
 {
-    Utils::unCommentSelection(this, m_commentDefinition);
-}
+public:
+    CMakeEditorWidget() {}
+
+private:
+    bool save(const QString &fileName = QString());
+    Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false) override;
+    void contextMenuEvent(QContextMenuEvent *e) override;
+};
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
@@ -144,14 +161,12 @@ void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
 static bool isValidFileNameChar(const QChar &c)
 {
-    if (c.isLetterOrNumber()
+    return c.isLetterOrNumber()
             || c == QLatin1Char('.')
             || c == QLatin1Char('_')
             || c == QLatin1Char('-')
             || c == QLatin1Char('/')
-            || c == QLatin1Char('\\'))
-        return true;
-    return false;
+            || c == QLatin1Char('\\');
 }
 
 CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
@@ -199,14 +214,14 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     // TODO: Resolve variables
 
-    QDir dir(QFileInfo(baseTextDocument()->filePath()).absolutePath());
+    QDir dir(textDocument()->filePath().toFileInfo().absolutePath());
     QString fileName = dir.filePath(buffer);
     QFileInfo fi(fileName);
     if (fi.exists()) {
         if (fi.isDir()) {
             QDir subDir(fi.absoluteFilePath());
             QString subProject = subDir.filePath(QLatin1String("CMakeLists.txt"));
-            if (QFileInfo(subProject).exists())
+            if (QFileInfo::exists(subProject))
                 fileName = subProject;
             else
                 return link;
@@ -218,27 +233,66 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     return link;
 }
 
-
 //
 // CMakeDocument
 //
 
-CMakeDocument::CMakeDocument()
-    : TextEditor::BaseTextDocument()
+class CMakeDocument : public TextDocument
 {
-    setId(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
-    setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
-    setSyntaxHighlighter(new CMakeHighlighter);
+public:
+    CMakeDocument();
+
+    QString defaultPath() const override;
+    QString suggestedFileName() const override;
+};
+
+CMakeDocument::CMakeDocument()
+{
+    setId(Constants::CMAKE_EDITOR_ID);
+    setMimeType(QLatin1String(Constants::CMAKEMIMETYPE));
 }
 
 QString CMakeDocument::defaultPath() const
 {
-    QFileInfo fi(filePath());
-    return fi.absolutePath();
+    return filePath().toFileInfo().absolutePath();
 }
 
 QString CMakeDocument::suggestedFileName() const
 {
-    QFileInfo fi(filePath());
-    return fi.fileName();
+    return filePath().fileName();
 }
+
+//
+// CMakeEditorFactory
+//
+
+CMakeEditorFactory::CMakeEditorFactory()
+{
+    setId(Constants::CMAKE_EDITOR_ID);
+    setDisplayName(tr(Constants::CMAKE_EDITOR_DISPLAY_NAME));
+    addMimeType(Constants::CMAKEMIMETYPE);
+    addMimeType(Constants::CMAKEPROJECTMIMETYPE);
+
+    setEditorCreator([]() { return new CMakeEditor; });
+    setEditorWidgetCreator([]() { return new CMakeEditorWidget; });
+    setDocumentCreator([]() { return new CMakeDocument; });
+    setIndenterCreator([]() { return new CMakeIndenter; });
+    setUseGenericHighlighter(true);
+    setCommentStyle(Utils::CommentDefinition::HashStyle);
+    setCodeFoldingSupported(true);
+
+    setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);
+    setAutoCompleterCreator([]() { return new CMakeAutoCompleter; });
+
+    setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
+            | TextEditorActionHandler::JumpToFileUnderCursor
+            | TextEditorActionHandler::Format);
+
+    ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
+    contextMenu->addAction(ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR));
+    contextMenu->addSeparator(Context(Constants::CMAKE_EDITOR_ID));
+    contextMenu->addAction(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
+}
+
+} // namespace Internal
+} // namespace CMakeProjectManager

@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -44,33 +45,38 @@ def main():
         return
     usedProFile = os.path.join(templateDir, proFile)
     openQmakeProject(usedProFile)
+    progressBarWait()
     for filetype, filename in [["Headers", "utility.h"],
                                ["Sources", "main.cpp"],
                                ["Sources", "utility.cpp"],
                                ["Resources", "musicbrowser.qrc"],
                                ["QML", "musicbrowser.qml"]]:
         filenames = ["ABCD" + filename.upper(), "abcd" + filename.lower(), "test", "TEST", filename]
-        if isQt4Build and platform.system() == 'Darwin':
-            # avoid QTCREATORBUG-9197
-            filtered = [filenames[0]]
-            for i in range(1, len(filenames)):
-                if filenames[i].lower() != filtered[-1].lower():
-                    filtered.append(filenames[i])
-            filenames = filtered
-        for i in range(len(filenames)):
+        previous = filenames[-1]
+        for filename in filenames:
             tempFiletype = filetype
-            if filetype == "QML" and filenames[i - 1][-4:] != ".qml":
+            if previous in ("test", "TEST") or filetype == "QML" and previous[-4:] != ".qml":
                 tempFiletype = "Other files"
-            # following is necessary due to QTCREATORBUG-10179
-            # will be fixed when Qt5's MIME type database can be used
-            if ((filenames[-1] in ("main.cpp", "utility.cpp") and filenames[i - 1][-4:] != ".cpp")
-                or (filenames[-1] == "utility.h" and filenames[i - 1][-2:].lower() != ".h")
-                or (filetype == "Resources" and filenames[i - 1][-4:] != ".qrc")):
-                tempFiletype = "Other files"
-            # end of handling QTCREATORBUG-10179
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
-                       filenames[i - 1], filenames[i])
+                       previous, filename)
+            # QTCREATORBUG-13176 does update the navigator async
+            progressBarWait()
+            if tempFiletype == "Headers":   # QTCREATORBUG-13204
+                verifyRenamedIncludes(templateDir, "main.cpp", previous, filename)
+                verifyRenamedIncludes(templateDir, "utility.cpp", previous, filename)
+            previous = filename
     invokeMenuItem("File", "Exit")
+
+def grep(pattern, text):
+    return "\n".join(filter(lambda x: pattern in x, text.splitlines()))
+
+def verifyRenamedIncludes(templateDir, file, oldname, newname):
+    fileText = readFile(os.path.join(templateDir, file))
+    if not (test.verify('#include "%s"' % oldname not in fileText,
+                        'Verify that old filename is no longer included in %s' % file) and
+            test.verify('#include "%s"' % newname in fileText,
+                        'Verify that new filename is included in %s' % file)):
+        test.log(grep("include", fileText))
 
 def renameFile(projectDir, proFile, branch, oldname, newname):
     oldFilePath = os.path.join(projectDir, oldname)
@@ -84,15 +90,13 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
         openItemContextMenu(treeview, addBranchWildcardToRoot(itemText), 5, 5, 0)
     # hack for Squish5/Qt5.2 problems of handling menus on Mac - remove asap
     if platform.system() == 'Darwin':
-        item = "Rename..."
-        if oldname.endswith(".qrc"):
-            item = "Rename File"
-        waitFor("macHackActivateContextMenuItem(item)", 5000)
+        waitFor("macHackActivateContextMenuItem('Rename...')", 5000)
     else:
-        if oldname.endswith(".qrc"):
-            activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Folder_QMenu", "Rename File"))
+        if oldname.lower().endswith(".qrc"):
+            menu = ":Qt Creator.Project.Menu.Folder_QMenu"
         else:
-            activateItem(waitForObjectItem(":Qt Creator.Project.Menu.File_QMenu", "Rename..."))
+            menu = ":Qt Creator.Project.Menu.File_QMenu"
+        activateItem(waitForObjectItem(menu, "Rename..."))
     type(waitForObject(":Qt Creator_Utils::NavigationTreeView::QExpandingLineEdit"), newname)
     type(waitForObject(":Qt Creator_Utils::NavigationTreeView::QExpandingLineEdit"), "<Return>")
     test.verify(waitFor("os.path.exists(newFilePath)", 1000),

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,7 +32,8 @@
 #include "locatorfiltersfilter.h"
 #include "locatorwidget.h"
 
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
+#include <utils/qtcassert.h>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -42,21 +44,22 @@ LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin,
                                                LocatorWidget *locatorWidget):
     m_plugin(plugin),
     m_locatorWidget(locatorWidget),
-    m_icon(QIcon(QLatin1String(Core::Constants::ICON_NEXT)))
+    m_icon(Icons::NEXT.icon())
 {
     setId("FiltersFilter");
     setDisplayName(tr("Available filters"));
     setIncludedByDefault(true);
     setHidden(true);
-    setPriority(High);
+    setPriority(Highest);
     setConfigurable(false);
 }
 
-QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+void LocatorFiltersFilter::prepareSearch(const QString &entry)
 {
-    QList<LocatorFilterEntry> entries;
+    m_filterShortcutStrings.clear();
+    m_filterDisplayNames.clear();
     if (!entry.isEmpty())
-        return entries;
+        return;
 
     QMap<QString, ILocatorFilter *> uniqueFilters;
     foreach (ILocatorFilter *filter, m_plugin->filters()) {
@@ -65,27 +68,39 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Core
     }
 
     foreach (ILocatorFilter *filter, uniqueFilters) {
-        if (future.isCanceled())
-            break;
         if (!filter->shortcutString().isEmpty() && !filter->isHidden() && filter->isEnabled()) {
-            LocatorFilterEntry filterEntry(this,
-                                    filter->shortcutString(),
-                                    QVariant::fromValue(filter),
-                                    m_icon);
-            filterEntry.extraInfo = filter->displayName();
-            entries.append(filterEntry);
+            m_filterShortcutStrings.append(filter->shortcutString());
+            m_filterDisplayNames.append(filter->displayName());
         }
     }
+}
 
+QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
+{
+    Q_UNUSED(entry) // search is already done in the GUI thread in prepareSearch
+    QList<LocatorFilterEntry> entries;
+    for (int i = 0; i < m_filterShortcutStrings.size(); ++i) {
+        if (future.isCanceled())
+            break;
+        LocatorFilterEntry filterEntry(this,
+                                m_filterShortcutStrings.at(i),
+                                i,
+                                m_icon);
+        filterEntry.extraInfo = m_filterDisplayNames.at(i);
+        entries.append(filterEntry);
+    }
     return entries;
 }
 
 void LocatorFiltersFilter::accept(LocatorFilterEntry selection) const
 {
-    ILocatorFilter *filter = selection.internalData.value<ILocatorFilter *>();
-    if (filter)
-        m_locatorWidget->show(filter->shortcutString() + QLatin1Char(' '),
-                           filter->shortcutString().length() + 1);
+    bool ok;
+    int index = selection.internalData.toInt(&ok);
+    QTC_ASSERT(ok && index >= 0 && index < m_filterShortcutStrings.size(), return);
+    const QString shortcutString = m_filterShortcutStrings.at(index);
+    if (!shortcutString.isEmpty())
+        m_locatorWidget->show(shortcutString + QLatin1Char(' '),
+                              shortcutString.length() + 1);
 }
 
 void LocatorFiltersFilter::refresh(QFutureInterface<void> &future)

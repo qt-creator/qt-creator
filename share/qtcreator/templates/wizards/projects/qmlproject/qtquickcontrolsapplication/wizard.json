@@ -1,0 +1,126 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "QB.QtQuickControlsUi",
+    "category": "H.Project",
+    "trDescription": "Creates a Qt Quick 2 UI project using Qt Quick Controls with a QML entry point. To use it, you need to have a QML runtime environment such as qmlscene set up. Consider using a Qt Quick Controls Application project instead.",
+    "trDisplayName": "Qt Quick Controls UI",
+    "trDisplayCategory": "Other Project",
+    "icon": "../../qmake/qtquickapplication/qml_wizard.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlProjectManager') >= 0}",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick.Controls.1.3", "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQt" ],
+
+    "options":
+    [
+        { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'qmlproject')}" },
+        { "key": "MainQmlFileName", "value": "%{JS: Util.fileName('%{ProjectName}', 'qml')}" },
+        { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.qtQuickVersion}" },
+        { "key": "QtQuickControlsVersion", "value": "%{JS: %{QtVersion}.qtQuickControlsVersion}" },
+        { "key": "QtQuickDialogsVersion", "value": "%{JS: %{QtVersion}.qtQuickDialogsVersion}" },
+        { "key": "QtQuickLayoutsVersion", "value": "%{JS: %{QtVersion}.qtQuickLayoutsVersion}" },
+        { "key": "UiSupport", "value": "%{JS: '%{QtQuickVersion}' !== '2.3' }" },
+        { "key": "IsUiFileInUse", "value": "%{JS: %{UiSupport} && %{QmlUiSplit} }" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "QtVersion",
+                    "trDisplayName": "Minimal required Qt version:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt 5.5",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.5',
+                                    'qtQuickControlsVersion': '1.3',
+                                    'qtQuickDialogsVersion': '1.2',
+                                    'qtQuickLayoutsVersion': '1.2'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.4",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.4',
+                                    'qtQuickControlsVersion': '1.2',
+                                    'qtQuickDialogsVersion': '1.2',
+                                    'qtQuickLayoutsVersion': '1.1'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.3",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.3',
+                                    'qtQuickControlsVersion': '1.2',
+                                    'qtQuickDialogsVersion': '1.2',
+                                    'qtQuickLayoutsVersion': '1.1'
+                                }"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "QmlUiSplit",
+                    "trDisplayName": "With ui.qml file",
+                    "type": "CheckBox",
+                    "visible": "%{UiSupport}",
+                    "data":
+                    {
+                        "checked": true
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "app.qmlproject",
+                    "target": "%{QmlProjectFileName}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "../../qmake/qtquickcontrolsapplication/main.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{MainQmlFileName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "../../qmake/qtquickcontrolsapplication/MainForm.ui.qml.tpl",
+                    "target": "%{ProjectDirectory}/MainForm.ui.qml",
+                    "condition": "%{IsUiFileInUse}"
+                },
+                {
+                    "source": "../../git.ignore",
+                    "target": "%{ProjectDirectory}/.gitignore",
+                    "condition": "%{JS: !%{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}

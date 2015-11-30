@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,10 +37,12 @@
 #include "runconfiguration.h"
 #include "target.h"
 #include "project.h"
+#include "session.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QVariant>
@@ -59,14 +62,14 @@ namespace Internal {
 
 struct FactoryAndId
 {
-    ProjectExplorer::IRunConfigurationFactory *factory;
+    IRunConfigurationFactory *factory;
     Core::Id id;
 };
 
 class DeployFactoryAndId
 {
 public:
-    ProjectExplorer::DeployConfigurationFactory *factory;
+    DeployConfigurationFactory *factory;
     Core::Id id;
 };
 
@@ -80,46 +83,6 @@ Q_DECLARE_METATYPE(ProjectExplorer::Internal::DeployFactoryAndId)
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using ExtensionSystem::PluginManager;
-
-///
-/// RunSettingsPanelFactory
-///
-
-QString RunSettingsPanelFactory::id() const
-{
-    return QLatin1String(RUNSETTINGS_PANEL_ID);
-}
-
-QString RunSettingsPanelFactory::displayName() const
-{
-    return RunSettingsWidget::tr("Run Settings");
-}
-
-int RunSettingsPanelFactory::priority() const
-{
-    return 20;
-}
-
-bool RunSettingsPanelFactory::supports(Target *target)
-{
-    Q_UNUSED(target);
-    return true;
-}
-
-PropertiesPanel *RunSettingsPanelFactory::createPanel(Target *target)
-{
-    PropertiesPanel *panel = new PropertiesPanel;
-    QWidget *w = new QWidget();
-    QVBoxLayout *l = new QVBoxLayout(w);
-    QWidget *b = new RunSettingsWidget(target);
-    l->addWidget(b);
-    l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    l->setContentsMargins(QMargins());
-    panel->setWidget(w);
-    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/RunSettings.png")));
-    panel->setDisplayName(RunSettingsWidget::tr("Run Settings"));
-    return panel;
-}
 
 ///
 /// RunSettingsWidget
@@ -274,11 +237,6 @@ RunSettingsWidget::~RunSettingsWidget()
 {
 }
 
-static bool actionLessThan(const QAction *action1, const QAction *action2)
-{
-    return action1->text() < action2->text();
-}
-
 void RunSettingsWidget::aboutToShowAddMenu()
 {
     m_addRunMenu->clear();
@@ -294,36 +252,24 @@ void RunSettingsWidget::aboutToShowAddMenu()
         QList<Core::Id> ids = factory->availableCreationIds(m_target);
         foreach (Core::Id id, ids) {
             QAction *action = new QAction(factory->displayNameForId(id), m_addRunMenu);
-            FactoryAndId fai;
-            fai.factory = factory;
-            fai.id = id;
-            QVariant v;
-            v.setValue(fai);
-            action->setData(v);
-            connect(action, SIGNAL(triggered()),
-                    this, SLOT(addRunConfiguration()));
+            connect(action, &QAction::triggered, [factory, id, this]() {
+                RunConfiguration *newRC = factory->create(m_target, id);
+                if (!newRC)
+                    return;
+                QTC_CHECK(newRC->id() == id);
+                m_target->addRunConfiguration(newRC);
+                m_target->setActiveRunConfiguration(newRC);
+                m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+            });
             menuActions.append(action);
         }
     }
 
-    qSort(menuActions.begin(), menuActions.end(), actionLessThan);
+    Utils::sort(menuActions, [](const QAction *l, const QAction *r) {
+        return l->text() < r->text();
+    });
     foreach (QAction *action, menuActions)
         m_addRunMenu->addAction(action);
-}
-
-void RunSettingsWidget::addRunConfiguration()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    if (!act)
-        return;
-    FactoryAndId fai = act->data().value<FactoryAndId>();
-    RunConfiguration *newRC = fai.factory->create(m_target, fai.id);
-    if (!newRC)
-        return;
-    QTC_CHECK(newRC->id() == fai.id);
-    m_target->addRunConfiguration(newRC);
-    m_target->setActiveRunConfiguration(newRC);
-    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::cloneRunConfiguration()
@@ -334,11 +280,16 @@ void RunSettingsWidget::cloneRunConfiguration()
     if (!factory)
         return;
 
+    //: Title of a the cloned RunConfiguration window, text of the window
+    QString name = uniqueRCName(QInputDialog::getText(this, tr("Clone Configuration"), tr("New configuration name:")));
+    if (name.isEmpty())
+        return;
+
     RunConfiguration *newRc = factory->clone(m_target, activeRunConfiguration);
     if (!newRc)
         return;
 
-    newRc->setDisplayName(activeRunConfiguration->displayName());
+    newRc->setDisplayName(name);
     m_target->addRunConfiguration(newRc);
     m_target->setActiveRunConfiguration(newRc);
 }
@@ -414,9 +365,10 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
     if (m_ignoreChange)
         return;
     if (index == -1)
-        m_target->setActiveDeployConfiguration(0);
+        SessionManager::setActiveDeployConfiguration(m_target, 0, SetActive::Cascade);
     else
-        m_target->setActiveDeployConfiguration(m_deployConfigurationModel->deployConfigurationAt(index));
+        SessionManager::setActiveDeployConfiguration(m_target, m_deployConfigurationModel->deployConfigurationAt(index),
+                                                     SetActive::Cascade);
 }
 
 void RunSettingsWidget::aboutToShowDeployMenu()
@@ -432,27 +384,19 @@ void RunSettingsWidget::aboutToShowDeployMenu()
             QAction *action = m_addDeployMenu->addAction(factory->displayNameForId(id));
             DeployFactoryAndId data = { factory, id };
             action->setData(QVariant::fromValue(data));
-            connect(action, SIGNAL(triggered()),
-                    this, SLOT(addDeployConfiguration()));
+            connect(action, &QAction::triggered, [factory, id, this]() {
+                if (!factory->canCreate(m_target, id))
+                    return;
+                DeployConfiguration *newDc = factory->create(m_target, id);
+                if (!newDc)
+                    return;
+                QTC_CHECK(!newDc || newDc->id() == id);
+                m_target->addDeployConfiguration(newDc);
+                SessionManager::setActiveDeployConfiguration(m_target, newDc, SetActive::Cascade);
+                m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
+            });
         }
     }
-}
-
-void RunSettingsWidget::addDeployConfiguration()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    if (!act)
-        return;
-    DeployFactoryAndId data = act->data().value<DeployFactoryAndId>();
-    if (!data.factory->canCreate(m_target, data.id))
-        return;
-    DeployConfiguration *newDc = data.factory->create(m_target, data.id);
-    if (!newDc)
-        return;
-    QTC_CHECK(!newDc || newDc->id() == data.id);
-    m_target->addDeployConfiguration(newDc);
-    m_target->setActiveDeployConfiguration(newDc);
-    m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::removeDeployConfiguration()
@@ -594,7 +538,7 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
 void RunSettingsWidget::addRunControlWidgets()
 {
     foreach (IRunConfigurationAspect *aspect, m_runConfiguration->extraAspects()) {
-        ProjectExplorer::RunConfigWidget *rcw = aspect->createConfigurationWidget();
+        RunConfigWidget *rcw = aspect->createConfigurationWidget();
         if (rcw)
             addSubWidget(rcw);
     }

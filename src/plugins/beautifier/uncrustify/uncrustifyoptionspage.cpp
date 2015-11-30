@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Lorenz Haas
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Lorenz Haas
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -51,30 +52,19 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
     , m_settings(settings)
 {
     ui->setupUi(this);
+    ui->useHomeFile->setText(ui->useHomeFile->text().replace(
+                                 QLatin1String("HOME"),
+                                 QDir::toNativeSeparators(QDir::home().absolutePath())));
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
                                           QLatin1String(Constants::Uncrustify::DISPLAY_NAME)));
-    connect(ui->command, SIGNAL(validChanged(bool)), ui->options, SLOT(setEnabled(bool)));
+    connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
     ui->configurations->setSettings(m_settings);
 }
 
 UncrustifyOptionsPageWidget::~UncrustifyOptionsPageWidget()
 {
     delete ui;
-}
-
-QString UncrustifyOptionsPageWidget::searchKeywords() const
-{
-    QString keywords;
-    const QLatin1Char sep(' ');
-    QTextStream(&keywords) << sep << ui->configuration->title()
-                           << sep << ui->commandLabel->text()
-                           << sep << ui->options->title()
-                           << sep << ui->useOtherFiles->text()
-                           << sep << ui->useHomeFile->text()
-                           << sep << ui->useCustomStyle->text();
-    keywords.remove(QLatin1Char('&'));
-    return keywords;
 }
 
 void UncrustifyOptionsPageWidget::restore()
@@ -101,8 +91,7 @@ void UncrustifyOptionsPageWidget::apply()
 UncrustifyOptionsPage::UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent) :
     IOptionsPage(parent),
     m_widget(0),
-    m_settings(settings),
-    m_searchKeywords()
+    m_settings(settings)
 {
     setId(Constants::Uncrustify::OPTION_ID);
     setDisplayName(tr("Uncrustify"));
@@ -115,11 +104,8 @@ QWidget *UncrustifyOptionsPage::widget()
 {
     m_settings->read();
 
-    if (!m_widget) {
+    if (!m_widget)
         m_widget = new UncrustifyOptionsPageWidget(m_settings);
-        if (m_searchKeywords.isEmpty())
-            m_searchKeywords = m_widget->searchKeywords();
-    }
     m_widget->restore();
 
     return m_widget;
@@ -133,11 +119,6 @@ void UncrustifyOptionsPage::apply()
 
 void UncrustifyOptionsPage::finish()
 {
-}
-
-bool UncrustifyOptionsPage::matches(const QString &searchKeyWord) const
-{
-    return m_searchKeywords.contains(searchKeyWord, Qt::CaseInsensitive);
 }
 
 } // namespace Uncrustify

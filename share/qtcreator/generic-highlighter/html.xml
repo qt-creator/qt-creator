@@ -4,7 +4,7 @@
 	<!ENTITY name    "[A-Za-z_:][\w.:_-]*">
 	<!ENTITY entref  "&amp;(#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="HTML" version="1.99" kateversion="2.4" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="2.1" kateversion="3.4" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>
@@ -17,23 +17,41 @@
     <DetectIdentifier/>
     <StringDetect attribute="Comment" context="Comment" String="&lt;!--" beginRegion="comment" />
     <StringDetect attribute="CDATA" context="CDATA" String="&lt;![CDATA[" beginRegion="cdata" />
-    <RegExpr attribute="Doctype" context="Doctype" String="&lt;!DOCTYPE\s+" beginRegion="doctype" />
+    <RegExpr attribute="Doctype" context="Doctype" String="&lt;!DOCTYPE\s+" insensitive="true" beginRegion="doctype"  />
     <RegExpr attribute="Processing Instruction" context="PI" String="&lt;\?[\w:-]*" beginRegion="pi" />
-    <RegExpr attribute="Element" context="CSS" String="&lt;style\b" insensitive="TRUE" beginRegion="style" />
-    <RegExpr attribute="Element" context="JS" String="&lt;script\b" insensitive="TRUE" beginRegion="script" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;pre\b" insensitive="TRUE" beginRegion="pre" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;div\b" insensitive="TRUE" beginRegion="div" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;table\b" insensitive="TRUE" beginRegion="table" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;ul\b" insensitive="TRUE" beginRegion="ul" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;ol\b" insensitive="TRUE" beginRegion="ol" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;dl\b" insensitive="TRUE" beginRegion="dl" />
+    <RegExpr attribute="Element" context="CSS" String="&lt;style\b" insensitive="true" beginRegion="style" />
+    <RegExpr attribute="Element" context="JS" String="&lt;script\b" insensitive="true" beginRegion="script" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;pre\b" insensitive="true" beginRegion="pre" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;div\b" insensitive="true" beginRegion="div" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;table\b" insensitive="true" beginRegion="table" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;ul\b" insensitive="true" beginRegion="ul" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;ol\b" insensitive="true" beginRegion="ol" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;dl\b" insensitive="true" beginRegion="dl" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;article\b" insensitive="true" beginRegion="article" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;aside\b" insensitive="true" beginRegion="aside" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;details\b" insensitive="true" beginRegion="details" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;figure\b" insensitive="true" beginRegion="figure" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;footer\b" insensitive="true" beginRegion="footer" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;header\b" insensitive="true" beginRegion="header" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;main\b" insensitive="true" beginRegion="main" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;nav\b" insensitive="true" beginRegion="nav" />
+    <RegExpr attribute="Element" context="El Open" String="&lt;section\b" insensitive="true" beginRegion="section" />
     <RegExpr attribute="Element" context="El Open" String="&lt;&name;" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/pre\b" insensitive="TRUE" endRegion="pre" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/div\b" insensitive="TRUE" endRegion="div" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/table\b" insensitive="TRUE" endRegion="table" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/ul\b" insensitive="TRUE" endRegion="ul" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/ol\b" insensitive="TRUE" endRegion="ol" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/dl\b" insensitive="TRUE" endRegion="dl" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/pre\b" insensitive="true" endRegion="pre" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/div\b" insensitive="true" endRegion="div" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/table\b" insensitive="true" endRegion="table" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/ul\b" insensitive="true" endRegion="ul" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/ol\b" insensitive="true" endRegion="ol" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/dl\b" insensitive="true" endRegion="dl" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/article\b" insensitive="true" endRegion="article" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/aside\b" insensitive="true" endRegion="aside" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/details\b" insensitive="true" endRegion="details" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/figure\b" insensitive="true" endRegion="figure" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/footer\b" insensitive="true" endRegion="footer" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/header\b" insensitive="true" endRegion="header" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/main\b" insensitive="true" endRegion="main" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/nav\b" insensitive="true" endRegion="nav" />
+    <RegExpr attribute="Element" context="El Close" String="&lt;/section\b" insensitive="true" endRegion="section" />
     <RegExpr attribute="Element" context="El Close" String="&lt;/&name;" />
     <!-- as long as kde gives DTDs the text/html mimetype--><IncludeRules context="FindDTDRules" />
     <IncludeRules context="FindEntityRefs" />
@@ -139,7 +157,7 @@
   </context>
 
   <context name="CSS content" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Element" context="El Close 2" String="&lt;/style\b" insensitive="TRUE" endRegion="style" />
+    <RegExpr attribute="Element" context="El Close 2" String="&lt;/style\b" insensitive="true" endRegion="style" />
     <IncludeRules context="##CSS" includeAttrib="true"/>
   </context>
 
@@ -151,13 +169,13 @@
   </context>
 
   <context name="JS content" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Element" context="El Close 2" String="&lt;/script\b" insensitive="TRUE" endRegion="script" />
-    <RegExpr attribute="Comment" context="JS comment close" String="//(?=.*&lt;/script\b)" insensitive="TRUE" />
-    <IncludeRules context="##JavaScript" includeAttrib="true"/>
+    <RegExpr attribute="Element" context="El Close 2" String="&lt;/script\b" insensitive="true" endRegion="script" />
+    <RegExpr attribute="Comment" context="JS comment close" String="//(?=.*&lt;/script\b)" insensitive="true" />
+    <IncludeRules context="Normal##JavaScript" includeAttrib="true"/>
   </context>
 
   <context name="JS comment close" attribute="Comment" lineEndContext="#pop">
-    <RegExpr attribute="Element" context="El Close 3" String="&lt;/script\b" insensitive="TRUE" endRegion="script" />
+    <RegExpr attribute="Element" context="El Close 3" String="&lt;/script\b" insensitive="true" endRegion="script" />
     <IncludeRules context="##Alerts" />
   </context>
 

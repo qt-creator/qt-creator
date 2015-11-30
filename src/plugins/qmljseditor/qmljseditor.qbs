@@ -1,12 +1,9 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "QmlJSEditor"
 
     Depends { name: "Qt"; submodules: ["widgets", "script"] }
-    Depends { name: "Aggregation" }
     Depends { name: "LanguageUtils" }
     Depends { name: "Utils" }
     Depends { name: "QmlEditorWidgets" }
@@ -18,12 +15,8 @@ QtcPlugin {
     Depends { name: "QmlJSTools" }
 
     files: [
-        "jsfilewizard.cpp",
-        "jsfilewizard.h",
         "qmlexpressionundercursor.cpp",
         "qmlexpressionundercursor.h",
-        "qmlfilewizard.cpp",
-        "qmlfilewizard.h",
         "qmljsautocompleter.cpp",
         "qmljsautocompleter.h",
         "qmljscompletionassist.cpp",
@@ -41,18 +34,12 @@ QtcPlugin {
         "qmljseditordocument.cpp",
         "qmljseditordocument.h",
         "qmljseditordocument_p.h",
-        "qmljseditoreditable.cpp",
-        "qmljseditoreditable.h",
-        "qmljseditorfactory.cpp",
-        "qmljseditorfactory.h",
         "qmljseditorplugin.cpp",
         "qmljseditorplugin.h",
         "qmljsfindreferences.cpp",
         "qmljsfindreferences.h",
         "qmljshighlighter.cpp",
         "qmljshighlighter.h",
-        "qmljshighlighterfactory.cpp",
-        "qmljshighlighterfactory.h",
         "qmljshoverhandler.cpp",
         "qmljshoverhandler.h",
         "qmljsoutline.cpp",

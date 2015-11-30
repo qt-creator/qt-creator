@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
-    <height>321</height>
+    <width>556</width>
+    <height>309</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -123,6 +123,13 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QCheckBox" name="hostKeyCheckBox">
+       <property name="text">
+        <string>&amp;Check host key</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="3" column="0">
@@ -140,7 +147,7 @@
      <item>
       <widget class="QLineEdit" name="portsLineEdit">
        <property name="toolTip">
-        <string>You can enter lists and ranges like this: 1024,1026-1028,1030</string>
+        <string>You can enter lists and ranges like this: '1024,1026-1028,1030'.</string>
        </property>
       </widget>
      </item>

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,35 +9,47 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "breakhandler.h"
-#include "breakpointmarker.h"
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
+#include "debuggericons.h"
+#include "debuggerinternalconstants.h"
 #include "debuggerstringutils.h"
+#include "simplifytype.h"
+
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugin.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 
 #include <extensionsystem/invoker.h>
+#include <texteditor/textmark.h>
+#include <texteditor/texteditor.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
+#include <utils/theme/theme.h>
 
 #if USE_BREAK_MODEL_TEST
 #include <modeltest.h>
@@ -47,17 +59,124 @@
 #include <QDir>
 #include <QDebug>
 
-#define BREAK_ASSERT(cond, action) if (cond) {} else { action; }
-//#define BREAK_ASSERT(cond, action) QTC_ASSERT(cond, action)
-
-//////////////////////////////////////////////////////////////////
-//
-// BreakHandler
-//
-//////////////////////////////////////////////////////////////////
+using namespace Core;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
+
+struct LocationItem : public TreeItem
+{
+    QVariant data(int column, int role) const
+    {
+        if (role == Qt::DisplayRole) {
+            switch (column) {
+                case 0:
+                    return params.id.toString();
+                case 1:
+                    return params.functionName;
+                case 4:
+                    if (params.address)
+                        return QString::fromLatin1("0x%1").arg(params.address, 0, 16);
+            }
+        }
+        return QVariant();
+    }
+
+    BreakpointResponse params;
+};
+
+class BreakpointMarker;
+
+class BreakpointItem : public QObject, public TreeItem
+{
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
+
+public:
+    ~BreakpointItem();
+
+    QVariant data(int column, int role) const;
+
+    QIcon icon() const;
+
+    void removeBreakpoint();
+    void updateLineNumberFromMarker(int lineNumber);
+    void updateFileNameFromMarker(const QString &fileName);
+    void changeLineNumberFromMarker(int lineNumber);
+    bool isLocatedAt(const QString &fileName, int lineNumber, bool useMarkerPosition) const;
+
+    void setMarkerFileAndLine(const QString &fileName, int lineNumber);
+
+    void insertSubBreakpoint(const BreakpointResponse &params);
+    QString markerFileName() const;
+    int markerLineNumber() const;
+
+    bool needsChange() const;
+private:
+    friend class BreakHandler;
+    friend class Breakpoint;
+    BreakpointItem(BreakHandler *handler);
+
+    void destroyMarker();
+    void updateMarker();
+    void updateMarkerIcon();
+    void scheduleSynchronization();
+
+    QString toToolTip() const;
+    void setState(BreakpointState state);
+    void deleteThis();
+    bool isEngineRunning() const;
+
+    BreakHandler * const m_handler;
+    const BreakpointModelId m_id;
+    BreakpointParameters m_params;
+    BreakpointState m_state;   // Current state of breakpoint.
+    DebuggerEngine *m_engine;  // Engine currently handling the breakpoint.
+    BreakpointResponse m_response;
+    BreakpointMarker *m_marker;
+};
+
+//
+// BreakpointMarker
+//
+
+// The red blob on the left side in the cpp editor.
+class BreakpointMarker : public TextEditor::TextMark
+{
+public:
+    BreakpointMarker(BreakpointItem *b, const QString &fileName, int lineNumber)
+        : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(b)
+    {
+        setIcon(b->icon());
+        setPriority(TextEditor::TextMark::NormalPriority);
+    }
+
+    void removedFromEditor()
+    {
+        if (m_bp)
+            m_bp->removeBreakpoint();
+    }
+
+    void updateLineNumber(int lineNumber)
+    {
+        TextMark::updateLineNumber(lineNumber);
+        m_bp->updateLineNumberFromMarker(lineNumber);
+    }
+
+    void updateFileName(const QString &fileName)
+    {
+        TextMark::updateFileName(fileName);
+        m_bp->updateFileNameFromMarker(fileName);
+    }
+
+    bool isDraggable() const { return true; }
+    void dragToLine(int line) { m_bp->changeLineNumberFromMarker(line); }
+    bool isClickable() const { return true; }
+    void clicked() { m_bp->removeBreakpoint(); }
+
+public:
+    BreakpointItem *m_bp;
+};
 
 static QString stateToString(BreakpointState state)
 {
@@ -133,321 +252,309 @@ static QString typeToString(BreakpointType type)
 BreakHandler::BreakHandler()
   : m_syncTimerId(-1)
 {
+    qRegisterMetaType<BreakpointModelId>();
+    TextEditor::TextMark::setCategoryColor(Constants::TEXT_MARK_CATEGORY_BREAKPOINT,
+                                           Utils::Theme::Debugger_Breakpoint_TextMarkColor);
+
 #if USE_BREAK_MODEL_TEST
     new ModelTest(this, 0);
 #endif
+    setHeader(QStringList()
+        << tr("Number") <<  tr("Function") << tr("File") << tr("Line")
+        << tr("Address") << tr("Condition") << tr("Ignore") << tr("Threads"));
 }
-
-BreakHandler::~BreakHandler()
-{}
 
 QIcon BreakHandler::breakpointIcon()
 {
-    static QIcon icon(_(":/debugger/images/breakpoint_16.png"));
+    static QIcon icon = Icons::BREAKPOINT.icon();
     return icon;
 }
 
 QIcon BreakHandler::disabledBreakpointIcon()
 {
-    static QIcon icon(_(":/debugger/images/breakpoint_disabled_16.png"));
+    static QIcon icon = Icons::BREAKPOINT_DISABLED.icon();
     return icon;
 }
 
 QIcon BreakHandler::pendingBreakpointIcon()
 {
-    static QIcon icon(_(":/debugger/images/breakpoint_pending_16.png"));
+    static QIcon icon = Icons::BREAKPOINT_PENDING.icon();
     return icon;
 }
 
 QIcon BreakHandler::watchpointIcon()
 {
-    static QIcon icon(_(":/debugger/images/watchpoint.png"));
+    static QIcon icon = Icons::WATCHPOINT.icon();
     return icon;
 }
 
 QIcon BreakHandler::tracepointIcon()
 {
-    static QIcon icon(_(":/debugger/images/tracepoint.png"));
+    static QIcon icon = Icons::TRACEPOINT.icon();
     return icon;
 }
 
 QIcon BreakHandler::emptyIcon()
 {
-    static QIcon icon(_(":/debugger/images/breakpoint_pending_16.png"));
-    //static QIcon icon(_(":/debugger/images/watchpoint.png"));
-    //static QIcon icon(_(":/debugger/images/debugger_empty_14.png"));
+    static QIcon icon = Icons::BREAKPOINT_PENDING.icon();
+    //static QIcon icon = Icons::WATCHPOINT.icon();
+    //static QIcon icon = Icons::EMPTY.icon();
     return icon;
 }
 
 static inline bool fileNameMatch(const QString &f1, const QString &f2)
 {
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         return f1.compare(f2, Qt::CaseInsensitive) == 0;
     return f1 == f2;
 }
 
-static bool isSimilarTo(const BreakpointParameters &data, const BreakpointResponse &needle)
+static bool isSimilarTo(const BreakpointParameters &params, const BreakpointResponse &needle)
 {
-    // Clear hit.
     // Clear miss.
-    if (needle.type != UnknownBreakpointType && data.type != UnknownBreakpointType
-            && data.type != needle.type)
+    if (needle.type != UnknownBreakpointType && params.type != UnknownBreakpointType
+            && params.type != needle.type)
         return false;
 
     // Clear hit.
-    if (data.address && data.address == needle.address)
+    if (params.address && params.address == needle.address)
+        return true;
+
+    // Clear hit.
+    if (params == needle)
         return true;
 
     // At least at a position we were looking for.
     // FIXME: breaks multiple breakpoints at the same location
-    if (!data.fileName.isEmpty()
-            && fileNameMatch(data.fileName, needle.fileName)
-            && data.lineNumber == needle.lineNumber)
+    if (!params.fileName.isEmpty()
+            && fileNameMatch(params.fileName, needle.fileName)
+            && params.lineNumber == needle.lineNumber)
         return true;
 
     // At least at a position we were looking for.
     // FIXME: breaks multiple breakpoints at the same location
-    if (!data.fileName.isEmpty()
-            && fileNameMatch(data.fileName, needle.fileName)
-            && data.lineNumber == needle.lineNumber)
+    if (!params.fileName.isEmpty()
+            && fileNameMatch(params.fileName, needle.fileName)
+            && params.lineNumber == needle.lineNumber)
         return true;
 
     return false;
 }
 
-BreakpointModelId BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needle) const
+Breakpoint BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needle) const
 {
     // Search a breakpoint we might refer to.
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it) {
-        const BreakpointModelId id = it.key();
-        const BreakpointParameters &data = it->data;
-        const BreakpointResponse &response = it->response;
-        //qDebug() << "COMPARING " << data.toString() << " WITH " << needle.toString();
-        if (response.id.isValid() && response.id.majorPart() == needle.id.majorPart())
-            return id;
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        //qDebug() << "COMPARING " << params.toString() << " WITH " << needle.toString();
+        if (b->m_response.id.isValid() && b->m_response.id.majorPart() == needle.id.majorPart())
+            return Breakpoint(b);
 
-        if (isSimilarTo(data, needle))
-            return id;
+        if (isSimilarTo(b->m_params, needle))
+            return Breakpoint(b);
     }
-    return BreakpointModelId();
+    return Breakpoint();
 }
 
-BreakpointModelId BreakHandler::findBreakpointByResponseId(const BreakpointResponseId &id) const
+Breakpoint BreakHandler::findBreakpointByResponseId(const BreakpointResponseId &id) const
 {
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it)
-        if (it->response.id.majorPart() == id.majorPart())
-            return it.key();
-    return BreakpointModelId();
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        if (b->m_response.id.majorPart() == id.majorPart())
+            return Breakpoint(b);
+    }
+    return Breakpoint();
 }
 
-BreakpointModelId BreakHandler::findBreakpointByFunction(const QString &functionName) const
+Breakpoint BreakHandler::findBreakpointByFunction(const QString &functionName) const
 {
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it)
-        if (it->data.functionName == functionName)
-            return it.key();
-    return BreakpointModelId();
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        if (b->m_params.functionName == functionName)
+            return Breakpoint(b);
+    }
+    return Breakpoint();
 }
 
-BreakpointModelId BreakHandler::findBreakpointByAddress(quint64 address) const
+Breakpoint BreakHandler::findBreakpointByAddress(quint64 address) const
 {
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it)
-        if (it->data.address == address || it->response.address == address)
-            return it.key();
-    return BreakpointModelId();
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        if (b->m_params.address == address || b->m_params.address == address)
+            return Breakpoint(b);
+    }
+    return Breakpoint();
 }
 
-BreakpointModelId BreakHandler::findBreakpointByFileAndLine(const QString &fileName,
+Breakpoint BreakHandler::findBreakpointByFileAndLine(const QString &fileName,
     int lineNumber, bool useMarkerPosition)
 {
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it)
-        if (it->isLocatedAt(fileName, lineNumber, useMarkerPosition))
-            return it.key();
-    return BreakpointModelId();
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        if (b->isLocatedAt(fileName, lineNumber, useMarkerPosition))
+            return Breakpoint(b);
+    }
+    return Breakpoint();
 }
 
-const BreakpointParameters &BreakHandler::breakpointData(BreakpointModelId id) const
+Breakpoint BreakHandler::breakpointById(BreakpointModelId id) const
 {
-    static BreakpointParameters dummy;
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return dummy);
-    return it->data;
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        if (b->m_id == id)
+            return Breakpoint(b);
+    }
+    return Breakpoint();
 }
 
-BreakpointModelId BreakHandler::findWatchpoint(const BreakpointParameters &data) const
+void BreakHandler::deletionHelper(BreakpointModelId id)
 {
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it)
-        if (it->data.isWatchpoint()
-                && it->data.address == data.address
-                && it->data.size == data.size
-                && it->data.expression == data.expression
-                && it->data.bitpos == data.bitpos)
-            return it.key();
-    return BreakpointModelId();
+    Breakpoint b = breakpointById(id);
+    QTC_ASSERT(b, return);
+    delete takeItem(b.b);
+}
+
+Breakpoint BreakHandler::findWatchpoint(const BreakpointParameters &params) const
+{
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        if (b->m_params.isWatchpoint()
+                && b->m_params.address == params.address
+                && b->m_params.size == params.size
+                && b->m_params.expression == params.expression
+                && b->m_params.bitpos == params.bitpos)
+            return Breakpoint(b);
+    }
+    return Breakpoint();
 }
 
 void BreakHandler::saveBreakpoints()
 {
     const QString one = _("1");
-    //qDebug() << "SAVING BREAKPOINTS...";
-    QTC_ASSERT(debuggerCore(), return);
     QList<QVariant> list;
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it) {
-        const BreakpointParameters &data = it->data;
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        const BreakpointParameters &params = b->m_params;
         QMap<QString, QVariant> map;
-        if (data.type != BreakpointByFileAndLine)
-            map.insert(_("type"), data.type);
-        if (!data.fileName.isEmpty())
-            map.insert(_("filename"), data.fileName);
-        if (data.lineNumber)
-            map.insert(_("linenumber"), data.lineNumber);
-        if (!data.functionName.isEmpty())
-            map.insert(_("funcname"), data.functionName);
-        if (data.address)
-            map.insert(_("address"), data.address);
-        if (!data.condition.isEmpty())
-            map.insert(_("condition"), data.condition);
-        if (data.ignoreCount)
-            map.insert(_("ignorecount"), data.ignoreCount);
-        if (data.threadSpec >= 0)
-            map.insert(_("threadspec"), data.threadSpec);
-        if (!data.enabled)
+        if (params.type != BreakpointByFileAndLine)
+            map.insert(_("type"), params.type);
+        if (!params.fileName.isEmpty())
+            map.insert(_("filename"), params.fileName);
+        if (params.lineNumber)
+            map.insert(_("linenumber"), params.lineNumber);
+        if (!params.functionName.isEmpty())
+            map.insert(_("funcname"), params.functionName);
+        if (params.address)
+            map.insert(_("address"), params.address);
+        if (!params.condition.isEmpty())
+            map.insert(_("condition"), params.condition);
+        if (params.ignoreCount)
+            map.insert(_("ignorecount"), params.ignoreCount);
+        if (params.threadSpec >= 0)
+            map.insert(_("threadspec"), params.threadSpec);
+        if (!params.enabled)
             map.insert(_("disabled"), one);
-        if (data.oneShot)
+        if (params.oneShot)
             map.insert(_("oneshot"), one);
-        if (data.pathUsage != BreakpointPathUsageEngineDefault)
-            map.insert(_("usefullpath"), QString::number(data.pathUsage));
-        if (data.tracepoint)
+        if (params.pathUsage != BreakpointPathUsageEngineDefault)
+            map.insert(_("usefullpath"), QString::number(params.pathUsage));
+        if (params.tracepoint)
             map.insert(_("tracepoint"), one);
-        if (!data.module.isEmpty())
-            map.insert(_("module"), data.module);
-        if (!data.command.isEmpty())
-            map.insert(_("command"), data.command);
-        if (!data.expression.isEmpty())
-            map.insert(_("expression"), data.expression);
-        if (!data.message.isEmpty())
-            map.insert(_("message"), data.message);
+        if (!params.module.isEmpty())
+            map.insert(_("module"), params.module);
+        if (!params.command.isEmpty())
+            map.insert(_("command"), params.command);
+        if (!params.expression.isEmpty())
+            map.insert(_("expression"), params.expression);
+        if (!params.message.isEmpty())
+            map.insert(_("message"), params.message);
         list.append(map);
     }
-    DebuggerCore::setSessionValue("Breakpoints", list);
-    //qDebug() << "SAVED BREAKPOINTS" << this << list.size();
+    setSessionValue("Breakpoints", list);
 }
 
 void BreakHandler::loadBreakpoints()
 {
-    QTC_ASSERT(debuggerCore(), return);
-    //qDebug() << "LOADING BREAKPOINTS...";
-    QVariant value = DebuggerCore::sessionValue("Breakpoints");
+    QVariant value = sessionValue("Breakpoints");
     QList<QVariant> list = value.toList();
-    //clear();
     foreach (const QVariant &var, list) {
         const QMap<QString, QVariant> map = var.toMap();
-        BreakpointParameters data(BreakpointByFileAndLine);
+        BreakpointParameters params(BreakpointByFileAndLine);
         QVariant v = map.value(_("filename"));
         if (v.isValid())
-            data.fileName = v.toString();
+            params.fileName = v.toString();
         v = map.value(_("linenumber"));
         if (v.isValid())
-            data.lineNumber = v.toString().toInt();
+            params.lineNumber = v.toString().toInt();
         v = map.value(_("condition"));
         if (v.isValid())
-            data.condition = v.toString().toLatin1();
+            params.condition = v.toString().toLatin1();
         v = map.value(_("address"));
         if (v.isValid())
-            data.address = v.toString().toULongLong();
+            params.address = v.toString().toULongLong();
         v = map.value(_("ignorecount"));
         if (v.isValid())
-            data.ignoreCount = v.toString().toInt();
+            params.ignoreCount = v.toString().toInt();
         v = map.value(_("threadspec"));
         if (v.isValid())
-            data.threadSpec = v.toString().toInt();
+            params.threadSpec = v.toString().toInt();
         v = map.value(_("funcname"));
         if (v.isValid())
-            data.functionName = v.toString();
+            params.functionName = v.toString();
         v = map.value(_("disabled"));
         if (v.isValid())
-            data.enabled = !v.toInt();
+            params.enabled = !v.toInt();
         v = map.value(_("oneshot"));
         if (v.isValid())
-            data.oneShot = v.toInt();
+            params.oneShot = v.toInt();
         v = map.value(_("usefullpath"));
         if (v.isValid())
-            data.pathUsage = static_cast<BreakpointPathUsage>(v.toInt());
+            params.pathUsage = static_cast<BreakpointPathUsage>(v.toInt());
         v = map.value(_("tracepoint"));
         if (v.isValid())
-            data.tracepoint = bool(v.toInt());
+            params.tracepoint = bool(v.toInt());
         v = map.value(_("type"));
         if (v.isValid() && v.toInt() != UnknownBreakpointType)
-            data.type = BreakpointType(v.toInt());
+            params.type = BreakpointType(v.toInt());
         v = map.value(_("module"));
         if (v.isValid())
-            data.module = v.toString();
+            params.module = v.toString();
         v = map.value(_("command"));
         if (v.isValid())
-            data.command = v.toString();
+            params.command = v.toString();
         v = map.value(_("expression"));
         if (v.isValid())
-            data.expression = v.toString();
+            params.expression = v.toString();
         v = map.value(_("message"));
         if (v.isValid())
-            data.message = v.toString();
-        if (data.isValid())
-            appendBreakpoint(data);
+            params.message = v.toString();
+        if (params.isValid())
+            appendBreakpointInternal(params);
         else
-            qWarning("Not restoring invalid breakpoint: %s", qPrintable(data.toString()));
+            qWarning("Not restoring invalid breakpoint: %s", qPrintable(params.toString()));
     }
-    //qDebug() << "LOADED BREAKPOINTS" << this << list.size();
 }
 
 void BreakHandler::updateMarkers()
 {
-    Iterator it = m_storage.begin(), et = m_storage.end();
-    for ( ; it != et; ++it)
-        it->updateMarker(it.key());
+    foreach (TreeItem *n, rootItem()->children())
+        static_cast<BreakpointItem *>(n)->updateMarker();
 }
 
-QVariant BreakHandler::headerData(int section,
-    Qt::Orientation orientation, int role) const
+Breakpoint BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
 {
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        static QString headers[] = {
-            tr("Number"),  tr("Function"), tr("File"), tr("Line"),
-            tr("Address"), tr("Condition"), tr("Ignore"), tr("Threads")
-        };
-        return headers[section];
+    TreeItem *item = itemForIndex(index);
+    return Breakpoint(item && item->parent() == rootItem() ? static_cast<BreakpointItem *>(item) : 0);
+}
+
+Breakpoints BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list) const
+{
+    QSet<Breakpoint> ids;
+    foreach (const QModelIndex &index, list) {
+        if (Breakpoint b = findBreakpointByIndex(index))
+            ids.insert(Breakpoint(b));
     }
-    return QVariant();
-}
-
-BreakpointModelId BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
-{
-    //qDebug() << "FIND: " << index <<
-    //    BreakpointId::fromInternalId(index.internalId());
-    return BreakpointModelId::fromInternalId(index.internalId());
-}
-
-BreakpointModelIds BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list) const
-{
-    QSet<BreakpointModelId> ids;
-    foreach (const QModelIndex &index, list)
-        ids.insert(findBreakpointByIndex(index));
     return ids.toList();
-}
-
-Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
-{
-//    switch (index.column()) {
-//        //case 0:
-//        //    return Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
-//        default:
-            return QAbstractItemModel::flags(index);
-//    }
 }
 
 QString BreakHandler::displayFromThreadSpec(int spec)
@@ -462,95 +569,12 @@ int BreakHandler::threadSpecFromDisplay(const QString &str)
     return ok ? result : -1;
 }
 
-QModelIndex BreakHandler::createIndex(int row, int column, quint32 id) const
+const QString empty(QLatin1Char('-'));
+
+QVariant BreakpointItem::data(int column, int role) const
 {
-    return QAbstractItemModel::createIndex(row, column, id);
-}
-
-QModelIndex BreakHandler::createIndex(int row, int column, void *ptr) const
-{
-    QTC_CHECK(false); // This function is not used.
-    return QAbstractItemModel::createIndex(row, column, ptr);
-}
-
-int BreakHandler::columnCount(const QModelIndex &idx) const
-{
-    if (idx.column() > 0)
-        return 0;
-    const BreakpointModelId id = findBreakpointByIndex(idx);
-    return id.isMinor() ? 0 : 8;
-}
-
-int BreakHandler::rowCount(const QModelIndex &idx) const
-{
-    if (idx.column() > 0)
-        return 0;
-    if (!idx.isValid())
-        return m_storage.size();
-    const BreakpointModelId id = findBreakpointByIndex(idx);
-    if (id.isMajor())
-        return m_storage.value(id).subItems.size();
-    return 0;
-}
-
-QModelIndex BreakHandler::index(int row, int col, const QModelIndex &parent) const
-{
-    if (row < 0 || col < 0)
-        return QModelIndex();
-    if (parent.column() > 0)
-        return QModelIndex();
-    BreakpointModelId id = findBreakpointByIndex(parent);
-    if (id.isMajor()) {
-        ConstIterator it = m_storage.find(id);
-        if (row >= it->subItems.size())
-            return QModelIndex();
-        BreakpointModelId sub = id.child(row);
-        return createIndex(row, col, sub.toInternalId());
-    }
-    if (id.isMinor())
-        return QModelIndex();
-    QTC_ASSERT(!id.isValid(), return QModelIndex());
-    if (row >= m_storage.size())
-        return QModelIndex();
-    id = at(row);
-    return createIndex(row, col, id.toInternalId());
-}
-
-QModelIndex BreakHandler::parent(const QModelIndex &idx) const
-{
-    if (!idx.isValid())
-        return QModelIndex();
-    BreakpointModelId id = findBreakpointByIndex(idx);
-    if (id.isMajor())
-        return QModelIndex();
-    if (id.isMinor()) {
-        BreakpointModelId pid = id.parent();
-        int row = indexOf(pid);
-        return createIndex(row, 0, pid.toInternalId());
-    }
-    return QModelIndex();
-}
-
-QVariant BreakHandler::data(const QModelIndex &mi, int role) const
-{
-    static const QString empty = QString(QLatin1Char('-'));
-
-    if (!mi.isValid())
-        return QVariant();
-
-    BreakpointModelId id = findBreakpointByIndex(mi);
-
-    BreakpointModelId pid = id;
-    if (id.isMinor())
-        pid = id.parent();
-
-    ConstIterator it = m_storage.find(pid);
-    QTC_ASSERT(it != m_storage.end(), return QVariant());
-    const BreakpointParameters &data = it->data;
-    const BreakpointResponse &response = it->response;
-
     bool orig = false;
-    switch (it->state) {
+    switch (m_state) {
         case BreakpointInsertRequested:
         case BreakpointInsertProceeding:
         case BreakpointChangeRequested:
@@ -565,53 +589,52 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
     };
 
-    if (id.isMinor()) {
-        QTC_ASSERT(id.minorPart() <= it->subItems.size(), return QVariant());
-        const BreakpointResponse &res = it->subItems.at(id.minorPart() - 1);
-        switch (mi.column()) {
-        case 0:
-            if (role == Qt::DisplayRole)
-                return id.toString();
-        case 1:
-            if (role == Qt::DisplayRole)
-                return res.functionName;
-        case 4:
-            if (role == Qt::DisplayRole)
-                if (res.address)
-                    return QString::fromLatin1("0x%1").arg(res.address, 0, 16);
-        }
-        return QVariant();
+    if (role == Qt::ForegroundRole) {
+        static const QVariant gray(QColor(140, 140, 140));
+        switch (m_state) {
+            case BreakpointInsertRequested:
+            case BreakpointInsertProceeding:
+            case BreakpointChangeRequested:
+            case BreakpointChangeProceeding:
+            case BreakpointRemoveRequested:
+            case BreakpointRemoveProceeding:
+                return gray;
+            case BreakpointInserted:
+            case BreakpointNew:
+            case BreakpointDead:
+                break;
+        };
     }
 
-    switch (mi.column()) {
+    switch (column) {
         case 0:
             if (role == Qt::DisplayRole)
-                return id.toString();
+                return m_id.toString();
             if (role == Qt::DecorationRole)
-                return it->icon();
+                return icon();
             break;
         case 1:
             if (role == Qt::DisplayRole) {
-                if (!response.functionName.isEmpty())
-                    return response.functionName;
-                if (!data.functionName.isEmpty())
-                    return data.functionName;
-                if (data.type == BreakpointAtMain
-                        || data.type == BreakpointAtThrow
-                        || data.type == BreakpointAtCatch
-                        || data.type == BreakpointAtFork
-                        || data.type == BreakpointAtExec
-                        //|| data.type == BreakpointAtVFork
-                        || data.type == BreakpointAtSysCall)
-                    return typeToString(data.type);
-                if (data.type == WatchpointAtAddress) {
-                    quint64 address = response.address ? response.address : data.address;
-                    return tr("Data at 0x%1").arg(address, 0, 16);
+                if (!m_response.functionName.isEmpty())
+                    return simplifyType(m_response.functionName);
+                if (!m_params.functionName.isEmpty())
+                    return m_params.functionName;
+                if (m_params.type == BreakpointAtMain
+                        || m_params.type == BreakpointAtThrow
+                        || m_params.type == BreakpointAtCatch
+                        || m_params.type == BreakpointAtFork
+                        || m_params.type == BreakpointAtExec
+                        //|| m_params.type == BreakpointAtVFork
+                        || m_params.type == BreakpointAtSysCall)
+                    return typeToString(m_params.type);
+                if (m_params.type == WatchpointAtAddress) {
+                    quint64 address = m_response.address ? m_response.address : m_params.address;
+                    return BreakHandler::tr("Data at 0x%1").arg(address, 0, 16);
                 }
-                if (data.type == WatchpointAtExpression) {
-                    QString expression = !response.expression.isEmpty()
-                            ? response.expression : data.expression;
-                    return tr("Data at %1").arg(expression);
+                if (m_params.type == WatchpointAtExpression) {
+                    QString expression = !m_response.expression.isEmpty()
+                            ? m_response.expression : m_params.expression;
+                    return BreakHandler::tr("Data at %1").arg(expression);
                 }
                 return empty;
             }
@@ -619,17 +642,17 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 2:
             if (role == Qt::DisplayRole) {
                 QString str;
-                if (!response.fileName.isEmpty())
-                    str = response.fileName;
-                if (str.isEmpty() && !data.fileName.isEmpty())
-                    str = data.fileName;
+                if (!m_response.fileName.isEmpty())
+                    str = m_response.fileName;
+                if (str.isEmpty() && !m_params.fileName.isEmpty())
+                    str = m_params.fileName;
                 if (str.isEmpty()) {
-                    QString s = QFileInfo(str).fileName();
+                    QString s = FileName::fromString(str).fileName();
                     if (!s.isEmpty())
                         str = s;
                 }
                 // FIXME: better?
-                //if (data.multiple && str.isEmpty() && !response.fileName.isEmpty())
+                //if (params.multiple && str.isEmpty() && !response.fileName.isEmpty())
                 //    str = response.fileName;
                 if (!str.isEmpty())
                     return QDir::toNativeSeparators(str);
@@ -638,18 +661,18 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
         case 3:
             if (role == Qt::DisplayRole) {
-                if (response.lineNumber > 0)
-                    return response.lineNumber;
-                if (data.lineNumber > 0)
-                    return data.lineNumber;
+                if (m_response.lineNumber > 0)
+                    return m_response.lineNumber;
+                if (m_params.lineNumber > 0)
+                    return m_params.lineNumber;
                 return empty;
             }
             if (role == Qt::UserRole + 1)
-                return data.lineNumber;
+                return m_params.lineNumber;
             break;
         case 4:
             if (role == Qt::DisplayRole) {
-                const quint64 address = orig ? data.address : response.address;
+                const quint64 address = orig ? m_params.address : m_response.address;
                 if (address)
                     return QString::fromLatin1("0x%1").arg(address, 0, 16);
                 return QVariant();
@@ -657,70 +680,57 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
         case 5:
             if (role == Qt::DisplayRole)
-                return orig ? data.condition : response.condition;
+                return orig ? m_params.condition : m_response.condition;
             if (role == Qt::ToolTipRole)
-                return tr("Breakpoint will only be hit if this condition is met.");
+                return BreakHandler::tr("Breakpoint will only be hit if this condition is met.");
             if (role == Qt::UserRole + 1)
-                return data.condition;
+                return m_params.condition;
             break;
         case 6:
             if (role == Qt::DisplayRole) {
                 const int ignoreCount =
-                    orig ? data.ignoreCount : response.ignoreCount;
+                    orig ? m_params.ignoreCount : m_response.ignoreCount;
                 return ignoreCount ? QVariant(ignoreCount) : QVariant(QString());
             }
             if (role == Qt::ToolTipRole)
-                return tr("Breakpoint will only be hit after being ignored so many times.");
+                return BreakHandler::tr("Breakpoint will only be hit after being ignored so many times.");
             if (role == Qt::UserRole + 1)
-                return data.ignoreCount;
+                return m_params.ignoreCount;
             break;
         case 7:
             if (role == Qt::DisplayRole)
-                return displayFromThreadSpec(orig ? data.threadSpec : response.threadSpec);
+                return BreakHandler::displayFromThreadSpec(orig ? m_params.threadSpec : m_response.threadSpec);
             if (role == Qt::ToolTipRole)
-                return tr("Breakpoint will only be hit in the specified thread(s).");
+                return BreakHandler::tr("Breakpoint will only be hit in the specified thread(s).");
             if (role == Qt::UserRole + 1)
-                return displayFromThreadSpec(data.threadSpec);
+                return BreakHandler::displayFromThreadSpec(m_params.threadSpec);
             break;
     }
-    switch (role) {
-    case Qt::ToolTipRole:
-        if (debuggerCore()->boolSetting(UseToolTipsInBreakpointsView))
-                return QVariant(it->toToolTip());
-        break;
-    }
+
+    if (role == Qt::ToolTipRole && boolSetting(UseToolTipsInBreakpointsView))
+        return toToolTip();
+
     return QVariant();
 }
 
-#define GETTER(type, getter) \
-type BreakHandler::getter(BreakpointModelId id) const \
+#define PROPERTY(type, getter, setter) \
+\
+type Breakpoint::getter() const \
 { \
-    ConstIterator it = m_storage.find(id); \
-    BREAK_ASSERT(it != m_storage.end(), \
-        qDebug() << "ID" << id << "NOT KNOWN"; \
-        return type()); \
-    return it->data.getter; \
-}
-
-#define SETTER(type, getter, setter) \
-void BreakHandler::setter(BreakpointModelId id, const type &value) \
+    return parameters().getter; \
+} \
+\
+void Breakpoint::setter(const type &value) \
 { \
-    Iterator it = m_storage.find(id); \
-    BREAK_ASSERT(it != m_storage.end(), \
-        qDebug() << "ID" << id << "NOT KNOWN"; return); \
-    if (it->data.getter == value) \
+    QTC_ASSERT(b, return); \
+    if (b->m_params.getter == value) \
         return; \
-    it->data.getter = value; \
-    if (it->state != BreakpointNew) { \
-        it->state = BreakpointChangeRequested; \
-        scheduleSynchronization(); \
+    b->m_params.getter = value; \
+    if (b->m_state != BreakpointNew) { \
+        b->m_state = BreakpointChangeRequested; \
+        b->scheduleSynchronization(); \
     } \
 }
-
-#define PROPERTY(type, getter, setter) \
-    GETTER(type, getter) \
-    SETTER(type, getter, setter)
-
 
 PROPERTY(BreakpointPathUsage, pathUsage, setPathUsage)
 PROPERTY(QString, fileName, setFileName)
@@ -728,125 +738,144 @@ PROPERTY(QString, functionName, setFunctionName)
 PROPERTY(BreakpointType, type, setType)
 PROPERTY(int, threadSpec, setThreadSpec)
 PROPERTY(QByteArray, condition, setCondition)
-GETTER(int, lineNumber)
 PROPERTY(quint64, address, setAddress)
 PROPERTY(QString, expression, setExpression)
 PROPERTY(QString, message, setMessage)
 PROPERTY(int, ignoreCount, setIgnoreCount)
 
-bool BreakHandler::isEnabled(BreakpointModelId id) const
+void BreakpointItem::scheduleSynchronization()
 {
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return false);
-    return it->data.enabled;
+    m_handler->scheduleSynchronization();
 }
 
-void BreakHandler::setEnabled(BreakpointModelId id, bool on)
+const BreakpointParameters &Breakpoint::parameters() const
 {
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    //qDebug() << "SET ENABLED: " << id << it->data.isEnabled() << on;
-    if (it->data.enabled == on)
+    static BreakpointParameters p;
+    QTC_ASSERT(b, return p);
+    return b->m_params;
+}
+
+void Breakpoint::addToCommand(DebuggerCommand *cmd) const
+{
+    cmd->arg("modelid", id().toByteArray());
+    cmd->arg("id", int(response().id.majorPart()));
+    cmd->arg("type", type());
+    cmd->arg("ignorecount", ignoreCount());
+    cmd->arg("condition", condition().toHex());
+    cmd->arg("function", functionName().toUtf8());
+    cmd->arg("oneshot", isOneShot());
+    cmd->arg("enabled", isEnabled());
+    cmd->arg("file", fileName().toUtf8());
+    cmd->arg("line", lineNumber());
+    cmd->arg("address", address());
+    cmd->arg("expression", expression());
+}
+
+BreakpointState Breakpoint::state() const
+{
+    QTC_ASSERT(b, return BreakpointState());
+    return b->m_state;
+}
+
+int Breakpoint::lineNumber() const { return parameters().lineNumber; }
+
+bool Breakpoint::isEnabled() const { return parameters().enabled; }
+
+bool Breakpoint::isWatchpoint() const { return parameters().isWatchpoint(); }
+
+bool Breakpoint::isTracepoint() const { return parameters().isTracepoint(); }
+
+QIcon Breakpoint::icon() const { return b ? b->icon() : QIcon(); }
+
+DebuggerEngine *Breakpoint::engine() const
+{
+    return b ? b->m_engine : 0;
+}
+
+const BreakpointResponse &Breakpoint::response() const
+{
+    static BreakpointResponse r;
+    return b ? b->m_response : r;
+}
+
+bool Breakpoint::isOneShot() const { return parameters().oneShot; }
+
+void Breakpoint::removeAlienBreakpoint()
+{
+    b->m_state = BreakpointRemoveProceeding;
+    b->deleteThis();
+}
+
+void Breakpoint::removeBreakpoint() const
+{
+    if (b)
+        b->removeBreakpoint();
+}
+
+Breakpoint::Breakpoint(BreakpointItem *b)
+    : b(b)
+{}
+
+void Breakpoint::setEnabled(bool on) const
+{
+    QTC_ASSERT(b, return);
+    if (b->m_params.enabled == on)
         return;
-    it->data.enabled = on;
-    it->updateMarkerIcon();
-    if (it->engine) {
-        it->state = BreakpointChangeRequested;
-        scheduleSynchronization();
+    b->m_params.enabled = on;
+    b->updateMarkerIcon();
+    if (b->m_engine) {
+        b->m_state = BreakpointChangeRequested;
+        b->scheduleSynchronization();
     }
 }
 
-bool BreakHandler::isWatchpoint(BreakpointModelId id) const
+void Breakpoint::setMarkerFileAndLine(const QString &fileName, int lineNumber)
 {
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return false);
-    return it->data.isWatchpoint();
+    if (b)
+        b->setMarkerFileAndLine(fileName, lineNumber);
 }
 
-bool BreakHandler::isTracepoint(BreakpointModelId id) const
+void Breakpoint::setTracepoint(bool on)
 {
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return false);
-    return it->data.tracepoint;
-}
-
-bool BreakHandler::isOneShot(BreakpointModelId id) const
-{
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return false);
-    return it->data.oneShot;
-}
-
-bool BreakHandler::needsChildren(BreakpointModelId id) const
-{
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return false);
-    return it->response.multiple && it->subItems.isEmpty();
-}
-
-void BreakHandler::setTracepoint(BreakpointModelId id, bool on)
-{
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    if (it->data.tracepoint == on)
+    if (b->m_params.tracepoint == on)
         return;
-    it->data.tracepoint = on;
-    it->updateMarkerIcon();
+    b->m_params.tracepoint = on;
+    b->updateMarkerIcon();
 
-    if (it->engine) {
-        it->state = BreakpointChangeRequested;
-        scheduleSynchronization();
+    if (b->m_engine) {
+        b->m_state = BreakpointChangeRequested;
+        b->scheduleSynchronization();
     }
 }
 
-void BreakHandler::setMarkerFileAndLine(BreakpointModelId id,
-    const QString &fileName, int lineNumber)
+void BreakpointItem::setMarkerFileAndLine(const QString &fileName, int lineNumber)
 {
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(),
-        qDebug() << "MARKER_FILE_AND_LINE: " << id; return);
-    if (it->response.fileName == fileName && it->response.lineNumber == lineNumber)
+    if (m_response.fileName == fileName && m_response.lineNumber == lineNumber)
         return;
-    it->response.fileName = fileName;
-    it->response.lineNumber = lineNumber;
-    it->destroyMarker();
-    it->updateMarker(id);
-    emit layoutChanged();
+    m_response.fileName = fileName;
+    m_response.lineNumber = lineNumber;
+    destroyMarker();
+    updateMarker();
+    update();
 }
 
-BreakpointState BreakHandler::state(BreakpointModelId id) const
+void Breakpoint::setEngine(DebuggerEngine *value)
 {
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(),
-        qDebug() << "STATE: " << id; return BreakpointDead);
-    return it->state;
-}
-
-DebuggerEngine *BreakHandler::engine(BreakpointModelId id) const
-{
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), qDebug() << id; return 0);
-    return it->engine;
-}
-
-void BreakHandler::setEngine(BreakpointModelId id, DebuggerEngine *value)
-{
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), qDebug() << "SET ENGINE" << id; return);
-    QTC_ASSERT(it->state == BreakpointNew, qDebug() << "STATE: " << it->state <<id);
-    QTC_ASSERT(!it->engine, qDebug() << "NO ENGINE" << id; return);
-    it->engine = value;
-    it->state = BreakpointInsertRequested;
-    it->response = BreakpointResponse();
-    it->updateMarker(id);
-    scheduleSynchronization();
+    QTC_ASSERT(b->m_state == BreakpointNew, qDebug() << "STATE: " << b->m_state << b->m_id);
+    QTC_ASSERT(!b->m_engine, qDebug() << "NO ENGINE" << b->m_id; return);
+    b->m_engine = value;
+    b->m_state = BreakpointInsertRequested;
+    b->m_response = BreakpointResponse();
+    b->updateMarker();
+    //b->scheduleSynchronization();
 }
 
 static bool isAllowedTransition(BreakpointState from, BreakpointState to)
 {
     switch (from) {
     case BreakpointNew:
-        return to == BreakpointInsertRequested;
+        return to == BreakpointInsertRequested
+            || to == BreakpointDead;
     case BreakpointInsertRequested:
         return to == BreakpointInsertProceeding;
     case BreakpointInsertProceeding:
@@ -873,287 +902,240 @@ static bool isAllowedTransition(BreakpointState from, BreakpointState to)
     return false;
 }
 
-bool BreakHandler::isEngineRunning(BreakpointModelId id) const
+bool BreakpointItem::isEngineRunning() const
 {
-    if (const DebuggerEngine *e = engine(id)) {
-        const DebuggerState state = e->state();
-        return state != DebuggerFinished && state != DebuggerNotReady;
-    }
-    return false;
+    if (!m_engine)
+        return false;
+    const DebuggerState state = m_engine->state();
+    return state != DebuggerFinished && state != DebuggerNotReady;
 }
 
-void BreakHandler::setState(BreakpointModelId id, BreakpointState state)
+void BreakpointItem::setState(BreakpointState state)
 {
-    Iterator it = m_storage.find(id);
-    //qDebug() << "BREAKPOINT STATE TRANSITION, ID: " << id
-    //    << " FROM: " << it->state << " TO: " << state;
-    BREAK_ASSERT(it != m_storage.end(), qDebug() << id; return);
-    QTC_ASSERT(isAllowedTransition(it->state, state),
-        qDebug() << "UNEXPECTED BREAKPOINT STATE TRANSITION"
-            << it->state << state);
+    //qDebug() << "BREAKPOINT STATE TRANSITION, ID: " << m_id
+    //    << " FROM: " << state << " TO: " << state;
+    if (!isAllowedTransition(m_state, state)) {
+        qDebug() << "UNEXPECTED BREAKPOINT STATE TRANSITION" << m_state << state;
+        QTC_CHECK(false);
+    }
 
-    if (it->state == state) {
-        qDebug() << "STATE UNCHANGED: " << id << state;
+    if (m_state == state) {
+        qDebug() << "STATE UNCHANGED: " << m_id << m_state;
         return;
     }
 
-    it->state = state;
+    m_state = state;
 
     // FIXME: updateMarker() should recognize the need for icon changes.
     if (state == BreakpointInserted) {
-        it->destroyMarker();
-        it->updateMarker(id);
+        destroyMarker();
+        updateMarker();
     }
-    layoutChanged();
+    update();
 }
 
-void BreakHandler::notifyBreakpointChangeAfterInsertNeeded(BreakpointModelId id)
+void BreakpointItem::deleteThis()
 {
-    QTC_ASSERT(state(id) == BreakpointInsertProceeding, qDebug() << state(id));
-    setState(id, BreakpointChangeRequested);
+    setState(BreakpointDead);
+    destroyMarker();
+
+    // This is called from b directly. So delay deletion of b.
+    ExtensionSystem::InvokerBase invoker;
+    invoker.addArgument(m_id);
+    invoker.setConnectionType(Qt::QueuedConnection);
+    invoker.invoke(m_handler, "deletionHelper");
+    QTC_CHECK(invoker.wasSuccessful());
 }
 
-void BreakHandler::notifyBreakpointInsertProceeding(BreakpointModelId id)
+void Breakpoint::gotoState(BreakpointState target, BreakpointState assumedCurrent)
 {
-    QTC_ASSERT(state(id) == BreakpointInsertRequested, qDebug() << state(id));
-    setState(id, BreakpointInsertProceeding);
+    QTC_ASSERT(b, return);
+    QTC_ASSERT(b->m_state == assumedCurrent, qDebug() << b->m_state);
+    b->setState(target);
 }
 
-void BreakHandler::notifyBreakpointInsertOk(BreakpointModelId id)
+void Breakpoint::notifyBreakpointChangeAfterInsertNeeded()
 {
-    QTC_ASSERT(state(id) == BreakpointInsertProceeding, qDebug() << state(id));
-    setState(id, BreakpointInserted);
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
+    gotoState(BreakpointChangeRequested, BreakpointInsertProceeding);
 }
 
-void BreakHandler::notifyBreakpointInsertFailed(BreakpointModelId id)
+void Breakpoint::notifyBreakpointInsertProceeding()
 {
-    QTC_ASSERT(state(id) == BreakpointInsertProceeding, qDebug() << state(id));
-    setState(id, BreakpointDead);
+    gotoState(BreakpointInsertProceeding, BreakpointInsertRequested);
 }
 
-void BreakHandler::notifyBreakpointRemoveProceeding(BreakpointModelId id)
+void Breakpoint::notifyBreakpointInsertOk()
 {
-    QTC_ASSERT(state(id) == BreakpointRemoveRequested, qDebug() << state(id));
-    setState(id, BreakpointRemoveProceeding);
+    gotoState(BreakpointInserted, BreakpointInsertProceeding);
+    if (b->m_engine)
+        b->m_engine->updateBreakpointMarker(*this);
 }
 
-void BreakHandler::notifyBreakpointRemoveOk(BreakpointModelId id)
+void Breakpoint::notifyBreakpointInsertFailed()
 {
-    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, qDebug() << state(id));
-    setState(id, BreakpointDead);
-    cleanupBreakpoint(id);
+    gotoState(BreakpointDead, BreakpointInsertProceeding);
 }
 
-void BreakHandler::notifyBreakpointRemoveFailed(BreakpointModelId id)
+void Breakpoint::notifyBreakpointRemoveProceeding()
 {
-    QTC_ASSERT(state(id) == BreakpointRemoveProceeding, qDebug() << state(id));
-    setState(id, BreakpointDead);
-    cleanupBreakpoint(id);
+    gotoState(BreakpointRemoveProceeding, BreakpointRemoveRequested);
 }
 
-void BreakHandler::notifyBreakpointChangeProceeding(BreakpointModelId id)
+void Breakpoint::notifyBreakpointRemoveOk()
 {
-    QTC_ASSERT(state(id) == BreakpointChangeRequested, qDebug() << state(id));
-    setState(id, BreakpointChangeProceeding);
+    QTC_ASSERT(b, return);
+    QTC_ASSERT(b->m_state == BreakpointRemoveProceeding, qDebug() << b->m_state);
+    if (b->m_engine)
+        b->m_engine->removeBreakpointMarker(*this);
+    b->deleteThis();
 }
 
-void BreakHandler::notifyBreakpointChangeOk(BreakpointModelId id)
+void Breakpoint::notifyBreakpointRemoveFailed()
 {
-    QTC_ASSERT(state(id) == BreakpointChangeProceeding, qDebug() << state(id));
-    setState(id, BreakpointInserted);
+    QTC_ASSERT(b, return);
+    QTC_ASSERT(b->m_state == BreakpointRemoveProceeding, qDebug() << b->m_state);
+    if (b->m_engine)
+        b->m_engine->removeBreakpointMarker(*this);
+    b->deleteThis();
 }
 
-void BreakHandler::notifyBreakpointChangeFailed(BreakpointModelId id)
+void Breakpoint::notifyBreakpointChangeProceeding()
 {
-    QTC_ASSERT(state(id) == BreakpointChangeProceeding, qDebug() << state(id));
-    setState(id, BreakpointDead);
+    gotoState(BreakpointChangeProceeding, BreakpointChangeRequested);
 }
 
-void BreakHandler::notifyBreakpointReleased(BreakpointModelId id)
+void Breakpoint::notifyBreakpointChangeOk()
 {
-    //QTC_ASSERT(state(id) == BreakpointChangeProceeding, qDebug() << state(id));
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    it->state = BreakpointNew;
-    it->engine = 0;
-    it->response = BreakpointResponse();
-    it->subItems.clear();
-    it->destroyMarker();
-    it->updateMarker(id);
-    if (it->data.type == WatchpointAtAddress
-            || it->data.type == WatchpointAtExpression
-            || it->data.type == BreakpointByAddress)
-        it->data.enabled = false;
+    gotoState(BreakpointInserted, BreakpointChangeProceeding);
+}
+
+void Breakpoint::notifyBreakpointChangeFailed()
+{
+    gotoState(BreakpointDead, BreakpointChangeProceeding);
+}
+
+void Breakpoint::notifyBreakpointReleased()
+{
+    QTC_ASSERT(b, return);
+    b->removeChildren();
+    //QTC_ASSERT(b->m_state == BreakpointChangeProceeding, qDebug() << b->m_state);
+    b->m_state = BreakpointNew;
+    b->m_engine = 0;
+    b->m_response = BreakpointResponse();
+    b->destroyMarker();
+    b->updateMarker();
+    if (b->m_params.type == WatchpointAtAddress
+            || b->m_params.type == WatchpointAtExpression
+            || b->m_params.type == BreakpointByAddress)
+        b->m_params.enabled = false;
     else
-        it->data.address = 0;
-    layoutChanged();
+        b->m_params.address = 0;
+    b->update();
 }
 
-void BreakHandler::notifyBreakpointAdjusted(BreakpointModelId id,
-        const BreakpointParameters &data)
+void Breakpoint::notifyBreakpointAdjusted(const BreakpointParameters &params)
 {
-    QTC_ASSERT(state(id) == BreakpointInserted, qDebug() << state(id));
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    it->data = data;
-    //if (it->needsChange())
-    //    setState(id, BreakpointChangeRequested);
+    QTC_ASSERT(b, return);
+    QTC_ASSERT(b->m_state == BreakpointInserted, qDebug() << b->m_state);
+    b->m_params = params;
+    //if (b->needsChange())
+    //    b->setState(BreakpointChangeRequested);
 }
 
-void BreakHandler::notifyBreakpointNeedsReinsertion(BreakpointModelId id)
+void Breakpoint::notifyBreakpointNeedsReinsertion()
 {
-    QTC_ASSERT(state(id) == BreakpointChangeProceeding, qDebug() << state(id));
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    it->state = BreakpointInsertRequested;
+    QTC_ASSERT(b, return);
+    QTC_ASSERT(b->m_state == BreakpointChangeProceeding, qDebug() << b->m_state);
+    b->m_state = BreakpointInsertRequested;
 }
 
-void BreakHandler::removeAlienBreakpoint(BreakpointModelId id)
+void BreakpointItem::removeBreakpoint()
 {
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    it->state = BreakpointDead;
-    cleanupBreakpoint(id);
-}
-
-void BreakHandler::removeBreakpoint(BreakpointModelId id)
-{
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    switch (it->state) {
+    switch (m_state) {
     case BreakpointRemoveRequested:
         break;
     case BreakpointInserted:
     case BreakpointInsertProceeding:
-        setState(id, BreakpointRemoveRequested);
+        setState(BreakpointRemoveRequested);
         scheduleSynchronization();
         break;
     case BreakpointNew:
-        it->state = BreakpointDead;
-        cleanupBreakpoint(id);
+        deleteThis();
         break;
     default:
         qWarning("Warning: Cannot remove breakpoint %s in state '%s'.",
-               qPrintable(id.toString()), qPrintable(stateToString(it->state)));
-        it->state = BreakpointRemoveRequested;
+               qPrintable(m_id.toString()), qPrintable(stateToString(m_state)));
+        m_state = BreakpointRemoveRequested;
         break;
     }
 }
 
-// Ok to be not thread-safe. The order does not matter and only the gui
-// produces authoritative ids.
-static int currentId = 0;
-
-void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
+void BreakHandler::appendBreakpoint(const BreakpointParameters &params)
 {
-    if (!data.isValid()) {
-        qWarning("Not adding invalid breakpoint: %s", qPrintable(data.toString()));
+    appendBreakpointInternal(params);
+    scheduleSynchronization();
+}
+
+void BreakHandler::appendBreakpointInternal(const BreakpointParameters &params)
+{
+    if (!params.isValid()) {
+        qWarning("Not adding invalid breakpoint: %s", qPrintable(params.toString()));
         return;
     }
 
-    BreakpointModelId id(++currentId);
-    const int row = m_storage.size();
-    beginInsertRows(QModelIndex(), row, row);
-    Iterator it = m_storage.insert(id, BreakpointItem());
-    endInsertRows();
-
-    // Create marker after copy is inserted into hash.
-    it->data = data;
-    it->updateMarker(id);
-
-    scheduleSynchronization();
+    BreakpointItem *b = new BreakpointItem(this);
+    b->m_params = params;
+    b->updateMarker();
+    rootItem()->appendChild(b);
 }
 
 void BreakHandler::handleAlienBreakpoint(const BreakpointResponse &response, DebuggerEngine *engine)
 {
-    BreakpointModelId id = findSimilarBreakpoint(response);
-    if (id.isValid()) {
+    Breakpoint b = findSimilarBreakpoint(response);
+    if (b) {
         if (response.id.isMinor())
-            insertSubBreakpoint(id, response);
+            b.insertSubBreakpoint(response);
         else
-            setResponse(id, response);
+            b.setResponse(response);
     } else {
-        id = BreakpointModelId(++currentId);
-        const int row = m_storage.size();
-
-        beginInsertRows(QModelIndex(), row, row);
-        Iterator it = m_storage.insert(id, BreakpointItem());
-        endInsertRows();
-
-        it->data = response;
-        it->response = response;
-        it->state = BreakpointInserted;
-        it->engine = engine;
-        it->updateMarker(id);
-
-        layoutChanged();
-        scheduleSynchronization();
+        auto b = new BreakpointItem(this);
+        b->m_params = response;
+        b->m_response = response;
+        b->m_state = BreakpointInserted;
+        b->m_engine = engine;
+        b->updateMarker();
+        rootItem()->appendChild(b);
     }
 }
 
-BreakpointModelId BreakHandler::at(int n) const
+void Breakpoint::insertSubBreakpoint(const BreakpointResponse &params)
 {
-    if (n < 0 || n >= m_storage.size())
-        return BreakpointModelId();
-    ConstIterator it = m_storage.constBegin();
-    for ( ; --n >= 0; ++it)
-        ;
-    return it.key();
+    QTC_ASSERT(b, return);
+    b->insertSubBreakpoint(params);
 }
 
-int BreakHandler::indexOf(BreakpointModelId id) const
+void BreakpointItem::insertSubBreakpoint(const BreakpointResponse &params)
 {
-    int row = 0;
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it, ++row)
-        if (it.key() == id)
-            return row;
-    return -1;
-}
+    QTC_ASSERT(params.id.isMinor(), return);
 
-void BreakHandler::insertSubBreakpoint(BreakpointModelId id,
-    const BreakpointResponse &data)
-{
-    QTC_ASSERT(data.id.isMinor(), return);
-    QTC_ASSERT(id.isMajor(), return);
-    Iterator it = m_storage.find(id);
+    int minorPart = params.id.minorPart();
 
-    if (it == m_storage.end()) {
-        qDebug() << "FAILED: " << id.toString();
-        for (ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-            it != et; ++it) {
-            qDebug() << "   ID: " << it->response.id.toString();
-            qDebug() << "   DATA: " << it->data.toString();
-            qDebug() << "   RESP: " << it->response.toString();
+    const QVector<TreeItem *> &children = TreeItem::children();
+    foreach (TreeItem *n, children) {
+        LocationItem *l = static_cast<LocationItem *>(n);
+        if (l->params.id.minorPart() == minorPart) {
+            // This modifies an existing sub-breakpoint.
+            l->params = params;
+            l->update();
+            return;
         }
     }
 
-    QTC_ASSERT(it != m_storage.end(), return);
-    int minorPart = data.id.minorPart();
-    int pos = -1;
-    for (int i = 0; i != it->subItems.size(); ++i) {
-        if (it->subItems.at(i).id.minorPart() == minorPart) {
-            pos = i;
-            break;
-        }
-    }
-    if (pos == -1) {
-        // This is a new sub-breakpoint.
-        //qDebug() << "NEW ID" << id;
-        int row = indexOf(id);
-        QTC_ASSERT(row != -1, return);
-        QModelIndex idx = createIndex(row, 0, id.toInternalId());
-        beginInsertRows(idx, it->subItems.size(), it->subItems.size());
-        it->subItems.append(data);
-        endInsertRows();
-    } else {
-        // This modifies an existing sub-breakpoint.
-        //qDebug() << "EXISTING ID" << id;
-        it->subItems[pos] = data;
-        layoutChanged();
-    }
+    // This is a new sub-breakpoint.
+    LocationItem *l = new LocationItem;
+    l->params = params;
+    appendChild(l);
+    expand();
 }
 
 void BreakHandler::saveSessionData()
@@ -1163,12 +1145,7 @@ void BreakHandler::saveSessionData()
 
 void BreakHandler::loadSessionData()
 {
-    beginResetModel();
-    Iterator it = m_storage.begin(), et = m_storage.end();
-    for ( ; it != et; ++it)
-        it->destroyMarker();
-    m_storage.clear();
-    endResetModel();
+    clear();
     loadBreakpoints();
 }
 
@@ -1176,25 +1153,17 @@ void BreakHandler::breakByFunction(const QString &functionName)
 {
     // One breakpoint per function is enough for now. This does not handle
     // combinations of multiple conditions and ignore counts, though.
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it) {
-        const BreakpointParameters &data = it->data;
-        if (data.functionName == functionName
-                && data.condition.isEmpty()
-                && data.ignoreCount == 0)
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        const BreakpointParameters &params = b->m_params;
+        if (params.functionName == functionName
+                && params.condition.isEmpty()
+                && params.ignoreCount == 0)
             return;
     }
-    BreakpointParameters data(BreakpointByFunction);
-    data.functionName = functionName;
-    appendBreakpoint(data);
-}
-
-QIcon BreakHandler::icon(BreakpointModelId id) const
-{
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), qDebug() << "NO ICON FOR ID" << id;
-        return pendingBreakpointIcon());
-    return it->icon();
+    BreakpointParameters params(BreakpointByFunction);
+    params.functionName = functionName;
+    appendBreakpoint(params);
 }
 
 void BreakHandler::scheduleSynchronization()
@@ -1209,161 +1178,139 @@ void BreakHandler::timerEvent(QTimerEvent *event)
     killTimer(m_syncTimerId);
     m_syncTimerId = -1;
     saveBreakpoints();  // FIXME: remove?
-    debuggerCore()->synchronizeBreakpoints();
+    Internal::synchronizeBreakpoints();
 }
 
-void BreakHandler::gotoLocation(BreakpointModelId id) const
+void Breakpoint::gotoLocation() const
 {
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    DebuggerEngine *engine = debuggerCore()->currentEngine();
-    if (it->data.type == BreakpointByAddress) {
-        if (engine)
-            engine->gotoLocation(it->data.address);
-    } else {
-        if (engine)
-            engine->gotoLocation(
-                Location(it->markerFileName(), it->markerLineNumber(), false));
+    if (DebuggerEngine *engine = currentEngine()) {
+        if (b->m_params.type == BreakpointByAddress) {
+            engine->gotoLocation(b->m_params.address);
+        } else {
+            // Don't use gotoLocation unconditionally as this ends up in
+            // disassembly if OperateByInstruction is on. But fallback
+            // to disassembly if we can't open the file.
+            const QString file = QDir::cleanPath(b->markerFileName());
+            if (IEditor *editor = EditorManager::openEditor(file))
+                editor->gotoLine(b->markerLineNumber(), 0);
+            else
+                engine->openDisassemblerView(Location(b->m_response.address));
+        }
     }
 }
 
-void BreakHandler::updateFileNameFromMarker(BreakpointModelId id, const QString &fileName)
+void BreakpointItem::updateFileNameFromMarker(const QString &fileName)
 {
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    it->data.fileName = fileName;
-    emit layoutChanged();
+    m_params.fileName = fileName;
+    update();
 }
 
-void BreakHandler::updateLineNumberFromMarker(BreakpointModelId id, int lineNumber)
+void BreakpointItem::updateLineNumberFromMarker(int lineNumber)
 {
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
     // Ignore updates to the "real" line number while the debugger is
     // running, as this can be triggered by moving the breakpoint to
     // the next line that generated code.
-    if (it->data.lineNumber == lineNumber)
+    if (m_params.lineNumber == lineNumber)
         ; // Nothing
-    else if (isEngineRunning(id))
-        it->data.lineNumber += lineNumber - it->response.lineNumber;
+    else if (isEngineRunning())
+        m_params.lineNumber += lineNumber - m_response.lineNumber;
     else
-        it->data.lineNumber = lineNumber;
-    it->updateMarker(id);
-    emit layoutChanged();
+        m_params.lineNumber = lineNumber;
+    updateMarker();
+    update();
 }
 
-void BreakHandler::changeLineNumberFromMarker(BreakpointModelId id, int lineNumber)
+void BreakpointItem::changeLineNumberFromMarker(int lineNumber)
 {
+    m_params.lineNumber = lineNumber;
+
     // We need to delay this as it is called from a marker which will be destroyed.
     ExtensionSystem::InvokerBase invoker;
-    invoker.addArgument(id);
-    invoker.addArgument(lineNumber);
+    invoker.addArgument(m_id);
     invoker.setConnectionType(Qt::QueuedConnection);
-    invoker.invoke(this, "changeLineNumberFromMarkerHelper");
+    invoker.invoke(m_handler, "changeLineNumberFromMarkerHelper");
     QTC_CHECK(invoker.wasSuccessful());
 }
 
-void BreakHandler::changeLineNumberFromMarkerHelper(BreakpointModelId id, int lineNumber)
+void BreakHandler::changeLineNumberFromMarkerHelper(BreakpointModelId id)
 {
-    BreakpointParameters data = breakpointData(id);
-    data.lineNumber = lineNumber;
-    removeBreakpoint(id);
-    appendBreakpoint(data);
+    Breakpoint b = breakpointById(id);
+    QTC_ASSERT(b, return);
+    BreakpointParameters params = b.parameters();
+    delete takeItem(b.b);
+    appendBreakpoint(params);
 }
 
-BreakpointModelIds BreakHandler::allBreakpointIds() const
+Breakpoints BreakHandler::allBreakpoints() const
 {
-    BreakpointModelIds ids;
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it)
-        ids.append(it.key());
-    return ids;
+    Breakpoints items;
+    foreach (TreeItem *n, rootItem()->children())
+        items.append(Breakpoint(static_cast<BreakpointItem *>(n)));
+    return items;
 }
 
-BreakpointModelIds BreakHandler::unclaimedBreakpointIds() const
+Breakpoints BreakHandler::unclaimedBreakpoints() const
 {
-    return engineBreakpointIds(0);
+    return engineBreakpoints(0);
 }
 
-BreakpointModelIds BreakHandler::engineBreakpointIds(DebuggerEngine *engine) const
+Breakpoints BreakHandler::engineBreakpoints(DebuggerEngine *engine) const
 {
-    BreakpointModelIds ids;
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it)
-        if (it->engine == engine)
-            ids.append(it.key());
-    return ids;
+    Breakpoints items;
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        if (b->m_engine == engine)
+            items.append(Breakpoint(b));
+    }
+    return items;
 }
 
 QStringList BreakHandler::engineBreakpointPaths(DebuggerEngine *engine) const
 {
     QSet<QString> set;
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for ( ; it != et; ++it) {
-        if (it->engine == engine) {
-            if (it->data.type == BreakpointByFileAndLine)
-                set.insert(QFileInfo(it->data.fileName).dir().path());
+    foreach (TreeItem *n, rootItem()->children()) {
+        BreakpointItem *b = static_cast<BreakpointItem *>(n);
+        if (b->m_engine == engine) {
+            if (b->m_params.type == BreakpointByFileAndLine)
+                set.insert(QFileInfo(b->m_params.fileName).dir().path());
         }
     }
     return set.toList();
 }
 
-void BreakHandler::cleanupBreakpoint(BreakpointModelId id)
+void Breakpoint::setResponse(const BreakpointResponse &response)
 {
-    QTC_ASSERT(state(id) == BreakpointDead, qDebug() << state(id));
-    BreakpointItem item = m_storage.take(id);
-    item.destroyMarker();
-    layoutChanged();
-}
-
-const BreakpointResponse &BreakHandler::response(BreakpointModelId id) const
-{
-    static BreakpointResponse dummy;
-    ConstIterator it = m_storage.find(id);
-    if (it == m_storage.end()) {
-        qDebug() << "NO RESPONSE FOR " << id;
-        return dummy;
-    }
-    return it->response;
-}
-
-bool BreakHandler::needsChange(BreakpointModelId id) const
-{
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return false);
-    return it->needsChange();
-}
-
-void BreakHandler::setResponse(BreakpointModelId id,
-    const BreakpointResponse &response)
-{
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    it->response = response;
-    it->destroyMarker();
-    it->updateMarker(id);
+    QTC_ASSERT(b, return);
+    b->m_response = response;
+    b->destroyMarker();
+    b->updateMarker();
     // Take over corrected values from response.
-    if ((it->data.type == BreakpointByFileAndLine
-                || it->data.type == BreakpointByFunction)
+    if ((b->m_params.type == BreakpointByFileAndLine
+                || b->m_params.type == BreakpointByFunction)
             && !response.module.isEmpty())
-        it->data.module = response.module;
+        b->m_params.module = response.module;
 }
 
-void BreakHandler::changeBreakpointData(BreakpointModelId id,
-    const BreakpointParameters &data, BreakpointParts parts)
+bool Internal::Breakpoint::needsChange() const
 {
-    Q_UNUSED(parts);
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-    if (data == it->data)
+    return b && b->needsChange();
+}
+
+void Breakpoint::changeBreakpointData(const BreakpointParameters &params)
+{
+    if (!b)
         return;
-    it->data = data;
-    it->destroyMarker();
-    it->updateMarker(id);
-    layoutChanged();
-    if (it->needsChange() && it->engine && it->state != BreakpointNew) {
-        setState(id, BreakpointChangeRequested);
-        scheduleSynchronization();
+    if (params == b->m_params)
+        return;
+    b->m_params = params;
+    if (b->m_engine)
+        b->m_engine->updateBreakpointMarker(*this);
+    b->destroyMarker();
+    b->updateMarker();
+    b->update();
+    if (b->needsChange() && b->m_engine && b->m_state != BreakpointNew) {
+        b->setState(BreakpointChangeRequested);
+        b->m_handler->scheduleSynchronization();
     }
 }
 
@@ -1373,42 +1320,53 @@ void BreakHandler::changeBreakpointData(BreakpointModelId id,
 //
 //////////////////////////////////////////////////////////////////
 
-BreakHandler::BreakpointItem::BreakpointItem()
-  : state(BreakpointNew), engine(0), marker(0)
+// Ok to be not thread-safe. The order does not matter and only the gui
+// produces authoritative ids.
+static int currentId = 0;
+
+BreakpointItem::BreakpointItem(BreakHandler *handler)
+    : m_handler(handler), m_id(++currentId), m_state(BreakpointNew), m_engine(0), m_marker(0)
 {}
 
-void BreakHandler::BreakpointItem::destroyMarker()
+BreakpointItem::~BreakpointItem()
 {
-    BreakpointMarker *m = marker;
-    marker = 0;
-    delete m;
+    delete m_marker;
 }
 
-QString BreakHandler::BreakpointItem::markerFileName() const
+void BreakpointItem::destroyMarker()
+{
+    if (m_marker) {
+        BreakpointMarker *m = m_marker;
+        m->m_bp = 0;
+        m_marker = 0;
+        delete m;
+    }
+}
+
+QString BreakpointItem::markerFileName() const
 {
     // Some heuristics to find a "good" file name.
-    if (!data.fileName.isEmpty()) {
-        QFileInfo fi(data.fileName);
+    if (!m_params.fileName.isEmpty()) {
+        QFileInfo fi(m_params.fileName);
         if (fi.exists())
             return fi.absoluteFilePath();
     }
-    if (!response.fileName.isEmpty()) {
-        QFileInfo fi(response.fileName);
+    if (!m_response.fileName.isEmpty()) {
+        QFileInfo fi(m_response.fileName);
         if (fi.exists())
             return fi.absoluteFilePath();
     }
-    if (response.fileName.endsWith(data.fileName))
-        return response.fileName;
-    if (data.fileName.endsWith(response.fileName))
-        return data.fileName;
-    return response.fileName.size() > data.fileName.size()
-        ? response.fileName : data.fileName;
+    if (m_response.fileName.endsWith(m_params.fileName))
+        return m_response.fileName;
+    if (m_params.fileName.endsWith(m_response.fileName))
+        return m_params.fileName;
+    return m_response.fileName.size() > m_params.fileName.size()
+        ? m_response.fileName : m_params.fileName;
 }
 
-
-int BreakHandler::BreakpointItem::markerLineNumber() const
+int BreakpointItem::markerLineNumber() const
 {
-    return response.lineNumber ? response.lineNumber : data.lineNumber;
+    return m_response.lineNumber ? m_response.lineNumber : m_params.lineNumber;
 }
 
 static void formatAddress(QTextStream &str, quint64 address)
@@ -1421,176 +1379,176 @@ static void formatAddress(QTextStream &str, quint64 address)
     }
 }
 
-bool BreakHandler::BreakpointItem::needsChange() const
+bool BreakpointItem::needsChange() const
 {
-    if (!data.conditionsMatch(response.condition))
+    if (!m_params.conditionsMatch(m_response.condition))
         return true;
-    if (data.ignoreCount != response.ignoreCount)
+    if (m_params.ignoreCount != m_response.ignoreCount)
         return true;
-    if (data.enabled != response.enabled)
+    if (m_params.enabled != m_response.enabled)
         return true;
-    if (data.threadSpec != response.threadSpec)
+    if (m_params.threadSpec != m_response.threadSpec)
         return true;
-    if (data.command != response.command)
+    if (m_params.command != m_response.command)
         return true;
-    if (data.type == BreakpointByFileAndLine && data.lineNumber != response.lineNumber)
+    if (m_params.type == BreakpointByFileAndLine && m_params.lineNumber != m_response.lineNumber)
         return true;
     // FIXME: Too strict, functions may have parameter lists, or not.
-    // if (data.type == BreakpointByFunction && data.functionName != response.functionName)
+    // if (m_params.type == BreakpointByFunction && m_params.functionName != m_response.functionName)
     //     return true;
-    // if (data.type == BreakpointByAddress && data.address != response.address)
+    // if (m_params.type == BreakpointByAddress && m_params.address != m_response.address)
     //     return true;
     return false;
 }
 
-bool BreakHandler::BreakpointItem::isLocatedAt
+bool BreakpointItem::isLocatedAt
     (const QString &fileName, int lineNumber, bool useMarkerPosition) const
 {
-    int line = useMarkerPosition ? response.lineNumber : data.lineNumber;
+    int line = useMarkerPosition ? m_response.lineNumber : m_params.lineNumber;
     return lineNumber == line
-        && (fileNameMatch(fileName, response.fileName)
+        && (fileNameMatch(fileName, m_response.fileName)
             || fileNameMatch(fileName, markerFileName()));
 }
 
-void BreakHandler::BreakpointItem::updateMarkerIcon()
+void BreakpointItem::updateMarkerIcon()
 {
-    if (marker) {
-        marker->setIcon(icon());
-        marker->updateMarker();
+    if (m_marker) {
+        m_marker->setIcon(icon());
+        m_marker->updateMarker();
     }
 }
 
-void BreakHandler::BreakpointItem::updateMarker(BreakpointModelId id)
+void BreakpointItem::updateMarker()
 {
     QString file = markerFileName();
     int line = markerLineNumber();
-    if (marker && (file != marker->fileName() || line != marker->lineNumber()))
+    if (m_marker && (file != m_marker->fileName() || line != m_marker->lineNumber()))
         destroyMarker();
 
-    if (!marker && !file.isEmpty() && line > 0) {
-        marker = new BreakpointMarker(id, file, line);
-        marker->init();
-    }
+    if (!m_marker && !file.isEmpty() && line > 0)
+        m_marker = new BreakpointMarker(this, file, line);
 }
 
-QIcon BreakHandler::BreakpointItem::icon() const
+QIcon BreakpointItem::icon() const
 {
     // FIXME: This seems to be called on each cursor blink as soon as the
     // cursor is near a line with a breakpoint marker (+/- 2 lines or so).
-    if (data.isTracepoint())
+    if (m_params.isTracepoint())
         return BreakHandler::tracepointIcon();
-    if (data.type == WatchpointAtAddress)
+    if (m_params.type == WatchpointAtAddress)
         return BreakHandler::watchpointIcon();
-    if (data.type == WatchpointAtExpression)
+    if (m_params.type == WatchpointAtExpression)
         return BreakHandler::watchpointIcon();
-    if (!data.enabled)
+    if (!m_params.enabled)
         return BreakHandler::disabledBreakpointIcon();
-    if (state == BreakpointInserted)
+    if (m_state == BreakpointInserted)
         return BreakHandler::breakpointIcon();
     return BreakHandler::pendingBreakpointIcon();
 }
 
-QString BreakHandler::BreakpointItem::toToolTip() const
+QString BreakpointItem::toToolTip() const
 {
     QString rc;
     QTextStream str(&rc);
     str << "<html><body><table>"
         //<< "<tr><td>" << tr("ID:") << "</td><td>" << m_id << "</td></tr>"
         << "<tr><td>" << tr("State:")
-        << "</td><td>" << (data.enabled ? tr("Enabled") : tr("Disabled"));
-    if (response.pending)
+        << "</td><td>" << (m_params.enabled ? tr("Enabled") : tr("Disabled"));
+    if (m_response.pending)
         str << tr(", pending");
-    str << ", " << state << "   (" << stateToString(state) << ")</td></tr>";
-    if (engine) {
+    str << ", " << m_state << "   (" << stateToString(m_state) << ")</td></tr>";
+    if (m_engine) {
         str << "<tr><td>" << tr("Engine:")
-        << "</td><td>" << engine->objectName() << "</td></tr>";
+        << "</td><td>" << m_engine->objectName() << "</td></tr>";
     }
-    if (!response.pending) {
+    if (!m_response.pending) {
         str << "<tr><td>" << tr("Breakpoint Number:")
-            << "</td><td>" << response.id.toString() << "</td></tr>";
+            << "</td><td>" << m_response.id.toString() << "</td></tr>";
     }
     str << "<tr><td>" << tr("Breakpoint Type:")
-        << "</td><td>" << typeToString(data.type) << "</td></tr>"
+        << "</td><td>" << typeToString(m_params.type) << "</td></tr>"
         << "<tr><td>" << tr("Marker File:")
         << "</td><td>" << QDir::toNativeSeparators(markerFileName()) << "</td></tr>"
         << "<tr><td>" << tr("Marker Line:")
         << "</td><td>" << markerLineNumber() << "</td></tr>"
+        << "<tr><td>" << tr("Hit Count:")
+        << "</td><td>" << m_response.hitCount << "</td></tr>"
         << "</table><br><hr><table>"
         << "<tr><th>" << tr("Property")
         << "</th><th>" << tr("Requested")
         << "</th><th>" << tr("Obtained") << "</th></tr>"
         << "<tr><td>" << tr("Internal Number:")
-        << "</td><td>&mdash;</td><td>" << response.id.toString() << "</td></tr>";
-    if (data.type == BreakpointByFunction) {
+        << "</td><td>&mdash;</td><td>" << m_response.id.toString() << "</td></tr>";
+    if (m_params.type == BreakpointByFunction) {
         str << "<tr><td>" << tr("Function Name:")
-        << "</td><td>" << data.functionName
-        << "</td><td>" << response.functionName
+        << "</td><td>" << m_params.functionName
+        << "</td><td>" << m_response.functionName
         << "</td></tr>";
     }
-    if (data.type == BreakpointByFileAndLine) {
+    if (m_params.type == BreakpointByFileAndLine) {
     str << "<tr><td>" << tr("File Name:")
-        << "</td><td>" << QDir::toNativeSeparators(data.fileName)
-        << "</td><td>" << QDir::toNativeSeparators(response.fileName)
+        << "</td><td>" << QDir::toNativeSeparators(m_params.fileName)
+        << "</td><td>" << QDir::toNativeSeparators(m_response.fileName)
         << "</td></tr>"
         << "<tr><td>" << tr("Line Number:")
-        << "</td><td>" << data.lineNumber
-        << "</td><td>" << response.lineNumber << "</td></tr>"
+        << "</td><td>" << m_params.lineNumber
+        << "</td><td>" << m_response.lineNumber << "</td></tr>"
         << "<tr><td>" << tr("Corrected Line Number:")
         << "</td><td>-"
-        << "</td><td>" << response.correctedLineNumber << "</td></tr>";
+        << "</td><td>" << m_response.correctedLineNumber << "</td></tr>";
     }
-    if (data.type == BreakpointByFunction || data.type == BreakpointByFileAndLine) {
+    if (m_params.type == BreakpointByFunction || m_params.type == BreakpointByFileAndLine) {
         str << "<tr><td>" << tr("Module:")
-            << "</td><td>" << data.module
-            << "</td><td>" << response.module
+            << "</td><td>" << m_params.module
+            << "</td><td>" << m_response.module
             << "</td></tr>";
     }
     str << "<tr><td>" << tr("Breakpoint Address:")
         << "</td><td>";
-    formatAddress(str, data.address);
+    formatAddress(str, m_params.address);
     str << "</td><td>";
-    formatAddress(str, response.address);
+    formatAddress(str, m_response.address);
     str << "</td></tr>";
-    if (response.multiple) {
+    if (m_response.multiple) {
         str << "<tr><td>" << tr("Multiple Addresses:")
             << "</td><td>"
             << "</td></tr>";
     }
-    if (!data.command.isEmpty() || !response.command.isEmpty()) {
+    if (!m_params.command.isEmpty() || !m_response.command.isEmpty()) {
         str << "<tr><td>" << tr("Command:")
-            << "</td><td>" << data.command
-            << "</td><td>" << response.command
+            << "</td><td>" << m_params.command
+            << "</td><td>" << m_response.command
             << "</td></tr>";
     }
-    if (!data.message.isEmpty() || !response.message.isEmpty()) {
+    if (!m_params.message.isEmpty() || !m_response.message.isEmpty()) {
         str << "<tr><td>" << tr("Message:")
-            << "</td><td>" << data.message
-            << "</td><td>" << response.message
+            << "</td><td>" << m_params.message
+            << "</td><td>" << m_response.message
             << "</td></tr>";
     }
-    if (!data.condition.isEmpty() || !response.condition.isEmpty()) {
+    if (!m_params.condition.isEmpty() || !m_response.condition.isEmpty()) {
         str << "<tr><td>" << tr("Condition:")
-            << "</td><td>" << data.condition
-            << "</td><td>" << response.condition
+            << "</td><td>" << m_params.condition
+            << "</td><td>" << m_response.condition
             << "</td></tr>";
     }
-    if (data.ignoreCount || response.ignoreCount) {
+    if (m_params.ignoreCount || m_response.ignoreCount) {
         str << "<tr><td>" << tr("Ignore Count:") << "</td><td>";
-        if (data.ignoreCount)
-            str << data.ignoreCount;
+        if (m_params.ignoreCount)
+            str << m_params.ignoreCount;
         str << "</td><td>";
-        if (response.ignoreCount)
-            str << response.ignoreCount;
+        if (m_response.ignoreCount)
+            str << m_response.ignoreCount;
         str << "</td></tr>";
     }
-    if (data.threadSpec >= 0 || response.threadSpec >= 0) {
+    if (m_params.threadSpec >= 0 || m_response.threadSpec >= 0) {
         str << "<tr><td>" << tr("Thread Specification:")
             << "</td><td>";
-        if (data.threadSpec >= 0)
-            str << data.threadSpec;
+        if (m_params.threadSpec >= 0)
+            str << m_params.threadSpec;
         str << "</td><td>";
-        if (response.threadSpec >= 0)
-            str << response.threadSpec;
+        if (m_response.threadSpec >= 0)
+            str << m_response.threadSpec;
         str << "</td></tr>";
     }
     str  << "</table></body></html>";
@@ -1599,29 +1557,89 @@ QString BreakHandler::BreakpointItem::toToolTip() const
 
 void BreakHandler::setWatchpointAtAddress(quint64 address, unsigned size)
 {
-    BreakpointParameters data(WatchpointAtAddress);
-    data.address = address;
-    data.size = size;
-    BreakpointModelId id = findWatchpoint(data);
-    if (id) {
+    BreakpointParameters params(WatchpointAtAddress);
+    params.address = address;
+    params.size = size;
+    if (findWatchpoint(params)) {
         qDebug() << "WATCHPOINT EXISTS";
         //   removeBreakpoint(index);
         return;
     }
-    appendBreakpoint(data);
+    appendBreakpoint(params);
 }
 
 void BreakHandler::setWatchpointAtExpression(const QString &exp)
 {
-    BreakpointParameters data(WatchpointAtExpression);
-    data.expression = exp;
-    BreakpointModelId id = findWatchpoint(data);
-    if (id) {
+    BreakpointParameters params(WatchpointAtExpression);
+    params.expression = exp;
+    if (findWatchpoint(params)) {
         qDebug() << "WATCHPOINT EXISTS";
         //   removeBreakpoint(index);
         return;
     }
-    appendBreakpoint(data);
+    appendBreakpoint(params);
+}
+
+bool Breakpoint::isValid() const
+{
+    return b && b->m_id.isValid();
+}
+
+uint Breakpoint::hash() const
+{
+    return b ? 0 : qHash(b->m_id);
+}
+
+BreakpointModelId Breakpoint::id() const
+{
+    return b ? b->m_id : BreakpointModelId();
+}
+
+QString Breakpoint::msgWatchpointByExpressionTriggered(const int number, const QString &expr) const
+{
+    return id()
+        ? tr("Data breakpoint %1 (%2) at %3 triggered.")
+            .arg(id().toString()).arg(number).arg(expr)
+        : tr("Internal data breakpoint %1 at %2 triggered.")
+            .arg(number).arg(expr);
+}
+
+QString Breakpoint::msgWatchpointByExpressionTriggered(const int number, const QString &expr,
+                                                       const QString &threadId) const
+{
+    return id()
+        ? tr("Data breakpoint %1 (%2) at %3 in thread %4 triggered.")
+            .arg(id().toString()).arg(number).arg(expr).arg(threadId)
+        : tr("Internal data breakpoint %1 at %2 in thread %3 triggered.")
+            .arg(number).arg(expr).arg(threadId);
+}
+
+QString Breakpoint::msgWatchpointByAddressTriggered(const int number, quint64 address) const
+{
+    return id()
+        ? tr("Data breakpoint %1 (%2) at 0x%3 triggered.")
+            .arg(id().toString()).arg(number).arg(address, 0, 16)
+        : tr("Internal data breakpoint %1 at 0x%2 triggered.")
+            .arg(number).arg(address, 0, 16);
+}
+
+QString Breakpoint::msgWatchpointByAddressTriggered(
+    const int number, quint64 address, const QString &threadId) const
+{
+    return id()
+        ? tr("Data breakpoint %1 (%2) at 0x%3 in thread %4 triggered.")
+            .arg(id().toString()).arg(number).arg(address, 0, 16).arg(threadId)
+        : tr("Internal data breakpoint %1 at 0x%2 in thread %3 triggered.")
+            .arg(id().toString()).arg(number).arg(address, 0, 16).arg(threadId);
+}
+
+QString Breakpoint::msgBreakpointTriggered(const int number, const QString &threadId) const
+{
+    return id()
+        ? tr("Stopped at breakpoint %1 (%2) in thread %3.")
+            .arg(id().toString()).arg(number).arg(threadId)
+        : tr("Stopped at internal breakpoint %1 in thread %2.")
+            .arg(number).arg(threadId);
 }
 
 } // namespace Internal

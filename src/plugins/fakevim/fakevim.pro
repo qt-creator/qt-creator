@@ -7,9 +7,13 @@ SOURCES += fakevimactions.cpp \
     fakevimplugin.cpp
 HEADERS += fakevimactions.h \
     fakevimhandler.h \
-    fakevimplugin.h
+    fakevimplugin.h \
+    fakevimtr.h
 FORMS += fakevimoptions.ui
 
 equals(TEST, 1) {
     SOURCES += fakevim_test.cpp
 }
+
+RESOURCES += \
+    fakevim.qrc

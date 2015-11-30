@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>527</width>
-    <height>359</height>
+    <height>469</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -21,9 +21,6 @@
        <widget class="QLabel" name="colorLabel">
         <property name="text">
          <string>Color:</string>
-        </property>
-        <property name="buddy">
-         <cstring>colorButton</cstring>
         </property>
        </widget>
       </item>
@@ -73,6 +70,16 @@
         </item>
        </layout>
       </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="themeLabel">
+        <property name="text">
+         <string>Theme:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="Core::Internal::ThemeSettingsWidget" name="themeWidget" native="true"/>
+      </item>
       <item row="2" column="0">
        <widget class="QLabel" name="languageLabel">
         <property name="text">
@@ -110,185 +117,12 @@
       <item row="3" column="0">
        <widget class="QPushButton" name="resetWarningsButton">
         <property name="toolTip">
-         <string>Re-enable all warnings which were suppressed using &quot;Don't show again&quot; button (e.g. missing highlighter).</string>
+         <string>Re-enable warnings that were suppressed by selecting &quot;Do Not Show Again&quot; (for example, missing highlighter).</string>
         </property>
         <property name="text">
-         <string comment="Button text">Reset warnings</string>
+         <string comment="Button text">Reset Warnings</string>
         </property>
        </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="systemBox">
-     <property name="title">
-      <string>System</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="terminalLabel">
-        <property name="text">
-         <string>Terminal:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="terminalComboBox">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="resetTerminalButton">
-        <property name="toolTip">
-         <string comment="Terminal">Reset to default.</string>
-        </property>
-        <property name="text">
-         <string>Reset</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="externalFileBrowserLabel">
-        <property name="text">
-         <string>External file browser:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="externalFileBrowserEdit"/>
-      </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="resetFileBrowserButton">
-        <property name="toolTip">
-         <string comment="File Browser">Reset to default.</string>
-        </property>
-        <property name="text">
-         <string>Reset</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QToolButton" name="helpExternalFileBrowserButton">
-        <property name="text">
-         <string>?</string>
-        </property>
-        <property name="icon">
-         <iconset resource="core.qrc">
-          <normaloff>:/core/images/help.png</normaloff>:/core/images/help.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="4">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="modifiedLabel">
-          <property name="text">
-           <string>When files are externally modified:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="reloadBehavior">
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <item>
-           <property name="text">
-            <string>Always Ask</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Reload All Unchanged Editors</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Ignore Modifications</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item row="3" column="0" colspan="4">
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QCheckBox" name="autoSaveCheckBox">
-          <property name="toolTip">
-           <string>Automatically create temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</string>
-          </property>
-          <property name="text">
-           <string>Auto-save modified files</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_6">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="autoSaveIntervalLabel">
-          <property name="text">
-           <string>Interval:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="autoSaveInterval">
-          <property name="suffix">
-           <string extracomment="unit for minutes">min</string>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_5">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
       </item>
      </layout>
     </widget>
@@ -314,26 +148,13 @@
    <extends>QToolButton</extends>
    <header location="global">utils/qtcolorbutton.h</header>
   </customwidget>
+  <customwidget>
+   <class>Core::Internal::ThemeSettingsWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">coreplugin/themesettingswidget.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
- <resources>
-  <include location="core.qrc"/>
- </resources>
- <connections>
-  <connection>
-   <sender>autoSaveCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>autoSaveInterval</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>161</x>
-     <y>262</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>342</x>
-     <y>263</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <resources/>
+ <connections/>
 </ui>

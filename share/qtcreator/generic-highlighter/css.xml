@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd">
+<!DOCTYPE language SYSTEM "language.dtd"
+[
+  <!-- http://www.w3.org/TR/CSS21/syndata.html#tokenization -->
+  <!ENTITY nmstart "[_a-zA-Z]|(\\[0-9a-fA-F]{1,6})|(\\[^\n\r\f0-9a-fA-F])">
+  <!ENTITY nmchar  "[_a-zA-Z0-9-]|(\\[0-9a-fA-F]{1,6})|(\\[^\n\r\f0-9a-fA-F])">
+]>
 
 <!--
 
@@ -13,9 +18,12 @@ Changelog:
 - Version 2.03, by Milian Wolff:
 - Make it spelling aware
 
+- Version 2.08, Joseph Wenninger:
+- CSS3 media queries 
+
 -->
 
-<language name="CSS" version="2.06" kateversion="2.4" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="CSS" version="2.10" kateversion="3.4" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 	<highlighting>
 		<list name="properties">
@@ -186,7 +194,7 @@ Changelog:
 			<item> column-rule-style </item>
 			<item> column-rule-width </item>
 			<item> column-span </item>
-			<item> column-wisth </item>
+			<item> column-width </item>
 			<item> hyphens </item>
 			<item> linear-gradient </item>
 			<item> opacity </item>
@@ -622,10 +630,52 @@ Changelog:
 			<item> print </item>
 			<item> projection </item>
 			<item> screen </item>
+			<item> speech </item>
 			<item> tty </item>
 			<item> tv </item>
 		</list>
 
+		<list name="mediatypes_op">
+                    <item> not </item>
+                    <item> only </item>
+		</list>
+		
+		<list name="media_features">
+                    <item> width </item>
+                    <item> min-width </item>
+                    <item> max-width</item>
+                    <item> height </item>
+                    <item> min-height </item>
+                    <item> max-height </item>
+                    <item> device-width </item>
+                    <item> min-device-width </item>
+                    <item> max-device-width </item>
+                    <item> device-height </item>
+                    <item> min-device-height </item>
+                    <item> max-device-height </item>
+                    <item> orientation </item>
+                    <item> aspect-ratio </item>
+                    <item> min-aspect-ratio </item>
+                    <item> max-aspect-ratio </item>
+                    <item> device-aspect-ratio </item>
+                    <item> min-device-aspect-ratio </item>
+                    <item> max-device-aspect-ratio </item>
+                    <item> color </item>
+                    <item> min-color </item>
+                    <item> max-color </item>
+                    <item> color-index </item>
+                    <item> min-color-index </item>
+                    <item> max-color-index </item>
+                    <item> monochrome </item>
+                    <item> min-monochrome </item>
+                    <item> max-monochrome </item>
+                    <item> resolution </item>
+                    <item> min-resolution </item>
+                    <item> max-resolution </item>
+                    <item> scan </item>
+                    <item> grid </item>
+		</list>
+		
 		<list name="pseudoclasses">
 			<item> hover </item>
 			<item> link </item>
@@ -673,7 +723,7 @@ Changelog:
 				<DetectChar attribute="Property" context="RuleSet" char="{" beginRegion="ruleset" />
 				<!--parse selectors-->
 				<DetectChar attribute="Selector Attr" context="SelAttr" char="[" />
-				<RegExpr attribute="Selector Id" context="#stay" String="#([a-zA-Z0-9\-_]|[\x80-\xFF]|\\[0-9A-Fa-f]{1,6})*" />
+				<RegExpr attribute="Selector Id" context="#stay" String="#(-)?(&nmstart;)(&nmchar;)*" />
 				<RegExpr attribute="Selector Class" context="#stay" String="\.([a-zA-Z0-9\-_]|[\x80-\xFF]|\\[0-9A-Fa-f]{1,6})*" />
 				<RegExpr attribute="Selector Pseudo" context="#stay" String=":lang\([\w_-]+\)" />
 				<DetectChar attribute="Selector Pseudo" context="SelPseudo" char=":" />
@@ -704,11 +754,56 @@ Changelog:
 			<!-- other contexts -->
 			<context attribute="Normal Text" lineEndContext="#stay" name="Media">
 				<DetectChar attribute="Media" context="Media2" char="{" beginRegion="media" />
-				<keyword attribute="Media" context="#stay" String="mediatypes" />
+                                <DetectChar attribute="Media" context="MediaQueryExpression" char="(" />
+				<keyword attribute="Media" context="MediaQueries" String="mediatypes"/>
+				<keyword attribute="Media" context="MediaTypes" String="mediatypes_op" />
 				<DetectChar attribute="Media" context="#stay" char="," />
 				<IncludeRules context="FindComments" />
 				<RegExpr attribute="Error" context="#stay" String="\S+" />
 			</context>
+			
+			<context attribute="Media" lineEndContext="#stay" name="MediaTypes">
+                            <keyword attribute="Media" context="MediaQueries" String="mediatypes"/>
+                            <DetectChar attribute="Media" context="#pop" char= "{" lookAhead="true"/>
+                            <DetectChar attribute="Media" context="#pop" char= "," lookAhead="true"/>
+                            <DetectSpaces/>
+                            <IncludeRules context="FindComments"/>
+                            <RegExpr attribute="Error" context="#stay" String="\S+"/> 
+			</context>
+			
+			<context attribute="Media" lineEndContext="#stay" name="MediaQueries">
+			    <RegExpr attribute="Media" context="MediaQueryExpression" String="\s+and\s+\("/>
+			    <DetectChar attribute="Media" context="#pop" char= "{" lookAhead="true"/>
+                            <DetectChar attribute="Media" context="#pop" char= "," lookAhead="true"/>
+                            <DetectSpaces/>
+                            <IncludeRules context="FindComments"/>
+                            <RegExpr attribute="Error" context="#stay" String="\S+"/>
+			</context>
+			
+                        <context attribute="Media" lineEndContext="#stay" name="MediaQueryExpression">
+                            <DetectSpaces/>
+                            <keyword attribute="Media" context="MQEE" String="media_features"/>
+                            <IncludeRules context="FindComments"/>
+                            <RegExpr attribute="Error" context="#stay" String="\S+"/>
+                        </context>
+                        
+                        <context attribute="Media" lineEndContext="#stay" name="MQEE" fallthrough="true" fallthroughContext="#pop">
+                            <DetectSpaces/>
+                            <IncludeRules context="FindComments"/>
+                            <DetectChar attribute="Media" context="MQEV" char=":"/>
+                            <RegExpr attribute="Media" context="#pop" String="\)\s+and\s+\("/>
+                            <DetectChar attribute="Media" context="#pop#pop" char=")"/>
+                        </context>
+                        
+                        <context attribute="Media" lineEndContext="#stay" name="MQEV">
+                        <!-- this should be seperate for different features, for now it is all the same -->
+                            <DetectSpaces/>
+                            <RegExpr attribute="Value" context="#pop" String="[1-9][0-9.]*\s*/\s*[1-9][0-9.]*" />
+                            <RegExpr attribute="Value" context="#pop" String="[0-9.]+(em|ex|ch|rem|vw|vh|vm|px|in|cm|mm|pt|pc|deg|rad|grad|turn|ms|s|Hz|kHz|dpi|dpcm)\b" />
+                            <RegExpr attribute="Value" context="#pop" String="[0-9.]+[%]?" />
+                            <RegExpr attribute="Value" context="#pop" String="(portrait|landscape)" />
+                            <RegExpr attribute="Error" context="#stay" String=".*"/>
+                        </context>
 
 			<context attribute="Normal Text" lineEndContext="#stay" name="Media2">
 				<DetectChar attribute="Media" context="#pop#pop" char="}" endRegion="media" />
@@ -812,7 +907,6 @@ Changelog:
 				<itemData name="Selector Pseudo"  defStyleNum="dsDecVal" spellChecking="false"/>
 				<itemData name="Comment" defStyleNum="dsComment" />
 				<itemData name="Region Marker" defStyleNum="dsRegionMarker" spellChecking="false"/>
-				<itemData name="Alert" defStyleNum="dsAlert" spellChecking="false"/>
 				<itemData name="Error" defStyleNum="dsError" spellChecking="false"/>
 			</itemDatas>
 		</highlighting>

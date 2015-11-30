@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -30,16 +31,13 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    if isQt4Build:
-        test.log("QML Profiler is only available if Creator was built on Qt 5")
-        return
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
-    # we need a Qt >= 4.8
-    analyzerTargets = Targets.desktopTargetClasses() ^ Targets.DESKTOP_474_GCC
+    # we need a Qt >= 5.3 - we use checkedTargets, so we should get only valid targets
+    analyzerTargets = Targets.desktopTargetClasses()
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=analyzerTargets)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "MouseArea.*", True):
@@ -59,23 +57,21 @@ def main():
         invokeMenuItem("File", "Save All")
         availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
         if not availableConfigs:
-            test.fatal("Haven't found a suitable Qt version (need Qt 4.8) - leaving without debugging.")
+            test.fatal("Haven't found a suitable Qt version (need Qt 5.3+) - leaving without debugging.")
         else:
-            performTest(workingDir, projectName, len(checkedTargets), availableConfigs, False)
-            performTest(workingDir, projectName, len(checkedTargets), availableConfigs, True)
+            performTest(workingDir, projectName, len(checkedTargets), availableConfigs)
     invokeMenuItem("File", "Exit")
 
-def performTest(workingDir, projectName, targetCount, availableConfigs, disableOptimizer):
+def performTest(workingDir, projectName, targetCount, availableConfigs):
+    def __elapsedTime__(elapsedTimeLabelText):
+        return float(re.search("Elapsed:\s+(-?\d+\.\d+) s", elapsedTimeLabelText).group(1))
+
     for kit, config in availableConfigs:
         # switching from MSVC to MinGW build will fail on the clean step of 'Rebuild All' because
         # of differences between MSVC's and MinGW's Makefile (so clean before switching kits)
         invokeMenuItem('Build', 'Clean Project "%s"' % projectName)
-        qtVersion = selectBuildConfig(targetCount, kit, config)[0]
+        qtVersion = verifyBuildConfig(targetCount, kit, config, True, enableQmlDebug=True)[0]
         test.log("Selected kit using Qt %s" % qtVersion)
-        verifyBuildConfig(targetCount, kit, True, enableQmlDebug=True)
-        if disableOptimizer:
-            batchEditRunEnvironment(targetCount, kit, ["QML_DISABLE_OPTIMIZER=1"])
-            switchViewTo(ViewConstants.EDIT)
         # explicitly build before start debugging for adding the executable as allowed program to WinFW
         invokeMenuItem("Build", "Rebuild All")
         waitForCompile()
@@ -91,35 +87,31 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
         if not test.verify(recordButton.checked, "Verifying recording is enabled."):
             test.log("Enabling recording for the test run")
             clickButton(recordButton)
-        clickButton(waitForObject(":Analyzer Toolbar.Start_QToolButton"))
+        startButton = waitForObject(":Analyzer Toolbar.Start_QToolButton")
+        clickButton(startButton)
         stopButton = waitForObject(":Qt Creator.Stop_QToolButton")
         elapsedLabel = waitForObject(":Analyzer Toolbar.Elapsed:_QLabel", 3000)
         waitFor('"Elapsed:    5" in str(elapsedLabel.text)', 20000)
         clickButton(stopButton)
-        if safeClickTab("JavaScript"):
-            model = findObject(":JavaScript.QmlProfilerEventsTable_QmlProfiler::"
-                               "Internal::QV8ProfilerEventsMainView").model()
-            test.compare(model.rowCount(), 0)
+        test.verify(waitFor("not stopButton.enabled", 5000), "stopButton should be disabled")
+        test.verify(waitFor("startButton.enabled", 2000), "startButton should be enabled")
+        try:
+            test.verify(waitFor("__elapsedTime__(str(elapsedLabel.text)) > 0", 2000),
+                        "Elapsed time should be positive in string '%s'" % str(elapsedLabel.text))
+        except:
+            test.fatal("Could not read elapsed time from '%s'" % str(elapsedLabel.text))
         if safeClickTab("Events"):
             colPercent, colTotal, colCalls, colMean, colMedian, colLongest, colShortest = range(2, 9)
             model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                   "Internal::QmlProfilerEventsMainView").model()
-            if qtVersion.startswith("5."):
-                if disableOptimizer:
-                    compareEventsTab(model, "events_qt50_nonOptimized.tsv")
-                else:
-                    compareEventsTab(model, "events_qt50.tsv")
-                numberOfMsRows = 3
-            else:
-                if disableOptimizer:
-                    compareEventsTab(model, "events_qt48_nonOptimized.tsv")
-                else:
-                    compareEventsTab(model, "events_qt48.tsv")
-                numberOfMsRows = 2
+            compareEventsTab(model, "events_qt5.tsv")
+            numberOfMsRows = 3
             test.compare(dumpItems(model, column=colPercent)[0], '100.00 %')
-            for i in [colTotal, colMean, colMedian, colLongest, colShortest]:
+            # cannot run following test on colShortest (unstable)
+            for i in [colTotal, colMean, colMedian, colLongest]:
                 for item in dumpItems(model, column=i)[:numberOfMsRows]:
                     test.verify(item.endswith(' ms'), "Verify that '%s' ends with ' ms'" % item)
+            for i in [colTotal, colMean, colMedian, colLongest, colShortest]:
                 for item in dumpItems(model, column=i):
                     test.verify(not item.startswith('0.000 '),
                                 "Check for implausible durations (QTCREATORBUG-8996): %s" % item)
@@ -160,13 +152,14 @@ def containsOnce(tuple, items):
 
 def safeClickTab(tab):
     for bar in [":*Qt Creator.JavaScript_QTabBar",
-                ":*Qt Creator.Events_QTabBar"]:
+                ":*Qt Creator.Events_QTabBar",
+                ":*Qt Creator.Timeline_QTabBar"]:
         try:
             clickOnTab(bar, tab, 1000)
             return True
         except:
             pass
-    test.fail("Tab %s is not being shown." % tab)
+    test.fatal("Tab %s is not being shown." % tab)
     return False
 
 def init():

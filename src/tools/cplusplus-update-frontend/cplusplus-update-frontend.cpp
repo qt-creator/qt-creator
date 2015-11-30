@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,39 +9,32 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
-#include <QStringList>
-#include <QTextDocument>
-#include <QTextCursor>
-#include <QTextBlock>
-#include <QDir>
 #include <QDebug>
-
-#if QT_VERSION >= 0x050000
-    // Qt5: QTextDocument needs access to Fonts via QGuiApplication.
-    #include <QGuiApplication>
-    typedef QGuiApplication MyQApplication;
-#else
-    #include <QCoreApplication>
-    typedef QCoreApplication MyQApplication;
-#endif
+#include <QDir>
+#include <QGuiApplication>
+#include <QStringList>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QTextDocument>
 
 #include <cplusplus/Control.h>
 #include <cplusplus/Parser.h>
@@ -96,6 +89,8 @@ static const char generatedHeader[] =
 "//\n"
 "\n"
 ;
+
+static QIODevice::OpenMode openFlags = QIODevice::WriteOnly | QIODevice::Text;
 
 static void closeAndPrintFilePath(QFile &file)
 {
@@ -221,7 +216,7 @@ public:
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTVisit.cpp"));
 
         QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(QFile::WriteOnly))
+        if (! file.open(openFlags))
             return;
 
         QTextStream output(&file);
@@ -358,7 +353,7 @@ public:
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTMatch0.cpp"));
 
         QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(QFile::WriteOnly))
+        if (! file.open(openFlags))
             return;
 
         QTextStream output(&file);
@@ -469,7 +464,7 @@ public:
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTMatcher.cpp"));
 
         QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(QFile::WriteOnly))
+        if (! file.open(openFlags))
             return;
 
         QTextStream output(&file);
@@ -622,7 +617,7 @@ public:
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTClone.cpp"));
 
         QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(QFile::WriteOnly))
+        if (! file.open(openFlags))
             return;
 
         QTextStream output(&file);
@@ -758,7 +753,7 @@ public:
     static void go(const QString &fileName, TranslationUnit *unit)
     {
         QFile file(fileName);
-        if (! file.open(QFile::WriteOnly)) {
+        if (! file.open(openFlags)) {
             std::cerr << "Cannot open dumpers file." << std::endl;
             return;
         }
@@ -992,12 +987,12 @@ static QString createConstructor(ClassSpecifierAST *classAST)
 
 bool checkGenerated(const QTextCursor &cursor, int *doxyStart)
 {
-    BackwardsScanner tokens(cursor, 10, QString(), false);
+    BackwardsScanner tokens(cursor, LanguageFeatures::defaultFeatures(), 10, QString(), false);
     Token prevToken = tokens.LA(1);
     if (prevToken.kind() != T_DOXY_COMMENT && prevToken.kind() != T_CPP_DOXY_COMMENT)
         return false;
 
-    *doxyStart = tokens.startPosition() + prevToken.begin();
+    *doxyStart = tokens.startPosition() + prevToken.utf16charsBegin();
 
     return tokens.text(tokens.startToken() - 1).contains(QLatin1String("\\generated"));
 }
@@ -1122,56 +1117,59 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     TranslationUnitAST *xUnit = AST_cpp_document->translationUnit()->ast()->asTranslationUnit();
     for (DeclarationListAST *iter = xUnit->declaration_list; iter; iter = iter->next) {
         if (FunctionDefinitionAST *funDef = iter->value->asFunctionDefinition()) {
-            if (const QualifiedNameId *qName = funDef->symbol->name()->asQualifiedNameId()) {
-                const QString className = oo(qName->base());
-                const QString methodName = oo(qName->name());
+            if (const Name *name = funDef->symbol->name()) {
+                if (const QualifiedNameId *qName = name->asQualifiedNameId()) {
+                    const QString className = oo(qName->base());
+                    const QString methodName = oo(qName->name());
 
-                QTextCursor cursor(&cpp_document);
+                    QTextCursor cursor(&cpp_document);
 
-                unsigned line = 0, column = 0;
-                AST_cpp_document->translationUnit()->getTokenStartPosition(funDef->firstToken(), &line, &column);
-                const int start = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
-                cursor.setPosition(start);
-                int doxyStart = start;
+                    unsigned line = 0, column = 0;
+                    AST_cpp_document->translationUnit()->getTokenStartPosition(funDef->firstToken(), &line, &column);
+                    const int start = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
+                    cursor.setPosition(start);
+                    int doxyStart = start;
 
-                const bool isGenerated = checkGenerated(cursor, &doxyStart);
+                    const bool isGenerated = checkGenerated(cursor, &doxyStart);
 
-                AST_cpp_document->translationUnit()->getTokenEndPosition(funDef->lastToken() - 1, &line, &column);
-                int end = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
-                while (cpp_document.characterAt(end).isSpace())
-                    ++end;
+                    AST_cpp_document->translationUnit()->getTokenEndPosition(funDef->lastToken() - 1, &line, &column);
+                    int end = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
+                    while (cpp_document.characterAt(end).isSpace())
+                        ++end;
 
-                if (methodName == QLatin1String("firstToken")) {
-                    ClassSpecifierAST *classAST = classesNeedingFirstToken.value(className, 0);
-                    GenInfo info;
-                    info.end = end;
-                    if (classAST) {
-                        info.classAST = classAST;
-                        info.firstToken = true;
-                        info.start = start;
-                        classesNeedingFirstToken.remove(className);
-                    } else {
-                        info.start = doxyStart;
-                        info.remove = true;
+                    if (methodName == QLatin1String("firstToken")) {
+                        ClassSpecifierAST *classAST = classesNeedingFirstToken.value(className, 0);
+                        GenInfo info;
+                        info.end = end;
+                        if (classAST) {
+                            info.classAST = classAST;
+                            info.firstToken = true;
+                            info.start = start;
+                            classesNeedingFirstToken.remove(className);
+                        } else {
+                            info.start = doxyStart;
+                            info.remove = true;
+                        }
+                        if (isGenerated)
+                            todo.append(info);
+                    } else if (methodName == QLatin1String("lastToken")) {
+                        ClassSpecifierAST *classAST = classesNeedingLastToken.value(className, 0);
+                        GenInfo info;
+                        info.end = end;
+                        if (classAST) {
+                            info.classAST = classAST;
+                            info.start = start;
+                            info.lastToken = true;
+                            classesNeedingLastToken.remove(className);
+                        } else {
+                            info.start = doxyStart;
+                            info.remove = true;
+                        }
+                        if (isGenerated)
+                            todo.append(info);
                     }
-                    if (isGenerated)
-                        todo.append(info);
-                } else if (methodName == QLatin1String("lastToken")) {
-                    ClassSpecifierAST *classAST = classesNeedingLastToken.value(className, 0);
-                    GenInfo info;
-                    info.end = end;
-                    if (classAST) {
-                        info.classAST = classAST;
-                        info.start = start;
-                        info.lastToken = true;
-                        classesNeedingLastToken.remove(className);
-                    } else {
-                        info.start = doxyStart;
-                        info.remove = true;
-                    }
-                    if (isGenerated)
-                        todo.append(info);
                 }
+
             }
         }
     }
@@ -1230,7 +1228,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     tc.setPosition(documentEnd);
     tc.insertText(newMethods);
 
-    if (file.open(QFile::WriteOnly)) {
+    if (file.open(openFlags)) {
         QTextStream out(&file);
         out << cpp_document.toPlainText();
         closeAndPrintFilePath(file);
@@ -1246,7 +1244,7 @@ void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
   const QString fileName = fileASTVisitor_h.absoluteFilePath();
 
   QFile file(fileName);
-  if (! file.open(QFile::WriteOnly))
+  if (! file.open(openFlags))
     return;
 
   QTextStream out(&file);
@@ -1297,8 +1295,8 @@ void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
 "\n"
 "    void accept(AST *ast);\n"
 "\n"
-"    template <typename _Tp>\n"
-"    void accept(List<_Tp> *it)\n"
+"    template <typename Tptr>\n"
+"    void accept(List<Tptr> *it)\n"
 "    {\n"
 "        for (; it; it = it->next)\n"
 "            accept(it->value);\n"
@@ -1339,7 +1337,7 @@ void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
   const QString fileName = fileASTMatcher_h.absoluteFilePath();
 
   QFile file(fileName);
-  if (! file.open(QFile::WriteOnly))
+  if (! file.open(openFlags))
     return;
 
   QTextStream out(&file);
@@ -1457,7 +1455,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
                 replacementCastMethods.value(classAST));
     }
 
-    if (file.open(QFile::WriteOnly)) {
+    if (file.open(openFlags)) {
         QTextStream out(&file);
         out << document.toPlainText();
         closeAndPrintFilePath(file);
@@ -1558,7 +1556,7 @@ void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const 
 
     cursors.first().insertText(replacement);
 
-    if (file.open(QFile::WriteOnly)) {
+    if (file.open(openFlags)) {
         QTextStream out(&file);
         out << document.toPlainText();
         closeAndPrintFilePath(file);
@@ -1571,7 +1569,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 
     QFileInfo fileInfo(cplusplusDir, QLatin1String("ASTPatternBuilder.h"));
     QFile file(fileInfo.absoluteFilePath());
-    if (! file.open(QFile::WriteOnly))
+    if (! file.open(openFlags))
         return;
 
     Overview oo;
@@ -1656,15 +1654,15 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
         out
                 << ")" << endl
                 << "    {" << endl
-                << "        " << className << " *__ast = new (&pool) " << className << ';' << endl;
+                << "        " << className << " *ast = new (&pool) " << className << ';' << endl;
 
 
         foreach (const StringPair &p, args) {
-            out << "        __ast->" << p.second << " = " << p.second << ';' << endl;
+            out << "        ast->" << p.second << " = " << p.second << ';' << endl;
         }
 
         out
-                << "        return __ast;" << endl
+                << "        return ast;" << endl
                 << "    }" << endl
                 << endl;
     }
@@ -1678,10 +1676,10 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
                 << "    " << className << " *" << methodName << "("
                 << elementName << " *value, " << className << " *next = 0)" << endl
                 << "    {" << endl
-                << "        " << className << " *__list = new (&pool) " << className << ";" << endl
-                << "        __list->next = next;" << endl
-                << "        __list->value = value;" << endl
-                << "        return __list;" << endl
+                << "        " << className << " *list = new (&pool) " << className << ";" << endl
+                << "        list->next = next;" << endl
+                << "        list->value = value;" << endl
+                << "        return list;" << endl
                 << "    }" << endl
                 << endl;
     }
@@ -1717,7 +1715,7 @@ void printUsage()
 
 int main(int argc, char *argv[])
 {
-    MyQApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
     QStringList args = app.arguments();
     args.removeFirst();
 

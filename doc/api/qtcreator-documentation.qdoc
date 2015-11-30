@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -24,10 +24,10 @@
     \title Writing Documentation
 
     When you add plugins or contribute new features to \QC, you probably want
-    other people to know about them and to be able to use them. Therefore,
-    you should also contribute documentation for them. Follow the guidelines in
-    this section to make sure that your documentation fits in well with the rest
-    of the \QC documentation.
+    other people to know about them and to be able to use them. Therefore, you
+    should also contribute documentation for them. Follow the guidelines in this
+    section to make sure that your documentation fits in well with the rest of
+    the \QC documentation.
 
     When you contribute a plugin, you should write documentation both for the
     developers who use \QC and for the ones who develop it.
@@ -35,7 +35,6 @@
     Write the following user documentation for addition to the \QC Manual:
 
     \list
-
         \li  Overview topic, which describes the purpose of your plugin from the
              viewpoint of \QC users
 
@@ -43,58 +42,52 @@
 
         \li  Reference topics, which contain information that developers
              occasionally need to look up (optional)
-
     \endlist
 
     Write the following developer documentation for addition to the Extending
     \QC Manual:
 
     \list
-
         \li  Overview topic, which describes the architecture and use cases for
              your plugin from the viewpoint of \QC developers
 
         \li  API documentation, which is generated from code comments
-
     \endlist
 
     \section1 Configuring the Documentation Project
 
     \QC documentation is written by using QDoc. For more information about using
-    QDoc, see the \l{http://qt-project.org/doc/qt-5.1/qdoc/qdoc-index.html}
-    {QDoc Manual}.
+    QDoc, see the \l{http://doc.qt.io/qt-5/qdoc-index.html}{QDoc Manual}.
 
-    QDoc finds the new topics automatically, when you place them as .qdoc files
-    in the correct folder. However, to make the topics accessible to readers,
-    you must also add them to the table of contents and fix the next page and
-    previous page links to them from other topics.
+    QDoc finds the new topics automatically, when you place them as \c {.qdoc}
+    files in the correct folder. However, to make the topics accessible to
+    readers, you must also add them to the table of contents and fix the next
+    page and previous page links to them from other topics.
 
     \section2 Creating Folders and Files
 
     These instructions apply only to the \QC Manual. Add API documentation
     directly to the code source files. However, you can write an API overview
-    also as a separate .qdoc file.
+    also as a separate \c {.qdoc} file.
 
     Create a subfolder for your documentation in the \QC project folder in the
     \c {doc\src} folder. Create a separate file for each topic.
 
     The easiest way is probably to copy an existing file, save it as a new file,
-    and modify it. This way, you already have samples of the necessary bits
-    and pieces in place, such as topic start and end commands, copyright
-    statement, links to next and previous topics, and topic title.
+    and modify it. This way, you already have samples of the necessary bits and
+    pieces in place, such as topic start and end commands, copyright statement,
+    links to next and previous topics, and topic title.
 
     \section2 Integrating Topics to Documentation
 
-    You must integrate your new topics to the \QC Manual and Extending
-    \QC Manual by adding links to them to the table of contents and to other
+    You must integrate your new topics to the \QC Manual and Extending \QC
+    Manual by adding links to them to the table of contents and to other
     relevant topics.
 
     To link to the topic, you can use the topic title. For example:
 
     \code
-
     \l{Integrating Topics to Documentation}
-
     \endcode
 
     This does not work if topic titles are not unique. Also, if you change the
@@ -105,7 +98,7 @@
 
     When you add new topics to a document, you must also change the navigation
     links of the topics around them. This is very error prone when done
-    manually, and therefore we have a script called \c fixnavi.pl for it. For
+    manually, and therefore we have a script called \c {fixnavi.pl} for it. For
     the script to work, you must add the \c {\nextpage} and \c {\previouspage}
     commands to the topic, with dummy values (for example,
     \c {\nextpage=anything.html}).
@@ -121,23 +114,20 @@
     To run the script, enter the following command in the doc folder:
 
     \list
-
         \li  nmake fixnavi (on Windows)
 
         \li  make fixnavi (on Linux)
-
     \endlist
 
     \section1 Writing Text
 
     Follow the guidelines for
-    \l{http://qt-project.org/wiki/Writing_Qt_Documentation}
-    {writing Qt documentation}.
+    \l{http://wiki.qt.io/Writing_Qt_Documentation}{writing Qt documentation}.
 
     The documentation must be grammatically correct English and use the standard
     form of written language. Do not use dialect or slang words. Use idiomatic
-    language, that is, expressions that are characteristic for English.
-    If possible, ask a native English speaker for a review.
+    language, that is, expressions that are characteristic for English. If
+    possible, ask a native English speaker for a review.
 
     \section2 Capitalizing Headings
 
@@ -150,13 +140,20 @@
     You can illustrate your documentation by using screen shots, diagrams, and
     other images.
 
+    Use the \c {\image} and \c {\inlineimage} QDoc commands to refer to images
+    from the text. You do not need to add paths to image names. For example:
+
+    \code
+    \image riot.png
+    \endcode
+
     \section2 Taking Screen Shots
 
-    \QC has the native look and feel on Windows, Linux, and Mac OS, and
-    therefore, screen shots can end up looking very different, depending on who
-    takes them and which system they use. To try to preserve a consistent look
-    and feel in the \QC Manual, observe the guidelines listed in this section
-    when taking screen shots.
+    \QC has the native look and feel on Windows, Linux, and OS X, and therefore,
+    screen shots can end up looking very different, depending on who takes them
+    and which system they use. To try to preserve a consistent look and feel in
+    the \QC Manual, observe the guidelines listed in this section when taking
+    screen shots.
 
     To make the images look similar regardless of the operating system they were
     taken on, you are asked to adjust their size to 75%. This makes the screen
@@ -166,7 +163,6 @@
     place example values also in the text.
 
     \list
-
         \li Use the screen resolution of 1024x768 (this is available on all
             screens).
 
@@ -187,7 +183,6 @@
 
         \li Before you submit the images to the repository, optimize them to
             save space.
-
     \endlist
 
     \section2 Optimizing Images
@@ -200,25 +195,17 @@
     Before committing images, optimize them by using an image optimization tool.
 
     Optimization should not visibly reduce image quality. If it does, do not do
-    it. You can use the Radical Image Optimization Tool (RIOT) on Windows (very
-    efficient) or ImageOptim on Mac OS (much less efficient), or some other tool
-    available on Linux.
+    it.
+
+    You can use a web service, such as \l{https://tinypng.com}, or an image
+    optimization tool to shrink the images. For example, you can use the Radical
+    Image Optimization Tool (RIOT) on Windows (very efficient) or ImageOptim on
+    OS X (much less efficient), or some other tool available on Linux.
 
     With ImageOptim, you simply drag and drop the image files to the
     application. The following section describes the settings to use for RIOT.
 
     \section3 Using RIOT
-
-    Use the \c {\image} and \c {\inlineimage} QDoc commands to refer to images
-    from the text. You do not need to add paths to image names. For example:
-
-    \code
-
-    \image riot.png
-
-    \endcode
-
-    \section2 Optimizing Images
 
     Download and install \l{http://luci.criosweb.ro/riot/}{RIOT}.
 
@@ -227,7 +214,6 @@
     Open your images in RIOT and use the following settings for them:
 
     \list
-
         \li  Color reduction: Optimal 256 colors palette
 
         \li  Reduce colors to: 256
@@ -237,12 +223,11 @@
         \li  Color quantization algorithm: NeuQuant neural-net (slow)
 
         \li  External optimizers: OptiPNG o3
-
     \endlist
 
     Compare the initial and optimized images to check that image quality is
     preserved. If the image quality deteriorates, do not use color reduction
-    (select the \gui {True Color} option, instead).
+    (select the \uicontrol {True Color} option, instead).
 
     You can also see the sizes of the initial and optimized image.
 
@@ -255,18 +240,28 @@
 
     The content and formatting of documentation are separated in QDoc.
     The documentation configuration, style sheets, and templates have
-    changed over time, so they differ between Qt and \QC versions. In Qt 4,
-    separate style sheets are used to generate help files for \QC and online
-    documentation for the Web.
+    changed over time, so they differ between Qt and \QC versions. Since \QC
+    version 3.3, only Qt 5 is supported for building documentation. The
+    templates to use are defined by the
+    \c {qt5\qtbase\doc\global\qt-html-templates-offline.qdocconf} and
+    \c {qt5\qtbase\doc\global\qt-html-templates-online.qdocconf} configuration
+    file. They are fetched from Qt sources by adding the following lines to the
+    qdocconf file:
 
-    In Qt 5, only one set of templates is used, as defined by the
-    \c {qt5\qtbase\doc\global\qt-module-defaults.qdocconf} configuration file.
-    It is fetched from Qt sources by adding the following line to the qdocconf
-    file:
+    \list
+        \li \c {include ($QT_INSTALL_DOCS/global/qt-html-templates-offline.qdocconf)}
+            for help files
+        \li \c {include ($QT_INSTALL_DOCS/global/qt-html-templates-online.qdocconf)}
+            for publishing on the web
+    \endlist
 
-    \c {include ($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)}
+    \note To have the correct fonts loaded for the online version, you must be
+    running it on a web server.
 
-    To pick the Qt to use, run qmake from either Qt 4 or Qt 5.
+    \note If the styles look wrong to you when reading help files in \QC or \QA,
+    you might be looking at them in the QTextBrowser instead of the WebKit
+    browser. This happens if you build \QC and \QA with a self-built Qt and did
+    not build Qt WebKit.
 
     To build documentation for the sources from the qtcreator master branch, use
     build scripts defined in the doc.pri file. To build all \QC docs in the
@@ -274,27 +269,25 @@
     commands from the project folder (after running qmake):
 
     \list
-
         \li  nmake docs (on Windows)
-        \li  make docs (on Linux and Mac OS)
 
+        \li  make docs (on Linux and OS X)
     \endlist
 
     The \QC Manual HTML files are generated in the \c {doc/html} directory.
     The Extending \QC Manual files are generated in the
-    \c {doc/html-dev} directory. The help files (.qch) are generated in the
+    \c {doc/html-dev} directory. The help files (\c {.qch}) are generated in the
     \c {share/doc/qtcreator} directory in the \QC build directory on Windows and
     Linux, and in the \c {bin/Qt Creator.app/Contents/Resources/app} directory
-    on Mac OS. You can view the HTML files in a browser and the help files in
-    the \QC \gui Help mode. For more information about adding the help files to
-    \QC, see
-    \l{http://qt-project.org/doc/qtcreator-2.8/creator-help.html#adding-external-documentation}
+    on OS X. You can view the HTML files in a browser and the help files in
+    the \QC \uicontrol Help mode. For more information about adding the help
+    files to \QC, see
+    \l{http://doc.qt.io/qtcreator/creator-help.html#adding-external-documentation}
     {Adding External Documentation}.
 
     Besides \c docs, you have the following options:
 
     \list
-
         \li  html_docs - build \QC Manual in help format, but do not generate a
              help file
 
@@ -313,7 +306,6 @@
         \li  html_docs_online - build \QC Manual in online format
 
         \li  dev_html_docs_online - build Extending \QC Manual in online format
-
     \endlist
 
 */

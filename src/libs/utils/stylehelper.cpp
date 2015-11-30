@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,6 +35,8 @@
 #include <QPixmapCache>
 #include <QPainter>
 #include <QApplication>
+#include <QFileInfo>
+#include <QCommonStyle>
 #include <QStyleOption>
 #include <qmath.h>
 
@@ -69,6 +72,15 @@ qreal StyleHelper::sidebarFontSize()
 {
     return HostOsInfo::isMacHost() ? 10 : 7.5;
 }
+
+QColor StyleHelper::notTooBrightHighlightColor()
+{
+    QColor highlightColor = qApp->palette().highlight().color();
+    if (0.5 * highlightColor.saturationF() + 0.75 - highlightColor.valueF() < 0)
+        highlightColor.setHsvF(highlightColor.hsvHueF(), 0.1 + highlightColor.saturationF() * 2.0, highlightColor.valueF());
+    return highlightColor;
+}
+
 
 QPalette StyleHelper::sidebarFontPalette(const QPalette &original)
 {
@@ -264,75 +276,49 @@ static void menuGradientHelper(QPainter *p, const QRect &spanRect, const QRect &
 
 void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option)
 {
-    // From windowsstyle but modified to enable AA
     if (option->rect.width() <= 1 || option->rect.height() <= 1)
         return;
 
+    const qreal devicePixelRatio = painter->device()->devicePixelRatio();
     QRect r = option->rect;
     int size = qMin(r.height(), r.width());
     QPixmap pixmap;
     QString pixmapName;
-    pixmapName.sprintf("arrow-%s-%d-%d-%d-%lld",
+    pixmapName.sprintf("arrow-%s-%d-%d-%d-%lld-%f",
                        "$qt_ia",
                        uint(option->state), element,
-                       size, option->palette.cacheKey());
+                       size, option->palette.cacheKey(),
+                       devicePixelRatio);
     if (!QPixmapCache::find(pixmapName, pixmap)) {
-        int border = size/5;
-        int sqsize = 2*(size/2);
-        QImage image(sqsize, sqsize, QImage::Format_ARGB32);
+        const QCommonStyle* const style = qobject_cast<QCommonStyle*>(QApplication::style());
+        if (!style)
+            return;
+
+        QImage image(size * devicePixelRatio, size * devicePixelRatio, QImage::Format_ARGB32_Premultiplied);
         image.fill(Qt::transparent);
-        QPainter imagePainter(&image);
-        imagePainter.setRenderHint(QPainter::Antialiasing, true);
-        imagePainter.translate(0.5, 0.5);
-        QPolygon a;
-        switch (element) {
-            case QStyle::PE_IndicatorArrowUp:
-                a.setPoints(3, border, sqsize/2,  sqsize/2, border,  sqsize - border, sqsize/2);
-                break;
-            case QStyle::PE_IndicatorArrowDown:
-                a.setPoints(3, border, sqsize/2,  sqsize/2, sqsize - border,  sqsize - border, sqsize/2);
-                break;
-            case QStyle::PE_IndicatorArrowRight:
-                a.setPoints(3, sqsize - border, sqsize/2,  sqsize/2, border,  sqsize/2, sqsize - border);
-                break;
-            case QStyle::PE_IndicatorArrowLeft:
-                a.setPoints(3, border, sqsize/2,  sqsize/2, border,  sqsize/2, sqsize - border);
-                break;
-            default:
-                break;
-        }
+        QPainter painter(&image);
 
-        int bsx = 0;
-        int bsy = 0;
-
-        if (option->state & QStyle::State_Sunken) {
-            bsx = qApp->style()->pixelMetric(QStyle::PM_ButtonShiftHorizontal);
-            bsy = qApp->style()->pixelMetric(QStyle::PM_ButtonShiftVertical);
-        }
-
-        QRect bounds = a.boundingRect();
-        int sx = sqsize / 2 - bounds.center().x() - 1;
-        int sy = sqsize / 2 - bounds.center().y() - 1;
-        imagePainter.translate(sx + bsx, sy + bsy);
+        QStyleOption tweakedOption(*option);
+        tweakedOption.state = QStyle::State_Enabled;
 
         if (!(option->state & QStyle::State_Enabled)) {
-            QColor foreGround(150, 150, 150, 150);
-            imagePainter.setBrush(option->palette.mid().color());
-            imagePainter.setPen(option->palette.mid().color());
+            tweakedOption.palette.setColor(QPalette::ButtonText, option->palette.mid().color());
+            tweakedOption.rect = image.rect();
+            style->QCommonStyle::drawPrimitive(element, &tweakedOption, &painter);
         } else {
-            QColor shadow(0, 0, 0, 100);
-            imagePainter.translate(0, 1);
-            imagePainter.setPen(shadow);
-            imagePainter.setBrush(shadow);
-            QColor foreGround(255, 255, 255, 210);
-            imagePainter.drawPolygon(a);
-            imagePainter.translate(0, -1);
-            imagePainter.setPen(foreGround);
-            imagePainter.setBrush(foreGround);
+            tweakedOption.palette.setColor(QPalette::ButtonText, Qt::black);
+            painter.setOpacity(0.2);
+            tweakedOption.rect = image.rect().adjusted(0, devicePixelRatio, 0, devicePixelRatio);
+            style->QCommonStyle::drawPrimitive(element, &tweakedOption, &painter);
+
+            tweakedOption.palette.setColor(QPalette::ButtonText, QColor(220, 220, 220));
+            painter.setOpacity(1);
+            tweakedOption.rect = image.rect();
+            style->QCommonStyle::drawPrimitive(element, &tweakedOption, &painter);
         }
-        imagePainter.drawPolygon(a);
-        imagePainter.end();
+        painter.end();
         pixmap = QPixmap::fromImage(image);
+        pixmap.setDevicePixelRatio(devicePixelRatio);
         QPixmapCache::insert(pixmapName, pixmap);
     }
     int xOffset = r.x() + (r.width() - size)/2;
@@ -364,16 +350,6 @@ void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const Q
     }
 }
 
-static qreal pixmapDevicePixelRatio(const QPixmap &pixmap)
-{
-#if QT_VERSION > 0x050000
-    return pixmap.devicePixelRatio();
-#else
-    Q_UNUSED(pixmap);
-    return 1.0;
-#endif
-}
-
 // Draws a cached pixmap with shadow
 void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
                                      QPainter *p, QIcon::Mode iconMode, int dipRadius, const QColor &color, const QPoint &dipOffset)
@@ -388,7 +364,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // different than 1. The shadow drawing caluculations are done in device
         // pixels.
         QPixmap px = icon.pixmap(rect.size());
-        int devicePixelRatio = qCeil(pixmapDevicePixelRatio(px));
+        int devicePixelRatio = qCeil(px.devicePixelRatio());
         int radius = dipRadius * devicePixelRatio;
         QPoint offset = dipOffset * devicePixelRatio;
         cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));
@@ -443,56 +419,62 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
 
         // Draw the actual pixmap...
         cachePainter.drawPixmap(QRect(QPoint(radius, radius) + offset, QSize(px.width(), px.height())), px);
-#if QT_VERSION > 0x050000
         cache.setDevicePixelRatio(devicePixelRatio);
-#endif
         QPixmapCache::insert(pixmapName, cache);
     }
 
     QRect targetRect = cache.rect();
-    targetRect.setSize(targetRect.size() / pixmapDevicePixelRatio(cache));
+    targetRect.setSize(targetRect.size() / cache.devicePixelRatio());
     targetRect.moveCenter(rect.center() - dipOffset);
     p->drawPixmap(targetRect, cache);
 }
 
 // Draws a CSS-like border image where the defined borders are not stretched
-void StyleHelper::drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
+// Unit for rect, left, top, right and bottom is user pixels
+void StyleHelper::drawCornerImage(const QImage &img, QPainter *painter, const QRect &rect,
                                   int left, int top, int right, int bottom)
 {
-    QSize size = img.size();
+    // source rect for drawImage() calls needs to be specified in DIP unit of the image
+    const qreal imagePixelRatio = img.devicePixelRatio();
+    const qreal leftDIP = left * imagePixelRatio;
+    const qreal topDIP = top * imagePixelRatio;
+    const qreal rightDIP = right * imagePixelRatio;
+    const qreal bottomDIP = bottom * imagePixelRatio;
+
+    const QSize size = img.size();
     if (top > 0) { //top
-        painter->drawImage(QRect(rect.left() + left, rect.top(), rect.width() -right - left, top), img,
-                           QRect(left, 0, size.width() -right - left, top));
+        painter->drawImage(QRectF(rect.left() + left, rect.top(), rect.width() -right - left, top), img,
+                           QRectF(leftDIP, 0, size.width() - rightDIP - leftDIP, topDIP));
         if (left > 0) //top-left
-            painter->drawImage(QRect(rect.left(), rect.top(), left, top), img,
-                               QRect(0, 0, left, top));
+            painter->drawImage(QRectF(rect.left(), rect.top(), left, top), img,
+                               QRectF(0, 0, leftDIP, topDIP));
         if (right > 0) //top-right
-            painter->drawImage(QRect(rect.left() + rect.width() - right, rect.top(), right, top), img,
-                               QRect(size.width() - right, 0, right, top));
+            painter->drawImage(QRectF(rect.left() + rect.width() - right, rect.top(), right, top), img,
+                               QRectF(size.width() - rightDIP, 0, rightDIP, topDIP));
     }
     //left
     if (left > 0)
-        painter->drawImage(QRect(rect.left(), rect.top()+top, left, rect.height() - top - bottom), img,
-                           QRect(0, top, left, size.height() - bottom - top));
+        painter->drawImage(QRectF(rect.left(), rect.top()+top, left, rect.height() - top - bottom), img,
+                           QRectF(0, topDIP, leftDIP, size.height() - bottomDIP - topDIP));
     //center
-    painter->drawImage(QRect(rect.left() + left, rect.top()+top, rect.width() -right - left,
-                             rect.height() - bottom - top), img,
-                       QRect(left, top, size.width() -right -left,
-                             size.height() - bottom - top));
+    painter->drawImage(QRectF(rect.left() + left, rect.top()+top, rect.width() -right - left,
+                              rect.height() - bottom - top), img,
+                       QRectF(leftDIP, topDIP, size.width() - rightDIP - leftDIP,
+                              size.height() - bottomDIP - topDIP));
     if (right > 0) //right
-        painter->drawImage(QRect(rect.left() +rect.width() - right, rect.top()+top, right, rect.height() - top - bottom), img,
-                           QRect(size.width() - right, top, right, size.height() - bottom - top));
+        painter->drawImage(QRectF(rect.left() +rect.width() - right, rect.top()+top, right, rect.height() - top - bottom), img,
+                           QRectF(size.width() - rightDIP, topDIP, rightDIP, size.height() - bottomDIP - topDIP));
     if (bottom > 0) { //bottom
-        painter->drawImage(QRect(rect.left() +left, rect.top() + rect.height() - bottom,
-                                 rect.width() - right - left, bottom), img,
-                           QRect(left, size.height() - bottom,
-                                 size.width() - right - left, bottom));
-    if (left > 0) //bottom-left
-        painter->drawImage(QRect(rect.left(), rect.top() + rect.height() - bottom, left, bottom), img,
-                           QRect(0, size.height() - bottom, left, bottom));
-    if (right > 0) //bottom-right
-        painter->drawImage(QRect(rect.left() + rect.width() - right, rect.top() + rect.height() - bottom, right, bottom), img,
-                           QRect(size.width() - right, size.height() - bottom, right, bottom));
+        painter->drawImage(QRectF(rect.left() +left, rect.top() + rect.height() - bottom,
+                                  rect.width() - right - left, bottom), img,
+                           QRectF(leftDIP, size.height() - bottomDIP,
+                                  size.width() - rightDIP - leftDIP, bottomDIP));
+        if (left > 0) //bottom-left
+            painter->drawImage(QRectF(rect.left(), rect.top() + rect.height() - bottom, left, bottom), img,
+                               QRectF(0, size.height() - bottomDIP, leftDIP, bottomDIP));
+        if (right > 0) //bottom-right
+            painter->drawImage(QRectF(rect.left() + rect.width() - right, rect.top() + rect.height() - bottom, right, bottom), img,
+                               QRectF(size.width() - rightDIP, size.height() - bottomDIP, rightDIP, bottomDIP));
     }
 }
 
@@ -527,6 +509,37 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
     grad.setColorAt(0, startColor);
     grad.setColorAt(1, endColor);
     return grad;
+}
+
+QString StyleHelper::dpiSpecificImageFile(const QString &fileName)
+{
+    // See QIcon::addFile()
+    if (qApp->devicePixelRatio() > 1.0) {
+        const QString atDprfileName =
+                imageFileWithResolution(fileName, qRound(qApp->devicePixelRatio()));
+        if (QFile::exists(atDprfileName))
+            return atDprfileName;
+    }
+    return fileName;
+}
+
+QString StyleHelper::imageFileWithResolution(const QString &fileName, int dpr)
+{
+    const QFileInfo fi(fileName);
+    return dpr == 1 ? fileName :
+                      fi.path() + QLatin1Char('/') + fi.completeBaseName()
+                      + QLatin1Char('@') + QString::number(dpr)
+                      + QLatin1String("x.") + fi.suffix();
+}
+
+QList<int> StyleHelper::availableImageResolutions(const QString &fileName)
+{
+    QList<int> result;
+    const int maxResolutions = qApp->devicePixelRatio();
+    for (int i = 1; i <= maxResolutions; ++i)
+        if (QFile::exists(imageFileWithResolution(fileName, i)))
+            result.append(i);
+    return result;
 }
 
 } // namespace Utils

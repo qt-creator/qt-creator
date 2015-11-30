@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<template openeditor="main.qml" priority="D"
-    featuresRequired="QtSupport.Wizards.FeatureQtQuick.2.1"
-    qrcdeployment="qrcdeployment.pri"
-    stubversionminor="5">
-    <displayname>Qt Quick 2.1</displayname>
-    <description>Creates a deployable Qt Quick 2 application using the QtQuick 2.1 import. Requires Qt 5.1 or newer.</description>
-</template>

@@ -1,5 +1,3 @@
-#PROVIDER = Openismus
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS = autotoolsprojectplugin.h\
@@ -31,4 +29,3 @@ SOURCES = autotoolsprojectplugin.cpp\
           configurestep.cpp\
           makefileparserthread.cpp\
           makefileparser.cpp
-RESOURCES += autotoolsproject.qrc

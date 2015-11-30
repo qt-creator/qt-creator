@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -73,7 +74,6 @@ namespace {
     static const QLatin1String kCaseSensitive("casesensitive");
     static const QLatin1String kWeakDeliminator("weakDeliminator");
     static const QLatin1String kAdditionalDeliminator("additionalDeliminator");
-    static const QLatin1String kWordWrapDeliminator("wordWrapDeliminator");
     static const QLatin1String kComment("comment");
     static const QLatin1String kPosition("position");
     static const QLatin1String kSingleLine("singleline");
@@ -98,8 +98,6 @@ namespace {
     static const QLatin1String kIncludeRules("IncludeRules");
     static const QLatin1String kDetectSpaces("DetectSpaces");
     static const QLatin1String kDetectIdentifier("DetectIdentifier");
-    static const QLatin1String kLanguage("language");
-    static const QLatin1String kExtensions("extensions");
     static const QLatin1String kIncludeAttrib("includeAttrib");
     static const QLatin1String kFolding("folding");
     static const QLatin1String kIndentationSensitive("indentationsensitive");
@@ -238,17 +236,22 @@ void HighlightDefinitionHandler::contextElementStarted(const QXmlAttributes &att
 void HighlightDefinitionHandler::ruleElementStarted(const QXmlAttributes &atts,
                                                     const QSharedPointer<Rule> &rule)
 {
+    const QString context = atts.value(kContext);
     // The definition of a rule is not necessarily the same of its enclosing context because of
     // externally included rules.
     rule->setDefinition(m_definition);
     rule->setItemData(atts.value(kAttribute));
-    rule->setContext(atts.value(kContext));
+    rule->setContext(context);
     rule->setBeginRegion(atts.value(kBeginRegion));
     rule->setEndRegion(atts.value(kEndRegion));
     rule->setLookAhead(atts.value(kLookAhead));
     rule->setFirstNonSpace(atts.value(kFirstNonSpace));
     rule->setColumn(atts.value(kColumn));
 
+    if (context.contains(kDoubleHash)) {
+        IncludeRulesInstruction includeInstruction(context, m_currentContext->rules().size(), QString());
+        m_currentContext->addIncludeRulesInstruction(includeInstruction);
+    }
     if (m_currentRule.isEmpty())
         m_currentContext->addRule(rule);
     else
@@ -428,13 +431,17 @@ void HighlightDefinitionHandler::processIncludeRules(const QSharedPointer<Contex
 
         QSharedPointer<Context> sourceContext;
         const QString &sourceName = instruction.sourceContext();
-        if (sourceName.startsWith(kDoubleHash)) {
-            // This refers to an external definition. The rules included are the ones from its
+        if (sourceName.contains(kDoubleHash)) {
+            // This refers to an external definition. Context can be specified before the double
+            // hash (e.g. Normal##Javascript). If it isn't, the rules included are the ones from its
             // initial context. Others contexts and rules from the external definition will work
             // transparently to the highlighter. This is because contexts and rules know the
             // definition they are from.
-            QString externalName = QString::fromRawData(sourceName.unicode() + 2,
-                                                        sourceName.length() - 2);
+            const QStringList values = sourceName.split(kDoubleHash);
+            if (values.count() != 2)
+                return;
+            const QString externalContext = values.at(0);
+            const QString externalName = values.at(1);
             const QString &id = Manager::instance()->definitionIdByName(externalName);
 
             // If there is an incorrect circular dependency among definitions this is skipped.
@@ -446,7 +453,10 @@ void HighlightDefinitionHandler::processIncludeRules(const QSharedPointer<Contex
             if (externalDefinition.isNull() || !externalDefinition->isValid())
                 continue;
 
-            sourceContext = externalDefinition->initialContext();
+            if (externalContext.isEmpty())
+                sourceContext = externalDefinition->initialContext();
+            else
+                sourceContext = externalDefinition->context(externalContext);
         } else if (!sourceName.startsWith(kHash)) {
             sourceContext = m_definition->context(sourceName);
 

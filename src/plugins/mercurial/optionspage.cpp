@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Brian McGillion
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Brian McGillion
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,25 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "optionspage.h"
+
+#include "mercurialclient.h"
 #include "mercurialsettings.h"
 #include "mercurialplugin.h"
 
@@ -37,11 +40,12 @@
 
 #include <QTextStream>
 
-using namespace Mercurial::Internal;
-using namespace Mercurial;
+using namespace VcsBase;
 
-OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
-        QWidget(parent)
+namespace Mercurial {
+namespace Internal  {
+
+OptionsPageWidget::OptionsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
 {
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
@@ -49,9 +53,9 @@ OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
     m_ui.commandChooser->setPromptDialogTitle(tr("Mercurial Command"));
 }
 
-MercurialSettings OptionsPageWidget::settings() const
+VcsBaseClientSettings OptionsPageWidget::settings() const
 {
-    MercurialSettings s = MercurialPlugin::settings();
+    MercurialSettings s;
     s.setValue(MercurialSettings::binaryPathKey, m_ui.commandChooser->rawPath());
     s.setValue(MercurialSettings::userNameKey, m_ui.defaultUsernameLineEdit->text().trimmed());
     s.setValue(MercurialSettings::userEmailKey, m_ui.defaultEmailLineEdit->text().trimmed());
@@ -60,7 +64,7 @@ MercurialSettings OptionsPageWidget::settings() const
     return s;
 }
 
-void OptionsPageWidget::setSettings(const MercurialSettings &s)
+void OptionsPageWidget::setSettings(const VcsBaseClientSettings &s)
 {
     m_ui.commandChooser->setPath(s.stringValue(MercurialSettings::binaryPathKey));
     m_ui.defaultUsernameLineEdit->setText(s.stringValue(MercurialSettings::userNameKey));
@@ -69,34 +73,13 @@ void OptionsPageWidget::setSettings(const MercurialSettings &s)
     m_ui.timeout->setValue(s.intValue(MercurialSettings::timeoutKey));
 }
 
-OptionsPage::OptionsPage()
+OptionsPage::OptionsPage(Core::IVersionControl *control) :
+    VcsClientOptionsPage(control, MercurialPlugin::client())
 {
     setId(VcsBase::Constants::VCS_ID_MERCURIAL);
     setDisplayName(tr("Mercurial"));
+    setWidgetFactory([]() { return new OptionsPageWidget; });
 }
 
-QWidget *OptionsPage::widget()
-{
-    if (!optionsPageWidget)
-        optionsPageWidget = new OptionsPageWidget;
-    optionsPageWidget->setSettings(MercurialPlugin::settings());
-    return optionsPageWidget;
-}
-
-void OptionsPage::apply()
-{
-    if (!optionsPageWidget)
-        return;
-    const MercurialSettings newSettings = optionsPageWidget->settings();
-    if (newSettings != MercurialPlugin::settings()) {
-        //assume success and emit signal that settings are changed;
-        MercurialPlugin::setSettings(newSettings);
-        newSettings.writeSettings(Core::ICore::settings());
-        emit settingsChanged();
-    }
-}
-
-void OptionsPage::finish()
-{
-    delete optionsPageWidget;
-}
+} // namespace Internal
+} // namespace Mercurial

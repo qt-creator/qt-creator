@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,27 +36,20 @@
 
 #include <QFile>
 #include <QCoreApplication>
+#include <QMetaEnum>
 #include <QXmlStreamWriter>
 
 using namespace TextEditor;
 
 static const char trueString[] = "true";
+static const char falseString[] = "false";
 
 // Format
 
-Format::Format() :
-    m_foreground(Qt::black),
-    m_background(Qt::white),
-    m_bold(false),
-    m_italic(false)
-{
-}
 
 Format::Format(const QColor &foreground, const QColor &background) :
     m_foreground(foreground),
-    m_background(background),
-    m_bold(false),
-    m_italic(false)
+    m_background(background)
 {
 }
 
@@ -79,6 +73,26 @@ void Format::setItalic(bool italic)
     m_italic = italic;
 }
 
+void Format::setUnderlineColor(const QColor &underlineColor)
+{
+    m_underlineColor = underlineColor;
+}
+
+QColor Format::underlineColor() const
+{
+    return m_underlineColor;
+}
+
+void Format::setUnderlineStyle(QTextCharFormat::UnderlineStyle underlineStyle)
+{
+    m_underlineStyle = underlineStyle;
+}
+
+QTextCharFormat::UnderlineStyle Format::underlineStyle() const
+{
+    return m_underlineStyle;
+}
+
 static QColor stringToColor(const QString &string)
 {
     if (string == QLatin1String("invalid"))
@@ -86,10 +100,62 @@ static QColor stringToColor(const QString &string)
     return QColor(string);
 }
 
-bool Format::equals(const Format &f) const
+static QTextCharFormat::UnderlineStyle stringToUnderlineStyle(const QString &string)
 {
-    return m_foreground ==  f.m_foreground && m_background == f.m_background &&
-           m_bold == f.m_bold && m_italic == f.m_italic;
+    if (string.isEmpty() || string == QStringLiteral("NoUnderline"))
+        return QTextCharFormat::NoUnderline;
+    else if (string == QStringLiteral("SingleUnderline"))
+        return QTextCharFormat::SingleUnderline;
+    else if (string == QStringLiteral("DashUnderline"))
+        return QTextCharFormat::DashUnderline;
+    else if (string == QStringLiteral("DotLine"))
+        return QTextCharFormat::DotLine;
+    else if (string == QStringLiteral("DashDotLine"))
+        return QTextCharFormat::DashDotLine;
+    else if (string == QStringLiteral("DashDotDotLine"))
+        return QTextCharFormat::DashDotDotLine;
+    else if (string == QStringLiteral("WaveUnderline"))
+        return QTextCharFormat::WaveUnderline;
+
+    return QTextCharFormat::NoUnderline;
+}
+
+static QString underlineStyleToString(QTextCharFormat::UnderlineStyle underlineStyle)
+{
+    switch (underlineStyle) {
+        case QTextCharFormat::NoUnderline: return QStringLiteral("NoUnderline");
+        case QTextCharFormat::SingleUnderline: return QStringLiteral("SingleUnderline");
+        case QTextCharFormat::DashUnderline: return QStringLiteral("DashUnderline");
+        case QTextCharFormat::DotLine: return QStringLiteral("DotLine");
+        case QTextCharFormat::DashDotLine: return QStringLiteral("DashDotLine");
+        case QTextCharFormat::DashDotDotLine: return QStringLiteral("DashDotDotLine");
+        case QTextCharFormat::WaveUnderline: return QStringLiteral("WaveUnderline");
+        case QTextCharFormat::SpellCheckUnderline: return QString();
+    }
+
+    return QString();
+}
+
+bool Format::equals(const Format &other) const
+{
+    return m_foreground ==  other.m_foreground
+        && m_background == other.m_background
+        && m_underlineColor == other.m_underlineColor
+        && m_underlineStyle == other.m_underlineStyle
+        && m_bold == other.m_bold
+        && m_italic == other.m_italic;
+}
+
+QString Format::toString() const
+{
+    QStringList text({m_foreground.name(),
+                      m_background.name(),
+                      m_bold ? QLatin1String(trueString) : QLatin1String(falseString),
+                      m_italic ? QLatin1String(trueString) : QLatin1String(falseString),
+                      m_underlineColor.name(),
+                      underlineStyleToString(m_underlineStyle)});
+
+    return text.join(QLatin1Char(';'));
 }
 
 bool Format::fromString(const QString &str)
@@ -97,22 +163,21 @@ bool Format::fromString(const QString &str)
     *this = Format();
 
     const QStringList lst = str.split(QLatin1Char(';'));
-    if (lst.count() != 4)
+    if (lst.count() != 4 && lst.count() != 6)
         return false;
 
     m_foreground = stringToColor(lst.at(0));
     m_background = stringToColor(lst.at(1));
     m_bold = lst.at(2) == QLatin1String(trueString);
     m_italic = lst.at(3) == QLatin1String(trueString);
+    m_underlineColor = stringToColor(lst.at(4));
+    m_underlineStyle = stringToUnderlineStyle(lst.at(5));
+
     return true;
 }
 
 
 // ColorScheme
-
-ColorScheme::ColorScheme()
-{
-}
 
 bool ColorScheme::contains(TextStyle category) const
 {
@@ -166,6 +231,10 @@ bool ColorScheme::save(const QString &fileName, QWidget *parent) const
                 w.writeAttribute(QLatin1String("bold"), QLatin1String(trueString));
             if (format.italic())
                 w.writeAttribute(QLatin1String("italic"), QLatin1String(trueString));
+            if (format.underlineColor().isValid())
+                 w.writeAttribute(QStringLiteral("underlineColor"), format.underlineColor().name().toLower());
+            if (format.underlineStyle() != QTextCharFormat::NoUnderline)
+                 w.writeAttribute(QLatin1String("underlineStyle"), underlineStyleToString(format.underlineStyle()));
             w.writeEndElement();
         }
 
@@ -273,6 +342,8 @@ void ColorSchemeReader::readStyle()
     QString background = attr.value(QLatin1String("background")).toString();
     bool bold = attr.value(QLatin1String("bold")) == QLatin1String(trueString);
     bool italic = attr.value(QLatin1String("italic")) == QLatin1String(trueString);
+    QString underlineColor = attr.value(QLatin1String("underlineColor")).toString();
+    QString underlineStyle = attr.value(QLatin1String("underlineStyle")).toString();
 
     Format format;
 
@@ -288,6 +359,13 @@ void ColorSchemeReader::readStyle()
 
     format.setBold(bold);
     format.setItalic(italic);
+
+    if (QColor::isValidColor(underlineColor))
+        format.setUnderlineColor(QColor(underlineColor));
+    else
+        format.setUnderlineColor(QColor());
+
+    format.setUnderlineStyle(stringToUnderlineStyle(underlineStyle));
 
     m_scheme->setFormatFor(Constants::styleFromName(name), format);
 

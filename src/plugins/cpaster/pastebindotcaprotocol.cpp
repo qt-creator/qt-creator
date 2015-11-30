@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -37,16 +38,31 @@
 #include <QStringList>
 
 static const char urlC[] = "http://pastebin.ca/";
+static const char internalUrlC[] = "http://pbin.ca/";
 static const char protocolNameC[] = "Pastebin.Ca";
 
-namespace CodePaster {
-PasteBinDotCaProtocol::PasteBinDotCaProtocol() :
-    m_fetchReply(0),
-    m_listReply(0),
-    m_pasteReply(0),
-    m_hostChecked(false)
+static inline QByteArray expiryValue(int expiryDays)
 {
+    // pastebin.ca supports 1-3 days, 1-3 weeks, 1-6 months, 1 year
+    const int months = expiryDays / 30;
+    const int weeks = expiryDays / 7;
+
+    if (expiryDays == 1)
+        return "1 day";
+    if (expiryDays < 4)
+        return QByteArray::number(expiryDays) + " days";
+    if (weeks <= 1)
+        return "1 week";
+    if (weeks <= 3)
+        return QByteArray::number(weeks) + " weeks";
+    if (months <= 1)
+        return "1 month";
+    if (months <= 6)
+        return QByteArray::number(months) + " months";
+    return "1 year"; // using Never makes the post expire after 1 month
 }
+
+namespace CodePaster {
 
 QString PasteBinDotCaProtocol::protocolName()
 {
@@ -75,7 +91,8 @@ void PasteBinDotCaProtocol::fetch(const QString &id)
         link.insert(0, url);
     }
     m_fetchReply = httpGet(link);
-    connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
+    connect(m_fetchReply, &QNetworkReply::finished,
+            this, &PasteBinDotCaProtocol::fetchFinished);
     m_fetchId = id;
 }
 
@@ -109,13 +126,14 @@ void PasteBinDotCaProtocol::paste(const QString &text,
     data += "&description=";
     data += QUrl::toPercentEncoding(comment);
     data += "&expiry=";
-    data += QByteArray::number(expiryDays);
-    data += "%20day&name=";  // Title or name.
+    data += QUrl::toPercentEncoding(QLatin1String(expiryValue(expiryDays)));
+    data += "&name="; // Title or name.
     data += QUrl::toPercentEncoding(description);
     // fire request
-    const QString link = QLatin1String(urlC) + QLatin1String("quiet-paste.php");
+    const QString link = QLatin1String(internalUrlC) + QLatin1String("quiet-paste.php");
     m_pasteReply = httpPost(link, data);
-    connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
+    connect(m_pasteReply, &QNetworkReply::finished,
+            this, &PasteBinDotCaProtocol::pasteFinished);
 }
 
 void PasteBinDotCaProtocol::pasteFinished()
@@ -154,7 +172,7 @@ void PasteBinDotCaProtocol::list()
 {
     QTC_ASSERT(!m_listReply, return);
     m_listReply = httpGet(QLatin1String(urlC));
-    connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
+    connect(m_listReply, &QNetworkReply::finished, this, &PasteBinDotCaProtocol::listFinished);
 }
 
 bool PasteBinDotCaProtocol::checkConfiguration(QString *errorMessage)

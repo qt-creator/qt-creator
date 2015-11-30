@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -24,12 +24,18 @@
     manager takes when you start or shut down \QC. This section describes
     the process and the state that plugins go through in detail.
 
+    You can get more information about what happens when you start \QC by running it with the
+    environment variable \c QT_LOGGING_RULES set to \c {qtc.extensionsystem*=true} which enables
+    logging of plugin-related debug output.
+
     When you start \QC, the plugin manager does the following:
 
     \list 1
         \li Looks in its search paths for
-            all .pluginspec files, and reads them. This is the first point where
-            loading a plugin can fail in the worst case of a malformed plugin spec.
+            all dynamic libraries, and reads their meta data. All libraries without meta data
+            and all libraries without the \c{org.qt-project.Qt.QtCreatorPlugin} IID are ignored.
+            This is the first point where loading a plugin can fail in the worst case of malformed
+            meta data.
 
         \li Creates an instance of the \l{ExtensionSystem::PluginSpec} class for
             each plugin. This class is a container for

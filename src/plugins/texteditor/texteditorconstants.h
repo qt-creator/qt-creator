@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -44,6 +45,7 @@ enum TextStyle {
     C_SEARCH_RESULT,
     C_SEARCH_SCOPE,
     C_PARENTHESES,
+    C_PARENTHESES_MISMATCH,
     C_CURRENT_LINE,
     C_CURRENT_LINE_NUMBER,
     C_OCCURRENCES,
@@ -59,6 +61,7 @@ enum TextStyle {
     C_VIRTUAL_METHOD,
     C_FUNCTION,
     C_KEYWORD,
+    C_PRIMITIVE_TYPE,
     C_OPERATOR,
     C_PREPROCESSOR,
     C_LABEL,
@@ -93,6 +96,13 @@ enum TextStyle {
     C_DIFF_DEST_LINE,
     C_DIFF_DEST_CHAR,
 
+    C_LOG_CHANGE_LINE,
+
+    C_WARNING,
+    C_WARNING_CONTEXT,
+    C_ERROR,
+    C_ERROR_CONTEXT,
+
     C_LAST_STYLE_SENTINEL
 };
 
@@ -119,6 +129,10 @@ const char GOTO_BLOCK_END[]        = "TextEditor.GotoBlockEnd";
 const char GOTO_BLOCK_END_WITH_SELECTION[] = "TextEditor.GotoBlockEndWithSelection";
 const char SELECT_BLOCK_UP[]       = "TextEditor.SelectBlockUp";
 const char SELECT_BLOCK_DOWN[]     = "TextEditor.SelectBlockDown";
+const char VIEW_PAGE_UP[] = "TextEditor.viewPageUp";
+const char VIEW_PAGE_DOWN[] = "TextEditor.viewPageDown";
+const char VIEW_LINE_UP[] = "TextEditor.viewLineUp";
+const char VIEW_LINE_DOWN[] = "TextEditor.viewLineDown";
 const char MOVE_LINE_UP[]          = "TextEditor.MoveLineUp";
 const char MOVE_LINE_DOWN[]        = "TextEditor.MoveLineDown";
 const char COPY_LINE_UP[]          = "TextEditor.CopyLineUp";
@@ -168,6 +182,9 @@ const char FOLLOW_SYMBOL_UNDER_CURSOR[] = "TextEditor.FollowSymbolUnderCursor";
 const char FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT[] = "TextEditor.FollowSymbolUnderCursorInNextSplit";
 const char JUMP_TO_FILE_UNDER_CURSOR[] = "TextEditor.JumpToFileUnderCursor";
 const char JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT[] = "TextEditor.JumpToFileUnderCursorInNextSplit";
+
+const char SCROLL_BAR_SEARCH_RESULT[] = "TextEditor.ScrollBarSearchResult";
+const char SCROLL_BAR_CURRENT_LINE[] = "TextEditor.ScrollBarCurrentLine";
 
 const char *nameForStyle(TextStyle style);
 TextStyle styleFromName(const char *name);

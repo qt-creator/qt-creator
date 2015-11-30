@@ -6,6 +6,7 @@ else:ANDROID_EXPERIMENTAL_STR="false"
 QT += xml network
 
 HEADERS += \
+    androidqtsupport.h \
     androidconstants.h \
     androidconfigurations.h \
     androidmanager.h \
@@ -15,14 +16,6 @@ HEADERS += \
     androidsettingspage.h \
     androidsettingswidget.h \
     androidtoolchain.h \
-    androidpackageinstallationstep.h \
-    androidpackageinstallationfactory.h \
-    androidpackagecreationstep.h \
-    androidpackagecreationfactory.h \
-    androidpackagecreationwidget.h \
-    androiddeploystep.h \
-    androiddeploystepwidget.h \
-    androiddeploystepfactory.h \
     androiderrormessage.h \
     androidglobal.h \
     androidrunner.h \
@@ -37,7 +30,6 @@ HEADERS += \
     androiddevice.h \
     androidgdbserverkitinformation.h \
     androidanalyzesupport.h \
-    androidrunsupport.h \
     androidmanifesteditorfactory.h \
     androidmanifesteditor.h \
     androidmanifesteditorwidget.h \
@@ -46,16 +38,16 @@ HEADERS += \
     androiddeployqtstep.h \
     certificatesmodel.h \
     androiddeployqtwidget.h \
-    createandroidmanifestwizard.h \
     androidpotentialkit.h \
-    androidextralibrarylistmodel.h \
     androidsignaloperation.h \
     javaeditor.h \
-    javaeditorfactory.h \
     javaindenter.h \
     javaautocompleter.h \
     javacompletionassistprovider.h \
-    javafilewizard.h
+    avddialog.h \
+    android_global.h \
+    androidbuildapkstep.h \
+    androidbuildapkwidget.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -66,14 +58,6 @@ SOURCES += \
     androidsettingspage.cpp \
     androidsettingswidget.cpp \
     androidtoolchain.cpp \
-    androidpackageinstallationstep.cpp \
-    androidpackageinstallationfactory.cpp \
-    androidpackagecreationstep.cpp \
-    androidpackagecreationfactory.cpp \
-    androidpackagecreationwidget.cpp \
-    androiddeploystep.cpp \
-    androiddeploystepwidget.cpp \
-    androiddeploystepfactory.cpp \
     androiderrormessage.cpp \
     androidrunner.cpp \
     androiddebugsupport.cpp \
@@ -87,7 +71,6 @@ SOURCES += \
     androiddevice.cpp \
     androidgdbserverkitinformation.cpp \
     androidanalyzesupport.cpp \
-    androidrunsupport.cpp \
     androidmanifesteditorfactory.cpp \
     androidmanifesteditor.cpp \
     androidmanifesteditorwidget.cpp \
@@ -96,25 +79,25 @@ SOURCES += \
     androiddeployqtstep.cpp \
     certificatesmodel.cpp \
     androiddeployqtwidget.cpp \
-    createandroidmanifestwizard.cpp \
     androidpotentialkit.cpp \
-    androidextralibrarylistmodel.cpp \
     androidsignaloperation.cpp \
     javaeditor.cpp \
-    javaeditorfactory.cpp \
     javaindenter.cpp \
     javaautocompleter.cpp \
     javacompletionassistprovider.cpp \
-    javafilewizard.cpp
+    avddialog.cpp \
+    androidbuildapkstep.cpp \
+    androidbuildapkwidget.cpp \
+    androidqtsupport.cpp
 
 FORMS += \
     androidsettingswidget.ui \
-    androidpackagecreationwidget.ui \
-    androiddeploystepwidget.ui \
     addnewavddialog.ui \
     androidcreatekeystorecertificate.ui \
     androiddevicedialog.ui \
-    androiddeployqtwidget.ui
+    androiddeployqtwidget.ui \
+    androidbuildapkwidget.ui
 
 RESOURCES = android.qrc
+
 DEFINES += ANDROID_LIBRARY

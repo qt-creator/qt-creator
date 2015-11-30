@@ -1,5 +1,3 @@
-DEFINES += QWEAKPOINTER_ENABLE_ARROW
-
 unix:QMAKE_CXXFLAGS_DEBUG += -O3
 
 include(../../qtcreatorlibrary.pri)

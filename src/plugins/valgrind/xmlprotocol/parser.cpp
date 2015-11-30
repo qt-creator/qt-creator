@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 ** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -293,7 +294,7 @@ void Parser::Private::checkProtocolVersion(const QString &versionStr)
 
 void Parser::Private::checkTool(const QString &reportedStr)
 {
-    const QHash<QString,Parser::Tool>::ConstIterator reported = toolsByName.find(reportedStr);
+    const QHash<QString,Parser::Tool>::ConstIterator reported = toolsByName.constFind(reportedStr);
 
     if (reported == toolsByName.constEnd())
         throw ParserException(QCoreApplication::translate("Valgrind::XmlProtocol::Parser",
@@ -352,7 +353,7 @@ XauxWhat Parser::Private::parseXauxWhat()
 
 MemcheckErrorKind Parser::Private::parseMemcheckErrorKind(const QString &kind)
 {
-    const QHash<QString,MemcheckErrorKind>::ConstIterator it = errorKindsByName_memcheck.find(kind);
+    const QHash<QString,MemcheckErrorKind>::ConstIterator it = errorKindsByName_memcheck.constFind(kind);
     if (it != errorKindsByName_memcheck.constEnd())
         return *it;
     else
@@ -362,7 +363,7 @@ MemcheckErrorKind Parser::Private::parseMemcheckErrorKind(const QString &kind)
 
 HelgrindErrorKind Parser::Private::parseHelgrindErrorKind(const QString &kind)
 {
-    const QHash<QString,HelgrindErrorKind>::ConstIterator it = errorKindsByName_helgrind.find(kind);
+    const QHash<QString,HelgrindErrorKind>::ConstIterator it = errorKindsByName_helgrind.constFind(kind);
     if (it != errorKindsByName_helgrind.constEnd())
         return *it;
     else
@@ -372,7 +373,7 @@ HelgrindErrorKind Parser::Private::parseHelgrindErrorKind(const QString &kind)
 
 PtrcheckErrorKind Parser::Private::parsePtrcheckErrorKind(const QString &kind)
 {
-    const QHash<QString,PtrcheckErrorKind>::ConstIterator it = errorKindsByName_ptrcheck.find(kind);
+    const QHash<QString,PtrcheckErrorKind>::ConstIterator it = errorKindsByName_ptrcheck.constFind(kind);
     if (it != errorKindsByName_ptrcheck.constEnd())
         return *it;
     else
@@ -516,7 +517,7 @@ Frame Parser::Private::parseFrame()
             else if (name == QLatin1String("dir"))
                 frame.setDirectory(blockingReadElementText());
             else if (name == QLatin1String("file"))
-                frame.setFile( blockingReadElementText());
+                frame.setFileName(blockingReadElementText());
             else if (name == QLatin1String("line"))
                 frame.setLine(parseInt64(blockingReadElementText(), QLatin1String("error/frame/line")));
             else if (reader.isStartElement())

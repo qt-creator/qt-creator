@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,36 +9,31 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "firstdefinitionfinder.h"
 
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
 
 #include <QDebug>
 
-using namespace QmlJS;
 using namespace QmlDesigner;
-using namespace QmlJS::AST;
 
 FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
-        m_doc(Document::create("<internal>", Language::Qml))
+        m_doc(QmlJS::Document::create(QLatin1String("<internal>"), QmlJS::Dialect::Qml))
 {
     m_doc->setSource(text);
     bool ok = m_doc->parseQml();
@@ -61,7 +56,7 @@ qint32 FirstDefinitionFinder::operator()(quint32 offset)
     m_offset = offset;
     m_firstObjectDefinition = 0;
 
-    Node::accept(m_doc->qmlProgram(), this);
+    QmlJS::AST::Node::accept(m_doc->qmlProgram(), this);
 
     if (!m_firstObjectDefinition)
         return -1;
@@ -69,13 +64,13 @@ qint32 FirstDefinitionFinder::operator()(quint32 offset)
     return m_firstObjectDefinition->firstSourceLocation().offset;
 }
 
-void FirstDefinitionFinder::extractFirstObjectDefinition(UiObjectInitializer* ast)
+void FirstDefinitionFinder::extractFirstObjectDefinition(QmlJS::AST::UiObjectInitializer* ast)
 {
     if (!ast)
         return;
 
-    for (UiObjectMemberList *iter = ast->members; iter; iter = iter->next) {
-        if (UiObjectDefinition *def = cast<UiObjectDefinition*>(iter->member))
+    for (QmlJS::AST::UiObjectMemberList *iter = ast->members; iter; iter = iter->next) {
+        if (QmlJS::AST::UiObjectDefinition *def = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition*>(iter->member))
             m_firstObjectDefinition = def;
     }
 }

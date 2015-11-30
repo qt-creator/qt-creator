@@ -6,7 +6,8 @@ HEADERS += $$PWD/qmldesignerconstants.h \
     $$PWD/settingspage.h \
     $$PWD/designmodecontext.h \
     $$PWD/documentmanager.h \
-    $$PWD/styledoutputpaneplaceholder.h
+    $$PWD/styledoutputpaneplaceholder.h \
+    $$PWD/qmldesignericons.h
 
 SOURCES += $$PWD/qmldesignerplugin.cpp \
     $$PWD/shortcutmanager.cpp \

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,14 +33,13 @@
 
 #include "qmljseditor.h"
 
-#include <texteditor/codeassist/basicproposalitem.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/assistproposalitem.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippetassistcollector.h>
-#include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QStringList>
 #include <QScopedPointer>
@@ -49,29 +49,31 @@
 namespace QmlJS { class Value; }
 
 namespace QmlJSEditor {
-namespace Internal {
 
 class QmlJSCompletionAssistInterface;
 
-class QmlJSAssistProposalItem : public TextEditor::BasicProposalItem
+namespace Internal {
+
+class QmlJSAssistProposalItem : public TextEditor::AssistProposalItem
 {
 public:
-    bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
-    void applyContextualContent(TextEditor::BaseTextEditor *editor,
-                                int basePosition) const QTC_OVERRIDE;
+    bool prematurelyApplies(const QChar &c) const override;
+    void applyContextualContent(TextEditor::TextEditorWidget *editorWidget,
+                                int basePosition) const override;
 };
 
 
-class QmlJSAssistProposalModel : public TextEditor::BasicProposalItemListModel
+class QmlJSAssistProposalModel : public TextEditor::GenericProposalModel
 {
 public:
-    QmlJSAssistProposalModel(const QList<TextEditor::BasicProposalItem *> &items)
-        : TextEditor::BasicProposalItemListModel(items)
-    {}
+    QmlJSAssistProposalModel(const QList<TextEditor::AssistProposalItem *> &items)
+    {
+        loadContent(items);
+    }
 
-    void filter(const QString &prefix) QTC_OVERRIDE;
-    void sort(const QString &prefix) QTC_OVERRIDE;
-    bool keepPerfectMatch(TextEditor::AssistReason reason) const QTC_OVERRIDE;
+    void filter(const QString &prefix) override;
+    void sort(const QString &prefix) override;
+    bool keepPerfectMatch(TextEditor::AssistReason reason) const override;
 };
 
 
@@ -80,12 +82,12 @@ class QmlJSCompletionAssistProvider : public TextEditor::CompletionAssistProvide
     Q_OBJECT
 
 public:
-    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const override;
+    TextEditor::IAssistProcessor *createProcessor() const override;
 
-    int activationCharSequenceLength() const QTC_OVERRIDE;
-    bool isActivationCharSequence(const QString &sequence) const QTC_OVERRIDE;
-    bool isContinuationChar(const QChar &c) const QTC_OVERRIDE;
+    int activationCharSequenceLength() const override;
+    bool isActivationCharSequence(const QString &sequence) const override;
+    bool isContinuationChar(const QChar &c) const override;
 };
 
 
@@ -95,7 +97,7 @@ public:
     QmlJSCompletionAssistProcessor();
     ~QmlJSCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface) QTC_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;
@@ -112,12 +114,13 @@ private:
 
     int m_startPosition;
     QScopedPointer<const QmlJSCompletionAssistInterface> m_interface;
-    QList<TextEditor::BasicProposalItem *> m_completions;
+    QList<TextEditor::AssistProposalItem *> m_completions;
     TextEditor::SnippetAssistCollector m_snippetCollector;
 };
 
+} // Internal
 
-class QmlJSCompletionAssistInterface : public TextEditor::DefaultAssistInterface
+class QMLJSEDITOR_EXPORT QmlJSCompletionAssistInterface : public TextEditor::AssistInterface
 {
 public:
     QmlJSCompletionAssistInterface(QTextDocument *textDocument,
@@ -137,7 +140,6 @@ private:
     QIcon m_darkCyanIcon;
 };
 
-} // Internal
 } // QmlJSEditor
 
 #endif // QMLJSCOMPLETIONASSIST_H

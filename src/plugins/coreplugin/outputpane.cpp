@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,29 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
+#include "imode.h"
+#include "modemanager.h"
 #include "outputpane.h"
 #include "outputpanemanager.h"
-
-#include "modemanager.h"
 
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -38,22 +39,22 @@
 namespace Core {
 
 struct OutputPanePlaceHolderPrivate {
-    explicit OutputPanePlaceHolderPrivate(Core::IMode *mode, QSplitter *parent);
+    explicit OutputPanePlaceHolderPrivate(IMode *mode, QSplitter *parent);
 
-    Core::IMode *m_mode;
+    IMode *m_mode;
     QSplitter *m_splitter;
     int m_lastNonMaxSize;
     static OutputPanePlaceHolder* m_current;
 };
 
-OutputPanePlaceHolderPrivate::OutputPanePlaceHolderPrivate(Core::IMode *mode, QSplitter *parent) :
+OutputPanePlaceHolderPrivate::OutputPanePlaceHolderPrivate(IMode *mode, QSplitter *parent) :
     m_mode(mode), m_splitter(parent), m_lastNonMaxSize(0)
 {
 }
 
 OutputPanePlaceHolder *OutputPanePlaceHolderPrivate::m_current = 0;
 
-OutputPanePlaceHolder::OutputPanePlaceHolder(Core::IMode *mode, QSplitter* parent)
+OutputPanePlaceHolder::OutputPanePlaceHolder(IMode *mode, QSplitter* parent)
    : QWidget(parent), d(new OutputPanePlaceHolderPrivate(mode, parent))
 {
     setVisible(false);
@@ -64,8 +65,8 @@ OutputPanePlaceHolder::OutputPanePlaceHolder(Core::IMode *mode, QSplitter* paren
     sp.setHorizontalStretch(0);
     setSizePolicy(sp);
     layout()->setMargin(0);
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(currentModeChanged(Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, &OutputPanePlaceHolder::currentModeChanged);
 }
 
 OutputPanePlaceHolder::~OutputPanePlaceHolder()
@@ -79,7 +80,7 @@ OutputPanePlaceHolder::~OutputPanePlaceHolder()
     delete d;
 }
 
-void OutputPanePlaceHolder::currentModeChanged(Core::IMode *mode)
+void OutputPanePlaceHolder::currentModeChanged(IMode *mode)
 {
     if (d->m_current == this) {
         d->m_current = 0;

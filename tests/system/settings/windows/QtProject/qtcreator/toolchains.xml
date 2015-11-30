@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorToolChains>
-<!-- Written by QtCreator 2.7.1, 2013-03-22T16:13:19. -->
+<!-- Written by QtCreator 3.3.81, 2015-02-20T13:29:04. -->
 <qtcreator>
  <data>
   <variable>ToolChain.0</variable>
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.GccToolChain.Path">C:/QtSDK/mingw/bin/g++.exe</value>
+   <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.PlatformCodeGenFlags"/>
+   <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.PlatformLinkerFlags"/>
    <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.SupportedAbis">
     <value type="QString">x86-windows-msys-pe-32bit</value>
    </valuelist>
    <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">x86-windows-msys-pe-32bit</value>
    <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
-   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MinGW</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MinGW 4.4</value>
    <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Mingw:{2729dd3e-84f5-42e1-aed1-6a27163346ce}</value>
   </valuemap>
  </data>
@@ -55,11 +57,16 @@
  <data>
   <variable>ToolChain.4</variable>
   <valuemap type="QVariantMap">
-   <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2008-pe-32bit</value>
-   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">c:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat</value>
+   <value type="QString" key="ProjectExplorer.GccToolChain.Path">C:/Qt/Qt5.4.1/Tools/mingw491_32/bin/g++.exe</value>
+   <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.PlatformCodeGenFlags"/>
+   <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.PlatformLinkerFlags"/>
+   <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.SupportedAbis">
+    <value type="QString">x86-windows-msys-pe-32bit</value>
+   </valuelist>
+   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">x86-windows-msys-pe-32bit</value>
    <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
-   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MSVC 2008 (x86)</value>
-   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{b86e54dd-debd-409c-b4d7-1a5c710eaa37}</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MinGW 4.9</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Mingw:{44d54392-22ee-4eac-a9f1-2d882ba8a7bb}</value>
   </valuemap>
  </data>
  <data>

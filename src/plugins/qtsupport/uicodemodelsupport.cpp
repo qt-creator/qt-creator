@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -33,19 +34,20 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <coreplugin/idocument.h>
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFile>
 #include <QFileInfo>
-
-enum { debug = 0 };
+#include <QLoggingCategory>
 
 using namespace ProjectExplorer;
 using namespace CPlusPlus;
@@ -66,7 +68,7 @@ static inline QString formWindowEditorContents(const QObject *editor)
 
 namespace QtSupport {
 
-UiCodeModelSupport::UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+UiCodeModelSupport::UiCodeModelSupport(CppTools::CppModelManager *modelmanager,
                                        ProjectExplorer::Project *project,
                                        const QString &uiFile,
                                        const QString &uiHeaderFile)
@@ -76,20 +78,26 @@ UiCodeModelSupport::UiCodeModelSupport(CppTools::CppModelManagerInterface *model
       m_headerFileName(uiHeaderFile),
       m_state(BARE)
 {
-    if (debug)
-        qDebug()<<"ctor UiCodeModelSupport for"<<m_uiFileName<<uiHeaderFile;
+    QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
+    qCDebug(log) << "ctor UiCodeModelSupport for" << m_uiFileName << uiHeaderFile;
     connect(&m_process, SIGNAL(finished(int)),
             this, SLOT(finishProcess()));
+    init();
 }
 
 UiCodeModelSupport::~UiCodeModelSupport()
 {
-    if (debug)
-        qDebug()<<"dtor ~UiCodeModelSupport for"<<m_uiFileName;
+    disconnect(&m_process, SIGNAL(finished(int)),
+               this, SLOT(finishProcess()));
+    m_process.kill();
+    CppTools::CppModelManager::instance()->emitAbstractEditorSupportRemoved(m_headerFileName);
+    QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
+    qCDebug(log) << "dtor ~UiCodeModelSupport for" << m_uiFileName;
 }
 
 void UiCodeModelSupport::init() const
 {
+    QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
     if (m_state != BARE)
         return;
     QDateTime sourceTime = QFileInfo(m_uiFileName).lastModified();
@@ -98,53 +106,43 @@ void UiCodeModelSupport::init() const
     if (uiHeaderTime.isValid() && (uiHeaderTime > sourceTime)) {
         QFile file(m_headerFileName);
         if (file.open(QFile::ReadOnly | QFile::Text)) {
-            if (debug)
-                qDebug()<<"ui*h file is more recent then source file, using information from ui*h file"<<m_headerFileName;
+            qCDebug(log) << "init: ui*h file is more recent then source file, using information from ui*h file" << m_headerFileName;
             QTextStream stream(&file);
             m_contents = stream.readAll().toUtf8();
             m_cacheTime = uiHeaderTime;
             m_state = FINISHED;
+            notifyAboutUpdatedContents();
             return;
         }
     }
 
-    if (debug)
-        qDebug()<<"ui*h file not found, or not recent enough, trying to create it on the fly";
+    qCDebug(log) << "ui*h file not found, or not recent enough, trying to create it on the fly";
     QFile file(m_uiFileName);
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream stream(&file);
         const QString contents = stream.readAll();
         if (runUic(contents)) {
-            if (debug)
-                qDebug()<<"created on the fly";
+            qCDebug(log) << "created on the fly";
             return;
         } else {
             // uic run was unsuccesfull
-            if (debug)
-                qDebug()<<"uic run wasn't succesfull";
+            qCDebug(log) << "uic run wasn't succesfull";
             m_cacheTime = QDateTime ();
             m_contents.clear();
             m_state = FINISHED;
+            notifyAboutUpdatedContents();
             return;
         }
     } else {
-        if (debug)
-            qDebug()<<"Could open "<<m_uiFileName<<"needed for the cpp model";
+        qCDebug(log) << "Could not open " << m_uiFileName << "needed for the cpp model";
         m_contents.clear();
         m_state = FINISHED;
+        notifyAboutUpdatedContents();
     }
 }
 
 QByteArray UiCodeModelSupport::contents() const
 {
-    // Check the common case first
-    if (m_state == FINISHED)
-        return m_contents;
-    if (m_state == BARE)
-        init();
-    if (m_state == RUNNING)
-        finishProcess();
-
     return m_contents;
 }
 
@@ -163,16 +161,20 @@ void UiCodeModelSupport::setHeaderFileName(const QString &name)
     if (m_headerFileName == name && m_cacheTime.isValid())
         return;
 
-    if (m_state == RUNNING)
-        finishProcess();
+    if (m_state == RUNNING) {
+        m_state = ABORTING;
+        m_process.kill();
+        m_process.waitForFinished(3000);
+    }
 
-    if (debug)
-        qDebug() << "UiCodeModelSupport::setFileName"<<name;
+    QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
+    qCDebug(log) << "UiCodeModelSupport::setFileName" << name;
 
     m_headerFileName = name;
     m_contents.clear();
     m_cacheTime = QDateTime();
     m_state = BARE;
+    init();
 }
 
 bool UiCodeModelSupport::runUic(const QString &ui) const
@@ -180,10 +182,10 @@ bool UiCodeModelSupport::runUic(const QString &ui) const
     const QString uic = uicCommand();
     if (uic.isEmpty())
         return false;
+    QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
     m_process.setEnvironment(environment());
 
-    if (debug)
-        qDebug() << "UiCodeModelSupport::runUic " << uic << " on " << ui.size() << " bytes";
+    qCDebug(log) << "  UiCodeModelSupport::runUic " << uic << " on " << ui.size() << " bytes";
     m_process.start(uic, QStringList(), QIODevice::ReadWrite);
     if (!m_process.waitForStarted())
         return false;
@@ -195,8 +197,7 @@ bool UiCodeModelSupport::runUic(const QString &ui) const
     return true;
 
 error:
-    if (debug)
-        qDebug() << "failed" << m_process.readAllStandardError();
+    qCDebug(log) << "failed" << m_process.readAllStandardError();
     m_process.kill();
     m_state = FINISHED;
     return false;
@@ -204,29 +205,26 @@ error:
 
 void UiCodeModelSupport::updateFromEditor(const QString &formEditorContents)
 {
-    if (m_state == BARE)
-        init();
-    if (m_state == RUNNING)
-        finishProcess();
-    if (runUic(formEditorContents))
-        if (finishProcess())
-            updateDocument();
+    QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
+    qCDebug(log) << "updating from editor" << m_uiFileName;
+    if (m_state == RUNNING) {
+        m_state = ABORTING;
+        m_process.kill();
+        m_process.waitForFinished(3000);
+    }
+    runUic(formEditorContents);
 }
 
 void UiCodeModelSupport::updateFromBuild()
 {
-    if (debug)
-        qDebug()<<"UiCodeModelSupport::updateFromBuild() for file"<<m_uiFileName;
-    if (m_state == BARE)
-        init();
-    if (m_state == RUNNING)
-        finishProcess();
+    QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
+    qCDebug(log) << "UiCodeModelSupport::updateFromBuild() for " << m_uiFileName;
+
     // This is mostly a fall back for the cases when uic couldn't be run
     // it pays special attention to the case where a ui_*h was newly created
     QDateTime sourceTime = QFileInfo(m_uiFileName).lastModified();
     if (m_cacheTime.isValid() && m_cacheTime >= sourceTime) {
-        if (debug)
-            qDebug()<<"Cache is still more recent then source";
+        qCDebug(log) << "Cache is still more recent then source";
         return;
     } else {
         QFileInfo fi(m_headerFileName);
@@ -234,32 +232,31 @@ void UiCodeModelSupport::updateFromBuild()
         if (uiHeaderTime.isValid() && (uiHeaderTime > sourceTime)) {
             if (m_cacheTime >= uiHeaderTime)
                 return;
-            if (debug)
-                qDebug()<<"found ui*h updating from it";
+            qCDebug(log) << "found ui*h updating from it";
 
             QFile file(m_headerFileName);
             if (file.open(QFile::ReadOnly | QFile::Text)) {
                 QTextStream stream(&file);
                 m_contents = stream.readAll().toUtf8();
                 m_cacheTime = uiHeaderTime;
+                notifyAboutUpdatedContents();
                 updateDocument();
                 return;
             }
         }
-        if (debug)
-            qDebug()<<"ui*h not found or not more recent then source not changing anything";
+        qCDebug(log) << "ui*h not found or not more recent then source not changing anything";
     }
 }
 
 QString UiCodeModelSupport::uicCommand() const
 {
     QtSupport::BaseQtVersion *version;
-    if (m_project->needsConfiguration()) {
-        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::defaultKit());
-    } else {
-        ProjectExplorer::Target *target = m_project->activeTarget();
+    ProjectExplorer::Target *target;
+    if (!m_project->needsConfiguration()
+        && (target = m_project->activeTarget()))
         version = QtSupport::QtKitInformation::qtVersion(target->kit());
-    }
+    else
+        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::defaultKit());
     return version ? version->uicCommand() : QString();
 }
 
@@ -276,34 +273,30 @@ QStringList UiCodeModelSupport::environment() const
     }
 }
 
-bool UiCodeModelSupport::finishProcess() const
+bool UiCodeModelSupport::finishProcess()
 {
     if (m_state != RUNNING)
         return false;
+    QLoggingCategory log("qtc.qtsupport.uicodemodelsupport");
     if (!m_process.waitForFinished(3000)
             && m_process.exitStatus() != QProcess::NormalExit
             && m_process.exitCode() != 0) {
-        if (m_state != RUNNING) // waitForFinished can recurse into finishProcess
-            return false;
 
-        if (debug)
-            qDebug() << "failed" << m_process.readAllStandardError();
+        qCDebug(log) << "finish process: failed" << m_process.readAllStandardError();
         m_process.kill();
         m_state = FINISHED;
         return false;
     }
-
-    if (m_state != RUNNING) // waitForFinished can recurse into finishProcess
-        return true;
 
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
     // conversion below is to normalize both the encoding, and the line terminators.
     QString normalized = QString::fromLocal8Bit(m_process.readAllStandardOutput());
     m_contents = normalized.toUtf8();
     m_cacheTime = QDateTime::currentDateTime();
-    if (debug)
-        qDebug() << "ok" << m_contents.size() << "bytes.";
+    qCDebug(log) << "finish process: ok" << m_contents.size() << "bytes.";
     m_state = FINISHED;
+    notifyAboutUpdatedContents();
+    updateDocument();
     return true;
 }
 
@@ -333,16 +326,12 @@ UiCodeModelManager::~UiCodeModelManager()
 
 static UiCodeModelSupport *findUiFile(const QList<UiCodeModelSupport *> &range, const QString &uiFile)
 {
-    foreach (UiCodeModelSupport *support, range) {
-        if (support->uiFileName() == uiFile)
-            return support;
-    }
-    return 0;
+    return Utils::findOrDefault(range, Utils::equal(&UiCodeModelSupport::uiFileName, uiFile));
 }
 
 void UiCodeModelManager::update(ProjectExplorer::Project *project, QHash<QString, QString> uiHeaders)
 {
-    CppTools::CppModelManagerInterface *mm = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *mm = CppTools::CppModelManager::instance();
 
     // Find support to add/update:
     QList<UiCodeModelSupport *> oldSupport = m_instance->m_projectUiSupport.value(project);
@@ -394,7 +383,7 @@ void UiCodeModelManager::buildStateHasChanged(Project *project)
 
 void UiCodeModelManager::projectWasRemoved(Project *project)
 {
-    CppTools::CppModelManagerInterface *mm = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *mm = CppTools::CppModelManager::instance();
 
     QList<UiCodeModelSupport *> projectSupport = m_projectUiSupport.value(project);
     foreach (UiCodeModelSupport *const i, projectSupport) {
@@ -413,7 +402,7 @@ void UiCodeModelManager::editorIsAboutToClose(Core::IEditor *editor)
         if (isFormWindowDocument(m_lastEditor->document())) {
             disconnect(m_lastEditor->document(), SIGNAL(changed()), this, SLOT(uiDocumentContentsHasChanged()));
             if (m_dirty) {
-                updateContents(m_lastEditor->document()->filePath(),
+                updateContents(m_lastEditor->document()->filePath().toString(),
                                formWindowEditorContents(m_lastEditor));
                 m_dirty = false;
             }
@@ -429,7 +418,7 @@ void UiCodeModelManager::editorWasChanged(Core::IEditor *editor)
         disconnect(m_lastEditor->document(), SIGNAL(changed()), this, SLOT(uiDocumentContentsHasChanged()));
 
         if (m_dirty) {
-            updateContents(m_lastEditor->document()->filePath(),
+            updateContents(m_lastEditor->document()->filePath().toString(),
                            formWindowEditorContents(m_lastEditor));
             m_dirty = false;
         }

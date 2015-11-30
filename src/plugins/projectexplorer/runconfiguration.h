@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -36,11 +37,14 @@
 
 #include <utils/outputformat.h>
 #include <utils/qtcassert.h>
+#include <utils/icon.h>
 
 #include <QPointer>
 #include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QIcon)
+QT_BEGIN_NAMESPACE
+class QFormLayout;
+QT_END_NAMESPACE
 
 namespace Utils { class OutputFormatter; }
 
@@ -114,11 +118,11 @@ class PROJECTEXPLORER_EXPORT IRunConfigurationAspect : public QObject
     Q_OBJECT
 
 public:
-    explicit IRunConfigurationAspect(RunConfiguration *parent);
+    explicit IRunConfigurationAspect(RunConfiguration *runConfig);
     ~IRunConfigurationAspect();
 
-    virtual IRunConfigurationAspect *create(RunConfiguration *parent) const = 0;
-    virtual IRunConfigurationAspect *clone(RunConfiguration *parent) const;
+    virtual IRunConfigurationAspect *create(RunConfiguration *runConfig) const = 0;
+    virtual IRunConfigurationAspect *clone(RunConfiguration *runConfig) const;
     virtual RunConfigWidget *createConfigurationWidget();
 
     void setId(Core::Id id) { m_id = id; }
@@ -136,9 +140,6 @@ public:
     ISettingsAspect *globalSettings() const { return m_globalSettings; }
     ISettingsAspect *currentSettings() const;
     RunConfiguration *runConfiguration() const { return m_runConfiguration; }
-
-signals:
-    void requestRunActionsUpdate();
 
 protected:
     friend class RunConfiguration;
@@ -160,21 +161,24 @@ class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
     Q_OBJECT
 
 public:
-    ~RunConfiguration();
+    ~RunConfiguration() override;
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
     virtual QWidget *createConfigurationWidget() = 0;
+
     virtual bool isConfigured() const;
     // Pop up configuration dialog in case for example the executable is missing.
-    virtual bool ensureConfigured(QString *errorMessage = 0);
+    enum ConfigurationState { Configured, UnConfigured, Waiting };
+    // TODO rename function
+    virtual ConfigurationState ensureConfigured(QString *errorMessage = 0);
 
     Target *target() const;
 
     virtual Utils::OutputFormatter *createOutputFormatter() const;
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     QList<IRunConfigurationAspect *> extraAspects() const;
     IRunConfigurationAspect *extraAspect(Core::Id id) const;
@@ -188,7 +192,7 @@ public:
         return 0;
     }
 
-    virtual ProjectExplorer::Abi abi() const;
+    virtual Abi abi() const;
 
     void addExtraAspects();
     void addExtraAspect(IRunConfigurationAspect *aspect);
@@ -196,9 +200,10 @@ public:
 signals:
     void enabledChanged();
     void requestRunActionsUpdate();
+    void configurationFinished();
 
 protected:
-    RunConfiguration(Target *parent, const Core::Id id);
+    RunConfiguration(Target *parent, Core::Id id);
     RunConfiguration(Target *parent, RunConfiguration *source);
 
     /// convenience function to get current build configuration.
@@ -219,11 +224,12 @@ public:
     explicit IRunConfigurationFactory(QObject *parent = 0);
     virtual ~IRunConfigurationFactory();
 
-    virtual QList<Core::Id> availableCreationIds(Target *parent) const = 0;
-    virtual QString displayNameForId(const Core::Id id) const = 0;
+    enum CreationMode {UserCreate, AutoCreate};
+    virtual QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode = UserCreate) const = 0;
+    virtual QString displayNameForId(Core::Id id) const = 0;
 
-    virtual bool canCreate(Target *parent, const Core::Id id) const = 0;
-    RunConfiguration *create(Target *parent, const Core::Id id);
+    virtual bool canCreate(Target *parent, Core::Id id) const = 0;
+    RunConfiguration *create(Target *parent, Core::Id id);
     virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
     RunConfiguration *restore(Target *parent, const QVariantMap &map);
     virtual bool canClone(Target *parent, RunConfiguration *product) const = 0;
@@ -237,7 +243,7 @@ signals:
     void availableCreationIdsChanged();
 
 private:
-    virtual RunConfiguration *doCreate(Target *parent, const Core::Id id) = 0;
+    virtual RunConfiguration *doCreate(Target *parent, Core::Id id) = 0;
     virtual RunConfiguration *doRestore(Target *parent, const QVariantMap &map) = 0;
 };
 
@@ -248,8 +254,8 @@ public:
     explicit IRunControlFactory(QObject *parent = 0);
     virtual ~IRunControlFactory();
 
-    virtual bool canRun(RunConfiguration *runConfiguration, RunMode mode) const = 0;
-    virtual RunControl *create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage) = 0;
+    virtual bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const = 0;
+    virtual RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) = 0;
 
     virtual IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc);
 };
@@ -278,7 +284,7 @@ public:
         AsynchronousStop     // Stop sequence has been started
     };
 
-    RunControl(RunConfiguration *runConfiguration, RunMode mode);
+    RunControl(RunConfiguration *runConfiguration, Core::Id mode);
     virtual ~RunControl();
     virtual void start() = 0;
 
@@ -286,17 +292,21 @@ public:
     virtual StopResult stop() = 0;
     virtual bool isRunning() const = 0;
     virtual QString displayName() const;
-    virtual QIcon icon() const = 0;
+    virtual bool supportsReRunning() const { return true; }
+
+    void setIcon(const Utils::Icon &icon);
+    Utils::Icon icon() const;
 
     ProcessHandle applicationProcessHandle() const;
     void setApplicationProcessHandle(const ProcessHandle &handle);
     Abi abi() const;
 
     RunConfiguration *runConfiguration() const;
+    Project *project() const;
     bool sameRunConfiguration(const RunControl *other) const;
 
     Utils::OutputFormatter *outputFormatter();
-    RunMode runMode() const;
+    Core::Id runMode() const;
 
 public slots:
     void bringApplicationToForeground(qint64 pid);
@@ -320,8 +330,10 @@ protected:
 
 private:
     QString m_displayName;
-    RunMode m_runMode;
+    Core::Id m_runMode;
+    Utils::Icon m_icon;
     const QPointer<RunConfiguration> m_runConfiguration;
+    QPointer<Project> m_project;
     Utils::OutputFormatter *m_outputFormatter;
 
     // A handle to the actual application process.

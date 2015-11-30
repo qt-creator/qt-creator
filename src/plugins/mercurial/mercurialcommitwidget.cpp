@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Brian McGillion
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Brian McGillion
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,75 +32,79 @@
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/completingtextedit.h>
 #include <utils/qtcassert.h>
 
+#include <QRegExp>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
 
-#include <QDebug>
-#include <QRegExp>
-
 //see the git submit widget for details of the syntax Highlighter
-
-//TODO Check to see when the Highlighter has been moved to a base class and use that instead
 
 namespace Mercurial {
 namespace Internal {
 
-// Retrieve the comment char format from the text editor.
-static QTextCharFormat commentFormat()
-{
-    return TextEditor::TextEditorSettings::fontSettings().toTextCharFormat(TextEditor::C_COMMENT);
-}
-
 // Highlighter for Mercurial submit messages. Make the first line bold, indicates
 // comments as such (retrieving the format from the text editor) and marks up
 // keywords (words in front of a colon as in 'Task: <bla>').
-class MercurialSubmitHighlighter : QSyntaxHighlighter
+class MercurialSubmitHighlighter : TextEditor::SyntaxHighlighter
 {
 public:
     explicit MercurialSubmitHighlighter(QTextEdit *parent);
     void highlightBlock(const QString &text);
 
 private:
-    enum State { Header, Comment, Other };
-    const QTextCharFormat m_commentFormat;
+    enum State { None = -1, Header, Other };
+    enum Format { Format_Comment };
     QRegExp m_keywordPattern;
-    const QChar m_hashChar;
 };
 
 MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit *parent) :
-        QSyntaxHighlighter(parent),
-        m_commentFormat(commentFormat()),
-        m_keywordPattern(QLatin1String("^\\w+:")),
-        m_hashChar(QLatin1Char('#'))
+        TextEditor::SyntaxHighlighter(parent),
+        m_keywordPattern(QLatin1String("^\\w+:"))
 {
+    static QVector<TextEditor::TextStyle> categories;
+    if (categories.isEmpty())
+        categories << TextEditor::C_COMMENT;
+
+    setTextFormatCategories(categories);
     QTC_CHECK(m_keywordPattern.isValid());
 }
 
 void MercurialSubmitHighlighter::highlightBlock(const QString &text)
 {
     // figure out current state
-    State state = Other;
-    const QTextBlock block = currentBlock();
-    if (block.position() == 0) {
-        state = Header;
-    } else {
-        if (text.startsWith(m_hashChar))
-            state = Comment;
+    State state = static_cast<State>(previousBlockState());
+    if (text.startsWith(QLatin1String("HG:"))) {
+        setFormat(0, text.size(), formatForCategory(Format_Comment));
+        setCurrentBlockState(state);
+        return;
     }
+
+    if (state == None) {
+        if (text.isEmpty()) {
+            setCurrentBlockState(state);
+            return;
+        }
+        state = Header;
+    } else if (state == Header) {
+        state = Other;
+    }
+
+    setCurrentBlockState(state);
+
     // Apply format.
     switch (state) {
+    case None:
+        break;
     case Header: {
-            QTextCharFormat charFormat = format(0);
-            charFormat.setFontWeight(QFont::Bold);
-            setFormat(0, text.size(), charFormat);
-        }
+        QTextCharFormat charFormat = format(0);
+        charFormat.setFontWeight(QFont::Bold);
+        setFormat(0, text.size(), charFormat);
         break;
-    case Comment:
-        setFormat(0, text.size(), m_commentFormat);
-        break;
+    }
     case Other:
         // Format key words ("Task:") italic
         if (m_keywordPattern.indexIn(text, 0, QRegExp::CaretAtZero) == 0) {
@@ -112,9 +117,8 @@ void MercurialSubmitHighlighter::highlightBlock(const QString &text)
 }
 
 
-MercurialCommitWidget::MercurialCommitWidget(QWidget *parent) :
-        VcsBase::SubmitEditorWidget(parent),
-        mercurialCommitPanel(new QWidget)
+MercurialCommitWidget::MercurialCommitWidget()
+    : mercurialCommitPanel(new QWidget)
 {
     mercurialCommitPanelUi.setupUi(mercurialCommitPanel);
     insertTopWidget(mercurialCommitPanel);
@@ -149,6 +153,15 @@ QString MercurialCommitWidget::committer()
 QString MercurialCommitWidget::repoRoot()
 {
     return mercurialCommitPanelUi.repositoryLabel->text();
+}
+
+QString MercurialCommitWidget::cleanupDescription(const QString &input) const
+{
+    const QRegularExpression commentLine(QLatin1String("^HG:[^\\n]*(\\n|$)"),
+                                         QRegularExpression::MultilineOption);
+    QString message = input;
+    message.remove(commentLine);
+    return message;
 }
 
 } // namespace Internal

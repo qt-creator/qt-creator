@@ -6,53 +6,120 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
-    <height>334</height>
+    <width>582</width>
+    <height>419</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
+    <widget class="QLabel" name="informationLabel">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME magic data is interpreted as defined by the Shared MIME-info Database specification from &lt;a href=&quot;http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0">
       <widget class="QLabel" name="valueLabel">
        <property name="text">
         <string>Value:</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="1">
       <widget class="QLineEdit" name="valueLineEdit"/>
      </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="typeLabel">
+       <property name="text">
+        <string>Type:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QComboBox" name="typeSelector">
+         <item>
+          <property name="text">
+           <string>String</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>RegExp</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Host16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Host32</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Big16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Big32</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Little16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Little32</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Byte</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="maskLabel">
+       <property name="text">
+        <string>Mask:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="maskLineEdit"/>
+     </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="typeGroupBox">
-     <property name="title">
-      <string>Type</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QRadioButton" name="stringRadioButton">
-        <property name="text">
-         <string>String</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="byteRadioButton">
-        <property name="text">
-         <string>Byte</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="useRecommendedGroupBox">
@@ -63,6 +130,19 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="0">
+       <widget class="QLabel" name="noteLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>&lt;i&gt;Note: Wide range values might impact Qt Creator's performance when opening files.&lt;/i&gt;</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
@@ -71,7 +151,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Start range:</string>
+           <string>Range start:</string>
           </property>
          </widget>
         </item>
@@ -81,7 +161,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>End range:</string>
+           <string>Range end:</string>
           </property>
          </widget>
         </item>
@@ -130,32 +210,6 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="1">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>233</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="noteLabel">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>&lt;i&gt;Note: Wide range values might impact Qt Creator's performance when opening files.&lt;/i&gt;</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::RichText</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -167,7 +221,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>11</height>
+       <height>0</height>
       </size>
      </property>
     </spacer>
@@ -193,124 +247,12 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>295</x>
-     <y>297</y>
+     <x>301</x>
+     <y>356</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>useRecommendedGroupBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>prioritySpinBox</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>48</x>
-     <y>171</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>105</x>
-     <y>249</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>useRecommendedGroupBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>startRangeSpinBox</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>195</x>
-     <y>169</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>107</x>
-     <y>149</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>useRecommendedGroupBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>endRangeSpinBox</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>195</x>
-     <y>169</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>107</x>
-     <y>175</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>useRecommendedGroupBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>priorityLabel</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>225</x>
-     <y>178</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>99</x>
-     <y>201</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>useRecommendedGroupBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>startRangeLabel</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>225</x>
-     <y>178</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>99</x>
-     <y>149</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>useRecommendedGroupBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>endRangeLabel</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>225</x>
-     <y>178</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>99</x>
-     <y>175</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>useRecommendedGroupBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>noteLabel</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>225</x>
-     <y>178</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>182</x>
-     <y>225</y>
     </hint>
    </hints>
   </connection>

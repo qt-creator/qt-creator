@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,8 +35,13 @@
 #include "qtversionmanager.h"
 #include "qtparser.h"
 
+#include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QtSupport {
 
@@ -54,23 +60,27 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
     Q_UNUSED(k);
 
     // find "Qt in PATH":
-    Utils::FileName qmake = Utils::BuildableHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
+    QList<BaseQtVersion *> versionList = QtVersionManager::unsortedVersions();
+    BaseQtVersion *result = findOrDefault(versionList, equal(&BaseQtVersion::autodetectionSource,
+                                                             QString::fromLatin1("PATH")));
+    if (result)
+        return result->uniqueId();
 
-    if (qmake.isEmpty())
-        return -1;
+    // Legacy: Check for system qmake path: Remove in 3.5 (or later):
+    // This check is expensive as it will potentially run binaries (qmake --version)!
+    const FileName qmakePath
+            = BuildableHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
 
-    QList<BaseQtVersion *> versionList = QtVersionManager::versions();
-    BaseQtVersion *fallBack = 0;
-    foreach (BaseQtVersion *v, versionList) {
-        if (qmake == v->qmakeCommand())
-            return v->uniqueId();
-        if (v->type() == QLatin1String(QtSupport::Constants::DESKTOPQT) && !fallBack)
-            fallBack = v;
+    if (!qmakePath.isEmpty()) {
+        result = findOrDefault(versionList, equal(&BaseQtVersion::qmakeCommand, qmakePath));
+        if (result)
+            return result->uniqueId();
     }
-    if (fallBack)
-        return fallBack->uniqueId();
 
-    return -1;
+    // Use *any* desktop Qt:
+    result = findOrDefault(versionList, equal(&BaseQtVersion::type,
+                                              QString::fromLatin1(QtSupport::Constants::DESKTOPQT)));
+    return result ? result->uniqueId() : -1;
 }
 
 QList<ProjectExplorer::Task> QtKitInformation::validate(const ProjectExplorer::Kit *k) const
@@ -125,6 +135,21 @@ ProjectExplorer::IOutputParser *QtKitInformation::createOutputParser(const Proje
     return 0;
 }
 
+void QtKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
+{
+    expander->registerSubProvider(
+                [this, kit]() -> MacroExpander * {
+                    BaseQtVersion *version = qtVersion(kit);
+                    return version ? version->macroExpander() : 0;
+                });
+
+    expander->registerVariable("Qt:Name", tr("Name of Qt Version"),
+                [this, kit]() -> QString {
+                   BaseQtVersion *version = qtVersion(kit);
+                   return version ? version->displayName() : tr("unknown");
+                });
+}
+
 Core::Id QtKitInformation::id()
 {
     return "QtSupport.QtInformation";
@@ -144,7 +169,7 @@ int QtKitInformation::qtVersionId(const ProjectExplorer::Kit *k)
             id = -1;
     } else {
         QString source = data.toString();
-        foreach (BaseQtVersion *v, QtVersionManager::versions()) {
+        foreach (BaseQtVersion *v, QtVersionManager::unsortedVersions()) {
             if (v->autodetectionSource() != source)
                 continue;
             id = v->uniqueId();
@@ -195,27 +220,54 @@ void QtKitInformation::kitsWereLoaded()
             this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 }
 
-QtPlatformKitMatcher::QtPlatformKitMatcher(const QString &platform) :
-    m_platform(platform)
-{ }
-
-bool QtPlatformKitMatcher::matches(const ProjectExplorer::Kit *k) const
+KitMatcher QtKitInformation::platformMatcher(const QString &platform)
 {
-    BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    return version && version->platformName() == m_platform;
+    return std::function<bool(const Kit *)>([platform](const Kit *kit) -> bool {
+        BaseQtVersion *version = QtKitInformation::qtVersion(kit);
+        return version && version->platformName() == platform;
+    });
 }
 
-bool QtVersionKitMatcher::matches(const ProjectExplorer::Kit *k) const
+KitMatcher QtKitInformation::qtVersionMatcher(const Core::FeatureSet &required,
+    const QtVersionNumber &min, const QtVersionNumber &max)
+{
+    return std::function<bool(const Kit *)>([required, min, max](const Kit *kit) -> bool {
+        BaseQtVersion *version = QtKitInformation::qtVersion(kit);
+        if (!version)
+            return false;
+        QtVersionNumber current = version->qtVersion();
+        if (min.majorVersion > -1 && current < min)
+            return false;
+        if (max.majorVersion > -1 && current > max)
+            return false;
+        return version->availableFeatures().contains(required);
+    });
+}
+
+QSet<QString> QtKitInformation::availablePlatforms(const Kit *k) const
+{
+    QSet<QString> result;
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    if (version) {
+        QString platform = version->platformName();
+        if (!platform.isEmpty())
+            result.insert(version->platformName());
+    }
+    return result;
+}
+
+QString QtKitInformation::displayNameForPlatform(const Kit *k, const QString &platform) const
 {
     BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    if (!version)
-        return false;
-    QtVersionNumber current = version->qtVersion();
-    if (m_min.majorVersion > -1 && current < m_min)
-        return false;
-    if (m_max.majorVersion > -1 && current > m_max)
-        return false;
-    return version->availableFeatures().contains(m_features);
+    if (version && version->platformName() == platform)
+        return version->platformDisplayName();
+    return QString();
+}
+
+Core::FeatureSet QtKitInformation::availableFeatures(const Kit *k) const
+{
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    return version ? version->availableFeatures() : Core::FeatureSet();
 }
 
 } // namespace QtSupport

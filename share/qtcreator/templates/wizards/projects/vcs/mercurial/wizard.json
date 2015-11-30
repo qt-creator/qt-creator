@@ -1,0 +1,98 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "H.Mercurial",
+    "category": "T.Import",
+    "trDescription": "Clones a Mercurial repository and tries to load the contained project.",
+    "trDisplayName": "Mercurial Clone",
+    "trDisplayCategory": "Import Project",
+    "icon": "icon.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Mercurial') >= 0}",
+
+    "options":
+    [
+        { "key": "vcsId", "value": "H.Mercurial" },
+        { "key": "vcsName", "value": "%{JS: Vcs.displayName('%{vcsId}')}" },
+        { "key": "SR", "value": "%{JS: '%{Repo}'.substr('%{Repo}'.indexOf(':') + 1) }"},
+        { "key": "defaultDir", "value": "%{JS: '%{SR}'.substr('%{SR}'.lastIndexOf('/') + 1).replace(/\\./, '-') }"},
+        { "key": "TargetPath", "value": "%{Path}/%{Dir}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Configuration",
+            "trShortTitle": "Configuration",
+            "trSubTitle": "Please configure <b>%{vcsName}</b> now.",
+            "typeId": "VcsConfiguration",
+            "enabled": "%{JS: !Vcs.isConfigured('%{vcsId}')}",
+            "data": { "vcsId": "%{vcsId}" }
+        },
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "trSubTitle": "Specify repository URL, checkout directory, and path.",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "Repo",
+                    "trDisplayName": "Repository:",
+                    "mandatory": true,
+                    "type": "LineEdit"
+                },
+                {
+                    "name": "Sp1",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "Path",
+                    "trDisplayName": "Path:",
+                    "type": "PathChooser",
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                },
+                {
+                    "name": "Dir",
+                    "trDisplayName": "Directory:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "isComplete": "%{JS: '%{Dir}' === '' || !Util.exists('%{TargetPath}')}",
+                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators('%{TargetPath}')}\" exists in the filesystem.",
+                    "data":
+                    {
+                        "trText": "%{defaultDir}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Checkout",
+            "trShortTitle": "Checkout",
+            "typeId": "VcsCommand",
+            "data" :
+            {
+                "vcsId": "%{vcsId}",
+                "trRunMessage": "Running Mercurial clone...",
+                "repository": "%{Repo}",
+                "baseDirectory": "%{Path}",
+                "checkoutName": "%{Dir}"
+            }
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "Scanner",
+            "data": {
+                "subdirectoryPatterns": [ "^src$" ]
+            }
+        }
+    ]
+}

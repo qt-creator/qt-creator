@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>Git::Internal::RemoteDialog</class>
  <widget class="QDialog" name="Git::Internal::RemoteDialog">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>507</width>
-    <height>329</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Remotes</string>
   </property>
@@ -62,7 +54,7 @@
        <number>4</number>
       </property>
       <item>
-       <widget class="QTableView" name="remoteView">
+       <widget class="QTreeView" name="remoteView">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -78,22 +70,29 @@
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
         </property>
-        <property name="showGrid">
+        <property name="rootIsDecorated">
          <bool>false</bool>
         </property>
-        <property name="wordWrap">
-         <bool>false</bool>
+        <property name="uniformRowHeights">
+         <bool>true</bool>
         </property>
-        <attribute name="horizontalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
        </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item>
          <widget class="QPushButton" name="addButton">
           <property name="text">

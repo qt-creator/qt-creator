@@ -31,7 +31,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QmakeProjectManager::Internal::LibraryPathChooser" name="libraryPathChooser" native="true"/>
+      <widget class="Utils::PathChooser" name="libraryPathChooser" native="true"/>
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="includeLabel">
@@ -239,12 +239,6 @@
    <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QmakeProjectManager::Internal::LibraryPathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">qmakeprojectmanager/addlibrarywizard.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

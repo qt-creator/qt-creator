@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -69,19 +70,19 @@ class SplitInitializerOp: public QmlJSQuickFixFactory
 
         const int pos = interface->currentFile()->cursor().position();
 
-        if (QmlJS::AST::Node *member = interface->semanticInfo().rangeAt(pos)) {
-            if (QmlJS::AST::UiObjectBinding *b = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(member)) {
+        if (Node *member = interface->semanticInfo().rangeAt(pos)) {
+            if (UiObjectBinding *b = AST::cast<UiObjectBinding *>(member)) {
                 if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
                     objectInitializer = b->initializer;
 
-            } else if (QmlJS::AST::UiObjectDefinition *b = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(member)) {
+            } else if (UiObjectDefinition *b = AST::cast<UiObjectDefinition *>(member)) {
                 if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
                     objectInitializer = b->initializer;
             }
         }
 
         if (objectInitializer)
-            result.append(TextEditor::QuickFixOperation::Ptr(new Operation(interface, objectInitializer)));
+            result.append(new Operation(interface, objectInitializer));
     }
 
     class Operation: public QmlJSQuickFixOperation
@@ -105,9 +106,9 @@ class SplitInitializerOp: public QmlJSQuickFixFactory
 
             Utils::ChangeSet changes;
 
-            for (QmlJS::AST::UiObjectMemberList *it = _objectInitializer->members; it; it = it->next) {
-                if (QmlJS::AST::UiObjectMember *member = it->member) {
-                    const QmlJS::AST::SourceLocation loc = member->firstSourceLocation();
+            for (UiObjectMemberList *it = _objectInitializer->members; it; it = it->next) {
+                if (UiObjectMember *member = it->member) {
+                    const SourceLocation loc = member->firstSourceLocation();
 
                     // insert a newline at the beginning of this binding
                     changes.insert(currentFile->startOf(loc), QLatin1String("\n"));
@@ -139,7 +140,7 @@ public:
 
         foreach (const StaticAnalysis::Message &message, messages) {
             if (interface->currentFile()->isCursorOn(message.location)) {
-                result.append(QuickFixOperation::Ptr(new Operation(interface, message)));
+                result.append(new Operation(interface, message));
                 return;
             }
         }

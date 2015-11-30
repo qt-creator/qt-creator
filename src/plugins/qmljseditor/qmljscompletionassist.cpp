@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,7 +35,7 @@
 
 #include <coreplugin/idocument.h>
 
-#include <texteditor/codeassist/iassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
@@ -42,7 +43,6 @@
 #include <texteditor/completionsettings.h>
 
 #include <utils/qtcassert.h>
-#include <utils/qtcoverride.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -54,13 +54,11 @@
 #include <qmljs/qmljscompletioncontextfinder.h>
 #include <qmljs/qmljsbundle.h>
 #include <qmljs/qmljsscopebuilder.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <QDebug>
-#include <QtAlgorithms>
 #include <QDirIterator>
 #include <QStringList>
 #include <QIcon>
@@ -85,7 +83,7 @@ enum CompletionOrder {
     TypeOrder = -30
 };
 
-static void addCompletion(QList<TextEditor::BasicProposalItem *> *completions,
+static void addCompletion(QList<AssistProposalItem *> *completions,
                           const QString &text,
                           const QIcon &icon,
                           int order,
@@ -94,7 +92,7 @@ static void addCompletion(QList<TextEditor::BasicProposalItem *> *completions,
     if (text.isEmpty())
         return;
 
-    BasicProposalItem *item = new QmlJSAssistProposalItem;
+    AssistProposalItem *item = new QmlJSAssistProposalItem;
     item->setText(text);
     item->setIcon(icon);
     item->setOrder(order);
@@ -102,7 +100,7 @@ static void addCompletion(QList<TextEditor::BasicProposalItem *> *completions,
     completions->append(item);
 }
 
-static void addCompletions(QList<TextEditor::BasicProposalItem *> *completions,
+static void addCompletions(QList<AssistProposalItem *> *completions,
                            const QStringList &newCompletions,
                            const QIcon &icon,
                            int order)
@@ -127,17 +125,17 @@ public:
 class CompletionAdder : public PropertyProcessor
 {
 protected:
-    QList<TextEditor::BasicProposalItem *> *completions;
+    QList<AssistProposalItem *> *completions;
 
 public:
-    CompletionAdder(QList<TextEditor::BasicProposalItem *> *completions,
+    CompletionAdder(QList<AssistProposalItem *> *completions,
                     const QIcon &icon, int order)
         : completions(completions)
         , icon(icon)
         , order(order)
     {}
 
-    void operator()(const Value *base, const QString &name, const Value *value) QTC_OVERRIDE
+    void operator()(const Value *base, const QString &name, const Value *value) override
     {
         Q_UNUSED(base)
         QVariant data;
@@ -157,7 +155,7 @@ public:
 class LhsCompletionAdder : public CompletionAdder
 {
 public:
-    LhsCompletionAdder(QList<TextEditor::BasicProposalItem *> *completions,
+    LhsCompletionAdder(QList<AssistProposalItem *> *completions,
                        const QIcon &icon,
                        int order,
                        bool afterOn)
@@ -165,7 +163,7 @@ public:
         , afterOn(afterOn)
     {}
 
-    void operator ()(const Value *base, const QString &name, const Value *) QTC_OVERRIDE
+    void operator ()(const Value *base, const QString &name, const Value *) override
     {
         const CppComponentValue *qmlBase = value_cast<CppComponentValue>(base);
 
@@ -247,34 +245,34 @@ private:
         (*_propertyProcessor)(_currentObject, name, value);
     }
 
-    bool processProperty(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processProperty(const QString &name, const Value *value, const PropertyInfo &) override
     {
         process(name, value);
         return true;
     }
 
-    bool processEnumerator(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processEnumerator(const QString &name, const Value *value) override
     {
         if (! _globalCompletion)
             process(name, value);
         return true;
     }
 
-    bool processSignal(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processSignal(const QString &name, const Value *value) override
     {
         if (_globalCompletion)
             process(name, value);
         return true;
     }
 
-    bool processSlot(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processSlot(const QString &name, const Value *value) override
     {
         if (_enumerateSlots)
             process(name, value);
         return true;
     }
 
-    bool processGeneratedSlot(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processGeneratedSlot(const QString &name, const Value *value) override
     {
         if (_enumerateGeneratedSlots || (_currentObject && _currentObject->className().endsWith(QLatin1String("Keys")))) {
             // ### FIXME: add support for attached properties.
@@ -355,12 +353,12 @@ bool QmlJSAssistProposalItem::prematurelyApplies(const QChar &c) const
             || (text().endsWith(QLatin1Char('.')) && c == QLatin1Char('.'));
 }
 
-void QmlJSAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *editor,
+void QmlJSAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget,
                                                       int basePosition) const
 {
-    const int currentPosition = editor->position();
-    editor->setCursorPosition(basePosition);
-    editor->remove(currentPosition - basePosition);
+    const int currentPosition = editorWidget->position();
+    editorWidget->setCursorPosition(basePosition);
+    editorWidget->remove(currentPosition - basePosition);
 
     QString content = text();
     int cursorOffset = 0;
@@ -379,22 +377,22 @@ void QmlJSAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
     int replacedLength = 0;
     for (int i = 0; i < replaceable.length(); ++i) {
         const QChar a = replaceable.at(i);
-        const QChar b = editor->textDocument()->characterAt(editor->position() + i);
+        const QChar b = editorWidget->characterAt(editorWidget->position() + i);
         if (a == b)
             ++replacedLength;
         else
             break;
     }
-    const int length = editor->position() - basePosition + replacedLength;
-    editor->replace(length, content);
+    const int length = editorWidget->position() - basePosition + replacedLength;
+    editorWidget->replace(length, content);
     if (cursorOffset)
-        editor->setCursorPosition(editor->position() + cursorOffset);
+        editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
 }
 
 // -------------------------
 // FunctionHintProposalModel
 // -------------------------
-class FunctionHintProposalModel : public TextEditor::IFunctionHintProposalModel
+class FunctionHintProposalModel : public IFunctionHintProposalModel
 {
 public:
     FunctionHintProposalModel(const QString &functionName, const QStringList &namedArguments,
@@ -405,10 +403,10 @@ public:
         , m_isVariadic(isVariadic)
     {}
 
-    void reset() QTC_OVERRIDE {}
-    int size() const QTC_OVERRIDE { return 1; }
-    QString text(int index) const QTC_OVERRIDE;
-    int activeArgument(const QString &prefix) const QTC_OVERRIDE;
+    void reset() override {}
+    int size() const override { return 1; }
+    QString text(int index) const override;
+    int activeArgument(const QString &prefix) const override;
 
 private:
     QString m_functionName;
@@ -475,7 +473,7 @@ int FunctionHintProposalModel::activeArgument(const QString &prefix) const
 // -----------------------------
 // QmlJSCompletionAssistProvider
 // -----------------------------
-bool QmlJSCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
+bool QmlJSCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == Constants::C_QMLJSEDITOR_ID;
 }
@@ -513,9 +511,8 @@ QmlJSCompletionAssistProcessor::~QmlJSCompletionAssistProcessor()
 
 IAssistProposal *QmlJSCompletionAssistProcessor::createContentProposal() const
 {
-    IGenericProposalModel *model = new QmlJSAssistProposalModel(m_completions);
-    IAssistProposal *proposal = new GenericProposal(m_startPosition, model);
-    return proposal;
+    GenericProposalModel *model = new QmlJSAssistProposalModel(m_completions);
+    return new GenericProposal(m_startPosition, model);
 }
 
 IAssistProposal *QmlJSCompletionAssistProcessor::createHintProposal(
@@ -528,7 +525,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::createHintProposal(
     return proposal;
 }
 
-IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface *assistInterface)
+IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *assistInterface)
 {
     m_interface.reset(static_cast<const QmlJSCompletionAssistInterface *>(assistInterface));
 
@@ -654,8 +651,8 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
 
     // currently path-in-stringliteral is the only completion available in imports
     if (contextFinder.isInImport()) {
-        QmlJS::ModelManagerInterface::ProjectInfo pInfo = QmlJS::ModelManagerInterface::instance()
-                ->projectInfo(ProjectExplorer::ProjectExplorerPlugin::currentProject());
+        ModelManagerInterface::ProjectInfo pInfo = ModelManagerInterface::instance()
+                ->projectInfo(ProjectExplorer::ProjectTree::currentProject());
         QmlBundle platform = pInfo.extendedBundle.bundleForLanguage(document->language());
         if (!platform.supportedImports().isEmpty()) {
             QTextCursor tc(qmlInterface->textDocument());
@@ -664,8 +661,8 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             expressionUnderCursor(tc);
             QString libVersion = contextFinder.libVersionImport();
             if (!libVersion.isNull()) {
-                QStringList completions=platform.supportedImports().complete(libVersion, QString(), QmlJS::PersistentTrie::LookupFlags(QmlJS::PersistentTrie::CaseInsensitive|QmlJS::PersistentTrie::SkipChars|QmlJS::PersistentTrie::SkipSpaces));
-                completions = QmlJS::PersistentTrie::matchStrengthSort(libVersion, completions);
+                QStringList completions=platform.supportedImports().complete(libVersion, QString(), PersistentTrie::LookupFlags(PersistentTrie::CaseInsensitive|PersistentTrie::SkipChars|PersistentTrie::SkipSpaces));
+                completions = PersistentTrie::matchStrengthSort(libVersion, completions);
 
                 int toSkip = qMax(libVersion.lastIndexOf(QLatin1Char(' '))
                                   , libVersion.lastIndexOf(QLatin1Char('.')));
@@ -694,14 +691,14 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
         tc.setPosition(m_startPosition - 1);
 
         QmlExpressionUnderCursor expressionUnderCursor;
-        QmlJS::AST::ExpressionNode *expression = expressionUnderCursor(tc);
+        AST::ExpressionNode *expression = expressionUnderCursor(tc);
 
         if (expression != 0 && ! isLiteral(expression)) {
             // Evaluate the expression under cursor.
             ValueOwner *interp = context->valueOwner();
             const Value *value =
                     interp->convertToObject(scopeChain.evaluate(expression));
-            //qDebug() << "type:" << interp->typeId(value);
+            //qCDebug(qmljsLog) << "type:" << interp->typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 ProcessProperties processProperties(&scopeChain);
@@ -758,7 +755,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             processProperties.setEnumerateSlots(false);
 
             // id: is special
-            BasicProposalItem *idProposalItem = new QmlJSAssistProposalItem;
+            AssistProposalItem *idProposalItem = new QmlJSAssistProposalItem;
             idProposalItem->setText(QLatin1String("id: "));
             idProposalItem->setIcon(m_interface->symbolIcon());
             idProposalItem->setOrder(PropertyOrder);
@@ -917,14 +914,11 @@ bool QmlJSCompletionAssistProcessor::completeFileName(const QString &relativeBas
 {
     const QFileInfo fileInfo(fileName);
     QString directoryPrefix;
-    if (fileInfo.isRelative()) {
-        directoryPrefix = relativeBasePath;
-        directoryPrefix += QDir::separator();
-        directoryPrefix += fileInfo.path();
-    } else {
+    if (fileInfo.isRelative())
+        directoryPrefix = relativeBasePath + QLatin1Char('/') + fileInfo.path();
+    else
         directoryPrefix = fileInfo.path();
-    }
-    if (!QFileInfo(directoryPrefix).exists())
+    if (!QFileInfo::exists(directoryPrefix))
         return false;
 
     QDirIterator dirIterator(directoryPrefix,
@@ -934,7 +928,7 @@ bool QmlJSCompletionAssistProcessor::completeFileName(const QString &relativeBas
         dirIterator.next();
         const QString fileName = dirIterator.fileName();
 
-        BasicProposalItem *item = new QmlJSAssistProposalItem;
+        AssistProposalItem *item = new QmlJSAssistProposalItem;
         item->setText(fileName);
         item->setIcon(m_interface->fileNameIcon());
         m_completions.append(item);
@@ -970,9 +964,9 @@ bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath
 QmlJSCompletionAssistInterface::QmlJSCompletionAssistInterface(QTextDocument *textDocument,
                                                                int position,
                                                                const QString &fileName,
-                                                               TextEditor::AssistReason reason,
+                                                               AssistReason reason,
                                                                const SemanticInfo &info)
-    : DefaultAssistInterface(textDocument, position, fileName, reason)
+    : AssistInterface(textDocument, position, fileName, reason)
     , m_semanticInfo(info)
     , m_darkBlueIcon(iconForColor(Qt::darkBlue))
     , m_darkYellowIcon(iconForColor(Qt::darkYellow))
@@ -991,7 +985,7 @@ class QmlJSLessThan
 public:
     QmlJSLessThan(const QString &searchString) : m_searchString(searchString)
     { }
-    bool operator() (const BasicProposalItem *a, const BasicProposalItem *b)
+    bool operator() (const AssistProposalItem *a, const AssistProposalItem *b)
     {
         if (a->order() != b->order())
             return a->order() > b->order();
@@ -1022,12 +1016,12 @@ private:
 // -------------------------
 void QmlJSAssistProposalModel::filter(const QString &prefix)
 {
-    BasicProposalItemListModel::filter(prefix);
+    GenericProposalModel::filter(prefix);
     if (prefix.startsWith(QLatin1String("__")))
         return;
-    QList<BasicProposalItem *> newCurrentItems;
+    QList<AssistProposalItem *> newCurrentItems;
     newCurrentItems.reserve(m_currentItems.size());
-    foreach (BasicProposalItem *item, m_currentItems)
+    foreach (AssistProposalItem *item, m_currentItems)
         if (!item->text().startsWith(QLatin1String("__")))
             newCurrentItems << item;
     m_currentItems = newCurrentItems;
@@ -1035,10 +1029,10 @@ void QmlJSAssistProposalModel::filter(const QString &prefix)
 
 void QmlJSAssistProposalModel::sort(const QString &prefix)
 {
-    qSort(currentItems().first, currentItems().second, QmlJSLessThan(prefix));
+    std::sort(m_currentItems.begin(), m_currentItems.end(), QmlJSLessThan(prefix));
 }
 
-bool QmlJSAssistProposalModel::keepPerfectMatch(TextEditor::AssistReason reason) const
+bool QmlJSAssistProposalModel::keepPerfectMatch(AssistReason reason) const
 {
     return reason == ExplicitlyInvoked;
 }

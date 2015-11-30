@@ -1,9 +1,37 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+**
+****************************************************************************/
+
 #include "shortcutmanager.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <utils/hostosinfo.h>
 
@@ -29,7 +57,7 @@ ShortCutManager::ShortCutManager()
     m_copyAction(tr("&Copy"), tr("Copy \"%1\""), Utils::ParameterAction::EnabledWithParameter),
     m_pasteAction(tr("&Paste"), tr("Paste \"%1\""), Utils::ParameterAction::EnabledWithParameter),
     m_selectAllAction(tr("Select &All"), tr("Select All \"%1\""), Utils::ParameterAction::EnabledWithParameter),
-    m_hideSidebarsAction(tr("Toggle Full Screen"), 0),
+    m_hideSidebarsAction(tr("Toggle Sidebars"), 0),
     m_restoreDefaultViewAction(tr("&Restore Default View"), 0),
     m_toggleLeftSidebarAction(tr("Toggle &Left Sidebar"), 0),
     m_toggleRightSidebarAction(tr("Toggle &Right Sidebar"), 0),
@@ -92,7 +120,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     //Close Editor
     Core::ActionManager::registerAction(&m_closeCurrentEditorAction, Core::Constants::CLOSE, qmlDesignerMainContext);
-    connect(&m_closeCurrentEditorAction, SIGNAL(triggered()), em, SLOT(closeEditor()));
+    connect(&m_closeCurrentEditorAction, SIGNAL(triggered()), em, SLOT(slotCloseCurrentEditorOrDocument()));
 
     //Close All
     Core::ActionManager::registerAction(&m_closeAllEditorsAction, Core::Constants::CLOSEALL, qmlDesignerMainContext);
@@ -100,7 +128,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     //Close All Others Action
     Core::ActionManager::registerAction(&m_closeOtherEditorsAction, Core::Constants::CLOSEOTHERS, qmlDesignerMainContext);
-    connect(&m_closeOtherEditorsAction, SIGNAL(triggered()), em, SLOT(closeOtherEditors()));
+    connect(&m_closeOtherEditorsAction, SIGNAL(triggered()), em, SLOT(closeOtherDocuments()));
 
     // Undo / Redo
     Core::ActionManager::registerAction(&m_undoAction, Core::Constants::UNDO, qmlDesignerMainContext);
@@ -115,28 +143,36 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     //Edit Menu
 
-    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_BACKSPACE, qmlDesignerFormEditorContext);
+    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_BACKSPACE, qmlDesignerNavigatorContext);
+    command->setDefaultKeySequence(QKeySequence(Qt::Key_Backspace));
+    command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
+    if (Utils::HostOsInfo::isMacHost())
+        editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
+
+    Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Delete);
     command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
-    editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
+    if (!Utils::HostOsInfo::isMacHost())
+        editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    command = Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Cut);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    command = Core::ActionManager::registerAction(&m_copyAction, Core::Constants::COPY, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_copyAction, Core::Constants::COPY, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_copyAction,  Core::Constants::COPY, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Copy);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    command = Core::ActionManager::registerAction(&m_pasteAction,  Core::Constants::PASTE, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_pasteAction,  Core::Constants::PASTE, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_pasteAction,  Core::Constants::PASTE, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Paste);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    command = Core::ActionManager::registerAction(&m_selectAllAction, Core::Constants::SELECTALL, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_selectAllAction, Core::Constants::SELECTALL, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_selectAllAction, Core::Constants::SELECTALL, qmlDesignerNavigatorContext);
 
     command->setDefaultKeySequence(QKeySequence::SelectAll);
@@ -158,32 +194,25 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command->setAttribute(Core::Command::CA_Hide);
     viewsMenu->addAction(command);
 
-    command = Core::ActionManager::registerAction(&m_hideSidebarsAction, Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
-
-    if (Utils::HostOsInfo::isMacHost()) {
-        // add second shortcut to trigger delete
-        QAction *deleteAction = new QAction(this);
-        deleteAction->setShortcut(QKeySequence(QLatin1String("Backspace")));
-        connect(deleteAction,
-                SIGNAL(triggered()),
-                &m_deleteAction,
-                SIGNAL(triggered()));
-    }
+    Core::ActionManager::registerAction(&m_hideSidebarsAction, Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
 }
 
 void ShortCutManager::updateActions(Core::IEditor* currentEditor)
 {
-    int openedCount = Core::EditorManager::documentModel()->documentCount();
+    int openedCount = Core::DocumentModel::entryCount();
 
-    m_saveAction.setEnabled(currentEditor != 0 && currentEditor->document()->isModified());
-    m_saveAsAction.setEnabled(currentEditor != 0 && currentEditor->document()->isSaveAsAllowed());
-    m_revertToSavedAction.setEnabled(currentEditor != 0
-                                      && !currentEditor->document()->filePath().isEmpty()
-                                      && currentEditor->document()->isModified());
+    Core::IDocument *document = 0;
+    if (currentEditor)
+        document = currentEditor->document();
+    m_saveAction.setEnabled(document && document->isModified());
+    m_saveAsAction.setEnabled(document && document->isSaveAsAllowed());
+    m_revertToSavedAction.setEnabled(document
+                                      && !document->filePath().isEmpty()
+                                      && document->isModified());
 
     QString quotedName;
-    if (currentEditor)
-        quotedName = '"' + currentEditor->document()->displayName() + '"';
+    if (currentEditor && document)
+        quotedName = '"' + document->displayName() + '"';
 
     m_saveAsAction.setText(tr("Save %1 As...").arg(quotedName));
     m_saveAction.setText(tr("&Save %1").arg(quotedName));

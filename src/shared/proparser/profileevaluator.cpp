@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -100,7 +101,8 @@ QString ProFileEvaluator::sysrootify(const QString &path, const QString &baseDir
 #endif
     const bool isHostSystemPath =
         option->sysroot.isEmpty() || path.startsWith(option->sysroot, cs)
-        || path.startsWith(baseDir, cs) || path.startsWith(d->m_outputDir, cs);
+        || path.startsWith(baseDir, cs) || path.startsWith(d->m_outputDir, cs)
+        || !QFileInfo::exists(option->sysroot + path);
 
     return isHostSystemPath ? path : option->sysroot + path;
 }
@@ -173,7 +175,7 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
         if (!t.compare(QLatin1String("app"), Qt::CaseInsensitive))
             return TT_Application;
         if (!t.compare(QLatin1String("lib"), Qt::CaseInsensitive))
-            return TT_Library;
+            return d->isActiveConfig(QStringLiteral("staticlib")) ? TT_StaticLibrary : TT_SharedLibrary;
         if (!t.compare(QLatin1String("script"), Qt::CaseInsensitive))
             return TT_Script;
         if (!t.compare(QLatin1String("aux"), Qt::CaseInsensitive))
@@ -195,17 +197,49 @@ bool ProFileEvaluator::loadNamedSpec(const QString &specDir, bool hostSpec)
 
 bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
 {
-    return d->visitProFile(pro, QMakeHandler::EvalProjectFile, flags) == QMakeEvaluator::ReturnTrue;
+    if (d->visitProFile(pro, QMakeHandler::EvalProjectFile, flags) != QMakeEvaluator::ReturnTrue)
+        return false;
+
+    if (flags & QMakeEvaluator::LoadPostFiles) {
+        // This is postprocessing which is hard-coded inside qmake's generators.
+
+        ProStringList &incpath = d->valuesRef(ProKey("INCLUDEPATH"));
+        incpath += d->values(ProKey("QMAKE_INCDIR"));
+        if (!d->isActiveConfig(QStringLiteral("no_include_pwd"))) {
+            incpath.prepend(ProString(pro->directoryName()));
+            // It's pretty stupid that this is appended - it should be the second entry.
+            if (pro->directoryName() != d->m_outputDir)
+                incpath << ProString(d->m_outputDir);
+        }
+        // The location of this is inconsistent among generators.
+        incpath << ProString(d->m_qmakespec);
+
+        // We ignore CFLAGS and LFLAGS, as they are not used higher up anyway.
+        ProStringList &cxxflags = d->valuesRef(ProKey("QMAKE_CXXFLAGS"));
+        switch (templateType()) {
+        case TT_Application:
+            cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_APP"));
+            break;
+        case TT_SharedLibrary:
+            {
+                bool plugin = d->isActiveConfig(QStringLiteral("plugin"));
+                if (!plugin || !d->isActiveConfig(QStringLiteral("plugin_no_share_shlib_cflags")))
+                    cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_SHLIB"));
+                if (plugin)
+                    cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_PLUGIN"));
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    return true;
 }
 
 QString ProFileEvaluator::propertyValue(const QString &name) const
 {
     return d->m_option->propertyValue(ProKey(name)).toQString();
-}
-
-QString ProFileEvaluator::resolvedMkSpec() const
-{
-    return d->m_qmakespec;
 }
 
 #ifdef PROEVALUATOR_CUMULATIVE

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,53 +31,37 @@
 #include "glsleditor.h"
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
-#include <texteditor/basetextdocumentlayout.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocumentlayout.h>
+#include <texteditor/textdocument.h>
 
 #include <QDebug>
 
-using namespace GLSLEditor;
-using namespace GLSLEditor::Internal;
 using namespace TextEditor;
 
-Highlighter::Highlighter(QTextDocument *parent)
-    : TextEditor::SyntaxHighlighter(parent)
-{
-    init();
-}
+namespace GlslEditor {
+namespace Internal {
 
-Highlighter::Highlighter(BaseTextDocument *parent)
-    : TextEditor::SyntaxHighlighter(parent)
+GlslHighlighter::GlslHighlighter()
 {
-    init();
-}
-
-void Highlighter::init()
-{
-    static QVector<TextEditor::TextStyle> categories;
+    static QVector<TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << TextEditor::C_NUMBER
-                   << TextEditor::C_STRING
-                   << TextEditor::C_TYPE
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_OPERATOR
-                   << TextEditor::C_PREPROCESSOR
-                   << TextEditor::C_LABEL
-                   << TextEditor::C_COMMENT
-                   << TextEditor::C_DOXYGEN_COMMENT
-                   << TextEditor::C_DOXYGEN_TAG
-                   << TextEditor::C_VISUAL_WHITESPACE
-                   << TextEditor::C_REMOVED_LINE;
+        categories << C_NUMBER
+                   << C_STRING
+                   << C_TYPE
+                   << C_KEYWORD
+                   << C_OPERATOR
+                   << C_PREPROCESSOR
+                   << C_LABEL
+                   << C_COMMENT
+                   << C_DOXYGEN_COMMENT
+                   << C_DOXYGEN_TAG
+                   << C_VISUAL_WHITESPACE
+                   << C_REMOVED_LINE;
     }
     setTextFormatCategories(categories);
 }
 
-Highlighter::~Highlighter()
-{
-
-}
-
-void Highlighter::highlightBlock(const QString &text)
+void GlslHighlighter::highlightBlock(const QString &text)
 {
     const int previousState = previousBlockState();
     int state = 0, initialBraceDepth = 0;
@@ -92,8 +77,8 @@ void Highlighter::highlightBlock(const QString &text)
     lex.setState(state);
     lex.setScanKeywords(false);
     lex.setScanComments(true);
-    const int variant = GLSLTextEditorWidget::languageVariant(parent()
-                         ? static_cast<BaseTextDocument*>(parent())->mimeType()
+    const int variant = languageVariant(parent()
+                         ? static_cast<TextDocument*>(parent())->mimeType()
                          : QString());
     lex.setVariant(variant);
 
@@ -109,7 +94,7 @@ void Highlighter::highlightBlock(const QString &text)
     state = lex.state(); // refresh the state
 
     int foldingIndent = initialBraceDepth;
-    if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(currentBlock())) {
+    if (TextBlockUserData *userData = TextDocumentLayout::testUserData(currentBlock())) {
         userData->setFoldingIndent(0);
         userData->setFoldingStartIncluded(false);
         userData->setFoldingEndIncluded(false);
@@ -117,10 +102,10 @@ void Highlighter::highlightBlock(const QString &text)
 
     if (tokens.isEmpty()) {
         setCurrentBlockState(previousState);
-        BaseTextDocumentLayout::clearParentheses(currentBlock());
+        TextDocumentLayout::clearParentheses(currentBlock());
         if (text.length()) // the empty line can still contain whitespace
             setFormat(0, text.length(), formatForCategory(GLSLVisualWhitespace));
-        BaseTextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
+        TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
         return;
     }
 
@@ -156,7 +141,7 @@ void Highlighter::highlightBlock(const QString &text)
                 // as if it were inside the folding block
                 if (tk.begin() == firstNonSpace) {
                     ++foldingIndent;
-                    BaseTextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
+                    TextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
                 }
             }
         } else if (tk.is(GLSL::Parser::T_RIGHT_PAREN) || tk.is(GLSL::Parser::T_RIGHT_BRACE) || tk.is(GLSL::Parser::T_RIGHT_BRACKET)) {
@@ -167,7 +152,7 @@ void Highlighter::highlightBlock(const QString &text)
                 if (braceDepth < foldingIndent) {
                     // unless we are at the end of the block, we reduce the folding indent
                     if (i == tokens.size()-1 || tokens.at(i+1).is(GLSL::Parser::T_SEMICOLON))
-                        BaseTextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
+                        TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
                     else
                         foldingIndent = qMin(braceDepth, foldingIndent);
                 }
@@ -200,7 +185,7 @@ void Highlighter::highlightBlock(const QString &text)
                 --braceDepth;
                 // unless we are at the end of the block, we reduce the folding indent
                 if (i == tokens.size()-1)
-                    BaseTextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
+                    TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
                 else
                     foldingIndent = qMin(braceDepth, foldingIndent);
                 const int tokenEnd = tk.begin() + tk.length - 1;
@@ -233,17 +218,17 @@ void Highlighter::highlightBlock(const QString &text)
         ++braceDepth;
     }
 
-    BaseTextDocumentLayout::setParentheses(currentBlock(), parentheses);
+    TextDocumentLayout::setParentheses(currentBlock(), parentheses);
 
     // if the block is ifdefed out, we only store the parentheses, but
 
     // do not adjust the brace depth.
-    if (BaseTextDocumentLayout::ifdefedOut(currentBlock())) {
+    if (TextDocumentLayout::ifdefedOut(currentBlock())) {
         braceDepth = initialBraceDepth;
         foldingIndent = initialBraceDepth;
     }
 
-    BaseTextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
+    TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
 
     // optimization: if only the brace depth changes, we adjust subsequent blocks
     // to have QSyntaxHighlighter stop the rehighlighting
@@ -255,8 +240,8 @@ void Highlighter::highlightBlock(const QString &text)
             int delta = braceDepth - oldBraceDepth;
             QTextBlock block = currentBlock().next();
             while (block.isValid() && block.userState() != -1) {
-                BaseTextDocumentLayout::changeBraceDepth(block, delta);
-                BaseTextDocumentLayout::changeFoldingIndent(block, delta);
+                TextDocumentLayout::changeBraceDepth(block, delta);
+                TextDocumentLayout::changeFoldingIndent(block, delta);
                 block = block.next();
             }
         }
@@ -265,7 +250,7 @@ void Highlighter::highlightBlock(const QString &text)
     setCurrentBlockState((braceDepth << 8) | lex.state());
 }
 
-void Highlighter::highlightLine(const QString &text, int position, int length,
+void GlslHighlighter::highlightLine(const QString &text, int position, int length,
                                 const QTextCharFormat &format)
 {
     const QTextCharFormat visualSpaceFormat = formatForCategory(GLSLVisualWhitespace);
@@ -288,7 +273,7 @@ void Highlighter::highlightLine(const QString &text, int position, int length,
     }
 }
 
-bool Highlighter::isPPKeyword(const QStringRef &text) const
+bool GlslHighlighter::isPPKeyword(const QStringRef &text) const
 {
     switch (text.length())
     {
@@ -427,3 +412,6 @@ void Highlighter::highlightBlock(const QString &text)
     setCurrentBlockState((braceDepth << 8) | lex.state());
 }
 #endif
+
+} // namespace Internal
+} // namespace GlslEditor

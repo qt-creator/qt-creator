@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>537</width>
-    <height>245</height>
+    <height>249</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Set up Symbol Paths</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -72,23 +72,6 @@
    </item>
    <item>
     <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="doNotAskAgain">
-     <property name="text">
-      <string>Do not ask again</string>
-     </property>
-     <property name="tristate">
-      <bool>false</bool>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

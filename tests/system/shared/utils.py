@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -81,7 +82,7 @@ def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
 # param expectedState is the expected enable state of the object
 def verifyEnabled(objectSpec, expectedState = True):
     if isinstance(objectSpec, (str, unicode)):
-        waitFor("object.exists('" + objectSpec + "')", 20000)
+        waitFor("object.exists('" + str(objectSpec).replace("'", "\\'") + "')", 20000)
         foundObject = findObject(objectSpec)
     else:
         foundObject = objectSpec
@@ -102,6 +103,7 @@ def selectFromCombo(objectSpec, itemName):
         return False
     else:
         mouseClick(object, 5, 5, 0, Qt.LeftButton)
+        snooze(1)
         mouseClick(waitForObjectItem(object, itemName.replace(".", "\\.")), 5, 5, 0, Qt.LeftButton)
         test.verify(waitFor("str(object.currentText)==itemName", 5000),
                     "Switched combo item to '%s'" % itemName)
@@ -201,7 +203,7 @@ def invokeMenuItem(menu, item, *subItems):
         except:
             nativeMouseClick(waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000), 20, 20, 0, Qt.LeftButton)
     # HACK to avoid squish crash using Qt5.2 on Squish 5.0.1 - remove asap
-    if platform.system() == "Darwin" and not isQt4Build:
+    if platform.system() == "Darwin":
         if menu == "Tools" and item == "Options...":
             nativeType("<Command+,>")
             return
@@ -209,6 +211,7 @@ def invokeMenuItem(menu, item, *subItems):
             nativeType("<Command+q>")
             return
     menuObject = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar", menu)
+    snooze(1)
     waitFor("menuObject.visible", 1000)
     activateItem(menuObject)
     itemObject = waitForObjectItem(objectMap.realName(menuObject), item)
@@ -252,15 +255,23 @@ def selectFromFileDialog(fileName, waitForFile=False):
     else:
         fName = os.path.basename(os.path.abspath(fileName))
         pName = os.path.dirname(os.path.abspath(fileName)) + os.sep
-        waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}")
-        pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
-        snooze(1)
-        replaceEditorContent(pathLine, pName)
-        clickButton(waitForObject("{text='Open' type='QPushButton'}"))
-        waitFor("str(pathLine.text)==''")
-        snooze(1)
-        replaceEditorContent(pathLine, fName)
-        clickButton(waitForObject("{text='Open' type='QPushButton'}"))
+        try:
+            waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}", 5000)
+            pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
+            snooze(1)
+            replaceEditorContent(pathLine, pName)
+            clickButton(waitForObject("{text='Open' type='QPushButton'}"))
+            waitFor("str(pathLine.text)==''")
+            snooze(1)
+            replaceEditorContent(pathLine, fName)
+            clickButton(waitForObject("{text='Open' type='QPushButton'}"))
+        except:
+            nativeType("<Ctrl+a>")
+            nativeType("<Delete>")
+            nativeType(pName + fName)
+            snooze(1)
+            nativeType("<Return>")
+            snooze(3)
     if waitForFile:
         fileCombo = waitForObject(":Qt Creator_FilenameQComboBox")
         if not waitFor("str(fileCombo.currentText) in fileName", 5000):
@@ -280,7 +291,7 @@ def addHelpDocumentation(which):
     if listWidget.count > 0:
         rect = listWidget.visualItemRect(listWidget.item(0))
         mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
-        type(listWidget, "<Ctrl+A>")
+        type(listWidget, "<Ctrl+a>")
         mouseClick(waitForObject("{type='QPushButton' name='removeButton' visible='1'}"), 5, 5, 0, Qt.LeftButton)
     for qch in which:
         clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
@@ -352,8 +363,8 @@ def __checkParentAccess__(filePath):
 # and a list of information of its configured Qt
 def getConfiguredKits():
     def __retrieveQtVersionName__(target, version):
-        treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
-        return treeWidget.currentItem().text(0)
+        treeView = waitForObject(":qtdirList_QTreeView")
+        return str(treeView.currentIndex().data().toString())
     # end of internal function for iterateQtVersions
     def __setQtVersionForKit__(kit, kitName, kitsQtVersionName):
         treeView = waitForObject(":BuildAndRun_QTreeView")
@@ -370,20 +381,15 @@ def getConfiguredKits():
     iterateKits(True, True, __setQtVersionForKit__, kitsWithQtVersionName)
     # merge defined target names with their configured Qt versions and devices
     for kit, qtVersion in kitsWithQtVersionName.iteritems():
-        if kit in ('Fremantle', 'Harmattan') and qtVersion == 'None':
-            test.log("Found Kit '%s' with unassigned Qt version (disabled Madde plugin)" % kit)
+        if kit in ('Fremantle', 'Harmattan', 'Qt Simulator'):
+            test.verify(qtVersion == 'None',
+                        "The outdated kit '%s' should not have a Qt version" % kit)
         elif qtVersion in qtVersionNames:
             result[kit] = targetsQtVersions[qtVersionNames.index(qtVersion)].items()[0]
         else:
             test.fail("Qt version '%s' for kit '%s' can't be found in qtVersionNames."
                       % (qtVersion, kit))
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
-    # adjust device name(s) to match getStringForTarget() - some differ from time to time
-    for targetName in result.keys():
-        targetInfo = result[targetName]
-        if targetInfo[0] == "Maemo":
-            result.update({targetName:
-                           (Targets.getStringForTarget(Targets.MAEMO5), targetInfo[1])})
     test.log("Configured kits: %s" % str(result))
     return result
 
@@ -437,13 +443,13 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
     clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
     pattern = re.compile("Qt version (?P<version>.*?) for (?P<target>.*)")
-    treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
-    root = treeWidget.invisibleRootItem()
-    for rootChild in dumpChildren(root):
-        rootChildText = str(rootChild.text(0)).replace(".", "\\.").replace("_", "\\_")
-        for subChild in dumpChildren(rootChild):
-            subChildText = str(subChild.text(0)).replace(".", "\\.").replace("_", "\\_")
-            clickItem(treeWidget, ".".join([rootChildText,subChildText]), 5, 5, 0, Qt.LeftButton)
+    treeView = waitForObject(":qtdirList_QTreeView")
+    model = treeView.model()
+    for rootIndex in dumpIndices(model):
+        rootChildText = str(rootIndex.data()).replace(".", "\\.").replace("_", "\\_")
+        for subIndex in dumpIndices(model, rootIndex):
+            subChildText = str(subIndex.data()).replace(".", "\\.").replace("_", "\\_")
+            clickItem(treeView, ".".join([rootChildText,subChildText]), 5, 5, 0, Qt.LeftButton)
             currentText = str(waitForObject(":QtSupport__Internal__QtVersionManager.QLabel").text)
             matches = pattern.match(currentText)
             if matches:
@@ -540,7 +546,7 @@ def setAlwaysStartFullHelp():
     waitForObjectItem(":Options_QListView", "Help")
     clickItem(":Options_QListView", "Help", 5, 5, 0, Qt.LeftButton)
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "General")
-    selectFromCombo(":Startup.contextHelpComboBox_QComboBox", "Always Start Full Help")
+    selectFromCombo(":Startup.contextHelpComboBox_QComboBox", "Always Show in Help Mode")
     clickButton(waitForObject(":Options.OK_QPushButton"))
 
 def removePackagingDirectory(projectPath):
@@ -568,9 +574,6 @@ def dumpChildren(item):
     return [item.child(index) for index in range(item.childCount())]
 
 def writeTestResults(folder):
-    if squishinfo.version < 0x040200FF:
-        print "Skipping writing test results (Squish < 4.2)"
-        return
     if not os.path.exists(folder):
         print "Skipping writing test results (folder '%s' does not exist)." % folder
         return
@@ -603,17 +606,22 @@ def readFile(filename):
     return content
 
 def simpleFileName(navigatorFileName):
-    return ".".join(navigatorFileName.split(".")[-2:]).replace("\\","")
+    # try to find the last part of the given name, assume it's inside a (folder) structure
+    search = re.search(".*[^\\\\]\.(.*)$", navigatorFileName)
+    if search:
+        return search.group(1).replace("\\", "")
+    # it's just the filename
+    return navigatorFileName.replace("\\", "")
 
 def clickOnTab(tabBarStr, tabText, timeout=5000):
-    if platform.system() == 'Darwin':
-        if not waitFor("object.exists(tabBarStr)", timeout):
-            raise LookupError("Could not find QTabBar: %s" % objectMap.realName(tabBarStr))
-        tabBar = findObject(tabBarStr)
-        if not tabBar.visible:
-            test.log("Using workaround for Mac.")
-            setWindowState(tabBar, WindowState.Normal)
-    clickTab(waitForObject(tabBarStr, timeout), tabText)
+    if not waitFor("object.exists(tabBarStr)", timeout):
+        raise LookupError("Could not find QTabBar: %s" % objectMap.realName(tabBarStr))
+    tabBar = findObject(tabBarStr)
+    if platform.system() == 'Darwin' and not tabBar.visible:
+        test.log("Using workaround for Mac.")
+        setWindowState(tabBar, WindowState.Normal)
+    clickTab(tabBar, tabText)
+    waitFor("str(tabBar.tabText(tabBar.currentIndex)) == '%s'" % tabText, timeout)
 
 # constructs a string holding the properties for a QModelIndex
 # param property a string holding additional properties including their values
@@ -631,3 +639,45 @@ def verifyItemOrder(items, text):
         index = text.find(item)
         test.verify(index > lastIndex, "'" + item + "' found at index " + str(index))
         lastIndex = index
+
+def openVcsLog():
+    try:
+        foundObj = waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
+                                 "window=':Qt Creator_Core::Internal::MainWindow'}", 2000)
+        if className(foundObj) != 'QPlainTextEdit':
+            raise Exception("Found derived class, but not a pure QPlainTextEdit.")
+    except:
+        invokeMenuItem("Window", "Output Panes", "Version Control")
+
+def openGeneralMessages():
+    if not object.exists(":Qt Creator_Core::OutputWindow"):
+        invokeMenuItem("Window", "Output Panes", "General Messages")
+
+# function that retrieves a specific child object by its class
+# this is sometimes the best way to avoid using waitForObject() on objects that
+# occur more than once - but could easily be found by using a compound object
+# (e.g. search for Utils::PathChooser instead of Utils::FancyLineEdit and get the child)
+def getChildByClass(parent, classToSearchFor, occurrence=1):
+    children = [child for child in object.children(parent) if className(child) == classToSearchFor]
+    if len(children) < occurrence:
+        return None
+    else:
+        return children[occurrence - 1]
+
+def getHelpViewer():
+    try:
+        return waitForObject(":Qt Creator_Help::Internal::HelpViewer", 3000)
+    except:
+        return waitForObject("{type='Help::Internal::TextBrowserHelpWidget' unnamed='1' "
+                             "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 1000)
+
+def getHelpTitle():
+    hv = getHelpViewer()
+    try:
+        return str(hv.title)
+    except:
+        return str(hv.documentTitle)
+
+def canTestEmbeddedQtQuick():
+    return (squishinfo.major * 0x10000 + squishinfo.minor * 0x100
+            + squishinfo.patch) > 0x050100

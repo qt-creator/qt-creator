@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -96,6 +97,7 @@ public:
 private:
     typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
     typedef std::map<const TemplateNameId *, ClassOrNamespace *, TemplateNameId::Compare> TemplateNameIdTable;
+    typedef QHash<const AnonymousNameId *, ClassOrNamespace *> Anonymouses;
 
     /// \internal
     void flush();
@@ -103,6 +105,8 @@ private:
     /// \internal
     ClassOrNamespace *findOrCreateType(const Name *name, ClassOrNamespace *origin = 0,
                                        Class *clazz = 0);
+
+    ClassOrNamespace *findOrCreateNestedAnonymousType(const AnonymousNameId *anonymousNameId);
 
     void addTodo(Symbol *symbol);
     void addSymbol(Symbol *symbol);
@@ -120,15 +124,17 @@ private:
     ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed,
                                         bool searchInEnclosingScope, ClassOrNamespace *origin);
 
+    ClassOrNamespace *findBlock_helper(Block *block, QSet<ClassOrNamespace *> *processed,
+                                       bool searchInEnclosingScope);
+
     ClassOrNamespace *nestedType(const Name *name, ClassOrNamespace *origin);
 
     void instantiateNestedClasses(ClassOrNamespace *enclosingTemplateClass,
                                   Clone &cloner,
                                   Subst &subst,
                                   ClassOrNamespace *enclosingTemplateClassInstantiation);
-    bool isInstantiateNestedClassNeeded(const QList<Symbol *>& symbols, const Subst &subst) const;
-    ClassOrNamespace *findSpecializationWithPointer(const TemplateNameId *templId,
-                                           const TemplateNameIdTable &specializations);
+    ClassOrNamespace *findSpecialization(const TemplateNameId *templId,
+                                         const TemplateNameIdTable &specializations);
 
     CreateBindings *_factory;
     ClassOrNamespace *_parent;
@@ -141,7 +147,8 @@ private:
     QSharedPointer<Control> _control;
     TemplateNameIdTable _specializations;
     QMap<const TemplateNameId *, ClassOrNamespace *> _instantiations;
-    QHash<const AnonymousNameId *, ClassOrNamespace *> _anonymouses;
+    Anonymouses _anonymouses;
+    QSet<const AnonymousNameId *> _declaredOrTypedefedAnonymouses;
 
     QHash<Internal::FullyQualifiedName, Symbol *> *_scopeLookupCache;
 
@@ -176,10 +183,8 @@ private:
         Subst &_subst;
     };
 
-#ifdef DEBUG_LOOKUP
 public:
-    const Name *_name;
-#endif // DEBUG_LOOKUP
+    const Name *_name; // For debug
 
     friend class CreateBindings;
 };
@@ -196,10 +201,9 @@ public:
     ClassOrNamespace *globalNamespace() const;
 
     /// Finds the binding associated to the given symbol.
-    ClassOrNamespace *lookupType(Symbol *symbol,
-                                 ClassOrNamespace* enclosingTemplateInstantiation = 0);
+    ClassOrNamespace *lookupType(Symbol *symbol, ClassOrNamespace *enclosingBinding = 0);
     ClassOrNamespace *lookupType(const QList<const Name *> &path,
-                                 ClassOrNamespace* enclosingTemplateInstantiation = 0);
+                                 ClassOrNamespace *enclosingBinding = 0);
 
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
@@ -304,11 +308,11 @@ public:
 
     QList<LookupItem> lookup(const Name *name, Scope *scope) const;
     ClassOrNamespace *lookupType(const Name *name, Scope *scope,
-                                 ClassOrNamespace* enclosingTemplateInstantiation = 0,
+                                 ClassOrNamespace *enclosingBinding = 0,
                                  QSet<const Declaration *> typedefsBeingResolved
                                     = QSet<const Declaration *>()) const;
     ClassOrNamespace *lookupType(Symbol *symbol,
-                                 ClassOrNamespace* enclosingTemplateInstantiation = 0) const;
+                                 ClassOrNamespace *enclosingBinding = 0) const;
     ClassOrNamespace *lookupParent(Symbol *symbol) const;
 
     /// \internal
@@ -328,7 +332,7 @@ public:
     }
 
 private:
-    QList<LookupItem> lookupByUsing(const Name *name, Scope *scope) const;
+    QList<LookupItem> lookupByUsing(const Name *name, ClassOrNamespace *bindingScope) const;
 
     // The current expression.
     Document::Ptr _expressionDocument;

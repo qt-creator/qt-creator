@@ -1,0 +1,293 @@
+Qt Creator version 3.2 contains bug fixes and new features.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline origin/3.1..origin/3.2
+
+General
+   * Added "Get Help Online" context menu item to issues pane that searches for
+     the issue description online in Google
+   * Added action to file system locator filter ('f') for creating and opening a new file
+   * Added search capability to general messages and most navigation panes
+   * Added display of current variable values in variable chooser dialog
+   * Added variable %{Env:...} for accessing environment variables
+     (where variables can be used)
+   * Enabled resizing of the locator field
+   * Improved look and feel on HiDPI by adding more hi-resolution icons
+   * Made New dialog non-modal (QTCREATORBUG-6102)
+   * Made keyboard and mouse activation of navigation panes and other trees more consistent
+   * Removed unhelpful Generic Highlighter loading progress bar
+   * Fixed case-sensitivity of file system locator filter (QTCREATORBUG-10843)
+   * Fixed that Window > Minimize, Zoom and Full Screen were always affecting the main window
+     instead of the active window
+
+Editing
+   * Added support for manually editing bookmark line number (QTCREATORBUG-9721)
+   * Made Ctrl+Up and Ctrl+Down shortcuts configurable (QTCREATORBUG-4994)
+   * Made editor popup (Ctrl+Tab) adapt its size to contents (QTCREATORBUG-10618)
+   * Improved block editing (QTCREATORBUG-7773)
+   * Fixed support for mixed languages in the generic highlighter
+   * Fixed title when printing (QTCREATORBUG-12161)
+   * Fixed that line number background color setting was ignored
+     (QTCREATORBUG-12170)
+   * Fixed that tooltips were shown when hovering over empty area
+     (QTCREATORBUG-9437)
+   * Fixed that tooltips were shown after triggering shortcut with
+     Alt key (QTCREATORBUG-12382)
+   * Fixed scroll behavior when editing same file in multiple splits
+     (QTCREATORBUG-11486)
+   * Fixed Open With when file is open in multiple splits
+   * Fixed that search highlights were removed when switching editors
+     (QTCREATORBUG-9949)
+   * Fixed dropping files in the presence of splits or external windows
+     (QTCREATORBUG-9023)
+
+Help
+   * Added page up and page down shortcuts to topic chooser
+   * Added button for regenerating documentation index to Search pane
+     (QTCREATORBUG-11484)
+   * Changed documentation of examples to open in an external window
+   * Fixed that opening help in external window was not possible without
+     disabling help mode
+   * Fixed issue with F1 in help viewer showing 'No document' instead of opening
+     Help mode
+   * Fixed that context help was not showing latest Qt 5 documentation
+     (QTCREATORBUG-10331)
+   * Fixed reverted check state of Show Sidebar menu item
+   * Fixed selection behavior in documentation settings (QTCREATORBUG-12135)
+
+Managing and Building Projects
+
+QMake Projects
+   * Added context menu item for copying resource path from entries in QRC
+     files in project tree (QTCREATORBUG-11776)
+   * Added deployment support to plain C and C++ application wizards
+   * Added support for restricting automatic creation of run configurations
+     (QTCREATORBUG-10953)
+   * Added Show in Explorer context menu item for qrc nodes and their subnodes
+     in project tree (QTCREATORBUG-12374)
+   * Improved dropdown menu for selecting the project file when using wizard
+     to add files (QTCREATORBUG-12002)
+   * Removed warning about build directory below source directory for kits
+     with Qt 5.2 and later where this is supported (QTCREATORBUG-10024)
+   * Fixed that adding files to .pri file was missing $$PWD
+
+CMake Projects
+   * Fixed that .cmake files were opened as projects (QTCREATORBUG-12461)
+
+Qbs Projects
+   * Added support for adding and removing files from projects
+   * Fixed that run configurations were created for products that are not runnable
+     (QTCREATORBUG-12152)
+   * Fixed that run configurations were created for disabled products (QBS-560)
+   * Fixed that default build directory was ignored
+
+Generic Projects
+
+Debugging
+   * Fixed tooltip expansion behavior (QTCREATORBUG-11404)
+   * Changed default of "Load system GDB pretty printer" option back to "off"
+   * Added option to disable automatic centering on currently debugged
+     line in editor
+   * Made environment variables accessible in startup command settings
+     using a %{Env:SOME_NAME} syntax
+   * Changed single click on column view headers to cycle through
+     a "small widget" and a "width according to contents"
+   * Removed the "Always adjust to content size options" and
+     made this the default behavior
+   * Added pretty printers for AVX512 registers
+   * Fixed display of fixed-size wchar_t arrays
+   * Added personaltypes.py as default location for user created dumpers
+   * Added file setting to point to user created file of dumpers
+     (QTCREATORBUG-12492)
+   * Added button to restart current debugging session
+     without quitting the debugger process
+   * Made our dumpers also accessible from command line GDB
+   * Made LLDB engine honor the max stack depth setting
+     (QTCREATORBUG-12416)
+   * Added dumpers for QStringData, QHashedString and QQmlRefCount
+   * Fixed CDB engine to reset Locals and Expressions when
+     switching frames
+   * Made LLDB engine recover more gracefully from unexpected
+     situations
+   * Improved handling of the tabbed extra views for displayed
+     items
+   * Fixed regression in process snapshot creation
+   * Fixed crash in CDB extension related to verbose logs
+   * Introduced option to limit retrieval of string-like values
+   * Introduced [a..b] and [a.(s).b] syntax for more flexibility
+     in "ranged" expressions in Locals and Expression view
+   * Added several convienience functions to Python dumper interface
+   * Fixed CDB detection for Windows SDK 8.1
+   * Added raw opcode bytes to Disassembler view
+   * Changed Disassembler view to order lines by increasing address
+   * Made more dumpers work in release builds
+   * Fixed debugging applications that are run in a terminal on Linux (QTCREATORBUG-3509)
+
+QML Profiler
+   * Improved performance (QTCREATORBUG-12341)
+   * Fixed drawing issues (QTBUG-38222)
+   * Fixed that clicking visible event was sometimes moving timeline
+     (QTCREATORBUG-11945)
+   * Fixed navigation through events (QTCREATORBUG-12634)
+
+Analyzer
+   * Added support for Run in Terminal (QTCREATORBUG-7311)
+   * Fixed passing of multiple arguments to application
+
+C++ Support
+   * Added support for C99 designated initializers (QTCREATORBUG-1902)
+   * Added support for UTF-8 in the lexer (QTCREATORBUG-7356)
+   * Fixed finding usages of members of typedef'ed anonymous structs
+     (QTCREATORBUG-11859, QTCREATORBUG-11860)
+   * Fixed indentation of concatenated strings
+   * Fixed pointer typedef resolving (QTCREATORBUG-10021)
+   * Fixed scroll wheel behavior in editor's symbols dropdown
+   * Fixed that some wizards were ignoring configured file extensions
+     (QTCREATORBUG-12309)
+   * Fixed parsing of trailing type-specifier
+   * Fixed parsing of expressions like vector<int>{1}
+   * Fixed the Create Getter and Setter Member Functions refactoring action
+     for variables with "m" and "m_" prefixes (QTCREATORBUG-12244)
+   * Fixed that "using Ns::Class" did not highlight class in including files (QTCREATORBUG-12357)
+   * Fixed include paths handling (QTCREATORBUG-11599)
+   * Fixed parsing of expressions like vector<int>{1}
+   * Fixed completion for template with default argument
+     (QTCREATORBUG-12606, QTCREATORBUG-12605)
+   * Improved lambda support
+     * Fixed local uses, completion and find usages for parameters
+     * Fixed "duplicate data type in declaration" warning (QTCREATORBUG-12521)
+   * Improved infrastructure for Clang integration
+      * Reworked indexing data structure
+      * Started to clean up C++ editor
+
+QML Support
+   * Fixed handling of properties that start with underscore (QTCREATORBUG-12214)
+
+Qt Quick Designer
+   * Changed puppet helper executable to be compiled on demand
+   * Added support for reloading states editor
+   * Improved gradient editor
+   * Fixed minimum and maximum sizes for Window component (QTCREATORBUG-12209)
+   * Fixed wrong password mode property on text fields
+   * Fixed that it was not possible to anchor to all possible targets
+     (QTCREATORBUG-12077)
+   * Fixed possible values for preferred highlight properties
+     (QTCREATORBUG-12216)
+   * Fixed setting empty text on Label and Text items (QTCREATORBUG-12119)
+   * Fixed property sections for TextEdit (QTCREATORBUG-12452)
+
+Diff Viewer
+   * Reworked unified diff mode
+
+Version Control Systems
+   * Git
+      * Fixed replies to prompts (QTCREATORBUG-12335)
+      * Fixed that original author was not preserved during Cherry-Pick
+      * Reintroduced the expanded branch list in Show (QTCREATORBUG-11293)
+      * Fixed that switching to the commit editor was unresponsive (QTCREATORBUG-12449)
+      * Fixed showing commits by clicking their hashes in the interactive rebase editor
+      * Improved display in the Gerrit dialog to visualize dependencies
+      * Added support for choosing reviewer in Push to Gerrit dialog
+        over HTTP
+
+FakeVim
+   * Added support for unicode input with 'C-v' in insert mode
+   * Fixed issues with long command output (QTCREATORBUG-11598)
+   * Fixed 'gv' after yanking text in visual mode (QTCREATORBUG-12112)
+   * Fixed 'v', 'V' and 'C-v' while in visual mode (QTCREATORBUG-12113)
+   * Improved sharing of navigation data between editors of the
+     same document
+
+Beautifier
+   * Added support for formatting a file asynchronously
+   * Added support for redirecting text to a formatter tool
+     instead of using temporary files
+   * Fixed that running formatting tool was blocking UI
+
+Platform Specific
+
+Windows
+   * Fixed issue with environment variables starting with '=' (QTCREATORBUG-8716)
+   * Fixed detection of MSVC tool chains (QTCREATORBUG-10998)
+
+OS X
+   * Removed support for OS X 10.6
+   * Fixed activation of items with Enter in Bookmarks pane
+
+Android
+   * Removed upper limit of version code in manifest editor (QTCREATORBUG-12668)
+   * Fixed that UI was unresponsive while creating AVD (QTCREATORBUG-10601)
+
+Remote Linux
+   * Added custom remote executable run configuration type (QTCREATORBUG-12168)
+   * Fixed issue with environment variables that contain spaces
+
+QNX
+   * Added option to deploy Qt libraries to device options
+
+BareMetal
+   * Added openocd pipelining support
+   * Added variable support for device specific GDB commands
+
+Credits for these changes go to:
+
+Adam Strzelecki
+Alessandro Portale
+André Pönitz
+Andrew Knight
+Anton Kalmykov
+Benjamin Zeller
+Campbell Barton
+Christian Kamm
+Christian Kandeler
+Christian Stenger
+Daniel Teske
+David Kaspar
+David Schulz
+Eike Ziller
+El Mehdi Fekari
+Erik Verbruggen
+Evgenly Stepanov
+Fawzi Mohamed
+Frantisek Vacek
+Friedemann Kleint
+Hugues Delorme
+Jaroslaw Kobus
+Jerome Pasion
+Jörg Bornemann
+Kai Köhne
+Karsten Heimrich
+Knut Petter Svendsen
+Leena Miettinen
+Lorenz Haas
+Lukas Holecek
+Marco Bubke
+Mitch Curtis
+Niels Weber
+Nikita Baryshnikov
+Nikolai Kosjar
+Oliver Wolff
+Orgad Shaneh
+Oswald Buddenhagen
+Przemyslaw Gorszkowski
+Rainer Keller
+Robert Löhning
+Sergey Shambir
+Stephen Kelly
+Sveinung Kvilhaugsvik
+Thiago Macieira
+Thomas Epting
+Thomas Hartmann
+Tim Jenssen
+Tim Sander
+Tobias Hunger
+Tobias Nätterlund
+Tom Deblauwe
+Ulf Hermann
+Vicken Simonian
+Wang Hoi
+Wiebe Cazemier

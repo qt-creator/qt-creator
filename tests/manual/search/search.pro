@@ -1,1 +1,1 @@
-OTHER_FILES = latin1.txt
+DISTFILES = latin1.txt

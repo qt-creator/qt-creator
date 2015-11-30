@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,17 +32,24 @@
 
 #include "cppmodelmanager.h"
 
+#include <coreplugin/idocument.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+
 #include <QStringMatcher>
 
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
-CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
+CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *manager,
+                                                   StringTable &stringTable)
     : m_modelManager(manager)
+    , search(stringTable)
 {
     setId("Methods in current Document");
     setDisplayName(tr("C++ Symbols in Current Document"));
     setShortcutString(QString(QLatin1Char('.')));
+    setPriority(High);
     setIncludedByDefault(false);
 
     search.setSymbolsToSearchFor(SymbolSearcher::Declarations |
@@ -57,7 +65,8 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
             this,          SLOT(onEditorAboutToClose(Core::IEditor*)));
 }
 
-QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString & origEntry)
+QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
+        QFutureInterface<Core::LocatorFilterEntry> &future, const QString & origEntry)
 {
     QString entry = trimWildcards(origEntry);
     QList<Core::LocatorFilterEntry> goodEntries;
@@ -68,41 +77,29 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInte
     if (!regexp.isValid())
         return goodEntries;
     bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
-
-    if (m_currentFileName.isEmpty())
-        return goodEntries;
-
-    if (m_itemsOfCurrentDoc.isEmpty()) {
-        Snapshot snapshot = m_modelManager->snapshot();
-        Document::Ptr thisDocument = snapshot.document(m_currentFileName);
-        if (thisDocument)
-            m_itemsOfCurrentDoc = search(thisDocument);
-    }
-
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
-    foreach (const ModelItemInfo & info, m_itemsOfCurrentDoc)
-    {
+    foreach (IndexItem::Ptr info, itemsOfCurrentDocument()) {
         if (future.isCanceled())
             break;
 
-        QString matchString = info.symbolName;
-        if (info.type == ModelItemInfo::Declaration)
-            matchString = ModelItemInfo::representDeclaration(info.symbolName, info.symbolType);
-        else if (info.type == ModelItemInfo::Method)
-            matchString += info.symbolType;
+        QString matchString = info->symbolName();
+        if (info->type() == IndexItem::Declaration)
+            matchString = info->representDeclaration();
+        else if (info->type() == IndexItem::Function)
+            matchString += info->symbolType();
 
         if ((hasWildcard && regexp.exactMatch(matchString))
             || (!hasWildcard && matcher.indexIn(matchString) != -1))
         {
             QVariant id = qVariantFromValue(info);
             QString name = matchString;
-            QString extraInfo = info.symbolScope;
-            if (info.type == ModelItemInfo::Method) {
-                if (info.unqualifiedNameAndScope(matchString, &name, &extraInfo))
-                    name += info.symbolType;
+            QString extraInfo = info->symbolScope();
+            if (info->type() == IndexItem::Function) {
+                if (info->unqualifiedNameAndScope(matchString, &name, &extraInfo))
+                    name += info->symbolType();
             }
-            Core::LocatorFilterEntry filterEntry(this, name, id, info.icon);
+            Core::LocatorFilterEntry filterEntry(this, name, id, info->icon());
             filterEntry.extraInfo = extraInfo;
 
             if (matchString.startsWith(entry, caseSensitivityForPrefix))
@@ -120,8 +117,8 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInte
 
 void CppCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection) const
 {
-    ModelItemInfo info = qvariant_cast<CppTools::ModelItemInfo>(selection.internalData);
-    Core::EditorManager::openEditorAt(info.fileName, info.line, info.column);
+    IndexItem::Ptr info = qvariant_cast<CppTools::IndexItem::Ptr>(selection.internalData);
+    Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }
 
 void CppCurrentDocumentFilter::refresh(QFutureInterface<void> &future)
@@ -131,24 +128,50 @@ void CppCurrentDocumentFilter::refresh(QFutureInterface<void> &future)
 
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)
 {
+    QMutexLocker locker(&m_mutex);
     if (m_currentFileName == doc->fileName())
         m_itemsOfCurrentDoc.clear();
 }
 
-void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor * currentEditor)
+void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor *currentEditor)
 {
+    QMutexLocker locker(&m_mutex);
     if (currentEditor)
-        m_currentFileName = currentEditor->document()->filePath();
+        m_currentFileName = currentEditor->document()->filePath().toString();
     else
         m_currentFileName.clear();
     m_itemsOfCurrentDoc.clear();
 }
 
-void CppCurrentDocumentFilter::onEditorAboutToClose(Core::IEditor * editorAboutToClose)
+void CppCurrentDocumentFilter::onEditorAboutToClose(Core::IEditor *editorAboutToClose)
 {
-    if (!editorAboutToClose) return;
-    if (m_currentFileName == editorAboutToClose->document()->filePath()) {
+    if (!editorAboutToClose)
+        return;
+
+    QMutexLocker locker(&m_mutex);
+    if (m_currentFileName == editorAboutToClose->document()->filePath().toString()) {
         m_currentFileName.clear();
         m_itemsOfCurrentDoc.clear();
     }
+}
+
+QList<CppTools::IndexItem::Ptr> CppCurrentDocumentFilter::itemsOfCurrentDocument()
+{
+    QMutexLocker locker(&m_mutex);
+
+    if (m_currentFileName.isEmpty())
+        return QList<CppTools::IndexItem::Ptr>();
+
+    if (m_itemsOfCurrentDoc.isEmpty()) {
+        const Snapshot snapshot = m_modelManager->snapshot();
+        if (const Document::Ptr thisDocument = snapshot.document(m_currentFileName)) {
+            IndexItem::Ptr rootNode = search(thisDocument);
+            rootNode->visitAllChildren([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
+                m_itemsOfCurrentDoc.append(info);
+                return IndexItem::Recurse;
+            });
+        }
+    }
+
+    return m_itemsOfCurrentDoc;
 }

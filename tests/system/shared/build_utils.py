@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,33 +9,32 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
 
 import re;
 
-# flag to indicate whether a tasks file should be created when building ends with errors
-createTasksFileOnError = True
-
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
 # lines within the Issues output
-# optional parameter can be used to tell this function if the build was expected to fail or not
-def checkLastBuild(expectedToFail=False):
+# param expectedToFail can be used to tell this function if the build was expected to fail or not
+# param createTasksFileOnError whether a tasks file should be created when building ends with errors
+def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
     try:
         # can't use waitForObject() 'cause visible is always 0
         buildProg = findObject("{type='ProjectExplorer::Internal::BuildProgress' unnamed='1' }")
@@ -45,8 +44,9 @@ def checkLastBuild(expectedToFail=False):
     ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
     model = waitForObject(":Qt Creator.Issues_QListView").model()
     buildIssues = dumpBuildIssues(model)
-    errors = len(filter(lambda i: i[5] == "1", buildIssues))
-    warnings = len(filter(lambda i: i[5] == "2", buildIssues))
+    types = map(lambda i: i[5], buildIssues)
+    errors = types.count("1")
+    warnings = types.count("2")
     gotErrors = errors != 0
     if not (gotErrors ^ expectedToFail):
         test.passes("Errors: %s | Warnings: %s" % (errors, warnings))
@@ -85,8 +85,7 @@ def waitForCompile(timeout=60000):
 
 def dumpBuildIssues(listModel):
     issueDump = []
-    for row in range(listModel.rowCount()):
-        index = listModel.index(row, 0)
+    for index in dumpIndices(listModel):
         issueDump.extend([map(lambda role: index.data(role).toString(),
                               range(Qt.UserRole, Qt.UserRole + 6))])
     return issueDump
@@ -132,6 +131,8 @@ def createTasksFile(buildIssues):
             tData = "warning"
         else:
             tData = "unknown"
+        if str(fData).strip() == "" and lData == "-1" and str(dData).strip() == "":
+            test.fatal("Found empty task.")
         file.write("%s\t%s\t%s\t%s\n" % (fData, lData, tData, dData))
     file.close()
     test.log("Written tasks file %s" % outfile)
@@ -159,18 +160,18 @@ def iterateBuildConfigs(kitCount, filter = ""):
 # param targetCount specifies the number of targets currently defined (must be correct!)
 # param currentTarget specifies the target for which to switch into the specified settings (zero based index)
 # param configName is the name of the configuration that should be selected
+# param afterSwitchTo the ViewConstant of the mode to switch to after selecting or None
 # returns information about the selected kit, see getQtInformationForBuildSettings
-def selectBuildConfig(targetCount, currentTarget, configName):
+def selectBuildConfig(targetCount, currentTarget, configName, afterSwitchTo=ViewConstants.EDIT):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
-    selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName)
-    progressBarWait(30000)
-    return getQtInformationForBuildSettings(targetCount, True, ViewConstants.EDIT)
+    if selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName) or targetCount > 1:
+        progressBarWait(30000)
+    return getQtInformationForBuildSettings(targetCount, True, afterSwitchTo)
 
 # This will not trigger a rebuild. If needed, caller has to do this.
-def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
-    switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
+def verifyBuildConfig(targetCount, currentTarget, configName, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
+    qtInfo = selectBuildConfig(targetCount, currentTarget, configName, None)
     ensureChecked(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     ensureChecked("{name='shadowBuildCheckBox' type='QCheckBox' visible='1'}", enableShadowBuild)
     buildCfCombo = waitForObject("{type='QComboBox' name='buildConfigurationComboBox' visible='1' "
@@ -208,6 +209,7 @@ def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableSha
             clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
     clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)
+    return qtInfo
 
 # verify if building and running of project was successful
 def verifyBuildAndRun():

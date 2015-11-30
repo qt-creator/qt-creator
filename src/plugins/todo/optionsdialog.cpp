@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Dmitry Savchenko
-** Copyright (c) 2014 Vasiliy Sorokin
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Dmitry Savchenko
+** Copyright (C) 2015 Vasiliy Sorokin
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -43,12 +44,12 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     ui(new Ui::OptionsDialog)
 {
     ui->setupUi(this);
-    setButtonsEnabled();
-    connect(ui->addButton, SIGNAL(clicked()), SLOT(addButtonClicked()));
-    connect(ui->removeButton, SIGNAL(clicked()), SLOT(removeButtonClicked()));
-    connect(ui->editButton, SIGNAL(clicked()), SLOT(editButtonClicked()));
-    connect(ui->resetButton, SIGNAL(clicked()), SLOT(resetButtonClicked()));
-    connect(ui->keywordsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(itemDoubleClicked(QListWidgetItem*)));
+    setKeywordsButtonsEnabled();
+    connect(ui->addKeywordButton, SIGNAL(clicked()), SLOT(addKeywordButtonClicked()));
+    connect(ui->removeKeywordButton, SIGNAL(clicked()), SLOT(removeKeywordButtonClicked()));
+    connect(ui->editKeywordButton, SIGNAL(clicked()), SLOT(editKeywordButtonClicked()));
+    connect(ui->resetKeywordsButton, SIGNAL(clicked()), SLOT(resetKeywordsButtonClicked()));
+    connect(ui->keywordsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(keywordDoubleClicked(QListWidgetItem*)));
 }
 
 OptionsDialog::~OptionsDialog()
@@ -56,9 +57,9 @@ OptionsDialog::~OptionsDialog()
     delete ui;
 }
 
-void OptionsDialog::itemDoubleClicked(QListWidgetItem *item)
+void OptionsDialog::keywordDoubleClicked(QListWidgetItem *item)
 {
-    editItem(item);
+    editKeyword(item);
 }
 
 void OptionsDialog::setSettings(const Settings &settings)
@@ -68,8 +69,9 @@ void OptionsDialog::setSettings(const Settings &settings)
 
 void OptionsDialog::addToKeywordsList(const Keyword &keyword)
 {
-    QListWidgetItem *item = new QListWidgetItem(QIcon(keyword.iconResource), keyword.name);
-    item->setData(Qt::UserRole, keyword.iconResource);
+    QListWidgetItem *item = new QListWidgetItem(
+                icon(keyword.iconType), keyword.name);
+    item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
     item->setBackgroundColor(keyword.color);
     ui->keywordsList->addItem(item);
 }
@@ -90,7 +92,7 @@ Settings OptionsDialog::settings()
     return settingsFromUi();
 }
 
-void OptionsDialog::addButtonClicked()
+void OptionsDialog::addKeywordButtonClicked()
 {
     Keyword keyword;
     KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNames(), this);
@@ -100,17 +102,17 @@ void OptionsDialog::addButtonClicked()
     }
 }
 
-void OptionsDialog::editButtonClicked()
+void OptionsDialog::editKeywordButtonClicked()
 {
     QListWidgetItem *item = ui->keywordsList->currentItem();
-    editItem(item);
+    editKeyword(item);
 }
 
-void OptionsDialog::editItem(QListWidgetItem *item)
+void OptionsDialog::editKeyword(QListWidgetItem *item)
 {
     Keyword keyword;
     keyword.name = item->text();
-    keyword.iconResource = item->data(Qt::UserRole).toString();
+    keyword.iconType = static_cast<IconType>(item->data(Qt::UserRole).toInt());
     keyword.color = item->backgroundColor();
 
     QSet<QString> keywordNamesButThis = keywordNames();
@@ -119,65 +121,68 @@ void OptionsDialog::editItem(QListWidgetItem *item)
     KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNamesButThis, this);
     if (keywordDialog->exec() == QDialog::Accepted) {
         keyword = keywordDialog->keyword();
-        item->setIcon(QIcon(keyword.iconResource));
+        item->setIcon(icon(keyword.iconType));
         item->setText(keyword.name);
-        item->setData(Qt::UserRole, keyword.iconResource);
+        item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
         item->setBackgroundColor(keyword.color);
     }
 }
 
-void OptionsDialog::removeButtonClicked()
+void OptionsDialog::removeKeywordButtonClicked()
 {
-    ui->keywordsList->takeItem(ui->keywordsList->currentRow());
+    delete ui->keywordsList->takeItem(ui->keywordsList->currentRow());
 }
 
-void OptionsDialog::resetButtonClicked()
+void OptionsDialog::resetKeywordsButtonClicked()
 {
     Settings newSettings;
     newSettings.setDefault();
     uiFromSettings(newSettings);
 }
 
-void OptionsDialog::setButtonsEnabled()
+void OptionsDialog::setKeywordsButtonsEnabled()
 {
     bool isSomethingSelected = ui->keywordsList->selectedItems().count() != 0;
-    ui->removeButton->setEnabled(isSomethingSelected);
-    ui->editButton->setEnabled(isSomethingSelected);
+    ui->removeKeywordButton->setEnabled(isSomethingSelected);
+    ui->editKeywordButton->setEnabled(isSomethingSelected);
 }
 
- void OptionsDialog::uiFromSettings(const Settings &settings)
- {
-     ui->scanInCurrentFileRadioButton->setChecked(settings.scanningScope == ScanningScopeCurrentFile);
-     ui->scanInProjectRadioButton->setChecked(settings.scanningScope == ScanningScopeProject);
+void OptionsDialog::uiFromSettings(const Settings &settings)
+{
+    ui->scanInCurrentFileRadioButton->setChecked(settings.scanningScope == ScanningScopeCurrentFile);
+    ui->scanInProjectRadioButton->setChecked(settings.scanningScope == ScanningScopeProject);
+    ui->scanInSubprojectRadioButton->setChecked(settings.scanningScope == ScanningScopeSubProject);
 
-     ui->keywordsList->clear();
-     foreach (const Keyword &keyword, settings.keywords)
-         addToKeywordsList(keyword);
- }
+    ui->keywordsList->clear();
+    foreach (const Keyword &keyword, settings.keywords)
+        addToKeywordsList(keyword);
+}
 
- Settings OptionsDialog::settingsFromUi()
- {
-     Settings settings;
+Settings OptionsDialog::settingsFromUi()
+{
+    Settings settings;
 
-     if (ui->scanInCurrentFileRadioButton->isChecked())
-         settings.scanningScope = ScanningScopeCurrentFile;
-     else
-         settings.scanningScope = ScanningScopeProject;
+    if (ui->scanInCurrentFileRadioButton->isChecked())
+        settings.scanningScope = ScanningScopeCurrentFile;
+    else if (ui->scanInSubprojectRadioButton->isChecked())
+        settings.scanningScope = ScanningScopeSubProject;
+    else
+        settings.scanningScope = ScanningScopeProject;
 
-     settings.keywords.clear();
-     for (int i = 0; i < ui->keywordsList->count(); ++i) {
-         QListWidgetItem *item = ui->keywordsList->item(i);
+    settings.keywords.clear();
+    for (int i = 0; i < ui->keywordsList->count(); ++i) {
+        QListWidgetItem *item = ui->keywordsList->item(i);
 
-         Keyword keyword;
-         keyword.name = item->text();
-         keyword.iconResource = item->data(Qt::UserRole).toString();
-         keyword.color = item->backgroundColor();
+        Keyword keyword;
+        keyword.name = item->text();
+        keyword.iconType = static_cast<IconType>(item->data(Qt::UserRole).toInt());
+        keyword.color = item->backgroundColor();
 
-         settings.keywords << keyword;
-     }
+        settings.keywords << keyword;
+    }
 
-     return settings;
- }
+    return settings;
+}
 
 } // namespace Internal
 } // namespace Todo

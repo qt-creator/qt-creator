@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -42,9 +43,10 @@
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
 #include <texteditor/syntaxhighlighter.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/fontsettings.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFutureInterface>
@@ -316,7 +318,12 @@ protected:
         }
         if (ast->identifierToken.isValid())
             addUse(ast->identifierToken, SemanticHighlighter::BindingNameType);
-        scopedAccept(ast, ast->statement);
+        if (ast->statement)
+            scopedAccept(ast, ast->statement);
+        if (ast->binding)
+            // this is not strictly correct for Components, as their context depends from where they
+            // are instantiated, but normally not too bad as approximation
+            scopedAccept(ast, ast->binding);
         return false;
     }
 
@@ -356,7 +363,7 @@ protected:
         return false;
     }
 
-    void addMessages(QList<QmlJS::DiagnosticMessage> messages,
+    void addMessages(QList<DiagnosticMessage> messages,
             const Document::Ptr &doc)
     {
         foreach (const DiagnosticMessage &d, messages) {
@@ -384,7 +391,7 @@ protected:
             else
                 format.setUnderlineColor(Qt::red);
 
-            format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+            format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
             format.setToolTip(d.message);
 
             collectRanges(begin, length, format);
@@ -392,10 +399,10 @@ protected:
         }
     }
 
-    void addMessages(const QList<QmlJS::StaticAnalysis::Message> &messages,
+    void addMessages(const QList<StaticAnalysis::Message> &messages,
                      const Document::Ptr &doc)
     {
-        foreach (const QmlJS::StaticAnalysis::Message &d, messages) {
+        foreach (const StaticAnalysis::Message &d, messages) {
             int line = d.location.startLine;
             int column = qMax(1U, d.location.startColumn);
             int length = d.location.length;
@@ -421,7 +428,7 @@ protected:
             else if (d.severity == Severity::Hint)
                 format.setUnderlineColor(Qt::darkGreen);
 
-            format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+            format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
             format.setToolTip(d.message);
 
             collectRanges(begin, length, format);
@@ -433,7 +440,7 @@ private:
     void run()
     {
         int nMessages = 0;
-        if (Document::isFullySupportedLanguage(m_scopeChain.document()->language())) {
+        if (m_scopeChain.document()->language().isFullySupportedLanguage()) {
             nMessages = m_scopeChain.document()->diagnosticMessages().size()
                     + m_semanticInfo.semanticMessages.size()
                     + m_semanticInfo.staticAnalysisMessages.size();
@@ -444,7 +451,7 @@ private:
             addMessages(m_semanticInfo.semanticMessages, m_semanticInfo.document);
             addMessages(m_semanticInfo.staticAnalysisMessages, m_semanticInfo.document);
 
-            qSort(m_delayedUses.begin(), m_delayedUses.end(), sortByLinePredicate);
+            Utils::sort(m_delayedUses, sortByLinePredicate);
         }
         m_currentDelayedUse = 0;
 
@@ -513,7 +520,7 @@ private:
         if (m_uses.isEmpty())
             return;
 
-        qSort(m_uses.begin(), m_uses.end(), sortByLinePredicate);
+        Utils::sort(m_uses, sortByLinePredicate);
         reportResults(m_uses);
         m_uses.clear();
         m_uses.reserve(chunkSize);

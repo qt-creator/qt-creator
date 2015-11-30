@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Brian McGillion and Hugues Delorme
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Brian McGillion and Hugues Delorme
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,16 +32,21 @@
 #define VCSBASECLIENT_H
 
 #include "vcsbase_global.h"
-#include <coreplugin/id.h>
+
+#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QStringList>
+#include <QVariant>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
-class QVariant;
 class QProcessEnvironment;
 QT_END_NAMESPACE
+
+namespace Core { class Id; }
 
 namespace Utils {
 struct SynchronousProcessResponse;
@@ -49,14 +55,86 @@ class ExitCodeInterpreter;
 
 namespace VcsBase {
 
-class Command;
+class VcsCommand;
 class VcsBaseEditorWidget;
 class VcsBaseClientSettings;
 class VcsJob;
+class VcsBaseClientImplPrivate;
 class VcsBaseClientPrivate;
 class VcsBaseEditorParameterWidget;
 
-class VCSBASE_EXPORT VcsBaseClient : public QObject
+class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit VcsBaseClientImpl(VcsBaseClientSettings *settings);
+    ~VcsBaseClientImpl();
+
+    VcsBaseClientSettings &settings() const;
+
+    virtual Utils::FileName vcsBinary() const;
+    int vcsTimeoutS() const;
+
+    enum JobOutputBindMode {
+        NoOutputBind,
+        VcsWindowOutputBind
+    };
+
+    VcsBaseEditorWidget *createVcsEditor(Core::Id kind, QString title,
+                                         const QString &source, QTextCodec *codec,
+                                         const char *registerDynamicProperty,
+                                         const QString &dynamicPropertyValue) const;
+
+    VcsCommand *createCommand(const QString &workingDirectory,
+                              VcsBaseEditorWidget *editor = 0,
+                              JobOutputBindMode mode = NoOutputBind) const;
+
+    void enqueueJob(VcsCommand *cmd, const QStringList &args,
+                    const QString &workingDirectory = QString(),
+                    Utils::ExitCodeInterpreter *interpreter = 0);
+
+    virtual QProcessEnvironment processEnvironment() const;
+
+    // VCS functionality:
+    virtual void annotate(const QString &workingDir, const QString &file,
+                          const QString &revision = QString(), int lineNumber = -1,
+                          const QStringList &extraOptions = QStringList()) = 0;
+
+    // Return converted command output, remove '\r' read on Windows
+    static QString commandOutputFromLocal8Bit(const QByteArray &a);
+    // Return converted command output split into lines
+    static QStringList commandOutputLinesFromLocal8Bit(const QByteArray &a);
+
+protected:
+    void resetCachedVcsInfo(const QString &workingDir);
+    virtual void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+                                           const QString &change, int line);
+
+    // Fully synchronous VCS execution (QProcess-based)
+    bool vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
+                                 QByteArray *outputData, QByteArray *errorData = 0,
+                                 unsigned flags = 0) const;
+
+    // Simple helper to execute a single command using createCommand and enqueueJob.
+    VcsCommand *vcsExec(const QString &workingDirectory, const QStringList &arguments,
+                        VcsBaseEditorWidget *editor = 0, bool useOutputToWindow = false,
+                        unsigned additionalFlags = 0, const QVariant &cookie = QVariant());
+
+    // Synchronous VCS execution using Utils::SynchronousProcess, with
+    // log windows updating (using VcsBasePlugin::runVcs with flags)
+    Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,
+                                                         const QStringList &args,
+                                                         unsigned flags = 0,
+                                                         QTextCodec *outputCodec = 0) const;
+
+private:
+    void saveSettings();
+
+    VcsBaseClientImplPrivate *d;
+};
+
+class VCSBASE_EXPORT VcsBaseClient : public VcsBaseClientImpl
 {
     Q_OBJECT
 
@@ -92,7 +170,7 @@ public:
                                  const QString &dstLocation,
                                  const QStringList &extraOptions = QStringList());
     virtual void annotate(const QString &workingDir, const QString &file,
-                          const QString revision = QString(), int lineNumber = -1,
+                          const QString &revision = QString(), int lineNumber = -1,
                           const QStringList &extraOptions = QStringList());
     virtual void diff(const QString &workingDir, const QStringList &files = QStringList(),
                       const QStringList &extraOptions = QStringList());
@@ -118,9 +196,6 @@ public:
 
     virtual QString findTopLevelForFile(const QFileInfo &file) const = 0;
 
-    virtual VcsBaseClientSettings *settings() const;
-    virtual QProcessEnvironment processEnvironment() const;
-
 signals:
     void parsedStatus(const QList<VcsBase::VcsBaseClient::StatusItem> &statusList);
     // Passes on changed signals from VcsJob to Control
@@ -131,7 +206,7 @@ public slots:
                       const QStringList &extraOptions = QStringList());
 
 protected:
-    enum VcsCommand
+    enum VcsCommandTag
     {
         CreateRepositoryCommand,
         CloneCommand,
@@ -149,54 +224,25 @@ protected:
         LogCommand,
         StatusCommand
     };
-    virtual QString vcsCommandString(VcsCommand cmd) const;
-    virtual Core::Id vcsEditorKind(VcsCommand cmd) const = 0;
-    virtual Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommand cmd, QObject *parent) const;
+    virtual QString vcsCommandString(VcsCommandTag cmd) const;
+    virtual Core::Id vcsEditorKind(VcsCommandTag cmd) const = 0;
+    virtual Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const;
 
     virtual QStringList revisionSpec(const QString &revision) const = 0;
-    virtual VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
-                                                           const QStringList &files,
-                                                           const QStringList &extraOptions);
-    virtual VcsBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
-                                                          const QStringList &files,
-                                                          const QStringList &extraOptions);
+
+    typedef std::function<VcsBaseEditorParameterWidget *()> ParameterWidgetCreator;
+    void setDiffParameterWidgetCreator(ParameterWidgetCreator creator);
+    void setLogParameterWidgetCreator(ParameterWidgetCreator creator);
+
     virtual StatusItem parseStatusLine(const QString &line) const = 0;
 
     QString vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const;
-    // Fully synchronous VCS execution (QProcess-based)
-    bool vcsFullySynchronousExec(const QString &workingDir,
-                                 const QStringList &args,
-                                 QByteArray *output) const;
-    // Synchronous VCS execution using Utils::SynchronousProcess, with
-    // log windows updating (using VcsBasePlugin::runVcs with flags)
-    Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,
-                                                         const QStringList &args,
-                                                         unsigned flags = 0,
-                                                         QTextCodec *outputCodec = 0);
-    VcsBase::VcsBaseEditorWidget *createVcsEditor(Core::Id kind, QString title,
-                                                  const QString &source, bool setSourceCodec,
-                                                  const char *registerDynamicProperty,
-                                                  const QString &dynamicPropertyValue) const;
-
-    enum JobOutputBindMode {
-        NoOutputBind,
-        VcsWindowOutputBind
-    };
-    Command *createCommand(const QString &workingDirectory,
-                           VcsBase::VcsBaseEditorWidget *editor = 0,
-                           JobOutputBindMode mode = NoOutputBind);
-    void enqueueJob(Command *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter = 0);
-
-    void resetCachedVcsInfo(const QString &workingDir);
 
 private:
+    void statusParser(const QString&);
+
     friend class VcsBaseClientPrivate;
     VcsBaseClientPrivate *d;
-
-    Q_PRIVATE_SLOT(d, void statusParser(QString))
-    Q_PRIVATE_SLOT(d, void annotateRevision(QString, QString, QString, int))
-    Q_PRIVATE_SLOT(d, void saveSettings())
-    Q_PRIVATE_SLOT(d, void commandFinishedGotoLine(QWidget *))
 };
 
 } //namespace VcsBase

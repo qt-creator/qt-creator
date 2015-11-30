@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -48,24 +44,15 @@
 #include <windows.h>
 #endif
 
-int main(int argc, char *argv[])
+int internalMain(QGuiApplication *application)
 {
-    // Since we always render text into an FBO, we need to globally disable
-    // subpixel antialiasing and instead use gray.
-    qputenv("QSG_DISTANCEFIELD_ANTIALIASING", "gray");
-#ifdef Q_OS_MAC //This keeps qml2puppet from stealing focus
-    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
-#endif
-
-    QApplication application(argc, argv);
-
     QCoreApplication::setOrganizationName("QtProject");
     QCoreApplication::setOrganizationDomain("qt-project.org");
     QCoreApplication::setApplicationName("Qml2Puppet");
     QCoreApplication::setApplicationVersion("1.0.0");
 
-    if (application.arguments().count() < 2
-            || (application.arguments().at(1) == "--readcapturedstream" && application.arguments().count() < 3)) {
+    if (application->arguments().count() < 2
+            || (application->arguments().at(1) == "--readcapturedstream" && application->arguments().count() < 3)) {
         qDebug() << "Usage:\n";
         qDebug() << "--test";
         qDebug() << "--version";
@@ -74,16 +61,16 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if (application.arguments().at(1) == "--readcapturedstream" && application.arguments().count() > 2) {
-        QFileInfo inputStreamFileInfo(application.arguments().at(2));
+    if (application->arguments().at(1) == "--readcapturedstream" && application->arguments().count() > 2) {
+        QFileInfo inputStreamFileInfo(application->arguments().at(2));
         if (!inputStreamFileInfo.exists()) {
             qDebug() << "Input stream does not exist:" << inputStreamFileInfo.absoluteFilePath();
 
             return -1;
         }
 
-        if (application.arguments().count() > 3) {
-            QFileInfo controlStreamFileInfo(application.arguments().at(3));
+        if (application->arguments().count() > 3) {
+            QFileInfo controlStreamFileInfo(application->arguments().at(3));
             if (!controlStreamFileInfo.exists()) {
                 qDebug() << "Output stream does not exist:" << controlStreamFileInfo.absoluteFilePath();
 
@@ -92,7 +79,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (application.arguments().count() == 2 && application.arguments().at(1) == "--test") {
+    if (application->arguments().count() == 2 && application->arguments().at(1) == "--test") {
         qDebug() << QCoreApplication::applicationVersion();
         QQmlEngine engine;
 
@@ -111,13 +98,13 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (application.arguments().count() == 2 && application.arguments().at(1) == "--version") {
+    if (application->arguments().count() == 2 && application->arguments().at(1) == "--version") {
         std::cout << 2;
         return 0;
     }
 
-    if (application.arguments().at(1) != "--readcapturedstream" && application.arguments().count() < 4) {
-        qDebug() << "Wrong argument count: " << application.arguments().count();
+    if (application->arguments().at(1) != "--readcapturedstream" && application->arguments().count() < 4) {
+        qDebug() << "Wrong argument count: " << application->arguments().count();
         return -1;
     }
 
@@ -127,14 +114,36 @@ int main(int argc, char *argv[])
     QtSystemExceptionHandler systemExceptionHandler;
 #endif
 
-    new QmlDesigner::Qt5NodeInstanceClientProxy(&application);
+    new QmlDesigner::Qt5NodeInstanceClientProxy(application);
 
 #if defined(Q_OS_WIN) && defined(QT_NO_DEBUG)
     SetErrorMode(SEM_NOGPFAULTERRORBOX); //We do not want to see any message boxes
 #endif
 
-    if (application.arguments().at(1) == "--readcapturedstream")
+    if (application->arguments().at(1) == "--readcapturedstream")
         return 0;
 
-    return application.exec();
+    return application->exec();
+}
+
+int main(int argc, char *argv[])
+{
+    // Since we always render text into an FBO, we need to globally disable
+    // subpixel antialiasing and instead use gray.
+    qputenv("QSG_DISTANCEFIELD_ANTIALIASING", "gray");
+#ifdef Q_OS_OSX //This keeps qml2puppet from stealing focus
+    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
+#endif
+
+    //If a style different from Desktop is set we have to use QGuiApplication
+    bool useGuiApplication = !qgetenv("QT_QUICK_CONTROLS_STYLE").isEmpty()
+            && qgetenv("QT_QUICK_CONTROLS_STYLE") != "Desktop";
+
+    if (useGuiApplication) {
+        QGuiApplication application(argc, argv);
+        return internalMain(&application);
+    } else {
+        QApplication application(argc, argv);
+        return internalMain(&application);
+    }
 }

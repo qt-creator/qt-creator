@@ -77,7 +77,7 @@ protected:
     unsigned calculateScopeStart(ObjCProtocolDeclarationAST *ast) const;
 
     const Name *objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg);
-    void attribute(AttributeAST *ast);
+    void attribute(GnuAttributeAST *ast);
     FullySpecifiedType declarator(DeclaratorAST *ast, const FullySpecifiedType &init, DeclaratorIdAST **declaratorId);
     void qtInterfaceName(QtInterfaceNameAST *ast);
     void baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *klass);
@@ -103,16 +103,16 @@ protected:
     void lambdaIntroducer(LambdaIntroducerAST *ast);
     void lambdaCapture(LambdaCaptureAST *ast);
     void capture(CaptureAST *ast);
-    void lambdaDeclarator(LambdaDeclaratorAST *ast);
+    Function *lambdaDeclarator(LambdaDeclaratorAST *ast);
     FullySpecifiedType trailingReturnType(TrailingReturnTypeAST *ast, const FullySpecifiedType &init);
-    const StringLiteral *asStringLiteral(unsigned firstToken, unsigned lastToken);
+    const StringLiteral *asStringLiteral(const ExpressionAST *ast);
 
     virtual bool preVisit(AST *);
     virtual void postVisit(AST *);
 
     // AST
     virtual bool visit(ObjCSelectorArgumentAST *ast);
-    virtual bool visit(AttributeAST *ast);
+    virtual bool visit(GnuAttributeAST *ast);
     virtual bool visit(DeclaratorAST *ast);
     virtual bool visit(QtPropertyDeclarationItemAST *ast);
     virtual bool visit(QtInterfaceNameAST *ast);
@@ -245,7 +245,8 @@ protected:
 
     // SpecifierAST
     virtual bool visit(SimpleSpecifierAST *ast);
-    virtual bool visit(AttributeSpecifierAST *ast);
+    virtual bool visit(AlignmentSpecifierAST *ast);
+    virtual bool visit(GnuAttributeSpecifierAST *ast);
     virtual bool visit(TypeofSpecifierAST *ast);
     virtual bool visit(DecltypeSpecifierAST *ast);
     virtual bool visit(ClassSpecifierAST *ast);

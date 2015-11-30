@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -51,12 +52,12 @@ class PROJECTEXPLORER_EXPORT DeployConfiguration : public ProjectConfiguration
 
 public:
     // ctors are protected
-    virtual ~DeployConfiguration();
+    ~DeployConfiguration() override;
 
     BuildStepList *stepList() const;
 
-    virtual bool fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
     virtual NamedWidget *createConfigWidget();
 
@@ -69,21 +70,23 @@ signals:
     void enabledChanged();
 
 protected:
-    DeployConfiguration(Target *target, const Core::Id id);
+    DeployConfiguration(Target *target, Core::Id id);
     DeployConfiguration(Target *target, DeployConfiguration *source);
 
     void cloneSteps(DeployConfiguration *source);
 
 private:
+    void ctor();
+
     BuildStepList *m_stepList;
 };
 
 class PROJECTEXPLORER_EXPORT DefaultDeployConfiguration : public DeployConfiguration
 {
     Q_OBJECT
-    friend class DeployConfigurationFactory; // for the ctors
+    friend class DefaultDeployConfigurationFactory; // for the ctors
 protected:
-    DefaultDeployConfiguration(Target *target, const Core::Id id);
+    DefaultDeployConfiguration(Target *target, Core::Id id);
     DefaultDeployConfiguration(Target *target, DeployConfiguration *source);
 };
 
@@ -97,17 +100,17 @@ public:
     virtual ~DeployConfigurationFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    virtual QList<Core::Id> availableCreationIds(Target *parent) const;
+    virtual QList<Core::Id> availableCreationIds(Target *parent) const = 0;
     // used to translate the types to names to display to the user
-    virtual QString displayNameForId(const Core::Id id) const;
+    virtual QString displayNameForId(Core::Id id) const = 0;
 
-    virtual bool canCreate(Target *parent, const Core::Id id) const;
-    virtual DeployConfiguration *create(Target *parent, const Core::Id id);
+    virtual bool canCreate(Target *parent, Core::Id id) const = 0;
+    virtual DeployConfiguration *create(Target *parent, Core::Id id) = 0;
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(Target *parent, const QVariantMap &map) const;
-    virtual DeployConfiguration *restore(Target *parent, const QVariantMap &map);
-    virtual bool canClone(Target *parent, DeployConfiguration *product) const;
-    virtual DeployConfiguration *clone(Target *parent, DeployConfiguration *product);
+    virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
+    virtual DeployConfiguration *restore(Target *parent, const QVariantMap &map) = 0;
+    virtual bool canClone(Target *parent, DeployConfiguration *product) const = 0;
+    virtual DeployConfiguration *clone(Target *parent, DeployConfiguration *product) = 0;
 
     static DeployConfigurationFactory *find(Target *parent, const QVariantMap &map);
     static QList<DeployConfigurationFactory *> find(Target *parent);
@@ -115,11 +118,22 @@ public:
 
 signals:
     void availableCreationIdsChanged();
+};
 
-protected:
-    virtual bool canHandle(Target *parent) const;
-
+class DefaultDeployConfigurationFactory : public DeployConfigurationFactory
+{
+public:
+    QList<Core::Id> availableCreationIds(Target *parent) const;
+    // used to translate the types to names to display to the user
+    QString displayNameForId(Core::Id id) const;
+    bool canCreate(Target *parent, Core::Id id) const;
+    DeployConfiguration *create(Target *parent, Core::Id id);
+    bool canRestore(Target *parent, const QVariantMap &map) const;
+    DeployConfiguration *restore(Target *parent, const QVariantMap &map);
+    bool canClone(Target *parent, DeployConfiguration *product) const;
+    DeployConfiguration *clone(Target *parent, DeployConfiguration *product);
 private:
+    bool canHandle(Target *parent) const;
 };
 
 } // namespace ProjectExplorer

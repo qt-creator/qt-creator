@@ -1,23 +1,20 @@
-import qbs.base 1.0
+import qbs
+import qbs.FileInfo
 
-Application {
-    type: "application" // no Mac app bundle
-    Depends { name: "cpp" }
-    cpp.defines: project.generalDefines
-    cpp.linkerFlags: {
-        if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
-            return ["-Wl,-s"]
-    }
+QtcProduct {
+    type: ["application"]
+    consoleApplication: true
+    installDir:  project.ide_libexec_path
 
-    property string toolInstallDir: project.ide_libexec_path
-
-    cpp.rpaths: qbs.targetOS.contains("osx")
-            ? ["@executable_path/../" + project.ide_library_path]
-            : ["$ORIGIN/../" + project.ide_library_path]
-
-    Group {
-        fileTagsFilter: product.type
-        qbs.install: true
-        qbs.installDir: toolInstallDir
+    cpp.rpaths: {
+        var relativePathToLibs
+                = FileInfo.relativePath(project.ide_libexec_path, project.ide_library_path);
+        var relativePathToPlugins
+                = FileInfo.relativePath(project.ide_libexec_path, project.ide_plugin_path);
+        var prefix = qbs.targetOS.contains("osx") ? "@executable_path" : "$ORIGIN";
+        return [
+            FileInfo.joinPaths(prefix, relativePathToLibs),
+            FileInfo.joinPaths(prefix, relativePathToPlugins)
+        ];
     }
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,18 +36,22 @@
 #include <QCoreApplication>
 #include <QXmlStreamWriter> // Mac.
 #include <QMetaType>
+#include <QStringList>
+
+#include <functional>
 
 namespace Utils {class FileName; }
 
 QT_BEGIN_NAMESPACE
-class QFile;
-class QTemporaryFile;
-class QWidget;
-class QTextStream;
 class QDataStream;
 class QDateTime;
-class QFileInfo;
 class QDir;
+class QDropEvent;
+class QFile;
+class QFileInfo;
+class QTemporaryFile;
+class QTextStream;
+class QWidget;
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::FileName &c);
 
@@ -61,10 +66,14 @@ public:
     explicit FileName(const QFileInfo &info);
     QFileInfo toFileInfo() const;
     static FileName fromString(const QString &filename);
+    static FileName fromString(const QString &filename, const QString &defaultExtension);
     static FileName fromLatin1(const QByteArray &filename);
     static FileName fromUserInput(const QString &filename);
-    QString toString() const;
+    static FileName fromUtf8(const char *filename, int filenameSize = -1);
+    const QString &toString() const;
     QString toUserOutput() const;
+    QString fileName(int pathComponents = 0) const;
+    bool exists() const;
 
     FileName parentDir() const;
 
@@ -79,10 +88,10 @@ public:
     bool isChildOf(const QDir &dir) const;
     bool endsWith(const QString &s) const;
 
-    Utils::FileName relativeChildPath(const FileName &parent) const;
-    Utils::FileName &appendPath(const QString &s);
-    Utils::FileName &appendString(const QString &str);
-    Utils::FileName &appendString(QChar str);
+    FileName relativeChildPath(const FileName &parent) const;
+    FileName &appendPath(const QString &s);
+    FileName &appendString(const QString &str);
+    FileName &appendString(QChar str);
 
     using QString::size;
     using QString::count;
@@ -94,11 +103,15 @@ private:
     FileName(const QString &string);
 };
 
+QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FileName &fn);
+
+using FileNameList = QList<FileName>;
+
 class QTCREATOR_UTILS_EXPORT FileUtils {
 public:
     static bool removeRecursively(const FileName &filePath, QString *error = 0);
     static bool copyRecursively(const FileName &srcFilePath, const FileName &tgtFilePath,
-                                QString *error = 0);
+                                QString *error = 0, const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = std::function<bool (QFileInfo, QFileInfo, QString *)>());
     static bool isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp);
     static FileName resolveSymlinks(const FileName &path);
     static QString shortNativePath(const FileName &path);
@@ -107,6 +120,10 @@ public:
     static QString qmakeFriendlyName(const QString &name);
     static bool makeWritable(const FileName &path);
     static QString normalizePathName(const QString &name);
+
+    static bool isRelativePath(const QString &fileName);
+    static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
+    static QString resolvePath(const QString &baseDir, const QString &fileName);
 };
 
 class QTCREATOR_UTILS_EXPORT FileReader

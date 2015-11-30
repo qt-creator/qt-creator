@@ -1,0 +1,43 @@
+{
+    \"Name\" : \"Debugger\",
+    \"Version\" : \"$$QTCREATOR_VERSION\",
+    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"Vendor\" : \"The Qt Company Ltd\",
+    \"Copyright\" : \"(C) 2015 The Qt Company Ltd\",
+    \"License\" : [ \"Commercial Usage\",
+                  \"\",
+                  \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
+                  \"\",
+                  \"GNU Lesser General Public License Usage\",
+                  \"\",
+                  \"Alternatively, this plugin may be used under the terms of the GNU Lesser General Public License version 2.1 or version 3 as published by the Free Software Foundation.  Please review the following information to ensure the GNU Lesser General Public License requirements will be met: https://www.gnu.org/licenses/lgpl.html and http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\"
+    ],
+    \"Category\" : \"Qt Creator\",
+    \"Description\" : \"Debugger integration.\",
+    \"Url\" : \"http://www.qt.io\",
+    \"Arguments\" : [
+        {
+            \"Name\" : \"-debug\",
+            \"Parameter\" : \"pid\",
+            \"Description\" : \"Attach to local process\"
+        },
+        {
+            \"Name\" : \"-debug <executable>[,kit=<kit>][,terminal={0,1}]\",
+            \"Description\" : \"Start and debug executable\"
+        },
+        {
+            \"Name\" : \"-debug [executable,]core=<corefile>[,kit=<kit>]\",
+            \"Description\" : \"Attach to core file\"
+        },
+        {
+            \"Name\" : \"-debug <executable>,server=<server:port>[,kit=<kit>]\",
+            \"Description\" : \"Attach to remote debug server\"
+        },
+        {
+            \"Name\" : \"-wincrashevent\",
+            \"Parameter\" : \"eventhandle:pid\",
+            \"Description\" : \"Event handle used for attaching to crashed processes\"
+        }
+    ],
+    $$dependencyList
+}

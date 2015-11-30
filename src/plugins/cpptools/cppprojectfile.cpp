@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,7 +33,8 @@
 #include "cpptoolsconstants.h"
 
 #include <coreplugin/icore.h>
-
+#include <utils/mimetypes/mimedatabase.h>
+#
 #include <QDebug>
 
 namespace CppTools {
@@ -50,11 +52,11 @@ ProjectFile::ProjectFile(const QString &file, Kind kind)
 
 ProjectFile::Kind ProjectFile::classify(const QString &file)
 {
-    const QFileInfo fi(file);
-    const Core::MimeType mimeType = Core::MimeDatabase::findByFile(fi);
-    if (!mimeType)
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mimeType = mdb.mimeTypeForFile(file);
+    if (!mimeType.isValid())
         return Unclassified;
-    const QString mt = mimeType.type();
+    const QString mt = mimeType.name();
     if (mt == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE))
         return CSource;
     if (mt == QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE))
@@ -101,39 +103,6 @@ bool ProjectFile::isSource(ProjectFile::Kind kind)
     }
 }
 
-ProjectFileAdder::ProjectFileAdder(QList<ProjectFile> &files)
-    : m_files(files)
-{
-    addMapping(CppTools::Constants::C_SOURCE_MIMETYPE, ProjectFile::CSource);
-    addMapping(CppTools::Constants::C_HEADER_MIMETYPE, ProjectFile::CHeader);
-    addMapping(CppTools::Constants::CPP_SOURCE_MIMETYPE, ProjectFile::CXXSource);
-    addMapping(CppTools::Constants::CPP_HEADER_MIMETYPE, ProjectFile::CXXHeader);
-    addMapping(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE, ProjectFile::ObjCSource);
-    addMapping(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE, ProjectFile::ObjCXXSource);
-}
-
-ProjectFileAdder::~ProjectFileAdder()
-{
-}
-
-bool ProjectFileAdder::maybeAdd(const QString &path)
-{
-    m_fileInfo.setFile(path);
-    foreach (const Pair &pair, m_mapping)
-        if (pair.first.matchesFile(path)) {
-            m_files << ProjectFile(path, pair.second);
-            return true;
-        }
-    return false;
-}
-
-void ProjectFileAdder::addMapping(const char *mimeName, ProjectFile::Kind kind)
-{
-    Core::MimeType mimeType = Core::MimeDatabase::findByType(QLatin1String(mimeName));
-    if (!mimeType.isNull())
-        m_mapping.append(Pair(mimeType, kind));
-}
-
 QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile)
 {
     const char *kind;
@@ -154,4 +123,42 @@ QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile)
     return stream;
 }
 
+namespace Internal {
+
+ProjectFileAdder::ProjectFileAdder(QList<ProjectFile> &files)
+    : m_files(files)
+{
+    addMapping(CppTools::Constants::C_SOURCE_MIMETYPE, ProjectFile::CSource);
+    addMapping(CppTools::Constants::C_HEADER_MIMETYPE, ProjectFile::CHeader);
+    addMapping(CppTools::Constants::CPP_SOURCE_MIMETYPE, ProjectFile::CXXSource);
+    addMapping(CppTools::Constants::CPP_HEADER_MIMETYPE, ProjectFile::CXXHeader);
+    addMapping(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE, ProjectFile::ObjCSource);
+    addMapping(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE, ProjectFile::ObjCXXSource);
+}
+
+ProjectFileAdder::~ProjectFileAdder()
+{
+}
+
+bool ProjectFileAdder::maybeAdd(const QString &path)
+{
+    Utils::MimeDatabase mdb;
+    const Utils::MimeType mt = mdb.mimeTypeForFile(path);
+    if (m_mimeNameMapping.contains(mt.name())) {
+        m_files << ProjectFile(path, m_mimeNameMapping.value(mt.name()));
+        return true;
+    }
+    return false;
+}
+
+void ProjectFileAdder::addMapping(const char *mimeName, ProjectFile::Kind kind)
+{
+    Utils::MimeDatabase mdb;
+    Utils::MimeType mimeType = mdb.mimeTypeForName(QLatin1String(mimeName));
+    if (mimeType.isValid())
+        m_mimeNameMapping.insert(mimeType.name(), kind);
+}
+
+} // namespace Internal
 } // namespace CppTools
+

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,47 +31,32 @@
 #ifndef QMLPROFILERTRACEVIEW_H
 #define QMLPROFILERTRACEVIEW_H
 
-#include <QQuickView>
-#include <QWidget>
+#include "qmlprofilermodelmanager.h"
 
-namespace Analyzer { class IAnalyzerTool; }
+#include <coreplugin/find/ifindsupport.h>
+
+#include <QTimer>
+#include <QWidget>
 
 namespace QmlProfiler {
 
 class QmlProfilerModelManager;
+class QmlProfilerStateManager;
+
 namespace Internal {
 
-class QmlProfilerStateManager;
+class QmlProfilerTool;
 class QmlProfilerViewManager;
-
-// centralized zoom control
-class ZoomControl : public QObject {
-    Q_OBJECT
-public:
-    ZoomControl(QObject *parent=0):QObject(parent),m_startTime(0),m_endTime(0) {}
-    ~ZoomControl(){}
-
-    Q_INVOKABLE void setRange(qint64 startTime, qint64 endTime);
-    Q_INVOKABLE qint64 startTime() { return m_startTime; }
-    Q_INVOKABLE qint64 endTime() { return m_endTime; }
-
-signals:
-    void rangeChanged();
-
-private:
-    qint64 m_startTime;
-    qint64 m_endTime;
-};
 
 class QmlProfilerTraceView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState);
+    explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *profilerTool,
+                                  QmlProfilerViewManager *container,
+                                  QmlProfilerModelManager *modelManager);
     ~QmlProfilerTraceView();
-
-    void reset();
 
     bool hasValidSelection() const;
     qint64 selectionStart() const;
@@ -78,63 +64,51 @@ public:
     void showContextMenu(QPoint position);
 
 public slots:
-    void clearDisplay();
-    void selectNextEventByHash(const QString &eventHash);
-    void selectNextEventByLocation(const QString &filename, const int line, const int column);
-
-private slots:
+    void clear();
+    void selectByTypeId(int typeId);
+    void selectByEventIndex(int modelId, int eventIndex);
     void updateCursorPosition();
-    void toggleRangeMode(bool);
-    void updateRangeButton();
-    void toggleLockMode(bool);
-    void updateLockButton();
-
-    void updateRange();
-
-    void updateToolTip(const QString &text);
-    void profilerDataModelStateChanged();
 
 protected:
-    virtual void resizeEvent(QResizeEvent *event);
-    virtual void contextMenuEvent(QContextMenuEvent *event);
-
-private slots:
-    void profilerStateChanged();
-    void clientRecordingChanged();
-    void serverRecordingChanged();
-    void setZoomSliderEnabled(bool enabled);
-    void setZoomSliderVisible(bool visible);
+    void changeEvent(QEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 signals:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columNumber);
-    void selectedEventChanged(int eventId);
-
-    void jumpToPrev();
-    void jumpToNext();
-    void rangeModeChanged(bool);
-    void lockModeChanged(bool);
-    void enableToolbar(bool);
-    void showZoomSlider(bool);
-
-    void resized();
-
-private:
-    QWidget *createToolbar();
-
-    void setRecording(bool recording);
-    void setAppKilled();
+    void typeSelected(int typeId);
 
 private:
     class QmlProfilerTraceViewPrivate;
     QmlProfilerTraceViewPrivate *d;
 };
 
-class QmlProfilerQuickView : public QQuickView {
+class TraceViewFindSupport : public Core::IFindSupport
+{
+    Q_OBJECT
+
 public:
-    QmlProfilerQuickView(QmlProfilerTraceView *parent) : parent(parent) {}
-protected:
-    QmlProfilerTraceView *parent;
-    bool event(QEvent *ev);
+    TraceViewFindSupport(QmlProfilerTraceView *view, QmlProfilerModelManager *manager);
+
+    bool supportsReplace() const override;
+    Core::FindFlags supportedFindFlags() const override;
+    void resetIncrementalSearch() override;
+    void clearHighlights() override;
+    QString currentFindString() const override;
+    QString completedFindString() const override;
+    Result findIncremental(const QString &txt, Core::FindFlags findFlags) override;
+    Result findStep(const QString &txt, Core::FindFlags findFlags) override;
+
+private:
+    bool find(const QString &txt, Core::FindFlags findFlags, int start, bool *wrapped);
+    bool findOne(const QString &txt, Core::FindFlags findFlags, int start);
+
+    QmlProfilerTraceView *m_view;
+    QmlProfilerModelManager *m_modelManager;
+    int m_incrementalStartPos = -1;
+    bool m_incrementalWrappedState = false;
+    int m_currentPosition = -1;
 };
 
 } // namespace Internal

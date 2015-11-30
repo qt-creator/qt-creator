@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,176 +31,129 @@
 #ifndef QMLENGINE_H
 #define QMLENGINE_H
 
-#include "interactiveinterpreter.h"
-#include "qmladapter.h"
-#include "qmlinspectoradapter.h"
 #include <debugger/debuggerengine.h>
 
-#include <projectexplorer/applicationlauncher.h>
 #include <qmldebug/qdebugmessageclient.h>
 #include <qmldebug/qmloutputparser.h>
 #include <qmljs/iscriptevaluator.h>
-
-#include <QTextDocument>
-
-namespace Core { class IDocument; }
+#include <qmljs/qmljsdocument.h>
 
 namespace Debugger {
 namespace Internal {
 
-class QmlAdapter;
-class WatchTreeView;
+class WatchData;
+class WatchItem;
+class QmlEnginePrivate;
+class QmlInspectorAgent;
 
 class QmlEngine : public DebuggerEngine, QmlJS::IScriptEvaluator
 {
     Q_OBJECT
 
 public:
-    explicit QmlEngine(const DebuggerStartParameters &startParameters,
-                       DebuggerEngine *masterEngine = 0);
+    explicit QmlEngine(const DebuggerRunParameters &runParameters,
+                       DebuggerEngine *masterEngine = nullptr);
     ~QmlEngine();
 
-    void notifyInferiorSetupOk();
-    void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
-    void notifyEngineRemoteSetupFailed(const QString &message);
-    void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
+    void filterApplicationMessage(const QString &msg, int channel) const;
 
-    bool canDisplayTooltip() const;
+    void logServiceStateChange(const QString &service, float version,
+                               QmlDebug::QmlDebugClient::State newState);
+    void logServiceActivity(const QString &service, const QString &logMessage);
 
-    void showMessage(const QString &msg, int channel = LogDebug,
-                     int timeout = -1) const;
-    void gotoLocation(const Internal::Location &location);
-
-    void filterApplicationMessage(const QString &msg, int channel);
-    void inferiorSpontaneousStop();
-
-    enum LogDirection {
-        LogSend,
-        LogReceive
-    };
-
-    void logMessage(const QString &service, LogDirection direction,
-                    const QString &str);
-
-    void setSourceFiles(const QStringList &fileNames);
-    void updateScriptSource(const QString &fileName, int lineOffset,
-                            int columnOffset, const QString &source);
-
-    void insertBreakpoint(BreakpointModelId id);
-
-signals:
-    void tooltipRequested(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, int cursorPos);
-    void aboutToNotifyInferiorSetupOk();
+    void expressionEvaluated(quint32 queryId, const QVariant &result);
 
 private slots:
     void disconnected();
-    void documentUpdated(QmlJS::Document::Ptr doc);
-    void expressionEvaluated(quint32 queryId, const QVariant &result);
-
     void errorMessageBoxFinished(int result);
     void updateCurrentContext();
-    void appendDebugOutput(QtMsgType type, const QString &message,
-                           const QmlDebug::QDebugContextInfo &info);
 
     void tryToConnect(quint16 port = 0);
     void beginConnection(quint16 port = 0);
     void connectionEstablished();
     void connectionStartupFailed();
     void appStartupFailed(const QString &errorMessage);
-    void connectionError(QAbstractSocket::SocketError error);
-    void serviceConnectionError(const QString &service);
     void appendMessage(const QString &msg, Utils::OutputFormat);
 
-    void synchronizeWatchers();
-
 private:
-    // DebuggerEngine implementation.
-    bool isSynchronous() const { return false; }
-    void executeStep();
-    void executeStepOut();
-    void executeNext();
-    void executeStepI();
-    void executeNextI();
+    void notifyEngineRemoteServerRunning(const QByteArray &, int pid) override;
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 
-    void setupEngine();
-    void setupInferior();
-    void runEngine();
-    void shutdownInferior();
-    void shutdownEngine();
+    void showMessage(const QString &msg, int channel = LogDebug,
+                     int timeout = -1) const override;
+    void gotoLocation(const Internal::Location &location) override;
+    void insertBreakpoint(Breakpoint bp) override;
 
-    bool setToolTipExpression(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, const DebuggerToolTipContext &);
+    bool isSynchronous() const override { return false; }
+    bool canDisplayTooltip() const override { return false; }
 
-    void continueInferior();
-    void interruptInferior();
+    void executeStep() override;
+    void executeStepOut() override;
+    void executeNext() override;
+    void executeStepI() override;
+    void executeNextI() override;
 
-    void executeRunToLine(const ContextData &data);
-    void executeRunToFunction(const QString &functionName);
-    void executeJumpToLine(const ContextData &data);
+    void setupEngine() override;
+    void setupInferior() override;
+    void runEngine() override;
+    void shutdownInferior() override;
+    void shutdownEngine() override;
 
-    void activateFrame(int index);
-    void selectThread(ThreadId threadId);
+    bool canHandleToolTip(const DebuggerToolTipContext &) const override;
 
-    void attemptBreakpointSynchronization();
-    void removeBreakpoint(BreakpointModelId id);
-    void changeBreakpoint(BreakpointModelId id);
-    bool acceptsBreakpoint(BreakpointModelId id) const;
+    void continueInferior() override;
+    void interruptInferior() override;
 
-    void assignValueInDebugger(const WatchData *data,
-        const QString &expr, const QVariant &value);
+    void executeRunToLine(const ContextData &data) override;
+    void executeRunToFunction(const QString &functionName) override;
+    void executeJumpToLine(const ContextData &data) override;
 
+    void activateFrame(int index) override;
+    void selectThread(ThreadId threadId) override;
 
-    void loadSymbols(const QString &moduleName);
-    void loadAllSymbols();
-    void requestModuleSymbols(const QString &moduleName);
-    void reloadModules();
-    void reloadRegisters() {}
-    void reloadSourceFiles();
-    void reloadFullStack() {}
+    void attemptBreakpointSynchronization() override;
+    void removeBreakpoint(Breakpoint bp) override;
+    void changeBreakpoint(Breakpoint bp) override;
+    bool acceptsBreakpoint(Breakpoint bp) const override;
 
-    bool supportsThreads() const { return false; }
-    void updateWatchData(const WatchData &data,
-        const WatchUpdateFlags &flags);
-    void watchDataSelected(const QByteArray &iname);
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
-    bool evaluateScript(const QString &expression);
+    void assignValueInDebugger(WatchItem *item,
+        const QString &expr, const QVariant &value) override;
 
-    bool hasCapability(unsigned) const;
-    void quitDebugger();
+    void loadSymbols(const QString &moduleName) override;
+    void loadAllSymbols() override;
+    void requestModuleSymbols(const QString &moduleName) override;
+    void reloadModules() override;
+    void reloadRegisters() override {}
+    void reloadSourceFiles() override;
+    void reloadFullStack() override {}
 
-private:
+    void updateAll() override;
+    void updateItem(const QByteArray &iname) override;
+    void expandItem(const QByteArray &iname) override;
+    void selectWatchData(const QByteArray &iname) override;
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
+    bool evaluateScript(const QString &expression) override;
+
+    bool hasCapability(unsigned) const override;
+    void quitDebugger() override;
+
     void closeConnection();
     void startApplicationLauncher();
     void stopApplicationLauncher();
 
-    bool isShadowBuildProject() const;
-    QString fromShadowBuildFilename(const QString &filename) const;
-    QString mangleFilenamePaths(const QString &filename,
-        const QString &oldBasePath, const QString &newBasePath) const;
-    QString qmlImportPath() const;
+    void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
+    void connectionStateChanged(QAbstractSocket::SocketState socketState);
 
-    void updateDocument(Core::IDocument *document, const QTextDocument *textDocument);
-    bool canEvaluateScript(const QString &script);
-    bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line,
-                                       quint32 *column, bool *valid);
+    void clientStateChanged(QmlDebug::QmlDebugClient::State state);
+    void checkConnectionState();
+    void showConnectionStateMessage(const QString &message);
+    bool isConnected() const;
 
-    WatchTreeView *inspectorTreeView() const;
-
-    QmlAdapter m_adapter;
-    QmlInspectorAdapter m_inspectorAdapter;
-    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
-    QTimer m_noDebugOutputTimer;
-    QmlDebug::QmlOutputParser m_outputParser;
-    QHash<QString, QTextDocument*> m_sourceDocuments;
-    QHash<QString, QWeakPointer<TextEditor::ITextEditor> > m_sourceEditors;
-    InteractiveInterpreter m_interpreter;
-    QHash<QString,BreakpointModelId> pendingBreakpoints;
-    QList<quint32> queryIds;
-    bool m_retryOnConnectFail;
-    bool m_automaticConnect;
-
+private:
     friend class QmlCppEngine;
+    friend class QmlEnginePrivate;
+    friend class QmlInspectorAgent;
+    QmlEnginePrivate *d;
 };
 
 } // namespace Internal

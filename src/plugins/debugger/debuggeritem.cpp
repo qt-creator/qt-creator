@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,46 +9,59 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
+#include "debuggeritem.h"
 #include "debuggerkitinformation.h"
 #include "debuggerkitconfigwidget.h"
 #include "debuggeroptionspage.h"
+#include "debuggerprotocol.h"
 
 #include <projectexplorer/abi.h>
+
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
 #include <QProcess>
 #include <QUuid>
+
+#ifdef WITH_TESTS
+#    include <QTest>
+#    include "debuggerplugin.h"
+#endif
 
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-static const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
-static const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
-static const char DEBUGGER_INFORMATION_ID[] = "Id";
-static const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
-static const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
-static const char DEBUGGER_INFORMATION_AUTODETECTION_SOURCE[] = "AutoDetectionSource";
-static const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
+const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
+const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
+const char DEBUGGER_INFORMATION_ID[] = "Id";
+const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
+const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
+const char DEBUGGER_INFORMATION_AUTODETECTION_SOURCE[] = "AutoDetectionSource";
+const char DEBUGGER_INFORMATION_VERSION[] = "Version";
+const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
 
 namespace Debugger {
 
@@ -73,9 +86,10 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
 {
     m_command = FileName::fromUserInput(data.value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString());
     m_id = data.value(QLatin1String(DEBUGGER_INFORMATION_ID)).toString();
-    m_displayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
+    m_unexpandedDisplayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
     m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), false).toBool();
     m_autoDetectionSource = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE)).toString();
+    m_version = data.value(QLatin1String(DEBUGGER_INFORMATION_VERSION)).toString();
     m_engineType = DebuggerEngineType(data.value(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE),
                                                  static_cast<int>(NoEngineType)).toInt());
 
@@ -84,6 +98,9 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
         if (!abi.isNull())
             m_abis.append(abi);
     }
+
+    if (m_version.isEmpty())
+        reinitializeFromFile();
 }
 
 void DebuggerItem::createId()
@@ -94,8 +111,15 @@ void DebuggerItem::createId()
 
 void DebuggerItem::reinitializeFromFile()
 {
+    // CDB only understands the single-dash -version, whereas GDB and LLDB are
+    // happy with both -version and --version. So use the "working" -version
+    // except for the experimental LLDB-MI which insists on --version.
+    const char *version = "-version";
+    if (m_command.toFileInfo().baseName().toLower().contains(QLatin1String("lldb-mi")))
+        version = "--version";
+
     QProcess proc;
-    proc.start(m_command.toString(), QStringList() << QLatin1String("--version"));
+    proc.start(m_command.toString(), QStringList({ QLatin1String(version) }));
     if (!proc.waitForStarted() || !proc.waitForFinished()) {
         m_engineType = NoEngineType;
         return;
@@ -109,7 +133,7 @@ void DebuggerItem::reinitializeFromFile()
         // or "i686-linux-gnu"
         int pos1 = ba.indexOf(needle);
         if (pos1 != -1) {
-            pos1 += int(sizeof(needle));
+            pos1 += int(strlen(needle));
             int pos2 = ba.indexOf('"', pos1 + 1);
             QByteArray target = ba.mid(pos1, pos2 - pos1);
             int pos3 = target.indexOf("--target=");
@@ -120,29 +144,42 @@ void DebuggerItem::reinitializeFromFile()
             // Fallback.
             m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
         }
+
+        // Version
+        QString all = QString::fromUtf8(ba);
+        bool isMacGdb, isQnxGdb;
+        int version = 0, buildVersion = 0;
+        Debugger::Internal::extractGdbVersion(all,
+            &version, &buildVersion, &isMacGdb, &isQnxGdb);
+        if (version)
+            m_version = QString::fromLatin1("%1.%2.%3")
+                .arg(version / 10000).arg((version / 100) % 100).arg(version % 100);
         return;
     }
-    if (ba.contains("lldb") || ba.startsWith("LLDB")) {
+    if (ba.startsWith("lldb") || ba.startsWith("LLDB")) {
         m_engineType = LldbEngineType;
         m_abis = Abi::abisOfBinary(m_command);
+
+        // Version
+        if (ba.startsWith(("lldb version "))) { // Linux typically.
+            int pos1 = int(strlen("lldb version "));
+            int pos2 = ba.indexOf(' ', pos1);
+            m_version = QString::fromLatin1(ba.mid(pos1, pos2 - pos1));
+        } else if (ba.startsWith("lldb-") || ba.startsWith("LLDB-")) { // Mac typically.
+            m_version = QString::fromLatin1(ba.mid(5));
+        }
+        return;
+    }
+    if (ba.startsWith("cdb")) {
+        // "cdb version 6.2.9200.16384"
+        m_engineType = CdbEngineType;
+        m_abis = Abi::abisOfBinary(m_command);
+        m_version = QString::fromLatin1(ba).section(QLatin1Char(' '), 2);
         return;
     }
     if (ba.startsWith("Python")) {
         m_engineType = PdbEngineType;
         return;
-    }
-    if (ba.isEmpty()) {
-        proc.start(m_command.toString(), QStringList() << QLatin1String("-version"));
-        if (!proc.waitForStarted() || !proc.waitForFinished()) {
-            m_engineType = NoEngineType;
-            return;
-        }
-        ba = proc.readAll();
-        if (ba.startsWith("cdb")) {
-            m_engineType = CdbEngineType;
-            m_abis = Abi::abisOfBinary(m_command);
-            return;
-        }
     }
     m_engineType = NoEngineType;
 }
@@ -150,13 +187,13 @@ void DebuggerItem::reinitializeFromFile()
 QString DebuggerItem::engineTypeName() const
 {
     switch (m_engineType) {
-    case Debugger::NoEngineType:
+    case NoEngineType:
         return DebuggerOptionsPage::tr("Not recognized");
-    case Debugger::GdbEngineType:
+    case GdbEngineType:
         return QLatin1String("GDB");
-    case Debugger::CdbEngineType:
+    case CdbEngineType:
         return QLatin1String("CDB");
-    case Debugger::LldbEngineType:
+    case LldbEngineType:
         return QLatin1String("LLDB");
     default:
         return QString();
@@ -171,10 +208,22 @@ QStringList DebuggerItem::abiNames() const
     return list;
 }
 
+bool DebuggerItem::isGood() const
+{
+    return m_engineType != NoEngineType;
+}
+
+QString DebuggerItem::validityMessage() const
+{
+    if (m_engineType == NoEngineType)
+        return DebuggerOptionsPage::tr("Could not determine debugger type");
+    return QString();
+}
+
 bool DebuggerItem::operator==(const DebuggerItem &other) const
 {
     return m_id == other.m_id
-            && m_displayName == other.m_displayName
+            && m_unexpandedDisplayName == other.m_unexpandedDisplayName
             && m_isAutoDetected == other.m_isAutoDetected
             && m_command == other.m_command;
 }
@@ -182,19 +231,37 @@ bool DebuggerItem::operator==(const DebuggerItem &other) const
 QVariantMap DebuggerItem::toMap() const
 {
     QVariantMap data;
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME), m_displayName);
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME), m_unexpandedDisplayName);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ID), m_id);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_COMMAND), m_command.toUserOutput());
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_COMMAND), m_command.toString());
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE), int(m_engineType));
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), m_isAutoDetected);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE), m_autoDetectionSource);
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_VERSION), m_version);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ABIS), abiNames());
     return data;
 }
 
-void DebuggerItem::setDisplayName(const QString &displayName)
+QString DebuggerItem::displayName() const
 {
-    m_displayName = displayName;
+    if (!m_unexpandedDisplayName.contains(QLatin1Char('%')))
+        return m_unexpandedDisplayName;
+
+    MacroExpander expander;
+    expander.registerVariable("Debugger:Type", DebuggerKitInformation::tr("Type of Debugger Backend"),
+        [this] { return engineTypeName(); });
+    expander.registerVariable("Debugger:Version", DebuggerKitInformation::tr("Debugger"),
+        [this] { return !m_version.isEmpty() ? m_version :
+                                               DebuggerKitInformation::tr("Unknown debugger version"); });
+    expander.registerVariable("Debugger:Abi", DebuggerKitInformation::tr("Debugger"),
+        [this] { return !m_abis.isEmpty() ? abiNames().join(QLatin1Char(' ')) :
+                                            DebuggerKitInformation::tr("Unknown debugger ABI"); });
+    return expander.expand(m_unexpandedDisplayName);
+}
+
+void DebuggerItem::setUnexpandedDisplayName(const QString &displayName)
+{
+    m_unexpandedDisplayName = displayName;
 }
 
 void DebuggerItem::setEngineType(const DebuggerEngineType &engineType)
@@ -202,7 +269,7 @@ void DebuggerItem::setEngineType(const DebuggerEngineType &engineType)
     m_engineType = engineType;
 }
 
-void DebuggerItem::setCommand(const Utils::FileName &command)
+void DebuggerItem::setCommand(const FileName &command)
 {
     m_command = command;
 }
@@ -212,12 +279,22 @@ void DebuggerItem::setAutoDetected(bool isAutoDetected)
     m_isAutoDetected = isAutoDetected;
 }
 
+QString DebuggerItem::version() const
+{
+    return m_version;
+}
+
+void DebuggerItem::setVersion(const QString &version)
+{
+    m_version = version;
+}
+
 void DebuggerItem::setAutoDetectionSource(const QString &autoDetectionSource)
 {
     m_autoDetectionSource = autoDetectionSource;
 }
 
-void DebuggerItem::setAbis(const QList<ProjectExplorer::Abi> &abis)
+void DebuggerItem::setAbis(const QList<Abi> &abis)
 {
     m_abis = abis;
 }
@@ -228,7 +305,7 @@ void DebuggerItem::setAbi(const Abi &abi)
     m_abis.append(abi);
 }
 
-static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &targetAbi)
+static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &targetAbi, DebuggerEngineType engineType)
 {
     if (debuggerAbi.architecture() != Abi::UnknownArchitecture
             && debuggerAbi.architecture() != targetAbi.architecture())
@@ -254,33 +331,38 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
     if (debuggerAbi.wordWidth() != 0 && debuggerAbi.wordWidth() != targetAbi.wordWidth())
         return DebuggerItem::DoesNotMatch;
 
-    return DebuggerItem::MatchesPerfectly;
+    // We have at least 'Matches well' now. Mark the combinations we really like.
+    if (HostOsInfo::isWindowsHost() && engineType == GdbEngineType && targetAbi.osFlavor() == Abi::WindowsMSysFlavor)
+        return DebuggerItem::MatchesPerfectly;
+    if (HostOsInfo::isLinuxHost() && engineType == GdbEngineType && targetAbi.os() == Abi::LinuxOS)
+        return DebuggerItem::MatchesPerfectly;
+    if (HostOsInfo::isMacHost() && engineType == LldbEngineType && targetAbi.os() == Abi::MacOS)
+        return DebuggerItem::MatchesPerfectly;
+
+    return DebuggerItem::MatchesWell;
 }
 
 DebuggerItem::MatchLevel DebuggerItem::matchTarget(const Abi &targetAbi) const
 {
     MatchLevel bestMatch = DoesNotMatch;
     foreach (const Abi &debuggerAbi, m_abis) {
-        MatchLevel currentMatch = matchSingle(debuggerAbi, targetAbi);
+        MatchLevel currentMatch = matchSingle(debuggerAbi, targetAbi, m_engineType);
         if (currentMatch > bestMatch)
             bestMatch = currentMatch;
     }
     return bestMatch;
 }
 
-bool Debugger::DebuggerItem::isValid() const
+bool DebuggerItem::isValid() const
 {
     return !m_id.isNull();
 }
 
-} // namespace Debugger;
-
 #ifdef WITH_TESTS
 
-#    include <QTest>
-#    include "debuggerplugin.h"
+namespace Internal {
 
-void Debugger::DebuggerPlugin::testDebuggerMatching_data()
+void DebuggerPlugin::testDebuggerMatching_data()
 {
     QTest::addColumn<QStringList>("debugger");
     QTest::addColumn<QString>("target");
@@ -302,11 +384,11 @@ void Debugger::DebuggerPlugin::testDebuggerMatching_data()
     QTest::newRow("Fuzzy match 1")
             << (QStringList() << QLatin1String("unknown-unknown-unknown-unknown-0bit"))
             << QString::fromLatin1("x86-linux-generic-elf-32bit")
-            << int(DebuggerItem::MatchesPerfectly); // Is this the expected behavior?
+            << int(DebuggerItem::MatchesWell); // Is this the expected behavior?
     QTest::newRow("Fuzzy match 2")
             << (QStringList() << QLatin1String("unknown-unknown-unknown-unknown-0bit"))
             << QString::fromLatin1("arm-windows-msys-pe-64bit")
-            << int(DebuggerItem::MatchesPerfectly); // Is this the expected behavior?
+            << int(DebuggerItem::MatchesWell); // Is this the expected behavior?
 
     QTest::newRow("Architecture mismatch")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
@@ -324,7 +406,7 @@ void Debugger::DebuggerPlugin::testDebuggerMatching_data()
     QTest::newRow("Linux perfect match")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
             << QString::fromLatin1("x86-linux-generic-elf-32bit")
-            << int(DebuggerItem::MatchesPerfectly);
+            << int(DebuggerItem::MatchesWell);
     QTest::newRow("Linux match")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit"))
             << QString::fromLatin1("x86-linux-generic-elf-32bit")
@@ -333,11 +415,11 @@ void Debugger::DebuggerPlugin::testDebuggerMatching_data()
     QTest::newRow("Windows perfect match 1")
             << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
             << QString::fromLatin1("x86-windows-msvc2013-pe-64bit")
-            << int(DebuggerItem::MatchesPerfectly);
+            << int(DebuggerItem::MatchesWell);
     QTest::newRow("Windows perfect match 2")
             << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
             << QString::fromLatin1("x86-windows-msvc2012-pe-64bit")
-            << int(DebuggerItem::MatchesPerfectly);
+            << int(DebuggerItem::MatchesWell);
     QTest::newRow("Windows match 1")
             << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
             << QString::fromLatin1("x86-windows-msvc2013-pe-32bit")
@@ -360,7 +442,7 @@ void Debugger::DebuggerPlugin::testDebuggerMatching_data()
             << int(DebuggerItem::DoesNotMatch);
 }
 
-void Debugger::DebuggerPlugin::testDebuggerMatching()
+void DebuggerPlugin::testDebuggerMatching()
 {
     QFETCH(QStringList, debugger);
     QFETCH(QString, target);
@@ -376,7 +458,14 @@ void Debugger::DebuggerPlugin::testDebuggerMatching()
     item.setAbis(debuggerAbis);
 
     DebuggerItem::MatchLevel level = item.matchTarget(Abi(target));
+    if (level == DebuggerItem::MatchesPerfectly)
+        level = DebuggerItem::MatchesWell;
 
     QCOMPARE(expectedLevel, level);
 }
+
+} // namespace Internal
+
 #endif
+
+} // namespace Debugger;

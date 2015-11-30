@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Przemyslaw Gorszkowski <pgorszkowski@gmail.com>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Przemyslaw Gorszkowski <pgorszkowski@gmail.com>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,15 +33,28 @@
 #include "cppincludehierarchyitem.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <cpptools/baseeditordocumentprocessor.h>
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/editordocumenthandle.h>
+#include <texteditor/texteditor.h>
+
 #include <cplusplus/CppDocument.h>
-#include <cppeditor/cppeditor.h>
-#include <cpptools/cppmodelmanagerinterface.h>
-#include <cpptools/cpptoolseditorsupport.h>
+#include <utils/dropsupport.h>
+#include <utils/qtcassert.h>
 
 #include <QSet>
 
 using namespace CPlusPlus;
 using namespace CppTools;
+
+namespace {
+
+Snapshot globalSnapshot()
+{
+    return CppModelManager::instance()->snapshot();
+}
+
+} // anonymous namespace
 
 namespace CppEditor {
 namespace Internal {
@@ -138,7 +152,7 @@ QVariant CppIncludeHierarchyModel::data(const QModelIndex &index, int role) cons
         return Core::FileIconProvider::icon(QFileInfo(item->filePath()));
     case LinkRole: {
         QVariant itemLink;
-        CPPEditorWidget::Link link(item->filePath(), item->line());
+        TextEditor::TextEditorWidget::Link link(item->filePath(), item->line());
         itemLink.setValue(link);
         return itemLink;
     }
@@ -160,18 +174,25 @@ void CppIncludeHierarchyModel::fetchMore(const QModelIndex &parent)
         return;
 
     if (parentItem->needChildrenPopulate()) {
+        const QString editorFilePath = m_editor->document()->filePath().toString();
         QSet<QString> cyclic;
-        cyclic << m_editor->document()->filePath();
+        cyclic << editorFilePath;
         CppIncludeHierarchyItem *item = parentItem->parent();
         while (!(item == m_includesItem || item == m_includedByItem)) {
             cyclic << item->filePath();
             item = item->parent();
         }
 
-        if (item == m_includesItem)
-            buildHierarchyIncludes_helper(parentItem->filePath(), parentItem, &cyclic);
-        else
-            buildHierarchyIncludedBy_helper(parentItem->filePath(), parentItem, &cyclic);
+        if (item == m_includesItem) {
+            auto *processor = BaseEditorDocumentProcessor::get(editorFilePath);
+            QTC_ASSERT(processor, return);
+            const Snapshot editorDocumentSnapshot = processor->snapshot();
+            buildHierarchyIncludes_helper(parentItem->filePath(), parentItem,
+                                          editorDocumentSnapshot, &cyclic);
+        } else {
+            buildHierarchyIncludedBy_helper(parentItem->filePath(), parentItem,
+                                            globalSnapshot(), &cyclic);
+        }
     }
 
 }
@@ -202,7 +223,8 @@ void CppIncludeHierarchyModel::clear()
     endResetModel();
 }
 
-void CppIncludeHierarchyModel::buildHierarchy(CPPEditor *editor, const QString &filePath)
+void CppIncludeHierarchyModel::buildHierarchy(TextEditor::BaseTextEditor *editor,
+                                              const QString &filePath)
 {
     m_editor = editor;
     beginResetModel();
@@ -222,6 +244,37 @@ bool CppIncludeHierarchyModel::hasChildren(const QModelIndex &parent) const
     return parentItem->hasChildren();
 }
 
+Qt::ItemFlags CppIncludeHierarchyModel::flags(const QModelIndex &index) const
+{
+    const TextEditor::TextEditorWidget::Link link
+            = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+    if (link.hasValidTarget())
+        return Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+Qt::DropActions CppIncludeHierarchyModel::supportedDragActions() const
+{
+    return Qt::MoveAction;
+}
+
+QStringList CppIncludeHierarchyModel::mimeTypes() const
+{
+    return Utils::DropSupport::mimeTypesForFilePaths();
+}
+
+QMimeData *CppIncludeHierarchyModel::mimeData(const QModelIndexList &indexes) const
+{
+    auto data = new Utils::DropMimeData;
+    foreach (const QModelIndex &index, indexes) {
+        const TextEditor::TextEditorWidget::Link link
+                = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        if (link.hasValidTarget())
+            data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
+    }
+    return data;
+}
+
 bool CppIncludeHierarchyModel::isEmpty() const
 {
     return !m_includesItem->hasChildren() && !m_includedByItem->hasChildren();
@@ -229,19 +282,23 @@ bool CppIncludeHierarchyModel::isEmpty() const
 
 void CppIncludeHierarchyModel::buildHierarchyIncludes(const QString &currentFilePath)
 {
+    if (!m_editor)
+        return;
+
+    const QString editorFilePath = m_editor->document()->filePath().toString();
+    auto *documentProcessor = BaseEditorDocumentProcessor::get(editorFilePath);
+    QTC_ASSERT(documentProcessor, return);
+    const Snapshot editorDocumentSnapshot = documentProcessor->snapshot();
     QSet<QString> cyclic;
-    buildHierarchyIncludes_helper(currentFilePath, m_includesItem, &cyclic);
+    buildHierarchyIncludes_helper(currentFilePath, m_includesItem, editorDocumentSnapshot, &cyclic);
 }
 
 void CppIncludeHierarchyModel::buildHierarchyIncludes_helper(const QString &filePath,
                                                              CppIncludeHierarchyItem *parent,
-                                                             QSet<QString> *cyclic, bool recursive)
+                                                             Snapshot snapshot,
+                                                             QSet<QString> *cyclic,
+                                                             bool recursive)
 {
-    if (!m_editor)
-        return;
-
-    CppModelManagerInterface *cppMM = CppModelManagerInterface::instance();
-    const Snapshot &snapshot = cppMM->cppEditorSupport(m_editor)->snapshotUpdater()->snapshot();
     Document::Ptr doc = snapshot.document(filePath);
     if (!doc)
         return;
@@ -263,7 +320,7 @@ void CppIncludeHierarchyModel::buildHierarchyIncludes_helper(const QString &file
         }
         item = new CppIncludeHierarchyItem(includedFilePath, parent);
         parent->appendChild(item);
-        buildHierarchyIncludes_helper(includedFilePath, item, cyclic, false);
+        buildHierarchyIncludes_helper(includedFilePath, item, snapshot, cyclic, false);
 
     }
     cyclic->remove(filePath);
@@ -272,19 +329,19 @@ void CppIncludeHierarchyModel::buildHierarchyIncludes_helper(const QString &file
 void CppIncludeHierarchyModel::buildHierarchyIncludedBy(const QString &currentFilePath)
 {
     QSet<QString> cyclic;
-    buildHierarchyIncludedBy_helper(currentFilePath, m_includedByItem, &cyclic);
+    buildHierarchyIncludedBy_helper(currentFilePath, m_includedByItem, globalSnapshot(), &cyclic);
 }
 
 void CppIncludeHierarchyModel::buildHierarchyIncludedBy_helper(const QString &filePath,
                                                                CppIncludeHierarchyItem *parent,
+                                                               Snapshot snapshot,
                                                                QSet<QString> *cyclic,
                                                                bool recursive)
 {
     cyclic->insert(filePath);
-    const Snapshot &snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
     Snapshot::const_iterator citEnd = snapshot.end();
     for (Snapshot::const_iterator cit = snapshot.begin(); cit != citEnd; ++cit) {
-        const QString filePathFromSnapshot = cit.key();
+        const QString filePathFromSnapshot = cit.key().toString();
         Document::Ptr doc = cit.value();
         foreach (const Document::Include &includeFile, doc->resolvedIncludes()) {
             const QString includedFilePath = includeFile.resolvedFileName();
@@ -305,8 +362,9 @@ void CppIncludeHierarchyModel::buildHierarchyIncludedBy_helper(const QString &fi
 
                 if (isCyclic)
                     continue;
-                else
-                    buildHierarchyIncludedBy_helper(filePathFromSnapshot, item, cyclic, false);
+
+                buildHierarchyIncludedBy_helper(filePathFromSnapshot, item, snapshot, cyclic,
+                                                false);
             }
         }
     }

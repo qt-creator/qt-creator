@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,13 +31,15 @@
 #ifndef CPPQUICKFIXES_H
 #define CPPQUICKFIXES_H
 
+#include "cppeditor_global.h"
 #include "cppquickfix.h"
 
 #include <cpptools/cpprefactoringchanges.h>
-
 #include <extensionsystem/iplugin.h>
 
 #include <QDialog>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;
@@ -60,8 +63,14 @@ namespace Internal {
 
 void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
 
+class ExtraRefactoringOperations : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
+};
+
 /*!
-  Adds an include for an undefined identifier.
+  Adds an include for an undefined identifier or only forward declared identifier.
 
   Activates on: the undefined identifier
 */
@@ -81,17 +90,6 @@ public:
 
 private:
     QString m_include;
-};
-
-/*!
-  Can be triggered on a class forward declaration to add the matching #include.
-
-  Activates on: the name of a forward-declared class or struct
-*/
-class AddIncludeForForwardDeclaration: public CppQuickFixFactory
-{
-public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
 };
 
 /*!
@@ -445,7 +443,13 @@ public:
 class ExtractFunction : public CppQuickFixFactory
 {
 public:
+    typedef std::function<QString ()> FunctionNameGetter;
+
+    ExtractFunction(FunctionNameGetter functionNameGetter = FunctionNameGetter());
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+
+private:
+    FunctionNameGetter m_functionNameGetter; // For tests to avoid GUI pop-up.
 };
 
 /*!
@@ -454,6 +458,17 @@ public:
   Activates on numeric, bool, character, or string literal in the function body.
  */
 class ExtractLiteralAsParameter : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
+  Converts the selected variable to a pointer if it is a stack variable or reference, or vice versa.
+
+  Activates on variable declarations.
+ */
+class ConvertFromAndToPointer : public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
@@ -478,6 +493,15 @@ public:
 };
 
 /*!
+  Converts a Qt 4 QObject::connect() to Qt 5 style.
+ */
+class ConvertQt4Connect : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
  Applies function signature changes
  */
 class ApplyDeclDefLinkChanges: public CppQuickFixFactory
@@ -491,6 +515,15 @@ public:
  function or a normal function to the implementation file.
  */
 class MoveFuncDefOutside: public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
+ Moves all member function definitions outside the class or to the implementation file.
+ */
+class MoveAllFuncDefOutside: public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
@@ -519,6 +552,19 @@ public:
   or predecrement operators in the expression of the for loop.
  */
 class OptimizeForLoop : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
+  Escapes or unescapes a string literal as UTF-8.
+
+  Escapes non-ASCII characters in a string literal to hexadecimal escape sequences.
+  Unescapes octal or hexadecimal escape sequences in a string literal.
+  String literals are handled as UTF-8 even if file's encoding is not UTF-8.
+ */
+class EscapeStringLiteral : public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Kläralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Kläralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,6 +31,8 @@
 #include "valgrindruncontrolfactory.h"
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
+#include "callgrindtool.h"
+#include "memchecktool.h"
 
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/analyzermanager.h>
@@ -37,7 +40,7 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerrunconfigwidget.h>
 
-#include <remotelinux/remotelinuxrunconfiguration.h>
+#include <remotelinux/abstractremotelinuxrunconfiguration.h>
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/environmentaspect.h>
@@ -61,13 +64,13 @@ ValgrindRunControlFactory::ValgrindRunControlFactory(QObject *parent) :
 {
 }
 
-bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
+bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
     Q_UNUSED(runConfiguration);
-    return mode == CallgrindRunMode || mode == MemcheckRunMode;
+    return mode == CALLGRIND_RUN_MODE || mode == MEMCHECK_RUN_MODE || mode == MEMCHECK_WITH_GDB_RUN_MODE;
 }
 
-RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
+RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
 
@@ -93,13 +96,14 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         }
         sp.connParams.host = server.serverAddress().toString();
         sp.connParams.port = server.serverPort();
-        sp.startMode = StartLocal;
-    } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc2 =
-               qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
-        sp.startMode = StartRemote;
+        sp.localRunMode = static_cast<ApplicationLauncher::Mode>(rc1->runMode());
+    } else if (RemoteLinux::AbstractRemoteLinuxRunConfiguration *rc2 =
+               qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.debuggee = rc2->remoteExecutableFilePath();
         sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
-        sp.debuggeeArgs = rc2->arguments().join(QLatin1String(" "));
+        sp.debuggeeArgs = rc2->arguments().join(QLatin1Char(' '));
+        sp.workingDirectory = rc2->workingDirectory();
+        sp.environment = rc2->environment();
     } else {
         QTC_ASSERT(false, return 0);
     }
@@ -122,15 +126,14 @@ public:
         resetProjectToGlobalSettings();
     }
 
-    IRunConfigurationAspect *create(RunConfiguration *parent) const
+    ValgrindRunConfigurationAspect *create(RunConfiguration *parent) const override
     {
         return new ValgrindRunConfigurationAspect(parent);
     }
 
-    RunConfigWidget *createConfigurationWidget()
+    RunConfigWidget *createConfigurationWidget() override
     {
-        return new Analyzer::AnalyzerRunConfigWidget(this);
-
+        return new AnalyzerRunConfigWidget(this);
     }
 };
 

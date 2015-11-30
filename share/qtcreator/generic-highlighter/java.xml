@@ -3766,7 +3766,7 @@
 				<HlCOct attribute="Octal" context="#stay"/>
 				<HlCHex attribute="Hex" context="#stay"/>
 				<Int attribute="Decimal" context="#stay">
-					<StringDetect attribute="Decimal" context="#stay" String="L" insensitive="TRUE"/>
+					<StringDetect attribute="Decimal" context="#stay" String="L" insensitive="true"/>
 				</Int>
 				<HlCChar attribute="Char" context="#stay"/>
 				<RegExpr attribute="Char" context="#stay" String="'\\u[0-9a-fA-F]{4}'"/>

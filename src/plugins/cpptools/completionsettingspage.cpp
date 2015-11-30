@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,29 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "completionsettingspage.h"
+#include "ui_completionsettingspage.h"
 
-#include <ui_completionsettingspage.h>
-#include "cpptoolsconstants.h"
+#include "cpptoolssettings.h"
 
 #include <coreplugin/icore.h>
 #include <texteditor/texteditorsettings.h>
@@ -39,14 +40,11 @@
 
 using namespace CppTools;
 using namespace CppTools::Internal;
-using namespace CppTools::Constants;
 
 CompletionSettingsPage::CompletionSettingsPage(QObject *parent)
     : TextEditor::TextEditorOptionsPage(parent)
     , m_page(0)
 {
-    m_commentsSettings.fromSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), Core::ICore::settings());
-
     setId("P.Completion");
     setDisplayName(tr("Completion"));
 }
@@ -63,11 +61,15 @@ QWidget *CompletionSettingsPage::widget()
         m_page = new Ui::CompletionSettingsPage;
         m_page->setupUi(m_widget);
 
-        const TextEditor::CompletionSettings &settings =
+        connect(m_page->completionTrigger,
+                static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                this, &CompletionSettingsPage::onCompletionTriggerChanged);
+
+        const TextEditor::CompletionSettings &completionSettings =
                 TextEditor::TextEditorSettings::completionSettings();
 
         int caseSensitivityIndex = 0;
-        switch (settings.m_caseSensitivity) {
+        switch (completionSettings.m_caseSensitivity) {
         case TextEditor::CaseSensitive:
             caseSensitivityIndex = 0;
             break;
@@ -80,7 +82,7 @@ QWidget *CompletionSettingsPage::widget()
         }
 
         int completionTriggerIndex = 0;
-        switch (settings.m_completionTrigger) {
+        switch (completionSettings.m_completionTrigger) {
         case TextEditor::ManualCompletion:
             completionTriggerIndex = 0;
             break;
@@ -94,13 +96,19 @@ QWidget *CompletionSettingsPage::widget()
 
         m_page->caseSensitivity->setCurrentIndex(caseSensitivityIndex);
         m_page->completionTrigger->setCurrentIndex(completionTriggerIndex);
-        m_page->autoInsertBrackets->setChecked(settings.m_autoInsertBrackets);
-        m_page->surroundSelectedText->setChecked(settings.m_surroundingAutoBrackets);
-        m_page->partiallyComplete->setChecked(settings.m_partiallyComplete);
-        m_page->spaceAfterFunctionName->setChecked(settings.m_spaceAfterFunctionName);
-        m_page->enableDoxygenCheckBox->setChecked(m_commentsSettings.m_enableDoxygen);
-        m_page->generateBriefCheckBox->setChecked(m_commentsSettings.m_generateBrief);
-        m_page->leadingAsterisksCheckBox->setChecked(m_commentsSettings.m_leadingAsterisks);
+        m_page->automaticProposalTimeoutSpinBox
+                    ->setValue(completionSettings.m_automaticProposalTimeoutInMs);
+        m_page->autoInsertBrackets->setChecked(completionSettings.m_autoInsertBrackets);
+        m_page->surroundSelectedText->setChecked(completionSettings.m_surroundingAutoBrackets);
+        m_page->partiallyComplete->setChecked(completionSettings.m_partiallyComplete);
+        m_page->spaceAfterFunctionName->setChecked(completionSettings.m_spaceAfterFunctionName);
+        m_page->autoSplitStrings->setChecked(completionSettings.m_autoSplitStrings);
+
+        const CommentsSettings &commentsSettings = CppToolsSettings::instance()->commentsSettings();
+        m_page->enableDoxygenCheckBox->setChecked(commentsSettings.m_enableDoxygen);
+        m_page->generateBriefCheckBox->setChecked(commentsSettings.m_generateBrief);
+        m_page->leadingAsterisksCheckBox->setChecked(commentsSettings.m_leadingAsterisks);
+
         m_page->generateBriefCheckBox->setEnabled(m_page->enableDoxygenCheckBox->isChecked());
     }
     return m_widget;
@@ -110,25 +118,27 @@ void CompletionSettingsPage::apply()
 {
     if (!m_page) // page was never shown
         return;
-    TextEditor::CompletionSettings settings;
-    settings.m_caseSensitivity = caseSensitivity();
-    settings.m_completionTrigger = completionTrigger();
-    settings.m_autoInsertBrackets = m_page->autoInsertBrackets->isChecked();
-    settings.m_surroundingAutoBrackets = m_page->surroundSelectedText->isChecked();
-    settings.m_partiallyComplete = m_page->partiallyComplete->isChecked();
-    settings.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
 
-    TextEditor::TextEditorSettings::setCompletionSettings(settings);
+    TextEditor::CompletionSettings completionSettings;
+    completionSettings.m_caseSensitivity = caseSensitivity();
+    completionSettings.m_completionTrigger = completionTrigger();
+    completionSettings.m_automaticProposalTimeoutInMs
+            = m_page->automaticProposalTimeoutSpinBox->value();
+    completionSettings.m_autoInsertBrackets = m_page->autoInsertBrackets->isChecked();
+    completionSettings.m_surroundingAutoBrackets = m_page->surroundSelectedText->isChecked();
+    completionSettings.m_partiallyComplete = m_page->partiallyComplete->isChecked();
+    completionSettings.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
+    completionSettings.m_autoSplitStrings = m_page->autoSplitStrings->isChecked();
+    TextEditor::TextEditorSettings::setCompletionSettings(completionSettings);
 
     if (!requireCommentsSettingsUpdate())
         return;
 
-    m_commentsSettings.m_enableDoxygen = m_page->enableDoxygenCheckBox->isChecked();
-    m_commentsSettings.m_generateBrief = m_page->generateBriefCheckBox->isChecked();
-    m_commentsSettings.m_leadingAsterisks = m_page->leadingAsterisksCheckBox->isChecked();
-    m_commentsSettings.toSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), Core::ICore::settings());
-
-    emit commentsSettingsChanged(m_commentsSettings);
+    CommentsSettings commentsSettings;
+    commentsSettings.m_enableDoxygen = m_page->enableDoxygenCheckBox->isChecked();
+    commentsSettings.m_generateBrief = m_page->generateBriefCheckBox->isChecked();
+    commentsSettings.m_leadingAsterisks = m_page->leadingAsterisksCheckBox->isChecked();
+    CppToolsSettings::instance()->setCommentsSettings(commentsSettings);
 }
 
 TextEditor::CaseSensitivity CompletionSettingsPage::caseSensitivity() const
@@ -155,6 +165,13 @@ TextEditor::CompletionTrigger CompletionSettingsPage::completionTrigger() const
     }
 }
 
+void CompletionSettingsPage::onCompletionTriggerChanged()
+{
+    const bool enableTimeoutWidgets = completionTrigger() == TextEditor::AutomaticCompletion;
+    m_page->automaticProposalTimeoutLabel->setEnabled(enableTimeoutWidgets);
+    m_page->automaticProposalTimeoutSpinBox->setEnabled(enableTimeoutWidgets);
+}
+
 void CompletionSettingsPage::finish()
 {
     delete m_widget;
@@ -164,14 +181,10 @@ void CompletionSettingsPage::finish()
     m_page = 0;
 }
 
-const CommentsSettings &CompletionSettingsPage::commentsSettings() const
-{
-    return m_commentsSettings;
-}
-
 bool CompletionSettingsPage::requireCommentsSettingsUpdate() const
 {
-    return m_commentsSettings.m_enableDoxygen != m_page->enableDoxygenCheckBox->isChecked()
-        || m_commentsSettings.m_generateBrief != m_page->generateBriefCheckBox->isChecked()
-        || m_commentsSettings.m_leadingAsterisks != m_page->leadingAsterisksCheckBox->isChecked();
+    const CommentsSettings &commentsSettings = CppToolsSettings::instance()->commentsSettings();
+    return commentsSettings.m_enableDoxygen != m_page->enableDoxygenCheckBox->isChecked()
+        || commentsSettings.m_generateBrief != m_page->generateBriefCheckBox->isChecked()
+        || commentsSettings.m_leadingAsterisks != m_page->leadingAsterisksCheckBox->isChecked();
 }

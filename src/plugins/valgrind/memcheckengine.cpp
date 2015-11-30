@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 ** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -10,33 +10,41 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "memcheckengine.h"
-
+#include "valgrindprocess.h"
 #include "valgrindsettings.h"
+#include "xmlprotocol/error.h"
+#include "xmlprotocol/status.h"
 
+#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerruncontrol.h>
+
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/taskhub.h>
-
-#include <valgrind/xmlprotocol/error.h>
-#include <valgrind/xmlprotocol/status.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
 #include <utils/qtcassert.h>
 
@@ -48,19 +56,15 @@ namespace Valgrind {
 namespace Internal {
 
 MemcheckRunControl::MemcheckRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration)
+        RunConfiguration *runConfiguration)
     : ValgrindRunControl(sp, runConfiguration)
 {
-    connect(&m_parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
-            SIGNAL(parserError(Valgrind::XmlProtocol::Error)));
-    connect(&m_parser, SIGNAL(suppressionCount(QString,qint64)),
-            SIGNAL(suppressionCount(QString,qint64)));
-    connect(&m_parser, SIGNAL(internalError(QString)),
-            SIGNAL(internalParserError(QString)));
-    connect(&m_parser, SIGNAL(status(Valgrind::XmlProtocol::Status)),
-            SLOT(status(Valgrind::XmlProtocol::Status)));
-
-    m_progress->setProgressRange(0, XmlProtocol::Status::Finished + 1);
+    connect(&m_parser, &XmlProtocol::ThreadedParser::error,
+            this, &MemcheckRunControl::parserError);
+    connect(&m_parser, &XmlProtocol::ThreadedParser::suppressionCount,
+            this, &MemcheckRunControl::suppressionCount);
+    connect(&m_parser, &XmlProtocol::ThreadedParser::internalError,
+            this, &MemcheckRunControl::internalParserError);
 }
 
 QString MemcheckRunControl::progressTitle() const
@@ -68,7 +72,7 @@ QString MemcheckRunControl::progressTitle() const
     return tr("Analyzing Memory");
 }
 
-Valgrind::ValgrindRunner *MemcheckRunControl::runner()
+ValgrindRunner *MemcheckRunControl::runner()
 {
     return &m_runner;
 }
@@ -77,9 +81,6 @@ bool MemcheckRunControl::startEngine()
 {
     m_runner.setParser(&m_parser);
 
-    // Clear about-to-be-outdated tasks.
-    TaskHub::clearTasks(Analyzer::Constants::ANALYZERTASK_ID);
-
     appendMessage(tr("Analyzing memory of %1").arg(executable()) + QLatin1Char('\n'),
                         Utils::NormalMessageFormat);
     return ValgrindRunControl::startEngine();
@@ -87,8 +88,8 @@ bool MemcheckRunControl::startEngine()
 
 void MemcheckRunControl::stopEngine()
 {
-    disconnect(&m_parser, SIGNAL(internalError(QString)),
-               this, SIGNAL(internalParserError(QString)));
+    disconnect(&m_parser, &ThreadedParser::internalError,
+               this, &MemcheckRunControl::internalParserError);
     ValgrindRunControl::stopEngine();
 }
 
@@ -132,37 +133,49 @@ QStringList MemcheckRunControl::suppressionFiles() const
     return m_settings->suppressionFiles();
 }
 
-void MemcheckRunControl::status(const Status &status)
+MemcheckWithGdbRunControl::MemcheckWithGdbRunControl(const AnalyzerStartParameters &sp,
+                                                     RunConfiguration *runConfiguration)
+    : MemcheckRunControl(sp, runConfiguration)
 {
-    m_progress->setProgressValue(status.state() + 1);
+    connect(&m_runner, &Memcheck::MemcheckRunner::started,
+            this, &MemcheckWithGdbRunControl::startDebugger);
+    connect(&m_runner, &Memcheck::MemcheckRunner::logMessageReceived,
+            this, &MemcheckWithGdbRunControl::appendLog);
+    disconnect(&m_parser, &ThreadedParser::internalError,
+               this, &MemcheckRunControl::internalParserError);
+    m_runner.disableXml();
 }
 
-void MemcheckRunControl::receiveLogMessage(const QByteArray &b)
+QStringList MemcheckWithGdbRunControl::toolArguments() const
 {
-    QString error = QString::fromLocal8Bit(b);
-    // workaround https://bugs.kde.org/show_bug.cgi?id=255888
-    error.remove(QRegExp(QLatin1String("==*== </valgrindoutput>"), Qt::CaseSensitive, QRegExp::Wildcard));
+    return MemcheckRunControl::toolArguments()
+            << QLatin1String("--vgdb=yes") << QLatin1String("--vgdb-error=0");
+}
 
-    error = error.trimmed();
+void MemcheckWithGdbRunControl::startDebugger()
+{
+    const qint64 valgrindPid = runner()->valgrindProcess()->pid();
+    const AnalyzerStartParameters &mySp = startParameters();
 
-    if (error.isEmpty())
-        return;
+    Debugger::DebuggerStartParameters sp;
+    sp.executable = mySp.debuggee;
+    sp.startMode = Debugger::AttachToRemoteServer;
+    sp.displayName = QString::fromLatin1("VGdb %1").arg(valgrindPid);
+    sp.remoteChannel = QString::fromLatin1("| vgdb --pid=%1").arg(valgrindPid);
+    sp.useContinueInsteadOfRun = true;
+    sp.expectedSignals.append("SIGTRAP");
 
-    stopEngine();
+    QString errorMessage;
+    RunControl *gdbRunControl = Debugger::createDebuggerRunControl(sp, runConfiguration(), &errorMessage);
+    QTC_ASSERT(gdbRunControl, return);
+    connect(gdbRunControl, &RunControl::finished,
+            gdbRunControl, &RunControl::deleteLater);
+    gdbRunControl->start();
+}
 
-    QString file;
-    int line = -1;
-
-    QRegExp suppressionError(QLatin1String("in suppressions file \"([^\"]+)\" near line (\\d+)"),
-                             Qt::CaseSensitive, QRegExp::RegExp2);
-    if (suppressionError.indexIn(error) != -1) {
-        file = suppressionError.cap(1);
-        line = suppressionError.cap(2).toInt();
-    }
-
-    TaskHub::addTask(Task(Task::Error, error, Utils::FileName::fromUserInput(file), line,
-                          Analyzer::Constants::ANALYZERTASK_ID));
-    TaskHub::requestPopup();
+void MemcheckWithGdbRunControl::appendLog(const QByteArray &data)
+{
+    appendMessage(QString::fromUtf8(data), Utils::StdOutFormat);
 }
 
 } // namespace Internal

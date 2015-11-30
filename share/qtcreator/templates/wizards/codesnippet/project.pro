@@ -11,5 +11,6 @@ CONFIG += console
 @if "%APP_BUNDLE%" == "false"
 CONFIG -= app_bundle
 @endif
+CONFIG += c++11
 
-SOURCES += main.cpp
+SOURCES += main.%CppSourceSuffix%

@@ -1,19 +1,15 @@
     \section1 Running on Embedded Linux Devices
 
-    \list 1
-
-        \li Build and run the application for a device:
+    To build and run the application for a device:
 
         \list 1
 
             \li Specify a connection to the device. For more information, see
                 \l{Connecting Embedded Linux Devices}.
 
-            \li Click the \gui Run button.
+            \li Click the \uicontrol Run button.
 
         \endlist
-
-    \endlist
 
     \QC uses the compiler specified in the project build settings
     (tool chain) to build the application.
@@ -21,9 +17,9 @@
     \QC copies the application files to the connected device and runs the
     application. The application views are
     displayed on the device. Command-line output is visible in the \QC
-    \gui {Application Output} view.
+    \uicontrol {Application Output} view.
 
-    Choose \gui {Projects > Embedded Linux > Run} to view the settings for deploying
+    Choose \uicontrol {Projects > Embedded Linux > Run} to view the settings for deploying
     the application to the connected device. For more information, see
     \l{Specifying Run Settings for Linux-Based Devices}.
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Tim Sander <tim@krieglstein.org>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,29 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "baremetalrunconfigurationwidget.h"
 #include "baremetalrunconfiguration.h"
+
+#include <coreplugin/coreicons.h>
 #include <utils/detailswidget.h>
 
 #include <QLineEdit>
@@ -73,7 +76,8 @@ BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunCon
     mainLayout->setMargin(0);
     addGenericWidgets(mainLayout);
 
-    connect(d->runConfiguration, SIGNAL(enabledChanged()),SLOT(runConfigurationEnabledChange()));
+    connect(d->runConfiguration, &ProjectExplorer::RunConfiguration::enabledChanged,
+            this, &BareMetalRunConfigurationWidget::runConfigurationEnabledChange);
     runConfigurationEnabledChange();
 }
 
@@ -86,7 +90,7 @@ void BareMetalRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
 {
     QHBoxLayout * const hl = new QHBoxLayout;
     hl->addStretch();
-    d->disabledIcon.setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/compile_warning.png")));
+    d->disabledIcon.setPixmap(Core::Icons::WARNING.pixmap());
     hl->addWidget(&d->disabledIcon);
     d->disabledReason.setVisible(false);
     hl->addWidget(&d->disabledReason);
@@ -118,11 +122,12 @@ void BareMetalRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     d->workingDirLineEdit.setPlaceholderText(tr("<default>"));
     d->workingDirLineEdit.setText(d->runConfiguration->workingDirectory());
     d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
-    connect(&d->argsLineEdit, SIGNAL(textEdited(QString)), SLOT(argumentsEdited(QString)));
-    connect(d->runConfiguration, SIGNAL(targetInformationChanged()), this,
-        SLOT(updateTargetInformation()));
-    connect(&d->workingDirLineEdit, SIGNAL(textEdited(QString)),
-        SLOT(handleWorkingDirectoryChanged()));
+    connect(&d->argsLineEdit, &QLineEdit::textEdited,
+            this, &BareMetalRunConfigurationWidget::argumentsEdited);
+    connect(d->runConfiguration, &BareMetalRunConfiguration::targetInformationChanged,
+            this, &BareMetalRunConfigurationWidget::updateTargetInformation);
+    connect(&d->workingDirLineEdit, &QLineEdit::textEdited,
+            this, &BareMetalRunConfigurationWidget::handleWorkingDirectoryChanged);
 }
 
 void BareMetalRunConfigurationWidget::argumentsEdited(const QString &args)

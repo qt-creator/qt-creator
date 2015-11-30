@@ -88,7 +88,7 @@
    <item row="1" column="0">
     <widget class="QCheckBox" name="autoLoadCheckBox">
      <property name="toolTip">
-      <string>Automatically restore the last session when Qt Creator is started.</string>
+      <string>Automatically restores the last session when Qt Creator is started.</string>
      </property>
      <property name="text">
       <string>Restore last session on startup</string>

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -48,14 +44,12 @@ public:
     QString category;
     int majorVersion;
     int minorVersion;
-    QString iconPath;
-    QIcon icon;
-    QIcon dragIcon;
+    QString libraryEntryIconPath;
+    QIcon typeIcon;
     QList<PropertyContainer> properties;
     QString qml;
     QString qmlSource;
     QString requiredImport;
-    bool forceImport;
 };
 
 } // namespace Internal
@@ -77,19 +71,9 @@ ItemLibraryEntry& ItemLibraryEntry::operator=(const ItemLibraryEntry &other)
     return *this;
 }
 
-void ItemLibraryEntry::setDragIcon(const QIcon &icon)
+void ItemLibraryEntry::setTypeIcon(const QIcon &icon)
 {
-    m_data->dragIcon = icon;
-}
-
-void ItemLibraryEntry::setIcon(const QIcon &icon)
-{
-    m_data->icon = icon;
-}
-
-QIcon ItemLibraryEntry::dragIcon() const
-{
-    return m_data->dragIcon;
+    m_data->typeIcon = icon;
 }
 
 void ItemLibraryEntry::addProperty(const Property &property)
@@ -136,11 +120,6 @@ QString ItemLibraryEntry::requiredImport() const
     return m_data->requiredImport;
 }
 
-bool ItemLibraryEntry::forceImport() const
-{
-    return m_data->forceImport;
-}
-
 int ItemLibraryEntry::majorVersion() const
 {
     return m_data->majorVersion;
@@ -161,14 +140,17 @@ void ItemLibraryEntry::setCategory(const QString &category)
     m_data->category = category;
 }
 
-QIcon ItemLibraryEntry::icon() const
+QIcon ItemLibraryEntry::typeIcon() const
 {
-    return m_data->icon;
+    return m_data->typeIcon;
 }
 
-QString ItemLibraryEntry::iconPath() const
+QString ItemLibraryEntry::libraryEntryIconPath() const
 {
-    return m_data->iconPath;
+    if (m_data->libraryEntryIconPath.isEmpty())
+        return QStringLiteral(":/ItemLibrary/images/item-default-icon.png");
+
+    return m_data->libraryEntryIconPath;
 }
 
 void ItemLibraryEntry::setName(const QString &name)
@@ -183,9 +165,9 @@ void ItemLibraryEntry::setType(const TypeName &typeName, int majorVersion, int m
     m_data->minorVersion = minorVersion;
 }
 
-void ItemLibraryEntry::setIconPath(const QString &iconPath)
+void ItemLibraryEntry::setLibraryEntryIconPath(const QString &iconPath)
 {
-    m_data->iconPath = iconPath;
+    m_data->libraryEntryIconPath = iconPath;
 }
 
 static QString getSourceForUrl(const QString &fileURl)
@@ -210,11 +192,6 @@ void ItemLibraryEntry::setRequiredImport(const QString &requiredImport)
     m_data->requiredImport = requiredImport;
 }
 
-void ItemLibraryEntry::setForceImport(bool b)
-{
-    m_data->forceImport = b;
-}
-
 void ItemLibraryEntry::addProperty(PropertyName &name, QString &type, QVariant &value)
 {
     Property property;
@@ -228,12 +205,10 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.typeName();
     stream << itemLibraryEntry.majorVersion();
     stream << itemLibraryEntry.minorVersion();
-    stream << itemLibraryEntry.icon();
-    stream << itemLibraryEntry.iconPath();
+    stream << itemLibraryEntry.typeIcon();
+    stream << itemLibraryEntry.libraryEntryIconPath();
     stream << itemLibraryEntry.category();
-    stream << itemLibraryEntry.dragIcon();
     stream << itemLibraryEntry.requiredImport();
-    stream << itemLibraryEntry.forceImport();
 
     stream << itemLibraryEntry.m_data->properties;
     stream << itemLibraryEntry.m_data->qml;
@@ -248,12 +223,10 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->typeName;
     stream >> itemLibraryEntry.m_data->majorVersion;
     stream >> itemLibraryEntry.m_data->minorVersion;
-    stream >> itemLibraryEntry.m_data->icon;
-    stream >> itemLibraryEntry.m_data->iconPath;
+    stream >> itemLibraryEntry.m_data->typeIcon;
+    stream >> itemLibraryEntry.m_data->libraryEntryIconPath;
     stream >> itemLibraryEntry.m_data->category;
-    stream >> itemLibraryEntry.m_data->dragIcon;
     stream >> itemLibraryEntry.m_data->requiredImport;
-    stream >> itemLibraryEntry.m_data->forceImport;
 
     stream >> itemLibraryEntry.m_data->properties;
     stream >> itemLibraryEntry.m_data->qml;
@@ -268,12 +241,10 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
     debug << itemLibraryEntry.m_data->typeName;
     debug << itemLibraryEntry.m_data->majorVersion;
     debug << itemLibraryEntry.m_data->minorVersion;
-    debug << itemLibraryEntry.m_data->icon;
-    debug << itemLibraryEntry.m_data->iconPath;
+    debug << itemLibraryEntry.m_data->typeIcon;
+    debug << itemLibraryEntry.m_data->libraryEntryIconPath;
     debug << itemLibraryEntry.m_data->category;
-    debug << itemLibraryEntry.m_data->dragIcon;
     debug << itemLibraryEntry.m_data->requiredImport;
-    debug << itemLibraryEntry.m_data->forceImport;
 
     debug << itemLibraryEntry.m_data->properties;
     debug << itemLibraryEntry.m_data->qml;
@@ -298,9 +269,7 @@ QList<ItemLibraryEntry> ItemLibraryInfo::entriesForType(const QString &typeName,
     QList<ItemLibraryEntry> entries;
 
     foreach (const ItemLibraryEntry &entry, m_nameToEntryHash) {
-        if (entry.typeName() == typeName
-            && entry.majorVersion() >= majorVersion
-            && entry.minorVersion() >= minorVersion)
+        if (entry.typeName() == typeName)
             entries += entry;
     }
 

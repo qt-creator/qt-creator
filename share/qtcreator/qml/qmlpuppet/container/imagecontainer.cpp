@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,23 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "imagecontainer.h"
 
-#include <QSharedMemory>
+#include "sharedmemory.h"
 #include <QCache>
 #include <QDebug>
 
@@ -42,7 +38,9 @@
 
 namespace QmlDesigner {
 
-static QCache<qint32, QSharedMemory> globalSharedMemoryCache(10000);
+// using cache as a container which deletes sharedmemory pointers at process exit
+typedef QCache<qint32, SharedMemory> GlobalSharedMemoryContainer;
+Q_GLOBAL_STATIC_WITH_ARGS(GlobalSharedMemoryContainer, globalSharedMemoryContainer, (10000))
 
 ImageContainer::ImageContainer()
     : m_instanceId(-1),
@@ -82,41 +80,51 @@ void ImageContainer::setImage(const QImage &image)
 void ImageContainer::removeSharedMemorys(const QVector<qint32> &keyNumberVector)
 {
     foreach (qint32 keyNumber, keyNumberVector) {
-        QSharedMemory *sharedMemory = globalSharedMemoryCache.take(keyNumber);
+        SharedMemory *sharedMemory = globalSharedMemoryContainer()->take(keyNumber);
         delete sharedMemory;
     }
 }
 
 static const QLatin1String imageKeyTemplateString("Image-%1");
 
-static QSharedMemory *createSharedMemory(qint32 key, int byteCount)
+static SharedMemory *createSharedMemory(qint32 key, int byteCount)
 {
-    QSharedMemory *sharedMemory = globalSharedMemoryCache.take(key);
+    SharedMemory *sharedMemory = (*globalSharedMemoryContainer())[key];
 
-    if (sharedMemory == 0)
-        sharedMemory = new QSharedMemory(QString(imageKeyTemplateString).arg(key));
+    if (sharedMemory == 0) {
+        sharedMemory = new SharedMemory(QString(imageKeyTemplateString).arg(key));
+        bool sharedMemoryIsCreated = sharedMemory->create(byteCount);
+        if (sharedMemoryIsCreated) {
+            globalSharedMemoryContainer()->insert(key, sharedMemory);
+        } else {
+            delete sharedMemory;
+            sharedMemory = 0;
+        }
+    } else {
+        bool sharedMemoryIsAttached = sharedMemory->isAttached();
+        if (!sharedMemoryIsAttached)
+            sharedMemoryIsAttached = sharedMemory->attach();
 
-    bool sharedMemoryIsCreated = sharedMemory->isAttached();
-    if (!sharedMemoryIsCreated)
-        sharedMemoryIsCreated = sharedMemory->attach();
+        bool sharedMemorySizeIsSmallerThanByteCount = sharedMemory->size() < byteCount;
+        bool sharedMemorySizeIsDoubleBiggerThanByteCount = sharedMemory->size() > (byteCount * 2);
 
-    bool sharedMemorySizeIsSmallerThanByteCount = sharedMemory->size() < byteCount;
-    bool sharedMemorySizeIsDoubleBiggerThanByteCount = sharedMemory->size() * 2 > byteCount;
+        if (!sharedMemoryIsAttached) {
+            sharedMemory->create(byteCount);
+        } else if (sharedMemorySizeIsSmallerThanByteCount || sharedMemorySizeIsDoubleBiggerThanByteCount) {
+            sharedMemory->detach();
+            sharedMemory->create(byteCount);
+        }
 
-    if (!sharedMemoryIsCreated  || sharedMemorySizeIsSmallerThanByteCount || sharedMemorySizeIsDoubleBiggerThanByteCount) {
-        sharedMemory->detach();
-        sharedMemoryIsCreated = sharedMemory->create(byteCount);
+        if (!sharedMemory->isAttached()) {
+            globalSharedMemoryContainer()->remove(key);
+            sharedMemory = 0;
+        }
     }
 
-    if (sharedMemoryIsCreated) {
-        globalSharedMemoryCache.insert(key, sharedMemory);
-        return sharedMemory;
-    }
-
-    return 0;
+    return sharedMemory;
 }
 
-static void writeSharedMemory(QSharedMemory *sharedMemory, const QImage &image)
+static void writeSharedMemory(SharedMemory *sharedMemory, const QImage &image)
 {
     sharedMemory->lock();
 
@@ -129,7 +137,6 @@ static void writeSharedMemory(QSharedMemory *sharedMemory, const QImage &image)
 
     std::memcpy(sharedMemory->data(), headerData, 20);
     std::memcpy(reinterpret_cast<char*>(sharedMemory->data()) + 20, image.constBits(), image.byteCount());
-
     sharedMemory->unlock();
 }
 
@@ -156,7 +163,7 @@ QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
         out << qint32(0);
         writeStream(out, image);
     } else {
-        QSharedMemory *sharedMemory = createSharedMemory(container.keyNumber(), image.byteCount() + extraDataSize);
+        SharedMemory *sharedMemory = createSharedMemory(container.keyNumber(), image.byteCount() + extraDataSize);
 
         out << qint32(sharedMemory != 0); // send if shared memory is used
 
@@ -171,7 +178,7 @@ QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
 
 static void readSharedMemory(qint32 key, ImageContainer &container)
 {
-    QSharedMemory sharedMemory(QString(imageKeyTemplateString).arg(key));
+    SharedMemory sharedMemory(QString(imageKeyTemplateString).arg(key));
 
     bool canAttach = sharedMemory.attach(QSharedMemory::ReadOnly);
 
@@ -194,6 +201,7 @@ static void readSharedMemory(qint32 key, ImageContainer &container)
         container.setImage(image);
 
         sharedMemory.unlock();
+        sharedMemory.detach();
     }
 }
 

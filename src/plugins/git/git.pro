@@ -13,8 +13,6 @@ HEADERS += gitplugin.h \
     gitsettings.h \
     branchdialog.h \
     branchmodel.h \
-    clonewizard.h \
-    clonewizardpage.h \
     stashdialog.h \
     gitutils.h \
     remotemodel.h \
@@ -38,8 +36,6 @@ SOURCES += gitplugin.cpp \
     gitsettings.cpp \
     branchdialog.cpp \
     branchmodel.cpp \
-    clonewizard.cpp \
-    clonewizardpage.cpp \
     stashdialog.cpp \
     gitutils.cpp \
     remotemodel.cpp \
@@ -59,8 +55,6 @@ FORMS += changeselectiondialog.ui \
     remoteadditiondialog.ui \
     branchadddialog.ui \
     branchcheckoutdialog.ui
-
-include(gitorious/gitorious.pri)
 
 RESOURCES += \
     git.qrc

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -89,10 +90,8 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     , m_hostLineEdit(new QLineEdit(this))
     , m_userLineEdit(new QLineEdit(this))
     , m_sshChooser(new Utils::PathChooser)
-    , m_repositoryChooser(new Utils::PathChooser)
     , m_portSpinBox(new QSpinBox(this))
     , m_httpsCheckBox(new QCheckBox(tr("HTTPS")))
-    , m_promptPathCheckBox(new QCheckBox(tr("Always prompt for repository folder")))
 {
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
@@ -102,12 +101,6 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     m_sshChooser->setCommandVersionArguments(QStringList(QLatin1String("-V")));
     m_sshChooser->setHistoryCompleter(QLatin1String("Git.SshCommand.History"));
     formLayout->addRow(tr("&ssh:"), m_sshChooser);
-    formLayout->addRow(tr("&Repository:"), m_repositoryChooser);
-    m_repositoryChooser->setToolTip(tr("Default repository where patches will be applied."));
-    m_repositoryChooser->setHistoryCompleter(QLatin1String("Git.RepoDir.History"));
-    formLayout->addRow(tr("Pr&ompt:"), m_promptPathCheckBox);
-    m_promptPathCheckBox->setToolTip(tr("If checked, user will always be\n"
-                                        "asked to confirm the repository path."));
     m_portSpinBox->setMinimum(1);
     m_portSpinBox->setMaximum(65535);
     formLayout->addRow(tr("&Port:"), m_portSpinBox);
@@ -116,6 +109,7 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     "Determines the protocol used to form a URL in case\n"
     "\"canonicalWebUrl\" is not configured in the file\n"
     "\"gerrit.config\"."));
+    setTabOrder(m_sshChooser, m_portSpinBox);
 }
 
 GerritParameters GerritOptionsWidget::parameters() const
@@ -124,10 +118,8 @@ GerritParameters GerritOptionsWidget::parameters() const
     result.host = m_hostLineEdit->text().trimmed();
     result.user = m_userLineEdit->text().trimmed();
     result.ssh = m_sshChooser->path();
-    result.repositoryPath = m_repositoryChooser->path();
     result.port = m_portSpinBox->value();
     result.https = m_httpsCheckBox->isChecked();
-    result.promptPath = m_promptPathCheckBox->isChecked();
     return result;
 }
 
@@ -136,10 +128,8 @@ void GerritOptionsWidget::setParameters(const GerritParameters &p)
     m_hostLineEdit->setText(p.host);
     m_userLineEdit->setText(p.user);
     m_sshChooser->setPath(p.ssh);
-    m_repositoryChooser->setPath(p.repositoryPath);
     m_portSpinBox->setValue(p.port);
     m_httpsCheckBox->setChecked(p.https);
-    m_promptPathCheckBox->setChecked(p.promptPath);
 }
 
 } // namespace Internal

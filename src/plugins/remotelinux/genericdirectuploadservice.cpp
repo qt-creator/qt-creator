@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,6 +31,7 @@
 
 #include <projectexplorer/deployablefile.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <ssh/sftpchannel.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocess.h>
@@ -155,7 +157,7 @@ void GenericDirectUploadService::handleSftpChannelError(const QString &message)
     handleDeploymentDone();
 }
 
-void GenericDirectUploadService::handleUploadFinished(QSsh::SftpJobId jobId, const QString &errorMsg)
+void GenericDirectUploadService::handleUploadFinished(SftpJobId jobId, const QString &errorMsg)
 {
     Q_UNUSED(jobId);
 
@@ -168,11 +170,11 @@ void GenericDirectUploadService::handleUploadFinished(QSsh::SftpJobId jobId, con
 
     const DeployableFile df = d->filesToUpload.takeFirst();
     if (!errorMsg.isEmpty()) {
-        QString errorString = tr("Upload of file '%1' failed. The server said: '%2'.")
+        QString errorString = tr("Upload of file \"%1\" failed. The server said: \"%2\".")
             .arg(df.localFilePath().toUserOutput(), errorMsg);
         if (errorMsg == QLatin1String("Failure")
                 && df.remoteDirectory().contains(QLatin1String("/bin"))) {
-            errorString += QLatin1Char(' ') + tr("If '%1' is currently running "
+            errorString += QLatin1Char(' ') + tr("If \"%1\" is currently running "
                 "on the remote host, you might need to stop it first.").arg(df.remoteFilePath());
         }
         emit errorMessage(errorString);
@@ -183,7 +185,8 @@ void GenericDirectUploadService::handleUploadFinished(QSsh::SftpJobId jobId, con
 
         // This is done for Windows.
         if (df.isExecutable()) {
-            const QString command = QLatin1String("chmod a+x ") + df.remoteFilePath();
+            const QString command = QLatin1String("chmod a+x ")
+                    + Utils::QtcProcess::quoteArgUnix(df.remoteFilePath());
             d->chmodProc = connection()->createRemoteProcess(command.toUtf8());
             connect(d->chmodProc.data(), SIGNAL(closed(int)), SLOT(handleChmodFinished(int)));
             connect(d->chmodProc.data(), SIGNAL(readyReadStandardOutput()),
@@ -209,7 +212,7 @@ void GenericDirectUploadService::handleLnFinished(int exitStatus)
     const DeployableFile df = d->filesToUpload.takeFirst();
     const QString nativePath = df.localFilePath().toUserOutput();
     if (exitStatus != SshRemoteProcess::NormalExit || d->lnProc->exitCode() != 0) {
-        emit errorMessage(tr("Failed to upload file '%1'.").arg(nativePath));
+        emit errorMessage(tr("Failed to upload file \"%1\".").arg(nativePath));
         setFinished();
         handleDeploymentDone();
         return;
@@ -251,7 +254,7 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
     QFileInfo fi = df.localFilePath().toFileInfo();
     const QString nativePath = df.localFilePath().toUserOutput();
     if (exitStatus != SshRemoteProcess::NormalExit || d->mkdirProc->exitCode() != 0) {
-        emit errorMessage(tr("Failed to upload file '%1'.").arg(nativePath));
+        emit errorMessage(tr("Failed to upload file \"%1\".").arg(nativePath));
         setFinished();
         handleDeploymentDone();
     } else if (fi.isDir()) {
@@ -262,8 +265,9 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
         const QString remoteFilePath = df.remoteDirectory() + QLatin1Char('/')  + fi.fileName();
         if (fi.isSymLink()) {
              const QString target = fi.dir().relativeFilePath(fi.symLinkTarget()); // see QTBUG-5817.
-             const QString command = QLatin1String("ln -sf ") + target + QLatin1Char(' ')
-                 + remoteFilePath;
+             const QStringList args = QStringList() << QLatin1String("ln") << QLatin1String("-sf")
+                                                    << target << remoteFilePath;
+             const QString command = Utils::QtcProcess::joinArgs(args, Utils::OsTypeLinux);
 
              // See comment in SftpChannel::createLink as to why we can't use it.
              d->lnProc = connection()->createRemoteProcess(command.toUtf8());
@@ -275,7 +279,7 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
             const SftpJobId job = d->uploader->uploadFile(df.localFilePath().toString(),
                     remoteFilePath, SftpOverwriteExisting);
             if (job == SftpInvalidJob) {
-                const QString message = tr("Failed to upload file '%1': "
+                const QString message = tr("Failed to upload file \"%1\": "
                                            "Could not open for reading.").arg(nativePath);
                 if (d->ignoreMissingFiles) {
                     emit warningMessage(message);
@@ -359,7 +363,7 @@ void GenericDirectUploadService::uploadNextFile()
     const DeployableFile &df = d->filesToUpload.first();
     QString dirToCreate = df.remoteDirectory();
     if (dirToCreate.isEmpty()) {
-        emit warningMessage(tr("Warning: No remote path set for local file '%1'. Skipping upload.")
+        emit warningMessage(tr("Warning: No remote path set for local file \"%1\". Skipping upload.")
             .arg(df.localFilePath().toUserOutput()));
         d->filesToUpload.takeFirst();
         uploadNextFile();
@@ -369,12 +373,13 @@ void GenericDirectUploadService::uploadNextFile()
     QFileInfo fi = df.localFilePath().toFileInfo();
     if (fi.isDir())
         dirToCreate += QLatin1Char('/') + fi.fileName();
-    const QString command = QLatin1String("mkdir -p ") + dirToCreate;
+    const QString command = QLatin1String("mkdir -p ")
+            + Utils::QtcProcess::quoteArgUnix(dirToCreate);
     d->mkdirProc = connection()->createRemoteProcess(command.toUtf8());
     connect(d->mkdirProc.data(), SIGNAL(closed(int)), SLOT(handleMkdirFinished(int)));
     connect(d->mkdirProc.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleStdOutData()));
     connect(d->mkdirProc.data(), SIGNAL(readyReadStandardError()), SLOT(handleStdErrData()));
-    emit progressMessage(tr("Uploading file '%1'...")
+    emit progressMessage(tr("Uploading file \"%1\"...")
         .arg(df.localFilePath().toUserOutput()));
     d->mkdirProc->start();
 }

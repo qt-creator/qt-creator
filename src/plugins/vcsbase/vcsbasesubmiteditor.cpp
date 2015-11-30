@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,14 +36,16 @@
 #include "submiteditorwidget.h"
 #include "submitfieldwidget.h"
 #include "submitfilemodel.h"
-#include "vcsbaseoutputwindow.h"
+#include "vcsoutputwindow.h"
 #include "vcsplugin.h"
+#include "vcsprojectcache.h"
 
 #include <aggregation/aggregate.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/completingtextedit.h>
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -50,14 +53,13 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 
-#include <QDebug>
 #include <QDir>
-#include <QProcess>
 #include <QFileInfo>
 #include <QPointer>
+#include <QProcess>
+#include <QSet>
 #include <QStringListModel>
 #include <QStyle>
 #include <QToolBar>
@@ -142,8 +144,9 @@ static inline QString submitMessageCheckScript()
     return VcsPlugin::instance()->settings().submitMessageCheckScript;
 }
 
-struct VcsBaseSubmitEditorPrivate
+class VcsBaseSubmitEditorPrivate
 {
+public:
     VcsBaseSubmitEditorPrivate(const VcsBaseSubmitEditorParameters *parameters,
                                SubmitEditorWidget *editorWidget,
                                VcsBaseSubmitEditor *q);
@@ -170,7 +173,7 @@ VcsBaseSubmitEditorPrivate::VcsBaseSubmitEditorPrivate(const VcsBaseSubmitEditor
     m_file(new SubmitEditorFile(parameters, q)),
     m_nickNameDialog(0)
 {
-    QCompleter *completer = new QCompleter(q);
+    auto completer = new QCompleter(q);
     completer->setCaseSensitivity(Qt::CaseSensitive);
     completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
     m_widget->descriptionEdit()->setCompleter(completer);
@@ -181,12 +184,11 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
                                          SubmitEditorWidget *editorWidget) :
     d(new VcsBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
-    setContext(Core::Context(parameters->context));
     setWidget(d->m_widget);
-    document()->setDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));
+    document()->setPreferredDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));
 
     // Message font according to settings
-    Utils::CompletingTextEdit *descriptionEdit = editorWidget->descriptionEdit();
+    CompletingTextEdit *descriptionEdit = editorWidget->descriptionEdit();
     const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::fontSettings();
     const QTextCharFormat tf = fs.toTextCharFormat(TextEditor::C_TEXT);
     descriptionEdit->setFont(tf.font());
@@ -203,25 +205,28 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     d->m_file->setModified(false);
     // We are always clean to prevent the editor manager from asking to save.
 
-    connect(d->m_widget, SIGNAL(diffSelected(QList<int>)), this, SLOT(slotDiffSelectedVcsFiles(QList<int>)));
-    connect(descriptionEdit, SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
+    connect(d->m_widget, &SubmitEditorWidget::diffSelected,
+            this, &VcsBaseSubmitEditor::slotDiffSelectedVcsFiles);
+    connect(descriptionEdit, &QTextEdit::textChanged,
+            this, &VcsBaseSubmitEditor::slotDescriptionChanged);
 
     const CommonVcsSettings settings = VcsPlugin::instance()->settings();
     // Add additional context menu settings
     if (!settings.submitMessageCheckScript.isEmpty() || !settings.nickNameMailMap.isEmpty()) {
-        QAction *sep = new QAction(this);
+        auto sep = new QAction(this);
         sep->setSeparator(true);
         d->m_widget->addDescriptionEditContextMenuAction(sep);
         // Run check action
         if (!settings.submitMessageCheckScript.isEmpty()) {
-            QAction *checkAction = new QAction(tr("Check Message"), this);
-            connect(checkAction, SIGNAL(triggered()), this, SLOT(slotCheckSubmitMessage()));
+            auto checkAction = new QAction(tr("Check Message"), this);
+            connect(checkAction, &QAction::triggered,
+                    this, &VcsBaseSubmitEditor::slotCheckSubmitMessage);
             d->m_widget->addDescriptionEditContextMenuAction(checkAction);
         }
         // Insert nick
         if (!settings.nickNameMailMap.isEmpty()) {
-            QAction *insertAction = new QAction(tr("Insert Name..."), this);
-            connect(insertAction, SIGNAL(triggered()), this, SLOT(slotInsertNickName()));
+            auto insertAction = new QAction(tr("Insert Name..."), this);
+            connect(insertAction, &QAction::triggered, this, &VcsBaseSubmitEditor::slotInsertNickName);
             d->m_widget->addDescriptionEditContextMenuAction(insertAction);
         }
     }
@@ -231,16 +236,20 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
 
     // wrapping. etc
     slotUpdateEditorSettings(settings);
-    connect(VcsPlugin::instance(),
-            SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
-            this, SLOT(slotUpdateEditorSettings(VcsBase::Internal::CommonVcsSettings)));
-    // Commit data refresh might lead to closing the editor, so use a queued connection
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(slotRefreshCommitData()), Qt::QueuedConnection);
-    connect(Core::ICore::mainWindow(), SIGNAL(windowActivated()),
-            this, SLOT(slotRefreshCommitData()), Qt::QueuedConnection);
+    connect(VcsPlugin::instance(), &VcsPlugin::settingsChanged,
+            this, &VcsBaseSubmitEditor::slotUpdateEditorSettings);
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, [this]() {
+                if (Core::EditorManager::currentEditor() == this)
+                    updateFileModel();
+            });
+    connect(qApp, &QApplication::applicationStateChanged,
+            this, [this](Qt::ApplicationState state) {
+                if (state == Qt::ApplicationActive)
+                    updateFileModel();
+            });
 
-    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
+    auto aggregate = new Aggregation::Aggregate;
     aggregate->add(new Core::BaseTextFind(descriptionEdit));
     aggregate->add(this);
 }
@@ -258,12 +267,6 @@ void VcsBaseSubmitEditor::slotUpdateEditorSettings(const CommonVcsSettings &s)
     setLineWrap(s.lineWrap);
 }
 
-void VcsBaseSubmitEditor::slotRefreshCommitData()
-{
-    if (Core::EditorManager::currentEditor() == this)
-        updateFileModel();
-}
-
 // Return a trimmed list of non-empty field texts
 static inline QStringList fieldTexts(const QString &fileContents)
 {
@@ -279,7 +282,7 @@ static inline QStringList fieldTexts(const QString &fileContents)
 
 void VcsBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
 {
-    Utils::FileReader reader;
+    FileReader reader;
     if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::mainWindow()))
         return;
     // Parse into fields
@@ -288,11 +291,11 @@ void VcsBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
         return;
     // Create a completer on user names
     const QStandardItemModel *nickNameModel = VcsPlugin::instance()->nickNameModel();
-    QCompleter *completer = new QCompleter(NickNameDialog::nickNameList(nickNameModel), this);
+    auto completer = new QCompleter(NickNameDialog::nickNameList(nickNameModel), this);
 
-    SubmitFieldWidget *fieldWidget = new SubmitFieldWidget;
-    connect(fieldWidget, SIGNAL(browseButtonClicked(int,QString)),
-            this, SLOT(slotSetFieldNickName(int)));
+    auto fieldWidget = new SubmitFieldWidget;
+    connect(fieldWidget, &SubmitFieldWidget::browseButtonClicked,
+            this, &VcsBaseSubmitEditor::slotSetFieldNickName);
     fieldWidget->setCompleter(completer);
     fieldWidget->setAllowDuplicateFields(true);
     fieldWidget->setHasBrowseButton(true);
@@ -359,24 +362,6 @@ void VcsBaseSubmitEditor::slotDescriptionChanged()
 {
 }
 
-bool VcsBaseSubmitEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    if (fileName.isEmpty())
-        return false;
-
-    Utils::FileReader reader;
-    if (!reader.fetch(realFileName, QIODevice::Text, errorString))
-        return false;
-
-    const QString text = QString::fromLocal8Bit(reader.data());
-    if (!setFileContents(text.toUtf8()))
-        return false;
-
-    d->m_file->setFilePath(QFileInfo(fileName).absoluteFilePath());
-    d->m_file->setModified(fileName != realFileName);
-    return true;
-}
-
 Core::IDocument *VcsBaseSubmitEditor::document()
 {
     return d->m_file;
@@ -395,7 +380,7 @@ void VcsBaseSubmitEditor::setCheckScriptWorkingDirectory(const QString &s)
 static QToolBar *createToolBar(const QWidget *someWidget, QAction *submitAction, QAction *diffAction)
 {
     // Create
-    QToolBar *toolBar = new QToolBar;
+    auto toolBar = new QToolBar;
     toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     const int size = someWidget->style()->pixelMetric(QStyle::PM_SmallIconSize);
     toolBar->setIconSize(QSize(size, size));
@@ -429,7 +414,7 @@ QStringList VcsBaseSubmitEditor::checkedFiles() const
     return d->m_widget->checkedFiles();
 }
 
-void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model, const QString &repositoryDirectory)
+void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model)
 {
     QTC_ASSERT(model, return);
     if (SubmitFileModel *oldModel = d->m_widget->fileModel()) {
@@ -439,11 +424,11 @@ void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model, const QString &re
     d->m_widget->setFileModel(model);
 
     QSet<QString> uniqueSymbols;
-    const CPlusPlus::Snapshot cppSnapShot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    const CPlusPlus::Snapshot cppSnapShot = CppTools::CppModelManager::instance()->snapshot();
 
     // Iterate over the files and get interesting symbols
     for (int row = 0; row < model->rowCount(); ++row) {
-        const QFileInfo fileInfo(repositoryDirectory, model->file(row));
+        const QFileInfo fileInfo(model->repositoryRoot(), model->file(row));
 
         // Add file name
         uniqueSymbols.insert(fileInfo.fileName());
@@ -507,20 +492,30 @@ QStringList VcsBaseSubmitEditor::rowsToFiles(const QList<int> &rows) const
 void VcsBaseSubmitEditor::slotDiffSelectedVcsFiles(const QList<int> &rawList)
 {
     if (d->m_parameters->diffType == VcsBaseSubmitEditorParameters::DiffRows)
-        emit diffSelectedFiles(rawList);
+        emit diffSelectedRows(rawList);
     else
         emit diffSelectedFiles(rowsToFiles(rawList));
 }
 
 QByteArray VcsBaseSubmitEditor::fileContents() const
 {
-    return d->m_widget->descriptionText().toLocal8Bit();
+    return description().toLocal8Bit();
 }
 
 bool VcsBaseSubmitEditor::setFileContents(const QByteArray &contents)
 {
-    d->m_widget->setDescriptionText(QString::fromUtf8(contents));
+    setDescription(QString::fromUtf8(contents));
     return true;
+}
+
+QString VcsBaseSubmitEditor::description() const
+{
+    return d->m_widget->descriptionText();
+}
+
+void VcsBaseSubmitEditor::setDescription(const QString &text)
+{
+    d->m_widget->setDescriptionText(text);
 }
 
 bool VcsBaseSubmitEditor::isDescriptionMandatory() const
@@ -547,6 +542,9 @@ VcsBaseSubmitEditor::PromptSubmitResult
 
     Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
 
+    if (!submitWidget->isEnabled())
+        return SubmitDiscarded;
+
     QString errorMessage;
     QMessageBox::StandardButton answer = QMessageBox::Yes;
 
@@ -562,12 +560,12 @@ VcsBaseSubmitEditor::PromptSubmitResult
             // Provide check box to turn off prompt ONLY if it was not forced
             if (*promptSetting && !forcePrompt) {
                 const QDialogButtonBox::StandardButton danswer =
-                        Utils::CheckableMessageBox::question(parent, title, question,
+                        CheckableMessageBox::question(parent, title, question,
                                                                    tr("Prompt to submit"), promptSetting,
                                                                    QDialogButtonBox::Yes|QDialogButtonBox::No|
                                                                    QDialogButtonBox::Cancel,
                                                                    QDialogButtonBox::Yes);
-                answer = Utils::CheckableMessageBox::dialogButtonBoxToMessageBoxButton(danswer);
+                answer = CheckableMessageBox::dialogButtonBoxToMessageBoxButton(danswer);
             } else {
                 answer = QMessageBox::question(parent, title, question,
                                                QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
@@ -576,8 +574,13 @@ VcsBaseSubmitEditor::PromptSubmitResult
         }
     } else {
         // Check failed.
+        QMessageBox::StandardButtons buttons;
+        if (canCommitOnFailure)
+            buttons = QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel;
+        else
+            buttons = QMessageBox::Yes|QMessageBox::No;
         QMessageBox msgBox(QMessageBox::Question, title, checkFailureQuestion,
-                           QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel, parent);
+                           buttons, parent);
         msgBox.setDefaultButton(QMessageBox::Cancel);
         msgBox.setInformativeText(errorMessage);
         msgBox.setMinimumWidth(checkDialogMinimumWidth);
@@ -666,48 +669,49 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
 {
     // Write out message
     QString tempFilePattern = QDir::tempPath();
-    if (!tempFilePattern.endsWith(QDir::separator()))
-        tempFilePattern += QDir::separator();
+    const QChar slash = QLatin1Char('/');
+    if (!tempFilePattern.endsWith(slash))
+        tempFilePattern += slash;
     tempFilePattern += QLatin1String("msgXXXXXX.txt");
     TempFileSaver saver(tempFilePattern);
     saver.write(fileContents());
     if (!saver.finalize(errorMessage))
         return false;
     // Run check process
-    VcsBaseOutputWindow *outputWindow = VcsBaseOutputWindow::instance();
-    outputWindow->appendCommand(msgCheckScript(d->m_checkScriptWorkingDirectory, checkScript));
+    VcsOutputWindow::appendShellCommandLine(msgCheckScript(d->m_checkScriptWorkingDirectory,
+                                                           checkScript));
     QProcess checkProcess;
     if (!d->m_checkScriptWorkingDirectory.isEmpty())
         checkProcess.setWorkingDirectory(d->m_checkScriptWorkingDirectory);
     checkProcess.start(checkScript, QStringList(saver.fileName()));
     checkProcess.closeWriteChannel();
     if (!checkProcess.waitForStarted()) {
-        *errorMessage = tr("The check script '%1' could not be started: %2").arg(checkScript, checkProcess.errorString());
+        *errorMessage = tr("The check script \"%1\" could not be started: %2").arg(checkScript, checkProcess.errorString());
         return false;
     }
     QByteArray stdOutData;
     QByteArray stdErrData;
-    if (!SynchronousProcess::readDataFromProcess(checkProcess, 30000, &stdOutData, &stdErrData, false)) {
+    if (!SynchronousProcess::readDataFromProcess(checkProcess, 30, &stdOutData, &stdErrData, false)) {
         SynchronousProcess::stopProcess(checkProcess);
-        *errorMessage = tr("The check script '%1' timed out.").
+        *errorMessage = tr("The check script \"%1\" timed out.").
                         arg(QDir::toNativeSeparators(checkScript));
         return false;
     }
     if (checkProcess.exitStatus() != QProcess::NormalExit) {
-        *errorMessage = tr("The check script '%1' crashed.").
+        *errorMessage = tr("The check script \"%1\" crashed.").
                         arg(QDir::toNativeSeparators(checkScript));
         return false;
     }
     if (!stdOutData.isEmpty())
-        outputWindow->appendSilently(QString::fromLocal8Bit(stdOutData));
+        VcsOutputWindow::appendSilently(QString::fromLocal8Bit(stdOutData));
     const QString stdErr = QString::fromLocal8Bit(stdErrData);
     if (!stdErr.isEmpty())
-        outputWindow->appendSilently(stdErr);
+        VcsOutputWindow::appendSilently(stdErr);
     const int exitCode = checkProcess.exitCode();
     if (exitCode != 0) {
         const QString exMessage = tr("The check script returned exit code %1.").
                                   arg(exitCode);
-        outputWindow->appendError(exMessage);
+        VcsOutputWindow::appendError(exMessage);
         *errorMessage = stdErr;
         if (errorMessage->isEmpty())
             *errorMessage = exMessage;
@@ -726,39 +730,27 @@ QIcon VcsBaseSubmitEditor::submitIcon()
     return QIcon(QLatin1String(":/vcsbase/images/submit.png"));
 }
 
-// Compile a list if files in the current projects. TODO: Recurse down qrc files?
-QStringList VcsBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QString *name)
-{
-    if (name)
-        name->clear();
-
-    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject()) {
-        QStringList files = currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-        if (name)
-            *name = currentProject->displayName();
-        if (nativeSeparators && !files.empty()) {
-            const QStringList::iterator end = files.end();
-            for (QStringList::iterator it = files.begin(); it != end; ++it)
-                *it = QDir::toNativeSeparators(*it);
-        }
-        return files;
-    }
-    return QStringList();
-}
-
 // Reduce a list of untracked files reported by a VCS down to the files
 // that are actually part of the current project(s).
-void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositoryDirectory, QStringList *untrackedFiles)
+void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositoryDirectory,
+                                                        QStringList *untrackedFiles)
 {
     if (untrackedFiles->empty())
         return;
-    const QStringList nativeProjectFiles = VcsBaseSubmitEditor::currentProjectFiles(true);
-    if (nativeProjectFiles.empty())
+
+    ProjectExplorer::Project *vcsProject = VcsProjectCache::projectFor(repositoryDirectory);
+    if (!vcsProject)
+        return;
+
+    const QSet<QString> projectFiles
+            = QSet<QString>::fromList(vcsProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
+
+    if (projectFiles.empty())
         return;
     const QDir repoDir(repositoryDirectory);
     for (QStringList::iterator it = untrackedFiles->begin(); it != untrackedFiles->end(); ) {
-        const QString path = QDir::toNativeSeparators(repoDir.absoluteFilePath(*it));
-        if (nativeProjectFiles.contains(path))
+        const QString path = repoDir.absoluteFilePath(*it);
+        if (projectFiles.contains(path))
             ++it;
         else
             it = untrackedFiles->erase(it);

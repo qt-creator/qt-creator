@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,7 +31,6 @@
 #include "glslcompletionassist.h"
 #include "glsleditorconstants.h"
 #include "glsleditorplugin.h"
-#include "reuse.h"
 
 #include <glsl/glslengine.h>
 #include <glsl/glsllexer.h>
@@ -41,14 +41,13 @@
 
 #include <coreplugin/idocument.h>
 #include <texteditor/completionsettings.h>
-#include <texteditor/codeassist/basicproposalitem.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/assistproposalitem.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 
 #include <utils/faketooltip.h>
-#include <utils/qtcoverride.h>
 
 #include <QIcon>
 #include <QPainter>
@@ -59,28 +58,57 @@
 #include <QDesktopWidget>
 #include <QDebug>
 
-using namespace GLSLEditor;
-using namespace Internal;
 using namespace TextEditor;
 
-namespace {
+namespace GlslEditor {
+namespace Internal {
+
+Document::Document()
+    : _engine(0)
+    , _ast(0)
+    , _globalScope(0)
+{
+}
+
+Document::~Document()
+{
+    delete _globalScope;
+    delete _engine;
+}
+
+GLSL::Scope *Document::scopeAt(int position) const
+{
+    foreach (const Range &c, _cursors) {
+        if (position >= c.cursor.selectionStart() && position <= c.cursor.selectionEnd())
+            return c.scope;
+    }
+    return _globalScope;
+}
+
+void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
+{
+    Range c;
+    c.cursor = cursor;
+    c.scope = scope;
+    _cursors.append(c);
+}
+
 
 enum CompletionOrder {
     SpecialMemberOrder = -5
 };
 
-
-bool isActivationChar(const QChar &ch)
+static bool isActivationChar(const QChar &ch)
 {
     return ch == QLatin1Char('(') || ch == QLatin1Char('.') || ch == QLatin1Char(',');
 }
 
-bool isIdentifierChar(QChar ch)
+static bool isIdentifierChar(QChar ch)
 {
     return ch.isLetterOrNumber() || ch == QLatin1Char('_');
 }
 
-bool isDelimiter(QChar ch)
+static bool isDelimiter(QChar ch)
 {
     switch (ch.unicode()) {
     case '{':
@@ -104,7 +132,7 @@ bool isDelimiter(QChar ch)
     }
 }
 
-bool checkStartOfIdentifier(const QString &word)
+static bool checkStartOfIdentifier(const QString &word)
 {
     if (! word.isEmpty()) {
         const QChar ch = word.at(0);
@@ -115,58 +143,56 @@ bool checkStartOfIdentifier(const QString &word)
     return false;
 }
 
-} // Anonymous
-
 // ----------------------------
-// GLSLCompletionAssistProvider
+// GlslCompletionAssistProvider
 // ----------------------------
-bool GLSLCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
+bool GlslCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == Constants::C_GLSLEDITOR_ID;
 }
 
-IAssistProcessor *GLSLCompletionAssistProvider::createProcessor() const
+IAssistProcessor *GlslCompletionAssistProvider::createProcessor() const
 {
-    return new GLSLCompletionAssistProcessor;
+    return new GlslCompletionAssistProcessor;
 }
 
-int GLSLCompletionAssistProvider::activationCharSequenceLength() const
+int GlslCompletionAssistProvider::activationCharSequenceLength() const
 {
     return 1;
 }
 
-bool GLSLCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
+bool GlslCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
 {
     return isActivationChar(sequence.at(0));
 }
 
 // -----------------------------
-// GLSLFunctionHintProposalModel
+// GlslFunctionHintProposalModel
 // -----------------------------
-class GLSLFunctionHintProposalModel : public TextEditor::IFunctionHintProposalModel
+class GlslFunctionHintProposalModel : public IFunctionHintProposalModel
 {
 public:
-    GLSLFunctionHintProposalModel(QVector<GLSL::Function *> functionSymbols)
+    GlslFunctionHintProposalModel(QVector<GLSL::Function *> functionSymbols)
         : m_items(functionSymbols)
         , m_currentArg(-1)
     {}
 
-    void reset() QTC_OVERRIDE {}
-    int size() const QTC_OVERRIDE { return m_items.size(); }
-    QString text(int index) const QTC_OVERRIDE;
-    int activeArgument(const QString &prefix) const QTC_OVERRIDE;
+    void reset() override {}
+    int size() const override { return m_items.size(); }
+    QString text(int index) const override;
+    int activeArgument(const QString &prefix) const override;
 
 private:
     QVector<GLSL::Function *> m_items;
     mutable int m_currentArg;
 };
 
-QString GLSLFunctionHintProposalModel::text(int index) const
+QString GlslFunctionHintProposalModel::text(int index) const
 {
     return m_items.at(index)->prettyPrint(m_currentArg);
 }
 
-int GLSLFunctionHintProposalModel::activeArgument(const QString &prefix) const
+int GlslFunctionHintProposalModel::activeArgument(const QString &prefix) const
 {
     const QByteArray &str = prefix.toLatin1();
     int argnr = 0;
@@ -200,7 +226,7 @@ int GLSLFunctionHintProposalModel::activeArgument(const QString &prefix) const
 // -----------------------------
 // GLSLCompletionAssistProcessor
 // -----------------------------
-GLSLCompletionAssistProcessor::GLSLCompletionAssistProcessor()
+GlslCompletionAssistProcessor::GlslCompletionAssistProcessor()
     : m_startPosition(0)
     , m_keywordIcon(QLatin1String(":/glsleditor/images/keyword.png"))
     , m_varIcon(QLatin1String(":/glsleditor/images/var.png"))
@@ -213,12 +239,21 @@ GLSLCompletionAssistProcessor::GLSLCompletionAssistProcessor()
     , m_otherIcon(QLatin1String(":/glsleditor/images/other.png"))
 {}
 
-GLSLCompletionAssistProcessor::~GLSLCompletionAssistProcessor()
+GlslCompletionAssistProcessor::~GlslCompletionAssistProcessor()
 {}
 
-IAssistProposal *GLSLCompletionAssistProcessor::perform(const IAssistInterface *interface)
+static AssistProposalItem *createCompletionItem(const QString &text, const QIcon &icon, int order = 0)
 {
-    m_interface.reset(static_cast<const GLSLCompletionAssistInterface *>(interface));
+    AssistProposalItem *item = new AssistProposalItem;
+    item->setText(text);
+    item->setIcon(icon);
+    item->setOrder(order);
+    return item;
+}
+
+IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *interface)
+{
+    m_interface.reset(static_cast<const GlslCompletionAssistInterface *>(interface));
 
     if (interface->reason() == IdleEditor && !acceptsIdleEditor())
         return 0;
@@ -228,11 +263,13 @@ IAssistProposal *GLSLCompletionAssistProcessor::perform(const IAssistInterface *
     while (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
         ch = m_interface->characterAt(--pos);
 
-    CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
+    CPlusPlus::ExpressionUnderCursor expressionUnderCursor(
+                CPlusPlus::LanguageFeatures::defaultFeatures());
     //GLSLTextEditorWidget *edit = qobject_cast<GLSLTextEditorWidget *>(editor->widget());
 
     QList<GLSL::Symbol *> members;
     QStringList specialMembers;
+    QList<AssistProposalItem *> m_completions;
 
     bool functionCall = (ch == QLatin1Char('(') && pos == m_interface->position() - 1);
 
@@ -353,9 +390,9 @@ IAssistProposal *GLSLCompletionAssistProcessor::perform(const IAssistInterface *
                     0
                 };
                 for (int index = 0; attributeNames[index]; ++index)
-                    addCompletion(QString::fromLatin1(attributeNames[index]), m_attributeIcon);
+                    m_completions << createCompletionItem(QString::fromLatin1(attributeNames[index]), m_attributeIcon);
                 for (int index = 0; uniformNames[index]; ++index)
-                    addCompletion(QString::fromLatin1(uniformNames[index]), m_uniformIcon);
+                    m_completions << createCompletionItem(QString::fromLatin1(uniformNames[index]), m_uniformIcon);
             }
         }
 
@@ -363,7 +400,7 @@ IAssistProposal *GLSLCompletionAssistProcessor::perform(const IAssistInterface *
             QStringList keywords = GLSL::Lexer::keywords(languageVariant(m_interface->mimeType()));
 //            m_keywordCompletions.clear();
             for (int index = 0; index < keywords.size(); ++index)
-                addCompletion(keywords.at(index), m_keywordIcon);
+                m_completions << createCompletionItem(keywords.at(index), m_keywordIcon);
 //            m_keywordVariant = languageVariant(m_interface->mimeType());
 //        }
 
@@ -395,31 +432,25 @@ IAssistProposal *GLSLCompletionAssistProcessor::perform(const IAssistInterface *
             icon = m_otherIcon;
         }
         if (specialMembers.contains(s->name()))
-            addCompletion(s->name(), icon, SpecialMemberOrder);
+            m_completions << createCompletionItem(s->name(), icon, SpecialMemberOrder);
         else
-            addCompletion(s->name(), icon);
+            m_completions << createCompletionItem(s->name(), icon);
     }
 
     m_startPosition = pos + 1;
-    return createContentProposal();
+
+    return new GenericProposal(m_startPosition, m_completions);
 }
 
-IAssistProposal *GLSLCompletionAssistProcessor::createContentProposal() const
-{
-    IGenericProposalModel *model = new BasicProposalItemListModel(m_completions);
-    IAssistProposal *proposal = new GenericProposal(m_startPosition, model);
-    return proposal;
-}
-
-IAssistProposal *GLSLCompletionAssistProcessor::createHintProposal(
+IAssistProposal *GlslCompletionAssistProcessor::createHintProposal(
     const QVector<GLSL::Function *> &symbols)
 {
-    IFunctionHintProposalModel *model = new GLSLFunctionHintProposalModel(symbols);
+    IFunctionHintProposalModel *model = new GlslFunctionHintProposalModel(symbols);
     IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
     return proposal;
 }
 
-bool GLSLCompletionAssistProcessor::acceptsIdleEditor() const
+bool GlslCompletionAssistProcessor::acceptsIdleEditor() const
 {
     const int cursorPosition = m_interface->position();
     const QChar ch = m_interface->characterAt(cursorPosition - 1);
@@ -449,28 +480,20 @@ bool GLSLCompletionAssistProcessor::acceptsIdleEditor() const
     return isActivationChar(ch);
 }
 
-void GLSLCompletionAssistProcessor::addCompletion(const QString &text,
-                                                  const QIcon &icon,
-                                                  int order)
-{
-    BasicProposalItem *item = new BasicProposalItem;
-    item->setText(text);
-    item->setIcon(icon);
-    item->setOrder(order);
-    m_completions.append(item);
-}
-
 // -----------------------------
-// GLSLCompletionAssistInterface
+// GlslCompletionAssistInterface
 // -----------------------------
-GLSLCompletionAssistInterface::GLSLCompletionAssistInterface(QTextDocument *textDocument,
+GlslCompletionAssistInterface::GlslCompletionAssistInterface(QTextDocument *textDocument,
                                                              int position,
                                                              const QString &fileName,
-                                                             TextEditor::AssistReason reason,
+                                                             AssistReason reason,
                                                              const QString &mimeType,
                                                              const Document::Ptr &glslDoc)
-    : DefaultAssistInterface(textDocument, position, fileName, reason)
+    : AssistInterface(textDocument, position, fileName, reason)
     , m_mimeType(mimeType)
     , m_glslDoc(glslDoc)
 {
 }
+
+} // namespace Internal
+} // namespace GlslEditor

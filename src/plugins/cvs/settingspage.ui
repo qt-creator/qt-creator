@@ -17,6 +17,9 @@
       <string>Configuration</string>
      </property>
      <layout class="QFormLayout" name="formLayout_2">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="commandLabel">
         <property name="text">
@@ -46,6 +49,9 @@
       <string>Miscellaneous</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
       <item row="1" column="0">
        <widget class="QLabel" name="diffOptionsLabel">
         <property name="text">

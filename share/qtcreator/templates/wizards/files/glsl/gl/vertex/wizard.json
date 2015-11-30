@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "K.GLSL",
+    "category": "U.GLSL",
+    "trDescription": "Creates a vertex shader in the Desktop OpenGL Shading Language (GLSL). Vertex shaders transform the positions, normals and texture co-ordinates of triangles, points and lines rendered with OpenGL.",
+    "trDisplayName": "Vertex Shader (Desktop OpenGL)",
+    "trDisplayCategory": "GLSL",
+    "icon": "../../../../global/genericfilewizard.png",
+    "platformIndependent": true,
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('GLSLEditor') >= 0}",
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.vert",
+                "target": "%{JS: Cpp.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-glsl-vert')}')}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

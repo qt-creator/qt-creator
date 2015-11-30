@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-coding.html
     \page creator-editor-functions.html
     \nextpage creator-coding-navigating.html
@@ -65,16 +65,17 @@
 
         \li \l{Indenting Text or Code}
 
-            \QC indents text and code according to rules that you specify separately for
-            files that contain C++ or QML code and for other text files.
+            \QC indents text and code according to rules that you
+            specify separately for files that contain C++ or QML code and for
+            other text files.
 
         \li \l{Using Qt Quick Toolbars}
 
             When you edit QML code in the code editor, you specify the
             properties of QML components. For some properties, such as
             colors and font names, this is not a trivial task. For example,
-            few people can visualize the color #18793f. To easily edit these
-            properties, you can use the Qt Quick Toolbars.
+            few people can visualize the color \c {#18793f}. To easily edit
+            these properties, you can use the Qt Quick Toolbars.
 
         \li \l{Pasting and Fetching Code Snippets}
 
@@ -89,6 +90,25 @@
             keyboard sequence as a macro. You can then play the macro to
             repeat the sequence. You can save the latest macro and assign a
             keyboard shortcut for running it or run it from the locator.
+
+    \endlist
+
+    \section1 Related Topics
+
+    \list
+
+        \li \l{Comparing Files}
+
+            You can use a diff editor to compare two versions of a file and
+            view the differences side-by-side in the \uicontrol Edit mode.
+
+        \li \l{Parsing C++ Files}
+
+            An experimental Clang code model plugin enables you to replace the
+            built-in \QC code model with the Clang code model. Clang is a C
+            language family front end for LLVM. Clang provides you with more
+            accurate information than the built-in code model but can be slower
+            to use for large projects.
 
     \endlist
 

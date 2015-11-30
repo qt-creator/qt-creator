@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,9 +32,12 @@
 #include "gitclient.h"
 
 #include <utils/qtcassert.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
+#include <vcsbase/vcscommand.h>
 
 #include <QFont>
+
+using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
@@ -141,7 +145,7 @@ public:
         return fn;
     }
 
-    void insert(const QStringList path, BranchNode *n)
+    void insert(const QStringList &path, BranchNode *n)
     {
         BranchNode *current = this;
         for (int i = 0; i < path.count(); ++i) {
@@ -170,7 +174,7 @@ public:
             }
             return names;
         }
-        return QStringList(fullName().join(QString(QLatin1Char('/'))));
+        return QStringList(fullName().join(QLatin1Char('/')));
     }
 
     int rowOf(BranchNode *node)
@@ -309,7 +313,7 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
                                                       << newFullName.last(),
                                         &output, &errorMessage)) {
         node->name = oldFullName.last();
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         return false;
     }
 
@@ -353,7 +357,7 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     args << QLatin1String("--format=%(objectname)\t%(refname)\t%(upstream:short)\t%(*objectname)");
     QString output;
     if (!m_client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage))
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(*errorMessage);
+        VcsOutputWindow::appendError(*errorMessage);
 
     m_workingDirectory = workingDirectory;
     const QStringList lines = output.split(QLatin1Char('\n'));
@@ -392,7 +396,7 @@ void BranchModel::renameBranch(const QString &oldName, const QString &newName)
     if (!m_client->synchronousBranchCmd(m_workingDirectory,
                                         QStringList() << QLatin1String("-m") << oldName << newName,
                                         &output, &errorMessage))
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
     else
         refresh(m_workingDirectory, &errorMessage);
 }
@@ -406,7 +410,7 @@ void BranchModel::renameTag(const QString &oldName, const QString &newName)
      || !m_client->synchronousTagCmd(m_workingDirectory,
                                      QStringList() << QLatin1String("-d") << oldName,
                                      &output, &errorMessage)) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
     } else {
         refresh(m_workingDirectory, &errorMessage);
     }
@@ -437,7 +441,7 @@ QString BranchModel::fullName(const QModelIndex &idx, bool includePrefix) const
     if (!node || !node->isLeaf())
         return QString();
     QStringList path = node->fullName(includePrefix);
-    return path.join(QString(QLatin1Char('/')));
+    return path.join(QLatin1Char('/'));
 }
 
 QStringList BranchModel::localBranchNames() const
@@ -496,7 +500,7 @@ void BranchModel::removeBranch(const QModelIndex &idx)
 
     args << QLatin1String("-D") << branch;
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         return;
     }
     removeNode(idx);
@@ -514,7 +518,7 @@ void BranchModel::removeTag(const QModelIndex &idx)
 
     args << QLatin1String("-d") << tag;
     if (!m_client->synchronousTagCmd(m_workingDirectory, args, &output, &errorMessage)) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         return;
     }
     removeNode(idx);
@@ -543,7 +547,7 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
 
     args << QLatin1String("-a") << QLatin1String("--contains") << sha(idx);
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage))
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
 
     QStringList lines = output.split(QLatin1Char('\n'), QString::SkipEmptyParts);
     foreach (const QString &l, lines) {
@@ -573,17 +577,22 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
 
     const QString trackedBranch = fullName(startPoint);
     const QString fullTrackedBranch = fullName(startPoint, true);
+    QString startSha;
     QString output;
     QString errorMessage;
 
     QStringList args;
     args << (track ? QLatin1String("--track") : QLatin1String("--no-track"));
     args << name;
-    if (!fullTrackedBranch.isEmpty())
+    if (!fullTrackedBranch.isEmpty()) {
         args << fullTrackedBranch;
+        startSha = sha(startPoint);
+    } else {
+        startSha = m_client->synchronousTopRevision(m_workingDirectory);
+    }
 
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         return QModelIndex();
     }
 
@@ -605,7 +614,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
         local = child;
     }
     int pos = positionForName(local, leafName);
-    BranchNode *newNode = new BranchNode(leafName, sha(startPoint), track ? trackedBranch : QString());
+    auto newNode = new BranchNode(leafName, startSha, track ? trackedBranch : QString());
     if (!added)
         beginInsertRows(nodeToIndex(local), pos, pos);
     newNode->parent = local;
@@ -637,7 +646,7 @@ void BranchModel::parseOutputLine(const QString &line)
     const QString fullName = lineParts.at(1);
 
     bool current = (sha == m_currentSha);
-    bool showTags = m_client->settings()->boolValue(GitSettings::showTagsKey);
+    bool showTags = m_client->settings().boolValue(GitSettings::showTagsKey);
 
     // insert node into tree:
     QStringList nameParts = fullName.split(QLatin1Char('/'));
@@ -668,7 +677,7 @@ void BranchModel::parseOutputLine(const QString &line)
     const QString name = nameParts.last();
     nameParts.removeLast();
 
-    BranchNode *newNode = new BranchNode(name, sha, lineParts.at(2));
+    auto newNode = new BranchNode(name, sha, lineParts.at(2));
     root->insert(nameParts, newNode);
     if (current)
         m_currentBranch = newNode;
@@ -714,8 +723,10 @@ QString BranchModel::toolTip(const QString &sha) const
     QString errorMessage;
     QStringList arguments(QLatin1String("-n1"));
     arguments << sha;
-    if (!m_client->synchronousLog(m_workingDirectory, arguments, &output, &errorMessage))
+    if (!m_client->synchronousLog(m_workingDirectory, arguments, &output, &errorMessage,
+                                  VcsCommand::SuppressCommandLogging)) {
         return errorMessage;
+    }
     return output;
 }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,19 +32,21 @@
 
 #include "analyzerconstants.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
-#include <texteditor/basetexteditor.h>
+#include <cpptools/cppmodelmanager.h>
+#include <projectexplorer/taskhub.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/qtcassert.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QTextCursor>
 
 using namespace Analyzer;
 using namespace Core;
+using namespace ProjectExplorer;
 
 static void moveCursorToEndOfName(QTextCursor *tc)
 {
@@ -62,34 +65,22 @@ static void moveCursorToEndOfName(QTextCursor *tc)
 // We cannot depend on this since CppEditor plugin code is internal and requires building the implementation files ourselves
 CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
 {
-    IEditor *editor = EditorManager::currentEditor();
-    if (!editor)
-        return 0;
-    TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-    if (!textEditor)
+    TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    if (!widget)
         return 0;
 
-    TextEditor::BaseTextEditorWidget *editorWidget = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
-    if (!editorWidget)
-        return 0;
-
-    QPlainTextEdit *ptEdit = qobject_cast<QPlainTextEdit *>(editor->widget());
-    if (!ptEdit)
-        return 0;
-
-    QTextCursor tc;
-    tc = ptEdit->textCursor();
+    QTextCursor tc = widget->textCursor();
     int line = 0;
     int column = 0;
     const int pos = tc.position();
-    editorWidget->convertPosition(pos, &line, &column);
+    widget->convertPosition(pos, &line, &column);
 
-    const CPlusPlus::Snapshot &snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
-    CPlusPlus::Document::Ptr doc = snapshot.document(editor->document()->filePath());
+    const CPlusPlus::Snapshot &snapshot = CppTools::CppModelManager::instance()->snapshot();
+    CPlusPlus::Document::Ptr doc = snapshot.document(widget->textDocument()->filePath());
     QTC_ASSERT(doc, return 0);
 
     // fetch the expression's code
-    CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
+    CPlusPlus::ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
     moveCursorToEndOfName(&tc);
     const QString &expression = expressionUnderCursor(tc);
     CPlusPlus::Scope *scope = doc->scopeAt(line, column);
@@ -102,4 +93,11 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
 
     const CPlusPlus::LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
     return lookupItem.declaration();
+}
+
+void AnalyzerUtils::logToIssuesPane(Task::TaskType type, const QString &message)
+{
+    TaskHub::addTask(type, message, Analyzer::Constants::ANALYZERTASK_ID);
+    if (type == Task::Error)
+        TaskHub::requestPopup();
 }

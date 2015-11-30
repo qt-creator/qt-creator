@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,10 +32,11 @@
 
 #include "remotelinuxrunconfiguration.h"
 
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -42,6 +44,8 @@
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QPointer>
 
@@ -55,16 +59,16 @@ namespace Internal {
 class LinuxDeviceDebugSupportPrivate
 {
 public:
-    LinuxDeviceDebugSupportPrivate(const RemoteLinuxRunConfiguration *runConfig,
-            DebuggerEngine *engine)
-        : engine(engine),
-          qmlDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger()),
-          cppDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger()),
+    LinuxDeviceDebugSupportPrivate(const AbstractRemoteLinuxRunConfiguration *runConfig,
+            DebuggerRunControl *runControl)
+        : runControl(runControl),
+          qmlDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useQmlDebugger()),
+          cppDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useCppDebugger()),
           gdbServerPort(-1), qmlPort(-1)
     {
     }
 
-    const QPointer<DebuggerEngine> engine;
+    const QPointer<DebuggerRunControl> runControl;
     bool qmlDebugging;
     bool cppDebugging;
     QByteArray gdbserverOutput;
@@ -76,7 +80,7 @@ public:
 
 using namespace Internal;
 
-DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const RemoteLinuxRunConfiguration *runConfig)
+DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractRemoteLinuxRunConfiguration *runConfig)
 {
     DebuggerStartParameters params;
     Target *target = runConfig->target();
@@ -84,46 +88,38 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const RemoteLin
     const IDevice::ConstPtr device = DeviceKitInformation::device(k);
     QTC_ASSERT(device, return params);
 
-    params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
-    params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
-    if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
-        params.toolChainAbi = tc->targetAbi();
+    params.startMode = AttachToRemoteServer;
+    params.closeMode = KillAndExitMonitorAtClose;
+    params.remoteSetupNeeded = true;
+    params.displayName = runConfig->displayName();
 
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
-        params.languages |= QmlLanguage;
         params.qmlServerAddress = device->sshParameters().host;
         params.qmlServerPort = 0; // port is selected later on
     }
     if (aspect->useCppDebugger()) {
-        params.languages |= CppLanguage;
-        params.processArgs = runConfig->arguments().join(QLatin1String(" "));
-        params.startMode = AttachToRemoteServer;
+        aspect->setUseMultiProcess(true);
+        QStringList args = runConfig->arguments();
+        if (aspect->useQmlDebugger())
+            args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
+
+        params.processArgs = Utils::QtcProcess::joinArgs(args, Utils::OsTypeLinux);
         params.executable = runConfig->localExecutableFilePath();
         params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
-    } else {
-        params.startMode = AttachToRemoteServer;
-    }
-    params.remoteSetupNeeded = true;
-    params.displayName = runConfig->displayName();
-
-    if (const Project *project = target->project()) {
-        params.projectSourceDirectory = project->projectDirectory();
-        if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
-            params.projectBuildDirectory = buildConfig->buildDirectory().toString();
-        params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
+        params.remoteExecutable = runConfig->remoteExecutableFilePath();
     }
 
     return params;
 }
 
-LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RemoteLinuxRunConfiguration *runConfig,
-        DebuggerEngine *engine)
-    : AbstractRemoteLinuxRunSupport(runConfig, engine),
-      d(new LinuxDeviceDebugSupportPrivate(static_cast<RemoteLinuxRunConfiguration *>(runConfig), engine))
+LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
+        DebuggerRunControl *runControl)
+    : AbstractRemoteLinuxRunSupport(runConfig, runControl),
+      d(new LinuxDeviceDebugSupportPrivate(static_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig), runControl))
 {
-    connect(d->engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleRemoteSetupRequested()));
+    connect(runControl, &DebuggerRunControl::requestRemoteSetup,
+            this, &LinuxDeviceDebugSupport::handleRemoteSetupRequested);
 }
 
 LinuxDeviceDebugSupport::~LinuxDeviceDebugSupport()
@@ -133,8 +129,8 @@ LinuxDeviceDebugSupport::~LinuxDeviceDebugSupport()
 
 void LinuxDeviceDebugSupport::showMessage(const QString &msg, int channel)
 {
-    if (state() != Inactive && d->engine)
-        d->engine->showMessage(msg, channel);
+    if (state() != Inactive && d->runControl)
+        d->runControl->showMessage(msg, channel);
 }
 
 void LinuxDeviceDebugSupport::handleRemoteSetupRequested()
@@ -158,16 +154,19 @@ void LinuxDeviceDebugSupport::startExecution()
     d->gdbserverOutput.clear();
 
     DeviceApplicationRunner *runner = appRunner();
-    connect(runner, SIGNAL(remoteStderr(QByteArray)), SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(runner, SIGNAL(remoteStdout(QByteArray)), SLOT(handleRemoteOutput(QByteArray)));
+    connect(runner, &DeviceApplicationRunner::remoteStderr,
+            this, &LinuxDeviceDebugSupport::handleRemoteErrorOutput);
+    connect(runner, &DeviceApplicationRunner::remoteStdout,
+            this, &LinuxDeviceDebugSupport::handleRemoteOutput);
     if (d->qmlDebugging && !d->cppDebugging)
-        connect(runner, SIGNAL(remoteProcessStarted()), SLOT(handleRemoteProcessStarted()));
+        connect(runner, &DeviceApplicationRunner::remoteProcessStarted,
+                this, &LinuxDeviceDebugSupport::handleRemoteProcessStarted);
 
     QStringList args = arguments();
     QString command;
 
     if (d->qmlDebugging)
-        args.prepend(QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(d->qmlPort));
+        args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, d->qmlPort));
 
     if (d->qmlDebugging && !d->cppDebugging) {
         command = remoteFilePath();
@@ -175,13 +174,17 @@ void LinuxDeviceDebugSupport::startExecution()
         command = device()->debugServerPath();
         if (command.isEmpty())
             command = QLatin1String("gdbserver");
-        args.prepend(remoteFilePath());
-        args.prepend(QString::fromLatin1(":%1").arg(d->gdbServerPort));
+        args.clear();
+        args.append(QString::fromLatin1("--multi"));
+        args.append(QString::fromLatin1(":%1").arg(d->gdbServerPort));
     }
 
-    connect(runner, SIGNAL(finished(bool)), SLOT(handleAppRunnerFinished(bool)));
-    connect(runner, SIGNAL(reportProgress(QString)), SLOT(handleProgressReport(QString)));
-    connect(runner, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
+    connect(runner, &DeviceApplicationRunner::finished,
+            this, &LinuxDeviceDebugSupport::handleAppRunnerFinished);
+    connect(runner, &DeviceApplicationRunner::reportProgress,
+            this, &LinuxDeviceDebugSupport::handleProgressReport);
+    connect(runner, &DeviceApplicationRunner::reportError,
+            this, &LinuxDeviceDebugSupport::handleAppRunnerError);
     runner->setEnvironment(environment());
     runner->setWorkingDirectory(workingDirectory());
     runner->start(device(), command, args);
@@ -191,8 +194,8 @@ void LinuxDeviceDebugSupport::handleAppRunnerError(const QString &error)
 {
     if (state() == Running) {
         showMessage(error, AppError);
-        if (d->engine)
-            d->engine->notifyInferiorIll();
+        if (d->runControl)
+            d->runControl->notifyInferiorIll();
     } else if (state() != Inactive) {
         handleAdapterSetupFailed(error);
     }
@@ -200,18 +203,21 @@ void LinuxDeviceDebugSupport::handleAppRunnerError(const QString &error)
 
 void LinuxDeviceDebugSupport::handleAppRunnerFinished(bool success)
 {
-    if (!d->engine || state() == Inactive)
+    if (!d->runControl || state() == Inactive)
         return;
 
     if (state() == Running) {
         // The QML engine does not realize on its own that the application has finished.
         if (d->qmlDebugging && !d->cppDebugging)
-            d->engine->quitDebugger();
+            d->runControl->quitDebugger();
         else if (!success)
-            d->engine->notifyInferiorIll();
+            d->runControl->notifyInferiorIll();
 
-    } else if (state() == StartingRunner){
-        d->engine->notifyEngineRemoteSetupFailed(tr("Debugging failed."));
+    } else if (state() == StartingRunner) {
+        RemoteSetupResult result;
+        result.success = false;
+        result.reason = tr("Debugging failed.");
+        d->runControl->notifyEngineRemoteSetupFinished(result);
     }
     reset();
 }
@@ -233,7 +239,7 @@ void LinuxDeviceDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
     QTC_ASSERT(state() != GatheringPorts, return);
 
-    if (!d->engine)
+    if (!d->runControl)
         return;
 
     showMessage(QString::fromUtf8(output), AppError);
@@ -254,13 +260,22 @@ void LinuxDeviceDebugSupport::handleProgressReport(const QString &progressOutput
 void LinuxDeviceDebugSupport::handleAdapterSetupFailed(const QString &error)
 {
     AbstractRemoteLinuxRunSupport::handleAdapterSetupFailed(error);
-    d->engine->notifyEngineRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
+
+    RemoteSetupResult result;
+    result.success = false;
+    result.reason = tr("Initial setup failed: %1").arg(error);
+    d->runControl->notifyEngineRemoteSetupFinished(result);
 }
 
 void LinuxDeviceDebugSupport::handleAdapterSetupDone()
 {
     AbstractRemoteLinuxRunSupport::handleAdapterSetupDone();
-    d->engine->notifyEngineRemoteSetupDone(d->gdbServerPort, d->qmlPort);
+
+    RemoteSetupResult result;
+    result.success = true;
+    result.gdbServerPort = d->gdbServerPort;
+    result.qmlServerPort = d->qmlPort;
+    d->runControl->notifyEngineRemoteSetupFinished(result);
 }
 
 void LinuxDeviceDebugSupport::handleRemoteProcessStarted()

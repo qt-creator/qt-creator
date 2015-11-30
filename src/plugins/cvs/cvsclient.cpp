@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -42,86 +43,71 @@
 #include <QTextStream>
 #include <QDebug>
 
+using namespace Utils;
+using namespace VcsBase;
+
 namespace Cvs {
 namespace Internal {
 
-class CvsDiffExitCodeInterpreter : public Utils::ExitCodeInterpreter
+class CvsDiffExitCodeInterpreter : public ExitCodeInterpreter
 {
     Q_OBJECT
 public:
-    CvsDiffExitCodeInterpreter(QObject *parent) : Utils::ExitCodeInterpreter(parent) {}
-    Utils::SynchronousProcessResponse::Result interpretExitCode(int code) const;
+    CvsDiffExitCodeInterpreter(QObject *parent) : ExitCodeInterpreter(parent) {}
+    SynchronousProcessResponse::Result interpretExitCode(int code) const;
 
 };
 
-Utils::SynchronousProcessResponse::Result CvsDiffExitCodeInterpreter::interpretExitCode(int code) const
+SynchronousProcessResponse::Result CvsDiffExitCodeInterpreter::interpretExitCode(int code) const
 {
     if (code < 0 || code > 2)
-        return Utils::SynchronousProcessResponse::FinishedError;
-    return Utils::SynchronousProcessResponse::Finished;
+        return SynchronousProcessResponse::FinishedError;
+    return SynchronousProcessResponse::Finished;
 }
 
-// Collect all parameters required for a diff to be able to associate them
-// with a diff editor and re-run the diff with parameters.
-struct CvsDiffParameters
-{
-    QString workingDir;
-    QStringList extraOptions;
-    QStringList files;
-};
-
 // Parameter widget controlling whitespace diff mode, associated with a parameter
-class CvsDiffParameterWidget : public VcsBase::VcsBaseEditorParameterWidget
+class CvsDiffParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    explicit CvsDiffParameterWidget(CvsClient *client,
-                                    const CvsDiffParameters &p,
-                                    QWidget *parent = 0);
+    explicit CvsDiffParameterWidget(VcsBaseClientSettings &settings, QWidget *parent = 0);
     QStringList arguments() const;
-    void executeCommand();
 
 private:
-
-    CvsClient *m_client;
-    const CvsDiffParameters m_params;
+    VcsBaseClientSettings &m_settings;
 };
 
-CvsDiffParameterWidget::CvsDiffParameterWidget(CvsClient *client,
-                                               const CvsDiffParameters &p,
-                                               QWidget *parent)
-    : VcsBase::VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
+CvsDiffParameterWidget::CvsDiffParameterWidget(VcsBaseClientSettings &settings,
+                                               QWidget *parent) :
+    VcsBaseEditorParameterWidget(parent),
+    m_settings(settings)
 {
     mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
-               client->settings()->boolPointer(CvsSettings::diffIgnoreWhiteSpaceKey));
+               settings.boolPointer(CvsSettings::diffIgnoreWhiteSpaceKey));
     mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
-               client->settings()->boolPointer(CvsSettings::diffIgnoreBlankLinesKey));
+               settings.boolPointer(CvsSettings::diffIgnoreBlankLinesKey));
 }
 
 QStringList CvsDiffParameterWidget::arguments() const
 {
     QStringList args;
-    args = m_client->settings()->stringValue(CvsSettings::diffOptionsKey).split(QLatin1Char(' '), QString::SkipEmptyParts);
+    args = m_settings.stringValue(CvsSettings::diffOptionsKey).split(QLatin1Char(' '),
+                                                                     QString::SkipEmptyParts);
     args += VcsBaseEditorParameterWidget::arguments();
     return args;
 }
 
-void CvsDiffParameterWidget::executeCommand()
+CvsClient::CvsClient() : VcsBaseClient(new CvsSettings)
 {
-    m_client->diff(m_params.workingDir, m_params.files, m_params.extraOptions);
+    setDiffParameterWidgetCreator([this] { return new CvsDiffParameterWidget(settings()); });
 }
 
-CvsClient::CvsClient(CvsSettings *settings) :
-    VcsBase::VcsBaseClient(settings)
+CvsSettings &CvsClient::settings() const
 {
+    return static_cast<CvsSettings &>(VcsBaseClient::settings());
 }
 
-CvsSettings *CvsClient::settings() const
-{
-    return dynamic_cast<CvsSettings *>(VcsBase::VcsBaseClient::settings());
-}
-
-Core::Id CvsClient::vcsEditorKind(VcsCommand cmd) const
+Core::Id CvsClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case DiffCommand:
@@ -131,7 +117,7 @@ Core::Id CvsClient::vcsEditorKind(VcsCommand cmd) const
     }
 }
 
-Utils::ExitCodeInterpreter *CvsClient::exitCodeInterpreter(VcsCommand cmd, QObject *parent) const
+ExitCodeInterpreter *CvsClient::exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const
 {
     switch (cmd) {
     case DiffCommand:
@@ -159,21 +145,10 @@ QStringList CvsClient::revisionSpec(const QString &revision) const
     return QStringList();
 }
 
-VcsBase::VcsBaseClient::StatusItem CvsClient::parseStatusLine(const QString &line) const
+VcsBaseClient::StatusItem CvsClient::parseStatusLine(const QString &line) const
 {
     Q_UNUSED(line)
-    return VcsBase::VcsBaseClient::StatusItem();
-}
-
-VcsBase::VcsBaseEditorParameterWidget *CvsClient::createDiffEditor(
-        const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
-{
-    Q_UNUSED(extraOptions)
-    CvsDiffParameters p;
-    p.workingDir = workingDir;
-    p.files = files;
-    p.extraOptions = extraOptions;
-    return new CvsDiffParameterWidget(this, p);
+    return VcsBaseClient::StatusItem();
 }
 
 } // namespace Internal

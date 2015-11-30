@@ -1,9 +1,9 @@
 /**************************************************************************
 **
-** Copyright (C) 2014 Openismus GmbH.
+** Copyright (C) 2015 Openismus GmbH.
 ** Authors: Peter Penz (ppenz@openismus.com)
 **          Patricia Santana Cruz (patriciasantanacruz@gmail.com)
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -11,20 +11,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,7 @@
 #include "makefileparser.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QFile>
 #include <QDir>
@@ -130,12 +132,12 @@ QByteArray MakefileParser::defines() const
 
 QStringList MakefileParser::cflags() const
 {
-    return m_cflags;
+    return m_cppflags + m_cflags;
 }
 
 QStringList MakefileParser::cxxflags() const
 {
-    return m_cxxflags;
+    return m_cppflags + m_cxxflags;
 }
 
 void MakefileParser::cancel()
@@ -291,7 +293,7 @@ void MakefileParser::parseSubDirs()
             continue;
 
         MakefileParser parser(subDirMakefile);
-        connect(&parser, SIGNAL(status(QString)), this, SIGNAL(status(QString)));
+        connect(&parser, &MakefileParser::status, this, &MakefileParser::status);
         const bool success = parser.parse();
 
         // Don't return, try to parse as many sub directories
@@ -442,9 +444,22 @@ QString MakefileParser::parseIdentifierBeforeAssign(const QString &line)
 QStringList MakefileParser::parseTermsAfterAssign(const QString &line)
 {
     int assignPos = line.indexOf(QLatin1Char('=')) + 1;
-    if (assignPos >= line.size())
+    if (assignPos <= 0 || assignPos >= line.size())
         return QStringList();
-    return line.mid(assignPos).split(QLatin1Char(' '), QString::SkipEmptyParts);
+
+    const QStringList parts = Utils::QtcProcess::splitArgs(line.mid(assignPos));
+    QStringList result;
+    for (int i = 0; i < parts.count(); ++i) {
+        const QString cur = parts.at(i);
+        const QString next = (i == parts.count() - 1) ? QString() : parts.at(i + 1);
+        if (cur == QLatin1String("-D") || cur == QLatin1String("-U") || cur == QLatin1String("-I")) {
+            result << cur + next;
+            ++i;
+        } else {
+            result << cur;
+        }
+    }
+    return result;
 }
 
 bool MakefileParser::maybeParseDefine(const QString &term)
@@ -492,6 +507,15 @@ bool MakefileParser::maybeParseCXXFlag(const QString &term)
     return false;
 }
 
+bool MakefileParser::maybeParseCPPFlag(const QString &term)
+{
+    if (term.startsWith(QLatin1Char('-'))) {
+        m_cppflags += term;
+        return true;
+    }
+    return false;
+}
+
 void MakefileParser::addAllSources()
 {
     QStringList extensions;
@@ -522,6 +546,12 @@ void MakefileParser::parseIncludePaths()
     QString line;
     do {
         line = textStream.readLine();
+        while (line.endsWith(QLatin1Char('\\'))) {
+            line.chop(1);
+            QString next = textStream.readLine();
+            line.append(next);
+        }
+
         const QString varName = parseIdentifierBeforeAssign(line);
         if (varName.isEmpty())
             continue;
@@ -536,11 +566,14 @@ void MakefileParser::parseIncludePaths()
             foreach (const QString &term, parseTermsAfterAssign(line))
                 maybeParseDefine(term) || maybeParseInclude(term, dirName)
                         || maybeParseCFlag(term);
-        } else if (varName.endsWith(QLatin1String("CPPFLAGS"))
-                   || varName.endsWith(QLatin1String("CXXFLAGS"))) {
+        } else if (varName.endsWith(QLatin1String("CXXFLAGS"))) {
             foreach (const QString &term, parseTermsAfterAssign(line))
                 maybeParseDefine(term) || maybeParseInclude(term, dirName)
                         || maybeParseCXXFlag(term);
+        } else if (varName.endsWith(QLatin1String("CPPFLAGS"))) {
+            foreach (const QString &term, parseTermsAfterAssign(line))
+                maybeParseDefine(term) || maybeParseInclude(term, dirName)
+                        || maybeParseCPPFlag(term);
         }
     } while (!line.isNull());
 

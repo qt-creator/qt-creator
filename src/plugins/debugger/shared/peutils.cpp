@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -236,7 +237,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
         hFile = CreateFile(reinterpret_cast<const WCHAR*>(peExecutableFileName.utf16()), GENERIC_READ, FILE_SHARE_READ, NULL,
                              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (hFile == INVALID_HANDLE_VALUE || hFile == NULL) {
-            *errorMessage = QString::fromLatin1("Cannot open '%1': %2")
+            *errorMessage = QString::fromLatin1("Cannot open \"%1\": %2")
                             .arg(QDir::toNativeSeparators(peExecutableFileName),
                                  winErrorMessage(GetLastError()));
             break;
@@ -244,7 +245,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
 
         hFileMap = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
         if (hFileMap == NULL) {
-            *errorMessage = QString::fromLatin1("Cannot create file mapping of '%1': %2")
+            *errorMessage = QString::fromLatin1("Cannot create file mapping of \"%1\": %2")
                             .arg(QDir::toNativeSeparators(peExecutableFileName),
                                  winErrorMessage(GetLastError()));
             break;
@@ -252,7 +253,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
 
         fileMemory = MapViewOfFile(hFileMap, FILE_MAP_READ, 0, 0, 0);
         if (!fileMemory) {
-            *errorMessage = QString::fromLatin1("Cannot map '%1': %2")
+            *errorMessage = QString::fromLatin1("Cannot map \"%1\": %2")
                             .arg(QDir::toNativeSeparators(peExecutableFileName),
                                  winErrorMessage(GetLastError()));
             break;

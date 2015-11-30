@@ -1,3 +1,28 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+**
+****************************************************************************/
+
 #include "viewmanager.h"
 
 #include <rewriterview.h>
@@ -17,9 +42,8 @@
 #include "crumblebar.h"
 
 #include <qmldesigner/qmldesignerplugin.h>
+#include <utils/algorithm.h>
 
-#include <qtsupport/qtversionmanager.h>
-#include <qtsupport/qtsupportconstants.h>
 
 namespace QmlDesigner {
 
@@ -37,7 +61,7 @@ public:
     NodeInstanceView nodeInstanceView;
     DesignerActionManagerView designerActionManagerView;
 
-    QList<QWeakPointer<AbstractView> > additionalViews;
+    QList<QPointer<AbstractView> > additionalViews;
 };
 
 
@@ -52,7 +76,7 @@ ViewManager::ViewManager()
 
 ViewManager::~ViewManager()
 {
-    foreach (const QWeakPointer<AbstractView> &view, d->additionalViews)
+    foreach (const QPointer<AbstractView> &view, d->additionalViews)
         delete view.data();
 
     delete d;
@@ -63,20 +87,9 @@ DesignDocument *ViewManager::currentDesignDocument() const
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
-QString ViewManager::pathToQt() const
-{
-    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::version(currentDesignDocument()->qtVersionId());
-    if (activeQtVersion && (activeQtVersion->qtVersion() >= QtSupport::QtVersionNumber(4, 7, 1))
-            && (activeQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-                || activeQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
-        return activeQtVersion->qmakeProperty("QT_INSTALL_DATA");
-
-    return QString();
-}
-
 void ViewManager::attachNodeInstanceView()
 {
-    setNodeInstanceViewQtPath(pathToQt());
+    setNodeInstanceViewKit(currentDesignDocument()->currentKit());
     currentModel()->setNodeInstanceView(&d->nodeInstanceView);
 }
 
@@ -144,19 +157,19 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
 
 void ViewManager::attachItemLibraryView()
 {
-    setItemLibraryViewResourcePath(QFileInfo(currentDesignDocument()->fileName()).absolutePath());
+    setItemLibraryViewResourcePath(currentDesignDocument()->fileName().toFileInfo().absolutePath());
     currentModel()->attachView(&d->itemLibraryView);
 }
 
 void ViewManager::attachAdditionalViews()
 {
-    foreach (const QWeakPointer<AbstractView> &view, d->additionalViews)
+    foreach (const QPointer<AbstractView> &view, d->additionalViews)
         currentModel()->attachView(view.data());
 }
 
 void ViewManager::detachAdditionalViews()
 {
-    foreach (const QWeakPointer<AbstractView> &view, d->additionalViews)
+    foreach (const QPointer<AbstractView> &view, d->additionalViews)
         currentModel()->detachView(view.data());
 }
 
@@ -206,14 +219,9 @@ void ViewManager::setComponentViewToMaster()
     d->componentView.setComponentToMaster();
 }
 
-void ViewManager::setNodeInstanceViewQtPath(const QString &qtPath)
+void ViewManager::setNodeInstanceViewKit(ProjectExplorer::Kit *kit)
 {
-    d->nodeInstanceView.setPathToQt(qtPath);
-}
-
-static bool widgetInfoLessThan(const WidgetInfo &firstWidgetInfo, const WidgetInfo &secondWidgetInfo)
-{
-    return firstWidgetInfo.placementPriority < secondWidgetInfo.placementPriority;
+    d->nodeInstanceView.setKit(kit);
 }
 
 QList<WidgetInfo> ViewManager::widgetInfos()
@@ -228,12 +236,14 @@ QList<WidgetInfo> ViewManager::widgetInfos()
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());
 
-    foreach (const QWeakPointer<AbstractView> &abstractView, d->additionalViews) {
+    foreach (const QPointer<AbstractView> &abstractView, d->additionalViews) {
         if (abstractView && abstractView->hasWidget())
             widgetInfoList.append(abstractView->widgetInfo());
     }
 
-    qSort(widgetInfoList.begin(), widgetInfoList.end(), widgetInfoLessThan);
+    Utils::sort(widgetInfoList, [](const WidgetInfo &firstWidgetInfo, const WidgetInfo &secondWidgetInfo) {
+        return firstWidgetInfo.placementPriority < secondWidgetInfo.placementPriority;
+    });
 
     return widgetInfoList;
 }
@@ -265,12 +275,12 @@ void ViewManager::nextFileIsCalledInternally()
     crumbleBar()->nextFileIsCalledInternally();
 }
 
-NodeInstanceView *ViewManager::nodeInstanceView()
+NodeInstanceView *ViewManager::nodeInstanceView() const
 {
     return &d->nodeInstanceView;
 }
 
-QWidgetAction *ViewManager::componentViewAction()
+QWidgetAction *ViewManager::componentViewAction() const
 {
     return d->componentView.action();
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -39,6 +40,8 @@
 #include <QLabel>
 #include "projectexplorer_export.h"
 
+#include <utils/fileutils.h>
+
 namespace Utils { class PathChooser; }
 
 QT_BEGIN_NAMESPACE
@@ -47,8 +50,11 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-struct Tree
+class Tree
 {
+public:
+    ~Tree();
+
     QString name;
     Qt::CheckState checked;
     bool isDir;
@@ -56,7 +62,7 @@ struct Tree
     QList<Tree *> files;
     QList<Tree *> visibleFiles;
     QIcon icon;
-    QString fullPath;
+    Utils::FileName fullPath;
     Tree *parent;
 };
 
@@ -91,7 +97,7 @@ public:
     SelectableFilesModel(QObject *parent);
     ~SelectableFilesModel();
 
-    void setInitialMarkedFiles(const QStringList &files);
+    void setInitialMarkedFiles(const Utils::FileNameList &files);
 
     int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
@@ -102,47 +108,104 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    QStringList selectedFiles() const;
-    QStringList selectedPaths() const;
-    QStringList preservedFiles() const;
+    Utils::FileNameList selectedFiles() const;
+    Utils::FileNameList selectedPaths() const;
+    Utils::FileNameList preservedFiles() const;
 
-    void startParsing(const QString &baseDir);
+    bool hasCheckedFiles() const;
+
+    void startParsing(const Utils::FileName &baseDir);
     void cancel();
     void applyFilter(const QString &selectFilesfilter, const QString &hideFilesfilter);
 
     void selectAllFiles();
 
 signals:
+    void checkedFilesChanged();
     void parsingFinished();
-    void parsingProgress(const QString &filename);
-
-private slots:
-    void buildTreeFinished();
+    void parsingProgress(const Utils::FileName &fileName);
 
 private:
+    void buildTreeFinished();
     QList<Glob> parseFilter(const QString &filter);
     Qt::CheckState applyFilter(const QModelIndex &index);
     bool filter(Tree *t);
     void run(QFutureInterface<void> &fi);
-    void collectFiles(Tree *root, QStringList *result) const;
-    void collectPaths(Tree *root, QStringList *result) const;
-    void buildTree(const QString &baseDir, Tree *tree, QFutureInterface<void> &fi, int symlinkDepth);
-    void deleteTree(Tree *tree);
+    void collectFiles(Tree *root, Utils::FileNameList *result) const;
+    void collectPaths(Tree *root, Utils::FileNameList *result) const;
+    void buildTree(const Utils::FileName &baseDir, Tree *tree, QFutureInterface<void> &fi, int symlinkDepth);
     void propagateUp(const QModelIndex &index);
     void propagateDown(const QModelIndex &index);
     void selectAllFiles(Tree *root);
-    Tree *m_root;
+
+    Tree *m_root = 0;
+
     // Used in the future thread need to all not used after calling startParsing
-    QString m_baseDir;
-    QSet<QString> m_files;
-    QStringList m_outOfBaseDirFiles;
+    Utils::FileName m_baseDir;
+    QSet<Utils::FileName> m_files;
+    QSet<Utils::FileName> m_outOfBaseDirFiles;
     QFutureWatcher<void> m_watcher;
-    Tree *m_rootForFuture;
-    int m_futureCount;
-    bool m_allFiles;
+    Tree *m_rootForFuture = 0;
+    int m_futureCount = 0;
+    bool m_allFiles = true;
 
     QList<Glob> m_hideFilesFilter;
     QList<Glob> m_showFilesFilter;
+};
+
+class PROJECTEXPLORER_EXPORT SelectableFilesWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit SelectableFilesWidget(QWidget *parent = 0);
+    SelectableFilesWidget(const Utils::FileName &path, const Utils::FileNameList &files,
+                          QWidget *parent = 0);
+
+    void setAddFileFilter(const QString &filter);
+    void setBaseDirEditable(bool edit);
+
+    Utils::FileNameList selectedFiles() const;
+    Utils::FileNameList selectedPaths() const;
+
+    bool hasFilesSelected() const;
+
+    void resetModel(const Utils::FileName &path, const Utils::FileNameList &files);
+    void cancelParsing();
+
+signals:
+    void selectedFilesChanged();
+
+private:
+    void enableWidgets(bool enabled);
+    void applyFilter();
+    void baseDirectoryChanged(bool validState);
+
+    void startParsing();
+    void parsingProgress(const Utils::FileName &fileName);
+    void parsingFinished();
+
+    void smartExpand(const QModelIndex &index);
+
+    SelectableFilesModel *m_model;
+
+    Utils::PathChooser *m_baseDirChooser;
+    QLabel *m_baseDirLabel;
+    QPushButton *m_startParsingButton;
+
+    QLabel *m_showFilesFilterLabel;
+    QLineEdit *m_showFilesFilterEdit;
+
+    QLabel *m_hideFilesFilterLabel;
+    QLineEdit *m_hideFilesFilterEdit;
+
+    QPushButton *m_applyFilterButton;
+
+    QTreeView *m_view;
+
+    QLabel *m_preservedFilesLabel;
+
+    QLabel *m_progressLabel;
 };
 
 class PROJECTEXPLORER_EXPORT SelectableFilesDialogEditFiles : public QDialog
@@ -150,34 +213,14 @@ class PROJECTEXPLORER_EXPORT SelectableFilesDialogEditFiles : public QDialog
     Q_OBJECT
 
 public:
-    SelectableFilesDialogEditFiles(const QString &path, const QStringList files, QWidget *parent);
-    ~SelectableFilesDialogEditFiles();
-    QStringList selectedFiles() const;
+    SelectableFilesDialogEditFiles(const Utils::FileName &path, const Utils::FileNameList &files,
+                                   QWidget *parent);
+    Utils::FileNameList selectedFiles() const;
 
-private slots:
-    void applyFilter();
-    void parsingProgress(const QString &fileName);
-    void parsingFinished();
+    void setAddFileFilter(const QString &filter) { m_filesWidget->setAddFileFilter(filter); }
 
 protected:
-    void smartExpand(const QModelIndex &index);
-    void createShowFileFilterControls(QVBoxLayout *layout);
-    void createHideFileFilterControls(QVBoxLayout *layout);
-    void createApplyButton(QVBoxLayout *layout);
-
-    SelectableFilesModel *m_selectableFilesModel;
-
-    QLabel *m_hideFilesFilterLabel;
-    QLineEdit *m_hideFilesfilterLineEdit;
-
-    QLabel *m_showFilesFilterLabel;
-    QLineEdit *m_showFilesfilterLineEdit;
-
-    QPushButton *m_applyFilterButton;
-
-    QTreeView *m_view;
-    QLabel *m_preservedFiles;
-    QLabel *m_progressLabel;
+    SelectableFilesWidget *m_filesWidget;
 };
 
 class SelectableFilesDialogAddDirectory : public SelectableFilesDialogEditFiles
@@ -185,20 +228,10 @@ class SelectableFilesDialogAddDirectory : public SelectableFilesDialogEditFiles
     Q_OBJECT
 
 public:
-    SelectableFilesDialogAddDirectory(const QString &path, const QStringList files, QWidget *parent);
+    SelectableFilesDialogAddDirectory(const Utils::FileName &path, const Utils::FileNameList &files,
+                                      QWidget *parent);
 
-private slots:
-    void validityOfDirectoryChanged(bool validState);
-    void parsingFinished();
-    void startParsing();
-
-private:
-    Utils::PathChooser *m_pathChooser;
-    QLabel *m_sourceDirectoryLabel;
-    QPushButton *m_startParsingButton;
-
-    void setWidgetsEnabled(bool enabled);
-    void createPathChooser(QVBoxLayout *layout, const QString &path);
+    void setAddFileFilter(const QString &filter) { m_filesWidget->setAddFileFilter(filter); }
 };
 
 } // namespace ProjectExplorer

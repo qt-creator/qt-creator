@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,26 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "contextpanewidgetimage.h"
-
-#include <utils/hostosinfo.h>
 
 #include "ui_contextpanewidgetimage.h"
 #include "ui_contextpanewidgetborderimage.h"
@@ -84,43 +83,62 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
         uiBorderImage->setupUi(this);
         m_fileWidget = uiBorderImage->fileWidget;
         m_sizeLabel = uiBorderImage->sizeLabel;
-        uiBorderImage->label->setToolTip(tr("double click for preview"));
+        uiBorderImage->label->setToolTip(tr("Double click for preview."));
         uiBorderImage->label->installEventFilter(labelFilter);
 
 
-        connect(uiBorderImage->verticalTileRadioButton,  SIGNAL(toggled(bool)), this, SLOT(onVerticalStretchChanged()));
-        connect(uiBorderImage->verticalStretchRadioButton,  SIGNAL(toggled(bool)), this, SLOT(onVerticalStretchChanged()));
-        connect(uiBorderImage->verticalTileRadioButtonNoCrop,  SIGNAL(toggled(bool)), this, SLOT(onVerticalStretchChanged()));
+        connect(uiBorderImage->verticalTileRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onVerticalStretchChanged);
+        connect(uiBorderImage->verticalStretchRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onVerticalStretchChanged);
+        connect(uiBorderImage->verticalTileRadioButtonNoCrop, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onVerticalStretchChanged);
 
-        connect(uiBorderImage->horizontalTileRadioButton,  SIGNAL(toggled(bool)), this, SLOT(onHorizontalStretchChanged()));
-        connect(uiBorderImage->horizontalStretchRadioButton,  SIGNAL(toggled(bool)), this, SLOT(onHorizontalStretchChanged()));
-        connect(uiBorderImage->horizontalTileRadioButtonNoCrop, SIGNAL(toggled(bool)), this, SLOT(onHorizontalStretchChanged()));
-        connect(previewDialog()->previewLabel(), SIGNAL(leftMarginChanged()), this, SLOT(onLeftMarginsChanged()));
-        connect(previewDialog()->previewLabel(), SIGNAL(rightMarginChanged()), this, SLOT(onRightMarginsChanged()));
-        connect(previewDialog()->previewLabel(), SIGNAL(topMarginChanged()), this, SLOT(onTopMarginsChanged()));
-        connect(previewDialog()->previewLabel(), SIGNAL(bottomMarginChanged()), this, SLOT(onBottomMarginsChanged()));
+        connect(uiBorderImage->horizontalTileRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onHorizontalStretchChanged);
+        connect(uiBorderImage->horizontalStretchRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onHorizontalStretchChanged);
+        connect(uiBorderImage->horizontalTileRadioButtonNoCrop, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onHorizontalStretchChanged);
+        PreviewLabel *previewLabel = previewDialog()->previewLabel();
+        connect(previewLabel, &PreviewLabel::leftMarginChanged,
+                this, &ContextPaneWidgetImage::onLeftMarginsChanged);
+        connect(previewLabel, &PreviewLabel::rightMarginChanged,
+                this, &ContextPaneWidgetImage::onRightMarginsChanged);
+        connect(previewLabel, &PreviewLabel::topMarginChanged,
+                this, &ContextPaneWidgetImage::onTopMarginsChanged);
+        connect(previewLabel, &PreviewLabel::bottomMarginChanged,
+                this, &ContextPaneWidgetImage::onBottomMarginsChanged);
 
     } else {
         ui = new Ui::ContextPaneWidgetImage;
         ui->setupUi(this);
-        ui->label->setToolTip(tr("double click for preview"));
+        ui->label->setToolTip(tr("Double click for preview."));
         ui->label->installEventFilter(labelFilter);
         m_fileWidget = ui->fileWidget;
         m_sizeLabel = ui->sizeLabel;
 
-        connect(ui->stretchRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->tileRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->horizontalStretchRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->verticalStretchRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->preserveAspectFitRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
-        connect(ui->cropAspectFitRadioButton, SIGNAL(toggled(bool)), this, SLOT(onStretchChanged()));
+        connect(ui->stretchRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
+        connect(ui->tileRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
+        connect(ui->horizontalStretchRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
+        connect(ui->verticalStretchRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
+        connect(ui->preserveAspectFitRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
+        connect(ui->cropAspectFitRadioButton, &QRadioButton::toggled,
+                this, &ContextPaneWidgetImage::onStretchChanged);
     }
     previewDialog();
     m_fileWidget->setShowComboBox(true);
     m_fileWidget->setFilter(QLatin1String("*.png *.gif *.jpg"));
 
-    connect(m_fileWidget, SIGNAL(fileNameChanged(QUrl)), this, SLOT(onFileNameChanged()));
-    connect(labelFilter, SIGNAL(doubleClicked()), this, SLOT(onPixmapDoubleClicked()));
+    connect(m_fileWidget, &FileWidget::fileNameChanged,
+            this, &ContextPaneWidgetImage::onFileNameChanged);
+    connect(labelFilter, &LabelFilter::doubleClicked,
+            this, &ContextPaneWidgetImage::onPixmapDoubleClicked);
 
 }
 
@@ -505,7 +523,8 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
             if (uiBorderImage->verticalTileRadioButtonNoCrop->isChecked())
                 verticalTileMode =Qt::RoundTile;
             QTileRules rules(horizontalTileMode, verticalTileMode);
-            QMargins margins(previewDialog()->previewLabel()->leftMarging() ,previewDialog()->previewLabel()->topMarging() ,previewDialog()->previewLabel()->rightMarging(), previewDialog()->previewLabel()->bottomMarging());
+            PreviewLabel *previewLabel = previewDialog()->previewLabel();
+            QMargins margins(previewLabel->leftMarging() ,previewLabel->topMarging() ,previewLabel->rightMarging(), previewLabel->bottomMarging());
             qDrawBorderPixmap(&p, QRect(0, 0, 76, 76), margins, source, source.rect(), margins, rules);
             //p.drawPixmap(0,0,76,76, source);
         } else {
@@ -612,15 +631,10 @@ PreviewLabel::PreviewLabel(QWidget *parent)
 
     m_hooverInfo->setFrameShape(QFrame::StyledPanel);
     m_hooverInfo->setFrameShadow(QFrame::Sunken);
-
-    // TODO: The following code should be enabled for OSX
-    // when QTBUG-23205 is fixed
-    if (!Utils::HostOsInfo::isMacHost()) {
-        QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
-        dropShadowEffect->setBlurRadius(4);
-        dropShadowEffect->setOffset(2, 2);
-        m_hooverInfo->setGraphicsEffect(dropShadowEffect);
-    }
+    QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
+    dropShadowEffect->setBlurRadius(4);
+    dropShadowEffect->setOffset(2, 2);
+    m_hooverInfo->setGraphicsEffect(dropShadowEffect);
     m_hooverInfo->setAutoFillBackground(true);
     m_hooverInfo->raise();
 }
@@ -878,7 +892,7 @@ PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
     toolButton->setIcon(icon);
     toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     toolButton->setFixedSize(icon.availableSizes().value(0) + QSize(4, 4));
-    connect(toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
+    connect(toolButton, &QToolButton::clicked, this, &PreviewDialog::onTogglePane);
 
     QScrollArea *scrollArea = new QScrollArea(this);
     WheelFilter *wheelFilter = new WheelFilter(scrollArea);
@@ -903,7 +917,7 @@ PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
 
     wheelFilter->setTarget(this);
 
-    connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderMoved(int)));
+    connect(m_slider, &QSlider::valueChanged, this, &PreviewDialog::onSliderMoved);
 
     foreach (QWidget *childWidget, findChildren<QWidget*>()) {
         childWidget->installEventFilter(wheelFilter);

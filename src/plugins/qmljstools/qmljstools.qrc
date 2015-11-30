@@ -1,11 +1,9 @@
 <RCC>
     <qresource prefix="/qmljstools">
+        <file>images/category_qml.png</file>
         <file>images/prompt.png</file>
         <file>images/collapse.png</file>
-        <file>images/warning.png</file>
-        <file>images/log.png</file>
         <file>images/expand.png</file>
-        <file>images/error.png</file>
         <file>QmlJSTools.mimetypes.xml</file>
     </qresource>
 </RCC>

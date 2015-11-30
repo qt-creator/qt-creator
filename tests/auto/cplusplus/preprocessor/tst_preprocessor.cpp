@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,27 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
+#include "../cplusplus_global.h"
 #include <cplusplus/pp.h>
-
 #include <QtTest>
 #include <QFile>
 #include <QHash>
@@ -66,6 +67,24 @@ void saveData(const QByteArray &data, const QString &fileName)
 
     inf.write(data);
     inf.close();
+}
+
+static QByteArray stringify(QByteArray code)
+{
+    QByteArray res = code.replace('"', "\\\"").replace("\n", "\\n\"\n\"");
+    if (res.endsWith("\"\n\""))
+        res.chop(3);
+    return res;
+}
+
+static bool compare(const QByteArray &actual, const QByteArray &expected)
+{
+    if (actual == expected)
+        return true;
+    qDebug() << "Compared strings are not the same\n"
+                "   Actual:\n" << stringify(actual)
+             << "   Expected:\n" << stringify(expected);
+    return false;
 }
 
 struct Include
@@ -116,7 +135,8 @@ public:
         m_definedMacrosLine.append(macro.line());
     }
 
-    virtual void passedMacroDefinitionCheck(unsigned /*offset*/,
+    virtual void passedMacroDefinitionCheck(unsigned /*bytesOffset*/,
+                                            unsigned /*utf16charsOffset*/,
                                             unsigned line,
                                             const Macro &macro)
     {
@@ -124,39 +144,45 @@ public:
     }
 
     virtual void failedMacroDefinitionCheck(unsigned /*offset*/,
+                                            unsigned /*utf16charsOffset*/,
                                             const ByteArrayRef &name)
     {
         m_unresolvedDefines.insert(name.toByteArray());
     }
 
-    virtual void notifyMacroReference(unsigned offset, unsigned line, const Macro &macro)
+    virtual void notifyMacroReference(unsigned bytesOffset, unsigned /*utf16charsOffset*/,
+                                      unsigned line, const Macro &macro)
     {
         m_macroUsesLine[macro.name()].append(line);
-        m_expandedMacrosOffset.append(offset);
+        m_expandedMacrosOffset.append(bytesOffset);
     }
 
-    virtual void startExpandingMacro(unsigned offset,
+    virtual void startExpandingMacro(unsigned bytesOffset,
+                                     unsigned /*utf16charsOffset*/,
                                      unsigned line,
                                      const Macro &macro,
                                      const QVector<MacroArgumentReference> &actuals
                                             = QVector<MacroArgumentReference>())
     {
         m_expandedMacros.append(macro.name());
-        m_expandedMacrosOffset.append(offset);
+        m_expandedMacrosOffset.append(bytesOffset);
         m_macroUsesLine[macro.name()].append(line);
         m_macroArgsCount.append(actuals.size());
+        m_usedMacros.insert(macro.name(), actuals);
     }
 
     virtual void stopExpandingMacro(unsigned /*offset*/, const Macro &/*macro*/) {}
 
-    virtual void startSkippingBlocks(unsigned offset)
-    { m_skippedBlocks.append(Block(offset)); }
+    virtual void startSkippingBlocks(unsigned utf16charsOffset)
+    { m_skippedBlocks.append(Block(utf16charsOffset)); }
 
-    virtual void stopSkippingBlocks(unsigned offset)
-    { m_skippedBlocks.last().end = offset; }
+    virtual void stopSkippingBlocks(unsigned utf16charsOffset)
+    { m_skippedBlocks.last().end = utf16charsOffset; }
 
-    virtual void sourceNeeded(unsigned line, const QString &includedFileName, IncludeType mode)
+    virtual void sourceNeeded(unsigned line, const QString &includedFileName, IncludeType mode,
+                              const QStringList &initialIncludes = QStringList())
     {
+        Q_UNUSED(initialIncludes)
 #if 1
         m_recordedIncludes.append(Include(includedFileName, mode, line));
         Q_UNUSED(m_env);
@@ -267,6 +293,9 @@ public:
     const QList<int> macroArgsCount() const
     { return m_macroArgsCount; }
 
+    const QMap<QByteArray, QVector<MacroArgumentReference >> usedMacros() const
+    { return m_usedMacros; }
+
 private:
     Environment *m_env;
     QByteArray *m_output;
@@ -284,6 +313,7 @@ private:
     QHash<QByteArray, QList<unsigned> > m_definitionsResolvedFromLines;
     QSet<QByteArray> m_unresolvedDefines;
     QList<int> m_macroArgsCount;
+    QMap<QByteArray, QVector<MacroArgumentReference >> m_usedMacros;
 };
 
 QT_BEGIN_NAMESPACE
@@ -332,7 +362,7 @@ protected:
         client.sourceNeeded("data/" + fileName, nolines);
         return output;
     }
-    static QString simplified(QByteArray buf);
+    static QByteArray simplified(const QByteArray &buf);
 
 private:
     void compare_input_output(bool keepComments = false);
@@ -346,6 +376,8 @@ private slots:
     void defined_usage();
     void empty_macro_args();
     void macro_args_count();
+    void macro_args_offsets();
+    void macro_args_offsets_data();
     void invalid_param_count();
     void objmacro_expanding_as_fnmacro_notification();
     void macro_uses();
@@ -375,12 +407,15 @@ private slots:
     void empty_trailing_lines();
     void empty_trailing_lines_data();
     void undef();
+    void concat();
+    void excessive_nesting();
+    void multi_byte_code_point_in_expansion();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
 // Also, remove all unneeded spaces: keep only to ensure identifiers are separated.
 // NOTE: may not correctly handle underscore in identifiers
-QString tst_Preprocessor::simplified(QByteArray buf)
+QByteArray tst_Preprocessor::simplified(const QByteArray &buf)
 {
     QString out;
     QList<QByteArray> lines = buf.split('\n');
@@ -401,7 +436,7 @@ QString tst_Preprocessor::simplified(QByteArray buf)
             i++;
     }
 
-    return out;
+    return out.toUtf8();
 }
 
 void tst_Preprocessor::va_args()
@@ -419,7 +454,7 @@ void tst_Preprocessor::va_args()
 
     preprocessed = preprocessed.simplified();
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(simplified(preprocessed), QString("int f();int f(int a);int f(int a,int b);"));
+    QVERIFY(compare(simplified(preprocessed), "int f();int f(int a);int f(int a,int b);"));
 }
 
 void tst_Preprocessor::named_va_args()
@@ -436,7 +471,7 @@ void tst_Preprocessor::named_va_args()
                                              true, false);
 
     preprocessed = preprocessed.simplified();
-    QCOMPARE(simplified(preprocessed), QString("int f();int f(int a);int f(int a,int b);"));
+    QVERIFY(compare(simplified(preprocessed), "int f();int f(int a);int f(int a,int b);"));
 }
 
 void tst_Preprocessor::extra_va_args()
@@ -453,7 +488,7 @@ void tst_Preprocessor::extra_va_args()
                                              true, false);
 
     preprocessed = preprocessed.simplified();
-    QCOMPARE(simplified(preprocessed), QString("int f();float f(int b);long f(int b,int c);"));
+    QVERIFY(compare(simplified(preprocessed), "int f();float f(int b);long f(int b,int c);"));
 }
 
 void tst_Preprocessor::empty_macro_args()
@@ -473,8 +508,7 @@ void tst_Preprocessor::empty_macro_args()
 
     preprocessed = preprocessed.simplified();
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(simplified(preprocessed),
-             QString("const int cVal;int Val;int Val2;int;int;"));
+    QVERIFY(compare(simplified(preprocessed), "const int cVal;int Val;int Val2;int;int;"));
 }
 
 void tst_Preprocessor::macro_args_count()
@@ -507,6 +541,73 @@ void tst_Preprocessor::macro_args_count()
                           << 1 // bar(i)
             );
 
+}
+
+void tst_Preprocessor::macro_args_offsets()
+{
+    QFETCH(QString, fileName);
+    QFETCH(QByteArray, source);
+    QFETCH(QByteArray, macroName);
+    QFETCH(unsigned, bytesOffset);
+    QFETCH(unsigned, bytesLength);
+    QFETCH(unsigned, utf16charsOffset);
+    QFETCH(unsigned, utf16charsLength);
+
+    Environment env;
+    QByteArray output;
+    MockClient client(&env, &output);
+    Preprocessor preprocess(&client, &env);
+    preprocess.run(fileName, source, true, false);
+
+    QMap<QByteArray, QVector<MacroArgumentReference >> usedMacros = client.usedMacros();
+    QCOMPARE(usedMacros.size(), 1);
+    QVERIFY(usedMacros.contains(macroName));
+    MacroArgumentReference argRef = usedMacros.value(macroName).at(0);
+    QCOMPARE(argRef.bytesOffset(), bytesOffset);
+    QCOMPARE(argRef.bytesLength(), bytesLength);
+    QCOMPARE(argRef.utf16charsOffset(), utf16charsOffset);
+    QCOMPARE(argRef.utf16charsLength(), utf16charsLength);
+
+
+}
+
+void tst_Preprocessor::macro_args_offsets_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<QByteArray>("macroName");
+    QTest::addColumn<unsigned>("bytesOffset");
+    QTest::addColumn<unsigned>("bytesLength");
+    QTest::addColumn<unsigned>("utf16charsOffset");
+    QTest::addColumn<unsigned>("utf16charsLength");
+
+    QString fN = QLatin1String("<stdin>");
+    QByteArray src = QByteArray("#define SQR(a) ( a * a )\n"
+                                "void f(){\n"
+                                "int i = 10;\n"
+                                "int j = SQR(10);\n"
+                                "}");
+    QTest::newRow("ascii_only_before_ref") << fN << src << QByteArray("SQR")
+                                           << 59u << 2u << 59u << 2u;
+    src.replace("int i", "int äöü");
+    QTest::newRow("ascii_with_umlauts_before_ref") << fN << src << QByteArray("SQR")
+                                                   << 64u << 2u << 61u << 2u;
+    src.clear();
+    src.append("#define OUT(format, ...) printf(\"%s %d: \" format, __FILE__, __LINE__)\n"
+               "void f(){\n"
+               "OUT(\"Hei verden!\\n\");\n"
+               "}\n");
+    QTest::newRow("arg_ascii_only") << fN << src << QByteArray("OUT")
+                                    << 84u << 15u << 84u << 15u;
+    src.replace("Hei verden", UC_U00FC);
+    QTest::newRow("arg_ascii_with_unicode_00fc") << fN << src << QByteArray("OUT")
+                                                 << 84u << 7u << 84u << 6u;
+    src.replace(UC_U00FC, UC_U4E8C);
+    QTest::newRow("arg_ascii_with_unicode_4e8c") << fN << src << QByteArray("OUT")
+                                                 << 84u << 8u << 84u << 6u;
+    src.replace(UC_U4E8C, UC_U10302);
+    QTest::newRow("arg_ascii_with_unicode_10302") << fN << src << QByteArray("OUT")
+                                                  << 84u << 9u << 84u << 7u;
 }
 
 void tst_Preprocessor::invalid_param_count()
@@ -543,7 +644,7 @@ void tst_Preprocessor::macro_uses()
 
     Preprocessor preprocess(&client, &env);
     QByteArray preprocessed = preprocess.run(QLatin1String("<stdin>"), buffer);
-    QCOMPARE(simplified(preprocessed), QString("void test(){int x=8;int y=9;}"));
+    QVERIFY(compare(simplified(preprocessed), "void test(){int x=8;int y=9;}"));
     QCOMPARE(client.expandedMacros(), QList<QByteArray>() << QByteArray("FOO") << QByteArray("BAR"));
     QCOMPARE(client.expandedMacrosOffset(), QList<unsigned>() << buffer.indexOf("FOO;") << buffer.indexOf("BAR;"));
     QCOMPARE(client.definedMacros(), QList<QByteArray>() << QByteArray("FOO") << QByteArray("BAR"));
@@ -718,7 +819,7 @@ void tst_Preprocessor::unfinished_function_like_macro_call()
                           "# 4 \"<stdin>\"\n");
 
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(preprocessed, expected__);
+    QVERIFY(compare(preprocessed, expected__));
 }
 
 void tst_Preprocessor::nasty_macro_expansion()
@@ -798,7 +899,7 @@ void tst_Preprocessor::glib_attribute()
             "}\n";
 
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(preprocessed, result____);
+    QVERIFY(compare(preprocessed, result____));
 }
 
 void tst_Preprocessor::builtin__FILE__()
@@ -815,7 +916,7 @@ void tst_Preprocessor::builtin__FILE__()
             "# 1 \"some-file.c\"\n"
             "const char *f = \"some-file.c\"\n";
 
-    QCOMPARE(preprocessed, result____);
+    QVERIFY(compare(preprocessed, result____));
 }
 
 void tst_Preprocessor::comparisons_data()
@@ -874,15 +975,12 @@ void tst_Preprocessor::comparisons()
         // These weird underscores are here to make the name as long as
         // "preprocessed", so the QCOMPARE error messages are nicely aligned.
         QByteArray output____ = loadSource("data/" + outfile);
-        //    QCOMPARE(preprocessed, output____);
-        QCOMPARE(QString::fromUtf8(preprocessed.constData()),
-                 QString::fromUtf8(output____.constData()));
+        QVERIFY(compare(preprocessed, output____));
     }
 
     if (!errorfile.isEmpty()) {
         QByteArray errorFileContents = loadSource("data/" + errorfile);
-        QCOMPARE(QString::fromUtf8(errors.constData()),
-                 QString::fromUtf8(errorFileContents.constData()));
+        QVERIFY(compare(errors, errorFileContents));
     }
 }
 
@@ -1169,10 +1267,10 @@ void tst_Preprocessor::comments_within()
     Preprocessor preprocess(0, &env);
     preprocess.setKeepComments(false);
     QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
-    QCOMPARE(prep.constData(), without_comments.constData());
+    QVERIFY(compare(prep, without_comments));
     preprocess.setKeepComments(true);
     prep = preprocess.run(QLatin1String("<stdin>"), input);
-    QCOMPARE(prep.constData(), with_comments.constData());
+    QVERIFY(compare(prep, with_comments));
 }
 
 void tst_Preprocessor::comments_within_data()
@@ -1534,6 +1632,123 @@ void tst_Preprocessor::comments_within_data()
             "# 12 \"<stdin>\"\n"
             "int foo = 4;"
     );
+
+    QTest::newRow("inside_function_like_macro") << _(
+            "#define /* comment */ ASSIGN1(VAR, VALUE) VAR = VALUE\n"
+            "#define ASSIGN2(/* comment */ VAR, VALUE) VAR = VALUE\n"
+            "#define ASSIGN3(VAR /* comment */, VALUE) VAR = VALUE\n"
+            "#define ASSIGN4(VAR, /* comment */ VALUE) VAR = VALUE\n"
+            "#define ASSIGN5(VAR, VALUE /* comment */) VAR = VALUE\n"
+            "#define ASSIGN6(VAR, VALUE) /* comment */ VAR = VALUE\n"
+            "#define ASSIGN7(VAR, ... /* comment */) VAR\n"
+            "void func()\n"
+            "{\n"
+            "    int i;\n"
+            "    ASSIGN1(i, 3);\n"
+            "    ASSIGN2(i, 3);\n"
+            "    ASSIGN3(i, 3);\n"
+            "    ASSIGN4(i, 3);\n"
+            "    ASSIGN5(i, 3);\n"
+            "    ASSIGN6(i, 3);\n"
+            "    ASSIGN7(i, 3);\n"
+            "}\n"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "void func()\n"
+            "{\n"
+            "    int i;\n"
+            "# expansion begin 397,7 11:12 ~1 11:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 11 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 416,7 12:12 ~1 12:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 12 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 435,7 13:12 ~1 13:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 13 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 454,7 14:12 ~1 14:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 14 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 473,7 15:12 ~1 15:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 15 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 492,7 16:12 ~1 16:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 16 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 511,7 17:12\n"
+            "i\n"
+            "# expansion end\n"
+            "# 17 \"<stdin>\"\n"
+            "                 ;\n"
+            "}\n"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "        /* comment */\n"
+            "                /* comment */\n"
+            "                    /* comment */\n"
+            "                     /* comment */\n"
+            "                           /* comment */\n"
+            "                            /* comment */\n"
+            "                         /* comment */\n"
+            "void func()\n"
+            "{\n"
+            "    int i;\n"
+            "# expansion begin 397,7 11:12 ~1 11:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 11 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 416,7 12:12 ~1 12:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 12 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 435,7 13:12 ~1 13:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 13 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 454,7 14:12 ~1 14:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 14 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 473,7 15:12 ~1 15:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 15 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 492,7 16:12 ~1 16:15\n"
+            "i = 3\n"
+            "# expansion end\n"
+            "# 16 \"<stdin>\"\n"
+            "                 ;\n"
+            "# expansion begin 511,7 17:12\n"
+            "i\n"
+            "# expansion end\n"
+            "# 17 \"<stdin>\"\n"
+            "                 ;\n"
+            "}\n"
+    );
 }
 
 void tst_Preprocessor::comments_before_args()
@@ -1544,18 +1759,32 @@ void tst_Preprocessor::comments_before_args()
     Preprocessor preprocess(client, &env);
     preprocess.setKeepComments(true);
     QByteArray preprocessed = preprocess.run(QLatin1String("<stdin>"),
-                                                "\n#define foo(a,b) int a = b;"
-                                                "\nfoo/*C comment*/(a,1)\n"
-                                                "\nfoo/**Doxygen comment*/(b,2)\n"
-                                                "\nfoo//C++ comment\n(c,3)\n"
-                                                "\nfoo///Doxygen C++ comment\n(d,4)\n"
-                                                "\nfoo/*multiple*///comments\n/**as well*/(e,5)\n",
+                                                "#define foo(a,b) int a = b;\n"
+                                                "foo/*C comment*/(a,1)\n"
+                                                "foo/**Doxygen comment*/(b,2)\n"
+                                                "foo//C++ comment\n"
+                                                "(c,3)\n"
+                                                "foo///Doxygen C++ comment\n"
+                                                "(d,4)\n"
+                                                "foo/*multiple*///comments\n"
+                                                "/**as well*/(e,5)\n",
                                              true, false);
 
-    preprocessed = preprocessed.simplified();
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(simplified(preprocessed),
-             QString("int a=1;int b=2;int c=3;int d=4;int e=5;"));
+    QByteArray expected =
+            "\n"
+            "   /*C comment*/int a = 1;\n"
+            "   /**Doxygen comment*/int b = 2;\n"
+            "   //C++ comment\n"
+            "int\n"
+            "c = 3;\n"
+            "   ///Doxygen C++ comment\n"
+            "int\n"
+            "d = 4;\n"
+            "   /*multiple*/               //comments\n"
+            "/**as well*/ int\n"
+            "e = 5;\n";
+    QVERIFY(compare(preprocessed, expected));
 }
 
 void tst_Preprocessor::multiline_strings()
@@ -1762,22 +1991,22 @@ void tst_Preprocessor::undef()
     QCOMPARE(env.macroCount(), 4U);
     Macro *macro = env.macroAt(0);
     QCOMPARE(macro->name(), QByteArray("FOO"));
-    QCOMPARE(macro->offset(), 8U);
+    QCOMPARE(macro->bytesOffset(), 8U);
     QCOMPARE(macro->line(), 1U);
     QVERIFY(!macro->isHidden());
     macro = env.macroAt(1);
     QCOMPARE(macro->name(), QByteArray("FOO2"));
-    QCOMPARE(macro->offset(), 20U);
+    QCOMPARE(macro->bytesOffset(), 20U);
     QCOMPARE(macro->line(), 2U);
     QVERIFY(!macro->isHidden());
     macro = env.macroAt(2);
     QCOMPARE(macro->name(), QByteArray("FOO"));
-    QCOMPARE(macro->offset(), 32U);
+    QCOMPARE(macro->bytesOffset(), 32U);
     QCOMPARE(macro->line(), 3U);
     QVERIFY(macro->isHidden());
     macro = env.macroAt(3);
     QCOMPARE(macro->name(), QByteArray("BAR"));
-    QCOMPARE(macro->offset(), 43U);
+    QCOMPARE(macro->bytesOffset(), 43U);
     QCOMPARE(macro->line(), 4U);
     QVERIFY(macro->isHidden());
     QList<QByteArray> macros = client.definedMacros();
@@ -1785,6 +2014,75 @@ void tst_Preprocessor::undef()
     QVERIFY(macros.contains("FOO2"));
     QCOMPARE(client.macroUsesLine()["FOO"], (QList<unsigned>() << 3U));
     QVERIFY(client.macroUsesLine()["BAR"].isEmpty());
+}
+
+void tst_Preprocessor::concat()
+{
+    Environment env;
+    Preprocessor preprocess(0, &env);
+    QByteArray input =
+            "#define concat(x,y) x ## y\n"
+            "#define xconcat(x, y) concat(x, y)\n"
+            "#define FOO 42\n"
+            "int var1 = concat(0x, FOO);\n"
+            "int var2 = xconcat(0x, FOO);\n";
+    QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
+    const QByteArray output = _(
+        "# 1 \"<stdin>\"\n"
+        "\n"
+        "\n"
+        "\n"
+        "int var1 =\n"
+        "# expansion begin 88,6 ~1\n"
+        "0xFOO\n"
+        "# expansion end\n"
+        "# 4 \"<stdin>\"\n"
+        "                          ;\n"
+        "int var2 =\n"
+        "# expansion begin 116,7 ~1\n"
+        "0x42\n"
+        "# expansion end\n"
+        "# 5 \"<stdin>\"\n"
+        "                           ;\n"
+    );
+    QVERIFY(compare(prep, output));
+}
+
+void tst_Preprocessor::excessive_nesting()
+{
+    Environment env;
+    Preprocessor preprocess(0, &env);
+    QByteArray input;
+    const QByteArray output =
+        "# 1 \"<stdin>\"\n"
+        "# 2001 \"<stdin>\"\n";
+    for (int i = 0; i < 1000; ++i)
+        input += "#if FOO\n";
+    for (int i = 0; i < 1000; ++i)
+        input += "#endif\n";
+    QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
+    // Output cannot be precisely determined, but it shouldn't crash.
+    QCOMPARE(prep, output);
+}
+
+void tst_Preprocessor::multi_byte_code_point_in_expansion()
+{
+    Environment env;
+    Preprocessor preprocess(0, &env);
+    const QByteArray input =
+        "#define FOO(x) x\n"
+        "FOO(arg" UC_U00FC "\n)\n";
+
+    const QByteArray actual = preprocess.run(QLatin1String("<stdin>"), input);
+
+    const QByteArray expected =
+        "# 1 \"<stdin>\"\n"
+        "\n"
+        "# expansion begin 17,3 2:4\n"
+        "arg" UC_U00FC "\n"
+        "# expansion end\n"
+        "# 4 \"<stdin>\"\n";
+    QCOMPARE(actual, expected);
 }
 
 void tst_Preprocessor::compare_input_output(bool keepComments)
@@ -1796,7 +2094,7 @@ void tst_Preprocessor::compare_input_output(bool keepComments)
     Preprocessor preprocess(0, &env);
     preprocess.setKeepComments(keepComments);
     QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
-    QCOMPARE(prep.constData(), output.constData());
+    QVERIFY(compare(prep, output));
 }
 
 QTEST_APPLESS_MAIN(tst_Preprocessor)

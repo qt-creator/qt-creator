@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,57 +9,45 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "registerwindow.h"
 #include "memoryview.h"
+#include "memoryagent.h"
+#include "debuggeractions.h"
 #include "debuggerdialogs.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "registerhandler.h"
 #include "watchdelegatewidgets.h"
-#include "memoryagent.h"
 
+#include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-
 #include <QItemDelegate>
 #include <QMenu>
 #include <QPainter>
-#include <QResizeEvent>
-
 
 namespace Debugger {
 namespace Internal {
-
-static DebuggerEngine *currentEngine()
-{
-    return debuggerCore()->currentEngine();
-}
-
-static RegisterHandler *currentHandler()
-{
-    DebuggerEngine *engine = currentEngine();
-    QTC_ASSERT(engine, return 0);
-    return engine->registerHandler();
-}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -75,74 +63,76 @@ public:
     {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
-        const QModelIndex &index) const
+        const QModelIndex &index) const override
     {
-        Register reg = currentHandler()->registerAt(index.row());
-        IntegerWatchLineEdit *lineEdit = new IntegerWatchLineEdit(parent);
-        const int base = currentHandler()->numberBase();
-        const bool big = reg.value.size() > 16;
-        // Big integers are assumed to be hexadecimal.
-        lineEdit->setBigInt(big);
-        lineEdit->setBase(big ? 16 : base);
-        lineEdit->setSigned(false);
-        lineEdit->setAlignment(Qt::AlignRight);
-        lineEdit->setFrame(false);
-        return lineEdit;
+        if (index.column() == RegisterValueColumn) {
+            auto lineEdit = new QLineEdit(parent);
+            lineEdit->setAlignment(Qt::AlignLeft);
+            lineEdit->setFrame(false);
+            return lineEdit;
+        }
+        return 0;
     }
 
-    void setEditorData(QWidget *editor, const QModelIndex &index) const
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override
     {
-        IntegerWatchLineEdit *lineEdit = qobject_cast<IntegerWatchLineEdit *>(editor);
+        auto lineEdit = qobject_cast<QLineEdit *>(editor);
         QTC_ASSERT(lineEdit, return);
-        lineEdit->setModelData(index.data(Qt::EditRole));
+        lineEdit->setText(index.data(Qt::EditRole).toString());
     }
 
-    void setModelData(QWidget *editor, QAbstractItemModel *,
-        const QModelIndex &index) const
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+        const QModelIndex &index) const override
     {
-        if (index.column() != 1)
-            return;
-        IntegerWatchLineEdit *lineEdit = qobject_cast<IntegerWatchLineEdit*>(editor);
-        QTC_ASSERT(lineEdit, return);
-        const int base = currentHandler()->numberBase();
-        QString value = lineEdit->text();
-        if (base == 16 && !value.startsWith(QLatin1String("0x")))
-            value.insert(0, QLatin1String("0x"));
-        currentEngine()->setRegisterValue(index.row(), value);
+        if (index.column() == RegisterValueColumn) {
+            auto lineEdit = qobject_cast<QLineEdit *>(editor);
+            QTC_ASSERT(lineEdit, return);
+            model->setData(index, lineEdit->text(), Qt::EditRole);
+        }
     }
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-        const QModelIndex &) const
+        const QModelIndex &) const override
     {
         editor->setGeometry(option.rect);
     }
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-        const QModelIndex &index) const
+        const QModelIndex &index) const override
     {
-        if (index.column() == 1) {
-            bool paintRed = currentHandler()->registerAt(index.row()).changed;
+        if (index.column() == RegisterValueColumn) {
+            const bool paintRed = index.data(RegisterChangedRole).toBool();
             QPen oldPen = painter->pen();
+            const QColor lightColor(140, 140, 140);
             if (paintRed)
                 painter->setPen(QColor(200, 0, 0));
+            else
+                painter->setPen(lightColor);
             // FIXME: performance? this changes only on real font changes.
             QFontMetrics fm(option.font);
-            int charWidth = fm.width(QLatin1Char('x'));
-            for (int i = '1'; i <= '9'; ++i)
-                charWidth = qMax(charWidth, fm.width(QLatin1Char(i)));
-            for (int i = 'a'; i <= 'f'; ++i)
-                charWidth = qMax(charWidth, fm.width(QLatin1Char(i)));
+            int charWidth = qMax(fm.width(QLatin1Char('x')), fm.width(QLatin1Char('0')));
             QString str = index.data(Qt::DisplayRole).toString();
             int x = option.rect.x();
+            bool light = !paintRed;
             for (int i = 0; i < str.size(); ++i) {
-                QRect r = option.rect;
-                r.setX(x);
-                r.setWidth(charWidth);
+                const QChar c = str.at(i);
+                const int uc = c.unicode();
+                if (light && (uc != 'x' && uc != '0')) {
+                    light = false;
+                    painter->setPen(oldPen.color());
+                }
+                if (uc == ' ') {
+                    light = true;
+                    painter->setPen(lightColor);
+                } else {
+                    QRect r = option.rect;
+                    r.setX(x);
+                    r.setWidth(charWidth);
+                    painter->drawText(r, Qt::AlignHCenter, c);
+                }
                 x += charWidth;
-                painter->drawText(r, Qt::AlignHCenter, QString(str.at(i)));
             }
-            if (paintRed)
-                painter->setPen(oldPen);
+            painter->setPen(oldPen);
         } else {
             QItemDelegate::paint(painter, option, index);
         }
@@ -156,10 +146,10 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-RegisterTreeView::RegisterTreeView(QWidget *parent)
-    : BaseTreeView(parent)
+RegisterTreeView::RegisterTreeView()
 {
     setItemDelegate(new RegisterDelegate(this));
+    setRootIsDecorated(true);
 }
 
 void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
@@ -168,7 +158,8 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     DebuggerEngine *engine = currentEngine();
     QTC_ASSERT(engine, return);
-    RegisterHandler *handler = currentHandler();
+    RegisterHandler *handler = engine->registerHandler();
+
     const bool actionsEnabled = engine->debuggerActionsEnabled();
     const DebuggerState state = engine->state();
 
@@ -178,13 +169,8 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
 
-    Register aRegister;
     const QModelIndex idx = indexAt(ev->pos());
-    if (idx.isValid())
-        aRegister = handler->registers().at(idx.row());
-    const QVariant addressV = aRegister.editValue();
-    const quint64 address = addressV.type() == QVariant::ULongLong
-        ? addressV.toULongLong() : 0;
+    const quint64 address = idx.data(RegisterAsAddressRole).toULongLong();
     QAction *actViewMemory = menu.addAction(QString());
     QAction *actEditMemory = menu.addAction(QString());
 
@@ -192,12 +178,14 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actShowDisassembler = menu.addAction(tr("Open Disassembler..."));
     actShowDisassembler->setEnabled(engine->hasCapability(DisassemblerCapability));
 
+    const QByteArray registerName = idx.data(RegisterNameRole).toByteArray();
+    const QString registerNameStr = QString::fromUtf8(registerName);
     if (address) {
         const bool canShow = actionsEnabled && engine->hasCapability(ShowMemoryCapability);
         actEditMemory->setText(tr("Open Memory Editor at 0x%1").arg(address, 0, 16));
         actEditMemory->setEnabled(canShow);
         actViewMemory->setText(tr("Open Memory View at Value of Register %1 0x%2")
-            .arg(QString::fromLatin1(aRegister.name)).arg(address, 0, 16));
+            .arg(registerNameStr).arg(address, 0, 16));
         actShowDisassemblerAt->setText(tr("Open Disassembler at 0x%1")
             .arg(address, 0, 16));
         actShowDisassemblerAt->setEnabled(engine->hasCapability(DisassemblerCapability));
@@ -211,21 +199,22 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
     }
     menu.addSeparator();
 
-    const int base = handler->numberBase();
+    const RegisterFormat format = RegisterFormat(idx.data(RegisterFormatRole).toInt());
     QAction *act16 = menu.addAction(tr("Hexadecimal"));
     act16->setCheckable(true);
-    act16->setChecked(base == 16);
+    act16->setChecked(format == HexadecimalFormat);
     QAction *act10 = menu.addAction(tr("Decimal"));
     act10->setCheckable(true);
-    act10->setChecked(base == 10);
+    act10->setChecked(format == DecimalFormat);
     QAction *act8 = menu.addAction(tr("Octal"));
     act8->setCheckable(true);
-    act8->setChecked(base == 8);
+    act8->setChecked(format == OctalFormat);
     QAction *act2 = menu.addAction(tr("Binary"));
     act2->setCheckable(true);
-    act2->setChecked(base == 2);
+    act2->setChecked(format == BinaryFormat);
 
-    addBaseContextActions(&menu);
+    menu.addSeparator();
+    menu.addAction(action(SettingsDialog));
 
     const QPoint position = ev->globalPos();
     QAction *act = menu.exec(position);
@@ -233,14 +222,20 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
     if (act == actReload) {
         engine->reloadRegisters();
     } else if (act == actEditMemory) {
-        const QString registerName = QString::fromLatin1(aRegister.name);
-        engine->openMemoryView(address, 0,
-            RegisterMemoryView::registerMarkup(address, registerName),
-            QPoint(), RegisterMemoryView::title(registerName), 0);
+        MemoryViewSetupData data;
+        data.startAddress = address;
+        data.registerName = registerName;
+        data.markup = RegisterMemoryView::registerMarkup(address, registerName);
+        data.title = RegisterMemoryView::title(registerName);
+        engine->openMemoryView(data);
     } else if (act == actViewMemory) {
-        engine->openMemoryView(idx.row(),
-            DebuggerEngine::MemoryTrackRegister|DebuggerEngine::MemoryView,
-            QList<MemoryMarkup>(), position, QString(), this);
+        MemoryViewSetupData data;
+        data.startAddress = address;
+        data.flags = DebuggerEngine::MemoryTrackRegister|DebuggerEngine::MemoryView,
+        data.registerName = registerName;
+        data.pos = position;
+        data.parent = this;
+        engine->openMemoryView(data);
     } else if (act == actShowDisassembler) {
         AddressDialog dialog;
         if (address)
@@ -250,27 +245,19 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actShowDisassemblerAt) {
         engine->openDisassemblerView(Location(address));
     } else if (act == act16)
-        handler->setNumberBase(16);
+        handler->setNumberFormat(registerName, HexadecimalFormat);
     else if (act == act10)
-        handler->setNumberBase(10);
+        handler->setNumberFormat(registerName, DecimalFormat);
     else if (act == act8)
-        handler->setNumberBase(8);
+        handler->setNumberFormat(registerName, OctalFormat);
     else if (act == act2)
-        handler->setNumberBase(2);
-    else
-        handleBaseContextAction(act);
+        handler->setNumberFormat(registerName, BinaryFormat);
 }
 
 void RegisterTreeView::reloadRegisters()
 {
     // FIXME: Only trigger when becoming visible?
     currentEngine()->reloadRegisters();
-}
-
-RegisterWindow::RegisterWindow()
-    : BaseWindow(new RegisterTreeView)
-{
-    setWindowTitle(tr("Registers"));
 }
 
 } // namespace Internal

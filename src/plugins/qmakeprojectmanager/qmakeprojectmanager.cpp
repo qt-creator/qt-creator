@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -37,31 +38,25 @@
 #include "qmakestep.h"
 #include "qmakebuildconfiguration.h"
 #include "addlibrarywizard.h"
-#include "wizards/qtquickapp.h"
-#include "wizards/html5app.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
+#include <texteditor/texteditor.h>
 
 #include <QDir>
 #include <QFileInfo>
 #include <QVariant>
-#include <QMessageBox>
 
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
-using namespace QmakeProjectManager::Internal;
+using namespace TextEditor;
 
-QmakeManager::QmakeManager(QmakeProjectManagerPlugin *plugin)
-  : m_plugin(plugin),
-    m_contextNode(0),
-    m_contextProject(0),
-    m_contextFile(0)
-{
-}
+namespace QmakeProjectManager {
 
 QmakeManager::~QmakeManager()
 {
@@ -77,7 +72,7 @@ void QmakeManager::unregisterProject(QmakeProject *project)
     m_projects.removeOne(project);
 }
 
-void QmakeManager::notifyChanged(const QString &name)
+void QmakeManager::notifyChanged(const Utils::FileName &name)
 {
     foreach (QmakeProject *pro, m_projects)
         pro->notifyChanged(name);
@@ -92,7 +87,7 @@ ProjectExplorer::Project *QmakeManager::openProject(const QString &fileName, QSt
 {
     if (!QFileInfo(fileName).isFile()) {
         if (errorString)
-            *errorString = tr("Failed opening project '%1': Project is not a file")
+            *errorString = tr("Failed opening project \"%1\": Project is not a file")
                 .arg(fileName);
         return 0;
     }
@@ -132,39 +127,37 @@ void QmakeManager::setContextFile(ProjectExplorer::FileNode *file)
 
 void QmakeManager::addLibrary()
 {
-    ProFileEditor *editor =
-        qobject_cast<ProFileEditor*>(Core::EditorManager::currentEditor());
-    if (editor)
-        addLibrary(editor->document()->filePath(), editor);
+    if (auto editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor()))
+        addLibrary(editor->document()->filePath().toString(), editor);
 }
 
 void QmakeManager::addLibraryContextMenu()
 {
-    ProjectExplorer::Node *node = ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode();
-    if (qobject_cast<QmakeProFileNode *>(node))
-        addLibrary(node->path());
+    Node *node = ProjectTree::currentNode();
+    if (dynamic_cast<QmakeProFileNode *>(node))
+        addLibrary(node->filePath().toString());
 }
 
-void QmakeManager::addLibrary(const QString &fileName, ProFileEditor *editor)
+void QmakeManager::addLibrary(const QString &fileName, BaseTextEditor *editor)
 {
-    AddLibraryWizard wizard(fileName, Core::EditorManager::instance());
+    Internal::AddLibraryWizard wizard(fileName, Core::ICore::dialogParent());
     if (wizard.exec() != QDialog::Accepted)
         return;
 
     if (!editor)
-        editor = qobject_cast<ProFileEditor *> (Core::EditorManager::openEditor(fileName,
-            QmakeProjectManager::Constants::PROFILE_EDITOR_ID, Core::EditorManager::DoNotMakeVisible));
+        editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditor(fileName,
+            Constants::PROFILE_EDITOR_ID, Core::EditorManager::DoNotMakeVisible));
     if (!editor)
         return;
 
-    const int endOfDoc = editor->position(TextEditor::ITextEditor::EndOfDoc);
+    const int endOfDoc = editor->position(EndOfDocPosition);
     editor->setCursorPosition(endOfDoc);
     QString snippet = wizard.snippet();
 
     // add extra \n in case the last line is not empty
     int line, column;
     editor->convertPosition(endOfDoc, &line, &column);
-    if (!editor->textDocument()->textAt(endOfDoc - column, column).simplified().isEmpty())
+    if (!editor->textAt(endOfDoc - column, column).simplified().isEmpty())
         snippet = QLatin1Char('\n') + snippet;
 
     editor->insert(snippet);
@@ -183,7 +176,7 @@ void QmakeManager::runQMakeContextMenu()
 
 void QmakeManager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
 {
-    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
+    if (!ProjectExplorerPlugin::saveModifiedFiles())
         return;
     QmakeProject *qmakeProject = qobject_cast<QmakeProject *>(p);
     QTC_ASSERT(qmakeProject, return);
@@ -201,7 +194,7 @@ void QmakeManager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *
     qs->setForced(true);
 
     if (node != 0 && node != qmakeProject->rootProjectNode())
-        if (QmakeProFileNode *profile = qobject_cast<QmakeProFileNode *>(node))
+        if (QmakeProFileNode *profile = dynamic_cast<QmakeProFileNode *>(node))
             bc->setSubNodeBuild(profile);
 
     BuildManager::appendStep(qs, tr("QMake"));
@@ -231,8 +224,9 @@ void QmakeManager::buildFileContextMenu()
 void QmakeManager::buildFile()
 {
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        const QString file = currentDocument->filePath();
-        FileNode *node  = qobject_cast<FileNode *>(SessionManager::nodeForFile(file));
+        const Utils::FileName file = currentDocument->filePath();
+        Node *n = SessionManager::nodeForFile(file);
+        FileNode *node  = n ? n->asFileNode() : 0;
         Project *project = SessionManager::projectForFile(file);
 
         if (project && node)
@@ -264,7 +258,7 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
         return;
 
     if (contextNode) {
-        if (QmakePriFileNode *prifile = qobject_cast<QmakePriFileNode *>(contextNode)) {
+        if (QmakePriFileNode *prifile = dynamic_cast<QmakePriFileNode *>(contextNode)) {
             if (QmakeProFileNode *profile = prifile->proFileNode()) {
                 if (profile != qmakeProject->rootProjectNode() || isFileBuild)
                     bc->setSubNodeBuild(profile);
@@ -274,7 +268,7 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
 
     if (isFileBuild)
         bc->setFileNodeBuild(contextFile);
-    if (ProjectExplorerPlugin::instance()->saveModifiedFiles()) {
+    if (ProjectExplorerPlugin::saveModifiedFiles()) {
         const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
         const Core::Id cleanStep = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
         if (action == BUILD) {
@@ -297,3 +291,5 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
     bc->setSubNodeBuild(0);
     bc->setFileNodeBuild(0);
 }
+
+} // namespace QmakeProjectManager

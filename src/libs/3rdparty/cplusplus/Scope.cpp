@@ -28,9 +28,9 @@
 
 #include <cstring>
 
-using namespace CPlusPlus;
+namespace CPlusPlus {
 
-class CPlusPlus::SymbolTable
+class SymbolTable
 {
     SymbolTable(const SymbolTable &other);
     void operator =(const SymbolTable &other);
@@ -117,6 +117,7 @@ void SymbolTable::enterSymbol(Symbol *symbol)
             _allocatedSymbols = DefaultInitialSize;
 
         _symbols = reinterpret_cast<Symbol **>(realloc(_symbols, sizeof(Symbol *) * _allocatedSymbols));
+        memset(_symbols + _symbolCount, 0, sizeof(Symbol *) * (_allocatedSymbols - _symbolCount));
     }
 
     symbol->_index = _symbolCount;
@@ -144,18 +145,18 @@ Symbol *SymbolTable::lookat(const Identifier *id) const
         if (! identity) {
             continue;
         } else if (const Identifier *nameId = identity->asNameId()) {
-            if (nameId->identifier()->isEqualTo(id))
+            if (nameId->identifier()->match(id))
                 break;
         } else if (const TemplateNameId *t = identity->asTemplateNameId()) {
-            if (t->identifier()->isEqualTo(id))
+            if (t->identifier()->match(id))
                 break;
         } else if (const DestructorNameId *d = identity->asDestructorNameId()) {
-            if (d->identifier()->isEqualTo(id))
+            if (d->identifier()->match(id))
                 break;
         } else if (identity->isQualifiedNameId()) {
             return 0;
         } else if (const SelectorNameId *selectorNameId = identity->asSelectorNameId()) {
-            if (selectorNameId->identifier()->isEqualTo(id))
+            if (selectorNameId->identifier()->match(id))
                 break;
         }
     }
@@ -238,7 +239,7 @@ Scope::Scope(Clone *clone, Subst *subst, Scope *original)
     , _startOffset(original->_startOffset)
     , _endOffset(original->_endOffset)
 {
-    for (iterator it = original->firstMember(), end = original->lastMember(); it != end; ++it)
+    for (iterator it = original->memberBegin(), end = original->memberEnd(); it != end; ++it)
         addMember(clone->symbol(*it, subst));
 }
 
@@ -267,11 +268,11 @@ Symbol *Scope::memberAt(unsigned index) const
 { return _members ? _members->symbolAt(index) : 0; }
 
 /// Returns the first Symbol in the scope.
-Scope::iterator Scope::firstMember() const
+Scope::iterator Scope::memberBegin() const
 { return _members ? _members->firstSymbol() : 0; }
 
 /// Returns the last Symbol in the scope.
-Scope::iterator Scope::lastMember() const
+Scope::iterator Scope::memberEnd() const
 { return _members ? _members->lastSymbol() : 0; }
 
 Symbol *Scope::find(const Identifier *id) const
@@ -293,3 +294,5 @@ unsigned Scope::endOffset() const
 
 void Scope::setEndOffset(unsigned offset)
 { _endOffset = offset; }
+
+} // namespace CPlusPlus

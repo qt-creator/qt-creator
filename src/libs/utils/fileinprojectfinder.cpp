@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,30 +9,34 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "fileinprojectfinder.h"
-#include <utils/qtcassert.h>
+#include "fileutils.h"
+#include "qtcassert.h"
 
 #include <QDebug>
 #include <QFileInfo>
 #include <QUrl>
+
+#include <algorithm>
 
 enum { debug = false };
 
@@ -210,21 +214,23 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
         }
     }
 
-    // find (solely by filename) in project files
+    // find best matching file path in project files
     if (debug)
         qDebug() << "FileInProjectFinder: checking project files ...";
 
-    const QString fileName = QFileInfo(originalPath).fileName();
-    foreach (const QString &f, m_projectFiles) {
-        if (QFileInfo(f).fileName() == fileName) {
-            m_cache.insert(originalPath, f);
-            if (success)
-                *success = true;
-            if (debug)
-                qDebug() << "FileInProjectFinder: found" << f << "in project files";
-            return f;
-        }
+    const QString matchedFilePath
+            = bestMatch(
+                filesWithSameFileName(FileName::fromString(originalPath).fileName()),
+                originalPath);
+    if (!matchedFilePath.isEmpty()) {
+        m_cache.insert(originalPath, matchedFilePath);
+        if (success)
+            *success = true;
+        return matchedFilePath;
     }
+
+    if (findInSearchPaths(&originalPath))
+        return originalPath;
 
     if (debug)
         qDebug() << "FileInProjectFinder: checking absolute path in sysroot ...";
@@ -249,5 +255,95 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
         qDebug() << "FileInProjectFinder: couldn't find file!";
     return originalPath;
 }
+
+bool FileInProjectFinder::findInSearchPaths(QString *filePath) const
+{
+    foreach (const QString &dirPath, m_searchDirectories) {
+        if (findInSearchPath(dirPath, filePath))
+            return true;
+    }
+    return false;
+}
+
+static void chopFirstDir(QString *dirPath)
+{
+    int i = dirPath->indexOf(QLatin1Char('/'));
+    if (i == -1)
+        dirPath->clear();
+    else
+        dirPath->remove(0, i + 1);
+}
+
+bool FileInProjectFinder::findInSearchPath(const QString &searchPath, QString *filePath)
+{
+    if (debug)
+        qDebug() << "FileInProjectFinder: checking search path" << searchPath;
+
+    QFileInfo fi;
+    QString s = *filePath;
+    while (!s.isEmpty()) {
+        fi.setFile(searchPath + QLatin1Char('/') + s);
+        if (debug)
+            qDebug() << "FileInProjectFinder: trying" << fi.filePath();
+        if (fi.exists() && fi.isReadable()) {
+            *filePath = fi.filePath();
+            return true;
+        }
+        chopFirstDir(&s);
+    }
+
+    return false;
+}
+
+QStringList FileInProjectFinder::filesWithSameFileName(const QString &fileName) const
+{
+    QStringList result;
+    foreach (const QString &f, m_projectFiles) {
+        if (FileName::fromString(f).fileName() == fileName)
+            result << f;
+    }
+    return result;
+}
+
+int FileInProjectFinder::rankFilePath(const QString &candidatePath, const QString &filePathToFind)
+{
+    int rank = 0;
+    for (int a = candidatePath.length(), b = filePathToFind.length();
+         --a >= 0 && --b >= 0 && candidatePath.at(a) == filePathToFind.at(b);)
+        rank++;
+    return rank;
+}
+
+QString FileInProjectFinder::bestMatch(const QStringList &filePaths, const QString &filePathToFind)
+{
+    if (filePaths.isEmpty())
+        return QString();
+    if (filePaths.length() == 1) {
+        if (debug)
+            qDebug() << "FileInProjectFinder: found" << filePaths.first() << "in project files";
+        return filePaths.first();
+    }
+    auto it = std::max_element(filePaths.constBegin(), filePaths.constEnd(),
+        [&filePathToFind] (const QString &a, const QString &b) -> bool {
+            return rankFilePath(a, filePathToFind) < rankFilePath(b, filePathToFind);
+    });
+    if (it != filePaths.cend()) {
+        if (debug)
+            qDebug() << "FileInProjectFinder: found best match" << *it << "in project files";
+        return *it;
+    }
+    return QString();
+}
+
+QStringList FileInProjectFinder::searchDirectories() const
+{
+    return m_searchDirectories;
+}
+
+void FileInProjectFinder::setAdditionalSearchDirectories(const QStringList &searchDirectories)
+{
+    m_searchDirectories = searchDirectories;
+}
+
 
 } // namespace Utils

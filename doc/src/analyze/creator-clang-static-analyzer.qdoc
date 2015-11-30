@@ -1,0 +1,78 @@
+
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-running-valgrind-remotely.html
+    \page creator-clang-static-analyzer.html
+    \nextpage creator-cpu-usage-analyzer.html
+
+    \title Using Clang Static Analyzer
+
+    \commercial
+
+    \QC integrates the \l{http://clang-analyzer.llvm.org}
+    {Clang Static Analyzer} for finding problems in C, C++, and Objective-C
+    programs (commercial only).
+
+    \image qtcreator-clang-static-analyzer.png
+
+    The Clang Static Analyzer runs with all the default checkers enabled. For
+    more information about the checkers, see
+    \l{http://clang-analyzer.llvm.org/available_checks.html}{Available Checkers}.
+
+    To suppress diagnostics, select \uicontrol {Suppress This Diagnostic} in the
+    context menu. To view the suppression list for a project and to remove
+    diagnostics from it, select \uicontrol {Clang Static Analyzer Settings} in
+    the \uicontrol Projects mode.
+
+    \section1 Setting Up Clang Static Analyzer
+
+    As a tested version of Clang is shipped together with Qt Creator, no manual
+    setup is required.
+
+    To profit from improved checkers in newer Clang versions, \QC can be set up
+    to use those. However, only the shipped version of Clang is tested and known
+    to work. Other versions might not work at all.
+
+    To set up a particular Clang version for the Clang Static Analyzer, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer >
+    \uicontrol {Clang Static Analyzer} and check that the path to the Clang
+    executable is set correctly in the \uicontrol {Clang executable} field.
+
+    \image qtcreator-clang-static-analyzer-options.png
+
+    \section1 Running Clang Static Analyzer
+
+    To run the Clang Static Analyzer to analyze an open project, select
+    \uicontrol Analyze > \uicontrol {Clang Static Analyzer} on the menu bar. The
+    Clang Static Analyzer starts automatically.
+
+    However, if you select \uicontrol Analyze in the mode selector to open the
+    \uicontrol Analyze mode and then select \uicontrol {Clang Static Analyzer},
+    you must start the Clang Static Analyzer by selecting the
+    \inlineimage qtcreator-analyze-start-button.png
+    (\uicontrol Start) button.
+*/

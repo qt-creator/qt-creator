@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -39,12 +40,12 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/messagebox.h>
 
 #include <utils/qtcassert.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
-
-#include <QMessageBox>
 
 #include <cstring>
 
@@ -74,7 +75,8 @@ namespace Internal {
        (m_view).
     \endlist
 
-    Views are updated on the  DebuggerEngine::stackFrameCompleted signal.
+    Views are asked to update themselves directly by the owning
+    DebuggerEngine.
     An exception are views of class Debugger::RegisterMemoryView tracking the
     content pointed to by a register (eg stack pointer, instruction pointer).
     They are connected to the set/changed signals of
@@ -87,10 +89,8 @@ MemoryAgent::MemoryAgent(DebuggerEngine *engine)
     : QObject(engine), m_engine(engine)
 {
     QTC_CHECK(engine);
-    connect(engine, SIGNAL(stateChanged(Debugger::DebuggerState)),
-            this, SLOT(engineStateChanged(Debugger::DebuggerState)));
-    connect(engine, SIGNAL(stackFrameCompleted()), this,
-            SLOT(updateContents()));
+    connect(engine, &DebuggerEngine::stackFrameCompleted,
+            this, &MemoryAgent::updateContents);
 }
 
 MemoryAgent::~MemoryAgent()
@@ -104,11 +104,11 @@ void MemoryAgent::closeEditors()
     if (m_editors.isEmpty())
         return;
 
-    QList<IEditor *> editors;
+    QSet<IDocument *> documents;
     foreach (QPointer<IEditor> editor, m_editors)
         if (editor)
-            editors.append(editor.data());
-    EditorManager::closeEditors(editors);
+            documents.insert(editor->document());
+    EditorManager::closeDocuments(documents.toList());
     m_editors.clear();
 }
 
@@ -135,18 +135,15 @@ void MemoryAgent::connectBinEditorWidget(QWidget *w)
     connect(w, SIGNAL(addWatchpointRequested(quint64,uint)), SLOT(handleWatchpointRequest(quint64,uint)));
 }
 
-bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
-                       const QList<MemoryMarkup> &ml, const QPoint &pos,
-                       QString title, QWidget *parent)
+bool MemoryAgent::doCreateBinEditor(const MemoryViewSetupData &data)
 {
-    const bool readOnly = (flags & DebuggerEngine::MemoryReadOnly) != 0;
-    if (title.isEmpty())
-        title = tr("Memory at 0x%1").arg(addr, 0, 16);
+    const bool readOnly = (data.flags & DebuggerEngine::MemoryReadOnly) != 0;
+    QString title = data.title.isEmpty() ? tr("Memory at 0x%1").arg(data.startAddress, 0, 16) : data.title;
     // Separate view?
-    if (flags & DebuggerEngine::MemoryView) {
+    if (data.flags & DebuggerEngine::MemoryView) {
         // Ask BIN editor plugin for factory service and have it create a bin editor widget.
         QWidget *binEditor = 0;
-        if (QObject *factory = ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("BINEditor::BinEditorWidgetFactory")))
+        if (QObject *factory = ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("BinEditor::BinEditorWidgetFactory")))
             binEditor = ExtensionSystem::invoke<QWidget *>(factory, "createWidget", (QWidget *)0);
         if (!binEditor)
             return false;
@@ -155,24 +152,22 @@ bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
         MemoryView::setBinEditorNewWindowRequestAllowed(binEditor, true);
         MemoryView *topLevel = 0;
         // Memory view tracking register value, providing its own updating mechanism.
-        if (flags & DebuggerEngine::MemoryTrackRegister) {
-            RegisterMemoryView *rmv = new RegisterMemoryView(binEditor, parent);
-            rmv->init(m_engine->registerHandler(), int(addr));
-            topLevel = rmv;
+        if (data.flags & DebuggerEngine::MemoryTrackRegister) {
+            topLevel = new RegisterMemoryView(binEditor, data.startAddress, data.registerName, m_engine->registerHandler(), data.parent);
         } else {
             // Ordinary memory view
-            MemoryView::setBinEditorMarkup(binEditor, ml);
-            MemoryView::setBinEditorRange(binEditor, addr, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
-            topLevel = new MemoryView(binEditor, parent);
+            MemoryView::setBinEditorMarkup(binEditor, data.markup);
+            MemoryView::setBinEditorRange(binEditor, data.startAddress, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
+            topLevel = new MemoryView(binEditor, data.parent);
             topLevel->setWindowTitle(title);
         }
         m_views << topLevel;
-        topLevel->move(pos);
+        topLevel->move(data.pos);
         topLevel->show();
         return true;
     }
     // Editor: Register tracking not supported.
-    QTC_ASSERT(!(flags & DebuggerEngine::MemoryTrackRegister), return false);
+    QTC_ASSERT(!(data.flags & DebuggerEngine::MemoryTrackRegister), return false);
     if (!title.endsWith(QLatin1Char('$')))
         title.append(QLatin1String(" $"));
     IEditor *editor = EditorManager::openEditorWithContents(
@@ -185,18 +180,16 @@ bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
     connectBinEditorWidget(editorBinEditor);
     MemoryView::setBinEditorReadOnly(editorBinEditor, readOnly);
     MemoryView::setBinEditorNewWindowRequestAllowed(editorBinEditor, true);
-    MemoryView::setBinEditorRange(editorBinEditor, addr, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
-    MemoryView::setBinEditorMarkup(editorBinEditor, ml);
+    MemoryView::setBinEditorRange(editorBinEditor, data.startAddress, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
+    MemoryView::setBinEditorMarkup(editorBinEditor, data.markup);
     m_editors << editor;
     return true;
 }
 
-void MemoryAgent::createBinEditor(quint64 addr, unsigned flags,
-                                  const QList<MemoryMarkup> &ml, const QPoint &pos,
-                                  const QString &title, QWidget *parent)
+void MemoryAgent::createBinEditor(const MemoryViewSetupData &data)
 {
-    if (!doCreateBinEditor(addr, flags, ml, pos, title, parent))
-        showMessageBox(QMessageBox::Warning,
+    if (!doCreateBinEditor(data))
+        AsynchronousMessageBox::warning(
             tr("No Memory Viewer Available"),
             tr("The memory contents cannot be shown as no viewer plugin "
                "for binary data has been loaded."));
@@ -204,7 +197,9 @@ void MemoryAgent::createBinEditor(quint64 addr, unsigned flags,
 
 void MemoryAgent::createBinEditor(quint64 addr)
 {
-    createBinEditor(addr, 0, QList<MemoryMarkup>(), QPoint(), QString(), 0);
+    MemoryViewSetupData data;
+    data.startAddress = addr;
+    createBinEditor(data);
 }
 
 void MemoryAgent::fetchLazyData(quint64 block)
@@ -239,7 +234,7 @@ void MemoryAgent::handleWatchpointRequest(quint64 address, uint size)
 
 void MemoryAgent::updateContents()
 {
-    foreach (const QPointer<Core::IEditor> &e, m_editors)
+    foreach (const QPointer<IEditor> &e, m_editors)
         if (e)
             MemoryView::binEditorUpdateContents(e->widget());
     // Update all views except register views, which trigger on
@@ -258,19 +253,13 @@ bool MemoryAgent::hasVisibleEditor() const
     return false;
 }
 
-void MemoryAgent::engineStateChanged(Debugger::DebuggerState s)
+void MemoryAgent::handleDebuggerFinished()
 {
-    switch (s) {
-    case DebuggerFinished:
-        closeViews();
-        foreach (const QPointer<IEditor> &editor, m_editors)
-            if (editor) { // Prevent triggering updates, etc.
-                MemoryView::setBinEditorReadOnly(editor->widget(), true);
-                editor->widget()->disconnect(this);
-            }
-        break;
-    default:
-        break;
+    foreach (const QPointer<IEditor> &editor, m_editors) {
+        if (editor) { // Prevent triggering updates, etc.
+            MemoryView::setBinEditorReadOnly(editor->widget(), true);
+            editor->widget()->disconnect(this);
+        }
     }
 }
 
@@ -314,4 +303,4 @@ quint64 MemoryAgent::readInferiorPointerValue(const unsigned char *data, const P
 
 } // namespace Internal
 } // namespace Debugger
-;
+

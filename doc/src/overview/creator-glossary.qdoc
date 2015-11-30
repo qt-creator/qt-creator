@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-known-issues.html
     \page creator-glossary.html
     \nextpage technical-support.html
@@ -74,8 +74,8 @@
                 \target glossary-deploy-config
             \li Handles the packaging and copying of the necessary files to a
                 location you want to run the executable at. The files can be
-                copied to a location in the file system of the development PC or
-                a mobile device.
+                copied to a location in the file system of the development PC,
+                an embedded device, or a mobile device.
 
         \row
             \li Kit
@@ -84,7 +84,7 @@
                 cross-platform development easier. Each kit consists of a set
                 of values that define one environment, such as a device,
                 tool chain, Qt version, and debugger command to use. Configure kits at
-                \gui {Tools > Options > Build & Run > Kits}.
+                \uicontrol {Tools > Options > Build & Run > Kits}.
 
         \row
             \li Mode
@@ -100,8 +100,8 @@
             \li Project
                 \target glossary-project
             \li Groups together a set of source files, forms, and resource files
-                that you can build, deploy, and run for different desktop and
-                mobile device platforms, as
+                that you can build, deploy, and run for different desktop,
+                embedded, and mobile device platforms, as
                 specified by a \e {build configuration}, \e {deploy
                 configuration}, and \e {run configuration}.
 

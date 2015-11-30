@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -17,7 +17,7 @@
 ****************************************************************************/
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-help.html
     \page creator-faq.html
     \nextpage creator-tips.html
@@ -31,6 +31,73 @@
     \l{Troubleshooting Debugger}{debugging}.
 
     \section1 General Questions
+
+    \b {\QC only shows a blank window, a dialog complaining about missing OpenGL support, or crashes on startup. What's going wrong?}
+
+    Some parts of \QC use Qt Quick 2, which relies on OpenGL API for
+    drawing. The most prominent use of Qt Quick 2 is in the Welcome mode, but it's
+    also used for the \QMLD, and the QML Profiler.
+
+    Unfortunately the use of OpenGL can cause problems, especially in remote setups
+    and with outdated drivers. You can quickly check whether this is your problem by:
+
+    \list
+
+      \li Launching \QC with Welcome mode disabled ( \c{-noload Welcome} on
+          command line).
+
+      \li Checking the console or the Windows debugger log for OpenGL-related error messages.
+
+    \endlist
+
+    The fixes and workarounds differ, depending on your setup. As a last resort you
+    can disable the affected plugins.
+
+    \e{Virtual Machines}
+
+    Try to enable \e{3D acceleration} in your virtual machine's settings. For VirtualBox,
+    also make sure you have installed the Guest Addons, including experimental
+    \e{Direct3D support}.
+
+    \e{Windows}
+
+    Check whether \QC has been compiled with OpenGL/Desktop, or ANGLE as
+    a backend. The official binaries are always built with ANGLE (a library that
+    maps OpenGL ES API to DirectX).
+
+    \list
+
+      \li ANGLE backend: This requires a Windows version newer than Windows XP. If you
+          have problems, try updating your graphics drivers or update your
+          DirectX version. Run \c dxdiag.exe to check whether \e{Direct3D Acceleration}
+          is indeed enabled.
+
+      \li OpenGL backend: Make sure your graphics driver supports OpenGL 2.1 or newer.
+          Try to update your graphics driver.
+
+    \endlist
+
+    \e{Unix}
+
+    Run \c glxgears for a quick check whether OpenGL works in general. Check output of
+    \c glxinfo to get more details like the OpenGL driver and renderer (search for 'OpenGL'
+    in the application's output).
+
+    If you are using the Mesa driver, you can force OpenGL to be rendered in software
+    by setting the \c LIBGL_ALWAYS_SOFTWARE environment variable.
+
+    \e{Disabling plugins}
+
+    You can disable the \QC plugins, at the expense of losing functionality:
+
+    \list
+
+      \li Launch \QC from command line, with
+          \c {-noload Welcome -noload QmlProfiler -noload QuickDesigner} arguments.
+
+      \li Disable the plugins permanently by selecting \uicontrol Help > \uicontrol{About Plugins}.
+
+    \endlist
 
     \b {How do I reset all \QC settings?}
 
@@ -48,8 +115,6 @@
 
         \li qtcreator
 
-        \li qtc-debugging-helper
-
         \li qtc-qmldump
 
     \endlist
@@ -57,16 +122,16 @@
     The location depends on the platform. On Linux and other Unix platforms, the files
     are located in \c {~/.config/QtProject} and \c {~/.local/share/data/QtProject/qtcreator}.
 
-    On Mac OS, the files are located in \c {~/.config/QtProject} and
+    On OS X, the files are located in \c {~/.config/QtProject} and
     \c {~/Library/Application Support/QtProject/Qt Creator}.
 
     On Windows XP, the files are located in
-    \c {<drive>:\Documents and Settings\<username>\Application Data\QtProject} and
-    \c {<drive>:\Documents and Settings\<username>\Local Settings\Application Data\QtProject}.
+    \c {%SystemDrive%\Documents and Settings\%USERNAME%\Application Data\QtProject} and
+    \c {%SystemDrive%\Documents and Settings\%USERNAME%\Local Settings\Application Data\QtProject}.
 
     On Windows Vista and Windows 7, the files are located in
-    \c {<drive>:\Users\<username>\AppData\Roaming\QtProject} and
-    \c {<drive>:\Users\<username>\AppData\Local\QtProject}.
+    \c {%SystemDrive%\Users\%USERNAME%\AppData\Roaming\QtProject} and
+    \c {%SystemDrive%\Users\%USERNAME%\AppData\Local\QtProject}.
 
     \b {\QC comes with MinGW, should I use this version with Qt?}
 
@@ -76,25 +141,25 @@
     compiler. What should I do?}
 
     Make sure that the application is in your system PATH when starting \QC.
-    Also select \gui {Tools > Options} to check the settings specified
+    Also select \uicontrol {Tools > Options} to check the settings specified
     for the application. Many plugins specify either the path to the tool they
     need or the environment they run in.
 
-    This is especially relevant for the Mac OS where \c {/usr/local/bin} might
+    This is especially relevant for the OS X where \c {/usr/local/bin} might
     not be in the path when \QC is started.
 
     \b {How do I change the interface language for \QC?}
 
     \QC has been localized into several languages. If the system
     language is one of the supported languages, it is automatically selected.
-    To change the language, select \gui {Tools > Options > Environment} and
-    select a language in the \gui Language field. The change takes effect after
+    To change the language, select \uicontrol {Tools > Options > Environment} and
+    select a language in the \uicontrol Language field. The change takes effect after
     you restart \QC.
 
     \b {Has a reported issue been addressed?}
 
     You can look up any issue in the
-    \l{http://bugreports.qt-project.org/}{Qt bug tracker}.
+    \l{https://bugreports.qt.io/}{Qt bug tracker}.
 
     \include widgets/creator-faq-qtdesigner.qdocinc
 
@@ -105,12 +170,12 @@
 
     \QC comes fully integrated with Qt documentation and examples using
     the Qt Help plugin. The integrated Qt Reference Documentation is available
-    for Qt 4.4 and later. \QC, \QSDK, and other Qt deliverables contain
+    for Qt 4.4 and later. \QC and other Qt deliverables contain
     documentation as .qch files. All the documentation is accessible in the
-    \gui Help mode.
+    \uicontrol Help mode.
 
     To view the documentation that is available and to add documentation,
-    select \gui {Tools > Options > Help > Documentation}. For more
+    select \uicontrol {Tools > Options > Help > Documentation}. For more
     information, see \l{Adding External Documentation}.
 
     \section1 Debugger Questions
@@ -121,10 +186,10 @@
     \b {If I have a choice of GDB versions, which should I use?}
 
     On Linux and Windows, use the Python-enabled GDB versions that are
-    installed when you install \QC and Qt SDK. On Mac OS X, use the GDB
-    provided with Xcode. For a custom target, you can build your own
-    Python-enabled GDB. Follow the instructions in
-    \l{http://qt-project.org/wiki/QtCreatorBuildGdb}{Building GDB}.
+    installed when you install \QC and \QSDK. On OS X, GDB is no longer
+    officially supported. To build your own Python-enabled GDB, follow the
+    instructions in
+    \l{https://wiki.qt.io/QtCreator_Build_Gdb}{Building GDB}.
 
     You must use Python version 2.6 or 2.7.
 
@@ -133,39 +198,40 @@
     \b {How do I generate a core file in \QC?}
 
     To trigger the GDB command that generates a core file while debugging,
-    select \gui {Window > Views > Debugger Log}. In the \gui Command field,
+    select \uicontrol {Window > Views > Debugger Log}. In the \uicontrol Command field,
     type \c gcore and press \key Enter. The core file is created in the
     current working directory. You can specify another location for the file,
     including a relative or absolute path, as an argument of the command.
 
-    To generate a temporary core file, select \gui {Create Snapshot} in the
-    context menu in the \gui Snapshot view. The core file is deleted when you
+    To generate a temporary core file, select \uicontrol {Create Snapshot} in the
+    context menu in the \uicontrol Snapshot view. The core file is deleted when you
     stop debugging.
 
     \section1 Compiler Questions
 
     \b {How can I make use of my multi-core CPU with \QC?}
 
-    On Linux and Mac OS X, go to \gui Project mode, select your configuration
-    in the \gui {Build Settings}, locate the \gui {Build Steps}, and add the
+    On Linux and OS X, go to \uicontrol Project mode, select your configuration
+    in the \uicontrol {Build Settings}, locate the \uicontrol {Build Steps}, and add the
     following value, where \c{<num>} is the amount of cores in your CPU:
     \c{-j <num>}
 
     On Windows, nmake does not support the \c{-j} parameter. Instead, we
     provide a drop-in replacement called jom. You can download a precompiled
-    version of jom from \l{http://releases.qt-project.org/jom/}{Qt Project Release server}.
-    Put jom.exe in a location in the %PATH%. Go to the \gui {Build Settings}
+    version of jom from \l{https://download.qt.io/official_releases/jom/}{Qt Downloads}.
+    Put jom.exe in a location in the %PATH%. Go to the \uicontrol {Build Settings}
     and set jom.exe as the make command.
 
     \note Unlike GNU make, jom automatically detects your cores and spawns as
     many parallel processes as your CPU has cores. You can override this
     behavior by using the \c{-j} parameter as described above.
 
-    \section1 Qt SDK Questions
+    \section1 Qt Installation Questions
 
-    \b {I cannot use QSslSocket with the SDK. What should I do?}
+    \b {I cannot use QSslSocket with the Qt I installed from binary packages.
+        What should I do?}
 
-    The Qt build in the SDK is built with QT_NO_OPENSSL defined. Rebuilding it
+    The Qt in the binary packages is built with QT_NO_OPENSSL defined. Rebuilding it
      is possible. For more information, see
      \l{http://www.qtcentre.org/threads/19222-Qssl}.
 
@@ -186,11 +252,11 @@
 
     \b {Where is application output shown in \QC?}
 
-    \b {On Unix (Linux and Mac OS):} \c qDebug() and related functions use
+    \b {On Unix (Linux and OS X):} \c qDebug() and related functions use
     the standard output and error output. When you run or debug the
-    application, you can view the output in the \gui{Application Output} pane.
+    application, you can view the output in the \uicontrol{Application Output} pane.
 
-    For console applications that require input, select \gui {Projects > Run
+    For console applications that require input, select \uicontrol {Projects > Run
     Settings > Run in terminal}.
 
     \b {On Windows:} Output is displayed differently for \e{console
@@ -205,12 +271,12 @@
     type of application, \c qDebug() and related functions use standard output
     and error output.
 
-    We recommend that you select \gui {Projects > Run Settings > Run in
+    We recommend that you select \uicontrol {Projects > Run Settings > Run in
     terminal} for console applications.
 
     For GUI applications, \c qDebug() and related functions use the Windows API
     function \c OutputDebugString(). The output is displayed in the
-    \gui{Application Output} pane. However, only one output pane tab may be
+    \uicontrol{Application Output} pane. However, only one output pane tab may be
     open at a time or the output is not displayed correctly. You can use an
     external debug output viewer, such as the
     \l{http://technet.microsoft.com/en-us/sysinternals/bb896647}{DebugView for Windows}
@@ -222,7 +288,7 @@
 
     If it is a scheduled feature, you can see this in the task tracker. If a
     feature already has been implemented, it is mentioned in the
-    \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/dist}{changes file}
+    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/dist}{changes file}
     for the upcoming release.
 
     \b {Why does \QC not use tabs for editors?}

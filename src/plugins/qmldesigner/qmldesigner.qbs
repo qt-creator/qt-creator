@@ -1,4 +1,4 @@
-import qbs.base 1.0
+import qbs 1.0
 
 import QtcPlugin
 
@@ -19,7 +19,6 @@ QtcPlugin {
     Depends { name: "LanguageUtils" }
     Depends { name: "QtSupport" }
 
-    cpp.defines: base.concat(["QWEAKPOINTER_ENABLE_ARROW"])
     cpp.includePaths: base.concat([
         "designercore",
         "designercore/include",
@@ -464,6 +463,7 @@ QtcPlugin {
         "designmodewidget.cpp",
         "designmodewidget.h",
         "qmldesignerconstants.h",
+        "qmldesignericons.h",
         "qmldesignerplugin.cpp",
         "qmldesignerplugin.h",
         "settingspage.cpp",

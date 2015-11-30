@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,130 +33,40 @@
 
 #include "cpptools_global.h"
 #include "cppindexingsupport.h"
+#include "indexitem.h"
+#include "stringtable.h"
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
 
-#include <utils/fileutils.h>
-
-#include <QIcon>
 #include <QString>
 #include <QSet>
 #include <QHash>
 
-#include <functional>
-
 namespace CppTools {
 
-struct CPPTOOLS_EXPORT ModelItemInfo
-{
-    enum ItemType { Enum, Class, Method, Declaration };
-
-    ModelItemInfo()
-        : type(Declaration),
-          line(0),
-          column(0)
-    { }
-
-    ModelItemInfo(const QString &symbolName,
-                  const QString &symbolType,
-                  const QString &symbolScope,
-                  ItemType type,
-                  const QString &fileName,
-                  int line,
-                  int column,
-                  const QIcon &icon)
-        : symbolName(symbolName),
-          symbolType(symbolType),
-          symbolScope(symbolScope),
-          fileName(fileName),
-          icon(icon),
-          type(type),
-          line(line),
-          column(column)
-    { }
-
-    ModelItemInfo(const ModelItemInfo &otherInfo)
-        : symbolName(otherInfo.symbolName),
-          symbolType(otherInfo.symbolType),
-          symbolScope(otherInfo.symbolScope),
-          fileName(otherInfo.fileName),
-          icon(otherInfo.icon),
-          type(otherInfo.type),
-          line(otherInfo.line),
-          column(otherInfo.column)
-    { }
-
-    QString scopedSymbolName() const
-    {
-        return symbolScope.isEmpty()
-                ? symbolName
-                : symbolScope +  QLatin1String("::") + symbolName;
-    }
-
-    bool unqualifiedNameAndScope(const QString &defaultName, QString *name, QString *scope) const
-    {
-        *name = defaultName;
-        *scope = symbolScope;
-        const QString qualifiedName = scopedSymbolName();
-        const int colonColonPosition = qualifiedName.lastIndexOf(QLatin1String("::"));
-        if (colonColonPosition != -1) {
-            *name = qualifiedName.mid(colonColonPosition + 2);
-            *scope = qualifiedName.left(colonColonPosition);
-            return true;
-        }
-        return false;
-    }
-
-    static QString representDeclaration(const QString &name, const QString &type)
-    {
-        if (type.isEmpty())
-            return QString();
-
-        const QString padding = type.endsWith(QLatin1Char('*'))
-            ? QString()
-            : QString(QLatin1Char(' '));
-        return type + padding + name;
-    }
-
-    QString shortNativeFilePath() const
-    { return Utils::FileUtils::shortNativePath(Utils::FileName::fromString(fileName)); }
-
-    QString symbolName; // as found in the code, therefore might be qualified
-    QString symbolType;
-    QString symbolScope;
-    QString fileName;
-    QIcon icon;
-    ItemType type;
-    int line;
-    int column;
-};
-
-class SearchSymbols: public std::binary_function<CPlusPlus::Document::Ptr, int, QList<ModelItemInfo> >,
-                     protected CPlusPlus::SymbolVisitor
+class SearchSymbols: protected CPlusPlus::SymbolVisitor
 {
 public:
     typedef SymbolSearcher::SymbolTypes SymbolTypes;
 
     static SymbolTypes AllTypes;
 
-    SearchSymbols();
+    SearchSymbols(Internal::StringTable &stringTable);
 
-    void setSymbolsToSearchFor(SymbolTypes types);
+    void setSymbolsToSearchFor(const SymbolTypes &types);
 
-    QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc, int sizeHint = 500)
-    { return operator()(doc, sizeHint, QString()); }
+    IndexItem::Ptr operator()(CPlusPlus::Document::Ptr doc)
+    { return operator()(doc, QString()); }
 
-    QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc, int sizeHint, const QString &scope);
+    IndexItem::Ptr operator()(CPlusPlus::Document::Ptr doc, const QString &scope);
 
 protected:
     using SymbolVisitor::visit;
 
     void accept(CPlusPlus::Symbol *symbol)
     { CPlusPlus::Symbol::visitSymbol(symbol, this); }
-
-    QString switchScope(const QString &scope);
 
     virtual bool visit(CPlusPlus::UsingNamespaceDirective *);
     virtual bool visit(CPlusPlus::UsingDeclaration *);
@@ -175,32 +86,34 @@ protected:
     // Objective-C
     virtual bool visit(CPlusPlus::ObjCBaseClass *);
     virtual bool visit(CPlusPlus::ObjCBaseProtocol *);
-    virtual bool visit(CPlusPlus::ObjCClass *);
+    virtual bool visit(CPlusPlus::ObjCClass *symbol);
     virtual bool visit(CPlusPlus::ObjCForwardClassDeclaration *);
-    virtual bool visit(CPlusPlus::ObjCProtocol *);
+    virtual bool visit(CPlusPlus::ObjCProtocol *symbol);
     virtual bool visit(CPlusPlus::ObjCForwardProtocolDeclaration *);
-    virtual bool visit(CPlusPlus::ObjCMethod *);
-    virtual bool visit(CPlusPlus::ObjCPropertyDeclaration *);
+    virtual bool visit(CPlusPlus::ObjCMethod *symbol);
+    virtual bool visit(CPlusPlus::ObjCPropertyDeclaration *symbol);
 
-    QString scopedSymbolName(const QString &symbolName) const;
+    QString scopedSymbolName(const QString &symbolName, const CPlusPlus::Symbol *symbol) const;
     QString scopedSymbolName(const CPlusPlus::Symbol *symbol) const;
-    QString symbolName(const CPlusPlus::Symbol *symbol) const;
-    void appendItem(const QString &symbolName,
-                    const QString &symbolType,
-                    const QString &symbolScope,
-                    ModelItemInfo::ItemType type,
-                    CPlusPlus::Symbol *symbol);
+    QString scopeName(const QString &name, const CPlusPlus::Symbol *symbol) const;
+    IndexItem::Ptr addChildItem(const QString &symbolName, const QString &symbolType,
+                                const QString &symbolScope, IndexItem::ItemType type,
+                                CPlusPlus::Symbol *symbol);
+
+private:
+    template<class T> void processClass(T *clazz);
+    template<class T> void processFunction(T *func);
 
 private:
     QString findOrInsert(const QString &s)
-    { return *strings.insert(s); }
+    { return strings.insert(s); }
 
-    QSet<QString> strings;            // Used to avoid QString duplication
+    Internal::StringTable &strings;            // Used to avoid QString duplication
 
+    IndexItem::Ptr _parent;
     QString _scope;
     CPlusPlus::Overview overview;
     CPlusPlus::Icons icons;
-    QList<ModelItemInfo> items;
     SymbolTypes symbolsToSearchFor;
     QHash<const CPlusPlus::StringLiteral *, QString> m_paths;
 };
@@ -208,6 +121,5 @@ private:
 } // namespace CppTools
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CppTools::SearchSymbols::SymbolTypes)
-Q_DECLARE_METATYPE(CppTools::ModelItemInfo)
 
 #endif // SEARCHSYMBOLS_H

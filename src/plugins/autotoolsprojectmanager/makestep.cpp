@@ -1,9 +1,9 @@
 /**************************************************************************
 **
-** Copyright (C) 2014 Openismus GmbH.
+** Copyright (C) 2015 Openismus GmbH.
 ** Authors: Peter Penz (ppenz@openismus.com)
 **          Patricia Santana Cruz (patriciasantanacruz@gmail.com)
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -11,20 +11,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -74,21 +75,21 @@ QList<Core::Id> MakeStepFactory::availableCreationIds(BuildStepList *parent) con
     return QList<Core::Id>();
 }
 
-QString MakeStepFactory::displayNameForId(const Core::Id id) const
+QString MakeStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == MAKE_STEP_ID)
         return tr("Make", "Display name for AutotoolsProjectManager::MakeStep id.");
     return QString();
 }
 
-bool MakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool MakeStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     if (parent->target()->project()->id() == AUTOTOOLS_PROJECT_ID)
         return id == MAKE_STEP_ID;
     return false;
 }
 
-BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -133,7 +134,7 @@ MakeStep::MakeStep(BuildStepList* bsl) :
     ctor();
 }
 
-MakeStep::MakeStep(BuildStepList *bsl, const Core::Id id) :
+MakeStep::MakeStep(BuildStepList *bsl, Core::Id id) :
     AbstractProcessStep(bsl, id),
     m_clean(false)
 {
@@ -159,19 +160,21 @@ void MakeStep::setClean(bool clean)
     m_clean = clean;
 }
 
-bool MakeStep::init()
+bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
         bc = target()->activeBuildConfiguration();
+    if (!bc)
+        emit addTask(Task::buildConfigurationMissingTask());
 
-    m_tasks.clear();
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
-    if (!tc) {
-        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the kit options."),
-                            Utils::FileName(), -1,
-                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-        return true; // otherwise the tasks will not get reported
+    if (!tc)
+        emit addTask(Task::compilerMissingTask());
+
+    if (!tc || !bc) {
+        emitFaultyConfigurationMessage();
+        return false;
     }
 
     QString arguments = Utils::QtcProcess::joinArgs(m_buildTargets);
@@ -197,24 +200,11 @@ bool MakeStep::init()
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    return AbstractProcessStep::init();
+    return AbstractProcessStep::init(earlierSteps);
 }
 
 void MakeStep::run(QFutureInterface<bool> &interface)
 {
-    // Warn on common error conditions:
-    bool canContinue = true;
-    foreach (const Task &t, m_tasks) {
-        addTask(t);
-        canContinue = false;
-    }
-    if (!canContinue) {
-        emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
-        interface.reportResult(false);
-        emit finished();
-        return;
-    }
-
     AbstractProcessStep::run(interface);
 }
 
@@ -314,7 +304,7 @@ void MakeStepConfigWidget::updateDetails()
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
     if (!bc)
         bc = m_makeStep->target()->activeBuildConfiguration();
-    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
+    ToolChain *tc = ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
 
     if (tc) {
         QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->m_buildTargets);

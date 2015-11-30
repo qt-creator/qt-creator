@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,14 +31,23 @@
 #include "pluginview.h"
 #include "pluginmanager.h"
 #include "pluginspec.h"
+#include "pluginspec_p.h"
 #include "plugincollection.h"
+
+#include <utils/algorithm.h>
+#include <utils/categorysortfiltermodel.h>
+#include <utils/icon.h>
+#include <utils/itemviews.h>
+#include <utils/treemodel.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QGridLayout>
 #include <QHeaderView>
-#include <QPalette>
-#include <QTreeWidgetItem>
+#include <QItemSelectionModel>
+#include <QMessageBox>
+#include <QSet>
+#include <QSortFilterProxyModel>
 
 /*!
     \class ExtensionSystem::PluginView
@@ -64,59 +74,279 @@
     for example by a double-click.
 */
 
-using namespace ExtensionSystem;
-
 Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*)
 Q_DECLARE_METATYPE(ExtensionSystem::PluginCollection*)
+
+using namespace Utils;
+
+namespace ExtensionSystem {
+
+namespace Internal {
+
+enum Columns { NameColumn, LoadedColumn, VersionColumn, VendorColumn, };
+
+enum IconIndex { OkIcon, ErrorIcon, NotLoadedIcon };
+
+static const int SortRole = Qt::UserRole + 1;
+
+static const QIcon &icon(IconIndex icon)
+{
+    using namespace Utils;
+    switch (icon) {
+    case OkIcon: {
+        static const QIcon ok =
+                Icon({{QLatin1String(":/extensionsystem/images/ok.png"),
+                       Theme::IconsRunColor}}, Icon::Style::Tinted).icon();
+        return ok;
+    }
+    case ErrorIcon: {
+        static const QIcon error =
+                Icon({{QLatin1String(":/extensionsystem/images/error.png"),
+                       Theme::IconsErrorColor}}, Icon::Style::Tinted).icon();
+        return error;
+    }
+    default:
+    case NotLoadedIcon: {
+        static const QIcon notLoaded =
+                Icon({{QLatin1String(":/extensionsystem/images/notloaded.png"),
+                       Theme::IconsErrorColor}}, Icon::Style::Tinted).icon();
+        return notLoaded;
+    }
+    }
+}
+
+class PluginItem : public TreeItem
+{
+public:
+    PluginItem(PluginSpec *spec, PluginView *view)
+        : m_spec(spec), m_view(view)
+    {}
+
+    int columnCount() const { return 4; }
+
+    QVariant data(int column, int role) const
+    {
+        switch (column) {
+        case NameColumn:
+            if (role == Qt::DisplayRole || role == SortRole)
+                return m_spec->name();
+            if (role == Qt::ToolTipRole) {
+                QString toolTip;
+                if (!m_spec->isAvailableForHostPlatform())
+                    toolTip = PluginView::tr("Path: %1\nPlugin is not available on this platform.");
+                else if (m_spec->isEnabledIndirectly())
+                    toolTip = PluginView::tr("Path: %1\nPlugin is enabled as dependency of an enabled plugin.");
+                else if (m_spec->isForceEnabled())
+                    toolTip = PluginView::tr("Path: %1\nPlugin is enabled by command line argument.");
+                else if (m_spec->isForceDisabled())
+                    toolTip = PluginView::tr("Path: %1\nPlugin is disabled by command line argument.");
+                else
+                    toolTip = PluginView::tr("Path: %1");
+                return toolTip.arg(QDir::toNativeSeparators(m_spec->filePath()));
+            }
+            if (role == Qt::DecorationRole) {
+                bool ok = !m_spec->hasError();
+                QIcon i = icon(ok ? OkIcon : ErrorIcon);
+                if (ok && m_spec->state() != PluginSpec::Running)
+                    i = icon(NotLoadedIcon);
+                return i;
+            }
+            break;
+
+        case LoadedColumn:
+            if (!m_spec->isAvailableForHostPlatform()) {
+                if (role == Qt::CheckStateRole || role == SortRole)
+                    return Qt::Unchecked;
+                if (role == Qt::ToolTipRole)
+                    return PluginView::tr("Plugin is not available on this platform.");
+            } else if (m_spec->isRequired()) {
+                if (role == Qt::CheckStateRole || role == SortRole)
+                    return Qt::Checked;
+                if (role == Qt::ToolTipRole)
+                    return PluginView::tr("Plugin is required.");
+            } else {
+                if (role == Qt::CheckStateRole || role == SortRole)
+                    return m_spec->isEnabledBySettings() ? Qt::Checked : Qt::Unchecked;
+                if (role == Qt::ToolTipRole)
+                    return PluginView::tr("Load on startup");
+            }
+            break;
+
+        case VersionColumn:
+            if (role == Qt::DisplayRole || role == SortRole)
+                return QString::fromLatin1("%1 (%2)").arg(m_spec->version(), m_spec->compatVersion());
+            break;
+
+        case VendorColumn:
+            if (role == Qt::DisplayRole || role == SortRole)
+                return m_spec->vendor();
+            break;
+        }
+
+        return QVariant();
+    }
+
+    bool setData(int column, const QVariant &data, int role)
+    {
+        if (column == LoadedColumn && role == Qt::CheckStateRole)
+            return m_view->setPluginsEnabled(QSet<PluginSpec *>() << m_spec, data.toBool());
+        return false;
+    }
+
+    bool isEnabled() const
+    {
+        return m_spec->isAvailableForHostPlatform() && !m_spec->isRequired();
+    }
+
+    Qt::ItemFlags flags(int column) const
+    {
+        Qt::ItemFlags ret = Qt::ItemIsSelectable;
+
+        if (isEnabled())
+            ret |= Qt::ItemIsEnabled;
+
+        if (column == LoadedColumn) {
+            if (m_spec->isAvailableForHostPlatform() && !m_spec->isRequired())
+                ret |= Qt::ItemIsEditable | Qt ::ItemIsUserCheckable;
+        }
+
+        return ret;
+    }
+
+public:
+    PluginSpec *m_spec; // Not owned.
+    PluginView *m_view; // Not owned.
+};
+
+class CollectionItem : public TreeItem
+{
+public:
+    CollectionItem(const QString &name, QList<PluginSpec *> plugins, PluginView *view)
+        : m_name(name), m_plugins(plugins), m_view(view)
+    {
+        foreach (PluginSpec *spec, plugins)
+            appendChild(new PluginItem(spec, view));
+    }
+
+    int columnCount() const { return 4; }
+
+    QVariant data(int column, int role) const
+    {
+        if (column == NameColumn) {
+            if (role == Qt::DisplayRole || role == SortRole)
+                return m_name;
+            if (role == Qt::DecorationRole) {
+                foreach (PluginSpec *spec, m_plugins) {
+                    if (spec->hasError())
+                        return icon(ErrorIcon);
+                    if (!spec->isEnabledBySettings())
+                        return icon(NotLoadedIcon);
+                }
+                return icon(OkIcon);
+            }
+        }
+
+        if (column == LoadedColumn) {
+            if (role == Qt::ToolTipRole)
+                return PluginView::tr("Load on Startup");
+            if (role == Qt::CheckStateRole || role == SortRole) {
+                int checkedCount = 0;
+                foreach (PluginSpec *spec, m_plugins) {
+                    if (spec->isEnabledBySettings())
+                        ++checkedCount;
+                }
+
+                if (checkedCount == 0)
+                    return Qt::Unchecked;
+                if (checkedCount == m_plugins.length())
+                    return Qt::Checked;
+                return Qt::PartiallyChecked;
+            }
+        }
+
+        return QVariant();
+    }
+
+    bool setData(int column, const QVariant &data, int role)
+    {
+        if (column == LoadedColumn && role == Qt::CheckStateRole) {
+            QSet<PluginSpec *> affectedPlugins;
+            foreach (TreeItem *item, children())
+                affectedPlugins.insert(static_cast<PluginItem *>(item)->m_spec);
+            if (m_view->setPluginsEnabled(affectedPlugins, data.toBool())) {
+                update();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Qt::ItemFlags flags(int column) const
+    {
+        Qt::ItemFlags ret = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        if (column == LoadedColumn)
+            ret |= Qt::ItemIsEditable | Qt::ItemIsUserCheckable;
+        return ret;
+    }
+
+public:
+    QString m_name;
+    QList<PluginSpec *> m_plugins;
+    PluginView *m_view; // Not owned.
+};
+
+} // Internal
+
+using namespace ExtensionSystem::Internal;
 
 /*!
     Constructs a PluginView that gets the list of plugins from the
     given plugin \a manager with a given \a parent widget.
 */
 PluginView::PluginView(QWidget *parent)
-    : QWidget(parent),
-      m_allowCheckStateUpdate(true),
-      C_LOAD(1)
+    : QWidget(parent)
 {
-    m_categoryWidget = new QTreeWidget(this);
-    m_categoryWidget->setAlternatingRowColors(true);
-    m_categoryWidget->setIndentation(20);
-    m_categoryWidget->setUniformRowHeights(true);
-    m_categoryWidget->setSortingEnabled(true);
-    m_categoryWidget->setColumnCount(4);
-    m_categoryWidget->setColumnWidth(C_LOAD, 40);
-    m_categoryWidget->header()->setDefaultSectionSize(120);
-    m_categoryWidget->header()->setMinimumSectionSize(35);
+    m_categoryView = new TreeView(this);
+    m_categoryView->setAlternatingRowColors(true);
+    m_categoryView->setIndentation(20);
+    m_categoryView->setUniformRowHeights(true);
+    m_categoryView->setSortingEnabled(true);
+    m_categoryView->setColumnWidth(LoadedColumn, 40);
+    m_categoryView->header()->setDefaultSectionSize(120);
+    m_categoryView->header()->setMinimumSectionSize(35);
+    m_categoryView->header()->setSortIndicator(0, Qt::AscendingOrder);
+    m_categoryView->setActivationMode(DoubleClickActivation);
+    m_categoryView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_categoryView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    QTreeWidgetItem *headerItem = m_categoryWidget->headerItem();
-    headerItem->setText(0, tr("Name"));
-    headerItem->setText(1, tr("Load"));
-    headerItem->setText(2, tr("Version"));
-    headerItem->setText(3, tr("Vendor"));
+    m_model = new TreeModel(this);
+    m_model->setHeader(QStringList() << tr("Name") << tr("Load") << tr("Version") << tr("Vendor"));
+
+    m_sortModel = new CategorySortFilterModel(this);
+    m_sortModel->setSourceModel(m_model);
+    m_sortModel->setSortRole(SortRole);
+    m_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_sortModel->setFilterKeyColumn(-1/*all*/);
+    m_categoryView->setModel(m_sortModel);
 
     QGridLayout *gridLayout = new QGridLayout(this);
     gridLayout->setContentsMargins(2, 2, 2, 2);
-    gridLayout->addWidget(m_categoryWidget, 1, 0, 1, 1);
+    gridLayout->addWidget(m_categoryView, 1, 0, 1, 1);
 
-    QHeaderView *header = m_categoryWidget->header();
-    header->setResizeMode(0, QHeaderView::ResizeToContents);
-    header->setResizeMode(2, QHeaderView::ResizeToContents);
+    QHeaderView *header = m_categoryView->header();
+    header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
-    m_okIcon = QIcon(QLatin1String(":/extensionsystem/images/ok.png"));
-    m_errorIcon = QIcon(QLatin1String(":/extensionsystem/images/error.png"));
-    m_notLoadedIcon = QIcon(QLatin1String(":/extensionsystem/images/notloaded.png"));
+    connect(PluginManager::instance(), &PluginManager::pluginsChanged,
+            this, &PluginView::updatePlugins);
 
-    // cannot disable these
-    m_whitelist << QString::fromLatin1("Core") << QString::fromLatin1("Locator")
-                << QString::fromLatin1("Find") << QString::fromLatin1("TextEditor");
+    connect(m_categoryView, &QAbstractItemView::activated,
+            [this](const QModelIndex &idx) { pluginActivated(pluginForIndex(idx)); });
 
-    connect(PluginManager::instance(), SIGNAL(pluginsChanged()), this, SLOT(updateList()));
-    connect(m_categoryWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-            this, SLOT(selectPlugin(QTreeWidgetItem*)));
-    connect(m_categoryWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
-            this, SLOT(activatePlugin(QTreeWidgetItem*)));
+    connect(m_categoryView->selectionModel(), &QItemSelectionModel::currentChanged,
+            [this](const QModelIndex &idx) { currentPluginChanged(pluginForIndex(idx)); });
 
-    updateList();
+    updatePlugins();
 }
 
 /*!
@@ -131,252 +361,115 @@ PluginView::~PluginView()
 */
 PluginSpec *PluginView::currentPlugin() const
 {
-    if (!m_categoryWidget->currentItem())
-        return 0;
-    if (!m_categoryWidget->currentItem()->data(0, Qt::UserRole).isNull())
-        return m_categoryWidget->currentItem()->data(0, Qt::UserRole).value<PluginSpec *>();
-    return 0;
+    return pluginForIndex(m_categoryView->currentIndex());
 }
 
-void PluginView::updateList()
+void PluginView::setFilter(const QString &filter)
 {
-    connect(m_categoryWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
-            this, SLOT(updatePluginSettings(QTreeWidgetItem*,int)));
+    m_sortModel->setFilterFixedString(filter);
+    m_categoryView->expandAll();
+}
+
+PluginSpec *PluginView::pluginForIndex(const QModelIndex &index) const
+{
+    const QModelIndex &sourceIndex = m_sortModel->mapToSource(index);
+    auto item = dynamic_cast<PluginItem *>(m_model->itemForIndex(sourceIndex));
+    return item ? item->m_spec: 0;
+}
+
+void PluginView::updatePlugins()
+{
+    // Model.
+    m_model->clear();
 
     PluginCollection *defaultCollection = 0;
+    QList<CollectionItem *> collections;
     foreach (PluginCollection *collection, PluginManager::pluginCollections()) {
         if (collection->name().isEmpty() || collection->plugins().isEmpty()) {
             defaultCollection = collection;
             continue;
         }
-        // State, name, load, version, vendor.
-        QTreeWidgetItem *collectionItem = new QTreeWidgetItem(QStringList()
-            << collection->name()
-            << QString()    // state
-            << QString()    // load
-            << QString()    // version
-            << QString());  // vendor
-        m_items.append(collectionItem);
-
-        Qt::CheckState groupState = Qt::Unchecked;
-        int state = parsePluginSpecs(collectionItem, groupState, collection->plugins());
-
-        collectionItem->setIcon(0, iconForState(state));
-        collectionItem->setData(C_LOAD, Qt::CheckStateRole, QVariant(groupState));
-        collectionItem->setToolTip(C_LOAD, tr("Load on Startup"));
-        collectionItem->setData(0, Qt::UserRole, qVariantFromValue(collection));
+        collections.append(new CollectionItem(collection->name(), collection->plugins(), this));
     }
 
-    QList<PluginSpec *> plugins = defaultCollection ? defaultCollection->plugins() : QList<PluginSpec *>();
+    QList<PluginSpec *> plugins;
+    if (defaultCollection)
+        plugins = defaultCollection->plugins();
+
     if (!plugins.isEmpty()) {
         // add all non-categorized plugins into utilities. could also be added as root items
         // but that makes the tree ugly.
-        QTreeWidgetItem *defaultCollectionItem = new QTreeWidgetItem(QStringList()
-            << QString(tr("Utilities"))
-            << QString()
-            << QString()
-            << QString()
-            << QString());
-
-        m_items.append(defaultCollectionItem);
-        Qt::CheckState groupState = Qt::Unchecked;
-        int state = parsePluginSpecs(defaultCollectionItem, groupState, plugins);
-
-        defaultCollectionItem->setIcon(0, iconForState(state));
-        defaultCollectionItem->setData(C_LOAD, Qt::CheckStateRole, QVariant(groupState));
-        defaultCollectionItem->setToolTip(C_LOAD, tr("Load on Startup"));
-        defaultCollectionItem->setData(0, Qt::UserRole, qVariantFromValue(defaultCollection));
+        collections.append(new CollectionItem(tr("Utilities"), plugins, this));
     }
 
-    updatePluginDependencies();
+    Utils::sort(collections, [](CollectionItem *a, CollectionItem *b) -> bool
+        { return a->m_name < b->m_name; });
 
-    m_categoryWidget->clear();
-    if (!m_items.isEmpty()) {
-        m_categoryWidget->addTopLevelItems(m_items);
-        m_categoryWidget->expandAll();
-    }
+    foreach (CollectionItem *collection, collections)
+        m_model->rootItem()->appendChild(collection);
 
-    m_categoryWidget->sortItems(0, Qt::AscendingOrder);
-    if (m_categoryWidget->topLevelItemCount())
-        m_categoryWidget->setCurrentItem(m_categoryWidget->topLevelItem(0));
+    m_model->layoutChanged();
+    m_categoryView->expandAll();
 }
 
-int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins)
+static QString pluginListString(const QSet<PluginSpec *> &plugins)
 {
-    int ret = 0;
-    int checkedCount = 0;
+    QStringList names = Utils::transform<QList>(plugins, &PluginSpec::name);
+    names.sort();
+    return names.join(QLatin1Char('\n'));
+}
 
-    for (int i = 0; i < plugins.length(); ++i) {
-        PluginSpec *spec = plugins[i];
-        if (spec->hasError())
-            ret |= ParsedWithErrors;
-
-        QTreeWidgetItem *pluginItem = new QTreeWidgetItem(QStringList()
-            << spec->name()
-            << QString()    // load on startup
-            << QString::fromLatin1("%1 (%2)").arg(spec->version(), spec->compatVersion())
-            << spec->vendor());
-
-        pluginItem->setToolTip(0, QDir::toNativeSeparators(spec->filePath()));
-        bool ok = !spec->hasError();
-        QIcon icon = ok ? m_okIcon : m_errorIcon;
-        if (ok && (spec->state() != PluginSpec::Running))
-            icon = m_notLoadedIcon;
-
-        pluginItem->setIcon(0, icon);
-        pluginItem->setData(0, Qt::UserRole, qVariantFromValue(spec));
-
-        Qt::CheckState state = Qt::Unchecked;
-        if (spec->isEnabledInSettings()) {
-            state = Qt::Checked;
-            ++checkedCount;
+bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enable)
+{
+    QSet<PluginSpec *> additionalPlugins;
+    if (enable) {
+        foreach (PluginSpec *spec, plugins) {
+            foreach (PluginSpec *other, PluginManager::pluginsRequiredByPlugin(spec)) {
+                if (!other->isEnabledBySettings())
+                    additionalPlugins.insert(other);
+            }
         }
-
-        if (!m_whitelist.contains(spec->name())) {
-            pluginItem->setData(C_LOAD, Qt::CheckStateRole, state);
-        } else {
-            pluginItem->setData(C_LOAD, Qt::CheckStateRole, Qt::Checked);
-            pluginItem->setFlags(Qt::ItemIsSelectable);
+        additionalPlugins.subtract(plugins);
+        if (!additionalPlugins.isEmpty()) {
+            if (QMessageBox::question(this, tr("Enabling Plugins"),
+                                      tr("Enabling\n%1\nwill also enable the following plugins:\n\n%2")
+                                      .arg(pluginListString(plugins))
+                                      .arg(pluginListString(additionalPlugins)),
+                                      QMessageBox::Ok | QMessageBox::Cancel,
+                                      QMessageBox::Ok) != QMessageBox::Ok)
+                return false;
         }
-
-        pluginItem->setToolTip(C_LOAD, tr("Load on Startup"));
-
-        m_specToItem.insert(spec, pluginItem);
-
-        if (parentItem)
-            parentItem->addChild(pluginItem);
-        else
-            m_items.append(pluginItem);
-    }
-
-    if (checkedCount == 0) {
-        groupState = Qt::Unchecked;
-        ret |= ParsedNone;
-    } else if (checkedCount == plugins.length()) {
-        groupState = Qt::Checked;
-        ret |= ParsedAll;
     } else {
-        groupState = Qt::PartiallyChecked;
-        ret = ret | ParsedPartial;
-    }
-    return ret;
-}
-
-QIcon PluginView::iconForState(int state)
-{
-    if (state & ParsedWithErrors)
-        return m_errorIcon;
-
-    if (state & ParsedNone || state & ParsedPartial)
-        return m_notLoadedIcon;
-
-    return m_okIcon;
-}
-
-void PluginView::selectPlugin(QTreeWidgetItem *current)
-{
-    if (!current)
-        emit currentPluginChanged(0);
-    else if (current->data(0, Qt::UserRole).canConvert<PluginSpec*>())
-        emit currentPluginChanged(current->data(0, Qt::UserRole).value<PluginSpec *>());
-    else
-        emit currentPluginChanged(0);
-
-}
-
-void PluginView::activatePlugin(QTreeWidgetItem *item)
-{
-    if (item->data(0, Qt::UserRole).canConvert<PluginSpec*>()) {
-        emit pluginActivated(item->data(0, Qt::UserRole).value<PluginSpec *>());
-    } else
-        emit pluginActivated(0);
-}
-
-void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
-{
-    if (!m_allowCheckStateUpdate)
-        return;
-
-    m_allowCheckStateUpdate = false;
-
-    bool loadOnStartup = item->data(C_LOAD, Qt::CheckStateRole).toBool();
-
-    if (item->data(0, Qt::UserRole).canConvert<PluginSpec*>()) {
-        PluginSpec *spec = item->data(0, Qt::UserRole).value<PluginSpec *>();
-
-        if (column == C_LOAD) {
-
-            spec->setEnabled(loadOnStartup);
-            updatePluginDependencies();
-
-            if (item->parent()) {
-                PluginCollection *collection = item->parent()->data(0, Qt::UserRole).value<PluginCollection *>();
-                Qt::CheckState state = Qt::PartiallyChecked;
-                int loadCount = 0;
-                for (int i = 0; i < collection->plugins().length(); ++i) {
-                    if (collection->plugins().at(i)->isEnabledInSettings())
-                        ++loadCount;
-                }
-                if (loadCount == collection->plugins().length())
-                    state = Qt::Checked;
-                else if (loadCount == 0)
-                    state = Qt::Unchecked;
-
-                item->parent()->setData(C_LOAD, Qt::CheckStateRole, state);
-            }
-
-            emit pluginSettingsChanged(spec);
-        }
-
-    } else {
-        PluginCollection *collection = item->data(0, Qt::UserRole).value<PluginCollection *>();
-        for (int i = 0; i < collection->plugins().length(); ++i) {
-            PluginSpec *spec = collection->plugins().at(i);
-            QTreeWidgetItem *child = m_specToItem.value(spec);
-
-            if (!m_whitelist.contains(spec->name())) {
-                spec->setEnabled(loadOnStartup);
-                Qt::CheckState state = (loadOnStartup ? Qt::Checked : Qt::Unchecked);
-                child->setData(C_LOAD, Qt::CheckStateRole, state);
-            } else {
-                child->setData(C_LOAD, Qt::CheckStateRole, Qt::Checked);
-                child->setFlags(Qt::ItemIsSelectable);
+        foreach (PluginSpec *spec, plugins) {
+            foreach (PluginSpec *other, PluginManager::pluginsRequiringPlugin(spec)) {
+                if (other->isEnabledBySettings())
+                    additionalPlugins.insert(other);
             }
         }
-        updatePluginDependencies();
-        if (!collection->plugins().isEmpty())
-            emit pluginSettingsChanged(collection->plugins().first());
-    }
-
-    m_allowCheckStateUpdate = true;
-}
-
-void PluginView::updatePluginDependencies()
-{
-    foreach (PluginSpec *spec, PluginManager::loadQueue()) {
-        bool disableIndirectly = false;
-        if (m_whitelist.contains(spec->name()))
-            continue;
-
-        QHashIterator<PluginDependency, PluginSpec *> it(spec->dependencySpecs());
-        while (it.hasNext()) {
-            it.next();
-            if (it.key().type == PluginDependency::Optional)
-                continue;
-            PluginSpec *depSpec = it.value();
-            if (!depSpec->isEnabledInSettings() || depSpec->isDisabledIndirectly()) {
-                disableIndirectly = true;
-                break;
-            }
+        additionalPlugins.subtract(plugins);
+        if (!additionalPlugins.isEmpty()) {
+            if (QMessageBox::question(this, tr("Disabling Plugins"),
+                                      tr("Disabling\n%1\nwill also disable the following plugins:\n\n%2")
+                                      .arg(pluginListString(plugins))
+                                      .arg(pluginListString(additionalPlugins)),
+                                      QMessageBox::Ok | QMessageBox::Cancel,
+                                      QMessageBox::Ok) != QMessageBox::Ok)
+                return false;
         }
-        QTreeWidgetItem *childItem = m_specToItem.value(spec);
-        childItem->setDisabled(disableIndirectly);
-
-        if (disableIndirectly == spec->isDisabledIndirectly())
-            continue;
-        spec->setDisabledIndirectly(disableIndirectly);
-
-        if (childItem->parent() && !childItem->parent()->isExpanded())
-            childItem->parent()->setExpanded(true);
     }
+
+    QSet<PluginSpec *> affectedPlugins = plugins + additionalPlugins;
+    foreach (PluginSpec *spec, affectedPlugins) {
+        PluginItem *item = m_model->findItemAtLevel<PluginItem *>(2, [spec](PluginItem *item) {
+                return item->m_spec == spec;
+        });
+        QTC_ASSERT(item, continue);
+        spec->d->setEnabledBySettings(enable);
+        item->updateColumn(LoadedColumn);
+        item->parent()->updateColumn(LoadedColumn);
+        emit pluginSettingsChanged(spec);
+    }
+    return true;
 }
+
+} // namespace ExtensionSystem

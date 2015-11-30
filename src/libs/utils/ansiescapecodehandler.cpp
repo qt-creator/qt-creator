@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Petar Perisin <petar.perisin@gmail.com>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Petar Perisin <petar.perisin@gmail.com>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -85,47 +86,83 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
         DefaultBackgroundColor = 49
     };
 
-    QList<FormattedText> outputData;
-
-    QTextCharFormat charFormat = m_previousFormatClosed ? input.format : m_previousFormat;
-
     const QString escape = QLatin1String("\x1b[");
-    const int escapePos = input.text.indexOf(escape);
-    if (escapePos < 0) {
-        outputData << FormattedText(input.text, charFormat);
-        return outputData;
-    } else if (escapePos != 0) {
-        outputData << FormattedText(input.text.left(escapePos), charFormat);
-    }
-
     const QChar semicolon       = QLatin1Char(';');
     const QChar colorTerminator = QLatin1Char('m');
-    // strippedText always starts with "\e["
-    QString strippedText = input.text.mid(escapePos);
+    const QChar eraseToEol      = QLatin1Char('K');
+
+    QList<FormattedText> outputData;
+    QTextCharFormat charFormat = m_previousFormatClosed ? input.format : m_previousFormat;
+    QString strippedText;
+    if (m_pendingText.isEmpty()) {
+        strippedText = input.text;
+    } else {
+        strippedText = m_pendingText.append(input.text);
+        m_pendingText.clear();
+    }
+
     while (!strippedText.isEmpty()) {
-        while (strippedText.startsWith(escape)) {
-            strippedText.remove(0, 2);
+        QTC_ASSERT(m_pendingText.isEmpty(), break);
+        const int escapePos = strippedText.indexOf(escape[0]);
+        if (escapePos < 0) {
+            outputData << FormattedText(strippedText, charFormat);
+            break;
+        } else if (escapePos != 0) {
+            outputData << FormattedText(strippedText.left(escapePos), charFormat);
+            strippedText.remove(0, escapePos);
+        }
+        QTC_ASSERT(strippedText[0] == escape[0], break);
 
-            // get the number
-            QString strNumber;
-            QStringList numbers;
-            while (strippedText.at(0).isDigit() || strippedText.at(0) == semicolon) {
-                if (strippedText.at(0).isDigit()) {
-                    strNumber += strippedText.at(0);
-                } else {
-                    numbers << strNumber;
-                    strNumber.clear();
-                }
-                strippedText.remove(0, 1);
+        while (!strippedText.isEmpty() && escape[0] == strippedText[0]) {
+            if (escape.startsWith(strippedText)) {
+                // control secquence is not complete
+                m_pendingText += strippedText;
+                strippedText.clear();
+                break;
             }
-            if (!strNumber.isEmpty())
-                numbers << strNumber;
-
-            // remove terminating char
-            if (!strippedText.startsWith(colorTerminator)) {
+            if (!strippedText.startsWith(escape)) {
+                // not a control sequence
+                m_pendingText.clear();
+                outputData << FormattedText(strippedText.left(1), charFormat);
                 strippedText.remove(0, 1);
                 continue;
             }
+            m_pendingText += strippedText.mid(0, escape.length());
+            strippedText.remove(0, escape.length());
+
+            // \e[K is not supported. Just strip it.
+            if (strippedText.startsWith(eraseToEol)) {
+                m_pendingText.clear();
+                strippedText.remove(0, 1);
+                continue;
+            }
+            // get the number
+            QString strNumber;
+            QStringList numbers;
+            while (!strippedText.isEmpty()) {
+                if (strippedText.at(0).isDigit()) {
+                    strNumber += strippedText.at(0);
+                } else {
+                    if (!strNumber.isEmpty())
+                        numbers << strNumber;
+                    if (strNumber.isEmpty() || strippedText.at(0) != semicolon)
+                        break;
+                    strNumber.clear();
+                }
+                m_pendingText += strippedText.mid(0, 1);
+                strippedText.remove(0, 1);
+            }
+            if (strippedText.isEmpty())
+                break;
+
+            // remove terminating char
+            if (!strippedText.startsWith(colorTerminator)) {
+                m_pendingText.clear();
+                strippedText.remove(0, 1);
+                break;
+            }
+            // got consistent control sequence, ok to clear pending text
+            m_pendingText.clear();
             strippedText.remove(0, 1);
 
             if (numbers.isEmpty()) {
@@ -162,9 +199,11 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                         break;
                     case RgbTextColor:
                     case RgbBackgroundColor:
+                        // See http://en.wikipedia.org/wiki/ANSI_escape_code#Colors
                         if (++i >= numbers.size())
                             break;
-                        if (numbers.at(i).toInt() == 2) {
+                        switch (numbers.at(i).toInt()) {
+                        case 2:
                             // RGB set with format: 38;2;<r>;<g>;<b>
                             if ((i + 3) < numbers.size()) {
                                 (code == RgbTextColor) ?
@@ -177,10 +216,36 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                                 setFormatScope(charFormat);
                             }
                             i += 3;
-                        } else if (numbers.at(i).toInt() == 5) {
-                            // rgb set with format: 38;5;<i>
-                            // unsupported because of unclear documentation, so we just skip <i>
+                            break;
+                        case 5:
+                            // 256 color mode with format: 38;5;<i>
+                            uint index = numbers.at(i + 1).toInt();
+
+                            QColor color;
+                            if (index < 8) {
+                                // The first 8 colors are standard low-intensity ANSI colors.
+                                color = ansiColor(index);
+                            } else if (index < 16) {
+                                // The next 8 colors are standard high-intensity ANSI colors.
+                                color = ansiColor(index - 8).lighter(150);
+                            } else if (index < 232) {
+                                // The next 216 colors are a 6x6x6 RGB cube.
+                                uint o = index - 16;
+                                color = QColor((o / 36) * 51, ((o / 6) % 6) * 51, (o % 6) * 51);
+                            } else {
+                                // The last 24 colors are a greyscale gradient.
+                                uint grey = (index - 232) * 11;
+                                color = QColor(grey, grey, grey);
+                            }
+
+                            if (code == RgbTextColor)
+                                charFormat.setForeground(color);
+                            else
+                                charFormat.setBackground(color);
+
+                            setFormatScope(charFormat);
                             ++i;
+                            break;
                         }
                         break;
                     default:
@@ -188,17 +253,6 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                     }
                 }
             }
-        }
-
-        if (strippedText.isEmpty())
-            break;
-        int index = strippedText.indexOf(escape);
-        if (index > 0) {
-            outputData << FormattedText(strippedText.left(index), charFormat);
-            strippedText.remove(0, index);
-        } else if (index == -1) {
-            outputData << FormattedText(strippedText, charFormat);
-            break;
         }
     }
     return outputData;

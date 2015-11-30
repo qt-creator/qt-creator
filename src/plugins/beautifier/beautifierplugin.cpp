@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 Lorenz Haas
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Lorenz Haas
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,6 +31,7 @@
 #include "beautifierplugin.h"
 
 #include "beautifierconstants.h"
+
 #include "artisticstyle/artisticstyle.h"
 #include "clangformat/clangformat.h"
 #include "uncrustify/uncrustify.h"
@@ -44,14 +46,20 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <diffeditor/differ.h>
-#include <texteditor/basetextdocument.h>
-#include <texteditor/basetextdocumentlayout.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/convenience.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
+#include <utils/QtConcurrentTools>
 
 #include <QAction>
+#include <QDir>
 #include <QFileInfo>
+#include <QFutureWatcher>
+#include <QMenu>
 #include <QPlainTextEdit>
 #include <QProcess>
 #include <QScrollBar>
@@ -59,15 +67,23 @@
 #include <QTimer>
 #include <QtPlugin>
 
+using namespace TextEditor;
+
 namespace Beautifier {
 namespace Internal {
 
-BeautifierPlugin::BeautifierPlugin()
+BeautifierPlugin::BeautifierPlugin() :
+    m_asyncFormatMapper(new QSignalMapper)
 {
+    connect(m_asyncFormatMapper,
+            static_cast<void (QSignalMapper::*)(QObject *)>(&QSignalMapper::mapped),
+            this, &BeautifierPlugin::formatCurrentFileContinue);
+    connect(this, &BeautifierPlugin::pipeError, this, &BeautifierPlugin::showError);
 }
 
 BeautifierPlugin::~BeautifierPlugin()
 {
+    m_asyncFormatMapper->deleteLater();
 }
 
 bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -80,15 +96,14 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
     m_tools << new Uncrustify::Uncrustify(this);
 
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(QLatin1String("Beautifier"));
+    menu->menu()->setTitle(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
-    for (int i = 0, total = m_tools.count(); i < total; ++i) {
-        BeautifierAbstractTool *tool = m_tools.at(i);
+    foreach (BeautifierAbstractTool *tool, m_tools) {
         tool->initialize();
         const QList<QObject *> autoReleasedObjects = tool->autoReleaseObjects();
-        for (int j = 0, total = autoReleasedObjects.count(); j < total; ++j)
-            addAutoReleasedObject(autoReleasedObjects.at(j));
+        foreach (QObject *object, autoReleasedObjects)
+            addAutoReleasedObject(object);
     }
 
     // The single shot is needed, otherwise the menu will stay disabled even
@@ -100,8 +115,8 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
 void BeautifierPlugin::extensionsInitialized()
 {
     if (const Core::EditorManager *editorManager = Core::EditorManager::instance()) {
-        connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
-                this, SLOT(updateActions(Core::IEditor*)));
+        connect(editorManager, &Core::EditorManager::currentEditorChanged,
+                this, &BeautifierPlugin::updateActions);
     }
 }
 
@@ -112,77 +127,183 @@ ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
 
 void BeautifierPlugin::updateActions(Core::IEditor *editor)
 {
-    for (int i = 0, total = m_tools.count(); i < total; ++i)
-        m_tools.at(i)->updateActions(editor);
+    foreach (BeautifierAbstractTool *tool, m_tools)
+        tool->updateActions(editor);
 }
 
-QString BeautifierPlugin::format(const QString &text, QStringList command, const QString &fileName)
+// Use pipeError() instead of calling showError() because this function may run in another thread.
+QString BeautifierPlugin::format(const QString &text, const Command &command,
+                                 const QString &fileName, bool *timeout)
 {
-    if (command.isEmpty())
+    const QString executable = command.executable();
+    if (executable.isEmpty())
         return QString();
 
-    // Save text to temporary file
-    QFileInfo fi(fileName);
-    Utils::TempFileSaver sourceFile(QLatin1String("qtc_beautifier_XXXXXXXX.") + fi.suffix());
-    sourceFile.setAutoRemove(true);
-    sourceFile.write(text.toUtf8());
-    if (!sourceFile.finalize()) {
-        showError(tr("Cannot create temporary file \"%1\": %2.")
-                  .arg(sourceFile.fileName()).arg(sourceFile.errorString()));
-        return QString();
+    switch (command.processing()) {
+    case Command::FileProcessing: {
+        // Save text to temporary file
+        const QFileInfo fi(fileName);
+        Utils::TempFileSaver sourceFile(QDir::tempPath() + QLatin1String("/qtc_beautifier_XXXXXXXX.")
+                                        + fi.suffix());
+        sourceFile.setAutoRemove(true);
+        sourceFile.write(text.toUtf8());
+        if (!sourceFile.finalize()) {
+            emit pipeError(tr("Cannot create temporary file \"%1\": %2.")
+                           .arg(sourceFile.fileName()).arg(sourceFile.errorString()));
+            return QString();
+        }
+
+        // Format temporary file
+        QProcess process;
+        QStringList options = command.options();
+        options.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
+        process.start(executable, options);
+        if (!process.waitForFinished(5000)) {
+            if (timeout)
+                *timeout = true;
+            process.kill();
+            emit pipeError(tr("Cannot call %1 or some other error occurred.").arg(executable));
+            return QString();
+        }
+        const QByteArray output = process.readAllStandardError();
+        if (!output.isEmpty())
+            emit pipeError(executable + QLatin1String(": ") + QString::fromUtf8(output));
+
+        // Read text back
+        Utils::FileReader reader;
+        if (!reader.fetch(sourceFile.fileName(), QIODevice::Text)) {
+            emit pipeError(tr("Cannot read file \"%1\": %2.")
+                           .arg(sourceFile.fileName()).arg(reader.errorString()));
+            return QString();
+        }
+        return QString::fromUtf8(reader.data());
+    } break;
+
+    case Command::PipeProcessing: {
+        QProcess process;
+        QStringList options = command.options();
+        options.replaceInStrings(QLatin1String("%file"), fileName);
+        process.start(executable, options);
+        if (!process.waitForStarted(3000)) {
+            emit pipeError(tr("Cannot call %1 or some other error occurred.").arg(executable));
+            return QString();
+        }
+        process.write(text.toUtf8());
+        process.closeWriteChannel();
+        if (!process.waitForFinished(5000)) {
+            if (timeout)
+                *timeout = true;
+            process.kill();
+            emit pipeError(tr("Cannot call %1 or some other error occurred.").arg(executable));
+            return QString();
+        }
+        const QByteArray errorText = process.readAllStandardError();
+        if (!errorText.isEmpty()) {
+            emit pipeError(QString::fromLatin1("%1: %2").arg(executable)
+                           .arg(QString::fromUtf8(errorText)));
+            return QString();
+        }
+
+        const bool addsNewline = command.pipeAddsNewline();
+        const bool returnsCRLF = command.returnsCRLF();
+        if (addsNewline || returnsCRLF) {
+            QString formatted = QString::fromUtf8(process.readAllStandardOutput());
+            if (addsNewline)
+                formatted.remove(QRegExp(QLatin1String("(\\r\\n|\\n)$")));
+            if (returnsCRLF)
+                formatted.replace(QLatin1String("\r\n"), QLatin1String("\n"));
+            return formatted;
+        }
+        return QString::fromUtf8(process.readAllStandardOutput());
+    }
     }
 
-    // Format temporary file
-    QProcess process;
-    command.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
-    const QString processProgram = command.takeFirst();
-    process.start(processProgram, command);
-    if (!process.waitForFinished()) {
-        showError(tr("Cannot call %1 or some other error occurred.").arg(processProgram));
-        return QString();
-    }
-    const QByteArray output = process.readAllStandardError();
-    if (!output.isEmpty())
-        showError(processProgram + QLatin1String(": ") + QString::fromLocal8Bit(output));
-
-    // Read text back
-    Utils::FileReader reader;
-    if (!reader.fetch(sourceFile.fileName(), QIODevice::Text)) {
-        showError(tr("Cannot read file \"%1\": %2.")
-                  .arg(sourceFile.fileName()).arg(reader.errorString()));
-        return QString();
-    }
-    return QString::fromUtf8(reader.data());
+    return QString();
 }
 
-void BeautifierPlugin::formatCurrentFile(QStringList command)
+void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, int endPos)
 {
-    QPlainTextEdit *textEditor = 0;
-    if (TextEditor::BaseTextEditor *editor
-            = qobject_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::currentEditor()))
-        textEditor = qobject_cast<QPlainTextEdit *>(editor->editorWidget());
-    if (!textEditor)
+    QTC_ASSERT(startPos <= endPos, return);
+
+    if (TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget()) {
+        if (const TextDocument *doc = widget->textDocument()) {
+            const QString sourceData = (startPos < 0)
+                    ? widget->toPlainText()
+                    : Convenience::textAt(widget->textCursor(), startPos, (endPos - startPos));
+            if (sourceData.isEmpty())
+                return;
+            const FormatTask task = FormatTask(widget, doc->filePath().toString(), sourceData,
+                                               command, startPos, endPos);
+
+            QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
+            connect(doc, &TextDocument::contentsChanged,
+                    watcher, &QFutureWatcher<FormatTask>::cancel);
+            connect(watcher, &QFutureWatcherBase::finished, m_asyncFormatMapper,
+                    static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+            m_asyncFormatMapper->setMapping(watcher, watcher);
+            watcher->setFuture(QtConcurrent::run(&BeautifierPlugin::formatAsync, this, task));
+        }
+    }
+}
+
+void BeautifierPlugin::formatAsync(QFutureInterface<FormatTask> &future, FormatTask task)
+{
+    task.formattedData = format(task.sourceData, task.command, task.filePath, &task.timeout);
+    future.reportResult(task);
+}
+
+void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
+{
+    QFutureWatcher<FormatTask> *futureWatcher = static_cast<QFutureWatcher<FormatTask>*>(watcher);
+    if (!futureWatcher) {
+        if (watcher)
+            watcher->deleteLater();
         return;
+    }
+
+    if (futureWatcher->isCanceled()) {
+        showError(tr("File was modified."));
+        futureWatcher->deleteLater();
+        return;
+    }
+
+    const FormatTask task = futureWatcher->result();
+    futureWatcher->deleteLater();
+
+    if (task.timeout) {
+        showError(tr("Time out reached while formatting file %1.").arg(task.filePath));
+        return;
+    }
+
+    if (task.formattedData.isEmpty()) {
+        showError(tr("Could not format file %1.").arg(task.filePath));
+        return;
+    }
+
+    QPlainTextEdit *textEditor = task.editor;
+    if (!textEditor) {
+        showError(tr("File %1 was closed.").arg(task.filePath));
+        return;
+    }
 
     const QString sourceData = textEditor->toPlainText();
-    if (sourceData.isEmpty())
+    const QString formattedData = (task.startPos < 0)
+            ? task.formattedData
+            : QString(sourceData).replace(task.startPos, (task.endPos - task.startPos),
+                                          task.formattedData);
+    if (sourceData == formattedData)
         return;
 
-    const QString formattedData = format(sourceData, command,
-                                         Core::EditorManager::currentDocument()->filePath());
-    if ((sourceData == formattedData) || formattedData.isEmpty())
-        return;
 
     // Since QTextCursor does not work properly with folded blocks, all blocks must be unfolded.
     // To restore the current state at the end, keep track of which block is folded.
     QList<int> foldedBlocks;
     QTextBlock block = textEditor->document()->firstBlock();
     while (block.isValid()) {
-        if (const TextEditor::TextBlockUserData *userdata
-                = static_cast<TextEditor::TextBlockUserData *>(block.userData())) {
+        if (const TextBlockUserData *userdata = static_cast<TextBlockUserData *>(block.userData())) {
             if (userdata->folded()) {
                 foldedBlocks << block.blockNumber();
-                TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(block, true);
+                TextDocumentLayout::doFoldOrUnfold(block, true);
             }
         }
         block = block.next();
@@ -203,9 +324,7 @@ void BeautifierPlugin::formatCurrentFile(QStringList command)
     int newCursorPos = charactersInfrontOfCursor;
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-    const int diffSize = diff.size();
-    for (int i = 0; i < diffSize; ++i) {
-        const DiffEditor::Diff d = diff.at(i);
+    foreach (const DiffEditor::Diff &d, diff) {
         switch (d.command) {
         case DiffEditor::Diff::Insert:
         {
@@ -276,11 +395,10 @@ void BeautifierPlugin::formatCurrentFile(QStringList command)
                                               + absoluteVerticalCursorOffset / fontHeight);
     // Restore folded blocks
     const QTextDocument *doc = textEditor->document();
-    const int total = foldedBlocks.size();
-    for (int i = 0; i < total; ++i) {
-        QTextBlock block = doc->findBlockByNumber(qMax(0, foldedBlocks.at(i)));
+    foreach (const int blockId, foldedBlocks) {
+        const QTextBlock block = doc->findBlockByNumber(qMax(0, blockId));
         if (block.isValid())
-            TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(block, false);
+            TextDocumentLayout::doFoldOrUnfold(block, false);
     }
 
     textEditor->document()->setModified(true);
@@ -316,5 +434,3 @@ QString BeautifierPlugin::msgCommandPromptDialogTitle(const QString &command)
 
 } // namespace Internal
 } // namespace Beautifier
-
-Q_EXPORT_PLUGIN(Beautifier::Internal::BeautifierPlugin)

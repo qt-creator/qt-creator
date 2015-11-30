@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,45 +9,57 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "sourceutils.h"
 
+#include "debuggerinternalconstants.h"
+#include "debuggerengine.h"
+#include "disassemblerlines.h"
 #include "watchdata.h"
 #include "watchutils.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppprojectfile.h>
-
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
+#include <cplusplus/CppDocument.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
 
+#include <utils/qtcassert.h>
+
 #include <QDebug>
+#include <QTextDocument>
+#include <QTextBlock>
 
 #include <string.h>
 #include <ctype.h>
 
 enum { debug = 0 };
 
-// Debug helpers for code model. @todo: Move to some CppTools library?
+using namespace CppTools;
+using namespace CPlusPlus;
+using namespace TextEditor;
+
 namespace CPlusPlus {
 
 static void debugCppSymbolRecursion(QTextStream &str, const Overview &o,
@@ -79,7 +91,7 @@ static void debugCppSymbolRecursion(QTextStream &str, const Overview &o,
 QDebug operator<<(QDebug d, const Symbol &s)
 {
     QString output;
-    CPlusPlus::Overview o;
+    Overview o;
     QTextStream str(&output);
     debugCppSymbolRecursion(str, o, s, true, 0);
     d.nospace() << output;
@@ -103,7 +115,7 @@ QDebug operator<<(QDebug d, const Scope &scope)
         str << " block";
     if (scope.isFunction())
         str << " function";
-    if (scope.isFunction())
+    if (scope.isDeclaration())
         str << " prototype";
 #if 0 // ### port me
     if (const Symbol *owner = &scope) {
@@ -118,6 +130,7 @@ QDebug operator<<(QDebug d, const Scope &scope)
     d.nospace() << output;
     return d;
 }
+
 } // namespace CPlusPlus
 
 namespace Debugger {
@@ -143,8 +156,8 @@ if (true) {
 
 typedef QHash<QString, int> SeenHash;
 
-static void blockRecursion(const CPlusPlus::Overview &overview,
-                           const CPlusPlus::Scope *scope,
+static void blockRecursion(const Overview &overview,
+                           const Scope *scope,
                            unsigned line,
                            QStringList *uninitializedVariables,
                            SeenHash *seenHash,
@@ -153,7 +166,7 @@ static void blockRecursion(const CPlusPlus::Overview &overview,
     // Go backwards in case someone has identical variables in the same scope.
     // Fixme: loop variables or similar are currently seen in the outer scope
     for (int s = scope->memberCount() - 1; s >= 0; --s){
-        const CPlusPlus::Symbol *symbol = scope->memberAt(s);
+        const Symbol *symbol = scope->memberAt(s);
         if (symbol->isDeclaration()) {
             // Find out about shadowed symbols by bookkeeping
             // the already seen occurrences in a hash.
@@ -170,13 +183,13 @@ static void blockRecursion(const CPlusPlus::Overview &overview,
         }
     }
     // Next block scope.
-    if (const CPlusPlus::Scope *enclosingScope = scope->enclosingBlock())
+    if (const Scope *enclosingScope = scope->enclosingBlock())
         blockRecursion(overview, enclosingScope, line, uninitializedVariables, seenHash, level + 1);
 }
 
 // Inline helper with integer error return codes.
 static inline
-int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
+int getUninitializedVariablesI(const Snapshot &snapshot,
                                const QString &functionName,
                                const QString &file,
                                int line,
@@ -186,26 +199,26 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
     // Find document
     if (snapshot.isEmpty() || functionName.isEmpty() || file.isEmpty() || line < 1)
         return 1;
-    const CPlusPlus::Snapshot::const_iterator docIt = snapshot.find(file);
+    const Snapshot::const_iterator docIt = snapshot.find(file);
     if (docIt == snapshot.end())
         return 2;
-    const CPlusPlus::Document::Ptr doc = docIt.value();
+    const Document::Ptr doc = docIt.value();
     // Look at symbol at line and find its function. Either it is the
     // function itself or some expression/variable.
-    const CPlusPlus::Symbol *symbolAtLine = doc->lastVisibleSymbolAt(line, 0);
+    const Symbol *symbolAtLine = doc->lastVisibleSymbolAt(line, 0);
     if (!symbolAtLine)
         return 4;
     // First figure out the function to do a safety name check
     // and the innermost scope at cursor position
-    const CPlusPlus::Function *function = 0;
-    const CPlusPlus::Scope *innerMostScope = 0;
+    const Function *function = 0;
+    const Scope *innerMostScope = 0;
     if (symbolAtLine->isFunction()) {
         function = symbolAtLine->asFunction();
         if (function->memberCount() == 1) // Skip over function block
-            if (CPlusPlus::Block *block = function->memberAt(0)->asBlock())
+            if (Block *block = function->memberAt(0)->asBlock())
                 innerMostScope = block;
     } else {
-        if (const CPlusPlus::Scope *functionScope = symbolAtLine->enclosingFunction()) {
+        if (const Scope *functionScope = symbolAtLine->enclosingFunction()) {
             function = functionScope->asFunction();
             innerMostScope = symbolAtLine->isBlock() ?
                              symbolAtLine->asBlock() :
@@ -217,7 +230,7 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
     // Compare function names with a bit off fuzz,
     // skipping modules from a CDB symbol "lib!foo" or namespaces
     // that the code model does not show at this point
-    CPlusPlus::Overview overview;
+    Overview overview;
     const QString name = overview.prettyName(function->name());
     if (!functionName.endsWith(name))
         return 11;
@@ -232,7 +245,7 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
     return 0;
 }
 
-bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
+bool getUninitializedVariables(const Snapshot &snapshot,
                                const QString &function,
                                const QString &file,
                                int line,
@@ -244,7 +257,7 @@ bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
         QTextStream str(&msg);
         str << "getUninitializedVariables() " << function << ' ' << file << ':' << line
                 << " returns (int) " << rc << " '"
-                << uninitializedVariables->join(QString(QLatin1Char(','))) << '\'';
+                << uninitializedVariables->join(QLatin1Char(',')) << '\'';
         if (rc)
             str << " of " << snapshot.size() << " documents";
         qDebug() << msg;
@@ -252,114 +265,50 @@ bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
     return rc == 0;
 }
 
-//QByteArray gdbQuoteTypes(const QByteArray &type)
-//{
-//    // gdb does not understand sizeof(Core::IDocument*).
-//    // "sizeof('Core::IDocument*')" is also not acceptable,
-//    // it needs to be "sizeof('Core::IDocument'*)"
-//    //
-//    // We never will have a perfect solution here (even if we had a full blown
-//    // C++ parser as we do not have information on what is a type and what is
-//    // a variable name. So "a<b>::c" could either be two comparisons of values
-//    // 'a', 'b' and '::c', or a nested type 'c' in a template 'a<b>'. We
-//    // assume here it is the latter.
-//    //return type;
 
-//    // (*('myns::QPointer<myns::QObject>*'*)0x684060)" is not acceptable
-//    // (*('myns::QPointer<myns::QObject>'**)0x684060)" is acceptable
-//    if (isPointerType(type))
-//        return gdbQuoteTypes(stripPointerType(type)) + '*';
-
-//    QByteArray accu;
-//    QByteArray result;
-//    int templateLevel = 0;
-
-//    const char colon = ':';
-//    const char singleQuote = '\'';
-//    const char lessThan = '<';
-//    const char greaterThan = '>';
-//    for (int i = 0; i != type.size(); ++i) {
-//        const char c = type.at(i);
-//        if (isLetterOrNumber(c) || c == '_' || c == colon || c == ' ') {
-//            accu += c;
-//        } else if (c == lessThan) {
-//            ++templateLevel;
-//            accu += c;
-//        } else if (c == greaterThan) {
-//            --templateLevel;
-//            accu += c;
-//        } else if (templateLevel > 0) {
-//            accu += c;
-//        } else {
-//            if (accu.contains(colon) || accu.contains(lessThan))
-//                result += singleQuote + accu + singleQuote;
-//            else
-//                result += accu;
-//            accu.clear();
-//            result += c;
-//        }
-//    }
-//    if (accu.contains(colon) || accu.contains(lessThan))
-//        result += singleQuote + accu + singleQuote;
-//    else
-//        result += accu;
-//    //qDebug() << "GDB_QUOTING" << type << " TO " << result;
-
-//    return result;
-//}
-
-// Utilities to decode string data returned by the dumper helpers.
-
-
-// Editor tooltip support
-bool isCppEditor(Core::IEditor *editor)
+QString cppFunctionAt(const QString &fileName, int line, int column)
 {
-    const Core::IDocument *document= editor->document();
-    if (!document)
-        return false;
+    const Snapshot snapshot = CppModelManager::instance()->snapshot();
+    if (const Document::Ptr document = snapshot.document(fileName))
+        return document->functionAt(line, column);
 
-    return CppTools::ProjectFile::classify(document->filePath()) != CppTools::ProjectFile::Unclassified;
+    return QString();
 }
 
+
 // Return the Cpp expression, and, if desired, the function
-QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
-                        int *line, int *column, QString *function /* = 0 */)
+QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
+                        int *line, int *column, QString *function,
+                        int *scopeFromLine, int *scopeToLine)
 {
-    using namespace CppTools;
-    *line = *column = 0;
     if (function)
         function->clear();
 
-    const QPlainTextEdit *plaintext = qobject_cast<QPlainTextEdit*>(editor->widget());
-    if (!plaintext)
-        return QString();
-
-    QString expr = plaintext->textCursor().selectedText();
-    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-    if (expr.isEmpty() && modelManager) {
-        QTextCursor tc(plaintext->document());
+    const QString fileName = editorWidget->textDocument()->filePath().toString();
+    const Snapshot snapshot = CppModelManager::instance()->snapshot();
+    const Document::Ptr document = snapshot.document(fileName);
+    QTextCursor tc = editorWidget->textCursor();
+    QString expr = tc.selectedText();
+    if (expr.isEmpty()) {
         tc.setPosition(pos);
-
-        const QChar ch = editor->textDocument()->characterAt(pos);
+        const QChar ch = editorWidget->characterAt(pos);
         if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
             tc.movePosition(QTextCursor::EndOfWord);
 
         // Fetch the expression's code.
-        CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
+        ExpressionUnderCursor expressionUnderCursor(document ? document->languageFeatures()
+                                                             : LanguageFeatures::defaultFeatures());
         expr = expressionUnderCursor(tc);
-        *column = tc.positionInBlock();
-        *line = tc.blockNumber();
-    } else {
-        const QTextCursor tc = plaintext->textCursor();
-        *column = tc.positionInBlock();
-        *line = tc.blockNumber();
     }
 
-    if (function && !expr.isEmpty())
-        if (const Core::IDocument *document= editor->document())
-            if (modelManager)
-                *function = AbstractEditorSupport::functionAt(modelManager,
-                    document->filePath(), *line, *column);
+    *column = tc.positionInBlock();
+    *line = tc.blockNumber() + 1;
+
+    if (!expr.isEmpty() && document) {
+        QString func = document->functionAt(*line, *column, scopeFromLine, scopeToLine);
+        if (function)
+            *function = func;
+    }
 
     return expr;
 }
@@ -389,13 +338,36 @@ QString fixCppExpression(const QString &expIn)
     return removeObviousSideEffects(exp);
 }
 
-QString cppFunctionAt(const QString &fileName, int line)
+ContextData getLocationContext(TextDocument *document, int lineNumber)
 {
-    using namespace CppTools;
-    using namespace CPlusPlus;
-    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-    return AbstractEditorSupport::functionAt(modelManager,
-                                             fileName, line, 1);
+    ContextData data;
+    QTC_ASSERT(document, return data);
+    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
+        QString line = document->document()->findBlockByNumber(lineNumber - 1).text();
+        DisassemblerLine l;
+        l.fromString(line);
+        if (l.address) {
+            data.type = LocationByAddress;
+            data.address = l.address;
+        } else {
+            QString fileName = document->property(Constants::DISASSEMBLER_SOURCE_FILE).toString();
+            if (!fileName.isEmpty()) {
+                // Possibly one of the  "27 [1] foo = x" lines
+                int pos = line.indexOf(QLatin1Char('['));
+                int ln = line.left(pos - 1).toInt();
+                if (ln > 0) {
+                    data.type = LocationByFile;
+                    data.fileName = fileName;
+                    data.lineNumber = ln;
+                }
+            }
+        }
+    } else {
+        data.type = LocationByFile;
+        data.fileName = document->filePath().toString();
+        data.lineNumber = lineNumber;
+    }
+    return data;
 }
 
 } // namespace Internal

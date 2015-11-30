@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "F.EmptyText",
+    "category": "U.General",
+    "trDescription": "Creates an empty file.",
+    "trDisplayName": "Empty File",
+    "trDisplayCategory": "General",
+    "icon": "../../global/genericfilewizard.png",
+    "platformIndependent": true,
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('TextEditor') >= 0}",
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.txt",
+                "target": "%{TargetPath}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

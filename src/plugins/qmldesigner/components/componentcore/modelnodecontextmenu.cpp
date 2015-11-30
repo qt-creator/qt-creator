@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -34,6 +30,8 @@
 
 #include <modelnode.h>
 
+#include <utils/algorithm.h>
+
 #include <QSet>
 
 namespace QmlDesigner {
@@ -43,17 +41,12 @@ ModelNodeContextMenu::ModelNodeContextMenu(AbstractView *view) :
 {
 }
 
-static bool sortFunction(AbstractDesignerAction * abstractDesignerAction01, AbstractDesignerAction *abstractDesignerAction02)
-{
-    return abstractDesignerAction01->priority() > abstractDesignerAction02->priority();
-}
-
-static QSet<AbstractDesignerAction* > findMembers(QSet<AbstractDesignerAction* > designerActionSet,
+static QSet<ActionInterface* > findMembers(QSet<ActionInterface* > actionInterface,
                                                           const QString &category)
 {
-    QSet<AbstractDesignerAction* > ret;
+    QSet<ActionInterface* > ret;
 
-     foreach (AbstractDesignerAction* factory, designerActionSet) {
+     foreach (ActionInterface* factory, actionInterface) {
          if (factory->category() == category)
              ret.insert(factory);
      }
@@ -61,30 +54,32 @@ static QSet<AbstractDesignerAction* > findMembers(QSet<AbstractDesignerAction* >
 }
 
 
-void populateMenu(QSet<AbstractDesignerAction* > &abstractDesignerActions,
+void populateMenu(QSet<ActionInterface* > &actionInterfaces,
                   const QString &category,
                   QMenu* menu,
                   const SelectionContext &selectionContext)
 {
-    QSet<AbstractDesignerAction* > matchingFactories = findMembers(abstractDesignerActions, category);
+    QSet<ActionInterface* > matchingFactories = findMembers(actionInterfaces, category);
 
-    abstractDesignerActions.subtract(matchingFactories);
+    actionInterfaces.subtract(matchingFactories);
 
-    QList<AbstractDesignerAction* > matchingFactoriesList = matchingFactories.toList();
-    qSort(matchingFactoriesList.begin(), matchingFactoriesList.end(), &sortFunction);
+    QList<ActionInterface* > matchingFactoriesList = matchingFactories.toList();
+    Utils::sort(matchingFactoriesList, [](ActionInterface *l, ActionInterface *r) {
+        return l->priority() > r->priority();
+    });
 
-    foreach (AbstractDesignerAction* designerAction, matchingFactoriesList) {
-       if (designerAction->type() == AbstractDesignerAction::Menu) {
-           designerAction->currentContextChanged(selectionContext);
-           QMenu *newMenu = designerAction->action()->menu();
+    foreach (ActionInterface* actionInterface, matchingFactoriesList) {
+       if (actionInterface->type() == ActionInterface::Menu) {
+           actionInterface->currentContextChanged(selectionContext);
+           QMenu *newMenu = actionInterface->action()->menu();
            menu->addMenu(newMenu);
 
            //recurse
 
-           populateMenu(abstractDesignerActions, designerAction->menuId(), newMenu, selectionContext);
-       } else if (designerAction->type() == AbstractDesignerAction::Action) {
-           QAction* action = designerAction->action();
-           designerAction->currentContextChanged(selectionContext);
+           populateMenu(actionInterfaces, actionInterface->menuId(), newMenu, selectionContext);
+       } else if (actionInterface->type() == ActionInterface::Action) {
+           QAction* action = actionInterface->action();
+           actionInterface->currentContextChanged(selectionContext);
            menu->addAction(action);
        }
     }
@@ -98,8 +93,8 @@ void ModelNodeContextMenu::execute(const QPoint &position, bool selectionMenuBoo
     m_selectionContext.setScenePosition(m_scenePos);
 
 
-     QSet<AbstractDesignerAction* > factories =
-             QSet<AbstractDesignerAction* >::fromList(QmlDesignerPlugin::instance()->designerActionManager().designerActions());
+     QSet<ActionInterface* > factories =
+             QSet<ActionInterface* >::fromList(QmlDesignerPlugin::instance()->designerActionManager().designerActions());
 
      populateMenu(factories, QString(""), mainMenu, m_selectionContext);
 

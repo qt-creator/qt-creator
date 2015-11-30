@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "Valgrind"
@@ -12,6 +10,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "AnalyzerBase" }
+    Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "RemoteLinux" }
@@ -38,7 +37,6 @@ QtcPlugin {
             "valgrindruncontrolfactory.cpp", "valgrindruncontrolfactory.h",
             "valgrindrunner.cpp", "valgrindrunner.h",
             "valgrindsettings.cpp", "valgrindsettings.h",
-            "valgrindtool.cpp", "valgrindtool.h",
             "workarounds.cpp", "workarounds.h",
         ]
     }

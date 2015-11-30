@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,32 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "ilocatorfilter.h"
 
+#include <coreplugin/coreconstants.h>
+
 #include <QBoxLayout>
 #include <QCheckBox>
+#include <QCoreApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -51,6 +55,11 @@ ILocatorFilter::ILocatorFilter(QObject *parent):
 QString ILocatorFilter::shortcutString() const
 {
     return m_shortcut;
+}
+
+void ILocatorFilter::prepareSearch(const QString &entry)
+{
+    Q_UNUSED(entry)
 }
 
 void ILocatorFilter::setShortcutString(const QString &shortcut)
@@ -86,22 +95,25 @@ bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     Q_UNUSED(needsRefresh)
 
     QDialog dialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
-    dialog.setWindowTitle(tr("Filter Configuration"));
+    dialog.setWindowTitle(msgConfigureDialogTitle());
 
     QVBoxLayout *vlayout = new QVBoxLayout(&dialog);
     QHBoxLayout *hlayout = new QHBoxLayout;
     QLineEdit *shortcutEdit = new QLineEdit(shortcutString());
-    QCheckBox *limitCheck = new QCheckBox(tr("Limit to prefix"));
-    limitCheck->setChecked(!isIncludedByDefault());
+    QCheckBox *includeByDefault = new QCheckBox(msgIncludeByDefault());
+    includeByDefault->setToolTip(msgIncludeByDefaultToolTip());
+    includeByDefault->setChecked(isIncludedByDefault());
 
-    hlayout->addWidget(new QLabel(tr("Prefix:")));
+    auto prefixLabel = new QLabel(msgPrefixLabel());
+    prefixLabel->setToolTip(msgPrefixToolTip());
+    hlayout->addWidget(prefixLabel);
     hlayout->addWidget(shortcutEdit);
-    hlayout->addWidget(limitCheck);
+    hlayout->addWidget(includeByDefault);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
                                                        QDialogButtonBox::Cancel);
-    connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
     vlayout->addLayout(hlayout);
     vlayout->addStretch();
@@ -109,7 +121,7 @@ bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 
     if (dialog.exec() == QDialog::Accepted) {
         setShortcutString(shortcutEdit->text().trimmed());
-        setIncludedByDefault(!limitCheck->isChecked());
+        setIncludedByDefault(includeByDefault->isChecked());
         return true;
     }
 
@@ -135,6 +147,31 @@ QString ILocatorFilter::trimWildcards(const QString &str)
 Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)
 {
     return str == str.toLower() ? Qt::CaseInsensitive : Qt::CaseSensitive;
+}
+
+QString ILocatorFilter::msgConfigureDialogTitle()
+{
+    return tr("Filter Configuration");
+}
+
+QString ILocatorFilter::msgPrefixLabel()
+{
+    return tr("Prefix:");
+}
+
+QString ILocatorFilter::msgPrefixToolTip()
+{
+    return tr("Type the prefix followed by a space and search term to restrict search to the filter.");
+}
+
+QString ILocatorFilter::msgIncludeByDefault()
+{
+    return tr("Include by default");
+}
+
+QString ILocatorFilter::msgIncludeByDefaultToolTip()
+{
+    return tr("Include the filter when not using a prefix for searches.");
 }
 
 bool ILocatorFilter::isConfigurable() const
@@ -167,7 +204,7 @@ bool ILocatorFilter::isEnabled() const
     return m_enabled;
 }
 
-Core::Id ILocatorFilter::id() const
+Id ILocatorFilter::id() const
 {
     return m_id;
 }
@@ -187,7 +224,7 @@ void ILocatorFilter::setEnabled(bool enabled)
     m_enabled = enabled;
 }
 
-void ILocatorFilter::setId(Core::Id id)
+void ILocatorFilter::setId(Id id)
 {
     m_id = id;
 }

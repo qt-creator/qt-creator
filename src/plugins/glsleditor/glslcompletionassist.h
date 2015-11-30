@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,52 +35,83 @@
 
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
-#include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
-#include <utils/qtcoverride.h>
 
-#include <QScopedPointer>
 #include <QIcon>
+#include <QScopedPointer>
+#include <QSharedPointer>
 
-namespace GLSL { class Function; }
+namespace GLSL {
+class Engine;
+class Function;
+class TranslationUnitAST;
+class Scope;
+} // namespace GLSL
 
-namespace TextEditor { class BasicProposalItem; }
+namespace TextEditor { class AssistProposalItem; }
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
-class GLSLCompletionAssistInterface;
+class Document
+{
+public:
+    typedef QSharedPointer<Document> Ptr;
 
-class GLSLCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+    Document();
+    ~Document();
+
+    GLSL::Engine *engine() const { return _engine; }
+    GLSL::TranslationUnitAST *ast() const { return _ast; }
+    GLSL::Scope *globalScope() const { return _globalScope; }
+
+    GLSL::Scope *scopeAt(int position) const;
+    void addRange(const QTextCursor &cursor, GLSL::Scope *scope);
+
+private:
+    struct Range {
+        QTextCursor cursor;
+        GLSL::Scope *scope;
+    };
+
+    GLSL::Engine *_engine;
+    GLSL::TranslationUnitAST *_ast;
+    GLSL::Scope *_globalScope;
+    QList<Range> _cursors;
+
+    friend class GlslEditorWidget;
+};
+
+class GlslCompletionAssistInterface;
+
+class GlslCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
     Q_OBJECT
 
 public:
-    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const override;
+    TextEditor::IAssistProcessor *createProcessor() const override;
 
-    int activationCharSequenceLength() const QTC_OVERRIDE;
-    bool isActivationCharSequence(const QString &sequence) const QTC_OVERRIDE;
+    int activationCharSequenceLength() const override;
+    bool isActivationCharSequence(const QString &sequence) const override;
 };
 
-class GLSLCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class GlslCompletionAssistProcessor : public TextEditor::IAssistProcessor
 {
 public:
-    GLSLCompletionAssistProcessor();
-    ~GLSLCompletionAssistProcessor();
+    GlslCompletionAssistProcessor();
+    ~GlslCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface) QTC_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
 private:
-    TextEditor::IAssistProposal *createContentProposal() const;
     TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
     bool acceptsIdleEditor() const;
-    void addCompletion(const QString &text, const QIcon &icon, int order = 0);
 
     int m_startPosition;
-    QScopedPointer<const GLSLCompletionAssistInterface> m_interface;
-    QList<TextEditor::BasicProposalItem *> m_completions;
+    QScopedPointer<const GlslCompletionAssistInterface> m_interface;
 
     QIcon m_keywordIcon;
     QIcon m_varIcon;
@@ -92,10 +124,10 @@ private:
     QIcon m_otherIcon;
 };
 
-class GLSLCompletionAssistInterface : public TextEditor::DefaultAssistInterface
+class GlslCompletionAssistInterface : public TextEditor::AssistInterface
 {
 public:
-    GLSLCompletionAssistInterface(QTextDocument *textDocument,
+    GlslCompletionAssistInterface(QTextDocument *textDocument,
                                   int position, const QString &fileName,
                                   TextEditor::AssistReason reason,
                                   const QString &mimeType,
@@ -109,7 +141,7 @@ private:
     Document::Ptr m_glslDoc;
 };
 
-} // Internal
-} // GLSLEditor
+} // namespace Internal
+} // namespace GlslEditor
 
 #endif // GLSLCOMPLETIONASSIST_H

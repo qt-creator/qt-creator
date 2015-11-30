@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -39,10 +40,12 @@
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/codestyleeditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/snippets/isnippetprovider.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <cplusplus/Overview.h>
 #include <cplusplus/pp.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -220,7 +223,7 @@ namespace CppTools {
 
 namespace Internal {
 
-static void applyRefactorings(QTextDocument *textDocument, TextEditor::BaseTextEditorWidget *editor,
+static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *editor,
                               const CppCodeStyleSettings &settings)
 {
     // Preprocess source
@@ -281,48 +284,48 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
 
     setVisualizeWhitespace(true);
 
-    connect(m_ui->tabSettingsWidget, SIGNAL(settingsChanged(TextEditor::TabSettings)),
-       this, SLOT(slotTabSettingsChanged(TextEditor::TabSettings)));
-    connect(m_ui->indentBlockBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentBlockBody, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentClassBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentNamespaceBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentEnumBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentNamespaceBody, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentSwitchLabels, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentCaseStatements, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentCaseBlocks, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentCaseBreak, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentAccessSpecifiers, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentDeclarationsRelativeToAccessSpecifiers, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentFunctionBody, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->indentFunctionBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->extraPaddingConditions, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->alignAssignments, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->bindStarToIdentifier, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->bindStarToTypeName, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->bindStarToLeftSpecifier, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
-    connect(m_ui->bindStarToRightSpecifier, SIGNAL(toggled(bool)),
-       this, SLOT(slotCodeStyleSettingsChanged()));
+    connect(m_ui->tabSettingsWidget, &TabSettingsWidget::settingsChanged,
+            this, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
+    connect(m_ui->indentBlockBraces, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentBlockBody, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentClassBraces, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentNamespaceBraces, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentEnumBraces, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentNamespaceBody, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentSwitchLabels, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentCaseStatements, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentCaseBlocks, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentCaseBreak, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentAccessSpecifiers, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentDeclarationsRelativeToAccessSpecifiers, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentFunctionBody, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->indentFunctionBraces, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->extraPaddingConditions, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->alignAssignments, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->bindStarToIdentifier, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->bindStarToTypeName, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->bindStarToLeftSpecifier, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+    connect(m_ui->bindStarToRightSpecifier, &QCheckBox::toggled,
+            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
 
     m_ui->categoryTab->setCurrentIndex(0);
 
@@ -339,8 +342,8 @@ void CppCodeStylePreferencesWidget::setCodeStyle(CppTools::CppCodeStylePreferenc
     // code preferences
     m_preferences = codeStylePreferences;
 
-    connect(m_preferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-            this, SLOT(setTabSettings(TextEditor::TabSettings)));
+    connect(m_preferences, &CppCodeStylePreferences::currentTabSettingsChanged,
+            this, &CppCodeStylePreferencesWidget::setTabSettings);
     connect(m_preferences, SIGNAL(currentCodeStyleSettingsChanged(CppTools::CppCodeStyleSettings)),
             this, SLOT(setCodeStyleSettings(CppTools::CppCodeStyleSettings)));
     connect(m_preferences, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
@@ -381,7 +384,7 @@ CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
     return set;
 }
 
-void CppCodeStylePreferencesWidget::setTabSettings(const TextEditor::TabSettings &settings)
+void CppCodeStylePreferencesWidget::setTabSettings(const TabSettings &settings)
 {
     m_ui->tabSettingsWidget->setTabSettings(settings);
 }
@@ -415,7 +418,7 @@ void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSetti
         updatePreview();
 }
 
-void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences, bool preview)
+void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences, bool preview)
 {
     const bool enable = !preferences->isReadOnly() && !m_preferences->currentDelegate();
     m_ui->tabSettingsWidget->setEnabled(enable);
@@ -442,7 +445,7 @@ void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
     updatePreview();
 }
 
-void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TextEditor::TabSettings &settings)
+void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettings &settings)
 {
     if (m_blockUpdates)
         return;
@@ -462,10 +465,10 @@ void CppCodeStylePreferencesWidget::updatePreview()
             ? m_preferences
             : CppToolsSettings::instance()->cppCodeStyle();
     const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentCodeStyleSettings();
-    const TextEditor::TabSettings ts = cppCodeStylePreferences->currentTabSettings();
+    const TabSettings ts = cppCodeStylePreferences->currentTabSettings();
     QtStyleCodeFormatter formatter(ts, ccss);
-    foreach (TextEditor::SnippetEditorWidget *preview, m_previews) {
-        preview->baseTextDocument()->setTabSettings(ts);
+    foreach (SnippetEditorWidget *preview, m_previews) {
+        preview->textDocument()->setTabSettings(ts);
         preview->setCodeStyle(cppCodeStylePreferences);
 
         QTextDocument *doc = preview->document();
@@ -475,7 +478,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
         QTextCursor tc = preview->textCursor();
         tc.beginEditBlock();
         while (block.isValid()) {
-            preview->baseTextDocument()->indenter()->indentBlock(doc, block, QChar::Null, ts);
+            preview->textDocument()->indenter()->indentBlock(doc, block, QChar::Null, ts);
 
             block = block.next();
         }
@@ -484,20 +487,15 @@ void CppCodeStylePreferencesWidget::updatePreview()
     }
 }
 
-void CppCodeStylePreferencesWidget::decorateEditors(const TextEditor::FontSettings &fontSettings)
+void CppCodeStylePreferencesWidget::decorateEditors(const FontSettings &fontSettings)
 {
-    const ISnippetProvider *provider = 0;
-    const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::getObjects<ISnippetProvider>();
-    foreach (const ISnippetProvider *current, providers) {
-        if (current->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID)) {
-            provider = current;
-            break;
-        }
-    }
+    const ISnippetProvider *provider = ExtensionSystem::PluginManager::getObject<ISnippetProvider>(
+        [](ISnippetProvider *current) {
+            return current->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
+        });
 
-    foreach (TextEditor::SnippetEditorWidget *editor, m_previews) {
-        editor->baseTextDocument()->setFontSettings(fontSettings);
+    foreach (SnippetEditorWidget *editor, m_previews) {
+        editor->textDocument()->setFontSettings(fontSettings);
         if (provider)
             provider->decorateEditor(editor);
     }
@@ -505,7 +503,7 @@ void CppCodeStylePreferencesWidget::decorateEditors(const TextEditor::FontSettin
 
 void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
 {
-    foreach (TextEditor::SnippetEditorWidget *editor, m_previews) {
+    foreach (SnippetEditorWidget *editor, m_previews) {
         DisplaySettings displaySettings = editor->displaySettings();
         displaySettings.m_visualizeWhitespace = on;
         editor->setDisplaySettings(displaySettings);

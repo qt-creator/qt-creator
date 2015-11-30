@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,28 +9,32 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "icore.h"
+#include "windowsupport.h"
 
 #include <app/app_version.h>
 #include <extensionsystem/pluginmanager.h>
+
+#include <utils/qtcassert.h>
 
 #include <QSysInfo>
 #include <QApplication>
@@ -97,12 +101,6 @@
     Returns \c true if the settings dialog was accepted.
 */
 
-
-/*!
-    \fn MimeDatabase *ICore::mimeDatabase()
-
-    Uses the MIME database to manage MIME types.
-*/
 
 /*!
     \fn QSettings *ICore::settings(QSettings::Scope scope = QSettings::UserScope)
@@ -281,12 +279,13 @@
 */
 
 /*!
-    \fn void ICore::contextChanged(Core::IContext *context, const Core::Context &additionalContexts)
-    Indicates that a new \a context just became the current context
-    (meaning that its widget got focus), or that the additional context ids
-    specified by \a additionalContexts changed.
+    \fn void ICore::contextChanged(const Core::Context &context)
+    Indicates that a new \a context just became the current context. This includes the context
+    from the focus object as well as the additional context.
 */
 
+#include "dialogs/newdialog.h"
+#include "iwizardfactory.h"
 #include "mainwindow.h"
 #include "documentmanager.h"
 
@@ -311,13 +310,24 @@ ICore *ICore::instance()
     return m_instance;
 }
 
+bool ICore::isNewItemDialogRunning()
+{
+    return NewDialog::isRunning() || IWizardFactory::isWizardRunning();
+}
+
 ICore::ICore(MainWindow *mainwindow)
 {
     m_instance = this;
     m_mainwindow = mainwindow;
     // Save settings once after all plugins are initialized:
-    connect(ExtensionSystem::PluginManager::instance(), SIGNAL(initializationDone()),
+    connect(PluginManager::instance(), SIGNAL(initializationDone()),
             this, SLOT(saveSettings()));
+    connect(PluginManager::instance(), &PluginManager::testsFinished, [this] (int failedTests) {
+        emit coreAboutToClose();
+        QCoreApplication::exit(failedTests);
+    });
+    connect(m_mainwindow, SIGNAL(newItemDialogRunningChanged()),
+            this, SIGNAL(newItemDialogRunningChanged()));
 }
 
 ICore::~ICore()
@@ -327,16 +337,23 @@ ICore::~ICore()
 }
 
 void ICore::showNewItemDialog(const QString &title,
-                              const QList<IWizard *> &wizards,
+                              const QList<IWizardFactory *> &factories,
                               const QString &defaultLocation,
                               const QVariantMap &extraVariables)
 {
-    m_mainwindow->showNewItemDialog(title, wizards, defaultLocation, extraVariables);
+    QTC_ASSERT(!isNewItemDialogRunning(), return);
+    auto newDialog = new NewDialog(dialogParent());
+    connect(newDialog, &QObject::destroyed, m_instance, &ICore::validateNewItemDialogIsRunning);
+    newDialog->setWizardFactories(factories, defaultLocation, extraVariables);
+    newDialog->setWindowTitle(title);
+    newDialog->showDialog();
+
+    validateNewItemDialogIsRunning();
 }
 
-bool ICore::showOptionsDialog(const Id group, const Id page, QWidget *parent)
+bool ICore::showOptionsDialog(const Id page, QWidget *parent)
 {
-    return m_mainwindow->showOptionsDialog(group, page, parent);
+    return m_mainwindow->showOptionsDialog(page, parent);
 }
 
 QString ICore::msgShowOptionsDialog()
@@ -344,15 +361,20 @@ QString ICore::msgShowOptionsDialog()
     return QCoreApplication::translate("Core", "Configure...", "msgShowOptionsDialog");
 }
 
-bool ICore::showWarningWithOptions(const QString &title, const QString &text,
-                                   const QString &details,
-                                   Id settingsCategory,
-                                   Id settingsId,
-                                   QWidget *parent)
+QString ICore::msgShowOptionsDialogToolTip()
 {
-    return m_mainwindow->showWarningWithOptions(title, text,
-                                                details, settingsCategory,
-                                                settingsId, parent);
+    if (Utils::HostOsInfo::isMacHost())
+        return QCoreApplication::translate("Core", "Open Preferences dialog.",
+                                           "msgShowOptionsDialogToolTip (mac version)");
+    else
+        return QCoreApplication::translate("Core", "Open Options dialog.",
+                                           "msgShowOptionsDialogToolTip (non-mac version)");
+}
+
+bool ICore::showWarningWithOptions(const QString &title, const QString &text,
+                                   const QString &details, Id settingsId, QWidget *parent)
+{
+    return m_mainwindow->showWarningWithOptions(title, text, details, settingsId, parent);
 }
 
 QSettings *ICore::settings(QSettings::Scope scope)
@@ -391,8 +413,7 @@ QString ICore::userResourcePath()
     const QString configDir = QFileInfo(settings(QSettings::UserScope)->fileName()).path();
     const QString urp = configDir + QLatin1String("/qtcreator");
 
-    QFileInfo fi(urp + QLatin1Char('/'));
-    if (!fi.exists()) {
+    if (!QFileInfo::exists(urp + QLatin1Char('/'))) {
         QDir dir;
         if (!dir.mkpath(urp))
             qWarning() << "could not create" << urp;
@@ -414,9 +435,21 @@ QString ICore::documentationPath()
  */
 QString ICore::libexecPath()
 {
-    const QString libexecPath = QLatin1String(Utils::HostOsInfo::isMacHost()
-                                            ? "/../Resources" : "");
-    return QDir::cleanPath(QCoreApplication::applicationDirPath() + libexecPath);
+    QString path;
+    switch (Utils::HostOsInfo::hostOs()) {
+    case Utils::OsTypeWindows:
+        path = QCoreApplication::applicationDirPath();
+        break;
+    case Utils::OsTypeMac:
+        path = QCoreApplication::applicationDirPath() + QLatin1String("/../Resources");
+        break;
+    case Utils::OsTypeLinux:
+    case Utils::OsTypeOtherUnix:
+    case Utils::OsTypeOther:
+        path = QCoreApplication::applicationDirPath() + QLatin1String("/../libexec/qtcreator");
+        break;
+    }
+    return QDir::cleanPath(path);
 }
 
 static QString compilerString()
@@ -470,7 +503,11 @@ QWidget *ICore::mainWindow()
 QWidget *ICore::dialogParent()
 {
     QWidget *active = QApplication::activeModalWidget();
-    return active ? active : m_mainwindow;
+    if (!active)
+        active = QApplication::activeWindow();
+    if (!active)
+        active = m_mainwindow;
+    return active;
 }
 
 QStatusBar *ICore::statusBar()
@@ -491,9 +528,20 @@ void ICore::raiseWindow(QWidget *widget)
     }
 }
 
-void ICore::updateAdditionalContexts(const Context &remove, const Context &add)
+void ICore::updateAdditionalContexts(const Context &remove, const Context &add,
+                                     ContextPriority priority)
 {
-    m_mainwindow->updateAdditionalContexts(remove, add);
+    m_mainwindow->updateAdditionalContexts(remove, add, priority);
+}
+
+void ICore::addAdditionalContext(const Context &context, ContextPriority priority)
+{
+    m_mainwindow->updateAdditionalContexts(Context(), context, priority);
+}
+
+void ICore::removeAdditionalContext(const Context &context)
+{
+    m_mainwindow->updateAdditionalContexts(context, Context(), ContextPriority::Low);
 }
 
 void ICore::addContextObject(IContext *context)
@@ -506,14 +554,31 @@ void ICore::removeContextObject(IContext *context)
     m_mainwindow->removeContextObject(context);
 }
 
+void ICore::registerWindow(QWidget *window, const Context &context)
+{
+    new WindowSupport(window, context); // deletes itself when widget is destroyed
+}
+
 void ICore::openFiles(const QStringList &arguments, ICore::OpenFilesFlags flags)
 {
     m_mainwindow->openFiles(arguments, flags);
 }
 
-void ICore::emitNewItemsDialogRequested()
+
+/*!
+    \fn ICore::addCloseCoreListener
+
+    \brief The \c ICore::addCloseCoreListener function provides a hook for plugins
+    to veto on closing the application.
+
+    When the application window requests a close, all listeners are called.
+    If one if these calls returns \c false, the process is aborted and the
+    event is ignored. If all calls return \c true, \c ICore::coreAboutToClose()
+    is emitted and the event is accepted or performed..
+*/
+void ICore::addPreCloseListener(const std::function<bool ()> &listener)
 {
-    emit m_instance->newItemsDialogRequested();
+    m_mainwindow->addPreCloseListener(listener);
 }
 
 void ICore::saveSettings()
@@ -522,6 +587,25 @@ void ICore::saveSettings()
 
     ICore::settings(QSettings::SystemScope)->sync();
     ICore::settings(QSettings::UserScope)->sync();
+}
+
+QStringList ICore::additionalAboutInformation()
+{
+    return m_mainwindow->additionalAboutInformation();
+}
+
+void ICore::appendAboutInformation(const QString &line)
+{
+    m_mainwindow->appendAboutInformation(line);
+}
+
+void ICore::validateNewItemDialogIsRunning()
+{
+    static bool wasRunning = false;
+    if (wasRunning == isNewItemDialogRunning())
+        return;
+    wasRunning = isNewItemDialogRunning();
+    emit instance()->newItemDialogRunningChanged();
 }
 
 } // namespace Core

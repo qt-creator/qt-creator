@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,39 +9,300 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "variablechooser.h"
-#include "ui_variablechooser.h"
-#include "variablemanager.h"
 #include "coreconstants.h"
 
 #include <utils/fancylineedit.h> // IconButton
+#include <utils/headerviewstretcher.h> // IconButton
+#include <utils/macroexpander.h>
+#include <utils/treemodel.h>
 #include <utils/qtcassert.h>
 
-#include <QTimer>
+#include <QApplication>
+#include <QAbstractItemModel>
+#include <QHeaderView>
+#include <QLabel>
 #include <QLineEdit>
-#include <QTextEdit>
-#include <QPlainTextEdit>
 #include <QListWidgetItem>
+#include <QMenu>
+#include <QPlainTextEdit>
+#include <QPointer>
+#include <QTextEdit>
+#include <QTimer>
+#include <QTreeView>
+#include <QVBoxLayout>
+#include <QVector>
 
-using namespace Core;
+using namespace Utils;
+
+namespace Core {
+namespace Internal {
+
+enum {
+    UnexpandedTextRole = Qt::UserRole,
+    ExpandedTextRole
+};
+
+class VariableTreeView : public QTreeView
+{
+public:
+    VariableTreeView(QWidget *parent, VariableChooserPrivate *target)
+        : QTreeView(parent), m_target(target)
+    {
+        setAttribute(Qt::WA_MacSmallSize);
+        setAttribute(Qt::WA_MacShowFocusRect, false);
+        setIndentation(indentation() * 7/10);
+        header()->hide();
+        new HeaderViewStretcher(header(), 0);
+    }
+
+    void contextMenuEvent(QContextMenuEvent *ev);
+
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
+private:
+    VariableChooserPrivate *m_target;
+};
+
+
+class VariableChooserPrivate : public QObject
+{
+public:
+    VariableChooserPrivate(VariableChooser *parent);
+
+    void createIconButton()
+    {
+        m_iconButton = new IconButton;
+        m_iconButton->setPixmap(QPixmap(QLatin1String(":/core/images/replace.png")));
+        m_iconButton->setToolTip(VariableChooser::tr("Insert Variable"));
+        m_iconButton->hide();
+        connect(m_iconButton.data(), static_cast<void(QAbstractButton::*)(bool)>(&QAbstractButton::clicked),
+                this, &VariableChooserPrivate::updatePositionAndShow);
+    }
+
+    void updateDescription(const QModelIndex &index);
+    void updateCurrentEditor(QWidget *old, QWidget *widget);
+    void handleItemActivated(const QModelIndex &index);
+    void insertText(const QString &variable);
+    void updatePositionAndShow(bool);
+
+    QWidget *currentWidget();
+
+    int buttonMargin() const;
+    void updateButtonGeometry();
+
+public:
+    VariableChooser *q;
+    TreeModel m_model;
+
+    QPointer<QLineEdit> m_lineEdit;
+    QPointer<QTextEdit> m_textEdit;
+    QPointer<QPlainTextEdit> m_plainTextEdit;
+    QPointer<IconButton> m_iconButton;
+
+    VariableTreeView *m_variableTree;
+    QLabel *m_variableDescription;
+    QString m_defaultDescription;
+    QByteArray m_currentVariableName; // Prevent recursive insertion of currently expanded item
+};
+
+class VariableGroupItem : public TreeItem
+{
+public:
+    VariableGroupItem()
+        : m_chooser(0), m_populated(false)
+    {
+    }
+
+    QVariant data(int column, int role) const
+    {
+        if (role == Qt::DisplayRole || role == Qt::EditRole) {
+            if (column == 0)
+                if (MacroExpander *expander = m_provider())
+                    return expander->displayName();
+        }
+
+        return QVariant();
+    }
+
+    bool canFetchMore() const
+    {
+        return !m_populated;
+    }
+
+    void fetchMore()
+    {
+        if (MacroExpander *expander = m_provider())
+            populateGroup(expander);
+        m_populated = true;
+    }
+
+    void populateGroup(MacroExpander *expander);
+
+public:
+    VariableChooserPrivate *m_chooser; // Not owned.
+    bool m_populated;
+    MacroExpanderProvider m_provider;
+};
+
+class VariableItem : public TreeItem
+{
+public:
+    VariableItem() {}
+
+    QVariant data(int column, int role) const
+    {
+        if (role == Qt::DisplayRole || role == Qt::EditRole) {
+            if (column == 0)
+                return m_variable;
+        }
+
+        if (role == Qt::ToolTipRole) {
+            const QByteArray var = m_variable.toUtf8();
+            QString description = m_expander->variableDescription(var);
+            QString value;
+            if (!m_expander->isPrefixVariable(var))
+                value = m_expander->value(var).toHtmlEscaped();
+            if (!value.isEmpty())
+                description += QLatin1String("<p>") + VariableChooser::tr("Current Value: %1").arg(value);
+            return description;
+        }
+
+        if (role == UnexpandedTextRole)
+            return QString(QLatin1String("%{") + m_variable + QLatin1Char('}'));
+
+        if (role == ExpandedTextRole)
+            return m_expander->expand(QLatin1String("%{") + m_variable + QLatin1Char('}'));
+
+        return QVariant();
+    }
+
+public:
+    MacroExpander *m_expander;
+    QString m_variable;
+};
+
+void VariableTreeView::contextMenuEvent(QContextMenuEvent *ev)
+{
+    const QModelIndex index = indexAt(ev->pos());
+
+    QString unexpandedText = index.data(UnexpandedTextRole).toString();
+    QString expandedText = index.data(ExpandedTextRole).toString();
+
+    QMenu menu;
+    QAction *insertUnexpandedAction = 0;
+    QAction *insertExpandedAction = 0;
+
+    if (unexpandedText.isEmpty()) {
+        insertUnexpandedAction = menu.addAction(VariableChooser::tr("Insert Unexpanded Value"));
+        insertUnexpandedAction->setEnabled(false);
+    } else {
+        insertUnexpandedAction = menu.addAction(VariableChooser::tr("Insert \"%1\"").arg(unexpandedText));
+    }
+
+    if (expandedText.isEmpty()) {
+        insertExpandedAction = menu.addAction(VariableChooser::tr("Insert Expanded Value"));
+        insertExpandedAction->setEnabled(false);
+    } else {
+        insertExpandedAction = menu.addAction(VariableChooser::tr("Insert \"%1\"").arg(expandedText));
+    }
+
+
+    QAction *act = menu.exec(ev->globalPos());
+
+    if (act == insertUnexpandedAction)
+        m_target->insertText(unexpandedText);
+    else if (act == insertExpandedAction)
+        m_target->insertText(expandedText);
+}
+
+void VariableTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    m_target->updateDescription(current);
+    QTreeView::currentChanged(current, previous);
+}
+
+VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
+    : q(parent),
+      m_lineEdit(0),
+      m_textEdit(0),
+      m_plainTextEdit(0)
+{
+    m_defaultDescription = VariableChooser::tr("Select a variable to insert.");
+
+    m_variableTree = new VariableTreeView(q, this);
+    m_variableTree->setModel(&m_model);
+
+    m_variableDescription = new QLabel(q);
+    m_variableDescription->setText(m_defaultDescription);
+    m_variableDescription->setMinimumSize(QSize(0, 60));
+    m_variableDescription->setAlignment(Qt::AlignLeft|Qt::AlignTop);
+    m_variableDescription->setWordWrap(true);
+    m_variableDescription->setAttribute(Qt::WA_MacSmallSize);
+    m_variableDescription->setTextInteractionFlags(Qt::TextBrowserInteraction);
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout(q);
+    verticalLayout->setContentsMargins(3, 3, 3, 12);
+    verticalLayout->addWidget(m_variableTree);
+    verticalLayout->addWidget(m_variableDescription);
+
+    connect(m_variableTree, &QTreeView::activated,
+            this, &VariableChooserPrivate::handleItemActivated);
+    connect(qobject_cast<QApplication *>(qApp), &QApplication::focusChanged,
+            this, &VariableChooserPrivate::updateCurrentEditor);
+    updateCurrentEditor(0, qApp->focusWidget());
+}
+
+void VariableGroupItem::populateGroup(MacroExpander *expander)
+{
+    if (!expander)
+        return;
+
+    foreach (const QByteArray &variable, expander->visibleVariables()) {
+        auto item = new VariableItem;
+        item->m_variable = QString::fromUtf8(variable);
+        item->m_expander = expander;
+        if (variable == m_chooser->m_currentVariableName)
+            item->setFlags(Qt::ItemIsSelectable); // not ItemIsEnabled
+        appendChild(item);
+    }
+
+    foreach (const MacroExpanderProvider &subProvider, expander->subProviders()) {
+        if (!subProvider)
+            continue;
+        if (expander->isAccumulating()) {
+            populateGroup(subProvider());
+        } else {
+            auto item = new VariableGroupItem;
+            item->m_chooser = m_chooser;
+            item->m_provider = subProvider;
+            appendChild(item);
+        }
+    }
+}
+
+} // namespace Internal
+
+using namespace Internal;
 
 /*!
  * \class Core::VariableChooser
@@ -58,8 +319,7 @@ using namespace Core;
  *
  * The variable chooser monitors focus changes of all children of its parent widget.
  * When a text control gets focus, the variable chooser checks if it has variable support set,
- * either through the addVariableSupport() function or by manually setting the
- * custom kVariableSupportProperty on the control. If the control supports variables,
+ * either through the addVariableSupport() function. If the control supports variables,
  * a tool button which opens the variable chooser is shown in it while it has focus.
  *
  * Supported text controls are QLineEdit, QTextEdit and QPlainTextEdit.
@@ -77,13 +337,15 @@ using namespace Core;
  */
 
 /*!
+ * \internal
  * \variable VariableChooser::kVariableSupportProperty
  * Property name that is checked for deciding if a widget supports \QC variables.
  * Can be manually set with
  * \c{textcontrol->setProperty(VariableChooser::kVariableSupportProperty, true)}
  * \sa addVariableSupport()
  */
-const char VariableChooser::kVariableSupportProperty[] = "QtCreator.VariableSupport";
+const char kVariableSupportProperty[] = "QtCreator.VariableSupport";
+const char kVariableNameProperty[] = "QtCreator.VariableName";
 
 /*!
  * Creates a variable chooser that tracks all children of \a parent for variable support.
@@ -92,30 +354,13 @@ const char VariableChooser::kVariableSupportProperty[] = "QtCreator.VariableSupp
  */
 VariableChooser::VariableChooser(QWidget *parent) :
     QWidget(parent),
-    ui(new Internal::Ui::VariableChooser),
-    m_lineEdit(0),
-    m_textEdit(0),
-    m_plainTextEdit(0)
+    d(new VariableChooserPrivate(this))
 {
-    ui->setupUi(this);
-    m_defaultDescription = ui->variableDescription->text();
-    ui->variableList->setAttribute(Qt::WA_MacSmallSize);
-    ui->variableList->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->variableDescription->setAttribute(Qt::WA_MacSmallSize);
-    setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
+    setWindowTitle(tr("Variables"));
+    setWindowFlags(Qt::Tool);
     setFocusPolicy(Qt::StrongFocus);
-    setFocusProxy(ui->variableList);
-
-    foreach (const QByteArray &variable, VariableManager::variables())
-        ui->variableList->addItem(QString::fromLatin1(variable));
-
-    connect(ui->variableList, SIGNAL(currentTextChanged(QString)),
-            this, SLOT(updateDescription(QString)));
-    connect(ui->variableList, SIGNAL(itemActivated(QListWidgetItem*)),
-            this, SLOT(handleItemActivated(QListWidgetItem*)));
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)),
-            this, SLOT(updateCurrentEditor(QWidget*,QWidget*)));
-    updateCurrentEditor(0, qApp->focusWidget());
+    setFocusProxy(d->m_variableTree);
+    addMacroExpanderProvider([]() { return globalMacroExpander(); });
 }
 
 /*!
@@ -123,47 +368,82 @@ VariableChooser::VariableChooser(QWidget *parent) :
  */
 VariableChooser::~VariableChooser()
 {
-    delete m_iconButton;
-    delete ui;
+    delete d->m_iconButton;
+    delete d;
+}
+
+void VariableChooser::addMacroExpanderProvider(const MacroExpanderProvider &provider)
+{
+    auto item = new VariableGroupItem;
+    item->m_chooser = d;
+    item->m_provider = provider;
+    d->m_model.rootItem()->prependChild(item);
 }
 
 /*!
  * Marks the control as supporting variables.
  * \sa kVariableSupportProperty
  */
-void VariableChooser::addVariableSupport(QWidget *textcontrol)
+void VariableChooser::addSupportedWidget(QWidget *textcontrol, const QByteArray &ownName)
 {
     QTC_ASSERT(textcontrol, return);
-    textcontrol->setProperty(kVariableSupportProperty, true);
+    textcontrol->setProperty(kVariableSupportProperty, QVariant::fromValue<QWidget *>(this));
+    textcontrol->setProperty(kVariableNameProperty, ownName);
+}
+
+void VariableChooser::addSupportForChildWidgets(QWidget *parent, MacroExpander *expander)
+{
+     auto chooser = new VariableChooser(parent);
+     chooser->addMacroExpanderProvider([expander] { return expander; });
+     foreach (QWidget *child, parent->findChildren<QWidget *>()) {
+         if (qobject_cast<QLineEdit *>(child)
+                 || qobject_cast<QTextEdit *>(child)
+                 || qobject_cast<QPlainTextEdit *>(child))
+             chooser->addSupportedWidget(child);
+     }
 }
 
 /*!
  * \internal
  */
-void VariableChooser::updateDescription(const QString &variable)
+void VariableChooserPrivate::updateDescription(const QModelIndex &index)
 {
-    if (variable.isNull())
-        ui->variableDescription->setText(m_defaultDescription);
-    else
-        ui->variableDescription->setText(VariableManager::variableDescription(variable.toUtf8()));
+    m_variableDescription->setText(m_model.data(index, Qt::ToolTipRole).toString());
 }
 
 /*!
  * \internal
  */
-void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
+int VariableChooserPrivate::buttonMargin() const
 {
-    if (old)
-        old->removeEventFilter(this);
+    int margin = m_iconButton->pixmap().width() + 8;
+    if (q->style()->inherits("OxygenStyle"))
+        margin = qMax(24, margin);
+
+    return margin;
+}
+
+void VariableChooserPrivate::updateButtonGeometry()
+{
+    QWidget *current = currentWidget();
+    int margin = buttonMargin();
+    m_iconButton->setGeometry(current->rect().adjusted(
+                                  current->width() - (margin + 4), 0,
+                                  0, -qMax(0, current->height() - (margin + 4))));
+}
+
+void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
+{
+    Q_UNUSED(old);
     if (!widget) // we might loose focus, but then keep the previous state
         return;
     // prevent children of the chooser itself, and limit to children of chooser's parent
     bool handle = false;
     QWidget *parent = widget;
     while (parent) {
-        if (parent == this)
+        if (parent == q)
             return;
-        if (parent == this->parentWidget()) {
+        if (parent == q->parentWidget()) {
             handle = true;
             break;
         }
@@ -171,85 +451,91 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
     }
     if (!handle)
         return;
-    widget->installEventFilter(this); // for intercepting escape key presses
+
     QLineEdit *previousLineEdit = m_lineEdit;
+    QWidget *previousWidget = currentWidget();
     m_lineEdit = 0;
     m_textEdit = 0;
     m_plainTextEdit = 0;
-    QVariant variablesSupportProperty = widget->property(kVariableSupportProperty);
-    bool supportsVariables = (variablesSupportProperty.isValid()
-                              ? variablesSupportProperty.toBool() : false);
+    QWidget *chooser = widget->property(kVariableSupportProperty).value<QWidget *>();
+    m_currentVariableName = widget->property(kVariableNameProperty).value<QByteArray>();
+    bool supportsVariables = chooser == q;
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget))
         m_lineEdit = (supportsVariables ? lineEdit : 0);
     else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(widget))
         m_textEdit = (supportsVariables ? textEdit : 0);
     else if (QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
         m_plainTextEdit = (supportsVariables ? plainTextEdit : 0);
-    if (!(m_lineEdit || m_textEdit || m_plainTextEdit))
-        hide();
-    if (m_lineEdit != previousLineEdit) {
+
+    QWidget *current = currentWidget();
+    if (current != previousWidget) {
+        if (previousWidget)
+            previousWidget->removeEventFilter(q);
         if (previousLineEdit)
             previousLineEdit->setTextMargins(0, 0, 0, 0);
         if (m_iconButton) {
             m_iconButton->hide();
             m_iconButton->setParent(0);
         }
-        if (m_lineEdit) {
+        if (current) {
+            current->installEventFilter(q); // escape key handling and geometry changes
             if (!m_iconButton)
                 createIconButton();
-            int margin = m_iconButton->pixmap().width() + 8;
-            if (style()->inherits("OxygenStyle"))
-                margin = qMax(24, margin);
-            m_lineEdit->setTextMargins(0, 0, margin, 0);
-            m_iconButton->setParent(m_lineEdit);
-            m_iconButton->setGeometry(m_lineEdit->rect().adjusted(
-                                          m_lineEdit->width() - (margin + 4), 0, 0, 0));
+            int margin = buttonMargin();
+            if (m_lineEdit)
+                m_lineEdit->setTextMargins(0, 0, margin, 0);
+            m_iconButton->setParent(current);
+            updateButtonGeometry();
             m_iconButton->show();
+        } else {
+            q->hide();
         }
     }
 }
 
-/*!
- * \internal
- */
-void VariableChooser::createIconButton()
-{
-    m_iconButton = new Utils::IconButton;
-    m_iconButton->setPixmap(QPixmap(QLatin1String(":/core/images/replace.png")));
-    m_iconButton->setToolTip(tr("Insert variable"));
-    m_iconButton->hide();
-    connect(m_iconButton, SIGNAL(clicked()), this, SLOT(updatePositionAndShow()));
-}
 
 /*!
  * \internal
  */
-void VariableChooser::updatePositionAndShow()
+void VariableChooserPrivate::updatePositionAndShow(bool)
 {
-    if (parentWidget()) {
-        QPoint parentCenter = parentWidget()->mapToGlobal(parentWidget()->geometry().center());
-        move(parentCenter.x() - width()/2, parentCenter.y() - height()/2);
+    if (QWidget *w = q->parentWidget()) {
+        QPoint parentCenter = w->mapToGlobal(w->geometry().center());
+        q->move(parentCenter.x() - q->width()/2, parentCenter.y() - q->height()/2);
     }
-    show();
-    raise();
-    activateWindow();
+    q->show();
+    q->raise();
+    q->activateWindow();
+    m_variableTree->expandAll();
 }
 
 /*!
  * \internal
  */
-void VariableChooser::handleItemActivated(QListWidgetItem *item)
+QWidget *VariableChooserPrivate::currentWidget()
 {
-    if (item)
-        insertVariable(item->text());
+    if (m_lineEdit)
+        return m_lineEdit;
+    if (m_textEdit)
+        return m_textEdit;
+    return m_plainTextEdit;
 }
 
 /*!
  * \internal
  */
-void VariableChooser::insertVariable(const QString &variable)
+void VariableChooserPrivate::handleItemActivated(const QModelIndex &index)
 {
-    const QString &text = QLatin1String("%{") + variable + QLatin1String("}");
+    QString text = m_model.data(index, UnexpandedTextRole).toString();
+    if (!text.isEmpty())
+        insertText(text);
+}
+
+/*!
+ * \internal
+ */
+void VariableChooserPrivate::insertText(const QString &text)
+{
     if (m_lineEdit) {
         m_lineEdit->insert(text);
         m_lineEdit->activateWindow();
@@ -278,19 +564,32 @@ static bool handleEscapePressed(QKeyEvent *ke, QWidget *widget)
 /*!
  * \internal
  */
-void VariableChooser::keyPressEvent(QKeyEvent *ke)
+bool VariableChooser::event(QEvent *ev)
 {
-    handleEscapePressed(ke, this);
+    if (ev->type() == QEvent::KeyPress || ev->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(ev);
+        if (handleEscapePressed(ke, this))
+            return true;
+    }
+    return QWidget::event(ev);
 }
 
 /*!
  * \internal
  */
-bool VariableChooser::eventFilter(QObject *, QEvent *event)
+bool VariableChooser::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress && isVisible()) {
+    if (obj != d->currentWidget())
+        return false;
+    if ((event->type() == QEvent::KeyPress || event->type() == QEvent::ShortcutOverride) && isVisible()) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         return handleEscapePressed(ke, this);
+    } else if (event->type() == QEvent::Resize) {
+        d->updateButtonGeometry();
+    } else if (event->type() == QEvent::Hide) {
+        close();
     }
     return false;
 }
+
+} // namespace Internal

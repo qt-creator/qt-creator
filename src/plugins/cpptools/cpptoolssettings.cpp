@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -48,6 +49,7 @@
 
 static const char idKey[] = "CppGlobal";
 
+using namespace Core;
 using namespace CppTools;
 using namespace CppTools::Internal;
 using namespace TextEditor;
@@ -63,6 +65,7 @@ public:
         , m_completionSettingsPage(0)
     {}
 
+    CommentsSettings m_commentsSettings;
     CppCodeStylePreferences *m_globalCodeStyle;
     CompletionSettingsPage *m_completionSettingsPage;
 };
@@ -81,16 +84,13 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
     qRegisterMetaType<CppTools::CppCodeStyleSettings>("CppTools::CppCodeStyleSettings");
 
+    QSettings *s = ICore::settings();
+    d->m_commentsSettings.fromSettings(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), s);
     d->m_completionSettingsPage = new CompletionSettingsPage(this);
     ExtensionSystem::PluginManager::addObject(d->m_completionSettingsPage);
 
-    connect(d->m_completionSettingsPage,
-            SIGNAL(commentsSettingsChanged(CppTools::CommentsSettings)),
-            this,
-            SIGNAL(commentsSettingsChanged(CppTools::CommentsSettings)));
-
     // code style factory
-    ICodeStylePreferencesFactory *factory = new CppTools::CppCodeStylePreferencesFactory();
+    ICodeStylePreferencesFactory *factory = new CppCodeStylePreferencesFactory();
     TextEditorSettings::registerCodeStyleFactory(factory);
 
     // code style pool
@@ -169,7 +169,6 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    QSettings *s = Core::ICore::settings();
     d->m_globalCodeStyle->fromSettings(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID), s);
 
     // legacy handling start (Qt Creator Version < 2.4)
@@ -207,7 +206,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
             // create custom code style out of old settings
             QVariant v;
             v.setValue(legacyCodeStyleSettings);
-            TextEditor::ICodeStylePreferences *oldCreator = pool->createCodeStyle(
+            ICodeStylePreferences *oldCreator = pool->createCodeStyle(
                      "legacy", legacyTabSettings, v, tr("Old Creator"));
 
             // change the current delegate and save
@@ -252,5 +251,33 @@ CppCodeStylePreferences *CppToolsSettings::cppCodeStyle() const
 
 const CommentsSettings &CppToolsSettings::commentsSettings() const
 {
-    return d->m_completionSettingsPage->commentsSettings();
+    return d->m_commentsSettings;
+}
+
+void CppToolsSettings::setCommentsSettings(const CommentsSettings &commentsSettings)
+{
+    if (d->m_commentsSettings == commentsSettings)
+        return;
+
+    d->m_commentsSettings = commentsSettings;
+    d->m_commentsSettings.toSettings(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP),
+                                     ICore::settings());
+}
+
+static QString sortEditorDocumentOutlineKey()
+{
+    return QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP)
+         + QLatin1Char('/')
+         + QLatin1String(CppTools::Constants::CPPTOOLS_SORT_EDITOR_DOCUMENT_OUTLINE);
+}
+
+bool CppToolsSettings::sortedEditorDocumentOutline() const
+{
+    return ICore::settings()->value(sortEditorDocumentOutlineKey(), true).toBool();
+}
+
+void CppToolsSettings::setSortedEditorDocumentOutline(bool sorted)
+{
+    ICore::settings()->setValue(sortEditorDocumentOutlineKey(), sorted);
+    emit editorDocumentOutlineSortingChanged(sorted);
 }

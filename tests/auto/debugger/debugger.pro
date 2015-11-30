@@ -1,12 +1,17 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS += gdb.pro
-SUBDIRS += dumpers.pro
+gdb.file = gdb.pro
+simplifytypes.file = simplifytypes.pro
+
+# avoid race condition when compiling with multiple jobs
+dumpers.depends = gdb simplifytypes
+dumpers.file = dumpers.pro
+
+SUBDIRS += gdb
+SUBDIRS += simplifytypes
+SUBDIRS += dumpers
 SUBDIRS += namedemangler.pro
-SUBDIRS += simplifytypes.pro
 SUBDIRS += disassembler.pro
-greaterThan(QT_MAJOR_VERSION, 4):greaterThan(QT_MINOR_VERSION, 1) | lessThan(QT_MAJOR_VERSION, 5) {
-    SUBDIRS += offsets.pro
-}
+SUBDIRS += offsets.pro
 

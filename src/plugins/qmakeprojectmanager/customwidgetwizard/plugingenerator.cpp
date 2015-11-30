@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,11 +31,10 @@
 #include "plugingenerator.h"
 #include "pluginoptions.h"
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/generatedfile.h>
+#include <cpptools/abstracteditorsupport.h>
 
 #include <utils/fileutils.h>
-
-#include <cpptools/abstracteditorsupport.h>
 
 #include <QFileInfo>
 #include <QDir>
@@ -56,7 +56,7 @@ struct ProjectContents {
 };
 
 // Create a binary icon file
-static inline Core::GeneratedFile  generateIconFile(const QString &source, const QString &target, QString *errorMessage)
+static inline Core::GeneratedFile generateIconFile(const QString &source, const QString &target, QString *errorMessage)
 {
     // Read out source
     Utils::FileReader reader;
@@ -132,7 +132,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         QString iconResource;
         if (!wo.iconFile.isEmpty()) {
             iconResource = QLatin1String("QLatin1String(\":/");
-            iconResource += QFileInfo(wo.iconFile).fileName();
+            iconResource += Utils::FileName::fromString(wo.iconFile).fileName();
             iconResource += QLatin1String("\")");
         }
         sm.insert(QLatin1String("WIDGET_ICON"),iconResource);
@@ -157,7 +157,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         if (wo.sourceType == PluginOptions::WidgetOptions::LinkLibrary)
             widgetLibraries.insert(QLatin1String("-l") + wo.widgetLibrary);
         else
-            widgetProjects.insert(QLatin1String("include(") + wo.widgetProjectFile + QLatin1String(")"));
+            widgetProjects.insert(QLatin1String("include(") + wo.widgetProjectFile + QLatin1Char(')'));
         pluginIncludes += QLatin1String("#include \"") + wo.pluginHeaderFile + QLatin1String("\"\n");
         pluginAdditions +=
             QLatin1String("    m_widgets.append(new ") + wo.pluginClassName + QLatin1String("(this));\n");
@@ -295,8 +295,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
     sm.insert(QLatin1String("PLUGIN_HEADERS"), pluginHeaders);
     sm.insert(QLatin1String("PLUGIN_SOURCES"), pluginSources);
     sm.insert(QLatin1String("PLUGIN_RESOURCES"), options.resourceFile);
-    sm.insert(QLatin1String("WIDGET_LIBS"), QStringList(widgetLibraries.toList()).join(QString(blank)));
-    sm.insert(QLatin1String("INCLUSIONS"), QStringList(widgetProjects.toList()).join(QLatin1String("\n")));
+    sm.insert(QLatin1String("WIDGET_LIBS"), QStringList(widgetLibraries.toList()).join(blank));
+    sm.insert(QLatin1String("INCLUSIONS"), QStringList(widgetProjects.toList()).join(QLatin1Char('\n')));
     const QString proFileContents = processTemplate(p.templatePath + QLatin1String("/tpl_plugin.pro"), sm, errorMessage);
     if (proFileContents.isEmpty())
         return QList<Core::GeneratedFile>();

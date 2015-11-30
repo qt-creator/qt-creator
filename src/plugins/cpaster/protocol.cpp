@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -84,11 +85,11 @@ Protocol::ContentType Protocol::contentType(const QString &mt)
 {
     if (mt == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
         || mt == QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE)
-        || mt == QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE)
-        || mt == QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT)
-        || mt == QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG)
-        || mt == QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES)
-        || mt == QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES))
+        || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE)
+        || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_VERT)
+        || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_FRAG)
+        || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_VERT_ES)
+        || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_FRAG_ES))
         return C;
     if (mt == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
         || mt == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)
@@ -170,8 +171,7 @@ bool Protocol::showConfigurationError(const Protocol *p,
     mb.exec();
     bool rc = false;
     if (mb.clickedButton() == settingsButton)
-        rc = Core::ICore::showOptionsDialog(p->settingsPage()->category(),
-                                            p->settingsPage()->id(), parent);
+        rc = Core::ICore::showOptionsDialog(p->settingsPage()->id(), parent);
     return rc;
 }
 
@@ -188,7 +188,6 @@ QNetworkReply *NetworkProtocol::httpPost(const QString &link, const QByteArray &
 {
     QUrl url(link);
     QNetworkRequest r(url);
-    // Required for Qt 4.8
     r.setHeader(QNetworkRequest::ContentTypeHeader,
                 QVariant(QByteArray("application/x-www-form-urlencoded")));
     return Utils::NetworkAccessManager::instance()->post(r, data);
@@ -198,13 +197,14 @@ NetworkProtocol::~NetworkProtocol()
 {
 }
 
-bool NetworkProtocol::httpStatus(QString url, QString *errorMessage)
+bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHttps)
 {
     // Connect to host and display a message box, using its event loop.
     errorMessage->clear();
     const QString httpPrefix = QLatin1String("http://");
-    if (!url.startsWith(httpPrefix)) {
-        url.prepend(httpPrefix);
+    const QString httpsPrefix = QLatin1String("https://");
+    if (!url.startsWith(httpPrefix) && !url.startsWith(httpsPrefix)) {
+        url.prepend(useHttps ? httpsPrefix : httpPrefix);
         url.append(QLatin1Char('/'));
     }
     QScopedPointer<QNetworkReply> reply(httpGet(url));
@@ -220,7 +220,7 @@ bool NetworkProtocol::httpStatus(QString url, QString *errorMessage)
     // User canceled, discard and be happy.
     if (!reply->isFinished()) {
         QNetworkReply *replyPtr = reply.take();
-        connect(replyPtr, SIGNAL(finished()), replyPtr, SLOT(deleteLater()));
+        connect(replyPtr, &QNetworkReply::finished, replyPtr, &QNetworkReply::deleteLater);
         return false;
     }
     // Passed

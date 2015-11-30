@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RemoteLinux::Internal::RemoteLinuxCustomRunConfigurationWidget</class>
+ <widget class="QWidget" name="RemoteLinux::Internal::RemoteLinuxCustomRunConfigurationWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>445</width>
+    <height>120</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="localExeLabel">
+     <property name="text">
+      <string>Local executable:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="Utils::PathChooser" name="localExecutablePathChooser" native="true"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="remoteExeLabel">
+     <property name="text">
+      <string>Remote executable:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="remoteExeLineEdit"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="argsLabel">
+     <property name="text">
+      <string>Arguments:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="argsLineEdit"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="workingDirLabel">
+     <property name="text">
+      <string>Working directory:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="workingDirLineEdit"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

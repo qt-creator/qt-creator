@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,12 +23,12 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-build-process-customizing.html
     \page creator-testing.html
     \nextpage creator-debugging.html
 
-    \title Debugging and Analyzing
+    \title Testing
 
     \image creator_testing.png
 
@@ -40,8 +40,8 @@
             is installed automatically and you should be ready to start
             debugging after you create a new project. However, you can
             change the setup to use debugging tools for Windows, for
-            example. You can connect mobile devices to your development PC
-            and debug processes running on the devices.
+            example. You can connect embedded or mobile devices to your
+            development host and debug processes running on the devices.
 
         \li \l{Analyzing Code}
 
@@ -50,6 +50,11 @@
             install them separately to use them from \QC. The QML Profiler is
             installed as part of \QC. It enables you to profile your Qt Quick
             applications.
+
+        \li \l{Running Autotests}
+
+            You can use an experimental Auto Test plugin to build and run
+            autotests using \QC (commercial only).
 
     \endlist
 

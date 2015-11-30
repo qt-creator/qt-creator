@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -39,6 +40,7 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/targetsetuppage.h>
@@ -53,11 +55,12 @@
 using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
+using namespace QtSupport;
 
 // -------------------- QtWizard
 QtWizard::QtWizard()
 {
-    setWizardKind(Core::IWizard::ProjectWizard);
+    setWizardKind(Core::IWizardFactory::ProjectWizard);
 }
 
 QString QtWizard::sourceSuffix()
@@ -80,7 +83,7 @@ QString QtWizard::profileSuffix()
     return preferredSuffix(QLatin1String(Constants::PROFILE_MIMETYPE));
 }
 
-bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) const
 {
     return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
 }
@@ -118,43 +121,35 @@ bool QtWizard::lowerCaseFiles()
     return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
-bool QtWizard::showModulesPageForApplications()
-{
-    return false;
-}
-
-bool QtWizard::showModulesPageForLibraries()
-{
-    return true;
-}
-
 // ------------ CustomQmakeProjectWizard
 CustomQmakeProjectWizard::CustomQmakeProjectWizard()
 {
 }
 
-QWizard *CustomQmakeProjectWizard::createWizardDialog
-    (QWidget *parent, const Core::WizardDialogParameters &wizardDialogParameters) const
+Core::BaseFileWizard *CustomQmakeProjectWizard::create(QWidget *parent,
+                                          const Core::WizardDialogParameters &parameters) const
 {
-    BaseQmakeProjectWizardDialog *wizard = new BaseQmakeProjectWizardDialog(false, parent, wizardDialogParameters);
+    BaseQmakeProjectWizardDialog *wizard = new BaseQmakeProjectWizardDialog(this, false, parent,
+                                                                            parameters);
 
-    if (!wizardDialogParameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
+    if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         wizard->addTargetSetupPage(targetPageId);
 
-    initProjectWizardDialog(wizard, wizardDialogParameters.defaultPath(),
-                            wizardDialogParameters.extensionPages());
+    initProjectWizardDialog(wizard, parameters.defaultPath(), wizard->extensionPages());
     return wizard;
 }
 
-bool CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
+                                                 QString *errorMessage) const
 {
     return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
 }
 
 // ----------------- BaseQmakeProjectWizardDialog
-BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(bool showModulesPage, QWidget *parent,
-                                                       const Core::WizardDialogParameters &parameters) :
-    ProjectExplorer::BaseProjectWizardDialog(parent, parameters),
+BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                           bool showModulesPage, QWidget *parent,
+                                                           const Core::WizardDialogParameters &parameters) :
+    ProjectExplorer::BaseProjectWizardDialog(factory, parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0),
     m_profileIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))
@@ -163,11 +158,12 @@ BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(bool showModulesPage,
     init(showModulesPage);
 }
 
-BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(bool showModulesPage,
-                                                       Utils::ProjectIntroPage *introPage,
-                                                       int introId, QWidget *parent,
-                                                       const Core::WizardDialogParameters &parameters) :
-    ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent, parameters),
+BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
+                                                           bool showModulesPage,
+                                                           Utils::ProjectIntroPage *introPage,
+                                                           int introId, QWidget *parent,
+                                                           const Core::WizardDialogParameters &parameters) :
+    ProjectExplorer::BaseProjectWizardDialog(factory, introPage, introId, parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0),
     m_profileIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))
@@ -188,8 +184,8 @@ void BaseQmakeProjectWizardDialog::init(bool showModulesPage)
 {
     if (showModulesPage)
         m_modulesPage = new ModulesPage;
-    connect(this, SIGNAL(projectParametersChanged(QString,QString)),
-            this, SLOT(generateProfileName(QString,QString)));
+    connect(this, &BaseProjectWizardDialog::projectParametersChanged,
+            this, &BaseQmakeProjectWizardDialog::generateProfileName);
 }
 
 int BaseQmakeProjectWizardDialog::addModulesPage(int id)
@@ -198,11 +194,9 @@ int BaseQmakeProjectWizardDialog::addModulesPage(int id)
         return -1;
     if (id >= 0) {
         setPage(id, m_modulesPage);
-        wizardProgress()->item(id)->setTitle(tr("Modules"));
         return id;
     }
     const int newId = addPage(m_modulesPage);
-    wizardProgress()->item(newId)->setTitle(tr("Modules"));
     return newId;
 }
 
@@ -212,18 +206,17 @@ int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
     const QString platform = selectedPlatform();
     Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
     if (platform.isEmpty())
-        m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
+        m_targetSetupPage->setPreferredKitMatcher(QtKitInformation::qtVersionMatcher(features));
     else
-        m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(platform));
+        m_targetSetupPage->setPreferredKitMatcher(QtKitInformation::platformMatcher(platform));
 
-    m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(requiredFeatures()));
+    m_targetSetupPage->setRequiredKitMatcher(QtKitInformation::qtVersionMatcher(requiredFeatures()));
 
     resize(900, 450);
     if (id >= 0)
         setPage(id, m_targetSetupPage);
     else
         id = addPage(m_targetSetupPage);
-    wizardProgress()->item(id)->setTitle(tr("Kits"));
 
     return id;
 }
@@ -289,7 +282,7 @@ bool BaseQmakeProjectWizardDialog::isQtPlatformSelected(const QString &platform)
 {
     QList<Core::Id> selectedKitList = selectedKits();
 
-    foreach (Kit *k, KitManager::matchingKits(QtSupport::QtPlatformKitMatcher(platform)))
+    foreach (Kit *k, KitManager::matchingKits(QtKitInformation::platformMatcher(platform)))
         if (selectedKitList.contains(k->id()))
             return true;
 
@@ -306,7 +299,7 @@ QList<Core::Id> BaseQmakeProjectWizardDialog::selectedKits() const
 void BaseQmakeProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
 {
     foreach (QWizardPage *p,wizardPageList)
-        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
+        addPage(p);
 }
 
 void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name, const QString &path)

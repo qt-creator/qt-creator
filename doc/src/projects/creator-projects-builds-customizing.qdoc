@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-developing-winrt.html
     \page creator-build-process-customizing.html
     \nextpage creator-testing.html
@@ -31,10 +31,11 @@
     \title  Customizing the Build Process
 
     To specify the relationship between the release, build,
-    and deploy configurations, select \gui Tools > \gui Options > \gui {Build & Run}. By
-    default, the \gui {Always build project before deploying it} and the
-    \gui {Always deploy project before running it} options are enabled.
-    Therefore, when you select the \gui Run function, \QC checks for changes in
+    and deploy configurations, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Build & Run}. By
+    default, the \uicontrol {Always build project before deploying it} and the
+    \uicontrol {Always deploy project before running it} options are enabled.
+    Therefore, when you select the \uicontrol Run function, \QC checks for changes in
     the project files and also builds and deploys the project if necessary.
 
     \image qtcreator-project-options-deploy.png "Project General Options"

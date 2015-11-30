@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,15 +35,20 @@
 #include <widgethost.h>
 #include <designer/cpp/formclasswizardpage.h>
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cppworkingcopy.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
+#include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <coreplugin/icore.h>
-#include <texteditor/basetexteditor.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QDesignerFormWindowInterface>
@@ -70,37 +76,29 @@ static QString msgClassNotFound(const QString &uiClassName, const QList<Document
         files += QDir::toNativeSeparators(doc->fileName());
     }
     return QtCreatorIntegration::tr(
-        "The class containing '%1' could not be found in %2.\n"
+        "The class containing \"%1\" could not be found in %2.\n"
         "Please verify the #include-directives.")
         .arg(uiClassName, files);
 }
 
-QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent) :
-#if QT_VERSION >= 0x050000
-    QDesignerIntegration(core, parent),
-#else
-    qdesigner_internal::QDesignerIntegration(core, parent),
-#endif
-    m_few(parent)
+QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, QObject *parent)
+    : QDesignerIntegration(core, parent)
 {
-#if QT_VERSION >= 0x050000
     setResourceFileWatcherBehaviour(ReloadResourceFileSilently);
     Feature f = features();
     f |= SlotNavigationFeature;
     f &= ~ResourceEditorFeature;
     setFeatures(f);
-#else
-    setResourceFileWatcherBehaviour(QDesignerIntegration::ReloadSilently);
-    setResourceEditingEnabled(false);
-    setSlotNavigationEnabled(true);
-#endif
-    connect(this, SIGNAL(navigateToSlot(QString,QString,QStringList)),
-            this, SLOT(slotNavigateToSlot(QString,QString,QStringList)));
-    connect(this, SIGNAL(helpRequested(QString,QString)),
-            this, SLOT(slotDesignerHelpRequested(QString,QString)));
+
+    connect(this, static_cast<void (QDesignerIntegrationInterface::*)
+                    (const QString&, const QString&, const QStringList&)>
+                       (&QDesignerIntegrationInterface::navigateToSlot),
+            this, &QtCreatorIntegration::slotNavigateToSlot);
+    connect(this, &QtCreatorIntegration::helpRequested,
+            this, &QtCreatorIntegration::slotDesignerHelpRequested);
     slotSyncSettingsToDesigner();
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
-            this, SLOT(slotSyncSettingsToDesigner()));
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, &QtCreatorIntegration::slotSyncSettingsToDesigner);
 }
 
 void QtCreatorIntegration::slotDesignerHelpRequested(const QString &manual, const QString &document)
@@ -112,19 +110,15 @@ void QtCreatorIntegration::slotDesignerHelpRequested(const QString &manual, cons
 
 void QtCreatorIntegration::updateSelection()
 {
-    if (const EditorData ed = m_few->activeEditor())
-        ed.widgetHost->updateFormWindowSelectionHandles(true);
-#if QT_VERSION >= 0x050000
+    if (SharedTools::WidgetHost *host = FormEditorW::activeWidgetHost())
+        host->updateFormWindowSelectionHandles(true);
     QDesignerIntegration::updateSelection();
-#else
-    qdesigner_internal::QDesignerIntegration::updateSelection();
-#endif
 }
 
 QWidget *QtCreatorIntegration::containerWindow(QWidget * /*widget*/) const
 {
-    if (const EditorData ed = m_few->activeEditor())
-        return ed.widgetHost->integrationContainer();
+    if (SharedTools::WidgetHost *host = FormEditorW::activeWidgetHost())
+        return host->integrationContainer();
     return 0;
 }
 
@@ -262,23 +256,22 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
 // TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this function
 static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 {
-    if (CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance()) {
-        const Snapshot snapshot = cppModelManager->snapshot();
-        CppTools::SymbolFinder symbolFinder;
-        if (Function *fun = symbolFinder.findMatchingDefinition(functionDeclaration, snapshot)) {
-            if (line)
-                *line = fun->line();
+    CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
+    const Snapshot snapshot = cppModelManager->snapshot();
+    CppTools::SymbolFinder symbolFinder;
+    if (Function *fun = symbolFinder.findMatchingDefinition(functionDeclaration, snapshot)) {
+        if (line)
+            *line = fun->line();
 
-            return snapshot.document(QString::fromUtf8(fun->fileName(), fun->fileNameLength()));
-        }
+        return snapshot.document(QString::fromUtf8(fun->fileName(), fun->fileNameLength()));
     }
 
     return Document::Ptr();
 }
 
-static inline ITextEditor *editableAt(const QString &fileName, int line, int column)
+static inline BaseTextEditor *editorAt(const QString &fileName, int line, int column)
 {
-    return qobject_cast<ITextEditor *>(Core::EditorManager::openEditorAt(fileName, line, column,
+    return qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(fileName, line, column,
                                                                          Core::Id(),
                                                                          Core::EditorManager::DoNotMakeVisible));
 }
@@ -301,17 +294,14 @@ static void addDeclaration(const Snapshot &snapshot,
     //! \todo change this to use the Refactoring changes.
     //
 
-    if (ITextEditor *editable = editableAt(fileName, loc.line(), loc.column() - 1)) {
-        BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(editable->widget());
-        if (editor) {
-            QTextCursor tc = editor->textCursor();
-            int pos = tc.position();
-            tc.beginEditBlock();
-            tc.insertText(loc.prefix() + declaration + loc.suffix());
-            tc.setPosition(pos, QTextCursor::KeepAnchor);
-            editor->baseTextDocument()->autoIndent(tc);
-            tc.endEditBlock();
-        }
+    if (BaseTextEditor *editor = editorAt(fileName, loc.line(), loc.column() - 1)) {
+        QTextCursor tc = editor->textCursor();
+        int pos = tc.position();
+        tc.beginEditBlock();
+        tc.insertText(loc.prefix() + declaration + loc.suffix());
+        tc.setPosition(pos, QTextCursor::KeepAnchor);
+        editor->textDocument()->autoIndent(tc);
+        tc.endEditBlock();
     }
 }
 
@@ -344,17 +334,17 @@ static Document::Ptr addDefinition(const Snapshot &docTable,
             //! \todo change this to use the Refactoring changes.
             //
 
-            if (ITextEditor *editable = editableAt(doc->fileName(), 0, 0)) {
+            if (BaseTextEditor *editor = editorAt(doc->fileName(), 0, 0)) {
 
                 //
                 //! \todo use the InsertionPointLocator to insert at the correct place.
                 // (we'll have to extend that class first to do definition insertions)
 
-                const QString contents = editable->textDocument()->plainText();
+                const QString contents = editor->textDocument()->plainText();
                 int column;
-                editable->convertPosition(contents.length(), line, &column);
-                editable->gotoLine(*line, column);
-                editable->insert(definition);
+                editor->convertPosition(contents.length(), line, &column);
+                editor->gotoLine(*line, column);
+                editor->insert(definition);
                 *line += 1;
             }
             return doc;
@@ -483,7 +473,7 @@ void QtCreatorIntegration::slotNavigateToSlot(const QString &objectName, const Q
 {
     QString errorMessage;
     if (!navigateToSlot(objectName, signalSignature, parameterNames, &errorMessage) && !errorMessage.isEmpty())
-        QMessageBox::warning(m_few->designerEditor()->topLevel(), tr("Error finding/adding a slot."), errorMessage);
+        QMessageBox::warning(FormEditorW::designerEditor()->topLevel(), tr("Error finding/adding a slot."), errorMessage);
 }
 
 // Build name of the class as generated by uic, insert Ui namespace
@@ -498,7 +488,7 @@ static inline QString uiClassName(QString formObjectName)
 }
 
 static Document::Ptr getParsedDocument(const QString &fileName,
-                                       CppTools::CppModelManagerInterface::WorkingCopy &workingCopy,
+                                       CppTools::WorkingCopy &workingCopy,
                                        Snapshot &snapshot)
 {
     QByteArray src;
@@ -526,40 +516,40 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 {
     typedef QMap<int, Document::Ptr> DocumentMap;
 
-    const EditorData ed = m_few->activeEditor();
-    QTC_ASSERT(ed, return false);
-    const QString currentUiFile = ed.formWindowEditor->document()->filePath();
+    const Utils::FileName currentUiFile = FormEditorW::activeEditor()->document()->filePath();
 #if 0
-    return Designer::Internal::navigateToSlot(currentUiFile, objectName, signalSignature, parameterNames, errorMessage);
+    return Designer::Internal::navigateToSlot(currentUiFile.toString(), objectName,
+                                              signalSignature, parameterNames, errorMessage);
 #endif
     // TODO: we should pass to findDocumentsIncluding an absolute path to generated .h file from ui.
     // Currently we are guessing the name of ui_<>.h file and pass the file name only to the findDocumentsIncluding().
     // The idea is that the .pro file knows if the .ui files is inside, and the .pro file knows it will
     // be generating the ui_<>.h file for it, and the .pro file knows what the generated file's name and its absolute path will be.
     // So we should somehow get that info from project manager (?)
-    const QFileInfo fi(currentUiFile);
+    const QFileInfo fi = currentUiFile.toFileInfo();
     const QString uiFolder = fi.absolutePath();
     const QString uicedName = QLatin1String("ui_") + fi.completeBaseName() + QLatin1String(".h");
 
     // Retrieve code model snapshot restricted to project of ui file or the working copy.
-    Snapshot docTable = CppTools::CppModelManagerInterface::instance()->snapshot();
+    Snapshot docTable = CppTools::CppModelManager::instance()->snapshot();
     Snapshot newDocTable;
     const Project *uiProject = SessionManager::projectForFile(currentUiFile);
     if (uiProject) {
-        Snapshot::const_iterator end = docTable.end();
-        for (Snapshot::iterator it = docTable.begin(); it != end; ++it) {
-            const Project *project = SessionManager::projectForFile(it.key());
+        for (Snapshot::const_iterator i = docTable.begin(), ei = docTable.end(); i != ei; ++i) {
+            const Project *project = SessionManager::projectForFile(i.key());
             if (project == uiProject)
-                newDocTable.insert(it.value());
+                newDocTable.insert(i.value());
         }
     } else {
-        const CppTools::CppModelManagerInterface::WorkingCopy workingCopy =
-                CppTools::CppModelManagerInterface::instance()->workingCopy();
-        QHashIterator<QString, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
+        const CppTools::WorkingCopy workingCopy =
+                CppTools::CppModelManager::instance()->workingCopy();
+        const Utils::FileName configFileName =
+                Utils::FileName::fromString(CppTools::CppModelManager::configurationFileName());
+        QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
         while (it.hasNext()) {
             it.next();
-            const QString fileName = it.key();
-            if (fileName != CppTools::CppModelManagerInterface::configurationFileName())
+            const Utils::FileName &fileName = it.key();
+            if (fileName != configFileName)
                 newDocTable.insert(docTable.document(fileName));
         }
     }
@@ -578,11 +568,11 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << objectName << signalSignature << "Looking for " << uicedName << " returned " << docList.size();
     if (docMap.isEmpty()) {
-        *errorMessage = tr("No documents matching '%1' could be found.\nRebuilding the project might help.").arg(uicedName);
+        *errorMessage = tr("No documents matching \"%1\" could be found.\nRebuilding the project might help.").arg(uicedName);
         return false;
     }
 
-    QDesignerFormWindowInterface *fwi = ed.widgetHost->formWindow();
+    QDesignerFormWindowInterface *fwi = FormEditorW::activeWidgetHost()->formWindow();
 
     const QString uiClass = uiClassName(fwi->mainContainer()->objectName());
 
@@ -631,8 +621,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         }
     } else {
         // add function declaration to cl
-        CppTools::CppModelManagerInterface::WorkingCopy workingCopy =
-            CppTools::CppModelManagerInterface::instance()->workingCopy();
+        CppTools::WorkingCopy workingCopy =
+            CppTools::CppModelManager::instance()->workingCopy();
         const QString fileName = doc->fileName();
         getParsedDocument(fileName, workingCopy, docTable);
         addDeclaration(docTable, fileName, cl, functionNameWithParameterNames);
@@ -654,9 +644,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 
 void QtCreatorIntegration::slotSyncSettingsToDesigner()
 {
-#if QT_VERSION > 0x040800
     // Set promotion-relevant parameters on integration.
-    setHeaderSuffix(Core::MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+    Utils::MimeDatabase mdb;
+    setHeaderSuffix(mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)).preferredSuffix());
     setHeaderLowercase(FormClassWizardPage::lowercaseHeaderFiles());
-#endif
 }

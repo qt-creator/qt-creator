@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,6 +36,13 @@
 #include <QtTest>
 
 namespace ProjectExplorer {
+
+static inline QByteArray msgFileComparisonFail(const Utils::FileName &f1, const Utils::FileName &f2)
+{
+    const QString result = QLatin1Char('"') + f1.toUserOutput()
+        + QLatin1String("\" != \"") + f2.toUserOutput() + QLatin1Char('"');
+    return result.toLocal8Bit();
+}
 
 OutputParserTester::OutputParserTester() :
     m_debug(false)
@@ -82,15 +90,16 @@ void OutputParserTester::testParsing(const QString &lines,
         for (int i = 0; i < tasks.size(); ++i) {
             QCOMPARE(m_receivedTasks.at(i).category, tasks.at(i).category);
             QCOMPARE(m_receivedTasks.at(i).description, tasks.at(i).description);
-            QCOMPARE(m_receivedTasks.at(i).file, tasks.at(i).file);
+            QVERIFY2(m_receivedTasks.at(i).file == tasks.at(i).file,
+                     msgFileComparisonFail(m_receivedTasks.at(i).file, tasks.at(i).file));
             QCOMPARE(m_receivedTasks.at(i).line, tasks.at(i).line);
             QCOMPARE(static_cast<int>(m_receivedTasks.at(i).type), static_cast<int>(tasks.at(i).type));
         }
     }
 }
 
-void OutputParserTester::testTaskMangling(const Task input,
-                                          const Task output)
+void OutputParserTester::testTaskMangling(const Task &input,
+                                          const Task &output)
 {
     reset();
     childParser()->taskAdded(input);
@@ -102,7 +111,8 @@ void OutputParserTester::testTaskMangling(const Task input,
     if (m_receivedTasks.size() == 1) {
         QCOMPARE(m_receivedTasks.at(0).category, output.category);
         QCOMPARE(m_receivedTasks.at(0).description, output.description);
-        QCOMPARE(m_receivedTasks.at(0).file, output.file);
+        QVERIFY2(m_receivedTasks.at(0).file == output.file,
+                 msgFileComparisonFail(m_receivedTasks.at(0).file, output.file));
         QCOMPARE(m_receivedTasks.at(0).line, output.line);
         QCOMPARE(m_receivedTasks.at(0).type, output.type);
     }
@@ -133,7 +143,7 @@ void OutputParserTester::appendOutputParser(IOutputParser *parser)
     IOutputParser::appendOutputParser(parser);
 }
 
-void OutputParserTester::outputAdded(const QString &line, ProjectExplorer::BuildStep::OutputFormat format)
+void OutputParserTester::outputAdded(const QString &line, BuildStep::OutputFormat format)
 {
     Q_UNUSED(format);
     if (!m_receivedOutput.isEmpty())
@@ -141,8 +151,10 @@ void OutputParserTester::outputAdded(const QString &line, ProjectExplorer::Build
     m_receivedOutput.append(line);
 }
 
-void OutputParserTester::taskAdded(const ProjectExplorer::Task &task)
+void OutputParserTester::taskAdded(const Task &task, int linkedLines, int skipLines)
 {
+    Q_UNUSED(linkedLines);
+    Q_UNUSED(skipLines);
     m_receivedTasks.append(task);
 }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,40 +23,59 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
-    \previouspage quick-projects.html
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-quick-ui-forms.html
     \page creator-using-qt-quick-designer.html
-    \nextpage quick-components.html
+    \nextpage qmldesigner-pathview-editor.html
 
     \title Using Qt Quick Designer
 
-    You can edit .qml files in the \QMLD visual editor or in the code editor.
-
-    In \gui Projects, double-click a .qml file to open it in the code editor.
-    Then select the \gui {Design} mode to edit the file in the visual editor.
+    You can edit \l{Qt Quick UI Forms} (ui.qml files) in \QMLD. \QC opens the
+    UI forms in the \uicontrol Design mode. It is recommended that you use UI forms
+    for components that you want to design in \QMLD.
 
     \image qmldesigner-visual-editor.png "Visual editor"
 
-    Use the visual editor panes to manage your project:
+    Use the visual editor to manage your project:
 
     \list
 
-        \li \gui {Navigator} pane (1) displays the items in the current QML
-            file as tree structure.
+        \li Use the sidebar to select QML types to use in the project and to
+            view them in a tree structure, as well as to create connections
+            and browse projects and files. You can select the content of the
+            sidebar in the sidebar menu:
 
-        \li \gui {Library} pane (2) displays the building blocks that you can use to
-            design applications: predefined QML types, your own QML
-            components, Qt Quick components or Qt Quick Controls that you import
-            to the project, and
-            other resources.
+        \list
 
-        \li \gui Canvas (3) is the working area where you create QML components and
+            \li \uicontrol {Navigator} (1) displays the items in the current QML
+                file as tree structure.
+
+            \li \uicontrol {Library} (2) displays the building blocks that you can use
+                to design applications: predefined QML types, your own QML
+                components, Qt Quick components or Qt Quick Controls that you
+                import to the project, and other resources.
+
+            \li \uicontrol Connections (3) enables you to create connections between
+                objects, signals, and object properties. For
+                more information, see \l{Adding Connections}.
+
+            \li \uicontrol {Projects} shows a list of projects open in the current
+                session. For more information, see \l{Viewing Project Files}.
+
+            \li \uicontrol {File System} shows all files in the currently selected
+                directory. For more information, see \l{Viewing the File System}.
+
+            \li \uicontrol {Open Documents} sidebar view shows currently open files.
+
+        \endlist
+
+        \li \uicontrol Canvas (4) is the working area where you create QML components and
             design applications.
 
-        \li \gui {Properties} pane (4) organizes the properties of the selected item.
+        \li \uicontrol {Properties} pane (5) organizes the properties of the selected item.
             You can change the properties also in the code editor.
 
-        \li \gui {State} pane (5) displays the different states of the item.
+        \li \uicontrol {State} pane (6) displays the different states of the item.
             QML states typically describe user interface configurations, such as
             the UI controls, their properties and behavior and the available
             actions.
@@ -65,13 +84,14 @@
 
     \section1 Managing Item Hierarchy
 
-    The \gui Navigator pane displays the items in the current QML file and their relationships.
+    The \uicontrol Navigator displays the items in the current QML file and their
+    relationships.
     Items (1) are listed in a tree structure, below their parent (2).
 
-    \image qmldesigner-navigator.png "Navigator pane"
+    \image qmldesigner-navigator.png "Navigator"
 
-    You can select items in the \gui Navigator to edit their properties
-    in the \gui Properties pane. Items can access the properties of their
+    You can select items in the \uicontrol Navigator to edit their properties
+    in the \uicontrol Properties pane. Items can access the properties of their
     parent item. To select items on the canvas, right-click an item,
     and select another type in the context menu.
 
@@ -89,33 +109,40 @@
     Click the
     \inlineimage qmldesigner-show-hide-icon.png
     icon to change the visibility of an item on the canvas. To change the
-    visibility of an item in the application, use the \gui Visibility
-    check box or the \gui Opacity field in the \gui Properties pane. If you set
-    \gui Opacity to 0, items are hidden, but you can still apply animation
-    to them.
+    visibility of an item in the application, select the \uicontrol Visibility
+    check box in the \uicontrol Properties pane or select \uicontrol Edit >
+    \uicontrol Visibility in the context menu.
+
+    You can also set the \uicontrol Opacity field to 0 to hide items that you
+    want to apply animation to.
 
     As all properties, visibility and opacity are inherited from the parent
     item. To hide or show child items, edit the properties of the parent item.
 
-    To view lists of files or projects, instead, select \gui {File System},
-    \gui {Open Documents}, or \gui Projects in the menu.
+    To reset item size, position, or anchors, select context menu commands. To
+    change the source of an Image type, select \uicontrol {Change Source URL} in
+    the context menu.
+
+    To view lists of files or projects, instead, select \uicontrol {File System},
+    \uicontrol {Open Documents}, or \uicontrol Projects in the menu.
     To view several types of content at a time, split the sidebar by clicking
     \inlineimage qtcreator-splitbar.png
     .
 
     \section2 Setting the Stacking Order
 
-    The \l{Item#z-prop}{z property} of an
-    item determines its position in relation to its sibling items in the
+    The \c z property of an \l Item determines its position in relation to its
+    sibling items in the
     type hierarchy. By default, items with a higher stacking value are
     drawn on top of siblings with a lower stacking value. Items with the same
     stacking value are drawn in the order they are listed, from the last item
     up.
 
-    To change the stacking order of an item, right-click it on the canvas and
-    select \gui {Stack (z)}. You can raise or lower the stack value of an item
+    To change the stacking order of an item, right-click it in the navigator or
+    on the canvas and
+    select \uicontrol {Stack (z)}. You can raise or lower the stack value of an item
     or move the item to the front or back of all its siblings. To remove the
-    \c z property, select \gui {Reset z Property}.
+    \c z property, select \uicontrol {Reset z Property}.
 
     \section2 Switching Parent Items
 
@@ -128,7 +155,7 @@
     key before you drag and drop the item into a new position. The topmost
     item under the cursor becomes the new parent of the item.
 
-    You can change the parent of an item also in the \gui Navigator pane.
+    You can change the parent of an item also in the \uicontrol Navigator.
     Drag and drop the item to another position in the tree or use the arrow
     buttons (1) to move the item in the tree.
 
@@ -136,45 +163,45 @@
 
     \section1 QML Type Library
 
-    The \gui {Library} pane enables you to select QML types, UI components, and
+    The \uicontrol {Library} enables you to select QML types, UI components, and
     resources, as well as to manage imports.
 
-    The \gui {QML Types} pane displays the QML types grouped by category: your own QML
+    \uicontrol {QML Types} displays the QML types grouped by category: your own QML
     components, basic types, layouts, positioner types, and views.
 
     Sets of UI components with the look and feel of a particular mobile device
-    platform have been defined for Qt Quick 1. Since Qt 5.1, a set of Qt Quick
-    Controls is available for creating classic desktop-style user interfaces
-    using Qt Quick 2.1. The Qt Quick Components and Controls are based on
+    platform have been defined for Qt Quick 1. Since Qt 5.1, ready-made Qt
+    Quick Controls, Dialogs, and Layouts are available for creating user
+    interfaces using Qt Quick 2.1. The components and controls are based on
     standard QML types. To view the components and controls in the
-    \gui {Library} pane, import the component sets in the \gui Imports pane.
+    \uicontrol {Library}, import the component sets in \uicontrol Imports.
 
-    The \gui {Qt Quick Application} wizards for a particular platform add the
-    import statements automatically. You can remove import statements in the
-    \gui Imports pane.
+    The \uicontrol {Qt Quick Application} wizards for a particular platform add the
+    import statements automatically. You can remove import statements in
+    \uicontrol Imports
 
-    \image qmldesigner-qml-components.png "QML Components pane"
+    \image qmldesigner-qml-components.png "QML Components"
 
-    The \gui {Resources} pane displays the images and other files that you copy
+    \uicontrol {Resources} displays the images and other files that you copy
     to the project folder (to the same subfolder as the QML files).
 
     \section1 Specifying Item Properties
 
-    The \gui Properties pane displays all the properties of the selected item.
+    The \uicontrol Properties pane displays all the properties of the selected item.
     The properties are grouped by type. The top part of the pane
     displays properties that are common to all QML types, such as
     position, size, and visibility.
 
     The bottom part of the pane displays properties that are specific to each
     QML type. For example, the following image displays the properties you
-    can set for \gui Rectangle (1) and \gui Text (2) items.
+    can set for \uicontrol Rectangle (1) and \uicontrol Text (2) items.
 
     \image qmldesigner-element-properties.png
 
     You can use a context-menu to reset some item properties. To reset the
     position or size property of an item, right-click the item and select
-    \gui {Edit > Reset Position} or \gui {Reset Size} in the context menu. To
-    set the visibility of the item, select \gui {Edit > Visibility}.
+    \uicontrol {Edit > Reset Position} or \uicontrol {Reset Size} in the context menu. To
+    set the visibility of the item, select \uicontrol {Edit > Visibility}.
 
     For more information on the properties available for an item, press
     \key {F1}.
@@ -185,23 +212,24 @@
     values that you specify explicitly are highlighted with blue color. In
     addition, property changes in states are highlighted with blue.
 
-    This allows you to easily see which values are set in the .qml file and
+    This allows you to easily see which values are set in the UI form or
+    QML file and
     which values are default characteristics of a QML type or a component.
 
     When editing states, you can easily see which values are explicitly set in
     the current state and which values are derived from the base state.
 
-    The following images illustrate this. In the base state, the \gui Size (1)
-    and \gui Colors (2) values are explicitly set and highlighted.
+    The following images illustrate this. In the base state, the \uicontrol Size (1)
+    and \uicontrol Colors (2) values are explicitly set and highlighted.
 
     \image qmldesigner-properties-explicit-base.png "Explicitly set properties"
 
-    In \gui State1, only the color (1) is explicitly set and highlighted.
+    In \uicontrol State1, only the color (1) is explicitly set and highlighted.
 
     \image qmldesigner-properties-explicit-state1.png "Explicitly set properties"
 
     Resetting a property sets it back to the default value and removes the value
-    from the .qml file.
+    from the UI form or QML file.
 
     \note As a result, all boolean values can be visualized in four different
     ways.
@@ -232,7 +260,7 @@
     \section2 Marking Text Items for Translation
 
     To support translators, mark each text item that should be translated.
-    In the \gui Properties pane, \gui Text field, select \gui tr (1).
+    In the \uicontrol Properties pane, \uicontrol Text field, select \uicontrol tr (1).
 
     \image qmldesigner-text-property-tr.png "Text properties"
 
@@ -329,12 +357,22 @@
 
     \section2 Building Transformations on Items
 
-    The \gui Advanced pane allows you to configure advanced transformations,
+    The \uicontrol Advanced pane allows you to configure advanced transformations,
     such as rotation, scale, and translation. You can assign any number of
     transformations to an item. Each transformation is applied in order, one at
     a time.
 
     For more information on Transform types, see \l{Transform}.
+
+    \section2 Editing Properties Inline
+
+    You can double-click objects on the canvas to edit their text, color, or
+    source properties inline.
+    Because you can specify several of these properties for some QML types, such
+    as TextEdit, you can also right-click objects to open the inline editors
+    from a context-menu.
+
+    \image qmldesigner-inline-editing.png
 
     \section1 Adding States
 
@@ -372,7 +410,7 @@
 
     \endlist
 
-    The \gui State pane displays the different \l{State}{states}
+    The \uicontrol State pane displays the different \l{State}{states}
     of the component in the Qt Quick Designer.
 
     \image qmldesigner-transitions.png "State pane"
@@ -383,7 +421,7 @@
     you can change the position of an object on the canvas and then add animation
     to the change between the states.
 
-    You can preview the states in the \gui State pane and click them to switch
+    You can preview the states in the \uicontrol State pane and click them to switch
     between states on the canvas.
 
     For more information on using states, see \l{Creating Screens}.
@@ -407,13 +445,13 @@
     Click the \inlineimage qmldesigner-snap-to-anchors-button.png
     button to anchor the item to the items that you snap to.
 
-    Choose \gui {Tools > Options > Qt Quick > Qt Quick Designer} to specify
-    settings for snapping. In the \gui {Parent item padding} field, specify the
+    Choose \uicontrol {Tools > Options > Qt Quick > Qt Quick Designer} to specify
+    settings for snapping. In the \uicontrol {Parent item padding} field, specify the
     distance in pixels between the parent item and the snapping lines. In the
-    \gui {Sibling item spacing} field, specify the distance in pixels between
+    \uicontrol {Sibling item spacing} field, specify the distance in pixels between
     sibling items and the snapping lines.
 
-    The following image shows the snapping lines when \gui {Parent item padding}
+    The following image shows the snapping lines when \uicontrol {Parent item padding}
     is set to 5 pixels.
 
     \image qmldesigner-snap-margins.png "Snapping lines on canvas"
@@ -438,25 +476,25 @@
     \section2 Previewing Component Size
 
     The width and height of the root item in a QML file determine the size of
-    the component. You can reuse component, such as buttons, in different
+    the component. You can reuse components, such as buttons, in different
     sizes in other QML files and design screens for use with different device
     profiles, screen resolution, or screen orientation. The component size
     might also be zero (0,0) if its final size is determined by property
     bindings.
 
     To experiment with different component sizes, enter values in the
-    \gui Height and \gui Width fields (1) on the canvas toolbar. The changes are
-    displayed in the \gui States pane (2) and on the canvas (3), but the property
+    \uicontrol Height and \uicontrol Width fields (1) on the canvas toolbar. The changes are
+    displayed in the \uicontrol State pane (2) and on the canvas (3), but the property
     values are not changed permanently in the QML file. You can permanently
-    change the property values in the \gui Properties pane (4).
+    change the property values in the \uicontrol Properties pane (4).
 
     \image qmldesigner-preview-size.png "Canvas width and height"
 
     \section2 Specifying Canvas Size
 
-    To change the canvas size, select \gui {Tools > Options > Qt Quick
+    To change the canvas size, select \uicontrol {Tools > Options > Qt Quick
     > Qt Quick Designer} and
-    specify the canvas width and height in the \gui Canvas group.
+    specify the canvas width and height in the \uicontrol Canvas group.
 
     \section2 Refreshing the Canvas
 
@@ -468,6 +506,6 @@
 
     To refresh the image on the canvas, press \key R or select
     \inlineimage qmldesigner-reset-view.png
-    (\gui {Reset View}).
+    (\uicontrol {Reset View}).
 
 */

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,7 +31,6 @@
 
 #include "cppvirtualfunctionassistprovider.h"
 
-#include "cppeditor.h"
 #include "cppeditorconstants.h"
 #include "cppvirtualfunctionproposalitem.h"
 
@@ -40,20 +40,20 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/functionutils.h>
 #include <cpptools/symbolfinder.h>
 #include <cpptools/typehierarchybuilder.h>
 
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalwidget.h>
-#include <texteditor/codeassist/iassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/qtcassert.h>
-#include <utils/qtcoverride.h>
 
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
@@ -75,7 +75,7 @@ public:
     }
 
 protected:
-    bool eventFilter(QObject *o, QEvent *e)
+    bool eventFilter(QObject *o, QEvent *e) override
     {
         if (e->type() == QEvent::ShortcutOverride && m_sequence.count() == 1) {
             QKeyEvent *ke = static_cast<QKeyEvent *>(e);
@@ -89,9 +89,9 @@ protected:
         return GenericProposalWidget::eventFilter(o, e);
     }
 
-    void showProposal(const QString &prefix) QTC_OVERRIDE
+    void showProposal(const QString &prefix) override
     {
-        IGenericProposalModel *proposalModel = model();
+        GenericProposalModel *proposalModel = model();
         if (proposalModel && proposalModel->size() == 1) {
             emit proposalItemActivated(proposalModel->proposalItem(0));
             deleteLater();
@@ -107,46 +107,47 @@ private:
 class VirtualFunctionProposal : public GenericProposal
 {
 public:
-    VirtualFunctionProposal(int cursorPos, IGenericProposalModel *model, bool openInSplit)
-        : GenericProposal(cursorPos, model)
+    VirtualFunctionProposal(int cursorPos, const QList<AssistProposalItem *> &items, bool openInSplit)
+        : GenericProposal(cursorPos, items)
         , m_openInSplit(openInSplit)
     {}
 
-    bool isFragile() const QTC_OVERRIDE { return true; }
+    bool isFragile() const override { return true; }
 
-    IAssistProposalWidget *createWidget() const QTC_OVERRIDE
+    IAssistProposalWidget *createWidget() const override
     { return new VirtualFunctionProposalWidget(m_openInSplit); }
 
 private:
     bool m_openInSplit;
 };
 
-class VirtualFunctionsAssistProcessor : public IAssistProcessor
+class VirtualFunctionAssistProcessor : public IAssistProcessor
 {
 public:
-    VirtualFunctionsAssistProcessor(const VirtualFunctionAssistProvider::Parameters &params)
+    VirtualFunctionAssistProcessor(const VirtualFunctionAssistProvider::Parameters &params)
         : m_params(params)
     {}
 
-    IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *) QTC_OVERRIDE
+    IAssistProposal *immediateProposal(const AssistInterface *) override
     {
         QTC_ASSERT(m_params.function, return 0);
 
-        BasicProposalItem *hintItem = new VirtualFunctionProposalItem(CPPEditorWidget::Link());
+        AssistProposalItem *hintItem
+                = new VirtualFunctionProposalItem(TextEditorWidget::Link());
         hintItem->setText(QCoreApplication::translate("VirtualFunctionsAssistProcessor",
                                                       "...searching overrides"));
         hintItem->setOrder(-1000);
 
-        QList<BasicProposalItem *> items;
+        QList<AssistProposalItem *> items;
         items << itemFromFunction(m_params.function);
         items << hintItem;
-        return new VirtualFunctionProposal(m_params.cursorPosition,
-                                           new BasicProposalItemListModel(items),
-                                           m_params.openInNextSplit);
+        return new VirtualFunctionProposal(m_params.cursorPosition, items, m_params.openInNextSplit);
     }
 
-    IAssistProposal *perform(const IAssistInterface *) QTC_OVERRIDE
+    IAssistProposal *perform(const AssistInterface *assistInterface) override
     {
+        delete assistInterface;
+
         QTC_ASSERT(m_params.function, return 0);
         QTC_ASSERT(m_params.staticClass, return 0);
         QTC_ASSERT(!m_params.snapshot.isEmpty(), return 0);
@@ -161,14 +162,12 @@ public:
         if (overrides.isEmpty())
             return 0;
 
-        QList<BasicProposalItem *> items;
+        QList<AssistProposalItem *> items;
         foreach (Function *func, overrides)
             items << itemFromFunction(func);
         items.first()->setOrder(1000); // Ensure top position for function of static type
 
-        return new VirtualFunctionProposal(m_params.cursorPosition,
-                                           new BasicProposalItemListModel(items),
-                                           m_params.openInNextSplit);
+        return new VirtualFunctionProposal(m_params.cursorPosition, items, m_params.openInNextSplit);
     }
 
 private:
@@ -179,14 +178,14 @@ private:
         return func;
     }
 
-    BasicProposalItem *itemFromFunction(Function *func) const
+    AssistProposalItem *itemFromFunction(Function *func) const
     {
-        const CPPEditorWidget::Link link = CPPEditorWidget::linkToSymbol(maybeDefinitionFor(func));
+        const TextEditorWidget::Link link = CppTools::linkToSymbol(maybeDefinitionFor(func));
         QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(func));
         if (func->isPureVirtual())
             text += QLatin1String(" = 0");
 
-        BasicProposalItem *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
+        AssistProposalItem *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
         item->setText(text);
         item->setIcon(m_icons.iconForSymbol(func));
 
@@ -196,7 +195,7 @@ private:
     VirtualFunctionAssistProvider::Parameters m_params;
     Overview m_overview;
     Icons m_icons;
-    mutable CppTools::SymbolFinder m_finder;
+    mutable SymbolFinder m_finder;
 };
 
 VirtualFunctionAssistProvider::VirtualFunctionAssistProvider()
@@ -209,17 +208,17 @@ bool VirtualFunctionAssistProvider::configure(const Parameters &parameters)
     return true;
 }
 
-bool VirtualFunctionAssistProvider::isAsynchronous() const
+IAssistProvider::RunType VirtualFunctionAssistProvider::runType() const
 {
-    return true;
+    return AsynchronousWithThread;
 }
 
-bool VirtualFunctionAssistProvider::supportsEditor(const Core::Id &editorId) const
+bool VirtualFunctionAssistProvider::supportsEditor(Core::Id editorId) const
 {
-    return editorId == CppEditor::Constants::CPPEDITOR_ID;
+    return editorId == Constants::CPPEDITOR_ID;
 }
 
 IAssistProcessor *VirtualFunctionAssistProvider::createProcessor() const
 {
-    return new VirtualFunctionsAssistProcessor(m_params);
+    return new VirtualFunctionAssistProcessor(m_params);
 }

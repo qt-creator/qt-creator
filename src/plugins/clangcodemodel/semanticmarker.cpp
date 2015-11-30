@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,6 +32,9 @@
 #include "unit.h"
 #include "utils_p.h"
 #include "cxraii.h"
+
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
@@ -74,17 +78,18 @@ void SemanticMarker::setFileName(const QString &fileName)
 
 void SemanticMarker::setCompilationOptions(const QStringList &options)
 {
-    Q_ASSERT(m_unit);
+    QTC_ASSERT(m_unit, return);
 
     if (m_unit->compilationOptions() == options)
         return;
 
     m_unit->setCompilationOptions(options);
+    m_unit->unload();
 }
 
 void SemanticMarker::reparse(const UnsavedFiles &unsavedFiles)
 {
-    Q_ASSERT(m_unit);
+    QTC_ASSERT(m_unit, return);
 
     m_unit->setUnsavedFiles(unsavedFiles);
     if (m_unit->isLoaded())
@@ -127,11 +132,24 @@ static void appendDiagnostic(const CXDiagnostic &diag,
     }
 }
 
+static bool isBlackListedDiagnostic(const Utils::MimeType &mimeType, const QString &diagnostic)
+{
+    static const QStringList blackList {
+        QLatin1String("#pragma once in main file"),
+        QLatin1String("#include_next in primary source file")
+    };
+
+    return mimeType.inherits(QLatin1String("text/x-chdr")) && blackList.contains(diagnostic);
+}
+
 QList<Diagnostic> SemanticMarker::diagnostics() const
 {
     QList<Diagnostic> diagnostics;
     if (!m_unit || !m_unit->isLoaded())
         return diagnostics;
+
+    Utils::MimeDatabase mimeDatabase;
+    const Utils::MimeType mimeType = mimeDatabase.mimeTypeForFile(fileName());
 
     const unsigned diagCount = m_unit->getNumDiagnostics();
     for (unsigned i = 0; i < diagCount; ++i) {
@@ -144,12 +162,21 @@ QList<Diagnostic> SemanticMarker::diagnostics() const
         CXSourceLocation cxLocation = clang_getDiagnosticLocation(diag);
         QString spelling = Internal::getQString(clang_getDiagnosticSpelling(diag));
 
+        if (isBlackListedDiagnostic(mimeType, spelling))
+            continue;
+
         // Attach messages with Diagnostic::Note severity
         ScopedCXDiagnosticSet cxChildren(clang_getChildDiagnostics(diag));
         const unsigned numChildren = clang_getNumDiagnosticsInSet(cxChildren);
         const unsigned size = qMin(ATTACHED_NOTES_LIMIT, numChildren);
         for (unsigned di = 0; di < size; ++di) {
             ScopedCXDiagnostic child(clang_getDiagnosticInSet(cxChildren, di));
+
+            const Diagnostic::Severity severity
+                = static_cast<Diagnostic::Severity>(clang_getDiagnosticSeverity(child));
+            if (severity == Diagnostic::Ignored || severity == Diagnostic::Note)
+                continue;
+
             spelling.append(QLatin1String("\n  "));
             spelling.append(Internal::getQString(clang_getDiagnosticSpelling(child)));
         }
@@ -169,9 +196,9 @@ QList<Diagnostic> SemanticMarker::diagnostics() const
     return diagnostics;
 }
 
-QList<TextEditor::BlockRange> SemanticMarker::ifdefedOutBlocks() const
+QList<SemanticMarker::Range> SemanticMarker::ifdefedOutBlocks() const
 {
-    QList<TextEditor::BlockRange> blocks;
+    QList<Range> blocks;
 
     if (!m_unit || !m_unit->isLoaded())
         return blocks;
@@ -188,7 +215,7 @@ QList<TextEditor::BlockRange> SemanticMarker::ifdefedOutBlocks() const
         const SourceLocation &spellEnd = Internal::getSpellingLocation(clang_getRangeEnd(r));
         const int begin = spellBegin.offset() + 1;
         const int end = spellEnd.offset() - spellEnd.column();
-        blocks.append(TextEditor::BlockRange(begin, end));
+        blocks.append(Range(begin, end));
     }
     clang_disposeSourceRangeList(skippedRanges);
 #endif
@@ -322,11 +349,9 @@ static const QSet<QString> ObjcPseudoKeywords = QSet<QString>()
 QList<SourceMarker> SemanticMarker::sourceMarkersInRange(unsigned firstLine,
                                                          unsigned lastLine)
 {
-    Q_ASSERT(m_unit);
-
     QList<SourceMarker> result;
 
-    if (!m_unit->isLoaded())
+    if (!m_unit || !m_unit->isLoaded())
         return result;
 
     // Highlighting called asynchronously, and a few lines at the end can be deleted for this time.

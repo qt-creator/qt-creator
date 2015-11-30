@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -59,6 +55,7 @@ class ChildrenChangedCommand;
 class ReparentContainer;
 class ComponentCompletedCommand;
 class AddImportContainer;
+class IdContainer;
 
 namespace Internal {
     class ChildrenChangeEventFilter;
@@ -68,9 +65,9 @@ class NodeInstanceServer : public NodeInstanceServerInterface
 {
     Q_OBJECT
 public:
-    typedef QPair<QPointer<QObject>, PropertyName>  ObjectPropertyPair;
+    typedef QPair<QPointer<QObject>, PropertyName> ObjectPropertyPair;
     typedef QPair<qint32, QString>  IdPropertyPair;
-    typedef QPair<ServerNodeInstance, PropertyName>  InstancePropertyPair;
+    typedef QPair<ServerNodeInstance, PropertyName> InstancePropertyPair;
     typedef QPair<QString, QPointer<QObject> > DummyPair;
 
     explicit NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
@@ -120,14 +117,16 @@ public:
 
     void notifyPropertyChange(qint32 instanceid, const PropertyName &propertyName);
 
-    QStringList imports() const;
+    QByteArray importCode() const;
     QObject *dummyContextObject() const;
 
     virtual QQmlView *declarativeView() const = 0;
     virtual QQuickView *quickView() const = 0;
 
-    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message);
+    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId = 0);
+    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QVector<qint32> &instanceIds);
 
+    void removeInstanceRelationsipForDeletedObject(QObject *object);
 public slots:
     void refreshLocalFileProperty(const QString &path);
     void refreshDummyData(const QString &path);
@@ -136,7 +135,6 @@ public slots:
 protected:
     QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container);
     void reparentInstances(const QVector<ReparentContainer> &containerVector);
-    void addImportString(const QString &import);
 
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter();
     void resetInstanceProperty(const PropertyAbstractContainer &propertyContainer);
@@ -170,8 +168,8 @@ protected:
     int renderTimerInterval() const;
     void setSlowRenderTimerInterval(int timerInterval);
 
-    virtual void initializeView(const QVector<AddImportContainer> &importVector) = 0;
-    virtual QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command) = 0;
+    virtual void initializeView() = 0;
+    virtual void setupScene(const CreateSceneCommand &command) = 0;
     void loadDummyDataFiles(const QString& directory);
     void loadDummyDataContext(const QString& directory);
     void loadDummyDataFile(const QFileInfo& fileInfo);
@@ -203,6 +201,7 @@ protected:
     virtual void resizeCanvasSizeToRootItemSize() = 0;
 
 private:
+    void setupOnlyWorkingImports(const QStringList &workingImportStatementList);
     ServerNodeInstance m_rootNodeInstance;
     ServerNodeInstance m_activeStateInstance;
     QHash<qint32, ServerNodeInstance> m_idInstanceHash;
@@ -219,7 +218,7 @@ private:
     bool m_slowRenderTimer;
     int m_slowRenderTimerInterval;
     QVector<InstancePropertyPair> m_changedPropertyList;
-    QStringList m_importList;
+    QByteArray m_importCode;
     QPointer<QObject> m_dummyContextObject;
     QPointer<QQmlComponent> m_importComponent;
     QPointer<QObject> m_importComponentObject;

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,8 +31,11 @@
 #include "cpplocatorfilter.h"
 #include "cppmodelmanager.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <QStringMatcher>
 
+using namespace CppTools;
 using namespace CppTools::Internal;
 
 CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
@@ -47,13 +51,14 @@ CppLocatorFilter::~CppLocatorFilter()
 {
 }
 
-Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
+Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
     const QVariant id = qVariantFromValue(info);
-    Core::LocatorFilterEntry filterEntry(this, info.scopedSymbolName(), id, info.icon);
-    filterEntry.extraInfo = info.type == ModelItemInfo::Class || info.type == ModelItemInfo::Enum
-        ? info.shortNativeFilePath()
-        : info.symbolType;
+    Core::LocatorFilterEntry filterEntry(this, info->scopedSymbolName(), id, info->icon());
+    if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
+        filterEntry.extraInfo = info->shortNativeFilePath();
+    else
+        filterEntry.extraInfo = info->symbolType();
 
     return filterEntry;
 }
@@ -63,21 +68,14 @@ void CppLocatorFilter::refresh(QFutureInterface<void> &future)
     Q_UNUSED(future)
 }
 
-QList<QList<CppTools::ModelItemInfo> > CppLocatorFilter::itemsToMatchUserInputAgainst() const
-{
-    return QList<QList<CppTools::ModelItemInfo> >()
-        << m_data->classes()
-        << m_data->functions()
-        << m_data->enums();
-}
-
 static bool compareLexigraphically(const Core::LocatorFilterEntry &a,
                                    const Core::LocatorFilterEntry &b)
 {
     return a.displayName < b.displayName;
 }
 
-QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &origEntry)
+QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
+        QFutureInterface<Core::LocatorFilterEntry> &future, const QString &origEntry)
 {
     QString entry = trimWildcards(origEntry);
     QList<Core::LocatorFilterEntry> goodEntries;
@@ -90,23 +88,28 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Co
     bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
     bool hasColonColon = entry.contains(QLatin1String("::"));
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
+    const IndexItem::ItemType wanted = matchTypes();
 
-    const QList<QList<CppTools::ModelItemInfo> > itemLists = itemsToMatchUserInputAgainst();
-    foreach (const QList<CppTools::ModelItemInfo> &items, itemLists) {
-        foreach (const ModelItemInfo &info, items) {
-            if (future.isCanceled())
-                break;
-            const QString matchString = hasColonColon ? info.scopedSymbolName() : info.symbolName;
-            if ((hasWildcard && regexp.exactMatch(matchString))
-                || (!hasWildcard && matcher.indexIn(matchString) != -1)) {
-                const Core::LocatorFilterEntry filterEntry = filterEntryFromModelItemInfo(info);
+    m_data->filterAllFiles([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
+        if (future.isCanceled())
+            return IndexItem::Break;
+        if (info->type() & wanted) {
+            const QString matchString = hasColonColon ? info->scopedSymbolName() : info->symbolName();
+            if ((hasWildcard && regexp.exactMatch(matchString)) ||
+                    (!hasWildcard && matcher.indexIn(matchString) != -1)) {
+                const Core::LocatorFilterEntry filterEntry = filterEntryFromIndexItem(info);
                 if (matchString.startsWith(entry, caseSensitivityForPrefix))
                     betterEntries.append(filterEntry);
                 else
                     goodEntries.append(filterEntry);
             }
         }
-    }
+
+        if (info->type() & IndexItem::Enum)
+            return IndexItem::Continue;
+        else
+            return IndexItem::Recurse;
+    });
 
     if (goodEntries.size() < 1000)
         qStableSort(goodEntries.begin(), goodEntries.end(), compareLexigraphically);
@@ -119,6 +122,6 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Co
 
 void CppLocatorFilter::accept(Core::LocatorFilterEntry selection) const
 {
-    ModelItemInfo info = qvariant_cast<CppTools::ModelItemInfo>(selection.internalData);
-    Core::EditorManager::openEditorAt(info.fileName, info.line, info.column);
+    IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
+    Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -121,7 +122,7 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     d = new BuildManagerPrivate;
 
     connect(&d->m_watcher, SIGNAL(finished()),
-            this, SLOT(nextBuildQueue()));
+            this, SLOT(nextBuildQueue()), Qt::QueuedConnection);
 
     connect(&d->m_watcher, SIGNAL(progressValueChanged(int)),
             this, SLOT(progressChanged()));
@@ -154,7 +155,7 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
             this, SLOT(finish()));
 }
 
-QObject *BuildManager::instance()
+BuildManager *BuildManager::instance()
 {
     return m_instance;
 }
@@ -277,7 +278,7 @@ void BuildManager::clearBuildQueue()
 
 void BuildManager::toggleOutputWindow()
 {
-    d->m_outputWindow->toggle(IOutputPane::ModeSwitch);
+    d->m_outputWindow->toggle(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 }
 
 void BuildManager::showTaskWindow()
@@ -287,7 +288,7 @@ void BuildManager::showTaskWindow()
 
 void BuildManager::toggleTaskWindow()
 {
-    d->m_taskWindow->toggle(IOutputPane::ModeSwitch);
+    d->m_taskWindow->toggle(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 }
 
 bool BuildManager::tasksAvailable()
@@ -299,7 +300,7 @@ bool BuildManager::tasksAvailable()
     return count > 0;
 }
 
-void BuildManager::startBuildQueue(const QStringList &preambleMessage)
+void BuildManager::startBuildQueue()
 {
     if (d->m_buildQueue.isEmpty()) {
         emit m_instance->buildQueueFinished(true);
@@ -310,11 +311,6 @@ void BuildManager::startBuildQueue(const QStringList &preambleMessage)
         // Progress Reporting
         d->m_progressFutureInterface = new QFutureInterface<void>;
         d->m_progressWatcher.setFuture(d->m_progressFutureInterface->future());
-        foreach (const QString &str, preambleMessage)
-            addToOutputWindow(str, BuildStep::MessageOutput, BuildStep::DontAppendNewline);
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
         ProgressManager::setApplicationLabel(QString());
         d->m_futureProgress = ProgressManager::addTask(d->m_progressFutureInterface->future(),
               QString(), "ProjectExplorer.Task.Build",
@@ -345,10 +341,10 @@ void BuildManager::showBuildResults()
     //toggleTaskWindow();
 }
 
-void BuildManager::addToTaskWindow(const ProjectExplorer::Task &task)
+void BuildManager::addToTaskWindow(const Task &task, int linkedOutputLines, int skipLines)
 {
-    d->m_outputWindow->registerPositionOf(task);
     // Distribute to all others
+    d->m_outputWindow->registerPositionOf(task, linkedOutputLines, skipLines);
     TaskHub::addTask(task);
 }
 
@@ -403,7 +399,7 @@ void BuildManager::nextBuildQueue()
         const QString projectName = d->m_currentBuildStep->project()->displayName();
         const QString targetName = d->m_currentBuildStep->target()->displayName();
         addToOutputWindow(tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
-        addToOutputWindow(tr("When executing step '%1'").arg(d->m_currentBuildStep->displayName()), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("When executing step \"%1\"").arg(d->m_currentBuildStep->displayName()), BuildStep::ErrorOutput);
         // NBS TODO fix in qtconcurrent
         d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName));
     }
@@ -428,6 +424,8 @@ void BuildManager::progressChanged()
 
 void BuildManager::progressTextChanged()
 {
+    if (!d->m_progressFutureInterface)
+        return;
     int range = d->m_watcher.progressMaximum() - d->m_watcher.progressMinimum();
     int percent = 0;
     if (range != 0)
@@ -481,22 +479,33 @@ void BuildManager::nextStep()
     }
 }
 
-bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names)
+bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names, const QStringList &preambleMessage)
 {
-    d->m_outputWindow->clearContents();
+    if (!d->m_running) {
+        d->m_outputWindow->clearContents();
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
+
+        foreach (const QString &str, preambleMessage)
+            addToOutputWindow(str, BuildStep::MessageOutput, BuildStep::DontAppendNewline);
+    }
+
+    QList<const BuildStep *> earlierSteps;
     int count = steps.size();
     bool init = true;
     int i = 0;
     for (; i < count; ++i) {
         BuildStep *bs = steps.at(i);
-        connect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
-                m_instance, SLOT(addToTaskWindow(ProjectExplorer::Task)));
+        connect(bs, SIGNAL(addTask(ProjectExplorer::Task, int, int)),
+                m_instance, SLOT(addToTaskWindow(ProjectExplorer::Task, int, int)));
         connect(bs, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat,ProjectExplorer::BuildStep::OutputNewlineSetting)),
                 m_instance, SLOT(addToOutputWindow(QString,ProjectExplorer::BuildStep::OutputFormat,ProjectExplorer::BuildStep::OutputNewlineSetting)));
         if (bs->enabled()) {
-            init = bs->init();
+            init = bs->init(earlierSteps);
             if (!init)
                 break;
+            earlierSteps.append(bs);
         }
     }
     if (!init) {
@@ -507,7 +516,7 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names)
         const QString projectName = bs->project()->displayName();
         const QString targetName = bs->target()->displayName();
         addToOutputWindow(tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
-        addToOutputWindow(tr("When executing step '%1'").arg(bs->displayName()), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("When executing step \"%1\"").arg(bs->displayName()), BuildStep::ErrorOutput);
 
         // disconnect the buildsteps again
         for (int j = 0; j <= i; ++j)
@@ -547,7 +556,7 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &st
         }
     }
 
-    bool success = buildQueueAppend(steps, names);
+    bool success = buildQueueAppend(steps, names, preambelMessage);
     if (!success) {
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
         return false;
@@ -555,7 +564,7 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &st
 
     if (ProjectExplorerPlugin::projectExplorerSettings().showCompilerOutput)
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
-    startBuildQueue(preambelMessage);
+    startBuildQueue();
     return true;
 }
 
@@ -650,8 +659,8 @@ void BuildManager::decrementActiveBuildSteps(BuildStep *bs)
 
 void BuildManager::disconnectOutput(BuildStep *bs)
 {
-    disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
-               m_instance, SLOT(addToTaskWindow(ProjectExplorer::Task)));
+    disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task, int, int)),
+               m_instance, SLOT(addToTaskWindow(ProjectExplorer::Task, int, int)));
     disconnect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat,
         ProjectExplorer::BuildStep::OutputNewlineSetting)),
         m_instance, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat,

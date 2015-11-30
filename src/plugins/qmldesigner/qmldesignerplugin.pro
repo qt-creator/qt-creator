@@ -1,6 +1,10 @@
+QT += quickwidgets
+QT += widgets-private quick-private quickwidgets-private core-private gui-private #mouse ungrabbing workaround on quickitems
 CONFIG += exceptions
 
 INCLUDEPATH += $$PWD
+
+unix:!osx:LIBS += -lrt # posix shared memory
 
 include(../../qtcreatorplugin.pri)
 
@@ -16,6 +20,7 @@ include(components/stateseditor/stateseditor.pri)
 include(components/resources/resources.pri)
 include(components/debugview/debugview.pri)
 include(components/importmanager/importmanager.pri)
+include(qmldesignerextension/qmldesignerextension.pri)
 include(qmldesignerplugin.pri)
 
 DEFINES -= QT_NO_CAST_FROM_ASCII

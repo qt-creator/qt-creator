@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "FakeVim"
@@ -12,7 +10,13 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
 
+    pluginTestDepends: [
+        "CppEditor",
+        "CppTools",
+    ]
+
     files: [
+        "fakevim.qrc",
         "fakevimactions.cpp",
         "fakevimactions.h",
         "fakevimhandler.cpp",
@@ -20,6 +24,7 @@ QtcPlugin {
         "fakevimoptions.ui",
         "fakevimplugin.cpp",
         "fakevimplugin.h",
+        "fakevimtr.h",
     ]
 
     Group {

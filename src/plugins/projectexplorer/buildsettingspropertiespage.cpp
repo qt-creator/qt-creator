@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,6 +35,7 @@
 #include "target.h"
 #include "buildconfiguration.h"
 #include "buildconfigurationmodel.h"
+#include "session.h"
 
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
@@ -52,45 +54,6 @@
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
-
-///
-// BuildSettingsPanelFactory
-///
-
-QString BuildSettingsPanelFactory::id() const
-{
-    return QLatin1String(BUILDSETTINGS_PANEL_ID);
-}
-
-QString BuildSettingsPanelFactory::displayName() const
-{
-    return QCoreApplication::translate("BuildSettingsPanelFactory", "Build Settings");
-}
-
-int BuildSettingsPanelFactory::priority() const
-{
-    return 10;
-}
-
-bool BuildSettingsPanelFactory::supports(Target *target)
-{
-    return IBuildConfigurationFactory::find(target);
-}
-
-PropertiesPanel *BuildSettingsPanelFactory::createPanel(Target *target)
-{
-    PropertiesPanel *panel = new PropertiesPanel;
-    QWidget *w = new QWidget();
-    QVBoxLayout *l = new QVBoxLayout(w);
-    QWidget *b = new BuildSettingsWidget(target);
-    l->addWidget(b);
-    l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    l->setContentsMargins(QMargins());
-    panel->setWidget(w);
-    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/BuildSettings.png")));
-    panel->setDisplayName(QCoreApplication::translate("BuildSettingsPanel", "Build Settings"));
-    return panel;
-}
 
 ///
 // BuildSettingsWidget
@@ -224,8 +187,10 @@ void BuildSettingsWidget::updateAddButtonMenu()
             return;
         m_buildInfoList = factory->availableBuilds(m_target);
         foreach (BuildInfo *info, m_buildInfoList) {
-            QAction *action = m_addButtonMenu->addAction(info->typeName, this, SLOT(createConfiguration()));
-            action->setData(QVariant::fromValue(static_cast<void *>(info)));
+            QAction *action = m_addButtonMenu->addAction(info->typeName);
+            connect(action, &QAction::triggered, this, [this, info] {
+                createConfiguration(info);
+            });
         }
     }
 }
@@ -235,7 +200,9 @@ void BuildSettingsWidget::updateBuildSettings()
     clearWidgets();
 
     // update buttons
-    m_removeButton->setEnabled(m_target->buildConfigurations().size() > 1);
+    QList<BuildConfiguration *> bcs = m_target->buildConfigurations();
+    m_removeButton->setEnabled(bcs.size() > 1);
+    m_renameButton->setEnabled(!bcs.isEmpty());
 
     if (!m_buildConfiguration)
         return;
@@ -257,7 +224,7 @@ void BuildSettingsWidget::currentIndexChanged(int index)
 {
     BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
     BuildConfiguration *buildConfiguration = model->buildConfigurationAt(index);
-    m_target->setActiveBuildConfiguration(buildConfiguration);
+    SessionManager::setActiveBuildConfiguration(m_target, buildConfiguration, SetActive::Cascade);
 }
 
 void BuildSettingsWidget::updateActiveConfiguration()
@@ -273,10 +240,9 @@ void BuildSettingsWidget::updateActiveConfiguration()
     updateBuildSettings();
 }
 
-void BuildSettingsWidget::createConfiguration()
+void BuildSettingsWidget::createConfiguration(BuildInfo *info)
 {
-    QAction *action = qobject_cast<QAction *>(sender());
-    BuildInfo *info = static_cast<BuildInfo *>(action->data().value<void*>());
+    QString originalDisplayName = info->displayName;
 
     if (info->displayName.isEmpty()) {
         bool ok = false;
@@ -294,7 +260,8 @@ void BuildSettingsWidget::createConfiguration()
         return;
 
     m_target->addBuildConfiguration(bc);
-    m_target->setActiveBuildConfiguration(bc);
+    SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
+    info->displayName = originalDisplayName;
 }
 
 void BuildSettingsWidget::cloneConfiguration()
@@ -324,6 +291,7 @@ QString BuildSettingsWidget::uniqueName(const QString & name)
 
 void BuildSettingsWidget::renameConfiguration()
 {
+    QTC_ASSERT(m_buildConfiguration, return);
     bool ok;
     QString name = QInputDialog::getText(this, tr("Rename..."),
                                          tr("New name for build configuration <b>%1</b>:").
@@ -360,7 +328,7 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
 
     bc->setDisplayName(name);
     m_target->addBuildConfiguration(bc);
-    m_target->setActiveBuildConfiguration(bc);
+    SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
 }
 
 void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfiguration)

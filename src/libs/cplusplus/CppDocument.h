@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,17 +35,15 @@
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/PreprocessorClient.h>
+#include <cplusplus/DependencyTable.h>
+
+#include <utils/fileutils.h>
 
 #include <QSharedPointer>
 #include <QDateTime>
 #include <QHash>
 #include <QFileInfo>
 #include <QAtomicInt>
-
-// in debug mode: make dumpers widely available without an extra include
-#ifdef QT_DEBUG
-#include "Dumpers.h"
-#endif
 
 namespace CPlusPlus {
 
@@ -77,10 +76,12 @@ public:
     QString fileName() const;
 
     void appendMacro(const Macro &macro);
-    void addMacroUse(const Macro &macro, unsigned offset, unsigned length,
-                     unsigned beginLine,
-                     const QVector<MacroArgumentReference> &range);
-    void addUndefinedMacroUse(const QByteArray &name, unsigned offset);
+    void addMacroUse(const Macro &macro,
+                     unsigned bytesOffset, unsigned bytesLength,
+                     unsigned utf16charsOffset, unsigned utf16charLength,
+                     unsigned beginLine, const QVector<MacroArgumentReference> &range);
+    void addUndefinedMacroUse(const QByteArray &name,
+                              unsigned bytesOffset, unsigned utf16charsOffset);
 
     Control *control() const;
     TranslationUnit *translationUnit() const;
@@ -97,7 +98,8 @@ public:
     QList<Macro> definedMacros() const
     { return _definedMacros; }
 
-    QString functionAt(int line, int column) const;
+    QString functionAt(int line, int column, int *lineOpeningDeclaratorParenthesis = 0,
+                       int *lineClosingBrace = 0) const;
     Symbol *lastVisibleSymbolAt(unsigned line, unsigned column = 0) const;
     Scope *scopeAt(unsigned line, unsigned column = 0);
 
@@ -108,8 +110,11 @@ public:
     void setFingerprint(const QByteArray &fingerprint)
     { m_fingerprint = fingerprint; }
 
-    void startSkippingBlocks(unsigned offset);
-    void stopSkippingBlocks(unsigned offset);
+    LanguageFeatures languageFeatures() const;
+    void setLanguageFeatures(LanguageFeatures features);
+
+    void startSkippingBlocks(unsigned utf16charsOffset);
+    void stopSkippingBlocks(unsigned utf16charsOffset);
 
     enum ParseMode { // ### keep in sync with CPlusPlus::TranslationUnit
         ParseTranlationUnit,
@@ -207,31 +212,34 @@ public:
 
     class Block
     {
-        unsigned _begin;
-        unsigned _end;
+        unsigned _bytesBegin;
+        unsigned _bytesEnd;
+        unsigned _utf16charsBegin;
+        unsigned _utf16charsEnd;
 
     public:
-        inline Block(unsigned begin = 0, unsigned end = 0)
-            : _begin(begin), _end(end)
-        { }
+        inline Block(unsigned bytesBegin = 0, unsigned bytesEnd = 0,
+                     unsigned utf16charsBegin = 0, unsigned utf16charsEnd = 0)
+            : _bytesBegin(bytesBegin),
+              _bytesEnd(bytesEnd),
+              _utf16charsBegin(utf16charsBegin),
+              _utf16charsEnd(utf16charsEnd)
+        {}
 
-        inline bool isNull() const
-        { return length() == 0; }
+        inline unsigned bytesBegin() const
+        { return _bytesBegin; }
 
-        inline unsigned position() const
-        { return _begin; }
+        inline unsigned bytesEnd() const
+        { return _bytesEnd; }
 
-        inline unsigned length() const
-        { return _end - _begin; }
+        inline unsigned utf16charsBegin() const
+        { return _utf16charsBegin; }
 
-        inline unsigned begin() const
-        { return _begin; }
+        inline unsigned utf16charsEnd() const
+        { return _utf16charsEnd; }
 
-        inline unsigned end() const
-        { return _end; }
-
-        bool contains(unsigned pos) const
-        { return pos >= _begin && pos < _end; }
+        bool containsUtf16charOffset(unsigned utf16charOffset) const
+        { return utf16charOffset >= _utf16charsBegin && utf16charOffset < _utf16charsEnd; }
     };
 
     class Include {
@@ -268,8 +276,11 @@ public:
         unsigned _beginLine;
 
     public:
-        inline MacroUse(const Macro &macro, unsigned begin, unsigned end, unsigned beginLine)
-            : Block(begin, end),
+        inline MacroUse(const Macro &macro,
+                        unsigned bytesBegin, unsigned bytesEnd,
+                        unsigned utf16charsBegin, unsigned utf16charsEnd,
+                        unsigned beginLine)
+            : Block(bytesBegin, bytesEnd, utf16charsBegin, utf16charsEnd),
               _macro(macro),
               _beginLine(beginLine)
         { }
@@ -302,8 +313,12 @@ public:
     public:
         inline UndefinedMacroUse(
                 const QByteArray &name,
-                unsigned begin)
-            : Block(begin, begin + name.length()),
+                unsigned bytesBegin,
+                unsigned utf16charsBegin)
+            : Block(bytesBegin,
+                    bytesBegin + name.length(),
+                    utf16charsBegin,
+                    utf16charsBegin + QString::fromUtf8(name, name.size()).size()),
               _name(name)
         { }
 
@@ -337,8 +352,8 @@ public:
     { return _includeGuardMacroName; }
 
     const Macro *findMacroDefinitionAt(unsigned line) const;
-    const MacroUse *findMacroUseAt(unsigned offset) const;
-    const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned offset) const;
+    const MacroUse *findMacroUseAt(unsigned utf16charsOffset) const;
+    const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned utf16charsOffset) const;
 
     void keepSourceAndAST();
     void releaseSourceAndAST();
@@ -379,44 +394,65 @@ private:
 
 class CPLUSPLUS_EXPORT Snapshot
 {
-    typedef QHash<QString, Document::Ptr> _Base;
+    typedef QHash<Utils::FileName, Document::Ptr> Base;
 
 public:
     Snapshot();
     ~Snapshot();
 
-    typedef _Base::const_iterator iterator;
-    typedef _Base::const_iterator const_iterator;
+    typedef Base::const_iterator iterator;
+    typedef Base::const_iterator const_iterator;
+    typedef QPair<Document::Ptr, unsigned> IncludeLocation;
 
     int size() const; // ### remove
     bool isEmpty() const;
 
     void insert(Document::Ptr doc); // ### remove
-    void remove(const QString &fileName); // ### remove
+    void remove(const Utils::FileName &fileName); // ### remove
+    void remove(const QString &fileName)
+    { remove(Utils::FileName::fromString(fileName)); }
 
     const_iterator begin() const { return _documents.begin(); }
     const_iterator end() const { return _documents.end(); }
 
-    bool contains(const QString &fileName) const;
-    Document::Ptr document(const QString &fileName) const;
+    bool contains(const Utils::FileName &fileName) const;
+    bool contains(const QString &fileName) const
+    { return contains(Utils::FileName::fromString(fileName)); }
 
-    const_iterator find(const QString &fileName) const;
+    Document::Ptr document(const Utils::FileName &fileName) const;
+    Document::Ptr document(const QString &fileName) const
+    { return document(Utils::FileName::fromString(fileName)); }
+
+    const_iterator find(const Utils::FileName &fileName) const;
+    const_iterator find(const QString &fileName) const
+    { return find(Utils::FileName::fromString(fileName)); }
 
     Snapshot simplified(Document::Ptr doc) const;
 
     Document::Ptr preprocessedDocument(const QByteArray &source,
-                                       const QString &fileName) const;
+                                       const Utils::FileName &fileName) const;
+    Document::Ptr preprocessedDocument(const QByteArray &source,
+                                       const QString &fileName) const
+    { return preprocessedDocument(source, Utils::FileName::fromString(fileName)); }
 
     Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,
                                      const QString &fileName) const;
 
     QSet<QString> allIncludesForDocument(const QString &fileName) const;
+    QList<IncludeLocation> includeLocationsOfDocument(const QString &fileName) const;
+
+    Utils::FileNameList filesDependingOn(const Utils::FileName &fileName) const;
+    Utils::FileNameList filesDependingOn(const QString &fileName) const
+    { return filesDependingOn(Utils::FileName::fromString(fileName)); }
+    void updateDependencyTable() const;
+
+    bool operator==(const Snapshot &other) const;
 
 private:
     void allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const;
 
-private:
-    _Base _documents;
+    mutable DependencyTable m_deps;
+    Base _documents;
 };
 
 } // namespace CPlusPlus

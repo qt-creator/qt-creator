@@ -1,6 +1,4 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "PythonEditor"
@@ -18,10 +16,8 @@ QtcPlugin {
         files: [
             "pythoneditor.cpp", "pythoneditor.h",
             "pythoneditorconstants.h",
-            "pythoneditorfactory.cpp", "pythoneditorfactory.h",
             "pythoneditorplugin.cpp", "pythoneditorplugin.h",
             "pythoneditorplugin.qrc",
-            "pythoneditorwidget.cpp", "pythoneditorwidget.h",
         ]
     }
 
@@ -33,21 +29,7 @@ QtcPlugin {
             "lexical/pythonscanner.h", "lexical/pythonscanner.cpp",
             "lexical/sourcecodestream.h",
             "pythonhighlighter.h", "pythonhighlighter.cpp",
-            "pythonhighlighterfactory.h", "pythonhighlighterfactory.cpp",
             "pythonindenter.cpp", "pythonindenter.h"
         ]
     }
-
-    Group {
-        name: "Wizard"
-        prefix: "wizard/"
-        files: [
-            "pythonclassnamepage.cpp", "pythonclassnamepage.h",
-            "pythonclasswizard.h", "pythonclasswizard.cpp",
-            "pythonclasswizarddialog.h", "pythonclasswizarddialog.cpp",
-            "pythonfilewizard.h", "pythonfilewizard.cpp",
-            "pythonsourcegenerator.h", "pythonsourcegenerator.cpp"
-        ]
-    }
 }
-

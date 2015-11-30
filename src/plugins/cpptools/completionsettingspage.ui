@@ -17,6 +17,36 @@
       <string>Behavior</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="5" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="spaceAfterFunctionName">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>Insert &amp;space after function name</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="caseSensitivityLabel">
         <property name="text">
@@ -52,84 +82,6 @@
         </item>
        </widget>
       </item>
-      <item row="0" column="2" colspan="2">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>70</width>
-          <height>24</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="completionTriggerLabel">
-        <property name="text">
-         <string>Activate completion:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QComboBox" name="completionTrigger">
-        <item>
-         <property name="text">
-          <string>Manually</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>When Triggered</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Always</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>24</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="partiallyComplete">
-        <property name="toolTip">
-         <string>Inserts the common prefix of available completion items.</string>
-        </property>
-        <property name="text">
-         <string>Autocomplete common &amp;prefix</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QCheckBox" name="autoInsertBrackets">
-        <property name="toolTip">
-         <string>Automatically inserts semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</string>
-        </property>
-        <property name="text">
-         <string>&amp;Automatically insert matching characters</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="4" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -163,35 +115,115 @@
         </item>
        </layout>
       </item>
-      <item row="5" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="autoSplitStrings">
+        <property name="toolTip">
+         <string>Splits a string into two lines by adding an end quote at the cursor position when you press Enter and a start quote to the next line, before the rest of the string.
+
+In addition, Shift+Enter inserts an escape character at the cursor position and moves the rest of the string to the next line.</string>
+        </property>
+        <property name="text">
+         <string>Automatically split strings</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>24</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="2" colspan="4">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>70</width>
+          <height>24</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QComboBox" name="completionTrigger">
         <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>30</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+         <property name="text">
+          <string>Manually</string>
+         </property>
         </item>
         <item>
-         <widget class="QCheckBox" name="spaceAfterFunctionName">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Insert &amp;space after function name</string>
-          </property>
-         </widget>
+         <property name="text">
+          <string>When Triggered</string>
+         </property>
         </item>
-       </layout>
+        <item>
+         <property name="text">
+          <string>Always</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="automaticProposalTimeoutLabel">
+        <property name="text">
+         <string>Timeout in ms:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="partiallyComplete">
+        <property name="toolTip">
+         <string>Inserts the common prefix of available completion items.</string>
+        </property>
+        <property name="text">
+         <string>Autocomplete common &amp;prefix</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="completionTriggerLabel">
+        <property name="text">
+         <string>Activate completion:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="autoInsertBrackets">
+        <property name="toolTip">
+         <string>Automatically inserts semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</string>
+        </property>
+        <property name="text">
+         <string>&amp;Automatically insert matching characters</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QSpinBox" name="automaticProposalTimeoutSpinBox">
+        <property name="maximum">
+         <number>500</number>
+        </property>
+        <property name="singleStep">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>400</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -205,7 +237,7 @@
       <item>
        <widget class="QCheckBox" name="enableDoxygenCheckBox">
         <property name="toolTip">
-         <string>Automatically creates a Doxygen comment upon pressing enter after a /**, /*!, //! or ///</string>
+         <string>Automatically creates a Doxygen comment upon pressing enter after a '/**', '/*!', '//!' or '///'.</string>
         </property>
         <property name="text">
          <string>Enable Doxygen blocks</string>
@@ -245,7 +277,7 @@
       <item>
        <widget class="QCheckBox" name="leadingAsterisksCheckBox">
         <property name="toolTip">
-         <string>Adds leading asterisks when continuing Qt (/*!) and Java (/**) style comments on new lines.</string>
+         <string>Adds leading asterisks when continuing C/C++ &quot;/*&quot;, Qt &quot;/*!&quot; and Java &quot;/**&quot; style comments on new lines.</string>
         </property>
         <property name="text">
          <string>Add leading asterisks</string>

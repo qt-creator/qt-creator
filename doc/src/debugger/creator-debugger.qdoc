@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-testing.html
     \page creator-debugging.html
     \nextpage creator-debugger-engines.html
@@ -48,13 +48,13 @@
 
             To start an application from an open project under the control
             of a debugger, press the Debug button in the lower left corner
-            of the main view, or press \key{F5}. Other, less common start
-            options are available in the \gui{Debug} > \gui{Start Debugging}
-            menu.
+            of the main view, or press \key F5. Other, less common start
+            options are available in the \uicontrol Debug >
+            \uicontrol {Start Debugging} menu.
 
         \li \l{Interacting with the Debugger}
 
-            You can use the tool views in the \gui Debug mode to inspect the
+            You can use the tool views in the \uicontrol Debug mode to inspect the
             state of your application while debugging.
 
         \li \l{Using Debugging Helpers}
@@ -66,8 +66,8 @@
 
         \li \l{Debugging Qt Quick Projects}
 
-            When debugging a Qt Quick application, you can inspect the state
-            of the application while debugging JavaScript functions. You can set
+            When debugging a Qt Quick application, you can inspect the state of
+            the application while debugging JavaScript functions. You can set
             breakpoints, view call stack trace, and examine locals and
             expressions. While the application is running, you can inspect QML
             objects and user interfaces, as well as execute JavaScript
@@ -91,65 +91,60 @@
 
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-debugger-engines.html
     \page creator-debugger-operating-modes.html
     \nextpage creator-debug-mode.html
 
     \title Launching the Debugger
 
-    To start an application from an open project under the control
-    of a debugger, press the \gui Debug button in the lower left corner
-    of the main view, or press \key{F5}.
+    To start an application from an open project under the control of a
+    debugger, press the \uicontrol Debug button in the lower left corner
+    of the main view, or press \key F5.
 
-    \QC checks whether the compiled program is up-to-date, and rebuilds
-    and deploys it if the \gui{Always build project before deploying it} and
-    \gui{Always deploy before running} options are selected in the
-    \gui{Build and Run} options.
+    \QC checks whether the compiled program is up-to-date, and rebuilds and
+    deploys it if the \uicontrol {Always build project before deploying it} and
+    \uicontrol {Always deploy before running} options are selected in the
+    \uicontrol {Build and Run} options.
 
     The debugger then takes over and starts the program with suitable
     parameters.
 
-    \note Starting a C++ program in the debugger can take a long
-    time, typically in the range of several seconds to minutes if complex
-    features (like QtWebKit) are used.
+    \note Starting a C++ program in the debugger can take a long time, typically
+    in the range of several seconds to minutes if complex features are used.
 
 
     \section1 Launching the Debugger in Different Modes
 
-    The debugger plugin can run the native debuggers in various operating
-    modes depending on where and how the debugged process is started and run.
-    Some of the modes are only available for a particular operating system or
-    platform.
+    The debugger plugin can run the native debuggers in various operating modes
+    depending on where and how the debugged process is started and run. Some of
+    the modes are only available for a particular operating system or platform.
 
-    In general, the \key{F5} and the \gui{Debug} button are set up in a way
-    to start the operating mode that is commonly used in a given context.
-    So if the current project is set up as a C++ application using
-    the MinGW toolchain targeting desktop Windows, the GDB engine will
-    be started in Start Internal mode. If the current project is a
-    QML application using C++ plugins,
-    a "mixed" QML/C++ engine will be started, with the C++ parts
-    being handled by GDB and GDB server remote debugging.
+    In general, the \key F5 and the \uicontrol Debug button are set up in a
+    way to start the operating mode that is commonly used in a given context. So
+    if the current project is set up as a C++ application using the MinGW
+    toolchain targeting desktop Windows, the GDB engine will be started in Start
+    Internal mode. If the current project is a QML application using C++
+    plugins, a "mixed" QML/C++ engine will be started, with the C++ parts being
+    handled by GDB and GDB server remote debugging.
 
-    Change the run configuration
-    parameters (such as \gui{Run in Terminal}) in the run settings of the
-    project, or select options from the \gui{Debug} > \gui{Start Debugging}
-    menu to select other modes of operation.
+    Change the run configuration parameters (such as
+    \uicontrol {Run in Terminal}) in the run settings of the project, or select
+    options from the \uicontrol Debug  > \uicontrol {Start Debugging} menu to
+    select other modes of operation.
 
     The debugger can run in the following modes:
 
     \list
 
-       \li \b{Start Internal} to debug applications developed inside
-            \QC such as a Qt based GUI application.
+       \li \b{Start Internal} to debug applications developed inside \QC such as
+            a Qt based GUI application.
 
-       \li \b{Start External} to start and debug processes
-            without a proper \QC project setup, either locally or
-            on a remote machine.
+       \li \b{Start External} to start and debug processes without a proper \QC
+            project setup, either locally or on a remote machine.
 
-       \li \b{Attach} to debug processes already started and
-            running outside \QC, either locally or on a
-            remote machine.
+       \li \b{Attach} to debug processes already started and running outside
+            \QC, either locally or on a remote machine.
 
        \li \b{Core} to debug crashed processes on Unix.
 
@@ -162,12 +157,13 @@
     Start Internal mode is the default start mode for most projects, including
     all projects using a desktop Qt version and plain C++ projects.
 
-    If you need a console window to operate your application, for example because
-    it accepts console input from the user, go to \gui {Projects > Run
-    Settings} and select the \gui {Run in terminal} check box.
+    If you need a console window to operate your application, for example
+    because it accepts console input from the user, go to \uicontrol Projects >
+    \uicontrol {Run Settings} and select the \uicontrol {Run in terminal} check
+    box.
 
     To launch the debugger in Start Internal mode, click the
-    \gui {Start Debugging} button for the active project.
+    \uicontrol {Start Debugging} button for the active project.
 
     You can specify breakpoints before or after launching the debugger.
     For more information, see \l{Setting Breakpoints}.
@@ -175,29 +171,29 @@
     \section2 Launching in Start External Mode
 
     To run any executable already present on your local or a remote machine
-    without using a project, select \gui{Debug > Start Debugging
-    > Start and Debug External Application}.
+    without using a project, select \uicontrol Debug >
+    \uicontrol {Start Debugging} >
+    \uicontrol {Start and Debug External Application}.
 
     \section2 Launching in Attach Mode
 
-    To attach the debugger to an application already running on your
-    local or a remote machine, select
-    \gui {Debug > Start Debugging > Attach to Running Application},
-    and then select a process by its name or process ID to attach to.
+    To attach the debugger to an application already running on your local or a
+    remote machine, select \uicontrol Debug > \uicontrol {Start Debugging} >
+    \uicontrol {Attach to Running Application}, and then select a process by its
+    name or process ID to attach to.
 
-    While this mode does not strictly require a project to be opened in \QC,
-    it is beneficial to have open one, as it makes setting breakpoints
-    and stepping through the code easier.
+    While this mode does not strictly require a project to be opened in \QC, it
+    is beneficial to have open one, as it makes setting breakpoints and stepping
+    through the code easier.
 
-    You can specify breakpoints before or after attaching the
-    debugger to the application.
-    For more information, see \l{Setting Breakpoints}.
+    You can specify breakpoints before or after attaching the debugger to the
+    application. For more information, see \l{Setting Breakpoints}.
 
     \section2 Launching in Core Mode
 
     The Core mode is used to inspect \e {core} files (crash dumps) that are
-    generated from crashed processes on Linux and Unix systems if the system
-    is set up to allow this.
+    generated from crashed processes on Linux and Unix systems if the system is
+    set up to allow this.
 
     To enable the dumping of core files on a Unix system, enter the following
     command in the shell from which the application will be launched:
@@ -206,25 +202,24 @@
     ulimit -c unlimited
     \endcode
 
-    To launch the debugger in the core mode, select \gui{Debug > Start
-    Debugging > Load Core File}.
+    To launch the debugger in the core mode, select \uicontrol Debug >
+    \uicontrol {Start Debugging} > \uicontrol {Load Core File}.
 
-    Also in this mode, using a properly configured project containing
-    the sources of the crashed program is not strictly necessary, but
-    helpful.
+    Also in this mode, using a properly configured project containing the
+    sources of the crashed program is not strictly necessary, but helpful.
 
     \section2 Launching in Post-Mortem Mode
 
-    The post-mortem mode is available only on Windows, if you have installed
-    the debugging tools for Windows.
+    The post-mortem mode is available only on Windows, if you have installed the
+    debugging tools for Windows.
 
-    The \QC installation program asks you whether you want to
-    register \QC as a post-mortem debugger. To change the setting, select
-    \gui Tools > \gui Options > \gui Debugger > \gui General > \gui {Use Qt
-    Creator for post-mortem debugging}.
+    The \QC installation program asks you whether you want to register \QC as a
+    post-mortem debugger. To change the setting, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    \uicontrol General > \uicontrol {Use Qt Creator for post-mortem debugging}.
 
     You can launch the debugger in the post-mortem mode if an application
-    crashes on Windows. Click the \gui {Debug in \QC} button in the error
+    crashes on Windows. Click the \uicontrol {Debug in \QC} button in the error
     message that is displayed by the Windows operating system.
 
 
@@ -233,22 +228,21 @@
     \QC provides very easy access to remote debugging.
 
     In general, the remote debugging setup consist of a probe running on the
-    remote machine and a counterpart running on the host side.
-    The probe is either integrated into the running process (e.g. for QML
-    debugging) or runs a separate process (e.g. when using GDB server
-    on embedded Linux). The host side typically
-    consists of \QC itself, often with the help of an external process, such as
-    GDB or CDB.
+    remote machine and a counterpart running on the host side. The probe is
+    either integrated into the running process (e.g. for QML debugging) or runs
+    a separate process (e.g. when using GDB server on embedded Linux). The host
+    side typically consists of \QC itself, often with the help of an external
+    process, such as GDB or CDB.
 
-    While this setup might look daunting, it is mostly invisible to
-    the user of \QC. To start debugging on a remote target with the
-    necessary helper processes running, select the corresponding
-    \l{glossary-buildandrun-kit}{kit} in
-    \gui{Projects > Build & Run}, and then select a function to start remote
-    debugging in the \gui{Debug > Start Debugging} menu.
+    While this setup might look daunting, it is mostly invisible to the user of
+    \QC. To start debugging on a remote target with the necessary helper
+    processes running, select the corresponding
+    \l{glossary-buildandrun-kit}{kit} in \uicontrol Projects >
+    \uicontrol {Build & Run}, and then select a function to start remote
+    debugging in the \uicontrol Debug > \uicontrol {Start Debugging} menu.
 
-    Special use cases, such as attaching to a running process on the
-    target, might still require manual setup.
+    Special use cases, such as attaching to a running process on the target,
+    might still require manual setup.
 
     \section3 Using GDB
 
@@ -273,34 +267,32 @@
 
     \list 1
 
-        \li Select \gui {Debug > Start Debugging > Attach to Remote
-            Debug Server}.
+        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Attach to Running Debug Server}.
 
-        \li In the \gui {Host and port} field, enter the name of the remote
+        \li In the \uicontrol {Host and port} field, enter the name of the remote
             machine and the port number to use.
 
-        \li Select \gui{OK} to start debugging.
+        \li Select \uicontrol OK to start debugging.
 
     \endlist
 
     \section3 Using CDB
 
-    In remote mode, the local CDB process talks to a CDB process that
-    runs on the remote machine. The process is started with special
-    command line options that switch it into server mode. The remote CDB
-    process must load the \QC CDB extension library that is shipped with
-    \QC:
+    In remote mode, the local CDB process talks to a CDB process that runs on
+    the remote machine. The process is started with special command line options
+    that switch it into server mode. The remote CDB process must load the \QC
+    CDB extension library that is shipped with \QC:
 
     \list 1
 
         \li Install the \e{Debugging Tools for Windows} on the remote machine.
             The installation folder contains the CDB command line executable
-            (cdb.exe).
+            (\c cdb.exe).
 
         \li Copy the \QC CDB extension library from the Qt installation
-            directory to the a new folder on the remote machine
-            (32 or 64 bit version depending on the version of the Debugging
-            Tools for Windows
+            directory to the a new folder on the remote machine (32 or 64 bit
+            version depending on the version of the Debugging Tools for Windows
             used):
 
         \list
@@ -322,10 +314,11 @@
             \endcode
 
         \li On the local machine running \QC, select
-            \gui {Debug > Start Debugging > Attach to Remote CDB Session}
+            \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Attach to Remote CDB Session}.
 
 
-        \li In the \gui Connection field enter the connection parameters.
+        \li In the \uicontrol Connection field enter the connection parameters.
             For example, for TCP/IP:
 
             \code
@@ -345,23 +338,23 @@
             ssl:proto=Protocol,{certuser=Cert|machuser=Cert},clicon=Server,port=Socket[,password=Password]
             \endcode
 
-            \li  Click \gui{OK} to start debugging.
+            \li  Click \uicontrol OK to start debugging.
 
     \endlist
 */
 
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-debugger-operating-modes.html
     \page creator-debug-mode.html
     \nextpage creator-debugging-helpers.html
 
     \title Interacting with the Debugger
 
-    You can use the \QC \gui Debug mode to inspect the state of your application
-    while debugging. You can interact with the debugger in several ways,
-    including the following:
+    You can use the \QC \uicontrol Debug mode to inspect the state of your
+    application while debugging. You can interact with the debugger in several
+    ways, including the following:
 
     \list
 
@@ -402,27 +395,25 @@
 
     \section1 Using the Debugger
 
-    In \gui Debug mode, you can use several views to interact with the
+    In \uicontrol Debug mode, you can use several views to interact with the
     program you are debugging. The availability of views depends on whether
     you are debugging C++ or QML. Frequently used views are shown by
     default and rarely used ones are hidden. To change the default settings,
-    select \gui {Window > Views}, and then select views to display or hide.
-    Alternatively, you can enable or disable views from the context menu
-    of the title bar of any visible debugger view.
+    select \uicontrol Window > \uicontrol Views, and then select views to
+    display or hide. Alternatively, you can enable or disable views from the
+    context menu of the title bar of any visible debugger view.
 
     \image qtcreator-debugger-views.png "Debug mode views"
 
-    By default, the views are locked into place in the workspace. Select
-    \gui {Window > Views > Locked} to unlock the views. Drag and drop the
-    views into new positions on the screen. Drag view borders to resize the
-    views. The size and position of views are saved for future sessions. Select
-    \gui {Window > Views > Reset to Default Layout} to reset the views to
-    their original sizes and positions.
+    You can drag and drop the views in \QC to new positions on the screen. The
+    size and position of views are saved for future sessions. Select
+    \uicontrol Window > \uicontrol Views > \uicontrol {Reset to Default Layout}
+    to reset the views to their original sizes and positions.
 
     Once the program starts running under the control of the debugger, it
     behaves and performs as usual. You can interrupt a running C++ program by
-    selecting \gui{Debug} > \gui {Interrupt}. The program is automatically
-    interrupted when a breakpoint is hit.
+    selecting \uicontrol Debug > \uicontrol Interrupt. The program is
+    automatically interrupted when a breakpoint is hit.
 
     Once the program stops, \QC:
 
@@ -433,29 +424,38 @@
 
         \li Retrieves the contents of local variables.
 
-        \li Examines \gui Expressions.
+        \li Examines \uicontrol Expressions.
 
-        \li Updates the \gui Registers, \gui Modules, and \gui Disassembler
-            views if you are debugging the C++ based applications.
+        \li Updates the \uicontrol Registers, \uicontrol Modules, and
+            \uicontrol Disassembler views if you are debugging the C++ based
+            applications.
 
     \endlist
 
-    You can use the \gui Debug mode views to examine the data in more detail.
+    You can use the \uicontrol Debug mode views to examine the data in more detail.
 
     You can use the following keyboard shortcuts:
 
     \list
 
-       \li To finish debugging, press \key{Shift+F5}.
+       \li To finish debugging, press \key {Shift+F5}.
 
-       \li To execute a line of code as a whole, press \key{F10}.
+       \li To execute a line of code as a whole, press \key F10
+           (\key {Command+Shift+O} on OS X).
 
-       \li To step into a function or a subfunction, press \key{F11}.
+       \li To step into a function or a subfunction, press \key F11
+           (\key {Command+Shift+I} on OS X).
 
-       \li To continue running the program, press \key{F5}.
+       \li To leave the current function or subfunction, press \key {Shift+F11}
+           (\key {Command+Shift+T} on OS X).
+
+       \li To continue running the program, press \key F5.
+
+       \li To run to the line containing the cursor, press \key {Ctrl+F10}
+           (\key {Shift+F8} on OS X).
 
        \li To run to the selected function when you are stepping into a nested
-           function, press \key{Ctrl+F6}.
+           function, press \key {Ctrl+F6}.
 
     \endlist
 
@@ -469,9 +469,9 @@
     to you. You can then examine the state of the interrupted program, or
     continue execution either line-by-line or continuously.
 
-    \QC shows breakpoints in the \gui{Breakpoints} view which is enabled
-    by default. The \gui{Breakpoints} view is also accessible when the debugger
-    and the program being debugged is not running.
+    \QC shows breakpoints in the \uicontrol Breakpoints view which is enabled
+    by default. The \uicontrol Breakpoints view is also accessible when the
+    debugger and the program being debugged is not running.
 
     \image qtcreator-debug-breakpoints.png "Breakpoints view"
 
@@ -496,8 +496,8 @@
 
     \endlist
 
-    The interruption of a program by a breakpoint can be restricted with
-    certain conditions.
+    The interruption of a program by a breakpoint can be restricted with certain
+    conditions.
 
     You can set and delete breakpoints before the program starts running or
     while it is running under the debugger's control. Breakpoints are saved
@@ -514,33 +514,33 @@
             \list
 
                 \li In the code editor, click the left margin or press \key F9
-                    (\key F8 for Mac OS X) at a particular line you want the
+                    (\key F8 for OS X) at a particular line you want the
                     program to stop.
 
-                \li In the \gui Breakpoints view, double-click in the empty
+                \li In the \uicontrol Breakpoints view, double-click in the empty
                     part of the view.
 
-                \li In the \gui Breakpoints view, select \gui {Add Breakpoint}
-                    in the context menu.
+                \li In the \uicontrol Breakpoints view, select
+                    \uicontrol {Add Breakpoint} in the context menu.
 
             \endlist
 
-        \li In the \gui {Breakpoint type} field, select the location in the
+        \li In the \uicontrol {Breakpoint type} field, select the location in the
             program code where you want the program to stop. The other options
             to specify depend on the selected location.
 
             \image qtcreator-add-breakpoint.png "Add Breakpoints" dialog
 
-        \li In the \gui Condition field, set the condition to be evaluated
+        \li In the \uicontrol Condition field, set the condition to be evaluated
             before stopping at the breakpoint if the condition evaluates as
             true.
 
-        \li In the \gui Ignore field, specify the number of times that the
+        \li In the \uicontrol Ignore field, specify the number of times that the
             breakpoint is ignored before the program stops.
 
-        \li In the \gui Commands field, specify the commands to execute when
-            the program stops; one command on a line. GDB executes the commands
-            in the order in which they are specified.
+        \li In the \uicontrol Commands field, specify the commands to execute
+            when the program stops; one command on a line. GDB executes the
+            commands in the order in which they are specified.
 
     \endlist
 
@@ -560,11 +560,11 @@
 
         \li Click the breakpoint marker in the text editor.
 
-        \li Select the breakpoint in the \gui Breakpoints view and press
-            \key{Delete}.
+        \li Select the breakpoint in the \uicontrol Breakpoints view and press
+            \key Delete.
 
-        \li Select \gui{Delete Breakpoint} in the context menu in the
-            \gui Breakpoints view.
+        \li Select \uicontrol {Delete Breakpoint} in the context menu in the
+            \uicontrol Breakpoints view.
 
     \endlist
 
@@ -577,57 +577,99 @@
 
     \list 1
 
-        \li Right-click in the \gui Breakpoints view to open the context menu,
-            and select \gui {Add Breakpoint}.
+        \li Right-click in the \uicontrol Breakpoints view to open the context
+            menu, and select \uicontrol {Add Breakpoint}.
 
-        \li In the \gui {Breakpoint type} field, select \gui {Break on data
-            access at fixed address}.
+        \li In the \uicontrol {Breakpoint type} field, select
+            \uicontrol {Break on data access at fixed address}.
 
-        \li In the \gui Address field, specify the address of the memory block.
+        \li In the \uicontrol Address field, specify the address of the memory
+            block.
 
-        \li Select \gui OK.
+        \li Select \uicontrol OK.
 
     \endlist
 
-    If the address is displayed in the \gui {Locals and Expressions} view, you
-    can select \gui {Add Data Breakpoint at Object's Address} in the context
-    menu to set the data breakpoint.
+    If the address is displayed in the \uicontrol {Locals and Expressions} view,
+    you can select \uicontrol {Add Data Breakpoint at Object's Address} in the
+    context menu to set the data breakpoint.
 
     \section1 Viewing Call Stack Trace
 
-    When the program being debugged is interrupted, \QC displays the
-    nested function calls leading to the current position as a call stack
-    trace. This stack trace is built up from call stack frames, each
-    representing a particular function. For each function, \QC tries
-    to retrieve the file name and line number of the corresponding source
-    file. This data is shown in the \gui Stack view.
+    When the program being debugged is interrupted, \QC displays the nested
+    function calls leading to the current position as a call stack trace. This
+    stack trace is built up from call stack frames, each representing a
+    particular function. For each function, \QC tries to retrieve the file name
+    and line number of the corresponding source file. This data is shown in the
+    \uicontrol Stack view.
 
     \image qtcreator-debug-stack.png
 
     Since the call stack leading to the current position may originate or go
     through code for which no debug information is available, not all stack
     frames have corresponding source locations. Stack frames without
-    corresponding source locations are grayed out in the \gui{Stack} view.
+    corresponding source locations are grayed out in the \uicontrol Stack view.
 
-    If you click a frame with a known source location, the text editor
-    jumps to the corresponding location and updates the \gui{Locals and Expressions}
-    view, making it seem like the program was interrupted before entering the
-    function.
+    If you click a frame with a known source location, the text editor jumps to
+    the corresponding location and updates the
+    \uicontrol {Locals and Expressions} view, making it seem like the program
+    was interrupted before entering the function.
+
+    To find out which QML file is causing a Qt Quick 2 application to crash,
+    select \uicontrol {Load QML Stack} in the context menu in the
+    \uicontrol Stack view. The debugger tries to retrieve the JavaScript stack
+    from the stopped executable and prepends the frames to the C++ frames,
+    should it find any. You can click a frame in the QML stack to open the QML
+    file in the editor.
 
     \section1 Locals and Expressions
 
-    Whenever a program stops under the control of the debugger, it retrieves
-    information about the topmost stack frame and displays it in the
-    \gui{Locals and Expressions} view. The \gui{Locals and Expressions} view
-    typically includes information about parameters of the function in that
-    frame as well as the local variables.
+    The Locals and Expressions view consists of three parts: the
+    \uicontrol Locals pane at the top, the \uicontrol {Return Value} pane in
+    the middle, and the \uicontrol Expressions pane at the bottom. The
+    \uicontrol {Return Value} and \uicontrol Expression panes are only visible
+    if they are not empty.
 
     \image qtcreator-locals-expressions.png "Locals and Expressions view"
 
-    Compound variables of struct or class type are displayed as
-    expandable in the view. Expand entries to show
-    all members. Together with the display of value and type, you can
-    examine and traverse the low-level layout of object data.
+    Whenever a program stops under the control of the debugger, it retrieves
+    information about the topmost stack frame and displays it in the
+    \uicontrol {Locals and Expressions} view. The \uicontrol Locals pane shows
+    information about parameters of the function in that frame as well as the
+    local variables. If the last operation in the debugger was returning from a
+    function after pressing \key {Shift+F11}, the \uicontrol {Return Value}
+    pane displays the value returned by the function.
+
+    To compute values of arithmetic expressions or function calls, use
+    expression evaluators in the \uicontrol Expressions pane. To insert a new
+    expression evaluator, either double-click on an empty part of the
+    \uicontrol {Locals and Expressions} view, or select
+    \uicontrol {Add New Expression Evaluator} from the context menu, or drag and
+    drop an expression from the code editor.
+
+    \note Expression evaluators are powerful, but slow down debugger operation
+    significantly. It is advisable to not use them excessively, and to remove
+    unneeded expression evaluators as soon as possible.
+
+    Expression evaluators are re-evaluated whenever the current frame changes.
+    Note that functions used in the expressions are called each time, even if
+    they have side-effects.
+
+    All backends support simple C and C++ expressions. Functions can be called
+    only if they are actually compiled into the debugged executable or a library
+    used by the executable. Most notably, inlined functions such as most
+    \c{operator[]} implementations of standard containers are typically \e{not}
+    available.
+
+    When using GDB or LLDB as backend, a special ranged syntax can be used to
+    display multiple values with one expression. A sub-expression of form
+    \c{foo[a..b]} is split into a sequence of individually evaluated expressions
+    \c{foo[a], ..., foo[b]}.
+
+    Compound variables of struct or class type are displayed as expandable in
+    the view. Expand entries to show all members. Together with the display of
+    value and type, you can examine and traverse the low-level layout of object
+    data.
 
 
     \table
@@ -635,53 +677,54 @@
             \li \b{Note:}
 
         \row
-            \li GDB, and therefore \QC's debugger works for optimized
-                builds on Linux and Mac OS X. Optimization can lead to
-                re-ordering of instructions or removal of some local variables,
-                causing the \gui{Locals and Expressions} view to show unexpected
+            \li GDB and LLDB, and therefore \QC's debugger, work for optimized
+                builds on Linux and OS X. Optimization can lead to re-ordering
+                of instructions or removal of some local variables, causing the
+                \uicontrol {Locals and Expressions} view to show unexpected
                 data.
         \row
             \li The debug information provided by GCC does not include enough
                 information about the time when a variable is initialized.
-                Therefore, \QC can not tell whether the contents of a
-                local variable contains "real data", or "initial noise". If a
-                QObject appears uninitialized, its value is reported as
-                \gui {not in scope}. Not all uninitialized objects, however, can be
-                recognized as such.
+                Therefore, \QC can not tell whether the contents of a local
+                variable contains "real data", or "initial noise". If a QObject
+                appears uninitialized, its value is reported as
+                \uicontrol {not in scope}. Not all uninitialized objects,
+                however, can be recognized as such.
     \endtable
 
 
-    The \gui{Locals and Expressions} view also provides access to the most
-    powerful feature of the debugger: comprehensive display of data belonging
-    to Qt's basic objects.
-    For example, in case of QObject, instead of displaying a pointer to some
-    private data structure, you see a list of children, signals and slots.
+    The \uicontrol {Locals and Expressions} view also provides access to the
+    most powerful feature of the debugger: comprehensive display of data
+    belonging to Qt's basic objects. For example, in case of QObject, instead of
+    displaying a pointer to some private data structure, you see a list of
+    children, signals and slots.
 
-    Similarly, instead of displaying many pointers and integers, \QC's
-    debugger displays the contents of a QHash or QMap in an orderly manner.
-    Also, the debugger displays access data for QFileInfo and provides
-    access to the "real" contents of QVariant.
+    Similarly, instead of displaying many pointers and integers, \QC's debugger
+    displays the contents of a QHash or QMap in an orderly manner. Also, the
+    debugger displays access data for QFileInfo and provides access to the
+    "real" contents of QVariant.
 
-    Right-click in the \gui{Locals and Expressions} view to open a context
-    menu that provides additional options for viewing data. The available
-    options depend on the type of the current items, and are provided by the
-    \l{Using Debugging Helpers}{Debugging Helpers}. Typically, string-like data,
-    such as \c{QByteArray} and \c{std::string}, offer a selection of encodings,
-    as well as the possibility to use a full editor window. Map-like data, such
-    as \c{QMap}, \c{QHash}, and \c{std::map}, offer a compact option using the
-    \c{name} column for keys, resulting in a concise display of containers with
-    short keys, such as numbers or short strings. For example, to expand all the
-    values of QMap, select \gui {Change Local Display Format} > \gui Compact.
+    Right-click in the \uicontrol {Locals and Expressions} view to open a
+    context menu that provides additional options for viewing data. The
+    available options depend on the type of the current items, and are provided
+    by the \l{Using Debugging Helpers}{Debugging Helpers}. Typically,
+    string-like data, such as \c{QByteArray} and \c{std::string}, offer a
+    selection of encodings, as well as the possibility to use a full editor
+    window. Map-like data, such as \c{QMap}, \c{QHash}, and \c{std::map}, offer
+    a compact option using the \c{name} column for keys, resulting in a concise
+    display of containers with short keys, such as numbers or short strings. For
+    example, to expand all the values of QMap, select
+    \uicontrol {Change Value Display Format} > \uicontrol Compact.
 
-    You can use the \gui{Locals and Expressions} view to change the contents of
-    variables of simple data types, for example, \c int, \c float, QString
-    and \c std::string when the
-    program is interrupted. To do so, click the \gui Value column, modify
-    the value with the inplace editor, and press \key Enter (or \key Return).
+    You can use the \uicontrol {Locals and Expressions} view to change the
+    contents of variables of simple data types, for example, \c int, \c float,
+    \c QString and \c std::string when the program is interrupted. To do so,
+    click the \uicontrol Value column, modify the value with the inplace editor,
+    and press \key Enter (or \key Return).
 
-    To change the complete contents of QVector or \c std::vector values,
-    type all values separated by commas into the \gui Value column of
-    the main entry.
+    To change the complete contents of QVector or \c std::vector values, type
+    all values separated by commas into the \uicontrol Value column of the main
+    entry.
 
     You can enable tooltips in the main editor displaying this information.
     For more information, see \l{Showing Tooltips in Debug Mode}.
@@ -690,18 +733,18 @@
 
     \section1 Directly Interacting with Native Debuggers
 
-    In some cases, it is convenient to directly interact with the command
-    line of the native debugger. In \QC, you can use the left
-    pane of the \gui {Debugger Log} view for that purpose. When you press
-    \key {Ctrl+Enter}, the contents of the line under the text cursor
-    are sent directly to the native debugger. Alternatively, you
-    can use the line edit at the bottom of the view. Output is displayed in the
-    right pane of the \gui {Debugger Log} view.
+    In some cases, it is convenient to directly interact with the command line
+    of the native debugger. In \QC, you can use the left pane of the
+    \uicontrol {Debugger Log} view for that purpose. When you press
+    \key {Ctrl+Enter}, the contents of the line under the text cursor are sent
+    directly to the native debugger. Alternatively, you can use the line edit at
+    the bottom of the view. Output is displayed in the right pane of the
+    \uicontrol {Debugger Log} view.
 
-    \note Usually, you do not need this feature, because \QC provides
-    you with better ways to handle the task. For example, instead of using the
-    GDB \c print command from the command line, you can evaluate an expression
-    in the \gui{Locals and Expressions} view.
+    \note Usually, you do not need this feature, because \QC provides you
+    with better ways to handle the task. For example, instead of using the GDB
+    \c print command from the command line, you can evaluate an expression in
+    the \uicontrol {Locals and Expressions} view.
 
     \section1 Debugging C++ Based Applications
 
@@ -710,12 +753,12 @@
 
     \section2 Starting the Debugger from the Command Line
 
-    You can use the \QC debugger interface from the command line. To
-    attach it to a running process, specify the process ID as a parameter for
-    the \c {-debug} option. To examine a core file, specify the file name.
-    \QC executes all the necessary steps, such as searching for
-    the binary that belongs to a core file. To connect to a debug server,
-    specify the server location and port number.
+    You can use the \QC debugger interface from the command line. To attach it
+    to a running process, specify the process ID as a parameter for the
+    \c {-debug} option. To examine a core file, specify the file name. \QC
+    executes all the necessary steps, such as searching for the binary that
+    belongs to a core file. To connect to a debug server, specify the server
+    location and port number.
 
     For example:
 
@@ -730,27 +773,28 @@
 
     For more information, see \l{Using Command Line Options}.
 
-    \section2 Stepping into Frameworks in Mac OS
+    \section2 Stepping into Frameworks in OS X
 
-    In Mac OS X, external libraries are usually built into so-called Frameworks,
-    which may contain both release and debug versions of the library. When you run
-    applications on the Mac OS desktop, the release version of Frameworks is used
-    by default. To step into Frameworks, select the \gui {Use debug versions of
-    Frameworks} option in the project run settings.
+    In OS X, external libraries are usually built into so-called Frameworks,
+    which may contain both release and debug versions of the library. When you
+    run applications on the OS X desktop, the release version of Frameworks is
+    used by default. To step into Frameworks, select the
+    \uicontrol {Use debug versions of Frameworks} option in the project run
+    settings.
 
     \section2 Viewing Threads
 
-    If a multi-threaded program is interrupted, the \gui Threads view or the
-    combobox named \gui Threads in the debugger status bar can be used to
-    switch from one thread to another. The \gui Stack view adjusts itself
-    accordingly.
+    If a multi-threaded program is interrupted, the \uicontrol Threads view or
+    the combobox named \uicontrol Threads in the debugger status bar can be used
+    to switch from one thread to another. The \uicontrol Stack view adjusts
+    itself accordingly.
 
     \section2 Viewing Modules
 
-    The \gui{Modules} view displays information that the debugger plugin has
-    about modules included in the application that is being debugged. A module
-    is a dynamic link library (.dll) in Windows, a shared object (.so) in
-    Linux, and a dynamic shared library (.dylib) in Mac OS.
+    The \uicontrol Modules view displays information that the debugger plugin
+    has about modules included in the application that is being debugged. A
+    module is a dynamic link library (\c {.dll}) in Windows, a shared object
+    (\c {.so}) in Linux, and a dynamic shared library (\c {.dylib}) in OS X.
 
     In addition, the view displays symbols within the modules and indicates
     where each module was loaded.
@@ -773,48 +817,61 @@
 
     \endlist
 
-    By default, the \gui{Modules} view is hidden.
+    By default, the \uicontrol Modules view is hidden.
 
     \section2 Viewing Source Files
 
-    The \gui{Source Files} view lists all the source files included in the project.
-    If you cannot step into an instruction, you can check whether the source file is
-    actually part of the project, or whether it was compiled
+    The \uicontrol {Source Files} view lists all the source files included in
+    the project. If you cannot step into an instruction, you can check whether
+    the source file is actually part of the project, or whether it was compiled
     elsewhere. The view shows the path to each file in the file system.
 
     Right-click the view to open a context menu that contains menu items for
     reloading data and opening files.
 
-    By default, the \gui{Source Files} view is hidden.
+    By default, the \uicontrol {Source Files} view is hidden.
 
-    \section2 Viewing Disassembled Code and Register State
+    \section2 Viewing Disassembled Code
 
-    The \gui{Disassembler} view displays disassembled code for the current
-    function. The \gui{Registers} view displays the current state of the CPU's
-    registers.
+    The \uicontrol Disassembler view displays disassembled code for the current
+    function.
 
-    The \gui{Disassembler} view and the \gui{Registers} view are both useful
-    for low-level commands for checking single instructions, such as \gui{Step Into}
-    and \gui{Step Over}. By default, both \gui{Disassembler} and
-    \gui{Registers} view are hidden.
+    The \uicontrol Disassembler view is useful for low-level commands for checking
+    single instructions, such as \uicontrol {Step Into} and \uicontrol {Step Over}.
+    By default, the \uicontrol Disassembler view is hidden.
+
+    \section2 Viewing and Editing Register State
+
+    The \uicontrol Registers view displays the current state of the CPU registers.
+    Depending on the CPU type, there will be different registers available. The
+    values of registers that recently have changed are highlighted in red and empty
+    register values as well as leading zeroes are grayed out.
+
+    In addition it is possible to edit the content of registers while the program is
+    stopped. This applies to both General-purpose and Special-purpose registers.
+    Registers can be edited in the standard condensed view or in their particular parts
+    if the register is displayed expanded.
+
+    By default, the \uicontrol Registers view is hidden.
 
     \section2 Creating Snapshots
 
-    A snapshot contains the complete state of the debugged program
-    at a time, including the full memory contents.
+    A snapshot contains the complete state of the debugged program at a time,
+    including the full memory contents.
 
-    To create snapshots of a debugged program, select \gui {Create Snapshot} in
-    the context menu in the \gui Snapshots view.
+    To create snapshots of a debugged program, select
+    \uicontrol {Create Snapshot} in the context menu in the \uicontrol Snapshots
+    view.
 
-    Double-click on entries in the \gui Snapshots view to switch between
-    snapshots. The debugger views are updated to reflect the
-    state of the program at time of taking the snapshot.
+    Double-click on entries in the \uicontrol Snapshots view to switch between
+    snapshots. The debugger views are updated to reflect the state of the
+    program at time of taking the snapshot.
 
 */
 
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-debug-mode.html
     \page creator-debugging-helpers.html
     \nextpage creator-debugging-qml.html
@@ -822,77 +879,73 @@
     \title Using Debugging Helpers
 
     Structured data, such as objects of \c class, \c struct, or \c union
-    types, is displayed in the \gui{Locals and Expressions} view as part
-    of a tree.
-    To access sub-structures of the objects, expand the tree nodes.
-    The sub-structures are presented in their in-memory order, unless
-    the \gui{Sort Members of Classes and Structs Alphabetically} option
+    types, is displayed in the \uicontrol {Locals and Expressions} view as part
+    of a tree. To access sub-structures of the objects, expand the tree nodes.
+    The sub-structures are presented in their in-memory order, unless the
+    \uicontrol {Sort Members of Classes and Structs Alphabetically} option
     from the context menu is selected.
 
-    Similarly, pointers are displayed as a tree item with a single child
-    item representing the target of the pointer. In case the
-    context menu item
-    \gui{Dereference Pointers Automatically} is selected, the pointer
-    and the target are combined into a single entry, showing the name
-    and the type of the pointer and the value of the target.
+    Similarly, pointers are displayed as a tree item with a single child item
+    representing the target of the pointer. In case the context menu item
+    \uicontrol {Dereference Pointers Automatically} is selected, the pointer and
+    the target are combined into a single entry, showing the name and the type
+    of the pointer and the value of the target.
 
-    This standard representation is good enough for the examination
-    of simple structures, but it does usually not give enough insight into
-    more complex structures, such as \c QObjects or associative containers.
-    These items are internally represented by a complex arrangement of
-    pointers, often highly optimized, with part of the data not directly
-    accessible through either sub-structures or pointers.
+    This standard representation is good enough for the examination of simple
+    structures, but it does usually not give enough insight into more complex
+    structures, such as \c QObjects or associative containers. These items are
+    internally represented by a complex arrangement of pointers, often highly
+    optimized, with part of the data not directly accessible through either
+    sub-structures or pointers.
 
-    To give the user simple access also to these items, \QC employs
-    so-called \e{debugging helpers}. Debugging helpers come in two varieties,
-    a compiled one, for use with the CDB backend, and a set of Python
-    scripts for use with the GDB and LLDB backends.
+    To give the user simple access also to these items, \QC employs so-called
+    \e{debugging helpers}. Debugging helpers come in two varieties, a compiled
+    one, for use with the CDB backend, and a set of Python scripts for use with
+    the GDB and LLDB backends.
 
-    Debugging helpers are always automatically used. To force a plain
-    C-like display of structures, select \gui Tools > \gui Options >
-    \gui Debugger > \gui {Locals & Expressions}, and then select the
-    \gui{Force Raw Structure Display} check box. For GDB
-    and LLDB this will still use the Python scripts, but generate
-    more basic output. To force plain display for a single object
-    or for all objects of a given type, select the corresponding
-    option from the context menu.
+    Debugging helpers are always automatically used. To force a plain C-like
+    display of structures, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Debugger > \uicontrol {Locals & Expressions}, and then deselect
+    the \uicontrol {Use Debugging Helper} check box. For GDB and LLDB this will
+    still use the Python scripts, but generate more basic output. To force plain
+    display for a single object or for all objects of a given type, select the
+    corresponding option from the context menu.
 
-    \QC ships with debugging helpers for more than 130 of the most
-    popular Qt classes, Standard C++ containers and smart pointers,
-    covering the usual needs of a C++ application developer out-of-the-box.
+    \QC ships with debugging helpers for more than 130 of the most popular Qt
+    classes, Standard C++ containers and smart pointers, covering the usual
+    needs of a C++ application developer out-of-the-box.
 
     \section1 Extending GDB and LLDB Debugging Helpers
 
     When using either GDB or LLDB as the debugging backend, \QC uses Python
-    scripts to display information in the \gui {Locals and Expressions} view.
+    scripts to display information in the \uicontrol {Locals and Expressions}
+    view.
 
-    You can easily extend these scripts to cover your own types,
-    using the same code for both the GDB and the LLDB backend.
-    No compilation is required, just adding a few lines of Python.
-    The scripts can address multiple versions of Qt, or of your own
-    library, at the same time.
+    You can easily extend these scripts to cover your own types, using the same
+    code for both the GDB and the LLDB backend. No compilation is required, just
+    adding a few lines of Python. The scripts can address multiple versions of
+    Qt, or of your own library, at the same time.
 
-    To extend the shipped Python based debugging helpers for custom
-    types, add debugging helper implementations to the GDB startup file
-    \c{~/.gdbinit}, or specify them directly in the \gui{Additional
-    Startup Commands} in \gui {Tools > Options > Debugger > GDB}.
+    To extend the shipped Python based debugging helpers for custom types, add
+    debugging helper implementations to the GDB startup file \c{~/.gdbinit}, or
+    specify them directly in the \uicontrol {Additional Startup Commands} in
+    \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    \uicontrol GDB.
 
-    The implementation of a debugging helper typically
-    consists of a single Python function, which needs to be named
-    \c{qdump__NS__Foo}, where \c{NS::Foo} is the class
-    or class template to be examined. Note that the \c{::} scope
-    resolution operator is replaced by double underscores \c{__}.
+    The implementation of a debugging helper typically consists of a single
+    Python function, which needs to be named \c{qdump__NS__Foo}, where
+    \c{NS::Foo} is the class or class template to be examined. Note that the
+    \c{::} scope resolution operator is replaced by double underscores \c{__}.
     Nested namespaces are possible.
 
-    The debugger plugin calls this function whenever you want to
-    display an object of this type. The function is passed the following
-    parameters:
+    The debugger plugin calls this function whenever you want to display an
+    object of this type. The function is passed the following parameters:
 
     \list
 
-       \li \c d of type \c Dumper, an object containing current
-           settings and providing facilities to build up an object
-           representing part of the Locals and Expressions view,
+       \li \c d of type \c Dumper, an object containing current settings and
+            providing facilities to build up an object representing part of the
+            Locals and Expressions view,
 
        \li \c value of type \c Value, wrapping either a
            \l{https://sourceware.org/gdb/onlinedocs/gdb/Values-From-Inferior.html}{gdb.Value}
@@ -902,8 +955,8 @@
     \endlist
 
     The \c{qdump__*} function has to feed the Dumper object with certain
-    information which is used to build up the object and its children's
-    display in the \gui{Locals and Expressions} view.
+    information which is used to build up the object and its children's display
+    in the \uicontrol {Locals and Expressions} view.
 
     Example:
 
@@ -918,16 +971,17 @@
             d.putArrayData(innerType, value["_array"], size)
     \endcode
 
-    \note To create dumper functions usable with both LLDB and GDB
-    backends, avoid direct access to the \c gdb.* and \c lldb.* namespaces
-    and use functions of the \c Dumper class instead.
+    \note To create dumper functions usable with both LLDB and GDB backends,
+    avoid direct access to the \c gdb.* and \c lldb.* namespaces and use
+    functions of the \c Dumper class instead.
 
     \section2 Dumper Class
 
-    For each line in the \gui{Locals and Expressions} view, a string like the
-    following needs to be created and channeled to the debugger plugin.
+    For each line in the \uicontrol {Locals and Expressions} view, a string like
+    the following needs to be created and channeled to the debugger plugin.
+
     \code
-     {iname='some internal name',           # optional
+    {iname='some internal name',           # optional
       addr='object address in memory',      # optional
       name='contents of the name column',   # optional
       value='contents of the value column',
@@ -946,20 +1000,20 @@
 
     The value of the \c iname field is the internal name of the object,
     constituting a dot-separated list of identifiers, corresponding to the
-    position of the object's representation in the view. If it is not
-    present, is it generated by concatenating the parent object's iname,
-    a dot, and a sequential number.
+    position of the object's representation in the view. If it is not present,
+    is it generated by concatenating the parent object's iname, a dot, and a
+    sequential number.
 
-    The value of the \c name field is displayed in the \gui{Name} column
-    of the view. If it is not specified, a simple number in brackets
-    is used instead.
+    The value of the \c name field is displayed in the \uicontrol Name column
+    of the view. If it is not specified, a simple number in brackets is used
+    instead.
 
     While in theory you can build up the entire string above manually, it is
-    easier to employ the Dumper Python class for that purpose. The Dumper
-    Python class contains a complete framework to take care of the \c iname and
-    \c addr fields, to handle children of simple types, references, pointers,
-    enums, known and unknown structs as well as some convenience functions to
-    handle common situations.
+    easier to employ the Dumper Python class for that purpose. The Dumper Python
+    class contains a complete framework to take care of the \c iname and \c addr
+    fields, to handle children of simple types, references, pointers, enums,
+    known and unknown structs as well as some convenience functions to handle
+    common situations.
 
     The member functions of the \c Dumper class are the following:
 
@@ -993,26 +1047,25 @@
             unless the \c numchild coincides with the parent's default child
             numchild value.
 
-        \li \c{putValue(self, value, encoding = None)} - Append a file \c {value=''},
-            optionally followed by a field \c {valueencoding=''}. The \c value
-            needs to be convertible to a string entirely consisting of
-            alphanumerical values. The \c encoding parameter can be used to
-            specify the encoding in case the real value had to be encoded in some
-            way to meet the alphanumerical-only requirement.
-            Currently the following encodings are supported:
+        \li \c{putValue(self, value, encoding = None)} - Append a file
+            \c {value=''}, optionally followed by a field \c {valueencoding=''}.
+            The \c value needs to be convertible to a string entirely consisting
+            of alphanumerical values. The \c encoding parameter can be used to
+            specify the encoding in case the real value had to be encoded in
+            some way to meet the alphanumerical-only requirement. Currently the
+            following encodings are supported:
 
         \list
 
             \li 0: unencoded 8 bit data, interpreted as Latin1.
 
-            \li 1: base64 encoded 8 bit data, used for QByteArray,
-                double quotes are added.
+            \li 1: base64 encoded 8 bit data, used for QByteArray, double quotes
+                are added.
 
-            \li 2: base64 encoded 16 bit data, used for QString,
-                double quotes are added.
+            \li 2: base64 encoded 16 bit data, used for QString, double quotes
+                are added.
 
-            \li 3: base64 encoded 32 bit data,
-                double quotes are added.
+            \li 3: base64 encoded 32 bit data, double quotes are added.
 
             \li 4: base64 encoded 16 bit data, without quotes (see 2)
 
@@ -1031,8 +1084,8 @@
         \li \c{putByteArrayValue(self, value)} - Encodes a QByteArray and calls
             \c putValue with the correct \c encoding setting.
 
-        \li \c{isExpanded()} - Checks whether the current item
-            is expanded in the view.
+        \li \c{isExpanded()} - Checks whether the current item is expanded in
+            the view.
 
         \li \c{putIntItem(self, name, value)} - Equivalent to:
             \code
@@ -1051,23 +1104,21 @@
                 self.putNumChild(0)
             \endcode
 
-        \li \c{putCallItem(self, name, value, func, *args)} -
-            Uses GDB to call the function \c func on the value specified by
-            \a {value} and output the resulting item. Use \c{putCallItem}
-            only if there is no other way to access the data.
-            Calls cannot be executed
-            when inspecting a core file, they are expensive to execute
-            and have the potential to change the state of the debugged
-            program.
+        \li \c{putCallItem(self, name, value, func, *args)} - Uses GDB to call
+            the function \c func on the value specified by \a {value} and output
+            the resulting item. Use \c{putCallItem} only if there is no other
+            way to access the data. Calls cannot be executed when inspecting a
+            core file, they are expensive to execute and have the potential to
+            change the state of the debugged program.
 
         \li \c{putArrayData(self, type, address, size)} - Creates \c size
             children of type \c type of an array-like object located at
             \c address.
 
-        \li \c{putItem(self, value)} - The "master function", handling
-            basic types, references, pointers and enums directly, iterates
-            over base classes and class members of compound types and calls
-            \c qdump__* functions whenever appropriate.
+        \li \c{putItem(self, value)} - The "master function", handling basic
+            types, references, pointers and enums directly, iterates over base
+            classes and class members of compound types and calls \c qdump__*
+            functions whenever appropriate.
 
         \li \c{putSubItem(self, component, value)} - Equivalent to:
             \code
@@ -1075,11 +1126,11 @@
                 self.putItem(value)
             \endcode
 
-            Exceptions raised by nested function calls are caught and all
-            output produced by \c putItem is replaced by the output of:
+            Exceptions raised by nested function calls are caught and all output
+            produced by \c putItem is replaced by the output of:
 
             \code
-           except RuntimeError:
+            except RuntimeError:
                 d.put('value="<invalid>",type="<unknown>",numchild="0",')
             \endcode
 
@@ -1088,22 +1139,21 @@
     \section2 Children and SubItem Class
 
     The attempt to create child items might lead to errors if data is
-    uninitialized or corrupted. To gracefully recover in such situations,
-    use \c Children and \c SubItem \e{Context Managers} to create the nested
-    items.
+    uninitialized or corrupted. To gracefully recover in such situations, use
+    \c Children and \c SubItem \e{Context Managers} to create the nested items.
 
     The \c Children constructor \c{__init__(self, dumper, numChild = 1,
     childType = None, childNumChild = None, maxNumChild = None, addrBase = None,
-    addrStep = None)} uses one mandatory argument and several
-    optional arguments.  The mandatory argument refers to the current \c Dumper
-    object.  The optional arguments can be used to specify the number \c numChild
-    of children, with type \c childType_ and \c childNumChild_ grandchildren
-    each. If \c maxNumChild is specified, only that many children are displayed.
-    This should be used when dumping container contents that might take
-    overly long otherwise. The parameters \c addrBase and \c addrStep
-    can be used to reduce the amount of data produced by the child dumpers.
-    Address printing for the \e{n}th child item will be suppressed if its address
-    equals with \e{addrBase + n * addrStep}.
+    addrStep = None)} uses one mandatory argument and several optional
+    arguments.  The mandatory argument refers to the current \c Dumper object.
+    The optional arguments can be used to specify the number \c numChild of
+    children, with type \c childType_ and \c childNumChild_ grandchildren each.
+    If \c maxNumChild is specified, only that many children are displayed. This
+    should be used when dumping container contents that might take overly long
+    otherwise. The parameters \c addrBase and \c addrStep can be used to reduce
+    the amount of data produced by the child dumpers. Address printing for the
+    \e{n}th child item will be suppressed if its address equals with
+    \e{addrBase + n * addrStep}.
 
     Example:
     \code
@@ -1130,7 +1180,7 @@
 
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-qml-debugging-example.html
     \page creator-troubleshooting-debugging.html
     \nextpage creator-analyze-mode.html
@@ -1155,13 +1205,13 @@
     \l{http://www.avira.com/en/support-for-business-knowledgebase-detail/kbid/805}
     {Restricted Usability of IDE/Debuggers since 2010-12-08}.
 
-   \section1 Debugger Does Not Hit Breakpoints
+    \section1 Debugger Does Not Hit Breakpoints
 
     You might have created a release build that does not contain debug
     information. A GNU Compiler Collection (GCC) debug build has the \c {-g}
     option on the compiler command line. Check that this option is present in
-    the \gui {Compile Output} pane. If it is not, adjust your build settings
-    in the \gui {Projects} mode.
+    the \uicontrol {Compile Output} pane. If it is not, adjust your build
+    settings in the \uicontrol Projects mode.
 
     \section1 Debugger Does Not Work
 
@@ -1174,73 +1224,56 @@
         \li Make sure the debugger is set up properly. For more information,
             see \l{Setting Up Debugger}.
 
-        \li In the \gui Debug mode, select \gui {Windows > Views > Debugger
-            Log} to open the \gui {Debugger Log} view. Browse the contents of
-            the pane on the right hand side to find out what went wrong.
-            Always attach the contents of the pane to debugger-related
-            questions to the \QC mailing list (qt-creator@trolltech.com)
-            or paste them to
-            \l{http://creator.pastebin.com}{creator.pastebin.com} before
-            asking questions in the IRC (on the #qt-creator channel at
-            FreeNode).
+        \li In the \uicontrol Debug mode, select \uicontrol Window >
+            \uicontrol Views > \uicontrol {Debugger Log} to open the
+            \uicontrol {Debugger Log} view. Browse the contents of the pane on
+            the right hand side to find out what went wrong. Always attach the
+            contents of the pane to debugger-related questions to the \QC
+            mailing list (qt-creator@trolltech.com) or paste them to
+            \l{http://creator.pastebin.com}{creator.pastebin.com} before asking
+            questions in the IRC (on the #qt-creator channel at FreeNode).
 
     \endlist
 
     \section1 Pointer Variable Members Are Not Displayed Directly
 
-    When you use the \gui {Locals and Expressions} view to inspect a pointer
-    variable and expand the variable tree item, another tree item level
+    When you use the \uicontrol {Locals and Expressions} view to inspect a
+    pointer variable and expand the variable tree item, another tree item level
     is displayed. To directly display the members of the pointer variable,
-    select \gui {Dereference Pointers Automatically} in the context menu in the
-    \gui {Locals and Expressions} view.
+    select \uicontrol {Dereference Pointers Automatically} in the context
+    menu in the \uicontrol {Locals and Expressions} view.
 
     \section1 Structure Members Are Not Sorted According to Structure Layout
 
-    By default, structure members are displayed in alphabetic order.
-    To inspect the real layout in memory, deselect \gui {Sort Members of
-    Classes and Structs Alphabetically} in the context menu in the
-    \gui {Locals and Expressions} view.
+    By default, structure members are displayed in alphabetic order. To inspect
+    the real layout in memory, deselect
+    \uicontrol {Sort Members of Classes and Structs Alphabetically} in the
+    context menu in the \uicontrol {Locals and Expressions} view.
 
     \section1 Built-in Debugger Is Slow During Startup and Runtime
 
-    The part of the slowness that is related to the loading of
-    debug information is hard to avoid. Another part stems from
-    maintaining breakpoints inside the debugger (under some circumstances
-    all breakpoints need to be inserted and removed again for each step)
-    and the evaluation of expressions after each step. We recommend that
-    you minimize the number of breakpoints and watched expressions.
-
-    \section1 Application Crashes when Debugging on Mac OS X Snow Leopard
-
-    You must use a workaround to use the DYLD_IMAGE_SUFFIX option in the
-    \gui Projects tab on Mac OS X  Snow Leopard. For more information on the
-    issue, see
-    \l{http://wimleers.com/blog/dyld-image-suffix-causing-havoc-on-mac-os-x-snow-leopard}
-    {DYLD_IMAGE_SUFFIX causing havoc on Mac OS X Snow Leopard}.
-
-    To use the option, enter the following commands in the Terminal
-    application:
-           \code
-           sudo mv /usr/lib/libSystem.B_debug.dylib /usr/lib/libSystem.B_debug.dylib.backup
-           sudo cp /usr/lib/libSystem.B.dylib /usr/lib/libSystem.B_debug.dylib.backup
-           \endcode
+    The part of the slowness that is related to the loading of debug information
+    is hard to avoid. Another part stems from maintaining breakpoints inside
+    the debugger (under some circumstances all breakpoints need to be inserted
+    and removed again for each step) and the evaluation of expressions after
+    each step. We recommend that you minimize the number of breakpoints and
+    watched expressions.
 
      \section1 Debugger Cannot Attach to Running Process on Linux
 
     GDB uses \c ptrace to attach to running processes. Some Linux distributions
     do not allow this, which stops all attempts to either directly attach to an
-    existing process or use the \gui {Run in terminal} option in \QC.
+    existing process or use the \uicontrol {Run in terminal} option in \QC.
 
     The reasons for this are described in
     \l{http://wiki.ubuntu.com/SecurityTeam/Roadmap/KernelHardening#ptrace%20Protection}
     {KernelHardening}.
 
-    However, the usefulness of this security measure seems dubious,
-    because this feature can be easily disabled. With root permissions, you can
-    disable the feature temporarily by writing \c{0} into
-    \c{/proc/sys/kernel/yama/ptrace_scope} or permanently by changing
-    the value in \c{/etc/sysctl.d/10-ptrace.conf}.
-    Even if you do not have elevated
+    However, the usefulness of this security measure seems dubious, because this
+    feature can be easily disabled. With root permissions, you can disable the
+    feature temporarily by writing \c{0} into
+    \c{/proc/sys/kernel/yama/ptrace_scope} or permanently by changing the value
+    in \c{/etc/sysctl.d/10-ptrace.conf}. Even if you do not have elevated
     permissions, you can disable the feature later by adding a library that
     calls \c{prctl(0x59616d61, getppid(), 0, 0, 0);}, such as the one in
     \c{$QTCREATORDIR/lib/libptracepreload.so} to the LD_PRELOAD environment.

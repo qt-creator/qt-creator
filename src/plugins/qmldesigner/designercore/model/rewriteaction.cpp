@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -45,26 +41,26 @@ static inline QString toInfo(const Import &import)
     QString txt;
 
     if (import.isEmpty()) {
-        return QLatin1String("empty import");
+        return QStringLiteral("empty import");
     } else if (import.isFileImport()) {
-        txt = QLatin1String("import file \"%1\"");
+        txt = QStringLiteral("import file \"%1\"");
         txt = txt.arg(import.url());
     } else if (import.isLibraryImport()) {
-        txt = QLatin1String("import library \"%1\"");
+        txt = QStringLiteral("import library \"%1\"");
         txt = txt.arg(import.file());
     } else {
-        return QLatin1String("unknown type of import");
+        return QStringLiteral("unknown type of import");
     }
 
     if (import.hasVersion())
-        txt += QString::fromUtf8("with version \"%1\"").arg(import.version());
+        txt += QStringLiteral("with version \"%1\"").arg(import.version());
     else
-        txt += QLatin1String("without version");
+        txt += QStringLiteral("without version");
 
     if (import.hasAlias())
-        txt += QString::fromUtf8("aliassed as \"%1\"").arg(import.alias());
+        txt += QStringLiteral("aliassed as \"%1\"").arg(import.alias());
     else
-        txt += QLatin1String("unaliassed");
+        txt += QStringLiteral("unaliassed");
 
     return txt;
 }
@@ -72,10 +68,10 @@ static inline QString toInfo(const Import &import)
 static inline QString toString(QmlRefactoring::PropertyType type)
 {
     switch (type) {
-        case QmlRefactoring::ArrayBinding:  return QLatin1String("array binding");
-        case QmlRefactoring::ObjectBinding: return QLatin1String("object binding");
-        case QmlRefactoring::ScriptBinding: return QLatin1String("script binding");
-        default:                            return QLatin1String("UNKNOWN");
+        case QmlRefactoring::ArrayBinding:  return QStringLiteral("array binding");
+        case QmlRefactoring::ObjectBinding: return QStringLiteral("object binding");
+        case QmlRefactoring::ScriptBinding: return QStringLiteral("script binding");
+        default:                            return QStringLiteral("UNKNOWN");
     }
 }
 
@@ -95,7 +91,7 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
                     << m_valueText << ") **"
                     << info();
         }
-    } else if (m_property.isNodeListProperty() && m_property.toNodeListProperty().toModelNodeList().size() > 1) {
+    } else if (m_property.isNodeListProperty() && m_property.toNodeListProperty().count() > 1) {
         result = refactoring.addToArrayMemberList(nodeLocation, m_property.name(), m_valueText);
 
         if (!result) {
@@ -123,10 +119,10 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
 
 QString AddPropertyRewriteAction::info() const
 {
-    return QString("AddPropertyRewriteAction for property \"%1\" (type: %2)").arg(m_property.name(), toString(m_propertyType));
+    return QStringLiteral("AddPropertyRewriteAction for property \"%1\" (type: %2)").arg(m_property.name(), toString(m_propertyType));
 }
 
-bool ChangeIdRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool ChangeIdRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_node);
     static const PropertyName idPropertyName("id");
@@ -171,7 +167,7 @@ QString ChangeIdRewriteAction::info() const
     return QString("ChangeIdRewriteAction from \"%1\" to \"%2\"").arg(m_oldId, m_newId);
 }
 
-bool ChangePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool ChangePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
     bool result = false;
@@ -221,7 +217,7 @@ QString ChangePropertyRewriteAction::info() const
                   (m_containedModelNode.isValid() ? m_containedModelNode.id() : "(none)"));
 }
 
-bool ChangeTypeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool ChangeTypeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_node);
     bool result = false;
@@ -247,7 +243,7 @@ QString ChangeTypeRewriteAction::info() const
     return QString("ChangeTypeRewriteAction");
 }
 
-bool RemoveNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool RemoveNodeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_node);
     bool result = refactoring.removeObject(nodeLocation);
@@ -265,7 +261,7 @@ QString RemoveNodeRewriteAction::info() const
     return QString("RemoveNodeRewriteAction");
 }
 
-bool RemovePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool RemovePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
     bool result = refactoring.removeProperty(nodeLocation, m_property.name());
@@ -281,10 +277,10 @@ bool RemovePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactori
 
 QString RemovePropertyRewriteAction::info() const
 {
-    return QString("RemovePropertyRewriteAction for property \"%1\"").arg(QLatin1String(m_property.name()));
+    return QStringLiteral("RemovePropertyRewriteAction for property \"%1\"").arg(QLatin1String(m_property.name()));
 }
 
-bool ReparentNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool ReparentNodeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_node);
     const int targetParentObjectLocation = positionStore.nodeOffset(m_targetProperty.parentModelNode());
@@ -351,7 +347,7 @@ QString MoveNodeRewriteAction::info() const
     }
 }
 
-bool AddImportRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring,
+bool AddImportRewriteAction::execute(QmlRefactoring &refactoring,
                                      ModelNodePositionStorage &/*positionStore*/)
 {
     const bool result = refactoring.addImport(m_import);
@@ -369,7 +365,7 @@ QString AddImportRewriteAction::info() const
     return toInfo(m_import);
 }
 
-bool RemoveImportRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring,
+bool RemoveImportRewriteAction::execute(QmlRefactoring &refactoring,
                                         ModelNodePositionStorage &/*positionStore*/)
 {
     const bool result = refactoring.removeImport(m_import);

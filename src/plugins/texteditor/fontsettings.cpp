@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,13 +31,13 @@
 #include "fontsettings.h"
 #include "fontsettingspage.h"
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <coreplugin/icore.h>
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
-#include <QFileInfo>
 #include <QFont>
 #include <QSettings>
 #include <QTextCharFormat>
@@ -116,7 +117,7 @@ bool FontSettings::fromSettings(const QString &category,
         // Load the selected color scheme
         QString scheme = s->value(group + QLatin1String(schemeFileNameKey)).toString();
         if (scheme.isEmpty() || !QFile::exists(scheme))
-            scheme = defaultSchemeFileName(QFileInfo(scheme).fileName());
+            scheme = defaultSchemeFileName(Utils::FileName::fromString(scheme).fileName());
         loadColorScheme(scheme, descriptions);
     } else {
         // Load color scheme from ini file
@@ -129,6 +130,8 @@ bool FontSettings::fromSettings(const QString &category,
                 format.setBackground(desc.background());
                 format.setBold(desc.format().bold());
                 format.setItalic(desc.format().italic());
+                format.setUnderlineColor(desc.format().underlineColor());
+                format.setUnderlineStyle(desc.format().underlineStyle());
             } else {
                 format.fromString(fmt);
             }
@@ -169,21 +172,23 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
     }
 
     if (category == C_OCCURRENCES_UNUSED) {
-        tf.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-        tf.setUnderlineColor(f.foreground());
         tf.setToolTip(QCoreApplication::translate("FontSettings_C_OCCURRENCES_UNUSED",
                                                   "Unused variable"));
     }
+
     if (f.foreground().isValid()
             && category != C_OCCURRENCES
             && category != C_OCCURRENCES_RENAME
-            && category != C_OCCURRENCES_UNUSED
-            && category != C_SEARCH_RESULT)
+            && category != C_SEARCH_RESULT
+            && category != C_PARENTHESES_MISMATCH)
         tf.setForeground(f.foreground());
     if (f.background().isValid() && (category == C_TEXT || f.background() != m_scheme.formatFor(C_TEXT).background()))
         tf.setBackground(f.background());
     tf.setFontWeight(f.bold() ? QFont::Bold : QFont::Normal);
     tf.setFontItalic(f.italic());
+
+    tf.setUnderlineColor(f.underlineColor());
+    tf.setUnderlineStyle(f.underlineStyle());
 
     m_formatCache.insert(category, tf);
     return tf;
@@ -319,6 +324,8 @@ bool FontSettings::loadColorScheme(const QString &fileName,
             format.setBackground(desc.background());
             format.setBold(desc.format().bold());
             format.setItalic(desc.format().italic());
+            format.setUnderlineColor(desc.format().underlineColor());
+            format.setUnderlineStyle(desc.format().underlineStyle());
             m_scheme.setFormatFor(id, format);
         }
     }

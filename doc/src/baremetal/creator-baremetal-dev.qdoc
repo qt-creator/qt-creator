@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -18,10 +18,10 @@
 
     /*!
 
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-developing-android.html
     \page creator-developing-baremetal.html
-    \nextpage creator-developing-bb10.html
+    \nextpage creator-developing-generic-linux.html
 
     \title Connecting Bare Metal Devices
 
@@ -32,44 +32,88 @@
     need a fake Qt installation.
 
     The bare metal device type accepts custom GDB commands that you specify in
-    the device options.
-
-    \image creator-baremetal-device.png "Bare Metal Device options"
+    the device options. You can specify the commands to execute by default or
+    the commands to execute when connecting to OpenOCD or ST-LINK Utility.
 
     To connect bare metal devices:
 
     \list 1
-
-        \li Select \gui Help > \gui {About Plugins} > \gui {Device Support} >
-            \gui {Bare Metal} to enable the Bare Metal Device plugin.
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Device Support} > \uicontrol {Bare Metal} to enable the
+            Bare Metal Device plugin.
 
         \li Restart \QC to be able to use the plugin.
 
-        \li Select \gui Tools > \gui Options > \gui Devices > \gui Add >
-            \gui {Bare Metal Device} > \gui {Start Wizard}.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Bare Metal} > \uicontrol Add > \uicontrol Default,
+            \uicontrol OpenCD, or \uicontrol {ST-LINK Utility} to specify
+            connections to GDB servers or hardware debuggers:
 
-        \li In the \gui {GDB host} and \gui {GDB port} fields, specify the host
-            name and port number to access the GDB server or hardware debugger.
+            \image creator-baremetal-device.png "Bare Metal options"
 
-        \li In the \gui {GDB commands} fields, specify custom commands for the
-            GDB server or hardware debugger.
+            \list 1
 
-        \li To specify build settings:
+                \li In the \uicontrol {Startup mode} field, select the mode to
+                    start the GDB server or debugger in. The available modes
+                    depend on the server or debugger.
 
-        \list 1
+                \li In the \uicontrol Host field, select the host name and port
+                    number to connect to the GDB server or hardware debugger.
 
-            \li Open a project for an application you want to develop for the
-                device.
+                \li In the \uicontrol {Init commands} field, enter the commands
+                    to  execute when initializing the connection.
 
-            \li Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
-                add a kit for building and running applications on bare metal
-                devices.
+                \li In the \uicontrol {Reset commands} field, enter the commands
+                    to  execute when resetting the connection.
 
-               \image creator-baremetal-kits.png "Bare Metal Device kits"
+                \li Select \uicontrol Apply to add the GDB server or debugger.
 
-        \endlist
+            \endlist
 
-        \li Select \gui Run to specify run settings.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+            \uicontrol Add > \uicontrol {Bare Metal Device} >
+            \uicontrol {Start Wizard}:
+
+            \list 1
+
+                \li In the \uicontrol {GDB server provider} field, select a
+                    GDB server or hardware debugger.
+
+                \li Select \uicontrol Apply to add the device.
+
+            \endlist
+
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Build & Run} > \uicontrol Kits > \uicontrol Add to add a
+            kit for building and running applications on bare metal devices:
+
+            \image creator-baremetal-kits.png "Bare Metal Device kits"
+
+            \list 1
+
+                \li In the \uicontrol Name field, specify a name for the kit.
+
+                \li In the \uicontrol {Device type} field, select
+                    \uicontrol {Bare Metal Device}.
+
+                \li In the \uicontrol Device field, select the bare metal device
+                    for the kit.
+
+                \li Select \uicontrol Apply to add the kit.
+
+            \endlist
+
+        \li Open a project for an application you want to develop for the
+            device.
+
+        \li Select \uicontrol Projects > \uicontrol {Build & Run} >
+            \uicontrol {Add Kit}, and then select the kit for building and
+            running the application on the bare metal device specified in the
+            kit.
+
+            \image creator-baremetal-kit-for-project.png "Adding a bare metal kit for a project"
+
+        \li Select \uicontrol Run to specify run settings.
 
             Usually, you can use the default settings.
 

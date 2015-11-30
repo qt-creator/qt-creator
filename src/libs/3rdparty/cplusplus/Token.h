@@ -49,11 +49,13 @@ enum Kind {
     T_UTF8_STRING_LITERAL,
     T_UTF16_STRING_LITERAL,
     T_UTF32_STRING_LITERAL,
-    T_RAW_STRING_LITERAL,
+    T_FIRST_RAW_STRING_LITERAL,
+    T_RAW_STRING_LITERAL = T_FIRST_RAW_STRING_LITERAL,
     T_RAW_WIDE_STRING_LITERAL,
     T_RAW_UTF8_STRING_LITERAL,
     T_RAW_UTF16_STRING_LITERAL,
     T_RAW_UTF32_STRING_LITERAL,
+    T_LAST_RAW_STRING_LITERAL = T_RAW_UTF32_STRING_LITERAL,
     T_AT_STRING_LITERAL,
     T_ANGLE_STRING_LITERAL,
     T_LAST_STRING_LITERAL = T_ANGLE_STRING_LITERAL,
@@ -119,13 +121,9 @@ enum Kind {
     T_ALIGNOF,
     T_ASM,
     T_AUTO,
-    T_BOOL,
     T_BREAK,
     T_CASE,
     T_CATCH,
-    T_CHAR,
-    T_CHAR16_T,
-    T_CHAR32_T,
     T_CLASS,
     T_CONST,
     T_CONST_CAST,
@@ -135,7 +133,6 @@ enum Kind {
     T_DEFAULT,
     T_DELETE,
     T_DO,
-    T_DOUBLE,
     T_DYNAMIC_CAST,
     T_ELSE,
     T_ENUM,
@@ -143,14 +140,11 @@ enum Kind {
     T_EXPORT,
     T_EXTERN,
     T_FALSE,
-    T_FLOAT,
     T_FOR,
     T_FRIEND,
     T_GOTO,
     T_IF,
     T_INLINE,
-    T_INT,
-    T_LONG,
     T_MUTABLE,
     T_NAMESPACE,
     T_NEW,
@@ -163,8 +157,6 @@ enum Kind {
     T_REGISTER,
     T_REINTERPRET_CAST,
     T_RETURN,
-    T_SHORT,
-    T_SIGNED,
     T_SIZEOF,
     T_STATIC,
     T_STATIC_ASSERT,
@@ -181,12 +173,9 @@ enum Kind {
     T_TYPEID,
     T_TYPENAME,
     T_UNION,
-    T_UNSIGNED,
     T_USING,
     T_VIRTUAL,
-    T_VOID,
     T_VOLATILE,
-    T_WCHAR_T,
     T_WHILE,
 
     T___ATTRIBUTE__,
@@ -223,9 +212,25 @@ enum Kind {
 
     T_LAST_OBJC_AT_KEYWORD = T_AT_TRY,
 
-    T_FIRST_QT_KEYWORD,
+    // Primitive types
+    T_FIRST_PRIMITIVE,
+    T_BOOL = T_FIRST_PRIMITIVE,
+    T_CHAR,
+    T_CHAR16_T,
+    T_CHAR32_T,
+    T_DOUBLE,
+    T_FLOAT,
+    T_INT,
+    T_LONG,
+    T_SHORT,
+    T_SIGNED,
+    T_UNSIGNED,
+    T_VOID,
+    T_WCHAR_T,
+    T_LAST_PRIMITIVE = T_WCHAR_T,
 
     // Qt keywords
+    T_FIRST_QT_KEYWORD,
     T_EMIT = T_FIRST_QT_KEYWORD,
     T_SIGNAL,
     T_SLOT,
@@ -247,7 +252,8 @@ enum Kind {
     T_Q_DECLARE_INTERFACE,
     T_Q_OBJECT,
     T_Q_GADGET,
-    T_LAST_KEYWORD = T_Q_GADGET,
+    T_LAST_QT_KEYWORD = T_Q_GADGET,
+    T_LAST_KEYWORD = T_LAST_QT_KEYWORD,
 
     // aliases
     T_OR = T_PIPE_PIPE,
@@ -279,32 +285,36 @@ enum Kind {
     T___VOLATILE = T_VOLATILE,
     T___VOLATILE__ = T_VOLATILE,
 
-    T___ATTRIBUTE = T___ATTRIBUTE__
+    T___ATTRIBUTE = T___ATTRIBUTE__,
+    T___ALIGNOF__ = T_ALIGNOF,
+    T_LAST_TOKEN
 };
 
 class CPLUSPLUS_EXPORT Token
 {
 public:
-    Token() : flags(0), offset(0), ptr(0) {}
+    Token() : flags(0), byteOffset(0), utf16charOffset(0), ptr(0) {}
 
     inline bool is(unsigned k) const    { return f.kind == k; }
     inline bool isNot(unsigned k) const { return f.kind != k; }
     const char *spell() const;
     void reset();
 
-    inline unsigned kind() const { return f.kind; }
+    inline Kind kind() const { return static_cast<Kind>(f.kind); }
     inline bool newline() const { return f.newline; }
     inline bool whitespace() const { return f.whitespace; }
     inline bool joined() const { return f.joined; }
     inline bool expanded() const { return f.expanded; }
     inline bool generated() const { return f.generated; }
-    inline unsigned length() const { return f.length; }
+    inline bool userDefinedLiteral() const { return f.userDefinedLiteral; }
 
-    inline unsigned begin() const
-    { return offset; }
+    inline unsigned bytes() const { return f.bytes; }
+    inline unsigned bytesBegin() const { return byteOffset; }
+    inline unsigned bytesEnd() const { return byteOffset + f.bytes; }
 
-    inline unsigned end() const
-    { return offset + f.length; }
+    inline unsigned utf16chars() const { return f.utf16chars; }
+    inline unsigned utf16charsBegin() const { return utf16charOffset; }
+    inline unsigned utf16charsEnd() const { return utf16charOffset + f.utf16chars; }
 
     inline bool isLiteral() const
     { return f.kind >= T_FIRST_LITERAL && f.kind <= T_LAST_LITERAL; }
@@ -319,7 +329,13 @@ public:
     { return f.kind >= T_FIRST_OPERATOR && f.kind <= T_LAST_OPERATOR; }
 
     inline bool isKeyword() const
-    { return f.kind >= T_FIRST_KEYWORD && f.kind < T_FIRST_QT_KEYWORD; }
+    { return f.kind >= T_FIRST_KEYWORD && f.kind < T_FIRST_PRIMITIVE; }
+
+    inline bool isPrimitiveType() const
+    { return f.kind >= T_FIRST_PRIMITIVE && f.kind <= T_LAST_PRIMITIVE; }
+
+    inline bool isQtKeyword() const
+    { return f.kind >= T_FIRST_QT_KEYWORD && f.kind <= T_LAST_QT_KEYWORD; }
 
     inline bool isComment() const
     { return f.kind == T_COMMENT || f.kind == T_DOXY_COMMENT ||
@@ -333,15 +349,15 @@ public:
 public:
     struct Flags {
         // The token kind.
-        unsigned kind       : 8;
+        unsigned kind          : 8;
         // The token starts a new line.
-        unsigned newline    : 1;
-        // The token is preceded by whitespace(s).
-        unsigned whitespace : 1;
+        unsigned newline       : 1;
+        // The token is preceeded by whitespace(s).
+        unsigned whitespace    : 1;
         // The token is joined with the previous one.
-        unsigned joined     : 1;
+        unsigned joined        : 1;
         // The token originates from a macro expansion.
-        unsigned expanded   : 1;
+        unsigned expanded      : 1;
         // The token originates from a macro expansion and does not correspond to an
         // argument that went through substitution. Notice the example:
         //
@@ -351,18 +367,23 @@ public:
         // After preprocessing we would expect the following tokens: 1 + 2;
         // Tokens '1', '+', '2', and ';' are all expanded. However only tokens '+' and ';'
         // are generated.
-        unsigned generated  : 1;
+        unsigned generated     : 1;
+        // The token is C++11 user-defined literal such as:
+        // 12_km, 0.5_Pa, 'c'_X, "abd"_L, u16"xyz"_M
+        unsigned userDefinedLiteral : 1;
         // Unused...
-        unsigned pad        : 3;
-        // The token length.
-        unsigned length     : 16;
+        unsigned pad           : 2;
+        // The token length in bytes and UTF16 chars.
+        unsigned bytes         : 16;
+        unsigned utf16chars    : 16;
     };
     union {
-        unsigned flags;
+        unsigned long flags;
         Flags f;
     };
 
-    unsigned offset;
+    unsigned byteOffset;
+    unsigned utf16charOffset;
 
     union {
         void *ptr;
@@ -378,6 +399,12 @@ public:
 struct LanguageFeatures
 {
     LanguageFeatures() : flags(0) {}
+    static LanguageFeatures defaultFeatures()
+    {
+        LanguageFeatures features;
+        features.flags = 0xffffffff; // Enable all flags
+        return features;
+    }
 
     union {
         unsigned int flags;
@@ -387,11 +414,11 @@ struct LanguageFeatures
             unsigned int qtKeywordsEnabled : 1; // If Qt is used but QT_NO_KEYWORDS defined
             unsigned int cxx11Enabled : 1;
             unsigned int objCEnabled : 1;
+            unsigned int c99Enabled : 1;
         };
     };
 };
 
 } // namespace CPlusPlus
-
 
 #endif // CPLUSPLUS_TOKEN_H

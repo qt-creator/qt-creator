@@ -1,7 +1,7 @@
 import qbs
 
 Project {
-    name: "Autotests"
+    name: "QtcAutotests"
     condition: project.withAutotests
     references: [
         "aggregation/aggregation.qbs",
@@ -14,13 +14,14 @@ Project {
         "externaltool/externaltool.qbs",
         "filesearch/filesearch.qbs",
         "generichighlighter/generichighlighter.qbs",
-        "ioutils/ioutils.qbs",
+        "json/json.qbs",
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
         "qtcprocess/qtcprocess.qbs",
+        "sdktool/sdktool.qbs",
+        "timeline/timeline.qbs",
         "treeviewfind/treeviewfind.qbs",
         "utils/utils.qbs",
-        "utils_stringutils/utils_stringutils.qbs",
         "valgrind/valgrind.qbs"
-    ]
+    ].concat(project.additionalAutotests)
 }

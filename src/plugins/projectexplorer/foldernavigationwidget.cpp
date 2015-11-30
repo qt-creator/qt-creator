@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,34 +9,37 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "foldernavigationwidget.h"
+#include "projectexplorer.h"
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/fileiconprovider.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/find/findplugin.h>
 
@@ -46,18 +49,20 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/elidinglabel.h>
+#include <utils/itemviews.h>
 
 #include <QDebug>
 #include <QSize>
 #include <QFileSystemModel>
 #include <QVBoxLayout>
 #include <QToolButton>
-#include <QListView>
 #include <QSortFilterProxyModel>
 #include <QAction>
 #include <QMenu>
 #include <QFileDialog>
 #include <QContextMenuEvent>
+#include <QDir>
+#include <QFileInfo>
 
 enum { debug = 0 };
 
@@ -72,6 +77,7 @@ public:
     explicit DotRemovalFilter(QObject *parent = 0);
 protected:
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &parent) const;
+    Qt::DropActions supportedDragActions() const;
 };
 
 DotRemovalFilter::DotRemovalFilter(QObject *parent) : QSortFilterProxyModel(parent)
@@ -87,12 +93,18 @@ bool DotRemovalFilter::filterAcceptsRow(int source_row, const QModelIndex &paren
     return fileName != QLatin1String(".");
 }
 
+Qt::DropActions DotRemovalFilter::supportedDragActions() const
+{
+    return sourceModel()->supportedDragActions();
+}
+
 // FolderNavigationModel: Shows path as tooltip.
 class FolderNavigationModel : public QFileSystemModel
 {
 public:
     explicit FolderNavigationModel(QObject *parent = 0);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    Qt::DropActions supportedDragActions() const;
 };
 
 FolderNavigationModel::FolderNavigationModel(QObject *parent) :
@@ -108,6 +120,11 @@ QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
         return QFileSystemModel::data(index, role);
 }
 
+Qt::DropActions FolderNavigationModel::supportedDragActions() const
+{
+    return Qt::MoveAction;
+}
+
 /*!
   \class FolderNavigationWidget
 
@@ -115,7 +132,7 @@ QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
   */
 FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     : QWidget(parent),
-      m_listView(new QListView(this)),
+      m_listView(new Utils::ListView(this)),
       m_fileSystemModel(new FolderNavigationModel(this)),
       m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
       m_filterModel(new DotRemovalFilter(this)),
@@ -138,6 +155,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     m_listView->setModel(m_filterModel);
     m_listView->setFrameStyle(QFrame::NoFrame);
     m_listView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_listView->setDragEnabled(true);
+    m_listView->setDragDropMode(QAbstractItemView::DragOnly);
     setFocusProxy(m_listView);
 
     QVBoxLayout *layout = new QVBoxLayout();
@@ -148,7 +167,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
-    m_toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
+    m_toggleSync->setIcon(Core::Icons::LINK.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
     setAutoSynchronization(true);
@@ -181,17 +200,21 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
     m_autoSync = sync;
 
     if (m_autoSync) {
-        connect(Core::DocumentManager::instance(), SIGNAL(currentFileChanged(QString)),
-                this, SLOT(setCurrentFile(QString)));
-        setCurrentFile(Core::DocumentManager::currentFile());
+        connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+                this, &FolderNavigationWidget::setCurrentFile);
+        setCurrentFile(Core::EditorManager::currentEditor());
     } else {
-        disconnect(Core::DocumentManager::instance(), SIGNAL(currentFileChanged(QString)),
-                this, SLOT(setCurrentFile(QString)));
+        disconnect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+                this, &FolderNavigationWidget::setCurrentFile);
     }
 }
 
-void FolderNavigationWidget::setCurrentFile(const QString &filePath)
+void FolderNavigationWidget::setCurrentFile(Core::IEditor *editor)
 {
+    if (!editor)
+        return;
+
+    const QString filePath = editor->document()->filePath().toString();
     // Try to find directory of current file
     bool pathOpened = false;
     if (!filePath.isEmpty())  {
@@ -252,7 +275,7 @@ void FolderNavigationWidget::slotOpenItem(const QModelIndex &viewIndex)
         openItem(m_filterModel->mapToSource(viewIndex));
 }
 
-void FolderNavigationWidget::openItem(const QModelIndex &srcIndex)
+void FolderNavigationWidget::openItem(const QModelIndex &srcIndex, bool openDirectoryAsProject)
 {
     const QString fileName = m_fileSystemModel->fileName(srcIndex);
     if (fileName == QLatin1String("."))
@@ -263,14 +286,27 @@ void FolderNavigationWidget::openItem(const QModelIndex &srcIndex)
         setCurrentDirectory(parentPath);
         return;
     }
-    if (m_fileSystemModel->isDir(srcIndex)) { // Change to directory
+    const QString path = m_fileSystemModel->filePath(srcIndex);
+    if (m_fileSystemModel->isDir(srcIndex)) {
         const QFileInfo fi = m_fileSystemModel->fileInfo(srcIndex);
-        if (fi.isReadable() && fi.isExecutable())
-            setCurrentDirectory(m_fileSystemModel->filePath(srcIndex));
+        if (!fi.isReadable() || !fi.isExecutable())
+            return;
+        // Try to find project files in directory and open those.
+        if (openDirectoryAsProject) {
+            QDir dir(path);
+            QStringList proFiles;
+            foreach (const QFileInfo &i, dir.entryInfoList(ProjectExplorerPlugin::projectFileGlobs(), QDir::Files))
+                proFiles.append(i.absoluteFilePath());
+            if (!proFiles.isEmpty())
+                Core::ICore::instance()->openFiles(proFiles);
+            return;
+        }
+        // Change to directory
+        setCurrentDirectory(path);
         return;
     }
     // Open file.
-    Core::EditorManager::openEditor(m_fileSystemModel->filePath(srcIndex));
+    Core::ICore::instance()->openFiles(QStringList(path));
 }
 
 void FolderNavigationWidget::setCurrentTitle(QString dirName, const QString &fullPath)
@@ -310,6 +346,13 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     const bool hasCurrentItem = current.isValid();
     QAction *actionOpen = menu.addAction(actionOpenText(m_fileSystemModel, current));
     actionOpen->setEnabled(hasCurrentItem);
+    const bool isDirectory = hasCurrentItem && m_fileSystemModel->isDir(current);
+    QAction *actionOpenDirectoryAsProject = 0;
+    if (isDirectory && m_fileSystemModel->fileName(current) != QLatin1String("..")) {
+        actionOpenDirectoryAsProject =
+            menu.addAction(tr("Open Project in \"%1\"")
+                           .arg(m_fileSystemModel->fileName(current)));
+    }
     // Explorer & teminal
     QAction *actionExplorer = menu.addAction(Core::FileUtils::msgGraphicalShellAction());
     actionExplorer->setEnabled(hasCurrentItem);
@@ -319,10 +362,10 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actionFind = menu.addAction(Core::FileUtils::msgFindInDirectory());
     actionFind->setEnabled(hasCurrentItem);
     // open with...
-    if (!m_fileSystemModel->isDir(current)) {
-        QMenu *openWith = menu.addMenu(tr("Open with"));
-        Core::DocumentManager::populateOpenWithMenu(openWith,
-                                                m_fileSystemModel->filePath(current));
+    if (hasCurrentItem && !isDirectory) {
+        QMenu *openWith = menu.addMenu(tr("Open With"));
+        Core::EditorManager::populateOpenWithMenu(openWith,
+                                                  m_fileSystemModel->filePath(current));
     }
 
     // Open file dialog to choose a path starting from current
@@ -335,6 +378,10 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     ev->accept();
     if (action == actionOpen) { // Handle open file.
         openItem(current);
+        return;
+    }
+    if (action == actionOpenDirectoryAsProject) {
+        openItem(current, true);
         return;
     }
     if (action == actionChooseFolder) { // Open file dialog
@@ -355,7 +402,6 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         TextEditor::FindInFiles::findOnFileSystem(m_fileSystemModel->filePath(current));
         return;
     }
-    Core::DocumentManager::executeOpenWithMenuAction(action);
 }
 
 void FolderNavigationWidget::setHiddenFilesFilter(bool filter)
@@ -388,30 +434,10 @@ void FolderNavigationWidget::ensureCurrentIndex()
 // --------------------FolderNavigationWidgetFactory
 FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
 {
-}
-
-FolderNavigationWidgetFactory::~FolderNavigationWidgetFactory()
-{
-}
-
-QString FolderNavigationWidgetFactory::displayName() const
-{
-    return tr("File System");
-}
-
-int FolderNavigationWidgetFactory::priority() const
-{
-    return 400;
-}
-
-Core::Id FolderNavigationWidgetFactory::id() const
-{
-    return "File System";
-}
-
-QKeySequence FolderNavigationWidgetFactory::activationSequence() const
-{
-    return QKeySequence(Core::UseMacShortcuts ? tr("Meta+Y") : tr("Alt+Y"));
+    setDisplayName(tr("File System"));
+    setPriority(400);
+    setId("File System");
+    setActivationSequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Y") : tr("Alt+Y")));
 }
 
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()
@@ -420,7 +446,7 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     FolderNavigationWidget *fnw = new FolderNavigationWidget;
     n.widget = fnw;
     QToolButton *filter = new QToolButton;
-    filter->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    filter->setIcon(Core::Icons::FILTER.icon());
     filter->setToolTip(tr("Filter Files"));
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);

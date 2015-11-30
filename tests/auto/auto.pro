@@ -12,19 +12,12 @@ SUBDIRS += \
     generichighlighter \
     profilewriter \
     treeviewfind \
-    ioutils \
     qtcprocess \
+    json \
     utils \
-    utils_stringutils \
     filesearch \
+    sdktool \
     valgrind
 
-lessThan(QT_MAJOR_VERSION, 5) {
-  contains(QT_CONFIG, declarative) {
-    SUBDIRS += qml
-  }
-} else {
-  qtHaveModule(declarative) {
-    SUBDIRS += qml
-  }
-}
+qtHaveModule(qml): SUBDIRS += qml
+qtHaveModule(quick): SUBDIRS += timeline

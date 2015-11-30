@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,51 +9,49 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "androiddebugsupport.h"
 
-#include "androiddeploystep.h"
 #include "androidglobal.h"
 #include "androidrunner.h"
 #include "androidmanager.h"
+#include "androidqtsupport.h"
 
-#include <debugger/debuggerengine.h>
-#include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
+
 #include <qtsupport/qtkitinformation.h>
 
-#include <QDir>
+#include <QDirIterator>
 #include <QTcpServer>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 namespace Android {
 namespace Internal {
@@ -86,129 +84,103 @@ static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
 RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig, QString *errorMessage)
 {
     Target *target = runConfig->target();
-    QmakeProject *project = static_cast<QmakeProject *>(target->project());
 
     DebuggerStartParameters params;
     params.startMode = AttachToRemoteServer;
     params.displayName = AndroidManager::packageName(target);
     params.remoteSetupNeeded = true;
 
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useCppDebugger()) {
-        params.languages |= CppLanguage;
         Kit *kit = target->kit();
-        params.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-        params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
-        if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
-            params.toolChainAbi = tc->targetAbi();
-        params.executable = project->rootQmakeProjectNode()->buildDir() + QLatin1String("/app_process");
+        params.executable = target->activeBuildConfiguration()->buildDirectory().toString() + QLatin1String("/app_process");
+        params.skipExecutableValidation = true;
         params.remoteChannel = runConfig->remoteChannel();
-        params.solibSearchPath.clear();
-        QList<QmakeProFileNode *> nodes = project->allProFiles();
-        foreach (QmakeProFileNode *node, nodes)
-            params.solibSearchPath.append(node->targetInformation().buildDir);
+        params.solibSearchPath = AndroidManager::androidQtSupport(target)->soLibSearchPath(target);
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         params.solibSearchPath.append(qtSoPaths(version));
     }
     if (aspect->useQmlDebugger()) {
-        params.languages |= QmlLanguage;
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6), return 0);
         params.qmlServerAddress = server.serverAddress().toString();
-        params.remoteSetupNeeded = true;
         //TODO: Not sure if these are the right paths.
-        params.projectSourceDirectory = project->projectDirectory();
-        params.projectSourceFiles = project->files(QmakeProject::ExcludeGeneratedFiles);
-        params.projectBuildDirectory = project->rootQmakeProjectNode()->buildDir();
+        Kit *kit = target->kit();
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+        if (version) {
+            const QString qmlQtDir = version->versionInfo().value(QLatin1String("QT_INSTALL_QML"));
+            params.additionalSearchDirectories = QStringList(qmlQtDir);
+        }
     }
 
-    DebuggerRunControl * const debuggerRunControl
-        = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
+    DebuggerRunControl * const debuggerRunControl = createDebuggerRunControl(params, runConfig, errorMessage);
     new AndroidDebugSupport(runConfig, debuggerRunControl);
     return debuggerRunControl;
 }
 
 AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
     DebuggerRunControl *runControl)
-    : AndroidRunSupport(runConfig, runControl),
-      m_engine(0)
+    : QObject(runControl),
+      m_runControl(runControl),
+      m_runner(new AndroidRunner(this, runConfig, runControl->runMode()))
 {
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    QTC_ASSERT(runControl, return);
+
+    connect(m_runControl, SIGNAL(finished()),
+            m_runner, SLOT(stop()));
+
+    DebuggerRunConfigurationAspect *aspect
+            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     Q_ASSERT(aspect->useCppDebugger() || aspect->useQmlDebugger());
     Q_UNUSED(aspect)
 
-    if (runControl)
-        m_engine = runControl->engine();
+    connect(m_runControl, &DebuggerRunControl::requestRemoteSetup,
+            m_runner, &AndroidRunner::start);
 
-    if (m_engine) {
-        connect(m_engine, SIGNAL(requestRemoteSetup()),
-                m_runner, SLOT(start()));
-        connect(m_engine, SIGNAL(aboutToNotifyInferiorSetupOk()),
-                m_runner, SLOT(handleRemoteDebuggerRunning()));
-    }
-    connect(m_runner, SIGNAL(remoteServerRunning(QByteArray,int)),
-            SLOT(handleRemoteServerRunning(QByteArray,int)));
-    connect(m_runner, SIGNAL(remoteProcessStarted(int,int)),
-            SLOT(handleRemoteProcessStarted(int,int)));
-    connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
-            SLOT(handleRemoteProcessFinished(QString)));
+    // FIXME: Move signal to base class and generalize handling.
+    connect(m_runControl, &DebuggerRunControl::aboutToNotifyInferiorSetupOk,
+            m_runner, &AndroidRunner::handleRemoteDebuggerRunning);
 
-    connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)),
-            SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(m_runner, SIGNAL(remoteOutput(QByteArray)),
-            SLOT(handleRemoteOutput(QByteArray)));
-}
+    connect(m_runner, &AndroidRunner::remoteServerRunning,
+        [this](const QByteArray &serverChannel, int pid) {
+            QTC_ASSERT(m_runControl, return);
+            m_runControl->notifyEngineRemoteServerRunning(serverChannel, pid);
+        });
 
-void AndroidDebugSupport::handleRemoteServerRunning(const QByteArray &serverChannel, int pid)
-{
-    if (m_engine)
-        m_engine->notifyEngineRemoteServerRunning(serverChannel, pid);
+    connect(m_runner, &AndroidRunner::remoteProcessStarted,
+            this, &AndroidDebugSupport::handleRemoteProcessStarted);
+
+    connect(m_runner, &AndroidRunner::remoteProcessFinished,
+        [this](const QString &errorMsg) {
+            QTC_ASSERT(m_runControl, return);
+            m_runControl->appendMessage(errorMsg, Utils::DebugFormat);
+            QMetaObject::invokeMethod(m_runControl, "notifyInferiorExited", Qt::QueuedConnection);
+        });
+
+    connect(m_runner, &AndroidRunner::remoteErrorOutput,
+        [this](const QString &output) {
+            QTC_ASSERT(m_runControl, return);
+            m_runControl->showMessage(output, AppError);
+        });
+
+    connect(m_runner, &AndroidRunner::remoteOutput,
+        [this](const QString &output) {
+            QTC_ASSERT(m_runControl, return);
+            m_runControl->showMessage(output, AppOutput);
+        });
 }
 
 void AndroidDebugSupport::handleRemoteProcessStarted(int gdbServerPort, int qmlPort)
 {
-    disconnect(m_runner, SIGNAL(remoteProcessStarted(int,int)),
-        this, SLOT(handleRemoteProcessStarted(int,int)));
-    if (m_engine)
-        m_engine->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
-}
-
-void AndroidDebugSupport::handleRemoteProcessFinished(const QString &errorMsg)
-{
-    DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(m_runControl);
-    if (runControl)
-        runControl->showMessage(errorMsg, AppStuff);
-    else
-        AndroidRunSupport::handleRemoteProcessFinished(errorMsg);
-}
-
-void AndroidDebugSupport::handleRemoteOutput(const QByteArray &output)
-{
-    if (m_engine) {
-        m_engine->showMessage(QString::fromUtf8(output), AppOutput);
-    } else {
-        DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(m_runControl);
-        if (runControl)
-            runControl->showMessage(QString::fromUtf8(output), AppOutput);
-        else
-            AndroidRunSupport::handleRemoteOutput(output);
-    }
-}
-
-void AndroidDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
-{
-    if (m_engine) {
-        m_engine->showMessage(QString::fromUtf8(output), AppError);
-    } else {
-        DebuggerRunControl *runControl = qobject_cast<DebuggerRunControl *>(m_runControl);
-        if (runControl)
-            runControl->showMessage(QString::fromUtf8(output), AppError);
-        else
-            AndroidRunSupport::handleRemoteErrorOutput(output);
-    }
+    disconnect(m_runner, &AndroidRunner::remoteProcessStarted,
+               this, &AndroidDebugSupport::handleRemoteProcessStarted);
+    QTC_ASSERT(m_runControl, return);
+    RemoteSetupResult result;
+    result.success = true;
+    result.gdbServerPort = gdbServerPort;
+    result.qmlServerPort = qmlPort;
+    m_runControl->notifyEngineRemoteSetupFinished(result);
 }
 
 } // namespace Internal

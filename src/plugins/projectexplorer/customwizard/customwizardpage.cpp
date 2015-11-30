@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,6 +33,8 @@
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/textfieldcheckbox.h>
+#include <utils/textfieldcombobox.h>
 
 #include <QRegExp>
 #include <QDebug>
@@ -51,96 +54,10 @@
 
 enum { debug = 0 };
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
-
-// ----------- TextFieldComboBox
-
-/*!
-    \class ProjectExplorer::Internal::TextFieldComboBox
-    \brief The TextFieldComboBox class is a non-editable combo box for text
-    editing purposes that plays with \c QWizard::registerField (providing a
-    settable 'text' property).
-
-    Allows for a separation of values to be used for wizard fields replacement
-    and display texts.
-
-    \sa ProjectExplorer::Internal::CustomWizardFieldPage, ProjectExplorer::CustomWizard
-*/
-
-TextFieldComboBox::TextFieldComboBox(QWidget *parent) :
-    QComboBox(parent)
-{
-    setEditable(false);
-    connect(this, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotCurrentIndexChanged(int)));
-}
-
-QString TextFieldComboBox::text() const
-{
-    return valueAt(currentIndex());
-}
-
-void TextFieldComboBox::setText(const QString &s)
-{
-    const int index = findData(QVariant(s), Qt::UserRole);
-    if (index != -1 && index != currentIndex())
-        setCurrentIndex(index);
-}
-
-void TextFieldComboBox::slotCurrentIndexChanged(int i)
-{
-    emit text4Changed(valueAt(i));
-}
-
-void TextFieldComboBox::setItems(const QStringList &displayTexts,
-                                 const QStringList &values)
-{
-    QTC_ASSERT(displayTexts.size() == values.size(), return);
-    clear();
-    addItems(displayTexts);
-    const int count = values.count();
-    for (int i = 0; i < count; i++)
-        setItemData(i, QVariant(values.at(i)), Qt::UserRole);
-}
-
-QString TextFieldComboBox::valueAt(int i) const
-{
-    return i >= 0 && i < count() ? itemData(i, Qt::UserRole).toString() : QString();
-}
-
-/*!
-    \class ProjectExplorer::Internal::TextFieldCheckBox
-    \brief The TextFieldCheckBox class is a aheckbox that plays with
-    \c QWizard::registerField.
-
-    Provides a settable 'text' property containing predefined strings for
-    \c true and \c false.
-
-    \sa ProjectExplorer::Internal::CustomWizardFieldPage, ProjectExplorer::CustomWizard
-*/
-
-TextFieldCheckBox::TextFieldCheckBox(const QString &text, QWidget *parent) :
-        QCheckBox(text, parent),
-        m_trueText(QLatin1String("true")), m_falseText(QLatin1String("false"))
-{
-    connect(this, SIGNAL(stateChanged(int)), this, SLOT(slotStateChanged(int)));
-}
-
-QString TextFieldCheckBox::text() const
-{
-    return isChecked() ? m_trueText : m_falseText;
-}
-
-void TextFieldCheckBox::setText(const QString &s)
-{
-    setChecked(s == m_trueText);
-}
-
-void TextFieldCheckBox::slotStateChanged(int cs)
-{
-    emit textChanged(cs == Qt::Checked ? m_trueText : m_falseText);
-}
 
 /*!
     \class ProjectExplorer::Internal::CustomWizardFieldPage
@@ -167,7 +84,7 @@ CustomWizardFieldPage::TextEditData::TextEditData(QTextEdit* le, const QString &
 {
 }
 
-CustomWizardFieldPage::PathChooserData::PathChooserData(Utils::PathChooser* pe, const QString &defText) :
+CustomWizardFieldPage::PathChooserData::PathChooserData(PathChooser* pe, const QString &defText) :
     pathChooser(pe), defaultText(defText)
 {
 }
@@ -193,6 +110,8 @@ CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardCo
     vLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     vLayout->addWidget(m_errorLabel);
     setLayout(vLayout);
+    if (!parameters->fieldPageTitle.isEmpty())
+        setTitle(parameters->fieldPageTitle);
 }
 
 CustomWizardFieldPage::~CustomWizardFieldPage()
@@ -212,7 +131,7 @@ void CustomWizardFieldPage::showError(const QString &m)
 
 void CustomWizardFieldPage::clearError()
 {
-    m_errorLabel->setText(QString());
+    m_errorLabel->clear();
     m_errorLabel->setVisible(false);
 }
 
@@ -322,25 +241,25 @@ QWidget *CustomWizardFieldPage::registerTextEdit(const QString &fieldName,
 QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
                                                  const CustomWizardField &field)
 {
-    Utils::PathChooser *pathChooser = new Utils::PathChooser;
+    PathChooser *pathChooser = new PathChooser;
     const QString expectedKind = field.controlAttributes.value(QLatin1String("expectedkind")).toLower();
     if (expectedKind == QLatin1String("existingdirectory"))
-        pathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+        pathChooser->setExpectedKind(PathChooser::ExistingDirectory);
     else if (expectedKind == QLatin1String("directory"))
-        pathChooser->setExpectedKind(Utils::PathChooser::Directory);
+        pathChooser->setExpectedKind(PathChooser::Directory);
     else if (expectedKind == QLatin1String("file"))
-        pathChooser->setExpectedKind(Utils::PathChooser::File);
+        pathChooser->setExpectedKind(PathChooser::File);
     else if (expectedKind == QLatin1String("existingcommand"))
-        pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        pathChooser->setExpectedKind(PathChooser::ExistingCommand);
     else if (expectedKind == QLatin1String("command"))
-        pathChooser->setExpectedKind(Utils::PathChooser::Command);
+        pathChooser->setExpectedKind(PathChooser::Command);
     else if (expectedKind == QLatin1String("any"))
-        pathChooser->setExpectedKind(Utils::PathChooser::Any);
-    pathChooser->setHistoryCompleter(QString::fromLatin1("PE.Custom.") + m_parameters->id + QLatin1Char('.') + field.name);
+        pathChooser->setExpectedKind(PathChooser::Any);
+    pathChooser->setHistoryCompleter(QString::fromLatin1("PE.Custom.") + m_parameters->id.toString() + QLatin1Char('.') + field.name);
 
-    registerField(fieldName, pathChooser, "path", SIGNAL(changed(QString)));
+    registerField(fieldName, pathChooser, "path", SIGNAL(rawPathChanged(QString)));
     // Connect to completeChanged() for derived classes that reimplement isComplete()
-    connect(pathChooser, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
+    connect(pathChooser, SIGNAL(rawPathChanged(QString)), SIGNAL(completeChanged()));
     const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
     m_pathChoosers.push_back(PathChooserData(pathChooser, defaultText));
     return pathChooser;
@@ -516,11 +435,11 @@ CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ct
                                    const QSharedPointer<CustomWizardParameters> &parameters,
                                    QWidget *parent) :
     CustomWizardFieldPage(ctx, parameters, parent),
-    m_pathChooser(new Utils::PathChooser)
+    m_pathChooser(new PathChooser)
 {
     m_pathChooser->setHistoryCompleter(QLatin1String("PE.ProjectDir.History"));
     addRow(tr("Path:"), m_pathChooser);
-    connect(m_pathChooser, SIGNAL(validChanged()), this, SIGNAL(completeChanged()));
+    connect(m_pathChooser, SIGNAL(validChanged(bool)), this, SIGNAL(completeChanged()));
 }
 
 QString CustomWizardPage::path() const

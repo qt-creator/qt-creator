@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -45,11 +46,11 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <QCryptographicHash>
 #include <QVariantMap>
 
 #include <qbs.h>
 #include <qtprofilesetup.h>
-#include <tools/profile.h> // TODO: Do this in qbs.h.
 
 const QChar sep = QLatin1Char('.');
 
@@ -57,19 +58,29 @@ static QString qtcProfileGroup() { return QLatin1String("preferences.qtcreator.k
 static QString qtcProfilePrefix() { return qtcProfileGroup() + sep; }
 
 namespace QbsProjectManager {
+namespace Internal {
 
 qbs::Settings *QbsManager::m_settings = 0;
+Internal::QbsLogSink *QbsManager::m_logSink = 0;
+QbsManager *QbsManager::m_instance = 0;
 
-QbsManager::QbsManager(Internal::QbsProjectManagerPlugin *plugin) :
-    m_plugin(plugin),
+QbsManager::QbsManager() :
     m_defaultPropertyProvider(new DefaultPropertyProvider)
 {
     m_settings = new qbs::Settings(Core::ICore::userResourcePath());
+    m_instance = this;
 
     setObjectName(QLatin1String("QbsProjectManager"));
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(pushKitsToQbs()));
+    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded, this,
+            [this]() { m_kitsToBeSetupForQbs = ProjectExplorer::KitManager::kits(); } );
+    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitAdded, this,
+            &QbsManager::addProfileFromKit);
+    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitUpdated, this,
+            &QbsManager::handleKitUpdate);
+    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitRemoved, this,
+            &QbsManager::handleKitRemoval);
 
-    m_logSink = new Internal::QbsLogSink(this);
+    m_logSink = new QbsLogSink(this);
     int level = qbs::LoggerWarning;
     const QString levelEnv = QString::fromLocal8Bit(qgetenv("QBS_LOG_LEVEL"));
     if (!levelEnv.isEmpty()) {
@@ -90,6 +101,7 @@ QbsManager::~QbsManager()
 {
     delete m_defaultPropertyProvider;
     delete m_settings;
+    m_instance = 0;
 }
 
 QString QbsManager::mimeType() const
@@ -101,18 +113,19 @@ ProjectExplorer::Project *QbsManager::openProject(const QString &fileName, QStri
 {
     if (!QFileInfo(fileName).isFile()) {
         if (errorString)
-            *errorString = tr("Failed opening project '%1': Project is not a file.")
+            *errorString = tr("Failed opening project \"%1\": Project is not a file.")
                 .arg(fileName);
         return 0;
     }
 
-    return new Internal::QbsProject(this, fileName);
+    return new QbsProject(this, fileName);
 }
 
-QString QbsManager::profileForKit(const ProjectExplorer::Kit *k) const
+QString QbsManager::profileForKit(const ProjectExplorer::Kit *k)
 {
     if (!k)
         return QString();
+    updateProfileIfNecessary(k);
     return m_settings->value(qtcProfilePrefix() + k->id().toString()).toString();
 }
 
@@ -121,9 +134,12 @@ void QbsManager::setProfileForKit(const QString &name, const ProjectExplorer::Ki
     m_settings->setValue(qtcProfilePrefix() + k->id().toString(), name);
 }
 
-qbs::Settings *QbsManager::settings()
+void QbsManager::updateProfileIfNecessary(const ProjectExplorer::Kit *kit)
 {
-    return m_settings;
+    // kit in list <=> profile update is necessary
+    // Note that the const_cast is safe, as we do not call any non-const methods on the object.
+    if (m_kitsToBeSetupForQbs.removeOne(const_cast<ProjectExplorer::Kit *>(kit)))
+        addProfileFromKit(kit);
 }
 
 void QbsManager::addProfile(const QString &name, const QVariantMap &data)
@@ -134,15 +150,6 @@ void QbsManager::addProfile(const QString &name, const QVariantMap &data)
         profile.setValue(it.key(), it.value());
 }
 
-void QbsManager::removeCreatorProfiles()
-{
-    foreach (const QString &key, m_settings->allKeysWithPrefix(qtcProfileGroup())) {
-        const QString fullKey = qtcProfilePrefix() + key;
-        qbs::Profile(m_settings->value(fullKey).toString(), m_settings).removeProfile();
-        m_settings->remove(fullKey);
-    }
-}
-
 void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k)
 {
     const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitInformation::qtVersion(k);
@@ -150,11 +157,13 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
         return;
 
     qbs::QtEnvironment qtEnv;
+    const QList<ProjectExplorer::Abi> abi = qt->qtAbis();
+    if (!abi.empty()) {
+        qtEnv.architecture = ProjectExplorer::Abi::toString(abi.first().architecture());
+        if (abi.first().wordWidth() == 64)
+            qtEnv.architecture.append(QLatin1String("_64"));
+    }
     qtEnv.binaryPath = qt->binPath().toString();
-    if (qt->hasDebugBuild())
-        qtEnv.buildVariant << QLatin1String("debug");
-    if (qt->hasReleaseBuild())
-        qtEnv.buildVariant << QLatin1String("release");
     qtEnv.documentationPath = qt->docsPath().toString();
     qtEnv.includePath = qt->headerPath().toString();
     qtEnv.libraryPath = qt->libraryPath().toString();
@@ -171,6 +180,11 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
     qtEnv.frameworkBuild = qt->isFrameworkBuild();
     qtEnv.configItems = qt->configValues();
     qtEnv.qtConfigItems = qt->qtConfigValues();
+    foreach (const QString &buildVariant,
+            QStringList() << QLatin1String("debug") << QLatin1String("release")) {
+        if (qtEnv.qtConfigItems.contains(buildVariant))
+            qtEnv.buildVariant << buildVariant;
+    }
     const qbs::ErrorInfo errorInfo = qbs::setupQtProfile(profileName, settings(), qtEnv);
     if (errorInfo.hasError()) {
         Core::MessageManager::write(tr("Failed to set up kit for Qbs: %1")
@@ -180,8 +194,10 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
 
 void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 {
-    const QString name = ProjectExplorer::Project::makeUnique(
-                QString::fromLatin1("qtc_") + k->fileSystemFriendlyName(), m_settings->profiles());
+    const QString name = QString::fromLatin1("qtc_%1_%2").arg(k->fileSystemFriendlyName().left(8),
+            QString::fromLatin1(QCryptographicHash::hash(k->id().name(),
+                                                         QCryptographicHash::Sha1).toHex().left(8)));
+    qbs::Profile(name, settings()).removeProfile();
     setProfileForKit(name, k);
     addQtProfileFromKit(name, k);
 
@@ -196,14 +212,20 @@ void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
     addProfile(name, data);
 }
 
-void QbsManager::pushKitsToQbs()
+void QbsManager::handleKitUpdate(ProjectExplorer::Kit *kit)
 {
-    // Get all keys
-    removeCreatorProfiles();
-
-    // add definitions from our kits
-    foreach (const ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits())
-        addProfileFromKit(k);
+    m_kitsToBeSetupForQbs.removeOne(kit);
+    addProfileFromKit(kit);
 }
 
+void QbsManager::handleKitRemoval(ProjectExplorer::Kit *kit)
+{
+    m_kitsToBeSetupForQbs.removeOne(kit);
+    const QString key = qtcProfilePrefix() + kit->id().toString();
+    const QString profileName = m_settings->value(key).toString();
+    m_settings->remove(key);
+    qbs::Profile(profileName, m_settings).removeProfile();
+}
+
+} // namespace Internal
 } // namespace QbsProjectManager

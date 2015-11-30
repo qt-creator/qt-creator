@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "basefilefind.h"
 #include "basefilefind_p.h"
+#include "textdocument.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
@@ -36,12 +38,14 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/ifindsupport.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/refactoringchanges.h>
-#include <utils/stylehelper.h>
-#include <utils/qtcassert.h>
+#include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
+#include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -54,6 +58,9 @@
 #include <QLabel>
 #include <QLabel>
 
+using namespace Utils;
+using namespace Core;
+
 namespace TextEditor {
 namespace Internal {
 
@@ -62,8 +69,8 @@ class BaseFileFindPrivate
 public:
     BaseFileFindPrivate() : m_resultLabel(0), m_filterCombo(0) {}
 
-    QMap<QFutureWatcher<Utils::FileSearchResultList> *, QPointer<Core::SearchResult> > m_watchers;
-    QPointer<Core::IFindSupport> m_currentFindSupport;
+    QMap<QFutureWatcher<FileSearchResultList> *, QPointer<SearchResult> > m_watchers;
+    QPointer<IFindSupport> m_currentFindSupport;
 
     QLabel *m_resultLabel;
     QStringListModel m_filterStrings;
@@ -74,8 +81,6 @@ public:
 } // namespace Internal
 
 using namespace Internal;
-using namespace Utils;
-using namespace Core;
 
 BaseFileFind::BaseFileFind() : d(new BaseFileFindPrivate)
 {
@@ -124,15 +129,16 @@ QStringList BaseFileFind::fileNameFilters() const
     return filters;
 }
 
-void BaseFileFind::runNewSearch(const QString &txt, Core::FindFlags findFlags,
+void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
                                     SearchResultWindow::SearchMode searchMode)
 {
     d->m_currentFindSupport = 0;
     if (d->m_filterCombo)
         updateComboEntries(d->m_filterCombo, true);
-    SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(label(),
-                           toolTip().arg(Core::IFindFilter::descriptionForFindFlags(findFlags)),
-                           txt, searchMode, QString::fromLatin1("TextEditor"));
+    SearchResult *search = SearchResultWindow::instance()->startNewSearch(label(),
+                           toolTip().arg(IFindFilter::descriptionForFindFlags(findFlags)),
+                           txt, searchMode, SearchResultWindow::PreserveCaseEnabled,
+                           QString::fromLatin1("TextEditor"));
     search->setTextToReplace(txt);
     search->setSearchAgainSupported(true);
     FileFindParameters parameters;
@@ -156,14 +162,14 @@ void BaseFileFind::runNewSearch(const QString &txt, Core::FindFlags findFlags,
     runSearch(search);
 }
 
-void BaseFileFind::runSearch(Core::SearchResult *search)
+void BaseFileFind::runSearch(SearchResult *search)
 {
     FileFindParameters parameters = search->userData().value<FileFindParameters>();
     CountingLabel *label = new CountingLabel;
     connect(search, SIGNAL(countChanged(int)), label, SLOT(updateCount(int)));
     CountingLabel *statusLabel = new CountingLabel;
     connect(search, SIGNAL(countChanged(int)), statusLabel, SLOT(updateCount(int)));
-    Core::SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch|IOutputPane::WithFocus));
+    SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch|IOutputPane::WithFocus));
     QFutureWatcher<FileSearchResultList> *watcher = new QFutureWatcher<FileSearchResultList>();
     d->m_watchers.insert(watcher, search);
     watcher->setPendingResultsLimit(1);
@@ -173,38 +179,41 @@ void BaseFileFind::runSearch(Core::SearchResult *search)
         watcher->setFuture(Utils::findInFilesRegExp(parameters.text,
             files(parameters.nameFilters, parameters.additionalParameters),
             textDocumentFlagsForFindFlags(parameters.flags),
-            ITextEditorDocument::openedTextDocumentContents()));
+            TextDocument::openedTextDocumentContents()));
     } else {
         watcher->setFuture(Utils::findInFiles(parameters.text,
             files(parameters.nameFilters, parameters.additionalParameters),
             textDocumentFlagsForFindFlags(parameters.flags),
-            ITextEditorDocument::openedTextDocumentContents()));
+            TextDocument::openedTextDocumentContents()));
     }
     FutureProgress *progress =
-        ProgressManager::addTask(watcher->future(), tr("Search"), Constants::TASK_SEARCH);
+        ProgressManager::addTask(watcher->future(), tr("Searching"), Constants::TASK_SEARCH);
     progress->setWidget(label);
     progress->setStatusBarWidget(statusLabel);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 
-void BaseFileFind::findAll(const QString &txt, Core::FindFlags findFlags)
+void BaseFileFind::findAll(const QString &txt, FindFlags findFlags)
 {
     runNewSearch(txt, findFlags, SearchResultWindow::SearchOnly);
 }
 
-void BaseFileFind::replaceAll(const QString &txt, Core::FindFlags findFlags)
+void BaseFileFind::replaceAll(const QString &txt, FindFlags findFlags)
 {
     runNewSearch(txt, findFlags, SearchResultWindow::SearchAndReplace);
 }
 
 void BaseFileFind::doReplace(const QString &text,
-                             const QList<Core::SearchResultItem> &items,
+                             const QList<SearchResultItem> &items,
                              bool preserveCase)
 {
     QStringList files = replaceAll(text, items, preserveCase);
     if (!files.isEmpty()) {
+        Utils::FadingIndicator::showText(ICore::mainWindow(),
+            tr("%n occurrences replaced.", 0, items.size()),
+            Utils::FadingIndicator::SmallText);
         DocumentManager::notifyFilesChangedInternally(files);
-        Core::SearchResultWindow::instance()->hide();
+        SearchResultWindow::instance()->hide();
     }
 }
 
@@ -217,10 +226,10 @@ void BaseFileFind::displayResult(int index) {
         watcher->cancel();
         return;
     }
-    Utils::FileSearchResultList results = watcher->resultAt(index);
-    QList<Core::SearchResultItem> items;
-    foreach (const Utils::FileSearchResult &result, results) {
-        Core::SearchResultItem item;
+    FileSearchResultList results = watcher->resultAt(index);
+    QList<SearchResultItem> items;
+    foreach (const FileSearchResult &result, results) {
+        SearchResultItem item;
         item.path = QStringList() << QDir::toNativeSeparators(result.fileName);
         item.lineNumber = result.lineNumber;
         item.text = result.matchingLine;
@@ -230,7 +239,7 @@ void BaseFileFind::displayResult(int index) {
         item.userData = result.regexpCapturedTexts;
         items << item;
     }
-    search->addResults(items, Core::SearchResult::AddOrdered);
+    search->addResults(items, SearchResult::AddOrdered);
 }
 
 void BaseFileFind::searchFinished()
@@ -303,19 +312,20 @@ void BaseFileFind::updateComboEntries(QComboBox *combo, bool onTop)
     }
 }
 
-void BaseFileFind::openEditor(const Core::SearchResultItem &item)
+void BaseFileFind::openEditor(const SearchResultItem &item)
 {
     SearchResult *result = qobject_cast<SearchResult *>(sender());
     IEditor *openedEditor = 0;
     if (item.path.size() > 0) {
         openedEditor = EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                                         item.lineNumber,
-                                                         item.textMarkPos);
+                                                   item.lineNumber,
+                                                   item.textMarkPos, Id(),
+                                                   EditorManager::DoNotSwitchToDesignMode);
     } else {
         openedEditor = EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
     }
     if (d->m_currentFindSupport)
-        d->m_currentFindSupport->clearResults();
+        d->m_currentFindSupport->clearHighlights();
     d->m_currentFindSupport = 0;
     if (!openedEditor)
         return;
@@ -332,7 +342,7 @@ void BaseFileFind::openEditor(const Core::SearchResultItem &item)
 void BaseFileFind::hideHighlightAll(bool visible)
 {
     if (!visible && d->m_currentFindSupport)
-        d->m_currentFindSupport->clearResults();
+        d->m_currentFindSupport->clearHighlights();
 }
 
 void BaseFileFind::searchAgain()
@@ -351,7 +361,7 @@ void BaseFileFind::recheckEnabled()
 }
 
 QStringList BaseFileFind::replaceAll(const QString &text,
-                                     const QList<Core::SearchResultItem> &items,
+                                     const QList<SearchResultItem> &items,
                                      bool preserveCase)
 {
     if (items.isEmpty())
@@ -359,12 +369,12 @@ QStringList BaseFileFind::replaceAll(const QString &text,
 
     RefactoringChanges refactoring;
 
-    QHash<QString, QList<Core::SearchResultItem> > changes;
-    foreach (const Core::SearchResultItem &item, items)
+    QHash<QString, QList<SearchResultItem> > changes;
+    foreach (const SearchResultItem &item, items)
         changes[QDir::fromNativeSeparators(item.path.first())].append(item);
 
     // Checking for files without write permissions
-    QHashIterator<QString, QList<Core::SearchResultItem> > it(changes);
+    QHashIterator<QString, QList<SearchResultItem> > it(changes);
     QSet<QString> roFiles;
     while (it.hasNext()) {
         it.next();
@@ -375,9 +385,9 @@ QStringList BaseFileFind::replaceAll(const QString &text,
 
     // Query the user for permissions
     if (!roFiles.isEmpty()) {
-        Core::Internal::ReadOnlyFilesDialog roDialog(roFiles.toList(), ICore::mainWindow());
+        ReadOnlyFilesDialog roDialog(roFiles.toList(), ICore::mainWindow());
         roDialog.setShowFailWarning(true, tr("Aborting replace."));
-        if (roDialog.exec() == Core::Internal::ReadOnlyFilesDialog::RO_Cancel)
+        if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel)
             return QStringList();
     }
 
@@ -385,12 +395,12 @@ QStringList BaseFileFind::replaceAll(const QString &text,
     while (it.hasNext()) {
         it.next();
         const QString fileName = it.key();
-        const QList<Core::SearchResultItem> changeItems = it.value();
+        const QList<SearchResultItem> changeItems = it.value();
 
         ChangeSet changeSet;
         RefactoringFilePtr file = refactoring.file(fileName);
         QSet<QPair<int, int> > processed;
-        foreach (const Core::SearchResultItem &item, changeItems) {
+        foreach (const SearchResultItem &item, changeItems) {
             const QPair<int, int> &p = qMakePair(item.lineNumber, item.textMarkPos);
             if (processed.contains(p))
                 continue;

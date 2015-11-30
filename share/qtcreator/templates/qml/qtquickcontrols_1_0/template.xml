@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<template openeditor="main.qml" priority="B"
-    featuresRequired="QtSupport.Wizards.FeatureQtQuickProject, QtSupport.Wizards.FeatureQtQuick.Controls.1.0">
-    <displayname>Qt Quick Controls 1.0</displayname>
-    <description>Creates a Qt Quick 2 UI project with a single QML file that contains the main view and uses Qt Quick Controls. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version. Requires Qt 5.1 or newer.</description>
-</template>

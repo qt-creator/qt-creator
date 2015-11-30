@@ -6,7 +6,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "iphonesimulatorremoteclient/iphonesimulatorremoteclient.h"
+#import "dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h"
 #import "version.h"
 
 @interface iPhoneSimulator : NSObject <DTiPhoneSimulatorSessionDelegate> {
@@ -14,8 +14,7 @@
   DTiPhoneSimulatorSystemRoot *sdkRoot;
   NSFileHandle *stdoutFileHandle;
   NSFileHandle *stderrFileHandle;
-  DTiPhoneSimulatorSession *session;
-  NSTimer *pidCheckingTimer;
+  DTiPhoneSimulatorSession *mySession;
   BOOL startOnly;
   BOOL exitOnStartup;
   BOOL shouldWaitDebugger;
@@ -25,6 +24,12 @@
   BOOL alreadyPrintedData;
   BOOL retinaDevice;
   BOOL tallDevice;
+  BOOL is64BitDevice;
+  NSString *deviceTypeId;
+  NSString *m_stderrPath;
+  NSString *m_stdoutPath;
+  NSString *dataPath;
+  int xcodeVersionInt;
 }
 
 - (id)init;
@@ -34,8 +39,8 @@
 - (void)createStdioFIFO:(NSFileHandle **)fileHandle ofType:(NSString *)type atPath:(NSString **)path;
 - (void)removeStdioFIFO:(NSFileHandle *)fileHandle atPath:(NSString *)path;
 - (void)stop;
-- (void)checkPid:(NSTimer *)timer;
 - (void)doExit:(int)errorCode;
-- (void)changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice;
+- (SimDevice*) findDeviceWithFamily:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice is64Bit:(BOOL)is64Bit;
+- (NSString*)changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice is64Bit:(BOOL)is64Bit;
 
 @end

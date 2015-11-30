@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,6 +32,8 @@
 #define EDITORVIEW_H
 
 #include "coreplugin/id.h"
+
+#include <utils/dropsupport.h>
 
 #include <QMap>
 #include <QList>
@@ -46,6 +49,7 @@ class QAction;
 class QComboBox;
 class QFrame;
 class QLabel;
+class QMenu;
 class QSplitter;
 class QStackedLayout;
 class QStackedWidget;
@@ -103,23 +107,28 @@ public:
 
     static void updateEditorHistory(IEditor *editor, QList<EditLocation> &history);
 
+signals:
+    void currentEditorChanged(Core::IEditor *editor);
+
 protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *e);
     void focusInEvent(QFocusEvent *);
 
 private slots:
-    void closeView();
+    void closeCurrentEditor();
     void listSelectionActivated(int index);
     void splitHorizontally();
     void splitVertically();
     void splitNewWindow();
     void closeSplit();
+    void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
 
 private:
     friend class SplitterOrView; // for setParentSplitterOrView
     void setParentSplitterOrView(SplitterOrView *splitterOrView);
 
+    void fillListContextMenu(QMenu *menu);
     void updateNavigatorActions();
     void updateToolBar(IEditor *editor);
     void checkProjectLoaded(IEditor *editor);
@@ -136,6 +145,7 @@ private:
     QToolButton *m_statusWidgetButton;
     QList<IEditor *> m_editors;
     QMap<QWidget *, IEditor *> m_widgetEditorMap;
+    QLabel *m_emptyViewLabel;
 
     QList<EditLocation> m_navigationHistory;
     QList<EditLocation> m_editorHistory;
@@ -151,7 +161,7 @@ public slots:
     void goForwardInNavigationHistory();
 
 public:
-    void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
+    void addCurrentPositionToNavigationHistory(const QByteArray &saveState = QByteArray());
     void cutForwardNavigationHistory();
 
     inline QList<EditLocation> editorHistory() const { return m_editorHistory; }
@@ -164,7 +174,7 @@ class SplitterOrView  : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SplitterOrView(Core::IEditor *editor = 0);
+    explicit SplitterOrView(IEditor *editor = 0);
     explicit SplitterOrView(EditorView *view);
     ~SplitterOrView();
 
@@ -174,9 +184,9 @@ public:
     inline bool isView() const { return m_view != 0; }
     inline bool isSplitter() const { return m_splitter != 0; }
 
-    inline Core::IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
-    inline QList<Core::IEditor *> editors() const { return m_view ? m_view->editors() : QList<Core::IEditor*>(); }
-    inline bool hasEditor(Core::IEditor *editor) const { return m_view && m_view->hasEditor(editor); }
+    inline IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
+    inline QList<IEditor *> editors() const { return m_view ? m_view->editors() : QList<IEditor*>(); }
+    inline bool hasEditor(IEditor *editor) const { return m_view && m_view->hasEditor(editor); }
     inline bool hasEditors() const { return m_view && m_view->editorCount() != 0; }
     inline EditorView *view() const { return m_view; }
     inline QSplitter *splitter() const { return m_splitter; }
@@ -193,6 +203,9 @@ public:
     QSize minimumSizeHint() const;
 
     void unsplitAll();
+
+signals:
+    void splitStateChanged();
 
 private:
     void unsplitAll_helper();

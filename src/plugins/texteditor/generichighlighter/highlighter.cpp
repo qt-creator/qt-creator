@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -37,8 +38,9 @@
 #include "reuse.h"
 #include "tabsettings.h"
 
-#include <QLatin1String>
-#include <QLatin1Char>
+#include <coreplugin/messagemanager.h>
+
+#include <QCoreApplication>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -69,7 +71,7 @@ public:
 HighlighterCodeFormatterData *formatterData(const QTextBlock &block)
 {
     HighlighterCodeFormatterData *data = 0;
-    if (TextBlockUserData *userData = BaseTextDocumentLayout::userData(block)) {
+    if (TextBlockUserData *userData = TextDocumentLayout::userData(block)) {
         data = static_cast<HighlighterCodeFormatterData *>(userData->codeFormatterData());
         if (!data) {
             data = new HighlighterCodeFormatterData;
@@ -80,7 +82,7 @@ HighlighterCodeFormatterData *formatterData(const QTextBlock &block)
 }
 
 Highlighter::Highlighter(QTextDocument *parent) :
-    TextEditor::SyntaxHighlighter(parent),
+    SyntaxHighlighter(parent),
     m_regionDepth(0),
     m_indentationBasedFolding(false),
     m_tabSettings(0),
@@ -88,24 +90,24 @@ Highlighter::Highlighter(QTextDocument *parent) :
     m_dynamicContextsCounter(0),
     m_isBroken(false)
 {
-    static QVector<TextEditor::TextStyle> categories;
+    static QVector<TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << TextEditor::C_TEXT
-                   << TextEditor::C_VISUAL_WHITESPACE
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_TYPE
-                   << TextEditor::C_COMMENT
-                   << TextEditor::C_NUMBER
-                   << TextEditor::C_NUMBER
-                   << TextEditor::C_NUMBER
-                   << TextEditor::C_STRING
-                   << TextEditor::C_STRING
-                   << TextEditor::C_TEXT // TODO : add style for alert (eg. yellow background)
-                   << TextEditor::C_TEXT // TODO : add style for error (eg. red underline)
-                   << TextEditor::C_FUNCTION
-                   << TextEditor::C_TEXT
-                   << TextEditor::C_TEXT
-                   << TextEditor::C_LOCAL;
+        categories << C_TEXT
+                   << C_VISUAL_WHITESPACE
+                   << C_KEYWORD
+                   << C_TYPE
+                   << C_COMMENT
+                   << C_NUMBER
+                   << C_NUMBER
+                   << C_NUMBER
+                   << C_STRING
+                   << C_STRING
+                   << C_TEXT // TODO : add style for alert (eg. yellow background)
+                   << C_TEXT // TODO : add style for error (eg. red underline)
+                   << C_FUNCTION
+                   << C_TEXT
+                   << C_TEXT
+                   << C_LOCAL;
     }
 
     setTextFormatCategories(categories);
@@ -154,6 +156,16 @@ void Highlighter::setTabSettings(const TabSettings &ts)
     m_tabSettings = &ts;
 }
 
+static bool isOpeningParenthesis(QChar c)
+{
+    return c == QLatin1Char('{') || c == QLatin1Char('[') || c == QLatin1Char('(');
+}
+
+static bool isClosingParenthesis(QChar c)
+{
+    return c == QLatin1Char('}') || c == QLatin1Char(']') || c == QLatin1Char(')');
+}
+
 void Highlighter::highlightBlock(const QString &text)
 {
     if (!m_defaultContext.isNull() && !m_isBroken) {
@@ -163,16 +175,17 @@ void Highlighter::highlightBlock(const QString &text)
             handleContextChange(m_currentContext->lineBeginContext(),
                                 m_currentContext->definition());
 
-            ProgressData progress;
+            ProgressData *progress = new ProgressData;
             const int length = text.length();
-            while (progress.offset() < length)
-                iterateThroughRules(text, length, &progress, false, m_currentContext->rules());
+            while (progress->offset() < length)
+                iterateThroughRules(text, length, progress, false, m_currentContext->rules());
 
             if (extractObservableState(currentBlockState()) != WillContinue) {
                 handleContextChange(m_currentContext->lineEndContext(),
                                     m_currentContext->definition(),
                                     false);
             }
+            delete progress;
             m_contexts.clear();
 
             if (m_indentationBasedFolding) {
@@ -183,7 +196,22 @@ void Highlighter::highlightBlock(const QString &text)
                 // In the case region depth has changed since the last time the state was set.
                 setCurrentBlockState(computeState(extractObservableState(currentBlockState())));
             }
-        } catch (const HighlighterException &) {
+
+            Parentheses parentheses;
+            for (int pos = 0; pos < length; ++pos) {
+                const QChar c = text.at(pos);
+                if (isOpeningParenthesis(c))
+                    parentheses.push_back(Parenthesis(Parenthesis::Opened, c, pos));
+                else if (isClosingParenthesis(c))
+                    parentheses.push_back(Parenthesis(Parenthesis::Closed, c, pos));
+            }
+            TextDocumentLayout::setParentheses(currentBlock(), parentheses);
+
+        } catch (const HighlighterException &e) {
+            Core::MessageManager::write(
+                        QCoreApplication::translate("GenericHighlighter",
+                                                    "Generic highlighter error: ") + e.message(),
+                        Core::MessageManager::WithFocus);
             m_isBroken = true;
         }
     }
@@ -366,8 +394,10 @@ void Highlighter::changeContext(const QString &contextName,
     if (contextName.startsWith(kPop)) {
         QStringList list = contextName.split(kHash, QString::SkipEmptyParts);
         for (int i = 0; i < list.size(); ++i) {
-            if (m_contexts.isEmpty())
-                throw HighlighterException();
+            if (m_contexts.isEmpty()) {
+                throw HighlighterException(
+                        QCoreApplication::translate("GenericHighlighter", "Reached empty context."));
+            }
             m_contexts.pop_back();
         }
 
@@ -564,7 +594,7 @@ int Highlighter::computeState(const int observableState) const
 void Highlighter::applyRegionBasedFolding() const
 {
     int folding = 0;
-    TextBlockUserData *currentBlockUserData = BaseTextDocumentLayout::userData(currentBlock());
+    TextBlockUserData *currentBlockUserData = TextDocumentLayout::userData(currentBlock());
     HighlighterCodeFormatterData *data = formatterData(currentBlock());
     HighlighterCodeFormatterData *previousData = formatterData(currentBlock().previous());
     if (previousData) {
@@ -574,7 +604,7 @@ void Highlighter::applyRegionBasedFolding() const
             if (data->m_foldingIndentDelta > 0)
                 currentBlockUserData->setFoldingStartIncluded(true);
             else
-                BaseTextDocumentLayout::userData(currentBlock().previous())->setFoldingEndIncluded(false);
+                TextDocumentLayout::userData(currentBlock().previous())->setFoldingEndIncluded(false);
             data->m_foldingIndentDelta = 0;
         }
     }
@@ -584,7 +614,7 @@ void Highlighter::applyRegionBasedFolding() const
 
 void Highlighter::applyIndentationBasedFolding(const QString &text) const
 {
-    TextBlockUserData *data = BaseTextDocumentLayout::userData(currentBlock());
+    TextBlockUserData *data = TextDocumentLayout::userData(currentBlock());
     data->setFoldingEndIncluded(true);
 
     // If this line is empty, check its neighbours. They all might be part of the same block.

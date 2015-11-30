@@ -73,7 +73,28 @@ bool ASTMatcher::match(SimpleSpecifierAST *node, SimpleSpecifierAST *pattern)
     return true;
 }
 
-bool ASTMatcher::match(AttributeSpecifierAST *node, AttributeSpecifierAST *pattern)
+bool ASTMatcher::match(AlignmentSpecifierAST *node, AlignmentSpecifierAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->align_token = node->align_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->typeIdExprOrAlignmentExpr)
+        pattern->typeIdExprOrAlignmentExpr = node->typeIdExprOrAlignmentExpr;
+    else if (! AST::match(node->typeIdExprOrAlignmentExpr, pattern->typeIdExprOrAlignmentExpr, this))
+        return false;
+
+    pattern->ellipses_token = node->ellipses_token;
+
+    pattern->rparen_token = node->rparen_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(GnuAttributeSpecifierAST *node, GnuAttributeSpecifierAST *pattern)
 {
     (void) node;
     (void) pattern;
@@ -96,7 +117,7 @@ bool ASTMatcher::match(AttributeSpecifierAST *node, AttributeSpecifierAST *patte
     return true;
 }
 
-bool ASTMatcher::match(AttributeAST *node, AttributeAST *pattern)
+bool ASTMatcher::match(GnuAttributeAST *node, GnuAttributeAST *pattern)
 {
     (void) node;
     (void) pattern;
@@ -440,6 +461,8 @@ bool ASTMatcher::match(BaseSpecifierAST *node, BaseSpecifierAST *pattern)
         pattern->name = node->name;
     else if (! AST::match(node->name, pattern->name, this))
         return false;
+
+    pattern->ellipsis_token = node->ellipsis_token;
 
     return true;
 }
@@ -2122,6 +2145,21 @@ bool ASTMatcher::match(ThrowExpressionAST *node, ThrowExpressionAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(NoExceptOperatorExpressionAST *node, NoExceptOperatorExpressionAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->noexcept_token = node->noexcept_token;
+
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
+        return false;
+
+    return true;
+}
+
 bool ASTMatcher::match(TranslationUnitAST *node, TranslationUnitAST *pattern)
 {
     (void) node;
@@ -2995,6 +3033,55 @@ bool ASTMatcher::match(BracedInitializerAST *node, BracedInitializerAST *pattern
     pattern->comma_token = node->comma_token;
 
     pattern->rbrace_token = node->rbrace_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(DotDesignatorAST *node, DotDesignatorAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->dot_token = node->dot_token;
+
+    pattern->identifier_token = node->identifier_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(BracketDesignatorAST *node, BracketDesignatorAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->lbracket_token = node->lbracket_token;
+
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
+        return false;
+
+    pattern->rbracket_token = node->rbracket_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(DesignatedInitializerAST *node, DesignatedInitializerAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    if (! pattern->designator_list)
+        pattern->designator_list = node->designator_list;
+    else if (! AST::match(node->designator_list, pattern->designator_list, this))
+        return false;
+
+    pattern->equal_token = node->equal_token;
+
+    if (! pattern->initializer)
+        pattern->initializer = node->initializer;
+    else if (! AST::match(node->initializer, pattern->initializer, this))
+        return false;
 
     return true;
 }

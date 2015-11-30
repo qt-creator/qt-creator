@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,37 +33,40 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
-#include "breakpoint.h" // For BreakpointModelId.
-#include "threaddata.h" // For ThreadId.
+#include "debuggerprotocol.h"
+#include "debuggerstartparameters.h"
+
+#include <projectexplorer/devicesupport/idevice.h>
+#include <texteditor/textmark.h>
 
 #include <QObject>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
 class QPoint;
-class QMessageBox;
 class QAbstractItemModel;
 QT_END_NAMESPACE
 
-namespace TextEditor { class ITextEditor; }
 namespace Core { class IOptionsPage; }
 
 namespace Debugger {
 
-class DebuggerEnginePrivate;
 class DebuggerRunControl;
-class DebuggerStartParameters;
+class RemoteSetupResult;
 
-DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
 
 namespace Internal {
 
+class DebuggerEnginePrivate;
 class DebuggerPluginPrivate;
 class DisassemblerAgent;
 class MemoryAgent;
 class WatchData;
+class WatchItem;
 class BreakHandler;
+class LocationMark;
 class ModulesHandler;
 class RegisterHandler;
 class StackHandler;
@@ -70,16 +74,68 @@ class StackFrame;
 class SourceFilesHandler;
 class ThreadsHandler;
 class WatchHandler;
-class BreakpointParameters;
+class Breakpoint;
 class QmlAdapter;
 class QmlCppEngine;
 class DebuggerToolTipContext;
-class MemoryMarkup;
+class MemoryViewSetupData;
+class Terminal;
+class ThreadId;
 
-struct WatchUpdateFlags
+class DebuggerRunParameters : public DebuggerStartParameters
 {
-    WatchUpdateFlags() : tryIncremental(false) {}
-    bool tryIncremental;
+public:
+    DebuggerRunParameters() {}
+
+    DebuggerEngineType masterEngineType = NoEngineType;
+    DebuggerEngineType cppEngineType = NoEngineType;
+
+    DebuggerLanguages languages = AnyLanguage;
+    bool breakOnMain = false;
+    bool multiProcess = false; // Whether to set detach-on-fork off.
+
+    QString debuggerCommand;
+    QString coreFile;
+    QString overrideStartScript; // Used in attach to core and remote debugging
+    QString startMessage; // First status message shown.
+    QString debugInfoLocation; // Gdb "set-debug-file-directory".
+    QStringList debugSourceLocation; // Gdb "directory"
+    QString serverStartScript;
+    ProjectExplorer::IDevice::ConstPtr device;
+    QString sysRoot;
+    bool isSnapshot = false; // Set if created internally.
+    ProjectExplorer::Abi toolChainAbi;
+
+    QString projectSourceDirectory;
+    QStringList projectSourceFiles;
+
+    // Used by Script debugging
+    QString interpreter;
+    QString mainScript;
+
+    // Used by AttachCrashedExternal.
+    QString crashParameter;
+
+    bool nativeMixedEnabled = false;
+
+    // For Debugger testing.
+    int testCase = 0;
+};
+
+class UpdateParameters
+{
+public:
+    UpdateParameters() {}
+
+    QList<QByteArray> partialVariables() const
+    {
+        QList<QByteArray> result;
+        if (!partialVariable.isEmpty())
+            result.append(partialVariable);
+        return result;
+    }
+
+    QByteArray partialVariable;
 };
 
 class Location
@@ -98,9 +154,12 @@ public:
     void setNeedsRaise(bool on) { m_needsRaise = on; }
     void setNeedsMarker(bool on) { m_needsMarker = on; }
     void setFileName(const QString &fileName) { m_fileName = fileName; }
+    void setUseAssembler(bool on) { m_hasDebugInfo = !on; }
     bool needsRaise() const { return m_needsRaise; }
     bool needsMarker() const { return m_needsMarker; }
     bool hasDebugInfo() const { return m_hasDebugInfo; }
+    bool canBeDisassembled() const
+        { return m_address != quint64(-1) || !m_functionName.isEmpty(); }
     quint64 address() const { return m_address; }
 
 private:
@@ -116,38 +175,35 @@ private:
     quint64 m_address;
 };
 
+enum LocationType { UnknownLocation, LocationByFile, LocationByAddress };
+
 class ContextData
 {
 public:
-    ContextData() : lineNumber(0), address(0) {}
+    bool isValid() const { return type != UnknownLocation; }
 
 public:
+    LocationType type = UnknownLocation;
     QString fileName;
-    int lineNumber;
-    quint64 address;
+    int lineNumber = 0;
+    quint64 address = 0;
 };
 
-} // namespace Internal
-
-
-// FIXME: DEBUGGER_EXPORT?
-class DEBUGGER_EXPORT DebuggerEngine : public QObject
+class DebuggerEngine : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit DebuggerEngine(const DebuggerStartParameters &sp);
+    explicit DebuggerEngine(const DebuggerRunParameters &sp);
     virtual ~DebuggerEngine();
 
-    const DebuggerStartParameters &startParameters() const;
-    DebuggerStartParameters &startParameters();
+    const DebuggerRunParameters &runParameters() const;
+    DebuggerRunParameters &runParameters();
 
-    virtual bool setToolTipExpression(const QPoint & mousePos,
-        TextEditor::ITextEditor *editor, const Internal::DebuggerToolTipContext &);
-
-    virtual void updateWatchData(const Internal::WatchData &data,
-        const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
-    virtual void watchDataSelected(const QByteArray &iname);
+    virtual bool canHandleToolTip(const DebuggerToolTipContext &) const;
+    virtual void expandItem(const QByteArray &iname); // Called when item in tree gets expanded.
+    virtual void updateItem(const QByteArray &iname); // Called for fresh watch items.
+    virtual void selectWatchData(const QByteArray &iname);
 
     virtual void startDebugger(DebuggerRunControl *runControl);
 
@@ -160,10 +216,8 @@ public:
         MemoryView = 0x4           //!< Open a separate view (using the pos-parameter).
     };
 
-    virtual void openMemoryView(quint64 startAddr, unsigned flags,
-                                const QList<Internal::MemoryMarkup> &ml,
-                                const QPoint &pos,
-                                const QString &title = QString(), QWidget *parent = 0);
+    virtual void runCommand(const DebuggerCommand &cmd);
+    virtual void openMemoryView(const MemoryViewSetupData &data);
     virtual void fetchMemory(Internal::MemoryAgent *, QObject *,
                              quint64 addr, quint64 length);
     virtual void changeMemory(Internal::MemoryAgent *, QObject *,
@@ -187,29 +241,30 @@ public:
     virtual void loadAdditionalQmlStack();
     virtual void reloadDebuggingHelpers();
 
-    virtual void setRegisterValue(int regnr, const QString &value);
+    virtual void setRegisterValue(const QByteArray &name, const QString &value);
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;
     virtual bool hasCapability(unsigned cap) const = 0;
     virtual void debugLastCommand() {}
 
     virtual bool isSynchronous() const;
     virtual QByteArray qtNamespace() const;
+    void setQtNamespace(const QByteArray &ns);
 
     virtual void createSnapshot();
     virtual void updateAll();
+    virtual void updateLocals();
 
-    typedef Internal::BreakpointModelId BreakpointModelId;
     virtual bool stateAcceptsBreakpointChanges() const { return true; }
     virtual void attemptBreakpointSynchronization();
-    virtual bool acceptsBreakpoint(BreakpointModelId id) const = 0;
-    virtual void insertBreakpoint(BreakpointModelId id);  // FIXME: make pure
-    virtual void removeBreakpoint(BreakpointModelId id);  // FIXME: make pure
-    virtual void changeBreakpoint(BreakpointModelId id);  // FIXME: make pure
+    virtual bool acceptsBreakpoint(Breakpoint bp) const = 0;
+    virtual void insertBreakpoint(Breakpoint bp);  // FIXME: make pure
+    virtual void removeBreakpoint(Breakpoint bp);  // FIXME: make pure
+    virtual void changeBreakpoint(Breakpoint bp);  // FIXME: make pure
 
     virtual bool acceptsDebuggerCommands() const { return true; }
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
 
-    virtual void assignValueInDebugger(const Internal::WatchData *data,
+    virtual void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);
     virtual void selectThread(Internal::ThreadId threadId) = 0;
 
@@ -253,22 +308,22 @@ public:
 
     virtual void resetLocation();
     virtual void gotoLocation(const Internal::Location &location);
-    virtual void quitDebugger(); // called by DebuggerRunControl
+    Q_SLOT virtual void quitDebugger(); // called by DebuggerRunControl
     virtual void abortDebugger(); // called by DebuggerPlugin
 
     virtual void updateViews();
     bool isSlaveEngine() const;
     bool isMasterEngine() const;
     DebuggerEngine *masterEngine() const;
+    virtual DebuggerEngine *cppEngine() { return 0; }
 
-    virtual bool setupQmlStep(bool /*on*/) { return false; }
-    virtual void readyToExecuteQmlStep() {}
-
-    virtual bool canDisplayTooltip() const { return state() == InferiorStopOk; }
+    virtual bool canDisplayTooltip() const;
 
     virtual void notifyInferiorIll();
 
     QString toFileInProject(const QUrl &fileUrl);
+    void updateBreakpointMarker(const Breakpoint &bp);
+    void removeBreakpointMarker(const Breakpoint &bp);
 
 signals:
     void stateChanged(Debugger::DebuggerState state);
@@ -277,13 +332,13 @@ signals:
     /*
      * For "external" clients of a debugger run control that needs to do
      * further setup before the debugger is started (e.g. RemoteLinux).
-     * Afterwards, notifyEngineRemoteSetupDone() or notifyEngineRemoteSetupFailed()
-     * must be called to continue or abort debugging, respectively.
+     * Afterwards, notifyEngineRemoteSetupFinished
+     * must be called to continue or abort debugging.
      * This signal is only emitted if the start parameters indicate that
      * a server start script should be used, but none is given.
      */
     void requestRemoteSetup();
-    void raiseWindow();
+    void aboutToNotifyInferiorSetupOk();
 
 protected:
     // The base notify*() function implementation should be sufficient
@@ -296,17 +351,15 @@ protected:
     virtual void notifyEngineRequestRemoteSetup();
     public:
     virtual void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
-    virtual void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
-    virtual void notifyEngineRemoteSetupFailed(const QString &message);
+    virtual void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
 
     protected:
     virtual void notifyInferiorSetupOk();
     virtual void notifyInferiorSetupFailed();
 
-    virtual void notifyEngineRunOkAndInferiorRunRequested();
     virtual void notifyEngineRunAndInferiorRunOk();
     virtual void notifyEngineRunAndInferiorStopOk();
-    virtual void notifyInferiorUnrunnable(); // Called by CoreAdapter.
+    virtual void notifyEngineRunOkAndInferiorUnrunnable(); // Called by CoreAdapter.
 
     // Use notifyInferiorRunRequested() plus notifyInferiorRunOk() instead.
     //virtual void notifyInferiorSpontaneousRun();
@@ -318,8 +371,13 @@ protected:
     virtual void notifyInferiorStopOk();
     virtual void notifyInferiorSpontaneousStop();
     virtual void notifyInferiorStopFailed();
-    virtual void notifyInferiorExited();
 
+    public:
+    virtual void notifyInferiorExited();
+    void notifyDebuggerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus,
+                                       const QString &backendName);
+
+protected:
     virtual void notifyInferiorShutdownOk();
     virtual void notifyInferiorShutdownFailed();
 
@@ -334,6 +392,7 @@ protected:
     virtual void runEngine() = 0;
     virtual void shutdownInferior() = 0;
     virtual void shutdownEngine() = 0;
+    virtual void resetInferior() {}
 
     virtual void detachDebugger();
     virtual void exitDebugger();
@@ -355,21 +414,14 @@ protected:
     virtual void frameUp();
     virtual void frameDown();
 
+    virtual void doUpdateLocals(const UpdateParameters &params);
+
     void setTargetState(DebuggerState state);
     void setMasterEngine(DebuggerEngine *masterEngine);
 
     DebuggerRunControl *runControl() const;
+    Terminal *terminal() const;
 
-    static QString msgWatchpointByAddressTriggered(BreakpointModelId id,
-        int number, quint64 address);
-    static QString msgWatchpointByAddressTriggered(BreakpointModelId id,
-        int number, quint64 address, const QString &threadId);
-    static QString msgWatchpointByExpressionTriggered(BreakpointModelId id,
-        int number, const QString &expr);
-    static QString msgWatchpointByExpressionTriggered(BreakpointModelId id,
-        int number, const QString &expr, const QString &threadId);
-    static QString msgBreakpointTriggered(BreakpointModelId id,
-        int number, const QString &threadId);
     static QString msgStopped(const QString &reason = QString());
     static QString msgStoppedBySignal(const QString &meaning, const QString &name);
     static QString msgStoppedByException(const QString &description,
@@ -381,7 +433,7 @@ protected:
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
 
-    static void checkForReleaseBuild(const DebuggerStartParameters& sp);
+    static void validateExecutable(DebuggerRunParameters *sp);
 
     virtual void setupSlaveInferior();
     virtual void setupSlaveEngine();
@@ -391,20 +443,46 @@ protected:
     virtual void slaveEngineStateChanged(DebuggerEngine *engine,
         DebuggerState state);
 
+    void updateLocalsView(const GdbMi &all);
+    void checkState(DebuggerState state, const char *file, int line);
+    bool isNativeMixedEnabled() const;
+    bool isNativeMixedActive() const;
+    bool isNativeMixedActiveFrame() const;
+
 private:
     // Wrapper engine needs access to state of its subengines.
-    friend class Internal::QmlCppEngine;
-    friend class Internal::DebuggerPluginPrivate;
-    friend class Internal::QmlAdapter;
+    friend class QmlCppEngine;
+    friend class DebuggerPluginPrivate;
+    friend class QmlAdapter;
 
     virtual void setState(DebuggerState state, bool forced = false);
 
     friend class DebuggerEnginePrivate;
+    friend class LocationMark;
     DebuggerEnginePrivate *d;
 };
 
+class LocationMark : public TextEditor::TextMark
+{
+public:
+    LocationMark(DebuggerEngine *engine, const QString &file, int line);
+    void removedFromEditor() override { updateLineNumber(0); }
+
+private:
+    bool isDraggable() const override;
+    void dragToLine(int line) override;
+
+    QPointer<DebuggerEngine> m_engine;
+};
+
+DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QStringList *errors);
+
+DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp, const ProjectExplorer::Kit *kit);
+
+} // namespace Internal
 } // namespace Debugger
 
+Q_DECLARE_METATYPE(Debugger::Internal::UpdateParameters)
 Q_DECLARE_METATYPE(Debugger::Internal::ContextData)
 
 #endif // DEBUGGER_DEBUGGERENGINE_H

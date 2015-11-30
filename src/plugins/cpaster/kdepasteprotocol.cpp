@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,9 +33,11 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QXmlStreamReader>
 #include <QByteArray>
 #include <QStringList>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 #include <QNetworkReply>
 
@@ -44,24 +47,15 @@ enum { debug = 0 };
 
 static inline QByteArray expiryParameter(int daysRequested)
 {
-    // Obtained by 'pastebin.kde.org/api/xml/parameter/expire' on 11.11.2013
-    static const int expiryTimesMin[] = {1800, 21600, 86400, 604800, 2592000};
-    const int *end = expiryTimesMin + sizeof(expiryTimesMin) / sizeof(expiryTimesMin[0]);
+    // Obtained by 'pastebin.kde.org/api/json/parameter/expire' on 26.03.2014
+    static const int expiryTimesSec[] = {1800, 21600, 86400, 604800, 2592000, 31536000};
+    const int *end = expiryTimesSec + sizeof(expiryTimesSec) / sizeof(expiryTimesSec[0]);
     // Find the first element >= requested span, search up to n - 1 such that 'end' defaults to last value.
-    const int *match = std::lower_bound(expiryTimesMin, end - 1, 24 * 60 * daysRequested);
+    const int *match = std::lower_bound(expiryTimesSec, end - 1, 24 * 60 * 60 * daysRequested);
     return QByteArray("expire=") + QByteArray::number(*match);
 }
 
 namespace CodePaster {
-StickyNotesPasteProtocol::StickyNotesPasteProtocol() :
-    m_fetchReply(0),
-    m_pasteReply(0),
-    m_listReply(0),
-    m_fetchId(-1),
-    m_postId(-1),
-    m_hostChecked(false)
-{
-}
 
 void StickyNotesPasteProtocol::setHostUrl(const QString &hostUrl)
 {
@@ -79,13 +73,13 @@ bool StickyNotesPasteProtocol::checkConfiguration(QString *errorMessage)
 {
     if (m_hostChecked)  // Check the host once.
         return true;
-    const bool ok = httpStatus(m_hostUrl, errorMessage);
+    const bool ok = httpStatus(m_hostUrl, errorMessage, true);
     if (ok)
         m_hostChecked = true;
     return ok;
 }
 
-// Query 'http://pastebin.kde.org/api/xml/parameter/language' to obtain the valid values.
+// Query 'http://pastebin.kde.org/api/json/parameter/language' to obtain the valid values.
 static inline QByteArray pasteLanguage(Protocol::ContentType ct)
 {
     switch (ct) {
@@ -129,8 +123,8 @@ void StickyNotesPasteProtocol::paste(const QString &text,
         pasteData += QUrl::toPercentEncoding(description.left(maxDescriptionLength));
     }
 
-    m_pasteReply = httpPost(m_hostUrl + QLatin1String("api/xml/create"), pasteData);
-    connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
+    m_pasteReply = httpPost(m_hostUrl + QLatin1String("api/json/create"), pasteData);
+    connect(m_pasteReply, &QNetworkReply::finished, this, &StickyNotesPasteProtocol::pasteFinished);
     if (debug)
         qDebug() << "paste: sending " << m_pasteReply << pasteData;
 }
@@ -138,12 +132,26 @@ void StickyNotesPasteProtocol::paste(const QString &text,
 // Parse for an element and return its contents
 static QString parseElement(QIODevice *device, const QString &elementName)
 {
-    QXmlStreamReader reader(device);
-    while (!reader.atEnd()) {
-        if (reader.readNext() == QXmlStreamReader::StartElement
-            && reader.name() == elementName)
-            return reader.readElementText();
+    const QJsonDocument doc = QJsonDocument::fromJson(device->readAll());
+    if (doc.isEmpty() || !doc.isObject())
+        return QString();
+
+    QJsonObject obj= doc.object();
+    const QString resultKey = QLatin1String("result");
+
+    if (obj.contains(resultKey)) {
+        QJsonValue value = obj.value(resultKey);
+        if (value.isObject()) {
+            obj = value.toObject();
+            if (obj.contains(elementName)) {
+                value = obj.value(elementName);
+                return value.toString();
+            }
+        } else if (value.isArray()) {
+            qWarning() << "JsonArray not expected.";
+        }
     }
+
     return QString();
 }
 
@@ -174,12 +182,13 @@ void StickyNotesPasteProtocol::fetch(const QString &id)
     const int lastSlashPos = m_fetchId.lastIndexOf(QLatin1Char('/'));
     if (lastSlashPos != -1)
         m_fetchId.remove(0, lastSlashPos + 1);
-    QString url = m_hostUrl + QLatin1String("api/xml/show/") + m_fetchId;
+    QString url = m_hostUrl + QLatin1String("api/json/show/") + m_fetchId;
     if (debug)
         qDebug() << "fetch: sending " << url;
 
     m_fetchReply = httpGet(url);
-    connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
+    connect(m_fetchReply, &QNetworkReply::finished,
+            this, &StickyNotesPasteProtocol::fetchFinished);
 }
 
 // Parse: '<result><id>143228</id><author>foo</author><timestamp>1320661026</timestamp><language>text</language>
@@ -208,9 +217,10 @@ void StickyNotesPasteProtocol::list()
     QTC_ASSERT(!m_listReply, return);
 
     // Trailing slash is important to prevent redirection.
-    QString url = m_hostUrl + QLatin1String("api/xml/list");
+    QString url = m_hostUrl + QLatin1String("api/json/list");
     m_listReply = httpGet(url);
-    connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
+    connect(m_listReply, &QNetworkReply::finished,
+            this, &StickyNotesPasteProtocol::listFinished);
     if (debug)
         qDebug() << "list: sending " << url << m_listReply;
 }
@@ -219,11 +229,27 @@ void StickyNotesPasteProtocol::list()
 static inline QStringList parseList(QIODevice *device)
 {
     QStringList result;
-    QXmlStreamReader reader(device);
-    const QString pasteElement = QLatin1String("paste");
-    while (!reader.atEnd()) {
-        if (reader.readNext() == QXmlStreamReader::StartElement && reader.name() == pasteElement)
-            result.append(reader.readElementText());
+    const QJsonDocument doc = QJsonDocument::fromJson(device->readAll());
+    if (doc.isEmpty() || !doc.isObject())
+        return result;
+
+    QJsonObject obj= doc.object();
+    const QString resultKey = QLatin1String("result");
+    const QString pastesKey = QLatin1String("pastes");
+
+    if (obj.contains(resultKey)) {
+        QJsonValue value = obj.value(resultKey);
+        if (value.isObject()) {
+            obj = value.toObject();
+            if (obj.contains(pastesKey)) {
+                value = obj.value(pastesKey);
+                if (value.isArray()) {
+                    QJsonArray array = value.toArray();
+                    foreach (const QJsonValue &val, array)
+                        result.append(val.toString());
+                }
+            }
+        }
     }
     return result;
 }

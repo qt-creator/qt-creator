@@ -1,28 +1,39 @@
-import qbs.base 1.0
-import QtcLibrary
+import qbs 1.0
+import qbs.FileInfo
 
 QtcLibrary {
     name: "Utils"
 
-    cpp.defines: base.concat("QTCREATOR_UTILS_LIB")
+    cpp.defines: base.concat([
+        "QTCREATOR_UTILS_LIB",
+        "QTC_REL_TOOLS_PATH=\"" + FileInfo.relativePath(project.ide_bin_path,
+                                                        project.ide_libexec_path) + "\""
+    ])
 
     Properties {
         condition: qbs.targetOS.contains("windows")
         cpp.dynamicLibraries: [
             "user32",
             "iphlpapi",
-            "ws2_32"
+            "ws2_32",
+            "shell32",
         ]
     }
     Properties {
         condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
         cpp.dynamicLibraries: ["X11"]
     }
+    Properties {
+        condition: qbs.targetOS.contains("osx")
+        cpp.frameworks: ["Foundation"]
+    }
 
-    Depends { name: "Qt"; submodules: ["widgets", "network", "script", "concurrent"] }
+    Depends { name: "Qt"; submodules: ["concurrent", "network", "qml", "widgets"] }
     Depends { name: "app_version_header" }
 
     files: [
+        "QtConcurrentTools",
+        "algorithm.h",
         "annotateditemdelegate.cpp",
         "annotateditemdelegate.h",
         "ansiescapecodehandler.cpp",
@@ -35,6 +46,8 @@ QtcLibrary {
         "bracematcher.h",
         "buildablehelperlibrary.cpp",
         "buildablehelperlibrary.h",
+        "categorysortfiltermodel.cpp",
+        "categorysortfiltermodel.h",
         "changeset.cpp",
         "changeset.h",
         "checkablemessagebox.cpp",
@@ -56,6 +69,8 @@ QtcLibrary {
         "detailsbutton.h",
         "detailswidget.cpp",
         "detailswidget.h",
+        "dropsupport.cpp",
+        "dropsupport.h",
         "elfreader.cpp",
         "elfreader.h",
         "elidinglabel.cpp",
@@ -66,6 +81,9 @@ QtcLibrary {
         "environmentmodel.h",
         "execmenu.cpp",
         "execmenu.h",
+        "executeondestruction.h",
+        "fadingindicator.cpp",
+        "fadingindicator.h",
         "faketooltip.cpp",
         "faketooltip.h",
         "fancylineedit.cpp",
@@ -82,31 +100,28 @@ QtcLibrary {
         "filesystemwatcher.h",
         "fileutils.cpp",
         "fileutils.h",
-        "filewizarddialog.cpp",
-        "filewizarddialog.h",
         "filewizardpage.cpp",
         "filewizardpage.h",
         "filewizardpage.ui",
         "flowlayout.cpp",
         "flowlayout.h",
-        "function.cpp",
-        "function.h",
         "historycompleter.cpp",
         "historycompleter.h",
         "hostosinfo.h",
         "hostosinfo.cpp",
         "htmldocextractor.cpp",
         "htmldocextractor.h",
-        "ipaddresslineedit.cpp",
-        "ipaddresslineedit.h",
-        "iwelcomepage.cpp",
-        "iwelcomepage.h",
+        "icon.cpp",
+        "icon.h",
+        "itemviews.cpp",
+        "itemviews.h",
         "json.cpp",
         "json.h",
         "linecolumnlabel.cpp",
         "linecolumnlabel.h",
         "listutils.h",
-        "logging.h",
+        "macroexpander.cpp",
+        "macroexpander.h",
         "multitask.h",
         "navigationtreeview.cpp",
         "navigationtreeview.h",
@@ -119,6 +134,8 @@ QtcLibrary {
         "outputformat.h",
         "outputformatter.cpp",
         "outputformatter.h",
+        "overridecursor.cpp",
+        "overridecursor.h",
         "parameteraction.cpp",
         "parameteraction.h",
         "pathchooser.cpp",
@@ -129,13 +146,16 @@ QtcLibrary {
         "persistentsettings.h",
         "portlist.cpp",
         "portlist.h",
+        "progressindicator.cpp",
+        "progressindicator.h",
         "projectintropage.cpp",
         "projectintropage.h",
         "projectintropage.ui",
-        "projectnamevalidatinglineedit.cpp",
-        "projectnamevalidatinglineedit.h",
         "proxyaction.cpp",
         "proxyaction.h",
+        "proxycredentialsdialog.cpp",
+        "proxycredentialsdialog.h",
+        "proxycredentialsdialog.ui",
         "qtcassert.cpp",
         "qtcassert.h",
         "qtcolorbutton.cpp",
@@ -149,9 +169,14 @@ QtcLibrary {
         "savedaction.h",
         "savefile.cpp",
         "savefile.h",
+        "scopedswap.h",
         "settingsselector.cpp",
         "settingsselector.h",
         "settingsutils.h",
+        "shellcommand.cpp",
+        "shellcommand.h",
+        "shellcommandpage.cpp",
+        "shellcommandpage.h",
         "sleep.cpp",
         "sleep.h",
         "statuslabel.cpp",
@@ -166,8 +191,18 @@ QtcLibrary {
         "synchronousprocess.h",
         "tcpportsgatherer.cpp",
         "tcpportsgatherer.h",
+        "templateengine.cpp",
+        "templateengine.h",
+        "textfieldcheckbox.cpp",
+        "textfieldcheckbox.h",
+        "textfieldcombobox.cpp",
+        "textfieldcombobox.h",
         "textfileformat.cpp",
         "textfileformat.h",
+        "treemodel.cpp",
+        "treemodel.h",
+        "treeviewcombobox.cpp",
+        "treeviewcombobox.h",
         "headerviewstretcher.cpp",
         "headerviewstretcher.h",
         "uncommentselection.cpp",
@@ -180,6 +215,8 @@ QtcLibrary {
         "winutils.h",
         "wizard.cpp",
         "wizard.h",
+        "wizardpage.cpp",
+        "wizardpage.h",
         "images/arrow.png",
         "images/crumblepath-segment-end.png",
         "images/crumblepath-segment-hover-end.png",
@@ -187,8 +224,22 @@ QtcLibrary {
         "images/crumblepath-segment-selected-end.png",
         "images/crumblepath-segment-selected.png",
         "images/crumblepath-segment.png",
+        "images/progressindicator_big.png",
+        "images/progressindicator_big@2x.png",
+        "images/progressindicator_small.png",
+        "images/progressindicator_small@2x.png",
         "images/triangle_vert.png",
     ]
+
+    Group {
+        name: "Theme"
+        prefix: "theme/"
+        files: [
+            "theme.cpp",
+            "theme.h",
+            "theme_p.h",
+        ]
+    }
 
     Group {
         name: "Tooltip"
@@ -196,8 +247,6 @@ QtcLibrary {
         files: [
             "effects.h",
             "reuse.h",
-            "tipcontents.cpp",
-            "tipcontents.h",
             "tips.cpp",
             "tips.h",
             "tooltip.cpp",
@@ -218,6 +267,37 @@ QtcLibrary {
         condition: qbs.targetOS.contains("unix")
         files: [
             "consoleprocess_unix.cpp",
+        ]
+    }
+
+    Group {
+        name: "FileUtils_osx"
+        condition: qbs.targetOS.contains("osx")
+        files: [
+            "fileutils_mac.h", "fileutils_mac.mm",
+        ]
+    }
+
+    Group {
+        name: "MimeTypes"
+        prefix: "mimetypes/"
+        files: [
+            "mimedatabase.cpp",
+            "mimedatabase.h",
+            "mimedatabase_p.h",
+            "mimeglobpattern.cpp",
+            "mimeglobpattern_p.h",
+            "mimemagicrule.cpp",
+            "mimemagicrule_p.h",
+            "mimemagicrulematcher.cpp",
+            "mimemagicrulematcher_p.h",
+            "mimeprovider.cpp",
+            "mimeprovider_p.h",
+            "mimetype.cpp",
+            "mimetype.h",
+            "mimetype_p.h",
+            "mimetypeparser.cpp",
+            "mimetypeparser_p.h",
         ]
     }
 

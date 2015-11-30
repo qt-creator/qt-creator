@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -80,15 +81,10 @@ DragWidget::DragWidget(QWidget *parent) : QFrame(parent)
     setFrameShadow(QFrame::Sunken);
     m_startPos = QPoint(-1, -1);
     m_pos = QPoint(-1, -1);
-
-    // TODO: The following code should be enabled for OSX
-    // when QTBUG-23205 is fixed
-    if (!HostOsInfo::isMacHost()) {
-        m_dropShadowEffect = new QGraphicsDropShadowEffect;
-        m_dropShadowEffect->setBlurRadius(6);
-        m_dropShadowEffect->setOffset(2, 2);
-        setGraphicsEffect(m_dropShadowEffect);
-    }
+    m_dropShadowEffect = new QGraphicsDropShadowEffect;
+    m_dropShadowEffect->setBlurRadius(6);
+    m_dropShadowEffect->setOffset(2, 2);
+    setGraphicsEffect(m_dropShadowEffect);
 }
 
 void DragWidget::mousePressEvent(QMouseEvent * event)
@@ -106,14 +102,10 @@ void DragWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() ==  Qt::LeftButton) {
         m_startPos = QPoint(-1, -1);
-        // TODO: The following code should be enabled for OSX
-        // when QTBUG-23205 is fixed
-        if (!HostOsInfo::isMacHost()) {
-            m_dropShadowEffect = new QGraphicsDropShadowEffect;
-            m_dropShadowEffect->setBlurRadius(6);
-            m_dropShadowEffect->setOffset(2, 2);
-            setGraphicsEffect(m_dropShadowEffect);
-        }
+        m_dropShadowEffect = new QGraphicsDropShadowEffect;
+        m_dropShadowEffect->setBlurRadius(6);
+        m_dropShadowEffect->setOffset(2, 2);
+        setGraphicsEffect(m_dropShadowEffect);
     }
     QFrame::mouseReleaseEvent(event);
 }
@@ -129,7 +121,7 @@ static inline int limit(int a, int min, int max)
 
 void DragWidget::mouseMoveEvent(QMouseEvent * event)
 {
-    if (event->buttons() &&  Qt::LeftButton) {
+    if (event->buttons() &  Qt::LeftButton) {
         if (m_startPos != QPoint(-1, -1)) {
             QPoint newPos = parentWidget()->mapFromGlobal(event->globalPos() - m_startPos);
 
@@ -182,7 +174,7 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     m_toolButton->setFixedSize(16, 16);
 
     m_toolButton->setToolTip(tr("Hides this toolbar."));
-    connect(m_toolButton, SIGNAL(clicked()), this, SLOT(onTogglePane()));
+    connect(m_toolButton, &QToolButton::clicked, this, &ContextPaneWidget::onTogglePane);
     layout->addWidget(m_toolButton, 0, 0, 1, 1);
     colorDialog();
 
@@ -218,9 +210,10 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
 ContextPaneWidget::~ContextPaneWidget()
 {
     //if the pane was never activated the widget is not in a widget tree
-    if (!m_bauhausColorDialog.isNull())
+    if (!m_bauhausColorDialog.isNull()) {
         delete m_bauhausColorDialog.data();
         m_bauhausColorDialog = 0;
+    }
 }
 
 void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2, bool pinned)
@@ -429,9 +422,12 @@ void ContextPaneWidget::protectedMoved()
 QWidget* ContextPaneWidget::createFontWidget()
 {
     m_textWidget = new ContextPaneTextWidget(this);
-    connect(m_textWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
-    connect(m_textWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_textWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
+    connect(m_textWidget, &ContextPaneTextWidget::propertyChanged,
+            this, &ContextPaneWidget::propertyChanged);
+    connect(m_textWidget, &ContextPaneTextWidget::removeProperty,
+            this, &ContextPaneWidget::removeProperty);
+    connect(m_textWidget, &ContextPaneTextWidget::removeAndChangeProperty,
+            this, &ContextPaneWidget::removeAndChangeProperty);
 
     return m_textWidget;
 }
@@ -440,9 +436,12 @@ QWidget* ContextPaneWidget::createEasingWidget()
 {
     m_easingWidget = new EasingContextPane(this);
 
-    connect(m_easingWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
-    connect(m_easingWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_easingWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
+    connect(m_easingWidget, &EasingContextPane::propertyChanged,
+            this, &ContextPaneWidget::propertyChanged);
+    connect(m_easingWidget, &EasingContextPane::removeProperty,
+            this, &ContextPaneWidget::removeProperty);
+    connect(m_easingWidget, &EasingContextPane::removeAndChangeProperty,
+            this, &ContextPaneWidget::removeAndChangeProperty);
 
     return m_easingWidget;
 }
@@ -450,9 +449,12 @@ QWidget* ContextPaneWidget::createEasingWidget()
 QWidget *ContextPaneWidget::createImageWidget()
 {
     m_imageWidget = new ContextPaneWidgetImage(this);
-    connect(m_imageWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
-    connect(m_imageWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_imageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
+    connect(m_imageWidget, &ContextPaneWidgetImage::propertyChanged,
+            this, &ContextPaneWidget::propertyChanged);
+    connect(m_imageWidget, &ContextPaneWidgetImage::removeProperty,
+            this, &ContextPaneWidget::removeProperty);
+    connect(m_imageWidget, &ContextPaneWidgetImage::removeAndChangeProperty,
+            this, &ContextPaneWidget::removeAndChangeProperty);
 
     return m_imageWidget;
 }
@@ -460,9 +462,12 @@ QWidget *ContextPaneWidget::createImageWidget()
 QWidget *ContextPaneWidget::createBorderImageWidget()
 {
     m_borderImageWidget = new ContextPaneWidgetImage(this, true);
-    connect(m_borderImageWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
-    connect(m_borderImageWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_borderImageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
+    connect(m_borderImageWidget, &ContextPaneWidgetImage::propertyChanged,
+            this, &ContextPaneWidget::propertyChanged);
+    connect(m_borderImageWidget, &ContextPaneWidgetImage::removeProperty,
+            this, &ContextPaneWidget::removeProperty);
+    connect(m_borderImageWidget, &ContextPaneWidgetImage::removeAndChangeProperty,
+            this, &ContextPaneWidget::removeAndChangeProperty);
 
     return m_borderImageWidget;
 
@@ -471,9 +476,12 @@ QWidget *ContextPaneWidget::createBorderImageWidget()
 QWidget *ContextPaneWidget::createRectangleWidget()
 {
     m_rectangleWidget = new ContextPaneWidgetRectangle(this);
-    connect(m_rectangleWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
-    connect(m_rectangleWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_rectangleWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
+    connect(m_rectangleWidget, &ContextPaneWidgetRectangle::propertyChanged,
+            this, &ContextPaneWidget::propertyChanged);
+    connect(m_rectangleWidget, &ContextPaneWidgetRectangle::removeProperty,
+            this, &ContextPaneWidget::removeProperty);
+    connect(m_rectangleWidget, &ContextPaneWidgetRectangle::removeAndChangeProperty,
+            this, &ContextPaneWidget::removeAndChangeProperty);
 
     return m_rectangleWidget;
 }

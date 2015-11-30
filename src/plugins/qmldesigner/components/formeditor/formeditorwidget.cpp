@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,25 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "formeditorwidget.h"
 #include "qmldesignerplugin.h"
 #include "designersettings.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignericons.h"
 
 #include <QWheelEvent>
 #include <QVBoxLayout>
@@ -40,6 +38,7 @@
 #include <formeditorscene.h>
 #include <formeditorview.h>
 #include <lineeditaction.h>
+#include <backgroundaction.h>
 
 #include <utils/fileutils.h>
 
@@ -49,7 +48,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     : QWidget(),
     m_formEditorView(view)
 {
-    setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/formeditorstylesheet.css")));
+    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/formeditorstylesheet.css"))));
 
     QVBoxLayout *fillLayout = new QVBoxLayout(this);
     fillLayout->setMargin(0);
@@ -68,21 +67,21 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_noSnappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_noSnappingAction->setCheckable(true);
     m_noSnappingAction->setChecked(true);
-    m_noSnappingAction->setIcon(QPixmap(":/icon/layout/no_snapping.png"));
+    m_noSnappingAction->setIcon(Icons::NO_SNAPPING.icon());
 
     m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items and generate anchors (W)."));
     m_snappingAndAnchoringAction->setShortcut(Qt::Key_W);
     m_snappingAndAnchoringAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_snappingAndAnchoringAction->setCheckable(true);
     m_snappingAndAnchoringAction->setChecked(true);
-    m_snappingAndAnchoringAction->setIcon(QPixmap(":/icon/layout/snapping_and_anchoring.png"));
+    m_snappingAndAnchoringAction->setIcon(Icons::NO_SNAPPING_AND_ANCHORING.icon());
 
     m_snappingAction = layoutActionGroup->addAction(tr("Snap to parent or sibling items but do not generate anchors (E)."));
     m_snappingAction->setShortcut(Qt::Key_E);
     m_snappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
-    m_snappingAction->setIcon(QPixmap(":/icon/layout/snapping.png"));
+    m_snappingAction->setIcon(Icons::SNAPPING.icon());
 
 
     addActions(layoutActionGroup->actions());
@@ -98,20 +97,15 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(true);
-    m_showBoundingRectAction->setIcon(QPixmap(":/icon/layout/boundingrect.png"));
+    m_showBoundingRectAction->setIcon(Icons::BOUNDING_RECT.icon());
 
     addAction(m_showBoundingRectAction.data());
     upperActions.append(m_showBoundingRectAction.data());
 
-    m_selectOnlyContentItemsAction = new QAction(tr("Only select items with content (S)."), this);
-    m_selectOnlyContentItemsAction->setShortcut(Qt::Key_S);
-    m_selectOnlyContentItemsAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_selectOnlyContentItemsAction->setCheckable(true);
-    m_selectOnlyContentItemsAction->setChecked(false);
-    m_selectOnlyContentItemsAction->setIcon(QPixmap(":/icon/selection/selectonlycontentitems.png"));
-
-    addAction(m_selectOnlyContentItemsAction.data());
-    upperActions.append(m_selectOnlyContentItemsAction.data());
+    separatorAction = new QAction(this);
+    separatorAction->setSeparator(true);
+    addAction(separatorAction);
+    upperActions.append(separatorAction);
 
     m_rootWidthAction = new LineEditAction(tr("Width"), this);
     connect(m_rootWidthAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemWidth(QString)));
@@ -127,6 +121,11 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     fillLayout->addWidget(m_toolBox.data());
     m_toolBox->setLeftSideActions(upperActions);
 
+    m_backgroundAction = new BackgroundAction(m_toolActionGroup.data());
+    connect(m_backgroundAction.data(), &BackgroundAction::backgroundChanged, this, &FormEditorWidget::changeBackgound);
+    addAction(m_backgroundAction.data());
+    upperActions.append(m_backgroundAction.data());
+    m_toolBox->addRightSideAction(m_backgroundAction.data());
 
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
     connect(m_zoomAction.data(), SIGNAL(zoomLevelChanged(double)), SLOT(setZoomLevel(double)));
@@ -137,7 +136,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_resetAction = new QAction(tr("Reset view (R)."), this);
     m_resetAction->setShortcut(Qt::Key_R);
     m_resetAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_resetAction->setIcon(QPixmap(":/icon/reset.png"));
+    m_resetAction->setIcon(Icons::RESET.icon());
     connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(resetNodeInstanceView()));
     addAction(m_resetAction.data());
     upperActions.append(m_resetAction.data());
@@ -146,7 +145,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_graphicsView = new FormEditorGraphicsView(this);
 
     fillLayout->addWidget(m_graphicsView.data());
-    m_graphicsView.data()->setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
+    m_graphicsView.data()->setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
 }
 
 void FormEditorWidget::changeTransformTool(bool checked)
@@ -176,10 +175,18 @@ void FormEditorWidget::changeRootItemHeight(const QString &heighText)
         m_formEditorView->rootModelNode().setAuxiliaryData("height", QVariant());
 }
 
+void FormEditorWidget::changeBackgound(const QColor &color)
+{
+    if (color.alpha() == 0)
+        m_graphicsView->activateCheckboardBackground();
+    else
+        m_graphicsView->activateColoredBackground(color);
+}
+
 void FormEditorWidget::resetNodeInstanceView()
 {
     m_formEditorView->setCurrentStateNode(m_formEditorView->rootModelNode());
-    m_formEditorView->emitCustomNotification(QLatin1String("reset QmlPuppet"));
+    m_formEditorView->resetPuppet();
 }
 
 void FormEditorWidget::wheelEvent(QWheelEvent *event)
@@ -240,11 +247,6 @@ QAction *FormEditorWidget::showBoundingRectAction() const
     return m_showBoundingRectAction.data();
 }
 
-QAction *FormEditorWidget::selectOnlyContentItemsAction() const
-{
-    return m_selectOnlyContentItemsAction.data();
-}
-
 QAction *FormEditorWidget::snappingAction() const
 {
     return m_snappingAction.data();
@@ -292,17 +294,10 @@ double FormEditorWidget::containerPadding() const
 
 QString FormEditorWidget::contextHelpId() const
 {
-    if (!m_formEditorView)
-        return QString();
+    if (m_formEditorView)
+        return m_formEditorView->contextHelpId();
 
-    QList<ModelNode> nodes = m_formEditorView->selectedModelNodes();
-    QString helpId;
-    if (!nodes.isEmpty()) {
-        helpId = nodes.first().type();
-        helpId.replace("QtQuick", "QML");
-    }
-
-    return helpId;
+    return QString();
 }
 
 void FormEditorWidget::setRootItemRect(const QRectF &rect)

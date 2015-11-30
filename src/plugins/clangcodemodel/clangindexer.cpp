@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,33 +9,32 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "clangindexer.h"
-#include "clangsymbolsearcher.h"
 #include "clangutils.h"
 #include "indexer.h"
-#include "liveunitsmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 
 #include <QDir>
@@ -52,14 +51,21 @@ ClangIndexingSupport::~ClangIndexingSupport()
 {
 }
 
-QFuture<void> ClangIndexingSupport::refreshSourceFiles(const QStringList &sourceFiles)
+QFuture<void> ClangIndexingSupport::refreshSourceFiles(
+        const QSet<QString> &sourceFiles,
+        CppTools::CppModelManager::ProgressNotificationMode mode)
 {
+    Q_UNUSED(mode);
+
     return m_indexer->refreshSourceFiles(sourceFiles);
 }
 
 CppTools::SymbolSearcher *ClangIndexingSupport::createSymbolSearcher(CppTools::SymbolSearcher::Parameters parameters, QSet<QString> fileNames)
 {
-    return new ClangSymbolSearcher(m_indexer, parameters, fileNames);
+    Q_UNUSED(parameters);
+    Q_UNUSED(fileNames)
+//    return new ClangSymbolSearcher(m_indexer, parameters, fileNames);
+    return 0;
 }
 
 ClangIndexer::ClangIndexer()
@@ -68,8 +74,8 @@ ClangIndexer::ClangIndexer()
     , m_isLoadingSession(false)
     , m_clangIndexer(new Indexer(this))
 {
-    connect(m_clangIndexer, SIGNAL(indexingStarted(QFuture<void>)),
-            this, SLOT(onIndexingStarted(QFuture<void>)));
+    connect(m_clangIndexer, SIGNAL(indexingStarted(QFuture<void>,Internal::ProgressNotificationMode)),
+            this, SLOT(onIndexingStarted(QFuture<void>,Internal::ProgressNotificationMode)));
 
     QObject *session = ProjectExplorer::SessionManager::instance();
 
@@ -91,19 +97,18 @@ CppTools::CppIndexingSupport *ClangIndexer::indexingSupport()
     return m_indexingSupport.data();
 }
 
-QFuture<void> ClangIndexer::refreshSourceFiles(const QStringList &sourceFiles)
+QFuture<void> ClangIndexer::refreshSourceFiles(const QSet<QString> &sourceFiles)
 {
     typedef CppTools::ProjectPart ProjectPart;
-    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
-    LiveUnitsManager *lum = LiveUnitsManager::instance();
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
     if (m_clangIndexer->isBusy())
         m_clangIndexer->cancel(true);
 
     foreach (const QString &file, sourceFiles) {
-        if (lum->isTracking(file))
+        if (m_clangIndexer->isTracking(file))
             continue; // we get notified separately about open files.
-        const QList<ProjectPart::Ptr> &parts = mmi->projectPart(file);
+        const QList<ProjectPart::Ptr> &parts = modelManager->projectPart(file);
         if (!parts.isEmpty())
             m_clangIndexer->addFile(file, parts.at(0));
         else
@@ -149,7 +154,7 @@ void ClangIndexer::indexNow(Unit::Ptr unit)
     typedef CppTools::ProjectPart ProjectPart;
 
     QString file = unit->fileName();
-    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
     const QList<ProjectPart::Ptr> &parts = mmi->projectPart(file);
     ProjectPart::Ptr part;
     if (!parts.isEmpty())
@@ -160,7 +165,8 @@ void ClangIndexer::indexNow(Unit::Ptr unit)
 
 void ClangIndexer::onIndexingStarted(QFuture<void> indexingFuture)
 {
-    Core::ICore::instance()->progressManager()->addTask(indexingFuture,
-                                                        tr("C++ Indexing"),
-                                                        QLatin1String("Key.Temp.Indexing"));
+    Core::ProgressManager::addTask(indexingFuture, QCoreApplication::translate(
+                                       "ClangCodeModel::Internal::ClangIndexer",
+                                       "Parsing C/C++/ObjC Files"),
+                                       "ClangCodeMode.Task.Indexing");
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 #include "servernodeinstance.h"
@@ -41,16 +37,16 @@
 #include "debugoutputcommand.h"
 
 #include "quickitemnodeinstance.h"
-#include "quickwindownodeinstance.h"
 
 #include "nodeinstanceserver.h"
 #include "instancecontainer.h"
+
+#include <qmlprivategate.h>
 
 #include <QHash>
 #include <QSet>
 #include <QDebug>
 #include <QQuickItem>
-#include <private/qqmlengine_p.h>
 
 #include <QQmlEngine>
 
@@ -127,23 +123,7 @@ bool ServerNodeInstance::isRootNodeInstance() const
 
 bool ServerNodeInstance::isSubclassOf(QObject *object, const QByteArray &superTypeName)
 {
-    if (object == 0)
-        return false;
-
-    const QMetaObject *metaObject = object->metaObject();
-
-    while (metaObject) {
-         QQmlType *qmlType =  QQmlMetaType::qmlType(metaObject);
-         if (qmlType && qmlType->qmlTypeName() == superTypeName) // ignore version numbers
-             return true;
-
-         if (metaObject->className() == superTypeName)
-             return true;
-
-         metaObject = metaObject->superClass();
-    }
-
-    return false;
+    return  Internal::QmlPrivateGate::isSubclassOf(object, superTypeName);
 }
 
 void ServerNodeInstance::setNodeSource(const QString &source)
@@ -153,7 +133,7 @@ void ServerNodeInstance::setNodeSource(const QString &source)
 
 bool ServerNodeInstance::holdsGraphical() const
 {
-    return m_nodeInstance->isGraphical();
+    return m_nodeInstance->isQuickItem();
 }
 
 void ServerNodeInstance::updateDirtyNodeRecursive()
@@ -198,8 +178,6 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
         instance = Internal::QmlTransitionNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuickBehavior"))
         instance = Internal::BehaviorNodeInstance::create(objectToBeWrapped);
-    else if (isSubclassOf(objectToBeWrapped, "QQuickWindow"))
-        instance = Internal::QuickWindowNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QObject"))
         instance = Internal::ObjectNodeInstance::create(objectToBeWrapped);
     else
@@ -216,19 +194,19 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
 
     QObject *object = 0;
     if (componentWrap == WrapAsComponent) {
-        object = Internal::ObjectNodeInstance::createComponentWrap(instanceContainer.nodeSource(), nodeInstanceServer->imports(), nodeInstanceServer->context());
+        object = Internal::ObjectNodeInstance::createComponentWrap(instanceContainer.nodeSource(), nodeInstanceServer->importCode(), nodeInstanceServer->context());
     } else if (!instanceContainer.nodeSource().isEmpty()) {
-        object = Internal::ObjectNodeInstance::createCustomParserObject(instanceContainer.nodeSource(), nodeInstanceServer->imports(), nodeInstanceServer->context());
+        object = Internal::ObjectNodeInstance::createCustomParserObject(instanceContainer.nodeSource(), nodeInstanceServer->importCode(), nodeInstanceServer->context());
         if (object == 0)
-            nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Custom parser object could not be created."));
+            nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Custom parser object could not be created."), instanceContainer.instanceId());
     } else if (!instanceContainer.componentPath().isEmpty()) {
         object = Internal::ObjectNodeInstance::createComponent(instanceContainer.componentPath(), nodeInstanceServer->context());
         if (object == 0)
-            nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QString("Component with path %1 could not be created.").arg(instanceContainer.componentPath()));
+            nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QString("Component with path %1 could not be created.").arg(instanceContainer.componentPath()), instanceContainer.instanceId());
     } else {
         object = Internal::ObjectNodeInstance::createPrimitive(instanceContainer.type(), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
         if (object == 0)
-            nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Item could not be created."));
+            nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Item could not be created."), instanceContainer.instanceId());
     }
 
     if (object == 0) {
@@ -242,8 +220,7 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
         }
    }
 
-
-    QQmlEnginePrivate::get(nodeInstanceServer->engine())->cache(object->metaObject());
+    Internal::QmlPrivateGate::getPropertyCache(object, nodeInstanceServer->engine());
 
     ServerNodeInstance instance(createInstance(object));
 
@@ -252,8 +229,6 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
     instance.internalInstance()->setInstanceId(instanceContainer.instanceId());
 
     instance.internalInstance()->initialize(instance.m_nodeInstance);
-
-    //QObject::connect(instance.internalObject(), SIGNAL(destroyed(QObject*)), nodeInstanceView, SLOT(removeIdFromContext(QObject*)));
 
     return instance;
 }
@@ -326,20 +301,8 @@ void ServerNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
 
 }
 
-void ServerNodeInstance::setPropertyDynamicVariant(const PropertyName &name, const TypeName &typeName, const QVariant &value)
-{
-    m_nodeInstance->createDynamicProperty(name, typeName);
-    m_nodeInstance->setPropertyVariant(name, value);
-}
-
 void ServerNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
-    m_nodeInstance->setPropertyBinding(name, expression);
-}
-
-void ServerNodeInstance::setPropertyDynamicBinding(const PropertyName &name, const TypeName &typeName, const QString &expression)
-{
-    m_nodeInstance->createDynamicProperty(name, typeName);
     m_nodeInstance->setPropertyBinding(name, expression);
 }
 
@@ -631,6 +594,16 @@ void ServerNodeInstance::doComponentComplete()
 QList<ServerNodeInstance> ServerNodeInstance::childItems() const
 {
     return m_nodeInstance->childItems();
+}
+
+QQuickItem *ServerNodeInstance::rootQuickItem() const
+{
+    return qobject_cast<QQuickItem*>(internalObject());
+}
+
+QList<QQuickItem *> ServerNodeInstance::allItemsRecursive() const
+{
+    return m_nodeInstance->allItemsRecursive();
 }
 
 QString ServerNodeInstance::id() const

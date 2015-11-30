@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -43,21 +44,32 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
+#include <coreplugin/messagebox.h>
+
+#include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
-#include <utils/fancylineedit.h>
-
-#include <QDebug>
-#include <QMetaProperty>
-#include <QMimeData>
+#include <utils/treemodel.h>
 
 #include <QApplication>
 #include <QClipboard>
+#include <QDebug>
 #include <QHeaderView>
+#include <QInputDialog>
 #include <QItemDelegate>
 #include <QMenu>
-#include <QInputDialog>
-#include <QMessageBox>
+#include <QMetaProperty>
+#include <QMimeData>
+#include <QScrollBar>
+#include <QTimer>
+#include <QTextStream>
+
+// For InputDialog, move to Utils?
+#include <coreplugin/helpmanager.h>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QButtonGroup>
+#include <QDialogButtonBox>
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -68,16 +80,11 @@
 namespace Debugger {
 namespace Internal {
 
-static DebuggerEngine *currentEngine()
-{
-    return debuggerCore()->currentEngine();
-}
-
 class WatchDelegate : public QItemDelegate
 {
 public:
-    explicit WatchDelegate(WatchTreeView *parent)
-        : QItemDelegate(parent), m_watchWindow(parent)
+    explicit WatchDelegate(QObject *parent)
+        : QItemDelegate(parent)
     {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
@@ -109,35 +116,11 @@ public:
         return lineEdit;
     }
 
-    void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const
-    {
-        // Standard handling for anything but the watcher name column (change
-        // expression), which removes/recreates a row, which cannot be done
-        // in model->setData().
-        if (index.column() != 0) {
-            QItemDelegate::setModelData(editor, model, index);
-            return;
-        }
-        const QMetaProperty userProperty = editor->metaObject()->userProperty();
-        QTC_ASSERT(userProperty.isValid(), return);
-        const QString value = editor->property(userProperty.name()).toString();
-        const QString exp = index.data(LocalsExpressionRole).toString();
-        if (exp == value)
-            return;
-        WatchHandler *handler = currentEngine()->watchHandler();
-        handler->removeData(index.data(LocalsINameRole).toByteArray());
-        m_watchWindow->watchExpression(value);
-    }
-
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
         const QModelIndex &) const
     {
         editor->setGeometry(option.rect);
     }
-
-private:
-    WatchTreeView *m_watchWindow;
 };
 
 // Watch model query helpers.
@@ -164,21 +147,6 @@ static inline QString typeOf(const QModelIndex &m)
 static inline uint sizeOf(const QModelIndex &m)
 {
     return m.data(LocalsSizeRole).toUInt();
-}
-
-// Create a map of value->name for register markup.
-typedef QMap<quint64, QString> RegisterMap;
-typedef RegisterMap::const_iterator RegisterMapConstIt;
-
-RegisterMap registerMap(const DebuggerEngine *engine)
-{
-    RegisterMap result;
-    foreach (const Register &reg, engine->registerHandler()->registers()) {
-        const QVariant v = reg.editValue();
-        if (v.type() == QVariant::ULongLong)
-            result.insert(v.toULongLong(), QString::fromLatin1(reg.name));
-    }
-    return result;
 }
 
 // Helper functionality to indicate the area of a member variable in
@@ -302,13 +270,12 @@ static MemoryMarkupList
     if (sizeIsEstimate && !childCount)
         return result; // Fixme: Exact size not known, no point in filling if no children.
     // Punch in registers as 1-byte markers on top.
-    const RegisterMapConstIt regcEnd = registerMap.constEnd();
-    for (RegisterMapConstIt it = registerMap.constBegin(); it != regcEnd; ++it) {
+    for (auto it = registerMap.constBegin(), end = registerMap.constEnd(); it != end; ++it) {
         if (it.key() >= address) {
             const quint64 offset = it.key() - address;
             if (offset < size) {
                 ranges[offset] = ColorNumberToolTip(registerColorNumber,
-                           WatchTreeView::tr("Register <i>%1</i>").arg(it.value()));
+                           WatchTreeView::tr("Register <i>%1</i>").arg(QString::fromUtf8(it.value())));
             } else {
                 break; // Sorted.
             }
@@ -369,27 +336,27 @@ static void addVariableMemoryView(DebuggerEngine *engine, bool separateView,
     const QPoint &p, QWidget *parent)
 {
     const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
-    const quint64 address = atPointerAddress ? pointerAddressOf(m) : addressOf(m);
+    MemoryViewSetupData data;
+    data.startAddress = atPointerAddress ? pointerAddressOf(m) : addressOf(m);
+    if (!data.startAddress)
+         return;
     // Fixme: Get the size of pointee (see variableMemoryMarkup())?
     const QString rootToolTip = variableToolTip(nameOf(m), typeOf(m), 0);
     const quint64 typeSize = sizeOf(m);
     const bool sizeIsEstimate = atPointerAddress || !typeSize;
     const quint64 size    = sizeIsEstimate ? 1024 : typeSize;
-    if (!address)
-         return;
-    const QList<MemoryMarkup> markup =
-        variableMemoryMarkup(m.model(), m, nameOf(m), rootToolTip,
-                             address, size,
-                             registerMap(engine),
+    data.markup = variableMemoryMarkup(m.model(), m, nameOf(m), rootToolTip,
+                             data.startAddress, size,
+                             engine->registerHandler()->registerMap(),
                              sizeIsEstimate, background);
-    const unsigned flags = separateView
-        ? DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly : 0;
-    const QString title = atPointerAddress
+    data.flags = separateView ? DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly : 0;
+    QString pat = atPointerAddress
         ?  WatchTreeView::tr("Memory at Pointer's Address \"%1\" (0x%2)")
-                .arg(nameOf(m)).arg(address, 0, 16)
-        : WatchTreeView::tr("Memory at Object's Address \"%1\" (0x%2)")
-                .arg(nameOf(m)).arg(address, 0, 16);
-    engine->openMemoryView(address, flags, markup, p, title, parent);
+        : WatchTreeView::tr("Memory at Object's Address \"%1\" (0x%2)");
+    data.title = pat.arg(nameOf(m)).arg(data.startAddress, 0, 16);
+    data.pos = p;
+    data.parent = parent;
+    engine->openMemoryView(data);
 }
 
 // Add a memory view of the stack layout showing local variables
@@ -425,16 +392,15 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
         end += 8 - remainder;
     // Anything found and everything in a sensible range (static data in-between)?
     if (end <= start || end - start > 100 * 1024) {
-        QMessageBox::information(parent,
+        Core::AsynchronousMessageBox::information(
             WatchTreeView::tr("Cannot Display Stack Layout"),
             WatchTreeView::tr("Could not determine a suitable address range."));
         return;
     }
     // Take a look at the register values. Extend the range a bit if suitable
     // to show stack/stack frame pointers.
-    const RegisterMap regMap = registerMap(engine);
-    const RegisterMapConstIt regcEnd = regMap.constEnd();
-    for (RegisterMapConstIt it = regMap.constBegin(); it != regcEnd; ++it) {
+    const RegisterMap regMap = engine->registerHandler()->registerMap();
+    for (auto it = regMap.constBegin(), cend = regMap.constEnd(); it != cend; ++it) {
         const quint64 value = it.key();
         if (value < start && start - value < 512)
             start = value;
@@ -442,16 +408,18 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
             end = value + 1;
     }
     // Indicate all variables.
+    MemoryViewSetupData data;
     const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
-    const MemoryMarkupList markup =
-        variableMemoryMarkup(m, localsIndex, QString(),
+    data.startAddress = start;
+    data.markup = variableMemoryMarkup(m, localsIndex, QString(),
                              QString(), start, end - start,
                              regMap, true, background);
-    const unsigned flags = separateView
+    data.flags = separateView
         ? (DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly) : 0;
-    const QString title =
-        WatchTreeView::tr("Memory Layout of Local Variables at 0x%1").arg(start, 0, 16);
-    engine->openMemoryView(start, flags, markup, p, title, parent);
+    data.title = WatchTreeView::tr("Memory Layout of Local Variables at 0x%1").arg(start, 0, 16);
+    data.pos = p;
+    data.parent = parent;
+    engine->openMemoryView(data);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -460,9 +428,8 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
 //
 /////////////////////////////////////////////////////////////////////
 
-WatchTreeView::WatchTreeView(Type type, QWidget *parent)
-  : BaseTreeView(parent),
-    m_type(type)
+WatchTreeView::WatchTreeView(WatchType type)
+  : m_type(type), m_sliderPosition(0)
 {
     setObjectName(QLatin1String("WatchWindow"));
     m_grabbing = false;
@@ -473,12 +440,9 @@ WatchTreeView::WatchTreeView(Type type, QWidget *parent)
     setDragEnabled(true);
     setAcceptDrops(true);
     setDropIndicatorShown(true);
-    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustLocalsColumnWidths));
 
-    connect(this, SIGNAL(expanded(QModelIndex)),
-        SLOT(expandNode(QModelIndex)));
-    connect(this, SIGNAL(collapsed(QModelIndex)),
-        SLOT(collapseNode(QModelIndex)));
+    connect(this, &QTreeView::expanded, this, &WatchTreeView::expandNode);
+    connect(this, &QTreeView::collapsed, this, &WatchTreeView::collapseNode);
 }
 
 void WatchTreeView::expandNode(const QModelIndex &idx)
@@ -496,7 +460,7 @@ void WatchTreeView::keyPressEvent(QKeyEvent *ev)
     if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {
         WatchHandler *handler = currentEngine()->watchHandler();
         foreach (const QModelIndex &idx, activeRows())
-            handler->removeData(idx.data(LocalsINameRole).toByteArray());
+            handler->removeItemByIName(idx.data(LocalsINameRole).toByteArray());
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
             && m_type == LocalsType) {
@@ -545,8 +509,7 @@ void WatchTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     const QModelIndex idx = indexAt(ev->pos());
     if (!idx.isValid()) {
-        // The "<Edit>" case.
-        watchExpression(QString());
+        inputNewExpression();
         return;
     }
     BaseTreeView::mouseDoubleClickEvent(ev);
@@ -584,108 +547,125 @@ static void copyToClipboard(const QString &clipboardText)
     clipboard->setText(clipboardText, QClipboard::Clipboard);
 }
 
+void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
+{
+    QTC_CHECK(mi.isValid());
+
+    const QModelIndex mi2 = mi.sibling(mi.row(), 2);
+    const QString type = mi2.data().toString();
+
+    const DisplayFormats alternativeFormats =
+        mi.data(LocalsTypeFormatListRole).value<DisplayFormats>();
+    const int typeFormat = mi.data(LocalsTypeFormatRole).toInt();
+    const int individualFormat = mi.data(LocalsIndividualFormatRole).toInt();
+    const int unprintableBase = WatchHandler::unprintableBase();
+
+    QAction *showUnprintableUnicode = 0;
+    QAction *showUnprintableEscape = 0;
+    QAction *showUnprintableOctal = 0;
+    QAction *showUnprintableHexadecimal = 0;
+    showUnprintableUnicode =
+        formatMenu->addAction(tr("Treat All Characters as Printable"));
+    showUnprintableUnicode->setCheckable(true);
+    showUnprintableUnicode->setChecked(unprintableBase == 0);
+    showUnprintableEscape =
+        formatMenu->addAction(tr("Show Unprintable Characters as Escape Sequences"));
+    showUnprintableEscape->setCheckable(true);
+    showUnprintableEscape->setChecked(unprintableBase == -1);
+    showUnprintableOctal =
+        formatMenu->addAction(tr("Show Unprintable Characters as Octal"));
+    showUnprintableOctal->setCheckable(true);
+    showUnprintableOctal->setChecked(unprintableBase == 8);
+    showUnprintableHexadecimal =
+        formatMenu->addAction(tr("Show Unprintable Characters as Hexadecimal"));
+    showUnprintableHexadecimal->setCheckable(true);
+    showUnprintableHexadecimal->setChecked(unprintableBase == 16);
+
+    connect(showUnprintableUnicode, &QAction::triggered, [this] { showUnprintable(0); });
+    connect(showUnprintableEscape, &QAction::triggered, [this] { showUnprintable(-1); });
+    connect(showUnprintableOctal, &QAction::triggered, [this] { showUnprintable(8); });
+    connect(showUnprintableHexadecimal, &QAction::triggered, [this] { showUnprintable(16); });
+
+    const QString spacer = QLatin1String("     ");
+    formatMenu->addSeparator();
+    QAction *dummy = formatMenu->addAction(
+        tr("Change Display for Object Named \"%1\":").arg(mi.data().toString()));
+    dummy->setEnabled(false);
+    QString msg = (individualFormat == AutomaticFormat && typeFormat != AutomaticFormat)
+        ? tr("Use Format for Type (Currently %1)")
+            .arg(WatchHandler::nameForFormat(typeFormat))
+        : QString(tr("Use Display Format Based on Type") + QLatin1Char(' '));
+
+    QAction *clearIndividualFormatAction = formatMenu->addAction(spacer + msg);
+    clearIndividualFormatAction->setCheckable(true);
+    clearIndividualFormatAction->setChecked(individualFormat == AutomaticFormat);
+    connect(clearIndividualFormatAction, &QAction::triggered, [this] {
+        const QModelIndexList active = activeRows();
+        foreach (const QModelIndex &idx, active)
+            setModelData(LocalsIndividualFormatRole, AutomaticFormat, idx);
+    });
+
+    for (int i = 0; i != alternativeFormats.size(); ++i) {
+        const int format = alternativeFormats.at(i);
+        const QString display = spacer + WatchHandler::nameForFormat(format);
+        QAction *act = new QAction(display, formatMenu);
+        act->setCheckable(true);
+        act->setChecked(format == individualFormat);
+        formatMenu->addAction(act);
+        connect(act, &QAction::triggered, [this, act, format, mi] {
+            setModelData(LocalsIndividualFormatRole, format, mi);
+        });
+    }
+
+    formatMenu->addSeparator();
+    dummy = formatMenu->addAction(tr("Change Display for Type \"%1\":").arg(type));
+    dummy->setEnabled(false);
+
+    QAction *clearTypeFormatAction = formatMenu->addAction(spacer + tr("Automatic"));
+    clearTypeFormatAction->setCheckable(true);
+    clearTypeFormatAction->setChecked(typeFormat == AutomaticFormat);
+    connect(clearTypeFormatAction, &QAction::triggered, [this] {
+        const QModelIndexList active = activeRows();
+        foreach (const QModelIndex &idx, active)
+            setModelData(LocalsTypeFormatRole, AutomaticFormat, idx);
+    });
+
+    for (int i = 0; i != alternativeFormats.size(); ++i) {
+        const int format = alternativeFormats.at(i);
+        const QString display = spacer + WatchHandler::nameForFormat(format);
+        QAction *act = new QAction(display, formatMenu);
+        act->setCheckable(true);
+        act->setChecked(format == typeFormat);
+        formatMenu->addAction(act);
+        connect(act, &QAction::triggered, [this, act, format, mi] {
+            setModelData(LocalsTypeFormatRole, format, mi);
+        });
+    }
+}
+
+void WatchTreeView::showUnprintable(int base)
+{
+    DebuggerEngine *engine = currentEngine();
+    WatchHandler *handler = engine->watchHandler();
+    handler->setUnprintableBase(base);
+}
+
 void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     DebuggerEngine *engine = currentEngine();
     WatchHandler *handler = engine->watchHandler();
 
-    const QModelIndexList active = activeRows();
     const QModelIndex idx = indexAt(ev->pos());
     const QModelIndex mi0 = idx.sibling(idx.row(), 0);
     const QModelIndex mi1 = idx.sibling(idx.row(), 1);
-    const QModelIndex mi2 = idx.sibling(idx.row(), 2);
     const quint64 address = addressOf(mi0);
     const uint size = sizeOf(mi0);
     const quint64 pointerAddress = pointerAddressOf(mi0);
     const QString exp = mi0.data(LocalsExpressionRole).toString();
     const QString name = mi0.data(LocalsNameRole).toString();
-    const QString type = mi2.data().toString();
 
     // Offer to open address pointed to or variable address.
     const bool createPointerActions = pointerAddress && pointerAddress != address;
-
-    const QStringList alternativeFormats =
-        mi0.data(LocalsTypeFormatListRole).toStringList();
-    int typeFormat =
-        mi0.data(LocalsTypeFormatRole).toInt();
-    if (typeFormat >= alternativeFormats.size())
-        typeFormat = -1;
-    const int individualFormat =
-        mi0.data(LocalsIndividualFormatRole).toInt();
-    const int unprintableBase = handler->unprintableBase();
-
-    QMenu formatMenu;
-    QList<QAction *> typeFormatActions;
-    QList<QAction *> individualFormatActions;
-    QAction *clearTypeFormatAction = 0;
-    QAction *clearIndividualFormatAction = 0;
-    QAction *showUnprintableUnicode = 0;
-    QAction *showUnprintableEscape = 0;
-    QAction *showUnprintableOctal = 0;
-    QAction *showUnprintableHexadecimal = 0;
-    formatMenu.setTitle(tr("Change Local Display Format..."));
-    showUnprintableUnicode =
-        formatMenu.addAction(tr("Treat All Characters as Printable"));
-    showUnprintableUnicode->setCheckable(true);
-    showUnprintableUnicode->setChecked(unprintableBase == 0);
-    showUnprintableEscape =
-        formatMenu.addAction(tr("Show Unprintable Characters as Escape Sequences"));
-    showUnprintableEscape->setCheckable(true);
-    showUnprintableEscape->setChecked(unprintableBase == -1);
-    showUnprintableOctal =
-        formatMenu.addAction(tr("Show Unprintable Characters as Octal"));
-    showUnprintableOctal->setCheckable(true);
-    showUnprintableOctal->setChecked(unprintableBase == 8);
-    showUnprintableHexadecimal =
-        formatMenu.addAction(tr("Show Unprintable Characters as Hexadecimal"));
-    showUnprintableHexadecimal->setCheckable(true);
-    showUnprintableHexadecimal->setChecked(unprintableBase == 16);
-    if (idx.isValid() /*&& !alternativeFormats.isEmpty() */) {
-        const QString spacer = QLatin1String("     ");
-        formatMenu.addSeparator();
-        QAction *dummy = formatMenu.addAction(
-            tr("Change Display for Object Named \"%1\":").arg(mi0.data().toString()));
-        dummy->setEnabled(false);
-        QString msg = (individualFormat == -1 && typeFormat != -1)
-            ? tr("Use Format for Type (Currently %1)")
-                .arg(alternativeFormats.at(typeFormat))
-            : tr("Use Display Format Based on Type") + QLatin1Char(' ');
-        clearIndividualFormatAction = formatMenu.addAction(spacer + msg);
-        clearIndividualFormatAction->setCheckable(true);
-        clearIndividualFormatAction->setChecked(individualFormat == -1);
-        for (int i = 0; i != alternativeFormats.size(); ++i) {
-            const QString format = spacer + alternativeFormats.at(i);
-            QAction *act = new QAction(format, &formatMenu);
-            act->setCheckable(true);
-            if (i == individualFormat)
-                act->setChecked(true);
-            formatMenu.addAction(act);
-            individualFormatActions.append(act);
-        }
-        formatMenu.addSeparator();
-        dummy = formatMenu.addAction(
-            tr("Change Display for Type \"%1\":").arg(type));
-        dummy->setEnabled(false);
-        clearTypeFormatAction = formatMenu.addAction(spacer + tr("Automatic"));
-        //clearTypeFormatAction->setEnabled(typeFormat != -1);
-        //clearTypeFormatAction->setEnabled(individualFormat != -1);
-        clearTypeFormatAction->setCheckable(true);
-        clearTypeFormatAction->setChecked(typeFormat == -1);
-        for (int i = 0; i != alternativeFormats.size(); ++i) {
-            const QString format = spacer + alternativeFormats.at(i);
-            QAction *act = new QAction(format, &formatMenu);
-            act->setCheckable(true);
-            //act->setEnabled(individualFormat != -1);
-            if (i == typeFormat)
-                act->setChecked(true);
-            formatMenu.addAction(act);
-            typeFormatActions.append(act);
-        }
-    } else {
-        QAction *dummy = formatMenu.addAction(
-            tr("Change Display for Type or Item..."));
-        dummy->setEnabled(false);
-    }
 
     const bool actionsEnabled = engine->debuggerActionsEnabled();
     const bool canHandleWatches = engine->hasCapability(AddWatcherCapability);
@@ -695,69 +675,58 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         || state == InferiorUnrunnable
         || (state == InferiorRunOk && engine->hasCapability(AddWatcherWhileRunningCapability));
 
-    QMenu breakpointMenu;
-    breakpointMenu.setTitle(tr("Add Data Breakpoint..."));
-    QAction *actSetWatchpointAtObjectAddress = 0;
-    QAction *actSetWatchpointAtPointerAddress = 0;
+    QAction actSetWatchpointAtObjectAddress(0);
+    QAction actSetWatchpointAtPointerAddress(0);
+    actSetWatchpointAtPointerAddress.setText(tr("Add Data Breakpoint at Pointer's Address"));
+    actSetWatchpointAtPointerAddress.setEnabled(false);
     const bool canSetWatchpoint = engine->hasCapability(WatchpointByAddressCapability);
     if (canSetWatchpoint && address) {
-        actSetWatchpointAtObjectAddress =
-            new QAction(tr("Add Data Breakpoint at Object's Address (0x%1)")
-                .arg(address, 0, 16), &breakpointMenu);
-        actSetWatchpointAtObjectAddress->
-            setChecked(mi0.data(LocalsIsWatchpointAtObjectAddressRole).toBool());
+        actSetWatchpointAtObjectAddress
+            .setText(tr("Add Data Breakpoint at Object's Address (0x%1)").arg(address, 0, 16));
+        actSetWatchpointAtObjectAddress
+            .setChecked(mi0.data(LocalsIsWatchpointAtObjectAddressRole).toBool());
         if (createPointerActions) {
-            actSetWatchpointAtPointerAddress =
-                new QAction(tr("Add Data Breakpoint at Pointer's Address (0x%1)")
-                    .arg(pointerAddress, 0, 16), &breakpointMenu);
-            actSetWatchpointAtPointerAddress->setCheckable(true);
-            actSetWatchpointAtPointerAddress->
-                setChecked(mi0.data(LocalsIsWatchpointAtPointerAddressRole).toBool());
+            actSetWatchpointAtPointerAddress
+                .setText(tr("Add Data Breakpoint at Pointer's Address (0x%1)")
+                    .arg(pointerAddress, 0, 16));
+            actSetWatchpointAtPointerAddress
+                .setChecked(mi0.data(LocalsIsWatchpointAtPointerAddressRole).toBool());
+            actSetWatchpointAtPointerAddress.setEnabled(true);
         }
     } else {
-        actSetWatchpointAtObjectAddress =
-            new QAction(tr("Add Data Breakpoint"), &breakpointMenu);
-        actSetWatchpointAtObjectAddress->setEnabled(false);
+        actSetWatchpointAtObjectAddress.setText(tr("Add Data Breakpoint"));
+        actSetWatchpointAtObjectAddress.setEnabled(false);
     }
-    actSetWatchpointAtObjectAddress->setToolTip(
+    actSetWatchpointAtObjectAddress.setToolTip(
         tr("Setting a data breakpoint on an address will cause the program "
            "to stop when the data at the address is modified."));
 
-    QAction *actSetWatchpointAtExpression = 0;
+    QAction actSetWatchpointAtExpression(0);
     const bool canSetWatchpointAtExpression = engine->hasCapability(WatchpointByExpressionCapability);
     if (name.isEmpty() || !canSetWatchpointAtExpression) {
-        actSetWatchpointAtExpression =
-            new QAction(tr("Add Data Breakpoint at Expression"),
-                &breakpointMenu);
-        actSetWatchpointAtExpression->setEnabled(false);
+        actSetWatchpointAtExpression.setText(tr("Add Data Breakpoint at Expression"));
+        actSetWatchpointAtExpression.setEnabled(false);
     } else {
-        actSetWatchpointAtExpression =
-            new QAction(tr("Add Data Breakpoint at Expression \"%1\"").arg(name),
-                &breakpointMenu);
+        actSetWatchpointAtExpression.setText(tr("Add Data Breakpoint at Expression \"%1\"").arg(name));
     }
-    actSetWatchpointAtExpression->setToolTip(
+    actSetWatchpointAtExpression.setToolTip(
         tr("Setting a data breakpoint on an expression will cause the program "
            "to stop when the data at the address given by the expression "
            "is modified."));
 
-    breakpointMenu.addAction(actSetWatchpointAtObjectAddress);
-    if (actSetWatchpointAtPointerAddress)
-        breakpointMenu.addAction(actSetWatchpointAtPointerAddress);
-    breakpointMenu.addAction(actSetWatchpointAtExpression);
+    QAction actInsertNewWatchItem(tr("Add New Expression Evaluator..."), 0);
+    actInsertNewWatchItem.setEnabled(canHandleWatches && canInsertWatches);
 
-    QMenu menu;
-    QAction *actInsertNewWatchItem =
-        menu.addAction(tr("Insert New Expression Evaluator"));
-    actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
-    QAction *actSelectWidgetToWatch =
-        menu.addAction(tr("Select Widget to Add into Expression Evaluator"));
-    actSelectWidgetToWatch->setEnabled(canHandleWatches && canInsertWatches
+    QAction actSelectWidgetToWatch(tr("Select Widget to Add into Expression Evaluator"), 0);
+    actSelectWidgetToWatch.setEnabled(canHandleWatches && canInsertWatches
            && engine->hasCapability(WatchWidgetsCapability));
 
-    menu.addSeparator();
-
-    QAction *actWatchExpression = new QAction(addWatchActionText(exp), &menu);
-    actWatchExpression->setEnabled(canHandleWatches && !exp.isEmpty());
+    bool canAddWatches = canHandleWatches && !exp.isEmpty();
+    // Suppress for top-level watchers.
+    if (m_type == WatchersType && mi0.parent().isValid() && !mi0.parent().parent().isValid())
+        canAddWatches = false;
+    QAction actWatchExpression(addWatchActionText(exp), 0);
+    actWatchExpression.setEnabled(canAddWatches);
 
     // Can remove watch if engine can handle it or session engine.
     QModelIndex p = mi0;
@@ -767,190 +736,182 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
             break;
         p = pp;
     }
+
+    bool canRemoveWatches = ((canHandleWatches && canInsertWatches) || state == DebuggerNotReady)
+                             && m_type == WatchersType;
+
     QString removeExp = p.data(LocalsExpressionRole).toString();
-    QAction *actRemoveWatchExpression = new QAction(removeWatchActionText(removeExp), &menu);
-    actRemoveWatchExpression->setEnabled(
-        (canHandleWatches || state == DebuggerNotReady) && !exp.isEmpty());
-    QAction *actRemoveWatches =
-        new QAction(tr("Remove All Expression Evaluators"), &menu);
-    actRemoveWatches->setEnabled(!WatchHandler::watcherNames().isEmpty());
+    QAction actRemoveWatchExpression(removeWatchActionText(removeExp), 0);
+    actRemoveWatchExpression.setEnabled(canRemoveWatches && !exp.isEmpty());
 
-    if (m_type == LocalsType) {
-        menu.addAction(actWatchExpression);
-    } else if (m_type == WatchersType) {
-        menu.addAction(actRemoveWatchExpression);
-        menu.addAction(actRemoveWatches);
-    }
+    QAction actRemoveAllWatchExpression(tr("Remove All Expression Evaluators"), 0);
+    actRemoveAllWatchExpression.setEnabled(canRemoveWatches
+                                           && !handler->watchedExpressions().isEmpty());
 
-    QMenu memoryMenu;
-    memoryMenu.setTitle(tr("Open Memory Editor..."));
-    QAction *actOpenMemoryEditAtObjectAddress = new QAction(&memoryMenu);
-    QAction *actOpenMemoryEditAtPointerAddress = new QAction(&memoryMenu);
-    QAction *actOpenMemoryEditor = new QAction(&memoryMenu);
-    QAction *actOpenMemoryEditorStackLayout = new QAction(&memoryMenu);
-    QAction *actOpenMemoryViewAtObjectAddress = new QAction(&memoryMenu);
-    QAction *actOpenMemoryViewAtPointerAddress = new QAction(&memoryMenu);
+    QMenu formatMenu(tr("Change Value Display Format"));
+    if (mi0.isValid())
+        fillFormatMenu(&formatMenu, mi0);
+    else
+        formatMenu.setEnabled(false);
+
+    QMenu memoryMenu(tr("Open Memory Editor"));
+    QAction actOpenMemoryEditAtObjectAddress(0);
+    QAction actOpenMemoryEditAtPointerAddress(0);
+    QAction actOpenMemoryEditor(0);
+    QAction actOpenMemoryEditorStackLayout(0);
+    QAction actOpenMemoryViewAtObjectAddress(0);
+    QAction actOpenMemoryViewAtPointerAddress(0);
     if (engine->hasCapability(ShowMemoryCapability)) {
-        actOpenMemoryEditor->setText(tr("Open Memory Editor..."));
+        actOpenMemoryEditor.setText(tr("Open Memory Editor..."));
         if (address) {
-            actOpenMemoryEditAtObjectAddress->setText(
+            actOpenMemoryEditAtObjectAddress.setText(
                 tr("Open Memory Editor at Object's Address (0x%1)")
                     .arg(address, 0, 16));
-            actOpenMemoryViewAtObjectAddress->setText(
+            actOpenMemoryViewAtObjectAddress.setText(
                     tr("Open Memory View at Object's Address (0x%1)")
                         .arg(address, 0, 16));
         } else {
-            actOpenMemoryEditAtObjectAddress->setText(
+            actOpenMemoryEditAtObjectAddress.setText(
                 tr("Open Memory Editor at Object's Address"));
-            actOpenMemoryEditAtObjectAddress->setEnabled(false);
-            actOpenMemoryViewAtObjectAddress->setText(
+            actOpenMemoryEditAtObjectAddress.setEnabled(false);
+            actOpenMemoryViewAtObjectAddress.setText(
                     tr("Open Memory View at Object's Address"));
-            actOpenMemoryViewAtObjectAddress->setEnabled(false);
+            actOpenMemoryViewAtObjectAddress.setEnabled(false);
         }
         if (createPointerActions) {
-            actOpenMemoryEditAtPointerAddress->setText(
+            actOpenMemoryEditAtPointerAddress.setText(
                 tr("Open Memory Editor at Pointer's Address (0x%1)")
                     .arg(pointerAddress, 0, 16));
-            actOpenMemoryViewAtPointerAddress->setText(
+            actOpenMemoryViewAtPointerAddress.setText(
                 tr("Open Memory View at Pointer's Address (0x%1)")
                     .arg(pointerAddress, 0, 16));
         } else {
-            actOpenMemoryEditAtPointerAddress->setText(
+            actOpenMemoryEditAtPointerAddress.setText(
                 tr("Open Memory Editor at Pointer's Address"));
-            actOpenMemoryEditAtPointerAddress->setEnabled(false);
-            actOpenMemoryViewAtPointerAddress->setText(
+            actOpenMemoryEditAtPointerAddress.setEnabled(false);
+            actOpenMemoryViewAtPointerAddress.setText(
                 tr("Open Memory View at Pointer's Address"));
-            actOpenMemoryViewAtPointerAddress->setEnabled(false);
+            actOpenMemoryViewAtPointerAddress.setEnabled(false);
         }
-        actOpenMemoryEditorStackLayout->setText(
+        actOpenMemoryEditorStackLayout.setText(
             tr("Open Memory Editor Showing Stack Layout"));
-        actOpenMemoryEditorStackLayout->setEnabled(m_type == LocalsType);
-        memoryMenu.addAction(actOpenMemoryViewAtObjectAddress);
-        memoryMenu.addAction(actOpenMemoryViewAtPointerAddress);
-        memoryMenu.addAction(actOpenMemoryEditAtObjectAddress);
-        memoryMenu.addAction(actOpenMemoryEditAtPointerAddress);
-        memoryMenu.addAction(actOpenMemoryEditorStackLayout);
-        memoryMenu.addAction(actOpenMemoryEditor);
+        actOpenMemoryEditorStackLayout.setEnabled(m_type == LocalsType);
+        memoryMenu.addAction(&actOpenMemoryViewAtObjectAddress);
+        memoryMenu.addAction(&actOpenMemoryViewAtPointerAddress);
+        memoryMenu.addAction(&actOpenMemoryEditAtObjectAddress);
+        memoryMenu.addAction(&actOpenMemoryEditAtPointerAddress);
+        memoryMenu.addAction(&actOpenMemoryEditorStackLayout);
+        memoryMenu.addAction(&actOpenMemoryEditor);
     } else {
         memoryMenu.setEnabled(false);
     }
 
-    QAction *actCopy = new QAction(tr("Copy Contents to Clipboard"), &menu);
-    QAction *actCopyValue = new QAction(tr("Copy Value to Clipboard"), &menu);
-    actCopyValue->setEnabled(idx.isValid());
+    QMenu breakpointMenu;
+    breakpointMenu.setTitle(tr("Add Data Breakpoint"));
+    breakpointMenu.addAction(&actSetWatchpointAtObjectAddress);
+    breakpointMenu.addAction(&actSetWatchpointAtPointerAddress);
+    breakpointMenu.addAction(&actSetWatchpointAtExpression);
+    breakpointMenu.setEnabled(actSetWatchpointAtObjectAddress.isEnabled()
+                              || actSetWatchpointAtPointerAddress.isEnabled()
+                              || actSetWatchpointAtExpression.isEnabled());
 
+    QAction actCopy(tr("Copy View Contents to Clipboard"), 0);
+    QAction actCopyValue(tr("Copy Value to Clipboard"), 0);
+    actCopyValue.setEnabled(idx.isValid());
 
-    menu.addAction(actInsertNewWatchItem);
-    menu.addAction(actSelectWidgetToWatch);
+    QAction actShowInEditor(tr("Open View Contents in Editor"), 0);
+    actShowInEditor.setEnabled(actionsEnabled);
+    QAction actCloseEditorToolTips(tr("Close Editor Tooltips"), 0);
+    actCloseEditorToolTips.setEnabled(DebuggerToolTipManager::hasToolTips());
+
+    QMenu menu;
+    menu.addAction(&actInsertNewWatchItem);
+    menu.addAction(&actWatchExpression);
+    menu.addAction(&actRemoveWatchExpression);
+    menu.addAction(&actRemoveAllWatchExpression);
+    menu.addAction(&actSelectWidgetToWatch);
+    menu.addSeparator();
+
     menu.addMenu(&formatMenu);
     menu.addMenu(&memoryMenu);
     menu.addMenu(&breakpointMenu);
-    menu.addAction(actCopy);
-    menu.addAction(actCopyValue);
     menu.addSeparator();
 
-    menu.addAction(debuggerCore()->action(UseDebuggingHelpers));
-    menu.addAction(debuggerCore()->action(UseToolTipsInLocalsView));
-    menu.addAction(debuggerCore()->action(AutoDerefPointers));
-    menu.addAction(debuggerCore()->action(SortStructMembers));
-    menu.addAction(debuggerCore()->action(UseDynamicType));
+    menu.addAction(&actCloseEditorToolTips);
+    menu.addAction(&actCopy);
+    menu.addAction(&actCopyValue);
+    menu.addAction(&actShowInEditor);
+    menu.addSeparator();
 
-    QAction *actShowInEditor
-        = new QAction(tr("Show View Contents in Editor"), &menu);
-    actShowInEditor->setEnabled(actionsEnabled);
-    menu.addAction(actShowInEditor);
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    menu.addAction(action(UseDebuggingHelpers));
+    menu.addAction(action(UseToolTipsInLocalsView));
+    menu.addAction(action(AutoDerefPointers));
+    menu.addAction(action(SortStructMembers));
+    menu.addAction(action(UseDynamicType));
+    menu.addAction(action(SettingsDialog));
 
-    QAction *actCloseEditorToolTips =
-        new QAction(tr("Close Editor Tooltips"), &menu);
-    actCloseEditorToolTips->setEnabled(DebuggerToolTipManager::hasToolTips());
-    menu.addAction(actCloseEditorToolTips);
-
-    addBaseContextActions(&menu);
+    menu.addSeparator();
+    menu.addAction(action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 
     if (!act) {
         ;
-    } else if (act == actInsertNewWatchItem) {
-        bool ok;
-        QString newExp = QInputDialog::getText(this, tr("Enter Expression for Evaluator"),
-                                   tr("Expression:"), QLineEdit::Normal,
-                                   QString(), &ok);
-        if (ok && !newExp.isEmpty())
-            watchExpression(newExp);
-    } else if (act == actOpenMemoryEditAtObjectAddress) {
+    } else if (act == &actInsertNewWatchItem) {
+        inputNewExpression();
+    } else if (act == &actOpenMemoryEditAtObjectAddress) {
         addVariableMemoryView(currentEngine(), false, mi0, false, ev->globalPos(), this);
-    } else if (act == actOpenMemoryEditAtPointerAddress) {
+    } else if (act == &actOpenMemoryEditAtPointerAddress) {
         addVariableMemoryView(currentEngine(), false, mi0, true, ev->globalPos(), this);
-    } else if (act == actOpenMemoryEditor) {
+    } else if (act == &actOpenMemoryEditor) {
         AddressDialog dialog;
         if (address)
             dialog.setAddress(address);
-        if (dialog.exec() == QDialog::Accepted)
-            currentEngine()->openMemoryView(dialog.address(), false, MemoryMarkupList(), QPoint());
-    } else if (act == actOpenMemoryViewAtObjectAddress) {
+        if (dialog.exec() == QDialog::Accepted) {
+            MemoryViewSetupData data;
+            data.startAddress = dialog.address();
+            currentEngine()->openMemoryView(data);
+        }
+    } else if (act == &actOpenMemoryViewAtObjectAddress) {
         addVariableMemoryView(currentEngine(), true, mi0, false, ev->globalPos(), this);
-    } else if (act == actOpenMemoryViewAtPointerAddress) {
+    } else if (act == &actOpenMemoryViewAtPointerAddress) {
         addVariableMemoryView(currentEngine(), true, mi0, true, ev->globalPos(), this);
-    } else if (act == actOpenMemoryEditorStackLayout) {
+    } else if (act == &actOpenMemoryEditorStackLayout) {
         addStackLayoutMemoryView(currentEngine(), false, model(), ev->globalPos(), this);
-    } else if (act == actSetWatchpointAtObjectAddress) {
+    } else if (act == &actSetWatchpointAtObjectAddress) {
         breakHandler()->setWatchpointAtAddress(address, size);
-    } else if (act == actSetWatchpointAtPointerAddress) {
+    } else if (act == &actSetWatchpointAtPointerAddress) {
         breakHandler()->setWatchpointAtAddress(pointerAddress, sizeof(void *)); // FIXME: an approximation..
-    } else if (act == actSetWatchpointAtExpression) {
+    } else if (act == &actSetWatchpointAtExpression) {
         breakHandler()->setWatchpointAtExpression(name);
-    } else if (act == actSelectWidgetToWatch) {
+    } else if (act == &actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
-    } else if (act == actWatchExpression) {
+    } else if (act == &actWatchExpression) {
         watchExpression(exp, name);
-    } else if (act == actRemoveWatchExpression) {
-        handler->removeData(p.data(LocalsINameRole).toByteArray());
-    } else if (act == actCopy) {
-        copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
-    } else if (act == actCopyValue) {
-        copyToClipboard(mi1.data().toString());
-    } else if (act == actRemoveWatches) {
+    } else if (act == &actRemoveWatchExpression) {
+        handler->removeItemByIName(p.data(LocalsINameRole).toByteArray());
+    } else if (act == &actRemoveAllWatchExpression) {
         handler->clearWatches();
-    } else if (act == clearTypeFormatAction) {
-        foreach (const QModelIndex &idx, active)
-            setModelData(LocalsTypeFormatRole, -1, idx);
-    } else if (act == clearIndividualFormatAction) {
-        foreach (const QModelIndex &idx, active)
-            setModelData(LocalsIndividualFormatRole, -1, idx);
-    } else if (act == actShowInEditor) {
+    } else if (act == &actCopy) {
+        QString text;
+        QTextStream str(&text);
+        handler->model()->rootItem()->walkTree([&str](Utils::TreeItem *item) {
+            str << QString(item->level(), QLatin1Char('\t'))
+                << item->data(0, Qt::DisplayRole).toString() << '\t'
+                << item->data(1, Qt::DisplayRole).toString() << '\t'
+                << item->data(2, Qt::DisplayRole).toString() << '\n';
+        });
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(text, QClipboard::Selection);
+        clipboard->setText(text, QClipboard::Clipboard);
+    } else if (act == &actCopyValue) {
+        copyToClipboard(mi1.data().toString());
+    } else if (act == &actShowInEditor) {
         QString contents = handler->editorContents();
-        debuggerCore()->openTextEditor(tr("Locals & Expressions"), contents);
-    } else if (act == showUnprintableUnicode) {
-        handler->setUnprintableBase(0);
-    } else if (act == showUnprintableEscape) {
-        handler->setUnprintableBase(-1);
-    } else if (act == showUnprintableOctal) {
-        handler->setUnprintableBase(8);
-    } else if (act == showUnprintableHexadecimal) {
-        handler->setUnprintableBase(16);
-    } else if (act == actCloseEditorToolTips) {
+        Internal::openTextEditor(tr("Locals & Expressions"), contents);
+    } else if (act == &actCloseEditorToolTips) {
         DebuggerToolTipManager::closeAllToolTips();
-    } else if (handleBaseContextAction(act)) {
-        ;
-    } else {
-        // Restrict multiple changes to items of the same type
-        // to avoid assigning illegal formats.
-        const QVariant currentType = mi1.data(LocalsTypeRole);
-        for (int i = 0; i != typeFormatActions.size(); ++i) {
-            if (act == typeFormatActions.at(i))
-                foreach (const QModelIndex &idx, active)
-                    if (idx.data(LocalsTypeRole) == currentType)
-                        setModelData(LocalsTypeFormatRole, i, idx);
-        }
-        for (int i = 0; i != individualFormatActions.size(); ++i) {
-            if (act == individualFormatActions.at(i))
-                foreach (const QModelIndex &idx, active)
-                    if (idx.data(LocalsTypeRole) == currentType)
-                        setModelData(LocalsIndividualFormatRole, i, idx);
-        }
     }
 }
 
@@ -987,16 +948,25 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
             header()->hide();
     }
 
-    connect(model, SIGNAL(layoutChanged()), SLOT(resetHelper()));
-    connect(model, SIGNAL(currentIndexRequested(QModelIndex)),
-            SLOT(setCurrentIndex(QModelIndex)));
-    connect(model, SIGNAL(itemIsExpanded(QModelIndex)),
-            SLOT(handleItemIsExpanded(QModelIndex)));
+    auto watchModel = qobject_cast<WatchModelBase *>(model);
+    QTC_ASSERT(watchModel, return);
+    connect(model, &QAbstractItemModel::layoutChanged,
+            this, &WatchTreeView::resetHelper);
+    connect(watchModel, &WatchModelBase::currentIndexRequested,
+            this, &QAbstractItemView::setCurrentIndex);
+    connect(watchModel, &WatchModelBase::itemIsExpanded,
+            this, &WatchTreeView::handleItemIsExpanded);
+    if (m_type == LocalsType) {
+        connect(watchModel, &WatchModelBase::updateStarted,
+                this, &WatchTreeView::showProgressIndicator);
+        connect(watchModel, &WatchModelBase::updateFinished,
+                this, &WatchTreeView::hideProgressIndicator);
+    }
 }
 
-void WatchTreeView::rowClicked(const QModelIndex &index)
+void WatchTreeView::rowActivated(const QModelIndex &index)
 {
-    currentEngine()->watchDataSelected(currentEngine()->watchHandler()->watchData(index)->iname);
+    currentEngine()->selectWatchData(index.data(LocalsINameRole).toByteArray());
 }
 
 void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)
@@ -1007,36 +977,55 @@ void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)
         expand(idx);
 }
 
-void WatchTreeView::resetHelper()
-{
-    QModelIndex idx = model()->index(m_type, 0);
-    resetHelper(idx);
-    expand(idx);
-}
-
-void WatchTreeView::resetHelper(const QModelIndex &idx)
+void WatchTreeView::reexpand(QTreeView *view, const QModelIndex &idx)
 {
     if (idx.data(LocalsExpandedRole).toBool()) {
-        //qDebug() << "EXPANDING " << model()->data(idx, INameRole);
-        if (!isExpanded(idx)) {
-            expand(idx);
-            for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
-                QModelIndex idx1 = model()->index(i, 0, idx);
-                resetHelper(idx1);
+        //qDebug() << "EXPANDING " << view->model()->data(idx, LocalsINameRole);
+        if (!view->isExpanded(idx)) {
+            view->expand(idx);
+            for (int i = 0, n = view->model()->rowCount(idx); i != n; ++i) {
+                QModelIndex idx1 = view->model()->index(i, 0, idx);
+                reexpand(view, idx1);
             }
         }
     } else {
-        //qDebug() << "COLLAPSING " << model()->data(idx, INameRole);
-        if (isExpanded(idx))
-            collapse(idx);
+        //qDebug() << "COLLAPSING " << view->model()->data(idx, LocalsINameRole);
+        if (view->isExpanded(idx))
+            view->collapse(idx);
     }
+}
+
+void WatchTreeView::resetHelper()
+{
+    QModelIndex idx = model()->index(m_type, 0);
+    reexpand(this, idx);
+    expand(idx);
 }
 
 void WatchTreeView::reset()
 {
     BaseTreeView::reset();
-    setRootIndex(model()->index(m_type, 0));
-    resetHelper();
+    if (model()) {
+        setRootIndex(model()->index(m_type, 0));
+        resetHelper();
+    }
+}
+
+void WatchTreeView::doItemsLayout()
+{
+    if (m_sliderPosition == 0)
+        m_sliderPosition = verticalScrollBar()->sliderPosition();
+    Utils::BaseTreeView::doItemsLayout();
+    if (m_sliderPosition)
+        QTimer::singleShot(0, this, SLOT(adjustSlider()));
+}
+
+void WatchTreeView::adjustSlider()
+{
+    if (m_sliderPosition) {
+        verticalScrollBar()->setSliderPosition(m_sliderPosition);
+        m_sliderPosition = 0;
+    }
 }
 
 void WatchTreeView::watchExpression(const QString &exp)
@@ -1054,6 +1043,80 @@ void WatchTreeView::setModelData
 {
     QTC_ASSERT(model(), return);
     model()->setData(index, value, role);
+}
+
+
+// FIXME: Move to Utils?
+class InputDialog : public QDialog
+{
+public:
+    InputDialog()
+    {
+        m_label = new QLabel(this);
+        m_hint = new QLabel(this);
+        m_lineEdit = new Utils::FancyLineEdit(this);
+        m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel,
+            Qt::Horizontal, this);
+
+        auto layout = new QVBoxLayout(this);
+        layout->addWidget(m_label, Qt::AlignLeft);
+        layout->addWidget(m_hint, Qt::AlignLeft);
+        layout->addWidget(m_lineEdit);
+        layout->addSpacing(10);
+        layout->addWidget(m_buttons);
+        setLayout(layout);
+
+        connect(m_buttons, &QDialogButtonBox::accepted,
+                m_lineEdit, &Utils::FancyLineEdit::onEditingFinished);
+        connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        connect(m_hint, SIGNAL(linkActivated(QString)),
+            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
+    }
+
+    void setLabelText(const QString &text)
+    {
+        m_label->setText(text);
+    }
+
+    void setHintText(const QString &text)
+    {
+        m_hint->setText(QString::fromLatin1("<html>%1</html>").arg(text));
+    }
+
+    void setHistoryCompleter(const QString &key)
+    {
+        m_lineEdit->setHistoryCompleter(key);
+        m_lineEdit->clear(); // Undo "convenient" population with history item.
+    }
+
+    QString text() const
+    {
+        return m_lineEdit->text();
+    }
+
+public:
+    QLabel *m_label;
+    QLabel *m_hint;
+    Utils::FancyLineEdit *m_lineEdit;
+    QDialogButtonBox *m_buttons;
+};
+
+void WatchTreeView::inputNewExpression()
+{
+    InputDialog dlg;
+    dlg.setWindowTitle(tr("New Evaluated Expression"));
+    dlg.setLabelText(tr("Enter an expression to evaluate."));
+    dlg.setHintText(tr("Note: Evaluators will be re-evaluated after each step. "
+       "For details check the <a href=\""
+        "qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions"
+        "\">documentation</a>."));
+    dlg.setHistoryCompleter(QLatin1String("WatchItems"));
+    if (dlg.exec() == QDialog::Accepted) {
+        const QString exp = dlg.text().trimmed();
+        if (!exp.isEmpty())
+            watchExpression(exp, exp);
+    }
 }
 
 } // namespace Internal

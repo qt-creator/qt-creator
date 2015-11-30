@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -34,6 +35,7 @@
 
 #include <projectexplorer/localapplicationrunconfiguration.h>
 
+#include <utils/fileutils.h>
 
 #include <QStringList>
 #include <QLabel>
@@ -53,10 +55,7 @@ class DetailsWidget;
 
 namespace QmakeProjectManager {
 
-class QmakeProject;
 class QmakeProFileNode;
-class QmakePriFileNode;
-class TargetInformation;
 
 namespace Internal {
 class DesktopQmakeRunConfigurationFactory;
@@ -70,47 +69,48 @@ class DesktopQmakeRunConfiguration : public ProjectExplorer::LocalApplicationRun
 
 public:
     DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-    virtual ~DesktopQmakeRunConfiguration();
 
-    virtual bool isEnabled() const;
-    virtual QString disabledReason() const;
-    virtual QWidget *createConfigurationWidget();
+    bool isEnabled() const override;
+    QString disabledReason() const override;
+    QWidget *createConfigurationWidget() override;
 
-    virtual QString executable() const;
-    virtual RunMode runMode() const;
-    bool forcedGuiMode() const;
-    virtual QString workingDirectory() const;
-    virtual QString commandLineArguments() const;
+    QString executable() const override;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
+    QString workingDirectory() const override;
+    QString commandLineArguments() const override;
 
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);
 
-    QString proFilePath() const;
+    bool isUsingLibrarySearchPath() const;
+    void setUsingLibrarySearchPath(bool state);
 
-    QVariantMap toMap() const;
+    Utils::FileName proFilePath() const;
 
-    Utils::OutputFormatter *createOutputFormatter() const;
+    QVariantMap toMap() const override;
 
-    void setRunMode(RunMode runMode);
+    Utils::OutputFormatter *createOutputFormatter() const override;
 
-    void addToBaseEnvironment(Utils::Environment &env) const;
+    void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
+    void addToBaseEnvironment(Utils::Environment &env) const override;
 signals:
     void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);
-    void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
+    void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
     void usingDyldImageSuffixChanged(bool);
+    void usingLibrarySearchPathChanged(bool);
 
     // Note: These signals might not get emitted for every change!
     void effectiveTargetInformationChanged();
 
 private slots:
-    void kitChanged();
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
+    void proFileEvaluated();
 
 protected:
     DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, DesktopQmakeRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private:
     QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFileNode *node) const;
@@ -124,15 +124,15 @@ private:
 
     void updateTarget();
     QString m_commandLineArguments;
-    QString m_proFilePath; // Full path to the Application Pro File
+    Utils::FileName m_proFilePath; // Full path to the Application Pro File
 
     // Cached startup sub project information
-    ProjectExplorer::LocalApplicationRunConfiguration::RunMode m_runMode;
-    bool m_forcedGuiMode;
-    bool m_isUsingDyldImageSuffix;
+    ProjectExplorer::ApplicationLauncher::Mode m_runMode = ProjectExplorer::ApplicationLauncher::Gui;
+    bool m_isUsingDyldImageSuffix = false;
+    bool m_isUsingLibrarySearchPath = true;
     QString m_userWorkingDirectory;
-    bool m_parseSuccess;
-    bool m_parseInProgress;
+    bool m_parseSuccess = false;
+    bool m_parseInProgress = false;
 };
 
 class DesktopQmakeRunConfigurationWidget : public QWidget
@@ -156,28 +156,31 @@ private slots:
 
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
-    void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
+    void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void effectiveTargetInformationChanged();
     void termToggled(bool);
     void qvfbToggled(bool);
     void usingDyldImageSuffixToggled(bool);
     void usingDyldImageSuffixChanged(bool);
+    void usingLibrarySearchPathToggled(bool state);
+    void usingLibrarySearchPathChanged(bool state);
 
 private:
-    DesktopQmakeRunConfiguration *m_qmakeRunConfiguration;
-    bool m_ignoreChange;
-    QLabel *m_disabledIcon;
-    QLabel *m_disabledReason;
-    QLineEdit *m_executableLineEdit;
-    Utils::PathChooser *m_workingDirectoryEdit;
-    QLineEdit *m_argumentsLineEdit;
-    QCheckBox *m_useTerminalCheck;
-    QCheckBox *m_useQvfbCheck;
-    QCheckBox *m_usingDyldImageSuffix;
-    QLineEdit *m_qmlDebugPort;
+    DesktopQmakeRunConfiguration *m_qmakeRunConfiguration = nullptr;
+    bool m_ignoreChange = false;
+    QLabel *m_disabledIcon = nullptr;
+    QLabel *m_disabledReason = nullptr;
+    QLabel *m_executableLineLabel = nullptr;
+    Utils::PathChooser *m_workingDirectoryEdit = nullptr;
+    QLineEdit *m_argumentsLineEdit = nullptr;
+    QCheckBox *m_useTerminalCheck = nullptr;
+    QCheckBox *m_useQvfbCheck = nullptr;
+    QCheckBox *m_usingDyldImageSuffix = nullptr;
+    QCheckBox *m_usingLibrarySearchPath = nullptr;
+    QLineEdit *m_qmlDebugPort = nullptr;
     Utils::DetailsWidget *m_detailsContainer;
-    bool m_isShown;
+    bool m_isShown = false;
 };
 
 class DesktopQmakeRunConfigurationFactory : public QmakeRunConfigurationFactory
@@ -188,21 +191,21 @@ public:
     explicit DesktopQmakeRunConfigurationFactory(QObject *parent = 0);
     ~DesktopQmakeRunConfigurationFactory();
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
+    QString displayNameForId(Core::Id id) const;
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                        ProjectExplorer::Node *n);
+                                                                        const ProjectExplorer::Node *n);
 
 private:
     bool canHandle(ProjectExplorer::Target *t) const;
 
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id);
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
                                                  const QVariantMap &map);
 };

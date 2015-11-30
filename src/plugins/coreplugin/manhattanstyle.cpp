@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,16 +32,19 @@
 
 #include "styleanimator.h"
 
-#include <coreplugin/coreconstants.h>
+#include "coreicons.h"
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 
 #include <utils/fancymainwindow.h>
+#include <utils/theme/theme.h>
 
 #include <QApplication>
 #include <QComboBox>
 #include <QDockWidget>
+#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
@@ -51,6 +55,8 @@
 #include <QStyleOption>
 #include <QToolBar>
 #include <QToolButton>
+
+using namespace Utils;
 
 // We define a currently unused state for indicating animations
 const QStyle::State State_Animating = QStyle::State(0x00000040);
@@ -63,7 +69,7 @@ bool styleEnabled(const QWidget *widget)
     while (p) {
         if (p->property("_q_custom_style_disabled").toBool())
             return false;
-            p = p->parentWidget();
+        p = p->parentWidget();
     }
     return true;
 }
@@ -78,7 +84,7 @@ bool panelWidget(const QWidget *widget)
     if ((widget->window()->windowFlags() & Qt::WindowType_Mask) == Qt::Dialog)
         return false;
 
-    if (qobject_cast<const Utils::FancyMainWindow *>(widget))
+    if (qobject_cast<const FancyMainWindow *>(widget))
         return true;
 
     if (qobject_cast<const QTabBar *>(widget))
@@ -130,10 +136,10 @@ public:
 };
 
 ManhattanStylePrivate::ManhattanStylePrivate() :
-    lineeditImage(QLatin1String(":/core/images/inputfield.png")),
-    lineeditImage_disabled(QLatin1String(":/core/images/inputfield_disabled.png")),
-    extButtonPixmap(QLatin1String(":/core/images/extension.png")),
-    closeButtonPixmap(QLatin1String(Core::Constants::ICON_CLOSE))
+    lineeditImage(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/inputfield.png"))),
+    lineeditImage_disabled(StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/inputfield_disabled.png"))),
+    extButtonPixmap(Core::Icons::TOOLBAR_EXTENSION.pixmap()),
+    closeButtonPixmap(Core::Icons::CLOSE_BUTTON.pixmap())
 {
 }
 
@@ -241,7 +247,8 @@ void ManhattanStyle::unpolish(QApplication *app)
 
 QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
 {
-    QColor color = Utils::StyleHelper::panelTextColor(lightColored);
+    QColor color = creatorTheme()->color(lightColored ? Theme::PanelTextColorDark
+                                                      : Theme::PanelTextColorLight);
     QPalette pal = oldPalette;
     pal.setBrush(QPalette::All, QPalette::WindowText, color);
     pal.setBrush(QPalette::All, QPalette::ButtonText, color);
@@ -273,18 +280,18 @@ void ManhattanStyle::polish(QWidget *widget)
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
         if (qobject_cast<QToolButton*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
-            widget->setMaximumHeight(Utils::StyleHelper::navigationWidgetHeight() - 2);
+            widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
         } else if (qobject_cast<QLineEdit*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
-            widget->setMaximumHeight(Utils::StyleHelper::navigationWidgetHeight() - 2);
+            widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
         } else if (qobject_cast<QLabel*>(widget)) {
-            widget->setPalette(panelPalette(widget->palette()));
+            widget->setPalette(panelPalette(widget->palette(), lightColored(widget)));
         } else if (widget->property("panelwidget_singlerow").toBool()) {
-            widget->setFixedHeight(Utils::StyleHelper::navigationWidgetHeight());
+            widget->setFixedHeight(StyleHelper::navigationWidgetHeight());
         } else if (qobject_cast<QStatusBar*>(widget)) {
-            widget->setFixedHeight(Utils::StyleHelper::navigationWidgetHeight() + 2);
+            widget->setFixedHeight(StyleHelper::navigationWidgetHeight() + 2);
         } else if (qobject_cast<QComboBox*>(widget)) {
-            widget->setMaximumHeight(Utils::StyleHelper::navigationWidgetHeight() - 2);
+            widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
             widget->setAttribute(Qt::WA_Hover);
         }
     }
@@ -309,19 +316,6 @@ void ManhattanStyle::polish(QPalette &pal)
     QProxyStyle::polish(pal);
 }
 
-QIcon ManhattanStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const
-{
-    QIcon icon;
-    switch (standardIcon) {
-    case QStyle::SP_TitleBarCloseButton:
-    case QStyle::SP_ToolBarHorizontalExtensionButton:
-        return QIcon(standardPixmap(standardIcon, option, widget));
-    default:
-        icon = baseStyle()->standardIcon(standardIcon, option, widget);
-    }
-    return icon;
-}
-
 QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                        const QWidget *widget) const
 {
@@ -343,22 +337,44 @@ QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QSty
     return pixmap;
 }
 
+QIcon ManhattanStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const
+{
+    QIcon icon = QProxyStyle::standardIcon(standardIcon, option, widget);
+    if (standardIcon == QStyle::SP_ComputerIcon) {
+        // Ubuntu has in some versions a 16x16 icon, see QTCREATORBUG-12832
+        const QList<QSize> &sizes = icon.availableSizes();
+        if (Utils::allOf(sizes, [](const QSize &size) { return size.width() < 32;})) {
+            icon = QIcon(QLatin1String(":/core/images/Desktop.png"));
+        }
+    }
+    return icon;
+}
+
 int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
                               QStyleHintReturn *returnData) const
 {
     int ret = QProxyStyle::styleHint(hint, option, widget, returnData);
     switch (hint) {
-    // Make project explorer alternate rows all the way
-    case QStyle::SH_ItemView_PaintAlternatingRowColorsForEmptyArea:
-        if (widget && widget->property("AlternateEmpty").toBool())
-            ret = true;
-        break;
     case QStyle::SH_EtchDisabledText:
-        if (panelWidget(widget))
+        if (panelWidget(widget) || qobject_cast<const QMenu *> (widget) )
             ret = false;
         break;
     case QStyle::SH_ItemView_ArrowKeysNavigateIntoChildren:
         ret = true;
+        break;
+    case QStyle::SH_ItemView_ActivateItemOnSingleClick:
+        // default depends on the style
+        if (widget) {
+            QVariant activationMode = widget->property("ActivationMode");
+            if (activationMode.isValid())
+                ret = activationMode.toBool();
+        }
+        break;
+    case QStyle::SH_FormLayoutFieldGrowthPolicy:
+        // The default in QMacStyle, FieldsStayAtSizeHint, is just always the wrong thing
+        // Use the same as on all other shipped styles
+        if (Utils::HostOsInfo::isMacHost())
+            ret = QFormLayout::AllNonFixedFieldsGrow;
         break;
     default:
         break;
@@ -429,7 +445,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 
     switch (element) {
     case PE_IndicatorDockWidgetResizeHandle:
-        painter->fillRect(option->rect, Utils::StyleHelper::borderColor());
+        painter->fillRect(option->rect, creatorTheme()->color(Theme::DockWidgetResizeHandleColor));
         break;
     case PE_FrameDockWidget:
         QCommonStyle::drawPrimitive(element, option, painter, widget);
@@ -444,19 +460,19 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             painter->fillRect(filledRect, option->palette.base());
 
             if (option->state & State_Enabled)
-                Utils::StyleHelper::drawCornerImage(d->lineeditImage, painter, option->rect, 5, 5, 5, 5);
+                StyleHelper::drawCornerImage(d->lineeditImage, painter, option->rect, 5, 5, 5, 5);
             else
-                Utils::StyleHelper::drawCornerImage(d->lineeditImage_disabled, painter, option->rect, 5, 5, 5, 5);
+                StyleHelper::drawCornerImage(d->lineeditImage_disabled, painter, option->rect, 5, 5, 5, 5);
 
             if (option->state & State_HasFocus || option->state & State_MouseOver) {
-                QColor hover = Utils::StyleHelper::baseColor();
+                QColor hover = StyleHelper::baseColor();
                 if (state & State_HasFocus)
                     hover.setAlpha(100);
                 else
                     hover.setAlpha(50);
 
                 painter->setPen(QPen(hover, 1));
-                painter->drawRect(option->rect.adjusted(1, 1, -2 ,-2));
+                painter->drawRect(QRectF(option->rect).adjusted(1.5, 1.5, -1.5, -1.5));
             }
             painter->restore();
         }
@@ -474,17 +490,15 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 QColor shadow(0, 0, 0, 30);
                 painter->setPen(shadow);
                 if (pressed) {
-                    QColor shade(0, 0, 0, 40);
+                    QColor shade = option->palette.base().color();
+                    shade.setHsv(shade.hue(), shade.saturation(), 255 - shade.value(), 40);
                     painter->fillRect(rect, shade);
-                    painter->drawLine(rect.topLeft() + QPoint(1, 0), rect.topRight() - QPoint(1, 0));
-                    painter->drawLine(rect.topLeft(), rect.bottomLeft());
-                    painter->drawLine(rect.topRight(), rect.bottomRight());
-                   // painter->drawLine(rect.bottomLeft()  + QPoint(1, 0), rect.bottomRight()  - QPoint(1, 0));
-                    QColor highlight(255, 255, 255, 30);
-                    painter->setPen(highlight);
+                    const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
+                    painter->drawLine(borderRect.topLeft() + QPointF(1, 0), borderRect.topRight() - QPointF(1, 0));
+                    painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
+                    painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
                 } else if (option->state & State_Enabled && option->state & State_MouseOver) {
-                    QColor lighter(255, 255, 255, 37);
-                    painter->fillRect(rect, lighter);
+                    painter->fillRect(rect, creatorTheme()->color(Theme::PanelButtonToolBackgroundColorHover));
                 } else if (widget && widget->property("highlightWidget").toBool()) {
                     QColor shade(0, 0, 0, 128);
                     painter->fillRect(rect, shade);
@@ -496,9 +510,8 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                     highlight.setAlphaF(0.3);
                     painter->setBrush(highlight);
                     painter->setRenderHint(QPainter::Antialiasing);
-                    QRectF rect = option->rect;
-                    rect.translate(0.5, 0.5);
-                    painter->drawRoundedRect(rect.adjusted(2, 2, -3, -3), 2, 2);
+                    const QRectF rect = option->rect;
+                    painter->drawRoundedRect(rect.adjusted(2.5, 2.5, -2.5, -2.5), 2, 2);
                 }
            }
         }
@@ -506,21 +519,26 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 
     case PE_PanelStatusBar:
         {
-            painter->save();
-            QLinearGradient grad = Utils::StyleHelper::statusBarGradient(rect);
-            painter->fillRect(rect, grad);
-            painter->setPen(QColor(255, 255, 255, 60));
-            painter->drawLine(rect.topLeft() + QPoint(0,1),
-                              rect.topRight()+ QPoint(0,1));
-            painter->setPen(Utils::StyleHelper::borderColor().darker(110));
-            painter->drawLine(rect.topLeft(), rect.topRight());
-            painter->restore();
+            if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+                painter->save();
+                QLinearGradient grad = StyleHelper::statusBarGradient(rect);
+                painter->fillRect(rect, grad);
+                const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
+                painter->setPen(QColor(255, 255, 255, 60));
+                painter->drawLine(borderRect.topLeft() + QPointF(0, 1),
+                                  borderRect.topRight()+ QPointF(0, 1));
+                painter->setPen(StyleHelper::borderColor().darker(110)); //TODO: make themable
+                painter->drawLine(borderRect.topLeft(), borderRect.topRight());
+                painter->restore();
+            } else {
+                painter->fillRect(rect, creatorTheme()->color(Theme::PanelStatusBarBackgroundColor));
+            }
         }
         break;
 
     case PE_IndicatorToolBarSeparator:
         {
-            QColor separatorColor = Utils::StyleHelper::borderColor();
+            QColor separatorColor = StyleHelper::borderColor();
             separatorColor.setAlpha(100);
             painter->setPen(separatorColor);
             const int margin = 6;
@@ -564,10 +582,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             }
 
             painter->setPen(Qt::NoPen);
-            QColor dark = Utils::StyleHelper::borderColor();
+            QColor dark = StyleHelper::borderColor();
             dark.setAlphaF(0.4);
 
-            QColor light = Utils::StyleHelper::baseColor();
+            QColor light = StyleHelper::baseColor();
             light.setAlphaF(0.4);
 
             painter->fillPath(path, light);
@@ -587,7 +605,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
     case PE_IndicatorArrowRight:
     case PE_IndicatorArrowLeft:
         {
-            Utils::StyleHelper::drawArrow(element, painter, option);
+            StyleHelper::drawArrow(element, painter, option);
         }
         break;
 
@@ -600,12 +618,15 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *option,
                                  QPainter *painter, const QWidget *widget) const
 {
-    if (!panelWidget(widget))
+    if (!panelWidget(widget) && !qobject_cast<const QMenu *>(widget))
         return QProxyStyle::drawControl(element, option, painter, widget);
 
     switch (element) {
     case CE_Splitter:
-        painter->fillRect(option->rect, Utils::StyleHelper::borderColor());
+        if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+            painter->fillRect(option->rect, creatorTheme()->color(Theme::SplitterColor));
+        else
+            painter->fillRect(option->rect, StyleHelper::borderColor());
         break;
 
     case CE_TabBarTabShape:
@@ -628,38 +649,52 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         }
         break;
 
+    case CE_MenuItem:
+        painter->save();
+        if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+            const bool enabled = mbi->state & State_Enabled;
+            QStyleOptionMenuItem item = *mbi;
+            item.rect = mbi->rect;
+            const QColor color = creatorTheme()->color(enabled
+                                                       ? Theme::MenuItemTextColorNormal
+                                                       : Theme::MenuItemTextColorDisabled);
+            if (color.isValid()) {
+                QPalette pal = mbi->palette;
+                pal.setBrush(QPalette::Text, color);
+                item.palette = pal;
+            }
+            QProxyStyle::drawControl(element, &item, painter, widget);
+        }
+        painter->restore();
+        break;
+
     case CE_MenuBarItem:
         painter->save();
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
-            QColor highlightOutline = Utils::StyleHelper::borderColor().lighter(120);
-            bool act = mbi->state & State_Sunken;
-            bool dis = !(mbi->state & State_Enabled);
-            Utils::StyleHelper::menuGradient(painter, option->rect, option->rect);
+            const bool act = mbi->state & (State_Sunken | State_Selected);
+            const bool dis = !(mbi->state & State_Enabled);
+
+            if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+                painter->fillRect(option->rect, creatorTheme()->color(Theme::MenuBarItemBackgroundColor));
+            else
+                StyleHelper::menuGradient(painter, option->rect, option->rect);
+
             QStyleOptionMenuItem item = *mbi;
             item.rect = mbi->rect;
             QPalette pal = mbi->palette;
-            pal.setBrush(QPalette::ButtonText, dis ? Qt::gray : Qt::black);
+            pal.setBrush(QPalette::ButtonText, dis
+                ? creatorTheme()->color(Theme::MenuBarItemTextColorDisabled)
+                : creatorTheme()->color(Theme::MenuBarItemTextColorNormal));
             item.palette = pal;
             QCommonStyle::drawControl(element, &item, painter, widget);
-            QRect r = option->rect;
 
             if (act) {
                 // Fill|
-                QColor baseColor = Utils::StyleHelper::baseColor();
+                QColor baseColor = StyleHelper::baseColor();
                 QLinearGradient grad(option->rect.topLeft(), option->rect.bottomLeft());
                 grad.setColorAt(0, baseColor.lighter(120));
                 grad.setColorAt(1, baseColor.lighter(130));
-                painter->fillRect(option->rect.adjusted(1, 1, -1, 0), grad);
-
-                // Outline
-                painter->setPen(QPen(highlightOutline, 0));
-                painter->drawLine(QPoint(r.left(), r.top() + 1), QPoint(r.left(), r.bottom()));
-                painter->drawLine(QPoint(r.right(), r.top() + 1), QPoint(r.right(), r.bottom()));
-                painter->drawLine(QPoint(r.left() + 1, r.top()), QPoint(r.right() - 1, r.top()));
-                highlightOutline.setAlpha(60);
-                painter->setPen(QPen(highlightOutline, 0));
-                painter->drawPoint(r.topLeft());
-                painter->drawPoint(r.topRight());
+                painter->fillRect(option->rect, grad);
 
                 QPalette pal = mbi->palette;
                 uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
@@ -718,13 +753,15 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 }
                 text.prepend(option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, elideWidth));
 
-                if ((option->state & State_Enabled)) {
+                if (creatorTheme()->flag(Theme::ComboBoxDrawTextShadow)
+                    && (option->state & State_Enabled))
+                {
                     painter->setPen(QColor(0, 0, 0, 70));
                     painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
-                } else {
-                    painter->setOpacity(0.8);
                 }
-                painter->setPen(Utils::StyleHelper::panelTextColor());
+                if (!(option->state & State_Enabled))
+                    painter->setOpacity(0.8);
+                painter->setPen(creatorTheme()->color(Theme::ComboBoxTextColor));
                 painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
 
                 painter->restore();
@@ -768,34 +805,44 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         break;
 
     case CE_MenuBarEmptyArea: {
-            Utils::StyleHelper::menuGradient(painter, option->rect, option->rect);
-            painter->save();
-            painter->setPen(Utils::StyleHelper::borderColor());
-            painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
-            painter->restore();
+            if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+                StyleHelper::menuGradient(painter, option->rect, option->rect);
+                painter->save();
+                painter->setPen(StyleHelper::borderColor());
+                painter->drawLine(option->rect.bottomLeft() + QPointF(0.5, 0.5),
+                                  option->rect.bottomRight() + QPointF(0.5, 0.5));
+                painter->restore();
+            } else {
+                painter->fillRect(option->rect, creatorTheme()->color(Theme::MenuBarEmptyAreaBackgroundColor));
+            }
         }
         break;
 
     case CE_ToolBar:
         {
             QRect rect = option->rect;
+            const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
             bool horizontal = option->state & State_Horizontal;
 
             // Map offset for global window gradient
-            QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
-                            widget->mapToGlobal(option->rect.topLeft());
             QRect gradientSpan;
-            if (widget)
+            if (widget) {
+                QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
+                                widget->mapToGlobal(option->rect.topLeft());
                 gradientSpan = QRect(offset, widget->window()->size());
+            }
 
             bool drawLightColored = lightColored(widget);
-            if (horizontal)
-                Utils::StyleHelper::horizontalGradient(painter, gradientSpan, rect, drawLightColored);
+            // draws the background of the 'Type hierarchy', 'Projects' headers
+            if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+                painter->fillRect (rect, creatorTheme()->color(Theme::ToolBarBackgroundColor));
+            else if (horizontal)
+                StyleHelper::horizontalGradient(painter, gradientSpan, rect, drawLightColored);
             else
-                Utils::StyleHelper::verticalGradient(painter, gradientSpan, rect, drawLightColored);
+                StyleHelper::verticalGradient(painter, gradientSpan, rect, drawLightColored);
 
             if (!drawLightColored)
-                painter->setPen(Utils::StyleHelper::borderColor());
+                painter->setPen(StyleHelper::borderColor());
             else
                 painter->setPen(QColor(0x888888));
 
@@ -803,21 +850,21 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 // Note: This is a hack to determine if the
                 // toolbar should draw the top or bottom outline
                 // (needed for the find toolbar for instance)
-                QColor lighter(Utils::StyleHelper::sidebarHighlight());
+                QColor lighter(StyleHelper::sidebarHighlight());
                 if (drawLightColored)
                     lighter = QColor(255, 255, 255, 180);
                 if (widget && widget->property("topBorder").toBool()) {
-                    painter->drawLine(rect.topLeft(), rect.topRight());
+                    painter->drawLine(borderRect.topLeft(), borderRect.topRight());
                     painter->setPen(lighter);
-                    painter->drawLine(rect.topLeft() + QPoint(0, 1), rect.topRight() + QPoint(0, 1));
+                    painter->drawLine(borderRect.topLeft() + QPointF(0, 1), borderRect.topRight() + QPointF(0, 1));
                 } else {
-                    painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+                    painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
                     painter->setPen(lighter);
-                    painter->drawLine(rect.topLeft(), rect.topRight());
+                    painter->drawLine(borderRect.topLeft(), borderRect.topRight());
                 }
             } else {
-                painter->drawLine(rect.topLeft(), rect.bottomLeft());
-                painter->drawLine(rect.topRight(), rect.bottomRight());
+                painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
+                painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
             }
         }
         break;
@@ -889,7 +936,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                     if (mflags & (State_Sunken)) {
                         QColor shade(0, 0, 0, 50);
                         painter->fillRect(tool.rect.adjusted(0, -1, 1, 1), shade);
-                    } else if (!Utils::HostOsInfo::isMacHost() && (mflags & State_MouseOver)) {
+                    } else if (!HostOsInfo::isMacHost() && (mflags & State_MouseOver)) {
                         QColor shade(255, 255, 255, 50);
                         painter->fillRect(tool.rect.adjusted(0, -1, 1, 1), shade);
                     }
@@ -897,7 +944,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                 tool.rect = tool.rect.adjusted(2, 2, -2, -2);
                 drawPrimitive(PE_IndicatorArrowDown, &tool, painter, widget);
             } else if (toolbutton->features & QStyleOptionToolButton::HasMenu
-                       && !widget->property("noArrow").toBool()) {
+                       && widget && !widget->property("noArrow").toBool()) {
                 int arrowSize = 6;
                 QRect ir = toolbutton->rect.adjusted(1, 1, -1, -1);
                 QStyleOptionToolButton newBtn = *toolbutton;
@@ -915,17 +962,25 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             bool isEmpty = cb->currentText.isEmpty() && cb->currentIcon.isNull();
             bool reverse = option->direction == Qt::RightToLeft;
             bool drawborder = !(widget && widget->property("hideborder").toBool());
+            bool drawleftborder = (widget && widget->property("drawleftborder").toBool());
             bool alignarrow = !(widget && widget->property("alignarrow").toBool());
 
-            if (drawborder)
+            if (drawborder) {
                 drawButtonSeparator(painter, rect, reverse);
+                if (drawleftborder)
+                    drawButtonSeparator(painter, rect.adjusted(0, 0, -rect.width() + 2, 0), reverse);
+            }
 
             QStyleOption toolbutton = *option;
             if (isEmpty)
                 toolbutton.state &= ~(State_Enabled | State_Sunken);
             painter->save();
-            if (drawborder)
-                painter->setClipRect(toolbutton.rect.adjusted(0, 0, -2, 0));
+            if (drawborder) {
+                int leftClipAdjust = 0;
+                if (drawleftborder)
+                    leftClipAdjust = 2;
+                painter->setClipRect(toolbutton.rect.adjusted(leftClipAdjust, 0, -2, 0));
+            }
             drawPrimitive(PE_PanelButtonTool, &toolbutton, painter, widget);
             painter->restore();
             // Draw arrow
@@ -971,20 +1026,21 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
 
 void ManhattanStyle::drawButtonSeparator(QPainter *painter, const QRect &rect, bool reverse) const
 {
+    const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
     QLinearGradient grad(rect.topRight(), rect.bottomRight());
     grad.setColorAt(0, QColor(255, 255, 255, 20));
     grad.setColorAt(0.4, QColor(255, 255, 255, 60));
     grad.setColorAt(0.7, QColor(255, 255, 255, 50));
     grad.setColorAt(1, QColor(255, 255, 255, 40));
-    painter->setPen(QPen(grad, 0));
-    painter->drawLine(rect.topRight(), rect.bottomRight());
+    painter->setPen(QPen(grad, 1));
+    painter->drawLine(borderRect.topRight(), borderRect.bottomRight());
     grad.setColorAt(0, QColor(0, 0, 0, 30));
     grad.setColorAt(0.4, QColor(0, 0, 0, 70));
     grad.setColorAt(0.7, QColor(0, 0, 0, 70));
     grad.setColorAt(1, QColor(0, 0, 0, 40));
-    painter->setPen(QPen(grad, 0));
+    painter->setPen(QPen(grad, 1));
     if (!reverse)
-       painter->drawLine(rect.topRight() - QPoint(1,0), rect.bottomRight() - QPoint(1,0));
+       painter->drawLine(borderRect.topRight() - QPointF(1, 0), borderRect.bottomRight() - QPointF(1, 0));
     else
-       painter->drawLine(rect.topLeft(), rect.bottomLeft());
+       painter->drawLine(borderRect.topLeft(), borderRect.bottomLeft());
  }

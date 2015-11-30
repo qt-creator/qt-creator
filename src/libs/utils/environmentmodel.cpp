@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,7 +33,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
-#include <QTextDocument> // Qt::escape() in Qt 4
+#include <QString>
 #include <QFont>
 
 namespace Utils {
@@ -47,7 +48,7 @@ public:
         m_resultEnvironment.modify(m_items);
         // Add removed variables again and mark them as "<UNSET>" so
         // that the user can actually see those removals:
-        foreach (const Utils::EnvironmentItem &item, m_items) {
+        foreach (const EnvironmentItem &item, m_items) {
             if (item.unset)
                 m_resultEnvironment.set(item.name, EnvironmentModel::tr("<UNSET>"));
         }
@@ -63,7 +64,7 @@ public:
 
     int findInResultInsertPosition(const QString &name) const
     {
-        Utils::Environment::const_iterator it;
+        Environment::const_iterator it;
         int i = 0;
         for (it = m_resultEnvironment.constBegin(); it != m_resultEnvironment.constEnd(); ++it, ++i)
             if (m_resultEnvironment.key(it) > name)
@@ -73,7 +74,7 @@ public:
 
     int findInResult(const QString &name) const
     {
-        Utils::Environment::const_iterator it;
+        Environment::const_iterator it;
         int i = 0;
         for (it = m_resultEnvironment.constBegin(); it != m_resultEnvironment.constEnd(); ++it, ++i)
             if (m_resultEnvironment.key(it) == name)
@@ -81,9 +82,9 @@ public:
         return -1;
     }
 
-    Utils::Environment m_baseEnvironment;
-    Utils::Environment m_resultEnvironment;
-    QList<Utils::EnvironmentItem> m_items;
+    Environment m_baseEnvironment;
+    Environment m_resultEnvironment;
+    QList<EnvironmentItem> m_items;
 };
 
 } // namespace Internal
@@ -103,7 +104,7 @@ QString EnvironmentModel::indexToVariable(const QModelIndex &index) const
     return d->m_resultEnvironment.key(d->m_resultEnvironment.constBegin() + index.row());
 }
 
-void EnvironmentModel::setBaseEnvironment(const Utils::Environment &env)
+void EnvironmentModel::setBaseEnvironment(const Environment &env)
 {
     if (d->m_baseEnvironment == env)
         return;
@@ -151,7 +152,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
             QString value = d->m_resultEnvironment.value(d->m_resultEnvironment.constBegin() + index.row());
             if (role == Qt::ToolTipRole && value.length() > 80) {
                 // Use html to enable text wrapping
-                value = Qt::escape(value);
+                value = value.toHtmlEscaped();
                 value.prepend(QLatin1String("<html><body>"));
                 value.append(QLatin1String("</body></html>"));
             }
@@ -215,7 +216,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         if (d->m_resultEnvironment.hasKey(newName) || newName.isEmpty())
             return false;
 
-        Utils::EnvironmentItem newVariable(newName, oldValue);
+        EnvironmentItem newVariable(newName, oldValue);
 
         if (changesPos != -1)
             resetVariable(oldName); // restore the original base variable again
@@ -238,7 +239,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
             }
         } else {
             // Add a new change item:
-            d->m_items.append(Utils::EnvironmentItem(oldName, stringValue));
+            d->m_items.append(EnvironmentItem(oldName, stringValue));
         }
         d->updateResultEnvironment();
         emit dataChanged(index, index);
@@ -251,12 +252,12 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 QModelIndex EnvironmentModel::addVariable()
 {
     //: Name when inserting a new variable
-    return addVariable(Utils::EnvironmentItem(tr("<VARIABLE>"),
-                                              //: Value when inserting a new variable
-                                              tr("<VALUE>")));
+    return addVariable(EnvironmentItem(tr("<VARIABLE>"),
+                                       //: Value when inserting a new variable
+                                       tr("<VALUE>")));
 }
 
-QModelIndex EnvironmentModel::addVariable(const Utils::EnvironmentItem &item)
+QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
 {
 
     // Return existing index if the name is already in the result set:
@@ -331,7 +332,7 @@ void EnvironmentModel::unsetVariable(const QString &name)
         emit userChangesChanged();
         return;
     }
-    Utils::EnvironmentItem item(name, QString());
+    EnvironmentItem item(name, QString());
     item.unset = true;
     d->m_items.append(item);
     d->updateResultEnvironment();
@@ -353,12 +354,12 @@ bool EnvironmentModel::canReset(const QString &name)
     return d->m_baseEnvironment.hasKey(name);
 }
 
-QList<Utils::EnvironmentItem> EnvironmentModel::userChanges() const
+QList<EnvironmentItem> EnvironmentModel::userChanges() const
 {
     return d->m_items;
 }
 
-void EnvironmentModel::setUserChanges(QList<Utils::EnvironmentItem> list)
+void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
 {
     // We assume nobody is reordering the items here.
     if (list == d->m_items)

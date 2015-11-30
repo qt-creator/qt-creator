@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
+** Copyright (C) 2015 BlackBerry Limited. All rights reserved.
 **
 ** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
@@ -11,20 +11,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -43,24 +44,23 @@ class QnxToolChain : public ProjectExplorer::GccToolChain
 public:
     explicit QnxToolChain(Detection d);
 
-    QString type() const;
-    QString typeDisplayName() const;
+    QString typeDisplayName() const override;
 
-    ProjectExplorer::ToolChainConfigWidget *configurationWidget();
+    ProjectExplorer::ToolChainConfigWidget *configurationWidget() override;
 
-    void addToEnvironment(Utils::Environment &env) const;
-    QList<Utils::FileName> suggestedMkspecList() const;
+    void addToEnvironment(Utils::Environment &env) const override;
+    Utils::FileNameList suggestedMkspecList() const override;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &data) override;
 
     QString ndkPath() const;
     void setNdkPath(const QString &ndkPath);
 
 protected:
-    virtual QList<ProjectExplorer::Abi> detectSupportedAbis() const;
+    virtual QList<ProjectExplorer::Abi> detectSupportedAbis() const override;
 
-    QStringList reinterpretOptions(const QStringList &args) const;
+    QStringList reinterpretOptions(const QStringList &args) const override;
 
 private:
     QString m_ndkPath;
@@ -77,11 +77,11 @@ class QnxToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     QnxToolChainFactory();
 
-    bool canRestore(const QVariantMap &data);
-    ProjectExplorer::ToolChain *restore(const QVariantMap &data);
+    bool canRestore(const QVariantMap &data) override;
+    ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
-    bool canCreate();
-    ProjectExplorer::ToolChain *create();
+    bool canCreate() override;
+    ProjectExplorer::ToolChain *create() override;
 };
 
 //----------------------------------------------------------------------------
@@ -96,10 +96,10 @@ public:
     QnxToolChainConfigWidget(QnxToolChain *tc);
 
 private:
-    void applyImpl();
-    void discardImpl();
-    bool isDirtyImpl() const;
-    void makeReadOnlyImpl() {}
+    void applyImpl() override;
+    void discardImpl() override;
+    bool isDirtyImpl() const override;
+    void makeReadOnlyImpl() override { }
 
     Utils::PathChooser *m_compilerCommand;
     Utils::PathChooser *m_ndkPath;

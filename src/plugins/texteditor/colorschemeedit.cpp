@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -82,7 +83,7 @@ public:
 
     int rowCount(const QModelIndex &parent) const
     {
-        return (parent.isValid() || !m_descriptions) ? 0 : m_descriptions->size();
+        return (parent.isValid() || !m_descriptions) ? 0 : int(m_descriptions->size());
     }
 
     QVariant data(const QModelIndex &index, int role) const
@@ -111,8 +112,10 @@ public:
         }
         case Qt::FontRole: {
             QFont font = m_baseFont;
-            font.setBold(m_scheme->formatFor(description.id()).bold());
-            font.setItalic(m_scheme->formatFor(description.id()).italic());
+            auto format = m_scheme->formatFor(description.id());
+            font.setBold(format.bold());
+            font.setItalic(format.italic());
+            font.setUnderline(format.underlineStyle() != QTextCharFormat::NoUnderline);
             return font;
         }
         case Qt::ToolTipRole: {
@@ -129,7 +132,7 @@ public:
 
         // If the text category changes, all indexes might have changed
         if (i.row() == 0)
-            emit dataChanged(i, index(m_descriptions->size() - 1));
+            emit dataChanged(i, index(int(m_descriptions->size()) - 1));
         else
             emit dataChanged(i, i);
     }
@@ -153,6 +156,8 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     m_ui->setupUi(this);
     m_ui->itemList->setModel(m_formatsModel);
 
+    populateUnderlineStyleComboBox();
+
     connect(m_ui->itemList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             SLOT(currentItemChanged(QModelIndex)));
     connect(m_ui->foregroundToolButton, SIGNAL(clicked()), SLOT(changeForeColor()));
@@ -161,6 +166,18 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     connect(m_ui->eraseForegroundToolButton, SIGNAL(clicked()), SLOT(eraseForeColor()));
     connect(m_ui->boldCheckBox, SIGNAL(toggled(bool)), SLOT(checkCheckBoxes()));
     connect(m_ui->italicCheckBox, SIGNAL(toggled(bool)), SLOT(checkCheckBoxes()));
+    connect(m_ui->underlineColorToolButton,
+            &QToolButton::clicked,
+            this,
+            &ColorSchemeEdit::changeUnderlineColor);
+    connect(m_ui->eraseUnderlineColorToolButton,
+            &QToolButton::clicked,
+            this,
+            &ColorSchemeEdit::eraseUnderlineColor);
+    connect(m_ui->underlineComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this,
+            &ColorSchemeEdit::changeUnderlineStyle);
 }
 
 ColorSchemeEdit::~ColorSchemeEdit()
@@ -198,6 +215,9 @@ void ColorSchemeEdit::setReadOnly(bool readOnly)
     m_ui->eraseForegroundToolButton->setEnabled(enabled);
     m_ui->boldCheckBox->setEnabled(enabled);
     m_ui->italicCheckBox->setEnabled(enabled);
+    m_ui->underlineColorToolButton->setEnabled(enabled);
+    m_ui->eraseUnderlineColorToolButton->setEnabled(enabled);
+    m_ui->underlineComboBox->setEnabled(enabled);
 }
 
 void ColorSchemeEdit::setColorScheme(const ColorScheme &colorScheme)
@@ -224,23 +244,84 @@ void ColorSchemeEdit::currentItemChanged(const QModelIndex &index)
 
 void ColorSchemeEdit::updateControls()
 {
-    const Format &format = m_scheme.formatFor(m_descriptions[m_curItem].id());
-    m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
-    m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
+    updateForegroundControls();
+    updateBackgroundControls();
+    updateFontControls();
+    updateUnderlineControls();
+}
 
-    m_ui->eraseBackgroundToolButton->setEnabled(!m_readOnly
-                                                && m_curItem > 0
-                                                && format.background().isValid());
+void ColorSchemeEdit::updateForegroundControls()
+{
+    const auto &formatDescription = m_descriptions[m_curItem];
+    const Format &format = m_scheme.formatFor(formatDescription.id());
+
+    bool isVisble = formatDescription.showControl(FormatDescription::ShowForegroundControl);
+
+    m_ui->foregroundLabel->setVisible(isVisble);
+    m_ui->foregroundToolButton->setVisible(isVisble);
+    m_ui->eraseForegroundToolButton->setVisible(isVisble);
+
+    m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
     m_ui->eraseForegroundToolButton->setEnabled(!m_readOnly
                                                 && m_curItem > 0
                                                 && format.foreground().isValid());
+}
 
-    const bool boldBlocked = m_ui->boldCheckBox->blockSignals(true);
+void ColorSchemeEdit::updateBackgroundControls()
+{
+    const auto formatDescription = m_descriptions[m_curItem];
+    const Format &format = m_scheme.formatFor(formatDescription.id());
+
+    bool isVisble = formatDescription.showControl(FormatDescription::ShowBackgroundControl);
+
+    m_ui->backgroundLabel->setVisible(isVisble);
+    m_ui->backgroundToolButton->setVisible(isVisble);
+    m_ui->eraseBackgroundToolButton->setVisible(isVisble);
+
+    m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
+    m_ui->eraseBackgroundToolButton->setEnabled(!m_readOnly
+                                                && m_curItem > 0
+                                                && format.background().isValid());
+}
+
+void ColorSchemeEdit::updateFontControls()
+{
+    const auto formatDescription = m_descriptions[m_curItem];
+    const Format &format = m_scheme.formatFor(formatDescription.id());
+
+    QSignalBlocker boldSignalBlocker(m_ui->boldCheckBox);
+    QSignalBlocker italicSignalBlocker(m_ui->italicCheckBox);
+
+    bool isVisble= formatDescription.showControl(FormatDescription::ShowFontControls);
+
+    m_ui->boldCheckBox->setVisible(isVisble);
+    m_ui->italicCheckBox->setVisible(isVisble);
+
     m_ui->boldCheckBox->setChecked(format.bold());
-    m_ui->boldCheckBox->blockSignals(boldBlocked);
-    const bool italicBlocked = m_ui->italicCheckBox->blockSignals(true);
     m_ui->italicCheckBox->setChecked(format.italic());
-    m_ui->italicCheckBox->blockSignals(italicBlocked);
+
+}
+
+void ColorSchemeEdit::updateUnderlineControls()
+{
+    const auto formatDescription = m_descriptions[m_curItem];
+    const Format &format = m_scheme.formatFor(formatDescription.id());
+
+    QSignalBlocker comboBoxSignalBlocker(m_ui->underlineComboBox);
+
+    bool isVisble= formatDescription.showControl(FormatDescription::ShowUnderlineControl);
+
+    m_ui->underlineLabel->setVisible(isVisble);
+    m_ui->underlineColorToolButton->setVisible(isVisble);
+    m_ui->eraseUnderlineColorToolButton->setVisible(isVisble);
+    m_ui->underlineComboBox->setVisible(isVisble);
+
+    m_ui->underlineColorToolButton->setStyleSheet(colorButtonStyleSheet(format.underlineColor()));
+    m_ui->eraseUnderlineColorToolButton->setEnabled(!m_readOnly
+                                                    && m_curItem > 0
+                                                    && format.underlineColor().isValid());
+    int index = m_ui->underlineComboBox->findData(QVariant::fromValue(int(format.underlineStyle())));
+    m_ui->underlineComboBox->setCurrentIndex(index);
 }
 
 void ColorSchemeEdit::changeForeColor()
@@ -325,9 +406,74 @@ void ColorSchemeEdit::checkCheckBoxes()
     }
 }
 
+void ColorSchemeEdit::changeUnderlineColor()
+{
+    if (m_curItem == -1)
+        return;
+    QColor color = m_scheme.formatFor(m_descriptions[m_curItem].id()).underlineColor();
+    const QColor newColor = QColorDialog::getColor(color, m_ui->boldCheckBox->window());
+    if (!newColor.isValid())
+        return;
+    m_ui->underlineColorToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+    m_ui->eraseUnderlineColorToolButton->setEnabled(true);
+
+    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+        const TextStyle category = m_descriptions[index.row()].id();
+        m_scheme.formatFor(category).setUnderlineColor(newColor);
+        m_formatsModel->emitDataChanged(index);
+    }
+}
+
+void ColorSchemeEdit::eraseUnderlineColor()
+{
+    if (m_curItem == -1)
+        return;
+    QColor newColor;
+    m_ui->underlineColorToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
+    m_ui->eraseUnderlineColorToolButton->setEnabled(false);
+
+    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+        const TextStyle category = m_descriptions[index.row()].id();
+        m_scheme.formatFor(category).setUnderlineColor(newColor);
+        m_formatsModel->emitDataChanged(index);
+    }
+}
+
+void ColorSchemeEdit::changeUnderlineStyle(int comboBoxIndex)
+{
+    if (m_curItem == -1)
+        return;
+
+    foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
+        const TextStyle category = m_descriptions[index.row()].id();
+        auto value = m_ui->underlineComboBox->itemData(comboBoxIndex);
+        auto enumeratorIndex = static_cast<QTextCharFormat::UnderlineStyle>(value.toInt());
+        m_scheme.formatFor(category).setUnderlineStyle(enumeratorIndex);
+        m_formatsModel->emitDataChanged(index);
+    }
+}
+
 void ColorSchemeEdit::setItemListBackground(const QColor &color)
 {
     QPalette pal;
     pal.setColor(QPalette::Base, color);
     m_ui->itemList->setPalette(pal);
+}
+
+void ColorSchemeEdit::populateUnderlineStyleComboBox()
+{
+    m_ui->underlineComboBox->addItem(tr("No Underline"),
+                                     QVariant::fromValue(int(QTextCharFormat::NoUnderline)));
+    m_ui->underlineComboBox->addItem(tr("Single Underline"),
+                                     QVariant::fromValue(int(QTextCharFormat::SingleUnderline)));
+    m_ui->underlineComboBox->addItem(tr("Wave Underline"),
+                                     QVariant::fromValue(int(QTextCharFormat::WaveUnderline)));
+    m_ui->underlineComboBox->addItem(tr("Dot Underline"),
+                                     QVariant::fromValue(int(QTextCharFormat::DotLine)));
+    m_ui->underlineComboBox->addItem(tr("Dash Underline"),
+                                     QVariant::fromValue(int(QTextCharFormat::DashUnderline)));
+    m_ui->underlineComboBox->addItem(tr("Dash-Dot Underline"),
+                                     QVariant::fromValue(int(QTextCharFormat::DashDotLine)));
+    m_ui->underlineComboBox->addItem(tr("Dash-Dot-Dot Underline"),
+                                     QVariant::fromValue(int(QTextCharFormat::DashDotDotLine)));
 }

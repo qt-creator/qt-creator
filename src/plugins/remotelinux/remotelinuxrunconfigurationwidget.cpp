@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,7 +31,9 @@
 
 #include "remotelinuxrunconfiguration.h"
 
+#include <coreplugin/coreicons.h>
 #include <utils/detailswidget.h>
+#include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -52,6 +55,9 @@ public:
     RemoteLinuxRunConfigurationWidgetPrivate(RemoteLinuxRunConfiguration *runConfig)
         : runConfiguration(runConfig), ignoreChange(false)
     {
+        const auto selectable = Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse;
+        localExecutableLabel.setTextInteractionFlags(selectable);
+        remoteExecutableLabel.setTextInteractionFlags(selectable);
     }
 
     RemoteLinuxRunConfiguration * const runConfiguration;
@@ -86,8 +92,8 @@ RemoteLinuxRunConfigurationWidget::RemoteLinuxRunConfigurationWidget(RemoteLinux
     mainLayout->setMargin(0);
     addGenericWidgets(mainLayout);
 
-    connect(d->runConfiguration, SIGNAL(enabledChanged()),
-        SLOT(runConfigurationEnabledChange()));
+    connect(d->runConfiguration, &RemoteLinuxRunConfiguration::enabledChanged,
+            this, &RemoteLinuxRunConfigurationWidget::runConfigurationEnabledChange);
     runConfigurationEnabledChange();
 }
 
@@ -105,7 +111,7 @@ void RemoteLinuxRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
 {
     QHBoxLayout * const hl = new QHBoxLayout;
     hl->addStretch();
-    d->disabledIcon.setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/compile_warning.png")));
+    d->disabledIcon.setPixmap(Core::Icons::WARNING.pixmap());
     hl->addWidget(&d->disabledIcon);
     d->disabledReason.setVisible(false);
     hl->addWidget(&d->disabledReason);
@@ -148,23 +154,26 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     altRemoteExeLayout->addWidget(&d->useAlternateCommandBox);
     d->genericWidgetsLayout.addRow(tr("Alternate executable on device:"), altRemoteExeWidget);
 
-    d->argsLineEdit.setText(d->runConfiguration->arguments().join(QLatin1String(" ")));
+    d->argsLineEdit.setText(Utils::QtcProcess::joinArgs(d->runConfiguration->arguments(),
+                                                        Utils::OsTypeLinux));
     d->genericWidgetsLayout.addRow(tr("Arguments:"), &d->argsLineEdit);
 
     d->workingDirLineEdit.setPlaceholderText(tr("<default>"));
     d->workingDirLineEdit.setText(d->runConfiguration->workingDirectory());
     d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
 
-    connect(&d->argsLineEdit, SIGNAL(textEdited(QString)), SLOT(argumentsEdited(QString)));
-    connect(d->runConfiguration, SIGNAL(targetInformationChanged()), this,
-        SLOT(updateTargetInformation()));
-    connect(d->runConfiguration, SIGNAL(deploySpecsChanged()), SLOT(handleDeploySpecsChanged()));
-    connect(&d->useAlternateCommandBox, SIGNAL(toggled(bool)),
-        SLOT(handleUseAlternateCommandChanged()));
-    connect(&d->alternateCommand, SIGNAL(textEdited(QString)),
-        SLOT(handleAlternateCommandChanged()));
-    connect(&d->workingDirLineEdit, SIGNAL(textEdited(QString)),
-        SLOT(handleWorkingDirectoryChanged()));
+    connect(&d->argsLineEdit, &QLineEdit::textEdited,
+            this, &RemoteLinuxRunConfigurationWidget::argumentsEdited);
+    connect(d->runConfiguration, &RemoteLinuxRunConfiguration::targetInformationChanged,
+            this, &RemoteLinuxRunConfigurationWidget::updateTargetInformation);
+    connect(d->runConfiguration, &RemoteLinuxRunConfiguration::deploySpecsChanged,
+            this, &RemoteLinuxRunConfigurationWidget::handleDeploySpecsChanged);
+    connect(&d->useAlternateCommandBox, &QCheckBox::toggled,
+            this, &RemoteLinuxRunConfigurationWidget::handleUseAlternateCommandChanged);
+    connect(&d->alternateCommand, &QLineEdit::textEdited,
+            this, &RemoteLinuxRunConfigurationWidget::handleAlternateCommandChanged);
+    connect(&d->workingDirLineEdit, &QLineEdit::textEdited,
+            this, &RemoteLinuxRunConfigurationWidget::handleWorkingDirectoryChanged);
     handleDeploySpecsChanged();
     handleUseAlternateCommandChanged();
 }

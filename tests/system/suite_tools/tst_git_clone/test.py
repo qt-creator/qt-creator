@@ -1,7 +1,7 @@
 #############################################################################
 ##
-## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-## Contact: http://www.qt-project.org/legal
+## Copyright (C) 2015 The Qt Company Ltd.
+## Contact: http://www.qt.io/licensing
 ##
 ## This file is part of Qt Creator.
 ##
@@ -9,20 +9,21 @@
 ## Licensees holding valid commercial Qt licenses may use this file in
 ## accordance with the commercial license agreement provided with the
 ## Software or, alternatively, in accordance with the terms contained in
-## a written agreement between you and Digia.  For licensing terms and
-## conditions see http://qt.digia.com/licensing.  For further information
-## use the contact form at http://qt.digia.com/contact-us.
+## a written agreement between you and The Qt Company.  For licensing terms and
+## conditions see http://www.qt.io/terms-conditions.  For further information
+## use the contact form at http://www.qt.io/contact-us.
 ##
 ## GNU Lesser General Public License Usage
 ## Alternatively, this file may be used under the terms of the GNU Lesser
-## General Public License version 2.1 as published by the Free Software
-## Foundation and appearing in the file LICENSE.LGPL included in the
-## packaging of this file.  Please review the following information to
-## ensure the GNU Lesser General Public License version 2.1 requirements
-## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## General Public License version 2.1 or version 3 as published by the Free
+## Software Foundation and appearing in the file LICENSE.LGPLv21 and
+## LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+## following information to ensure the GNU Lesser General Public License
+## requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 ##
-## In addition, as a special exception, Digia gives you certain additional
-## rights.  These rights are described in the Digia Qt LGPL Exception
+## In addition, as a special exception, The Qt Company gives you certain additional
+## rights.  These rights are described in The Qt Company LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 #############################################################################
@@ -33,34 +34,50 @@ cloneUrl = "https://codereview.qt-project.org/p/qt-labs/jom"
 cloneDir = "myCloneOfJom"
 
 def verifyCloneLog(targetDir, canceled):
-    # Expect fails because of QTCREATORBUG-10531
-    cloneLog = waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit")
-    finish = findObject(":Git Repository Clone.Finish_QPushButton")
-    waitFor("canceled or finish.enabled", 30000)
-    test.xverify(("Executing in " + targetDir + ":" in str(cloneLog.plainText)),
-                 "Searching for target directory in clone log")
-    test.xverify((" ".join(["clone", cloneUrl, cloneDir]) in str(cloneLog.plainText)),
-                 "Searching for git parameters in clone log")
     if canceled:
-        test.xverify("Stopping..." in str(cloneLog.plainText),
-                     "Searching for 'Stopping...' in clone log")
-        result = "The process terminated in an abnormal way."
         summary = "Failed."
     else:
-        test.verify(not "Stopping..." in str(cloneLog.plainText),
+        finish = findObject(":Git Repository Clone.Finish_QPushButton")
+        waitFor("finish.enabled", 30000)
+        cloneLog = str(waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit").plainText)
+        if "fatal: " in cloneLog:
+            test.warning("Cloning failed outside Creator.")
+            return False
+        # test for QTCREATORBUG-10112
+        test.compare(cloneLog.count("remote: Counting objects:"), 1)
+        test.compare(cloneLog.count("remote: Finding sources:"), 1)
+        test.compare(cloneLog.count("Receiving objects:"), 1)
+        test.compare(cloneLog.count("Resolving deltas:"), 1)
+        test.verify(not "Stopping..." in cloneLog,
                     "Searching for 'Stopping...' in clone log")
-        test.verify(("'" + cloneDir + "'..." in str(cloneLog.plainText)),
+        test.verify(("'" + cloneDir + "'..." in cloneLog),
                     "Searching for clone directory in clone log")
-        result = "The process terminated with exit code 0."
         summary = "Succeeded."
-    # cloneLog.plainText holds escape as character which makes QDom fail while printing the result
-    # removing these for letting Jenkins continue execute the test suite
-    test.xverify((result in str(cloneLog.plainText)),
-                 "Searching for result (%s) in clone log:\n%s"
-                % (result, str(cloneLog.plainText).replace(unicode("\x1b"), "")))
-    resultLabel = findObject(":Git Repository Clone.Result._QLabel")
-    test.verify(waitFor('str(resultLabel.text) == summary', 3000),
-                "Verifying expected result (%s)" % summary)
+    try:
+        resultLabel = findObject(":Git Repository Clone.Result._QLabel")
+        test.verify(waitFor('str(resultLabel.text) == summary', 3000),
+                    "Verifying expected result (%s)" % summary)
+    except:
+        if canceled:
+            test.warning("Could not find resultLabel",
+                         "Cloning might have failed before clicking 'Cancel'")
+            return object.exists(":New Text File_ProjectExplorer::JsonWizard")
+        else:
+            test.fail("Could not find resultLabel")
+    return True
+
+def verifyVersionControlView(targetDir, canceled):
+    openVcsLog()
+    vcsLog = str(waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
+                               "window=':Qt Creator_Core::Internal::MainWindow'}").plainText)
+    test.log("Clone log is: %s" % vcsLog)
+    test.verify("Executing in " + targetDir + ":" in vcsLog,
+                "Searching for target directory in clone log")
+    test.verify(" ".join(["clone", "--progress", cloneUrl, cloneDir]) in vcsLog,
+                "Searching for git parameters in clone log")
+    test.verify(canceled == (" terminated abnormally" in vcsLog),
+                "Searching for result in clone log")
+    clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
 
 def verifyFiles(targetDir):
     for file in [".gitignore", "CMakeLists.txt", "jom.pro",
@@ -76,27 +93,30 @@ def main():
     for button in ["Cancel immediately",
                    ":Git Repository Clone.Cancel_QPushButton",
                    ":Git Repository Clone.Finish_QPushButton"]:
-        __createProjectOrFileSelectType__("  Import Project", "Git Repository Clone")
-        replaceEditorContent(waitForObject(":Repository.repositoryLineEdit_QLineEdit"),
+        __createProjectOrFileSelectType__("  Import Project", "Git Clone")
+        replaceEditorContent(waitForObject("{name='Repo' type='QLineEdit' visible='1'}"),
                              cloneUrl)
         targetDir = tempDir()
         replaceEditorContent(waitForObject(":Working Copy_Utils::BaseValidatingLineEdit"),
                              targetDir)
-        cloneDirEdit = waitForObject(":Working Copy.checkoutDirectoryLineEdit_QLineEdit")
-        test.compare(cloneDirEdit.text, "p-qt-labs-jom")
+        cloneDirEdit = waitForObject("{name='Dir' type='QLineEdit' visible='1'}")
+        test.compare(cloneDirEdit.text, "jom")
         replaceEditorContent(cloneDirEdit, cloneDir)
         clickButton(waitForObject(":Next_QPushButton"))
         cloneLog = waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit", 1000)
         test.compare(waitForObject(":Git Repository Clone.Result._QLabel").text,
-                     "Cloning started...")
+                     "Running Git clone...")
         if button == "Cancel immediately":
             # wait for cloning to have started
             waitFor('len(str(cloneLog.plainText)) > 20 + len(cloneDir)')
             clickButton(":Git Repository Clone.Cancel_QPushButton")
-            verifyCloneLog(targetDir, True)
+            if not verifyCloneLog(targetDir, True):
+                continue
             clickButton(":Git Repository Clone.Cancel_QPushButton")
         else:
-            verifyCloneLog(targetDir, False)
+            if not verifyCloneLog(targetDir, False):
+                clickButton(":Git Repository Clone.Cancel_QPushButton")
+                continue
             verifyFiles(targetDir)
             try:
                 clickButton(waitForObject(button))
@@ -122,4 +142,5 @@ def main():
                         test.fail("The checked out project was not being opened.",
                                   waitForObject(":Cannot Open Project_QTextEdit").plainText)
                         clickButton(waitForObject(":Cannot Open Project.OK_QPushButton"))
+        verifyVersionControlView(targetDir, button == "Cancel immediately")
     invokeMenuItem("File", "Exit")

@@ -18,6 +18,7 @@ HEADERS += \
     iossettingswidget.h \
     iosrunner.h \
     iosdebugsupport.h \
+    iosdsymbuildstep.h \
     iosqtversionfactory.h \
     iosqtversion.h \
     iosplugin.h \
@@ -31,7 +32,8 @@ HEADERS += \
     iosdeployconfiguration.h \
     iosdeploystep.h \
     iosdeploystepfactory.h \
-    iosdeploystepwidget.h
+    iosdeploystepwidget.h \
+    iosanalyzesupport.h
 
 
 SOURCES += \
@@ -44,6 +46,7 @@ SOURCES += \
     iossettingswidget.cpp \
     iosrunner.cpp \
     iosdebugsupport.cpp \
+    iosdsymbuildstep.cpp \
     iosqtversionfactory.cpp \
     iosqtversion.cpp \
     iosplugin.cpp \
@@ -57,13 +60,15 @@ SOURCES += \
     iosdeployconfiguration.cpp \
     iosdeploystep.cpp \
     iosdeploystepfactory.cpp \
-    iosdeploystepwidget.cpp
+    iosdeploystepwidget.cpp \
+    iosanalyzesupport.cpp
 
 FORMS += \
     iossettingswidget.ui \
     iosbuildstep.ui \
     iosrunconfiguration.ui \
-    iosdeploystepwidget.ui
+    iosdeploystepwidget.ui \
+    iospresetbuildstep.ui
 
 DEFINES += IOS_LIBRARY
 

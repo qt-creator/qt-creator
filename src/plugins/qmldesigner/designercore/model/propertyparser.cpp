@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,25 +9,22 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
 #include "propertyparser.h"
+#include "enumeration.h"
 #include <modelnode.h>
 #include <metainfo.h>
 
@@ -178,6 +175,15 @@ QVector3D vector3DFromString(const QString &s, bool *ok)
     return QVector3D(xCoord, yCoord, zCoord);
 }
 
+QmlDesigner::Enumeration enumerationFromString(const QString &string, bool *ok)
+{
+    QmlDesigner::Enumeration tEnumeration(string);
+    if (ok)
+        *ok = !tEnumeration.scope().isEmpty() && !tEnumeration.name().isEmpty();
+    return tEnumeration;
+}
+
+
 } //namespace
 
 namespace QmlDesigner {
@@ -193,9 +199,11 @@ QVariant read(const QString &typeStr, const QString &str)
 {
     int type = QMetaType::type(typeStr.toUtf8().constData());
     if (type == 0) {
-        qWarning() << "Type " << typeStr
-                << " is unknown to QMetaType system. Cannot create properly typed QVariant for value "
-                << str;
+        if (typeStr != QStringLiteral("binding")) {
+            qWarning() << "Type " << typeStr
+                    << " is unknown to QMetaType system. Cannot create properly typed QVariant for value "
+                    << str;
+        }
         // Fall back to a QVariant of type String
         return QVariant(str);
     }
@@ -236,8 +244,12 @@ QVariant read(int variantType, const QString &str)
         value = vector3DFromString(str, &conversionOk);
         break;
     default: {
-        value = QVariant(str);
-        value.convert(static_cast<QVariant::Type>(variantType));
+        if (variantType == QMetaType::type("Enumeration")) {
+            value = QVariant::fromValue<Enumeration>(enumerationFromString(str, &conversionOk));
+        } else {
+            value = QVariant(str);
+            value.convert(static_cast<QVariant::Type>(variantType));
+        }
         break;
         }
     }
@@ -249,7 +261,6 @@ QVariant read(int variantType, const QString &str)
     }
 
     return value;
-    return QVariant();
 }
 
 QVariant variantFromString(const QString &s)
@@ -269,63 +280,6 @@ QVariant variantFromString(const QString &s)
     if (ok) return QVariant::fromValue(v);
 
     return QVariant(s);
-}
-
-QString write(const QVariant &variant)
-{
-    if (!variant.isValid()) {
-        qWarning() << "Trying to serialize invalid QVariant";
-        return QString();
-    }
-    QString value;
-    switch (variant.type()) {
-    case QMetaType::QPoint:
-    {
-        QPoint p = variant.toPoint();
-        value = QString("%1,%2").arg(QString::number(p.x()), QString::number(p.y()));
-        break;
-    }
-    case QMetaType::QPointF:
-    {
-        QPointF p = variant.toPointF();
-        value = QString("%1,%2").arg(QString::number(p.x(), 'f'), QString::number(p.y(), 'f'));
-        break;
-    }
-    case QMetaType::QSize:
-    {
-        QSize s = variant.toSize();
-        value = QString("%1x%2").arg(QString::number(s.width()), QString::number(s.height()));
-        break;
-    }
-    case QMetaType::QSizeF:
-    {
-        QSizeF s = variant.toSizeF();
-        value = QString("%1x%2").arg(QString::number(s.width(), 'f'), QString::number(s.height(), 'f'));
-        break;
-    }
-    case QMetaType::QRect:
-    {
-        QRect r = variant.toRect();
-        value = QString("%1,%2,%3x%4").arg(QString::number(r.x()), QString::number(r.y()),
-                                           QString::number(r.width()), QString::number(r.height()));
-        break;
-    }
-    case QMetaType::QRectF:
-    {
-        QRectF r = variant.toRectF();
-        value = QString("%1,%2,%3x%4").arg(QString::number(r.x(), 'f'), QString::number(r.y(), 'f'),
-                                           QString::number(r.width(), 'f'), QString::number(r.height(), 'f'));
-        break;
-    }
-    default:
-        QVariant strVariant = variant;
-        strVariant.convert(QVariant::String);
-        if (!strVariant.isValid())
-            qWarning() << Q_FUNC_INFO << "cannot serialize type " << QMetaType::typeName(variant.type());
-        value = strVariant.toString();
-    }
-
-    return value;
 }
 
 } // namespace PropertyParser

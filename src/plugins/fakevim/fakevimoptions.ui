@@ -187,7 +187,7 @@
         <item>
          <widget class="QLabel" name="labelTabulator">
           <property name="toolTip">
-           <string>Vim tabstop option</string>
+           <string>Vim tabstop option.</string>
           </property>
           <property name="text">
            <string>Tabulator size:</string>

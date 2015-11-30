@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -41,7 +42,7 @@
 #include <coreplugin/documentmanager.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qmljstools/qmljsmodelmanager.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
@@ -55,71 +56,23 @@ using namespace ProjectExplorer;
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlProjectKitMatcher : public ProjectExplorer::KitMatcher
-{
-public:
-    QmlProjectKitMatcher(const QmlProject::QmlImport &import)
-        : import(import)
-    {
-    }
-
-    bool matches(const ProjectExplorer::Kit *k) const
-    {
-        if (!k->isValid())
-            return false;
-
-        ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(k);
-        if (dev.isNull() || dev->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-            return false;
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-        if (!version || version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT))
-            return false;
-
-        bool hasViewer = false; // Initialization needed for dumb compilers.
-        QtSupport::QtVersionNumber minVersion;
-        switch (import) {
-        case QmlProject::UnknownImport:
-            minVersion = QtSupport::QtVersionNumber(4, 7, 0);
-            hasViewer = !version->qmlviewerCommand().isEmpty() || !version->qmlsceneCommand().isEmpty();
-            break;
-        case QmlProject::QtQuick1Import:
-            minVersion = QtSupport::QtVersionNumber(4, 7, 1);
-            hasViewer = !version->qmlviewerCommand().isEmpty();
-            break;
-        case QmlProject::QtQuick2Import:
-            minVersion = QtSupport::QtVersionNumber(5, 0, 0);
-            hasViewer = !version->qmlsceneCommand().isEmpty();
-            break;
-        }
-
-        if (version->qtVersion() >= minVersion
-                && hasViewer)
-            return true;
-
-        return false;
-    }
-private:
-    QmlProject::QmlImport import;
-};
-
 } // namespace Internal
 
-QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
+QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileName)
     : m_manager(manager),
       m_fileName(fileName),
       m_defaultImport(UnknownImport),
-      m_modelManager(QmlJS::ModelManagerInterface::instance()),
       m_activeTarget(0)
 {
     setId("QmlProjectManager.QmlProject");
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_QMLJS));
 
-    QFileInfo fileInfo(m_fileName);
+    QFileInfo fileInfo = m_fileName.toFileInfo();
     m_projectName = fileInfo.completeBaseName();
 
     m_file = new Internal::QmlProjectFile(this, fileName);
-    m_rootNode = new Internal::QmlProjectNode(this, m_file);
+    m_rootNode = new Internal::QmlProjectNode(this);
 
     DocumentManager::addDocument(m_file, true);
 
@@ -136,18 +89,18 @@ QmlProject::~QmlProject()
     delete m_rootNode;
 }
 
-void QmlProject::addedTarget(ProjectExplorer::Target *target)
+void QmlProject::addedTarget(Target *target)
 {
     connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
             this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
-    foreach (ProjectExplorer::RunConfiguration *rc, target->runConfigurations())
+    foreach (RunConfiguration *rc, target->runConfigurations())
         addedRunConfiguration(rc);
 }
 
-void QmlProject::onActiveTargetChanged(ProjectExplorer::Target *target)
+void QmlProject::onActiveTargetChanged(Target *target)
 {
     if (m_activeTarget)
-        disconnect(m_activeTarget, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
+        disconnect(m_activeTarget, &Target::kitChanged, this, &QmlProject::onKitChanged);
     m_activeTarget = target;
     if (m_activeTarget)
         connect(target, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
@@ -162,7 +115,7 @@ void QmlProject::onKitChanged()
     refresh(Configuration);
 }
 
-void QmlProject::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+void QmlProject::addedRunConfiguration(RunConfiguration *rc)
 {
     // The enabled state of qml runconfigurations can only be decided after
     // they have been added to a project
@@ -173,10 +126,10 @@ void QmlProject::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 
 QDir QmlProject::projectDir() const
 {
-    return QFileInfo(projectFilePath()).dir();
+    return projectFilePath().toFileInfo().dir();
 }
 
-QString QmlProject::filesFileName() const
+Utils::FileName QmlProject::filesFileName() const
 { return m_fileName; }
 
 static QmlProject::QmlImport detectImport(const QString &qml) {
@@ -204,13 +157,16 @@ void QmlProject::parseProject(RefreshOptions options)
                           this, SLOT(refreshFiles(QSet<QString>,QSet<QString>)));
 
               } else {
-                  MessageManager::write(tr("Error while loading project file %1.").arg(m_fileName), MessageManager::NoModeSwitch);
+                  MessageManager::write(tr("Error while loading project file %1.")
+                                        .arg(m_fileName.toUserOutput()),
+                                        MessageManager::NoModeSwitch);
                   MessageManager::write(errorMessage);
               }
         }
         if (m_projectItem) {
             m_projectItem.data()->setSourceDirectory(projectDir().path());
-            m_modelManager->updateSourceFiles(m_projectItem.data()->files(), true);
+            if (modelManager())
+                modelManager()->updateSourceFiles(m_projectItem.data()->files(), true);
 
             QString mainFilePath = m_projectItem.data()->mainFile();
             if (!mainFilePath.isEmpty()) {
@@ -218,7 +174,8 @@ void QmlProject::parseProject(RefreshOptions options)
                 Utils::FileReader reader;
                 QString errorMessage;
                 if (!reader.fetch(mainFilePath, &errorMessage)) {
-                    MessageManager::write(tr("Warning while loading project file %1.").arg(m_fileName));
+                    MessageManager::write(tr("Warning while loading project file %1.")
+                                          .arg(m_fileName.toUserOutput()));
                     MessageManager::write(errorMessage);
                 } else {
                     m_defaultImport = detectImport(QString::fromUtf8(reader.data()));
@@ -243,16 +200,21 @@ void QmlProject::refresh(RefreshOptions options)
     if (options & Files)
         m_rootNode->refresh();
 
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
-            QmlJSTools::defaultProjectInfoForProject(this);
-    projectInfo.importPaths = customImportPaths();
+    if (!modelManager())
+        return;
 
-    m_modelManager->updateProjectInfo(projectInfo, this);
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
+            modelManager()->defaultProjectInfoForProject(this);
+    foreach (const QString &searchPath, customImportPaths())
+        projectInfo.importPaths.maybeInsert(Utils::FileName::fromString(searchPath),
+                                            QmlJS::Dialect::Qml);
+
+    modelManager()->updateProjectInfo(projectInfo, this);
 }
 
 QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
 {
-    const QDir projectDir(QFileInfo(m_fileName).dir());
+    const QDir projectDir(m_fileName.toFileInfo().dir());
     QStringList absolutePaths;
     foreach (const QString &file, paths) {
         QFileInfo fileInfo(projectDir, file);
@@ -260,6 +222,11 @@ QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
     }
     absolutePaths.removeDuplicates();
     return absolutePaths;
+}
+
+QmlJS::ModelManagerInterface *QmlProject::modelManager() const
+{
+    return QmlJS::ModelManagerInterface::instance();
 }
 
 QStringList QmlProject::files() const
@@ -316,8 +283,8 @@ QmlProject::QmlImport QmlProject::defaultImport() const
 void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString> &removed)
 {
     refresh(Files);
-    if (!removed.isEmpty())
-        m_modelManager->removeFiles(removed.toList());
+    if (!removed.isEmpty() && modelManager())
+        modelManager()->removeFiles(removed.toList());
 }
 
 QString QmlProject::displayName() const
@@ -330,14 +297,14 @@ IDocument *QmlProject::document() const
     return m_file;
 }
 
-ProjectExplorer::IProjectManager *QmlProject::projectManager() const
+IProjectManager *QmlProject::projectManager() const
 {
     return m_manager;
 }
 
-bool QmlProject::supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const
+bool QmlProject::supportsKit(Kit *k, QString *errorMessage) const
 {
-    Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
+    Id deviceType = DeviceTypeKitInformation::deviceTypeId(k);
     if (deviceType != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         if (errorMessage)
             *errorMessage = tr("Device type is not desktop.");
@@ -366,7 +333,7 @@ bool QmlProject::supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) con
     return true;
 }
 
-ProjectExplorer::ProjectNode *QmlProject::rootProjectNode() const
+ProjectNode *QmlProject::rootProjectNode() const
 {
     return m_rootNode;
 }
@@ -376,18 +343,48 @@ QStringList QmlProject::files(FilesMode) const
     return files();
 }
 
-bool QmlProject::fromMap(const QVariantMap &map)
+Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
-    if (!Project::fromMap(map))
-        return false;
+    RestoreResult result = Project::fromMap(map, errorMessage);
+    if (result != RestoreResult::Ok)
+        return result;
 
     // refresh first - project information is used e.g. to decide the default RC's
     refresh(Everything);
 
     if (!activeTarget()) {
         // find a kit that matches prerequisites (prefer default one)
-        Internal::QmlProjectKitMatcher matcher(defaultImport());
-        QList<Kit*> kits = KitManager::matchingKits(matcher);
+        QList<Kit*> kits = KitManager::matchingKits(
+            std::function<bool(const Kit *)>([this](const Kit *k) -> bool {
+                if (!k->isValid())
+                    return false;
+
+                IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+                if (dev.isNull() || dev->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+                    return false;
+                QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+                if (!version || version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT))
+                    return false;
+
+                bool hasViewer = false; // Initialization needed for dumb compilers.
+                QtSupport::QtVersionNumber minVersion;
+                switch (m_defaultImport) {
+                case QmlProject::UnknownImport:
+                    minVersion = QtSupport::QtVersionNumber(4, 7, 0);
+                    hasViewer = !version->qmlviewerCommand().isEmpty() || !version->qmlsceneCommand().isEmpty();
+                    break;
+                case QmlProject::QtQuick1Import:
+                    minVersion = QtSupport::QtVersionNumber(4, 7, 1);
+                    hasViewer = !version->qmlviewerCommand().isEmpty();
+                    break;
+                case QmlProject::QtQuick2Import:
+                    minVersion = QtSupport::QtVersionNumber(5, 0, 0);
+                    hasViewer = !version->qmlsceneCommand().isEmpty();
+                    break;
+                }
+
+                return version->qtVersion() >= minVersion && hasViewer;
+            }));
 
         if (!kits.isEmpty()) {
             Kit *kit = 0;
@@ -404,18 +401,14 @@ bool QmlProject::fromMap(const QVariantMap &map)
     foreach (Target *t, targets())
         addedTarget(t);
 
-    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(addedTarget(ProjectExplorer::Target*)));
+    connect(this, &ProjectExplorer::Project::addedTarget, this, &QmlProject::addedTarget);
 
-    connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-            this, SLOT(onActiveTargetChanged(ProjectExplorer::Target*)));
+    connect(this, &ProjectExplorer::Project::activeTargetChanged,
+            this, &QmlProject::onActiveTargetChanged);
 
-    // make sure we get updates on kit changes
-    m_activeTarget = activeTarget();
-    if (m_activeTarget)
-        connect(m_activeTarget, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
+    onActiveTargetChanged(activeTarget());
 
-    return true;
+    return RestoreResult::Ok;
 }
 
 } // namespace QmlProjectManager

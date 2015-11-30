@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2014 Denis Mingulov.
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Denis Mingulov.
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator
 **
@@ -17,7 +17,7 @@
 **     notice, this list of conditions and the following disclaimer in
 **     the documentation and/or other materials provided with the
 **     distribution.
-**   * Neither the name of Digia Plc and its Subsidiary(-ies) nor
+**   * Neither the name of The Qt Company Ltd and its Subsidiary(-ies) nor
 **     the names of its contributors may be used to endorse or promote
 **     products derived from this software without specific prior written
 **     permission.
@@ -39,16 +39,12 @@
 
 #include "imageview.h"
 
-#include <QFile>
+#include "imageviewerfile.h"
+
 #include <QWheelEvent>
 #include <QMouseEvent>
-#include <QMovie>
 #include <QGraphicsRectItem>
 #include <QPixmap>
-#ifndef QT_NO_SVG
-#include <QGraphicsSvgItem>
-#endif
-#include <QImageReader>
 #include <qmath.h>
 
 namespace ImageViewer {
@@ -58,45 +54,8 @@ namespace Constants {
 
 namespace Internal {
 
-class MovieItem : public QGraphicsPixmapItem
-{
-public:
-    MovieItem(QMovie *movie)
-        : m_movie(movie)
-    {
-        setPixmap(m_movie->currentPixmap());
-    }
-
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
-    {
-        painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
-        painter->drawPixmap(offset(), m_movie->currentPixmap());
-    }
-
-private:
-    QMovie *m_movie;
-};
-
-struct ImageViewPrivate
-{
-    ImageViewPrivate()
-        : imageItem(0)
-        , backgroundItem(0)
-        , outlineItem(0)
-        , movie(0)
-        , moviePaused(true)
-    {}
-
-    QGraphicsItem *imageItem;
-    QGraphicsRectItem *backgroundItem;
-    QGraphicsRectItem *outlineItem;
-    QMovie *movie;
-    bool moviePaused;
-};
-
-ImageView::ImageView(QWidget *parent)
-    : QGraphicsView(parent),
-    d(new ImageViewPrivate())
+ImageView::ImageView(ImageViewerFile *file)
+    : m_file(file)
 {
     setScene(new QGraphicsScene(this));
     setTransformationAnchor(AnchorUnderMouse);
@@ -119,7 +78,44 @@ ImageView::ImageView(QWidget *parent)
 
 ImageView::~ImageView()
 {
-    delete d;
+}
+
+void ImageView::reset()
+{
+    scene()->clear();
+    resetTransform();
+}
+
+void ImageView::createScene()
+{
+    m_imageItem = m_file->createGraphicsItem();
+    if (!m_imageItem) // failed to load
+        return;
+    m_imageItem->setCacheMode(QGraphicsItem::NoCache);
+    m_imageItem->setZValue(0);
+
+    // background item
+    m_backgroundItem = new QGraphicsRectItem(m_imageItem->boundingRect());
+    m_backgroundItem->setBrush(Qt::white);
+    m_backgroundItem->setPen(Qt::NoPen);
+    m_backgroundItem->setVisible(m_showBackground);
+    m_backgroundItem->setZValue(-1);
+
+    // outline
+    m_outlineItem = new QGraphicsRectItem(m_imageItem->boundingRect());
+    QPen outline(Qt::black, 1, Qt::DashLine);
+    outline.setCosmetic(true);
+    m_outlineItem->setPen(outline);
+    m_outlineItem->setBrush(Qt::NoBrush);
+    m_outlineItem->setVisible(m_showOutline);
+    m_outlineItem->setZValue(1);
+
+    QGraphicsScene *s = scene();
+    s->addItem(m_backgroundItem);
+    s->addItem(m_imageItem);
+    s->addItem(m_outlineItem);
+
+    emitScaleFactor();
 }
 
 void ImageView::drawBackground(QPainter *p, const QRectF &)
@@ -130,118 +126,18 @@ void ImageView::drawBackground(QPainter *p, const QRectF &)
     p->restore();
 }
 
-bool ImageView::openFile(QString fileName)
-{
-#ifndef QT_NO_SVG
-    bool isSvg = false;
-#endif
-    QByteArray format = QImageReader::imageFormat(fileName);
-
-    // if it is impossible to recognize a file format - file will not be open correctly
-    if (format.isEmpty())
-        return false;
-
-#ifndef QT_NO_SVG
-    if (format.startsWith("svg"))
-        isSvg = true;
-#endif
-    QGraphicsScene *s = scene();
-
-    bool drawBackground = (d->backgroundItem ? d->backgroundItem->isVisible() : false);
-    bool drawOutline = (d->outlineItem ? d->outlineItem->isVisible() : true);
-
-    s->clear();
-    resetTransform();
-    delete d->movie;
-    d->movie = 0;
-
-    // image
-#ifndef QT_NO_SVG
-    if (isSvg) {
-        d->imageItem = new QGraphicsSvgItem(fileName);
-        emit imageSizeChanged(QSize());
-    } else
-#endif
-    if (QMovie::supportedFormats().contains(format)) {
-        d->movie = new QMovie(fileName, QByteArray(), this);
-        d->movie->setCacheMode(QMovie::CacheAll);
-        connect(d->movie, SIGNAL(finished()), d->movie, SLOT(start()));
-        connect(d->movie, SIGNAL(updated(QRect)), this, SLOT(updatePixmap(QRect)));
-        connect(d->movie, SIGNAL(resized(QSize)), this, SLOT(pixmapResized(QSize)));
-        d->movie->start();
-        d->moviePaused = false;
-        d->imageItem = new MovieItem(d->movie);
-    } else {
-        QPixmap pixmap(fileName);
-        QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pixmap);
-        pixmapItem->setTransformationMode(Qt::SmoothTransformation);
-        d->imageItem = pixmapItem;
-        emit imageSizeChanged(pixmap.size());
-    }
-    d->imageItem->setCacheMode(QGraphicsItem::NoCache);
-    d->imageItem->setZValue(0);
-
-    // background item
-    d->backgroundItem = new QGraphicsRectItem(d->imageItem->boundingRect());
-    d->backgroundItem->setBrush(Qt::white);
-    d->backgroundItem->setPen(Qt::NoPen);
-    d->backgroundItem->setVisible(drawBackground);
-    d->backgroundItem->setZValue(-1);
-
-    // outline
-    d->outlineItem = new QGraphicsRectItem(d->imageItem->boundingRect());
-    QPen outline(Qt::black, 1, Qt::DashLine);
-    outline.setCosmetic(true);
-    d->outlineItem->setPen(outline);
-    d->outlineItem->setBrush(Qt::NoBrush);
-    d->outlineItem->setVisible(drawOutline);
-    d->outlineItem->setZValue(1);
-
-    s->addItem(d->backgroundItem);
-    s->addItem(d->imageItem);
-    s->addItem(d->outlineItem);
-
-    // if image size is 0x0, then it is not loaded
-    if (d->imageItem->boundingRect().height() == 0 && d->imageItem->boundingRect().width() == 0)
-        return false;
-    emitScaleFactor();
-
-    return true;
-}
-
-bool ImageView::isAnimated() const
-{
-    return d->movie;
-}
-
-bool ImageView::isPaused() const
-{
-    return d->moviePaused;
-}
-
-void ImageView::setPaused(bool paused)
-{
-    if (!d->movie)
-        return;
-
-    d->movie->setPaused(paused);
-    d->moviePaused = paused;
-}
-
 void ImageView::setViewBackground(bool enable)
 {
-    if (!d->backgroundItem)
-          return;
-
-    d->backgroundItem->setVisible(enable);
+    m_showBackground = enable;
+    if (m_backgroundItem)
+        m_backgroundItem->setVisible(enable);
 }
 
 void ImageView::setViewOutline(bool enable)
 {
-    if (!d->outlineItem)
-        return;
-
-    d->outlineItem->setVisible(enable);
+    m_showOutline = enable;
+    if (m_outlineItem)
+        m_outlineItem->setVisible(enable);
 }
 
 void ImageView::doScale(qreal factor)
@@ -257,17 +153,9 @@ void ImageView::doScale(qreal factor)
 
     scale(actualFactor, actualFactor);
     emitScaleFactor();
-}
-
-void ImageView::updatePixmap(const QRect &rect)
-{
-    if (d->imageItem)
-        d->imageItem->update(rect);
-}
-
-void ImageView::pixmapResized(const QSize &size)
-{
-    emit imageSizeChanged(size);
+    if (QGraphicsPixmapItem *pixmapItem = dynamic_cast<QGraphicsPixmapItem *>(m_imageItem))
+        pixmapItem->setTransformationMode(
+                    transform().m11() < 1 ? Qt::SmoothTransformation : Qt::FastTransformation);
 }
 
 void ImageView::wheelEvent(QWheelEvent *event)
@@ -295,7 +183,7 @@ void ImageView::resetToOriginalSize()
 
 void ImageView::fitToScreen()
 {
-    fitInView(d->imageItem, Qt::KeepAspectRatio);
+    fitInView(m_imageItem, Qt::KeepAspectRatio);
     emitScaleFactor();
 }
 
@@ -308,18 +196,12 @@ void ImageView::emitScaleFactor()
 
 void ImageView::showEvent(QShowEvent *)
 {
-    if (!d->movie)
-        return;
-
-    d->movie->setPaused(d->moviePaused);
+    m_file->updateVisibility();
 }
 
 void ImageView::hideEvent(QHideEvent *)
 {
-    if (!d->movie)
-        return;
-
-    d->movie->setPaused(true);
+    m_file->updateVisibility();
 }
 
 } // namespace Internal

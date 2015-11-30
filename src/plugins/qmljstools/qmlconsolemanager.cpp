@@ -1,7 +1,7 @@
 /**************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -48,7 +49,7 @@ class QmlConsoleManagerPrivate
 public:
     Internal::QmlConsoleItemModel *qmlConsoleItemModel;
     Internal::QmlConsolePane *qmlConsolePane;
-    QmlJS::IScriptEvaluator *scriptEvaluator;
+    IScriptEvaluator *scriptEvaluator;
 };
 
 QmlConsoleManager::QmlConsoleManager(QObject *parent)
@@ -56,7 +57,6 @@ QmlConsoleManager::QmlConsoleManager(QObject *parent)
       d(new QmlConsoleManagerPrivate)
 {
     d->qmlConsoleItemModel = new Internal::QmlConsoleItemModel(this);
-    d->qmlConsoleItemModel->setHasEditableRow(true);
     d->qmlConsolePane = new Internal::QmlConsolePane(this);
     d->scriptEvaluator = 0;
     ExtensionSystem::PluginManager::addObject(d->qmlConsolePane);
@@ -75,12 +75,7 @@ void QmlConsoleManager::showConsolePane()
         d->qmlConsolePane->popup(Core::IOutputPane::ModeSwitch);
 }
 
-ConsoleItem *QmlConsoleManager::rootItem() const
-{
-    return d->qmlConsoleItemModel->root();
-}
-
-void QmlConsoleManager::setScriptEvaluator(QmlJS::IScriptEvaluator *scriptEvaluator)
+void QmlConsoleManager::setScriptEvaluator(IScriptEvaluator *scriptEvaluator)
 {
     d->scriptEvaluator = scriptEvaluator;
     if (!scriptEvaluator)
@@ -108,7 +103,7 @@ void QmlConsoleManager::printToConsolePane(ConsoleItem *item, bool bringToForegr
 {
     if (!d->qmlConsolePane)
         return;
-    if (item->itemType == ConsoleItem::ErrorType)
+    if (item->itemType() == ConsoleItem::ErrorType)
         bringToForeground = true;
     if (bringToForeground)
         d->qmlConsolePane->popup(Core::IOutputPane::ModeSwitch);
@@ -116,47 +111,6 @@ void QmlConsoleManager::printToConsolePane(ConsoleItem *item, bool bringToForegr
 }
 
 namespace Internal {
-
-ConsoleItem *constructLogItemTree(ConsoleItem *parent, const QVariant &result,
-                                     const QString &key = QString())
-{
-    if (!result.isValid())
-        return 0;
-
-    ConsoleItem *item = new ConsoleItem(parent);
-    if (result.type() == QVariant::Map) {
-        if (key.isEmpty())
-            item->setText(QLatin1String("Object"));
-        else
-            item->setText(key + QLatin1String(" : Object"));
-
-        QMapIterator<QString, QVariant> i(result.toMap());
-        while (i.hasNext()) {
-            i.next();
-            ConsoleItem *child = constructLogItemTree(item, i.value(), i.key());
-            if (child)
-                item->insertChild(child, true);
-        }
-    } else if (result.type() == QVariant::List) {
-        if (key.isEmpty())
-            item->setText(QLatin1String("List"));
-        else
-            item->setText(QString(QLatin1String("[%1] : List")).arg(key));
-        QVariantList resultList = result.toList();
-        for (int i = 0; i < resultList.count(); i++) {
-            ConsoleItem *child = constructLogItemTree(item, resultList.at(i),
-                                                          QString::number(i));
-            if (child)
-                item->insertChild(child, true);
-        }
-    } else if (result.canConvert(QVariant::String)) {
-        item->setText(result.toString());
-    } else {
-        item->setText(QLatin1String("Unknown Value"));
-    }
-
-    return item;
-}
 
 QmlConsoleItemModel *QmlConsoleModel::qmlConsoleItemModel()
 {
@@ -171,15 +125,15 @@ void QmlConsoleModel::evaluate(const QString &expression)
     QmlConsoleManager *manager = qobject_cast<QmlConsoleManager *>(QmlConsoleManager::instance());
     if (manager) {
         if (manager->d->scriptEvaluator) {
-            QmlConsoleModel::qmlConsoleItemModel()->appendEditableRow();
+            QmlConsoleModel::qmlConsoleItemModel()->shiftEditableRow();
             manager->d->scriptEvaluator->evaluateScript(expression);
         } else {
-            ConsoleItem *root = manager->rootItem();
-            ConsoleItem *item = constructLogItemTree(
-                        root, QCoreApplication::translate("QmlJSTools::Internal::QmlConsoleModel",
-                                                          "Can only evaluate during a QML debug session."));
+            ConsoleItem *item = new ConsoleItem(
+                        ConsoleItem::ErrorType, QCoreApplication::translate(
+                            "QmlJSTools::Internal::QmlConsoleModel",
+                            "Can only evaluate during a QML debug session."));
             if (item) {
-                QmlConsoleModel::qmlConsoleItemModel()->appendEditableRow();
+                QmlConsoleModel::qmlConsoleItemModel()->shiftEditableRow();
                 manager->printToConsolePane(item);
             }
         }

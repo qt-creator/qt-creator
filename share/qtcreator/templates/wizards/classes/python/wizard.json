@@ -1,0 +1,139 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "P.PyClass",
+    "category": "U.Python",
+    "trDescription": "Creates new Python class file.",
+    "trDisplayName": "Python Class",
+    "trDisplayCategory": "Python",
+    "icon": "../../global/genericfilewizard.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('PythonEditor') >= 0}",
+
+    "options":
+    [
+        { "key": "Base", "value":"%{JS: ( '%{BaseCB}' === '' ) ? '%{BaseEdit}' : '%{BaseCB}'}" },
+        { "key": "Imports", "value": "%{ImportQtCore}%{ImportQtWidgets}%{ImportQtDeclarative}"}
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Define Class",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "Class",
+                    "trDisplayName": "Class name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": { "validator": "^(?:[^\\d\\W]\\w*|)$" }
+                },
+                {
+                    "name": "BaseCB",
+                    "trDisplayName": "Base class:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "items": [ { "trKey": "<Custom>", "value": "" },
+                                   "QObject", "QWidget", "QMainWindow", "QDeclarativeItem" ]
+                    }
+                },
+                {
+                    "name": "BaseEdit",
+                    "type": "LineEdit",
+                    "enabled": "%{JS: '%{BaseCB}' === ''}",
+                    "mandatory": false,
+                    "data": { "trText": "%{BaseCB}" }
+                },
+
+
+
+                {
+                    "name": "Sp1",
+                    "type": "Spacer",
+                    "data": { "size": 6 }
+                },
+                {
+                    "name": "ImportQtCore",
+                    "trDisplayName": "Import QtCore",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "QtCore",
+                        "uncheckedValue": "",
+                        "checked": "%{JS: '%{Base}' !== ''}"
+                    }
+                },
+                {
+                    "name": "ImportQWidget",
+                    "trDisplayName": "Import QtWidgets",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "QtWidgets",
+                        "uncheckedValue": "",
+                        "checked": "%{JS: '%{Base}' === 'QWidget'}"
+                    }
+                },
+                {
+                    "name": "ImportQtQuick",
+                    "trDisplayName": "Import QtQuick",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "QtQuick",
+                        "uncheckedValue": "",
+                        "checked": "%{JS: '%{Base}' === 'QQuickItem'}"
+                    }
+                },
+                {
+                    "name": "Sp2",
+                    "type": "Spacer",
+                    "data": { "size": 12 }
+                },
+
+
+
+                {
+                    "name": "FileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Source file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Util.fileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-python')}')}" }
+                },
+                {
+                    "name": "TargetPath",
+                    "type": "PathChooser",
+                    "trDisplayName": "Path:",
+                    "mandatory": true,
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "shortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.py",
+                "target": "%{FileName}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

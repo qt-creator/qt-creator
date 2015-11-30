@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "callgrindengine.h"
 
+#include "callgrindtool.h"
 #include "valgrindsettings.h"
 
 #include <valgrind/callgrind/callgrindcontroller.h>
@@ -47,17 +49,17 @@ CallgrindRunControl::CallgrindRunControl(const AnalyzerStartParameters &sp,
     : ValgrindRunControl(sp, runConfiguration)
     , m_markAsPaused(false)
 {
-    connect(&m_runner, SIGNAL(finished()), this, SLOT(slotFinished()));
-    connect(&m_runner, SIGNAL(started()), this, SLOT(slotStarted()));
-    connect(m_runner.parser(), SIGNAL(parserDataReady()), this, SLOT(slotFinished()));
-    connect(&m_runner, SIGNAL(statusMessage(QString)), SLOT(showStatusMessage(QString)));
-
-    m_progress->setProgressRange(0, 2);
+    connect(&m_runner, &Callgrind::CallgrindRunner::finished,
+            this, &CallgrindRunControl::slotFinished);
+    connect(m_runner.parser(), &Callgrind::Parser::parserDataReady,
+            this, &CallgrindRunControl::slotFinished);
+    connect(&m_runner, &Callgrind::CallgrindRunner::statusMessage,
+            this, &CallgrindRunControl::showStatusMessage);
 }
 
 void CallgrindRunControl::showStatusMessage(const QString &msg)
 {
-    AnalyzerManager::showStatusMessage(msg);
+    AnalyzerManager::showPermanentStatusMessage(CallgrindToolId, msg);
 }
 
 QStringList CallgrindRunControl::toolArguments() const
@@ -93,7 +95,7 @@ QString CallgrindRunControl::progressTitle() const
     return tr("Profiling");
 }
 
-Valgrind::ValgrindRunner * CallgrindRunControl::runner()
+ValgrindRunner * CallgrindRunControl::runner()
 {
     return &m_runner;
 }
@@ -106,7 +108,7 @@ bool CallgrindRunControl::startEngine()
 
 void CallgrindRunControl::dump()
 {
-    m_runner.controller()->run(Valgrind::Callgrind::CallgrindController::Dump);
+    m_runner.controller()->run(Callgrind::CallgrindController::Dump);
 }
 
 void CallgrindRunControl::setPaused(bool paused)
@@ -135,20 +137,20 @@ void CallgrindRunControl::setToggleCollectFunction(const QString &toggleCollectF
 
 void CallgrindRunControl::reset()
 {
-    m_runner.controller()->run(Valgrind::Callgrind::CallgrindController::ResetEventCounters);
+    m_runner.controller()->run(Callgrind::CallgrindController::ResetEventCounters);
 }
 
 void CallgrindRunControl::pause()
 {
-    m_runner.controller()->run(Valgrind::Callgrind::CallgrindController::Pause);
+    m_runner.controller()->run(Callgrind::CallgrindController::Pause);
 }
 
 void CallgrindRunControl::unpause()
 {
-    m_runner.controller()->run(Valgrind::Callgrind::CallgrindController::UnPause);
+    m_runner.controller()->run(Callgrind::CallgrindController::UnPause);
 }
 
-Valgrind::Callgrind::ParseData *CallgrindRunControl::takeParserData()
+Callgrind::ParseData *CallgrindRunControl::takeParserData()
 {
     return m_runner.parser()->takeData();
 }
@@ -156,9 +158,4 @@ Valgrind::Callgrind::ParseData *CallgrindRunControl::takeParserData()
 void CallgrindRunControl::slotFinished()
 {
     emit parserDataReady(this);
-}
-
-void CallgrindRunControl::slotStarted()
-{
-    m_progress->setProgressValue(1);
 }

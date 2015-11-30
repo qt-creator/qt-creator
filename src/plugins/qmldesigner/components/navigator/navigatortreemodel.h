@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -35,16 +31,13 @@
 
 #include <QStandardItem>
 #include <QStandardItemModel>
+#include <QPointer>
 
 namespace QmlDesigner {
 
 class Model;
 class AbstractView;
 class ModelNode;
-
-class NavigatorTreeModel : public QStandardItemModel
-{
-    Q_OBJECT
 
 #ifdef _LOCK_ITEMS_
     struct ItemRow {
@@ -66,26 +59,38 @@ class NavigatorTreeModel : public QStandardItemModel
     struct ItemRow {
         ItemRow()
             : idItem(0), visibilityItem(0) {}
-        ItemRow(QStandardItem *id, QStandardItem *visibility, const QMap<QString, QStandardItem *> &properties)
-            : idItem(id), visibilityItem(visibility), propertyItems(properties) {}
+        ItemRow(QStandardItem *id, QStandardItem *exportI, QStandardItem *visibility, const QMap<QString, QStandardItem *> &properties)
+            : idItem(id), exportItem(exportI), visibilityItem(visibility), propertyItems(properties) {}
 
         QList<QStandardItem*> toList() const {
-            return QList<QStandardItem*>() << idItem << visibilityItem;
+            return QList<QStandardItem*>() << idItem << exportItem << visibilityItem;
         }
 
         QStandardItem *idItem;
+        QStandardItem *exportItem;
         QStandardItem *visibilityItem;
         QMap<QString, QStandardItem *> propertyItems;
     };
 #endif
 
-    static const int NavigatorRole;
+class NavigatorTreeModel : public QStandardItemModel
+{
+    Q_OBJECT
 
 public:
+    enum {
+         InternalIdRole = Qt::UserRole
+        ,InvisibleRole = Qt::UserRole + 1
+        ,SimplifiedTypeNameRole = Qt::UserRole + 2
+        ,ErrorRole = Qt::UserRole + 3
+    };
+
+
     NavigatorTreeModel(QObject *parent = 0);
     ~NavigatorTreeModel();
 
     Qt::DropActions supportedDropActions() const;
+    Qt::DropActions supportedDragActions() const;
 
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
@@ -100,51 +105,45 @@ public:
 
     QModelIndex indexForNode(const ModelNode &node) const;
     ModelNode nodeForIndex(const QModelIndex &index) const;
+    bool hasNodeForIndex(const QModelIndex &index) const;
 
     bool isInTree(const ModelNode &node) const;
-    void propagateInvisible(const ModelNode &node, const bool &invisible);
     bool isNodeInvisible(const QModelIndex &index) const;
     bool isNodeInvisible(const ModelNode &node) const;
 
     void addSubTree(const ModelNode &node);
     void removeSubTree(const ModelNode &node);
     void updateItemRow(const ModelNode &node);
-    void updateItemRowOrder(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
     void setId(const QModelIndex &index, const QString &id);
+    void setExported(const QModelIndex &index, bool exported);
     void setVisible(const QModelIndex &index, bool visible);
 
     void openContextMenu(const QPoint &p);
+
+    ItemRow itemRowForNode(const ModelNode &node);
+    bool blockItemChangedSignal(bool block);
+
 private slots:
     void handleChangedItem(QStandardItem *item);
 
 private:
-    bool containsNodeHash(uint hash) const;
-    ModelNode nodeForHash(uint hash) const;
-
-    bool containsNode(const ModelNode &node) const;
-    ItemRow itemRowForNode(const ModelNode &node);
-
     ItemRow createItemRow(const ModelNode &node);
     void updateItemRow(const ModelNode &node, ItemRow row);
+    void handleChangedIdItem(QStandardItem *idItem, ModelNode &modelNode);
+    void handleChangedExportItem(QStandardItem *exportItem, ModelNode &modelNode);
+    void handleChangedVisibilityItem(QStandardItem *visibilityItem, ModelNode &modelNode);
 
-    void moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);
-
-    QList<ModelNode> modelNodeChildren(const ModelNode &parentNode);
-
-    TypeName qmlTypeInQtContainer(const TypeName &qtContainerType) const;
-    PropertyNameList visibleProperties(const ModelNode &node) const;
-
-    bool blockItemChangedSignal(bool block);
+    void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);
+    void handleInternalDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
+    void handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
+    void handleItemLibraryImageDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
 
 private:
     QHash<ModelNode, ItemRow> m_nodeItemHash;
-    QHash<uint, ModelNode> m_nodeHash;
-    QWeakPointer<AbstractView> m_view;
+    QPointer<AbstractView> m_view;
 
     bool m_blockItemChangedSignal;
-
-    QStringList m_hiddenProperties;
 };
 
 } // namespace QmlDesigner

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 ** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -53,45 +54,37 @@ using namespace ProjectExplorer;
 namespace Valgrind {
 namespace Internal {
 
-const int progressMaximum  = 1000000;
-
 ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration)
+        RunConfiguration *runConfiguration)
     : AnalyzerRunControl(sp, runConfiguration),
       m_settings(0),
-      m_progress(new QFutureInterface<void>()),
-      m_progressWatcher(new QFutureWatcher<void>()),
       m_isStopping(false)
 {
+    m_isCustomStart = false;
+
     if (runConfiguration)
         if (IRunConfigurationAspect *aspect = runConfiguration->extraAspect(ANALYZER_VALGRIND_SETTINGS))
             m_settings = qobject_cast<ValgrindBaseSettings *>(aspect->currentSettings());
 
     if (!m_settings)
         m_settings = ValgrindPlugin::globalSettings();
-
-    connect(m_progressWatcher, SIGNAL(canceled()),
-            this, SLOT(handleProgressCanceled()));
-    connect(m_progressWatcher, SIGNAL(finished()),
-            this, SLOT(handleProgressFinished()));
 }
 
 ValgrindRunControl::~ValgrindRunControl()
 {
-    delete m_progress;
 }
 
 bool ValgrindRunControl::startEngine()
 {
     emit starting(this);
 
-    FutureProgress *fp = ProgressManager::addTask(m_progress->future(),
-                                                        progressTitle(), "valgrind");
+    FutureProgress *fp = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100);
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
-    m_progress->setProgressRange(0, progressMaximum);
-    m_progress->reportStarted();
-    m_progressWatcher->setFuture(m_progress->future());
-    m_progress->setProgressValue(progressMaximum / 10);
+    connect(fp, &FutureProgress::canceled,
+            this, &ValgrindRunControl::handleProgressCanceled);
+    connect(fp, &FutureProgress::finished,
+            this, &ValgrindRunControl::handleProgressFinished);
+    m_progress.reportStarted();
 
     const AnalyzerStartParameters &sp = startParameters();
 #if VALGRIND_DEBUG_OUTPUT
@@ -102,25 +95,24 @@ bool ValgrindRunControl::startEngine()
 
     ValgrindRunner *run = runner();
     run->setWorkingDirectory(sp.workingDirectory);
-    QString valgrindExe = m_settings->valgrindExecutable();
-    if (!sp.analyzerCmdPrefix.isEmpty())
-        valgrindExe = sp.analyzerCmdPrefix + QLatin1Char(' ') + valgrindExe;
-    run->setValgrindExecutable(valgrindExe);
+    run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
     run->setDebuggeeExecutable(sp.debuggee);
     run->setDebuggeeArguments(sp.debuggeeArgs);
     run->setEnvironment(sp.environment);
     run->setConnectionParameters(sp.connParams);
-    run->setStartMode(sp.startMode);
+    run->setUseStartupProject(!m_isCustomStart);
+    run->setLocalRunMode(sp.localRunMode);
 
-    connect(run, SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)),
-            SLOT(receiveProcessOutput(QByteArray,Utils::OutputFormat)));
-    connect(run, SIGNAL(processErrorReceived(QString,QProcess::ProcessError)),
-            SLOT(receiveProcessError(QString,QProcess::ProcessError)));
-    connect(run, SIGNAL(finished()), SLOT(runnerFinished()));
+    connect(run, &ValgrindRunner::processOutputReceived,
+            this, &ValgrindRunControl::receiveProcessOutput);
+    connect(run, &ValgrindRunner::processErrorReceived,
+            this, &ValgrindRunControl::receiveProcessError);
+    connect(run, &ValgrindRunner::finished,
+            this, &ValgrindRunControl::runnerFinished);
 
     if (!run->start()) {
-        m_progress->cancel();
+        m_progress.cancel();
         return false;
     }
     return true;
@@ -162,8 +154,8 @@ QStringList ValgrindRunControl::genericToolArguments() const
 void ValgrindRunControl::handleProgressCanceled()
 {
     AnalyzerManager::stopTool();
-    m_progress->reportCanceled();
-    m_progress->reportFinished();
+    m_progress.reportCanceled();
+    m_progress.reportFinished();
 }
 
 void ValgrindRunControl::handleProgressFinished()
@@ -176,23 +168,17 @@ void ValgrindRunControl::runnerFinished()
     appendMessage(tr("Analyzing finished.") + QLatin1Char('\n'), NormalMessageFormat);
     emit finished();
 
-    m_progress->reportFinished();
+    m_progress.reportFinished();
 
-    disconnect(runner(), SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)),
-               this, SLOT(receiveProcessOutput(QByteArray,Utils::OutputFormat)));
-    disconnect(runner(), SIGNAL(finished()),
-               this, SLOT(runnerFinished()));
+    disconnect(runner(), &ValgrindRunner::processOutputReceived,
+               this, &ValgrindRunControl::receiveProcessOutput);
+    disconnect(runner(), &ValgrindRunner::finished,
+               this, &ValgrindRunControl::runnerFinished);
 }
 
-void ValgrindRunControl::receiveProcessOutput(const QByteArray &output, OutputFormat format)
+void ValgrindRunControl::receiveProcessOutput(const QString &output, OutputFormat format)
 {
-    int progress = m_progress->progressValue();
-    if (progress < 5 * progressMaximum / 10)
-        progress += progress / 100;
-    else if (progress < 9 * progressMaximum / 10)
-        progress += progress / 1000;
-    m_progress->setProgressValue(progress);
-    appendMessage(QString::fromLocal8Bit(output), format);
+    appendMessage(output, format);
 }
 
 void ValgrindRunControl::receiveProcessError(const QString &message, QProcess::ProcessError error)

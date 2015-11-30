@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -38,7 +39,10 @@ Button {
     Component {
         id: touchStyle
         ButtonStyle {
+            padding.left: button.iconSource != "" ? 38 : 14
+            padding.right: 14
             background: Item {
+                anchors.fill: parent
 
                 Image {
                     id: icon
@@ -51,77 +55,77 @@ Button {
                     visible: button.iconSource != ""
                 }
 
-                implicitHeight: 30
                 implicitWidth: 160
+                implicitHeight: 30
 
                 Rectangle {
                     anchors.fill: parent
                     antialiasing: true
-                    radius: 3
+                    radius: (creatorTheme.WidgetStyle === 'StyleFlat') ? 0 : 3
 
                     visible: !(button.pressed || button.checked)
 
                     gradient: Gradient {
                         GradientStop {
                             position: 0
-                            color: "#f9f9f9"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#232323" : "#f9f9f9"
                         }
 
                         GradientStop {
                             position: 0.49
-                            color: "#f9f9f9"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#232323" : "#f9f9f9"
                         }
 
                         GradientStop {
                             position: 0.5
-                            color: "#eeeeee"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#232323" : "#eeeeee"
                         }
 
                         GradientStop {
                             position: 1
-                            color: "#eeeeee"
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#232323" : "#eeeeee"
                         }
                     }
-                    border.color: "#737373"
-
+                    border.color: creatorTheme.Welcome_Button_BorderColorNormal
                 }
 
                 Rectangle {
                     anchors.fill: parent
                     antialiasing: true
-                    radius: 3
+                    radius: (creatorTheme.WidgetStyle === 'StyleFlat') ? 0 : 3
 
                     visible: button.pressed || button.checked
 
                     gradient: Gradient {
                         GradientStop {
                             position: 0.00;
-                            color: "#4c4c4c";
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#151515" : "#4c4c4c"
                         }
                         GradientStop {
                             position: 0.49;
-                            color: "#4c4c4c";
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#151515" : "#4c4c4c"
                         }
                         GradientStop {
                             position: 0.50;
-                            color: "#424242";
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#151515" : "#424242"
                         }
                         GradientStop {
                             position: 1.00;
-                            color: "#424242";
+                            color: (creatorTheme.WidgetStyle === 'StyleFlat') ? "#151515" : "#424242"
                         }
                     }
-                    border.color: "#333333"
+                    border.color: creatorTheme.Welcome_Button_BorderColorPressed
 
                 }
             }
 
             label: Text {
-                    x: button.iconSource != "" ? 38 : 14
                     renderType: Text.NativeRendering
                     verticalAlignment: Text.AlignVCenter
                     text: button.text
-                    color:  button.pressed || button.checked ? "lightGray" : "black"
+                    color: button.pressed || button.checked
+                             ? creatorTheme.Welcome_Button_TextColorPressed
+                             : creatorTheme.Welcome_Button_TextColorNormal
                     font.pixelSize: 15
                     font.bold: false
                     smooth: true

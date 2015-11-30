@@ -1,8 +1,8 @@
 import qbs
-import "../../autotest.qbs" as Autotest
 
-Autotest {
+QtcAutotest {
     name: "Highlighter engine autotest"
+    Depends { name: "Core" }
     Depends { name: "Utils" }
     Depends { name: "Qt.widgets" }
     Group {
@@ -31,7 +31,7 @@ Autotest {
     Group {
         name: "Drop-in sources for the plugin"
         files: [
-            "basetextdocumentlayout.h", "basetextdocumentlayout.cpp",
+            "textdocumentlayout.h", "textdocumentlayout.cpp",
             "syntaxhighlighter.h", "syntaxhighlighter.cpp",
             "tabsettings.h"
         ]

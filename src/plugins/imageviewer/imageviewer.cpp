@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2014 Denis Mingulov.
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 Denis Mingulov.
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -10,20 +10,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,9 +36,11 @@
 #include "imageview.h"
 #include "ui_imageviewertoolbar.h"
 
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QMap>
@@ -52,25 +55,60 @@ namespace Internal {
 struct ImageViewerPrivate
 {
     QString displayName;
-    ImageViewerFile *file;
+    QSharedPointer<ImageViewerFile> file;
     ImageView *imageView;
     QWidget *toolbar;
     Ui::ImageViewerToolbar ui_toolbar;
 };
 
+/*!
+    Tries to change the \a button icon to the icon specified by \a name
+    from the current theme. Returns \c true if icon is updated, \c false
+    otherwise.
+*/
+static bool updateButtonIconByTheme(QAbstractButton *button, const QString &name)
+{
+    QTC_ASSERT(button, return false);
+    QTC_ASSERT(!name.isEmpty(), return false);
+
+    if (QIcon::hasThemeIcon(name)) {
+        button->setIcon(QIcon::fromTheme(name));
+        return true;
+    }
+
+    return false;
+}
+
 ImageViewer::ImageViewer(QWidget *parent)
     : IEditor(parent),
     d(new ImageViewerPrivate)
 {
-    d->file = new ImageViewerFile(this);
-    d->imageView = new ImageView();
+    d->file.reset(new ImageViewerFile);
+    ctor();
+}
+
+ImageViewer::ImageViewer(const QSharedPointer<ImageViewerFile> &document, QWidget *parent)
+    : IEditor(parent),
+      d(new ImageViewerPrivate)
+{
+    d->file = document;
+    ctor();
+}
+
+void ImageViewer::ctor()
+{
+    d->imageView = new ImageView(d->file.data());
 
     setContext(Core::Context(Constants::IMAGEVIEWER_ID));
     setWidget(d->imageView);
+    setDuplicateSupported(true);
 
     // toolbar
     d->toolbar = new QWidget();
     d->ui_toolbar.setupUi(d->toolbar);
+    d->ui_toolbar.toolButtonZoomIn->setIcon(Core::Icons::PLUS.icon());
+    d->ui_toolbar.toolButtonZoomOut->setIcon(Core::Icons::MINUS.icon());
+    d->ui_toolbar.toolButtonFitToScreen->setIcon(Core::Icons::ZOOM.icon());
 
     // icons update - try to use system theme
     updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, QLatin1String("zoom-in"));
@@ -92,24 +130,32 @@ ImageViewer::ImageViewer(QWidget *parent)
     d->ui_toolbar.toolButtonPlayPause->setCommandId(Constants::ACTION_TOGGLE_ANIMATION);
 
     // connections
-    connect(d->ui_toolbar.toolButtonZoomIn, SIGNAL(clicked()),
-            d->imageView, SLOT(zoomIn()));
-    connect(d->ui_toolbar.toolButtonZoomOut, SIGNAL(clicked()),
-            d->imageView, SLOT(zoomOut()));
-    connect(d->ui_toolbar.toolButtonFitToScreen, SIGNAL(clicked()),
-            d->imageView, SLOT(fitToScreen()));
-    connect(d->ui_toolbar.toolButtonOriginalSize, SIGNAL(clicked()),
-            d->imageView, SLOT(resetToOriginalSize()));
-    connect(d->ui_toolbar.toolButtonBackground, SIGNAL(toggled(bool)),
-            d->imageView, SLOT(setViewBackground(bool)));
-    connect(d->ui_toolbar.toolButtonOutline, SIGNAL(toggled(bool)),
-            d->imageView, SLOT(setViewOutline(bool)));
-    connect(d->ui_toolbar.toolButtonPlayPause, SIGNAL(clicked()),
-            this, SLOT(playToggled()));
-    connect(d->imageView, SIGNAL(imageSizeChanged(QSize)),
-            this, SLOT(imageSizeUpdated(QSize)));
-    connect(d->imageView, SIGNAL(scaleFactorChanged(qreal)),
-            this, SLOT(scaleFactorUpdate(qreal)));
+    connect(d->ui_toolbar.toolButtonZoomIn, &QAbstractButton::clicked,
+            d->imageView, &ImageView::zoomIn);
+    connect(d->ui_toolbar.toolButtonZoomOut, &QAbstractButton::clicked,
+            d->imageView, &ImageView::zoomOut);
+    connect(d->ui_toolbar.toolButtonFitToScreen, &QAbstractButton::clicked,
+            d->imageView, &ImageView::fitToScreen);
+    connect(d->ui_toolbar.toolButtonOriginalSize, &QAbstractButton::clicked,
+            d->imageView, &ImageView::resetToOriginalSize);
+    connect(d->ui_toolbar.toolButtonBackground, &QAbstractButton::toggled,
+            d->imageView, &ImageView::setViewBackground);
+    connect(d->ui_toolbar.toolButtonOutline, &QAbstractButton::toggled,
+            d->imageView, &ImageView::setViewOutline);
+    connect(d->ui_toolbar.toolButtonPlayPause, &Core::CommandButton::clicked,
+            this, &ImageViewer::playToggled);
+    connect(d->file.data(), &ImageViewerFile::imageSizeChanged,
+            this, &ImageViewer::imageSizeUpdated);
+    connect(d->file.data(), &ImageViewerFile::openFinished,
+            d->imageView, &ImageView::createScene);
+    connect(d->file.data(), &ImageViewerFile::aboutToReload,
+            d->imageView, &ImageView::reset);
+    connect(d->file.data(), &ImageViewerFile::reloadFinished,
+            d->imageView, &ImageView::createScene);
+    connect(d->file.data(), &ImageViewerFile::isPausedChanged,
+            this, &ImageViewer::updatePauseAction);
+    connect(d->imageView, &ImageView::scaleFactorChanged,
+            this, &ImageViewer::scaleFactorUpdate);
 }
 
 ImageViewer::~ImageViewer()
@@ -119,27 +165,21 @@ ImageViewer::~ImageViewer()
     delete d;
 }
 
-bool ImageViewer::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    if (!d->imageView->openFile(realFileName)) {
-        *errorString = tr("Cannot open image file %1.").arg(QDir::toNativeSeparators(realFileName));
-        return false;
-    }
-    d->file->setFilePath(fileName);
-    d->ui_toolbar.toolButtonPlayPause->setVisible(d->imageView->isAnimated());
-    setPaused(!d->imageView->isAnimated());
-    // d_ptr->file->setMimeType
-    return true;
-}
-
 Core::IDocument *ImageViewer::document()
 {
-    return d->file;
+    return d->file.data();
 }
 
 QWidget *ImageViewer::toolBar()
 {
     return d->toolbar;
+}
+
+Core::IEditor *ImageViewer::duplicate()
+{
+    auto other = new ImageViewer(d->file);
+    other->d->imageView->createScene();
+    return other;
 }
 
 void ImageViewer::imageSizeUpdated(const QSize &size)
@@ -154,25 +194,6 @@ void ImageViewer::scaleFactorUpdate(qreal factor)
 {
     const QString info = QString::number(factor * 100, 'f', 2) + QLatin1Char('%');
     d->ui_toolbar.labelInfo->setText(info);
-}
-
-/*!
-    Tries to change the \a button icon to the icon specified by \a name
-    from the current theme. Returns \c true if icon is updated, \c false
-    otherwise.
-*/
-
-bool ImageViewer::updateButtonIconByTheme(QAbstractButton *button, const QString &name)
-{
-    QTC_ASSERT(button, return false);
-    QTC_ASSERT(!name.isEmpty(), return false);
-
-    if (QIcon::hasThemeIcon(name)) {
-        button->setIcon(QIcon::fromTheme(name));
-        return true;
-    }
-
-    return false;
 }
 
 void ImageViewer::switchViewBackground()
@@ -212,19 +233,21 @@ void ImageViewer::togglePlay()
 
 void ImageViewer::playToggled()
 {
-    bool paused = d->imageView->isPaused();
-    setPaused(!paused);
+    d->file->setPaused(!d->file->isPaused());
 }
 
-void ImageViewer::setPaused(bool paused)
+void ImageViewer::updatePauseAction()
 {
-    d->imageView->setPaused(paused);
-    if (paused) {
-        d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
-        d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/play-small.png")));
-    } else {
-        d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
-        d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/pause-small.png")));
+    bool isMovie = d->file->type() == ImageViewerFile::TypeMovie;
+    d->ui_toolbar.toolButtonPlayPause->setVisible(isMovie);
+    if (isMovie) {
+        if (d->file->isPaused()) {
+            d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Play Animation"));
+            d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/play-small.png")));
+        } else {
+            d->ui_toolbar.toolButtonPlayPause->setToolTipBase(tr("Pause Animation"));
+            d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/pause-small.png")));
+        }
     }
 }
 

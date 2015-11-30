@@ -1,0 +1,157 @@
+{
+    "version": 1,
+    "kind": "project",
+    "id": "V.QtQuickControlsApplication",
+    "category": "F.Application",
+    "trDescription": "Creates a deployable Qt Quick 2 application using Qt Quick Controls.",
+    "trDisplayName": "Qt Quick Controls Application",
+    "trDisplayCategory": "Application",
+    "icon": "../qtquickapplication/qml_wizard.png",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt.5.3" ],
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}",
+
+    "options":
+    [
+        { "key": "ProFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
+        { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
+        { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.qtQuickVersion}" },
+        { "key": "QtQuickControlsVersion", "value": "%{JS: %{QtVersion}.qtQuickControlsVersion}" },
+        { "key": "QtQuickDialogsVersion", "value": "%{JS: %{QtVersion}.qtQuickDialogsVersion}" },
+        { "key": "QtQuickLayoutsVersion", "value": "%{JS: %{QtVersion}.qtQuickLayoutsVersion}" },
+        { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
+        { "key": "UiSupport", "value": "%{JS: '%{QtQuickVersion}' !== '2.3' }" },
+        { "key": "IsUiFileInUse", "value": "%{JS: %{UiSupport} && %{QmlUiSplit} }" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "QtVersion",
+                    "trDisplayName": "Minimal required Qt version:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 2,
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt 5.5",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.5',
+                                    'qtQuickControlsVersion': '1.4',
+                                    'qtQuickDialogsVersion': '1.2',
+                                    'qtQuickLayoutsVersion': '1.2'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.4",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.4',
+                                    'qtQuickControlsVersion': '1.3',
+                                    'qtQuickDialogsVersion': '1.2',
+                                    'qtQuickLayoutsVersion': '1.1'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.3",
+                                "value":
+                                "{
+                                    'qtQuickVersion': '2.3',
+                                    'qtQuickControlsVersion': '1.2',
+                                    'qtQuickDialogsVersion': '1.2',
+                                    'qtQuickLayoutsVersion': '1.1'
+                                }"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "QmlUiSplit",
+                    "trDisplayName": "With ui.qml file",
+                    "type": "CheckBox",
+                    "visible": "%{UiSupport}",
+                    "data":
+                    {
+                        "checked": true
+                    }
+                },
+                {
+                    "name": "UseQApplication",
+                    "trDisplayName": "Enable native styling. Requires dependency on the QtWidgets module.",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checked": true
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "data": {
+                "projectFilePath": "%{ProFileName}",
+                "requiredFeatures": [ "QtSupport.Wizards.FeatureQt", "%{QtQuickFeature}" ]
+            }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "app.pro",
+                    "target": "%{ProFileName}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "main.cpp",
+                    "target": "%{MainCppFileName}"
+                },
+                {
+                    "source": "main.qml.tpl",
+                    "target": "main.qml",
+                    "openInEditor": true
+                },
+                {
+                    "source": "MainForm.ui.qml.tpl",
+                    "target": "MainForm.ui.qml",
+                    "condition": "%{IsUiFileInUse}"
+                },
+                {
+                    "source": "qml.qrc"
+                },
+                {
+                    "source": "../../../../shared/qrcdeployment.pri",
+                    "target": "%{ProjectDirectory}/deployment.pri"
+                },
+                {
+                    "source": "../../git.ignore",
+                    "target": "%{ProjectDirectory}/.gitignore",
+                    "condition": "%{JS: !%{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}

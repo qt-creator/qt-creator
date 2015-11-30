@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -30,13 +31,13 @@
 #ifndef TIPS_H
 #define TIPS_H
 
-#include <QSharedPointer>
+#include "../utils_global.h"
+
 #include <QLabel>
 #include <QPixmap>
-
-QT_FORWARD_DECLARE_CLASS(QVBoxLayout)
-
-namespace Utils { class TipContent; }
+#include <QSharedPointer>
+#include <QVariant>
+#include <QVBoxLayout>
 
 #ifndef Q_MOC_RUN
 namespace Utils {
@@ -47,70 +48,73 @@ namespace Internal {
 class QTipLabel : public QLabel
 {
     Q_OBJECT
-protected:
+public:
     QTipLabel(QWidget *parent);
 
-public:
-    virtual ~QTipLabel();
-
-    void setContent(const Utils::TipContent &content);
-    const Utils::TipContent &content() const;
-
+    virtual void setContent(const QVariant &content) = 0;
+    virtual bool isInteractive() const { return false; }
+    virtual int showTime() const = 0;
     virtual void configure(const QPoint &pos, QWidget *w) = 0;
-    virtual bool canHandleContentReplacement(const Utils::TipContent &content) const = 0;
-
-    bool isInteractive() const;
-
-private:
-    Utils::TipContent *m_tipContent;
-};
-
-class ColorTip : public QTipLabel
-{
-    Q_OBJECT
-public:
-    ColorTip(QWidget *parent);
-    virtual ~ColorTip();
-
-    virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool canHandleContentReplacement(const TipContent &content) const;
+    virtual bool canHandleContentReplacement(int typeId) const = 0;
+    virtual bool equals(int typeId, const QVariant &other, const QString &helpId) const = 0;
+    virtual void setHelpId(const QString &id);
+    virtual QString helpId() const;
 
 private:
-    virtual void paintEvent(QPaintEvent *event);
-
-    QPixmap m_tilePixMap;
+    QString m_helpId;
 };
 
 class TextTip : public QTipLabel
 {
-    Q_OBJECT
 public:
     TextTip(QWidget *parent);
-    virtual ~TextTip();
 
+    virtual void setContent(const QVariant &content);
     virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool canHandleContentReplacement(const TipContent &content) const;
-
-private:
+    virtual bool canHandleContentReplacement(int typeId) const;
+    virtual int showTime() const;
+    virtual bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const;
     virtual void paintEvent(QPaintEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
+
+private:
+    QString m_text;
+};
+
+class ColorTip : public QTipLabel
+{
+public:
+    ColorTip(QWidget *parent);
+
+    virtual void setContent(const QVariant &content);
+    virtual void configure(const QPoint &pos, QWidget *w);
+    virtual bool canHandleContentReplacement(int typeId) const;
+    virtual int showTime() const { return 4000; }
+    virtual bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const;
+    virtual void paintEvent(QPaintEvent *event);
+
+private:
+    QColor m_color;
+    QPixmap m_tilePixmap;
 };
 
 class WidgetTip : public QTipLabel
 {
     Q_OBJECT
+
 public:
     explicit WidgetTip(QWidget *parent = 0);
+    void pinToolTipWidget(QWidget *parent);
 
+    virtual void setContent(const QVariant &content);
     virtual void configure(const QPoint &pos, QWidget *w);
-    virtual bool canHandleContentReplacement(const TipContent &content) const;
-
-public slots:
-    void pinToolTipWidget();
+    virtual bool canHandleContentReplacement(int typeId) const;
+    virtual int showTime() const { return 30000; }
+    virtual bool equals(int typeId, const QVariant &other, const QString &otherHelpId) const;
+    virtual bool isInteractive() const { return true; }
 
 private:
-    QWidget *takeWidget(Qt::WindowFlags wf = 0);
-
+    QWidget *m_widget;
     QVBoxLayout *m_layout;
 };
 

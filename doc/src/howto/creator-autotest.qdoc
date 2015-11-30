@@ -1,0 +1,181 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage creator-cpu-usage-analyzer.html
+    \page creator-autotest.html
+    \nextpage creator-advanced.html
+
+    \title Running Autotests
+
+    \commercial
+
+    \QC integrates the \l{Qt Test} framework for unit testing Qt based
+    applications and libraries (commercial only). You can use \QC to build and
+    run autotests for your projects.
+
+    \image qtcreator-autotests.png
+
+    To enable the experimental Auto Test plugin, select \uicontrol Help >
+    \uicontrol {About Plugins} > \uicontrol Utilities > \uicontrol {Auto Test}.
+    Restart \QC to be able to use the plugin.
+
+    \section1 Creating Autotests
+
+    You can use a wizard to create projects that contain autotests:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Other Project} > \uicontrol {Auto Test} >
+            \uicontrol Choose to create a project with boilerplate code for an
+            autotest.
+
+        \li In the \uicontrol {Project and Test Information} dialog, specify
+            settings for the project and autotest:
+
+            \list 1
+
+                \li Select the \uicontrol {GUI Application} check box to create
+                    a Qt application.
+
+                \li In the \uicontrol {Test case name} field, enter a name for
+                    the test case.
+
+                \li Select the \uicontrol {Requires QApplication} check box to
+                    add the include statement for QApplication to the main.cpp
+                    file of the project.
+
+                \li Select the \uicontrol {Generate initialization and cleanup
+                    code} checkbox to add functions to your test that are
+                    executed by the testing framework to initialize and clean
+                    up the test.
+
+                \li In the \uicontrol {Build auto tests} field, select
+                    \uicontrol Always to always build the autotest when building
+                    the project or \uicontrol {Debug Only} to only build it
+                    during debug builds.
+
+            \endlist
+
+    \endlist
+
+    \QC creates the autotest in the \c{tests\auto} directory in the project
+    directory. Edit the .cpp file to add private slots for each test
+    function in your test. For more information about creating autotests, see
+    \l{Creating a Test}.
+
+    \section1 Building and Running Autotests
+
+    To build and run autotests:
+
+    \list 1
+
+        \li Open a project that contains autotests.
+
+        \li In the \uicontrol {Test Results} output pane, select
+            \inlineimage qtcreator-run.png
+            (\uicontrol {Run All Tests}) to run all test or
+            \inlineimage qtcreator-run-selected-tests.png
+            (\uicontrol {Run Selected Tests}) to run the selected tests.
+
+            You can select the tests to run in the \uicontrol Tests view in the
+            \uicontrol Projects pane. For more information, see
+            \l{Viewing Tests}.
+
+            \note By default, \QC builds a project before deploying and running
+            it.
+
+    \endlist
+
+    If a test takes more than a minute to execute, the default timeout might
+    stop the test execution. To increase the timeout, select  \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Test Settings}.
+
+    The code inside a benchmark test is measured, and possibly also repeated
+    several times in order to get an accurate measurement. This depends on the
+    measurement back-end that you can select in \uicontrol {Test Settings}:
+    walltime, CPU tick counter, event counter, Vallgrind Callgring, and Linux
+    Perf. For more information, see \l{Creating a Benchmark}.
+
+    \section1 Viewing Test Output
+
+    The test results are displayed in the \uicontrol {Test Results} output pane.
+
+    \table
+        \header
+            \li Result
+            \li Description
+        \row
+            \li BENCH
+            \li Benchmark test.
+        \row
+            \li BFAIL
+            \li Blacklisted test case failed. Since Qt 5.4, you can
+                provide a BLACKLIST file for tests. It is mainly used internally
+                by the Qt CI system.
+        \row
+            \li BPASS
+            \li Blacklisted test case passed.
+        \row
+            \li DEBUG
+            \li Debug message.
+        \row
+            \li XFAIL
+            \li Test case is expected to fail, so it is marked by using the
+                QEXPECT_FAIL macro. If the test case passes instead, an
+                unexpected pass (XPASS) is written to the test log.
+        \row
+            \li FAIL
+            \li Test case failed. Double-click the line for more information.
+        \row
+            \li INTERNAL
+            \li Internal message.
+        \row
+            \li PASS
+            \li Test case passed.
+        \row
+            \li SKIP
+            \li Test case was skipped.
+        \row
+            \li XPASS
+            \li Test case passed even though it was expected to fail.
+        \row
+            \li WARN
+            \li Warning message.
+    \endtable
+
+    To view only messages of a particular type, select
+    \inlineimage qtcreator-filter.png
+    (\uicontrol {Filter Test Results}), and then select the types of messages to
+    show.
+
+    To hide internal messages and run configuration warnings, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Test Settings}.
+*/

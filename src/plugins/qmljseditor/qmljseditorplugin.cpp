@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -32,26 +33,18 @@
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
-#include "qmljseditorfactory.h"
-#include "qmljshoverhandler.h"
-#include "qmlfilewizard.h"
-#include "jsfilewizard.h"
 #include "qmljsoutline.h"
 #include "qmljspreviewrunner.h"
 #include "qmljssnippetprovider.h"
 #include "qmltaskmanager.h"
 #include "quicktoolbar.h"
 #include "quicktoolbarsettingspage.h"
-#include "qmljscompletionassist.h"
 #include "qmljsquickfixassist.h"
-#include "qmljshighlighterfactory.h"
 
 #include <qmljs/qmljsicons.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsreformatter.h>
 #include <qmljstools/qmljstoolsconstants.h>
-
-#include <qmldesigner/qmldesignerconstants.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -63,12 +56,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/textfilewizard.h>
 #include <utils/qtcassert.h>
 #include <utils/json.h>
 
 #include <QtPlugin>
-#include <QDebug>
 #include <QSettings>
 #include <QDir>
 #include <QCoreApplication>
@@ -94,20 +85,18 @@ QmlJSEditorPlugin *QmlJSEditorPlugin::m_instance = 0;
 
 QmlJSEditorPlugin::QmlJSEditorPlugin() :
         m_modelManager(0),
-    m_editor(0),
     m_quickFixAssistProvider(0),
     m_reformatFileAction(0),
     m_currentDocument(0),
     m_jsonManager(new Utils::JsonSchemaManager(
-            QStringList() << Core::ICore::userResourcePath() + QLatin1String("/json/")
-                          << Core::ICore::resourcePath() + QLatin1String("/json/")))
+            QStringList() << ICore::userResourcePath() + QLatin1String("/json/")
+                          << ICore::resourcePath() + QLatin1String("/json/")))
 {
     m_instance = this;
 }
 
 QmlJSEditorPlugin::~QmlJSEditorPlugin()
 {
-    removeObject(m_editor);
     m_instance = 0;
 }
 
@@ -115,7 +104,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 {
     m_modelManager = QmlJS::ModelManagerInterface::instance();
     addAutoReleasedObject(new QmlJSSnippetProvider);
-    addAutoReleasedObject(new QmlJSHighlighterFactory);
 
     // QML task updating manager
     m_qmlTaskManager = new QmlTaskManager;
@@ -131,109 +119,86 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     connect(m_modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
             m_qmlTaskManager, SLOT(documentsRemoved(QStringList)));
 
-    Core::Context context(Constants::C_QMLJSEDITOR_ID);
+    Context context(Constants::C_QMLJSEDITOR_ID);
 
-    m_editor = new QmlJSEditorFactory(this);
-    addObject(m_editor);
+    addAutoReleasedObject(new QmlJSEditorFactory);
 
-    IWizard *wizard = new QmlFileWizard;
-    wizard->setWizardKind(Core::IWizard::FileWizard);
-    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizard->setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
-    wizard->setDescription(tr("Creates a QML file with boilerplate code, starting with \"import QtQuick 1.1\"."));
-    wizard->setDisplayName(tr("QML File (Qt Quick 1)"));
-    wizard->setId(QLatin1String(Constants::WIZARD_QML1FILE));
-    addAutoReleasedObject(wizard);
+    ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
+    ActionContainer *qmlToolsMenu = ActionManager::actionContainer(Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
 
-    wizard = new QmlFileWizard;
-    wizard->setWizardKind(Core::IWizard::FileWizard);
-    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizard->setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
-    wizard->setDescription(tr("Creates a QML file with boilerplate code, starting with \"import QtQuick 2.0\"."));
-    wizard->setDisplayName(tr("QML File (Qt Quick 2)"));
-    wizard->setId(QLatin1String(Constants::WIZARD_QML2FILE));
-    addAutoReleasedObject(wizard);
+    qmlToolsMenu->addSeparator();
 
-    wizard = new JsFileWizard;
-    wizard->setWizardKind(Core::IWizard::FileWizard);
-    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizard->setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
-    wizard->setDescription(tr("Creates a JavaScript file."));
-    wizard->setDisplayName(tr("JS File"));
-    wizard->setId(QLatin1String("Z.Js"));
-    addAutoReleasedObject(wizard);
-
-    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(Constants::M_CONTEXT);
-    Core::ActionContainer *qmlToolsMenu = Core::ActionManager::actionContainer(Core::Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
-
-    Core::Context globalContext(Core::Constants::C_GLOBAL);
-    qmlToolsMenu->addSeparator(globalContext);
-
-    Core::Command *cmd;
-    cmd = Core::ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
+    Command *cmd;
+    cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     QAction *findUsagesAction = new QAction(tr("Find Usages"), this);
-    cmd = Core::ActionManager::registerAction(findUsagesAction, Constants::FIND_USAGES, context);
+    cmd = ActionManager::registerAction(findUsagesAction, Constants::FIND_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
     connect(findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     QAction *renameUsagesAction = new QAction(tr("Rename Symbol Under Cursor"), this);
-    cmd = Core::ActionManager::registerAction(renameUsagesAction, Constants::RENAME_USAGES, context);
+    cmd = ActionManager::registerAction(renameUsagesAction, Constants::RENAME_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+R")));
     connect(renameUsagesAction, SIGNAL(triggered()), this, SLOT(renameUsages()));
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     QAction *semanticScan = new QAction(tr("Run Checks"), this);
-    cmd = Core::ActionManager::registerAction(semanticScan, Core::Id(Constants::RUN_SEMANTIC_SCAN), globalContext);
+    cmd = ActionManager::registerAction(semanticScan, Id(Constants::RUN_SEMANTIC_SCAN));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+C")));
     connect(semanticScan, SIGNAL(triggered()), this, SLOT(runSemanticScan()));
     qmlToolsMenu->addAction(cmd);
 
     m_reformatFileAction = new QAction(tr("Reformat File"), this);
-    cmd = Core::ActionManager::registerAction(m_reformatFileAction, Core::Id(Constants::REFORMAT_FILE), context);
+    cmd = ActionManager::registerAction(m_reformatFileAction, Id(Constants::REFORMAT_FILE), context);
     connect(m_reformatFileAction, SIGNAL(triggered()), this, SLOT(reformatFile()));
     qmlToolsMenu->addAction(cmd);
 
+    QAction *inspectElementAction = new QAction(tr("Inspect API for Element Under Cursor"), this);
+    cmd = ActionManager::registerAction(inspectElementAction,
+                                              Id(Constants::INSPECT_ELEMENT_UNDER_CURSOR), context);
+    connect(inspectElementAction, &QAction::triggered, [] {
+        if (auto widget = qobject_cast<QmlJSEditorWidget *>(EditorManager::currentEditor()->widget()))
+            widget->inspectElementUnderCursor();
+    });
+    qmlToolsMenu->addAction(cmd);
+
     QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
-    cmd = Core::ActionManager::registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
-    cmd->setDefaultKeySequence(Core::UseMacShortcuts ? QKeySequence(Qt::META + Qt::ALT + Qt::Key_Space)
+    cmd = ActionManager::registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
+    cmd->setDefaultKeySequence(UseMacShortcuts ? QKeySequence(Qt::META + Qt::ALT + Qt::Key_Space)
                                                      : QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Space));
     connect(showQuickToolbar, SIGNAL(triggered()), this, SLOT(showContextPane()));
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     // Insert marker for "Refactoring" menu:
-    Core::Command *sep = contextMenu->addSeparator(globalContext);
+    Command *sep = contextMenu->addSeparator();
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
-    contextMenu->addSeparator(globalContext);
+    contextMenu->addSeparator();
 
-    cmd = Core::ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION);
+    cmd = ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    cmd = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
     m_quickFixAssistProvider = new QmlJSQuickFixAssistProvider;
     addAutoReleasedObject(m_quickFixAssistProvider);
-    addAutoReleasedObject(new QmlJSCompletionAssistProvider);
-
-    addAutoReleasedObject(new HoverHandler);
 
     errorMessage->clear();
 
-    Core::FileIconProvider::registerIconOverlayForSuffix(":/qmljseditor/images/qmlfile.png", "qml");
+    FileIconProvider::registerIconOverlayForSuffix(":/qmljseditor/images/qmlfile.png", "qml");
 
     registerQuickFixes(this);
 
     addAutoReleasedObject(new QmlJSOutlineWidgetFactory);
 
     addAutoReleasedObject(new QuickToolBar);
-    addAutoReleasedObject(new Internal::QuickToolBarSettingsPage);
+    addAutoReleasedObject(new QuickToolBarSettingsPage);
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(currentEditorChanged(Core::IEditor*)));
 
@@ -260,13 +225,13 @@ Utils::JsonSchemaManager *QmlJSEditorPlugin::jsonManager() const
 
 void QmlJSEditorPlugin::findUsages()
 {
-    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
+    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->findUsages();
 }
 
 void QmlJSEditorPlugin::renameUsages()
 {
-    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
+    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->renameUsages();
 }
 
@@ -285,15 +250,15 @@ void QmlJSEditorPlugin::reformatFile()
 
 void QmlJSEditorPlugin::showContextPane()
 {
-    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
+    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->showContextPane();
 }
 
-Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a,
-                                          Core::Context &context, const Core::Id &id,
-                                          Core::ActionContainer *c1, const QString &keySequence)
+Command *QmlJSEditorPlugin::addToolAction(QAction *a,
+                                          Context &context, Id id,
+                                          ActionContainer *c1, const QString &keySequence)
 {
-    Core::Command *command = Core::ActionManager::registerAction(a, id, context);
+    Command *command = ActionManager::registerAction(a, id, context);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
     c1->addAction(command);
@@ -305,7 +270,7 @@ QmlJSQuickFixAssistProvider *QmlJSEditorPlugin::quickFixAssistProvider() const
     return m_quickFixAssistProvider;
 }
 
-void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
+void QmlJSEditorPlugin::currentEditorChanged(IEditor *editor)
 {
     QmlJSEditorDocument *document = 0;
     if (editor)
@@ -336,5 +301,3 @@ void QmlJSEditorPlugin::checkCurrentEditorSemanticInfoUpToDate()
 }
 
 } // namespace QmlJSEditor
-
-Q_EXPORT_PLUGIN(QmlJSEditor::Internal::QmlJSEditorPlugin)

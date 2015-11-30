@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -35,7 +36,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDebug>
+#include <QColor>
 #include <QDir>
 
 using namespace QmlJS;
@@ -124,7 +125,7 @@ public:
                     QString fileName = url.toLocalFile();
                     if (!fileName.isEmpty()) {
                         if (QFileInfo(fileName).isRelative()) {
-                            fileName.prepend(QDir::separator());
+                            fileName.prepend(QLatin1Char('/'));
                             fileName.prepend(_doc->path());
                         }
                         if (!QFileInfo(fileName).exists())
@@ -526,10 +527,52 @@ public:
     }
 
 };
+
+class UnsupportedTypesByQmlUi : public QStringList
+{
+public:
+    UnsupportedTypesByQmlUi()
+    {
+        (*this) << UnsupportedTypesByVisualDesigner()
+                << QLatin1String("Binding") << QLatin1String("ShaderEffect")
+                << QLatin1String("ShaderEffectSource") << QLatin1String("Canvas")
+                << QLatin1String("Component") << QLatin1String("Loader") << QLatin1String("Transition")
+                << QLatin1String("PropertyAnimation") << QLatin1String("SequentialAnimation")
+                << QLatin1String("ParallelAnimation") << QLatin1String("NumberAnimation");
+    }
+
+};
+
+class UnsupportedRootObjectTypesByVisualDesigner : public QStringList
+{
+public:
+    UnsupportedRootObjectTypesByVisualDesigner()
+    {
+        (*this) << QLatin1String("QtObject") << QLatin1String("ListModel")
+            << QLatin1String("Component") << QLatin1String("Timer")
+            << QLatin1String("Package");
+    }
+
+};
+
+class UnsupportedRootObjectTypesByQmlUi : public QStringList
+{
+public:
+    UnsupportedRootObjectTypesByQmlUi()
+    {
+        (*this) << UnsupportedRootObjectTypesByVisualDesigner()
+                << QLatin1String("Window") << QLatin1String("ApplicationWindow");
+    }
+
+};
+
 } // end of anonymous namespace
 
 Q_GLOBAL_STATIC(VisualAspectsPropertyBlackList, visualAspectsPropertyBlackList)
 Q_GLOBAL_STATIC(UnsupportedTypesByVisualDesigner, unsupportedTypesByVisualDesigner)
+Q_GLOBAL_STATIC(UnsupportedRootObjectTypesByVisualDesigner, unsupportedRootObjectTypesByVisualDesigner)
+Q_GLOBAL_STATIC(UnsupportedRootObjectTypesByQmlUi, unsupportedRootObjectTypesByQmlUi)
+Q_GLOBAL_STATIC(UnsupportedTypesByQmlUi, unsupportedTypesByQmlUi)
 
 Check::Check(Document::Ptr doc, const ContextPtr &context)
     : _doc(doc)
@@ -555,11 +598,13 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     disableMessage(HintBinaryOperatorSpacing);
     disableMessage(HintOneStatementPerLine);
     disableMessage(HintExtraParentheses);
-    disableMessage(WarnImperativeCodeNotEditableInVisualDesigner);
-    disableMessage(WarnUnsupportedTypeInVisualDesigner);
-    disableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
-    disableMessage(WarnUndefinedValueForVisualDesigner);
-    disableMessage(WarnStatesOnlyInRootItemForVisualDesigner);
+
+    if (isQtQuick2Ui()) {
+        disableQmlDesignerChecks();
+    } else {
+        disableQmlDesignerChecks();
+        disableQmlDesignerUiFileChecks();
+    }
 }
 
 Check::~Check()
@@ -585,6 +630,48 @@ void Check::enableMessage(Type type)
 void Check::disableMessage(Type type)
 {
     _enabledMessages.remove(type);
+}
+
+void Check::enableQmlDesignerChecks()
+{
+    enableMessage(WarnImperativeCodeNotEditableInVisualDesigner);
+    enableMessage(WarnUnsupportedTypeInVisualDesigner);
+    enableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
+    enableMessage(WarnAboutQtQuick1InsteadQtQuick2);
+    enableMessage(ErrUnsupportedRootTypeInVisualDesigner);
+    //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
+}
+
+void Check::disableQmlDesignerChecks()
+{
+    disableMessage(WarnImperativeCodeNotEditableInVisualDesigner);
+    disableMessage(WarnUnsupportedTypeInVisualDesigner);
+    disableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
+    disableMessage(WarnUndefinedValueForVisualDesigner);
+    disableMessage(WarnStatesOnlyInRootItemForVisualDesigner);
+    disableMessage(ErrUnsupportedRootTypeInVisualDesigner);
+}
+
+void Check::enableQmlDesignerUiFileChecks()
+{
+    enableMessage(ErrUnsupportedRootTypeInQmlUi);
+    enableMessage(ErrUnsupportedTypeInQmlUi);
+    enableMessage(ErrFunctionsNotSupportedInQmlUi);
+    enableMessage(ErrBlocksNotSupportedInQmlUi);
+    enableMessage(ErrBehavioursNotSupportedInQmlUi);
+    enableMessage(ErrStatesOnlyInRootItemInQmlUi);
+    enableMessage(ErrReferenceToParentItemNotSupportedInQmlUi);
+}
+
+void Check::disableQmlDesignerUiFileChecks()
+{
+    disableMessage(ErrUnsupportedRootTypeInQmlUi);
+    disableMessage(ErrUnsupportedTypeInQmlUi);
+    disableMessage(ErrFunctionsNotSupportedInQmlUi);
+    disableMessage(ErrBlocksNotSupportedInQmlUi);
+    disableMessage(ErrBehavioursNotSupportedInQmlUi);
+    disableMessage(ErrStatesOnlyInRootItemInQmlUi);
+    disableMessage(ErrReferenceToParentItemNotSupportedInQmlUi);
 }
 
 bool Check::preVisit(Node *ast)
@@ -653,8 +740,11 @@ bool Check::visit(UiObjectDefinition *ast)
 bool Check::visit(UiObjectBinding *ast)
 {
     checkScopeObjectMember(ast->qualifiedId);
-    if (!ast->hasOnToken)
+    if (!ast->hasOnToken) {
         checkProperty(ast->qualifiedId);
+    } else {
+        addMessage(ErrBehavioursNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+    }
 
     visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);
     return false;
@@ -697,6 +787,11 @@ static bool checkTypeForDesignerSupport(UiQualifiedId *typeId)
     return unsupportedTypesByVisualDesigner()->contains(getRightMostIdentifier(typeId)->name.toString());
 }
 
+static bool checkTypeForQmlUiSupport(UiQualifiedId *typeId)
+{
+    return unsupportedTypesByQmlUi()->contains(getRightMostIdentifier(typeId)->name.toString());
+}
+
 static bool checkTopLevelBindingForParentReference(ExpressionStatement *expStmt, const QString &source)
 {
     if (!expStmt)
@@ -724,11 +819,28 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 
     const SourceLocation typeErrorLocation = fullLocationForQualifiedId(typeId);
 
-    if (checkTypeForDesignerSupport(typeId))
-        addMessage(WarnUnsupportedTypeInVisualDesigner, typeErrorLocation);
+    const QString typeName = getRightMostIdentifier(typeId)->name.toString();
 
-    if (m_typeStack.count() > 1 && getRightMostIdentifier(typeId)->name.toString() == QLatin1String("State"))
+    if (checkTypeForDesignerSupport(typeId))
+        addMessage(WarnUnsupportedTypeInVisualDesigner, typeErrorLocation, typeName);
+
+    if (checkTypeForQmlUiSupport(typeId))
+        addMessage(ErrUnsupportedTypeInQmlUi, typeErrorLocation, typeName);
+
+    if (m_typeStack.count() > 1 && getRightMostIdentifier(typeId)->name.toString() == QLatin1String("State")) {
         addMessage(WarnStatesOnlyInRootItemForVisualDesigner, typeErrorLocation);
+        addMessage(ErrStatesOnlyInRootItemInQmlUi, typeErrorLocation);
+    }
+
+    if (m_typeStack.isEmpty()
+            && unsupportedRootObjectTypesByVisualDesigner()->contains(typeName))
+        addMessage(ErrUnsupportedRootTypeInVisualDesigner,
+                   locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()), typeName);
+
+    if (m_typeStack.isEmpty()
+            && unsupportedRootObjectTypesByQmlUi()->contains(typeName))
+        addMessage(ErrUnsupportedRootTypeInQmlUi,
+                   locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()), typeName);
 
     bool typeError = false;
     if (_importsOk) {
@@ -823,6 +935,8 @@ bool Check::visit(UiScriptBinding *ast)
             && checkTopLevelBindingForParentReference(cast<ExpressionStatement *>(ast->statement), _doc->source())) {
         addMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner,
                    locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+        addMessage(ErrReferenceToParentItemNotSupportedInQmlUi,
+                   locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
     }
 
     checkProperty(ast->qualifiedId);
@@ -885,34 +999,34 @@ bool Check::visit(UiPublicMember *ast)
             if (name == QLatin1String("variant") || name == QLatin1String("var")) {
                 Evaluate evaluator(&_scopeChain);
                 const Value *init = evaluator(ast->statement);
-                QString preferedType;
+                QString preferredType;
                 if (init->asNumberValue())
-                    preferedType = tr("'int' or 'real'");
+                    preferredType = tr("'int' or 'real'");
                 else if (init->asStringValue())
-                    preferedType = QLatin1String("'string'");
+                    preferredType = QLatin1String("'string'");
                 else if (init->asBooleanValue())
-                    preferedType = QLatin1String("'bool'");
+                    preferredType = QLatin1String("'bool'");
                 else if (init->asColorValue())
-                    preferedType = QLatin1String("'color'");
+                    preferredType = QLatin1String("'color'");
                 else if (init == _context->valueOwner()->qmlPointObject())
-                    preferedType = QLatin1String("'point'");
+                    preferredType = QLatin1String("'point'");
                 else if (init == _context->valueOwner()->qmlRectObject())
-                    preferedType = QLatin1String("'rect'");
+                    preferredType = QLatin1String("'rect'");
                 else if (init == _context->valueOwner()->qmlSizeObject())
-                    preferedType = QLatin1String("'size'");
+                    preferredType = QLatin1String("'size'");
                 else if (init == _context->valueOwner()->qmlVector2DObject())
-                    preferedType = QLatin1String("'vector2d'");
+                    preferredType = QLatin1String("'vector2d'");
                 else if (init == _context->valueOwner()->qmlVector3DObject())
-                    preferedType = QLatin1String("'vector3d'");
+                    preferredType = QLatin1String("'vector3d'");
                 else if (init == _context->valueOwner()->qmlVector4DObject())
-                    preferedType = QLatin1String("'vector4d'");
+                    preferredType = QLatin1String("'vector4d'");
                 else if (init == _context->valueOwner()->qmlQuaternionObject())
-                    preferedType = QLatin1String("'quaternion'");
+                    preferredType = QLatin1String("'quaternion'");
                 else if (init == _context->valueOwner()->qmlMatrix4x4Object())
-                    preferedType = QLatin1String("'matrix4x4'");
+                    preferredType = QLatin1String("'matrix4x4'");
 
-                if (!preferedType.isEmpty())
-                    addMessage(HintPreferNonVarPropertyType, ast->typeToken, preferedType);
+                if (!preferredType.isEmpty())
+                    addMessage(HintPreferNonVarPropertyType, ast->typeToken, preferredType);
             }
         }
 
@@ -979,15 +1093,18 @@ bool Check::visit(FunctionDeclaration *ast)
 
 bool Check::visit(FunctionExpression *ast)
 {
+    SourceLocation locfunc = ast->functionToken;
+    SourceLocation loclparen = ast->lparenToken;
+
     if (ast->name.isEmpty()) {
-        SourceLocation locfunc = ast->functionToken;
-        SourceLocation loclparen = ast->lparenToken;
         if (locfunc.isValid() && loclparen.isValid()
                 && (locfunc.startLine != loclparen.startLine
                     || locfunc.end() + 1 != loclparen.begin())) {
             addMessage(HintAnonymousFunctionSpacing, locationFromRange(locfunc, loclparen));
         }
     }
+
+    addMessage(ErrFunctionsNotSupportedInQmlUi, locationFromRange(locfunc, loclparen));
 
     DeclarationsCheck bodyCheck;
     addMessages(bodyCheck(ast));
@@ -1088,6 +1205,8 @@ bool Check::visit(BinaryExpression *ast)
 
 bool Check::visit(Block *ast)
 {
+    addMessage(ErrBlocksNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+
     if (Node *p = parent()) {
         if (!cast<UiScriptBinding *>(p)
                 && !cast<UiPublicMember *>(p)
@@ -1369,12 +1488,20 @@ void Check::warnAboutUnnecessarySuppressions()
 
 bool Check::isQtQuick2() const
 {
-    foreach (const Import &import, _imports->all()) {
-        if (import.info.name() == QLatin1String("QtQuick")
-                && import.info.version().majorVersion() == 2)
-            return true;
+    if (_doc->language() == Dialect::Qml) {
+        foreach (const Import &import, _imports->all()) {
+            if (import.info.name() == QLatin1String("QtQuick")
+                    && import.info.version().majorVersion() == 2)
+                return true;
+        }
+        return false;
     }
-    return false;
+    return _doc->language() == Dialect::QmlQtQuick2 || _doc->language() == Dialect::QmlQtQuick2Ui;
+}
+
+bool Check::isQtQuick2Ui() const
+{
+    return _doc->language() == Dialect::QmlQtQuick2Ui;
 }
 
 bool Check::visit(NewExpression *ast)
@@ -1421,12 +1548,20 @@ bool Check::visit(CallExpression *ast)
     // check for capitalized function name being called
     SourceLocation location;
     const QString name = functionName(ast->base, &location);
+
+    //We have to allow the qsTr function for translation.
+    if (name != QLatin1String("qsTr"))
+        addMessage(ErrFunctionsNotSupportedInQmlUi, location);
+
     if (!name.isEmpty() && name.at(0).isUpper()
             && name != QLatin1String("String")
             && name != QLatin1String("Boolean")
             && name != QLatin1String("Date")
             && name != QLatin1String("Number")
-            && name != QLatin1String("Object")) {
+            && name != QLatin1String("Object")
+            && name != QLatin1String("QT_TR_NOOP")
+            && name != QLatin1String("QT_TRANSLATE_NOOP")
+            && name != QLatin1String("QT_TRID_NOOP")) {
         addMessage(WarnExpectedNewWithUppercaseFunction, location);
     }
     if (cast<IdentifierExpression *>(ast->base) && name == QLatin1String("eval"))

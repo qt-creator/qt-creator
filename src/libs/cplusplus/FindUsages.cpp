@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -140,7 +141,7 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &cand
 QString FindUsages::matchingLine(const Token &tk) const
 {
     const char *beg = _source.constData();
-    const char *cp = beg + tk.offset;
+    const char *cp = beg + tk.bytesBegin();
     for (; cp != beg - 1; --cp) {
         if (*cp == '\n')
             break;
@@ -178,7 +179,7 @@ void FindUsages::reportResult(unsigned tokenIndex)
     if (col)
         --col;  // adjust the column position.
 
-    const int len = tk.f.length;
+    const int len = tk.utf16chars();
 
     const Usage u(_doc->fileName(), lineText, line, col, len);
     _usages.append(u);
@@ -206,45 +207,47 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
                     return false;
             }
 
-            if (isLocalScope(_declSymbol->enclosingScope()) || isLocalScope(s->enclosingScope())) {
-                if (_declSymbol->isClass() && _declSymbol->enclosingScope()->isTemplate()
-                        && s->isClass() && s->enclosingScope()->isTemplate()) {
+            Scope *declEnclosingScope = _declSymbol->enclosingScope();
+            Scope *enclosingScope = s->enclosingScope();
+            if (isLocalScope(declEnclosingScope) || isLocalScope(enclosingScope)) {
+                if (_declSymbol->isClass() && declEnclosingScope->isTemplate()
+                        && s->isClass() && enclosingScope->isTemplate()) {
                     // for definition of functions of class defined outside the class definition
-                    Scope *templEnclosingDeclSymbol = _declSymbol->enclosingScope();
+                    Scope *templEnclosingDeclSymbol = declEnclosingScope;
                     Scope *scopeOfTemplEnclosingDeclSymbol
                             = templEnclosingDeclSymbol->enclosingScope();
-                    Scope *templEnclosingCandidateSymbol = s->enclosingScope();
+                    Scope *templEnclosingCandidateSymbol = enclosingScope;
                     Scope *scopeOfTemplEnclosingCandidateSymbol
                             = templEnclosingCandidateSymbol->enclosingScope();
 
                     if (scopeOfTemplEnclosingCandidateSymbol != scopeOfTemplEnclosingDeclSymbol)
                         return false;
-                } else if (_declSymbol->isClass() && _declSymbol->enclosingScope()->isTemplate()
-                        && s->enclosingScope()->isClass()
-                        && s->enclosingScope()->enclosingScope()->isTemplate()) {
+                } else if (_declSymbol->isClass() && declEnclosingScope->isTemplate()
+                        && enclosingScope->isClass()
+                        && enclosingScope->enclosingScope()->isTemplate()) {
                     // for declaration inside template class
-                    Scope *templEnclosingDeclSymbol = _declSymbol->enclosingScope();
+                    Scope *templEnclosingDeclSymbol = declEnclosingScope;
                     Scope *scopeOfTemplEnclosingDeclSymbol
                             = templEnclosingDeclSymbol->enclosingScope();
-                    Scope *templEnclosingCandidateSymbol = s->enclosingScope()->enclosingScope();
+                    Scope *templEnclosingCandidateSymbol = enclosingScope->enclosingScope();
                     Scope *scopeOfTemplEnclosingCandidateSymbol
                             = templEnclosingCandidateSymbol->enclosingScope();
 
                     if (scopeOfTemplEnclosingCandidateSymbol !=  scopeOfTemplEnclosingDeclSymbol)
                         return false;
-                } else if (s->enclosingScope()->isTemplate() && ! _declSymbol->isTypenameArgument()) {
-                    if (_declSymbol->enclosingScope()->isTemplate()) {
-                        if (s->enclosingScope()->enclosingScope() != _declSymbol->enclosingScope()->enclosingScope())
+                } else if (enclosingScope->isTemplate() && ! _declSymbol->isTypenameArgument()) {
+                    if (declEnclosingScope->isTemplate()) {
+                        if (enclosingScope->enclosingScope() != declEnclosingScope->enclosingScope())
                             return false;
                     } else {
-                        if (s->enclosingScope()->enclosingScope() != _declSymbol->enclosingScope())
+                        if (enclosingScope->enclosingScope() != declEnclosingScope)
                             return false;
                     }
-                } else if (_declSymbol->enclosingScope()->isTemplate() && s->isTemplate()) {
-                    if (_declSymbol->enclosingScope()->enclosingScope() != s->enclosingScope())
+                } else if (declEnclosingScope->isTemplate() && s->isTemplate()) {
+                    if (declEnclosingScope->enclosingScope() != enclosingScope)
                         return false;
                 } else if (! s->isUsingDeclaration()
-                           && s->enclosingScope() != _declSymbol->enclosingScope()) {
+                           && enclosingScope != declEnclosingScope) {
                     return false;
                 }
             }
@@ -259,8 +262,8 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
 
 void FindUsages::checkExpression(unsigned startToken, unsigned endToken, Scope *scope)
 {
-    const unsigned begin = tokenAt(startToken).begin();
-    const unsigned end = tokenAt(endToken).end();
+    const unsigned begin = tokenAt(startToken).bytesBegin();
+    const unsigned end = tokenAt(endToken).bytesEnd();
 
     const QByteArray expression = _source.mid(begin, end - begin);
     // qDebug() << "*** check expression:" << expression;
@@ -346,14 +349,14 @@ void FindUsages::objCSelectorArgument(ObjCSelectorArgumentAST *ast)
     // unsigned colon_token = ast->colon_token;
 }
 
-bool FindUsages::visit(AttributeAST *ast)
+bool FindUsages::visit(GnuAttributeAST *ast)
 {
     (void) ast;
     Q_ASSERT(!"unreachable");
     return false;
 }
 
-void FindUsages::attribute(AttributeAST *ast)
+void FindUsages::attribute(GnuAttributeAST *ast)
 {
     if (! ast)
         return;
@@ -1378,6 +1381,12 @@ bool FindUsages::visit(ThrowExpressionAST *ast)
     return false;
 }
 
+bool FindUsages::visit(NoExceptOperatorExpressionAST* ast)
+{
+    this->expression(ast->expression);
+    return false;
+}
+
 bool FindUsages::visit(TypeIdAST *ast)
 {
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
@@ -1918,8 +1927,6 @@ bool FindUsages::visit(QualifiedNameAST *ast)
     }
 
     return false;
-
-    return false;
 }
 
 bool FindUsages::visit(OperatorFunctionIdAST *ast)
@@ -1969,12 +1976,12 @@ bool FindUsages::visit(SimpleSpecifierAST *ast)
     return false;
 }
 
-bool FindUsages::visit(AttributeSpecifierAST *ast)
+bool FindUsages::visit(GnuAttributeSpecifierAST *ast)
 {
     // unsigned attribute_token = ast->attribute_token;
     // unsigned first_lparen_token = ast->first_lparen_token;
     // unsigned second_lparen_token = ast->second_lparen_token;
-    for (AttributeListAST *it = ast->attribute_list; it; it = it->next) {
+    for (GnuAttributeListAST *it = ast->attribute_list; it; it = it->next) {
         this->attribute(it->value);
     }
     // unsigned first_rparen_token = ast->first_rparen_token;
@@ -2124,10 +2131,12 @@ bool FindUsages::visit(MemberAccessAST *ast)
 
     if (ast->member_name) {
         if (SimpleNameAST *simple = ast->member_name->asSimpleName()) {
-            if (identifier(simple->identifier_token) == _id) {
+            if (identifier(simple->identifier_token) == _id)
                 checkExpression(ast->firstToken(), simple->identifier_token);
-                return false;
-            }
+        } else if (TemplateIdAST *templateId = ast->member_name->asTemplateId()) {
+            if (identifier(templateId->identifier_token) == _id)
+                checkExpression(ast->firstToken(), templateId->identifier_token);
+            accept(templateId->template_argument_list);
         }
     }
 

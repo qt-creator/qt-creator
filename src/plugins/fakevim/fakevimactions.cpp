@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,26 +9,28 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "fakevimactions.h"
 #include "fakevimhandler.h"
+#include "fakevimtr.h"
 
 // Please do not add any direct dependencies to other Qt Creator code  here.
 // Instead emit signals and let the FakeVimPlugin channel the information to
@@ -39,8 +41,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QObject>
-#include <QCoreApplication>
 
 #ifdef FAKEVIM_STANDALONE
 using namespace FakeVim::Internal::Utils;
@@ -150,15 +150,15 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
 {
     int code = m_nameToCode.value(name, -1);
     if (code == -1)
-        return FakeVimHandler::tr("Unknown option: %1").arg(name);
+        return Tr::tr("Unknown option: %1").arg(name);
     if (code == ConfigTabStop || code == ConfigShiftWidth) {
         if (value.toInt() <= 0)
-            return FakeVimHandler::tr("Argument must be positive: %1=%2")
+            return Tr::tr("Argument must be positive: %1=%2")
                     .arg(name).arg(value);
     }
     SavedAction *act = item(code);
     if (!act)
-        return FakeVimHandler::tr("Unknown option: %1").arg(name);
+        return Tr::tr("Unknown option: %1").arg(name);
     act->setValue(value);
     return QString();
 }
@@ -191,12 +191,9 @@ FakeVimSettings *theFakeVimSettings()
     createAction(s, ConfigVimRcPath,  QString(), _("VimRcPath"));
 #ifndef FAKEVIM_STANDALONE
     createAction(s, ConfigUseFakeVim, false,     _("UseFakeVim"));
-    s->item(ConfigUseFakeVim)->setText(QCoreApplication::translate("FakeVim::Internal",
-        "Use Vim-style Editing"));
-    s->item(ConfigReadVimRc)->setText(QCoreApplication::translate("FakeVim::Internal",
-        "Read .vimrc"));
-    s->item(ConfigVimRcPath)->setText(QCoreApplication::translate("FakeVim::Internal",
-        "Path to .vimrc"));
+    s->item(ConfigUseFakeVim)->setText(Tr::tr("Use Vim-style Editing"));
+    s->item(ConfigReadVimRc)->setText(Tr::tr("Read .vimrc"));
+    s->item(ConfigVimRcPath)->setText(Tr::tr("Path to .vimrc"));
 #endif
     createAction(s, ConfigShowMarks,      false, _("ShowMarks"),      _("sm"));
     createAction(s, ConfigPassControlKey, false, _("PassControlKey"), _("pck"));

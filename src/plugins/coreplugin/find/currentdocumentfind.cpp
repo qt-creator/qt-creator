@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -31,6 +32,8 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/coreconstants.h>
+
+#include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -44,8 +47,8 @@ using namespace Core::Internal;
 CurrentDocumentFind::CurrentDocumentFind()
   : m_currentFind(0)
 {
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)),
-            this, SLOT(updateCandidateFindFilter(QWidget*,QWidget*)));
+    connect(qApp, &QApplication::focusChanged,
+            this, &CurrentDocumentFind::updateCandidateFindFilter);
 }
 
 void CurrentDocumentFind::removeConnections()
@@ -60,10 +63,10 @@ void CurrentDocumentFind::resetIncrementalSearch()
     m_currentFind->resetIncrementalSearch();
 }
 
-void CurrentDocumentFind::clearResults()
+void CurrentDocumentFind::clearHighlights()
 {
     QTC_ASSERT(m_currentFind, return);
-    m_currentFind->clearResults();
+    m_currentFind->clearHighlights();
 }
 
 bool CurrentDocumentFind::isEnabled() const
@@ -71,9 +74,9 @@ bool CurrentDocumentFind::isEnabled() const
     return m_currentFind && (!m_currentWidget || m_currentWidget->isVisible());
 }
 
-bool CurrentDocumentFind::candidateIsEnabled() const
+IFindSupport *CurrentDocumentFind::candidate() const
 {
-    return (m_candidateFind != 0);
+    return m_candidateFind;
 }
 
 bool CurrentDocumentFind::supportsReplace() const
@@ -133,7 +136,12 @@ bool CurrentDocumentFind::replaceStep(const QString &before, const QString &afte
 int CurrentDocumentFind::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return 0);
-    return m_currentFind->replaceAll(before, after, findFlags);
+    QTC_CHECK(m_currentWidget);
+    int count = m_currentFind->replaceAll(before, after, findFlags);
+    Utils::FadingIndicator::showText(m_currentWidget,
+                                     tr("%n occurrences replaced.", 0, count),
+                                     Utils::FadingIndicator::SmallText);
+    return count;
 }
 
 void CurrentDocumentFind::defineFindScope()
@@ -158,6 +166,8 @@ void CurrentDocumentFind::updateCandidateFindFilter(QWidget *old, QWidget *now)
         if (!impl)
             candidate = candidate->parentWidget();
     }
+    if (candidate == m_candidateWidget && impl == m_candidateFind)
+        return;
     if (m_candidateWidget)
         disconnect(Aggregation::Aggregate::parentAggregate(m_candidateWidget), SIGNAL(changed()),
                    this, SLOT(candidateAggregationChanged()));
@@ -175,7 +185,7 @@ void CurrentDocumentFind::acceptCandidate()
         return;
     removeFindSupportConnections();
     if (m_currentFind)
-        m_currentFind->clearResults();
+        m_currentFind->clearHighlights();
 
     if (m_currentWidget)
         disconnect(Aggregation::Aggregate::parentAggregate(m_currentWidget), SIGNAL(changed()),
@@ -186,7 +196,8 @@ void CurrentDocumentFind::acceptCandidate()
 
     m_currentFind = m_candidateFind;
     if (m_currentFind) {
-        connect(m_currentFind, SIGNAL(changed()), this, SIGNAL(changed()));
+        connect(m_currentFind.data(), &IFindSupport::changed,
+                this, &CurrentDocumentFind::changed);
         connect(m_currentFind, SIGNAL(destroyed(QObject*)), SLOT(clearFindSupport()));
     }
     if (m_currentWidget)
@@ -197,8 +208,10 @@ void CurrentDocumentFind::acceptCandidate()
 void CurrentDocumentFind::removeFindSupportConnections()
 {
     if (m_currentFind) {
-        disconnect(m_currentFind, SIGNAL(changed()), this, SIGNAL(changed()));
-        disconnect(m_currentFind, SIGNAL(destroyed(QObject*)), this, SLOT(clearFindSupport()));
+        disconnect(m_currentFind.data(), &IFindSupport::changed,
+                   this, &CurrentDocumentFind::changed);
+        disconnect(m_currentFind.data(), &IFindSupport::destroyed,
+                   this, &CurrentDocumentFind::clearFindSupport);
     }
     if (m_currentWidget)
         m_currentWidget->removeEventFilter(this);

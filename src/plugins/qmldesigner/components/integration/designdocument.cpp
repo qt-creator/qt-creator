@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,21 +9,17 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 ****************************************************************************/
 
@@ -40,21 +36,24 @@
 #include <viewmanager.h>
 #include <nodeinstanceview.h>
 
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/kit.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
+#include <coreplugin/idocument.h>
 
 #include <QFileInfo>
 #include <QUrl>
 #include <QDebug>
 
-#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QApplication>
+
+using namespace ProjectExplorer;
 
 enum {
     debug = false
@@ -75,7 +74,7 @@ DesignDocument::DesignDocument(QObject *parent) :
         m_subComponentManager(new SubComponentManager(m_documentModel.data(), this)),
         m_rewriterView (new RewriterView(RewriterView::Amend, m_documentModel.data())),
         m_documentLoaded(false),
-        m_qtVersionId(-1)
+        m_currentKit(0)
 {
 }
 
@@ -101,17 +100,6 @@ QWidget *DesignDocument::centralWidget() const
     return qobject_cast<QWidget*>(parent());
 }
 
-QString DesignDocument::pathToQt() const
-{
-    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::version(m_qtVersionId);
-    if (activeQtVersion && (activeQtVersion->qtVersion() >= QtSupport::QtVersionNumber(4, 7, 1))
-            && (activeQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-                || activeQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
-        return activeQtVersion->qmakeProperty("QT_INSTALL_DATA");
-
-    return QString();
-}
-
 const ViewManager &DesignDocument::viewManager() const
 {
     return QmlDesignerPlugin::instance()->viewManager();
@@ -127,7 +115,7 @@ static ComponentTextModifier *createComponentTextModifier(TextModifier *original
                                                           const QString &componentText,
                                                           const ModelNode &componentNode)
 {
-    bool explicitComponent = componentText.contains("Component");
+    bool explicitComponent = componentText.contains(QLatin1String("Component"));
 
     ModelNode rootModelNode = rewriterView->rootModelNode();
 
@@ -162,7 +150,7 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
     return true;
 }
 
-AbstractView *DesignDocument::view()
+AbstractView *DesignDocument::view() const
 {
     return viewManager().nodeInstanceView();
 }
@@ -178,7 +166,7 @@ Model* DesignDocument::createInFileComponentModel()
 /*!
   Returns any errors that happened when parsing the latest qml file.
   */
-QList<RewriterView::Error> DesignDocument::qmlSyntaxErrors() const
+QList<RewriterError> DesignDocument::qmlSyntaxErrors() const
 {
     return m_rewriterView->errors();
 }
@@ -190,7 +178,7 @@ bool DesignDocument::hasQmlSyntaxErrors() const
 
 QString DesignDocument::displayName() const
 {
-    return fileName();
+    return fileName().toString();
 }
 
 QString DesignDocument::simplfiedDisplayName() const
@@ -200,31 +188,30 @@ QString DesignDocument::simplfiedDisplayName() const
     else
         return rootModelNode().simplifiedTypeName();
 
-    QStringList list = displayName().split(QLatin1Char('/'));
-    return list.last();
+    return fileName().fileName();
 }
 
-void DesignDocument::updateFileName(const QString & /*oldFileName*/, const QString &newFileName)
+void DesignDocument::updateFileName(const Utils::FileName & /*oldFileName*/, const Utils::FileName &newFileName)
 {
     if (m_documentModel)
-        m_documentModel->setFileUrl(QUrl::fromLocalFile(newFileName));
+        m_documentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toString()));
 
     if (m_inFileComponentModel)
-        m_inFileComponentModel->setFileUrl(QUrl::fromLocalFile(newFileName));
+        m_inFileComponentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toString()));
 
-    viewManager().setItemLibraryViewResourcePath(QFileInfo(newFileName).absolutePath());
+    viewManager().setItemLibraryViewResourcePath(newFileName.toFileInfo().absolutePath());
 
     emit displayNameChanged(displayName());
 }
 
-QString DesignDocument::fileName() const
+Utils::FileName DesignDocument::fileName() const
 {
     return editor()->document()->filePath();
 }
 
-int DesignDocument::qtVersionId() const
+Kit *DesignDocument::currentKit() const
 {
-    return m_qtVersionId;
+    return m_currentKit;
 }
 
 bool DesignDocument::isDocumentLoaded() const
@@ -248,14 +235,12 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
     connect(edit, SIGNAL(modificationChanged(bool)),
             this, SIGNAL(dirtyStateChanged(bool)));
 
-    m_documentTextModifier.reset(new BaseTextEditModifier(dynamic_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())));
+    m_documentTextModifier.reset(new BaseTextEditModifier(dynamic_cast<TextEditor::TextEditorWidget*>(plainTextEdit())));
     m_documentModel->setTextModifier(m_documentTextModifier.data());
 
     m_inFileComponentTextModifier.reset();
 
-    updateFileName(QString(), fileName());
-
-    m_subComponentManager->update(QUrl::fromLocalFile(fileName()), currentModel()->imports());
+    updateFileName(Utils::FileName(), fileName());
 
     m_documentLoaded = true;
 }
@@ -310,7 +295,7 @@ void DesignDocument::changeToMaster()
     if (m_inFileComponentModel)
         changeToDocumentModel();
 
-    QmlDesignerPlugin::instance()->viewManager().pushFileOnCrumbleBar(fileName());
+    QmlDesignerPlugin::instance()->viewManager().pushFileOnCrumbleBar(fileName().toString());
     QmlDesignerPlugin::instance()->viewManager().setComponentNode(rootModelNode());
 }
 
@@ -348,7 +333,7 @@ void DesignDocument::close()
 void DesignDocument::updateSubcomponentManager()
 {
     Q_ASSERT(m_subComponentManager);
-    m_subComponentManager->update(QUrl::fromLocalFile(fileName()), currentModel()->imports());
+    m_subComponentManager->update(QUrl::fromLocalFile(fileName().toString()), currentModel()->imports());
 }
 
 void DesignDocument::deleteSelected()
@@ -364,8 +349,8 @@ void DesignDocument::deleteSelected()
                 QmlObjectNode(node).destroy();
         }
 
-    } catch (RewritingException &e) {
-        QMessageBox::warning(0, tr("Error"), e.description());
+    } catch (const RewritingException &e) {
+        e.showException();
     }
 }
 
@@ -412,11 +397,11 @@ void DesignDocument::copySelected()
         currentModel()->detachView(&view);
         copyModel->attachView(&view);
 
-        foreach (ModelNode node, view.rootModelNode().allDirectSubModelNodes()) {
+        foreach (ModelNode node, view.rootModelNode().directSubModelNodes()) {
             node.destroy();
         }
         view.changeRootNodeType("QtQuick.Rectangle", 1, 0);
-        view.rootModelNode().setId("designer__Selection");
+        view.rootModelNode().setIdWithRefactoring(QLatin1String("designer__Selection"));
 
         foreach (const ModelNode &selectedNode, selectedNodes) {
             ModelNode newNode(view.insertModel(selectedNode));
@@ -433,11 +418,13 @@ void DesignDocument::cutSelected()
     deleteSelected();
 }
 
-static void scatterItem(ModelNode pastedNode, const ModelNode targetNode, int offset = -2000)
+static void scatterItem(const ModelNode &pastedNode, const ModelNode &targetNode, int offset = -2000)
 {
+    if (targetNode.metaInfo().isValid() && targetNode.metaInfo().isLayoutable())
+        return;
 
     bool scatter = false;
-    foreach (const ModelNode &childNode, targetNode.allDirectSubModelNodes()) {
+    foreach (const ModelNode &childNode, targetNode.directSubModelNodes()) {
         if ((childNode.variantProperty("x").value() == pastedNode.variantProperty("x").value()) &&
             (childNode.variantProperty("y").value() == pastedNode.variantProperty("y").value()))
             scatter = true;
@@ -485,8 +472,8 @@ void DesignDocument::paste()
     if (rootNode.type() == "empty")
         return;
 
-    if (rootNode.id() == "designer__Selection") {
-        QList<ModelNode> selectedNodes = rootNode.allDirectSubModelNodes();
+    if (rootNode.id() == QLatin1String("designer__Selection")) {
+        QList<ModelNode> selectedNodes = rootNode.directSubModelNodes();
         pasteModel->detachView(&view);
         currentModel()->attachView(&view);
 
@@ -525,7 +512,7 @@ void DesignDocument::paste()
             }
 
             view.setSelectedModelNodes(pastedNodeList);
-        } catch (RewritingException &e) {
+        } catch (const RewritingException &e) {
             qWarning() << e.description(); //silent error
         }
     } else {
@@ -563,7 +550,7 @@ void DesignDocument::paste()
             NodeMetaInfo::clearCache();
 
             view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
-        } catch (RewritingException &e) {
+        } catch (const RewritingException &e) {
             qWarning() << e.description(); //silent error
         }
     }
@@ -591,9 +578,8 @@ RewriterView *DesignDocument::rewriterView() const
 void DesignDocument::setEditor(Core::IEditor *editor)
 {
     m_textEditor = editor;
-    connect(editor->document(),
-            SIGNAL(filePathChanged(QString,QString)),
-            SLOT(updateFileName(QString,QString)));
+    connect(editor->document(), &Core::IDocument::filePathChanged,
+            this, &DesignDocument::updateFileName);
 
     updateActiveQtVersion();
 }
@@ -603,9 +589,9 @@ Core::IEditor *DesignDocument::editor() const
     return m_textEditor.data();
 }
 
-TextEditor::ITextEditor *DesignDocument::textEditor() const
+TextEditor::BaseTextEditor *DesignDocument::textEditor() const
 {
-    return qobject_cast<TextEditor::ITextEditor*>(editor());
+    return qobject_cast<TextEditor::BaseTextEditor*>(editor());
 }
 
 QPlainTextEdit *DesignDocument::plainTextEdit() const
@@ -637,75 +623,49 @@ void DesignDocument::redo()
     viewManager().resetPropertyEditorView();
 }
 
-static bool isFileInProject(DesignDocument *designDocument, ProjectExplorer::Project *project)
+static inline Kit *getActiveKit(DesignDocument *designDocument)
 {
-    foreach (const QString &fileNameInProject, project->files(ProjectExplorer::Project::ExcludeGeneratedFiles)) {
-        if (designDocument->fileName() == fileNameInProject)
-            return true;
-    }
-
-    return false;
-}
-
-static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocument *designDocument)
-{
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Project *currentProject = projectExplorer->currentProject();
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(designDocument->fileName());
 
     if (!currentProject)
-        currentProject = ProjectExplorer::SessionManager::projectForFile(designDocument->fileName());
+        currentProject = ProjectExplorer::ProjectTree::currentProject();
 
     if (!currentProject)
         return 0;
 
-    if (!isFileInProject(designDocument, currentProject))
-        return 0;
 
-    designDocument->disconnect(designDocument,  SLOT(updateActiveQtVersion()));
-    designDocument->connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)), designDocument, SLOT(updateActiveQtVersion()));
+    QObject::connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+                     designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
 
-    designDocument->connect(currentProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)), designDocument, SLOT(updateActiveQtVersion()));
+    QObject::connect(currentProject, &Project::activeTargetChanged,
+                     designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
 
 
-    ProjectExplorer::Target *target = currentProject->activeTarget();
+    Target *target = currentProject->activeTarget();
 
     if (!target)
         return 0;
 
-    designDocument->connect(target, SIGNAL(kitChanged()), designDocument, SLOT(updateActiveQtVersion()));
-    return QtSupport::QtKitInformation::qtVersion(target->kit());
+    if (!target->kit()->isValid())
+        return 0;
+    QObject::connect(target, &Target::kitChanged,
+                     designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
+
+    return target->kit();
 }
 
 void DesignDocument::updateActiveQtVersion()
 {
-    QtSupport::BaseQtVersion *newQtVersion = getActiveQtVersion(this);
-
-    if (!newQtVersion ) {
-        m_qtVersionId = -1;
-        return;
-    }
-
-    if (m_qtVersionId == newQtVersion->uniqueId())
-        return;
-
-    m_qtVersionId = newQtVersion->uniqueId();
-
-    viewManager().setNodeInstanceViewQtPath(pathToQt());
+    m_currentKit = getActiveKit(this);
+    viewManager().setNodeInstanceViewKit(m_currentKit);
 }
 
 QString DesignDocument::contextHelpId() const
 {
-    DesignDocumentView view;
-    currentModel()->attachView(&view);
+    if (view())
+        return view()->contextHelpId();
 
-    QList<ModelNode> nodes = view.selectedModelNodes();
-    QString helpId;
-    if (!nodes.isEmpty()) {
-        helpId = nodes.first().type();
-        helpId.replace("QtQuick", "QML");
-    }
-
-    return helpId;
+    return QString();
 }
 
 } // namespace QmlDesigner

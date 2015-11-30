@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,27 +9,30 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
 
 #include "settingspage.h"
-#include "subversionsettings.h"
+
+#include "subversionclient.h"
 #include "subversionplugin.h"
+#include "subversionsettings.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -42,9 +45,9 @@
 
 using namespace Subversion::Internal;
 using namespace Utils;
+using namespace VcsBase;
 
-SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
-    QWidget(parent)
+SettingsPageWidget::SettingsPageWidget(QWidget *parent) : VcsClientOptionsPageWidget(parent)
 {
     m_ui.setupUi(this);
     m_ui.pathChooser->setExpectedKind(PathChooser::ExistingCommand);
@@ -52,7 +55,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.pathChooser->setPromptDialogTitle(tr("Subversion Command"));
 }
 
-SubversionSettings SettingsPageWidget::settings() const
+VcsBase::VcsBaseClientSettings SettingsPageWidget::settings() const
 {
     SubversionSettings rc;
     rc.setValue(SubversionSettings::binaryPathKey, m_ui.pathChooser->rawPath());
@@ -69,9 +72,9 @@ SubversionSettings SettingsPageWidget::settings() const
     return rc;
 }
 
-void SettingsPageWidget::setSettings(const SubversionSettings &s)
+void SettingsPageWidget::setSettings(const VcsBaseClientSettings &s)
 {
-    m_ui.pathChooser->setPath(s.binaryPath());
+    m_ui.pathChooser->setFileName(s.binaryPath());
     m_ui.usernameLineEdit->setText(s.stringValue(SubversionSettings::userKey));
     m_ui.passwordLineEdit->setText(s.stringValue(SubversionSettings::passwordKey));
     m_ui.userGroupBox->setChecked(s.boolValue(SubversionSettings::useAuthenticationKey));
@@ -82,28 +85,10 @@ void SettingsPageWidget::setSettings(const SubversionSettings &s)
     m_ui.logCountSpinBox->setValue(s.intValue(SubversionSettings::logCountKey));
 }
 
-SettingsPage::SettingsPage() :
-    m_widget(0)
+SettingsPage::SettingsPage(Core::IVersionControl *control) :
+    VcsClientOptionsPage(control, SubversionPlugin::instance()->client())
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
     setDisplayName(tr("Subversion"));
-}
-
-QWidget *SettingsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new SettingsPageWidget;
-        m_widget->setSettings(SubversionPlugin::instance()->settings());
-    }
-    return m_widget;
-}
-
-void SettingsPage::apply()
-{
-    SubversionPlugin::instance()->setSettings(m_widget->settings());
-}
-
-void SettingsPage::finish()
-{
-    delete m_widget;
+    setWidgetFactory([]() { return new SettingsPageWidget; });
 }

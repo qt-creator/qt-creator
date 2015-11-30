@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing
 **
 ** This file is part of Qt Creator.
 **
@@ -9,20 +9,21 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company.  For licensing terms and
+** conditions see http://www.qt.io/terms-conditions.  For further information
+** use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file.  Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** In addition, as a special exception, The Qt Company gives you certain additional
+** rights.  These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
@@ -202,12 +203,9 @@ std::string SymbolGroup::dump(const std::string &iname,
             DebugPrint() << "SymbolGroup::dump(" << iname << '/'
                          << aNode->absoluteFullIName() <<" resolves to " << node->absoluteFullIName()
                          << " expanded=" << node->isExpanded();
-        if (node->isExpanded()) { // Mark expand request by watch model
-            node->clearFlags(SymbolGroupNode::ExpandedByDumper);
-        } else {
-            if (node->canExpand() && !node->expand(errorMessage))
-                return std::string();
-        }
+        if (!node->isExpanded() && node->canExpand() && !node->expand(errorMessage))
+            return std::string();
+        node->addFlags(SymbolGroupNode::ExpandedByRequest);
         // After expansion, run the complex dumpers
         if (p.dumpFlags & DumpParameters::DumpComplexDumpers)
             node->runComplexDumpers(ctx);
@@ -377,8 +375,12 @@ static inline SymbolGroupNode *
 
 bool SymbolGroup::expand(const std::string &nodeName, std::string *errorMessage)
 {
-    if (SymbolGroupNode *node = findNodeForExpansion(this, nodeName, errorMessage))
-        return node == m_root ? true : node->expand(errorMessage);
+    if (SymbolGroupNode *node = findNodeForExpansion(this, nodeName, errorMessage)) {
+        if (node == m_root)
+            return true;
+        node->addFlags(SymbolGroupNode::ExpandedByRequest);
+        return node->expand(errorMessage);
+    }
     return false;
 }
 
@@ -392,8 +394,12 @@ bool SymbolGroup::collapse(const std::string &nodeName, std::string *errorMessag
 
 bool SymbolGroup::expandRunComplexDumpers(const std::string &nodeName, const SymbolGroupValueContext &ctx, std::string *errorMessage)
 {
-    if (SymbolGroupNode *node = findNodeForExpansion(this, nodeName, errorMessage))
-        return node == m_root ? true : node->expandRunComplexDumpers(ctx, errorMessage);
+    if (SymbolGroupNode *node = findNodeForExpansion(this, nodeName, errorMessage)) {
+        if (node == m_root)
+            return true;
+        node->addFlags(SymbolGroupNode::ExpandedByRequest);
+        return node->expandRunComplexDumpers(ctx, errorMessage);
+    }
     return false;
 }
 
@@ -637,6 +643,12 @@ std::string LocalsSymbolGroup::module() const
 
 const char *WatchesSymbolGroup::watchInamePrefix = "watch";
 
+bool WatchesSymbolGroup::isWatchIname(const std::string &iname)
+{
+    static const size_t prefLen = std::strlen(WatchesSymbolGroup::watchInamePrefix);
+    return !iname.compare(0, prefLen, WatchesSymbolGroup::watchInamePrefix);
+}
+
 WatchesSymbolGroup::WatchesSymbolGroup(CIDebugSymbolGroup *sg) :
     SymbolGroup(sg, SymbolParameterVector(), std::string(), WatchesSymbolGroup::watchInamePrefix)
 {
@@ -744,23 +756,56 @@ std::string WatchesSymbolGroup::fixWatchExpressionI(CIDebugSymbols *s, const std
     // Check if it matches the form
     std::string::size_type typeStartPos;
     std::string::size_type typeEndPos;
-    if (!parseWatchExpression(expression, &typeStartPos, &typeEndPos))
-        return expression;
-    std::string type = expression.substr(typeStartPos, typeEndPos - typeStartPos);
-    trimFront(type);
-    trimBack(type);
-    // Do not qualify POD types
-    const KnownType kt = knownType(type, 0);
-    if (kt & KT_POD_Type)
-        return expression;
-    SymbolGroupValueContext ctx;
-    ctx.symbols = s;
-    const std::string resolved = SymbolGroupValue::resolveType(type, ctx);
-    if (resolved.empty() || resolved == type)
-        return expression;
-    std::string fixed = expression;
-    fixed.replace(typeStartPos, typeEndPos - typeStartPos, resolved);
-    return fixed;
+    if (parseWatchExpression(expression, &typeStartPos, &typeEndPos)) {
+        std::string type = expression.substr(typeStartPos, typeEndPos - typeStartPos);
+        trimFront(type);
+        trimBack(type);
+        // Do not qualify POD types
+        const KnownType kt = knownType(type, 0);
+        if (kt & KT_POD_Type)
+            return expression;
+        SymbolGroupValueContext ctx;
+        ctx.symbols = s;
+        const std::string resolved = SymbolGroupValue::resolveType(type, ctx);
+        if (resolved.empty() || resolved == type)
+            return expression;
+        std::string fixed = expression;
+        fixed.replace(typeStartPos, typeEndPos - typeStartPos, resolved);
+        return fixed;
+    } else {
+        // unify the access operator
+        std::string fixed;
+        const std::string::const_iterator end = expression.end();
+        for (std::string::const_iterator pos = expression.begin(); pos != end; ++pos) {
+            switch (*pos) {
+            case '*':
+            case '&':
+            case '(':
+            case ')':
+                break;
+            case '-':
+                ++pos;
+                if (pos == end) {
+                    fixed.push_back('-');
+                    return fixed;
+                }
+                if (*pos == '>') {
+                    fixed.push_back('.');
+                } else {
+                    fixed.push_back('-');
+                    fixed.push_back(*pos);
+                }
+                break;
+            case '[':
+                fixed.push_back('.');
+                // fall through
+            default:
+                fixed.push_back(*pos);
+                break;
+            }
+        }
+        return fixed;
+    }
 }
 
 // Wrapper with debug output.
@@ -775,12 +820,13 @@ std::string WatchesSymbolGroup::fixWatchExpression(CIDebugSymbols *s, const std:
 bool WatchesSymbolGroup::addWatch(CIDebugSymbols *s, std::string iname, const std::string &expression, std::string *errorMessage)
 {
     // "watch.0" -> "0"
-    const size_t prefLen = std::strlen(WatchesSymbolGroup::watchInamePrefix);
-    if (!iname.compare(0, prefLen, WatchesSymbolGroup::watchInamePrefix))
-        iname.erase(0, prefLen + 1);
+    if (isWatchIname(iname))
+        iname.erase(0, std::strlen(WatchesSymbolGroup::watchInamePrefix) + 1);
     // Already in?
-    if (root()->childByIName(iname.c_str()))
-        return true;
+    if (AbstractSymbolGroupNode *watcherNode = root()->childByIName(iname.c_str())) {
+        if (!removeSymbol(watcherNode, errorMessage))
+            return false;
+    }
     // Resolve the expressions, but still display the original name obtained to
     // avoid cycles re-adding symbols
     SymbolGroupNode *node = addSymbol(std::string(), fixWatchExpression(s, expression),

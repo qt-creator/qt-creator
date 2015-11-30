@@ -11,4 +11,4 @@ HEADERS += $$PWD/qtquickplugin.h  $$PWD/../designercore/include/iwidgetplugin.h
 
 RESOURCES += $$PWD/qtquickplugin.qrc
 
-OTHER_FILES += $$PWD/quick.metainfo
+DISTFILES += $$PWD/quick.metainfo

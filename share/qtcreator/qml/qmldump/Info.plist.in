@@ -3,14 +3,14 @@
 <plist version=\"1.0\">
 <dict>
         <key>NSHumanReadableCopyright</key>
-        <string>(C) 2014 Digia Plc
+        <string>(C) 2015 The Qt Company Ltd
 Commercial Usage
 
-Licensees holding valid Qt Commercial licenses may use this file in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and Digia.
+Licensees holding valid Qt Commercial licenses may use this file in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.
 
 GNU Lesser General Public License Usage
 
-Alternatively, this plugin may be used under the terms of the GNU Lesser General Public License version 2.1 as published by the Free Software Foundation and appearing in the file LICENSE.LGPL included in the packaging of this file.  Please review the following information to ensure the GNU Lesser General Public License version 2.1 requirements will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</string>
+Alternatively, this plugin may be used under the terms of the GNU Lesser General Public License version 2.1 or version 3 as published by the Free Software Foundation and appearing in the file LICENSE.LGPLv21 and LICENSE.LGPLv3 included in the packaging of this file.  Please review the following information to ensure the GNU Lesser General Public License requirements will be met: https://www.gnu.org/licenses/lgpl.html and http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</string>
         <key>CFBundlePackageType</key>
         <string>APPL</string>
         <key>CFBundleSignature</key>

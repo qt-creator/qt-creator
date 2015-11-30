@@ -1,14 +1,10 @@
-import qbs.base 1.0
-
-import QtcPlugin
+import qbs 1.0
 
 QtcPlugin {
     name: "Welcome"
-    minimumQtVersion: "5.1"
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Qt.quick"; condition: product.condition; }
-    Depends { name: "Aggregation" }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
@@ -16,5 +12,6 @@ QtcPlugin {
     files: [
         "welcomeplugin.cpp",
         "welcomeplugin.h",
+        "welcome.qrc",
     ]
 }
