@@ -67,7 +67,7 @@ class QMT_EXPORT PropertiesView::MView : public QObject, public MConstVisitor, p
 
 public:
     explicit MView(PropertiesView *propertiesView);
-    ~MView() override;
+    ~MView();
 
     QWidget *topLevelWidget() const { return m_topWidget; }
 

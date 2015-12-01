@@ -54,7 +54,7 @@ public:
 class ITextSource
 {
 public:
-    virtual ~ITextSource() = default;
+    virtual ~ITextSource() {}
 
     virtual SourceChar readNextChar() = 0;
 };

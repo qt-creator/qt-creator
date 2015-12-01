@@ -78,7 +78,7 @@ public:
         QString m_identifier;
     };
 
-    virtual ~ILatchable() = default;
+    virtual ~ILatchable();
 
     virtual QList<Latch> horizontalLatches(Action action, bool grabbedItem) const = 0;
     virtual QList<Latch> verticalLatches(Action action, bool grabbedItem) const = 0;

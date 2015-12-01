@@ -44,7 +44,7 @@ class QMT_EXPORT AlignOnRasterVisitor : public DVisitor
 {
 public:
     AlignOnRasterVisitor();
-    ~AlignOnRasterVisitor() override;
+    ~AlignOnRasterVisitor();
 
     void setDiagramController(DiagramController *diagramController);
     void setSceneInspector(ISceneInspector *sceneInspector);
