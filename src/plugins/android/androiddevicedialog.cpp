@@ -439,7 +439,7 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, Andro
     m_ui->deviceView->setUniformRowHeights(true);
     m_ui->deviceView->setExpandsOnDoubleClick(false);
 
-    m_ui->defaultDeviceCheckBox->setText(tr("Always use this device for architecture %1").arg(abi));
+    m_ui->defaultDeviceCheckBox->setText(tr("Always use this device for architecture %1 for this project").arg(abi));
 
     m_ui->noDeviceFoundLabel->setText(QLatin1String("<p align=\"center\"><span style=\" font-size:16pt;\">")
                                       + tr("No Device Found") + QLatin1String("</span></p><br/>")

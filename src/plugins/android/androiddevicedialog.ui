@@ -29,8 +29,11 @@
    </item>
    <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="defaultDeviceCheckBox">
+     <property name="toolTip">
+      <string>This can be later reset in deployment settings in the Projects mode.</string>
+     </property>
      <property name="text">
-      <string>Always use this device for architecture %1</string>
+      <string>Always use this device for architecture %1 for this project</string>
      </property>
     </widget>
    </item>
