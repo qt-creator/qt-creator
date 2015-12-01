@@ -212,6 +212,7 @@
 :Working Copy_Utils::BaseValidatingLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':New Text File_ProjectExplorer::JsonWizard'}
 :WritePermissions_Core::Internal::ReadOnlyFilesDialog	{name='Core__Internal__ReadOnlyFilesDialog' type='Core::ReadOnlyFilesDialog' visible='1' windowTitle='Files Without Write Permissions'}
 :addToVersionControlComboBox_QComboBox	{name='addToVersionControlComboBox' type='QComboBox' visible='1'}
+:clangSettingsGroupBox_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='clangSettingsGroupBox' type='QGroupBox' visible='1'}
 :formFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Form file:_QLabel' name='formFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :frame.templateDescription_QTextBrowser	{container=':New.frame_QFrame' name='templateDescription' type='QTextBrowser' visible='1'}
 :headerFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Header file:_QLabel' name='headerFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}

@@ -66,7 +66,7 @@ def constructExpectedCode(original, codeLines, funcSuffix):
     return "\n".join(tmp) + "\n"
 
 def main():
-    startCreatorTryingClang()
+    clangLoaded = startCreatorTryingClang()
     if not startedWithoutPluginError():
         return
     projectName = createNewNonQtProject()
@@ -84,11 +84,8 @@ def main():
             "while with braces" : ["", "int dummy = 0;", "while (dummy < 10) {", "++dummy;"],
             "do while" : ["", "int dummy = 0;", "do", "++dummy;", "while (dummy < 10);"]
             }
-    models = iterateAvailableCodeModels()
-    for current in models:
-        if current != models[0]:
-            selectCodeModel(current)
-        test.log("Testing code model: %s" % current)
+    for useClang in set([False, clangLoaded]):
+        selectClangCodeModel(clangLoaded, useClang)
         openDocument("%s.Sources.main\\.cpp" % projectName)
         editor = getEditorForFileSuffix("main.cpp")
         if not editor:

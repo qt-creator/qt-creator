@@ -51,30 +51,14 @@ def __openCodeModelOptions__():
     clickItem(":Options_QListView", "C++", 14, 15, 0, Qt.LeftButton)
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Code Model")
 
-def iterateAvailableCodeModels():
+def selectClangCodeModel(clangLoaded, enable):
+    codeModelName = "built-in"
+    if clangLoaded and enable:
+        codeModelName = "Clang"
+    test.log("Testing code model: %s" % codeModelName)
     __openCodeModelOptions__()
-    cppChooser = findObject("{type='QComboBox' name='cppChooser' visible='1'}")
-    models = [str(cppChooser.currentText)] # Make sure default is first in list
-    if cppChooser.count > 1:
-        furtherModels = dumpItems(cppChooser.model())
-        furtherModels.remove(models[0])
-        models.extend(furtherModels)
-    clickButton(waitForObject(":Options.OK_QPushButton"))
-    return models
-
-def selectCodeModel(codeModel):
-    __openCodeModelOptions__()
-    expectedObjNames = ['cChooser', 'cppChooser', 'objcChooser', 'objcppChooser', 'hChooser']
-    for exp in expectedObjNames:
-        test.verify(checkIfObjectExists("{type='QComboBox' name='%s' visible='1'}" % exp),
-                    "Verifying whether combobox '%s' exists." % exp)
-        combo = findObject("{type='QComboBox' name='%s' visible='1'}" % exp)
-        try:
-            selectFromCombo(combo, codeModel)
-        except:
-            test.fatal("Could not find code model '%s'. Canceling dialog." % codeModel)
-            clickButton(waitForObject(":Options.Cancel_QPushButton"))
-            return
+    if clangLoaded:
+        ensureChecked(":clangSettingsGroupBox_QGroupBox", enable)
     test.verify(verifyChecked("{name='ignorePCHCheckBox' type='QCheckBox' visible='1'}"),
                 "Verifying whether 'Ignore pre-compiled headers' is checked by default.")
     clickButton(waitForObject(":Options.OK_QPushButton"))

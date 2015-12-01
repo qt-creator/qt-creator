@@ -31,15 +31,12 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    startCreatorTryingClang()
+    clangLoaded = startCreatorTryingClang()
     if not startedWithoutPluginError():
         return
     createProject_Qt_Console(tempDir(), "SquishProject")
-    models = iterateAvailableCodeModels()
-    for current in models:
-        if current != models[0]:
-            selectCodeModel(current)
-        test.log("Testing code model: %s" % current)
+    for useClang in set([False, clangLoaded]):
+        selectClangCodeModel(clangLoaded, useClang)
         selectFromLocator("main.cpp")
         cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
 
@@ -56,7 +53,7 @@ def main():
             waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
             found = str(lineUnderCursor(cppwindow)).strip()
             exp = testData.field(record, "expected")
-            if current == "Clang" and exp[-2:] == "->":
+            if useClang and exp[-2:] == "->":
                 test.xcompare(found, exp) # QTCREATORBUG-11581
             else:
                 test.compare(found, exp)
