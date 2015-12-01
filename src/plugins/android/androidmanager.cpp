@@ -280,7 +280,7 @@ QString AndroidManager::loadLocalJarsInitClasses(ProjectExplorer::Target *target
 
 QPair<int, int> AndroidManager::apiLevelRange()
 {
-    return qMakePair(9, 22);
+    return qMakePair(9, 23);
 }
 
 QString AndroidManager::androidNameForApiLevel(int x)
@@ -324,6 +324,8 @@ QString AndroidManager::androidNameForApiLevel(int x)
         return QLatin1String("Android 5.0");
     case 22:
         return QLatin1String("Android 5.1");
+    case 23:
+        return QLatin1String("Android 6.0");
     default:
         return tr("Unknown Android version. API Level: %1").arg(QString::number(x));
     }
