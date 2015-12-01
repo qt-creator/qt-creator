@@ -84,7 +84,7 @@ private:
     UnsavedFileContentInfo unsavedFileContent(const QByteArray &customFileContent) const;
 
     void sendFileContent(const QByteArray &customFileContent);
-    void sendCompletionRequest(int position, const QByteArray &customFileContent);
+    bool sendCompletionRequest(int position, const QByteArray &customFileContent);
 
     void handleAvailableCompletions(const CodeCompletions &completions);
     bool handleAvailableFunctionHintCompletions(const CodeCompletions &completions);

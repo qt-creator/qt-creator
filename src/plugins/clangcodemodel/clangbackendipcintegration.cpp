@@ -137,6 +137,11 @@ void IpcReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *t
     }
 }
 
+bool IpcReceiver::isExpectingCodeCompletedMessage() const
+{
+    return !m_assistProcessorsTable.isEmpty();
+}
+
 void IpcReceiver::alive()
 {
     qCDebug(log) << "<<< AliveMessage";
@@ -444,6 +449,11 @@ Utf8StringVector visibleCppEditorDocumentsFilePaths()
 void IpcCommunicator::updateTranslationUnitVisiblity()
 {
     updateTranslationUnitVisiblity(currentCppEditorDocumentFilePath(), visibleCppEditorDocumentsFilePaths());
+}
+
+bool IpcCommunicator::isNotWaitingForCompletion() const
+{
+    return !m_ipcReceiver.isExpectingCodeCompletedMessage();
 }
 
 void IpcCommunicator::updateTranslationUnitVisiblity(const Utf8String &currentEditorFilePath,

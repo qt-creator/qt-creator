@@ -76,6 +76,8 @@ public:
     void deleteAndClearWaitingAssistProcessors();
     void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
 
+    bool isExpectingCodeCompletedMessage() const;
+
 private:
     void alive() override;
     void echo(const ClangBackEnd::EchoMessage &message) override;
@@ -151,6 +153,8 @@ public:
 
     void registerFallbackProjectPart();
     void updateTranslationUnitVisiblity();
+
+    bool isNotWaitingForCompletion() const;
 
 public: // for tests
     IpcSenderInterface *setIpcSender(IpcSenderInterface *ipcSender);

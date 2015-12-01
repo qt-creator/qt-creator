@@ -263,14 +263,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     case IAssistProvider::Asynchronous: {
         processor->setAsyncCompletionAvailableHandler(
             [this, processor, reason](IAssistProposal *newProposal){
-                if (m_asyncProcessor != processor) {
-                    delete newProposal->model();
-                    delete newProposal;
-                    return;
-                }
-
-                invalidateCurrentRequestData();
                 QTC_CHECK(newProposal);
+                invalidateCurrentRequestData();
                 displayProposal(newProposal, reason);
 
                 emit q->finished();
@@ -282,10 +276,10 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
             delete processor;
         } else if (!processor->performWasApplicable()) {
             delete processor;
+        } else { // ...async request was triggered
+            m_asyncProcessor = processor;
         }
 
-        // ...otherwise the async request was triggered
-        m_asyncProcessor = processor;
         break;
     }
     } // switch
