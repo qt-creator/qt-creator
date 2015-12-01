@@ -512,6 +512,7 @@ bool AndroidDeviceDialog::saveDeviceSelection()
 void AndroidDeviceDialog::refreshDeviceList()
 {
     m_ui->refreshDevicesButton->setEnabled(false);
+    m_progressIndicator->show();
     m_futureWatcherRefreshDevices.setFuture(QtConcurrent::run(&AndroidDeviceDialog::refreshDevices,
                                                               AndroidConfigurations::currentConfig().adbToolPath().toString(),
                                                               AndroidConfigurations::currentConfig().androidToolPath().toString(),
