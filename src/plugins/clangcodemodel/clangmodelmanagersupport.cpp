@@ -102,21 +102,8 @@ CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentP
     return new ClangEditorDocumentProcessor(this, baseTextDocument);
 }
 
-void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *newCurrent)
+void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *)
 {
-    // If we switch away from a cpp editor, update the backend about
-    // the document's unsaved content.
-    if (m_previousCppEditor && m_previousCppEditor->document()->isModified()) {
-        m_ipcCommunicator.updateTranslationUnitFromCppEditorDocument(
-                                m_previousCppEditor->document()->filePath().toString());
-    }
-
-    // Remember previous editor
-    if (newCurrent && cppModelManager()->isCppEditor(newCurrent))
-        m_previousCppEditor = newCurrent;
-    else
-        m_previousCppEditor.clear();
-
     m_ipcCommunicator.updateTranslationUnitVisiblity();
 }
 

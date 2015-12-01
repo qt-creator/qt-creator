@@ -104,7 +104,6 @@ private:
 private:
     IpcCommunicator m_ipcCommunicator;
     ClangCompletionAssistProvider m_completionAssistProvider;
-    QPointer<Core::IEditor> m_previousCppEditor;
 };
 
 class ModelManagerSupportProviderClang : public CppTools::ModelManagerSupportProvider
