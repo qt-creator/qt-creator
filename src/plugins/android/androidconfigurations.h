@@ -72,7 +72,7 @@ public:
 
     static QStringList adbSelector(const QString &serialNumber);
 
-    bool isValid() { return !serialNumber.isEmpty() && !avdname.isEmpty(); }
+    bool isValid() { return !serialNumber.isEmpty() || !avdname.isEmpty(); }
 };
 
 class SdkPlatform
