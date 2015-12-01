@@ -381,11 +381,11 @@ TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsIfThereIsNothingToSend)
     sendAllDocumentAnnotations();
 }
 
-TEST_F(TranslationUnits, SendDocumentAnnotationsAfterTranslationUnitCreation)
+TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsAfterTranslationUnitCreation)
 {
     translationUnits.create({fileContainer, headerContainer});
 
-    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(2);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(0);
 
     sendAllDocumentAnnotations();
 }
@@ -394,10 +394,11 @@ TEST_F(TranslationUnits, DoNotSendDocumentAnnotationsAfterGettingDocumentAnnotat
 {
     translationUnits.create({fileContainer, headerContainer});
     auto translationUnit = translationUnits.translationUnit(fileContainer);
+    translationUnit.setIsVisibleInEditor(true);
     translationUnit.diagnostics(); // Reset
     translationUnit.highlightingInformations(); // Reset
 
-    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(1);
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(0);
 
     sendAllDocumentAnnotations();
 }

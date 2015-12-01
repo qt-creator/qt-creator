@@ -282,6 +282,7 @@ void ClangIpcServer::updateVisibleTranslationUnits(const UpdateVisibleTranslatio
     try {
         translationUnits.setUsedByCurrentEditor(message.currentEditorFilePath());
         translationUnits.setVisibleInEditors(message.visibleEditorFilePaths());
+        sendDocumentAnnotationsTimer.start(0);
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangIpcServer::updateVisibleTranslationUnits:" << exception.what();
     }

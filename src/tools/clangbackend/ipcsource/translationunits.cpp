@@ -171,8 +171,6 @@ DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotations()
     auto documentAnnotationsSendState = sendDocumentAnnotationsForCurrentEditor();
     if (documentAnnotationsSendState == DocumentAnnotationsSendState::NoDocumentAnnotationsSent)
         documentAnnotationsSendState = sendDocumentAnnotationsForVisibleEditors();
-    if (documentAnnotationsSendState == DocumentAnnotationsSendState::NoDocumentAnnotationsSent)
-        documentAnnotationsSendState = sendDocumentAnnotationsForAll();
 
     return documentAnnotationsSendState;
 }
