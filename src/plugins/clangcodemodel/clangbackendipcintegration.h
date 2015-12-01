@@ -107,6 +107,7 @@ public:
     virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
     virtual void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) = 0;
     virtual void requestHighlighting(const ClangBackEnd::RequestHighlightingMessage &message) = 0;
+    virtual void updateVisibleTranslationUnits(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message) = 0;
 };
 
 class IpcCommunicator : public QObject
@@ -149,6 +150,7 @@ public:
     void updateChangeContentStartPosition(const QString &filePath, int position);
 
     void registerFallbackProjectPart();
+    void updateTranslationUnitVisiblity();
 
 public: // for tests
     IpcSenderInterface *setIpcSender(IpcSenderInterface *ipcSender);
@@ -170,6 +172,9 @@ private:
     void onBackendRestarted();
     void onEditorAboutToClose(Core::IEditor *editor);
     void onCoreAboutToClose();
+
+    void updateTranslationUnitVisiblity(const Utf8String &currentEditorFilePath,
+                                        const Utf8StringVector &visibleEditorsFilePaths);
 
 private:
     IpcReceiver m_ipcReceiver;

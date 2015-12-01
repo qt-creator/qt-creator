@@ -68,6 +68,7 @@
 #include <clangbackendipc/translationunitdoesnotexistmessage.h>
 #include <clangbackendipc/unregisterunsavedfilesforeditormessage.h>
 #include <clangbackendipc/updatetranslationunitsforeditormessage.h>
+#include <clangbackendipc/updatevisibletranslationunitsmessage.h>
 
 #include <cplusplus/Icons.h>
 
@@ -223,6 +224,7 @@ public:
     void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
     void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) override;
     void requestHighlighting(const ClangBackEnd::RequestHighlightingMessage &message) override;
+    void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
 private:
     ClangBackEnd::ConnectionClient &m_connection;
@@ -292,6 +294,12 @@ void IpcSender::requestHighlighting(const RequestHighlightingMessage &message)
 {
     QTC_CHECK(m_connection.isConnected());
     m_connection.serverProxy().requestHighlighting(message);
+}
+
+void IpcSender::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
+{
+    QTC_CHECK(m_connection.isConnected());
+    m_connection.serverProxy().updateVisibleTranslationUnits(message);
 }
 
 IpcCommunicator::IpcCommunicator()
@@ -368,6 +376,85 @@ void IpcCommunicator::registerFallbackProjectPart()
     const auto projectPartContainer = toProjectPartContainer(projectPart);
 
     registerProjectPartsForEditor({projectPartContainer});
+}
+
+namespace {
+Utf8String currentCppEditorDocumentFilePath()
+{
+    Utf8String currentCppEditorDocumentFilePath;
+
+    const auto currentEditor = Core::EditorManager::currentEditor();
+    if (currentEditor && CppTools::CppModelManager::isCppEditor(currentEditor)) {
+        const auto currentDocument = currentEditor->document();
+        if (currentDocument)
+            currentCppEditorDocumentFilePath = currentDocument->filePath().toString();
+    }
+
+    return currentCppEditorDocumentFilePath;
+}
+
+void removeDuplicates(Utf8StringVector &visibleEditorDocumentsFilePaths)
+{
+    std::sort(visibleEditorDocumentsFilePaths.begin(),
+              visibleEditorDocumentsFilePaths.end());
+    const auto end = std::unique(visibleEditorDocumentsFilePaths.begin(),
+                                 visibleEditorDocumentsFilePaths.end());
+    visibleEditorDocumentsFilePaths.erase(end,
+                                          visibleEditorDocumentsFilePaths.end());
+}
+
+void removeNonCppEditors(QList<Core::IEditor*> &visibleEditors)
+{
+    const auto isNotCppEditor = [] (Core::IEditor *editor) {
+        return !CppTools::CppModelManager::isCppEditor(editor);
+    };
+
+    const auto end = std::remove_if(visibleEditors.begin(),
+                                    visibleEditors.end(),
+                                    isNotCppEditor);
+
+    visibleEditors.erase(end, visibleEditors.end());
+}
+
+Utf8StringVector visibleCppEditorDocumentsFilePaths()
+{
+    auto visibleEditors = Core::EditorManager::visibleEditors();
+
+    removeNonCppEditors(visibleEditors);
+
+    Utf8StringVector visibleCppEditorDocumentsFilePaths;
+    visibleCppEditorDocumentsFilePaths.reserve(visibleEditors.size());
+
+    const auto editorFilePaths = [] (Core::IEditor *editor) {
+        return Utf8String(editor->document()->filePath().toString());
+    };
+
+    std::transform(visibleEditors.begin(),
+                   visibleEditors.end(),
+                   std::back_inserter(visibleCppEditorDocumentsFilePaths),
+                   editorFilePaths);
+
+    removeDuplicates(visibleCppEditorDocumentsFilePaths);
+
+    return visibleCppEditorDocumentsFilePaths;
+}
+
+}
+
+void IpcCommunicator::updateTranslationUnitVisiblity()
+{
+    updateTranslationUnitVisiblity(currentCppEditorDocumentFilePath(), visibleCppEditorDocumentsFilePaths());
+}
+
+void IpcCommunicator::updateTranslationUnitVisiblity(const Utf8String &currentEditorFilePath,
+                                                     const Utf8StringVector &visibleEditorsFilePaths)
+{
+    if (m_sendMode == IgnoreSendRequests)
+        return;
+
+    const UpdateVisibleTranslationUnitsMessage message(currentEditorFilePath, visibleEditorsFilePaths);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->updateVisibleTranslationUnits(message);
 }
 
 void IpcCommunicator::registerCurrentProjectParts()
@@ -561,6 +648,7 @@ void IpcCommunicator::initializeBackendWithCurrentData()
     registerCurrentProjectParts();
     registerCurrentCppEditorDocuments();
     registerCurrentCodeModelUiHeaders();
+    updateTranslationUnitVisiblity();
 
     emit backendReinitialized();
 }

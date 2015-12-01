@@ -385,6 +385,11 @@ QString toString(const RequestHighlightingMessage &)
     return QStringLiteral("RequestHighlightingMessage\n");
 }
 
+QString toString(const UpdateVisibleTranslationUnitsMessage &)
+{
+    return QStringLiteral("UpdateVisibleTranslationUnitsMessage\n");
+}
+
 class IpcSenderSpy : public IpcSenderInterface
 {
 public:
@@ -419,6 +424,9 @@ public:
     { senderLog.append(toString(message)); }
 
     void requestHighlighting(const RequestHighlightingMessage &message) override
+    { senderLog.append(toString(message)); }
+
+    void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override
     { senderLog.append(toString(message)); }
 
 public:
@@ -1074,6 +1082,7 @@ void ClangCodeCompletionTest::testCompleteAfterModifyingIncludedHeaderInOtherEdi
 
     // Switch back to source file and check if modified header is reflected in completions.
     Core::EditorManager::activateEditor(openSource.editor());
+    QCoreApplication::processEvents(); // connections are queued
     proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
     QVERIFY(hasItem(proposal, "globalFromHeaderUnsaved"));

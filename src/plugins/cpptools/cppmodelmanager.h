@@ -120,7 +120,7 @@ public:
                                                   const QByteArray &contents);
     void emitAbstractEditorSupportRemoved(const QString &filePath);
 
-    bool isCppEditor(Core::IEditor *editor) const;
+    static bool isCppEditor(Core::IEditor *editor);
     bool isClangCodeModelAvailable() const;
     bool isClangCodeModelActive() const;
 

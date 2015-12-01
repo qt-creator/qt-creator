@@ -66,9 +66,14 @@ ModelManagerSupportClang::ModelManagerSupportClang()
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
-            this, &ModelManagerSupportClang::onCurrentEditorChanged);
+            this, &ModelManagerSupportClang::onCurrentEditorChanged,
+            Qt::QueuedConnection);
     connect(editorManager, &Core::EditorManager::editorOpened,
-            this, &ModelManagerSupportClang::onEditorOpened);
+            this, &ModelManagerSupportClang::onEditorOpened,
+            Qt::QueuedConnection);
+    connect(editorManager, &Core::EditorManager::editorsClosed,
+            this, &ModelManagerSupportClang::onEditorClosed,
+            Qt::QueuedConnection);
 
     CppTools::CppModelManager *modelManager = cppModelManager();
     connect(modelManager, &CppTools::CppModelManager::abstractEditorSupportContentsUpdated,
@@ -111,6 +116,8 @@ void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *newCurrent)
         m_previousCppEditor = newCurrent;
     else
         m_previousCppEditor.clear();
+
+    m_ipcCommunicator.updateTranslationUnitVisiblity();
 }
 
 void ModelManagerSupportClang::connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument)
@@ -179,6 +186,11 @@ void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
 
         // TODO: Ensure that not fully loaded documents are updated?
     }
+}
+
+void ModelManagerSupportClang::onEditorClosed(const QList<Core::IEditor *> &)
+{
+    m_ipcCommunicator.updateTranslationUnitVisiblity();
 }
 
 void ModelManagerSupportClang::onCppDocumentAboutToReloadOnTranslationUnit()

@@ -71,6 +71,7 @@ public:
 
 private:
     void onEditorOpened(Core::IEditor *editor);
+    void onEditorClosed(const QList<Core::IEditor *> &editors);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);
     void onCppDocumentAboutToReloadOnTranslationUnit();
     void onCppDocumentReloadFinishedOnTranslationUnit(bool success);
