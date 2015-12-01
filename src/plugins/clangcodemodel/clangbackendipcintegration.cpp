@@ -512,12 +512,13 @@ CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath)
     return CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
 }
 
-bool documentHasChanged(const QString &filePath)
+bool documentHasChanged(const QString &filePath,
+                        uint revision)
 {
     auto *document = cppDocument(filePath);
 
     if (document)
-        return document->sendTracker().shouldSendRevision(document->revision());
+        return document->sendTracker().shouldSendRevision(revision);
 
     return true;
 }
@@ -562,7 +563,7 @@ void IpcCommunicator::updateTranslationUnitWithRevisionCheck(const FileContainer
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    if (documentHasChanged(fileContainer.filePath())) {
+    if (documentHasChanged(fileContainer.filePath(), fileContainer.documentRevision())) {
         updateTranslationUnitsForEditor({fileContainer});
         setLastSentDocumentRevision(fileContainer.filePath(),
                                     fileContainer.documentRevision());
