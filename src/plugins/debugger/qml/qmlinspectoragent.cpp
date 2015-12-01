@@ -74,12 +74,12 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     , m_engineClient(0)
     , m_engineQueryId(0)
     , m_rootContextQueryId(0)
-    , m_objectToSelect(-1)
+    , m_objectToSelect(WatchData::InvalidId)
     , m_masterEngine(engine)
     , m_toolsClient(0)
     , m_targetToSync(NoTarget)
-    , m_debugIdToSelect(-1)
-    , m_currentSelectedDebugId(-1)
+    , m_debugIdToSelect(WatchData::InvalidId)
+    , m_currentSelectedDebugId(WatchData::InvalidId)
     , m_toolsClientConnected(false)
     , m_inspectorToolsContext("Debugger.QmlInspector")
     , m_selectAction(new QAction(this))
@@ -87,7 +87,7 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     , m_showAppOnTopAction(action(ShowAppOnTop))
     , m_engineClientConnected(false)
 {
-    m_debugIdToIname.insert(-1, QByteArray("inspect"));
+    m_debugIdToIname.insert(WatchData::InvalidId, QByteArray("inspect"));
     connect(action(ShowQmlObjectTree),
             &Utils::SavedAction::valueChanged, this, &QmlInspectorAgent::updateState);
     m_delayQueryTimer.setSingleShot(true);
@@ -179,7 +179,7 @@ void QmlInspectorAgent::assignValue(const WatchData *data,
     qCDebug(qmlInspectorLog)
             << __FUNCTION__ << '(' << data->id << ')' << data->iname;
 
-    if (data->id) {
+    if (data->id != WatchData::InvalidId) {
         QString val(valueV.toString());
         if (valueV.type() == QVariant::String) {
             val = val.replace(QLatin1Char('\"'), QLatin1String("\\\""));
@@ -195,8 +195,8 @@ static int parentIdForIname(const QByteArray &iname)
     // Extract the parent id
     int lastIndex = iname.lastIndexOf('.');
     int secondLastIndex = iname.lastIndexOf('.', lastIndex - 1);
-    int parentId = -1;
-    if (secondLastIndex != -1)
+    int parentId = WatchData::InvalidId;
+    if (secondLastIndex != WatchData::InvalidId)
         parentId = iname.mid(secondLastIndex + 1, lastIndex - secondLastIndex - 1).toInt();
     return parentId;
 }
@@ -205,18 +205,18 @@ void QmlInspectorAgent::updateWatchData(const WatchData &data)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << data.id << ')';
 
-    if (data.id && !m_fetchDataIds.contains(data.id)) {
+    if (data.id != WatchData::InvalidId && !m_fetchDataIds.contains(data.id)) {
         // objects
         m_fetchDataIds << data.id;
         fetchObject(data.id);
     }
 }
 
-void QmlInspectorAgent::watchDataSelected(quint64 id)
+void QmlInspectorAgent::watchDataSelected(qint64 id)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << id << ')';
 
-    if (id) {
+    if (id != WatchData::InvalidId) {
         QTC_ASSERT(m_debugIdLocations.keys().contains(id), return);
         jumpToObjectDefinitionInEditor(m_debugIdLocations.value(id), id);
         if (m_toolsClient)
@@ -278,7 +278,7 @@ ObjectReference QmlInspectorAgent::objectForId(int objectDebugId) const
         }
     }
     // TODO: Set correct parentId
-    return ObjectReference(objectDebugId, -1,
+    return ObjectReference(objectDebugId, WatchData::InvalidId,
                            FileReference(QUrl::fromLocalFile(file), line, column));
 }
 
@@ -286,7 +286,7 @@ void QmlInspectorAgent::addObjectWatch(int objectDebugId)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << objectDebugId << ')';
 
-    if (objectDebugId == -1)
+    if (objectDebugId == WatchData::InvalidId)
         return;
 
     if (!isConnected() || !boolSetting(ShowQmlObjectTree))
@@ -470,7 +470,7 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
 
     // Find out the correct position in the tree
     // Objects are inserted to the tree if they satisfy one of the two conditions.
-    // Condition 1: Object is a root object i.e. parentId == -1.
+    // Condition 1: Object is a root object i.e. parentId == WatchData::InvalidId.
     // Condition 2: Object has an expanded parent i.e. siblings are known.
     // If the two conditions are not met then we push the object to a stack and recursively
     // fetch parents till we find a previously expanded parent.
@@ -480,7 +480,7 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
     const int objectDebugId = object.debugId();
     if (m_debugIdToIname.contains(parentId)) {
         QByteArray parentIname = m_debugIdToIname.value(parentId);
-        if (parentId != -1 && !handler->isExpandedIName(parentIname)) {
+        if (parentId != WatchData::InvalidId && !handler->isExpandedIName(parentIname)) {
             m_objectStack.push(object);
             handler->fetchMore(parentIname);
             return; // recursive
@@ -535,7 +535,7 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
                              << timeElapsed.elapsed() << " ms";
 
     if (object.debugId() == m_debugIdToSelect) {
-        m_debugIdToSelect = -1;
+        m_debugIdToSelect = WatchData::InvalidId;
         selectObject(object, m_targetToSync);
     }
 
@@ -544,7 +544,7 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
         QByteArray iname = m_debugIdToIname.value(m_objectToSelect);
         qCDebug(qmlInspectorLog) << "  selecting" << iname << "in tree";
         m_qmlEngine->watchHandler()->setCurrentItem(iname);
-        m_objectToSelect = -1;
+        m_objectToSelect = WatchData::InvalidId;
     }
     m_qmlEngine->watchHandler()->updateWatchersWindow();
     m_qmlEngine->watchHandler()->reexpandItems();
@@ -700,7 +700,7 @@ void QmlInspectorAgent::clearObjectTree()
     m_debugIdHash.clear();
     m_debugIdHash.reserve(old_count + 1);
     m_debugIdToIname.clear();
-    m_debugIdToIname.insert(-1, QByteArray("inspect"));
+    m_debugIdToIname.insert(WatchData::InvalidId, QByteArray("inspect"));
     m_objectStack.clear();
     m_objectWatches.clear();
 }
@@ -870,7 +870,7 @@ void QmlInspectorAgent::jumpToObjectDefinitionInEditor(
     const QString fileName = m_masterEngine->toFileInProject(objSource.url());
 
     Core::EditorManager::openEditorAt(fileName, objSource.lineNumber());
-    if (debugId != -1 && debugId != m_currentSelectedDebugId) {
+    if (debugId != WatchData::InvalidId && debugId != m_currentSelectedDebugId) {
         m_currentSelectedDebugId = debugId;
         m_currentSelectedDebugName = displayName(debugId);
     }

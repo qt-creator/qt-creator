@@ -60,6 +60,8 @@ public:
             | HasChildrenNeeded
     };
 
+    static const qint64 InvalidId = -1;
+
     void setAllUnneeded()          { state = State(0); }
 
     bool isValueNeeded() const { return state & ValueNeeded; }
@@ -99,7 +101,7 @@ public:
     void updateDisplayedType(const GdbMi &item);
 
 public:
-    quint64         id;            // Token for the engine for internal mapping
+    qint64          id;            // Token for the engine for internal mapping
     qint32          state;         // 'needed' flags;
     QByteArray      iname;         // Internal name sth like 'local.baz.public.a'
     QByteArray      exp;           // The expression

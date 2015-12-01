@@ -69,7 +69,7 @@ public:
 
     void assignValue(const WatchData *data, const QString &expression, const QVariant &valueV);
     void updateWatchData(const WatchData &data);
-    void watchDataSelected(quint64 id);
+    void watchDataSelected(qint64 id);
     bool selectObjectInTree(int debugId);
     void addObjectWatch(int objectDebugId);
 

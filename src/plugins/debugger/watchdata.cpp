@@ -119,7 +119,7 @@ bool isIntOrFloatType(const QByteArray &type)
 }
 
 WatchData::WatchData() :
-    id(0),
+    id(WatchData::InvalidId),
     state(InitialState),
     editformat(StopDisplay),
     editencoding(Unencoded8Bit),
