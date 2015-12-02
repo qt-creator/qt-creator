@@ -32,11 +32,28 @@
 #include "cppsourceprocessor.h"
 #include "editordocumenthandle.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/qtcassert.h>
 
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
+
+static QByteArray overwrittenToolchainDefines(const ProjectPart &projectPart)
+{
+    QByteArray defines;
+
+    // MSVC's predefined macros like __FUNCSIG__ expand to itself.
+    // We can't parse this, so redefine to the empty string literal.
+    if (projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
+        defines += "#define __FUNCSIG__ \"\"\n"
+                   "#define __FUNCDNAME__ \"\"\n"
+                   "#define __FUNCTION__ \"\"\n";
+    }
+
+    return defines;
+}
 
 BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath)
     : BaseEditorDocumentParser(filePath)
@@ -74,6 +91,7 @@ void BuiltinEditorDocumentParser::updateHelper(const InMemoryInfo &info)
 
     if (const ProjectPart::Ptr part = baseState.projectPart) {
         configFile += part->toolchainDefines;
+        configFile += overwrittenToolchainDefines(*part.data());
         configFile += part->projectDefines;
         headerPaths = part->headerPaths;
         projectConfigFile = part->projectConfigFile;

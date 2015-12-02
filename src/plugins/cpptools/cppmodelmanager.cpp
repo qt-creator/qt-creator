@@ -190,6 +190,12 @@ const char pp_configuration[] =
 
     "#define _Pragma(x)\n" // C99 _Pragma operator
 
+    "#define __func__ \"\"\n"
+
+    // ### add macros for gcc
+    "#define __PRETTY_FUNCTION__ \"\"\n"
+    "#define __FUNCTION__ \"\"\n"
+
     // ### add macros for win32
     "#define __cdecl\n"
     "#define __stdcall\n"
