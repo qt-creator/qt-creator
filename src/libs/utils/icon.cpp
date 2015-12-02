@@ -73,16 +73,18 @@ static MasksAndColors masksAndColors(const Icon &icon, int dpr)
     return result;
 }
 
-static void smearPixmap(QPainter *painter, const QPixmap &pixmap)
+static void smearPixmap(QPainter *painter, const QPixmap &pixmap, qreal radius)
 {
-    painter->drawPixmap(QPointF(-0.501, -0.501), pixmap);
-    painter->drawPixmap(QPointF(0, -0.501), pixmap);
-    painter->drawPixmap(QPointF( 0.5, -0.501), pixmap);
-    painter->drawPixmap(QPointF( 0.5, 0), pixmap);
-    painter->drawPixmap(QPointF( 0.5, 0.5), pixmap);
-    painter->drawPixmap(QPointF( 0, 0.5), pixmap);
-    painter->drawPixmap(QPointF(-0.501, 0.5), pixmap);
-    painter->drawPixmap(QPointF(-0.501, 0), pixmap);
+    const qreal nagative = -radius - 0.01; // Workaround for QPainter rounding behavior
+    const qreal positive = radius;
+    painter->drawPixmap(QPointF(nagative, nagative), pixmap);
+    painter->drawPixmap(QPointF(0, nagative), pixmap);
+    painter->drawPixmap(QPointF(positive, nagative), pixmap);
+    painter->drawPixmap(QPointF(positive, 0), pixmap);
+    painter->drawPixmap(QPointF(positive, positive), pixmap);
+    painter->drawPixmap(QPointF(0, positive), pixmap);
+    painter->drawPixmap(QPointF(nagative, positive), pixmap);
+    painter->drawPixmap(QPointF(nagative, 0), pixmap);
 }
 
 static QPixmap combinedMask(const MasksAndColors &masks)
@@ -99,7 +101,7 @@ static QPixmap combinedMask(const MasksAndColors &masks)
         p.save();
         p.setOpacity(0.4);
         p.setCompositionMode(QPainter::CompositionMode_Lighten);
-        smearPixmap(&p, maskToColorAndAlpha((*maskImage).first, Qt::white));
+        smearPixmap(&p, maskToColorAndAlpha((*maskImage).first, Qt::white), 0.5);
         p.restore();
         p.drawPixmap(0, 0, (*maskImage).first);
     }
@@ -107,7 +109,7 @@ static QPixmap combinedMask(const MasksAndColors &masks)
     return result;
 }
 
-static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedMask, bool shadow)
+static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedMask, Icon::Style style)
 {
     QPixmap result(combinedMask.size());
     result.setDevicePixelRatio(combinedMask.devicePixelRatio());
@@ -121,13 +123,13 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
             p.save();
             p.setOpacity(0.4);
             p.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-            smearPixmap(&p, maskToColorAndAlpha((*maskImage).first, Qt::white));
+            smearPixmap(&p, maskToColorAndAlpha((*maskImage).first, Qt::white), 0.5);
             p.restore();
         }
         p.drawPixmap(0, 0, maskToColorAndAlpha((*maskImage).first, (*maskImage).second));
     }
 
-    if (shadow) {
+    if (style == Icon::Style::TintedWithShadow) {
         const QPixmap shadowMask = maskToColorAndAlpha(combinedMask, Qt::black);
         p.setCompositionMode(QPainter::CompositionMode_DestinationOver);
         p.setOpacity(0.05);
@@ -183,7 +185,7 @@ QIcon Icon::icon() const
         QIcon result;
         const MasksAndColors masks = masksAndColors(*this, qRound(qApp->devicePixelRatio()));
         const QPixmap combinedMask = Utils::combinedMask(masks);
-        result.addPixmap(masksToIcon(masks, combinedMask, m_style == Style::TintedWithShadow));
+        result.addPixmap(masksToIcon(masks, combinedMask, m_style));
 
         QColor disabledColor = creatorTheme()->palette().mid().color();
         disabledColor.setAlphaF(0.6);
@@ -202,7 +204,7 @@ QPixmap Icon::pixmap() const
         const MasksAndColors masks =
                 masksAndColors(*this, qRound(qApp->devicePixelRatio()));
         const QPixmap combinedMask = Utils::combinedMask(masks);
-        return masksToIcon(masks, combinedMask, m_style == Style::TintedWithShadow);
+        return masksToIcon(masks, combinedMask, m_style);
     }
 }
 
