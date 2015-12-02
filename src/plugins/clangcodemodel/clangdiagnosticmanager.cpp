@@ -31,7 +31,9 @@
 #include "clangdiagnosticfilter.h"
 #include "clangdiagnosticmanager.h"
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -53,7 +55,7 @@ QTextEdit::ExtraSelection createExtraSelections(const QTextCharFormat &mainforma
 
 void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
                         QTextDocument *textDocument,
-                        const QTextCharFormat &rangeFormat,
+                        const QTextCharFormat &contextFormat,
                         const QString &diagnosticText,
                         QList<QTextEdit::ExtraSelection> &extraSelections)
 {
@@ -62,7 +64,7 @@ void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
         cursor.setPosition(int(range.start().offset()));
         cursor.setPosition(int(range.end().offset()), QTextCursor::KeepAnchor);
 
-        auto extraSelection = createExtraSelections(rangeFormat, cursor, diagnosticText);
+        auto extraSelection = createExtraSelections(contextFormat, cursor, diagnosticText);
 
         extraSelections.push_back(std::move(extraSelection));
     }
@@ -116,7 +118,7 @@ QString diagnosticText(const ClangBackEnd::DiagnosticContainer &diagnostic)
 void addSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                    QTextDocument *textDocument,
                    const QTextCharFormat &mainFormat,
-                   const QTextCharFormat &rangeFormat,
+                   const QTextCharFormat &contextFormat,
                    QList<QTextEdit::ExtraSelection> &extraSelections)
 {
     for (auto &&diagnostic : diagnostics) {
@@ -125,7 +127,7 @@ void addSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics
         auto text = diagnosticText(diagnostic);
         auto extraSelection = createExtraSelections(mainFormat, cursor, text);
 
-        addRangeSelections(diagnostic, textDocument, rangeFormat, text, extraSelections);
+        addRangeSelections(diagnostic, textDocument, contextFormat, text, extraSelections);
 
         extraSelections.push_back(std::move(extraSelection));
     }
@@ -135,30 +137,25 @@ void addWarningSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diag
                           QTextDocument *textDocument,
                           QList<QTextEdit::ExtraSelection> &extraSelections)
 {
-    QTextCharFormat warningFormat;
-    warningFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    warningFormat.setUnderlineColor(QColor(180, 180, 0, 255));
+    const auto fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
 
-    QTextCharFormat warningRangeFormat;
-    warningRangeFormat.setUnderlineStyle(QTextCharFormat::DotLine);
-    warningRangeFormat.setUnderlineColor(QColor(180, 180, 0, 255));
+    QTextCharFormat warningFormat = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
 
-    addSelections(diagnostics, textDocument, warningFormat, warningRangeFormat, extraSelections);
+    QTextCharFormat warningContextFormat = fontSettings.toTextCharFormat(TextEditor::C_WARNING_CONTEXT);
+
+    addSelections(diagnostics, textDocument, warningFormat, warningContextFormat, extraSelections);
 }
 
 void addErrorSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                         QTextDocument *textDocument,
                         QList<QTextEdit::ExtraSelection> &extraSelections)
 {
-    QTextCharFormat errorFormat;
-    errorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    errorFormat.setUnderlineColor(QColor(255, 0, 0, 255));
+    const auto fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
 
-    QTextCharFormat errorRangeFormat;
-    errorRangeFormat.setUnderlineStyle(QTextCharFormat::DotLine);
-    errorRangeFormat.setUnderlineColor(QColor(255, 0, 0, 255));
+    QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
+    QTextCharFormat errorContextFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR_CONTEXT);
 
-    addSelections(diagnostics, textDocument, errorFormat, errorRangeFormat, extraSelections);
+    addSelections(diagnostics, textDocument, errorFormat, errorContextFormat, extraSelections);
 }
 
 } // anonymous
