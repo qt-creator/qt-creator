@@ -3,7 +3,6 @@ import QtcFunctions
 
 Product {
     property string installDir
-    property string installSourceBase
 
     Depends { name: "cpp" }
     cpp.defines: project.generalDefines
@@ -24,6 +23,5 @@ Product {
         fileTagsFilter: product.type
         qbs.install: true
         qbs.installDir: installDir
-        qbs.installSourceBase: installSourceBase
     }
 }

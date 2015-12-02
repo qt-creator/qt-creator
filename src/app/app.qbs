@@ -4,7 +4,6 @@ QtcProduct {
     Depends { name: "bundle" }
     Depends { name: "ib"; condition: qbs.targetOS.contains("osx") }
 
-    bundle.isBundle: true
     bundle.infoPlistFile: "Info.plist" // TODO: Remove for qbs 1.6
 
     Properties {
@@ -12,12 +11,17 @@ QtcProduct {
         ib.appIconName: "qtcreator"
     }
 
+    Properties {
+        condition: qbs.targetOS.contains("windows")
+        consoleApplication: qbs.debugInformation
+    }
+    consoleApplication: false
+
     type: ["application"]
     name: project.ide_app_target
-    consoleApplication: qbs.debugInformation
     version: project.qtcreator_version
 
-    installSourceBase: buildDirectory
+    installDir: project.ide_bin_path
 
     cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/../Frameworks"]
                                              : ["$ORIGIN/../" + project.libDirName + "/qtcreator"]
@@ -73,6 +77,6 @@ QtcProduct {
         condition: qbs.targetOS.contains("osx")
         fileTagsFilter: ["infoplist", "pkginfo", "compiled_assetcatalog"]
         qbs.install: true
-        qbs.installSourceBase: installSourceBase
+        qbs.installSourceBase: product.buildDirectory
     }
 }
