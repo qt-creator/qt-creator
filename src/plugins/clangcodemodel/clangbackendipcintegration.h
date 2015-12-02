@@ -169,7 +169,9 @@ private:
     void initializeBackend();
     void initializeBackendWithCurrentData();
     void registerCurrentProjectParts();
-    void registerCurrentCppEditorDocuments();
+    void restoreCppEditorDocuments();
+    void resetCppEditorDocumentProcessors();
+    void registerVisibleCppEditorDocumentAndMarkInvisibleDirty();
     void registerCurrentCodeModelUiHeaders();
 
 

@@ -91,6 +91,7 @@ public:
 
     QFuture<void> updateSourceFiles(const QSet<QString> &sourceFiles,
         ProgressNotificationMode mode = ReservedProgressNotification);
+    void updateCppEditorDocuments() const;
     WorkingCopy workingCopy() const;
     QByteArray codeModelConfiguration() const;
 
@@ -209,7 +210,6 @@ private:
     void initializeModelManagerSupports();
     void delayedGC();
     void recalculateProjectPartMappings();
-    void updateCppEditorDocuments() const;
 
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);

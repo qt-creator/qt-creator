@@ -476,15 +476,24 @@ void IpcCommunicator::registerCurrentProjectParts()
         registerProjectsParts(projectInfo.projectParts());
 }
 
-void IpcCommunicator::registerCurrentCppEditorDocuments()
+void IpcCommunicator::restoreCppEditorDocuments()
+{
+    resetCppEditorDocumentProcessors();
+    registerVisibleCppEditorDocumentAndMarkInvisibleDirty();
+}
+
+void IpcCommunicator::resetCppEditorDocumentProcessors()
 {
     using namespace CppTools;
 
     const auto cppEditorDocuments = CppModelManager::instance()->cppEditorDocuments();
-    foreach (const CppEditorDocumentHandle *cppEditorDocument, cppEditorDocuments) {
-        if (cppEditorDocument->processor()->baseTextDocument()->isModified())
-            updateTranslationUnitFromCppEditorDocument(cppEditorDocument->filePath());
-    }
+    foreach (CppEditorDocumentHandle *cppEditorDocument, cppEditorDocuments)
+        cppEditorDocument->resetProcessor();
+}
+
+void IpcCommunicator::registerVisibleCppEditorDocumentAndMarkInvisibleDirty()
+{
+    CppTools::CppModelManager::instance()->updateCppEditorDocuments();
 }
 
 void IpcCommunicator::registerCurrentCodeModelUiHeaders()
@@ -657,8 +666,8 @@ void IpcCommunicator::initializeBackendWithCurrentData()
 {
     registerFallbackProjectPart();
     registerCurrentProjectParts();
-    registerCurrentCppEditorDocuments();
     registerCurrentCodeModelUiHeaders();
+    restoreCppEditorDocuments();
     updateTranslationUnitVisiblity();
 
     emit backendReinitialized();
