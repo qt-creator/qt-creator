@@ -66,7 +66,29 @@
 namespace ClangBackEnd {
 
 namespace {
-const int delayedDocumentAnnotationsTimerInterval = 3000;
+
+int getIntervalFromEnviromentVariable()
+{
+    const QByteArray userIntervalAsByteArray = qgetenv("QTC_CLANG_DELAYED_REPARSE_TIMEOUT");
+
+    bool isConversionOk = false;
+    const int intervalAsInt = userIntervalAsByteArray.toInt(&isConversionOk);
+
+    if (isConversionOk)
+        return intervalAsInt;
+    else
+        return -1;
+}
+
+int delayedDocumentAnnotationsTimerInterval()
+{
+    static const int defaultInterval = 3000;
+    static const int userDefinedInterval = getIntervalFromEnviromentVariable();
+    static const int interval = userDefinedInterval >= 0 ? userDefinedInterval : defaultInterval;
+
+    return interval;
+}
+
 }
 
 ClangIpcServer::ClangIpcServer()
@@ -138,7 +160,7 @@ void ClangIpcServer::updateTranslationUnitsForEditor(const UpdateTranslationUnit
         if (newerFileContainers.size() > 0) {
             translationUnits.update(newerFileContainers);
             unsavedFiles.createOrUpdate(newerFileContainers);
-            sendDocumentAnnotationsTimer.start(delayedDocumentAnnotationsTimerInterval);
+            sendDocumentAnnotationsTimer.start(delayedDocumentAnnotationsTimerInterval());
         }
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
@@ -196,7 +218,7 @@ void ClangIpcServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesFor
     try {
         unsavedFiles.createOrUpdate(message.fileContainers());
         translationUnits.updateTranslationUnitsWithChangedDependencies(message.fileContainers());
-        sendDocumentAnnotationsTimer.start(delayedDocumentAnnotationsTimerInterval);
+        sendDocumentAnnotationsTimer.start(delayedDocumentAnnotationsTimerInterval());
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
