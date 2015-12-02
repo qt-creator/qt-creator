@@ -63,8 +63,7 @@ CppTools::CppModelManager *mm()
 namespace CppEditor {
 namespace Internal {
 
-enum { processDocumentIntervalInMs = 150,
-       clangProcessDocumentIntervalInMs = 500 };
+enum { processDocumentIntervalInMs = 150 };
 
 class CppEditorDocumentHandleImpl : public CppTools::CppEditorDocumentHandle
 {
@@ -292,10 +291,7 @@ void CppEditorDocument::releaseResources()
 void CppEditorDocument::initializeTimer()
 {
     m_processorTimer.setSingleShot(true);
-    if (mm()->isClangCodeModelActive())
-        m_processorTimer.setInterval(clangProcessDocumentIntervalInMs);
-    else
-        m_processorTimer.setInterval(processDocumentIntervalInMs);
+    m_processorTimer.setInterval(processDocumentIntervalInMs);
 
     connect(&m_processorTimer,
             &QTimer::timeout,
