@@ -399,3 +399,28 @@ void f19()
 {
     ScopeClass::ScopeOperator();
 }
+
+namespace TemplateClassNamespace {
+template<class X>
+class TemplateClass
+{
+
+};
+}
+
+void f20()
+{
+   TemplateClassNamespace::TemplateClass<ScopeClass> TemplateClassDefinition;
+}
+
+void f21()
+{
+    typedef int TypeDefDeclaration;
+    TypeDefDeclaration TypeDefDeclarationUsage;
+}
+
+typedef int EnumerationTypeDef;
+
+enum Enumeration2 : EnumerationTypeDef {
+
+};

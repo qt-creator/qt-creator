@@ -62,6 +62,8 @@ CppTools::SemanticHighlighter::Kind toCppToolsSemanticHighlighterKind(
     case HighlightingType::Label:
         return SemanticHighlighter::LabelUse;
     case HighlightingType::Preprocessor:
+    case HighlightingType::PreprocessorDefinition:
+    case HighlightingType::PreprocessorExpansion:
         return SemanticHighlighter::MacroUse;
     default:
         return SemanticHighlighter::Unknown;
