@@ -82,7 +82,7 @@ int getIntervalFromEnviromentVariable()
 
 int delayedDocumentAnnotationsTimerInterval()
 {
-    static const int defaultInterval = 3000;
+    static const int defaultInterval = 1500;
     static const int userDefinedInterval = getIntervalFromEnviromentVariable();
     static const int interval = userDefinedInterval >= 0 ? userDefinedInterval : defaultInterval;
 
