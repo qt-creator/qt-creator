@@ -68,6 +68,8 @@ public:
 
 private:
     void startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
+    void startDocumentAnnotations();
+    void reparseVisibleDocuments(std::vector<TranslationUnit> &translationUnits);
 
 private:
     ProjectParts projects;

@@ -79,7 +79,8 @@ protected:
     void readPartialMessage();
 
 protected:
-    ClangBackEnd::FileContainer fileContainer{Utf8StringLiteral("foo.cpp"),
+    Utf8String filePath{Utf8StringLiteral("foo.cpp")};
+    ClangBackEnd::FileContainer fileContainer{filePath,
                                               Utf8StringLiteral("projectPartId"),
                                               Utf8StringLiteral("unsaved content"),
                                               true,
@@ -152,7 +153,7 @@ TEST_F(ReadAndWriteMessageBlock, CompareAliveMessage)
 
 TEST_F(ReadAndWriteMessageBlock, CompareRegisterTranslationUnitForEditorMessage)
 {
-    CompareMessage(ClangBackEnd::RegisterTranslationUnitForEditorMessage({fileContainer}));
+    CompareMessage(ClangBackEnd::RegisterTranslationUnitForEditorMessage({fileContainer}, filePath, {filePath}));
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareUpdateTranslationUnitForEditorMessage)

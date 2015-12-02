@@ -90,7 +90,8 @@ protected:
     void scheduleClientMessages();
 
 protected:
-    ClangBackEnd::FileContainer fileContainer{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"),
+    Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp")};
+    ClangBackEnd::FileContainer fileContainer{filePath,
                                               Utf8StringLiteral("projectPartId"),
                                               Utf8StringLiteral("unsaved content"),
                                               true,
@@ -123,7 +124,9 @@ TEST_F(ClientServerInProcess, SendAliveMessage)
 
 TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForEditorMessage)
 {
-    ClangBackEnd::RegisterTranslationUnitForEditorMessage message({fileContainer});
+    ClangBackEnd::RegisterTranslationUnitForEditorMessage message({fileContainer},
+                                                                  filePath,
+                                                                  {filePath});
 
     EXPECT_CALL(mockIpcServer, registerTranslationUnitsForEditor(message))
         .Times(1);

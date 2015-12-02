@@ -268,13 +268,9 @@ void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(CppTools::Pr
         if (projectPart->id() != m_projectPart->id()) {
             ipcCommunicator.unregisterTranslationUnitsForEditor({fileContainerWithArguments()});
             ipcCommunicator.registerTranslationUnitsForEditor({fileContainerWithArguments(projectPart)});
-            ipcCommunicator.updateTranslationUnitVisiblity();
-            requestDocumentAnnotations(projectPart->id());
         }
     } else {
         ipcCommunicator.registerTranslationUnitsForEditor({{fileContainerWithArguments(projectPart)}});
-        ipcCommunicator.updateTranslationUnitVisiblity();
-        requestDocumentAnnotations(projectPart->id());
     }
 }
 

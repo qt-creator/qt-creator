@@ -63,12 +63,16 @@ TranslationUnits::TranslationUnits(ProjectParts &projects, UnsavedFiles &unsaved
 {
 }
 
-void TranslationUnits::create(const QVector<FileContainer> &fileContainers)
+std::vector<TranslationUnit> TranslationUnits::create(const QVector<FileContainer> &fileContainers)
 {
     checkIfTranslationUnitsDoesNotExists(fileContainers);
 
+    std::vector<TranslationUnit> createdTranslationUnits;
+
     for (const FileContainer &fileContainer : fileContainers)
-        createTranslationUnit(fileContainer);
+        createdTranslationUnits.push_back(createTranslationUnit(fileContainer));
+
+    return createdTranslationUnits;
 }
 
 void TranslationUnits::update(const QVector<FileContainer> &fileContainers)
@@ -258,18 +262,19 @@ const ClangFileSystemWatcher *TranslationUnits::clangFileSystemWatcher() const
     return &fileSystemWatcher;
 }
 
-void TranslationUnits::createTranslationUnit(const FileContainer &fileContainer)
+TranslationUnit TranslationUnits::createTranslationUnit(const FileContainer &fileContainer)
 {
     TranslationUnit::FileExistsCheck checkIfFileExists = fileContainer.hasUnsavedFileContent() ? TranslationUnit::DoNotCheckIfFileExists : TranslationUnit::CheckIfFileExists;
-    auto findIterator = findTranslationUnit(fileContainer);
-    if (findIterator == translationUnits_.end()) {
-        translationUnits_.push_back(TranslationUnit(fileContainer.filePath(),
-                                                    projectParts.project(fileContainer.projectPartId()),
-                                                    fileContainer.fileArguments(),
-                                                    *this,
-                                                    checkIfFileExists));
-        translationUnits_.back().setDocumentRevision(fileContainer.documentRevision());
-    }
+
+    translationUnits_.emplace_back(fileContainer.filePath(),
+                                   projectParts.project(fileContainer.projectPartId()),
+                                   fileContainer.fileArguments(),
+                                   *this,
+                                   checkIfFileExists);
+
+    translationUnits_.back().setDocumentRevision(fileContainer.documentRevision());
+
+    return translationUnits_.back();
 }
 
 void TranslationUnits::updateTranslationUnit(const FileContainer &fileContainer)

@@ -144,6 +144,16 @@ TEST_F(TranslationUnits, Add)
                 IsTranslationUnit(filePath, projectPartId, 74u));
 }
 
+TEST_F(TranslationUnits, AddAndTestCreatedTranslationUnit)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+
+    auto createdTranslationUnits = translationUnits.create({fileContainer});
+
+    ASSERT_THAT(createdTranslationUnits.front(),
+                IsTranslationUnit(filePath, projectPartId, 74u));
+}
+
 TEST_F(TranslationUnits, ThrowForCreatingAnExistingTranslationUnit)
 {
     ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);

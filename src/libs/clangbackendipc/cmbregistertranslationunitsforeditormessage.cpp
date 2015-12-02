@@ -39,8 +39,12 @@
 
 namespace ClangBackEnd {
 
-RegisterTranslationUnitForEditorMessage::RegisterTranslationUnitForEditorMessage(const QVector<FileContainer> &fileContainers)
-    : fileContainers_(fileContainers)
+RegisterTranslationUnitForEditorMessage::RegisterTranslationUnitForEditorMessage(const QVector<FileContainer> &fileContainers,
+                                                                                 const Utf8String &currentEditorFilePath,
+                                                                                 const Utf8StringVector &visibleEditorFilePaths)
+    : fileContainers_(fileContainers),
+      currentEditorFilePath_(currentEditorFilePath),
+      visibleEditorFilePaths_(visibleEditorFilePaths)
 {
 }
 
@@ -49,28 +53,45 @@ const QVector<FileContainer> &RegisterTranslationUnitForEditorMessage::fileConta
     return fileContainers_;
 }
 
+const Utf8String &RegisterTranslationUnitForEditorMessage::currentEditorFilePath() const
+{
+    return currentEditorFilePath_;
+}
+
+const Utf8StringVector &RegisterTranslationUnitForEditorMessage::visibleEditorFilePaths() const
+{
+    return visibleEditorFilePaths_;
+}
+
 QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForEditorMessage &message)
 {
     out << message.fileContainers_;
-
+    out << message.currentEditorFilePath_;
+    out << message.visibleEditorFilePaths_;
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, RegisterTranslationUnitForEditorMessage &message)
 {
     in >> message.fileContainers_;
+    in >> message.currentEditorFilePath_;
+    in >> message.visibleEditorFilePaths_;
 
     return in;
 }
 
 bool operator==(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second)
 {
-    return first.fileContainers_ == second.fileContainers_;
+    return first.fileContainers_ == second.fileContainers_
+        && first.currentEditorFilePath_ == second.currentEditorFilePath_
+        && first.visibleEditorFilePaths_ == second.visibleEditorFilePaths_;
 }
 
 bool operator<(const RegisterTranslationUnitForEditorMessage &first, const RegisterTranslationUnitForEditorMessage &second)
 {
-    return compareContainer(first.fileContainers_, second.fileContainers_);
+    return compareContainer(first.fileContainers_, second.fileContainers_)
+        && first.currentEditorFilePath_ < second.currentEditorFilePath_
+        && compareContainer(first.visibleEditorFilePaths_, second.visibleEditorFilePaths_);
 }
 
 QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &message)
@@ -79,6 +100,11 @@ QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &m
 
     for (const FileContainer &fileContainer : message.fileContainers())
         debug.nospace() << fileContainer<< ", ";
+
+    debug.nospace() << message.currentEditorFilePath()  << ", ";
+
+    for (const Utf8String &visibleEditorFilePath : message.visibleEditorFilePaths())
+        debug.nospace() << visibleEditorFilePath << ", ";
 
     debug.nospace() << ")";
 
@@ -91,6 +117,12 @@ void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostr
 
     for (const FileContainer &fileContainer : message.fileContainers())
         PrintTo(fileContainer, os);
+
+    *os << message.currentEditorFilePath().constData()  << ", ";
+
+    auto visiblePaths = message.visibleEditorFilePaths();
+
+    std::copy(visiblePaths.cbegin(), visiblePaths.cend(), std::ostream_iterator<Utf8String>(*os, ", "));
 
     *os << ")";
 }

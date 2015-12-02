@@ -115,8 +115,11 @@ TEST_F(ClientServerOutsideProcess, RestartProcessAfterTermination)
 
 TEST_F(ClientServerOutsideProcess, SendRegisterTranslationUnitForEditorMessage)
 {
-    ClangBackEnd::FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId"));
-    ClangBackEnd::RegisterTranslationUnitForEditorMessage registerTranslationUnitForEditorMessage({fileContainer});
+    auto filePath = Utf8StringLiteral("foo.cpp");
+    ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringLiteral("projectId"));
+    ClangBackEnd::RegisterTranslationUnitForEditorMessage registerTranslationUnitForEditorMessage({fileContainer},
+                                                                                                  filePath,
+                                                                                                  {filePath});
     EchoMessage echoMessage(QVariant::fromValue(registerTranslationUnitForEditorMessage));
 
     EXPECT_CALL(mockIpcClient, echo(echoMessage))

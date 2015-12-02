@@ -64,7 +64,7 @@ public:
 public:
     TranslationUnits(ProjectParts &projectParts, UnsavedFiles &unsavedFiles);
 
-    void create(const QVector<FileContainer> &fileContainers);
+    std::vector<TranslationUnit> create(const QVector<FileContainer> &fileContainers);
     void update(const QVector<FileContainer> &fileContainers);
     void remove(const QVector<FileContainer> &fileContainers);
 
@@ -96,7 +96,7 @@ public:
     const ClangFileSystemWatcher *clangFileSystemWatcher() const;
 
 private:
-    void createTranslationUnit(const FileContainer &fileContainer);
+    TranslationUnit createTranslationUnit(const FileContainer &fileContainer);
     void updateTranslationUnit(const FileContainer &fileContainer);
     std::vector<TranslationUnit>::iterator findTranslationUnit(const FileContainer &fileContainer);
     std::vector<TranslationUnit>::iterator findAllTranslationUnitWithFilePath(const Utf8String &filePath);

@@ -116,9 +116,12 @@ void ClangIpcServer::registerTranslationUnitsForEditor(const ClangBackEnd::Regis
     TIME_SCOPE_DURATION("ClangIpcServer::registerTranslationUnitsForEditor");
 
     try {
-        translationUnits.create(message.fileContainers());
+        auto createdTranslationUnits = translationUnits.create(message.fileContainers());
         unsavedFiles.createOrUpdate(message.fileContainers());
-        sendDocumentAnnotationsTimer.start(0);
+        translationUnits.setUsedByCurrentEditor(message.currentEditorFilePath());
+        translationUnits.setVisibleInEditors(message.visibleEditorFilePaths());
+        startDocumentAnnotations();
+        reparseVisibleDocuments(createdTranslationUnits);
     } catch (const ProjectPartDoNotExistException &exception) {
         client()->projectPartsDoNotExist(ProjectPartsDoNotExistMessage(exception.projectPartIds()));
     } catch (const std::exception &exception) {
@@ -297,6 +300,21 @@ void ClangIpcServer::startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(co
 {
     if (!translationUnits.hasTranslationUnit(filePath))
         sendDocumentAnnotationsTimer.start(0);
+}
+
+void ClangIpcServer::startDocumentAnnotations()
+{
+    DocumentAnnotationsSendState sendState = DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations;
+
+    while (sendState == DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations)
+        sendState = translationUnits.sendDocumentAnnotations();
+}
+
+void ClangIpcServer::reparseVisibleDocuments(std::vector<TranslationUnit> &translationUnits)
+{
+    for (TranslationUnit &translationUnit : translationUnits)
+        if (translationUnit.isVisibleInEditor())
+            translationUnit.reparse();
 }
 
 }

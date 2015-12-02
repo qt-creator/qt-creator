@@ -670,7 +670,9 @@ void IpcCommunicator::registerTranslationUnitsForEditor(const FileContainers &fi
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const RegisterTranslationUnitForEditorMessage message(fileContainers);
+    const RegisterTranslationUnitForEditorMessage message(fileContainers,
+                                                          currentCppEditorDocumentFilePath(),
+                                                          visibleCppEditorDocumentsFilePaths());
     qCDebug(log) << ">>>" << message;
     m_ipcSender->registerTranslationUnitsForEditor(message);
 }
