@@ -3252,7 +3252,7 @@
        transform="translate(-139,-80)"
        style="">
       <rect
-         style="opacity:0.60100002;fill:#ffffff;fill-opacity:1;"
+         style="fill:#ffffff;fill-opacity:1"
          id="rect3817-2-9-1-9-6"
          width="16"
          height="16"
@@ -3291,7 +3291,7 @@
        id="src/plugins/coreplugin/images/magnifier"
        transform="translate(37,-80)">
       <rect
-         style="opacity:0.60100002;fill:#ffffff;fill-opacity:1"
+         style="fill:#ffffff;fill-opacity:1"
          id="rect3817-2-9-1-9-6-0"
          width="17"
          height="11"

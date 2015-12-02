@@ -112,6 +112,7 @@ public:
         PanelStatusBarBackgroundColor,
         PanelsWidgetSeparatorLineColor,
         PanelTextColorDark,
+        PanelTextColorMid,
         PanelTextColorLight,
         ProgressBarColorError,
         ProgressBarColorFinished,

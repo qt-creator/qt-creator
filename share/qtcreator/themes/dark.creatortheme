@@ -83,6 +83,7 @@ PanelButtonToolBackgroundColorHover=hoverBackground
 PanelStatusBarBackgroundColor=shadowBackground
 PanelsWidgetSeparatorLineColor=0
 PanelTextColorDark=text
+PanelTextColorMid=ffa0a0a0
 PanelTextColorLight=text
 ProgressBarColorError=error
 ProgressBarColorFinished=ff5aaa3c

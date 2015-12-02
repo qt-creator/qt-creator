@@ -90,7 +90,7 @@ const Utils::Icon NEXT({
 const Utils::Icon PREV({
         {QLatin1String(":/core/images/prev.png"), Utils::Theme::IconsNavigationArrowsColor}});
 const Utils::Icon MAGNIFIER({
-        {QLatin1String(":/core/images/magnifier.png"), Utils::Theme::BackgroundColorHover}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/core/images/magnifier.png"), Utils::Theme::PanelTextColorMid}}, Utils::Icon::Style::Tinted);
 const Utils::Icon CLEAN_PANE({
         {QLatin1String(":/core/images/clean_pane_small.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon RELOAD({
