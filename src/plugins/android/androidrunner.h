@@ -108,14 +108,10 @@ private:
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
     ushort m_localGdbServerPort; // Local end of forwarded debug socket.
     quint16 m_qmlPort;
-    bool m_useLocalQtLibs;
     QString m_pingFile;
     QString m_pongFile;
     QString m_gdbserverPath;
     QString m_gdbserverSocket;
-    QString m_localLibs;
-    QString m_localJars;
-    QString m_localJarsInitClasses;
     QString m_adb;
     bool m_isBusyBox;
     QStringList m_selector;

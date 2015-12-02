@@ -154,13 +154,6 @@ AndroidRunner::AndroidRunner(QObject *parent,
         m_qmlPort = 0;
     }
     ProjectExplorer::Target *target = runConfig->target();
-    m_useLocalQtLibs = AndroidManager::useLocalLibs(target);
-    if (m_useLocalQtLibs) {
-        int deviceApiLevel = AndroidManager::minimumSDK(target);
-        m_localLibs = AndroidManager::loadLocalLibs(target, deviceApiLevel);
-        m_localJars = AndroidManager::loadLocalJars(target, deviceApiLevel);
-        m_localJarsInitClasses = AndroidManager::loadLocalJarsInitClasses(target, deviceApiLevel);
-    }
     m_intentName = AndroidManager::intentName(target);
     m_packageName = m_intentName.left(m_intentName.indexOf(QLatin1Char('/')));
 

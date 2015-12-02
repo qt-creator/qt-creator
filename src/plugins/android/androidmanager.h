@@ -64,7 +64,6 @@ public:
     static QString activityName(ProjectExplorer::Target *target);
 
     static bool bundleQt(ProjectExplorer::Target *target);
-    static bool useLocalLibs(ProjectExplorer::Target *target);
     static QString deviceSerialNumber(ProjectExplorer::Target *target);
     static void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
 
@@ -79,19 +78,10 @@ public:
     static Utils::FileName dirPath(ProjectExplorer::Target *target);
     static Utils::FileName manifestPath(ProjectExplorer::Target *target);
     static Utils::FileName manifestSourcePath(ProjectExplorer::Target *target);
-    static Utils::FileName libsPath(ProjectExplorer::Target *target);
     static Utils::FileName defaultPropertiesPath(ProjectExplorer::Target *target);
-
-    static Utils::FileName localLibsRulesFilePath(ProjectExplorer::Target *target);
-    static QString loadLocalLibs(ProjectExplorer::Target *target, int apiLevel = -1);
-    static QString loadLocalJars(ProjectExplorer::Target *target, int apiLevel = -1);
-    static QString loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel = -1);
 
     static QPair<int, int> apiLevelRange();
     static QString androidNameForApiLevel(int x);
-
-    static QStringList qtLibs(ProjectExplorer::Target *target);
-    static QStringList prebundledLibs(ProjectExplorer::Target *target);
 
     static void cleanLibsOnDevice(ProjectExplorer::Target *target);
     static void installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath);

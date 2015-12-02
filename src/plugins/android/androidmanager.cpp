@@ -67,7 +67,6 @@
 
 namespace {
     const QLatin1String AndroidManifestName("AndroidManifest.xml");
-    const QLatin1String AndroidLibsFileName("/res/values/libs.xml");
     const QLatin1String AndroidDefaultPropertiesName("project.properties");
     const QLatin1String AndroidDeviceSn("AndroidDeviceSerialNumber");
 
@@ -91,17 +90,6 @@ typedef QMap<QString, Library> LibrariesMap;
 
 static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
 static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
-static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag);
-
-enum ItemType
-{
-    Lib,
-    Jar,
-    BundledFile,
-    BundledJar
-};
-static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute=QLatin1String("file"));
-
 
 bool AndroidManager::supportsAndroid(const ProjectExplorer::Kit *kit)
 {
@@ -211,11 +199,6 @@ Utils::FileName AndroidManager::manifestPath(ProjectExplorer::Target *target)
     return dirPath(target).appendPath(AndroidManifestName);
 }
 
-Utils::FileName AndroidManager::libsPath(ProjectExplorer::Target *target)
-{
-    return dirPath(target).appendPath(AndroidLibsFileName);
-}
-
 Utils::FileName AndroidManager::defaultPropertiesPath(ProjectExplorer::Target *target)
 {
     return dirPath(target).appendPath(AndroidDefaultPropertiesName);
@@ -231,18 +214,6 @@ bool AndroidManager::bundleQt(ProjectExplorer::Target *target)
     return false;
 }
 
-bool AndroidManager::useLocalLibs(ProjectExplorer::Target *target)
-{
-    AndroidBuildApkStep *androidBuildApkStep
-            = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
-    if (androidBuildApkStep) {
-        return androidBuildApkStep->deployAction() == AndroidBuildApkStep::DebugDeployment
-                || androidBuildApkStep->deployAction() == AndroidBuildApkStep::BundleLibrariesDeployment;
-    }
-
-    return false;
-}
-
 QString AndroidManager::deviceSerialNumber(ProjectExplorer::Target *target)
 {
     return target->namedSettings(AndroidDeviceSn).toString();
@@ -251,31 +222,6 @@ QString AndroidManager::deviceSerialNumber(ProjectExplorer::Target *target)
 void AndroidManager::setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber)
 {
     target->setNamedSettings(AndroidDeviceSn, deviceSerialNumber);
-}
-
-Utils::FileName AndroidManager::localLibsRulesFilePath(ProjectExplorer::Target *target)
-{
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
-    if (!version)
-        return Utils::FileName();
-    return Utils::FileName::fromString(version->qmakeProperty("QT_INSTALL_LIBS"));
-}
-
-QString AndroidManager::loadLocalLibs(ProjectExplorer::Target *target, int apiLevel)
-{
-    return loadLocal(target, apiLevel, Lib);
-}
-
-QString AndroidManager::loadLocalJars(ProjectExplorer::Target *target, int apiLevel)
-{
-    ItemType type = bundleQt(target) ? BundledJar : Jar;
-    return loadLocal(target, apiLevel, type);
-}
-
-QString AndroidManager::loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel)
-{
-    ItemType type = bundleQt(target) ? BundledJar : Jar;
-    return loadLocal(target, apiLevel, type, QLatin1String("initClass"));
 }
 
 QPair<int, int> AndroidManager::apiLevelRange()
@@ -331,123 +277,9 @@ QString AndroidManager::androidNameForApiLevel(int x)
     }
 }
 
-QStringList AndroidManager::qtLibs(ProjectExplorer::Target *target)
-{
-    return libsXml(target, QLatin1String("qt_libs"));
-}
-
-QStringList AndroidManager::prebundledLibs(ProjectExplorer::Target *target)
-{
-    return libsXml(target, QLatin1String("bundled_libs"));
-}
-
-static bool openLibsXml(ProjectExplorer::Target *target, QDomDocument &doc)
-{
-    return openXmlFile(doc, AndroidManager::libsPath(target));
-}
-
 static void raiseError(const QString &reason)
 {
     QMessageBox::critical(0, AndroidManager::tr("Error creating Android templates."), reason);
-}
-
-static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute)
-{
-    QString itemType;
-    if (item == Lib)
-        itemType = QLatin1String("lib");
-    else if (item == BundledFile)
-        itemType = QLatin1String("bundled");
-    else // Jar or BundledJar
-        itemType = QLatin1String("jar");
-
-    QString localLibs;
-
-    QDir rulesFilesDir(AndroidManager::localLibsRulesFilePath(target).toString());
-    if (!rulesFilesDir.exists())
-        return localLibs;
-
-    QStringList libs;
-    libs << AndroidManager::qtLibs(target) << AndroidManager::prebundledLibs(target);
-
-    QFileInfoList rulesFiles = rulesFilesDir.entryInfoList(QStringList() << QLatin1String("*.xml"),
-                                                           QDir::Files | QDir::Readable);
-
-    QStringList dependencyLibs;
-    QStringList replacedLibs;
-    foreach (QFileInfo rulesFile, rulesFiles) {
-        if (rulesFile.baseName() != QLatin1String("rules")
-                && !rulesFile.baseName().endsWith(QLatin1String("-android-dependencies"))) {
-            continue;
-        }
-
-        QDomDocument doc;
-        if (!openXmlFile(doc, Utils::FileName::fromString(rulesFile.absoluteFilePath())))
-            return localLibs;
-
-        QDomElement element = doc.documentElement().firstChildElement(QLatin1String("platforms")).firstChildElement(itemType + QLatin1Char('s')).firstChildElement(QLatin1String("version"));
-        while (!element.isNull()) {
-            if (element.attribute(QLatin1String("value")).toInt() == apiLevel) {
-                if (element.hasAttribute(QLatin1String("symlink")))
-                    apiLevel = element.attribute(QLatin1String("symlink")).toInt();
-                break;
-            }
-            element = element.nextSiblingElement(QLatin1String("version"));
-        }
-
-        element = doc.documentElement().firstChildElement(QLatin1String("dependencies")).firstChildElement(QLatin1String("lib"));
-        while (!element.isNull()) {
-            if (libs.contains(element.attribute(QLatin1String("name")))) {
-                QDomElement libElement = element.firstChildElement(QLatin1String("depends")).firstChildElement(itemType);
-                while (!libElement.isNull()) {
-                    if (libElement.attribute(QLatin1String("bundling")).toInt() == (item == BundledJar ? 1 : 0)) {
-                        if (libElement.hasAttribute(attribute)) {
-                            QString dependencyLib = libElement.attribute(attribute);
-                            if (dependencyLib.contains(QLatin1String("%1")))
-                                dependencyLib = dependencyLib.arg(apiLevel);
-                            if (libElement.hasAttribute(QLatin1String("extends"))) {
-                                const QString extends = libElement.attribute(QLatin1String("extends"));
-                                if (libs.contains(extends))
-                                    dependencyLibs << dependencyLib;
-                            } else if (!dependencyLibs.contains(dependencyLib)) {
-                                dependencyLibs << dependencyLib;
-                            }
-                        }
-
-                        if (libElement.hasAttribute(QLatin1String("replaces"))) {
-                            QString replacedLib = libElement.attribute(QLatin1String("replaces"));
-                            if (replacedLib.contains(QLatin1String("%1")))
-                                replacedLib = replacedLib.arg(apiLevel);
-                            if (!replacedLibs.contains(replacedLib))
-                                replacedLibs << replacedLib;
-                        }
-                    }
-
-                    libElement = libElement.nextSiblingElement(itemType);
-                }
-
-                libElement = element.firstChildElement(QLatin1String("replaces")).firstChildElement(itemType);
-                while (!libElement.isNull()) {
-                    if (libElement.hasAttribute(attribute)) {
-                        QString replacedLib = libElement.attribute(attribute).arg(apiLevel);
-                        if (!replacedLibs.contains(replacedLib))
-                            replacedLibs << replacedLib;
-                    }
-
-                    libElement = libElement.nextSiblingElement(itemType);
-                }
-            }
-            element = element.nextSiblingElement(QLatin1String("lib"));
-        }
-    }
-
-    // The next loop requires all library names to end with a ":" so we append one
-    // to the end after joining.
-    localLibs = dependencyLibs.join(QLatin1Char(':')) + QLatin1Char(':');
-    foreach (QString replacedLib, replacedLibs)
-        localLibs.remove(replacedLib + QLatin1Char(':'));
-
-    return localLibs;
 }
 
 static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
@@ -466,27 +298,6 @@ static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
 static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc)
 {
     return openXmlFile(doc, AndroidManager::manifestPath(target));
-}
-
-static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag)
-{
-    QStringList libs;
-    QDomDocument doc;
-    if (!openLibsXml(target, doc))
-        return libs;
-    QDomElement arrayElem = doc.documentElement().firstChildElement(QLatin1String("array"));
-    while (!arrayElem.isNull()) {
-        if (arrayElem.attribute(QLatin1String("name")) == tag) {
-            arrayElem = arrayElem.firstChildElement(QLatin1String("item"));
-            while (!arrayElem.isNull()) {
-                libs << arrayElem.text();
-                arrayElem = arrayElem.nextSiblingElement(QLatin1String("item"));
-            }
-            return libs;
-        }
-        arrayElem = arrayElem.nextSiblingElement(QLatin1String("array"));
-    }
-    return libs;
 }
 
 void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
