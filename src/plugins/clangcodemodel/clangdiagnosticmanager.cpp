@@ -38,6 +38,8 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QTextBlock>
+
 namespace  {
 
 QTextEdit::ExtraSelection createExtraSelections(const QTextCharFormat &mainformat,
@@ -53,6 +55,14 @@ QTextEdit::ExtraSelection createExtraSelections(const QTextCharFormat &mainforma
     return extraSelection;
 }
 
+int positionInText(QTextDocument *textDocument,
+                   const ClangBackEnd::SourceLocationContainer &sourceLocationContainer)
+{
+    auto textBlock = textDocument->findBlockByNumber(int(sourceLocationContainer.line()) - 1);
+
+    return textBlock.position() + int(sourceLocationContainer.column()) - 1;
+}
+
 void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
                         QTextDocument *textDocument,
                         const QTextCharFormat &contextFormat,
@@ -61,8 +71,8 @@ void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
 {
     for (auto &&range : diagnostic.ranges()) {
         QTextCursor cursor(textDocument);
-        cursor.setPosition(int(range.start().offset()));
-        cursor.setPosition(int(range.end().offset()), QTextCursor::KeepAnchor);
+        cursor.setPosition(positionInText(textDocument, range.start()));
+        cursor.setPosition(positionInText(textDocument, range.end()), QTextCursor::KeepAnchor);
 
         auto extraSelection = createExtraSelections(contextFormat, cursor, diagnosticText);
 
@@ -70,14 +80,15 @@ void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
     }
 }
 
-QTextCursor createSelectionCursor(QTextDocument *textDocument, uint position)
+QTextCursor createSelectionCursor(QTextDocument *textDocument,
+                                  const ClangBackEnd::SourceLocationContainer &sourceLocationContainer)
 {
     QTextCursor cursor(textDocument);
-    cursor.setPosition(int(position));
+    cursor.setPosition(positionInText(textDocument, sourceLocationContainer));
     cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
 
     if (!cursor.hasSelection()) {
-        cursor.setPosition(int(position) - 1);
+        cursor.setPosition(positionInText(textDocument, sourceLocationContainer) - 1);
         cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 2);
     }
 
@@ -122,7 +133,7 @@ void addSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics
                    QList<QTextEdit::ExtraSelection> &extraSelections)
 {
     for (auto &&diagnostic : diagnostics) {
-        auto cursor = createSelectionCursor(textDocument, diagnostic.location().offset());
+        auto cursor = createSelectionCursor(textDocument, diagnostic.location());
 
         auto text = diagnosticText(diagnostic);
         auto extraSelection = createExtraSelections(mainFormat, cursor, text);

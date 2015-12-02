@@ -34,9 +34,16 @@
 #include <texteditor/quickfix.h>
 
 #include <clangbackendipc/fixitcontainer.h>
+
 #include <utils/changeset.h>
 
 #include <QVector>
+#include <QSharedPointer>
+
+namespace TextEditor
+{
+class RefactoringFile;
+}
 
 namespace ClangCodeModel {
 
@@ -51,11 +58,15 @@ public:
     QString description() const override;
     void perform() override;
 
+    QString refactoringFileContent_forTestOnly() const;
+
+private:
     Utils::ChangeSet changeSet() const;
 
 private:
     Utf8String filePath;
     Utf8String fixItText;
+    QSharedPointer<TextEditor::RefactoringFile> refactoringFile;
     QVector<ClangBackEnd::FixItContainer> fixItContainers;
 };
 

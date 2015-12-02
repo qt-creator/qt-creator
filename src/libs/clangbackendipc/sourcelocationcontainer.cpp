@@ -39,10 +39,10 @@ namespace ClangBackEnd {
 
 SourceLocationContainer::SourceLocationContainer(const Utf8String &filePath,
                                                  uint line,
-                                                 uint offset)
+                                                 uint column)
     : filePath_(filePath),
       line_(line),
-      offset_(offset)
+      column_(column)
 {
 }
 
@@ -57,16 +57,16 @@ uint SourceLocationContainer::line() const
 }
 
 
-uint SourceLocationContainer::offset() const
+uint SourceLocationContainer::column() const
 {
-    return offset_;
+    return column_;
 }
 
 QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container)
 {
     out << container.filePath_;
     out << container.line_;
-    out << container.offset_;
+    out << container.column_;
 
     return out;
 }
@@ -75,7 +75,7 @@ QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container)
 {
     in >> container.filePath_;
     in >> container.line_;
-    in >> container.offset_;
+    in >> container.column_;
 
     return in;
 }
@@ -87,14 +87,16 @@ bool operator==(const SourceLocationContainer &first, const SourceLocationContai
 
 bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second)
 {
-    return first.offset_ != second.offset_
+    return first.line_ != second.line_
+        || first.column_ != second.column_
         || first.filePath_ != second.filePath_;
 }
 
 bool operator<(const SourceLocationContainer &first, const SourceLocationContainer &second)
 {
     return first.filePath_ < second.filePath_
-        || (first.filePath_ == second.filePath_ && first.offset_ < second.offset_);
+        || (first.filePath_ == second.filePath_ && first.line_ < second.line_)
+        || (first.filePath_ == second.filePath_ && first.line_ == second.line_ && first.column_ < second.column_);
 }
 
 QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
@@ -102,7 +104,7 @@ QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
     debug.nospace() << "SourceLocationContainer("
                     << container.filePath() << ", "
                     << container.line() << ", "
-                    << container.offset()
+                    << container.column()
                     << ")";
     return debug;
 }
@@ -112,7 +114,7 @@ void PrintTo(const SourceLocationContainer &container, ::std::ostream* os)
     *os << "["
         << container.filePath().constData() << ", "
         << container.line() << ", "
-        << container.offset()
+        << container.column()
         << "]";
 }
 } // namespace ClangBackEnd
