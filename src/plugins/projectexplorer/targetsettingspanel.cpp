@@ -76,15 +76,8 @@ int TargetSettingsPanelWidget::s_targetSubIndex = -1;
 ///
 
 TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
-    m_currentTarget(0),
     m_project(project),
-    m_importer(project->createProjectImporter()),
-    m_selector(0),
-    m_centralWidget(0),
-    m_changeMenu(0),
-    m_duplicateMenu(0),
-    m_lastAction(0),
-    m_importAction(0)
+    m_importer(project->createProjectImporter())
 {
     Q_ASSERT(m_project);
 
@@ -96,23 +89,26 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
 
     if (m_importer) {
         m_importAction = new QAction(tr("Import existing build..."), this);
-        connect(m_importAction, SIGNAL(triggered()), this, SLOT(importTarget()));
+        connect(m_importAction, &QAction::triggered, this, [this]() {
+            const QString toImport
+                    = QFileDialog::getExistingDirectory(this, tr("Import directory"),
+                                                        m_project->projectDirectory().toString());
+            importTarget(Utils::FileName::fromString(toImport));
+        });
     }
 
     setFocusPolicy(Qt::NoFocus);
 
     setupUi();
 
-    connect(m_project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(targetAdded(ProjectExplorer::Target*)));
-    connect(m_project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
-            this, SLOT(removedTarget(ProjectExplorer::Target*)));
+    connect(m_project, &Project::addedTarget, this, &TargetSettingsPanelWidget::targetAdded);
+    connect(m_project, &Project::removedTarget, this, &TargetSettingsPanelWidget::removedTarget);
 
-    connect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-            this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
+    connect(m_project, &Project::activeTargetChanged,
+            this, &TargetSettingsPanelWidget::activeTargetChanged);
 
-    connect(KitManager::instance(), SIGNAL(kitsChanged()),
-            this, SLOT(updateTargetButtons()));
+    connect(KitManager::instance(), &KitManager::kitsChanged,
+            this, &TargetSettingsPanelWidget::updateTargetButtons);
 }
 
 TargetSettingsPanelWidget::~TargetSettingsPanelWidget()
@@ -201,17 +197,17 @@ void TargetSettingsPanelWidget::setupUi()
     m_selector->setCurrentSubIndex(s_targetSubIndex);
     currentTargetChanged(index, m_selector->currentSubIndex());
 
-    connect(m_selector, SIGNAL(currentChanged(int,int)),
-            this, SLOT(currentTargetChanged(int,int)));
-    connect(m_selector, SIGNAL(manageButtonClicked()),
-            this, SLOT(openTargetPreferences()));
-    connect(m_selector, SIGNAL(toolTipRequested(QPoint,int)),
-            this, SLOT(showTargetToolTip(QPoint,int)));
-    connect(m_selector, SIGNAL(menuShown(int)),
-            this, SLOT(menuShown(int)));
+    connect(m_selector, &TargetSettingsWidget::currentChanged,
+            this, &TargetSettingsPanelWidget::currentTargetChanged);
+    connect(m_selector, &TargetSettingsWidget::manageButtonClicked,
+            this, &TargetSettingsPanelWidget::openTargetPreferences);
+    connect(m_selector, &TargetSettingsWidget::toolTipRequested,
+            this, &TargetSettingsPanelWidget::showTargetToolTip);
+    connect(m_selector, &TargetSettingsWidget::menuShown,
+            this, &TargetSettingsPanelWidget::menuShown);
 
-    connect(m_addMenu, SIGNAL(triggered(QAction*)),
-            this, SLOT(addActionTriggered(QAction*)));
+    connect(m_addMenu, &QMenu::triggered,
+            this, &TargetSettingsPanelWidget::addActionTriggered);
 
     m_selector->setAddButtonMenu(m_addMenu);
     m_selector->setTargetMenu(m_targetMenu);
@@ -299,6 +295,7 @@ void TargetSettingsPanelWidget::menuShown(int targetIndex)
 
 void TargetSettingsPanelWidget::changeActionTriggered(QAction *action)
 {
+    QTC_ASSERT(m_menuTargetIndex >= 0, return);
     Kit *k = KitManager::find(action->data().value<Id>());
     Target *sourceTarget = m_targets.at(m_menuTargetIndex);
     Target *newTarget = m_project->cloneTarget(sourceTarget, k);
@@ -312,6 +309,7 @@ void TargetSettingsPanelWidget::changeActionTriggered(QAction *action)
 
 void TargetSettingsPanelWidget::duplicateActionTriggered(QAction *action)
 {
+    QTC_ASSERT(m_menuTargetIndex >= 0, return);
     Kit *k = KitManager::find(action->data().value<Id>());
     Target *newTarget = m_project->cloneTarget(m_targets.at(m_menuTargetIndex), k);
 
@@ -336,8 +334,9 @@ void TargetSettingsPanelWidget::addActionTriggered(QAction *action)
     }
 }
 
-void TargetSettingsPanelWidget::removeTarget()
+void TargetSettingsPanelWidget::removeCurrentTarget()
 {
+    QTC_ASSERT(m_menuTargetIndex >= 0, return);
     Target *t = m_targets.at(m_menuTargetIndex);
 
     if (BuildManager::isBuilding(t)) {
@@ -389,7 +388,8 @@ void TargetSettingsPanelWidget::targetAdded(Target *target)
         }
     }
 
-    connect(target, SIGNAL(displayNameChanged()), this, SLOT(renameTarget()));
+    connect(target, &ProjectConfiguration::displayNameChanged,
+            this, &TargetSettingsPanelWidget::renameTarget);
     updateTargetButtons();
 }
 
@@ -465,7 +465,7 @@ void TargetSettingsPanelWidget::updateTargetButtons()
             this, &TargetSettingsPanelWidget::changeActionTriggered);
     connect(m_duplicateMenu, &QMenu::triggered,
             this, &TargetSettingsPanelWidget::duplicateActionTriggered);
-    connect(removeAction, &QAction::triggered, this, &TargetSettingsPanelWidget::removeTarget);
+    connect(removeAction, &QAction::triggered, this, &TargetSettingsPanelWidget::removeCurrentTarget);
 
     foreach (Kit *k, KitManager::sortKits(KitManager::kits())) {
         if (m_project->target(k))
@@ -501,12 +501,6 @@ void TargetSettingsPanelWidget::openTargetPreferences()
             page->showKit(m_targets.at(targetIndex)->kit());
     }
     ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, this);
-}
-
-void TargetSettingsPanelWidget::importTarget()
-{
-    QString toImport = QFileDialog::getExistingDirectory(this, tr("Import directory"), m_project->projectDirectory().toString());
-    importTarget(Utils::FileName::fromString(toImport));
 }
 
 void TargetSettingsPanelWidget::importTarget(const Utils::FileName &path)

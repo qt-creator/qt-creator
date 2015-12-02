@@ -67,7 +67,8 @@ public:
 
 protected:
     bool event(QEvent *event);
-private slots:
+
+private:
     void currentTargetChanged(int targetIndex, int subIndex);
     void showTargetToolTip(const QPoint &globalPos, int targetIndex);
     void targetAdded(ProjectExplorer::Target *target);
@@ -76,32 +77,30 @@ private slots:
     void updateTargetButtons();
     void renameTarget();
     void openTargetPreferences();
-    void importTarget();
 
-    void removeTarget();
+    void removeCurrentTarget();
     void menuShown(int targetIndex);
     void addActionTriggered(QAction *action);
     void changeActionTriggered(QAction *action);
     void duplicateActionTriggered(QAction *action);
-private:
     void importTarget(const Utils::FileName &path);
     void createAction(Kit *k, QMenu *menu);
 
-    Target *m_currentTarget;
+    Target *m_currentTarget = 0;
     Project *m_project;
     ProjectImporter *m_importer;
-    TargetSettingsWidget *m_selector;
-    QStackedWidget *m_centralWidget;
+    TargetSettingsWidget *m_selector = 0;
+    QStackedWidget *m_centralWidget = 0;
     QWidget *m_noTargetLabel;
     PanelsWidget *m_panelWidgets[2];
     QList<Target *> m_targets;
     QMenu *m_targetMenu;
-    QMenu *m_changeMenu;
-    QMenu *m_duplicateMenu;
+    QMenu *m_changeMenu = 0;
+    QMenu *m_duplicateMenu = 0;
     QMenu *m_addMenu;
-    QAction *m_lastAction;
-    QAction *m_importAction;
-    int m_menuTargetIndex;
+    QAction *m_lastAction = 0;
+    QAction *m_importAction = 0;
+    int m_menuTargetIndex = -1;
     static int s_targetSubIndex;
 };
 
