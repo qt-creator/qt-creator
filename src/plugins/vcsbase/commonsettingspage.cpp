@@ -65,6 +65,8 @@ CommonSettingsWidget::CommonSettingsWidget(QWidget *parent) :
 
     connect(Core::VcsManager::instance(), &Core::VcsManager::configurationChanged,
             this, &CommonSettingsWidget::updatePath);
+    connect(m_ui->cacheResetButton, &QPushButton::clicked,
+            this, [] { Core::VcsManager::clearVersionControlCache(); });
 }
 
 CommonSettingsWidget::~CommonSettingsWidget()
