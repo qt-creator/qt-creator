@@ -35,6 +35,7 @@
 #include "cmbechomessage.h"
 #include "cmbregistertranslationunitsforeditormessage.h"
 #include "diagnosticschangedmessage.h"
+#include "highlightingchangedmessage.h"
 #include "ipcserverinterface.h"
 #include "projectpartsdonotexistmessage.h"
 #include "translationunitdoesnotexistmessage.h"
@@ -100,6 +101,11 @@ void IpcClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage 
 }
 
 void IpcClientProxy::diagnosticsChanged(const DiagnosticsChangedMessage &message)
+{
+    writeMessageBlock.write(QVariant::fromValue(message));
+}
+
+void IpcClientProxy::highlightingChanged(const HighlightingChangedMessage &message)
 {
     writeMessageBlock.write(QVariant::fromValue(message));
 }

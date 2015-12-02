@@ -71,6 +71,7 @@ public:
 
 private:
     void onEditorOpened(Core::IEditor *editor);
+    void onEditorClosed(const QList<Core::IEditor *> &editors);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);
     void onCppDocumentAboutToReloadOnTranslationUnit();
     void onCppDocumentReloadFinishedOnTranslationUnit(bool success);
@@ -103,7 +104,6 @@ private:
 private:
     IpcCommunicator m_ipcCommunicator;
     ClangCompletionAssistProvider m_completionAssistProvider;
-    QPointer<Core::IEditor> m_previousCppEditor;
 };
 
 class ModelManagerSupportProviderClang : public CppTools::ModelManagerSupportProvider

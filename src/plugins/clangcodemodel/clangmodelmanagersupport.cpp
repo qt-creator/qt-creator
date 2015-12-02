@@ -30,7 +30,7 @@
 
 #include "clangmodelmanagersupport.h"
 
-#include "constants.h"
+#include "clangconstants.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangutils.h"
 
@@ -66,9 +66,14 @@ ModelManagerSupportClang::ModelManagerSupportClang()
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
-            this, &ModelManagerSupportClang::onCurrentEditorChanged);
+            this, &ModelManagerSupportClang::onCurrentEditorChanged,
+            Qt::QueuedConnection);
     connect(editorManager, &Core::EditorManager::editorOpened,
-            this, &ModelManagerSupportClang::onEditorOpened);
+            this, &ModelManagerSupportClang::onEditorOpened,
+            Qt::QueuedConnection);
+    connect(editorManager, &Core::EditorManager::editorsClosed,
+            this, &ModelManagerSupportClang::onEditorClosed,
+            Qt::QueuedConnection);
 
     CppTools::CppModelManager *modelManager = cppModelManager();
     connect(modelManager, &CppTools::CppModelManager::abstractEditorSupportContentsUpdated,
@@ -97,20 +102,9 @@ CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentP
     return new ClangEditorDocumentProcessor(this, baseTextDocument);
 }
 
-void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *newCurrent)
+void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *)
 {
-    // If we switch away from a cpp editor, update the backend about
-    // the document's unsaved content.
-    if (m_previousCppEditor && m_previousCppEditor->document()->isModified()) {
-        m_ipcCommunicator.updateTranslationUnitFromCppEditorDocument(
-                                m_previousCppEditor->document()->filePath().toString());
-    }
-
-    // Remember previous editor
-    if (newCurrent && cppModelManager()->isCppEditor(newCurrent))
-        m_previousCppEditor = newCurrent;
-    else
-        m_previousCppEditor.clear();
+    m_ipcCommunicator.updateTranslationUnitVisiblity();
 }
 
 void ModelManagerSupportClang::connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument)
@@ -181,6 +175,11 @@ void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
     }
 }
 
+void ModelManagerSupportClang::onEditorClosed(const QList<Core::IEditor *> &)
+{
+    m_ipcCommunicator.updateTranslationUnitVisiblity();
+}
+
 void ModelManagerSupportClang::onCppDocumentAboutToReloadOnTranslationUnit()
 {
     TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
@@ -193,7 +192,7 @@ void ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit(bool
     if (success) {
         TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
         connectToTextDocumentContentsChangedForTranslationUnit(textDocument);
-        m_ipcCommunicator.requestDiagnostics(textDocument);
+        m_ipcCommunicator.updateTranslationUnitWithRevisionCheck(textDocument);
     }
 }
 
@@ -342,7 +341,7 @@ void ModelManagerSupportClang::unregisterTranslationUnitsWithProjectParts(
 {
     const auto processors = clangProcessorsWithProjectParts(projectPartIds);
     foreach (ClangEditorDocumentProcessor *processor, processors) {
-        m_ipcCommunicator.unregisterTranslationUnitsForEditor({processor->fileContainer()});
+        m_ipcCommunicator.unregisterTranslationUnitsForEditor({processor->fileContainerWithArguments()});
         processor->clearProjectPart();
         processor->run();
     }

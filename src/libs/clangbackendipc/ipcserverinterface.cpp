@@ -37,6 +37,7 @@
 #include "cmbunregistertranslationunitsforeditormessage.h"
 #include "registerunsavedfilesforeditormessage.h"
 #include "requestdiagnosticsmessage.h"
+#include "requesthighlightingmessage.h"
 #include "unregisterunsavedfilesforeditormessage.h"
 #include "updatetranslationunitsforeditormessage.h"
 #include "updatevisibletranslationunitsmessage.h"
@@ -58,8 +59,8 @@ void IpcServerInterface::dispatch(const QVariant &message)
     static const int unregisterUnsavedFilesForEditorMessageType = QMetaType::type("ClangBackEnd::UnregisterUnsavedFilesForEditorMessage");
     static const int completeCodeMessageType = QMetaType::type("ClangBackEnd::CompleteCodeMessage");
     static const int requestDiagnosticsMessageType = QMetaType::type("ClangBackEnd::RequestDiagnosticsMessage");
+    static const int requestHighlightingTypeMessage = QMetaType::type("ClangBackEnd::RequestHighlightingMessage");
     static const int updateVisibleTranslationUnitsMessageType = QMetaType::type("ClangBackEnd::UpdateVisibleTranslationUnitsMessage");
-
 
     int type = message.userType();
 
@@ -83,6 +84,8 @@ void IpcServerInterface::dispatch(const QVariant &message)
         completeCode(message.value<CompleteCodeMessage>());
     else if (type == requestDiagnosticsMessageType)
         requestDiagnostics(message.value<RequestDiagnosticsMessage>());
+    else if (type == requestHighlightingTypeMessage)
+        requestHighlighting(message.value<RequestHighlightingMessage>());
     else if (type == updateVisibleTranslationUnitsMessageType)
         updateVisibleTranslationUnits(message.value<UpdateVisibleTranslationUnitsMessage>());
     else

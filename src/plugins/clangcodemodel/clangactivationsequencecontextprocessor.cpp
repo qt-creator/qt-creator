@@ -28,9 +28,9 @@
 **
 ****************************************************************************/
 
-#include "activationsequencecontextprocessor.h"
+#include "clangactivationsequencecontextprocessor.h"
 
-#include "activationsequenceprocessor.h"
+#include "clangactivationsequenceprocessor.h"
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/ExpressionUnderCursor.h>

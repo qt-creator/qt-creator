@@ -30,7 +30,7 @@
 
 #include "clangassistproposalitem.h"
 
-#include "activationsequenceprocessor.h"
+#include "clangactivationsequenceprocessor.h"
 #include "clangassistproposal.h"
 #include "clangassistproposalmodel.h"
 #include "clangcompletionassistprocessor.h"
@@ -38,7 +38,7 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangfunctionhintmodel.h"
 #include "clangutils.h"
-#include "completionchunkstotextconverter.h"
+#include "clangcompletionchunkstotextconverter.h"
 
 #include <utils/qtcassert.h>
 
@@ -342,13 +342,16 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
     case ClangCompletionContextAnalyzer::PassThroughToLibClang: {
         m_addSnippets = m_completionOperator == T_EOF_SYMBOL;
         m_sentRequestType = NormalCompletion;
-        sendCompletionRequest(analyzer.positionForClang(), modifiedFileContent);
+        const bool requestSent = sendCompletionRequest(analyzer.positionForClang(),
+                                                       modifiedFileContent);
+        setPerformWasApplicable(requestSent);
         break;
     }
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen: {
         m_sentRequestType = FunctionHintCompletion;
         m_functionName = analyzer.functionName();
-        sendCompletionRequest(analyzer.positionForClang(), QByteArray());
+        const bool requestSent = sendCompletionRequest(analyzer.positionForClang(), QByteArray());
+        setPerformWasApplicable(requestSent);
         break;
     }
     default:
@@ -702,15 +705,34 @@ bool shouldSendDocumentForCompletion(const QString &filePath,
     return true;
 }
 
-void setLastCompletionPositionAndDocumentRevision(const QString &filePath,
-                                                  int completionPosition)
+bool shouldSendCodeCompletion(const QString &filePath,
+                              int completionPosition)
 {
     auto *document = cppDocument(filePath);
 
     if (document) {
-        document->sendTracker().setLastCompletionPosition(completionPosition);
-        document->sendTracker().setLastSentRevision(document->revision());
+        auto &sendTracker = document->sendTracker();
+        return sendTracker.shouldSendCompletion(completionPosition);
     }
+
+    return true;
+}
+
+void setLastDocumentRevision(const QString &filePath)
+{
+    auto *document = cppDocument(filePath);
+
+    if (document)
+        document->sendTracker().setLastSentRevision(int(document->revision()));
+}
+
+void setLastCompletionPosition(const QString &filePath,
+                               int completionPosition)
+{
+    auto *document = cppDocument(filePath);
+
+    if (document)
+        document->sendTracker().setLastCompletionPosition(completionPosition);
 }
 
 QString projectPartIdForEditorDocument(const QString &filePath)
@@ -726,7 +748,7 @@ QString projectPartIdForEditorDocument(const QString &filePath)
 }
 }
 
-void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
+bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
                                                            const QByteArray &customFileContent)
 {
     int line, column;
@@ -735,17 +757,22 @@ void ClangCompletionAssistProcessor::sendCompletionRequest(int position,
 
     const QString filePath = m_interface->fileName();
 
-    if (shouldSendDocumentForCompletion(filePath, position)) {
-        sendFileContent(customFileContent);
-        setLastCompletionPositionAndDocumentRevision(filePath, position);
+    auto &ipcCommunicator = m_interface->ipcCommunicator();
+
+    if (shouldSendCodeCompletion(filePath, position)
+            || ipcCommunicator.isNotWaitingForCompletion()) {
+        if (shouldSendDocumentForCompletion(filePath, position)) {
+            sendFileContent(customFileContent);
+            setLastDocumentRevision(filePath);
+        }
+
+        const QString projectPartId = projectPartIdForEditorDocument(filePath);
+        ipcCommunicator.completeCode(this, filePath, uint(line), uint(column), projectPartId);
+        setLastCompletionPosition(filePath, position);
+        return true;
     }
 
-    const QString projectPartId = projectPartIdForEditorDocument(filePath);
-    m_interface->ipcCommunicator().completeCode(this,
-                                                filePath,
-                                                uint(line),
-                                                uint(column),
-                                                projectPartId);
+    return false;
 }
 
 TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal() const

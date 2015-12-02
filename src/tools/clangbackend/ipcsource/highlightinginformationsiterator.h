@@ -56,10 +56,6 @@ public:
           cxTranslationUnit(cxTranslationUnit)
     {}
 
-    HighlightingInformationsIterator(const HighlightingInformationsIterator &other)
-        : cxCursorIterator(other.cxCursorIterator)
-    {}
-
     HighlightingInformationsIterator& operator++()
     {
         ++cxCursorIterator;

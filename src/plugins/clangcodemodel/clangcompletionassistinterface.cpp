@@ -32,13 +32,9 @@
 
 #include "clangutils.h"
 
-#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
-#include <cpptools/cppworkingcopy.h>
 
 #include <texteditor/texteditor.h>
-
-#include <cplusplus/Token.h>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -50,18 +46,13 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(
         const QString &fileName,
         TextEditor::AssistReason reason,
         const CppTools::ProjectPart::HeaderPaths &headerPaths,
-        const PchInfo::Ptr &pchInfo,
         const CPlusPlus::LanguageFeatures &features)
     : AssistInterface(textEditorWidget->document(), position, fileName, reason)
     , m_ipcCommunicator(ipcCommunicator)
     , m_headerPaths(headerPaths)
-    , m_savedPchPointer(pchInfo)
     , m_languageFeatures(features)
     , m_textEditorWidget(textEditorWidget)
 {
-    m_unsavedFiles = Utils::createUnsavedFiles(
-                CppTools::CppModelManager::instance()->workingCopy(),
-                CppTools::modifiedFiles());
 }
 
 bool ClangCompletionAssistInterface::objcEnabled() const
@@ -92,11 +83,6 @@ const TextEditor::TextEditorWidget *ClangCompletionAssistInterface::textEditorWi
 IpcCommunicator &ClangCompletionAssistInterface::ipcCommunicator() const
 {
     return m_ipcCommunicator;
-}
-
-const UnsavedFiles &ClangCompletionAssistInterface::unsavedFiles() const
-{
-    return m_unsavedFiles;
 }
 
 } // namespace Internal

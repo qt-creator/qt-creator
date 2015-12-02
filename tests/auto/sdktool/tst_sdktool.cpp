@@ -43,11 +43,7 @@ private slots:
 
 void SdktoolTest::testSdktool()
 {
-    QDir rootDir = QCoreApplication::applicationDirPath();
-    rootDir.cdUp();
-    rootDir.cdUp();
-    rootDir.cdUp();
-    rootDir.cd(QLatin1String("bin"));
+    QDir rootDir(SDKTOOL_DIR);
     QProcess process;
     process.start(rootDir.absoluteFilePath(QLatin1String("sdktool")),
                   QStringList() << QLatin1String("-test"));

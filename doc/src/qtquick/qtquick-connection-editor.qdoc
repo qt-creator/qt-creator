@@ -47,6 +47,9 @@
 
     \endlist
 
+    For examples of adding connections, see
+    \l{Creating Scalable Buttons and Borders}.
+
     \section1 Connecting Objects to Signals
 
     To connect objects to signals in QML, create \l{Connections} objects.

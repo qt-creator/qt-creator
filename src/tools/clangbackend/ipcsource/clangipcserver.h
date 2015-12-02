@@ -35,7 +35,7 @@
 
 #include "projectpart.h"
 #include "projects.h"
-#include "translationunit.h"
+#include "clangtranslationunit.h"
 #include "translationunits.h"
 #include "unsavedfiles.h"
 
@@ -61,18 +61,21 @@ public:
     void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const CompleteCodeMessage &message) override;
     void requestDiagnostics(const RequestDiagnosticsMessage &message) override;
+    void requestHighlighting(const RequestHighlightingMessage &message) override;
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
     const TranslationUnits &translationUnitsForTestOnly() const;
 
 private:
-    void startSendDiagnosticTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
+    void startDocumentAnnotationsTimerIfFileIsNotATranslationUnit(const Utf8String &filePath);
+    void startDocumentAnnotations();
+    void reparseVisibleDocuments(std::vector<TranslationUnit> &translationUnits);
 
 private:
     ProjectParts projects;
     UnsavedFiles unsavedFiles;
     TranslationUnits translationUnits;
-    QTimer sendDiagnosticsTimer;
+    QTimer sendDocumentAnnotationsTimer;
 };
 
 } // namespace ClangBackEnd

@@ -35,6 +35,8 @@
 
 #if defined(CPPTOOLS_LIBRARY)
 #  define CPPTOOLS_EXPORT Q_DECL_EXPORT
+#elif defined(CPPTOOLS_STATIC_LIBRARY)
+#  define CPPTOOLS_EXPORT
 #else
 #  define CPPTOOLS_EXPORT Q_DECL_IMPORT
 #endif

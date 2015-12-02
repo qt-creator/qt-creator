@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "translationunit.h"
+#include "clangtranslationunit.h"
 
 #include "cursor.h"
 #include "clangstring.h"
@@ -85,6 +85,7 @@ public:
     uint documentRevision = 0;
     bool needsToBeReparsed = false;
     bool hasNewDiagnostics = true;
+    bool hasNewHighlightingInformations = true;
     bool isUsedByCurrentEditor = false;
     bool isVisibleInEditor = false;
 };
@@ -173,11 +174,18 @@ CXIndex TranslationUnit::index() const
 
 CXTranslationUnit TranslationUnit::cxTranslationUnit() const
 {
+    cxTranslationUnitWithoutReparsing();
+    reparseTranslationUnitIfFilesAreChanged();
+
+    return d->translationUnit;
+}
+
+CXTranslationUnit TranslationUnit::cxTranslationUnitWithoutReparsing() const
+{
     checkIfNull();
     checkIfFileExists();
     removeTranslationUnitIfProjectPartWasChanged();
     createTranslationUnitIfNeeded();
-    reparseTranslationUnitIfFilesAreChanged();
 
     return d->translationUnit;
 }
@@ -239,6 +247,11 @@ bool TranslationUnit::hasNewDiagnostics() const
     return d->hasNewDiagnostics;
 }
 
+bool TranslationUnit::hasNewHighlightingInformations() const
+{
+    return d->hasNewHighlightingInformations;
+}
+
 DiagnosticSet TranslationUnit::diagnostics() const
 {
     d->hasNewDiagnostics = false;
@@ -268,6 +281,7 @@ void TranslationUnit::setDirtyIfDependencyIsMet(const Utf8String &filePath)
     if (d->dependedFilePaths.contains(filePath) && isMainFileAndExistsOrIsOtherFile(filePath)) {
         d->needsToBeReparsed = true;
         d->hasNewDiagnostics = true;
+        d->hasNewHighlightingInformations = true;
     }
 }
 
@@ -300,6 +314,13 @@ Cursor TranslationUnit::cursorAt(const Utf8String &filePath, uint line, uint col
 Cursor TranslationUnit::cursor() const
 {
     return clang_getTranslationUnitCursor(cxTranslationUnit());
+}
+
+HighlightingInformations TranslationUnit::highlightingInformations() const
+{
+    d->hasNewHighlightingInformations = false;
+
+    return highlightingInformationsInRange(cursor().sourceRange());
 }
 
 HighlightingInformations TranslationUnit::highlightingInformationsInRange(const SourceRange &range) const

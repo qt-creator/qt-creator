@@ -31,7 +31,7 @@
 #include "sourcelocation.h"
 
 #include "clangstring.h"
-#include "translationunit.h"
+#include "clangtranslationunit.h"
 
 #include <utf8string.h>
 

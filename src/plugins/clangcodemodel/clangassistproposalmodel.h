@@ -41,21 +41,8 @@ namespace Internal {
 class ClangAssistProposalModel : public TextEditor::GenericProposalModel
 {
 public:
-    ClangAssistProposalModel()
-        : m_sortable(false)
-        , m_completionOperator(CPlusPlus::T_EOF_SYMBOL)
-        , m_replaceDotForArrow(false)
-    {}
-
     bool isSortable(const QString &prefix) const override;
     void sort(const QString &prefix) override;
-
-    static bool replaceDotForArrow(IAssistProposalModel *model);
-
-private:
-    bool m_sortable;
-    unsigned m_completionOperator;
-    bool m_replaceDotForArrow;
 };
 
 } // namespace Internal

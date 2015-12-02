@@ -3,7 +3,6 @@ INCLUDEPATH += $$PWD
 HEADERS += $$PWD/clangipcserver.h \
     $$PWD/codecompleter.h \
     $$PWD/clangstring.h \
-    $$PWD/translationunit.h \
     $$PWD/translationunitisnullexception.h \
     $$PWD/codecompletefailedexception.h \
     $$PWD/clangcodecompleteresults.h \
@@ -27,16 +26,16 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/translationunitalreadyexistsexception.h \
     $$PWD/commandlinearguments.h \
     $$PWD/cursor.h \
-    $$PWD/type.h \
     $$PWD/highlightinginformations.h \
     $$PWD/highlightinginformation.h \
     $$PWD/highlightinginformationsiterator.h \
-    $$PWD/skippedsourceranges.h
+    $$PWD/skippedsourceranges.h \
+    $$PWD/clangtranslationunit.h \
+    $$PWD/clangtype.h
 
 SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/codecompleter.cpp \
     $$PWD/clangstring.cpp \
-    $$PWD/translationunit.cpp \
     $$PWD/translationunitisnullexception.cpp \
     $$PWD/codecompletefailedexception.cpp \
     $$PWD/clangcodecompleteresults.cpp \
@@ -59,7 +58,8 @@ SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/translationunitalreadyexistsexception.cpp \
     $$PWD/commandlinearguments.cpp \
     $$PWD/cursor.cpp \
-    $$PWD/type.cpp \
     $$PWD/highlightinginformations.cpp \
     $$PWD/highlightinginformation.cpp \
-    $$PWD/skippedsourceranges.cpp
+    $$PWD/skippedsourceranges.cpp \
+    $$PWD/clangtranslationunit.cpp \
+    $$PWD/clangtype.cpp

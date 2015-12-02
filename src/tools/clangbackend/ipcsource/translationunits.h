@@ -32,7 +32,7 @@
 #define CLANGBACKEND_TRANSLATIONUNITS_H
 
 #include "clangfilesystemwatcher.h"
-#include "translationunit.h"
+#include "clangtranslationunit.h"
 
 #include <filecontainer.h>
 
@@ -46,24 +46,30 @@ namespace ClangBackEnd {
 class ProjectParts;
 class UnsavedFiles;
 class DiagnosticsChangedMessage;
+class HighlightingChangedMessage;
 
-enum class DiagnosticSendState
+enum class DocumentAnnotationsSendState
 {
-    NoDiagnosticSend,
-    MaybeThereAreMoreDiagnostics,
+    NoDocumentAnnotationsSent,
+    MaybeThereAreDocumentAnnotations,
 };
 
 class TranslationUnits
 {
 public:
+    using SendDocumentAnnotationsCallback
+        = std::function<void (const DiagnosticsChangedMessage &,
+                              const HighlightingChangedMessage &)>;
+
+public:
     TranslationUnits(ProjectParts &projectParts, UnsavedFiles &unsavedFiles);
 
-    void create(const QVector<FileContainer> &fileContainers);
+    std::vector<TranslationUnit> create(const QVector<FileContainer> &fileContainers);
     void update(const QVector<FileContainer> &fileContainers);
     void remove(const QVector<FileContainer> &fileContainers);
 
-    void setCurrentEditor(const Utf8String &filePath);
-    void setVisibleEditors(const Utf8StringVector &filePaths);
+    void setUsedByCurrentEditor(const Utf8String &filePath);
+    void setVisibleInEditors(const Utf8StringVector &filePaths);
 
     const TranslationUnit &translationUnit(const Utf8String &filePath, const Utf8String &projectPartId) const;
     const TranslationUnit &translationUnit(const FileContainer &fileContainer) const;
@@ -78,19 +84,19 @@ public:
     void updateTranslationUnitsWithChangedDependency(const Utf8String &filePath);
     void updateTranslationUnitsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
 
-    DiagnosticSendState sendChangedDiagnostics();
-    DiagnosticSendState sendChangedDiagnosticsForCurrentEditor();
-    DiagnosticSendState sendChangedDiagnosticsForVisibleEditors();
-    DiagnosticSendState sendChangedDiagnosticsForAll();
+    DocumentAnnotationsSendState sendDocumentAnnotationsForCurrentEditor();
+    DocumentAnnotationsSendState sendDocumentAnnotationsForVisibleEditors();
+    DocumentAnnotationsSendState sendDocumentAnnotationsForAll();
+    DocumentAnnotationsSendState sendDocumentAnnotations();
 
-    void setSendChangeDiagnosticsCallback(std::function<void(const DiagnosticsChangedMessage&)> &&callback);
+    void setSendDocumentAnnotationsCallback(SendDocumentAnnotationsCallback &&callback);
 
     QVector<FileContainer> newerFileContainers(const QVector<FileContainer> &fileContainers) const;
 
     const ClangFileSystemWatcher *clangFileSystemWatcher() const;
 
 private:
-    void createTranslationUnit(const FileContainer &fileContainer);
+    TranslationUnit createTranslationUnit(const FileContainer &fileContainer);
     void updateTranslationUnit(const FileContainer &fileContainer);
     std::vector<TranslationUnit>::iterator findTranslationUnit(const FileContainer &fileContainer);
     std::vector<TranslationUnit>::iterator findAllTranslationUnitWithFilePath(const Utf8String &filePath);
@@ -102,15 +108,15 @@ private:
     void checkIfTranslationUnitsDoesNotExists(const QVector<FileContainer> &fileContainers) const;
     void checkIfTranslationUnitsForFilePathsDoesExists(const QVector<FileContainer> &fileContainers) const;
 
-    void sendDiagnosticChangedMessage(const TranslationUnit &translationUnit);
     void removeTranslationUnits(const QVector<FileContainer> &fileContainers);
 
     template<class Predicate>
-    DiagnosticSendState sendChangedDiagnostics(Predicate predicate);
+    DocumentAnnotationsSendState sendDocumentAnnotations(Predicate predicate);
+    void sendDocumentAnnotations(const TranslationUnit &translationUnit);
 
 private:
     ClangFileSystemWatcher fileSystemWatcher;
-    std::function<void(const DiagnosticsChangedMessage&)> sendDiagnosticsChangedCallback;
+    SendDocumentAnnotationsCallback sendDocumentAnnotationsCallback;
     std::vector<TranslationUnit> translationUnits_;
     ProjectParts &projectParts;
     UnsavedFiles &unsavedFiles_;

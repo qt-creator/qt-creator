@@ -33,8 +33,10 @@
 
 #include <QtCore/qglobal.h>
 
-#if defined(CLANGBACKENDIPC_LIBRARY)
+#if defined(CLANGBACKENDIPC_BUILD_LIB)
 #  define CMBIPC_EXPORT Q_DECL_EXPORT
+#elif defined(CLANGBACKENDIPC_BUILD_STATIC_LIB)
+#  define CMBIPC_EXPORT
 #else
 #  define CMBIPC_EXPORT Q_DECL_IMPORT
 #endif

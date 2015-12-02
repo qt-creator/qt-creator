@@ -47,12 +47,18 @@ class CMBIPC_EXPORT RegisterTranslationUnitForEditorMessage
     friend void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostream* os);
 public:
     RegisterTranslationUnitForEditorMessage() = default;
-    RegisterTranslationUnitForEditorMessage(const QVector<FileContainer> &fileContainers);
+    RegisterTranslationUnitForEditorMessage(const QVector<FileContainer> &fileContainers,
+                                            const Utf8String &currentEditorFilePath,
+                                            const Utf8StringVector &visibleEditorFilePaths);
 
     const QVector<FileContainer> &fileContainers() const;
+    const Utf8String &currentEditorFilePath() const;
+    const Utf8StringVector &visibleEditorFilePaths() const;
 
 private:
     QVector<FileContainer> fileContainers_;
+    Utf8String currentEditorFilePath_;
+    Utf8StringVector visibleEditorFilePaths_;
 };
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const RegisterTranslationUnitForEditorMessage &message);

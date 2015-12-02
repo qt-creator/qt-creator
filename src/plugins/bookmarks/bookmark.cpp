@@ -32,7 +32,6 @@
 #include "bookmarkmanager.h"
 #include "bookmarks_global.h"
 
-#include <QDebug>
 #include <QFileInfo>
 #include <QTextBlock>
 

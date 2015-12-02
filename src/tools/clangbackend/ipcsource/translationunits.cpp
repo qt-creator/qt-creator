@@ -32,8 +32,11 @@
 
 #include <diagnosticschangedmessage.h>
 #include <diagnosticset.h>
+#include <highlightingchangedmessage.h>
+#include <highlightinginformations.h>
 #include <projectpartsdonotexistexception.h>
 #include <projects.h>
+#include <skippedsourceranges.h>
 #include <translationunitalreadyexistsexception.h>
 #include <translationunitdoesnotexistexception.h>
 
@@ -60,12 +63,16 @@ TranslationUnits::TranslationUnits(ProjectParts &projects, UnsavedFiles &unsaved
 {
 }
 
-void TranslationUnits::create(const QVector<FileContainer> &fileContainers)
+std::vector<TranslationUnit> TranslationUnits::create(const QVector<FileContainer> &fileContainers)
 {
     checkIfTranslationUnitsDoesNotExists(fileContainers);
 
+    std::vector<TranslationUnit> createdTranslationUnits;
+
     for (const FileContainer &fileContainer : fileContainers)
-        createTranslationUnit(fileContainer);
+        createdTranslationUnits.push_back(createTranslationUnit(fileContainer));
+
+    return createdTranslationUnits;
 }
 
 void TranslationUnits::update(const QVector<FileContainer> &fileContainers)
@@ -97,13 +104,13 @@ void TranslationUnits::remove(const QVector<FileContainer> &fileContainers)
     updateTranslationUnitsWithChangedDependencies(fileContainers);
 }
 
-void TranslationUnits::setCurrentEditor(const Utf8String &filePath)
+void TranslationUnits::setUsedByCurrentEditor(const Utf8String &filePath)
 {
     for (TranslationUnit &translationUnit : translationUnits_)
         translationUnit.setIsUsedByCurrentEditor(translationUnit.filePath() == filePath);
 }
 
-void TranslationUnits::setVisibleEditors(const Utf8StringVector &filePaths)
+void TranslationUnits::setVisibleInEditors(const Utf8StringVector &filePaths)
 {
     for (TranslationUnit &translationUnit : translationUnits_)
         translationUnit.setIsVisibleInEditor(filePaths.contains(translationUnit.filePath()));
@@ -163,62 +170,71 @@ void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const QVect
         updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
 }
 
-DiagnosticSendState TranslationUnits::sendChangedDiagnostics()
+DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotations()
 {
-    auto diagnosticSendState = sendChangedDiagnosticsForCurrentEditor();
-    if (diagnosticSendState == DiagnosticSendState::NoDiagnosticSend)
-        diagnosticSendState = sendChangedDiagnosticsForVisibleEditors();
-    if (diagnosticSendState == DiagnosticSendState::NoDiagnosticSend)
-        diagnosticSendState = sendChangedDiagnosticsForAll();
+    auto documentAnnotationsSendState = sendDocumentAnnotationsForCurrentEditor();
+    if (documentAnnotationsSendState == DocumentAnnotationsSendState::NoDocumentAnnotationsSent)
+        documentAnnotationsSendState = sendDocumentAnnotationsForVisibleEditors();
 
-    return diagnosticSendState;
+    return documentAnnotationsSendState;
 }
 
 template<class Predicate>
-DiagnosticSendState TranslationUnits::sendChangedDiagnostics(Predicate predicate)
+DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotations(Predicate predicate)
 {
     auto foundTranslationUnit = std::find_if(translationUnits_.begin(),
                                              translationUnits_.end(),
                                              predicate);
 
     if (foundTranslationUnit != translationUnits().end()) {
-        sendDiagnosticChangedMessage(*foundTranslationUnit);
-        return DiagnosticSendState::MaybeThereAreMoreDiagnostics;
+        sendDocumentAnnotations(*foundTranslationUnit);
+        return DocumentAnnotationsSendState::MaybeThereAreDocumentAnnotations;
     }
 
-    return DiagnosticSendState::NoDiagnosticSend;
+    return DocumentAnnotationsSendState::NoDocumentAnnotationsSent;
 }
 
-DiagnosticSendState TranslationUnits::sendChangedDiagnosticsForCurrentEditor()
+namespace {
+
+bool translationUnitHasNewDocumentAnnotations(const TranslationUnit &translationUnit)
 {
-    auto hasDiagnosticsForCurrentEditor = [] (const TranslationUnit &translationUnit) {
-        return translationUnit.isUsedByCurrentEditor() && translationUnit.hasNewDiagnostics();
+    return translationUnit.hasNewDiagnostics() || translationUnit.hasNewHighlightingInformations();
+}
+
+}
+
+DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotationsForCurrentEditor()
+{
+    auto hasDocumentAnnotationsForCurrentEditor = [] (const TranslationUnit &translationUnit) {
+        return translationUnit.isUsedByCurrentEditor()
+            && translationUnitHasNewDocumentAnnotations(translationUnit);
     };
 
-    return sendChangedDiagnostics(hasDiagnosticsForCurrentEditor);
+    return sendDocumentAnnotations(hasDocumentAnnotationsForCurrentEditor);
 }
 
-DiagnosticSendState TranslationUnits::sendChangedDiagnosticsForVisibleEditors()
+DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotationsForVisibleEditors()
 {
-    auto hasDiagnosticsForVisibleEditor = [] (const TranslationUnit &translationUnit) {
-        return translationUnit.isVisibleInEditor() && translationUnit.hasNewDiagnostics();
+    auto hasDocumentAnnotationsForVisibleEditor = [] (const TranslationUnit &translationUnit) {
+        return translationUnit.isVisibleInEditor()
+            && translationUnitHasNewDocumentAnnotations(translationUnit);
     };
 
-    return sendChangedDiagnostics(hasDiagnosticsForVisibleEditor);
+    return sendDocumentAnnotations(hasDocumentAnnotationsForVisibleEditor);
 }
 
-DiagnosticSendState TranslationUnits::sendChangedDiagnosticsForAll()
+DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotationsForAll()
 {
-    auto hasDiagnostics = [] (const TranslationUnit &translationUnit) {
-        return translationUnit.hasNewDiagnostics();
+    auto hasDocumentAnnotations = [] (const TranslationUnit &translationUnit) {
+        return translationUnitHasNewDocumentAnnotations(translationUnit);
     };
 
-    return sendChangedDiagnostics(hasDiagnostics);
+    return sendDocumentAnnotations(hasDocumentAnnotations);
 }
 
-void TranslationUnits::setSendChangeDiagnosticsCallback(std::function<void(const DiagnosticsChangedMessage &)> &&callback)
+void TranslationUnits::setSendDocumentAnnotationsCallback(SendDocumentAnnotationsCallback &&callback)
 {
-    sendDiagnosticsChangedCallback = std::move(callback);
+    sendDocumentAnnotationsCallback = std::move(callback);
 }
 
 QVector<FileContainer> TranslationUnits::newerFileContainers(const QVector<FileContainer> &fileContainers) const
@@ -246,18 +262,19 @@ const ClangFileSystemWatcher *TranslationUnits::clangFileSystemWatcher() const
     return &fileSystemWatcher;
 }
 
-void TranslationUnits::createTranslationUnit(const FileContainer &fileContainer)
+TranslationUnit TranslationUnits::createTranslationUnit(const FileContainer &fileContainer)
 {
     TranslationUnit::FileExistsCheck checkIfFileExists = fileContainer.hasUnsavedFileContent() ? TranslationUnit::DoNotCheckIfFileExists : TranslationUnit::CheckIfFileExists;
-    auto findIterator = findTranslationUnit(fileContainer);
-    if (findIterator == translationUnits_.end()) {
-        translationUnits_.push_back(TranslationUnit(fileContainer.filePath(),
-                                                    projectParts.project(fileContainer.projectPartId()),
-                                                    fileContainer.fileArguments(),
-                                                    *this,
-                                                    checkIfFileExists));
-        translationUnits_.back().setDocumentRevision(fileContainer.documentRevision());
-    }
+
+    translationUnits_.emplace_back(fileContainer.filePath(),
+                                   projectParts.project(fileContainer.projectPartId()),
+                                   fileContainer.fileArguments(),
+                                   *this,
+                                   checkIfFileExists);
+
+    translationUnits_.back().setDocumentRevision(fileContainer.documentRevision());
+
+    return translationUnits_.back();
 }
 
 void TranslationUnits::updateTranslationUnit(const FileContainer &fileContainer)
@@ -340,13 +357,18 @@ void TranslationUnits::checkIfTranslationUnitsForFilePathsDoesExists(const QVect
     }
 }
 
-void TranslationUnits::sendDiagnosticChangedMessage(const TranslationUnit &translationUnit)
+void TranslationUnits::sendDocumentAnnotations(const TranslationUnit &translationUnit)
 {
-    if (sendDiagnosticsChangedCallback) {
-        DiagnosticsChangedMessage message(translationUnit.fileContainer(),
-                                          translationUnit.mainFileDiagnostics());
+    if (sendDocumentAnnotationsCallback) {
+        const auto fileContainer = translationUnit.fileContainer();
+        DiagnosticsChangedMessage diagnosticsMessage(fileContainer,
+                                                     translationUnit.mainFileDiagnostics());
+        HighlightingChangedMessage highlightingsMessage(fileContainer,
+                                                        translationUnit.highlightingInformations().toHighlightingMarksContainers(),
+                                                        translationUnit.skippedSourceRanges().toSourceRangeContainers());
 
-        sendDiagnosticsChangedCallback(std::move(message));
+        sendDocumentAnnotationsCallback(std::move(diagnosticsMessage),
+                                               std::move(highlightingsMessage));
     }
 }
 

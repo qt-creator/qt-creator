@@ -37,7 +37,7 @@
 #include <sourcerange.h>
 #include <highlightinginformation.h>
 #include <highlightinginformations.h>
-#include <translationunit.h>
+#include <clangtranslationunit.h>
 #include <translationunits.h>
 #include <unsavedfiles.h>
 
@@ -142,6 +142,14 @@ TEST_F(HighlightingInformations, IteratorBeginEnd)
     const auto endIterator = std::next(infos.begin(), infos.size());
 
     ASSERT_THAT(infos.end(), endIterator);
+}
+
+TEST_F(HighlightingInformations, ForFullTranslationUnitRange)
+{
+    const auto infos = translationUnit.highlightingInformations();
+
+    ASSERT_THAT(infos, AllOf(Contains(IsHighlightingInformation(1u, 1u, 4u, HighlightingType::Keyword)),
+                             Contains(IsHighlightingInformation(277u, 5u, 15u, HighlightingType::Function))));
 }
 
 TEST_F(HighlightingInformations, Size)

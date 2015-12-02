@@ -45,9 +45,6 @@ public:
 
     virtual bool isCorrective() const;
     virtual void makeCorrection(TextEditor::TextEditorWidget *editorWidget);
-
-private:
-    bool m_replaceDotForArrow;
 };
 
 } // namespace Internal

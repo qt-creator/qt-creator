@@ -30,7 +30,7 @@
 
 #include "clangassistproposalitem.h"
 
-#include "completionchunkstotextconverter.h"
+#include "clangcompletionchunkstotextconverter.h"
 
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/Token.h>

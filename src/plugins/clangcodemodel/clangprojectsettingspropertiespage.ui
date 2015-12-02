@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>ClangCodeModel::Internal::ClangProjectSettingsPropertiesPage</class>
  <widget class="QWidget" name="ClangCodeModel::Internal::ClangProjectSettingsPropertiesPage">
+  <property name="enabled">
+   <bool>false</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -31,8 +31,6 @@
 #ifndef CLANGPROJECTSETTINGS_H
 #define CLANGPROJECTSETTINGS_H
 
-#include "clang_global.h"
-
 #include <projectexplorer/project.h>
 
 #include <QObject>
@@ -40,7 +38,7 @@
 
 namespace ClangCodeModel {
 
-class CLANG_EXPORT ClangProjectSettings: public QObject
+class ClangProjectSettings: public QObject
 {
     Q_OBJECT
 

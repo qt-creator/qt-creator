@@ -31,11 +31,7 @@
 #ifndef CLANGEDITORDOCUMENTPARSER_H
 #define CLANGEDITORDOCUMENTPARSER_H
 
-#include "semanticmarker.h"
-
 #include <cpptools/baseeditordocumentparser.h>
-
-namespace CppTools { class WorkingCopy; }
 
 namespace ClangCodeModel {
 
@@ -46,17 +42,8 @@ class ClangEditorDocumentParser : public CppTools::BaseEditorDocumentParser
 public:
     ClangEditorDocumentParser(const QString &filePath);
 
-    QList<Diagnostic> diagnostics() const;
-    QList<SemanticMarker::Range> ifdefedOutBlocks() const;
-    SemanticMarker::Ptr semanticMarker() const;
-
-signals:
-    void projectPartDetermined(CppTools::ProjectPart::Ptr projectPart);
-
 private:
-    void updateHelper(const BaseEditorDocumentParser::InMemoryInfo &info) override;
-
-    SemanticMarker::Ptr m_marker;
+    void updateHelper(const BaseEditorDocumentParser::InMemoryInfo &) override;
 };
 
 } // namespace ClangCodeModel

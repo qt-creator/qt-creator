@@ -82,11 +82,11 @@ protected:
     FixItContainer semicolonFixItContainer{Utf8StringLiteral(";"),
                                   {{filePath, 3u, 29u},
                                    {filePath, 3u, 29u}}};
-    QString semicolonErrorFile{QStringLiteral(TESTDATA_DIR"/diagnostic_semicolon_fixit.cpp")};
-    QString semicolonExpectedFile{QStringLiteral(TESTDATA_DIR"/diagnostic_semicolon_fixit_expected.cpp")};
-    QString compareWarningFile{QStringLiteral(TESTDATA_DIR"/diagnostic_comparison_fixit.cpp")};
-    QString compareExpected1File{QStringLiteral(TESTDATA_DIR"/diagnostic_comparison_fixit_expected1.cpp")};
-    QString compareExpected2File{QStringLiteral(TESTDATA_DIR"/diagnostic_comparison_fixit_expected2.cpp")};
+    QString semicolonErrorFile{QString::fromUtf8(TESTDATA_DIR "/diagnostic_semicolon_fixit.cpp")};
+    QString semicolonExpectedFile{QString::fromUtf8(TESTDATA_DIR"/diagnostic_semicolon_fixit_expected.cpp")};
+    QString compareWarningFile{QString::fromUtf8(TESTDATA_DIR"/diagnostic_comparison_fixit.cpp")};
+    QString compareExpected1File{QString::fromUtf8(TESTDATA_DIR"/diagnostic_comparison_fixit_expected1.cpp")};
+    QString compareExpected2File{QString::fromUtf8(TESTDATA_DIR"/diagnostic_comparison_fixit_expected2.cpp")};
     FixItContainer compareFixItContainer{Utf8StringLiteral("=="),
                                   {{filePath, 4u, 43u},
                                    {filePath, 4u, 44u}}};

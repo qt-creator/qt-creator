@@ -47,9 +47,11 @@
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
 #include <diagnosticschangedmessage.h>
+#include <highlightingchangedmessage.h>
 #include <readmessageblock.h>
 #include <registerunsavedfilesforeditormessage.h>
 #include <requestdiagnosticsmessage.h>
+#include <requesthighlightingmessage.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>
@@ -88,7 +90,8 @@ protected:
     void scheduleClientMessages();
 
 protected:
-    ClangBackEnd::FileContainer fileContainer{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"),
+    Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp")};
+    ClangBackEnd::FileContainer fileContainer{filePath,
                                               Utf8StringLiteral("projectPartId"),
                                               Utf8StringLiteral("unsaved content"),
                                               true,
@@ -121,7 +124,9 @@ TEST_F(ClientServerInProcess, SendAliveMessage)
 
 TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForEditorMessage)
 {
-    ClangBackEnd::RegisterTranslationUnitForEditorMessage message({fileContainer});
+    ClangBackEnd::RegisterTranslationUnitForEditorMessage message({fileContainer},
+                                                                  filePath,
+                                                                  {filePath});
 
     EXPECT_CALL(mockIpcServer, registerTranslationUnitsForEditor(message))
         .Times(1);
@@ -197,6 +202,17 @@ TEST_F(ClientServerInProcess, SendRequestDiagnosticsMessage)
     scheduleServerMessages();
 }
 
+TEST_F(ClientServerInProcess, SendRequestHighlightingMessage)
+{
+    ClangBackEnd::RequestHighlightingMessage message({Utf8StringLiteral("foo.cpp"),
+                                                     Utf8StringLiteral("projectId")});
+
+    EXPECT_CALL(mockIpcServer, requestHighlighting(message))
+        .Times(1);
+
+    serverProxy.requestHighlighting(message);
+    scheduleServerMessages();
+}
 
 TEST_F(ClientServerInProcess, SendCodeCompletedMessage)
 {
@@ -286,6 +302,21 @@ TEST_F(ClientServerInProcess, SendDiagnosticsChangedMessage)
         .Times(1);
 
     clientProxy.diagnosticsChanged(message);
+    scheduleClientMessages();
+}
+
+TEST_F(ClientServerInProcess, SendHighlightingChangedMessage)
+{
+    ClangBackEnd::HighlightingMarkContainer container(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
+
+    ClangBackEnd::HighlightingChangedMessage message(fileContainer,
+                                                     {container},
+                                                     QVector<SourceRangeContainer>());
+
+    EXPECT_CALL(mockIpcClient, highlightingChanged(message))
+        .Times(1);
+
+    clientProxy.highlightingChanged(message);
     scheduleClientMessages();
 }
 

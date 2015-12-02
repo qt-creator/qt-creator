@@ -30,6 +30,10 @@
 
 #include "highlightinginformations.h"
 
+#include "highlightingmarkcontainer.h"
+
+#include <QVector>
+
 namespace ClangBackEnd {
 
 HighlightingInformations::HighlightingInformations(CXTranslationUnit cxTranslationUnit, CXToken *tokens, uint tokensCount)
@@ -54,6 +58,20 @@ HighlightingInformations::const_iterator HighlightingInformations::begin() const
 HighlightingInformations::const_iterator HighlightingInformations::end() const
 {
     return const_iterator(cxCursor.cend(), cxToken + cxTokenCount, cxTranslationUnit);
+}
+
+QVector<HighlightingMarkContainer> HighlightingInformations::toHighlightingMarksContainers() const
+{
+    QVector<HighlightingMarkContainer> containers;
+    containers.reserve(size());
+
+    const auto isValidHighlightMark = [] (const HighlightingInformation &highlightMark) {
+        return !highlightMark.hasType(HighlightingType::Invalid);
+    };
+
+    std::copy_if(begin(), end(), std::back_inserter(containers), isValidHighlightMark);
+
+    return containers;
 }
 
 bool HighlightingInformations::isEmpty() const

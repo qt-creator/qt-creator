@@ -29,111 +29,22 @@
 ****************************************************************************/
 
 #include "clangeditordocumentparser.h"
-#include "clangutils.h"
-#include "pchinfo.h"
-#include "pchmanager.h"
-
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppprojects.h>
-#include <cpptools/cppworkingcopy.h>
-
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
-
-#include <QLoggingCategory>
-
-static Q_LOGGING_CATEGORY(log, "qtc.clangcodemodel.clangeditordocumentparser")
-
-namespace {
-
-QStringList createOptions(const QString &filePath,
-                          const CppTools::ProjectPart::Ptr &part,
-                          bool includeSpellCheck = false)
-{
-    using namespace ClangCodeModel;
-
-    QStringList options;
-    if (part.isNull())
-        return options;
-
-    if (includeSpellCheck)
-        options += QLatin1String("-fspell-checking");
-
-    options += ClangCodeModel::Utils::createClangOptions(part, filePath);
-
-    if (Internal::PchInfo::Ptr pchInfo = Internal::PchManager::instance()->pchInfo(part))
-        options.append(ClangCodeModel::Utils::createPCHInclusionOptions(pchInfo->fileName()));
-
-    return options;
-}
-
-QString messageLine(const QStringList &options, const QString &fileName)
-{
-    const QStringList allOptions = QStringList(options)
-        << QLatin1String("-fsyntax-only") << fileName;
-    QStringList allOptionsQuoted;
-    foreach (const QString &option, allOptions)
-        allOptionsQuoted.append(QLatin1Char('\'') + option + QLatin1Char('\''));
-    return ::Utils::HostOsInfo::withExecutableSuffix(QLatin1String("clang"))
-        + QLatin1Char(' ') + allOptionsQuoted.join(QLatin1Char(' '));
-}
-
-} // anonymous namespace
 
 namespace ClangCodeModel {
 
 ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
     : BaseEditorDocumentParser(filePath)
-    , m_marker(new ClangCodeModel::SemanticMarker)
 {
     BaseEditorDocumentParser::Configuration config = configuration();
     config.stickToPreviousProjectPart = false;
     setConfiguration(config);
 }
 
-void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &info)
+void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &)
 {
-    QTC_ASSERT(m_marker, return);
-
-    // Determine project part
     State state_ = state();
     state_.projectPart = determineProjectPart(filePath(), configuration(), state_);
     setState(state_);
-    emit projectPartDetermined(state_.projectPart);
-
-    // Determine message line arguments
-    const QStringList options = createOptions(filePath(), state_.projectPart, true);
-    qCDebug(log, "Reparse options (cmd line equivalent): %s",
-           messageLine(options, filePath()).toUtf8().constData());
-
-    // Run
-    QTime t; t.start();
-    QMutexLocker lock(m_marker->mutex());
-    m_marker->setFileName(filePath());
-    m_marker->setCompilationOptions(options);
-    const Internal::UnsavedFiles unsavedFiles = Utils::createUnsavedFiles(info.workingCopy,
-                                                                          info.modifiedFiles);
-    m_marker->reparse(unsavedFiles);
-    qCDebug(log) << "Reparse took" << t.elapsed() << "ms.";
-}
-
-QList<Diagnostic> ClangEditorDocumentParser::diagnostics() const
-{
-    QTC_ASSERT(m_marker, return QList<Diagnostic>());
-    QMutexLocker(m_marker->mutex());
-    return m_marker->diagnostics();
-}
-
-QList<SemanticMarker::Range> ClangEditorDocumentParser::ifdefedOutBlocks() const
-{
-    QTC_ASSERT(m_marker, return QList<SemanticMarker::Range>());
-    QMutexLocker(m_marker->mutex());
-    return m_marker->ifdefedOutBlocks();
-}
-
-SemanticMarker::Ptr ClangEditorDocumentParser::semanticMarker() const
-{
-    return m_marker;
 }
 
 } // namespace ClangCodeModel

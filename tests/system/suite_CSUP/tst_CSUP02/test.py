@@ -38,11 +38,8 @@ def main():
     # create qt quick application
 # Step 1: Open test .pro project.
     createNewQtQuickApplication(tempDir(), "SampleApp")
-    models = iterateAvailableCodeModels()
-    for current in models:
-        if current != models[0]:
-            selectCodeModel(current)
-        test.log("Testing code model: %s" % current)
+    for useClang in set([False, clangLoaded]):
+        selectClangCodeModel(clangLoaded, useClang)
 # Step 2: Open .cpp file in Edit mode.
         if not openDocument("SampleApp.Sources.main\\.cpp"):
             test.fatal("Could not open main.cpp")

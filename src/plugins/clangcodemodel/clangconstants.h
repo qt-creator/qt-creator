@@ -28,16 +28,17 @@
 **
 ****************************************************************************/
 
-#ifndef CLANG_GLOBAL_H
-#define CLANG_GLOBAL_H
+#ifndef CLANGCONSTANTS_H
+#define CLANGCONSTANTS_H
 
-#include <qglobal.h>
+namespace ClangCodeModel {
+namespace Constants {
 
-#if defined(CLANGCODEMODEL_LIBRARY)
-#  define CLANG_EXPORT Q_DECL_EXPORT
-#else
-#  define CLANG_EXPORT Q_DECL_IMPORT
-#endif
+const char CLANG_MODELMANAGERSUPPORT_ID[] = "ClangCodeModel.ClangCodeModel";
+const char CLANG_ERROR[] = "Clang.Error";
+const char CLANG_WARNING[] = "Clang.Warning";
 
+} // namespace Constants
+} // namespace ClangCodeModel
 
-#endif // CLANG_GLOBAL_H
+#endif // CLANGCONSTANTS_H

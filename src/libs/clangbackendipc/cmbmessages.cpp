@@ -43,6 +43,9 @@
 #include "diagnosticschangedmessage.h"
 #include "registerunsavedfilesforeditormessage.h"
 #include "requestdiagnosticsmessage.h"
+#include "requesthighlightingmessage.h"
+#include "highlightingchangedmessage.h"
+#include "highlightingmarkcontainer.h"
 #include "projectpartsdonotexistmessage.h"
 #include "sourcelocationcontainer.h"
 #include "sourcerangecontainer.h"
@@ -83,6 +86,9 @@ void Messages::registerMessages()
     registerMetaType<RequestDiagnosticsMessage>();
     registerMetaType<DiagnosticsChangedMessage>();
 
+    registerMetaType<RequestHighlightingMessage>();
+    registerMetaType<HighlightingChangedMessage>();
+
     registerMetaType<UpdateVisibleTranslationUnitsMessage>();
 
     registerMetaType<CompleteCodeMessage>();
@@ -94,6 +100,7 @@ void Messages::registerMessages()
 
     // Containers
     registerMetaType<DiagnosticContainer>();
+    registerMetaType<HighlightingMarkContainer>();
     registerMetaType<FileContainer>();
     registerMetaType<ProjectPartContainer>();
     registerMetaType<SourceLocationContainer>();

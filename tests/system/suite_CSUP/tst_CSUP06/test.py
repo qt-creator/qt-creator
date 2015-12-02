@@ -165,23 +165,21 @@ def main():
     templateDir = prepareTemplate(examplePath)
     examplePath = os.path.join(templateDir, "cplusplus-tools.pro")
     openQmakeProject(examplePath, Targets.DESKTOP_531_DEFAULT)
-    models = iterateAvailableCodeModels()
-    test.compare(len(models), 1 + clangLoaded, "Verifying number of available code models")
-    test.compare("Qt Creator Built-in", models[0],
-                 "Verifying whether default is Qt Creator's builtin code model")
-    test.compare("Clang" in models, clangLoaded,
-                 "Verifying whether clang code model can be chosen.")
-    for current in models:
-        if current != models[0]:
-            selectCodeModel(current)
-        test.log("Testing code model: %s" % current)
+    __openCodeModelOptions__()
+    clangSettingsGroupBox = findObject(":clangSettingsGroupBox_QGroupBox")
+    test.compare(clangSettingsGroupBox.enabled, clangLoaded, "Verifying number of available code models")
+    test.verify(not clangSettingsGroupBox.checked,
+                "Verifying whether default is Qt Creator's builtin code model")
+    clickButton(waitForObject(":Options.Cancel_QPushButton"))
+    for useClang in set([False, clangLoaded]):
+        selectClangCodeModel(clangLoaded, useClang)
         if not openDocument("cplusplus-tools.Sources.main\\.cpp"):
             earlyExit("Failed to open main.cpp.")
             return
         editor = getEditorForFileSuffix("main.cpp")
         if editor:
             checkIncludeCompletion(editor)
-            checkSymbolCompletion(editor, current == "Clang")
+            checkSymbolCompletion(editor, useClang)
             invokeMenuItem('File', 'Revert "main.cpp" to Saved')
             clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
         snooze(1)   # 'Close "main.cpp"' might still be disabled

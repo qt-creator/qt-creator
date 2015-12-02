@@ -31,8 +31,11 @@
 #include "mockipclient.h"
 
 #include <clangipcserver.h>
+#include <highlightingchangedmessage.h>
+#include <highlightingmarkcontainer.h>
 #include <ipcclientproxy.h>
 #include <ipcserverproxy.h>
+#include <requesthighlightingmessage.h>
 #include <translationunitdoesnotexistexception.h>
 #include <translationunitparseerrorexception.h>
 
@@ -43,6 +46,7 @@
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
+#include <highlightingchangedmessage.h>
 #include <diagnosticschangedmessage.h>
 #include <projectpartsdonotexistmessage.h>
 #include <translationunitdoesnotexistmessage.h>
@@ -62,6 +66,7 @@ using testing::Contains;
 using testing::Not;
 using testing::Eq;
 using testing::PrintToString;
+using testing::_;
 
 namespace {
 
@@ -78,6 +83,9 @@ using ClangBackEnd::TranslationUnitDoesNotExistMessage;
 using ClangBackEnd::ProjectPartsDoNotExistMessage;
 using ClangBackEnd::UpdateTranslationUnitsForEditorMessage;
 using ClangBackEnd::UpdateVisibleTranslationUnitsMessage;
+using ClangBackEnd::RequestHighlightingMessage;
+using ClangBackEnd::HighlightingChangedMessage;
+using ClangBackEnd::HighlightingMarkContainer;
 
 MATCHER_P5(HasDirtyTranslationUnit,
            filePath,
@@ -166,6 +174,18 @@ TEST_F(ClangIpcServer, GetCodeCompletion)
         .Times(1);
 
     clangServer.completeCode(completeCodeMessage);
+}
+
+TEST_F(ClangIpcServer, RequestHighlighting)
+{
+    RequestHighlightingMessage requestHighlightingMessage({variableTestFilePath, projectPartId});
+
+    HighlightingMarkContainer highlightingMarkContainer(1, 6, 8, ClangBackEnd::HighlightingType::Function);
+
+    EXPECT_CALL(mockIpcClient, highlightingChanged(Property(&HighlightingChangedMessage::highlightingMarks, Contains(highlightingMarkContainer))))
+        .Times(1);
+
+    clangServer.requestHighlighting(requestHighlightingMessage);
 }
 
 TEST_F(ClangIpcServer, GetCodeCompletionDependingOnArgumets)
@@ -312,7 +332,9 @@ TEST_F(ClangIpcServer, GetProjectPartDoesNotExistUnregisterProjectPartInexisting
 TEST_F(ClangIpcServer, GetProjectPartDoesNotExistRegisterTranslationUnitWithInexistingProjectPart)
 {
     Utf8String inexistingProjectPartFilePath = Utf8StringLiteral("projectpartsdoesnotexist.pro");
-    RegisterTranslationUnitForEditorMessage registerFileForEditorMessage({FileContainer(variableTestFilePath, inexistingProjectPartFilePath)});
+    RegisterTranslationUnitForEditorMessage registerFileForEditorMessage({FileContainer(variableTestFilePath, inexistingProjectPartFilePath)},
+                                                                         variableTestFilePath,
+                                                                         {variableTestFilePath});
     ProjectPartsDoNotExistMessage projectPartsDoNotExistMessage({inexistingProjectPartFilePath});
 
     EXPECT_CALL(mockIpcClient, projectPartsDoNotExist(projectPartsDoNotExistMessage))
@@ -378,9 +400,9 @@ TEST_F(ClangIpcServer, TicketNumberIsForwarded)
     clangServer.completeCode(completeCodeMessage);
 }
 
-TEST_F(ClangIpcServer, TranslationUnitAfterCreationNeedsNoReparseAndHasNewDiagnostics)
+TEST_F(ClangIpcServer, TranslationUnitAfterCreationNeedsNoReparseAndHasNoNewDiagnostics)
 {
-    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(functionTestFilePath, projectPartId, 0U, false, true));
+    ASSERT_THAT(clangServer, HasDirtyTranslationUnit(functionTestFilePath, projectPartId, 0U, false, false));
 }
 
 TEST_F(ClangIpcServer, SetCurrentAndVisibleEditor)
@@ -419,7 +441,12 @@ void ClangIpcServer::SetUp()
 void ClangIpcServer::registerFiles()
 {
     RegisterTranslationUnitForEditorMessage message({FileContainer(functionTestFilePath, projectPartId, unsavedContent(unsavedTestFilePath), true),
-                                                     FileContainer(variableTestFilePath, projectPartId)});
+                                                     FileContainer(variableTestFilePath, projectPartId)},
+                                                    functionTestFilePath,
+                                                    {functionTestFilePath, variableTestFilePath});
+
+    EXPECT_CALL(mockIpcClient, diagnosticsChanged(_)).Times(2);
+    EXPECT_CALL(mockIpcClient, highlightingChanged(_)).Times(2);
 
     clangServer.registerTranslationUnitsForEditor(message);
 }

@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "type.h"
+#include "clangtype.h"
 
 #include "clangstring.h"
 #include "cursor.h"

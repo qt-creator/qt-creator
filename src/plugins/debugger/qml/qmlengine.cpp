@@ -354,10 +354,8 @@ void QmlEngine::tryToConnect(quint16 port)
     if (state() == EngineRunRequested) {
         if (isSlaveEngine()) {
             // Probably cpp is being debugged and hence we did not get the output yet.
-            if (!masterEngine()->isDying()) {
-                d->noDebugOutputTimer.setInterval(4000);
-                d->noDebugOutputTimer.start();
-            }
+            if (!masterEngine()->isDying())
+                beginConnection(port);
             else
                 appStartupFailed(tr("No application output received in time"));
         } else {

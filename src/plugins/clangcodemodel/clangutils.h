@@ -31,10 +31,7 @@
 #ifndef CPPTOOLS_CLANGUTILS_H
 #define CPPTOOLS_CLANGUTILS_H
 
-#include "clang_global.h"
-#include "utils.h"
-
-#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cppprojects.h>
 
 #include <QLoggingCategory>
 
@@ -42,10 +39,6 @@ namespace ClangCodeModel {
 namespace Utils {
 
 Q_DECLARE_LOGGING_CATEGORY(verboseRunLog)
-
-ClangCodeModel::Internal::UnsavedFiles createUnsavedFiles(
-        const CppTools::WorkingCopy &workingCopy,
-        const ::Utils::FileNameList &modifiedFiles);
 
 QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
                                CppTools::ProjectFile::Kind fileKind);

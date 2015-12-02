@@ -46,7 +46,6 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <QtPlugin>
-#include <QDebug>
 
 #include <QMenu>
 

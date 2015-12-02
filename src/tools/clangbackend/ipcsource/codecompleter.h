@@ -31,7 +31,7 @@
 #ifndef CLANGBACKEND_CODECOMPLETER_H
 #define CLANGBACKEND_CODECOMPLETER_H
 
-#include "translationunit.h"
+#include "clangtranslationunit.h"
 
 #include <codecompletion.h>
 

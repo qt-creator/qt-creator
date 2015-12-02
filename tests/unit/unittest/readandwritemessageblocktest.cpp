@@ -37,7 +37,10 @@
 #include <cmbunregistertranslationunitsforeditormessage.h>
 #include <diagnosticcontainer.h>
 #include <diagnosticschangedmessage.h>
+#include <highlightingchangedmessage.h>
+#include <highlightingmarkcontainer.h>
 #include <requestdiagnosticsmessage.h>
+#include <requesthighlightingmessage.h>
 #include <readmessageblock.h>
 #include <sourcelocation.h>
 #include <registerunsavedfilesforeditormessage.h>
@@ -76,7 +79,8 @@ protected:
     void readPartialMessage();
 
 protected:
-    ClangBackEnd::FileContainer fileContainer{Utf8StringLiteral("foo.cpp"),
+    Utf8String filePath{Utf8StringLiteral("foo.cpp")};
+    ClangBackEnd::FileContainer fileContainer{filePath,
                                               Utf8StringLiteral("projectPartId"),
                                               Utf8StringLiteral("unsaved content"),
                                               true,
@@ -149,7 +153,7 @@ TEST_F(ReadAndWriteMessageBlock, CompareAliveMessage)
 
 TEST_F(ReadAndWriteMessageBlock, CompareRegisterTranslationUnitForEditorMessage)
 {
-    CompareMessage(ClangBackEnd::RegisterTranslationUnitForEditorMessage({fileContainer}));
+    CompareMessage(ClangBackEnd::RegisterTranslationUnitForEditorMessage({fileContainer}, filePath, {filePath}));
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareUpdateTranslationUnitForEditorMessage)
@@ -189,6 +193,15 @@ TEST_F(ReadAndWriteMessageBlock, CompareDiagnosticsChangedMessage)
                                                            {container}));
 }
 
+TEST_F(ReadAndWriteMessageBlock, CompareHighlightingChangedMessage)
+{
+    ClangBackEnd::HighlightingMarkContainer container(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
+
+    CompareMessage(ClangBackEnd::HighlightingChangedMessage(fileContainer,
+                                                            {container},
+                                                            QVector<ClangBackEnd::SourceRangeContainer>()));
+}
+
 TEST_F(ReadAndWriteMessageBlock, CompareRegisterUnsavedFilesForEditorMessage)
 {
     CompareMessage(ClangBackEnd::RegisterUnsavedFilesForEditorMessage({fileContainer}));
@@ -202,6 +215,11 @@ TEST_F(ReadAndWriteMessageBlock, CompareUnregisterUnsavedFilesForEditorMessage)
 TEST_F(ReadAndWriteMessageBlock, CompareRequestDiagnosticsMessage)
 {
     CompareMessage(ClangBackEnd::RequestDiagnosticsMessage(fileContainer));
+}
+
+TEST_F(ReadAndWriteMessageBlock, CompareRequestHighlightingMessage)
+{
+    CompareMessage(ClangBackEnd::RequestHighlightingMessage(fileContainer));
 }
 
 TEST_F(ReadAndWriteMessageBlock, GetInvalidMessageForAPartialBuffer)

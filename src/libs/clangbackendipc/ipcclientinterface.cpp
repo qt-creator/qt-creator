@@ -35,6 +35,7 @@
 #include "projectpartsdonotexistmessage.h"
 #include "translationunitdoesnotexistmessage.h"
 #include "diagnosticschangedmessage.h"
+#include "highlightingchangedmessage.h"
 
 #include <QDebug>
 #include <QVariant>
@@ -50,6 +51,7 @@ void IpcClientInterface::dispatch(const QVariant &message)
     static const int translationUnitDoesNotExistMessage = QMetaType::type("ClangBackEnd::TranslationUnitDoesNotExistMessage");
     static const int projectPartsDoNotExistMessage = QMetaType::type("ClangBackEnd::ProjectPartsDoNotExistMessage");
     static const int diagnosticsChangedMessage = QMetaType::type("ClangBackEnd::DiagnosticsChangedMessage");
+    static const int highlightingChangedMessage = QMetaType::type("ClangBackEnd::HighlightingChangedMessage");
 
     int type = message.userType();
 
@@ -65,6 +67,8 @@ void IpcClientInterface::dispatch(const QVariant &message)
         projectPartsDoNotExist(message.value<ProjectPartsDoNotExistMessage>());
     else if (type == diagnosticsChangedMessage)
         diagnosticsChanged(message.value<DiagnosticsChangedMessage>());
+    else if (type == highlightingChangedMessage)
+        highlightingChanged(message.value<HighlightingChangedMessage>());
     else
         qWarning() << "Unknown IpcClientMessage";
 }

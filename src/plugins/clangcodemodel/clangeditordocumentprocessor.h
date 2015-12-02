@@ -43,6 +43,7 @@
 
 namespace ClangBackEnd {
 class DiagnosticContainer;
+class HighlightingMarkContainer;
 class FileContainer;
 }
 
@@ -75,11 +76,14 @@ public:
 
     void updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                             uint documentRevision);
+    void updateHighlighting(const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks,
+                            const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
+                            uint documentRevision);
 
     TextEditor::QuickFixOperations
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface) override;
 
-    ClangBackEnd::FileContainer fileContainer() const;
+    ClangBackEnd::FileContainer fileContainerWithArguments() const;
 
     void clearDiagnosticsWithFixIts();
 
@@ -87,15 +91,15 @@ public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 
 private slots:
-    void onParserDeterminedProjectPart(CppTools::ProjectPart::Ptr projectPart);
     void onParserFinished();
 
 private:
-    void updateProjectPartAndTranslationUnitForEditor(CppTools::ProjectPart::Ptr projectPart);
-    void updateTranslationUnitForEditor(CppTools::ProjectPart *projectPart);
-    void requestDiagnostics(CppTools::ProjectPart *projectPart);
-    void requestDiagnostics();
-    ClangBackEnd::FileContainer fileContainer(CppTools::ProjectPart *projectPart) const;
+    void updateProjectPartAndTranslationUnitForEditor();
+    void registerTranslationUnitForEditor(CppTools::ProjectPart *projectPart);
+    void updateTranslationUnitIfProjectPartExists();
+    void requestDocumentAnnotations(const QString &projectpartId);
+    ClangBackEnd::FileContainer fileContainerWithArguments(CppTools::ProjectPart *projectPart) const;
+    ClangBackEnd::FileContainer fileContainerWithDocumentContent(const QString &projectpartId) const;
 
 private:
     ClangDiagnosticManager m_diagnosticManager;

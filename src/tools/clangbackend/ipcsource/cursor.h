@@ -31,7 +31,7 @@
 #ifndef CLANGBACKEND_CURSOR_H
 #define CLANGBACKEND_CURSOR_H
 
-#include "type.h"
+#include "clangtype.h"
 
 #include <clang-c/Index.h>
 

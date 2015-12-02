@@ -30,10 +30,8 @@
 
 #include "clangcodemodelplugin.h"
 
+#include "clangconstants.h"
 #include "clangprojectsettingspropertiespage.h"
-#include "constants.h"
-#include "pchmanager.h"
-#include "utils.h"
 
 #ifdef WITH_TESTS
 #  include "test/clangcodecompletion_test.h"
@@ -50,7 +48,9 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-static void initializeTextMarks()
+namespace {
+
+void initializeTextMarks()
 {
     TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_WARNING),
                                            Utils::Theme::ClangCodeModel_Warning_TextMarkColor);
@@ -58,10 +58,7 @@ static void initializeTextMarks()
                                            Utils::Theme::ClangCodeModel_Error_TextMarkColor);
 }
 
-ClangCodeModelPlugin::ClangCodeModelPlugin()
-{
-    qRegisterMetaType<CppTools::ProjectPart::Ptr>();
-}
+} // anonymous namespace
 
 bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
@@ -75,25 +72,8 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     panelFactory->setSimpleCreateWidgetFunction<ClangProjectSettingsWidget>(QIcon());
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
-    // Initialize Clang
-    ClangCodeModel::Internal::initializeClang();
-
-    // Set up Indexer
-    auto cppModelManager = CppTools::CppModelManager::instance();
-#ifdef CLANG_INDEXING
-    m_indexer.reset(new ClangIndexer);
-    cppModelManager->setIndexingSupport(m_indexer->indexingSupport());
-#endif // CLANG_INDEXING
-
-    // Set up PchManager
-    PchManager *pchManager = new PchManager(this);
-    ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::SessionManager::instance();
-    connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
-            pchManager, &PchManager::onAboutToRemoveProject);
-    connect(cppModelManager, &CppTools::CppModelManager::projectPartsUpdated,
-            pchManager, &PchManager::onProjectPartsUpdated);
-
     // Register ModelManagerSupportProvider
+    auto cppModelManager = CppTools::CppModelManager::instance();
     cppModelManager->setClangModelManagerSupportProvider(&m_modelManagerSupportProvider);
 
     initializeTextMarks();

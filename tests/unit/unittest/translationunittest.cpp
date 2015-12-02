@@ -30,12 +30,13 @@
 
 #include <commandlinearguments.h>
 #include <diagnosticset.h>
+#include <highlightinginformations.h>
 #include <filecontainer.h>
 #include <projectpart.h>
 #include <projects.h>
 #include <translationunitdoesnotexistexception.h>
 #include <translationunitfilenotexitexception.h>
-#include <translationunit.h>
+#include <clangtranslationunit.h>
 #include <translationunitisnullexception.h>
 #include <translationunitparseerrorexception.h>
 #include <translationunits.h>
@@ -194,18 +195,20 @@ TEST_F(TranslationUnit, DependedFilePaths)
                       Contains(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"))));
 }
 
+TEST_F(TranslationUnit, DeletedFileShouldNotNeedReparsing)
+{
+    auto translationUnit = createTemporaryTranslationUnit();
+
+    translationUnit.setDirtyIfDependencyIsMet(translationUnit.filePath());
+
+    ASSERT_FALSE(translationUnit.isNeedingReparse());
+}
+
 TEST_F(TranslationUnit, NeedsNoReparseAfterCreation)
 {
     translationUnit.cxTranslationUnit();
 
     ASSERT_FALSE(translationUnit.isNeedingReparse());
-}
-
-TEST_F(TranslationUnit, HasNewDiagnosticsAfterCreation)
-{
-    translationUnit.cxTranslationUnit();
-
-    ASSERT_TRUE(translationUnit.hasNewDiagnostics());
 }
 
 TEST_F(TranslationUnit, NeedsReparseAfterChangeOfMainFile)
@@ -215,15 +218,6 @@ TEST_F(TranslationUnit, NeedsReparseAfterChangeOfMainFile)
     translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
 
     ASSERT_TRUE(translationUnit.isNeedingReparse());
-}
-
-TEST_F(TranslationUnit, HasNewDiagnosticsAfterChangeOfMainFile)
-{
-    translationUnit.cxTranslationUnit();
-
-    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
-
-    ASSERT_TRUE(translationUnit.hasNewDiagnostics());
 }
 
 TEST_F(TranslationUnit, NoNeedForReparsingForIndependendFile)
@@ -244,15 +238,6 @@ TEST_F(TranslationUnit, NeedsReparsingForDependendFile)
     ASSERT_TRUE(translationUnit.isNeedingReparse());
 }
 
-TEST_F(TranslationUnit, NeedsReparsingForMainFile)
-{
-    translationUnit.cxTranslationUnit();
-
-    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
-
-    ASSERT_TRUE(translationUnit.isNeedingReparse());
-}
-
 TEST_F(TranslationUnit, NeedsNoReparsingAfterReparsing)
 {
     translationUnit.cxTranslationUnit();
@@ -261,6 +246,22 @@ TEST_F(TranslationUnit, NeedsNoReparsingAfterReparsing)
     translationUnit.cxTranslationUnit();
 
     ASSERT_FALSE(translationUnit.isNeedingReparse());
+}
+
+TEST_F(TranslationUnit, HasNewDiagnosticsAfterCreation)
+{
+    translationUnit.cxTranslationUnit();
+
+    ASSERT_TRUE(translationUnit.hasNewDiagnostics());
+}
+
+TEST_F(TranslationUnit, HasNewDiagnosticsAfterChangeOfMainFile)
+{
+    translationUnit.cxTranslationUnit();
+
+    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
+
+    ASSERT_TRUE(translationUnit.hasNewDiagnostics());
 }
 
 TEST_F(TranslationUnit, HasNoNewDiagnosticsForIndependendFile)
@@ -282,32 +283,59 @@ TEST_F(TranslationUnit, HasNewDiagnosticsForDependendFile)
     ASSERT_TRUE(translationUnit.hasNewDiagnostics());
 }
 
-TEST_F(TranslationUnit, HasNewDiagnosticsForMainFile)
-{
-    translationUnit.cxTranslationUnit();
-
-    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
-
-    ASSERT_TRUE(translationUnit.hasNewDiagnostics());
-}
-
 TEST_F(TranslationUnit, HasNoNewDiagnosticsAfterGettingDiagnostics)
 {
     translationUnit.cxTranslationUnit();
     translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
 
-    translationUnit.diagnostics();
+    translationUnit.diagnostics(); // Reset hasNewDiagnostics
 
     ASSERT_FALSE(translationUnit.hasNewDiagnostics());
 }
 
-TEST_F(TranslationUnit, DeletedFileShouldBeNotSetDirty)
+TEST_F(TranslationUnit, HasNewHighlightingInformationsAfterCreation)
 {
-    auto translationUnit = createTemporaryTranslationUnit();
+    translationUnit.cxTranslationUnit();
 
-    translationUnit.setDirtyIfDependencyIsMet(translationUnit.filePath());
+    ASSERT_TRUE(translationUnit.hasNewHighlightingInformations());
+}
 
-    ASSERT_FALSE(translationUnit.isNeedingReparse());
+TEST_F(TranslationUnit, HasNewHighlightingInformationsForMainFile)
+{
+    translationUnit.cxTranslationUnit();
+
+    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
+
+    ASSERT_TRUE(translationUnit.hasNewHighlightingInformations());
+}
+
+TEST_F(TranslationUnit, HasNoNewHighlightingInformationsForIndependendFile)
+{
+    translationUnit.cxTranslationUnit();
+    translationUnit.highlightingInformations();
+
+    translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/otherfiles.h"));
+
+    ASSERT_FALSE(translationUnit.hasNewHighlightingInformations());
+}
+
+TEST_F(TranslationUnit, HasNewHighlightingInformationsForDependendFile)
+{
+    translationUnit.cxTranslationUnit();
+
+    translationUnit.setDirtyIfDependencyIsMet(Utf8StringLiteral(TESTDATA_DIR"/translationunits.h"));
+
+    ASSERT_TRUE(translationUnit.hasNewHighlightingInformations());
+}
+
+TEST_F(TranslationUnit, HasNoNewHighlightingInformationsAfterGettingHighlightingInformations)
+{
+    translationUnit.cxTranslationUnit();
+    translationUnit.setDirtyIfDependencyIsMet(translationUnitFilePath);
+
+    translationUnit.highlightingInformations();
+
+    ASSERT_FALSE(translationUnit.hasNewHighlightingInformations());
 }
 
 ::TranslationUnit TranslationUnit::createTemporaryTranslationUnit()

@@ -32,6 +32,7 @@
 #define CLANGBACKEND_HIGHLIGHTINGINFORMATION_H
 
 #include <clangbackendipc_global.h>
+#include <highlightingmarkcontainer.h>
 
 #include "cursor.h"
 
@@ -52,6 +53,8 @@ public:
     bool hasFunctionArguments() const;
     QVector<HighlightingInformation> outputFunctionArguments() const;
 
+    operator HighlightingMarkContainer() const;
+
 private:
     HighlightingType identifierKind(const Cursor &cursor) const;
     HighlightingType referencedTypeKind(const Cursor &cursor) const;
@@ -71,7 +74,6 @@ private:
 };
 
 void PrintTo(const HighlightingInformation& highlightingInformation, ::std::ostream *os);
-void PrintTo(HighlightingType highlightingType, ::std::ostream *os);
 
 inline bool operator==(const HighlightingInformation &first, const HighlightingInformation &second)
 {

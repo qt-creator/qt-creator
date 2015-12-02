@@ -28,67 +28,41 @@
 **
 ****************************************************************************/
 
-#ifndef CPPCREATEMARKERS_H
-#define CPPCREATEMARKERS_H
+#ifndef TEXTEDITOR_SEMANTICHIGHLIGHTER_H
+#define TEXTEDITOR_SEMANTICHIGHLIGHTER_H
 
-#include "fastindexer.h"
-#include "sourcemarker.h"
-#include "semanticmarker.h"
-#include "pchinfo.h"
+namespace TextEditor {
 
-#include <texteditor/semantichighlighter.h>
-
-#include <QFuture>
-#include <QtConcurrentRun>
-
-namespace ClangCodeModel {
-
-class CreateMarkers:
-        public QObject,
-        public QRunnable,
-        public QFutureInterface<TextEditor::HighlightingResult>
-{
-    Q_OBJECT
-    Q_DISABLE_COPY(CreateMarkers)
-
+class HighlightingResult {
 public:
-    virtual ~CreateMarkers();
+    unsigned line;
+    unsigned column;
+    unsigned length;
+    int kind;
 
-    virtual void run();
+    bool isValid() const
+    { return line != 0; }
 
-    typedef TextEditor::HighlightingResult SourceMarker;
+    bool isInvalid() const
+    { return line == 0; }
 
-    typedef QFuture<SourceMarker> Future;
+    HighlightingResult()
+        : line(0), column(0), length(0), kind(0)
+    {}
 
-    Future start()
+    HighlightingResult(unsigned line, unsigned column, unsigned length, int kind)
+        : line(line), column(column), length(length), kind(kind)
+    {}
+
+    bool operator==(const HighlightingResult& other) const
     {
-        this->setRunnable(this);
-        this->reportStarted();
-        Future future = this->future();
-        QThreadPool::globalInstance()->start(this, QThread::LowestPriority);
-        return future;
+        return line == other.line
+                && column == other.column
+                && length == other.length
+                && kind == other.kind;
     }
-
-    static CreateMarkers *create(ClangCodeModel::SemanticMarker::Ptr semanticMarker,
-                                 const QString &fileName, unsigned firstLine, unsigned lastLine);
-
-    void addUse(const SourceMarker &marker);
-    void flush();
-
-protected:
-    CreateMarkers(ClangCodeModel::SemanticMarker::Ptr semanticMarker,
-                  const QString &fileName, unsigned firstLine, unsigned lastLine);
-
-private:
-    ClangCodeModel::SemanticMarker::Ptr m_marker;
-    QString m_fileName;
-    unsigned m_firstLine;
-    unsigned m_lastLine;
-    QVector<SourceMarker> m_usages;
-    bool m_flushRequested;
-    unsigned m_flushLine;
 };
 
-} // namespace ClangCodeModel
+} // namespace TextEditor
 
-#endif // CPPCREATEMARKERS_H
+#endif // TEXTEDITOR_SEMANTICHIGHLIGHTER_H

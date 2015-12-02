@@ -28,68 +28,36 @@
 **
 ****************************************************************************/
 
-#ifndef CLANG_SEMANTICMARKER_H
-#define CLANG_SEMANTICMARKER_H
+#ifndef CLANGBACKEND_CHUNKSREPORTEDMONITOR_H
+#define CLANGBACKEND_CHUNKSREPORTEDMONITOR_H
 
-#include "clang_global.h"
-#include "diagnostic.h"
-#include "fastindexer.h"
-#include "sourcemarker.h"
-#include "utils.h"
+#include <QObject>
+#include <QFuture>
+#include <QFutureWatcher>
 
-#include <QMutex>
-#include <QScopedPointer>
-#include <QSharedPointer>
-#include <QString>
-#include <QStringList>
+#include <texteditor/semantichighlighter.h>
 
-namespace ClangCodeModel {
+namespace ClangBackEnd {
 
-class CLANG_EXPORT SemanticMarker
+class ChunksReportedMonitor : public QObject
 {
-    Q_DISABLE_COPY(SemanticMarker)
+    Q_OBJECT
 
 public:
-    typedef QSharedPointer<SemanticMarker> Ptr;
+    ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future);
 
-    class Range
-    {
-        Range();
-    public:
-        Range(int first, int last) : first(first), last(last) {}
-
-        int first;
-        int last;
-    };
-
-public:
-    SemanticMarker();
-    ~SemanticMarker();
-
-    QMutex *mutex() const
-    { return &m_mutex; }
-
-    QString fileName() const;
-    void setFileName(const QString &fileName);
-
-    void setCompilationOptions(const QStringList &options);
-
-    void reparse(const Internal::UnsavedFiles &unsavedFiles);
-
-    QList<Diagnostic> diagnostics() const;
-
-    QList<Range> ifdefedOutBlocks() const;
-
-    QList<SourceMarker> sourceMarkersInRange(unsigned firstLine,
-                                             unsigned lastLine);
-
-    Internal::Unit::Ptr unit() const;
+    uint resultsReadyCounter();
 
 private:
-    mutable QMutex m_mutex;
-    Internal::Unit::Ptr m_unit;
+    bool waitUntilFinished(int timeoutInMs = 5000);
+    void onResultsReadyAt(int beginIndex, int endIndex);
+
+private:
+    QFuture<TextEditor::HighlightingResult> m_future;
+    QFutureWatcher<TextEditor::HighlightingResult> m_futureWatcher;
+    uint m_resultsReadyCounter = 0;
 };
 
-} // namespace ClangCodeModel
+} // namespace ClangBackEnd
 
-#endif // CLANG_SEMANTICMARKER_H
+#endif // CLANGBACKEND_CHUNKSREPORTEDMONITOR_H

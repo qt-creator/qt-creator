@@ -76,11 +76,14 @@ public:
     void deleteAndClearWaitingAssistProcessors();
     void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
 
+    bool isExpectingCodeCompletedMessage() const;
+
 private:
     void alive() override;
     void echo(const ClangBackEnd::EchoMessage &message) override;
     void codeCompleted(const ClangBackEnd::CodeCompletedMessage &message) override;
     void diagnosticsChanged(const ClangBackEnd::DiagnosticsChangedMessage &message) override;
+    void highlightingChanged(const ClangBackEnd::HighlightingChangedMessage &message) override;
 
     void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message) override;
     void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &message) override;
@@ -105,6 +108,8 @@ public:
     virtual void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) = 0;
     virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
     virtual void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) = 0;
+    virtual void requestHighlighting(const ClangBackEnd::RequestHighlightingMessage &message) = 0;
+    virtual void updateVisibleTranslationUnits(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message) = 0;
 };
 
 class IpcCommunicator : public QObject
@@ -126,6 +131,8 @@ public:
     void unregisterProjectPartsForEditor(const QStringList &projectPartIds);
     void registerUnsavedFilesForEditor(const FileContainers &fileContainers);
     void unregisterUnsavedFilesForEditor(const FileContainers &fileContainers);
+    void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
+    void requestHighlighting(const ClangBackEnd::FileContainer &fileContainer);
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,
                       quint32 line,
                       quint32 column,
@@ -140,11 +147,14 @@ public:
     void updateUnsavedFileFromCppEditorDocument(const QString &filePath);
     void updateTranslationUnit(const QString &filePath, const QByteArray &contents, uint documentRevision);
     void updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision);
-    void requestDiagnostics(const ClangBackEnd::FileContainer &fileContainer);
-    void requestDiagnostics(Core::IDocument *document);
+    void updateTranslationUnitWithRevisionCheck(const ClangBackEnd::FileContainer &fileContainer);
+    void updateTranslationUnitWithRevisionCheck(Core::IDocument *document);
     void updateChangeContentStartPosition(const QString &filePath, int position);
 
     void registerFallbackProjectPart();
+    void updateTranslationUnitVisiblity();
+
+    bool isNotWaitingForCompletion() const;
 
 public: // for tests
     IpcSenderInterface *setIpcSender(IpcSenderInterface *ipcSender);
@@ -159,12 +169,18 @@ private:
     void initializeBackend();
     void initializeBackendWithCurrentData();
     void registerCurrentProjectParts();
-    void registerCurrentCppEditorDocuments();
+    void restoreCppEditorDocuments();
+    void resetCppEditorDocumentProcessors();
+    void registerVisibleCppEditorDocumentAndMarkInvisibleDirty();
     void registerCurrentCodeModelUiHeaders();
+
 
     void onBackendRestarted();
     void onEditorAboutToClose(Core::IEditor *editor);
     void onCoreAboutToClose();
+
+    void updateTranslationUnitVisiblity(const Utf8String &currentEditorFilePath,
+                                        const Utf8StringVector &visibleEditorsFilePaths);
 
 private:
     IpcReceiver m_ipcReceiver;

@@ -33,13 +33,7 @@
 
 #include "clangmodelmanagersupport.h"
 
-#ifdef CLANG_INDEXING
-#  include "clangindexer.h"
-#endif // CLANG_INDEXING
-
 #include <extensionsystem/iplugin.h>
-
-#include <QScopedPointer>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -50,16 +44,11 @@ class ClangCodeModelPlugin: public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangCodeModel.json")
 
 public:
-    ClangCodeModelPlugin();
-
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
 private:
     ModelManagerSupportProviderClang m_modelManagerSupportProvider;
-#ifdef CLANG_INDEXING
-    QScopedPointer<ClangIndexer> m_indexer;
-#endif // CLANG_INDEXING
 
 #ifdef WITH_TESTS
     QList<QObject *> createTestObjects() const;

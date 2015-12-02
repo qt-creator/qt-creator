@@ -28,72 +28,51 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGINDEXER_H
-#define CLANGINDEXER_H
+#ifndef CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H
+#define CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H
 
-#include "fastindexer.h"
-
-#include <cpptools/cppindexingsupport.h>
-
+#include <QFutureInterface>
 #include <QObject>
+#include <QRunnable>
+#include <QThreadPool>
+
+#include <texteditor/semantichighlighter.h>
+
+#include <clangbackendipc/highlightingmarkcontainer.h>
 
 namespace ClangCodeModel {
 
-class Indexer;
-
-namespace Internal {
-
-typedef CppTools::CppModelManager::ProgressNotificationMode ProgressNotificationMode;
-class ClangIndexer;
-class ClangSymbolSearcher;
-
-class ClangIndexingSupport: public CppTools::CppIndexingSupport
-{
-public:
-    ClangIndexingSupport(ClangIndexer *indexer);
-    virtual ~ClangIndexingSupport();
-
-    virtual QFuture<void> refreshSourceFiles(
-            const QSet<QString> &sourceFiles,
-            ProgressNotificationMode mode);
-    virtual CppTools::SymbolSearcher *createSymbolSearcher(
-            CppTools::SymbolSearcher::Parameters parameters, QSet<QString> fileNames);
-
-private:
-    ClangIndexer *m_indexer;
-};
-
-class ClangIndexer: public QObject, public FastIndexer
+class HighlightingMarksReporter:
+        public QObject,
+        public QRunnable,
+        public QFutureInterface<TextEditor::HighlightingResult>
 {
     Q_OBJECT
 
 public:
-    ClangIndexer();
-    ~ClangIndexer();
+    HighlightingMarksReporter(const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks);
 
-    CppTools::CppIndexingSupport *indexingSupport();
+    void setChunkSize(int chunkSize);
 
-    QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles);
-
-    void match(ClangSymbolSearcher *searcher) const;
-
-    void indexNow(Unit::Ptr unit);
-
-public slots:
-    void onAboutToLoadSession(const QString &sessionName);
-    void onSessionLoaded(QString);
-    void onAboutToSaveSession();
-
-private slots:
-    void onIndexingStarted(QFuture<void> indexingFuture);
+    QFuture<TextEditor::HighlightingResult> start();
 
 private:
-    QScopedPointer<ClangIndexingSupport> m_indexingSupport;
-    bool m_isLoadingSession;
-    Indexer *m_clangIndexer;
+    void run() override;
+    void run_internal();
+
+    void reportChunkWise(const TextEditor::HighlightingResult &highlightingResult);
+    void reportAndClearCurrentChunks();
+
+private:
+    QVector<ClangBackEnd::HighlightingMarkContainer> m_highlightingMarks;
+    QVector<TextEditor::HighlightingResult> m_chunksToReport;
+
+    int m_chunkSize = 100;
+
+    bool m_flushRequested = false;
+    unsigned m_flushLine = 0;
 };
 
-} // namespace Internal
 } // namespace ClangCodeModel
 
-#endif // CLANGINDEXER_H
+#endif // CLANGCODEMODEL_HIGHLIGHTINGMARKSREPORTER_H

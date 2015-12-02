@@ -29,7 +29,7 @@
 ****************************************************************************/
 
 
-#include <activationsequencecontextprocessor.h>
+#include <clangactivationsequencecontextprocessor.h>
 
 #include <clangcodemodel/clangcompletionassistinterface.h>
 

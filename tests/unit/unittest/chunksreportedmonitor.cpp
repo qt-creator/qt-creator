@@ -28,15 +28,37 @@
 **
 ****************************************************************************/
 
-#include "sourcemarker.h"
+#include "chunksreportedmonitor.h"
 
-using namespace ClangCodeModel;
+#include <QSignalSpy>
 
-SourceMarker::SourceMarker()
-    : m_length(0), m_kind(Unknown)
-{}
+namespace ClangBackEnd {
 
-SourceMarker::SourceMarker(const SourceLocation &location, unsigned length, Kind kind)
-    : m_loc(location), m_length(length), m_kind(kind)
+ChunksReportedMonitor::ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future)
+    : m_future(future)
 {
+    m_futureWatcher.setFuture(future);
+    connect(&m_futureWatcher, &QFutureWatcher<TextEditor::HighlightingResult>::resultsReadyAt,
+            this, &ChunksReportedMonitor::onResultsReadyAt);
 }
+
+bool ChunksReportedMonitor::waitUntilFinished(int timeoutInMs)
+{
+    QSignalSpy spy(&m_futureWatcher, SIGNAL(finished()));
+    return spy.wait(timeoutInMs);
+}
+
+void ChunksReportedMonitor::onResultsReadyAt(int beginIndex, int endIndex)
+{
+    Q_UNUSED(beginIndex)
+    Q_UNUSED(endIndex)
+    ++m_resultsReadyCounter;
+}
+
+uint ChunksReportedMonitor::resultsReadyCounter()
+{
+    waitUntilFinished();
+    return m_resultsReadyCounter;
+}
+
+} // namespace ClangBackEnd

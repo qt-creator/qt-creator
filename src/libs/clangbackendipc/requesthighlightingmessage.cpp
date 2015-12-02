@@ -28,53 +28,62 @@
 **
 ****************************************************************************/
 
-#include "sourcelocation.h"
+#include "requesthighlightingmessage.h"
 
-using namespace ClangCodeModel;
+#include <QDataStream>
+#include <QDebug>
 
-SourceLocation::SourceLocation()
-    : m_line(0)
-    , m_column(0)
-    , m_offset(0)
-{}
+#include <ostream>
 
-SourceLocation::SourceLocation(const QString &fileName,
-                               unsigned line,
-                               unsigned column,
-                               unsigned offset)
-    : m_fileName(fileName)
-    , m_line(line)
-    , m_column(column)
-    , m_offset(offset)
-{}
+namespace ClangBackEnd {
 
-namespace ClangCodeModel {
-
-bool operator==(const SourceLocation &a, const SourceLocation &b)
+RequestHighlightingMessage::RequestHighlightingMessage(const FileContainer &file)
+    : fileContainer_(file)
 {
-    return a.line() == b.line()
-            && a.column() == b.column()
-            && a.offset() == b.offset()
-            && a.fileName() == b.fileName()
-            ;
 }
 
-bool operator!=(const SourceLocation &a, const SourceLocation &b)
+const FileContainer RequestHighlightingMessage::fileContainer() const
 {
-    return !(a == b);
+    return fileContainer_;
 }
 
-QDebug operator<<(QDebug dbg, const SourceLocation &location)
+QDataStream &operator<<(QDataStream &out, const RequestHighlightingMessage &message)
 {
-    dbg.nospace() << location.fileName()
-                  << " ["
-                  << location.line()
-                  << ":"
-                  << location.column()
-                  << "("
-                  << location.offset()
-                  << ")]";
-    return dbg.space();
+    out << message.fileContainer_;
+
+    return out;
 }
 
-} // ClangCodeModel
+QDataStream &operator>>(QDataStream &in, RequestHighlightingMessage &message)
+{
+    in >> message.fileContainer_;
+
+    return in;
+}
+
+bool operator==(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second)
+{
+    return first.fileContainer_ == second.fileContainer_;
+}
+
+bool operator<(const RequestHighlightingMessage &first, const RequestHighlightingMessage &second)
+{
+    return first.fileContainer_ < second.fileContainer_;
+}
+
+QDebug operator<<(QDebug debug, const RequestHighlightingMessage &message)
+{
+    debug.nospace() << "RequestHighlightingMessage("
+                    << message.fileContainer()
+                    << ")";
+
+    return debug;
+}
+
+void PrintTo(const RequestHighlightingMessage &message, ::std::ostream* os)
+{
+    *os << message.fileContainer().filePath().constData()
+        << "(" << message.fileContainer().projectPartId().constData() << ")";
+}
+
+} // namespace ClangBackEnd

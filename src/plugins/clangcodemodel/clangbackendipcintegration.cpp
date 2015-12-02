@@ -34,7 +34,6 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
-#include "pchmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -48,6 +47,7 @@
 #include <texteditor/texteditor.h>
 
 #include <clangbackendipc/diagnosticschangedmessage.h>
+#include <clangbackendipc/highlightingchangedmessage.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -62,11 +62,13 @@
 #include <clangbackendipc/cmbmessages.h>
 #include <clangbackendipc/registerunsavedfilesforeditormessage.h>
 #include <clangbackendipc/requestdiagnosticsmessage.h>
+#include <clangbackendipc/requesthighlightingmessage.h>
 #include <clangbackendipc/filecontainer.h>
 #include <clangbackendipc/projectpartsdonotexistmessage.h>
 #include <clangbackendipc/translationunitdoesnotexistmessage.h>
 #include <clangbackendipc/unregisterunsavedfilesforeditormessage.h>
 #include <clangbackendipc/updatetranslationunitsforeditormessage.h>
+#include <clangbackendipc/updatevisibletranslationunitsmessage.h>
 
 #include <cplusplus/Icons.h>
 
@@ -135,6 +137,11 @@ void IpcReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *t
     }
 }
 
+bool IpcReceiver::isExpectingCodeCompletedMessage() const
+{
+    return !m_assistProcessorsTable.isEmpty();
+}
+
 void IpcReceiver::alive()
 {
     qCDebug(log) << "<<< AliveMessage";
@@ -174,6 +181,24 @@ void IpcReceiver::diagnosticsChanged(const DiagnosticsChangedMessage &message)
     }
 }
 
+void IpcReceiver::highlightingChanged(const HighlightingChangedMessage &message)
+{
+    qCDebug(log) << "<<< HighlightingChangedMessage with"
+                 << message.highlightingMarks().size() << "items";
+
+    auto processor = ClangEditorDocumentProcessor::get(message.file().filePath());
+
+    if (processor && processor->projectPart()) {
+        const QString highlightingProjectPartId = message.file().projectPartId();
+        const QString documentProjectPartId = processor->projectPart()->id();
+        if (highlightingProjectPartId == documentProjectPartId) {
+            processor->updateHighlighting(message.highlightingMarks(),
+                                          message.skippedPreprocessorRanges(),
+                                          message.file().documentRevision());
+        }
+    }
+}
+
 void IpcReceiver::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
 {
     QTC_CHECK(!"Got TranslationUnitDoesNotExistMessage");
@@ -203,6 +228,8 @@ public:
     void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
     void requestDiagnostics(const ClangBackEnd::RequestDiagnosticsMessage &message) override;
+    void requestHighlighting(const ClangBackEnd::RequestHighlightingMessage &message) override;
+    void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
 private:
     ClangBackEnd::ConnectionClient &m_connection;
@@ -268,6 +295,18 @@ void IpcSender::requestDiagnostics(const RequestDiagnosticsMessage &message)
     m_connection.serverProxy().requestDiagnostics(message);
 }
 
+void IpcSender::requestHighlighting(const RequestHighlightingMessage &message)
+{
+    QTC_CHECK(m_connection.isConnected());
+    m_connection.serverProxy().requestHighlighting(message);
+}
+
+void IpcSender::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
+{
+    QTC_CHECK(m_connection.isConnected());
+    m_connection.serverProxy().updateVisibleTranslationUnits(message);
+}
+
 IpcCommunicator::IpcCommunicator()
     : m_connection(&m_ipcReceiver)
     , m_ipcSender(new IpcSender(m_connection))
@@ -308,10 +347,8 @@ void IpcCommunicator::initializeBackend()
 
 static QStringList projectPartOptions(const CppTools::ProjectPart::Ptr &projectPart)
 {
-    QStringList options = ClangCodeModel::Utils::createClangOptions(projectPart,
+    const QStringList options = ClangCodeModel::Utils::createClangOptions(projectPart,
         CppTools::ProjectFile::Unclassified); // No language option
-    if (PchInfo::Ptr pchInfo = PchManager::instance()->pchInfo(projectPart))
-        options += ClangCodeModel::Utils::createPCHInclusionOptions(pchInfo->fileName());
 
     return options;
 }
@@ -346,6 +383,90 @@ void IpcCommunicator::registerFallbackProjectPart()
     registerProjectPartsForEditor({projectPartContainer});
 }
 
+namespace {
+Utf8String currentCppEditorDocumentFilePath()
+{
+    Utf8String currentCppEditorDocumentFilePath;
+
+    const auto currentEditor = Core::EditorManager::currentEditor();
+    if (currentEditor && CppTools::CppModelManager::isCppEditor(currentEditor)) {
+        const auto currentDocument = currentEditor->document();
+        if (currentDocument)
+            currentCppEditorDocumentFilePath = currentDocument->filePath().toString();
+    }
+
+    return currentCppEditorDocumentFilePath;
+}
+
+void removeDuplicates(Utf8StringVector &visibleEditorDocumentsFilePaths)
+{
+    std::sort(visibleEditorDocumentsFilePaths.begin(),
+              visibleEditorDocumentsFilePaths.end());
+    const auto end = std::unique(visibleEditorDocumentsFilePaths.begin(),
+                                 visibleEditorDocumentsFilePaths.end());
+    visibleEditorDocumentsFilePaths.erase(end,
+                                          visibleEditorDocumentsFilePaths.end());
+}
+
+void removeNonCppEditors(QList<Core::IEditor*> &visibleEditors)
+{
+    const auto isNotCppEditor = [] (Core::IEditor *editor) {
+        return !CppTools::CppModelManager::isCppEditor(editor);
+    };
+
+    const auto end = std::remove_if(visibleEditors.begin(),
+                                    visibleEditors.end(),
+                                    isNotCppEditor);
+
+    visibleEditors.erase(end, visibleEditors.end());
+}
+
+Utf8StringVector visibleCppEditorDocumentsFilePaths()
+{
+    auto visibleEditors = Core::EditorManager::visibleEditors();
+
+    removeNonCppEditors(visibleEditors);
+
+    Utf8StringVector visibleCppEditorDocumentsFilePaths;
+    visibleCppEditorDocumentsFilePaths.reserve(visibleEditors.size());
+
+    const auto editorFilePaths = [] (Core::IEditor *editor) {
+        return Utf8String(editor->document()->filePath().toString());
+    };
+
+    std::transform(visibleEditors.begin(),
+                   visibleEditors.end(),
+                   std::back_inserter(visibleCppEditorDocumentsFilePaths),
+                   editorFilePaths);
+
+    removeDuplicates(visibleCppEditorDocumentsFilePaths);
+
+    return visibleCppEditorDocumentsFilePaths;
+}
+
+}
+
+void IpcCommunicator::updateTranslationUnitVisiblity()
+{
+    updateTranslationUnitVisiblity(currentCppEditorDocumentFilePath(), visibleCppEditorDocumentsFilePaths());
+}
+
+bool IpcCommunicator::isNotWaitingForCompletion() const
+{
+    return !m_ipcReceiver.isExpectingCodeCompletedMessage();
+}
+
+void IpcCommunicator::updateTranslationUnitVisiblity(const Utf8String &currentEditorFilePath,
+                                                     const Utf8StringVector &visibleEditorsFilePaths)
+{
+    if (m_sendMode == IgnoreSendRequests)
+        return;
+
+    const UpdateVisibleTranslationUnitsMessage message(currentEditorFilePath, visibleEditorsFilePaths);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->updateVisibleTranslationUnits(message);
+}
+
 void IpcCommunicator::registerCurrentProjectParts()
 {
     using namespace CppTools;
@@ -355,15 +476,24 @@ void IpcCommunicator::registerCurrentProjectParts()
         registerProjectsParts(projectInfo.projectParts());
 }
 
-void IpcCommunicator::registerCurrentCppEditorDocuments()
+void IpcCommunicator::restoreCppEditorDocuments()
+{
+    resetCppEditorDocumentProcessors();
+    registerVisibleCppEditorDocumentAndMarkInvisibleDirty();
+}
+
+void IpcCommunicator::resetCppEditorDocumentProcessors()
 {
     using namespace CppTools;
 
     const auto cppEditorDocuments = CppModelManager::instance()->cppEditorDocuments();
-    foreach (const CppEditorDocumentHandle *cppEditorDocument, cppEditorDocuments) {
-        if (cppEditorDocument->processor()->baseTextDocument()->isModified())
-            updateTranslationUnitFromCppEditorDocument(cppEditorDocument->filePath());
-    }
+    foreach (CppEditorDocumentHandle *cppEditorDocument, cppEditorDocuments)
+        cppEditorDocument->resetProcessor();
+}
+
+void IpcCommunicator::registerVisibleCppEditorDocumentAndMarkInvisibleDirty()
+{
+    CppTools::CppModelManager::instance()->updateCppEditorDocuments();
 }
 
 void IpcCommunicator::registerCurrentCodeModelUiHeaders()
@@ -401,12 +531,13 @@ CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath)
     return CppTools::CppModelManager::instance()->cppEditorDocument(filePath);
 }
 
-bool documentHasChanged(const QString &filePath)
+bool documentHasChanged(const QString &filePath,
+                        uint revision)
 {
     auto *document = cppDocument(filePath);
 
     if (document)
-        return document->sendTracker().shouldSendRevision(document->revision());
+        return document->sendTracker().shouldSendRevision(revision);
 
     return true;
 }
@@ -446,33 +577,42 @@ void IpcCommunicator::updateUnsavedFile(const QString &filePath, const QByteArra
                                     documentRevision}});
 }
 
-void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
+void IpcCommunicator::updateTranslationUnitWithRevisionCheck(const FileContainer &fileContainer)
 {
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    if (documentHasChanged(fileContainer.filePath())) {
+    if (documentHasChanged(fileContainer.filePath(), fileContainer.documentRevision())) {
         updateTranslationUnitsForEditor({fileContainer});
-
-        const RequestDiagnosticsMessage message(fileContainer);
-        qCDebug(log) << ">>>" << message;
-        m_ipcSender->requestDiagnostics(message);
-
         setLastSentDocumentRevision(fileContainer.filePath(),
                                     fileContainer.documentRevision());
     }
 }
 
-void IpcCommunicator::requestDiagnostics(Core::IDocument *document)
+void IpcCommunicator::requestDiagnostics(const FileContainer &fileContainer)
+{
+    const RequestDiagnosticsMessage message(fileContainer);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->requestDiagnostics(message);
+}
+
+void IpcCommunicator::requestHighlighting(const FileContainer &fileContainer)
+{
+    const RequestHighlightingMessage message(fileContainer);
+    qCDebug(log) << ">>>" << message;
+    m_ipcSender->requestHighlighting(message);
+}
+
+void IpcCommunicator::updateTranslationUnitWithRevisionCheck(Core::IDocument *document)
 {
     const auto textDocument = qobject_cast<TextDocument*>(document);
     const auto filePath = textDocument->filePath().toString();
     const QString projectPartId = Utils::projectPartIdForFile(filePath);
 
-    requestDiagnostics(FileContainer(filePath,
-                                     projectPartId,
-                                     Utf8StringVector(),
-                                     textDocument->document()->revision()));
+    updateTranslationUnitWithRevisionCheck(FileContainer(filePath,
+                                                         projectPartId,
+                                                         Utf8StringVector(),
+                                                         textDocument->document()->revision()));
 }
 
 void IpcCommunicator::updateChangeContentStartPosition(const QString &filePath, int position)
@@ -526,8 +666,9 @@ void IpcCommunicator::initializeBackendWithCurrentData()
 {
     registerFallbackProjectPart();
     registerCurrentProjectParts();
-    registerCurrentCppEditorDocuments();
     registerCurrentCodeModelUiHeaders();
+    restoreCppEditorDocuments();
+    updateTranslationUnitVisiblity();
 
     emit backendReinitialized();
 }
@@ -549,7 +690,9 @@ void IpcCommunicator::registerTranslationUnitsForEditor(const FileContainers &fi
     if (m_sendMode == IgnoreSendRequests)
         return;
 
-    const RegisterTranslationUnitForEditorMessage message(fileContainers);
+    const RegisterTranslationUnitForEditorMessage message(fileContainers,
+                                                          currentCppEditorDocumentFilePath(),
+                                                          visibleCppEditorDocumentsFilePaths());
     qCDebug(log) << ">>>" << message;
     m_ipcSender->registerTranslationUnitsForEditor(message);
 }
