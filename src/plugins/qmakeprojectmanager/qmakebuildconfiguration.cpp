@@ -745,9 +745,10 @@ BuildConfiguration *QmakeBuildConfigurationFactory::restore(Target *parent, cons
 
 BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
 {
+    QMakeStep *qs = qmakeStep();
     if (qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
         return Debug;
-    else if (qmakeStep()->separateDebugInfo())
+    else if (qs && qs->separateDebugInfo())
         return Profile;
     else
         return Release;
