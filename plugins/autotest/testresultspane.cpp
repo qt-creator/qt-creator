@@ -150,7 +150,8 @@ void TestResultsPane::createToolButtons()
 
     m_runSelected = new QToolButton(m_treeView);
     Utils::Icon runSelectedIcon = ProjectExplorer::Icons::RUN_SMALL;
-    runSelectedIcon.append(Icons::RUN_SELECTED_OVERLAY);
+    foreach (const Utils::IconMaskAndColor &maskAndColor, Icons::RUN_SELECTED_OVERLAY)
+        runSelectedIcon.append(maskAndColor);
     m_runSelected->setIcon(runSelectedIcon.icon());
     m_runSelected->setToolTip(tr("Run Selected Tests"));
     m_runSelected->setEnabled(false);
