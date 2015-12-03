@@ -122,9 +122,9 @@ ResourceTopLevelNode::ResourceTopLevelNode(const Utils::FileName &filePath, Fold
 
     Utils::FileName base = parent->path();
     if (filePath.isChildOf(base))
-        setDisplayName(filePath.relativeChildPath(base).toString());
+        setDisplayName(filePath.relativeChildPath(base).toUserOutput());
     else
-        setDisplayName(filePath.toString());
+        setDisplayName(filePath.toUserOutput());
 }
 
 ResourceTopLevelNode::~ResourceTopLevelNode()
