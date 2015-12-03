@@ -33,12 +33,8 @@
 
 #include <cpptools/cppprojects.h>
 
-#include <QLoggingCategory>
-
 namespace ClangCodeModel {
 namespace Utils {
-
-Q_DECLARE_LOGGING_CATEGORY(verboseRunLog)
 
 QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
                                CppTools::ProjectFile::Kind fileKind);
