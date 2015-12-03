@@ -86,6 +86,9 @@ void MFlatAssignmentVisitor::visitMComponent(const MComponent *component)
 void MFlatAssignmentVisitor::visitMDiagram(const MDiagram *diagram)
 {
     visitMObject(diagram);
+    auto targetDiagram = dynamic_cast<MDiagram *>(m_target);
+    QMT_CHECK(targetDiagram);
+    targetDiagram->setToolbarId(diagram->toolbarId());
 }
 
 void MFlatAssignmentVisitor::visitMCanvasDiagram(const MCanvasDiagram *diagram)

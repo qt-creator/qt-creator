@@ -98,6 +98,8 @@
 namespace ModelEditor {
 namespace Internal {
 
+static const char PROPERTYNAME_TOOLBARID[] = "ToolbarId";
+
 class ModelEditor::ModelEditorPrivate
 {
 public:
@@ -215,6 +217,7 @@ void ModelEditor::init(QWidget *parent)
     QFont font = d->leftToolBox->font();
     font.setPointSizeF(font.pointSizeF() * 0.8);
     d->leftToolBox->setFont(font);
+    connect(d->leftToolBox, &QToolBox::currentChanged, this, &ModelEditor::onToolbarSelectionChanged);
 
     d->diagramStack = new QStackedWidget(d->leftGroup);
 
@@ -222,16 +225,17 @@ void ModelEditor::init(QWidget *parent)
     d->diagramStack->addWidget(d->diagramView);
 
     d->noDiagramLabel = new QLabel(d->diagramStack);
-    const QString placeholderText = tr("<html><body style=\"color:#909090; font-size:14px\">"
-          "<div align='center'>"
-          "<div style=\"font-size:20px\">Open a diagram</div>"
-          "<table><tr><td>"
-          "<hr/>"
-          "<div style=\"margin-top: 5px\">&bull; Double-click on diagram in model tree</div>"
-          "<div style=\"margin-top: 5px\">&bull; Select \"Open Diagram\" from package's context menu in model tree</div>"
-          "</td></tr></table>"
-          "</div>"
-          "</body></html>");
+    const QString placeholderText =
+            tr("<html><body style=\"color:#909090; font-size:14px\">"
+               "<div align='center'>"
+               "<div style=\"font-size:20px\">Open a diagram</div>"
+               "<table><tr><td>"
+               "<hr/>"
+               "<div style=\"margin-top: 5px\">&bull; Double-click on diagram in model tree</div>"
+               "<div style=\"margin-top: 5px\">&bull; Select \"Open Diagram\" from package's context menu in model tree</div>"
+               "</td></tr></table>"
+               "</div>"
+               "</body></html>");
     d->noDiagramLabel->setText(placeholderText);
     d->diagramStack->addWidget(d->noDiagramLabel);
     d->diagramStack->setCurrentWidget(d->noDiagramLabel);
@@ -295,22 +299,22 @@ void ModelEditor::init(QWidget *parent)
     toolbarLayout->addWidget(d->diagramSelector, 1);
     toolbarLayout->addStretch(1);
 
-    toolbarLayout->addWidget(createToolbarCommandButton(
-        Constants::ACTION_ADD_PACKAGE, [this]() { onAddPackage(); },
-        QIcon(QStringLiteral(":/modelinglib/48x48/package.png")),
-        tr("Add Package"), d->toolbar));
-    toolbarLayout->addWidget(createToolbarCommandButton(
-        Constants::ACTION_ADD_COMPONENT, [this]() { onAddComponent(); },
-        QIcon(QStringLiteral(":/modelinglib/48x48/component.png")),
-        tr("Add Component"), d->toolbar));
-    toolbarLayout->addWidget(createToolbarCommandButton(
-        Constants::ACTION_ADD_CLASS, [this]() { onAddClass(); },
-        QIcon(QStringLiteral(":/modelinglib/48x48/class.png")),
-        tr("Add Class"), d->toolbar));
-    toolbarLayout->addWidget(createToolbarCommandButton(
-        Constants::ACTION_ADD_CANVAS_DIAGRAM, [this]() { onAddCanvasDiagram(); },
-        QIcon(QStringLiteral(":/modelinglib/48x48/canvas-diagram.png")),
-        tr("Add Canvas Diagram"), d->toolbar));
+    toolbarLayout->addWidget(
+                createToolbarCommandButton(Constants::ACTION_ADD_PACKAGE, [this]() { onAddPackage(); },
+    QIcon(QStringLiteral(":/modelinglib/48x48/package.png")),
+    tr("Add Package"), d->toolbar));
+    toolbarLayout->addWidget(
+                createToolbarCommandButton(Constants::ACTION_ADD_COMPONENT, [this]() { onAddComponent(); },
+    QIcon(QStringLiteral(":/modelinglib/48x48/component.png")),
+    tr("Add Component"), d->toolbar));
+    toolbarLayout->addWidget(
+                createToolbarCommandButton(Constants::ACTION_ADD_CLASS, [this]() { onAddClass(); },
+    QIcon(QStringLiteral(":/modelinglib/48x48/class.png")),
+    tr("Add Class"), d->toolbar));
+    toolbarLayout->addWidget(
+                createToolbarCommandButton(Constants::ACTION_ADD_CANVAS_DIAGRAM, [this]() { onAddCanvasDiagram(); },
+    QIcon(QStringLiteral(":/modelinglib/48x48/canvas-diagram.png")),
+    tr("Add Canvas Diagram"), d->toolbar));
     toolbarLayout->addSpacing(20);
 }
 
@@ -849,6 +853,11 @@ void ModelEditor::onRightHorizSplitterChanged(const QByteArray &state)
     d->rightHorizSplitter->restoreState(state);
 }
 
+void ModelEditor::onToolbarSelectionChanged()
+{
+    storeToolbarIdInDiagram(currentDiagram());
+}
+
 void ModelEditor::initToolbars()
 {
     QHash<QString, QWidget *> toolBars;
@@ -860,9 +869,11 @@ void ModelEditor::initToolbars()
         QLayout *toolBarLayout = 0;
         if (!toolBar) {
             toolBar = new QWidget(d->leftToolBox);
+            toolBar->setProperty(PROPERTYNAME_TOOLBARID, toolbar.id());
             toolBarLayout = new QVBoxLayout(toolBar);
             toolBarLayout->setContentsMargins(2, 2, 2, 2);
             toolBarLayout->setSpacing(6);
+            // TODO add a user defined string attribute to toolbar as toolbar title
             d->leftToolBox->addItem(toolBar, toolbar.id());
             toolBars.insert(toolbar.id(), toolBar);
         } else {
@@ -929,6 +940,7 @@ void ModelEditor::initToolbars()
     if (!toolBars.isEmpty()) {
         QString generalId = QStringLiteral("General");
         auto toolBar = new QWidget(d->leftToolBox);
+        toolBar->setProperty(PROPERTYNAME_TOOLBARID, generalId);
         auto toolBarLayout = new QVBoxLayout(toolBar);
         toolBarLayout->setContentsMargins(2, 2, 2, 2);
         toolBarLayout->setSpacing(6);
@@ -988,6 +1000,17 @@ void ModelEditor::openDiagram(qmt::MDiagram *diagram, bool addToHistory)
         d->diagramStack->setCurrentWidget(d->diagramView);
         updateSelectedArea(SelectedArea::Nothing);
         addDiagramToSelector(diagram);
+        if (!diagram->toolbarId().isEmpty()) {
+            for (int i = 0; i < d->leftToolBox->count(); ++i) {
+                QWidget *widget = d->leftToolBox->widget(i);
+                if (widget && widget->property(PROPERTYNAME_TOOLBARID).toString() == diagram->toolbarId()) {
+                    d->leftToolBox->setCurrentIndex(i);
+                    break;
+                }
+            }
+        } else {
+            storeToolbarIdInDiagram(diagram);
+        }
     }
 }
 
@@ -1106,6 +1129,24 @@ QString ModelEditor::buildDiagramLabel(const qmt::MDiagram *diagram)
         label += QLatin1Char(']');
     }
     return label;
+}
+
+void ModelEditor::storeToolbarIdInDiagram(qmt::MDiagram *diagram)
+{
+    int leftToolboxIndex = d->leftToolBox->currentIndex();
+    if (diagram && leftToolboxIndex >= 0 && leftToolboxIndex < d->leftToolBox->count()) {
+        QWidget *widget = d->leftToolBox->widget(leftToolboxIndex);
+        if (widget) {
+            QString toolbarId = widget->property(PROPERTYNAME_TOOLBARID).toString();
+            if (toolbarId != diagram->toolbarId()) {
+                // NOTE: This update is done without calling ModelController::startUpdateObject() by intention.
+                // This update does not need to be seen by any other controller nor shall it
+                // No undo shall be possible
+                // The document should not be set to modified state
+                diagram->setToolbarId(toolbarId);
+            }
+        }
+    }
 }
 
 void ModelEditor::addToNavigationHistory(const qmt::MDiagram *diagram)

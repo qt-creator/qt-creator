@@ -47,7 +47,8 @@ MDiagram::MDiagram(const MDiagram &rhs)
     : MObject(rhs),
       m_elements(),
       // modification date is copied (instead of set to current time) to allow exact copies of the diagram
-      m_lastModified(rhs.m_lastModified)
+      m_lastModified(rhs.m_lastModified),
+      m_toolbarId(rhs.toolbarId())
 {
 }
 
@@ -63,6 +64,7 @@ MDiagram &MDiagram::operator=(const MDiagram &rhs)
         // no deep copy; list of elements remains unchanged
         // modification date is copied (instead of set to current time) to allow exact copies of the diagram
         m_lastModified = rhs.m_lastModified;
+        m_toolbarId = rhs.m_toolbarId;
     }
     return *this;
 }
@@ -119,6 +121,11 @@ void MDiagram::setLastModified(const QDateTime &lastModified)
 void MDiagram::setLastModifiedToNow()
 {
     m_lastModified = QDateTime::currentDateTime();
+}
+
+void MDiagram::setToolbarId(const QString &toolbarId)
+{
+    m_toolbarId = toolbarId;
 }
 
 void MDiagram::accept(MVisitor *visitor)

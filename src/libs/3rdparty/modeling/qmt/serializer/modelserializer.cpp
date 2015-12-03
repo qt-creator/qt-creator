@@ -217,6 +217,7 @@ inline void Access<Archive, MDiagram>::serialize(Archive &archive, MDiagram &dia
             || base<MObject>(diagram)
             || attr(QStringLiteral("elements"), diagram, &MDiagram::diagramElements, &MDiagram::setDiagramElements)
             || attr(QStringLiteral("last-modified"), diagram, &MDiagram::lastModified, &MDiagram::setLastModified)
+            || attr(QStringLiteral("toolbarid"), diagram, &MDiagram::toolbarId, &MDiagram::setToolbarId)
             || end;
 }
 

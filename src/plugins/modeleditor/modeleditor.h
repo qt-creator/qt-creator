@@ -128,6 +128,7 @@ private:
     void onRightSplitterChanged(const QByteArray &state);
     void onRightHorizSplitterMoved(int pos, int index);
     void onRightHorizSplitterChanged(const QByteArray &state);
+    void onToolbarSelectionChanged();
 
     void initToolbars();
     void openDiagram(qmt::MDiagram *diagram, bool addToHistory);
@@ -141,6 +142,7 @@ private:
     void updateDiagramSelector();
     void onDiagramSelectorSelected(int index);
     QString buildDiagramLabel(const qmt::MDiagram *diagram);
+    void storeToolbarIdInDiagram(qmt::MDiagram *diagram);
 
     void addToNavigationHistory(const qmt::MDiagram *diagram);
     QByteArray saveState(const qmt::MDiagram *diagram) const;

@@ -61,12 +61,16 @@ public:
     void setLastModified(const QDateTime &lastModified);
     void setLastModifiedToNow();
 
+    QString toolbarId() const { return m_toolbarId; }
+    void setToolbarId(const QString &toolbarId);
+
     void accept(MVisitor *visitor) override;
     void accept(MConstVisitor *visitor) const override;
 
 private:
     QList<DElement *> m_elements;
     QDateTime m_lastModified;
+    QString m_toolbarId;
 };
 
 } // namespace qmt
