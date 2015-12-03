@@ -389,10 +389,13 @@ Rectangle {
         anchors.top: buttonsBar.bottom
 
         function updateZoomLevel() {
-            zoomSlider.externalUpdate = true;
-            zoomSlider.value = Math.pow(zoomControl.rangeDuration /
-                                        Math.max(1, zoomControl.windowDuration),
-                                        1 / zoomSlider.exponent) * zoomSlider.maximumValue;
+            var newValue = Math.round(Math.pow(zoomControl.rangeDuration /
+                                               Math.max(1, zoomControl.windowDuration),
+                                               1 / zoomSlider.exponent) * zoomSlider.maximumValue);
+            if (newValue !== zoomSlider.value) {
+                zoomSlider.externalUpdate = true;
+                zoomSlider.value = newValue;
+            }
         }
 
         Slider {
