@@ -96,10 +96,6 @@ private:
     static void replaceInstance();
     static void removeClonedInstance();
 
-    // For IDevice.
-    IDevice::Ptr fromRawPointer(IDevice *device) const;
-    IDevice::ConstPtr fromRawPointer(const IDevice *device) const;
-
     static QString hostKeysFilePath();
     QSharedPointer<QSsh::SshHostKeyDatabase> hostKeyDatabase() const;
     static Utils::FileName settingsFilePath(const QString &extension);

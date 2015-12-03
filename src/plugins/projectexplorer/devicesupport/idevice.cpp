@@ -178,7 +178,9 @@ IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id
     d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
 }
 
-IDevice::IDevice(const IDevice &other) : d(new Internal::IDevicePrivate)
+IDevice::IDevice(const IDevice &other)
+    : QEnableSharedFromThis<IDevice>(other)
+    , d(new Internal::IDevicePrivate)
 {
     *d = *other.d;
 }
@@ -377,16 +379,6 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(DebugServerKey), d->debugServerPath);
 
     return map;
-}
-
-IDevice::Ptr IDevice::sharedFromThis()
-{
-    return DeviceManager::instance()->fromRawPointer(this);
-}
-
-IDevice::ConstPtr IDevice::sharedFromThis() const
-{
-    return DeviceManager::instance()->fromRawPointer(this);
 }
 
 QString IDevice::deviceStateToString() const

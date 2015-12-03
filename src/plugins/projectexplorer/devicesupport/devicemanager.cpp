@@ -406,26 +406,6 @@ void DeviceManager::ensureOneDefaultDevicePerType()
     }
 }
 
-IDevice::Ptr DeviceManager::fromRawPointer(IDevice *device) const
-{
-    foreach (const IDevice::Ptr &devPtr, d->devices) {
-        if (devPtr == device)
-            return devPtr;
-    }
-
-    if (this == instance() && d->clonedInstance)
-        return d->clonedInstance->fromRawPointer(device);
-
-    qWarning("%s: Device not found.", Q_FUNC_INFO);
-    return IDevice::Ptr();
-}
-
-IDevice::ConstPtr DeviceManager::fromRawPointer(const IDevice *device) const
-{
-    // The const_cast is safe, because we convert the Ptr back to a ConstPtr before returning it.
-    return fromRawPointer(const_cast<IDevice *>(device));
-}
-
 QString DeviceManager::hostKeysFilePath()
 {
     return settingsFilePath(QLatin1String("/ssh-hostkeys")).toString();
