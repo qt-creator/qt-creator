@@ -461,8 +461,6 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, Andro
     connect(&m_futureWatcherRefreshDevices, &QFutureWatcherBase::finished,
             this, &AndroidDeviceDialog::devicesRefreshed);
 
-    refreshDeviceList();
-
     connect(m_ui->deviceView->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &AndroidDeviceDialog::enableOkayButton);
 
@@ -483,6 +481,8 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, Andro
     connect(m_ui->lookingForDeviceCancel, &QPushButton::clicked,
             this, &AndroidDeviceDialog::defaultDeviceClear);
     m_defaultDeviceTimer.start();
+
+    refreshDeviceList();
 }
 
 AndroidDeviceDialog::~AndroidDeviceDialog()
