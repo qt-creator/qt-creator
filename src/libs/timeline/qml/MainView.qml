@@ -405,6 +405,8 @@ Rectangle {
             property int exponent: 3
             property bool externalUpdate: false
             property int minWindowLength: 1e5 // 0.1 ms
+            property double fixedPoint: 0
+            onPressedChanged: fixedPoint = (zoomControl.rangeStart + zoomControl.rangeEnd) / 2;
 
             onValueChanged: {
                 if (externalUpdate || zoomControl.windowEnd <= zoomControl.windowStart) {
@@ -418,17 +420,6 @@ Rectangle {
                 var windowLength = Math.max(
                             Math.pow(value / maximumValue, exponent) * zoomControl.windowDuration,
                             minWindowLength);
-
-                var fixedPoint = (zoomControl.rangeStart + zoomControl.rangeEnd) / 2;
-                if (root.selectedItem !== -1) {
-                    // center on selected item if it's inside the current screen
-                    var model = timelineModelAggregator.models[root.selectedModel]
-                    var newFixedPoint = (model.startTime(root.selectedItem) +
-                                         model.endTime(root.selectedItem)) / 2;
-                    if (newFixedPoint >= zoomControl.rangeStart &&
-                            newFixedPoint < zoomControl.rangeEnd)
-                        fixedPoint = newFixedPoint;
-                }
 
                 var startTime = Math.max(zoomControl.windowStart, fixedPoint - windowLength / 2)
                 zoomControl.setRange(startTime, startTime + windowLength);
