@@ -156,6 +156,39 @@ void DUpdateVisitor::visitMRelation(const MRelation *relation)
         drelation->setStereotypes(relation->stereotypes());
     if (isUpdating(relation->name() != drelation->name()))
         drelation->setName(relation->name());
+    // TODO improve performance of MDiagram::findDiagramElement
+    DObject *endAObject = dynamic_cast<DObject *>(m_diagram->findDiagramElement(drelation->endAUid()));
+    if (!endAObject || relation->endAUid() != endAObject->modelUid()) {
+        isUpdating(true);
+        endAObject = 0;
+        // TODO use DiagramController::findDelegate (and improve performance of that method)
+        foreach (DElement *diagramElement, m_diagram->diagramElements()) {
+            if (diagramElement->modelUid().isValid() && diagramElement->modelUid() == relation->endAUid()) {
+                endAObject = dynamic_cast<DObject *>(diagramElement);
+                break;
+            }
+        }
+        if (endAObject)
+            drelation->setEndAUid(endAObject->uid());
+        else
+            drelation->setEndAUid(Uid::invalidUid());
+    }
+    DObject *endBObject = dynamic_cast<DObject *>(m_diagram->findDiagramElement(drelation->endBUid()));
+    if (!endBObject || relation->endBUid() != endBObject->modelUid()) {
+        isUpdating(true);
+        endBObject = 0;
+        // TODO use DiagramController::findDelegate
+        foreach (DElement *diagramElement, m_diagram->diagramElements()) {
+            if (diagramElement->modelUid().isValid() && diagramElement->modelUid() == relation->endBUid()) {
+                endBObject = dynamic_cast<DObject *>(diagramElement);
+                break;
+            }
+        }
+        if (endBObject)
+            drelation->setEndBUid(endBObject->uid());
+        else
+            drelation->setEndBUid(Uid::invalidUid());
+    }
     visitMElement(relation);
 }
 

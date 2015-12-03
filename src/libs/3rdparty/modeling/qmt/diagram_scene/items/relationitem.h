@@ -77,11 +77,11 @@ public:
     bool isFocusSelected() const override;
     void setFocusSelected(bool focusSelected) override;
 
-    QPointF handlePos(int index) override;
-    void insertHandle(int beforeIndex, const QPointF &pos) override;
+    QPointF grabHandle(int index) override;
+    void insertHandle(int beforeIndex, const QPointF &pos, double rasterWidth, double rasterHeight) override;
     void deleteHandle(int index) override;
     void setHandlePos(int index, const QPointF &pos) override;
-    void alignHandleToRaster(int index, double rasterWidth, double rasterHeight) override;
+    void dropHandle(int index, double rasterWidth, double rasterHeight) override;
 
     virtual void update();
 
@@ -108,6 +108,9 @@ protected:
     QGraphicsSimpleTextItem *m_name = 0;
     StereotypesItem *m_stereotypes = 0;
     PathSelectionItem *m_selectionHandles = 0;
+    static bool m_grabbedEndA;
+    static bool m_grabbedEndB;
+    static QPointF m_grabbedEndPos;
 };
 
 } // namespace qmt

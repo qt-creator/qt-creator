@@ -33,12 +33,14 @@
 #include "qmt/diagram_scene/capabilities/windable.h"
 #include "qmt/diagram_scene/diagramsceneconstants.h"
 #include "qmt/infrastructure/geometryutilities.h"
+#include "qmt/infrastructure/qmtassert.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QBrush>
 #include <QLineF>
 #include <QPainter>
+#include <QKeyEvent>
 
 namespace qmt {
 
@@ -58,6 +60,12 @@ public:
           m_owner(parent),
           m_pointIndex(pointIndex)
     {
+        setFlag(QGraphicsItem::ItemIsFocusable);
+    }
+
+    void setPointIndex(int pointIndex)
+    {
+        m_pointIndex = pointIndex;
     }
 
     void setPointSize(const QSizeF &pointSize)
@@ -79,21 +87,31 @@ public:
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
-        m_startPos = mapToScene(event->pos());
+        m_startPos = event->scenePos();
+        m_lastPos = m_startPos;
         m_qualifier = event->modifiers() & Qt::ControlModifier ? DeleteHandle : None;
         m_owner->moveHandle(m_pointIndex, QPointF(0.0, 0.0), Press, m_qualifier);
+        setFocus();
     }
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
-        QPointF delta = mapToScene(event->pos()) - m_startPos;
+        m_lastPos = event->scenePos();
+        QPointF delta = m_lastPos - m_startPos;
         m_owner->moveHandle(m_pointIndex, delta, Move, m_qualifier);
     }
 
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
-        QPointF delta = mapToScene(event->pos()) - m_startPos;
+        m_lastPos = event->scenePos();
+        QPointF delta = m_lastPos - m_startPos;
         m_owner->moveHandle(m_pointIndex, delta, Release, m_qualifier);
+        clearFocus();
+    }
+
+    void keyPressEvent(QKeyEvent *event)
+    {
+        m_owner->keyPressed(m_pointIndex, event, m_lastPos);
     }
 
 private:
@@ -122,6 +140,7 @@ private:
     QSizeF m_pointSize;
     Selection m_selection = NotSelected;
     QPointF m_startPos;
+    QPointF m_lastPos;
     PathSelectionItem::HandleQualifier m_qualifier = PathSelectionItem::None;
 };
 
@@ -193,11 +212,23 @@ QList<QPointF> PathSelectionItem::points() const
 
 void PathSelectionItem::setPoints(const QList<QPointF> &points)
 {
+    QMT_CHECK(points.size() >= 2);
     prepareGeometryChange();
+
+    GraphicsHandleItem *focusEndBItem = 0;
+    if (!m_handles.isEmpty() && m_focusHandleItem == m_handles.last()) {
+        focusEndBItem = m_focusHandleItem;
+        m_handles.removeLast();
+    }
     int pointIndex = 0;
     foreach (const QPointF &point, points) {
         GraphicsHandleItem *handle;
-        if (pointIndex >= m_handles.size()) {
+        if (focusEndBItem && pointIndex == points.size() - 1) {
+            handle = focusEndBItem;
+            handle->setPointIndex(pointIndex);
+            m_handles.insert(pointIndex, handle);
+            focusEndBItem = 0;
+        } else if (pointIndex >= m_handles.size()) {
             handle = new GraphicsHandleItem(pointIndex, this);
             handle->setPointSize(m_pointSize);
             m_handles.append(handle);
@@ -207,6 +238,7 @@ void PathSelectionItem::setPoints(const QList<QPointF> &points)
         handle->setPos(point);
         ++pointIndex;
     }
+    QMT_CHECK(!focusEndBItem);
     while (m_handles.size() > pointIndex) {
         m_handles.last()->scene()->removeItem(m_handles.last());
         delete m_handles.last();
@@ -229,7 +261,7 @@ void PathSelectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         for (int i = 0; i < m_handles.size() - 1; ++i) {
             qreal distance = GeometryUtilities::calcDistancePointToLine(event->pos(), QLineF(m_handles.at(i)->pos(), m_handles.at(i+1)->pos()));
             if (distance < MAX_SELECTION_DISTANCE_FROM_PATH) {
-                m_windable->insertHandle(i + 1, event->scenePos());
+                m_windable->insertHandle(i + 1, event->scenePos(), RASTER_WIDTH, RASTER_HEIGHT);
                 event->accept();
                 return;
             }
@@ -239,15 +271,19 @@ void PathSelectionItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
+bool PathSelectionItem::isEndHandle(int pointIndex) const
+{
+    return pointIndex == 0 || pointIndex == m_handles.size() - 1;
+}
+
 void PathSelectionItem::update()
 {
     prepareGeometryChange();
     int i = 0;
     foreach (GraphicsHandleItem *handle, m_handles) {
         handle->setPointSize(m_pointSize);
-        bool isEndPoint = (i == 0 || i == m_handles.size() - 1);
         handle->setSelection(m_isSecondarySelected
-                             ? (isEndPoint ? GraphicsHandleItem::NotSelected : GraphicsHandleItem::SecondarySelected)
+                             ? (isEndHandle(i) ? GraphicsHandleItem::NotSelected : GraphicsHandleItem::SecondarySelected)
                              : GraphicsHandleItem::Selected);
         ++i;
     }
@@ -258,18 +294,32 @@ void PathSelectionItem::moveHandle(int pointIndex, const QPointF &deltaMove, Han
     switch (handleQualifier) {
     case None:
     {
-        if (handleStatus == Press)
-            m_originalHandlePos = m_windable->handlePos(pointIndex);
+        if (handleStatus == Press) {
+            m_focusHandleItem = m_handles.at(pointIndex);
+            m_originalHandlePos = m_windable->grabHandle(pointIndex);
+        }
         QPointF newPos = m_originalHandlePos + deltaMove;
         m_windable->setHandlePos(pointIndex, newPos);
-        if (handleStatus == Release)
-            m_windable->alignHandleToRaster(pointIndex, RASTER_WIDTH, RASTER_HEIGHT);
+        if (handleStatus == Release) {
+            m_windable->dropHandle(pointIndex, RASTER_WIDTH, RASTER_HEIGHT);
+            m_focusHandleItem = 0;
+        }
         break;
     }
     case DeleteHandle:
         if (handleStatus == Press)
             m_windable->deleteHandle(pointIndex);
         break;
+    }
+}
+
+void PathSelectionItem::keyPressed(int pointIndex, QKeyEvent *event, const QPointF &pos)
+{
+    if (isEndHandle(pointIndex)) {
+        if (event->key() == Qt::Key_Shift)
+            m_windable->insertHandle(pointIndex, pos, RASTER_WIDTH, RASTER_HEIGHT);
+        else if (event->key() == Qt::Key_Control)
+            m_windable->deleteHandle(pointIndex);
     }
 }
 

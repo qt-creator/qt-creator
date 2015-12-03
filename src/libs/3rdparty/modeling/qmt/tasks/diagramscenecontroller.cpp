@@ -44,6 +44,7 @@
 #include "qmt/diagram_ui/diagram_mime_types.h"
 #include "qmt/model_controller/modelcontroller.h"
 #include "qmt/model_controller/mselection.h"
+#include "qmt/model_controller/mvoidvisitor.h"
 #include "qmt/model/massociation.h"
 #include "qmt/model/mcanvasdiagram.h"
 #include "qmt/model/mclass.h"
@@ -70,6 +71,35 @@ namespace qmt {
 namespace {
 static VoidElementTasks dummyElementTasks;
 }
+
+class DiagramSceneController::AcceptRelationVisitor : public MVoidConstVisitor
+{
+public:
+    AcceptRelationVisitor(const MRelation *relation)
+        : m_relation(relation)
+    {
+    }
+
+    bool isAccepted() const { return m_accepted; }
+
+    void visitMObject(const MObject *object) override
+    {
+        Q_UNUSED(object);
+        m_accepted = dynamic_cast<const MDependency *>(m_relation) != 0;
+    }
+
+    void visitMClass(const MClass *klass) override
+    {
+        Q_UNUSED(klass);
+        m_accepted = dynamic_cast<const MDependency *>(m_relation) != 0
+                || dynamic_cast<const MInheritance *>(m_relation) != 0
+                || dynamic_cast<const MAssociation *>(m_relation) != 0;
+    }
+
+private:
+    const MRelation *m_relation = 0;
+    bool m_accepted = false;
+};
 
 DiagramSceneController::DiagramSceneController(QObject *parent)
     : QObject(parent),
@@ -223,6 +253,16 @@ void DiagramSceneController::createAssociation(DClass *endAClass, DClass *endBCl
 
     if (relation)
         emit newElementCreated(relation, diagram);
+}
+
+bool DiagramSceneController::relocateRelationEndA(DRelation *relation, DObject *targetObject)
+{
+    return relocateRelationEnd(relation, targetObject, &MRelation::endAUid, &MRelation::setEndAUid);
+}
+
+bool DiagramSceneController::relocateRelationEndB(DRelation *relation, DObject *targetObject)
+{
+    return relocateRelationEnd(relation, targetObject, &MRelation::endBUid, &MRelation::setEndBUid);
 }
 
 bool DiagramSceneController::isAddingAllowed(const Uid &modelElementKey, MDiagram *diagram)
@@ -671,6 +711,34 @@ DRelation *DiagramSceneController::addRelation(MRelation *modelRelation, const Q
     alignOnRaster(diagramRelation, diagram);
 
     return diagramRelation;
+}
+
+bool DiagramSceneController::relocateRelationEnd(DRelation *relation, DObject *targetObject,
+                                                 Uid (MRelation::*endUid)() const,
+                                                 void (MRelation::*setEndUid)(const Uid &))
+{
+    QMT_CHECK(relation);
+    if (targetObject && targetObject->uid() != relation->endAUid()) {
+        MRelation *modelRelation = m_modelController->findRelation(relation->modelUid());
+        QMT_CHECK(modelRelation);
+        MObject *targetMObject = m_modelController->findObject(targetObject->modelUid());
+        QMT_CHECK(targetMObject);
+        AcceptRelationVisitor visitor(modelRelation);
+        targetMObject->accept(&visitor);
+        if (visitor.isAccepted()) {
+            MObject *currentTargetMObject = m_modelController->findObject((modelRelation->*endUid)());
+            QMT_CHECK(currentTargetMObject);
+            m_modelController->undoController()->beginMergeSequence(tr("Relocate Relation"));
+            if (currentTargetMObject == modelRelation->owner())
+                m_modelController->moveRelation(targetMObject, modelRelation);
+            m_modelController->startUpdateRelation(modelRelation);
+            (modelRelation->*setEndUid)(targetMObject->uid());
+            m_modelController->finishUpdateRelation(modelRelation, false);
+            m_modelController->undoController()->endMergeSequence();
+            return true;
+        }
+    }
+    return false;
 }
 
 } // namespace qmt

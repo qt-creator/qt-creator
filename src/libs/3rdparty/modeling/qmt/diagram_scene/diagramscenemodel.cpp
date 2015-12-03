@@ -232,6 +232,20 @@ DElement *DiagramSceneModel::findTopmostElement(const QPointF &scenePos) const
     return 0;
 }
 
+DObject *DiagramSceneModel::findTopmostObject(const QPointF &scenePos) const
+{
+    // fetch affected items from scene in correct drawing order to find topmost element
+    QList<QGraphicsItem *> items = m_graphicsScene->items(scenePos);
+    foreach (QGraphicsItem *item, items) {
+        if (m_graphicsItems.contains(item)) {
+            DObject *object = dynamic_cast<DObject *>(m_itemToElementMap.value(item));
+            if (object)
+                return object;
+        }
+    }
+    return 0;
+}
+
 QGraphicsItem *DiagramSceneModel::graphicsItem(DElement *element) const
 {
     return m_elementToItemMap.value(element);

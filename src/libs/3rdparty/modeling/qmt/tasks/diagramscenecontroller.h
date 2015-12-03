@@ -59,6 +59,8 @@ class QMT_EXPORT DiagramSceneController : public QObject
 {
     Q_OBJECT
 
+    class AcceptRelationVisitor;
+
 public:
     explicit DiagramSceneController(QObject *parent = 0);
     ~DiagramSceneController() override;
@@ -85,6 +87,8 @@ public:
                            const QList<QPointF> &intermediatePoints, MDiagram *diagram);
     void createAssociation(DClass *endAClass, DClass *endBClass,
                            const QList<QPointF> &intermediatePoints, MDiagram *diagram);
+    bool relocateRelationEndA(DRelation *relation, DObject *targetObject);
+    bool relocateRelationEndB(DRelation *relation, DObject *targetObject);
 
     bool isAddingAllowed(const Uid &modelElementKey, MDiagram *diagram);
     void addExistingModelElement(const Uid &modelElementKey, const QPointF &pos, MDiagram *diagram);
@@ -124,6 +128,8 @@ private:
     DObject *addObject(MObject *modelObject, const QPointF &pos, MDiagram *diagram);
     DRelation *addRelation(MRelation *modelRelation, const QList<QPointF> &intermediatePoints,
                            MDiagram *diagram);
+    bool relocateRelationEnd(DRelation *relation, DObject *targetObject, Uid (MRelation::*endUid)() const,
+                             void (MRelation::*setEndUid)(const Uid &));
 
     ModelController *m_modelController;
     DiagramController *m_diagramController;

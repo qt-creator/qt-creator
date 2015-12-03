@@ -72,14 +72,17 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
+    bool isEndHandle(int pointIndex) const;
     void update();
     void moveHandle(int pointIndex, const QPointF &deltaMove, HandleStatus handleStatus,
                     HandleQualifier handleQualifier);
+    void keyPressed(int pointIndex, QKeyEvent *event, const QPointF &pos);
 
     IWindable *m_windable = 0;
     QSizeF m_pointSize;
     bool m_isSecondarySelected = false;
     QList<GraphicsHandleItem *> m_handles;
+    GraphicsHandleItem *m_focusHandleItem = 0;
     QPointF m_originalHandlePos;
 };
 

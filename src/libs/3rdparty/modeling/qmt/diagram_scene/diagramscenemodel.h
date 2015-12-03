@@ -102,6 +102,7 @@ public:
     bool hasMultiObjectsSelection() const;
     DSelection selectedElements() const;
     DElement *findTopmostElement(const QPointF &scenePos) const;
+    DObject *findTopmostObject(const QPointF &scenePos) const;
 
     QList<QGraphicsItem *> graphicsItems() const { return m_graphicsItems; }
     QGraphicsItem *graphicsItem(DElement *element) const;

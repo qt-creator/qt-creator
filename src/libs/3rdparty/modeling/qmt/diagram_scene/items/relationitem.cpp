@@ -174,6 +174,10 @@ private:
     QList<QPointF> m_points;
 };
 
+bool RelationItem::m_grabbedEndA = false;
+bool RelationItem::m_grabbedEndB = false;
+QPointF RelationItem::m_grabbedEndPos;
+
 RelationItem::RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
     : QGraphicsItem(parent),
       m_relation(relation),
@@ -271,14 +275,19 @@ void RelationItem::setFocusSelected(bool focusSelected)
     }
 }
 
-QPointF RelationItem::handlePos(int index)
+QPointF RelationItem::grabHandle(int index)
 {
     if (index == 0) {
-        // TODO implement
-        return QPointF(0,0);
+        m_grabbedEndA = true;
+        QPointF endBPos = calcEndPoint(m_relation->endBUid(), m_relation->endAUid(), m_relation->intermediatePoints().size() - 1);
+        QPointF endAPos = calcEndPoint(m_relation->endAUid(), endBPos, 0);
+        m_grabbedEndPos = endAPos;
+        return endAPos;
     } else if (index == m_relation->intermediatePoints().size() + 1) {
-        // TODO implement
-        return QPointF(0,0);
+        m_grabbedEndB = true;
+        QPointF endBPos = calcEndPoint(m_relation->endBUid(), m_relation->endAUid(), m_relation->intermediatePoints().size() - 1);
+        m_grabbedEndPos = endBPos;
+        return endBPos;
     } else {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         --index;
@@ -287,11 +296,15 @@ QPointF RelationItem::handlePos(int index)
     }
 }
 
-void RelationItem::insertHandle(int beforeIndex, const QPointF &pos)
+void RelationItem::insertHandle(int beforeIndex, const QPointF &pos, double rasterWidth, double rasterHeight)
 {
+    if (beforeIndex == 0)
+        ++beforeIndex;
     if (beforeIndex >= 1 && beforeIndex <= m_relation->intermediatePoints().size() + 1) {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
-        intermediatePoints.insert(beforeIndex - 1, DRelation::IntermediatePoint(pos));
+        double x = qRound(pos.x() / rasterWidth) * rasterWidth;
+        double y = qRound(pos.y() / rasterHeight) * rasterHeight;
+        intermediatePoints.insert(beforeIndex - 1, DRelation::IntermediatePoint(QPointF(x, y)));
 
         m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateMajor);
         m_relation->setIntermediatePoints(intermediatePoints);
@@ -301,6 +314,10 @@ void RelationItem::insertHandle(int beforeIndex, const QPointF &pos)
 
 void RelationItem::deleteHandle(int index)
 {
+    if (index == 0)
+        ++index;
+    else if (index == m_relation->intermediatePoints().size() + 1)
+        --index;
     if (index >= 1 && index <= m_relation->intermediatePoints().size()) {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         intermediatePoints.removeAt(index - 1);
@@ -314,9 +331,11 @@ void RelationItem::deleteHandle(int index)
 void RelationItem::setHandlePos(int index, const QPointF &pos)
 {
     if (index == 0) {
-        // TODO implement
+        m_grabbedEndPos = pos;
+        update();
     } else if (index == m_relation->intermediatePoints().size() + 1) {
-        // TODO implement
+        m_grabbedEndPos = pos;
+        update();
     } else {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         --index;
@@ -329,12 +348,18 @@ void RelationItem::setHandlePos(int index, const QPointF &pos)
     }
 }
 
-void RelationItem::alignHandleToRaster(int index, double rasterWidth, double rasterHeight)
+void RelationItem::dropHandle(int index, double rasterWidth, double rasterHeight)
 {
     if (index == 0) {
-        // TODO implement
-    } else if (index ==m_relation->intermediatePoints().size() + 1) {
-        // TODO implement
+        m_grabbedEndA = false;
+        DObject *targetObject = m_diagramSceneModel->findTopmostObject(m_grabbedEndPos);
+        if (!m_diagramSceneModel->diagramSceneController()->relocateRelationEndA(m_relation, targetObject))
+            update();
+    } else if (index == m_relation->intermediatePoints().size() + 1) {
+        m_grabbedEndB = false;
+        DObject *targetObject = m_diagramSceneModel->findTopmostObject(m_grabbedEndPos);
+        if (!m_diagramSceneModel->diagramSceneController()->relocateRelationEndB(m_relation, targetObject))
+            update();
     } else {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         --index;
@@ -365,8 +390,19 @@ void RelationItem::update()
 
 void RelationItem::update(const Style *style)
 {
-    QPointF endBPos = calcEndPoint(m_relation->endBUid(), m_relation->endAUid(), m_relation->intermediatePoints().size() - 1);
-    QPointF endAPos = calcEndPoint(m_relation->endAUid(), endBPos, 0);
+    QPointF endAPos;
+    QPointF endBPos;
+
+    if (m_grabbedEndA) {
+        endAPos = m_grabbedEndPos;
+        endBPos = calcEndPoint(m_relation->endBUid(), endAPos, m_relation->intermediatePoints().size() - 1);
+    } else if (m_grabbedEndB) {
+        endBPos = m_grabbedEndPos;
+        endAPos = calcEndPoint(m_relation->endAUid(), endBPos, 0);
+    } else {
+        endBPos = calcEndPoint(m_relation->endBUid(), m_relation->endAUid(), m_relation->intermediatePoints().size() - 1);
+        endAPos = calcEndPoint(m_relation->endAUid(), endBPos, 0);
+    }
 
     setPos(endAPos);
 

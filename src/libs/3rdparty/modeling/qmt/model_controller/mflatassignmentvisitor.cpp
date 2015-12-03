@@ -109,6 +109,8 @@ void MFlatAssignmentVisitor::visitMRelation(const MRelation *relation)
     auto targetRelation = dynamic_cast<MRelation *>(m_target);
     QMT_CHECK(targetRelation);
     targetRelation->setName(relation->name());
+    targetRelation->setEndAUid(relation->endAUid());
+    targetRelation->setEndBUid(relation->endBUid());
 }
 
 void MFlatAssignmentVisitor::visitMDependency(const MDependency *dependency)
