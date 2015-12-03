@@ -211,6 +211,7 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
         QmlEventStats *stats = &d->data[event->typeIndex()];
 
         stats->duration += event->duration();
+        stats->durationSelf += event->duration();
         if (event->duration() < stats->minTime)
             stats->minTime = event->duration();
         if (event->duration() > stats->maxTime)
@@ -225,7 +226,6 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
             qmlTime += event->duration();
             lastEndTime = event->startTime() + event->duration();
         }
-
 
         //
         // binding loop detection
@@ -245,6 +245,8 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
             }
         }
 
+        if (callStack.count() > 1)
+            d->data[callStack.top()->typeIndex()].durationSelf -= event->duration();
         callStack.push(event);
 
         d->modelManager->modelProxyCountUpdated(d->modelId, i, eventList.count()*2);
@@ -266,6 +268,7 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
         }
 
         stats->percentOfTime = stats->duration * 100.0 / qmlTime;
+        stats->percentSelf = stats->durationSelf * 100.0 / qmlTime;
         d->modelManager->modelProxyCountUpdated(d->modelId, i++, total);
     }
 
@@ -277,8 +280,10 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
     QmlEventStats rootEvent;
     rootEvent.duration = rootEvent.minTime = rootEvent.maxTime = rootEvent.timePerCall
                        = rootEvent.medianTime = qmlTime + 1;
+    rootEvent.durationSelf = 1;
     rootEvent.calls = 1;
     rootEvent.percentOfTime = 100.0;
+    rootEvent.percentSelf = 1.0 / rootEvent.duration;
 
     d->data.insert(-1, rootEvent);
 

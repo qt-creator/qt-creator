@@ -432,8 +432,8 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
     setFieldViewable(Type, true);
     setFieldViewable(TimeInPercent, true);
     setFieldViewable(TotalTime, true);
-    setFieldViewable(SelfTimeInPercent, false);
-    setFieldViewable(SelfTime, false);
+    setFieldViewable(SelfTimeInPercent, true);
+    setFieldViewable(SelfTime, true);
     setFieldViewable(CallCount, true);
     setFieldViewable(TimePerCall, true);
     setFieldViewable(MaxTime, true);
@@ -661,6 +661,17 @@ void QmlProfilerEventsMainView::parseModelProxy()
         if (d->m_fieldShown[TotalTime]) {
             newRow << new EventsViewItem(QmlProfilerDataModel::formatTime(stats.duration));
             newRow.last()->setData(QVariant(stats.duration));
+        }
+
+        if (d->m_fieldShown[SelfTimeInPercent]) {
+            newRow << new EventsViewItem(QString::number(stats.percentSelf, 'f', 2)
+                                         + QLatin1String(" %"));
+            newRow.last()->setData(QVariant(stats.percentSelf));
+        }
+
+        if (d->m_fieldShown[SelfTime]) {
+            newRow << new EventsViewItem(QmlProfilerDataModel::formatTime(stats.durationSelf));
+            newRow.last()->setData(QVariant(stats.durationSelf));
         }
 
         if (d->m_fieldShown[CallCount]) {
