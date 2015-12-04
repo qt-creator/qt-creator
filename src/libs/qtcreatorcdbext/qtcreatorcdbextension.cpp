@@ -513,14 +513,16 @@ static std::string commandLocals(ExtensionCommandContext &commandExtCtx,PCSTR ar
     if (watchSynchronization) {
         watchesSymbolGroup = 0;
         extCtx.discardWatchesSymbolGroup();
-        if (!watcherInameExpressionMap.empty()) {
-            // Force group into existence
-            watchesSymbolGroup = extCtx.watchesSymbolGroup(commandExtCtx.symbols(), errorMessage);
-            if (!watchesSymbolGroup || !watchesSymbolGroup->synchronize(commandExtCtx.symbols(),
-                                                                        watcherInameExpressionMap,
-                                                                        errorMessage)) {
-                return std::string();
-            }
+    }
+
+    if (watchesSymbolGroup == 0
+            && (!watcherInameExpressionMap.empty() || WatchesSymbolGroup::isWatchIname(iname))) {
+        // Force group into existence
+        watchesSymbolGroup = extCtx.watchesSymbolGroup(commandExtCtx.symbols(), errorMessage);
+        if (!watchesSymbolGroup || !watchesSymbolGroup->synchronize(commandExtCtx.symbols(),
+                                                                    watcherInameExpressionMap,
+                                                                    errorMessage)) {
+            return std::string();
         }
     }
 
