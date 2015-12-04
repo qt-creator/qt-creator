@@ -13,7 +13,6 @@ SOURCES += \
     qmlprofilerconfigwidget.cpp \
     qmlprofilerdatamodel.cpp \
     qmlprofilerdetailsrewriter.cpp \
-    qmlprofilereventsmodelproxy.cpp \
     qmlprofilermodelmanager.cpp \
     qmlprofilernotesmodel.cpp \
     qmlprofileroptionspage.cpp \
@@ -25,6 +24,7 @@ SOURCES += \
     qmlprofilersettings.cpp \
     qmlprofilerstatemanager.cpp \
     qmlprofilerstatewidget.cpp \
+    qmlprofilerstatisticsmodel.cpp \
     qmlprofilerstatisticsview.cpp \
     qmlprofilertimelinemodel.cpp \
     qmlprofilertimelinemodelfactory.cpp \
@@ -44,7 +44,6 @@ HEADERS += \
     qmlprofilerconstants.h \
     qmlprofilerdatamodel.h \
     qmlprofilerdetailsrewriter.h \
-    qmlprofilereventsmodelproxy.h \
     qmlprofilereventsview.h \
     qmlprofilermodelmanager.h \
     qmlprofilernotesmodel.h \
@@ -57,6 +56,7 @@ HEADERS += \
     qmlprofilersettings.h \
     qmlprofilerstatemanager.h \
     qmlprofilerstatewidget.h \
+    qmlprofilerstatisticsmodel.h \
     qmlprofilerstatisticsview.h \
     qmlprofilertimelinemodel.h \
     qmlprofilertimelinemodelfactory.h \

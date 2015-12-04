@@ -124,7 +124,7 @@ public:
     QmlProfilerStatisticsRelativesView *m_eventChildren;
     QmlProfilerStatisticsRelativesView *m_eventParents;
 
-    QmlProfilerEventsModelProxy *modelProxy;
+    QmlProfilerStatisticsModel *model;
     qint64 rangeStart;
     qint64 rangeEnd;
 };
@@ -197,19 +197,19 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QWidget *parent, QmlProfile
 {
     setObjectName(QLatin1String("QmlProfilerStatisticsView"));
 
-    d->modelProxy = new QmlProfilerEventsModelProxy(profilerModelManager, this);
+    d->model = new QmlProfilerStatisticsModel(profilerModelManager, this);
 
-    d->m_eventTree = new QmlProfilerStatisticsMainView(this, d->modelProxy);
+    d->m_eventTree = new QmlProfilerStatisticsMainView(this, d->model);
     connect(d->m_eventTree, &QmlProfilerStatisticsMainView::gotoSourceLocation,
             this, &QmlProfilerStatisticsView::gotoSourceLocation);
     connect(d->m_eventTree, &QmlProfilerStatisticsMainView::typeSelected,
             this, &QmlProfilerStatisticsView::typeSelected);
 
     d->m_eventChildren = new QmlProfilerStatisticsRelativesView(
-                new QmlProfilerEventChildrenModelProxy(profilerModelManager, d->modelProxy, this),
+                new QmlProfilerStatisticsChildrenModel(profilerModelManager, d->model, this),
                 this);
     d->m_eventParents = new QmlProfilerStatisticsRelativesView(
-                new QmlProfilerEventParentsModelProxy(profilerModelManager, d->modelProxy, this),
+                new QmlProfilerStatisticsParentsModel(profilerModelManager, d->model, this),
                 this);
     connect(d->m_eventTree, &QmlProfilerStatisticsMainView::typeSelected,
             d->m_eventChildren, &QmlProfilerStatisticsRelativesView::displayType);
@@ -249,7 +249,7 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QWidget *parent, QmlProfile
 
 QmlProfilerStatisticsView::~QmlProfilerStatisticsView()
 {
-    delete d->modelProxy;
+    delete d->model;
     delete d;
 }
 
@@ -264,7 +264,7 @@ void QmlProfilerStatisticsView::restrictToRange(qint64 rangeStart, qint64 rangeE
 {
     d->rangeStart = rangeStart;
     d->rangeEnd = rangeEnd;
-    d->modelProxy->limitToRange(rangeStart, rangeEnd);
+    d->model->limitToRange(rangeStart, rangeEnd);
 }
 
 QModelIndex QmlProfilerStatisticsView::selectedModelIndex() const
@@ -358,9 +358,9 @@ void QmlProfilerStatisticsView::onVisibleFeaturesChanged(quint64 features)
         RangeType range = static_cast<RangeType>(i);
         quint64 featureFlag = 1ULL << featureFromRangeType(range);
         if (QmlDebug::Constants::QML_JS_RANGE_FEATURES & featureFlag)
-            d->modelProxy->setEventTypeAccepted(range, features & featureFlag);
+            d->model->setEventTypeAccepted(range, features & featureFlag);
     }
-    d->modelProxy->limitToRange(d->rangeStart, d->rangeEnd);
+    d->model->limitToRange(d->rangeStart, d->rangeEnd);
 }
 
 bool QmlProfilerStatisticsView::isRestrictedToRange() const
@@ -390,7 +390,7 @@ public:
 
     QmlProfilerStatisticsMainView *q;
 
-    QmlProfilerEventsModelProxy *modelProxy;
+    QmlProfilerStatisticsModel *model;
     QStandardItemModel *m_model;
     QList<bool> m_fieldShown;
     QHash<int, int> m_columnIndex; // maps field enum to column index
@@ -399,7 +399,7 @@ public:
 };
 
 QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(
-        QWidget *parent, QmlProfilerEventsModelProxy *modelProxy) :
+        QWidget *parent, QmlProfilerStatisticsModel *model) :
     Utils::TreeView(parent), d(new QmlProfilerStatisticsMainViewPrivate(this))
 {
     setViewDefaults(this);
@@ -412,10 +412,10 @@ QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(
     setModel(d->m_model);
     connect(this, &QAbstractItemView::activated, this, &QmlProfilerStatisticsMainView::jumpToItem);
 
-    d->modelProxy = modelProxy;
-    connect(d->modelProxy, &QmlProfilerEventsModelProxy::dataAvailable,
+    d->model = model;
+    connect(d->model, &QmlProfilerStatisticsModel::dataAvailable,
             this, &QmlProfilerStatisticsMainView::buildModel);
-    connect(d->modelProxy, &QmlProfilerEventsModelProxy::notesAvailable,
+    connect(d->model, &QmlProfilerStatisticsModel::notesAvailable,
             this, &QmlProfilerStatisticsMainView::updateNotes);
     d->m_firstNumericColumn = 0;
     d->m_showExtendedStatistics = false;
@@ -561,7 +561,7 @@ int QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainViewPrivate::getFiel
 void QmlProfilerStatisticsMainView::buildModel()
 {
     clear();
-    parseModelProxy();
+    parseModel();
     setShowExtendedStatistics(d->m_showExtendedStatistics);
 
     setRootIsDecorated(false);
@@ -579,16 +579,16 @@ void QmlProfilerStatisticsMainView::buildModel()
 
 void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
 {
-    const QHash<int, QmlProfilerEventsModelProxy::QmlEventStats> &eventList =
-            d->modelProxy->getData();
-    const QHash<int, QString> &noteList = d->modelProxy->getNotes();
+    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList =
+            d->model->getData();
+    const QHash<int, QString> &noteList = d->model->getNotes();
     QStandardItem *parentItem = d->m_model->invisibleRootItem();
 
     for (int rowIndex = 0; rowIndex < parentItem->rowCount(); ++rowIndex) {
         int rowType = parentItem->child(rowIndex, 0)->data(TypeIdRole).toInt();
         if (rowType != typeIndex && typeIndex != -1)
             continue;
-        const QmlProfilerEventsModelProxy::QmlEventStats &stats = eventList[rowType];
+        const QmlProfilerStatisticsModel::QmlEventStats &stats = eventList[rowType];
 
         for (int columnIndex = 0; columnIndex < parentItem->columnCount(); ++columnIndex) {
             QStandardItem *item = parentItem->child(rowIndex, columnIndex);
@@ -607,17 +607,17 @@ void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
     }
 }
 
-void QmlProfilerStatisticsMainView::parseModelProxy()
+void QmlProfilerStatisticsMainView::parseModel()
 {
-    const QHash<int, QmlProfilerEventsModelProxy::QmlEventStats> &eventList =
-            d->modelProxy->getData();
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList = d->modelProxy->getTypes();
+    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList =
+            d->model->getData();
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList = d->model->getTypes();
 
 
-    QHash<int, QmlProfilerEventsModelProxy::QmlEventStats>::ConstIterator it;
+    QHash<int, QmlProfilerStatisticsModel::QmlEventStats>::ConstIterator it;
     for (it = eventList.constBegin(); it != eventList.constEnd(); ++it) {
         int typeIndex = it.key();
-        const QmlProfilerEventsModelProxy::QmlEventStats &stats = it.value();
+        const QmlProfilerStatisticsModel::QmlEventStats &stats = it.value();
         const QmlProfilerDataModel::QmlEventTypeData &event =
                 (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
         QStandardItem *parentItem = d->m_model->invisibleRootItem();
@@ -743,7 +743,7 @@ QString QmlProfilerStatisticsMainView::nameForType(RangeType typeNumber)
 
 void QmlProfilerStatisticsMainView::getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd)
 {
-    d->modelProxy->limitToRange(rangeStart, rangeEnd);
+    d->model->limitToRange(rangeStart, rangeEnd);
 }
 
 int QmlProfilerStatisticsMainView::selectedTypeId() const
@@ -870,21 +870,21 @@ public:
     QmlProfilerStatisticsRelativesViewPrivate(QmlProfilerStatisticsRelativesView *qq):q(qq) {}
     ~QmlProfilerStatisticsRelativesViewPrivate() {}
 
-    QmlProfilerEventRelativesModelProxy *modelProxy;
+    QmlProfilerStatisticsRelativesModel *model;
 
     QmlProfilerStatisticsRelativesView *q;
 };
 
 QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesView(
-        QmlProfilerEventRelativesModelProxy *modelProxy, QWidget *parent) :
+        QmlProfilerStatisticsRelativesModel *model, QWidget *parent) :
     Utils::TreeView(parent), d(new QmlProfilerStatisticsRelativesViewPrivate(this))
 {
     setViewDefaults(this);
     setSortingEnabled(false);
-    d->modelProxy = modelProxy;
-    QStandardItemModel *model = new QStandardItemModel(this);
-    model->setSortRole(SortRole);
-    setModel(model);
+    d->model = model;
+    QStandardItemModel *itemModel = new QStandardItemModel(this);
+    itemModel->setSortRole(SortRole);
+    setModel(itemModel);
     setRootIsDecorated(false);
     updateHeader();
 
@@ -892,7 +892,7 @@ QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesView(
             this, &QmlProfilerStatisticsRelativesView::jumpToItem);
 
     // Clear when new data available as the selection may be invalid now.
-    connect(d->modelProxy, &QmlProfilerEventRelativesModelProxy::dataAvailable,
+    connect(d->model, &QmlProfilerStatisticsRelativesModel::dataAvailable,
             this, &QmlProfilerStatisticsRelativesView::clear);
 }
 
@@ -903,7 +903,7 @@ QmlProfilerStatisticsRelativesView::~QmlProfilerStatisticsRelativesView()
 
 void QmlProfilerStatisticsRelativesView::displayType(int typeIndex)
 {
-    rebuildTree(d->modelProxy->getData(typeIndex));
+    rebuildTree(d->model->getData(typeIndex));
 
     updateHeader();
     resizeColumnToContents(0);
@@ -912,24 +912,24 @@ void QmlProfilerStatisticsRelativesView::displayType(int typeIndex)
 }
 
 void QmlProfilerStatisticsRelativesView::rebuildTree(
-        const QmlProfilerEventRelativesModelProxy::QmlEventRelativesMap &eventMap)
+        const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap &map)
 {
     Q_ASSERT(treeModel());
     treeModel()->clear();
 
     QStandardItem *topLevelItem = treeModel()->invisibleRootItem();
-    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList = d->modelProxy->getTypes();
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList = d->model->getTypes();
 
-    QmlProfilerEventRelativesModelProxy::QmlEventRelativesMap::const_iterator it;
-    for (it = eventMap.constBegin(); it != eventMap.constEnd(); ++it) {
-        const QmlProfilerEventRelativesModelProxy::QmlEventRelativesData &event = it.value();
+    QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap::const_iterator it;
+    for (it = map.constBegin(); it != map.constEnd(); ++it) {
+        const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &event = it.value();
         int typeIndex = it.key();
         const QmlProfilerDataModel::QmlEventTypeData &type =
                 (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
         QList<QStandardItem *> newRow;
 
-        // ToDo: here we were going to search for the data in the other modelproxy
-        // maybe we should store the data in this proxy and get it here
+        // ToDo: here we were going to search for the data in the other model
+        // maybe we should store the data in this model and get it here
         // no indirections at this level of abstraction!
         newRow << new StatisticsViewItem(type.displayName.isEmpty() ? tr("<bytecode>") :
                                                                   type.displayName);
@@ -973,7 +973,7 @@ void QmlProfilerStatisticsRelativesView::clear()
 
 void QmlProfilerStatisticsRelativesView::updateHeader()
 {
-    bool calleesView = qobject_cast<QmlProfilerEventChildrenModelProxy *>(d->modelProxy) != 0;
+    bool calleesView = qobject_cast<QmlProfilerStatisticsChildrenModel *>(d->model) != 0;
 
     if (treeModel()) {
         treeModel()->setColumnCount(5);

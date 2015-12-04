@@ -28,9 +28,8 @@
 **
 ****************************************************************************/
 
-
-#ifndef QMLPROFILEREVENTSMODELPROXY_H
-#define QMLPROFILEREVENTSMODELPROXY_H
+#ifndef QMLPROFILERSTATISTICSMODEL_H
+#define QMLPROFILERSTATISTICSMODEL_H
 
 #include "qmlprofilerdatamodel.h"
 #include "qmlprofilernotesmodel.h"
@@ -40,13 +39,10 @@
 #include <QHash>
 #include <QVector>
 
-
 namespace QmlProfiler {
 class QmlProfilerModelManager;
 
-namespace Internal {
-
-class QmlProfilerEventsModelProxy : public QObject
+class QmlProfilerStatisticsModel : public QObject
 {
     Q_OBJECT
 public:
@@ -67,8 +63,8 @@ public:
         bool isBindingLoop;
     };
 
-    QmlProfilerEventsModelProxy(QmlProfilerModelManager *modelManager, QObject *parent = 0);
-    ~QmlProfilerEventsModelProxy();
+    QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager, QObject *parent = 0);
+    ~QmlProfilerStatisticsModel();
 
     void setEventTypeAccepted(QmlDebug::RangeType type, bool accepted);
     bool eventTypeAccepted(QmlDebug::RangeType) const;
@@ -88,7 +84,6 @@ signals:
 
 private:
     void loadData(qint64 rangeStart = -1, qint64 rangeEnd = -1);
-
     const QSet<int> &eventsInBindingLoop() const;
 
 private slots:
@@ -96,37 +91,34 @@ private slots:
     void notesChanged(int typeIndex);
 
 private:
-    class QmlProfilerEventsModelProxyPrivate;
-    QmlProfilerEventsModelProxyPrivate *d;
+    class QmlProfilerStatisticsModelPrivate;
+    QmlProfilerStatisticsModelPrivate *d;
 
-    friend class QmlProfilerEventParentsModelProxy;
-    friend class QmlProfilerEventChildrenModelProxy;
+    friend class QmlProfilerStatisticsParentsModel;
+    friend class QmlProfilerStatisticsChildrenModel;
 };
 
-class QmlProfilerEventRelativesModelProxy : public QObject
+class QmlProfilerStatisticsRelativesModel : public QObject
 {
     Q_OBJECT
 public:
-    struct QmlEventRelativesData {
+    struct QmlStatisticsRelativesData {
         qint64 duration;
         qint64 calls;
         bool isBindingLoop;
     };
-    typedef QHash <int, QmlEventRelativesData> QmlEventRelativesMap;
+    typedef QHash <int, QmlStatisticsRelativesData> QmlStatisticsRelativesMap;
 
-    QmlProfilerEventRelativesModelProxy(QmlProfilerModelManager *modelManager,
-                                        QmlProfilerEventsModelProxy *eventsModel,
+    QmlProfilerStatisticsRelativesModel(QmlProfilerModelManager *modelManager,
+                                        QmlProfilerStatisticsModel *statisticsModel,
                                         QObject *parent = 0);
-    ~QmlProfilerEventRelativesModelProxy();
-
 
     int count() const;
     void clear();
 
-    const QmlEventRelativesMap &getData(int typeId) const;
+    const QmlStatisticsRelativesMap &getData(int typeId) const;
     QVariantList getNotes(int typeId) const;
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &getTypes() const;
-
 
 protected:
     virtual void loadData() = 0;
@@ -138,38 +130,35 @@ protected slots:
     void dataChanged();
 
 protected:
-    QHash <int, QmlEventRelativesMap> m_data;
+    QHash <int, QmlStatisticsRelativesMap> m_data;
     QmlProfilerModelManager *m_modelManager;
-    QmlProfilerEventsModelProxy *m_eventsModel;
+    QmlProfilerStatisticsModel *m_statisticsModel;
 };
 
-class QmlProfilerEventParentsModelProxy : public QmlProfilerEventRelativesModelProxy
+class QmlProfilerStatisticsParentsModel : public QmlProfilerStatisticsRelativesModel
 {
     Q_OBJECT
 public:
-    QmlProfilerEventParentsModelProxy(QmlProfilerModelManager *modelManager,
-                                      QmlProfilerEventsModelProxy *eventsModel,
+    QmlProfilerStatisticsParentsModel(QmlProfilerModelManager *modelManager,
+                                      QmlProfilerStatisticsModel *statisticsModel,
                                       QObject *parent = 0);
-    ~QmlProfilerEventParentsModelProxy();
 
 protected:
     virtual void loadData();
 };
 
-class QmlProfilerEventChildrenModelProxy : public QmlProfilerEventRelativesModelProxy
+class QmlProfilerStatisticsChildrenModel : public QmlProfilerStatisticsRelativesModel
 {
     Q_OBJECT
 public:
-    QmlProfilerEventChildrenModelProxy(QmlProfilerModelManager *modelManager,
-                                       QmlProfilerEventsModelProxy *eventsModel,
+    QmlProfilerStatisticsChildrenModel(QmlProfilerModelManager *modelManager,
+                                       QmlProfilerStatisticsModel *statisticsModel,
                                        QObject *parent = 0);
-    ~QmlProfilerEventChildrenModelProxy();
 
 protected:
     virtual void loadData();
 };
 
 }
-}
 
-#endif
+#endif // QMLPROFILERSTATISTICSMODEL_H

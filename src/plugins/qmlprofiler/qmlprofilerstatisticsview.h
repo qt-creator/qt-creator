@@ -32,7 +32,7 @@
 #define QMLPROFILERSTATISTICSVIEW_H
 
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilereventsmodelproxy.h"
+#include "qmlprofilerstatisticsmodel.h"
 #include "qmlprofilerviewmanager.h"
 #include "qmlprofilereventsview.h"
 
@@ -117,8 +117,7 @@ class QmlProfilerStatisticsMainView : public Utils::TreeView
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerStatisticsMainView(QWidget *parent,
-                                           QmlProfilerEventsModelProxy *modelProxy);
+    explicit QmlProfilerStatisticsMainView(QWidget *parent, QmlProfilerStatisticsModel *model);
     ~QmlProfilerStatisticsMainView();
 
     void setFieldViewable(Fields field, bool show);
@@ -151,7 +150,7 @@ public slots:
 private:
     void selectItem(const QStandardItem *item);
     void setHeaderLabels();
-    void parseModelProxy();
+    void parseModel();
     QStandardItem *itemFromIndex(const QModelIndex &index) const;
 
 private:
@@ -164,8 +163,8 @@ class QmlProfilerStatisticsRelativesView : public Utils::TreeView
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerStatisticsRelativesView(QmlProfilerEventRelativesModelProxy *modelProxy,
-                                                QWidget *parent );
+    explicit QmlProfilerStatisticsRelativesView(QmlProfilerStatisticsRelativesModel *model,
+                                                QWidget *parent);
     ~QmlProfilerStatisticsRelativesView();
 
 signals:
@@ -178,7 +177,7 @@ public slots:
     void clear();
 
 private:
-    void rebuildTree(const QmlProfilerEventParentsModelProxy::QmlEventRelativesMap &eventMap);
+    void rebuildTree(const QmlProfilerStatisticsParentsModel::QmlStatisticsRelativesMap &map);
     void updateHeader();
     QStandardItemModel *treeModel();
 

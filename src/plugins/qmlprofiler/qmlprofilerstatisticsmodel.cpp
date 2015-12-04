@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 
-#include "qmlprofilereventsmodelproxy.h"
+#include "qmlprofilerstatisticsmodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
 
@@ -45,18 +45,17 @@
 #include <QDebug>
 
 namespace QmlProfiler {
-namespace Internal {
 
-class QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxyPrivate
+class QmlProfilerStatisticsModel::QmlProfilerStatisticsModelPrivate
 {
 public:
-    QmlProfilerEventsModelProxyPrivate(QmlProfilerEventsModelProxy *qq) : q(qq) {}
-    ~QmlProfilerEventsModelProxyPrivate() {}
+    QmlProfilerStatisticsModelPrivate(QmlProfilerStatisticsModel *qq) : q(qq) {}
+    ~QmlProfilerStatisticsModelPrivate() {}
 
-    QHash<int, QmlProfilerEventsModelProxy::QmlEventStats> data;
+    QHash<int, QmlProfilerStatisticsModel::QmlEventStats> data;
 
     QmlProfilerModelManager *modelManager;
-    QmlProfilerEventsModelProxy *q;
+    QmlProfilerStatisticsModel *q;
 
     int modelId;
 
@@ -65,14 +64,15 @@ public:
     QHash<int, QString> notes;
 };
 
-QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager *modelManager, QObject *parent)
-    : QObject(parent), d(new QmlProfilerEventsModelProxyPrivate(this))
+QmlProfilerStatisticsModel::QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager,
+                                               QObject *parent) :
+    QObject(parent), d(new QmlProfilerStatisticsModelPrivate(this))
 {
     d->modelManager = modelManager;
     connect(modelManager->qmlModel(), &QmlProfilerDataModel::changed,
-            this, &QmlProfilerEventsModelProxy::dataChanged);
+            this, &QmlProfilerStatisticsModel::dataChanged);
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
-            this, &QmlProfilerEventsModelProxy::notesChanged);
+            this, &QmlProfilerStatisticsModel::notesChanged);
     d->modelId = modelManager->registerModelProxy();
 
     // We're iterating twice in loadData.
@@ -83,12 +83,12 @@ QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager
     modelManager->announceFeatures(d->modelId, QmlDebug::Constants::QML_JS_RANGE_FEATURES);
 }
 
-QmlProfilerEventsModelProxy::~QmlProfilerEventsModelProxy()
+QmlProfilerStatisticsModel::~QmlProfilerStatisticsModel()
 {
     delete d;
 }
 
-void QmlProfilerEventsModelProxy::setEventTypeAccepted(QmlDebug::RangeType type, bool accepted)
+void QmlProfilerStatisticsModel::setEventTypeAccepted(QmlDebug::RangeType type, bool accepted)
 {
     if (accepted && !d->acceptedTypes.contains(type))
         d->acceptedTypes << type;
@@ -96,27 +96,27 @@ void QmlProfilerEventsModelProxy::setEventTypeAccepted(QmlDebug::RangeType type,
         d->acceptedTypes.removeOne(type);
 }
 
-bool QmlProfilerEventsModelProxy::eventTypeAccepted(QmlDebug::RangeType type) const
+bool QmlProfilerStatisticsModel::eventTypeAccepted(QmlDebug::RangeType type) const
 {
     return d->acceptedTypes.contains(type);
 }
 
-const QHash<int, QmlProfilerEventsModelProxy::QmlEventStats> &QmlProfilerEventsModelProxy::getData() const
+const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &QmlProfilerStatisticsModel::getData() const
 {
     return d->data;
 }
 
-const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerEventsModelProxy::getTypes() const
+const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerStatisticsModel::getTypes() const
 {
     return d->modelManager->qmlModel()->getEventTypes();
 }
 
-const QHash<int, QString> &QmlProfilerEventsModelProxy::getNotes() const
+const QHash<int, QString> &QmlProfilerStatisticsModel::getNotes() const
 {
     return d->notes;
 }
 
-void QmlProfilerEventsModelProxy::clear()
+void QmlProfilerStatisticsModel::clear()
 {
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
     d->data.clear();
@@ -124,13 +124,13 @@ void QmlProfilerEventsModelProxy::clear()
     d->notes.clear();
 }
 
-void QmlProfilerEventsModelProxy::limitToRange(qint64 rangeStart, qint64 rangeEnd)
+void QmlProfilerStatisticsModel::limitToRange(qint64 rangeStart, qint64 rangeEnd)
 {
     if (!d->modelManager->isEmpty())
         loadData(rangeStart, rangeEnd);
 }
 
-void QmlProfilerEventsModelProxy::dataChanged()
+void QmlProfilerStatisticsModel::dataChanged()
 {
     if (d->modelManager->state() == QmlProfilerModelManager::ProcessingData)
         loadData();
@@ -138,7 +138,7 @@ void QmlProfilerEventsModelProxy::dataChanged()
         clear();
 }
 
-void QmlProfilerEventsModelProxy::notesChanged(int typeIndex)
+void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
 {
     const QmlProfilerNotesModel *notesModel = d->modelManager->notesModel();
     if (typeIndex == -1) {
@@ -170,12 +170,12 @@ void QmlProfilerEventsModelProxy::notesChanged(int typeIndex)
     emit notesAvailable(typeIndex);
 }
 
-const QSet<int> &QmlProfilerEventsModelProxy::eventsInBindingLoop() const
+const QSet<int> &QmlProfilerStatisticsModel::eventsInBindingLoop() const
 {
     return d->eventsInBindingLoop;
 }
 
-void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
+void QmlProfilerStatisticsModel::loadData(qint64 rangeStart, qint64 rangeEnd)
 {
     clear();
 
@@ -291,75 +291,69 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
     emit dataAvailable();
 }
 
-int QmlProfilerEventsModelProxy::count() const
+int QmlProfilerStatisticsModel::count() const
 {
     return d->data.count();
 }
 
-QmlProfilerEventRelativesModelProxy::QmlProfilerEventRelativesModelProxy(QmlProfilerModelManager *modelManager,
-                                                                         QmlProfilerEventsModelProxy *eventsModel,
-                                                                         QObject *parent)
-    : QObject(parent)
+QmlProfilerStatisticsRelativesModel::QmlProfilerStatisticsRelativesModel(
+        QmlProfilerModelManager *modelManager, QmlProfilerStatisticsModel *statisticsModel,
+        QObject *parent) : QObject(parent)
 {
     QTC_CHECK(modelManager);
     m_modelManager = modelManager;
 
-    QTC_CHECK(eventsModel);
-    m_eventsModel = eventsModel;
+    QTC_CHECK(statisticsModel);
+    m_statisticsModel = statisticsModel;
 
     // Load the child models whenever the parent model is done to get the filtering for JS/QML
     // right.
-    connect(m_eventsModel, &QmlProfilerEventsModelProxy::dataAvailable,
-            this, &QmlProfilerEventRelativesModelProxy::dataChanged);
+    connect(m_statisticsModel, &QmlProfilerStatisticsModel::dataAvailable,
+            this, &QmlProfilerStatisticsRelativesModel::dataChanged);
 }
 
-QmlProfilerEventRelativesModelProxy::~QmlProfilerEventRelativesModelProxy()
+const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap &
+QmlProfilerStatisticsRelativesModel::getData(int typeId) const
 {
-}
-
-const QmlProfilerEventRelativesModelProxy::QmlEventRelativesMap &QmlProfilerEventRelativesModelProxy::getData(int typeId) const
-{
-    QHash <int, QmlEventRelativesMap>::ConstIterator it = m_data.find(typeId);
+    QHash <int, QmlStatisticsRelativesMap>::ConstIterator it = m_data.find(typeId);
     if (it != m_data.end()) {
         return it.value();
     } else {
-        static const QmlEventRelativesMap emptyMap;
+        static const QmlStatisticsRelativesMap emptyMap;
         return emptyMap;
     }
 }
 
-const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerEventRelativesModelProxy::getTypes() const
+const QVector<QmlProfilerDataModel::QmlEventTypeData> &
+QmlProfilerStatisticsRelativesModel::getTypes() const
 {
     return m_modelManager->qmlModel()->getEventTypes();
 }
 
-int QmlProfilerEventRelativesModelProxy::count() const
+int QmlProfilerStatisticsRelativesModel::count() const
 {
     return m_data.count();
 }
 
-void QmlProfilerEventRelativesModelProxy::clear()
+void QmlProfilerStatisticsRelativesModel::clear()
 {
     m_data.clear();
 }
 
-void QmlProfilerEventRelativesModelProxy::dataChanged()
+void QmlProfilerStatisticsRelativesModel::dataChanged()
 {
     loadData();
 
     emit dataAvailable();
 }
 
-QmlProfilerEventParentsModelProxy::QmlProfilerEventParentsModelProxy(QmlProfilerModelManager *modelManager,
-                                                                     QmlProfilerEventsModelProxy *eventsModel,
-                                                                     QObject *parent)
-    : QmlProfilerEventRelativesModelProxy(modelManager, eventsModel, parent)
+QmlProfilerStatisticsParentsModel::QmlProfilerStatisticsParentsModel(
+        QmlProfilerModelManager *modelManager, QmlProfilerStatisticsModel *statisticsModel,
+        QObject *parent) :
+    QmlProfilerStatisticsRelativesModel(modelManager, statisticsModel, parent)
 {}
 
-QmlProfilerEventParentsModelProxy::~QmlProfilerEventParentsModelProxy()
-{}
-
-void QmlProfilerEventParentsModelProxy::loadData()
+void QmlProfilerStatisticsParentsModel::loadData()
 {
     clear();
     QmlProfilerDataModel *simpleModel = m_modelManager->qmlModel();
@@ -371,7 +365,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
     int level = QmlDebug::Constants::QML_MIN_LEVEL;
     endtimesPerLevel[0] = 0;
 
-    const QSet<int> &eventsInBindingLoop = m_eventsModel->eventsInBindingLoop();
+    const QSet<int> &eventsInBindingLoop = m_statisticsModel->eventsInBindingLoop();
 
     // compute parent-child relationship and call count
     QHash<int, int> lastParent;
@@ -379,7 +373,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
     const QVector<QmlProfilerDataModel::QmlEventTypeData> typesList = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
-        if (!m_eventsModel->eventTypeAccepted(typesList[event.typeIndex()].rangeType))
+        if (!m_statisticsModel->eventTypeAccepted(typesList[event.typeIndex()].rangeType))
             continue;
 
         // level computation
@@ -396,13 +390,13 @@ void QmlProfilerEventParentsModelProxy::loadData()
         if (level > QmlDebug::Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
             parentTypeIndex = lastParent[level-1];
 
-        QmlEventRelativesMap &relativesMap = m_data[event.typeIndex()];
-        QmlEventRelativesMap::Iterator it = relativesMap.find(parentTypeIndex);
+        QmlStatisticsRelativesMap &relativesMap = m_data[event.typeIndex()];
+        QmlStatisticsRelativesMap::Iterator it = relativesMap.find(parentTypeIndex);
         if (it != relativesMap.end()) {
             it.value().calls++;
             it.value().duration += event.duration();
         } else {
-            QmlEventRelativesData parent = {
+            QmlStatisticsRelativesData parent = {
                 event.duration(),
                 1,
                 eventsInBindingLoop.contains(parentTypeIndex)
@@ -415,16 +409,13 @@ void QmlProfilerEventParentsModelProxy::loadData()
     }
 }
 
-QmlProfilerEventChildrenModelProxy::QmlProfilerEventChildrenModelProxy(QmlProfilerModelManager *modelManager,
-                                                                       QmlProfilerEventsModelProxy *eventsModel,
-                                                                       QObject *parent)
-    : QmlProfilerEventRelativesModelProxy(modelManager, eventsModel, parent)
+QmlProfilerStatisticsChildrenModel::QmlProfilerStatisticsChildrenModel(
+        QmlProfilerModelManager *modelManager, QmlProfilerStatisticsModel *statisticsModel,
+        QObject *parent) :
+    QmlProfilerStatisticsRelativesModel(modelManager, statisticsModel, parent)
 {}
 
-QmlProfilerEventChildrenModelProxy::~QmlProfilerEventChildrenModelProxy()
-{}
-
-void QmlProfilerEventChildrenModelProxy::loadData()
+void QmlProfilerStatisticsChildrenModel::loadData()
 {
     clear();
     QmlProfilerDataModel *simpleModel = m_modelManager->qmlModel();
@@ -436,7 +427,7 @@ void QmlProfilerEventChildrenModelProxy::loadData()
     int level = QmlDebug::Constants::QML_MIN_LEVEL;
     endtimesPerLevel[0] = 0;
 
-    const QSet<int> &eventsInBindingLoop = m_eventsModel->eventsInBindingLoop();
+    const QSet<int> &eventsInBindingLoop = m_statisticsModel->eventsInBindingLoop();
 
     // compute parent-child relationship and call count
     QHash<int, int> lastParent;
@@ -444,7 +435,7 @@ void QmlProfilerEventChildrenModelProxy::loadData()
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
-        if (!m_eventsModel->eventTypeAccepted(typesList[event.typeIndex()].rangeType))
+        if (!m_statisticsModel->eventTypeAccepted(typesList[event.typeIndex()].rangeType))
             continue;
 
         // level computation
@@ -462,13 +453,13 @@ void QmlProfilerEventChildrenModelProxy::loadData()
         if (level > QmlDebug::Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
             parentId = lastParent[level-1];
 
-        QmlEventRelativesMap &relativesMap = m_data[parentId];
-        QmlEventRelativesMap::Iterator it = relativesMap.find(event.typeIndex());
+        QmlStatisticsRelativesMap &relativesMap = m_data[parentId];
+        QmlStatisticsRelativesMap::Iterator it = relativesMap.find(event.typeIndex());
         if (it != relativesMap.end()) {
             it.value().calls++;
             it.value().duration += event.duration();
         } else {
-            QmlEventRelativesData child = {
+            QmlStatisticsRelativesData child = {
                 event.duration(),
                 1,
                 eventsInBindingLoop.contains(parentId)
@@ -481,7 +472,4 @@ void QmlProfilerEventChildrenModelProxy::loadData()
     }
 }
 
-
-
-}
 }
