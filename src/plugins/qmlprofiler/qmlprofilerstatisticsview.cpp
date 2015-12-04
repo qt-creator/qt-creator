@@ -192,6 +192,7 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QWidget *parent,
     : QmlProfilerEventsView(parent), d(new QmlProfilerStatisticsViewPrivate(this))
 {
     setObjectName(QLatin1String("QmlProfilerStatisticsView"));
+    setWindowTitle(tr("Statistics"));
 
     d->model = new QmlProfilerStatisticsModel(profilerModelManager, this);
 
@@ -304,7 +305,7 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
         if (selectedAction == copyTableAction)
             copyTableToClipboard();
         if (selectedAction == getGlobalStatsAction)
-            restrictToRange(-1, -1);
+            emit showFullRange();
         if (selectedAction == showExtendedStatsAction)
             setShowExtendedStatistics(!showExtendedStatistics());
     }

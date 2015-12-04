@@ -65,6 +65,7 @@ public slots:
     void clear();
 
 signals:
+    void typeSelected(int typeId);
     void gotoSourceLocation(QString,int,int);
 
 private:

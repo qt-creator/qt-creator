@@ -242,11 +242,11 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     menu.addActions(QmlProfilerTool::profilerContextMenuActions());
     menu.addSeparator();
 
-    QAction *getLocalStatsAction = menu.addAction(tr("Limit Statistics Pane to Current Range"));
+    QAction *getLocalStatsAction = menu.addAction(tr("Analyze Current Range"));
     if (!d->m_viewContainer->hasValidSelection())
         getLocalStatsAction->setEnabled(false);
 
-    QAction *getGlobalStatsAction = menu.addAction(tr("Show Full Range in Statistics Pane"));
+    QAction *getGlobalStatsAction = menu.addAction(tr("Analyze Full Range"));
     if (!d->m_viewContainer->isEventsRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 

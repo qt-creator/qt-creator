@@ -546,7 +546,7 @@
 
     When you select an event in the \uicontrol Timeline view, information about it is
     displayed in the \uicontrol Statistics view. To view an event range in the
-    \uicontrol Statistics view, select \uicontrol {Limit Statistics Pane to Current Range}
+    \uicontrol Statistics view, select \uicontrol {Analyze Current Range}
     in the context menu in the \uicontrol Timeline view.
 
     To copy the contents of one view or row to the clipboard, select

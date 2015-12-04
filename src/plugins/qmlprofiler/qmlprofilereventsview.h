@@ -32,6 +32,7 @@
 #define QMLPROFILEREVENTSVIEW_H
 
 #include "qmlprofiler_global.h"
+#include "qmlprofilermodelmanager.h"
 
 #include <QAbstractItemModel>
 #include <QWidget>
@@ -51,10 +52,19 @@ public:
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void typeSelected(int typeIndex);
+    void showFullRange();
 
 public slots:
     virtual void selectByTypeId(int typeIndex) = 0;
     virtual void onVisibleFeaturesChanged(quint64 features) = 0;
+};
+
+class QMLPROFILER_EXPORT QmlProfilerEventsViewFactory : public QObject
+{
+    Q_OBJECT
+public:
+    virtual QList<QmlProfilerEventsView *> create(QWidget *parent,
+                                                  QmlProfilerModelManager *manager) = 0;
 };
 
 }

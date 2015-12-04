@@ -37,9 +37,11 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatewidget.h"
 
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <analyzerbase/analyzermanager.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QDockWidget>
 
@@ -54,9 +56,10 @@ public:
 
     QDockWidget *timelineDock;
     QmlProfilerTraceView *traceView;
-    QmlProfilerStatisticsView *eventsView;
+    QList<QmlProfilerEventsView *> eventsViews;
     QmlProfilerStateManager *profilerState;
     QmlProfilerModelManager *profilerModelManager;
+    QmlProfilerEventsViewFactory *eventsViewFactory;
 };
 
 QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
@@ -66,9 +69,10 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
 {
     setObjectName(QLatin1String("QML Profiler View Manager"));
     d->traceView = 0;
-    d->eventsView = 0;
     d->profilerState = profilerState;
     d->profilerModelManager = modelManager;
+    d->eventsViewFactory =
+            ExtensionSystem::PluginManager::getObject<QmlProfilerEventsViewFactory>();
     createViews();
 }
 
@@ -79,7 +83,6 @@ QmlProfilerViewManager::~QmlProfilerViewManager()
 
 void QmlProfilerViewManager::createViews()
 {
-
     QTC_ASSERT(d->profilerModelManager, return);
     QTC_ASSERT(d->profilerState, return);
 
@@ -89,32 +92,48 @@ void QmlProfilerViewManager::createViews()
     d->traceView->setWindowTitle(tr("Timeline"));
     connect(d->traceView, &QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
-
-    d->eventsView = new QmlProfilerStatisticsView(mw, d->profilerModelManager);
-    d->eventsView->setWindowTitle(tr("Statistics"));
-    connect(d->eventsView, &QmlProfilerStatisticsView::gotoSourceLocation,
-            this, &QmlProfilerViewManager::gotoSourceLocation);
-    connect(d->eventsView, &QmlProfilerStatisticsView::typeSelected,
-            d->traceView, &QmlProfilerTraceView::selectByTypeId);
     connect(d->traceView, &QmlProfilerTraceView::typeSelected,
-            d->eventsView, &QmlProfilerStatisticsView::selectByTypeId);
-    connect(d->profilerModelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
-            d->eventsView, &QmlProfilerStatisticsView::onVisibleFeaturesChanged);
-
-    QDockWidget *eventsDock = AnalyzerManager::createDockWidget
-            (Constants::QmlProfilerToolId, d->eventsView);
-    d->timelineDock = AnalyzerManager::createDockWidget
-            (Constants::QmlProfilerToolId, d->traceView);
-
-    eventsDock->show();
+            this, &QmlProfilerViewManager::typeSelected);
+    connect(this, &QmlProfilerViewManager::typeSelected,
+            d->traceView, &QmlProfilerTraceView::selectByTypeId);
+    d->timelineDock = AnalyzerManager::createDockWidget(Constants::QmlProfilerToolId, d->traceView);
     d->timelineDock->show();
-
     mw->splitDockWidget(mw->toolBarDockWidget(), d->timelineDock, Qt::Vertical);
-    mw->tabifyDockWidget(d->timelineDock, eventsDock);
-    d->timelineDock->raise();
-
-    new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->eventsView);
     new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, d->traceView);
+
+    d->eventsViews << new QmlProfilerStatisticsView(mw, d->profilerModelManager);
+    if (d->eventsViewFactory)
+        d->eventsViews.append(d->eventsViewFactory->create(mw, d->profilerModelManager));
+
+    // Clear settings if the new views aren't there yet. Otherwise we get glitches
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") +
+                         QLatin1String(QmlProfiler::Constants::QmlProfilerToolId));
+
+    foreach (QmlProfilerEventsView *view, d->eventsViews) {
+        view->setParent(mw);
+        connect(view, &QmlProfilerEventsView::typeSelected,
+                this, &QmlProfilerViewManager::typeSelected);
+        connect(this, &QmlProfilerViewManager::typeSelected,
+                view, &QmlProfilerEventsView::selectByTypeId);
+        connect(d->profilerModelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
+                view, &QmlProfilerEventsView::onVisibleFeaturesChanged);
+        connect(view, &QmlProfilerEventsView::gotoSourceLocation,
+                this, &QmlProfilerViewManager::gotoSourceLocation);
+        connect(view, &QmlProfilerEventsView::showFullRange,
+                this, [this](){restrictEventsToRange(-1, -1);});
+        QDockWidget *eventsDock = AnalyzerManager::createDockWidget(Constants::QmlProfilerToolId,
+                                                                    view);
+        eventsDock->show();
+        mw->tabifyDockWidget(d->timelineDock, eventsDock);
+        new QmlProfilerStateWidget(d->profilerState, d->profilerModelManager, view);
+
+        if (!settings->contains(eventsDock->objectName()))
+            settings->remove(QString());
+    }
+
+    settings->endGroup();
+    d->timelineDock->raise();
 }
 
 bool QmlProfilerViewManager::hasValidSelection() const
@@ -134,12 +153,17 @@ qint64 QmlProfilerViewManager::selectionEnd() const
 
 bool QmlProfilerViewManager::isEventsRestrictedToRange() const
 {
-    return d->eventsView->isRestrictedToRange();
+    foreach (QmlProfilerEventsView *view, d->eventsViews) {
+        if (view->isRestrictedToRange())
+            return true;
+    }
+    return false;
 }
 
 void QmlProfilerViewManager::restrictEventsToRange(qint64 rangeStart, qint64 rangeEnd)
 {
-    d->eventsView->restrictToRange(rangeStart, rangeEnd);
+    foreach (QmlProfilerEventsView *view, d->eventsViews)
+        view->restrictToRange(rangeStart, rangeEnd);
 }
 
 void QmlProfilerViewManager::raiseTimeline()
@@ -151,7 +175,8 @@ void QmlProfilerViewManager::raiseTimeline()
 void QmlProfilerViewManager::clear()
 {
     d->traceView->clear();
-    d->eventsView->clear();
+    foreach (QmlProfilerEventsView *view, d->eventsViews)
+        view->clear();
 }
 
 } // namespace Internal
