@@ -139,14 +139,14 @@ qint64 QmlProfilerViewManager::selectionEnd() const
     return d->traceView->selectionEnd();
 }
 
-bool QmlProfilerViewManager::hasGlobalStats() const
+bool QmlProfilerViewManager::isEventsRestrictedToRange() const
 {
-    return d->eventsView->hasGlobalStats();
+    return d->eventsView->isRestrictedToRange();
 }
 
-void QmlProfilerViewManager::getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd)
+void QmlProfilerViewManager::restrictEventsToRange(qint64 rangeStart, qint64 rangeEnd)
 {
-    d->eventsView->getStatisticsInRange(rangeStart, rangeEnd);
+    d->eventsView->restrictToRange(rangeStart, rangeEnd);
 }
 
 void QmlProfilerViewManager::raiseTimeline()

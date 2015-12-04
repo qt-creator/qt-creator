@@ -88,31 +88,28 @@ public:
     ~QmlProfilerEventsWidget();
 
     void clear();
-
-    void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
-    QModelIndex selectedModelIndex() const;
-    bool mouseOnTable(const QPoint &position) const;
-    void copyTableToClipboard() const;
-    void copyRowToClipboard() const;
-
-    bool hasGlobalStats() const;
-    void setShowExtendedStatistics(bool show);
-    bool showExtendedStatistics() const;
+    void restrictToRange(qint64 rangeStart, qint64 rangeEnd);
+    bool isRestrictedToRange() const;
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void typeSelected(int typeIndex);
-    void resized();
 
 public slots:
-    void selectByTypeId(int typeIndex) const;
+    void selectByTypeId(int typeIndex);
     void onVisibleFeaturesChanged(quint64 features);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
-    virtual void resizeEvent(QResizeEvent *event);
 
 private:
+    QModelIndex selectedModelIndex() const;
+    void copyTableToClipboard() const;
+    void copyRowToClipboard() const;
+    bool mouseOnTable(const QPoint &position) const;
+    void setShowExtendedStatistics(bool show);
+    bool showExtendedStatistics() const;
+
     class QmlProfilerEventsWidgetPrivate;
     QmlProfilerEventsWidgetPrivate *d;
 };

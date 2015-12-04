@@ -253,7 +253,7 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
         getLocalStatsAction->setEnabled(false);
 
     QAction *getGlobalStatsAction = menu.addAction(tr("Show Full Range in Events Pane"));
-    if (d->m_viewContainer->hasGlobalStats())
+    if (!d->m_viewContainer->isEventsRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 
     if (d->m_zoomControl->traceDuration() > 0) {
@@ -269,12 +269,11 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
                                        d->m_zoomControl->traceEnd());
         }
         if (selectedAction == getLocalStatsAction) {
-            d->m_viewContainer->getStatisticsInRange(
-                        d->m_viewContainer->selectionStart(),
-                        d->m_viewContainer->selectionEnd());
+            d->m_viewContainer->restrictEventsToRange(d->m_viewContainer->selectionStart(),
+                                                      d->m_viewContainer->selectionEnd());
         }
         if (selectedAction == getGlobalStatsAction)
-            d->m_viewContainer->getStatisticsInRange(-1, -1);
+            d->m_viewContainer->restrictEventsToRange(-1, -1);
     }
 }
 

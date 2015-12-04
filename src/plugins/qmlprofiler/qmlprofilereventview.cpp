@@ -262,7 +262,7 @@ void QmlProfilerEventsWidget::clear()
     d->m_eventParents->clear();
 }
 
-void QmlProfilerEventsWidget::getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd)
+void QmlProfilerEventsWidget::restrictToRange(qint64 rangeStart, qint64 rangeEnd)
 {
     d->rangeStart = rangeStart;
     d->rangeEnd = rangeEnd;
@@ -310,7 +310,7 @@ void QmlProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
     if (!d->m_viewContainer->hasValidSelection())
         getLocalStatsAction->setEnabled(false);
     getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
-    if (hasGlobalStats())
+    if (!isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 
     QAction *selectedAction = menu.exec(position);
@@ -321,20 +321,14 @@ void QmlProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
         if (selectedAction == copyTableAction)
             copyTableToClipboard();
         if (selectedAction == getLocalStatsAction) {
-            getStatisticsInRange(d->m_viewContainer->selectionStart(),
-                                 d->m_viewContainer->selectionEnd());
+            restrictToRange(d->m_viewContainer->selectionStart(),
+                            d->m_viewContainer->selectionEnd());
         }
         if (selectedAction == getGlobalStatsAction)
-            getStatisticsInRange(-1, -1);
+            restrictToRange(-1, -1);
         if (selectedAction == showExtendedStatsAction)
             setShowExtendedStatistics(!showExtendedStatistics());
     }
-}
-
-void QmlProfilerEventsWidget::resizeEvent(QResizeEvent *event)
-{
-    QWidget::resizeEvent(event);
-    emit resized();
 }
 
 bool QmlProfilerEventsWidget::mouseOnTable(const QPoint &position) const
@@ -354,7 +348,7 @@ void QmlProfilerEventsWidget::copyRowToClipboard() const
     d->m_eventTree->copyRowToClipboard();
 }
 
-void QmlProfilerEventsWidget::selectByTypeId(int typeIndex) const
+void QmlProfilerEventsWidget::selectByTypeId(int typeIndex)
 {
     if (d->m_eventTree->selectedTypeId() != typeIndex)
         d->m_eventTree->selectType(typeIndex);
@@ -371,9 +365,9 @@ void QmlProfilerEventsWidget::onVisibleFeaturesChanged(quint64 features)
     d->modelProxy->limitToRange(d->rangeStart, d->rangeEnd);
 }
 
-bool QmlProfilerEventsWidget::hasGlobalStats() const
+bool QmlProfilerEventsWidget::isRestrictedToRange() const
 {
-    return d->rangeStart == -1 && d->rangeEnd == -1;
+    return d->rangeStart != -1 || d->rangeEnd != -1;
 }
 
 void QmlProfilerEventsWidget::setShowExtendedStatistics(bool show)

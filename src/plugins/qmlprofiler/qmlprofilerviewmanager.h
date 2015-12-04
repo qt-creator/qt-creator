@@ -57,8 +57,8 @@ public:
     bool hasValidSelection() const;
     qint64 selectionStart() const;
     qint64 selectionEnd() const;
-    bool hasGlobalStats() const;
-    void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
+    bool isEventsRestrictedToRange() const;
+    void restrictEventsToRange(qint64 rangeStart, qint64 rangeEnd);
 
     void raiseTimeline();
 
