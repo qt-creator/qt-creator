@@ -688,7 +688,7 @@ bool AndroidConfig::removeAVD(const QString &name) const
     return !proc.exitCode();
 }
 
-QFuture<QVector<AndroidDeviceInfo>> AndroidConfig::androidVirtualDevicesFuture()
+QFuture<QVector<AndroidDeviceInfo>> AndroidConfig::androidVirtualDevicesFuture() const
 {
     return QtConcurrent::run(&AndroidConfig::androidVirtualDevices, androidToolPath().toString(), androidToolEnvironment());
 }
@@ -1177,17 +1177,14 @@ AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(Project *project,
 {
     QString serialNumber = defaultDevice(project, abi);
     AndroidDeviceDialog dialog(apiLevel, abi, options, serialNumber, Core::ICore::mainWindow());
-    if (dialog.exec() == QDialog::Accepted) {
-        AndroidDeviceInfo info = dialog.device();
-        if (dialog.saveDeviceSelection()) {
-            const QString serialNumber = info.type == AndroidDeviceInfo::Hardware ?
-                        info.serialNumber : info.avdname;
-            if (!serialNumber.isEmpty())
-                AndroidConfigurations::setDefaultDevice(project, abi, serialNumber);
-        }
-        return info;
+    AndroidDeviceInfo info = dialog.device();
+    if (dialog.saveDeviceSelection() && info.isValid()) {
+        const QString serialNumber = info.type == AndroidDeviceInfo::Hardware ?
+                    info.serialNumber : info.avdname;
+        if (!serialNumber.isEmpty())
+            AndroidConfigurations::setDefaultDevice(project, abi, serialNumber);
     }
-    return AndroidDeviceInfo();
+    return info;
 }
 
 void AndroidConfigurations::clearDefaultDevices(Project *project)

@@ -480,9 +480,8 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, Andro
 
     connect(m_ui->lookingForDeviceCancel, &QPushButton::clicked,
             this, &AndroidDeviceDialog::defaultDeviceClear);
-    m_defaultDeviceTimer.start();
 
-    refreshDeviceList();
+    m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig().adbToolPath().toString());
 }
 
 AndroidDeviceDialog::~AndroidDeviceDialog()
@@ -494,17 +493,25 @@ AndroidDeviceDialog::~AndroidDeviceDialog()
 
 AndroidDeviceInfo AndroidDeviceDialog::device()
 {
-    if (result() == QDialog::Accepted)
+    if (!m_defaultDevice.isEmpty()) {
+        auto device = std::find_if(m_connectedDevices.begin(), m_connectedDevices.end(), [this](const AndroidDeviceInfo& info) {
+            return info.serialNumber == m_defaultDevice ||
+                    info.avdname == m_defaultDevice;
+        });
+
+        if (device != m_connectedDevices.end())
+            return *device;
+        m_defaultDevice.clear();
+    }
+
+    refreshDeviceList();
+
+    if (exec() == QDialog::Accepted)
         return m_model->device(m_ui->deviceView->currentIndex());
     return AndroidDeviceInfo();
 }
 
-void AndroidDeviceDialog::accept()
-{
-    QDialog::accept();
-}
-
-bool AndroidDeviceDialog::saveDeviceSelection()
+bool AndroidDeviceDialog::saveDeviceSelection() const
 {
     return m_ui->defaultDeviceCheckBox->isChecked();
 }
@@ -513,27 +520,8 @@ void AndroidDeviceDialog::refreshDeviceList()
 {
     m_ui->refreshDevicesButton->setEnabled(false);
     m_progressIndicator->show();
-    m_futureWatcherRefreshDevices.setFuture(QtConcurrent::run(&AndroidDeviceDialog::refreshDevices,
-                                                              AndroidConfigurations::currentConfig().adbToolPath().toString(),
-                                                              AndroidConfigurations::currentConfig().androidToolPath().toString(),
-                                                              AndroidConfigurations::currentConfig().androidToolEnvironment()));
-}
-
-QVector<AndroidDeviceInfo> AndroidDeviceDialog::refreshDevices(const QString &adbToolPath,
-                                                               const QString &androidToolPath,
-                                                               const Utils::Environment &environment)
-{
-    QVector<AndroidDeviceInfo> devices = AndroidConfig::connectedDevices(adbToolPath);
-
-    QSet<QString> startedAvds = Utils::transform<QSet>(devices,
-                                                       [] (const AndroidDeviceInfo &info) {
-                                                           return info.avdname;
-                                                       });
-
-    for (const AndroidDeviceInfo &dev : AndroidConfig::androidVirtualDevices(androidToolPath, environment))
-        if (!startedAvds.contains(dev.avdname))
-            devices << dev;
-    return devices;
+    m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig().adbToolPath().toString());
+    m_futureWatcherRefreshDevices.setFuture(AndroidConfigurations::currentConfig().androidVirtualDevicesFuture());
 }
 
 void AndroidDeviceDialog::devicesRefreshed()
@@ -549,7 +537,16 @@ void AndroidDeviceDialog::devicesRefreshed()
     }
 
     QVector<AndroidDeviceInfo> devices = m_futureWatcherRefreshDevices.result();
-    m_model->setDevices(devices);
+    QSet<QString> startedAvds = Utils::transform<QSet>(m_connectedDevices,
+                                                       [] (const AndroidDeviceInfo &info) {
+                                                           return info.avdname;
+                                                       });
+
+    for (const AndroidDeviceInfo &dev : devices)
+        if (!startedAvds.contains(dev.avdname))
+            m_connectedDevices << dev;
+
+    m_model->setDevices(m_connectedDevices);
 
     m_ui->deviceView->expand(m_model->index(0, 0));
     if (m_model->rowCount() > 1) // we have a incompatible device node
@@ -573,37 +570,18 @@ void AndroidDeviceDialog::devicesRefreshed()
     if (!newIndex.isValid() && !serialNumber.isEmpty())
         newIndex = m_model->indexFor(deviceType, serialNumber);
 
-    if (!newIndex.isValid() && !devices.isEmpty()) {
-        AndroidDeviceInfo info = devices.first();
+    if (!newIndex.isValid() && !m_connectedDevices.isEmpty()) {
+        AndroidDeviceInfo info = m_connectedDevices.first();
         const QString &name = info.type == AndroidDeviceInfo::Hardware ? info.serialNumber : info.avdname;
         newIndex = m_model->indexFor(info.type, name);
     }
 
     m_ui->deviceView->setCurrentIndex(newIndex);
 
-    m_ui->stackedWidget->setCurrentIndex(devices.isEmpty() ? 1 : 0);
+    m_ui->stackedWidget->setCurrentIndex(m_connectedDevices.isEmpty() ? 1 : 0);
 
     m_ui->refreshDevicesButton->setEnabled(true);
-
-    if (!m_defaultDevice.isEmpty()) {
-        int elapsed = m_defaultDeviceTimer.elapsed();
-        if (elapsed > 4000)
-            accept();
-        else
-            QTimer::singleShot(4000 - elapsed, this, &AndroidDeviceDialog::useDefaultDevice);
-    }
-}
-
-void AndroidDeviceDialog::useDefaultDevice()
-{
-    if (m_defaultDevice.isEmpty())
-        return;
-    AndroidDeviceInfo info = m_model->device(m_ui->deviceView->currentIndex());
-    if (info.serialNumber == m_defaultDevice
-            || info.avdname == m_defaultDevice)
-        accept();
-    else // something different is selected
-        defaultDeviceClear();
+    m_connectedDevices.clear();
 }
 
 void AndroidDeviceDialog::createAvd()

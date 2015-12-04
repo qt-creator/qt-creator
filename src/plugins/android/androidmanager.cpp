@@ -307,7 +307,7 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
         return;
     const int deviceAPILevel = AndroidManager::minimumSDK(target);
     AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch, AndroidConfigurations::None);
-    if (info.serialNumber.isEmpty() && info.avdname.isEmpty()) // aborted
+    if (!info.isValid()) // aborted
         return;
 
     QString deviceSerialNumber = info.serialNumber;
@@ -336,7 +336,7 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
         return;
     const int deviceAPILevel = AndroidManager::minimumSDK(target);
     AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch, AndroidConfigurations::None);
-    if (info.serialNumber.isEmpty() && info.avdname.isEmpty()) // aborted
+    if (!info.isValid()) // aborted
         return;
 
     QString deviceSerialNumber = info.serialNumber;

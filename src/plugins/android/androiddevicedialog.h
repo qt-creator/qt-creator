@@ -60,9 +60,8 @@ public:
     ~AndroidDeviceDialog();
 
     AndroidDeviceInfo device();
-    void accept();
 
-    bool saveDeviceSelection();
+    bool saveDeviceSelection() const;
 
 private slots:
     void refreshDeviceList();
@@ -71,12 +70,8 @@ private slots:
     void showHelp();
     void avdAdded();
 private:
-    static QVector<AndroidDeviceInfo> refreshDevices(const QString &adbToolPath,
-                                                     const QString &androidToolPath,
-                                                     const Utils::Environment &environment);
     void devicesRefreshed();
     void enableOkayButton();
-    void useDefaultDevice();
     void defaultDeviceClear();
 
     AndroidDeviceModel *m_model;
@@ -86,7 +81,7 @@ private:
     QString m_abi;
     QString m_avdNameFromAdd;
     QString m_defaultDevice;
-    QTime m_defaultDeviceTimer;
+    QVector<AndroidDeviceInfo> m_connectedDevices;
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcherAddDevice;
     QFutureWatcher<QVector<AndroidDeviceInfo>> m_futureWatcherRefreshDevices;
 };

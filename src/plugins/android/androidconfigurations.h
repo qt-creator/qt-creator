@@ -154,7 +154,7 @@ public:
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
     static QVector<AndroidDeviceInfo> connectedDevices(const QString &adbToolPath, QString *error = 0);
 
-    QFuture<QVector<AndroidDeviceInfo> > androidVirtualDevicesFuture();
+    QFuture<QVector<AndroidDeviceInfo> > androidVirtualDevicesFuture() const;
     static QVector<AndroidDeviceInfo> androidVirtualDevices(const QString &androidTool, const Utils::Environment &environment);
 
     QString startAVD(const QString &name) const;
