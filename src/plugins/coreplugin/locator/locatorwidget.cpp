@@ -464,24 +464,25 @@ void LocatorWidget::showPopupNow()
 
 QList<ILocatorFilter *> LocatorWidget::filtersFor(const QString &text, QString &searchText)
 {
+    const QString trimmedText = text.trimmed();
     QList<ILocatorFilter *> filters = m_locatorPlugin->filters();
-    const int whiteSpace = text.indexOf(QLatin1Char(' '));
+    const int whiteSpace = trimmedText.indexOf(QLatin1Char(' '));
     QString prefix;
     if (whiteSpace >= 0)
-        prefix = text.left(whiteSpace);
+        prefix = trimmedText.left(whiteSpace);
     if (!prefix.isEmpty()) {
         prefix = prefix.toLower();
         QList<ILocatorFilter *> prefixFilters;
         foreach (ILocatorFilter *filter, filters) {
             if (prefix == filter->shortcutString()) {
-                searchText = text.mid(whiteSpace+1);
+                searchText = trimmedText.mid(whiteSpace).trimmed();
                 prefixFilters << filter;
             }
         }
         if (!prefixFilters.isEmpty())
             return prefixFilters;
     }
-    searchText = text;
+    searchText = trimmedText;
     QList<ILocatorFilter *> activeFilters;
     foreach (ILocatorFilter *filter, filters)
         if (filter->isIncludedByDefault())
