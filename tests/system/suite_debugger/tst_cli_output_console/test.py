@@ -50,9 +50,9 @@ def main():
                            "#include <iostream>",
                            "int main(int, char *argv[])",
                            "{",
-                           '    std::cout << \"' + outputStdOut + '\" << std::endl;',
-                           '    std::cerr << \"' + outputStdErr + '\" << std::endl;',
-                           '    qDebug() << \"' + outputQDebug + '\";'])
+                           'std::cout << \"' + outputStdOut + '\" << std::endl;',
+                           'std::cerr << \"' + outputStdErr + '\" << std::endl;',
+                           'qDebug() << \"' + outputQDebug + '\";'])
     # Rely on code completion for closing bracket
     invokeMenuItem("File", "Save All")
     openDocument(project + "." + project + "\\.pro")
