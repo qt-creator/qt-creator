@@ -54,10 +54,14 @@
         <file>images/stop_small@2x.png</file>
         <file>images/interrupt_small.png</file>
         <file>images/interrupt_small@2x.png</file>
-        <file>images/disabledbuildstep.png</file>
-        <file>images/disabledbuildstep@2x.png</file>
-        <file>images/lightdisabledbuildstep.png</file>
-        <file>images/lightdisabledbuildstep@2x.png</file>
+        <file>images/buildstepdisable.png</file>
+        <file>images/buildstepdisable@2x.png</file>
+        <file>images/buildstepmovedown.png</file>
+        <file>images/buildstepmovedown@2x.png</file>
+        <file>images/buildstepmoveup.png</file>
+        <file>images/buildstepmoveup@2x.png</file>
+        <file>images/buildstepremove.png</file>
+        <file>images/buildstepremove@2x.png</file>
         <file>images/unconfigured.png</file>
         <file>images/targetrightbutton.png</file>
         <file>images/targetrightbutton@2x.png</file>

@@ -518,37 +518,6 @@
          x="329"
          y="536" />
     </clipPath>
-    <filter
-       id="lightenUp"
-       x="0"
-       y="0"
-       width="1"
-       height="1"
-       inkscape:label="lighten up"
-       inkscape:menu="Color"
-       inkscape:menu-tooltip="Increase or decrease lightness and contrast"
-       color-interpolation-filters="sRGB">
-      <feFlood
-         id="feFlood3736"
-         result="result1"
-         flood-opacity="0.65000000000000002"
-         flood-color="rgb(255,255,255)" />
-      <feBlend
-         id="feBlend3738"
-         in2="SourceGraphic"
-         mode="normal"
-         result="result2" />
-      <feComposite
-         id="feComposite3740"
-         in2="SourceGraphic"
-         k2="1"
-         operator="arithmetic"
-         result="result3" />
-      <feComposite
-         id="feComposite3742"
-         in2="SourceGraphic"
-         operator="in" />
-    </filter>
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient4115-6"
@@ -659,18 +628,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="45.254834"
-     inkscape:cx="453.11431"
-     inkscape:cy="22.83542"
+     inkscape:zoom="8"
+     inkscape:cx="93.473168"
+     inkscape:cy="23.946208"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer3"
      showgrid="true"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:window-width="1440"
-     inkscape:window-height="751"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="2880"
+     inkscape:window-height="1503"
+     inkscape:window-x="-13"
+     inkscape:window-y="527"
      inkscape:window-maximized="1"
      inkscape:snap-grids="true">
     <inkscape:grid
@@ -2916,7 +2885,7 @@
      id="layer3"
      inkscape:label="Build steps widget icons">
     <g
-       id="src/plugins/coreplugin/images/darkarrowdown"
+       id="src/plugins/projectexplorer/images/buildstepmovedown"
        transform="translate(-92,-32)">
       <rect
          y="584"
@@ -2924,16 +2893,16 @@
          height="16"
          width="16"
          id="rect3817-2"
-         style="fill:none" />
+         style="fill:#ffffff;fill-opacity:1;" />
       <path
-         style="fill:none;stroke:#434343;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         style="fill:none;stroke:#000000;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1.0;stroke-dasharray:none"
          d="m 94.5,590.50006 5.5,5.5 5.5,-5.5"
          id="path3970-7"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccc" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/darkarrowup"
+       id="src/plugins/projectexplorer/images/buildstepmoveup"
        transform="translate(-92,-32)">
       <rect
          y="584"
@@ -2941,95 +2910,56 @@
          height="16"
          width="16"
          id="rect3817-2-9"
-         style="fill:none" />
+         style="fill:#ffffff;fill-opacity:1" />
       <path
-         style="fill:none;stroke:#434343;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         style="fill:none;stroke:#000000;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1.0;stroke-dasharray:none"
          d="m 110.5,596.5 5.5,-5.5 5.5,5.5"
          id="path3970-7-3"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccc" />
     </g>
     <g
-       id="src/plugins/coreplugin/images/darkclose"
+       id="src/plugins/projectexplorer/images/buildstepremove"
        transform="translate(-92,-32)">
-      <path
-         inkscape:connector-curvature="0"
-         id="path4122"
-         d="m 127,587 10,10"
-         style="fill:none;stroke:#505050;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path4124"
-         d="m 127,597 10,-10"
-         style="fill:none;stroke:#505050;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
       <rect
-         style="fill:none"
+         style="fill:#ffffff;fill-opacity:1"
          id="rect3817-2-9-1"
          width="16"
          height="16"
          x="124"
          y="584" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4122"
+         d="m 127,587 10,10"
+         style="fill:none;stroke:#000000;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4124"
+         d="m 127,597 10,-10"
+         style="fill:none;stroke:#000000;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     </g>
     <g
-       id="src/plugins/projectexplorer/images/disabledbuildstep">
+       id="src/plugins/projectexplorer/images/buildstepdisable">
       <rect
-         style="fill:none"
+         style="fill:#ffffff;fill-opacity:1"
          id="rect4230"
          width="16"
          height="16"
          x="48"
          y="552" />
-      <path
-         d="M 61.2929,560 A 5.2929001,5.2929001 0 0 1 56,565.2929 5.2929001,5.2929001 0 0 1 50.7071,560 5.2929001,5.2929001 0 0 1 56,554.7071 5.2929001,5.2929001 0 0 1 61.2929,560 Z"
-         sodipodi:ry="5.2929"
-         sodipodi:rx="5.2929"
-         sodipodi:cy="560"
-         sodipodi:cx="56"
+      <circle
          id="path4226"
-         style="fill:#ffffff;fill-opacity:0;stroke:#505050;stroke-width:1.42;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         sodipodi:type="arc" />
+         style="fill:none;fill-opacity:0;stroke:#000000;stroke-width:1.41999996;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         cx="56"
+         cy="560"
+         r="5.2929001" />
       <path
          inkscape:connector-curvature="0"
          id="path4228"
          d="m 52,564 c 8,-8 8,-8 8,-8"
-         style="fill:none;stroke:#505050;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+         style="fill:none;stroke:#000000;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1.0;stroke-dasharray:none" />
     </g>
-    <use
-       x="0"
-       y="0"
-       xlink:href="#src/plugins/coreplugin/images/darkarrowdown"
-       id="src/plugins/coreplugin/images/lightarrowdown"
-       transform="translate(64,0)"
-       width="800"
-       height="600"
-       style="filter:url(#lightenUp)" />
-    <use
-       x="0"
-       y="0"
-       xlink:href="#src/plugins/coreplugin/images/darkarrowup"
-       id="src/plugins/coreplugin/images/lightarrowup"
-       transform="translate(64,0)"
-       width="800"
-       height="600"
-       style="filter:url(#lightenUp)" />
-    <use
-       x="0"
-       y="0"
-       xlink:href="#src/plugins/coreplugin/images/darkclose"
-       id="src/plugins/coreplugin/images/lightclose"
-       transform="translate(64,0)"
-       width="800"
-       height="600"
-       style="filter:url(#lightenUp)" />
-    <use
-       x="0"
-       y="0"
-       xlink:href="#src/plugins/projectexplorer/images/disabledbuildstep"
-       id="src/plugins/projectexplorer/images/lightdisabledbuildstep"
-       transform="translate(64,0)"
-       width="800"
-       height="600"
-       style="filter:url(#lightenUp)" />
   </g>
   <g
      inkscape:groupmode="layer"

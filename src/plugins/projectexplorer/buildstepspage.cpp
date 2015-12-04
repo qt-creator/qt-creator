@@ -33,6 +33,7 @@
 #include "buildconfiguration.h"
 #include "buildsteplist.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorericons.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreicons.h>
@@ -75,8 +76,7 @@ ToolWidget::ToolWidget(QWidget *parent)
     m_disableButton->setAutoRaise(true);
     m_disableButton->setToolTip(BuildStepListWidget::tr("Disable"));
     m_disableButton->setFixedSize(buttonSize);
-    m_disableButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepDisable,
-            QLatin1String(":/projectexplorer/images/disabledbuildstep.png"))));
+    m_disableButton->setIcon(Icons::BUILDSTEP_DISABLE.icon());
     m_disableButton->setCheckable(true);
     hbox->addWidget(m_disableButton);
     layout->addWidget(m_firstWidget);
@@ -92,24 +92,21 @@ ToolWidget::ToolWidget(QWidget *parent)
     m_upButton->setAutoRaise(true);
     m_upButton->setToolTip(BuildStepListWidget::tr("Move Up"));
     m_upButton->setFixedSize(buttonSize);
-    m_upButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepMoveUp,
-            QLatin1String(":/core/images/darkarrowup.png"))));
+    m_upButton->setIcon(Icons::BUILDSTEP_MOVEUP.icon());
     hbox->addWidget(m_upButton);
 
     m_downButton = new QToolButton(m_secondWidget);
     m_downButton->setAutoRaise(true);
     m_downButton->setToolTip(BuildStepListWidget::tr("Move Down"));
     m_downButton->setFixedSize(buttonSize);
-    m_downButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepMoveDown,
-            QLatin1String(":/core/images/darkarrowdown.png"))));
+    m_downButton->setIcon(Icons::BUILDSTEP_MOVEDOWN.icon());
     hbox->addWidget(m_downButton);
 
     m_removeButton  = new QToolButton(m_secondWidget);
     m_removeButton->setAutoRaise(true);
     m_removeButton->setToolTip(BuildStepListWidget::tr("Remove Item"));
     m_removeButton->setFixedSize(buttonSize);
-    m_removeButton->setIcon(QIcon(creatorTheme()->imageFile(Theme::BuildStepRemove,
-            Core::Icons::DARK_CLOSE.imageFileName())));
+    m_removeButton->setIcon(Icons::BUILDSTEP_REMOVE.icon());
     hbox->addWidget(m_removeButton);
 
     layout->addWidget(m_secondWidget);
