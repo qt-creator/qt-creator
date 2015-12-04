@@ -201,6 +201,8 @@ QString Id::toString() const
 
 Id Id::fromString(const QString &name)
 {
+    if (name.isEmpty())
+        return Id();
     return Id(theId(name.toUtf8()));
 }
 
