@@ -101,8 +101,6 @@ void TaskMark::clicked()
 }
 
 TaskHub::TaskHub()
-    : m_errorIcon(Core::Icons::ERROR.icon()),
-      m_warningIcon(Core::Icons::WARNING.icon())
 {
     m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");

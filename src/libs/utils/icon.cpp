@@ -118,7 +118,7 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
 
     for (MasksAndColors::const_iterator maskImage = masks.constBegin();
          maskImage != masks.constEnd(); ++maskImage) {
-        if (maskImage != masks.constBegin()) {
+        if (style == Icon::Style::TintedWithShadow && maskImage != masks.constBegin()) {
             // Punch a transparent outline around an overlay.
             p.save();
             p.setOpacity(0.4);

@@ -3033,6 +3033,23 @@
          style="display:inline;fill:#000000" />
     </g>
     <g
+       id="src/plugins/coreplugin/images/warningfill">
+      <rect
+         y="520"
+         x="16"
+         height="16"
+         width="16"
+         id="use3942-3"
+         style="display:inline;fill:#ffffff;stroke:none" />
+      <rect
+         y="524"
+         x="23"
+         height="9"
+         width="2"
+         id="rect4768"
+         style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-opacity:1" />
+    </g>
+    <g
        id="src/plugins/coreplugin/images/warning_big"
        transform="translate(-438,-48)">
       <rect

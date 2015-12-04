@@ -83,9 +83,6 @@ private:
     TaskHub();
     ~TaskHub();
 
-    const QIcon m_errorIcon;
-    const QIcon m_warningIcon;
-
     static QVector<Core::Id> m_registeredCategories;
 
     friend class ProjectExplorerPlugin;
