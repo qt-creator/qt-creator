@@ -28,12 +28,13 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILEREVENTVIEW_H
-#define QMLPROFILEREVENTVIEW_H
+#ifndef QMLPROFILERSTATISTICSVIEW_H
+#define QMLPROFILERSTATISTICSVIEW_H
 
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventsmodelproxy.h"
 #include "qmlprofilerviewmanager.h"
+#include "qmlprofilereventsview.h"
 
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <analyzerbase/ianalyzertool.h>
@@ -44,9 +45,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerEventsMainView;
-class QmlProfilerEventChildrenView;
-class QmlProfilerEventRelativesView;
+class QmlProfilerStatisticsMainView;
+class QmlProfilerStatisticsRelativesView;
 
 enum ItemRole {
     SortRole = Qt::UserRole + 1, // Sort by data, not by displayed string
@@ -77,27 +77,26 @@ enum Fields {
     MaxFields
 };
 
-class QmlProfilerEventsWidget : public QWidget
+class QmlProfilerStatisticsView : public QmlProfilerEventsView
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerEventsWidget(QWidget *parent,
-                                     QmlProfilerTool *profilerTool,
-                                     QmlProfilerViewManager *container,
-                                     QmlProfilerModelManager *profilerModelManager );
-    ~QmlProfilerEventsWidget();
+    explicit QmlProfilerStatisticsView(QWidget *parent, QmlProfilerTool *profilerTool,
+                                       QmlProfilerViewManager *container,
+                                       QmlProfilerModelManager *profilerModelManager);
+    ~QmlProfilerStatisticsView();
 
-    void clear();
-    void restrictToRange(qint64 rangeStart, qint64 rangeEnd);
-    bool isRestrictedToRange() const;
+    void clear() override;
+    void restrictToRange(qint64 rangeStart, qint64 rangeEnd) override;
+    bool isRestrictedToRange() const override;
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void typeSelected(int typeIndex);
 
 public slots:
-    void selectByTypeId(int typeIndex);
-    void onVisibleFeaturesChanged(quint64 features);
+    void selectByTypeId(int typeIndex) override;
+    void onVisibleFeaturesChanged(quint64 features) override;
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
@@ -110,17 +109,17 @@ private:
     void setShowExtendedStatistics(bool show);
     bool showExtendedStatistics() const;
 
-    class QmlProfilerEventsWidgetPrivate;
-    QmlProfilerEventsWidgetPrivate *d;
+    class QmlProfilerStatisticsViewPrivate;
+    QmlProfilerStatisticsViewPrivate *d;
 };
 
-class QmlProfilerEventsMainView : public Utils::TreeView
+class QmlProfilerStatisticsMainView : public Utils::TreeView
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerEventsMainView(QWidget *parent,
-                                       QmlProfilerEventsModelProxy *modelProxy);
-    ~QmlProfilerEventsMainView();
+    explicit QmlProfilerStatisticsMainView(QWidget *parent,
+                                           QmlProfilerEventsModelProxy *modelProxy);
+    ~QmlProfilerStatisticsMainView();
 
     void setFieldViewable(Fields field, bool show);
     void setShowAnonymousEvents( bool showThem );
@@ -156,18 +155,18 @@ private:
     QStandardItem *itemFromIndex(const QModelIndex &index) const;
 
 private:
-    class QmlProfilerEventsMainViewPrivate;
-    QmlProfilerEventsMainViewPrivate *d;
+    class QmlProfilerStatisticsMainViewPrivate;
+    QmlProfilerStatisticsMainViewPrivate *d;
 
 };
 
-class QmlProfilerEventRelativesView : public Utils::TreeView
+class QmlProfilerStatisticsRelativesView : public Utils::TreeView
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerEventRelativesView(QmlProfilerEventRelativesModelProxy *modelProxy,
-                                           QWidget *parent );
-    ~QmlProfilerEventRelativesView();
+    explicit QmlProfilerStatisticsRelativesView(QmlProfilerEventRelativesModelProxy *modelProxy,
+                                                QWidget *parent );
+    ~QmlProfilerStatisticsRelativesView();
 
 signals:
     void typeClicked(int typeIndex);
@@ -183,11 +182,11 @@ private:
     void updateHeader();
     QStandardItemModel *treeModel();
 
-    class QmlProfilerEventParentsViewPrivate;
-    QmlProfilerEventParentsViewPrivate *d;
+    class QmlProfilerStatisticsRelativesViewPrivate;
+    QmlProfilerStatisticsRelativesViewPrivate *d;
 };
 
 } // namespace Internal
 } // namespace QmlProfiler
 
-#endif // QMLPROFILEREVENTVIEW_H
+#endif // QMLPROFILERSTATISTICSVIEW_H

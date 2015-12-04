@@ -521,9 +521,9 @@
         \li None
     \endtable
 
-    \section1 Viewing Events
+    \section1 Viewing Statistics
 
-    The \uicontrol Events view displays the number of times each binding, create,
+    The \uicontrol Statistics view displays the number of times each binding, create,
     compile, JavaScript, or signal event is triggered and the average time it
     takes. This allows you to examine which events you need to optimize. A high
     number of occurrences might indicate that an event is triggered
@@ -533,7 +533,7 @@
     Click on an event to move to it in the source code
     in the code editor.
 
-    \image qtcreator-analyzer-bindings.png "Events view"
+    \image qtcreator-analyzer-bindings.png "Statistics view"
 
     The \uicontrol Callers and \uicontrol Callees panes show dependencies between events.
     They allow you to examine the internal functions of the application.
@@ -545,13 +545,13 @@
     Click on an event to move to it in the source code in the code editor.
 
     When you select an event in the \uicontrol Timeline view, information about it is
-    displayed in the \uicontrol Events view. To view an event range in the \uicontrol Events
-    view, select \uicontrol {Limit Events Pane to Current Range} in the context menu
-    in the \uicontrol Timeline view.
+    displayed in the \uicontrol Statistics view. To view an event range in the
+    \uicontrol Statistics view, select \uicontrol {Limit Statistics Pane to Current Range}
+    in the context menu in the \uicontrol Timeline view.
 
     To copy the contents of one view or row to the clipboard, select
     \uicontrol {Copy Table} or \uicontrol {Copy Row} in the context menu.
 
-    JavaScript events are shown in the \uicontrol Events view only for applications
+    JavaScript events are shown in the \uicontrol Statistics view only for applications
     that use Qt Quick 2 and are compiled with Qt 5.3 or later.
 */

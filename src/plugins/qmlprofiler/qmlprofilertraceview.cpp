@@ -248,11 +248,11 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
 
     menu.addSeparator();
 
-    QAction *getLocalStatsAction = menu.addAction(tr("Limit Events Pane to Current Range"));
+    QAction *getLocalStatsAction = menu.addAction(tr("Limit Statistics Pane to Current Range"));
     if (!d->m_viewContainer->hasValidSelection())
         getLocalStatsAction->setEnabled(false);
 
-    QAction *getGlobalStatsAction = menu.addAction(tr("Show Full Range in Events Pane"));
+    QAction *getGlobalStatsAction = menu.addAction(tr("Show Full Range in Statistics Pane"));
     if (!d->m_viewContainer->isEventsRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 

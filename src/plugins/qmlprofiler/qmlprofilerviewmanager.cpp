@@ -31,7 +31,7 @@
 #include "qmlprofilerviewmanager.h"
 
 #include "qmlprofilertraceview.h"
-#include "qmlprofilereventview.h"
+#include "qmlprofilerstatisticsview.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilermodelmanager.h"
@@ -54,7 +54,7 @@ public:
 
     QDockWidget *timelineDock;
     QmlProfilerTraceView *traceView;
-    QmlProfilerEventsWidget *eventsView;
+    QmlProfilerStatisticsView *eventsView;
     QmlProfilerStateManager *profilerState;
     QmlProfilerModelManager *profilerModelManager;
     QmlProfilerTool *profilerTool;
@@ -96,17 +96,17 @@ void QmlProfilerViewManager::createViews()
     connect(d->traceView, &QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
 
-    d->eventsView = new QmlProfilerEventsWidget(mw, d->profilerTool, this,
+    d->eventsView = new QmlProfilerStatisticsView(mw, d->profilerTool, this,
                                                 d->profilerModelManager);
-    d->eventsView->setWindowTitle(tr("Events"));
-    connect(d->eventsView, &QmlProfilerEventsWidget::gotoSourceLocation,
+    d->eventsView->setWindowTitle(tr("Statistics"));
+    connect(d->eventsView, &QmlProfilerStatisticsView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
-    connect(d->eventsView, &QmlProfilerEventsWidget::typeSelected,
+    connect(d->eventsView, &QmlProfilerStatisticsView::typeSelected,
             d->traceView, &QmlProfilerTraceView::selectByTypeId);
     connect(d->traceView, &QmlProfilerTraceView::typeSelected,
-            d->eventsView, &QmlProfilerEventsWidget::selectByTypeId);
+            d->eventsView, &QmlProfilerStatisticsView::selectByTypeId);
     connect(d->profilerModelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
-            d->eventsView, &QmlProfilerEventsWidget::onVisibleFeaturesChanged);
+            d->eventsView, &QmlProfilerStatisticsView::onVisibleFeaturesChanged);
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (Constants::QmlProfilerToolId, d->eventsView);
