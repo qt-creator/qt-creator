@@ -109,9 +109,11 @@ private:
 
     bool m_isModified;
     bool m_isValidating;
+    bool m_restoreLastHistoryItem;
     QString m_placeholderText;
     QString m_defaultText;
     QString m_disabledText;
+    QString m_historyId;
     QRegularExpression m_validatorRegExp;
     QString m_fixupExpando;
     mutable QString m_currentText;
@@ -156,6 +158,7 @@ private:
 
     QString m_path;
     QString m_basePath;
+    QString m_historyId;
     Utils::PathChooser::Kind m_kind;
 
     QString m_currentPath;

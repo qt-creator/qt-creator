@@ -35,6 +35,7 @@
 #include "jsonwizardfactory.h"
 
 #include <utils/algorithm.h>
+#include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/textfieldcheckbox.h>
@@ -46,7 +47,6 @@
 #include <QDebug>
 #include <QFormLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QRegularExpressionValidator>
 #include <QTextEdit>
 #include <QVariant>
@@ -407,6 +407,8 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     m_defaultText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trText")).toString());
     m_disabledText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trDisabledText")).toString());
     m_placeholderText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trPlaceholder")).toString());
+    m_historyId = tmp.value(QLatin1String("historyId")).toString();
+    m_restoreLastHistoryItem = tmp.value(QLatin1String("restoreLastHistoyItem"), false).toBool();
     QString pattern = tmp.value(QLatin1String("validator")).toString();
     if (!pattern.isEmpty()) {
         m_validatorRegExp = QRegularExpression(pattern);
@@ -426,7 +428,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
 QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *page)
 {
     Q_UNUSED(displayName);
-    auto w = new QLineEdit;
+    auto w = new FancyLineEdit;
 
     if (m_validatorRegExp.isValid()) {
         auto lv = new LineEditValidator(page->expander(), m_validatorRegExp, w);
@@ -434,14 +436,17 @@ QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *
         w->setValidator(lv);
     }
 
+    if (!m_historyId.isEmpty())
+        w->setHistoryCompleter(m_historyId, m_restoreLastHistoryItem);
+
     return w;
 }
 
 void LineEditField::setup(JsonFieldPage *page, const QString &name)
 {
-    auto w = static_cast<QLineEdit *>(widget());
+    auto w = static_cast<FancyLineEdit *>(widget());
     page->registerFieldWithName(name, w);
-    QObject::connect(w, &QLineEdit::textChanged,
+    QObject::connect(w, &FancyLineEdit::textChanged,
                      page, [this, page]() -> void { m_isModified = true; emit page->completeChanged(); });
 }
 
@@ -455,7 +460,7 @@ bool LineEditField::validate(MacroExpander *expander, QString *message)
 
     m_isValidating = true;
 
-    auto w = static_cast<QLineEdit *>(widget());
+    auto w = static_cast<FancyLineEdit *>(widget());
 
     if (w->isEnabled()) {
         if (m_isModified) {
@@ -481,7 +486,7 @@ void LineEditField::initializeData(MacroExpander *expander)
 {
     QTC_ASSERT(widget(), return);
 
-    auto w = static_cast<QLineEdit *>(widget());
+    auto w = static_cast<FancyLineEdit *>(widget());
     m_isValidating = true;
     w->setText(expander->expand(m_defaultText));
     w->setPlaceholderText(m_placeholderText);
@@ -580,6 +585,7 @@ bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
 
     m_path = tmp.value(QLatin1String("path")).toString();
     m_basePath = tmp.value(QLatin1String("basePath")).toString();
+    m_historyId = tmp.value(QLatin1String("historyId")).toString();
 
     QString kindStr = tmp.value(QLatin1String("kind"), QLatin1String("existingDirectory")).toString();
     if (kindStr == QLatin1String("existingDirectory")) {
@@ -612,7 +618,10 @@ QWidget *PathChooserField::createWidget(const QString &displayName, JsonFieldPag
 {
     Q_UNUSED(displayName);
     Q_UNUSED(page);
-    return new PathChooser;
+    auto w = new PathChooser;
+    if (!m_historyId.isEmpty())
+        w->setHistoryCompleter(m_historyId);
+    return w;
 }
 
 void PathChooserField::setEnabled(bool e)
