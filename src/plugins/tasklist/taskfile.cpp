@@ -91,21 +91,21 @@ bool TaskFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
         deleteLater();
         return true;
     }
-    return load(errorString, filePath().toString());
+    return load(errorString, filePath());
 }
 
-bool TaskFile::load(QString *errorString, const QString &fileName)
+bool TaskFile::load(QString *errorString, const Utils::FileName &fileName)
 {
-    setFilePath(Utils::FileName::fromString(fileName));
+    setFilePath(fileName);
     return TaskListPlugin::loadFile(errorString, m_baseDir, fileName);
 }
 
-QString TaskFile::baseDir() const
+Utils::FileName TaskFile::baseDir() const
 {
     return m_baseDir;
 }
 
-void TaskFile::setBaseDir(const QString &base)
+void TaskFile::setBaseDir(const Utils::FileName &base)
 {
     m_baseDir = base;
 }
