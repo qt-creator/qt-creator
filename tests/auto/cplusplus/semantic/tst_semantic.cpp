@@ -190,6 +190,7 @@ private slots:
     void enum_constantValue3();
     void enum_constantValue4();
     void enum_constantValue5();
+    void enum_constantValueNegative();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -914,6 +915,29 @@ void tst_Semantic::enum_constantValue5()
     testEnumaratorDeclarator(e, 2, "1");
     testEnumaratorDeclarator(e, 3, "1");
     testEnumaratorDeclarator(e, 4, "2");
+}
+
+void tst_Semantic::enum_constantValueNegative()
+{
+    QSharedPointer<Document> doc = document(
+                "enum {\n"
+                "  E1=-2,\n"
+                "  E2,\n"
+                "  E3,\n"
+                "  E4\n"
+                "};\n"
+    );
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
+    Enum *e = doc->globals->memberAt(0)->asEnum();
+    QVERIFY(e);
+    QCOMPARE(e->memberCount(), 4U);
+
+    testEnumaratorDeclarator(e, 0, "-2");
+    testEnumaratorDeclarator(e, 1, "-1");
+    testEnumaratorDeclarator(e, 2, "0");
+    testEnumaratorDeclarator(e, 3, "1");
 }
 
 QTEST_MAIN(tst_Semantic)

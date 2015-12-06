@@ -468,7 +468,10 @@ bool isInteger(const StringLiteral *stringLiteral)
 {
     const int size = stringLiteral->size();
     const char *chars = stringLiteral->chars();
-    for (int i = 0; i < size; ++i) {
+    int i = 0;
+    if (chars[i] == '-')
+        ++i;
+    for (; i < size; ++i) {
         if (!isdigit(chars[i]))
             return false;
     }
