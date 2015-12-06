@@ -995,11 +995,11 @@ void GdbEngine::commandTimeout()
         killIt = true;
         showMessage(_(QByteArray::number(key) + ": " + cmd.function));
     }
+    QStringList commands;
+    foreach (const DebuggerCommand &cmd, m_commandForToken)
+        commands << QString(_("\"%1\"")).arg(
+                        QString::fromLatin1(cmd.function));
     if (killIt) {
-        QStringList commands;
-        foreach (const DebuggerCommand &cmd, m_commandForToken)
-            commands << QString(_("\"%1\"")).arg(
-                            QString::fromLatin1(cmd.function));
         showMessage(_("TIMED OUT WAITING FOR GDB REPLY. "
                       "COMMANDS STILL IN PROGRESS: ") + commands.join(_(", ")));
         int timeOut = m_commandTimer.interval();
@@ -1023,7 +1023,7 @@ void GdbEngine::commandTimeout()
             showMessage(_("CONTINUE DEBUGGER AS REQUESTED BY USER"));
         }
     } else {
-        showMessage(_("\nNON-CRITICAL TIMEOUT\n"));
+        showMessage(_("\nNON-CRITICAL TIMEOUT\nCOMMANDS STILL IN PROGRESS: ") + commands.join(_(", ")));
     }
 }
 
