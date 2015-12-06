@@ -32,7 +32,6 @@
 #define TASKFILE_H
 
 #include <coreplugin/idocument.h>
-#include <utils/fileutils.h>
 
 namespace ProjectExplorer { class Project; }
 
@@ -56,12 +55,6 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 
     bool load(QString *errorString, const Utils::FileName &fileName);
-
-    Utils::FileName baseDir() const;
-    void setBaseDir(const Utils::FileName &base);
-
-private:
-    Utils::FileName m_baseDir;
 };
 
 } // namespace Internal

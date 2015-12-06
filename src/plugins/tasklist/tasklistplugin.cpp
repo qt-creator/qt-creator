@@ -37,8 +37,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocumentfactory.h>
 #include <coreplugin/documentmanager.h>
-#include <projectexplorer/projecttree.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
@@ -54,7 +52,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 static const char SESSION_FILE_KEY[] = "TaskList.File";
-static const char SESSION_BASE_KEY[] = "TaskList.BaseDir";
 
 namespace TaskList {
 namespace Internal {
@@ -109,7 +106,7 @@ static QString unescape(const QString &input)
     return result;
 }
 
-static bool parseTaskFile(QString *errorString, const FileName &base, const FileName &name)
+static bool parseTaskFile(QString *errorString, const FileName &name)
 {
     QFile tf(name.toString());
     if (!tf.open(QIODevice::ReadOnly)) {
@@ -118,6 +115,7 @@ static bool parseTaskFile(QString *errorString, const FileName &base, const File
         return false;
     }
 
+    const FileName parentDir = name.parentDir();
     while (!tf.atEnd()) {
         QStringList chunks = parseRawLine(tf.readLine());
         if (chunks.isEmpty())
@@ -149,8 +147,8 @@ static bool parseTaskFile(QString *errorString, const FileName &base, const File
         if (!file.isEmpty()) {
             file = QDir::fromNativeSeparators(file);
             QFileInfo fi(file);
-            if (fi.isRelative() && !base.isEmpty())
-                file = FileName(base).appendPath(file).toString();
+            if (fi.isRelative())
+                file = FileName(parentDir).appendPath(file).toString();
         }
         description = unescape(description);
 
@@ -164,7 +162,7 @@ static bool parseTaskFile(QString *errorString, const FileName &base, const File
 // TaskListPlugin
 // --------------------------------------------------------------------------
 
-IDocument *TaskListPlugin::openTasks(const FileName &base, const FileName &fileName)
+IDocument *TaskListPlugin::openTasks(const FileName &fileName)
 {
     foreach (TaskFile *doc, m_openFiles) {
         if (doc->filePath() == fileName)
@@ -172,7 +170,6 @@ IDocument *TaskListPlugin::openTasks(const FileName &base, const FileName &fileN
     }
 
     auto file = new TaskFile(this);
-    file->setBaseDir(base);
 
     QString errorString;
     if (!file->load(&errorString, fileName)) {
@@ -206,10 +203,8 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     m_fileFactory = new IDocumentFactory;
     m_fileFactory->addMimeType(QLatin1String("text/x-tasklist"));
-    m_fileFactory->setOpener([this](const QString &fileName) -> IDocument * {
-        Project *project = ProjectTree::currentProject();
-        return this->openTasks(project ? project->projectDirectory() : FileName(),
-                               FileName::fromString(fileName));
+    m_fileFactory->setOpener([this](const QString &fileName) {
+        return openTasks(FileName::fromString(fileName));
     });
 
     addAutoReleasedObject(m_fileFactory);
@@ -221,25 +216,21 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     return true;
 }
 
-bool TaskListPlugin::loadFile(QString *errorString, const FileName &context,
-                              const FileName &fileName)
+bool TaskListPlugin::loadFile(QString *errorString, const FileName &fileName)
 {
     clearTasks();
 
-    bool result = parseTaskFile(errorString, context, fileName);
-    if (result) {
-        SessionManager::setValue(QLatin1String(SESSION_BASE_KEY), context.toString());
+    bool result = parseTaskFile(errorString, fileName);
+    if (result)
         SessionManager::setValue(QLatin1String(SESSION_FILE_KEY), fileName.toString());
-    } else {
+    else
         stopMonitoring();
-    }
 
     return result;
 }
 
 void TaskListPlugin::stopMonitoring()
 {
-    SessionManager::setValue(QLatin1String(SESSION_BASE_KEY), QString());
     SessionManager::setValue(QLatin1String(SESSION_FILE_KEY), QString());
 
     foreach (TaskFile *document, m_instance->m_openFiles)
@@ -256,10 +247,8 @@ void TaskListPlugin::loadDataFromSession()
 {
     const FileName fileName = FileName::fromString(
                 SessionManager::value(QLatin1String(SESSION_FILE_KEY)).toString());
-    if (fileName.isEmpty())
-        return;
-    openTasks(FileName::fromString(
-                  SessionManager::value(QLatin1String(SESSION_BASE_KEY)).toString()), fileName);
+    if (!fileName.isEmpty())
+        openTasks(fileName);
 }
 
 } // namespace Internal

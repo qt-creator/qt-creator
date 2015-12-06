@@ -97,15 +97,5 @@ bool TaskFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 bool TaskFile::load(QString *errorString, const Utils::FileName &fileName)
 {
     setFilePath(fileName);
-    return TaskListPlugin::loadFile(errorString, m_baseDir, fileName);
-}
-
-Utils::FileName TaskFile::baseDir() const
-{
-    return m_baseDir;
-}
-
-void TaskFile::setBaseDir(const Utils::FileName &base)
-{
-    m_baseDir = base;
+    return TaskListPlugin::loadFile(errorString, fileName);
 }
