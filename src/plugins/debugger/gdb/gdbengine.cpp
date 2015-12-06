@@ -1309,7 +1309,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 {
     // Ignore trap on Windows terminals, which results in
     // spurious "* stopped" message.
-    if (!data.isValid() && m_terminalTrap && Abi::hostAbi().os() == Abi::WindowsOS) {
+    if (m_terminalTrap && (!data.isValid() || !data["reason"].isValid())
+            && Abi::hostAbi().os() == Abi::WindowsOS) {
         m_terminalTrap = false;
         showMessage(_("IGNORING TERMINAL SIGTRAP"), LogMisc);
         return;
