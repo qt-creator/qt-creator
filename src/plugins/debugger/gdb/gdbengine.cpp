@@ -625,15 +625,17 @@ void GdbEngine::handleAsyncOutput(const QByteArray &asyncClass, const GdbMi &res
         } else {
             GdbMi threads = result["thread-id"];
             threadsHandler()->notifyRunning(threads.data());
-            if (state() == InferiorRunOk || state() == InferiorSetupRequested) {
-                // We get multiple *running after thread creation and in Windows terminals.
-                showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
-                            arg(QLatin1String(DebuggerEngine::stateName(state()))));
-            } else if (HostOsInfo::isWindowsHost() && (state() == InferiorStopRequested
-                                                       || state() == InferiorShutdownRequested)) {
+            if (runParameters().toolChainAbi.os() == Abi::WindowsOS) {
+                // NOTE: Each created thread spits out a *running message. We completely ignore them
+                // on Windows, and handle only numbered responses
+
                 // FIXME: Breakpoints on Windows are exceptions which are thrown in newly
                 // created threads so we have to filter out the running threads messages when
                 // we request a stop.
+            } else if (state() == InferiorRunOk || state() == InferiorSetupRequested) {
+                // We get multiple *running after thread creation and in Windows terminals.
+                showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
+                            arg(QLatin1String(DebuggerEngine::stateName(state()))));
             } else {
                 notifyInferiorRunOk();
             }
