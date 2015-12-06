@@ -49,23 +49,23 @@ QString NameController::convertFileNameToElementName(const QString &fileName)
     QFileInfo fileInfo(fileName);
     QString baseName = fileInfo.baseName().trimmed();
     QString elementName;
-    bool makeUppercase = true;
+    bool makeTitlecase = true;
     bool insertSpace = false;
     for (int i = 0; i < baseName.size(); ++i) {
         if (baseName.at(i) == QLatin1Char('_')) {
-            makeUppercase = true;
+            makeTitlecase = true;
             insertSpace = true;
         } else if (baseName.at(i) == QLatin1Char(' ') || baseName.at(i) == QLatin1Char('-')) {
-            makeUppercase = true;
+            makeTitlecase = true;
             insertSpace = false;
             elementName += baseName.at(i);
-        } else if (makeUppercase) {
+        } else if (makeTitlecase) {
             if (insertSpace) {
                 elementName += QLatin1Char(' ');
                 insertSpace = false;
             }
-            elementName += baseName.at(i).toUpper();
-            makeUppercase = false;
+            elementName += baseName.at(i).toTitleCase();
+            makeTitlecase = false;
         } else {
             if (insertSpace) {
                 elementName += QLatin1Char(' ');
