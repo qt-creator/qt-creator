@@ -71,6 +71,26 @@ private:
     QString m_fileName;
 };
 
+class GTestInfo {
+public:
+    explicit GTestInfo(const QString &caseName, const QString &setName, const QString &file);
+
+    const QString caseName() const { return m_caseName; }
+    void setCaseName(const QString &caseName) { m_caseName = caseName; }
+    const QString setName() const { return m_setName; }
+    void setSetName(const QString &setName) { m_setName = setName; }
+    const QString fileName() const { return m_fileName; }
+    void setFileName(const QString &fileName) { m_fileName = fileName; }
+    bool isEnabled() const { return m_enabled; }
+    void setEnabled(bool enabled) { m_enabled = enabled; }
+
+private:
+    QString m_caseName;
+    QString m_setName;
+    QString m_fileName;
+    bool m_enabled;
+};
+
 } // namespace Internal
 } // namespace Autotest
 

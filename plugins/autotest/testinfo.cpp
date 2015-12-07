@@ -42,5 +42,13 @@ UnnamedQuickTestInfo::UnnamedQuickTestInfo(const QString &function, const QStrin
 {
 }
 
+GTestInfo::GTestInfo(const QString &caseName, const QString &setName, const QString &file)
+    : m_caseName(caseName),
+      m_setName(setName),
+      m_fileName(file),
+      m_enabled(true)
+{
+}
+
 } // namespace Internal
 } // namespace Autotest

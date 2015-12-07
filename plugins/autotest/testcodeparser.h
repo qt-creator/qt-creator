@@ -40,6 +40,7 @@ namespace Internal {
 struct TestCodeLocationAndType;
 class TestInfo;
 class UnnamedQuickTestInfo;
+class GTestInfo;
 
 class TestCodeParser : public QObject
 {
@@ -72,6 +73,7 @@ signals:
     void unnamedQuickTestsUpdated(const QString &mainFile,
                                   const QMap<QString, TestCodeLocationAndType> &functions);
     void unnamedQuickTestsRemoved(const QString &filePath);
+    void gTestsRemoved(const QString &filePath);
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();
@@ -106,12 +108,17 @@ private:
                                  const QString &declaringFile, TestTreeItem *testItem);
     void updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
                                    const QString &referencingFile, TestTreeItem *testItem);
+    void updateGTests(const CPlusPlus::Document::Ptr &doc,
+                      const QMap<QString, TestCodeLocationList> &tests);
     void removeUnnamedQuickTestsByName(const QString &fileName);
+    void removeGTestsByName(const QString &fileName);
 
     TestTreeModel *m_model;
     QMap<QString, TestInfo> m_cppDocMap;
     QMap<QString, TestInfo> m_quickDocMap;
+    QMap<QString, TestInfo> m_gtestDocMap;
     QList<UnnamedQuickTestInfo> m_unnamedQuickDocList;
+    QList<GTestInfo> m_gtestDocList;
     bool m_codeModelParsing;
     bool m_fullUpdatePostponed;
     bool m_partialUpdatePostponed;

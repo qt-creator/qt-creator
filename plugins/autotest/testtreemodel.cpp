@@ -60,6 +60,8 @@ TestTreeModel::TestTreeModel(QObject *parent) :
             this, &TestTreeModel::updateUnnamedQuickTest, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::unnamedQuickTestsRemoved,
             this, &TestTreeModel::removeUnnamedQuickTests, Qt::QueuedConnection);
+    connect(m_parser, &TestCodeParser::gTestsRemoved,
+            this, &TestTreeModel::removeGTests, Qt::QueuedConnection);
 
 //    CppTools::CppModelManagerInterface *cppMM = CppTools::CppModelManagerInterface::instance();
 //    if (cppMM) {
@@ -481,10 +483,45 @@ void TestTreeModel::removeUnnamedQuickTests(const QString &filePath)
     emit testTreeModelChanged();
 }
 
+void TestTreeModel::removeGTests(const QString &filePath)
+{
+    for (int childRow = m_googleTestRootItem->childCount() - 1; childRow >= 0; --childRow) {
+        TestTreeItem *child = m_googleTestRootItem->childItem(childRow);
+        for (int grandChildRow = child->childCount() - 1; grandChildRow >= 0; --grandChildRow) {
+            TestTreeItem *grandChild = child->childItem(grandChildRow);
+            if (filePath == grandChild->filePath())
+                delete takeItem(grandChild);
+        }
+        if (child->childCount() == 0)
+            delete takeItem(child);
+    }
+    emit testTreeModelChanged();
+}
+
 void TestTreeModel::addTestTreeItem(TestTreeItem *item, TestTreeModel::Type type)
 {
     TestTreeItem *parent = rootItemForType(type);
-    parent->appendChild(item);
+    if (type == TestTreeModel::GoogleTest) {
+        // check if there's already an item with the same test name...
+        TestTreeItem *toBeUpdated = 0;
+        for (int row = 0, count = parent->childCount(); row < count; ++row) {
+            TestTreeItem *current = parent->childItem(row);
+            if (current->name() == item->name()) {
+                toBeUpdated = current;
+                break;
+            }
+        }
+        // ...if so we have, to update this one instead of adding a new item
+        if (toBeUpdated) {
+            for (int row = 0, count = item->childCount(); row < count; ++row)
+                toBeUpdated->appendChild(new TestTreeItem(*item->childItem(row)));
+            delete item;
+        } else {
+            parent->appendChild(item);
+        }
+    } else {
+        parent->appendChild(item);
+    }
     emit testTreeModelChanged();
 }
 

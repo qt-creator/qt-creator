@@ -84,6 +84,7 @@ private:
     void removeAllTestItems();
     void removeTestTreeItems(const QString &filePath, Type type);
     void removeUnnamedQuickTests(const QString &filePath);
+    void removeGTests(const QString &filePath);
 
     TestTreeItem *unnamedQuickTests() const;
     TestTreeItem *rootItemForType(Type type);

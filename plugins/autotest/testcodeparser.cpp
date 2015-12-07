@@ -459,6 +459,20 @@ static TestTreeItem *constructTestTreeItem(const QString &fileName,
     return treeItem;
 }
 
+static TestTreeItem *constructGTestTreeItem(const QString &filePath, const QString &caseName,
+                                            const TestCodeLocationList &testNames)
+{
+    TestTreeItem *item = new TestTreeItem(caseName, QString(), TestTreeItem::GTestCase);
+    foreach (const TestCodeLocationAndType &locationAndType, testNames) {
+        TestTreeItem *treeItemChild = new TestTreeItem(locationAndType.m_name, filePath,
+                                                       locationAndType.m_type);
+        treeItemChild->setLine(locationAndType.m_line);
+        treeItemChild->setColumn(locationAndType.m_column);
+        item->appendChild(treeItemChild);
+    }
+    return item;
+}
+
 /****** end of helpers ******/
 
 // used internally to indicate a parse that failed due to having triggered a parse for a file that
@@ -607,6 +621,7 @@ void TestCodeParser::handleGTest(const QString &filePath, const QSet<QString> &n
 
     QMap<QString, TestCodeLocationList> result = visitor.gtestFunctions();
     QTC_CHECK(names.contains(result.keys().toSet()));
+    updateGTests(document, result);
 }
 
 void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document)
@@ -801,6 +816,8 @@ void TestCodeParser::clearCache()
     m_cppDocMap.clear();
     m_quickDocMap.clear();
     m_unnamedQuickDocList.clear();
+    m_gtestDocMap.clear();
+    m_gtestDocList.clear();
     emit cacheCleared();
 }
 
@@ -810,6 +827,9 @@ void TestCodeParser::removeTestsIfNecessary(const QString &fileName)
     if (m_cppDocMap.contains(fileName)) {
         m_cppDocMap.remove(fileName);
         emit testItemsRemoved(fileName, TestTreeModel::AutoTest);
+    } else if (m_gtestDocMap.contains(fileName)) {
+        m_gtestDocMap.remove(fileName);
+        emit testItemsRemoved(fileName, TestTreeModel::GoogleTest);
     } else { // handle Qt Quick Tests
         QList<QString> toBeRemoved;
         foreach (const QString &file, m_quickDocMap.keys()) {
@@ -997,6 +1017,33 @@ void TestCodeParser::updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
     }
 }
 
+void TestCodeParser::updateGTests(const CPlusPlus::Document::Ptr &doc,
+                                  const QMap<QString, TestCodeLocationList> &tests)
+{
+    const QString &fileName = doc->fileName();
+    removeGTestsByName(fileName);
+
+    QString proFile;
+    const CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    QList<CppTools::ProjectPart::Ptr> ppList = cppMM->projectPart(fileName);
+    if (ppList.size())
+        proFile = ppList.at(0)->projectFile;
+
+    foreach (const QString &testName, tests.keys()) {
+        TestTreeItem *item = constructGTestTreeItem(fileName, testName, tests.value(testName));
+        TestInfo info(item->name(), item->getChildNames(), doc->revision(), doc->editorRevision());
+        info.setProfile(proFile);
+        foreach (const TestCodeLocationAndType &testSet, tests.value(testName)) {
+            GTestInfo gtestInfo(testName, testSet.m_name, fileName);
+            if (testSet.m_type == TestTreeItem::GTestNameDisabled)
+                gtestInfo.setEnabled(false);
+            m_gtestDocList.append(gtestInfo);
+        }
+        emit testItemCreated(item, TestTreeModel::GoogleTest);
+        m_gtestDocMap.insert(fileName, info);
+    }
+}
+
 void TestCodeParser::removeUnnamedQuickTestsByName(const QString &fileName)
 {
     for (int i = m_unnamedQuickDocList.size() - 1; i >= 0; --i) {
@@ -1004,6 +1051,15 @@ void TestCodeParser::removeUnnamedQuickTestsByName(const QString &fileName)
             m_unnamedQuickDocList.removeAt(i);
     }
     emit unnamedQuickTestsRemoved(fileName);
+}
+
+void TestCodeParser::removeGTestsByName(const QString &fileName)
+{
+    for (int i = m_gtestDocList.size() - 1; i >= 0; --i)
+        if (m_gtestDocList.at(i).fileName() == fileName)
+            m_gtestDocList.removeAt(i);
+
+    emit gTestsRemoved(fileName);
 }
 
 #ifdef WITH_TESTS
