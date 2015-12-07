@@ -60,7 +60,7 @@ def main():
     myCompTE = "SampleApp.Resources.qml\\.qrc./.MyComponent\\.qml"
     # there should be new QML file generated with name "MyComponent.qml"
     try:
-        waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", myCompTE, 3000)
+        waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", myCompTE, 5000)
     except:
         try:
             waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", addBranchWildcardToRoot(myCompTE), 1000)

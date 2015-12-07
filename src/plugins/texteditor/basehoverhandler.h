@@ -65,13 +65,13 @@ protected:
     void setLastHelpItemIdentified(const HelpItem &help);
     const HelpItem &lastHelpItemIdentified() const;
 
+    virtual void decorateToolTip();
+    virtual void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point);
 private:
     void clear();
     void process(TextEditorWidget *widget, int pos);
 
     virtual void identifyMatch(TextEditorWidget *editorWidget, int pos) = 0;
-    virtual void decorateToolTip();
-    virtual void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point);
 
     bool m_diagnosticTooltip;
     QString m_toolTip;

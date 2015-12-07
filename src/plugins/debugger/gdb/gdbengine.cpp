@@ -3218,9 +3218,10 @@ void GdbEngine::loadAdditionalQmlStack()
             return;
         }
         // Call the debug function of QML with the context address to obtain the QML stack trace.
-        runCommand({"-data-evaluate-expression \"qt_v4StackTrace((QV4::ExecutionContext *)0x"
-                        + QByteArray::number(contextAddress, 16) + ")\"",
-                    NoFlags, CB(handleQmlStackTrace)});
+        DebuggerCommand cmd("-data-evaluate-expression \"qt_v4StackTrace((QV4::ExecutionContext *)0x"
+                + QByteArray::number(contextAddress, 16) + ")\"");
+        cmd.callback = CB(handleQmlStackTrace);
+        runCommand(cmd);
     };
     runCommand(cmd);
 }

@@ -67,7 +67,7 @@ uint SourceLocation::offset() const
 
 SourceLocationContainer SourceLocation::toSourceLocationContainer() const
 {
-    return SourceLocationContainer(filePath_, line_, offset_);
+    return SourceLocationContainer(filePath_, line_, column_);
 }
 
 SourceLocation::SourceLocation(CXSourceLocation cxSourceLocation)
@@ -94,7 +94,8 @@ SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
                                          line,
                                          column)),
       filePath_(filePath),
-      line_(line)
+      line_(line),
+      column_(column)
 {
 }
 

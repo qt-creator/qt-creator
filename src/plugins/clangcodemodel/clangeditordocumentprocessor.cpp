@@ -170,17 +170,36 @@ void ClangEditorDocumentProcessor::updateCodeWarnings(const QVector<ClangBackEnd
         emit codeWarningsUpdated(revision(), codeWarnings);
     }
 }
+namespace {
 
-static QList<TextEditor::BlockRange>
-toTextEditorBlocks(const QVector<ClangBackEnd::SourceRangeContainer> &ifdefedOutRanges)
+int positionInText(QTextDocument *textDocument,
+                   const ClangBackEnd::SourceLocationContainer &sourceLocationContainer)
+{
+    auto textBlock = textDocument->findBlockByNumber(int(sourceLocationContainer.line()) - 1);
+
+    return textBlock.position() + int(sourceLocationContainer.column()) - 1;
+}
+
+TextEditor::BlockRange
+toTextEditorBlock(QTextDocument *textDocument,
+                  const ClangBackEnd::SourceRangeContainer &sourceRangeContainer)
+{
+    return TextEditor::BlockRange(positionInText(textDocument, sourceRangeContainer.start()),
+                                  positionInText(textDocument, sourceRangeContainer.end()));
+}
+
+QList<TextEditor::BlockRange>
+toTextEditorBlocks(QTextDocument *textDocument,
+                   const QVector<ClangBackEnd::SourceRangeContainer> &ifdefedOutRanges)
 {
     QList<TextEditor::BlockRange> blockRanges;
     blockRanges.reserve(ifdefedOutRanges.size());
 
     for (const auto &range : ifdefedOutRanges)
-        blockRanges.append(TextEditor::BlockRange(range.start().offset(),range.end().offset()));
+        blockRanges.append(toTextEditorBlock(textDocument, range));
 
     return blockRanges;
+}
 }
 
 void ClangEditorDocumentProcessor::updateHighlighting(
@@ -189,7 +208,7 @@ void ClangEditorDocumentProcessor::updateHighlighting(
         uint documentRevision)
 {
     if (documentRevision == revision()) {
-        const auto skippedPreprocessorBlocks = toTextEditorBlocks(skippedPreprocessorRanges);
+        const auto skippedPreprocessorBlocks = toTextEditorBlocks(textDocument(), skippedPreprocessorRanges);
         emit ifdefedOutBlocksUpdated(documentRevision, skippedPreprocessorBlocks);
 
         m_semanticHighlighter.setHighlightingRunner(

@@ -58,13 +58,12 @@ QString unsavedFileContent(const QString &unsavedFilePath)
     return QString::fromUtf8(unsavedFileContentFile.readAll());
 }
 
-MATCHER_P2(MatchText, errorText, expectedText,
-           std::string(negation ? "hasn't" : "has") + " error text:\n" + PrintToString(errorText) +
-           " and expected text:\n" + PrintToString(expectedText))
+MATCHER_P(MatchText, expectedText,
+          std::string(negation ? "hasn't" : "has")
+          + " expected text:\n" + PrintToString(expectedText))
 {
-    QString resultText = errorText;
-    Utils::ChangeSet changeSet = arg.changeSet();
-    changeSet.apply(&resultText);
+    const ::ClangFixItOperation &operation = arg;
+    QString resultText = operation.refactoringFileContent_forTestOnly();
 
     if (resultText != expectedText) {
         *result_listener << "\n" << resultText.toUtf8().constData();
@@ -77,30 +76,31 @@ MATCHER_P2(MatchText, errorText, expectedText,
 class ClangFixItOperation : public ::testing::Test
 {
 protected:
-    Utf8String filePath;
+    Utf8String semicolonFilePath{TESTDATA_DIR"/diagnostic_semicolon_fixit.cpp", -1};
+    Utf8String compareFilePath{TESTDATA_DIR"/diagnostic_comparison_fixit.cpp", -1};
     Utf8String diagnosticText{Utf8StringLiteral("expected ';' at end of declaration")};
     FixItContainer semicolonFixItContainer{Utf8StringLiteral(";"),
-                                  {{filePath, 3u, 29u},
-                                   {filePath, 3u, 29u}}};
-    QString semicolonErrorFile{QString::fromUtf8(TESTDATA_DIR "/diagnostic_semicolon_fixit.cpp")};
+                                  {{semicolonFilePath, 3u, 13u},
+                                   {semicolonFilePath, 3u, 13u}}};
+    QString semicolonErrorFile{semicolonFilePath.toString()};
     QString semicolonExpectedFile{QString::fromUtf8(TESTDATA_DIR"/diagnostic_semicolon_fixit_expected.cpp")};
-    QString compareWarningFile{QString::fromUtf8(TESTDATA_DIR"/diagnostic_comparison_fixit.cpp")};
+    QString compareWarningFile{compareFilePath.toString()};
     QString compareExpected1File{QString::fromUtf8(TESTDATA_DIR"/diagnostic_comparison_fixit_expected1.cpp")};
     QString compareExpected2File{QString::fromUtf8(TESTDATA_DIR"/diagnostic_comparison_fixit_expected2.cpp")};
     FixItContainer compareFixItContainer{Utf8StringLiteral("=="),
-                                  {{filePath, 4u, 43u},
-                                   {filePath, 4u, 44u}}};
+                                  {{compareFilePath, 4u, 11u},
+                                   {compareFilePath, 4u, 12u}}};
     FixItContainer assignmentFixItContainerParenLeft{Utf8StringLiteral("("),
-                                  {{filePath, 4u, 41u},
-                                   {filePath, 4u, 41u}}};
+                                  {{compareFilePath, 4u, 9u},
+                                   {compareFilePath, 4u, 9u}}};
     FixItContainer assignmentFixItContainerParenRight{Utf8StringLiteral(")"),
-                                  {{filePath, 4u, 46u},
-                                   {filePath, 4u, 46u}}};
+                                  {{compareFilePath, 4u, 14u},
+                                   {compareFilePath, 4u, 14u}}};
 };
 
 TEST_F(ClangFixItOperation, Description)
 {
-    ::ClangFixItOperation operation(filePath, diagnosticText, {semicolonFixItContainer});
+    ::ClangFixItOperation operation(semicolonFilePath, diagnosticText, {semicolonFixItContainer});
 
     ASSERT_THAT(operation.description(),
                 QStringLiteral("Apply Fix: expected ';' at end of declaration"));
@@ -108,29 +108,32 @@ TEST_F(ClangFixItOperation, Description)
 
 TEST_F(ClangFixItOperation, AppendSemicolon)
 {
-    ::ClangFixItOperation operation(filePath, diagnosticText, {semicolonFixItContainer});
+    ::ClangFixItOperation operation(semicolonFilePath, diagnosticText, {semicolonFixItContainer});
 
-    ASSERT_THAT(operation, MatchText(unsavedFileContent(semicolonErrorFile),
-                                     unsavedFileContent(semicolonExpectedFile)));
+    operation.perform();
+
+    ASSERT_THAT(operation, MatchText(unsavedFileContent(semicolonExpectedFile)));
 }
 
 TEST_F(ClangFixItOperation, ComparisonVersusAssignmentChooseComparison)
 {
-    ::ClangFixItOperation operation(filePath, diagnosticText, {compareFixItContainer});
+    ::ClangFixItOperation operation(compareFilePath, diagnosticText, {compareFixItContainer});
 
-    ASSERT_THAT(operation, MatchText(unsavedFileContent(compareWarningFile),
-                                     unsavedFileContent(compareExpected1File)));
+    operation.perform();
+
+    ASSERT_THAT(operation, MatchText(unsavedFileContent(compareExpected1File)));
 }
 
 TEST_F(ClangFixItOperation, ComparisonVersusAssignmentChooseParentheses)
 {
-    ::ClangFixItOperation operation(filePath,
+    ::ClangFixItOperation operation(compareFilePath,
                                     diagnosticText,
                                     {assignmentFixItContainerParenLeft,
                                      assignmentFixItContainerParenRight});
 
-    ASSERT_THAT(operation, MatchText(unsavedFileContent(compareWarningFile),
-                                     unsavedFileContent(compareExpected2File)));
+    operation.perform();
+
+    ASSERT_THAT(operation, MatchText(unsavedFileContent(compareExpected2File)));
 }
 
 }

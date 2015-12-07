@@ -261,6 +261,7 @@ class JIRA:
         def __initBugDict__(self):
             self.__bugs__= {
                             'QTCREATORBUG-6853':self._workaroundCreator6853_,
+                            'QTCREATORBUG-15456':self._workaroundCreator15456_,
                             }
         # helper function - will be called if no workaround for the requested bug is deposited
         def _exitFatal_(self, bugType, number):
@@ -271,3 +272,13 @@ class JIRA:
         def _workaroundCreator6853_(self, *args):
             if "Release" in args[0] and platform.system() == "Linux":
                 snooze(2)
+
+        def _workaroundCreator15456_(self, *args):
+            isMsvc = args[0]
+            isQt5 = args[1]
+            config = args[2]
+            if isMsvc and isQt5 and config != "Release":
+                unexpectedExitMessage = ("{type='QMessageBox' unnamed='1' visible='1' "
+                                         "windowTitle='Unexpected CDB Exit'}")
+                clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' "
+                                          "visible='1' window=%s}" % unexpectedExitMessage))

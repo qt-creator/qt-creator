@@ -132,9 +132,9 @@ def testHovering():
     expectedTypes = ["TextTip", "TextTip"]
     expectedValues = [
                       {'text':'<table><tr><td valign=middle>FocusScope\n<p>The FocusScope object explicitly '
-                       'creates a focus scope.</p></td><td>&nbsp;&nbsp;<img src=":/texteditor/images/f1.png"></td></tr></table>'},
+                       'creates a focus scope.</p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'},
                       {'text':'<table><tr><td valign=middle>Rectangle\n<p>The Rectangle item provides a filled rectangle with an '
-                       'optional border.</p></td><td>&nbsp;&nbsp;<img src=":/texteditor/images/f1.png"></td></tr></table>'}
+                       'optional border.</p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}
                       ]
     alternativeValues = [{"text":"FocusScope"}, {"text":"Rectangle"}]
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
@@ -147,14 +147,14 @@ def testHovering():
                       {'text':'<table><tr><td valign=middle>boolean<p>This property indicates whether the item has focus '
                        'within the enclosing focus scope. If true, this item will gain active focus when the enclosing '
                        'focus scope gains active focus. In the following example, <tt>input</tt> will be given active focus '
-                       'when <tt>scope</tt> gains active focus.</p></td><td>&nbsp;&nbsp;<img src=":/texteditor/images/f1.png"'
+                       'when <tt>scope</tt> gains active focus.</p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"'
                        '></td></tr></table>'},
                       {'text':'<table><tr><td valign=middle>string<p>This property holds the color used to fill the rectangle.'
-                       '</p></td><td>&nbsp;&nbsp;<img src=":/texteditor/images/f1.png"></td></tr></table>'},
+                       '</p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'},
                       {'text':'<table><tr><td valign=middle>State<p>This property holds a list of states defined by the item.'
-                       '</p></td><td>&nbsp;&nbsp;<img src=":/texteditor/images/f1.png"></td></tr></table>'},
+                       '</p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'},
                       {'text':'<table><tr><td valign=middle>Transition<p>This property holds a list of transitions defined by '
-                       'the item.</p></td><td>&nbsp;&nbsp;<img src=":/texteditor/images/f1.png"></td></tr></table>'}
+                       'the item.</p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}
                       ]
     alternativeValues = [{"text":"boolean"}, {"text":"string"}, {"text":"State"}, {"text":"Transition"}]
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)

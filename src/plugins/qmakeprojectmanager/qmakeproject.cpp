@@ -923,8 +923,8 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
         if (bc) {
             k = bc->target()->kit();
             env = bc->environment();
-            if (bc->qmakeStep())
-                qmakeArgs = bc->qmakeStep()->parserArguments();
+            if (QMakeStep *qs = bc->qmakeStep())
+                qmakeArgs = qs->parserArguments();
             else
                 qmakeArgs = bc->configCommandLineArguments();
         } else {
