@@ -612,17 +612,24 @@ int QmakeBuildConfigurationFactory::priority(const Target *parent) const
     return canHandle(parent) ? 0 : -1;
 }
 
+static QList<BuildConfiguration::BuildType> availableBuildTypes(const BaseQtVersion *version)
+{
+    QList<BuildConfiguration::BuildType> types = {BuildConfiguration::Debug,
+                                                  BuildConfiguration::Release};
+    if (version && version->qtVersion().majorVersion > 4)
+        types << BuildConfiguration::Profile;
+    return types;
+}
+
 QList<BuildInfo *> QmakeBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
 
     const QString projectFilePath = parent->project()->projectFilePath().toString();
 
-    for (BuildConfiguration::BuildType buildType : { BuildConfiguration::Debug,
-                                                     BuildConfiguration::Profile,
-                                                     BuildConfiguration::Release }) {
-        QmakeBuildInfo *info = createBuildInfo(parent->kit(), projectFilePath,
-                                               buildType);
+    foreach (BuildConfiguration::BuildType buildType,
+             availableBuildTypes(QtSupport::QtKitInformation::qtVersion(parent->kit()))) {
+        QmakeBuildInfo *info = createBuildInfo(parent->kit(), projectFilePath, buildType);
         info->displayName.clear(); // ask for a name
         info->buildDirectory.clear(); // This depends on the displayName
         result << info;
@@ -645,9 +652,10 @@ QList<BuildInfo *> QmakeBuildConfigurationFactory::availableSetups(const Kit *k,
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
     if (!qtVersion || !qtVersion->isValid())
         return result;
-    result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Debug);
-    result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Profile);
-    result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Release);
+
+    foreach (BuildConfiguration::BuildType buildType, availableBuildTypes(qtVersion))
+        result << createBuildInfo(k, projectPath, buildType);
+
     return result;
 }
 
