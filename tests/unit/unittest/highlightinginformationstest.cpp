@@ -340,7 +340,7 @@ TEST_F(HighlightingInformations, Enumeration)
 {
     const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(118, 17));
 
-    ASSERT_THAT(infos[1], HasType(HighlightingType::Enumeration));
+    ASSERT_THAT(infos[1], HasType(HighlightingType::Type));
 }
 
 TEST_F(HighlightingInformations, Enumerator)
@@ -354,7 +354,7 @@ TEST_F(HighlightingInformations, EnumerationReferenceDeclarationType)
 {
     const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(125, 28));
 
-    ASSERT_THAT(infos[0], HasType(HighlightingType::Enumeration));
+    ASSERT_THAT(infos[0], HasType(HighlightingType::Type));
 }
 
 TEST_F(HighlightingInformations, EnumerationReferenceDeclarationVariable)

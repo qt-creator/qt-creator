@@ -132,8 +132,8 @@ HighlightingType HighlightingInformation::referencedTypeKind(const Cursor &curso
         case CXCursor_UnionDecl:
         case CXCursor_TypedefDecl:
         case CXCursor_TemplateTypeParameter:
-        case CXCursor_TypeAliasDecl:         return HighlightingType::Type;
-        case CXCursor_EnumDecl:              return HighlightingType::Enumeration;
+        case CXCursor_TypeAliasDecl:
+        case CXCursor_EnumDecl:              return HighlightingType::Type;
         default:                             return HighlightingType::Invalid;
     }
 
@@ -208,6 +208,7 @@ HighlightingType HighlightingInformation::identifierKind(const Cursor &cursor) c
         case CXCursor_TypeAliasDecl:
         case CXCursor_TypedefDecl:
         case CXCursor_ClassTemplate:
+        case CXCursor_EnumDecl:
         case CXCursor_CXXStaticCastExpr:
         case CXCursor_CXXReinterpretCastExpr:
         case CXCursor_ObjCCategoryDecl:
@@ -220,7 +221,6 @@ HighlightingType HighlightingInformation::identifierKind(const Cursor &cursor) c
         case CXCursor_ObjCSuperClassRef:         return HighlightingType::Type;
         case CXCursor_FunctionTemplate:          return HighlightingType::Function;
         case CXCursor_EnumConstantDecl:          return HighlightingType::Enumeration;
-        case CXCursor_EnumDecl:                  return referencedTypeKind(cursor);
         case CXCursor_PreprocessingDirective:    return HighlightingType::Preprocessor;
         case CXCursor_MacroExpansion:            return HighlightingType::PreprocessorExpansion;
         case CXCursor_MacroDefinition:           return HighlightingType::PreprocessorDefinition;
