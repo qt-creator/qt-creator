@@ -395,8 +395,8 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
     wizard->setValue(QStringLiteral("category"), category());
     wizard->setValue(QStringLiteral("id"), id().toString());
 
-    for (auto i = m_options.constBegin(); i != m_options.constEnd(); ++i)
-        wizard->setValue(i.key(), i.value());
+    foreach (const JsonWizard::OptionDefinition &od, m_options)
+        wizard->setValue(od.key, od.value);
 
     bool havePage = false;
     foreach (const Page &data, m_pages) {
@@ -625,29 +625,8 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
     setFlags(flags);
 
     // Options:
-    const QVariant optionValue = data.value(QLatin1String(OPTIONS_KEY));
-    const QVariantList optionList = optionValue.isNull() ? QVariantList() : objectOrList(optionValue, errorMessage);
-
-    foreach (const QVariant &v, optionList) {
-        if (v.type() != QVariant::Map) {
-            *errorMessage = tr("List element of \"options\" is not an object.");
-            return false;
-        }
-        QVariantMap data = v.toMap();
-        const QString key = data.value(QStringLiteral("key"), QString()).toString();
-        const QString value = data.value(QStringLiteral("value"), QString()).toString();
-        if (key.isEmpty()) {
-            *errorMessage = tr("No \"key\" given for entry in \"options\".");
-            return false;
-        }
-        if (m_options.contains(key)) {
-            *errorMessage = tr("When parsing \"options\": Key \"%1\" set more than once.").arg(key);
-            return false;
-        }
-        m_options.insert(key, value);
-    }
-
-    return true;
+    m_options = JsonWizard::parseOptions(data.value(QLatin1String(OPTIONS_KEY)), errorMessage);
+    return errorMessage->isEmpty();
 }
 
 } // namespace ProjectExplorer

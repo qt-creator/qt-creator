@@ -78,6 +78,14 @@ public:
     QVariant value(const QString &n) const;
     void setValue(const QString &key, const QVariant &value);
 
+    class OptionDefinition {
+    public:
+        QString key;
+        QString value;
+        QString condition;
+    };
+    static QList<OptionDefinition> parseOptions(const QVariant &v, QString *errorMessage);
+
     static bool boolFromVariant(const QVariant &v, Utils::MacroExpander *expander);
     static QString stringListToArrayString(const QStringList &list,
                                            const Utils::MacroExpander *expander);

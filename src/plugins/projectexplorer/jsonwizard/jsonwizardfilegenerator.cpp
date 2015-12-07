@@ -52,6 +52,8 @@ namespace Internal {
 
 bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
 {
+    QTC_ASSERT(errorMessage && errorMessage->isEmpty(), return false);
+
     QVariantList list = JsonWizardFactory::objectOrList(data, errorMessage);
     if (list.isEmpty())
         return false;
@@ -74,26 +76,9 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         f.openInEditor = tmp.value(QLatin1String("openInEditor"), false);
         f.openAsProject = tmp.value(QLatin1String("openAsProject"), false);
 
-        const QVariant options = tmp.value(QLatin1String("options"));
-        if (!options.isNull()) {
-            const QVariantList optList = JsonWizardFactory::objectOrList(options, errorMessage);
-            if (optList.isEmpty())
-                return false;
-
-            foreach (const QVariant &o, optList) {
-                QVariantMap optionObject = o.toMap();
-                File::OptionDefinition odef;
-                odef.key = optionObject.value(QLatin1String("key")).toString();
-                odef.value = optionObject.value(QLatin1String("value")).toString();
-                odef.condition = optionObject.value(QLatin1String("condition"), QLatin1String("true")).toString();
-                if (odef.key.isEmpty()) {
-                    *errorMessage = QCoreApplication::translate("ProjectExplorer::Internal::JsonWizardFileGenerator",
-                                                                "No 'key' in options object.");
-                    return false;
-                }
-                f.options.append(odef);
-            }
-        }
+        f.options = JsonWizard::parseOptions(tmp.value(QLatin1String("options")), errorMessage);
+        if (!errorMessage->isEmpty())
+            return false;
 
         if (f.source.isEmpty() && f.target.isEmpty()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
@@ -133,18 +118,20 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
             // TODO: Document that input files are UTF8 encoded!
             gf.setBinary(false);
             Utils::MacroExpander nested;
-            const File *fPtr = &file;
-            Utils::MacroExpander *thisExpander = &nested;
-            nested.registerExtraResolver([fPtr, thisExpander](QString n, QString *ret) -> bool {
-                foreach (const File::OptionDefinition &od, fPtr->options) {
-                    if (!JsonWizard::boolFromVariant(od.condition, thisExpander))
-                        continue;
-                    if (n == od.key) {
-                        *ret = od.value;
-                        return true;
-                    }
-                }
-                return false;
+
+            // evaluate file options once:
+            QHash<QString, QString> options;
+            foreach (const JsonWizard::OptionDefinition &od, file.options) {
+                if (!JsonWizard::boolFromVariant(od.condition, expander))
+                    continue;
+                options.insert(od.key, od.value);
+            }
+
+            nested.registerExtraResolver([&options](QString n, QString *ret) -> bool {
+                if (!options.contains(n))
+                    return false;
+                *ret = options.value(n);
+                return true;
             });
             nested.registerExtraResolver([expander](QString n, QString *ret) { return expander->resolveMacro(n, ret); });
 

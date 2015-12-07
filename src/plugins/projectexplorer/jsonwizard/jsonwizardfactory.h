@@ -33,6 +33,8 @@
 
 #include "../projectexplorer_export.h"
 
+#include "jsonwizard.h"
+
 #include <coreplugin/iwizardfactory.h>
 
 #include <utils/fileutils.h>
@@ -115,7 +117,7 @@ private:
     QList<Generator> m_generators;
 
     QList<Page> m_pages;
-    QMap<QString, QString> m_options;
+    QList<JsonWizard::OptionDefinition> m_options;
 
     QSet<Core::Id> m_preferredFeatures;
 

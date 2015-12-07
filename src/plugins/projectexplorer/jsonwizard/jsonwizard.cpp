@@ -30,6 +30,7 @@
 
 #include "jsonwizard.h"
 
+#include "jsonwizardfactory.h"
 #include "jsonwizardgeneratorfactory.h"
 
 #include "../project.h"
@@ -144,6 +145,34 @@ QString JsonWizard::stringValue(const QString &n) const
 void JsonWizard::setValue(const QString &key, const QVariant &value)
 {
     setProperty(key.toUtf8(), value);
+}
+
+QList<JsonWizard::OptionDefinition> JsonWizard::parseOptions(const QVariant &v, QString *errorMessage)
+{
+    QTC_ASSERT(errorMessage, return { });
+
+    QList<JsonWizard::OptionDefinition> result;
+    if (!v.isNull()) {
+        const QVariantList optList = JsonWizardFactory::objectOrList(v, errorMessage);
+        foreach (const QVariant &o, optList) {
+            QVariantMap optionObject = o.toMap();
+            JsonWizard::OptionDefinition odef;
+            odef.key = optionObject.value(QLatin1String("key")).toString();
+            odef.value = optionObject.value(QLatin1String("value")).toString();
+            odef.condition = optionObject.value(QLatin1String("condition"), QLatin1String("true")).toString();
+
+            if (odef.key.isEmpty()) {
+                *errorMessage = QCoreApplication::translate("ProjectExplorer::Internal::JsonWizardFileGenerator",
+                                                            "No 'key' in options object.");
+                result.clear();
+                break;
+            }
+            result.append(odef);
+        }
+    }
+
+    QTC_ASSERT(errorMessage->isEmpty() || (!errorMessage->isEmpty() && result.isEmpty()), return result);
+    return result;
 }
 
 QVariant JsonWizard::value(const QString &n) const

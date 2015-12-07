@@ -62,13 +62,7 @@ private:
         QVariant openInEditor = false;
         QVariant openAsProject = false;
 
-        class OptionDefinition {
-        public:
-            QString key;
-            QString value;
-            QString condition;
-        };
-        QList<OptionDefinition> options;
+        QList<JsonWizard::OptionDefinition> options;
     };
 
     Core::GeneratedFile generateFile(const File &file, Utils::MacroExpander *expander,
