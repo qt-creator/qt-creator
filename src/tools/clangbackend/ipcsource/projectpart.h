@@ -31,11 +31,12 @@
 #ifndef CLANGBACKEND_PROJECT_H
 #define CLANGBACKEND_PROJECT_H
 
+#include <utf8string.h>
+
 #include <chrono>
 #include <memory>
 #include <vector>
 
-class Utf8String;
 class Utf8StringVector;
 
 namespace ClangBackEnd {
@@ -48,7 +49,7 @@ using time_point = std::chrono::steady_clock::time_point;
 class ProjectPart
 {
 public:
-    ProjectPart(const Utf8String &projectPartId);
+    ProjectPart(const Utf8String &projectPartId = Utf8String());
     ProjectPart(const Utf8String &projectPartId,
                 std::initializer_list<Utf8String> arguments);
     ProjectPart(const ProjectPartContainer &projectContainer);

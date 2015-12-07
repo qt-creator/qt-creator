@@ -170,6 +170,12 @@ void TranslationUnits::updateTranslationUnitsWithChangedDependencies(const QVect
         updateTranslationUnitsWithChangedDependency(fileContainer.filePath());
 }
 
+void TranslationUnits::setTranslationUnitsDirtyIfProjectPartChanged()
+{
+    for (auto &translationUnit : translationUnits_)
+        translationUnit.setDirtyIfProjectPartIsOutdated();
+}
+
 DocumentAnnotationsSendState TranslationUnits::sendDocumentAnnotations()
 {
     auto documentAnnotationsSendState = sendDocumentAnnotationsForCurrentEditor();

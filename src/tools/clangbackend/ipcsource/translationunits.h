@@ -83,6 +83,7 @@ public:
 
     void updateTranslationUnitsWithChangedDependency(const Utf8String &filePath);
     void updateTranslationUnitsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
+    void setTranslationUnitsDirtyIfProjectPartChanged();
 
     DocumentAnnotationsSendState sendDocumentAnnotationsForCurrentEditor();
     DocumentAnnotationsSendState sendDocumentAnnotationsForVisibleEditors();
