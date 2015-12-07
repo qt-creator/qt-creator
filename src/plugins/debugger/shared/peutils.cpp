@@ -266,7 +266,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
         int debugSectionCount;
         IMAGE_DEBUG_DIRECTORY *debugDir;
         if (!getDebugDirectory(ntHeaders, fileMemory, &debugDir, &debugSectionCount, errorMessage))
-            return false;
+            break;
         if (debugSectionCount)
             collectPDBfiles(fileMemory, debugDir, debugSectionCount, rc);
         success = true;
