@@ -73,6 +73,9 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
         QIcon(QLatin1String(":/images/func.png")),
         QIcon(QLatin1String(":/images/data.png"))
     };
+    if (type == TestTreeItem::GTestCase)
+        return icons[1];
+
     if (int(type) >= int(sizeof icons / sizeof *icons))
         return icons[2];
     return icons[type];
@@ -102,6 +105,9 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         case TestDataFunction:
         case TestSpecialFunction:
         case TestDataTag:
+        case GTestCase:
+        case GTestName:
+        case GTestNameDisabled:
             return QVariant();
         case TestClass:
             return m_name.isEmpty() ? QVariant() : checked();

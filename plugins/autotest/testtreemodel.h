@@ -42,7 +42,8 @@ class TestTreeModel : public Utils::TreeModel
 public:
     enum Type {
         AutoTest,
-        QuickTest
+        QuickTest,
+        GoogleTest
     };
 
     static TestTreeModel* instance();
@@ -95,6 +96,7 @@ private:
 
     TestTreeItem *m_autoTestRootItem;
     TestTreeItem *m_quickTestRootItem;
+    TestTreeItem *m_googleTestRootItem;
     TestCodeParser *m_parser;
     bool m_connectionsInitialized;
     QAtomicInt m_refCounter;

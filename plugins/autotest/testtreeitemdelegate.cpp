@@ -64,6 +64,10 @@ void TestTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         }
     }
 
+    // paint disabled googletests in gray
+    if (index.data(TypeRole).toInt() == TestTreeItem::GTestNameDisabled)
+        opt.palette.setColor(QPalette::Text, QColor(0xa0, 0xa0, 0xa0));
+
     QStyledItemDelegate::paint(painter, opt, index);
 }
 

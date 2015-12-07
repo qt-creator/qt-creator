@@ -40,11 +40,13 @@ TestTreeModel::TestTreeModel(QObject *parent) :
     TreeModel(parent),
     m_autoTestRootItem(new TestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::Root)),
     m_quickTestRootItem(new TestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::Root)),
+    m_googleTestRootItem(new TestTreeItem(tr("Google Tests"), QString(), TestTreeItem::Root)),
     m_parser(new TestCodeParser(this)),
     m_connectionsInitialized(false)
 {
     rootItem()->appendChild(m_autoTestRootItem);
     rootItem()->appendChild(m_quickTestRootItem);
+    rootItem()->appendChild(m_googleTestRootItem);
 
     connect(m_parser, &TestCodeParser::cacheCleared, this,
             &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
@@ -170,6 +172,9 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
     case TestTreeItem::TestDataFunction:
     case TestTreeItem::TestSpecialFunction:
     case TestTreeItem::TestDataTag:
+    case TestTreeItem::GTestCase:
+    case TestTreeItem::GTestName:
+    case TestTreeItem::GTestNameDisabled:
     default:
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
@@ -177,7 +182,8 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
 
 bool TestTreeModel::hasTests() const
 {
-    return m_autoTestRootItem->childCount() > 0 || m_quickTestRootItem->childCount() > 0;
+    return m_autoTestRootItem->childCount() > 0 || m_quickTestRootItem->childCount() > 0
+            || m_googleTestRootItem->childCount() > 0;
 }
 
 QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
@@ -533,6 +539,7 @@ void TestTreeModel::removeAllTestItems()
 {
     m_autoTestRootItem->removeChildren();
     m_quickTestRootItem->removeChildren();
+    m_googleTestRootItem->removeChildren();
     emit testTreeModelChanged();
 }
 
@@ -558,6 +565,8 @@ TestTreeItem *TestTreeModel::rootItemForType(TestTreeModel::Type type)
         return m_autoTestRootItem;
     case QuickTest:
         return m_quickTestRootItem;
+    case GoogleTest:
+        return m_googleTestRootItem;
     }
     QTC_ASSERT(false, return 0);
 }
@@ -569,6 +578,8 @@ QModelIndex TestTreeModel::rootIndexForType(TestTreeModel::Type type)
         return index(0, 0);
     case QuickTest:
         return index(1, 0);
+    case GoogleTest:
+        return index(2, 0);
     }
     QTC_ASSERT(false, return QModelIndex());
 }
