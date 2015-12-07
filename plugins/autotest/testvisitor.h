@@ -123,6 +123,21 @@ private:
 
 };
 
+class GTestVisitor : public CPlusPlus::ASTVisitor
+{
+public:
+    GTestVisitor(CPlusPlus::Document::Ptr doc);
+    bool visit(CPlusPlus::FunctionDefinitionAST *ast);
+
+    QMap<QString, TestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }
+
+private:
+    CPlusPlus::Document::Ptr m_document;
+    CPlusPlus::Overview m_overview;
+    QMap<QString, TestCodeLocationList> m_gtestFunctions;
+
+};
+
 } // namespace Internal
 } // namespace Autotest
 

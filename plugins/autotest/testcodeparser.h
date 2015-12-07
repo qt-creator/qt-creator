@@ -82,6 +82,7 @@ public slots:
     void updateTestTree();
     void checkDocumentForTestCode(CPlusPlus::Document::Ptr document);
     void handleQtQuickTest(CPlusPlus::Document::Ptr document);
+    void handleGTest(const QString &filePath, const QSet<QString> &names);
 
     void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document);
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);

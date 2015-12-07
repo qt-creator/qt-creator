@@ -47,7 +47,10 @@ public:
         TestFunction,
         TestDataTag,
         TestDataFunction,
-        TestSpecialFunction
+        TestSpecialFunction,
+        GTestCase,              // should we distinguish between Case and Fixture?
+        GTestName,
+        GTestNameDisabled
     };
 
     TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),

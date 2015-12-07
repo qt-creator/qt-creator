@@ -18,6 +18,7 @@
 ****************************************************************************/
 
 #include "autotestconstants.h"
+#include "autotest_utils.h"
 #include "testcodeparser.h"
 #include "testinfo.h"
 #include "testvisitor.h"
@@ -223,6 +224,26 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
     return false;
 }
 
+static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
+                          const CppTools::CppModelManager *cppMM)
+{
+    const QString gtestH = QLatin1String("gtest/gtest.h");
+    foreach (const CPlusPlus::Document::Include &inc, doc->resolvedIncludes()) {
+        if (inc.resolvedFileName().endsWith(gtestH))
+            return true;
+    }
+
+    if (cppMM) {
+        const CPlusPlus::Snapshot snapshot = cppMM->snapshot();
+        foreach (const QString &include, snapshot.allIncludesForDocument(doc->fileName())) {
+            if (include.endsWith(gtestH))
+                return true;
+        }
+    }
+
+    return false;
+}
+
 static bool qtTestLibDefined(const CppTools::CppModelManager *cppMM,
                              const QString &fileName)
 {
@@ -296,6 +317,24 @@ static QString quickTestName(const CPlusPlus::Document::Ptr &doc)
         }
     }
     return QString();
+}
+
+static QSet<QString> testNames(CPlusPlus::Document::Ptr &document)
+{
+    QSet<QString> result;
+    foreach (const CPlusPlus::Document::MacroUse &macro, document->macroUses()) {
+        if (!macro.isFunctionLike())
+            continue;
+        if (AutoTest::Internal::isGTestMacro(QLatin1String(macro.macro().name()))) {
+            const QVector<CPlusPlus::Document::Block> args = macro.arguments();
+            if (args.size() != 2)
+                continue;
+            const CPlusPlus::Document::Block name = args.first();
+            result.insert(QLatin1String(getFileContent(document->fileName())
+                                        .mid(name.bytesBegin(), name.bytesEnd() - name.bytesBegin())));
+        }
+    }
+    return result;
 }
 
 static QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QString &srcDir)
@@ -494,6 +533,15 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr document)
             return;
         }
     }
+
+    if (includesGTest(document, modelManager)) {
+        const QSet<QString> &names = testNames(document);
+        if (!names.isEmpty()) {
+            handleGTest(document->fileName(), names);
+            return;
+        }
+    }
+
     // could not find the class to test, or QTest is not included and QT_TESTLIB_LIB defined
     // maybe file is only a referenced file
     if (m_cppDocMap.contains(fileName)) {
@@ -545,6 +593,20 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr document)
         // update model and internal map
         updateModelAndQuickDocMap(qmlJSDoc, cppFileName, testTreeItem);
     }
+}
+
+void TestCodeParser::handleGTest(const QString &filePath, const QSet<QString> &names)
+{
+    const QByteArray &fileContent = getFileContent(filePath);
+    const CPlusPlus::Snapshot snapshot = CPlusPlus::CppModelManagerBase::instance()->snapshot();
+    CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, filePath);
+    document->check();
+    CPlusPlus::AST *ast = document->translationUnit()->ast();
+    GTestVisitor visitor(document);
+    visitor.accept(ast);
+
+    QMap<QString, TestCodeLocationList> result = visitor.gtestFunctions();
+    QTC_CHECK(names.contains(result.keys().toSet()));
 }
 
 void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document)

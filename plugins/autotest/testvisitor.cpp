@@ -17,6 +17,7 @@
 **
 ****************************************************************************/
 
+#include "autotest_utils.h"
 #include "testvisitor.h"
 
 #include <cplusplus/FullySpecifiedType.h>
@@ -336,6 +337,52 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
 bool TestQmlVisitor::visit(QmlJS::AST::StringLiteral *ast)
 {
     m_currentTestCaseName = ast->value.toString();
+    return false;
+}
+
+/********************** Google Test Function AST Visitor **********************/
+
+GTestVisitor::GTestVisitor(CPlusPlus::Document::Ptr doc)
+    : CPlusPlus::ASTVisitor(doc->translationUnit())
+    , m_document(doc)
+{
+}
+
+bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
+{
+    if (!ast || !ast->declarator || !ast->declarator->core_declarator)
+        return false;
+
+    CPlusPlus::DeclaratorIdAST *id = ast->declarator->core_declarator->asDeclaratorId();
+    if (!id || !ast->symbol || ast->symbol->argumentCount() != 2)
+        return false;
+
+    CPlusPlus::LookupContext lc;
+    const QString prettyName = m_overview.prettyName(lc.fullyQualifiedName(ast->symbol));
+    if (!AutoTest::Internal::isGTestMacro(prettyName))
+        return false;
+
+    CPlusPlus::Argument *testCaseNameArg = ast->symbol->argumentAt(0)->asArgument();
+    CPlusPlus::Argument *testNameArg = ast->symbol->argumentAt(1)->asArgument();
+    if (testCaseNameArg && testNameArg) {
+        const QString &testCaseName = m_overview.prettyType(testCaseNameArg->type());
+        const QString &testName = m_overview.prettyType(testNameArg->type());
+
+        bool disabled = testName.startsWith(QLatin1String("DISABLED_"));
+        unsigned line = 0;
+        unsigned column = 0;
+        unsigned token = id->firstToken();
+        m_document->translationUnit()->getTokenStartPosition(token, &line, &column);
+
+        TestCodeLocationAndType locationAndType;
+        locationAndType.m_name = disabled ? testName.mid(9) : testName;
+        locationAndType.m_line = line;
+        locationAndType.m_column = column - 1;
+        locationAndType.m_type = disabled ? TestTreeItem::GTestNameDisabled
+                                          : TestTreeItem::GTestName;
+        m_gtestFunctions[testCaseName].append(locationAndType);
+    }
+
     return false;
 }
 

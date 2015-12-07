@@ -38,6 +38,7 @@ HEADERS += \
     testcodeparser.h \
     autotestplugin.h \
     autotest_global.h \
+    autotest_utils.h \
     autotestconstants.h \
     testrunner.h \
     testconfiguration.h \
