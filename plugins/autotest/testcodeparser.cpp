@@ -389,7 +389,7 @@ static TestTreeItem *constructTestTreeItem(const QString &fileName,
                                            const QMap<QString, TestCodeLocationAndType> &functions,
                                            const QMap<QString, TestCodeLocationList> dataTags = QMap<QString, TestCodeLocationList>())
 {
-    TestTreeItem *treeItem = new TestTreeItem(testCaseName, fileName, TestTreeItem::TEST_CLASS);
+    TestTreeItem *treeItem = new TestTreeItem(testCaseName, fileName, TestTreeItem::TestClass);
     treeItem->setMainFile(mainFile); // used for Quick Tests only
     treeItem->setLine(line);
     treeItem->setColumn(column);

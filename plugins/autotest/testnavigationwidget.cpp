@@ -104,9 +104,9 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             // do not provide this menu entry for unnamed Quick Tests as it makes no sense
             int type = index.data(TypeRole).toInt();
             const QString &unnamed = tr(Constants::UNNAMED_QUICKTESTS);
-            if ((type == TestTreeItem::TEST_FUNCTION && index.parent().data().toString() != unnamed)
-                    || (type == TestTreeItem::TEST_CLASS && index.data().toString() != unnamed)
-                    || (type == TestTreeItem::TEST_DATATAG)) {
+            if ((type == TestTreeItem::TestFunction && index.parent().data().toString() != unnamed)
+                    || (type == TestTreeItem::TestClass && index.data().toString() != unnamed)
+                    || (type == TestTreeItem::TestDataTag)) {
                 runThisTest = new QAction(tr("Run This Test"), &menu);
                 runThisTest->setEnabled(enabled);
                 connect(runThisTest, &QAction::triggered,
@@ -250,8 +250,8 @@ void TestNavigationWidget::onRunThisTestTriggered()
         return;
 
     TestTreeItem *item = static_cast<TestTreeItem *>(sourceIndex.internalPointer());
-    if (item->type() == TestTreeItem::TEST_CLASS || item->type() == TestTreeItem::TEST_FUNCTION
-            || item->type() == TestTreeItem::TEST_DATATAG) {
+    if (item->type() == TestTreeItem::TestClass || item->type() == TestTreeItem::TestFunction
+            || item->type() == TestTreeItem::TestDataTag) {
         if (TestConfiguration *configuration = m_model->getTestConfiguration(item)) {
             TestRunner *runner = TestRunner::instance();
             runner->setSelectedTests( {configuration} );

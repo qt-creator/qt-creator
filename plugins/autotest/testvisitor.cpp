@@ -83,11 +83,11 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                     locationAndType.m_column = member->column() - 1;
                 }
                 if (specialFunctions.contains(name))
-                    locationAndType.m_type = TestTreeItem::TEST_SPECIALFUNCTION;
+                    locationAndType.m_type = TestTreeItem::TestSpecialFunction;
                 else if (name.endsWith(QLatin1String("_data")))
-                    locationAndType.m_type = TestTreeItem::TEST_DATAFUNCTION;
+                    locationAndType.m_type = TestTreeItem::TestDataFunction;
                 else
-                    locationAndType.m_type = TestTreeItem::TEST_FUNCTION;
+                    locationAndType.m_type = TestTreeItem::TestFunction;
                 m_privSlots.insert(name, locationAndType);
             }
         }
@@ -216,7 +216,7 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::CallAST *ast)
                         locationAndType.m_name = QString::fromUtf8(token.spell());
                         locationAndType.m_column = column - 1;
                         locationAndType.m_line = line;
-                        locationAndType.m_type = TestTreeItem::TEST_DATATAG;
+                        locationAndType.m_type = TestTreeItem::TestDataTag;
                         m_currentTags.append(locationAndType);
                     }
                 }
@@ -293,7 +293,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     m_testCaseLocation.m_name = m_currentDoc->fileName();
     m_testCaseLocation.m_line = sourceLocation.startLine;
     m_testCaseLocation.m_column = sourceLocation.startColumn - 1;
-    m_testCaseLocation.m_type = TestTreeItem::TEST_CLASS;
+    m_testCaseLocation.m_type = TestTreeItem::TestClass;
     return true;
 }
 
@@ -322,11 +322,11 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
         locationAndType.m_line = sourceLocation.startLine;
         locationAndType.m_column = sourceLocation.startColumn - 1;
         if (specialFunctions.contains(name.toString()))
-            locationAndType.m_type = TestTreeItem::TEST_SPECIALFUNCTION;
+            locationAndType.m_type = TestTreeItem::TestSpecialFunction;
         else if (name.endsWith(QLatin1String("_data")))
-            locationAndType.m_type = TestTreeItem::TEST_DATAFUNCTION;
+            locationAndType.m_type = TestTreeItem::TestDataFunction;
         else
-            locationAndType.m_type = TestTreeItem::TEST_FUNCTION;
+            locationAndType.m_type = TestTreeItem::TestFunction;
 
         m_testFunctions.insert(name.toString(), locationAndType);
     }

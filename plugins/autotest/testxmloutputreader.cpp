@@ -160,7 +160,7 @@ void TestXmlOutputReader::processOutput()
     static QString className;
     static QString testCase;
     static QString dataTag;
-    static Result::Type result = Result::INVALID;
+    static Result::Type result = Result::Invalid;
     static QString description;
     static QString file;
     static int lineNumber = 0;
@@ -184,14 +184,14 @@ void TestXmlOutputReader::processOutput()
                     className = xmlReader.attributes().value(QStringLiteral("name")).toString();
                     QTC_ASSERT(!className.isEmpty(), continue);
                     auto testResult = new TestResult(className);
-                    testResult->setResult(Result::MESSAGE_TEST_CASE_START);
+                    testResult->setResult(Result::MessageTestCaseStart);
                     testResult->setDescription(tr("Executing test case %1").arg(className));
                     testResultCreated(testResult);
                 } else if (currentTag == QStringLiteral("TestFunction")) {
                     testCase = xmlReader.attributes().value(QStringLiteral("name")).toString();
                     QTC_ASSERT(!testCase.isEmpty(), continue);
                     auto testResult = new TestResult();
-                    testResult->setResult(Result::MESSAGE_CURRENT_TEST);
+                    testResult->setResult(Result::MessageCurrentTest);
                     testResult->setDescription(tr("Entering test function %1::%2").arg(className,
                                                                                        testCase));
                     testResultCreated(testResult);
@@ -204,7 +204,7 @@ void TestXmlOutputReader::processOutput()
                     description.clear();
                     duration.clear();
                     file.clear();
-                    result = Result::INVALID;
+                    result = Result::Invalid;
                     lineNumber = 0;
                     const QXmlStreamAttributes &attributes = xmlReader.attributes();
                     result = TestResult::resultFromString(
@@ -220,19 +220,19 @@ void TestXmlOutputReader::processOutput()
                     const double value = attributes.value(QStringLiteral("value")).toDouble();
                     const int iterations = attributes.value(QStringLiteral("iterations")).toInt();
                     description = constructBenchmarkInformation(metric, value, iterations);
-                    result = Result::BENCHMARK;
+                    result = Result::Benchmark;
                 } else if (currentTag == QStringLiteral("DataTag")) {
                     cdataMode = DataTag;
                 } else if (currentTag == QStringLiteral("Description")) {
                     cdataMode = Description;
                 } else if (currentTag == QStringLiteral("QtVersion")) {
-                    result = Result::MESSAGE_INTERNAL;
+                    result = Result::MessageInternal;
                     cdataMode = QtVersion;
                 } else if (currentTag == QStringLiteral("QtBuild")) {
-                    result = Result::MESSAGE_INTERNAL;
+                    result = Result::MessageInternal;
                     cdataMode = QtBuild;
                 } else if (currentTag == QStringLiteral("QTestVersion")) {
-                    result = Result::MESSAGE_INTERNAL;
+                    result = Result::MessageInternal;
                     cdataMode = QTestVersion;
                 }
                 break;
@@ -277,14 +277,14 @@ void TestXmlOutputReader::processOutput()
                     if (!duration.isEmpty()) {
                         auto testResult = new TestResult(className);
                         testResult->setTestCase(testCase);
-                        testResult->setResult(Result::MESSAGE_INTERNAL);
+                        testResult->setResult(Result::MessageInternal);
                         testResult->setDescription(tr("Execution took %1 ms.").arg(duration));
                         testResultCreated(testResult);
                     }
                     emit increaseProgress();
                 } else if (currentTag == QStringLiteral("TestCase") && !duration.isEmpty()) {
                     auto testResult = new TestResult(className);
-                    testResult->setResult(Result::MESSAGE_TEST_CASE_END);
+                    testResult->setResult(Result::MessageTestCaseEnd);
                     testResult->setDescription(tr("Test execution took %1 ms.").arg(duration));
                     testResultCreated(testResult);
                 } else if (validEndTags.contains(currentTag.toString())) {

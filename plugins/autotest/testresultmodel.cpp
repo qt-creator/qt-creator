@@ -52,14 +52,14 @@ static QIcon testResultIcon(Result::Type result) {
         QIcon(QLatin1String(":/images/fatal.png")),
     }; // provide an icon for unknown??
 
-    if (result < 0 || result >= Result::MESSAGE_INTERNAL) {
+    if (result < 0 || result >= Result::MessageInternal) {
         switch (result) {
-        case Result::MESSAGE_TEST_CASE_SUCCESS:
-            return icons[Result::PASS];
-        case Result::MESSAGE_TEST_CASE_FAIL:
-            return icons[Result::FAIL];
-        case Result::MESSAGE_TEST_CASE_WARN:
-            return icons[Result::MESSAGE_WARN];
+        case Result::MessageTestCaseSuccess:
+            return icons[Result::Pass];
+        case Result::MessageTestCaseFail:
+            return icons[Result::Fail];
+        case Result::MessageTestCaseWarn:
+            return icons[Result::MessageWarn];
         default:
             return QIcon();
         }
@@ -84,25 +84,25 @@ void TestResultItem::updateDescription(const QString &description)
 
 void TestResultItem::updateResult()
 {
-    if (m_testResult->result() != Result::MESSAGE_TEST_CASE_START)
+    if (m_testResult->result() != Result::MessageTestCaseStart)
         return;
 
-    Result::Type newResult = Result::MESSAGE_TEST_CASE_SUCCESS;
+    Result::Type newResult = Result::MessageTestCaseSuccess;
     foreach (Utils::TreeItem *child, children()) {
         const TestResult *current = static_cast<TestResultItem *>(child)->testResult();
         if (current) {
             switch (current->result()) {
-            case Result::FAIL:
-            case Result::MESSAGE_FATAL:
-            case Result::UNEXPECTED_PASS:
-                m_testResult->setResult(Result::MESSAGE_TEST_CASE_FAIL);
+            case Result::Fail:
+            case Result::MessageFatal:
+            case Result::UnexpectedPass:
+                m_testResult->setResult(Result::MessageTestCaseFail);
                 return;
-            case Result::EXPECTED_FAIL:
-            case Result::MESSAGE_WARN:
-            case Result::SKIP:
-            case Result::BLACKLISTED_FAIL:
-            case Result::BLACKLISTED_PASS:
-                newResult = Result::MESSAGE_TEST_CASE_WARN;
+            case Result::ExpectedFail:
+            case Result::MessageWarn:
+            case Result::Skip:
+            case Result::BlacklistedFail:
+            case Result::BlacklistedPass:
+                newResult = Result::MessageTestCaseWarn;
                 break;
             default: {}
             }
@@ -133,7 +133,7 @@ QVariant TestResultModel::data(const QModelIndex &idx, int role) const
 
 void TestResultModel::addTestResult(TestResult *testResult, bool autoExpand)
 {
-    const bool isCurrentTestMssg = testResult->result() == Result::MESSAGE_CURRENT_TEST;
+    const bool isCurrentTestMssg = testResult->result() == Result::MessageCurrentTest;
 
     QVector<Utils::TreeItem *> topLevelItems = rootItem()->children();
     int lastRow = topLevelItems.size() - 1;
@@ -143,11 +143,11 @@ void TestResultModel::addTestResult(TestResult *testResult, bool autoExpand)
         int count = m_testResultCount.value(testResult->result(), 0);
         m_testResultCount.insert(testResult->result(), ++count);
     } else {
-        // MESSAGE_CURRENT_TEST should always be the last top level item
+        // MessageCurrentTest should always be the last top level item
         if (lastRow >= 0) {
             TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(lastRow));
             const TestResult *result = current->testResult();
-            if (result && result->result() == Result::MESSAGE_CURRENT_TEST) {
+            if (result && result->result() == Result::MessageCurrentTest) {
                 current->updateDescription(testResult->description());
                 emit dataChanged(current->index(), current->index());
                 return;
@@ -166,18 +166,18 @@ void TestResultModel::addTestResult(TestResult *testResult, bool autoExpand)
             current->appendChild(newItem);
             if (autoExpand)
                 current->expand();
-            if (testResult->result() == Result::MESSAGE_TEST_CASE_END) {
+            if (testResult->result() == Result::MessageTestCaseEnd) {
                 current->updateResult();
                 emit dataChanged(current->index(), current->index());
             }
             return;
         }
     }
-    // if we have a MESSAGE_CURRENT_TEST present, add the new top level item before it
+    // if we have a MessageCurrentTest present, add the new top level item before it
     if (lastRow >= 0) {
         TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(lastRow));
         const TestResult *result = current->testResult();
-        if (result && result->result() == Result::MESSAGE_CURRENT_TEST) {
+        if (result && result->result() == Result::MessageCurrentTest) {
             rootItem()->insertChild(current->index().row(), newItem);
             return;
         }
@@ -191,7 +191,7 @@ void TestResultModel::removeCurrentTestMessage()
     QVector<Utils::TreeItem *> topLevelItems = rootItem()->children();
     for (int row = topLevelItems.size() - 1; row >= 0; --row) {
         TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(row));
-        if (current->testResult()->result() == Result::MESSAGE_CURRENT_TEST) {
+        if (current->testResult()->result() == Result::MessageCurrentTest) {
             delete takeItem(current);
             break;
         }
@@ -272,14 +272,14 @@ TestResultFilterModel::TestResultFilterModel(TestResultModel *sourceModel, QObje
 
 void TestResultFilterModel::enableAllResultTypes()
 {
-    m_enabled << Result::PASS << Result::FAIL << Result::EXPECTED_FAIL
-              << Result::UNEXPECTED_PASS << Result::SKIP << Result::MESSAGE_DEBUG
-              << Result::MESSAGE_WARN << Result::MESSAGE_INTERNAL
-              << Result::MESSAGE_FATAL << Result::INVALID << Result::BLACKLISTED_PASS
-              << Result::BLACKLISTED_FAIL << Result::BENCHMARK
-              << Result::MESSAGE_CURRENT_TEST << Result::MESSAGE_TEST_CASE_START
-              << Result::MESSAGE_TEST_CASE_SUCCESS << Result::MESSAGE_TEST_CASE_WARN
-              << Result::MESSAGE_TEST_CASE_FAIL << Result::MESSAGE_TEST_CASE_END;
+    m_enabled << Result::Pass << Result::Fail << Result::ExpectedFail
+              << Result::UnexpectedPass << Result::Skip << Result::MessageDebug
+              << Result::MessageWarn << Result::MessageInternal
+              << Result::MessageFatal << Result::Invalid << Result::BlacklistedPass
+              << Result::BlacklistedFail << Result::Benchmark
+              << Result::MessageCurrentTest << Result::MessageTestCaseStart
+              << Result::MessageTestCaseSuccess << Result::MessageTestCaseWarn
+              << Result::MessageTestCaseFail << Result::MessageTestCaseEnd;
     invalidateFilter();
 }
 
@@ -287,12 +287,12 @@ void TestResultFilterModel::toggleTestResultType(Result::Type type)
 {
     if (m_enabled.contains(type)) {
         m_enabled.remove(type);
-        if (type == Result::MESSAGE_INTERNAL)
-            m_enabled.remove(Result::MESSAGE_TEST_CASE_END);
+        if (type == Result::MessageInternal)
+            m_enabled.remove(Result::MessageTestCaseEnd);
     } else {
         m_enabled.insert(type);
-        if (type == Result::MESSAGE_INTERNAL)
-            m_enabled.insert(Result::MESSAGE_TEST_CASE_END);
+        if (type == Result::MessageInternal)
+            m_enabled.insert(Result::MessageTestCaseEnd);
     }
     invalidateFilter();
 }

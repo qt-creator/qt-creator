@@ -394,23 +394,23 @@ void TestResultsPane::initializeFilterMenu()
     const bool omitIntern = AutotestPlugin::instance()->settings()->omitInternalMssg;
     // FilterModel has all messages enabled by default
     if (omitIntern)
-        m_filterModel->toggleTestResultType(Result::MESSAGE_INTERNAL);
+        m_filterModel->toggleTestResultType(Result::MessageInternal);
 
     QMap<Result::Type, QString> textAndType;
-    textAndType.insert(Result::PASS, tr("Pass"));
-    textAndType.insert(Result::FAIL, tr("Fail"));
-    textAndType.insert(Result::EXPECTED_FAIL, tr("Expected Fail"));
-    textAndType.insert(Result::UNEXPECTED_PASS, tr("Unexpected Pass"));
-    textAndType.insert(Result::SKIP, tr("Skip"));
-    textAndType.insert(Result::BENCHMARK, tr("Benchmarks"));
-    textAndType.insert(Result::MESSAGE_DEBUG, tr("Debug Messages"));
-    textAndType.insert(Result::MESSAGE_WARN, tr("Warning Messages"));
-    textAndType.insert(Result::MESSAGE_INTERNAL, tr("Internal Messages"));
+    textAndType.insert(Result::Pass, tr("Pass"));
+    textAndType.insert(Result::Fail, tr("Fail"));
+    textAndType.insert(Result::ExpectedFail, tr("Expected Fail"));
+    textAndType.insert(Result::UnexpectedPass, tr("Unexpected Pass"));
+    textAndType.insert(Result::Skip, tr("Skip"));
+    textAndType.insert(Result::Benchmark, tr("Benchmarks"));
+    textAndType.insert(Result::MessageDebug, tr("Debug Messages"));
+    textAndType.insert(Result::MessageWarn, tr("Warning Messages"));
+    textAndType.insert(Result::MessageInternal, tr("Internal Messages"));
     foreach (Result::Type result, textAndType.keys()) {
         QAction *action = new QAction(m_filterMenu);
         action->setText(textAndType.value(result));
         action->setCheckable(true);
-        action->setChecked(result != Result::MESSAGE_INTERNAL || !omitIntern);
+        action->setChecked(result != Result::MessageInternal || !omitIntern);
         action->setData(result);
         m_filterMenu->addAction(action);
     }
@@ -425,22 +425,22 @@ void TestResultsPane::initializeFilterMenu()
 void TestResultsPane::updateSummaryLabel()
 {
     QString labelText = QString::fromLatin1("<p><b>Test summary:</b>&nbsp;&nbsp; %1 %2, %3 %4")
-            .arg(QString::number(m_model->resultTypeCount(Result::PASS)), tr("passes"),
-                 QString::number(m_model->resultTypeCount(Result::FAIL)), tr("fails"));
-    int count = m_model->resultTypeCount(Result::UNEXPECTED_PASS);
+            .arg(QString::number(m_model->resultTypeCount(Result::Pass)), tr("passes"),
+                 QString::number(m_model->resultTypeCount(Result::Fail)), tr("fails"));
+    int count = m_model->resultTypeCount(Result::UnexpectedPass);
     if (count)
         labelText.append(QString::fromLatin1(", %1 %2")
                          .arg(QString::number(count), tr("unexpected passes")));
-    count = m_model->resultTypeCount(Result::EXPECTED_FAIL);
+    count = m_model->resultTypeCount(Result::ExpectedFail);
     if (count)
         labelText.append(QString::fromLatin1(", %1 %2")
                          .arg(QString::number(count), tr("expected fails")));
-    count = m_model->resultTypeCount(Result::MESSAGE_FATAL);
+    count = m_model->resultTypeCount(Result::MessageFatal);
     if (count)
         labelText.append(QString::fromLatin1(", %1 %2")
                          .arg(QString::number(count), tr("fatals")));
-    count = m_model->resultTypeCount(Result::BLACKLISTED_FAIL)
-            + m_model->resultTypeCount(Result::BLACKLISTED_PASS);
+    count = m_model->resultTypeCount(Result::BlacklistedFail)
+            + m_model->resultTypeCount(Result::BlacklistedPass);
     if (count)
         labelText.append(QString::fromLatin1(", %1 %2")
                          .arg(QString::number(count), tr("blacklisted")));

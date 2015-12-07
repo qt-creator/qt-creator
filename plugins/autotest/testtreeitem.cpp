@@ -37,8 +37,8 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
       m_line(0)
 {
     switch (m_type) {
-    case TEST_CLASS:
-    case TEST_FUNCTION:
+    case TestClass:
+    case TestFunction:
         m_checked = Qt::Checked;
         break;
     default:
@@ -82,14 +82,14 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
 {
     switch (role) {
     case Qt::DisplayRole:
-        if (m_type == ROOT && childCount() == 0)
+        if (m_type == Root && childCount() == 0)
             return QString(m_name + QObject::tr(" (none)"));
         else if (m_name.isEmpty())
             return QObject::tr(Constants::UNNAMED_QUICKTESTS);
         else
             return m_name;
     case Qt::ToolTipRole:
-        if (m_type == TEST_CLASS && m_name.isEmpty()) {
+        if (m_type == TestClass && m_name.isEmpty()) {
             return QObject::tr("<p>Give all test cases a name to ensure correct behavior "
                                "when running test cases and to be able to select them.</p>");
         }
@@ -98,14 +98,14 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         return testTreeIcon(m_type);
     case Qt::CheckStateRole:
         switch (m_type) {
-        case ROOT:
-        case TEST_DATAFUNCTION:
-        case TEST_SPECIALFUNCTION:
-        case TEST_DATATAG:
+        case Root:
+        case TestDataFunction:
+        case TestSpecialFunction:
+        case TestDataTag:
             return QVariant();
-        case TEST_CLASS:
+        case TestClass:
             return m_name.isEmpty() ? QVariant() : checked();
-        case TEST_FUNCTION:
+        case TestFunction:
             if (parentItem() && parentItem()->name().isEmpty())
                 return QVariant();
             return checked();
@@ -119,12 +119,12 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
     }
     case ItalicRole:
         switch (m_type) {
-        case TEST_DATAFUNCTION:
-        case TEST_SPECIALFUNCTION:
+        case TestDataFunction:
+        case TestSpecialFunction:
             return true;
-        case TEST_CLASS:
+        case TestClass:
             return m_name.isEmpty();
-        case TEST_FUNCTION:
+        case TestFunction:
             return parentItem() ? parentItem()->name().isEmpty() : false;
         default:
             return false;
@@ -174,12 +174,12 @@ bool TestTreeItem::modifyContent(const TestTreeItem *modified)
 void TestTreeItem::setChecked(const Qt::CheckState checkState)
 {
     switch (m_type) {
-    case TEST_FUNCTION: {
+    case TestFunction: {
         m_checked = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
         parentItem()->revalidateCheckState();
         break;
     }
-    case TEST_CLASS: {
+    case TestClass: {
         Qt::CheckState usedState = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
         for (int row = 0, count = childCount(); row < count; ++row)
             childItem(row)->setChecked(usedState);
@@ -193,11 +193,11 @@ void TestTreeItem::setChecked(const Qt::CheckState checkState)
 Qt::CheckState TestTreeItem::checked() const
 {
     switch (m_type) {
-    case TEST_CLASS:
-    case TEST_FUNCTION:
+    case TestClass:
+    case TestFunction:
         return m_checked;
-    case TEST_DATAFUNCTION:
-    case TEST_SPECIALFUNCTION:
+    case TestDataFunction:
+    case TestSpecialFunction:
         return Qt::Unchecked;
     default:
         if (parent())
@@ -233,8 +233,8 @@ void TestTreeItem::revalidateCheckState()
     for (int row = 0, count = childCount(); row < count; ++row) {
         TestTreeItem *child = childItem(row);
         switch (child->type()) {
-        case TEST_DATAFUNCTION:
-        case TEST_SPECIALFUNCTION:
+        case TestDataFunction:
+        case TestSpecialFunction:
             continue;
         default:
             break;

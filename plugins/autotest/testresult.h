@@ -29,28 +29,28 @@ namespace Internal {
 
 namespace Result{
 enum Type {
-    PASS, FIRST_TYPE = PASS,
-    FAIL,
-    EXPECTED_FAIL,
-    UNEXPECTED_PASS,
-    SKIP,
-    BLACKLISTED_PASS,
-    BLACKLISTED_FAIL,
-    BENCHMARK,
-    MESSAGE_DEBUG,
-    MESSAGE_WARN,
-    MESSAGE_FATAL,
+    Pass, FIRST_TYPE = Pass,
+    Fail,
+    ExpectedFail,
+    UnexpectedPass,
+    Skip,
+    BlacklistedPass,
+    BlacklistedFail,
+    Benchmark,
+    MessageDebug,
+    MessageWarn,
+    MessageFatal,
 
-    MESSAGE_INTERNAL, INTERNAL_MESSAGES_BEGIN = MESSAGE_INTERNAL,
-    MESSAGE_TEST_CASE_START,
-    MESSAGE_TEST_CASE_SUCCESS,
-    MESSAGE_TEST_CASE_WARN,
-    MESSAGE_TEST_CASE_FAIL,
-    MESSAGE_TEST_CASE_END,
-    MESSAGE_CURRENT_TEST, INTERNAL_MESSAGES_END = MESSAGE_CURRENT_TEST,
+    MessageInternal, INTERNAL_MESSAGES_BEGIN = MessageInternal,
+    MessageTestCaseStart,
+    MessageTestCaseSuccess,
+    MessageTestCaseWarn,
+    MessageTestCaseFail,
+    MessageTestCaseEnd,
+    MessageCurrentTest, INTERNAL_MESSAGES_END = MessageCurrentTest,
 
-    INVALID,
-    LAST_TYPE = INVALID
+    Invalid,
+    LAST_TYPE = Invalid
 };
 }
 

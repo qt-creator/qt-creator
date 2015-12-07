@@ -42,12 +42,12 @@ QString TestResultDelegate::outputString(const TestResult &testResult, bool sele
     const QString desc = testResult.description();
     QString output;
     switch (testResult.result()) {
-    case Result::PASS:
-    case Result::FAIL:
-    case Result::EXPECTED_FAIL:
-    case Result::UNEXPECTED_PASS:
-    case Result::BLACKLISTED_FAIL:
-    case Result::BLACKLISTED_PASS:
+    case Result::Pass:
+    case Result::Fail:
+    case Result::ExpectedFail:
+    case Result::UnexpectedPass:
+    case Result::BlacklistedFail:
+    case Result::BlacklistedPass:
         output = testResult.className() + QLatin1String("::") + testResult.testCase();
         if (!testResult.dataTag().isEmpty())
             output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
@@ -55,7 +55,7 @@ QString TestResultDelegate::outputString(const TestResult &testResult, bool sele
             output.append(QLatin1Char('\n')).append(desc);
         }
         break;
-    case Result::BENCHMARK:
+    case Result::Benchmark:
         output = testResult.className() + QLatin1String("::") + testResult.testCase();
         if (!testResult.dataTag().isEmpty())
             output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));

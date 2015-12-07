@@ -42,16 +42,16 @@ class TestTreeItem : public Utils::TreeItem
 
 public:
     enum Type {
-        ROOT,
-        TEST_CLASS,
-        TEST_FUNCTION,
-        TEST_DATATAG,
-        TEST_DATAFUNCTION,
-        TEST_SPECIALFUNCTION
+        Root,
+        TestClass,
+        TestFunction,
+        TestDataTag,
+        TestDataFunction,
+        TestSpecialFunction
     };
 
     TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
-                 Type type = ROOT);
+                 Type type = Root);
     virtual ~TestTreeItem();
     TestTreeItem(const TestTreeItem& other);
 

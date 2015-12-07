@@ -38,8 +38,8 @@ namespace Internal {
 
 TestTreeModel::TestTreeModel(QObject *parent) :
     TreeModel(parent),
-    m_autoTestRootItem(new TestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::ROOT)),
-    m_quickTestRootItem(new TestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::ROOT)),
+    m_autoTestRootItem(new TestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::Root)),
+    m_quickTestRootItem(new TestTreeItem(tr("Qt Quick Tests"), QString(), TestTreeItem::Root)),
     m_parser(new TestCodeParser(this)),
     m_connectionsInitialized(false)
 {
@@ -134,11 +134,11 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
         emit dataChanged(index, index);
         if (role == Qt::CheckStateRole) {
             switch (item->type()) {
-            case TestTreeItem::TEST_CLASS:
+            case TestTreeItem::TestClass:
                 if (item->childCount() > 0)
                     emit dataChanged(index.child(0, 0), index.child(item->childCount() - 1, 0));
                 break;
-            case TestTreeItem::TEST_FUNCTION:
+            case TestTreeItem::TestFunction:
                 emit dataChanged(index.parent(), index.parent());
                 break;
             default: // avoid warning regarding unhandled enum member
@@ -157,19 +157,19 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
 
     TestTreeItem *item = static_cast<TestTreeItem *>(itemForIndex(index));
     switch(item->type()) {
-    case TestTreeItem::TEST_CLASS:
+    case TestTreeItem::TestClass:
         if (item->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsTristate | Qt::ItemIsUserCheckable;
-    case TestTreeItem::TEST_FUNCTION:
+    case TestTreeItem::TestFunction:
         if (item->parentItem()->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
-    case TestTreeItem::ROOT:
+    case TestTreeItem::Root:
         return Qt::ItemIsEnabled;
-    case TestTreeItem::TEST_DATAFUNCTION:
-    case TestTreeItem::TEST_SPECIALFUNCTION:
-    case TestTreeItem::TEST_DATATAG:
+    case TestTreeItem::TestDataFunction:
+    case TestTreeItem::TestSpecialFunction:
+    case TestTreeItem::TestDataTag:
     default:
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }
@@ -313,7 +313,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             int grandChildCount = child->childCount();
             for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
                 const TestTreeItem *grandChild = child->childItem(grandChildRow);
-                if (grandChild->type() != TestTreeItem::TEST_FUNCTION)
+                if (grandChild->type() != TestTreeItem::TestFunction)
                     continue;
                 testFunctions << child->name() + QLatin1String("::") + grandChild->name();
             }
@@ -355,7 +355,7 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
 
     TestConfiguration *config = 0;
     switch (item->type()) {
-    case TestTreeItem::TEST_CLASS: {
+    case TestTreeItem::TestClass: {
         if (item->parent() == m_quickTestRootItem) {
             // Quick Test TestCase
             QStringList testFunctions;
@@ -374,7 +374,7 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
         }
         break;
     }
-    case TestTreeItem::TEST_FUNCTION: {
+    case TestTreeItem::TestFunction: {
         const TestTreeItem *parent = item->parentItem();
         if (parent->parent() == m_quickTestRootItem) {
             // it's a Quick Test function of a named TestCase
@@ -390,7 +390,7 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
         }
         break;
     }
-    case TestTreeItem::TEST_DATATAG: {
+    case TestTreeItem::TestDataTag: {
         const TestTreeItem *function = item->parentItem();
         const TestTreeItem *parent = function ? function->parentItem() : 0;
         if (!parent)
@@ -489,7 +489,7 @@ void TestTreeModel::updateUnnamedQuickTest(const QString &mainFile,
         return;
 
     if (!hasUnnamedQuickTests())
-        addTestTreeItem(new TestTreeItem(QString(), QString(), TestTreeItem::TEST_CLASS), QuickTest);
+        addTestTreeItem(new TestTreeItem(QString(), QString(), TestTreeItem::TestClass), QuickTest);
 
     TestTreeItem *unnamed = unnamedQuickTests();
     foreach (const QString &functionName, functions.keys()) {
@@ -730,7 +730,7 @@ bool TestTreeSortFilterModel::lessThan(const QModelIndex &left, const QModelInde
 {
     // root items keep the intended order: 1st Auto Tests, 2nd Quick Tests
     const TestTreeItem *leftItem = static_cast<TestTreeItem *>(left.internalPointer());
-    if (leftItem->type() == TestTreeItem::ROOT)
+    if (leftItem->type() == TestTreeItem::Root)
         return left.row() > right.row();
 
     const QString leftVal = m_sourceModel->data(left, Qt::DisplayRole).toString();
@@ -775,9 +775,9 @@ bool TestTreeSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex 
     const TestTreeItem *item = static_cast<TestTreeItem *>(index.internalPointer());
 
     switch (item->type()) {
-    case TestTreeItem::TEST_DATAFUNCTION:
+    case TestTreeItem::TestDataFunction:
         return m_filterMode & ShowTestData;
-    case TestTreeItem::TEST_SPECIALFUNCTION:
+    case TestTreeItem::TestSpecialFunction:
         return m_filterMode & ShowInitAndCleanup;
     default:
         return true;
