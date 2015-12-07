@@ -471,7 +471,7 @@ class Dumper(DumperBase):
                     self.put('type="%s",' % typeName) # str(type.unqualified()) ?
 
             if  self.currentValue.value is None:
-                self.put('value="",encoding="%d","numchild="0",'
+                self.put('value="",encoding="%d",numchild="0",'
                         % SpecialNotAccessibleValue)
             else:
                 if not self.currentValue.encoding is None:
