@@ -395,8 +395,11 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
     wizard->setValue(QStringLiteral("category"), category());
     wizard->setValue(QStringLiteral("id"), id().toString());
 
-    foreach (const JsonWizard::OptionDefinition &od, m_options)
-        wizard->setValue(od.key, od.value);
+    Utils::MacroExpander *expander = wizard->expander();
+    foreach (const JsonWizard::OptionDefinition &od, m_options) {
+        if (od.condition(*expander))
+            wizard->setValue(od.key(), od.value(*expander));
+    }
 
     bool havePage = false;
     foreach (const Page &data, m_pages) {

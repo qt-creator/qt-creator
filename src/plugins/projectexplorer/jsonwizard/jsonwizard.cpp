@@ -157,11 +157,12 @@ QList<JsonWizard::OptionDefinition> JsonWizard::parseOptions(const QVariant &v, 
         foreach (const QVariant &o, optList) {
             QVariantMap optionObject = o.toMap();
             JsonWizard::OptionDefinition odef;
-            odef.key = optionObject.value(QLatin1String("key")).toString();
-            odef.value = optionObject.value(QLatin1String("value")).toString();
-            odef.condition = optionObject.value(QLatin1String("condition"), QLatin1String("true")).toString();
+            odef.m_key = optionObject.value(QLatin1String("key")).toString();
+            odef.m_value = optionObject.value(QLatin1String("value")).toString();
+            odef.m_condition = optionObject.value(QLatin1String("condition"), true);
+            odef.m_evaluate = optionObject.value(QLatin1String("evaluate"), false);
 
-            if (odef.key.isEmpty()) {
+            if (odef.m_key.isEmpty()) {
                 *errorMessage = QCoreApplication::translate("ProjectExplorer::Internal::JsonWizardFileGenerator",
                                                             "No 'key' in options object.");
                 result.clear();
@@ -381,6 +382,18 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
         msgBox.addButton(QMessageBox::Ok);
         msgBox.exec();
     }
+}
+
+QString JsonWizard::OptionDefinition::value(Utils::MacroExpander &expander) const
+{
+    if (JsonWizard::boolFromVariant(m_evaluate, &expander))
+        return expander.expand(m_value);
+    return m_value;
+}
+
+bool JsonWizard::OptionDefinition::condition(Utils::MacroExpander &expander) const
+{
+    return JsonWizard::boolFromVariant(m_condition, &expander);
 }
 
 } // namespace ProjectExplorer

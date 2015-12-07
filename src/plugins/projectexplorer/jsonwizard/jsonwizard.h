@@ -38,6 +38,8 @@
 #include <utils/wizard.h>
 #include <utils/macroexpander.h>
 
+#include <QVariant>
+
 namespace ProjectExplorer {
 
 class JsonWizardGenerator;
@@ -80,9 +82,17 @@ public:
 
     class OptionDefinition {
     public:
-        QString key;
-        QString value;
-        QString condition;
+        QString key() const { return m_key; }
+        QString value(Utils::MacroExpander &expander) const;
+        bool condition(Utils::MacroExpander &expander) const;
+
+    private:
+        QString m_key;
+        QString m_value;
+        QVariant m_condition;
+        QVariant m_evaluate;
+
+        friend class JsonWizard;
     };
     static QList<OptionDefinition> parseOptions(const QVariant &v, QString *errorMessage);
 

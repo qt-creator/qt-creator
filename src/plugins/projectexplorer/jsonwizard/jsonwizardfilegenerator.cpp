@@ -122,9 +122,8 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
             // evaluate file options once:
             QHash<QString, QString> options;
             foreach (const JsonWizard::OptionDefinition &od, file.options) {
-                if (!JsonWizard::boolFromVariant(od.condition, expander))
-                    continue;
-                options.insert(od.key, od.value);
+                if (od.condition(*expander))
+                    options.insert(od.key(), od.value(*expander));
             }
 
             nested.registerExtraResolver([&options](QString n, QString *ret) -> bool {
