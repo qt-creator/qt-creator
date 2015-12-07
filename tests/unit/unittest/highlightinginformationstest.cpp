@@ -844,17 +844,17 @@ TEST_F(HighlightingInformations, FriendTypeDeclaration)
 {
     const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(350, 28));
 
-    ASSERT_THAT(infos[2], HasType(HighlightingType::Type));
+    ASSERT_THAT(infos[2], HasType(HighlightingType::Invalid));
 }
 
 TEST_F(HighlightingInformations, FriendArgumentTypeDeclaration)
 {
     const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(351, 65));
 
-    ASSERT_THAT(infos[6], HasType(HighlightingType::Type));
+    ASSERT_THAT(infos[6], HasType(HighlightingType::Invalid));
 }
 
-TEST_F(HighlightingInformations, DISABLED_FriendArgumentDeclaration)
+TEST_F(HighlightingInformations, FriendArgumentDeclaration)
 {
     const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(351, 65));
 
@@ -901,6 +901,55 @@ TEST_F(HighlightingInformations, ScopeOperator)
     const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(400, 33));
 
     ASSERT_THAT(infos[1], HasType(HighlightingType::Invalid));
+}
+
+TEST_F(HighlightingInformations, TemplateClassNamespace)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(413, 78));
+
+    ASSERT_THAT(infos[0], HasType(HighlightingType::Type));
+}
+
+TEST_F(HighlightingInformations, TemplateClass)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(413, 78));
+
+    ASSERT_THAT(infos[2], HasType(HighlightingType::Type));
+}
+
+TEST_F(HighlightingInformations, TemplateClassParameter)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(413, 78));
+
+    ASSERT_THAT(infos[4], HasType(HighlightingType::Type));
+}
+
+TEST_F(HighlightingInformations, TemplateClassDeclaration)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(413, 78));
+
+    ASSERT_THAT(infos[6], HasType(HighlightingType::LocalVariable));
+}
+
+TEST_F(HighlightingInformations, TypeDefDeclaration)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(418, 36));
+
+    ASSERT_THAT(infos[2], HasType(HighlightingType::Type));
+}
+
+TEST_F(HighlightingInformations, TypeDefDeclarationUsage)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(419, 48));
+
+    ASSERT_THAT(infos[0], HasType(HighlightingType::Type));
+}
+
+TEST_F(HighlightingInformations, DISABLED_EnumerationTypeDef)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(424, 41));
+
+    ASSERT_THAT(infos[3], HasType(HighlightingType::Type));
 }
 
 Data *HighlightingInformations::d;

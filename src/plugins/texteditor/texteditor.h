@@ -378,8 +378,7 @@ public:
     void circularPaste();
     void switchUtf8bom();
 
-    void zoomIn();
-    void zoomOut();
+    void zoomF(float delta);
     void zoomReset();
 
     void cutLine();

@@ -45,8 +45,11 @@ GdbServerProviderProcess::GdbServerProviderProcess(
         const QSharedPointer<const ProjectExplorer::IDevice> &device,
         QObject *parent)
     : ProjectExplorer::DeviceProcess(device, parent)
-    , m_process(new QProcess(this))
+    , m_process(new Utils::QtcProcess(this))
 {
+    if (Utils::HostOsInfo::isWindowsHost())
+        m_process->setUseCtrlCStub(true);
+
     connect(m_process,
             static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
             this, &GdbServerProviderProcess::error);
@@ -65,7 +68,10 @@ GdbServerProviderProcess::GdbServerProviderProcess(
 void GdbServerProviderProcess::start(const QString &executable, const QStringList &arguments)
 {
     QTC_ASSERT(m_process->state() == QProcess::NotRunning, return);
-    m_process->start(executable, arguments);
+    QString args;
+    Utils::QtcProcess::addArgs(&args, arguments);
+    m_process->setCommand(executable, args);
+    m_process->start();
 }
 
 void GdbServerProviderProcess::interrupt()

@@ -130,6 +130,7 @@ HighlightingType HighlightingInformation::referencedTypeKind(const Cursor &curso
         case CXCursor_ClassDecl:
         case CXCursor_StructDecl:
         case CXCursor_UnionDecl:
+        case CXCursor_TypedefDecl:
         case CXCursor_TemplateTypeParameter:
         case CXCursor_TypeAliasDecl:         return HighlightingType::Type;
         case CXCursor_EnumDecl:              return HighlightingType::Enumeration;
@@ -205,8 +206,8 @@ HighlightingType HighlightingInformation::identifierKind(const Cursor &cursor) c
         case CXCursor_NamespaceRef:
         case CXCursor_NamespaceAlias:
         case CXCursor_TypeAliasDecl:
+        case CXCursor_TypedefDecl:
         case CXCursor_ClassTemplate:
-        case CXCursor_UnexposedDecl:
         case CXCursor_CXXStaticCastExpr:
         case CXCursor_CXXReinterpretCastExpr:
         case CXCursor_ObjCCategoryDecl:

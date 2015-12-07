@@ -57,7 +57,7 @@
     the QML file). The image appears in \uicontrol Resources. You can also use
     any other image or a QML type, instead.
 
-    \list a
+    \list 1
 
         \li In the \uicontrol Projects view, double-click the MainForm.ui.qml
             file to open it in \QMLD.

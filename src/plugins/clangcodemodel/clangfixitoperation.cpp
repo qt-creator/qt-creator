@@ -32,6 +32,8 @@
 
 #include <texteditor/refactoringchanges.h>
 
+#include <QTextDocument>
+
 namespace ClangCodeModel {
 
 ClangFixItOperation::ClangFixItOperation(const Utf8String &filePath,
@@ -56,9 +58,14 @@ QString ClangCodeModel::ClangFixItOperation::description() const
 void ClangFixItOperation::perform()
 {
     const TextEditor::RefactoringChanges refactoringChanges;
-    TextEditor::RefactoringFilePtr refactoringFile = refactoringChanges.file(filePath.toString());
+    refactoringFile = refactoringChanges.file(filePath.toString());
     refactoringFile->setChangeSet(changeSet());
     refactoringFile->apply();
+}
+
+QString ClangFixItOperation::refactoringFileContent_forTestOnly() const
+{
+    return refactoringFile->document()->toPlainText();
 }
 
 Utils::ChangeSet ClangFixItOperation::changeSet() const
@@ -67,8 +74,10 @@ Utils::ChangeSet ClangFixItOperation::changeSet() const
 
     for (const auto &fixItContainer : fixItContainers) {
         const auto range = fixItContainer.range();
-        changeSet.replace(range.start().offset(),
-                          range.end().offset(),
+        const auto start = range.start();
+        const auto end = range.end();
+        changeSet.replace(refactoringFile->position(start.line(), start.column()),
+                          refactoringFile->position(end.line(), end.column()),
                           fixItContainer.text());
     }
 

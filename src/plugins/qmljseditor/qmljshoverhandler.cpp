@@ -375,7 +375,7 @@ void QmlJSHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPo
     else if (m_colorTip.isValid())
         Utils::ToolTip::show(point, m_colorTip, editorWidget);
     else
-        Utils::ToolTip::show(point, toolTip(), editorWidget);
+        BaseHoverHandler::operateTooltip(editorWidget, point);
 }
 
 void QmlJSHoverHandler::prettyPrintTooltip(const Value *value,

@@ -39,8 +39,9 @@ Rectangle {
     property QtObject modelProxy
     property QtObject zoomer
     property bool recursionGuard: false
+    onWidthChanged: updateRangeMover()
 
-    function updateRange() {
+    function updateZoomer() {
         if (recursionGuard)
             return;
         recursionGuard = true;
@@ -54,24 +55,26 @@ Rectangle {
         recursionGuard = false;
     }
 
+    function updateRangeMover() {
+        if (recursionGuard)
+            return;
+        recursionGuard = true;
+        var newRangeX = (zoomer.rangeStart - zoomer.traceStart) * width /
+                zoomer.traceDuration;
+        var newWidth = zoomer.rangeDuration * width / zoomer.traceDuration;
+        var widthChanged = Math.abs(newWidth - rangeMover.rangeWidth) > 1;
+        var leftChanged = Math.abs(newRangeX - rangeMover.rangeLeft) > 1;
+        if (leftChanged)
+            rangeMover.rangeLeft = newRangeX;
+
+        if (leftChanged || widthChanged)
+            rangeMover.rangeRight = newRangeX + newWidth;
+        recursionGuard = false;
+    }
+
     Connections {
         target: zoomer
-        onRangeChanged: {
-            if (recursionGuard)
-                return;
-            recursionGuard = true;
-            var newRangeX = (zoomer.rangeStart - zoomer.traceStart) * width /
-                    zoomer.traceDuration;
-            var newWidth = zoomer.rangeDuration * width / zoomer.traceDuration;
-            var widthChanged = Math.abs(newWidth - rangeMover.rangeWidth) > 1;
-            var leftChanged = Math.abs(newRangeX - rangeMover.rangeLeft) > 1;
-            if (leftChanged)
-                rangeMover.rangeLeft = newRangeX;
-
-            if (leftChanged || widthChanged)
-                rangeMover.rangeRight = newRangeX + newWidth;
-            recursionGuard = false;
-        }
+        onRangeChanged: updateRangeMover()
     }
 
     TimeDisplay {
@@ -186,8 +189,8 @@ Rectangle {
     RangeMover {
         id: rangeMover
         visible: modelProxy.height > 0
-        onRangeLeftChanged: overview.updateRange()
-        onRangeRightChanged: overview.updateRange()
+        onRangeLeftChanged: overview.updateZoomer()
+        onRangeRightChanged: overview.updateZoomer()
     }
 
     Rectangle {

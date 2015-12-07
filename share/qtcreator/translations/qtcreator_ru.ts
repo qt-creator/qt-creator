@@ -3745,41 +3745,11 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Diagnostic</name>
-    <message>
-        <source>ignored</source>
-        <translation>пропущено</translation>
-    </message>
-    <message>
-        <source>note</source>
-        <translation>замечание</translation>
-    </message>
-    <message>
-        <source>warning</source>
-        <translation>предупреждение</translation>
-    </message>
-    <message>
-        <source>error</source>
-        <translation>ошибка</translation>
-    </message>
-    <message>
-        <source>fatal</source>
-        <translation>фатальная ошибка</translation>
-    </message>
-</context>
-<context>
     <name>ClangCodeModel::Internal::ClangCompletionAssistProcessor</name>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
         <translation>Находится в %1</translation>
-    </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangIndexer</name>
-    <message>
-        <source>Parsing C/C++/ObjC Files</source>
-        <translation>Разбор С/С++/ObjC файлов</translation>
     </message>
 </context>
 <context>
@@ -3815,14 +3785,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Clang Settings</source>
         <translation>Настройки Clang</translation>
     </message>
-    <message>
-        <source>Header Files (*.h)</source>
-        <translation>Заголовочные файлы (*.h)</translation>
-    </message>
-    <message>
-        <source>All Files (*)</source>
-        <translation>Все файлы (*)</translation>
-    </message>
 </context>
 <context>
     <name>ClangCodeModel::Internal::ModelManagerSupport</name>
@@ -3830,21 +3792,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Clang</source>
         <extracomment>Display name</extracomment>
         <translation>Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::PchManager</name>
-    <message>
-        <source>Successfully generated PCH file &quot;%1&quot;.</source>
-        <translation>Успешно создан PCH-файл «%1».</translation>
-    </message>
-    <message>
-        <source>Failed to generate PCH file &quot;%1&quot;.</source>
-        <translation>Не удалось создать PCH-файл «%1».</translation>
-    </message>
-    <message>
-        <source>Precompiling</source>
-        <translation>Прекомпиляция</translation>
     </message>
 </context>
 <context>
@@ -17575,6 +17522,37 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
+    <name>GridLayoutSpecifics</name>
+    <message>
+        <source>GridLayout</source>
+        <translation>GridLayout</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation>Столбцы</translation>
+    </message>
+    <message>
+        <source>Rows</source>
+        <translation>Строки</translation>
+    </message>
+    <message>
+        <source>Flow</source>
+        <translation>Перетекание</translation>
+    </message>
+    <message>
+        <source>Layout Direction</source>
+        <translation>Направление компоновки</translation>
+    </message>
+    <message>
+        <source>Row Spacing</source>
+        <translation>Межстрочный интервал</translation>
+    </message>
+    <message>
+        <source>Column Spacing</source>
+        <translation>Межстолбцовый интервал</translation>
+    </message>
+</context>
+<context>
     <name>GridSpecifics</name>
     <message>
         <source>Grid</source>
@@ -24194,7 +24172,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Stacked</source>
-        <translation type="unfinished">Уложеная</translation>
+        <translation>Уложеная</translation>
     </message>
     <message>
         <source>Make the new branch depend on the availability of the source branch.</source>
@@ -24218,11 +24196,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Switch checkout</source>
-        <translation type="unfinished">Сменить выгружаемый каталог</translation>
+        <translation>Сменить выгружаемый каталог</translation>
     </message>
     <message>
         <source>Switch the checkout in the current directory to the new branch.</source>
-        <translation type="unfinished">Переключить выгружаемый каталог текущего каталога на новую.</translation>
+        <translation>Переключить выгружаемый каталог текущего каталога на новую.</translation>
     </message>
     <message>
         <source>Hardlink</source>
@@ -24266,7 +24244,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Bazaar Clone (Or Branch)</source>
-        <translation type="unfinished">Клонирование Bazaar</translation>
+        <translation>Клонирование Bazaar</translation>
     </message>
     <message>
         <source>Module:</source>

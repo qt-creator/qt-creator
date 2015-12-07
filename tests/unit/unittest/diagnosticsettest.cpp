@@ -186,7 +186,7 @@ DiagnosticContainer DiagnosticSet::expectedDiagnostic(DiagnosticSet::ChildMode c
             Utf8StringLiteral("Semantic Issue"),
             {Utf8String(), Utf8String()},
             ClangBackEnd::DiagnosticSeverity::Note,
-            SourceLocationContainer(headerFilePath, 1, 5),
+            SourceLocationContainer(headerFilePath, 1, 6),
             {},
             {},
             {}
@@ -199,7 +199,7 @@ DiagnosticContainer DiagnosticSet::expectedDiagnostic(DiagnosticSet::ChildMode c
         Utf8StringLiteral("Semantic Issue"),
         {Utf8String(), Utf8String()},
         ClangBackEnd::DiagnosticSeverity::Error,
-        SourceLocationContainer(translationUnitMainFile.filePath(), 3, 53),
+        SourceLocationContainer(translationUnitMainFile.filePath(), 3, 6),
         {},
         {},
         children

@@ -229,7 +229,7 @@ int TabSettings::columnCountForText(const QString &text, int startColumn) const
 
 int TabSettings::spacesLeftFromPosition(const QString &text, int position)
 {
-    if (position >= text.size())
+    if (position > text.size())
         return 0;
     int i = position;
     while (i > 0) {

@@ -31,7 +31,20 @@
 #ifndef REFACTORINGCHANGES_H
 #define REFACTORINGCHANGES_H
 
+#include <QFile>
 #include <QSharedPointer>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QTextDocument>
+
+#include <utils/changeset.h>
+
+#include <memory>
+
+#include "gtest/gtest.h"
+#include "gmock/gmock-matchers.h"
+#include "gmock/gmock.h"
+#include "gtest-qt-printing.h"
 
 QT_BEGIN_NAMESPACE
 class QString;
@@ -47,12 +60,57 @@ class RefactoringFile;
 class RefactoringChangesData;
 typedef QSharedPointer<RefactoringFile> RefactoringFilePtr;
 
+using testing::NotNull;
+
 class RefactoringFile
 {
 public:
-    void setChangeSet(const Utils::ChangeSet &) {}
-    void apply() {}
+    RefactoringFile(std::unique_ptr<QTextDocument> &&textDocument)
+        : textDocument(std::move(textDocument))
+    {
+    }
+
+    const QTextDocument *document() const
+    {
+        return textDocument.get();
+    }
+
+    void setChangeSet(const Utils::ChangeSet &changes)
+    {
+        this->changes = changes;
+    }
+
+    void apply()
+    {
+        QTextCursor textCursor(textDocument.get());
+        changes.apply(&textCursor);
+        changes.clear();
+    }
+
+    int position(uint line, uint column)
+    {
+        return textDocument->findBlockByNumber(uint(line) - 1).position() + int(column) - 1;
+    }
+
+private:
+    std::unique_ptr<QTextDocument> textDocument;
+    Utils::ChangeSet changes;
 };
+
+QString readFile(const QString &filePath)
+{
+    EXPECT_FALSE(filePath.isEmpty());
+
+    QFile file(filePath);
+
+    EXPECT_TRUE(file.open(QFile::ReadOnly));
+
+    auto content = file.readAll();
+
+    EXPECT_FALSE(content.isEmpty());
+
+    return QString::fromUtf8(content);
+}
 
 class RefactoringChanges
 {
@@ -60,7 +118,10 @@ public:
     RefactoringChanges() {}
     virtual ~RefactoringChanges() {}
 
-    RefactoringFilePtr file(const QString &) const { return RefactoringFilePtr(); }
+    RefactoringFilePtr file(const QString &filePath) const
+    {
+        return RefactoringFilePtr(new RefactoringFile(std::unique_ptr<QTextDocument>(new QTextDocument(readFile(filePath)))));
+    }
 };
 
 class RefactoringChangesData

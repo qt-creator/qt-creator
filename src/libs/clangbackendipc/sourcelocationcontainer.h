@@ -51,16 +51,16 @@ public:
     SourceLocationContainer() = default;
     SourceLocationContainer(const Utf8String &filePath,
                             uint line,
-                            uint offset);
+                            uint column);
 
     const Utf8String &filePath() const;
     uint line() const;
-    uint offset() const;
+    uint column() const;
 
 private:
     Utf8String filePath_;
     uint line_;
-    uint offset_;
+    uint column_;
 };
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container);
