@@ -356,7 +356,8 @@ void ItemLibraryWidget::startDragAndDrop(QVariant itemLibraryId)
     QMimeData *mimeData = m_itemLibraryModel->getMimeData(m_currentitemLibraryEntry);
     QDrag *drag = new QDrag(this);
 
-    drag->setPixmap(m_currentitemLibraryEntry.libraryEntryIconPath());
+    drag->setPixmap(Utils::StyleHelper::dpiSpecificImageFile(
+                        m_currentitemLibraryEntry.libraryEntryIconPath()));
     drag->setMimeData(mimeData);
 
     drag->exec();

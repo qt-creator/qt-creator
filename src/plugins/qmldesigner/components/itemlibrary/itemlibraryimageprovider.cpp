@@ -24,6 +24,8 @@
 ****************************************************************************/
 #include "itemlibraryimageprovider.h"
 
+#include <utils/stylehelper.h>
+
 namespace QmlDesigner {
 
 namespace Internal {
@@ -35,7 +37,7 @@ ItemLibraryImageProvider::ItemLibraryImageProvider() :
 
 QPixmap ItemLibraryImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    QPixmap pixmap(id);
+    const QPixmap pixmap(Utils::StyleHelper::dpiSpecificImageFile(id));
     if (size) {
         size->setWidth(pixmap.width());
         size->setHeight(pixmap.height());
