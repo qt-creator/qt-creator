@@ -93,4 +93,6 @@
     Lines starting with the hash mark character (#) in the first column are
     ignored.
 
+    If the file path is given as a relative path, it is based on the parent
+    directory of the task list file.
 */
