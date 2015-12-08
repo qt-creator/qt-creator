@@ -667,7 +667,12 @@ class DumperBase:
                 else:
                     inner += c
                     skipSpace = False
-        return inner.strip()
+        # Handle local struct definitions like QList<main(int, char**)::SomeStruct>
+        inner = inner.strip()
+        p = inner.find(')::')
+        if p > -1:
+            inner = inner[p+3:]
+        return inner
 
     def putStringValueByAddress(self, addr):
         elided, data = self.encodeStringHelper(addr, self.displayStringLimit)
