@@ -31,6 +31,7 @@
 #include "minisplitter.h"
 
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QPaintEvent>
 #include <QPainter>
@@ -76,7 +77,10 @@ void MiniSplitterHandle::resizeEvent(QResizeEvent *event)
 void MiniSplitterHandle::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.fillRect(event->rect(), Utils::StyleHelper::borderColor(m_lightColored));
+    const QColor color = m_lightColored
+            ? Utils::StyleHelper::borderColor(m_lightColored)
+            : Utils::creatorTheme()->color(Utils::Theme::SplitterColor);
+    painter.fillRect(event->rect(), color);
 }
 
 QSplitterHandle *MiniSplitter::createHandle()

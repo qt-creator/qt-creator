@@ -622,13 +622,6 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         return QProxyStyle::drawControl(element, option, painter, widget);
 
     switch (element) {
-    case CE_Splitter:
-        if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
-            painter->fillRect(option->rect, creatorTheme()->color(Theme::SplitterColor));
-        else
-            painter->fillRect(option->rect, StyleHelper::borderColor());
-        break;
-
     case CE_TabBarTabShape:
         // Most styles draw a single dark outline. This looks rather ugly when combined with our
         // single pixel dark separator so we adjust the first tab to compensate for this
