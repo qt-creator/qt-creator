@@ -2977,11 +2977,20 @@
          id="rect4024"
          style="fill:#ffffff" />
       <path
-         id="path5306-6"
-         d="M 87.501011,586 80.498989,586 77,592 l 3.498989,6 7.002022,0 L 91,592 Z"
-         inkscape:connector-curvature="0"
-         style="display:inline;fill:#000000"
-         sodipodi:nodetypes="ccccccc" />
+         sodipodi:type="star"
+         style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-opacity:1"
+         id="path4776"
+         sodipodi:sides="8"
+         sodipodi:cx="84"
+         sodipodi:cy="592"
+         sodipodi:r1="6.5"
+         sodipodi:r2="6"
+         sodipodi:arg1="0.39479112"
+         sodipodi:arg2="0.7874902"
+         inkscape:flatsided="true"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="M 90,594.5 86.474874,598.01041 81.5,598 77.989592,594.47487 78,589.5 81.525126,585.98959 86.5,586 l 3.510408,3.52513 z" />
     </g>
     <g
        id="src/plugins/coreplugin/images/warning"
