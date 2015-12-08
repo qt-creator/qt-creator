@@ -177,6 +177,7 @@ static const char *completionKindToString(CodeCompletion::Kind kind)
         case CodeCompletion::DestructorCompletionKind: return "Destructor";
         case CodeCompletion::VariableCompletionKind: return "Variable";
         case CodeCompletion::ClassCompletionKind: return "Class";
+        case CodeCompletion::TypeAliasCompletionKind: return "TypeAlias";
         case CodeCompletion::TemplateClassCompletionKind: return "TemplateClass";
         case CodeCompletion::EnumerationCompletionKind: return "Enumeration";
         case CodeCompletion::EnumeratorCompletionKind: return "Enumerator";
