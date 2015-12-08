@@ -290,7 +290,7 @@ bool FunctionHintProposalWidget::updateAndCheck(const QString &prefix)
 
 void FunctionHintProposalWidget::updateContent()
 {
-    d->m_hintLabel->setText(d->m_model->text(d->m_currentHint));
+    d->m_hintLabel->setText(d->m_model->text(d->m_currentHint).toHtmlEscaped());
     d->m_numberLabel->setText(tr("%1 of %2").arg(d->m_currentHint + 1).arg(d->m_totalHints));
     updatePosition();
 }
