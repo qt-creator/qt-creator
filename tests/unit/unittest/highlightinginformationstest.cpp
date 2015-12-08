@@ -952,6 +952,14 @@ TEST_F(HighlightingInformations, DISABLED_EnumerationTypeDef)
     ASSERT_THAT(infos[3], HasType(HighlightingType::Type));
 }
 
+// QTCREATORBUG-15473
+TEST_F(HighlightingInformations, DISABLED_ArgumentToUserDefinedIndexOperator)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(434, 19));
+
+    ASSERT_THAT(infos[2], HasType(HighlightingType::LocalVariable));
+}
+
 Data *HighlightingInformations::d;
 
 void HighlightingInformations::SetUpTestCase()

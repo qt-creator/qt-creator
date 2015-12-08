@@ -424,3 +424,12 @@ typedef int EnumerationTypeDef;
 enum Enumeration2 : EnumerationTypeDef {
 
 };
+
+struct Bar {
+    Bar &operator[](int &key);
+};
+
+void argumentToUserDefinedIndexOperator(Bar object, int index = 3)
+{
+    object[index];
+}
