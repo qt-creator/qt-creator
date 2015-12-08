@@ -73,7 +73,9 @@ public:
     QString executable;
     QString displayName; // Used in the Snapshots view.
     QString processArgs;
-    Utils::Environment environment;
+    Utils::Environment inferiorEnvironment;
+    Utils::Environment debuggerEnvironment;
+    Utils::Environment stubEnvironment;
     QString workingDirectory;
     qint64 attachPID = InvalidPid;
     QStringList solibSearchPath;
@@ -81,7 +83,7 @@ public:
 
     // Used by Qml debugging.
     QString qmlServerAddress;
-    quint16 qmlServerPort;
+    quint16 qmlServerPort = InvalidPort;
 
     // Used by general remote debugging.
     QString remoteChannel;

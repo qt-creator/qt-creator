@@ -404,8 +404,11 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     }
 
     if (m_runConfig) {
-        if (auto envAspect = m_runConfig->extraAspect<EnvironmentAspect>())
-            m_rp.environment = envAspect->environment();
+        if (auto envAspect = m_runConfig->extraAspect<EnvironmentAspect>()) {
+            m_rp.inferiorEnvironment = envAspect->environment(); // Correct.
+            m_rp.stubEnvironment = m_rp.inferiorEnvironment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
+            m_rp.debuggerEnvironment = m_rp.inferiorEnvironment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
+        }
     }
 
     if (ToolChain *tc = ToolChainKitInformation::toolChain(m_kit))
@@ -497,8 +500,8 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 // Makes sure that all bindings go through the JavaScript engine, so that
                 // breakpoints are actually hit!
                 const QString optimizerKey = _("QML_DISABLE_OPTIMIZER");
-                if (!m_rp.environment.hasKey(optimizerKey))
-                    m_rp.environment.set(optimizerKey, _("1"));
+                if (!m_rp.inferiorEnvironment.hasKey(optimizerKey))
+                    m_rp.inferiorEnvironment.set(optimizerKey, _("1"));
             }
         }
     }

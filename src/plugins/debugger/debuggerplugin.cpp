@@ -1173,7 +1173,9 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             rp.displayName = tr("Executable file \"%1\"").arg(rp.executable);
             rp.startMessage = tr("Debugging file %1.").arg(rp.executable);
         }
-        rp.environment = Utils::Environment::systemEnvironment();
+        rp.inferiorEnvironment = Utils::Environment::systemEnvironment();
+        rp.stubEnvironment = Utils::Environment::systemEnvironment();
+        rp.debuggerEnvironment = Utils::Environment::systemEnvironment();
         m_scheduledStarts.append(QPair<DebuggerRunParameters, Kit *>(rp, kit));
         return true;
     }

@@ -109,7 +109,8 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
     nospace << "executable=" << sp.executable
             << " coreFile=" << sp.coreFile
             << " processArgs=" << sp.processArgs
-            << " environment=<" << sp.environment.size() << " variables>"
+            << " inferior environment=<" << sp.inferiorEnvironment.size() << " variables>"
+            << " debugger environment=<" << sp.debuggerEnvironment.size() << " variables>"
             << " workingDir=" << sp.workingDirectory
             << " attachPID=" << sp.attachPID
             << " useTerminal=" << sp.useTerminal
@@ -566,7 +567,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
         d->m_runControl->setApplicationProcessHandle(ProcessHandle(d->m_inferiorPid));
 
     if (isNativeMixedActive())
-        d->m_runParameters.environment.set(QLatin1String("QV4_FORCE_INTERPRETER"), QLatin1String("1"));
+        d->m_runParameters.inferiorEnvironment.set(QLatin1String("QV4_FORCE_INTERPRETER"), QLatin1String("1"));
 
     action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
 

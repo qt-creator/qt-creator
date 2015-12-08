@@ -639,7 +639,7 @@ void QmlEngine::setupEngine()
         // we need to get the port first
         notifyEngineRequestRemoteSetup();
     } else {
-        d->applicationLauncher.setEnvironment(runParameters().environment);
+        d->applicationLauncher.setEnvironment(runParameters().inferiorEnvironment);
         d->applicationLauncher.setWorkingDirectory(runParameters().workingDirectory);
 
         // We can't do this in the constructore because runControl() isn't yet defined

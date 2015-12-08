@@ -440,7 +440,7 @@ DebuggerSourcePathMappingWidget::SourcePathMap
     DebuggerSourcePathMappingWidget::mergePlatformQtPath(const DebuggerRunParameters &sp,
                                                          const SourcePathMap &in)
 {
-    const FileName qmake = BuildableHelperLibrary::findSystemQt(sp.environment);
+    const FileName qmake = BuildableHelperLibrary::findSystemQt(sp.inferiorEnvironment);
     // FIXME: Get this from the profile?
     //        We could query the QtVersion for this information directly, but then we
     //        will need to add a dependency on QtSupport to the debugger.

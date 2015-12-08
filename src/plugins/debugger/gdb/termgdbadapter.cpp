@@ -88,7 +88,7 @@ void GdbTermEngine::setupEngine()
 
     m_stubProc.setWorkingDirectory(runParameters().workingDirectory);
     // Set environment + dumper preload.
-    m_stubProc.setEnvironment(runParameters().environment);
+    m_stubProc.setEnvironment(runParameters().stubEnvironment);
 
     connect(&m_stubProc, &ConsoleProcess::processError,
             this, &GdbTermEngine::stubError);

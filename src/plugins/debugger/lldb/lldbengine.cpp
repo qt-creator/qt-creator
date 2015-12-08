@@ -214,7 +214,7 @@ void LldbEngine::setupEngine()
 
         m_stubProc.setWorkingDirectory(runParameters().workingDirectory);
         // Set environment + dumper preload.
-        m_stubProc.setEnvironment(runParameters().environment);
+        m_stubProc.setEnvironment(runParameters().stubEnvironment);
 
         connect(&m_stubProc, &ConsoleProcess::processError, this, &LldbEngine::stubError);
         connect(&m_stubProc, &ConsoleProcess::processStarted, this, &LldbEngine::stubStarted);
@@ -255,7 +255,7 @@ void LldbEngine::startLldb()
             this, &LldbEngine::handleResponse, Qt::QueuedConnection);
 
     showMessage(_("STARTING LLDB: ") + m_lldbCmd);
-    m_lldbProc.setEnvironment(runParameters().environment);
+    m_lldbProc.setEnvironment(runParameters().debuggerEnvironment);
     if (!runParameters().workingDirectory.isEmpty())
         m_lldbProc.setWorkingDirectory(runParameters().workingDirectory);
 
@@ -293,7 +293,7 @@ void LldbEngine::startLldbStage2()
 void LldbEngine::setupInferior()
 {
     Environment sysEnv = Environment::systemEnvironment();
-    Environment runEnv = runParameters().environment;
+    Environment runEnv = runParameters().inferiorEnvironment;
     foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
         DebuggerCommand cmd("executeDebuggerCommand");
         if (item.unset)
@@ -337,10 +337,9 @@ void LldbEngine::setupInferior()
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
 
-    // FIXME: separate Inferior and Debugger environments properly
-    cmd2.arg("dyldimagesuffix", rp.environment.value(_("DYLD_IMAGE_SUFFIX")));
-    cmd2.arg("dyldframeworkpath", rp.environment.value(_("DYLD_LIBRARY_PATH")));
-    cmd2.arg("dyldlibrarypath", rp.environment.value(_("DYLD_FRAMEWORK_PATH")));
+    cmd2.arg("dyldimagesuffix", rp.inferiorEnvironment.value(_("DYLD_IMAGE_SUFFIX")));
+    cmd2.arg("dyldframeworkpath", rp.inferiorEnvironment.value(_("DYLD_LIBRARY_PATH")));
+    cmd2.arg("dyldlibrarypath", rp.inferiorEnvironment.value(_("DYLD_FRAMEWORK_PATH")));
 
     QJsonArray processArgs;
     foreach (const QString &arg, args.toUnixArgs())

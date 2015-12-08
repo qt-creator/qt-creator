@@ -4193,7 +4193,7 @@ void GdbEngine::loadInitScript()
 void GdbEngine::setEnvironmentVariables()
 {
     Environment sysEnv = Environment::systemEnvironment();
-    Environment runEnv = runParameters().environment;
+    Environment runEnv = runParameters().inferiorEnvironment;
     foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
         if (item.unset)
             runCommand({"unset environment " + item.name.toUtf8(), NoFlags});
