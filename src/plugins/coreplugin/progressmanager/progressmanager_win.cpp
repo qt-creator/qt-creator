@@ -40,7 +40,7 @@
 #include <qpa/qplatformnativeinterface.h>
 
 #include <coreplugin/icore.h>
-#include <utils/stylehelper.h>
+#include <coreplugin/coreicons.h>
 
 #include "progressmanager_p.h"
 
@@ -114,7 +114,7 @@ void Core::Internal::ProgressManagerPrivate::doSetApplicationLabel(const QString
     if (text.isEmpty()) {
         pITask->SetOverlayIcon(winId, NULL, NULL);
     } else {
-        QPixmap pix(Utils::StyleHelper::dpiSpecificImageFile(QLatin1String(":/core/images/compile_error_taskbar.png")));
+        QPixmap pix = Core::Icons::ERROR_TASKBAR.pixmap();
         pix.setDevicePixelRatio(1); // We want device-pixel sized font depending on the pix.height
         QPainter p(&pix);
         p.setPen(Qt::white);

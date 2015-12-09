@@ -129,6 +129,8 @@ const Utils::Icon ERROR({
         {QLatin1String(":/core/images/error.png"), Utils::Theme::IconsErrorColor}}, Utils::Icon::Style::Tinted);
 const Utils::Icon ERROR_TOOLBAR({
         {QLatin1String(":/core/images/error.png"), Utils::Theme::IconsErrorToolBarColor}});
+const Utils::Icon ERROR_TASKBAR({
+        {QLatin1String(":/core/images/compile_error_taskbar.png"), Utils::Theme::IconsErrorColor}}, Utils::Icon::Style::Tinted);
 const Utils::Icon INFO({
         {QLatin1String(":/core/images/warningfill.png"), Utils::Theme::BackgroundColorNormal},
         {QLatin1String(":/core/images/info.png"), Utils::Theme::IconsInfoColor}}, Utils::Icon::Style::Tinted);
