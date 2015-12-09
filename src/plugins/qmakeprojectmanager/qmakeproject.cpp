@@ -1345,9 +1345,9 @@ void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
     QList<Kit *> kits = KitManager::kits();
     foreach (Kit *k, kits) {
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-        if (!version || platforms.isEmpty())
-            continue;
-        if (!Utils::contains(version->targetDeviceTypes(), [platforms](Core::Id i) { return platforms.contains(i); }))
+        if (!version
+                || (!platforms.isEmpty()
+                    && !Utils::contains(version->targetDeviceTypes(), [platforms](Core::Id i) { return platforms.contains(i); })))
             continue;
 
         IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(k, projectFilePath().toString());
