@@ -182,7 +182,7 @@ void CompletionChunksToTextConverter::parseDependendOnTheOptionalState(
 void CompletionChunksToTextConverter::parseResultType(const Utf8String &resultTypeText)
 {
     if (m_addResultType)
-        m_text += resultTypeText.toString() + QChar(QChar::Space);
+        m_text += resultTypeText.toString().toHtmlEscaped() + QChar(QChar::Space);
 }
 
 void CompletionChunksToTextConverter::parseText(const Utf8String &text)
@@ -192,7 +192,7 @@ void CompletionChunksToTextConverter::parseText(const Utf8String &text)
         m_text += QChar(QChar::Space);
     }
 
-    m_text += text.toString();
+    m_text += text.toString().toHtmlEscaped();
 }
 
 void CompletionChunksToTextConverter::wrapInCursiveTagIfOptional(
@@ -211,8 +211,10 @@ void CompletionChunksToTextConverter::wrapInCursiveTagIfOptional(
 void CompletionChunksToTextConverter::parsePlaceHolder(
         const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
-    if (m_addPlaceHolderText)
-        appendText(codeCompletionChunk.text().toString(), emphasizeCurrentPlaceHolder());
+    if (m_addPlaceHolderText) {
+        appendText(codeCompletionChunk.text().toString().toHtmlEscaped(),
+                   emphasizeCurrentPlaceHolder());
+    }
 
     if (m_addPlaceHolderPositions)
         m_placeholderPositions.push_back(m_text.size());

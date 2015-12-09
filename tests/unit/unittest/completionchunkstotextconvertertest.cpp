@@ -50,6 +50,7 @@ protected:
 protected:
     Converter converter;
     CodeCompletionChunk integerResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("int")};
+    CodeCompletionChunk templateResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("Foo<int>")};
     CodeCompletionChunk enumerationResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("Enumeration")};
     CodeCompletionChunk functionName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Function")};
     CodeCompletionChunk variableName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Variable")};
@@ -63,6 +64,7 @@ protected:
     CodeCompletionChunk functionArgumentX{CodeCompletionChunk::Placeholder, Utf8StringLiteral("char x")};
     CodeCompletionChunk functionArgumentY{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int y")};
     CodeCompletionChunk functionArgumentZ{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z")};
+    CodeCompletionChunk functionArgumentTemplate{CodeCompletionChunk::Placeholder, Utf8StringLiteral("const Foo<int> &foo")};
     CodeCompletionChunk switchName{CodeCompletionChunk::TypedText, Utf8StringLiteral("switch")};
     CodeCompletionChunk condition{CodeCompletionChunk::Placeholder, Utf8StringLiteral("condition")};
     CodeCompletionChunk leftBrace{CodeCompletionChunk::LeftBrace, Utf8StringLiteral("{")};
@@ -185,6 +187,34 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParamet
                 QStringLiteral("int Function(char x<i>, <b>int y</b></i>)"));
 }
 
+TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTemplateReturnType)
+{
+    CodeCompletionChunks completionChunks({templateResultType,
+                                           functionName,
+                                           leftParen,
+                                            functionArgumentX,
+                                           rightParen});
+
+    using ClangCodeModel::Internal::CompletionChunksToTextConverter;
+
+    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignature(completionChunks),
+                QStringLiteral("Foo&lt;int&gt; Function(char x)"));
+}
+
+TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTemplateArgument)
+{
+    CodeCompletionChunks completionChunks({integerResultType,
+                                           functionName,
+                                           leftParen,
+                                            functionArgumentTemplate,
+                                           rightParen});
+
+    using ClangCodeModel::Internal::CompletionChunksToTextConverter;
+
+    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignature(completionChunks),
+                QStringLiteral("int Function(const Foo&lt;int&gt; &amp;foo)"));
+}
+
 TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
 {
     CodeCompletionChunks completionChunks({integerResultType,
@@ -280,7 +310,7 @@ TEST_F(CompletionChunksToTextConverter, const_cast)
 
     converter.parseChunks(completionChunks);
 
-    ASSERT_THAT(converter.text(), QStringLiteral("const_cast<>()"));
+    ASSERT_THAT(converter.text(), QStringLiteral("const_cast&lt;&gt;()"));
 }
 
 TEST_F(CompletionChunksToTextConverter, Throw)
@@ -322,7 +352,7 @@ TEST_F(CompletionChunksToTextConverter, EnableIfT)
 
     converter.parseChunks(completionChunks);
 
-    ASSERT_THAT(converter.text(), QStringLiteral("enable_if_t<>"));
+    ASSERT_THAT(converter.text(), QStringLiteral("enable_if_t&lt;&gt;"));
 }
 
 void CompletionChunksToTextConverter::setupConverterForKeywords()
