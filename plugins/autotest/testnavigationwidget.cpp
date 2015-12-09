@@ -106,7 +106,9 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             const QString &unnamed = tr(Constants::UNNAMED_QUICKTESTS);
             if ((type == TestTreeItem::TestFunction && index.parent().data().toString() != unnamed)
                     || (type == TestTreeItem::TestClass && index.data().toString() != unnamed)
-                    || (type == TestTreeItem::TestDataTag)) {
+                    || (type == TestTreeItem::TestDataTag)
+                    || (type == TestTreeItem::GTestCase)
+                    || (type == TestTreeItem::GTestName)) {
                 runThisTest = new QAction(tr("Run This Test"), &menu);
                 runThisTest->setEnabled(enabled);
                 connect(runThisTest, &QAction::triggered,
@@ -251,7 +253,9 @@ void TestNavigationWidget::onRunThisTestTriggered()
 
     TestTreeItem *item = static_cast<TestTreeItem *>(sourceIndex.internalPointer());
     if (item->type() == TestTreeItem::TestClass || item->type() == TestTreeItem::TestFunction
-            || item->type() == TestTreeItem::TestDataTag) {
+            || item->type() == TestTreeItem::TestDataTag
+            || item->type() == TestTreeItem::GTestCase
+            || item->type() == TestTreeItem::GTestName) {
         if (TestConfiguration *configuration = m_model->getTestConfiguration(item)) {
             TestRunner *runner = TestRunner::instance();
             runner->setSelectedTests( {configuration} );

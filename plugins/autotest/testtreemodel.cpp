@@ -461,6 +461,26 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
         config->setProject(project);
         break;
     }
+    case TestTreeItem::GTestCase: {
+        if (int childCount = item->childCount()) {
+            config = new TestConfiguration(QString(),
+                                           QStringList(item->name() + QLatin1String(".*")));
+            config->setTestCaseCount(childCount);
+            config->setProFile(item->childItem(0)->mainFile());
+            config->setProject(project);
+            config->setTestType(TestConfiguration::GTest);
+        }
+        break;
+    }
+    case TestTreeItem::GTestName: {
+        const TestTreeItem *parent = item->parentItem();
+        config = new TestConfiguration(QString(),
+                                       QStringList(parent->name() + QLatin1Char('.') + item->name()));
+        config->setProFile(item->mainFile());
+        config->setProject(project);
+        config->setTestType(TestConfiguration::GTest);
+        break;
+    }
     // not supported items
     default:
         return 0;
