@@ -27,8 +27,6 @@ SOURCES += \
     clangfunctionhintmodel.cpp \
     clanghighlightingmarksreporter.cpp \
     clangmodelmanagersupport.cpp \
-    clangprojectsettings.cpp \
-    clangprojectsettingspropertiespage.cpp \
     clangtextmark.cpp \
     clangutils.cpp
 
@@ -55,12 +53,8 @@ HEADERS += \
     clangfunctionhintmodel.h \
     clanghighlightingmarksreporter.h \
     clangmodelmanagersupport.h \
-    clangprojectsettings.h \
-    clangprojectsettingspropertiespage.h \
     clangtextmark.h \
-    clangutils.h \
-
-FORMS += clangprojectsettingspropertiespage.ui
+    clangutils.h
 
 equals(TEST, 1) {
     HEADERS += \
