@@ -55,17 +55,10 @@ const qint64 InvalidPid = -1;
 class DEBUGGER_EXPORT RemoteSetupResult
 {
 public:
-    RemoteSetupResult()
-      : gdbServerPort(InvalidPort),
-        qmlServerPort(InvalidPort),
-        inferiorPid(InvalidPid),
-        success(false)
-    {}
-
-    int gdbServerPort;
-    int qmlServerPort;
-    qint64 inferiorPid;
-    bool success;
+    int gdbServerPort = InvalidPort;
+    int qmlServerPort = InvalidPort;
+    qint64 inferiorPid = InvalidPid;
+    bool success = false;
     QString reason;
 };
 
