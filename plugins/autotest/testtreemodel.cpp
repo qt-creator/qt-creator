@@ -139,10 +139,13 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
         if (role == Qt::CheckStateRole) {
             switch (item->type()) {
             case TestTreeItem::TestClass:
+            case TestTreeItem::GTestCase:
                 if (item->childCount() > 0)
                     emit dataChanged(index.child(0, 0), index.child(item->childCount() - 1, 0));
                 break;
             case TestTreeItem::TestFunction:
+            case TestTreeItem::GTestName:
+            case TestTreeItem::GTestNameDisabled:
                 emit dataChanged(index.parent(), index.parent());
                 break;
             default: // avoid warning regarding unhandled enum member
@@ -162,10 +165,13 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
     TestTreeItem *item = static_cast<TestTreeItem *>(itemForIndex(index));
     switch(item->type()) {
     case TestTreeItem::TestClass:
+    case TestTreeItem::GTestCase:
         if (item->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsTristate | Qt::ItemIsUserCheckable;
     case TestTreeItem::TestFunction:
+    case TestTreeItem::GTestName:
+    case TestTreeItem::GTestNameDisabled:
         if (item->parentItem()->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
@@ -174,9 +180,6 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
     case TestTreeItem::TestDataFunction:
     case TestTreeItem::TestSpecialFunction:
     case TestTreeItem::TestDataTag:
-    case TestTreeItem::GTestCase:
-    case TestTreeItem::GTestName:
-    case TestTreeItem::GTestNameDisabled:
     default:
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     }

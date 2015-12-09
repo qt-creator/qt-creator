@@ -39,6 +39,9 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
     switch (m_type) {
     case TestClass:
     case TestFunction:
+    case GTestCase:
+    case GTestName:
+    case GTestNameDisabled:
         m_checked = Qt::Checked;
         break;
     default:
@@ -105,13 +108,13 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         case TestDataFunction:
         case TestSpecialFunction:
         case TestDataTag:
-        case GTestCase:
-        case GTestName:
-        case GTestNameDisabled:
             return QVariant();
         case TestClass:
+        case GTestCase:
             return m_name.isEmpty() ? QVariant() : checked();
         case TestFunction:
+        case GTestName:
+        case GTestNameDisabled:
             if (parentItem() && parentItem()->name().isEmpty())
                 return QVariant();
             return checked();
@@ -180,12 +183,15 @@ bool TestTreeItem::modifyContent(const TestTreeItem *modified)
 void TestTreeItem::setChecked(const Qt::CheckState checkState)
 {
     switch (m_type) {
-    case TestFunction: {
+    case TestFunction:
+    case GTestName:
+    case GTestNameDisabled: {
         m_checked = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
         parentItem()->revalidateCheckState();
         break;
     }
-    case TestClass: {
+    case TestClass:
+    case GTestCase: {
         Qt::CheckState usedState = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
         for (int row = 0, count = childCount(); row < count; ++row)
             childItem(row)->setChecked(usedState);
@@ -201,6 +207,9 @@ Qt::CheckState TestTreeItem::checked() const
     switch (m_type) {
     case TestClass:
     case TestFunction:
+    case GTestCase:
+    case GTestName:
+    case GTestNameDisabled:
         return m_checked;
     case TestDataFunction:
     case TestSpecialFunction:
