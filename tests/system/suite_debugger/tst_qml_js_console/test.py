@@ -35,7 +35,7 @@ def typeToDebuggerConsole(expression):
                                       ":DebugModeWidget_Debugger::Internal::ConsoleView")
     mouseClick(editableIndex, 5, 5, 0, Qt.LeftButton)
     type(waitForObject(":Debugger::Internal::ConsoleEdit"), expression)
-    type(waitForObject(":Debigger::Internal::ConsoleEdit"), "<Return>")
+    type(waitForObject(":Debugger::Internal::ConsoleEdit"), "<Return>")
 
 def useDebuggerConsole(expression, expectedOutput, check=None, checkOutp=None):
     typeToDebuggerConsole(expression)
@@ -57,7 +57,7 @@ def useDebuggerConsole(expression, expectedOutput, check=None, checkOutp=None):
     if check:
         if checkOutp == None:
             checkOutp = expectedOutput
-        useQmlJSConsole(check, checkOutp)
+        useDebuggerConsole(check, checkOutp)
 
 def debuggerHasStopped():
     stopDebugger = findObject(":Debugger Toolbar.Exit Debugger_QToolButton")
@@ -83,7 +83,7 @@ def getQmlJSConsoleOutput():
 def runChecks(elementProps, parent, checks):
     mouseClick(getQModelIndexStr(elementProps, parent), 5, 5, 0, Qt.LeftButton)
     for check in checks:
-        useQmlJSConsole(*check)
+        useDebuggerConsole(*check)
 
 def testLoggingFeatures():
     expressions = ("console.log('info message'); console.info('info message2'); console.debug()",
@@ -167,19 +167,19 @@ def main():
         # check Text element
         runChecks("text='Text'", rootIndex, checks)
         # extended check must be done separately
-        originalVal = useQmlJSConsole("x", None)
+        originalVal = useDebuggerConsole("x", None)
         if originalVal:
             # Text element uses anchors.centerIn, so modification of x should not do anything
-            useQmlJSConsole("x=0", "0", "x", originalVal)
-            useQmlJSConsole("anchors.centerIn", "mainRect")
+            useDebuggerConsole("x=0", "0", "x", originalVal)
+            useDebuggerConsole("anchors.centerIn", "mainRect")
             # ignore output as it has none
-            useQmlJSConsole("anchors.centerIn = null", None)
-            useQmlJSConsole("x = 0", "0", "x")
+            useDebuggerConsole("anchors.centerIn = null", None)
+            useDebuggerConsole("x = 0", "0", "x")
 
         testLoggingFeatures()
 
         test.log("Calling Qt.quit() from inside Qml/JS Console - inferior should quit.")
-        useQmlJSConsole("Qt.quit()", "<undefined>")
+        useDebuggerConsole("Qt.quit()", "<undefined>")
         if not debuggerHasStopped():
             __stopDebugger__()
     invokeMenuItem("File", "Exit")
