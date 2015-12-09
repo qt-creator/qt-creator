@@ -32,12 +32,28 @@
 #define DEBUGGERRUNCONFIGURATIONASPECT_H
 
 #include "debugger_global.h"
+#include "debuggerconstants.h"
 
 #include <projectexplorer/runconfiguration.h>
 
 namespace Debugger {
 
 namespace Internal { class DebuggerRunConfigWidget;  }
+
+enum DebuggerLanguageStatus {
+    DisabledLanguage = 0,
+    EnabledLanguage,
+    AutoEnabledLanguage
+};
+
+class DEBUGGER_EXPORT DebuggerRunConfigurationAspectData
+{
+public:
+    DebuggerLanguageStatus useCppDebugger = AutoEnabledLanguage;
+    DebuggerLanguageStatus useQmlDebugger = AutoEnabledLanguage;
+    uint qmlDebugServerPort = Constants::QML_DEFAULT_DEBUG_SERVER_PORT;
+    bool useMultiProcess = false;
+};
 
 class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
     : public ProjectExplorer::IRunConfigurationAspect
@@ -47,12 +63,6 @@ class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
 public:
     DebuggerRunConfigurationAspect(ProjectExplorer::RunConfiguration *runConfiguration);
     DebuggerRunConfigurationAspect *create(ProjectExplorer::RunConfiguration *runConfiguration) const;
-
-    enum DebuggerLanguageStatus {
-        DisabledLanguage = 0,
-        EnabledLanguage,
-        AutoEnabledLanguage
-    };
 
     void fromMap(const QVariantMap &map);
     void toMap(QVariantMap &map) const;
@@ -70,12 +80,8 @@ public:
     bool isQmlDebuggingSpinboxSuppressed() const;
 
 private:
-    DebuggerLanguageStatus m_useCppDebugger;
-    DebuggerLanguageStatus m_useQmlDebugger;
-    uint m_qmlDebugServerPort;
-    bool m_useMultiProcess;
-
     friend class Internal::DebuggerRunConfigWidget;
+    DebuggerRunConfigurationAspectData d;
 };
 
 } // namespace Debugger
