@@ -66,6 +66,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -194,12 +195,13 @@ static void appendExtraSelectionsForMessages(
             sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, d.loc.length);
         }
 
-        if (d.isWarning())
-            sel.format.setUnderlineColor(Qt::darkYellow);
-        else
-            sel.format.setUnderlineColor(Qt::red);
+        const auto fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
 
-        sel.format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+        if (d.isWarning())
+            sel.format = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
+        else
+            sel.format = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
+
         sel.format.setToolTip(d.message);
 
         selections->append(sel);
