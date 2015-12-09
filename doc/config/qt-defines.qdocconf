@@ -14,5 +14,3 @@ defines                 = Q_QDOC \
                           $QTC_LICENSE_TYPE
 
 versionsym              = QT_VERSION_STR
-
-codeindent              = 1
