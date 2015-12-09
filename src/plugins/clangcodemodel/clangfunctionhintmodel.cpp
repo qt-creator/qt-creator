@@ -41,7 +41,7 @@ using namespace CPlusPlus;
 
 ClangFunctionHintModel::ClangFunctionHintModel(const ClangBackEnd::CodeCompletions &functionSymbols)
     : m_functionSymbols(functionSymbols)
-    , m_currentArg(-1)
+    , m_currentArgument(-1)
 {
 }
 
@@ -58,34 +58,59 @@ QString ClangFunctionHintModel::text(int index) const
 {
     const ClangBackEnd::CodeCompletionChunks chunks = m_functionSymbols.at(index).chunks();
     const QString signatureWithEmphasizedCurrentParameter
-        = CompletionChunksToTextConverter::convertToFunctionSignature(chunks, m_currentArg + 1);
+        = CompletionChunksToTextConverter::convertToFunctionSignature(chunks, m_currentArgument + 1);
 
     return signatureWithEmphasizedCurrentParameter;
 }
 
 int ClangFunctionHintModel::activeArgument(const QString &prefix) const
 {
-    int argnr = 0;
-    int parcount = 0;
+    int activeArgumentNumber = 0;
+
+    int unbalancedParens = 0; // expressions
+    int unbalancedBraces = 0; // initializer lists
+    int unbalancedBrackets = 0; // lambda-capture
+    int unbalancedLessGreater = 0; // template arguments
+
     SimpleLexer tokenize;
-    Tokens tokens = tokenize(prefix);
-    for (int i = 0; i < tokens.count(); ++i) {
-        const Token &tk = tokens.at(i);
-        if (tk.is(T_LPAREN))
-            ++parcount;
-        else if (tk.is(T_RPAREN))
-            --parcount;
-        else if (! parcount && tk.is(T_COMMA))
-            ++argnr;
+    const Tokens tokens = tokenize(prefix);
+    for (const Token &token : tokens) {
+        if (token.is(T_LPAREN)) {
+            ++unbalancedParens;
+        } else if (token.is(T_RPAREN)) {
+            --unbalancedParens;
+        } else if (token.is(T_LBRACE)) {
+            ++unbalancedBraces;
+        } else if (token.is(T_RBRACE)) {
+            --unbalancedBraces;
+        } else if (token.is(T_LBRACKET)) {
+            ++unbalancedBrackets;
+        } else if (token.is(T_RBRACKET)) {
+            --unbalancedBrackets;
+        } else if (token.is(T_LESS)) {
+            ++unbalancedLessGreater;
+        } else if (token.is(T_GREATER)) {
+            --unbalancedLessGreater;
+        } else if (!unbalancedParens
+                   && !unbalancedBraces
+                   && !unbalancedBrackets
+                   && !unbalancedLessGreater
+                   && token.is(T_COMMA)) {
+            ++activeArgumentNumber;
+        }
     }
 
-    if (parcount < 0)
+    if (unbalancedParens < 0
+            || unbalancedBraces < 0
+            || unbalancedBrackets < 0
+            || unbalancedLessGreater < 0) {
         return -1;
+    }
 
-    if (argnr != m_currentArg)
-        m_currentArg = argnr;
+    if (activeArgumentNumber != m_currentArgument)
+        m_currentArgument = activeArgumentNumber;
 
-    return argnr;
+    return activeArgumentNumber;
 }
 
 } // namespace Internal
