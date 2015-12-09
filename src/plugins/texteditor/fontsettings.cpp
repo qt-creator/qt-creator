@@ -28,6 +28,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/theme/theme.h>
 #include <coreplugin/icore.h>
 
 #include <QCoreApplication>
@@ -41,7 +42,7 @@ static const char fontFamilyKey[] = "FontFamily";
 static const char fontSizeKey[] = "FontSize";
 static const char fontZoomKey[] = "FontZoom";
 static const char antialiasKey[] = "FontAntialias";
-static const char schemeFileNameKey[] = "ColorScheme";
+static const char schemeFileNamesKey[] = "ColorSchemes";
 
 namespace {
 static const bool DEFAULT_ANTIALIAS = true;
@@ -85,8 +86,11 @@ void FontSettings::toSettings(const QString &category,
     if (m_antialias != DEFAULT_ANTIALIAS || s->contains(QLatin1String(antialiasKey)))
         s->setValue(QLatin1String(antialiasKey), m_antialias);
 
-    if (m_schemeFileName != defaultSchemeFileName() || s->contains(QLatin1String(schemeFileNameKey)))
-        s->setValue(QLatin1String(schemeFileNameKey), m_schemeFileName);
+    auto schemeFileNames = s->value(QLatin1String(schemeFileNamesKey)).toMap();
+    if (m_schemeFileName != defaultSchemeFileName() || schemeFileNames.contains(Utils::creatorTheme()->id())) {
+        schemeFileNames.insert(Utils::creatorTheme()->id(), m_schemeFileName);
+        s->setValue(QLatin1String(schemeFileNamesKey), schemeFileNames);
+    }
 
     s->endGroup();
 }
@@ -108,12 +112,13 @@ bool FontSettings::fromSettings(const QString &category,
     m_fontZoom= s->value(group + QLatin1String(fontZoomKey), m_fontZoom).toInt();
     m_antialias = s->value(group + QLatin1String(antialiasKey), DEFAULT_ANTIALIAS).toBool();
 
-    if (s->contains(group + QLatin1String(schemeFileNameKey))) {
-        // Load the selected color scheme
-        QString scheme = s->value(group + QLatin1String(schemeFileNameKey)).toString();
-        if (scheme.isEmpty() || !QFile::exists(scheme))
-            scheme = defaultSchemeFileName(Utils::FileName::fromString(scheme).fileName());
-        loadColorScheme(scheme, descriptions);
+    if (s->contains(group + QLatin1String(schemeFileNamesKey))) {
+        // Load the selected color scheme for the current theme
+        auto schemeFileNames = s->value(group + QLatin1String(schemeFileNamesKey)).toMap();
+        if (schemeFileNames.contains(Utils::creatorTheme()->id())) {
+            const QString scheme = schemeFileNames.value(Utils::creatorTheme()->id()).toString();
+            loadColorScheme(scheme, descriptions);
+        }
     }
 
     return true;
@@ -368,10 +373,15 @@ QString FontSettings::defaultSchemeFileName(const QString &fileName)
     QString defaultScheme = Core::ICore::resourcePath();
     defaultScheme += QLatin1String("/styles/");
 
-    if (!fileName.isEmpty() && QFile::exists(defaultScheme + fileName))
+    if (!fileName.isEmpty() && QFile::exists(defaultScheme + fileName)) {
         defaultScheme += fileName;
-    else
-        defaultScheme += QLatin1String("default.xml");
+    } else {
+        const QString themeScheme = Utils::creatorTheme()->defaultTextEditorColorScheme();
+        if (!themeScheme.isEmpty() && QFile::exists(defaultScheme + themeScheme))
+            defaultScheme += themeScheme;
+        else
+            defaultScheme += QLatin1String("default.xml");
+    }
 
     return defaultScheme;
 }

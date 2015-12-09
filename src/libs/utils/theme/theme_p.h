@@ -43,6 +43,7 @@ public:
     QString fileName;
     QString displayName;
     QStringList preferredStyles;
+    QString defaultTextEditorColorScheme;
     QVector<QPair<QColor, QString> > colors;
     QVector<QString> imageFiles;
     QVector<QGradientStops> gradients;

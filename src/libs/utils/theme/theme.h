@@ -274,6 +274,7 @@ public:
     QGradientStops gradient(Gradient role) const;
     QPalette palette() const;
     QStringList preferredStyles() const;
+    QString defaultTextEditorColorScheme() const;
 
     QString id() const;
     QString filePath() const;

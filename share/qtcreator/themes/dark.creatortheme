@@ -1,6 +1,7 @@
 [General]
 ThemeName=dark
 PreferredStyles=Fusion
+DefaultTextEditorColorScheme=dark.xml
 
 [Palette]
 shadowBackground=ff232323

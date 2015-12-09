@@ -83,6 +83,11 @@ QStringList Theme::preferredStyles() const
     return d->preferredStyles;
 }
 
+QString Theme::defaultTextEditorColorScheme() const
+{
+    return d->defaultTextEditorColorScheme;
+}
+
 QString Theme::id() const
 {
     return d->id;
@@ -182,6 +187,8 @@ void Theme::readSettings(QSettings &settings)
         d->displayName = settings.value(QLatin1String("ThemeName"), QLatin1String("unnamed")).toString();
         d->preferredStyles = settings.value(QLatin1String("PreferredStyles")).toStringList();
         d->preferredStyles.removeAll(QLatin1String(""));
+        d->defaultTextEditorColorScheme =
+                settings.value(QLatin1String("DefaultTextEditorColorScheme")).toString();
     }
     {
         settings.beginGroup(QLatin1String("Palette"));
