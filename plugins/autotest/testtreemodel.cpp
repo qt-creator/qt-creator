@@ -376,6 +376,34 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
         if (!config->unnamedOnly())
             result << config;
 
+    // get selected Google Tests
+    QMap<QString, QStringList> proFilesWithEnabledTestSets;
+
+    for (int row = 0, count = m_googleTestRootItem->childCount(); row < count; ++row) {
+        const TestTreeItem *child = m_googleTestRootItem->childItem(row);
+        if (child->checked() == Qt::Unchecked) // add this test name to disabled list ?
+            continue;
+
+        int grandChildCount = child->childCount();
+        for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
+            const TestTreeItem *grandChild = child->childItem(grandChildRow);
+            const QString &proFile = grandChild->mainFile();
+            QStringList enabled = proFilesWithEnabledTestSets.value(proFile);
+            if (grandChild->checked() == Qt::Checked)
+                enabled << child->name() + QLatin1Char('.') + grandChild->name();
+            proFilesWithEnabledTestSets.insert(proFile, enabled);
+        }
+    }
+
+    foreach (const QString &proFile, proFilesWithEnabledTestSets.keys()) {
+        TestConfiguration *tc = new TestConfiguration(QString(),
+                                                      proFilesWithEnabledTestSets.value(proFile));
+        tc->setTestType(TestConfiguration::GTest);
+        tc->setProFile(proFile);
+        tc->setProject(project);
+        result << tc;
+    }
+
     return result;
 }
 

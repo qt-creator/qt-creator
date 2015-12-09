@@ -177,6 +177,14 @@ void performTestRun(QFutureInterface<void> &futureInterface,
             if (testConfiguration->testCases().count())
                 argumentList << testConfiguration->testCases();
             testProcess.setArguments(argumentList);
+        } else { // TestConfiguration::GTest
+            const QStringList &testSets = testConfiguration->testCases();
+            if (testSets.size()) {
+                QStringList argumentList;
+                argumentList << QLatin1String("--gtest_filter=")
+                                + testSets.join(QLatin1Char(':'));
+                testProcess.setArguments(argumentList);
+            }
         }
 
         testProcess.setWorkingDirectory(testConfiguration->workingDirectory());
