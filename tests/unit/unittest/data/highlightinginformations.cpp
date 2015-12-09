@@ -162,7 +162,7 @@ struct StructInNameSpace {};
 }
 
 namespace NameSpaceAlias = NameSpace;
-
+using NameSpace::StructInNameSpace;
 NameSpace::StructInNameSpace foo6;
 
 class BaseClass {

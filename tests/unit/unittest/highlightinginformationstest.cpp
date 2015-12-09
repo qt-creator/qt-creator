@@ -462,11 +462,25 @@ TEST_F(HighlightingInformations, NameSpaceAlias)
     ASSERT_THAT(infos[1], HasType(HighlightingType::Type));
 }
 
+TEST_F(HighlightingInformations, UsingStructInNameSpace)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(165, 36));
+
+    ASSERT_THAT(infos[3], HasType(HighlightingType::Type));
+}
+
 TEST_F(HighlightingInformations, NameSpaceReference)
 {
     const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(166, 35));
 
     ASSERT_THAT(infos[0], HasType(HighlightingType::Type));
+}
+
+TEST_F(HighlightingInformations, StructInNameSpaceReference)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(166, 35));
+
+    ASSERT_THAT(infos[2], HasType(HighlightingType::Type));
 }
 
 TEST_F(HighlightingInformations, VirtualFunction)
