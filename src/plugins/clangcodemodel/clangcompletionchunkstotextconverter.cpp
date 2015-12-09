@@ -81,14 +81,19 @@ void CompletionChunksToTextConverter::setAddExtraVerticalSpaceBetweenBraces(
     m_addExtraVerticalSpaceBetweenBraces = addExtraVerticalSpaceBetweenBraces;
 }
 
-void CompletionChunksToTextConverter::setAddHtmlTags(bool addHtmlTags)
+void CompletionChunksToTextConverter::setEmphasizeOptional(bool emphasizeOptional)
 {
-    m_addHtmlTags = addHtmlTags;
+    m_emphasizeOptional = emphasizeOptional;
 }
 
 void CompletionChunksToTextConverter::setAddOptional(bool addOptional)
 {
     m_addOptional = addOptional;
+}
+
+void CompletionChunksToTextConverter::setPlaceHolderToEmphasize(int placeHolderNumber)
+{
+    m_placeHolderPositionToEmphasize = placeHolderNumber;
 }
 
 const QString &CompletionChunksToTextConverter::text() const
@@ -107,12 +112,18 @@ bool CompletionChunksToTextConverter::hasPlaceholderPositions() const
 }
 
 QString CompletionChunksToTextConverter::convertToFunctionSignature(
-        const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
+        const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks,
+        int parameterToEmphasize)
 {
     CompletionChunksToTextConverter converter;
     converter.setAddPlaceHolderText(true);
     converter.setAddResultType(true);
+
     converter.setAddOptional(true);
+    converter.setEmphasizeOptional(true);
+
+    converter.setAddPlaceHolderPositions(true);
+    converter.setPlaceHolderToEmphasize(parameterToEmphasize);
 
     converter.parseChunks(codeCompletionChunks);
 
@@ -137,7 +148,7 @@ QString CompletionChunksToTextConverter::convertToToolTip(
     converter.setAddSpaces(true);
     converter.setAddExtraVerticalSpaceBetweenBraces(true);
     converter.setAddOptional(true);
-    converter.setAddHtmlTags(true);
+    converter.setEmphasizeOptional(true);
     converter.setAddResultType(true);
 
     converter.parseChunks(codeCompletionChunks);
@@ -188,7 +199,7 @@ void CompletionChunksToTextConverter::wrapInCursiveTagIfOptional(
         const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     if (m_addOptional) {
-        if (m_addHtmlTags) {
+        if (m_emphasizeOptional) {
             if (!m_previousCodeCompletionChunk.isOptional() && codeCompletionChunk.isOptional())
                 m_text += QStringLiteral("<i>");
             else if (m_previousCodeCompletionChunk.isOptional() && !codeCompletionChunk.isOptional())
@@ -201,7 +212,7 @@ void CompletionChunksToTextConverter::parsePlaceHolder(
         const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     if (m_addPlaceHolderText)
-        m_text += codeCompletionChunk.text().toString();
+        appendText(codeCompletionChunk.text().toString(), emphasizeCurrentPlaceHolder());
 
     if (m_addPlaceHolderPositions)
         m_placeholderPositions.push_back(m_text.size());
@@ -272,6 +283,24 @@ void CompletionChunksToTextConverter::addExtraVerticalSpaceBetweenBraces(
                 addExtraVerticalSpaceBetweenBraces(begin);
         }
     }
+}
+
+bool CompletionChunksToTextConverter::emphasizeCurrentPlaceHolder() const
+{
+    if (m_addPlaceHolderPositions) {
+        const uint currentPlaceHolderPosition = m_placeholderPositions.size() + 1;
+        return uint(m_placeHolderPositionToEmphasize) == currentPlaceHolderPosition;
+    }
+
+    return false;
+}
+
+void CompletionChunksToTextConverter::appendText(const QString &text, bool boldFormat)
+{
+    if (boldFormat)
+        m_text += QStringLiteral("<b>") + text + QStringLiteral("</b>");
+    else
+        m_text += text;
 }
 
 bool CompletionChunksToTextConverter::canAddSpace() const

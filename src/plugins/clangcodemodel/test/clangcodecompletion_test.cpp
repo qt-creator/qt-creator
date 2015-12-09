@@ -962,8 +962,8 @@ void ClangCodeCompletionTest::testCompleteFunctions()
     QVERIFY(hasItem(t.proposal, "void f()"));
     QVERIFY(hasItem(t.proposal, "void f(int a)"));
     QVERIFY(hasItem(t.proposal, "void f(const QString &s)"));
-    QVERIFY(hasItem(t.proposal, "void f(char c, int optional)")); // TODO: No default argument?
-    QVERIFY(hasItem(t.proposal, "void f(char c, int optional1, int optional2)")); // TODO: No default argument?
+    QVERIFY(hasItem(t.proposal, "void f(char c<i>, int optional</i>)")); // TODO: No default argument?
+    QVERIFY(hasItem(t.proposal, "void f(char c<i>, int optional1, int optional2</i>)")); // TODO: No default argument?
     QVERIFY(hasItem(t.proposal, "void f(const TType<QString> *t)"));
     QVERIFY(hasItem(t.proposal, "TType<QString> f(bool)"));
 }

@@ -52,14 +52,16 @@ public:
     void setAddResultType(bool addResultType);
     void setAddSpaces(bool addSpaces);
     void setAddExtraVerticalSpaceBetweenBraces(bool addExtraVerticalSpaceBetweenBraces);
-    void setAddHtmlTags(bool addHtmlTags);
+    void setEmphasizeOptional(bool emphasizeOptional);
     void setAddOptional(bool addOptional);
+    void setPlaceHolderToEmphasize(int placeHolderNumber);
 
     const QString &text() const;
     const std::vector<int> &placeholderPositions() const;
     bool hasPlaceholderPositions() const;
 
-    static QString convertToFunctionSignature(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
+    static QString convertToFunctionSignature(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks,
+                                              int parameterToEmphasize = -1);
     static QString convertToName(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
     static QString convertToToolTip(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
 private:
@@ -74,20 +76,24 @@ private:
     void addExtraVerticalSpaceBetweenBraces();
     void addExtraVerticalSpaceBetweenBraces(const ClangBackEnd::CodeCompletionChunks::iterator &);
 
+    void appendText(const QString &text, bool boldFormat = false);
     bool canAddSpace() const;
     bool isNotOptionalOrAddOptionals(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk) const;
+
+    bool emphasizeCurrentPlaceHolder() const;
 
 private:
     std::vector<int> m_placeholderPositions;
     ClangBackEnd::CodeCompletionChunks m_codeCompletionChunks;
     ClangBackEnd::CodeCompletionChunk m_previousCodeCompletionChunk;
     QString m_text;
+    int m_placeHolderPositionToEmphasize = -1;
     bool m_addPlaceHolderText = false;
     bool m_addPlaceHolderPositions = false;
     bool m_addResultType = false;
     bool m_addSpaces = false;
     bool m_addExtraVerticalSpaceBetweenBraces = false;
-    bool m_addHtmlTags = false;
+    bool m_emphasizeOptional = false;
     bool m_addOptional = false;
 };
 

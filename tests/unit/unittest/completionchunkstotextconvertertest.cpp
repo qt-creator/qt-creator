@@ -119,6 +119,72 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithParameters)
     ASSERT_THAT(converter.text(), QStringLiteral("int Function(char x)"));
 }
 
+TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneArgument)
+{
+    CodeCompletionChunks completionChunks({integerResultType,
+                                           functionName,
+                                           leftParen,
+                                           functionArgumentX,
+                                           rightParen});
+
+    using ClangCodeModel::Internal::CompletionChunksToTextConverter;
+
+    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks),
+                QStringLiteral("int Function(char x)"));
+}
+
+TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneParameterThatIsActive)
+{
+    CodeCompletionChunks completionChunks({integerResultType,
+                                           functionName,
+                                           leftParen,
+                                            functionArgumentX,
+                                           rightParen});
+
+    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, 1),
+                QStringLiteral("int Function(<b>char x</b>)"));
+}
+
+TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneParameterAndInInvalidActiveParameter)
+{
+    CodeCompletionChunks completionChunks({integerResultType,
+                                           functionName,
+                                           leftParen,
+                                            functionArgumentX,
+                                           rightParen});
+
+    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, -1),
+                QStringLiteral("int Function(char x)"));
+}
+
+TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParametersWhereOneIsActive)
+{
+    CodeCompletionChunks completionChunks({integerResultType,
+                                           functionName,
+                                           leftParen,
+                                            functionArgumentX,
+                                            comma,
+                                            functionArgumentY,
+                                           rightParen});
+
+    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, 2),
+                QStringLiteral("int Function(char x, <b>int y</b>)"));
+}
+
+TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParametersWhereOneIsOptionalAndActive)
+{
+    CodeCompletionChunks completionChunks({integerResultType,
+                                           functionName,
+                                           leftParen,
+                                            functionArgumentX,
+                                            optionalComma,
+                                            optionalFunctionArgumentY,
+                                           rightParen});
+
+    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, 2),
+                QStringLiteral("int Function(char x<i>, <b>int y</b></i>)"));
+}
+
 TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
 {
     CodeCompletionChunks completionChunks({integerResultType,

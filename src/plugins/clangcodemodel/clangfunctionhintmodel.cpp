@@ -56,27 +56,11 @@ int ClangFunctionHintModel::size() const
 
 QString ClangFunctionHintModel::text(int index) const
 {
-#if 0
-    // TODO: add the boldening to the result
-    Overview overview;
-    overview.setShowReturnTypes(true);
-    overview.setShowArgumentNames(true);
-    overview.setMarkedArgument(m_currentArg + 1);
-    Function *f = m_functionSymbols.at(index);
+    const ClangBackEnd::CodeCompletionChunks chunks = m_functionSymbols.at(index).chunks();
+    const QString signatureWithEmphasizedCurrentParameter
+        = CompletionChunksToTextConverter::convertToFunctionSignature(chunks, m_currentArg + 1);
 
-    const QString prettyMethod = overview(f->type(), f->name());
-    const int begin = overview.markedArgumentBegin();
-    const int end = overview.markedArgumentEnd();
-
-    QString hintText;
-    hintText += prettyMethod.left(begin).toHtmlEscaped());
-    hintText += "<b>";
-    hintText += prettyMethod.mid(begin, end - begin).toHtmlEscaped());
-    hintText += "</b>";
-    hintText += prettyMethod.mid(end).toHtmlEscaped());
-    return hintText;
-#endif
-    return CompletionChunksToTextConverter::convertToFunctionSignature(m_functionSymbols.at(index).chunks());
+    return signatureWithEmphasizedCurrentParameter;
 }
 
 int ClangFunctionHintModel::activeArgument(const QString &prefix) const
