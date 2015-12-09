@@ -460,6 +460,7 @@ static TestTreeItem *constructTestTreeItem(const QString &fileName,
 }
 
 static TestTreeItem *constructGTestTreeItem(const QString &filePath, const QString &caseName,
+                                            const QString &proFile,
                                             const TestCodeLocationList &testNames)
 {
     TestTreeItem *item = new TestTreeItem(caseName, QString(), TestTreeItem::GTestCase);
@@ -468,6 +469,7 @@ static TestTreeItem *constructGTestTreeItem(const QString &filePath, const QStri
                                                        locationAndType.m_type);
         treeItemChild->setLine(locationAndType.m_line);
         treeItemChild->setColumn(locationAndType.m_column);
+        treeItemChild->setMainFile(proFile);
         item->appendChild(treeItemChild);
     }
     return item;
@@ -1030,7 +1032,7 @@ void TestCodeParser::updateGTests(const CPlusPlus::Document::Ptr &doc,
         proFile = ppList.at(0)->projectFile;
 
     foreach (const QString &testName, tests.keys()) {
-        TestTreeItem *item = constructGTestTreeItem(fileName, testName, tests.value(testName));
+        TestTreeItem *item = constructGTestTreeItem(fileName, testName, proFile, tests.value(testName));
         TestInfo info(item->name(), item->getChildNames(), doc->revision(), doc->editorRevision());
         info.setProfile(proFile);
         foreach (const TestCodeLocationAndType &testSet, tests.value(testName)) {

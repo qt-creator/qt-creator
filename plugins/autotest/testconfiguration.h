@@ -37,6 +37,11 @@ class TestConfiguration : public QObject
 {
     Q_OBJECT
 public:
+    enum TestType {
+        Qt,
+        GTest
+    };
+
     explicit TestConfiguration(const QString &testClass, const QStringList &testCases,
                                int testCaseCount = 0, QObject *parent = 0);
     ~TestConfiguration();
@@ -55,6 +60,7 @@ public:
     void setProject(ProjectExplorer::Project *project);
     void setUnnamedOnly(bool unnamedOnly);
     void setGuessedConfiguration(bool guessed);
+    void setTestType(TestType type);
 
     QString testClass() const { return m_testClass; }
     QStringList testCases() const { return m_testCases; }
@@ -68,6 +74,7 @@ public:
     ProjectExplorer::Project *project() const { return m_project; }
     bool unnamedOnly() const { return m_unnamedOnly; }
     bool guessedConfiguration() const { return m_guessedConfiguration; }
+    TestType testType() const { return m_type; }
 
 private:
     QString m_testClass;
@@ -83,6 +90,7 @@ private:
     Utils::Environment m_environment;
     ProjectExplorer::Project *m_project;
     bool m_guessedConfiguration;
+    TestType m_type;
 };
 
 } // namespace Internal

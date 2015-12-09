@@ -17,7 +17,7 @@
 **
 ****************************************************************************/
 
-#include "testxmloutputreader.h"
+#include "testoutputreader.h"
 #include "testresult.h"
 
 #include <utils/hostosinfo.h>
@@ -28,6 +28,7 @@
 #include <QProcess>
 #include <QFileInfo>
 #include <QDir>
+#include <QXmlStreamReader>
 
 namespace Autotest {
 namespace Internal {
@@ -130,11 +131,10 @@ static QString constructBenchmarkInformation(const QString &metric, double value
             .arg(iterations);
 }
 
-TestXmlOutputReader::TestXmlOutputReader(QProcess *testApplication)
-    :m_testApplication(testApplication)
+TestOutputReader::TestOutputReader(QProcess *testApplication, OutputType type)
+    : m_testApplication(testApplication)
+    , m_type(type)
 {
-    connect(m_testApplication, &QProcess::readyReadStandardOutput,
-        this, &TestXmlOutputReader::processOutput);
 }
 
 enum CDATAMode {
@@ -146,7 +146,7 @@ enum CDATAMode {
     QTestVersion
 };
 
-void TestXmlOutputReader::processOutput()
+void TestOutputReader::processOutput()
 {
     if (!m_testApplication || m_testApplication->state() != QProcess::Running)
         return;
@@ -302,6 +302,111 @@ void TestXmlOutputReader::processOutput()
             default:
                 break;
             }
+        }
+    }
+}
+
+void TestOutputReader::processGTestOutput()
+{
+    if (!m_testApplication || m_testApplication->state() != QProcess::Running)
+        return;
+
+    static QRegExp newTestStarts(QStringLiteral("^\\[-{10}\\] \\d+ tests? from (.*)$"));
+    static QRegExp testEnds(QStringLiteral("^\\[-{10}\\] \\d+ tests? from (.*) \\((.*)\\)$"));
+    static QRegExp newTestSetStarts(QStringLiteral("^\\[ RUN      \\] (.*)$"));
+    static QRegExp testSetSuccess(QStringLiteral("^\\[       OK \\] (.*) \\((.*)\\)$"));
+    static QRegExp testSetFail(QStringLiteral("^\\\[  FAILED  \\] (.*) \\((.*)\\)$"));
+    static QRegExp disabledTests(QStringLiteral("^  YOU HAVE (\\d+) DISABLED TESTS?$"));
+
+    static QString currentTestName;
+    static QString currentTestSet;
+    static QString description;
+    static QByteArray unprocessed;
+
+    while (m_testApplication->canReadLine())
+        unprocessed.append(m_testApplication->readLine());
+
+    int lineBreak;
+    while ((lineBreak = unprocessed.indexOf('\n')) != -1) {
+        const QString line = QLatin1String(unprocessed.left(lineBreak));
+        unprocessed.remove(0, lineBreak + 1);
+        if (line.isEmpty()) {
+            continue;
+        }
+        if (!line.startsWith(QLatin1Char('['))) {
+            description.append(line).append(QLatin1Char('\n'));
+            if (line.startsWith(QStringLiteral("Note:"))) {
+                auto testResult = new TestResult();
+                testResult->setResult(Result::MessageInternal);
+                testResult->setDescription(line);
+                testResultCreated(testResult);
+                description.clear();
+            } else if (disabledTests.exactMatch(line)) {
+                auto testResult = new TestResult();
+                testResult->setResult(Result::MessageInternal);
+                int disabled = disabledTests.cap(1).toInt();
+                testResult->setDescription(tr("You have %n disabled test(s).", 0, disabled));
+                testResultCreated(testResult);
+                description.clear();
+            }
+            continue;
+        }
+
+        if (testEnds.exactMatch(line)) {
+            auto testResult = new TestResult(currentTestName);
+            testResult->setTestCase(currentTestSet);
+            testResult->setResult(Result::MessageTestCaseEnd);
+            testResult->setDescription(tr("Test execution took %1").arg(testEnds.cap(2)));
+            testResultCreated(testResult);
+            currentTestName.clear();
+            currentTestSet.clear();
+        } else if (newTestStarts.exactMatch(line)) {
+            currentTestName = newTestStarts.cap(1);
+            auto testResult = new TestResult(currentTestName);
+            testResult->setResult(Result::MessageTestCaseStart);
+            testResult->setDescription(tr("Executing test case %1").arg(currentTestName));
+            testResultCreated(testResult);
+        } else if (newTestSetStarts.exactMatch(line)) {
+            currentTestSet = newTestSetStarts.cap(1);
+            auto testResult = new TestResult();
+            testResult->setResult(Result::MessageCurrentTest);
+            testResult->setDescription(tr("Entering test set %1").arg(currentTestSet));
+            testResultCreated(testResult);
+        } else if (testSetSuccess.exactMatch(line)) {
+            auto testResult = new TestResult(currentTestName);
+            testResult->setTestCase(currentTestSet);
+            testResult->setResult(Result::Pass);
+            testResultCreated(testResult);
+            testResult = new TestResult(currentTestName);
+            testResult->setTestCase(currentTestSet);
+            testResult->setResult(Result::MessageInternal);
+            testResult->setDescription(tr("Execution took %1.").arg(testSetSuccess.cap(2)));
+            testResultCreated(testResult);
+            emit increaseProgress();
+        } else if (testSetFail.exactMatch(line)) {
+            auto testResult = new TestResult(currentTestName);
+            testResult->setTestCase(currentTestSet);
+            testResult->setResult(Result::Fail);
+            description.chop(1);
+            testResult->setDescription(description);
+            int firstColon = description.indexOf(QLatin1Char(':'));
+            if (firstColon != -1) {
+                int secondColon = description.indexOf(QLatin1Char(':'), firstColon + 1);
+                QString file = constructSourceFilePath(m_testApplication->workingDirectory(),
+                                                       description.left(firstColon),
+                                                       m_testApplication->program());
+                QString line = description.mid(firstColon + 1, secondColon - firstColon - 1);
+                testResult->setFileName(file);
+                testResult->setLine(line.toInt());
+            }
+            testResultCreated(testResult);
+            description.clear();
+            testResult = new TestResult(currentTestName);
+            testResult->setTestCase(currentTestSet);
+            testResult->setResult(Result::MessageInternal);
+            testResult->setDescription(tr("Execution took %1.").arg(testSetFail.cap(2)));
+            testResultCreated(testResult);
+            emit increaseProgress();
         }
     }
 }

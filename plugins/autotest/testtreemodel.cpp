@@ -236,6 +236,27 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
         result << tc;
     }
 
+    foundMains.clear();
+
+    // get all Google Tests
+    for (int row = 0, count = m_googleTestRootItem->childCount(); row < count; ++row) {
+        const TestTreeItem *child = m_googleTestRootItem->childItem(row);
+        for (int childRow = 0, childCount = child->childCount(); childRow < childCount; ++childRow) {
+            const QString &proFilePath = child->childItem(childRow)->mainFile();
+            foundMains.insert(proFilePath, foundMains.contains(proFilePath)
+                              ? foundMains.value(proFilePath) + 1 : 1);
+        }
+    }
+
+    foreach (const QString &proFile, foundMains.keys()) {
+        TestConfiguration *tc = new TestConfiguration(QString(), QStringList(),
+                                                      foundMains.value(proFile));
+        tc->setProFile(proFile);
+        tc->setProject(project);
+        tc->setTestType(TestConfiguration::GTest);
+        result << tc;
+    }
+
     return result;
 }
 

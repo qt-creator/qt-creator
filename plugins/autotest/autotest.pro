@@ -27,7 +27,7 @@ SOURCES += \
     testsettings.cpp \
     testsettingspage.cpp \
     testnavigationwidget.cpp \
-    testxmloutputreader.cpp
+    testoutputreader.cpp
 
 HEADERS += \
     testtreeview.h \
@@ -50,7 +50,7 @@ HEADERS += \
     testsettings.h \
     testsettingspage.h \
     testnavigationwidget.h \
-    testxmloutputreader.h \
+    testoutputreader.h \
     autotesticons.h
 
 RESOURCES += \

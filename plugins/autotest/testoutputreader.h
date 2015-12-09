@@ -24,7 +24,6 @@
 
 #include <QObject>
 #include <QString>
-#include <QXmlStreamReader>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
@@ -33,14 +32,20 @@ QT_END_NAMESPACE
 namespace Autotest {
 namespace Internal {
 
-class TestXmlOutputReader : public QObject
+class TestOutputReader : public QObject
 {
     Q_OBJECT
 public:
-    TestXmlOutputReader(QProcess *testApplication);
+    enum OutputType {
+        Qt,
+        GTest
+    };
+
+    TestOutputReader(QProcess *testApplication, OutputType type = Qt);
 
 public slots:
     void processOutput();
+    void processGTestOutput();
 
 signals:
     void testResultCreated(TestResult *testResult);
@@ -48,9 +53,10 @@ signals:
 
 private:
     QProcess *m_testApplication;  // not owned
+    OutputType m_type;
 };
 
 } // namespace Internal
 } // namespace Autotest
 
-#endif // TESTXMLOUTPUTREADER_H
+#endif // TESTOUTPUTREADER_H

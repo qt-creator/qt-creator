@@ -42,7 +42,8 @@ TestConfiguration::TestConfiguration(const QString &testClass, const QStringList
       m_testCaseCount(testCaseCount),
       m_unnamedOnly(false),
       m_project(0),
-      m_guessedConfiguration(false)
+      m_guessedConfiguration(false),
+      m_type(Qt)
 {
     if (testCases.size() != 0)
         m_testCaseCount = testCases.size();
@@ -71,6 +72,21 @@ void basicProjectInformation(Project *project, const QString &mainFilePath, QStr
     }
 }
 
+void basicProjectInformation(Project *project, const QString &proFile, QString *displayName,
+                             Project **targetProject)
+{
+    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectInfo(project).projectParts();
+
+    foreach (const CppTools::ProjectPart::Ptr &part, projParts) {
+        if (part->projectFile == proFile) {
+            *displayName = part->displayName;
+            *targetProject = part->project;
+            return;
+        }
+    }
+}
+
 void extractEnvironmentInformation(LocalApplicationRunConfiguration *localRunConfiguration,
                                    QString *workDir, Utils::Environment *env)
 {
@@ -81,7 +97,7 @@ void extractEnvironmentInformation(LocalApplicationRunConfiguration *localRunCon
 
 void TestConfiguration::completeTestInformation()
 {
-    QTC_ASSERT(!m_mainFilePath.isEmpty(), return);
+    QTC_ASSERT(!m_mainFilePath.isEmpty() || !m_proFile.isEmpty(), return);
 
     typedef LocalApplicationRunConfiguration LocalRunConfig;
 
@@ -92,7 +108,7 @@ void TestConfiguration::completeTestInformation()
     QString targetFile;
     QString targetName;
     QString workDir;
-    QString proFile;
+    QString proFile = m_proFile;
     QString displayName;
     Project *targetProject = 0;
     Utils::Environment env;
@@ -100,7 +116,10 @@ void TestConfiguration::completeTestInformation()
     bool guessedRunConfiguration = false;
     setProject(0);
 
-    basicProjectInformation(project, m_mainFilePath, &proFile, &displayName, &targetProject);
+    if (m_proFile.isEmpty())
+        basicProjectInformation(project, m_mainFilePath, &proFile, &displayName, &targetProject);
+    else
+        basicProjectInformation(project, proFile, &displayName, &targetProject);
 
     Target *target = project->activeTarget();
     if (!target)
@@ -218,6 +237,11 @@ void TestConfiguration::setUnnamedOnly(bool unnamedOnly)
 void TestConfiguration::setGuessedConfiguration(bool guessed)
 {
     m_guessedConfiguration = guessed;
+}
+
+void TestConfiguration::setTestType(TestType type)
+{
+    m_type = type;
 }
 
 } // namespace Internal

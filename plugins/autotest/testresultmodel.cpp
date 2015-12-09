@@ -160,18 +160,20 @@ void TestResultModel::addTestResult(TestResult *testResult, bool autoExpand)
 
     TestResultItem *newItem = new TestResultItem(testResult);
     // FIXME this might be totally wrong... we need some more unique information!
-    for (int row = lastRow; row >= 0; --row) {
-        TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(row));
-        const TestResult *result = current->testResult();
-        if (result && result->className() == testResult->className()) {
-            current->appendChild(newItem);
-            if (autoExpand)
-                current->expand();
-            if (testResult->result() == Result::MessageTestCaseEnd) {
-                current->updateResult();
-                emit dataChanged(current->index(), current->index());
+    if (!testResult->className().isEmpty()) {
+        for (int row = lastRow; row >= 0; --row) {
+            TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(row));
+            const TestResult *result = current->testResult();
+            if (result && result->className() == testResult->className()) {
+                current->appendChild(newItem);
+                if (autoExpand)
+                    current->expand();
+                if (testResult->result() == Result::MessageTestCaseEnd) {
+                    current->updateResult();
+                    emit dataChanged(current->index(), current->index());
+                }
+                return;
             }
-            return;
         }
     }
     // if we have a MessageCurrentTest present, add the new top level item before it

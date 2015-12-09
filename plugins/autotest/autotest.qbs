@@ -69,8 +69,8 @@ QtcCommercialPlugin {
         "testtreeview.h",
         "testvisitor.cpp",
         "testvisitor.h",
-        "testxmloutputreader.cpp",
-        "testxmloutputreader.h",
+        "testoutputreader.cpp",
+        "testoutputreader.h",
     ]
 
     Group {

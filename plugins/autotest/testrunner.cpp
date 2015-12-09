@@ -22,7 +22,7 @@
 #include "autotestplugin.h"
 #include "testresultspane.h"
 #include "testsettings.h"
-#include "testxmloutputreader.h"
+#include "testoutputreader.h"
 
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -36,6 +36,7 @@
 
 #include <QFuture>
 #include <QFutureInterface>
+#include <QMetaObject>
 #include <QTime>
 
 namespace Autotest {
@@ -109,10 +110,14 @@ void performTestRun(QFutureInterface<void> &futureInterface,
                     const QString metricsOption, TestRunner* testRunner)
 {
     int testCaseCount = 0;
+    bool hasQtTests = false;
+    bool hasGTests = false;
     foreach (TestConfiguration *config, selectedTests) {
         config->completeTestInformation();
         if (config->project()) {
             testCaseCount += config->testCaseCount();
+            hasQtTests |= config->testType() == TestConfiguration::Qt;
+            hasGTests |= config->testType() == TestConfiguration::GTest;
         } else {
             emitTestResultCreated(new FaultyTestResult(Result::MessageWarn,
                 QObject::tr("Project is null for \"%1\". Removing from test run.\n"
@@ -127,18 +132,28 @@ void performTestRun(QFutureInterface<void> &futureInterface,
             futureInterface.cancel(); // this kills the process if that is still in the running loop
     });
 
-    TestXmlOutputReader xmlReader(&testProcess);
-    QObject::connect(&xmlReader, &TestXmlOutputReader::increaseProgress, [&] () {
+    TestOutputReader outputReader(&testProcess);
+    QObject::connect(&outputReader, &TestOutputReader::increaseProgress, [&] () {
         futureInterface.setProgressValue(futureInterface.progressValue() + 1);
     });
-    QObject::connect(&xmlReader, &TestXmlOutputReader::testResultCreated, &emitTestResultCreated);
-
-    QObject::connect(&testProcess, &QProcess::readyRead, &xmlReader, &TestXmlOutputReader::processOutput);
+    QObject::connect(&outputReader, &TestOutputReader::testResultCreated, &emitTestResultCreated);
 
     futureInterface.setProgressRange(0, testCaseCount);
     futureInterface.setProgressValue(0);
 
+    QMetaObject::Connection connection;
     foreach (const TestConfiguration *testConfiguration, selectedTests) {
+        if (connection)
+            QObject::disconnect(connection);
+
+        TestConfiguration::TestType testType = testConfiguration->testType();
+        if (testType == TestConfiguration::Qt) {
+            connection = QObject::connect(&testProcess, &QProcess::readyRead, &outputReader,
+                                          &TestOutputReader::processOutput);
+        } else {
+            connection = QObject::connect(&testProcess, &QProcess::readyRead, &outputReader,
+                                          &TestOutputReader::processGTestOutput);
+        }
         if (futureInterface.isCanceled())
             break;
 
@@ -155,12 +170,14 @@ void performTestRun(QFutureInterface<void> &futureInterface,
             continue;
         }
 
-        QStringList argumentList(QLatin1String("-xml"));
-        if (!metricsOption.isEmpty())
-            argumentList << metricsOption;
-        if (testConfiguration->testCases().count())
-            argumentList << testConfiguration->testCases();
-        testProcess.setArguments(argumentList);
+        if (testType == TestConfiguration::Qt) {
+            QStringList argumentList(QLatin1String("-xml"));
+            if (!metricsOption.isEmpty())
+                argumentList << metricsOption;
+            if (testConfiguration->testCases().count())
+                argumentList << testConfiguration->testCases();
+            testProcess.setArguments(argumentList);
+        }
 
         testProcess.setWorkingDirectory(testConfiguration->workingDirectory());
         if (Utils::HostOsInfo::isWindowsHost())

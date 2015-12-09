@@ -86,7 +86,7 @@ private:
     Type m_type;
     unsigned m_line;
     unsigned m_column;
-    QString m_mainFile;
+    QString m_mainFile;  // main for Quick tests, project file for gtest
 };
 
 struct TestCodeLocationAndType {
