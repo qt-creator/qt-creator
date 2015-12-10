@@ -43,12 +43,12 @@
 
 #include "sqlite3.h"
 
-#if defined(Q_OS_UNIX)
+#if defined(Q_CC_GNU)
 #define QTC_THREAD_LOCAL __thread
-#elif defined(Q_OS_WIN)
+#elif defined(Q_CC_MSVC)
 #define QTC_THREAD_LOCAL __declspec(thread)
 #else
-#define static QTC_THREAD_LOCAL thread_local
+#define QTC_THREAD_LOCAL thread_local
 #endif
 
 #define SIZE_OF_BYTEARRAY_ARRAY(array) sizeof(array)/sizeof(QByteArray)
