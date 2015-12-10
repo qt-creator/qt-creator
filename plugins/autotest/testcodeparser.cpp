@@ -1079,6 +1079,11 @@ int TestCodeParser::unnamedQuickTestsCount() const
 {
     return m_unnamedQuickDocList.size();
 }
+
+int TestCodeParser::gtestNamesAndSetsCount() const
+{
+    return m_gtestDocList.size();
+}
 #endif
 
 } // namespace Internal

@@ -69,6 +69,8 @@ public:
     int namedQuickTestsCount() const;
     int unnamedQuickTestsCount() const;
     int dataTagsCount() const;
+    int gtestNamesCount() const;
+    QMap<QString, int> gtestNamesAndSets() const;
 #endif
 
 signals:

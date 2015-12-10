@@ -818,6 +818,24 @@ int TestTreeModel::dataTagsCount() const
    }
     return dataTagCount;
 }
+
+int TestTreeModel::gtestNamesCount() const
+{
+    return m_googleTestRootItem ? m_googleTestRootItem->childCount() : 0;
+}
+
+QMap<QString, int> TestTreeModel::gtestNamesAndSets() const
+{
+    QMap<QString, int> result;
+
+    if (m_googleTestRootItem) {
+        for (int row = 0, count = m_googleTestRootItem->childCount(); row < count; ++row) {
+            const TestTreeItem *current = m_googleTestRootItem->childItem(row);
+            result.insert(current->name(), current->childCount());
+        }
+    }
+    return result;
+}
 #endif
 
 /***************************** Sort/Filter Model **********************************/

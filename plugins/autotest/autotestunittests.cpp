@@ -189,5 +189,46 @@ void AutoTestUnitTests::testCodeParserSwitchStartup_data()
             << expectedUnnamedQuickTests << expectedDataTagsCount;
 }
 
+void AutoTestUnitTests::testCodeParserGTest()
+{
+    if (qgetenv("GOOGLETEST_DIR").isEmpty())
+        QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
+
+    NavigationWidget *navigation = NavigationWidget::instance();
+    navigation->activateSubWidget(Constants::AUTOTEST_ID);
+
+    CppTools::Tests::ProjectOpenerAndCloser projectManager;
+    CppTools::ProjectInfo projectInfo = projectManager.open(
+                QString(m_tmpDir->path() + QLatin1String("/simple_gt/simple_gt.pro")), true);
+    QVERIFY(projectInfo.isValid());
+
+    QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
+    QVERIFY(parserSpy.wait(20000));
+
+    QCOMPARE(m_model->gtestNamesCount(), 4);
+    QCOMPARE(m_model->parser()->gtestNamesAndSetsCount(), 9); // 9 == 3 + 2 + 2 + 2, see below
+
+    QMap<QString, int> expectedNamesAndSets;
+    expectedNamesAndSets.insert(QStringLiteral("FactorialTest"), 3);
+    expectedNamesAndSets.insert(QStringLiteral("FactorialTest_Iterative"), 2);
+    expectedNamesAndSets.insert(QStringLiteral("Sum"), 2);
+    expectedNamesAndSets.insert(QStringLiteral("QueueTest"), 2);
+
+    QMap<QString, int> foundNamesAndSets = m_model->gtestNamesAndSets();
+    QCOMPARE(expectedNamesAndSets.size(), foundNamesAndSets.size());
+    foreach (const QString &name, expectedNamesAndSets.keys())
+        QCOMPARE(expectedNamesAndSets.value(name), foundNamesAndSets.value(name));
+
+    // check also that no Qt related tests have been found
+    QCOMPARE(m_model->autoTestsCount(), 0);
+    QCOMPARE(m_model->namedQuickTestsCount(), 0);
+    QCOMPARE(m_model->unnamedQuickTestsCount(), 0);
+    QCOMPARE(m_model->dataTagsCount(), 0);
+
+    QCOMPARE(m_model->parser()->autoTestsCount(), 0);
+    QCOMPARE(m_model->parser()->namedQuickTestsCount(), 0);
+    QCOMPARE(m_model->parser()->unnamedQuickTestsCount(), 0);
+}
+
 } // namespace Internal
 } // namespace Autotest
