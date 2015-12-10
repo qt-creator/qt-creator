@@ -25,6 +25,7 @@ Editing
   (QTCREATORBUG-15193)
 * Fixed that editors were closing even when closing Qt Creator was cancelled
   (QTCREATORBUG-14401)
+* Fixed zooming text with touch pads, which was too sensitive (QTBUG-49024)
 
 Project Management
 
@@ -40,6 +41,8 @@ Project Management
 
 QMake Projects
 
+* Added a build configuration type for profiling
+  (release build with separate debug information)
 * Changed project display names to be `QMAKE_PROJECT_NAME` if set
   (QTCREATORBUG-13950)
 * Fixed that `.pri` files were shown in flat list instead of tree
@@ -76,9 +79,13 @@ Debugging
     * Fixed auto-detection of CDB from Windows 10 Kits
 * LLDB
     * Fixed handling of large registers
+* QML/JS
+    * Fixed that debugger stopped at disabled breakpoints (QTCREATORBUG-15395)
 * QML/JS Console
     * Implemented lazy loading of sub-items
     * Improved error reporting
+* GDB/MinGW
+    * Fixed wrong `GDB not responding` message (QTCREATORBUG-14350)
 
 Analyzer
 
@@ -122,9 +129,12 @@ OS X
   default (QTCREATORBUG-13507)
 * Added option to set `DYLD_LIBRARY_PATH` and `DYLD_FRAMEWORK_PATH` in
   run configurations (QTCREATORBUG-14022)
+* Fixed that `DYLD_LIBRARY_PATH`, `DYLD_FRAMEWORK_PATH` and `DYLD_IMAGE_SUFFIX`
+  were not taking effect when debugging with recent LLDB
 
 Android
 
+* Added support for Android 6.0
 * Fixed that QML syntax errors where not clickable in application output
   (QTCREATORBUG-14832)
 * Fixed deployment on devices without `readlink` (QTCREATORBUG-15006)
@@ -134,6 +144,7 @@ Android
 iOS
 
 * Improved error messages for deployment
+* Fixed issues with profiling QML (QTCREATORBUG-15383)
 
 Remote Linux
 
