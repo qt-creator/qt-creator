@@ -166,7 +166,7 @@ QtcPlugin {
             "consoleitemmodel.cpp", "consoleitemmodel.h",
             "console.cpp", "console.h",
             "consoleproxymodel.cpp", "consoleproxymodel.h",
-            "consoleview.cpp" "consoleview.h"
+            "consoleview.cpp", "consoleview.h"
         ]
     }
 
