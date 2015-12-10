@@ -109,9 +109,9 @@ void QmlProfilerViewManager::createViews()
             d->eventsView, &QmlProfilerEventsWidget::onVisibleFeaturesChanged);
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
-            (QmlProfilerToolId, d->eventsView);
+            (Constants::QmlProfilerToolId, d->eventsView);
     d->timelineDock = AnalyzerManager::createDockWidget
-            (QmlProfilerToolId, d->traceView);
+            (Constants::QmlProfilerToolId, d->traceView);
 
     eventsDock->show();
     d->timelineDock->show();

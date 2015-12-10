@@ -35,7 +35,6 @@ namespace QmlProfiler {
 namespace Constants {
 
 const char ATTACH[] = "Menu.Analyzer.Attach";
-const char TraceFileExtension[] = ".qtd";
 const char TASK_LOAD[] = "QmlProfiler.TaskLoad";
 const char TASK_SAVE[] = "QmlProfiler.TaskSave";
 const char FLUSH_ENABLED[] = "Analyzer.QmlProfiler.FlushEnabled";
@@ -44,6 +43,11 @@ const char LAST_TRACE_FILE[] = "Analyzer.QmlProfiler.LastTraceFile";
 const char AGGREGATE_TRACES[] = "Analyzer.QmlProfiler.AggregateTraces";
 const char SETTINGS[] = "Analyzer.QmlProfiler.Settings";
 const char ANALYZER[] = "Analyzer";
+
+const char TraceFileExtension[] = ".qtd";
+const char QmlProfilerToolId[] = "QmlProfiler";
+const char QmlProfilerLocalActionId[] = "QmlProfiler.Local";
+const char QmlProfilerRemoteActionId[] = "QmlProfiler.Remote";
 
 } // namespace Constants
 } // namespace QmlProfiler

@@ -31,9 +31,11 @@
 #ifndef QMLPROFILERTOOL_H
 #define QMLPROFILERTOOL_H
 
+#include "qmlprofilerconstants.h"
+#include "qmldebug/qmlprofilereventtypes.h"
+
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/analyzerruncontrol.h>
-#include "qmldebug/qmlprofilereventtypes.h"
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;
@@ -41,10 +43,6 @@ QT_END_NAMESPACE
 
 namespace QmlProfiler {
 namespace Internal {
-
-const char QmlProfilerToolId[] = "QmlProfiler";
-const char QmlProfilerLocalActionId[] = "QmlProfiler.Local";
-const char QmlProfilerRemoteActionId[] = "QmlProfiler.Remote";
 
 class QmlProfilerTool : public QObject
 {
