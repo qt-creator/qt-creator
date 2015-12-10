@@ -1027,9 +1027,7 @@ class DumperBase:
         self.putNumChild(n)
 
         if self.isExpanded():
-            with Children(self):
-                for i in range(n):
-                    self.putSubItem(i, value[i])
+            self.putArrayData(p, n, innerType)
 
         self.putPlotDataHelper(p, n, innerType)
 
