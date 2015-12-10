@@ -149,7 +149,9 @@ def checkSymbolCompletion(editor, isClangCodeModel):
         else:
             exp = (symbol[:max(symbol.rfind(":"), symbol.rfind(".")) + 1]
                    + expectedSug.get(symbol, found)[0])
-        test.compare(changedLine, exp, "Verify completion matches.")
+        if not (isClangCodeModel and platform.system() in ('Microsoft', 'Windows')
+                and JIRA.isBugStillOpen(15483)):
+            test.compare(changedLine, exp, "Verify completion matches.")
 
     performAutoCompletionTest(editor, ".*Complete symbols.*", "//",
                               testSymb, missing, expectedSuggestion, expectedResults)
