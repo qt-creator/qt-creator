@@ -36,6 +36,7 @@
 #include "modeleditor_constants.h"
 #include "modeleditor_file_wizard.h"
 #include "uicontroller.h"
+#include "jsextension.h"
 
 #include "qmt/infrastructure/uid.h"
 
@@ -46,6 +47,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/jsexpander.h>
 
 #include <utils/mimetypes/mimedatabase.h>
 
@@ -110,6 +112,8 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
 
     d->settingsController = new SettingsController(this);
     addAutoReleasedObject(d->settingsController);
+
+    Core::JsExpander::registerQObjectForJs(QLatin1String("Modeling"), new JsExtension(this));
 
     connect(d->settingsController, &SettingsController::saveSettings,
             d->uiController, &UiController::saveSettings);
