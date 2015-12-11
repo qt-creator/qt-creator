@@ -1559,7 +1559,8 @@ void ProjectExplorerPluginPrivate::newProject()
         qDebug() << "ProjectExplorerPlugin::newProject";
 
     ICore::showNewItemDialog(tr("New Project", "Title of dialog"),
-                              IWizardFactory::wizardFactoriesOfKind(IWizardFactory::ProjectWizard));
+                             Utils::filtered(IWizardFactory::allWizardFactories(),
+                                             [](IWizardFactory *f) { return !f->supportedProjectTypes().isEmpty(); }));
     updateActions();
 }
 
@@ -3098,8 +3099,9 @@ void ProjectExplorerPluginPrivate::addNewFile()
         map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
     }
     ICore::showNewItemDialog(tr("New File", "Title of dialog"),
-                               IWizardFactory::wizardFactoriesOfKind(IWizardFactory::FileWizard),
-                               location, map);
+                             Utils::filtered(IWizardFactory::allWizardFactories(),
+                                             [](IWizardFactory *f) { return f->supportedPlatforms().isEmpty(); }),
+                             location, map);
 }
 
 void ProjectExplorerPluginPrivate::addNewSubproject()
@@ -3113,14 +3115,20 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
                 currentNode).contains(AddSubProject)) {
         QVariantMap map;
         map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(currentNode));
-        if (ProjectTree::currentProject()) {
+        Project *project = ProjectTree::currentProject();
+        Core::Id projectType;
+        if (project) {
             QList<Id> profileIds = Utils::transform(ProjectTree::currentProject()->targets(), &Target::id);
             map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
+            projectType = project->id();
         }
 
         ICore::showNewItemDialog(tr("New Subproject", "Title of dialog"),
-                              IWizardFactory::wizardFactoriesOfKind(IWizardFactory::ProjectWizard),
-                              location, map);
+                                 Utils::filtered(IWizardFactory::allWizardFactories(),
+                                                 [projectType](IWizardFactory *f) {
+                                                     return projectType.isValid() ? f->supportedPlatforms().contains(projectType)
+                                                                                  : !f->supportedPlatforms().isEmpty(); }),
+                                 location, map);
     }
 }
 

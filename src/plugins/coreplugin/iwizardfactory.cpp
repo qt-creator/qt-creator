@@ -203,19 +203,6 @@ private:
 NewItemDialogData s_reopenData;
 }
 
-/* A utility to find all wizards supporting a view mode and matching a predicate */
-QList<IWizardFactory*> findWizardFactories(const std::function<bool(IWizardFactory*)> &predicate)
-{
-    const QList<IWizardFactory *> allFactories = IWizardFactory::allWizardFactories();
-    QList<IWizardFactory *> rc;
-    auto cend = allFactories.constEnd();
-    for (auto it = allFactories.constBegin(); it != cend; ++it) {
-        if (predicate(*it))
-            rc.push_back(*it);
-    }
-    return rc;
-}
-
 static Id actionId(const IWizardFactory *factory)
 {
     return factory->id().withPrefix("Wizard.Impl.");
@@ -261,12 +248,6 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
     }
 
     return s_allFactories;
-}
-
-// Utility to find all registered wizards of a certain kind
-QList<IWizardFactory*> IWizardFactory::wizardFactoriesOfKind(WizardKind kind)
-{
-    return findWizardFactories([kind](IWizardFactory *f) { return f->kind() == kind; });
 }
 
 QString IWizardFactory::runPath(const QString &defaultPath)

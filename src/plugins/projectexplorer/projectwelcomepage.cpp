@@ -252,7 +252,8 @@ void ProjectWelcomePage::reloadWelcomeScreenData()
 void ProjectWelcomePage::newProject()
 {
     Core::ICore::showNewItemDialog(tr("New Project"),
-                                   Core::IWizardFactory::wizardFactoriesOfKind(Core::IWizardFactory::ProjectWizard));
+                                   Utils::filtered(Core::IWizardFactory::allWizardFactories(),
+                                                   [](Core::IWizardFactory *f) { return !f->supportedProjectTypes().isEmpty(); }));
 }
 
 void ProjectWelcomePage::openProject()

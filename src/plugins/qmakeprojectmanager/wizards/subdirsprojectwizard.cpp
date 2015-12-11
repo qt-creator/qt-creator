@@ -31,10 +31,13 @@
 #include "subdirsprojectwizard.h"
 
 #include "subdirsprojectwizarddialog.h"
+#include "../qmakeprojectmanagerconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/icore.h>
 #include <qtsupport/qtsupportconstants.h>
+
+#include <utils/algorithm.h>
 
 #include <QCoreApplication>
 
@@ -93,7 +96,10 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
         map.insert(QLatin1String(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE), profileName);
         map.insert(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS), QVariant::fromValue(wizard->selectedKits()));
         IWizardFactory::requestNewItemDialog(tr("New Subproject", "Title of dialog"),
-                                             Core::IWizardFactory::wizardFactoriesOfKind(Core::IWizardFactory::ProjectWizard),
+                                             Utils::filtered(Core::IWizardFactory::allWizardFactories(),
+                                                             [](Core::IWizardFactory *f) {
+                                                                 return f->supportedPlatforms().contains(Constants::QMAKEPROJECT_ID);
+                                                             }),
                                              wizard->parameters().projectPath(), map);
     } else {
         return false;

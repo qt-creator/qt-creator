@@ -100,8 +100,6 @@ public:
 
     // Utility to find all registered wizards
     static QList<IWizardFactory*> allWizardFactories();
-    // Utility to find all registered wizards of a certain kind
-    static QList<IWizardFactory*> wizardFactoriesOfKind(WizardKind kind);
     static QSet<Id> allAvailablePlatforms();
     static QString displayNameForPlatform(Id i);
 
