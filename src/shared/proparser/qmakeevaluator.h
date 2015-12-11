@@ -229,7 +229,7 @@ public:
             QMultiMap<int, ProString> &rootSet) const;
 
     VisitReturn writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
-                          const QString &contents);
+                          bool exe, const QString &contents);
 #ifndef QT_BOOTSTRAPPED
     void runProcess(QProcess *proc, const QString &command) const;
 #endif
