@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "project",
+    "supportedProjectTypes": [ "UNKNOWN_PROJECT" ],
     "id": "G.Git",
     "category": "T.Import",
     "trDescription": "Clones a Git repository and tries to load the contained project.",

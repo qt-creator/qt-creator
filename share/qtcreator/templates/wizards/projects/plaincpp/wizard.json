@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "project",
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
     "id": "R.Plain Cpp Application",
     "category": "I.Projects",
     "trDescription": "Creates a simple C++ application using either qmake, CMake, or Qbs to build.",

@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "A.ItemView",
     "category": "R.Qt",
     "trDescription": "Creates a Qt item model.",

@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "project",
+    "supportedProjectTypes": [ "UNKNOWN_PROJECT" ],
     "id": "Z.CVS",
     "category": "T.Import",
     "trDescription": "Checks out a CVS repository and tries to load the contained project.",

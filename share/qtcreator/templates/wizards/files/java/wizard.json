@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "Wizard.Java",
     "category": "U.Java",
     "trDescription": "Creates a Java file with boilerplate code.",

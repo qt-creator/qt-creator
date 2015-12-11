@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "B.Source",
     "category": "O.C++",
     "trDescription": "Creates a C++ source file that you can add to a C++ project.",

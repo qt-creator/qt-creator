@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "project",
+    "supportedProjectTypes": [ "UNKNOWN_PROJECT" ],
     "id": "H.Mercurial",
     "category": "T.Import",
     "trDescription": "Clones a Mercurial repository and tries to load the contained project.",

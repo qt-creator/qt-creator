@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "project",
+    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
     "id": "V.QtQuickControlsApplication",
     "category": "F.Application",
     "trDescription": "Creates a deployable Qt Quick 2 application using Qt Quick Controls.",

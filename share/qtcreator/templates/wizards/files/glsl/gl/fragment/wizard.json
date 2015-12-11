@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "J.GLSL",
     "category": "U.GLSL",
     "trDescription": "Creates a fragment shader in the Desktop OpenGL Shading Language (GLSL). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.",

@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "F.Resource",
     "category": "R.Qt",
     "trDescription": "Creates a Qt Resource file (.qrc).",

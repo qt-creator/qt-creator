@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "K.GLSL",
     "category": "U.GLSL",
     "trDescription": "Creates a vertex shader in the Desktop OpenGL Shading Language (GLSL). Vertex shaders transform the positions, normals and texture co-ordinates of triangles, points and lines rendered with OpenGL.",

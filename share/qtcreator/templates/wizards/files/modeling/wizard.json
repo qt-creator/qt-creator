@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "SA.Model",
     "category": "O.Model",
     "trDescription": "Creates a new empty model with an empty diagram.",

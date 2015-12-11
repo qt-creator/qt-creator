@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "F.EmptyText",
     "category": "U.General",
     "trDescription": "Creates an empty file.",

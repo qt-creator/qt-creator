@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "project",
+    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
     "id": "U.QtEmpty",
     "category": "H.Project",
     "trDescription": "Creates a qmake-based project without any files. This allows you to create an application without any default classes.",

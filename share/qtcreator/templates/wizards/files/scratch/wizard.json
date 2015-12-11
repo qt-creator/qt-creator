@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "Z.ScratchFile",
     "category": "U.General",
     "trDescription": "Creates a scratch buffer using a temporary file.",

@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "P.PySource",
     "category": "U.Python",
     "trDescription": "Creates an empty Python script file using UTF-8 charset.",

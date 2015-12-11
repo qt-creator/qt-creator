@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "P.PyClass",
     "category": "U.Python",
     "trDescription": "Creates new Python class file.",

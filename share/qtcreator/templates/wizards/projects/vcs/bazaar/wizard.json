@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "project",
+    "supportedProjectTypes": [ "UNKNOWN_PROJECT" ],
     "id": "B.Bazaar",
     "category": "T.Import",
     "trDescription": "Clones a Bazaar branch and tries to load the contained project.",

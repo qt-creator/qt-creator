@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "Z.Js",
     "category": "R.Qt",
     "trDescription": "Creates a JavaScript file.",

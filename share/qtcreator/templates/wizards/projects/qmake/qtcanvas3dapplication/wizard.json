@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "project",
+    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
     "id": "W.QtCanvas3dApplication",
     "category": "F.Application",
     "trDescription": "Creates a Qt Canvas 3D QML project. Optionally including three.js.",

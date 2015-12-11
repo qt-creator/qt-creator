@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "file",
+    "supportedProjectTypes": [ ],
     "id": "R.QtQuickUi",
     "category": "R.Qt",
     "trDescription": "Creates a Qt Quick Designer UI form along with a matching QML file for implementation purposes. You can add the form and file to an existing Qt Quick Project.",
