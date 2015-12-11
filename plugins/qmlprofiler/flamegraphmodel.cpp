@@ -231,6 +231,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         case Line: return type.location.line;
         case Column: return type.location.column;
         case Type: return nameForType(type.rangeType);
+        case RangeType: return type.rangeType;
         case Details: return type.data.isEmpty() ?
                         FlameGraphModel::tr("Source code not available") : type.data;
         default: return QVariant();
@@ -320,6 +321,7 @@ QHash<int, QByteArray> FlameGraphModel::roleNames() const
     names[Note] = "note";
     names[TimePerCall] = "timePerCall";
     names[TimeInPercent] = "timeInPercent";
+    names[RangeType] = "rangeType";
     return names;
 }
 

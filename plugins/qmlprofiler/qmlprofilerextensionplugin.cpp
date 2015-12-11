@@ -46,6 +46,7 @@
 #include "memoryusagemodel.h"
 #include "inputeventsmodel.h"
 #include "debugmessagesmodel.h"
+#include "flamegraphview.h"
 
 using namespace QmlProfilerExtension::Internal;
 
@@ -62,6 +63,18 @@ public:
                << new InputEventsModel(manager, this)
                << new DebugMessagesModel(manager, this);
         return models;
+    }
+};
+
+class ViewFactory : public QmlProfiler::QmlProfilerEventsViewFactory {
+    Q_OBJECT
+public:
+    QList<QmlProfiler::QmlProfilerEventsView *> create(
+            QWidget *parent, QmlProfiler::QmlProfilerModelManager *manager) override
+    {
+        QList<QmlProfiler::QmlProfilerEventsView *> views;
+        views << new FlameGraphView(parent, manager);
+        return views;
     }
 };
 
@@ -93,8 +106,10 @@ bool QmlProfilerExtensionPlugin::initialize(const QStringList &arguments, QStrin
             = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
 
     if (licenseChecker && licenseChecker->hasValidLicense()) {
-        if (licenseChecker->enterpriseFeatures())
+        if (licenseChecker->enterpriseFeatures()) {
             addAutoReleasedObject(new ModelFactory);
+            addAutoReleasedObject(new ViewFactory);
+        }
     } else {
         qWarning() << "Invalid license, disabling QML Profiler Enterprise features";
     }

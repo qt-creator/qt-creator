@@ -72,6 +72,7 @@ public:
         Note,
         TimePerCall,
         TimeInPercent,
+        RangeType,
         MaxRole
     };
 

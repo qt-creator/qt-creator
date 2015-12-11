@@ -4,6 +4,8 @@ TEMPLATE = lib
 PROVIDER = Digia
 include(../../qtcreatorplugin.pri)
 
+QT += qml quick quickwidgets
+
 DEFINES += QMLPROFILEREXTENSION_LIBRARY
 CONFIG(licensechecker): DEFINES += LICENSECHECKER
 
@@ -16,6 +18,8 @@ SOURCES += qmlprofilerextensionplugin.cpp \
         inputeventsmodel.cpp \
         debugmessagesmodel.cpp \
         flamegraphmodel.cpp \
+        flamegraphview.cpp \
+        flamegraph.cpp
 
 HEADERS += qmlprofilerextensionplugin.h \
         qmlprofilerextension_global.h \
@@ -26,6 +30,11 @@ HEADERS += qmlprofilerextensionplugin.h \
         inputeventsmodel.h \
         debugmessagesmodel.h \
         flamegraphmodel.h \
+        flamegraphview.h \
+        flamegraph.h
 
 OTHER_FILES += \
     QmlProfilerExtension.json.in
+
+RESOURCES += \
+    flamegraph.qrc
