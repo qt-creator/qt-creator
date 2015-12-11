@@ -14,7 +14,8 @@ SOURCES += qmlprofilerextensionplugin.cpp \
         pixmapcachemodel.cpp \
         memoryusagemodel.cpp \
         inputeventsmodel.cpp \
-        debugmessagesmodel.cpp
+        debugmessagesmodel.cpp \
+        flamegraphmodel.cpp \
 
 HEADERS += qmlprofilerextensionplugin.h \
         qmlprofilerextension_global.h \
@@ -23,7 +24,8 @@ HEADERS += qmlprofilerextensionplugin.h \
         pixmapcachemodel.h \
         memoryusagemodel.h \
         inputeventsmodel.h \
-        debugmessagesmodel.h
+        debugmessagesmodel.h \
+        flamegraphmodel.h \
 
 OTHER_FILES += \
     QmlProfilerExtension.json.in

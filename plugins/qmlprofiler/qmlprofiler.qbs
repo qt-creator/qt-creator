@@ -12,6 +12,8 @@ QtcCommercialPlugin {
     files: [
         "debugmessagesmodel.cpp",
         "debugmessagesmodel.h",
+        "flamegraphmodel.cpp",
+        "flamegraphmodel.h",
         "inputeventsmodel.cpp",
         "inputeventsmodel.h",
         "memoryusagemodel.cpp",
