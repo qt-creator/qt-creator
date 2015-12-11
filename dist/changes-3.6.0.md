@@ -154,10 +154,12 @@ Remote Linux
 * Fixed attaching to remote debugging server (QTCREATORBUG-15210)
 
 Credits for these changes go to:  
+Adam Strzelecki  
 Aleix Pol  
 Alessandro Portale  
 Alexander Drozdov  
-Andre Hartmann  
+Allan Sandfeld Jensen  
+André Hartmann  
 André Pönitz  
 Benjamin Zeller  
 BogDan Vatra  
@@ -167,32 +169,48 @@ Christian Strømme
 Claus Steuer  
 Cristian Adam  
 Daniel Teske  
+David Fries  
 David Schulz  
+Davide Pesavento  
+Denis Shienkov  
 Eike Ziller  
+Finn Brudal  
+Friedemann Kleint  
+J-P Nurmi  
 Jake Petroules  
 Jakub Golebiewski  
 Jan Dalheimer  
 Jarek Kobus  
 Jean Gressmann  
 Jochen Becher  
+Jörg Bornemann  
+Lassi Hämäläinen  
 Leena Miettinen  
 Lorenz Haas  
+Marc Mutz  
+Marco Benelli  
 Marco Bubke  
+Martin Kampas  
 Maurice Kalinowski  
 Mitch Curtis  
 Montel Laurent  
+Nico Vertriest  
 Niels Weber  
 Nikita Baryshnikov  
 Nikolai Kosjar  
 Oliver Wolff  
 Orgad Shaneh  
 Oswald Buddenhagen  
-Robert Loehning  
+Robert Löhning  
+Sergey Belyashov  
 Sze Howe Koh  
 Thiago Macieira  
 Thomas Hartmann  
 Thorbjørn Lindeijer  
 Tim Jenssen  
 Tobias Hunger  
+Tom Deblauwe  
+Topi Reinio  
 Ulf Hermann  
+Viktor Ostashevskyi  
 Vladyslav Gapchych  
