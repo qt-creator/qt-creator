@@ -99,49 +99,6 @@ BreakpointOnQmlSignalEmit, \
 BreakpointAtJavaScriptThrow, \
     = range(0, 14)
 
-# Encodings. Keep that synchronized with DebuggerEncoding in debuggerprotocol.h
-Unencoded8Bit, \
-Base64Encoded8BitWithQuotes, \
-Base64Encoded16BitWithQuotes, \
-Base64Encoded32BitWithQuotes, \
-Base64Encoded16Bit, \
-Base64Encoded8Bit, \
-Hex2EncodedLatin1, \
-Hex4EncodedLittleEndian, \
-Hex8EncodedLittleEndian, \
-Hex2EncodedUtf8, \
-Hex8EncodedBigEndian, \
-Hex4EncodedBigEndian, \
-Hex4EncodedLittleEndianWithoutQuotes, \
-Hex2EncodedLocal8Bit, \
-JulianDate, \
-MillisecondsSinceMidnight, \
-JulianDateAndMillisecondsSinceMidnight, \
-Hex2EncodedInt1, \
-Hex2EncodedInt2, \
-Hex2EncodedInt4, \
-Hex2EncodedInt8, \
-Hex2EncodedUInt1, \
-Hex2EncodedUInt2, \
-Hex2EncodedUInt4, \
-Hex2EncodedUInt8, \
-Hex2EncodedFloat4, \
-Hex2EncodedFloat8, \
-IPv6AddressAndHexScopeId, \
-Hex2EncodedUtf8WithoutQuotes, \
-DateTimeInternal, \
-SpecialEmptyValue, \
-SpecialUninitializedValue, \
-SpecialInvalidValue, \
-SpecialNotAccessibleValue, \
-SpecialItemCountValue, \
-SpecialMinimumItemCountValue, \
-SpecialNotCallableValue, \
-SpecialNullReferenceValue, \
-SpecialOptimizedOutValue, \
-SpecialEmptyStructureValue, \
-    = range(40)
-
 # Display modes. Keep that synchronized with DebuggerDisplay in debuggerprotocol.h
 StopDisplay, \
 DisplayImageData, \
@@ -302,7 +259,7 @@ class Children:
             if self.d.passExceptions:
                 showException("CHILDREN", exType, exValue, exTraceBack)
             self.d.putNumChild(0)
-            self.d.putSpecialValue(SpecialNotAccessibleValue)
+            self.d.putSpecialValue("notaccessible")
         if not self.d.currentMaxNumChild is None:
             if self.d.currentMaxNumChild < self.d.currentNumChild:
                 self.d.put('{name="<incomplete>",value="",type="",numchild="0"},')
@@ -578,15 +535,18 @@ class DumperBase:
         if charSize == 1:
             if displayFormat == Latin1StringFormat \
                     or displayFormat == SeparateLatin1StringFormat:
-                encodingType = Hex2EncodedLatin1
+                encodingType = "latin1"
             else:
-                encodingType = Hex2EncodedUtf8
+                encodingType = "utf8"
+            childType = "char"
             displayType = DisplayLatin1String
         elif charSize == 2:
-            encodingType = Hex4EncodedLittleEndian
+            encodingType = "utf16"
+            childType = "short"
             displayType = DisplayUtf16String
         else:
-            encodingType = Hex8EncodedLittleEndian
+            encodingType = "ucs4"
+            childType = "int"
             displayType = DisplayUtf16String
 
         self.putValue(mem, encodingType, elided=elided)
@@ -617,7 +577,7 @@ class DumperBase:
 
     def putByteArrayValue(self, value):
         elided, data = self.encodeByteArrayHelper(self.extractPointer(value), self.displayStringLimit)
-        self.putValue(data, Hex2EncodedLatin1, elided=elided)
+        self.putValue(data, "latin1", elided=elided)
 
     def encodeString(self, value, limit = 0):
         elided, data = self.encodeStringHelper(self.extractPointer(value), limit)
@@ -676,13 +636,13 @@ class DumperBase:
 
     def putStringValueByAddress(self, addr):
         elided, data = self.encodeStringHelper(addr, self.displayStringLimit)
-        self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
+        self.putValue(data, "utf16", elided=elided)
 
     def putStringValue(self, value):
         elided, data = self.encodeStringHelper(
             self.extractPointer(value),
             self.displayStringLimit)
-        self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
+        self.putValue(data, "utf16", elided=elided)
 
     def putAddressItem(self, name, value, type = ""):
         with SubItem(self, name):
@@ -715,7 +675,7 @@ class DumperBase:
                 self.putItem(result)
         except:
             with SubItem(self, name):
-                self.putSpecialValue(SpecialNotCallableValue);
+                self.putSpecialValue("notcallable");
                 self.putNumChild(0)
 
     def call(self, value, func, *args):
@@ -737,22 +697,18 @@ class DumperBase:
         ns = self.qtNamespace()
         typeName = self.stripClassTag(str(value.type))
         if typeName == ns + "QString":
-            self.put('key="%s",' % self.encodeString(value))
-            self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
+            self.put('keyencoded="utf16:2:0",key="%s",' % self.encodeString(value))
         elif typeName == ns + "QByteArray":
-            self.put('key="%s",' % self.encodeByteArray(value))
-            self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+            self.put('keyencoded="latin1:1:0",key="%s",' % self.encodeByteArray(value))
         elif typeName == "std::string":
-            self.put('key="%s",' % self.encodeStdString(value))
-            self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+            self.put('keyencoded="latin1:1:0",key="%s",' % self.encodeStdString(value))
         else:
             val = str(value.GetValue()) if self.isLldb else str(value)
             if index is None:
                 key = '%s' % val
             else:
                 key = '[%s] %s' % (index, val)
-            self.put('key="%s",' % self.hexencode(key))
-            self.put('keyencoded="%s",' % Hex2EncodedUtf8WithoutQuotes)
+            self.put('keyencoded="utf8:1:0",key="%s",' % self.hexencode(key))
 
     def putPair(self, pair, index = None):
         if self.pairData.useKeyAndValue:
@@ -763,14 +719,11 @@ class DumperBase:
             value = pair["second"]
         if self.pairData.isCompact:
             if self.pairData.keyIsQString:
-                self.put('key="%s",' % self.encodeString(key))
-                self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
+                self.put('keyencoded="utf16",key="%s",' % self.encodeString(key))
             elif self.pairData.keyIsQByteArray:
-                self.put('key="%s",' % self.encodeByteArray(key))
-                self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+                self.put('keyencoded="latin1",key="%s",' % self.encodeByteArray(key))
             elif self.pairData.keyIsStdString:
-                self.put('key="%s",' % self.encodeStdString(key))
-                self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+                self.put('keyencoded="latin1",key="%s",' % self.encodeStdString(key))
             else:
                 name = str(key.GetValue()) if self.isLldb else str(key)
                 if index == -1:
@@ -833,9 +786,9 @@ class DumperBase:
     def putItemCount(self, count, maximum = 1000000000):
         # This needs to override the default value, so don't use 'put' directly.
         if count > maximum:
-            self.putSpecialValue(SpecialMinimumItemCountValue, maximum)
+            self.putSpecialValue("minimumitemcount", maximum)
         else:
-            self.putSpecialValue(SpecialItemCountValue, count)
+            self.putSpecialValue("itemcount", count)
         self.putNumChild(count)
 
     def resultToMi(self, value):
@@ -1082,7 +1035,7 @@ class DumperBase:
         else:
             elided, shown = self.computeLimit(int(size), self.displayStringLimit)
             data = self.readMemory(base, shown)
-        self.putValue(data, Hex2EncodedLatin1, elided=elided)
+        self.putValue(data, "latin1", elided=elided)
 
     def putDisplay(self, editFormat, value):
         self.put('editformat="%s",' % editFormat)
@@ -1094,51 +1047,51 @@ class DumperBase:
             # Use Latin1 as default for char *.
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
-            self.putValue(data, Hex2EncodedLatin1, elided=elided)
+            self.putValue(data, "latin1", elided=elided)
             return True
 
         if displayFormat == Latin1StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
-            self.putValue(data, Hex2EncodedLatin1, elided=elided)
+            self.putValue(data, "latin1", elided=elided)
             return True
 
         if displayFormat == SeparateLatin1StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
-            self.putValue(data, Hex2EncodedLatin1, elided=elided)
+            self.putValue(data, "latin1", elided=elided)
             self.putDisplay(DisplayLatin1String, data)
             return True
 
         if displayFormat == Utf8StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
-            self.putValue(data, Hex2EncodedUtf8, elided=elided)
+            self.putValue(data, "utf8", elided=elided)
             return True
 
         if displayFormat == SeparateUtf8StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
-            self.putValue(data, Hex2EncodedUtf8, elided=elided)
+            self.putValue(data, "utf8", elided=elided)
             self.putDisplay(DisplayUtf8String, data)
             return True
 
         if displayFormat == Local8BitStringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 1, limit)
-            self.putValue(data, Hex2EncodedLocal8Bit, elided=elided)
+            self.putValue(data, "local8bit", elided=elided)
             return True
 
         if displayFormat == Utf16StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 2, limit)
-            self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
+            self.putValue(data, "utf16", elided=elided)
             return True
 
         if displayFormat == Ucs4StringFormat:
             self.putType(typeName)
             (elided, data) = self.encodeCArray(value, 4, limit)
-            self.putValue(data, Hex8EncodedLittleEndian, elided=elided)
+            self.putValue(data, "ucs4", elided=elided)
             return True
 
         return False
@@ -1176,7 +1129,7 @@ class DumperBase:
         if displayFormat == RawFormat:
             # Explicitly requested bald pointer.
             self.putType(typeName)
-            self.putValue(self.hexencode(str(value)), Hex2EncodedUtf8WithoutQuotes)
+            self.putValue(self.hexencode(str(value)), "utf8:1:0")
             self.putNumChild(1)
             if self.currentIName in self.expandedINames:
                 with Children(self):
@@ -1293,7 +1246,7 @@ class DumperBase:
                 return False
 
             raw = self.readMemory(data, 2 * size)
-            self.putValue(raw, Hex4EncodedLittleEndian, 1)
+            self.putValue(raw, "utf16", 1)
             return True
 
         except:
@@ -1490,7 +1443,7 @@ class DumperBase:
                         for (k, v) in zip(names, values):
                             with SubItem(self, propertyCount):
                                 self.put('key="%s",' % self.encodeByteArray(k))
-                                self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+                                self.put('keyencoded="latin1",')
                                 self.putItem(v)
                                 propertyCount += 1
 
@@ -1536,7 +1489,7 @@ class DumperBase:
             else:
                 connections = connections.dereference()
                 connections = connections.cast(self.directBaseClass(connections.type))
-                self.putSpecialValue(SpecialMinimumItemCountValue, 0)
+                self.putSpecialValue("minimumitemcount", 0)
                 self.putNumChild(1)
             if self.isExpanded():
                 pp = 0

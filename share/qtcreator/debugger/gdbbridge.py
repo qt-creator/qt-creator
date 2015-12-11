@@ -464,7 +464,7 @@ class Dumper(DumperBase):
             if self.passExceptions:
                 showException("SUBITEM", exType, exValue, exTraceBack)
             self.putNumChild(0)
-            self.putSpecialValue(SpecialNotAccessibleValue)
+            self.putSpecialValue("notaccessible")
         try:
             if self.currentType.value:
                 typeName = self.stripClassTag(self.currentType.value)
@@ -472,11 +472,10 @@ class Dumper(DumperBase):
                     self.put('type="%s",' % typeName) # str(type.unqualified()) ?
 
             if  self.currentValue.value is None:
-                self.put('value="",encoding="%d",numchild="0",'
-                        % SpecialNotAccessibleValue)
+                self.put('value="",encoding="notaccessible",numchild="0",')
             else:
                 if not self.currentValue.encoding is None:
-                    self.put('valueencoded="%d",' % self.currentValue.encoding)
+                    self.put('valueencoded="%s",' % self.currentValue.encoding)
                 if self.currentValue.elided:
                     self.put('valueelided="%d",' % self.currentValue.elided)
                 self.put('value="%s",' % self.currentValue.value)
@@ -898,31 +897,14 @@ class Dumper(DumperBase):
     def simpleEncoding(self, typeobj):
         code = typeobj.code
         if code == BoolCode or code == CharCode:
-            return Hex2EncodedInt1
+            return "int:1"
         if code == IntCode:
             if str(typeobj).find("unsigned") >= 0:
-                if typeobj.sizeof == 1:
-                    return Hex2EncodedUInt1
-                if typeobj.sizeof == 2:
-                    return Hex2EncodedUInt2
-                if typeobj.sizeof == 4:
-                    return Hex2EncodedUInt4
-                if typeobj.sizeof == 8:
-                    return Hex2EncodedUInt8
+                 return "uint:%d" % typeobj.sizeof
             else:
-                if typeobj.sizeof == 1:
-                    return Hex2EncodedInt1
-                if typeobj.sizeof == 2:
-                    return Hex2EncodedInt2
-                if typeobj.sizeof == 4:
-                    return Hex2EncodedInt4
-                if typeobj.sizeof == 8:
-                    return Hex2EncodedInt8
+                 return "int:%d" % typeobj.sizeof
         if code == FloatCode:
-            if typeobj.sizeof == 4:
-                return Hex2EncodedFloat4
-            if typeobj.sizeof == 8:
-                return Hex2EncodedFloat8
+            return "float:%d" % typeobj.sizeof
         return None
 
     def isReferenceType(self, typeobj):
@@ -938,7 +920,7 @@ class Dumper(DumperBase):
         if value is None:
             # Happens for non-available watchers in gdb versions that
             # need to use gdb.execute instead of gdb.parse_and_eval
-            self.putSpecialValue(SpecialNotAvailableValue)
+            self.putSpecialValue("notaccessible")
             self.putType("<unknown>")
             self.putNumChild(0)
             return
@@ -947,7 +929,7 @@ class Dumper(DumperBase):
         typeName = str(typeobj)
 
         if value.is_optimized_out:
-            self.putSpecialValue(SpecialOptimizedOutValue)
+            self.putSpecialValue("optimizedout")
             self.putType(typeName)
             self.putNumChild(0)
             return
@@ -968,7 +950,7 @@ class Dumper(DumperBase):
             try:
                 # Try to recognize null references explicitly.
                 if toInteger(value.address) == 0:
-                    self.putSpecialValue(SpecialNullReferenceValue)
+                    self.putSpecialValue("nullreference")
                     self.putType(typeName)
                     self.putNumChild(0)
                     return
@@ -996,7 +978,7 @@ class Dumper(DumperBase):
                 self.putBetterType("%s &" % self.currentType.value)
                 return
             except RuntimeError:
-                self.putSpecialValue(SpecialOptimizedOutValue)
+                self.putSpecialValue("optimizedout")
                 self.putType(typeName)
                 self.putNumChild(0)
                 return
@@ -1077,7 +1059,7 @@ class Dumper(DumperBase):
             # Anonymous union. We need a dummy name to distinguish
             # multiple anonymous unions in the struct.
             self.putType(typeobj)
-            self.putSpecialValue(SpecialEmptyStructureValue)
+            self.putSpecialValue("emptystructure")
             self.anonNumber += 1
             with Children(self, 1):
                 self.listAnonymous(value, "#%d" % self.anonNumber, typeobj)
@@ -1087,7 +1069,7 @@ class Dumper(DumperBase):
             # FORTRAN strings
             size = typeobj.sizeof
             data = self.readMemory(value.address, size)
-            self.putValue(data, Hex2EncodedLatin1, 1)
+            self.putValue(data, "latin1", 1)
             self.putType(typeobj)
 
         if typeobj.code != StructCode and typeobj.code != UnionCode:
@@ -1336,8 +1318,7 @@ class Dumper(DumperBase):
     #                         s = self.readMemory(data, 2 * size)
     #
     #                thread = gdb.selected_thread()
-    #                inner = '{valueencoded="';
-    #                inner += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+    #                inner = '{valueencoded="uf16:2:0",id="'
     #                inner += str(thread.num) + '",value="'
     #                inner += s
     #                #inner += self.encodeString(objectName)
@@ -1748,7 +1729,7 @@ class CliDumper(Dumper):
             if self.passExceptions:
                 showException("SUBITEM", exType, exValue, exTraceBack)
             self.putNumChild(0)
-            self.putSpecialValue(SpecialNotAccessibleValue)
+            self.putSpecialValue("notaccessible")
         try:
             if self.currentType.value:
                 typeName = self.stripClassTag(self.currentType.value)
@@ -1758,11 +1739,11 @@ class CliDumper(Dumper):
                 self.put('<not accessible>')
             else:
                 value = self.currentValue.value
-                if self.currentValue.encoding is Hex2EncodedLatin1:
+                if self.currentValue.encoding == "latin1":
                     value = self.hexdecode(value)
-                elif self.currentValue.encoding is Hex2EncodedUtf8:
+                elif self.currentValue.encoding == "utf8":
                     value = self.hexdecode(value)
-                elif self.currentValue.encoding is Hex4EncodedLittleEndian:
+                elif self.currentValue.encoding == "utf16":
                     b = bytes.fromhex(value)
                     value = codecs.decode(b, 'utf-16')
                 self.put('"%s"' % value)

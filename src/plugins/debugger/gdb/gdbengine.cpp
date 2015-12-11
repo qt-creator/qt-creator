@@ -3387,8 +3387,7 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
         foreach (const GdbMi &name, names.children()) {
             ThreadData thread;
             thread.id = ThreadId(name["id"].toInt());
-            thread.name = decodeData(name["value"].data(),
-                debuggerEncoding(name["valueencoded"].data()));
+            thread.name = decodeData(name["value"].data(), name["valueencoded"].data());
             handler->updateThread(thread);
         }
         updateViews();

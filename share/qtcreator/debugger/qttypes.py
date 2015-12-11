@@ -63,15 +63,15 @@ def qdump__QByteArray(d, value):
     elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
     displayFormat = d.currentItemFormat()
     if displayFormat == AutomaticFormat or displayFormat == Latin1StringFormat:
-        d.putValue(p, Hex2EncodedLatin1, elided=elided)
+        d.putValue(p, "latin1", elided=elided)
     elif displayFormat == SeparateLatin1StringFormat:
-        d.putValue(p, Hex2EncodedLatin1, elided=elided)
+        d.putValue(p, "latin1", elided=elided)
         d.putField("editformat", DisplayLatin1String)
         d.putField("editvalue", d.encodeByteArray(value, limit=100000))
     elif displayFormat == Utf8StringFormat:
-        d.putValue(p, Hex2EncodedUtf8, elided=elided)
+        d.putValue(p, "utf8", elided=elided)
     elif displayFormat == SeparateUtf8StringFormat:
-        d.putValue(p, Hex2EncodedUtf8, elided=elided)
+        d.putValue(p, "utf8", elided=elided)
         d.putField("editformat", DisplayUtf8String)
         d.putField("editvalue", d.encodeByteArray(value, limit=100000))
     if d.isExpanded():
@@ -80,7 +80,7 @@ def qdump__QByteArray(d, value):
 def qdump__QByteArrayData(d, value):
     data, size, alloc = d.byteArrayDataHelper(d.addressOf(value))
     d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
-    d.putValue(d.readMemory(data, size), Hex2EncodedLatin1)
+    d.putValue(d.readMemory(data, size), "latin1")
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
@@ -195,7 +195,7 @@ def qdump__QModelIndex(d, value):
 def qdump__QDate(d, value):
     jd = int(value["jd"])
     if jd:
-        d.putValue(jd, JulianDate)
+        d.putValue(jd, "juliandate")
         d.putNumChild(1)
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
@@ -218,7 +218,7 @@ def qdump__QDate(d, value):
 def qdump__QTime(d, value):
     mds = int(value["mds"])
     if mds >= 0:
-        d.putValue(mds, MillisecondsSinceMidnight)
+        d.putValue(mds, "millisecondssincemidnight")
         d.putNumChild(1)
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
@@ -282,7 +282,7 @@ def qdump__QDateTime(d, value):
                 idBase = tzp + 2 * d.ptrSize() # [QSharedData] + [vptr]
                 elided, tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
             d.putValue("%s/%s/%s/%s/%s" % (msecs, spec, offset, tz, status),
-                DateTimeInternal)
+                "datetimeinternal")
     else:
         # This relies on the Qt4/Qt5 internal structure layout:
         # {sharedref(4), date(8), time(4+x)}
@@ -302,7 +302,7 @@ def qdump__QDateTime(d, value):
         isValid = mds > 0
         if isValid:
             jd = d.extractInt(dateBase)
-            d.putValue("%s/%s" % (jd, mds), JulianDateAndMillisecondsSinceMidnight)
+            d.putValue("%s/%s" % (jd, mds), "juliandateandmillisecondssincemidnight")
     if isValid:
         d.putNumChild(1)
         if d.isExpanded():
@@ -711,7 +711,7 @@ def qdump__QHostAddress(d, value):
         # value.d.d->ipString
         ipString = d.encodeString(ipStringAddress, limit=100)
         if d.extractByte(isParsedAddress) and len(ipString) > 0:
-            d.putValue(ipString, Hex4EncodedLittleEndian)
+            d.putValue(ipString, "utf16")
         else:
             # value.d.d->protocol:
             #  QAbstractSocket::IPv4Protocol = 0
@@ -723,7 +723,7 @@ def qdump__QHostAddress(d, value):
                 address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
                 scopeIdAddress = ipStringAddress + sizeofQString
                 scopeId = d.encodeString(scopeIdAddress, limit=100)
-                d.putValue("%s%%%s" % (address, scopeId), IPv6AddressAndHexScopeId)
+                d.putValue("%s%%%s" % (address, scopeId), "ipv6addressandhexscopeid")
             elif proto == 0:
                 # value.d.d->a
                 a = d.extractInt(privAddress + 2 * sizeofQString)
@@ -742,7 +742,7 @@ def qdump__QHostAddress(d, value):
         # value.d.d->ipString
         ipString = d.encodeString(ipStringAddress, limit=100)
         if d.extractByte(isParsedAddress) and len(ipString) > 0:
-            d.putValue(ipString, Hex4EncodedLittleEndian)
+            d.putValue(ipString, "utf16")
         else:
             # value.d.d->protocol:
             #  QAbstractSocket::IPv4Protocol = 0
@@ -756,7 +756,7 @@ def qdump__QHostAddress(d, value):
                 address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
                 scopeId = privAddress + sizeofQString + (0 if isQt5 else 24)
                 scopeId = d.encodeString(scopeId, limit=100)
-                d.putValue("%s%%%s" % (address, scopeId), IPv6AddressAndHexScopeId)
+                d.putValue("%s%%%s" % (address, scopeId), "ipv6addressandhexscopeid")
             elif proto == 0:
                 # value.d.d->a
                 a = d.extractInt(privAddress + (2 * sizeofQString if isQt5 else 0))
@@ -1131,16 +1131,16 @@ def qdump__QMetaObject(d, value):
            #d.putAddressItem("_data", data)
            #d.putAddressItem("_sd_", stringdata)
            #with SubItem(d, "_sd"):
-           #    d.putValue(d.readMemory(stringdata, size), Hex2EncodedLatin1)
+           #    d.putValue(d.readMemory(stringdata, size), "latin1")
            #with SubItem(d, "_cn"):
-           #    d.putValue(d.readMemory(stringdata + d.extractInt(data + 4), size), Hex2EncodedLatin1)
+           #    d.putValue(d.readMemory(stringdata + d.extractInt(data + 4), size), "latin1")
 
            #for i in range(propertyCount):
            #    with SubItem(d, "property_%s" % i):
            #        x = data + (propertyData + 3 * i) * 4
            #        literal = sd + d.extractInt(x) * byteArrayDataSize
            #        ldata, lsize, lalloc = d.byteArrayDataHelper(literal)
-           #        d.putValue(d.readMemory(ldata, lsize), Hex2EncodedLatin1)
+           #        d.putValue(d.readMemory(ldata, lsize), "latin1")
 
            #        d.putNumChild(1)
            #        if d.isExpanded():
@@ -1304,7 +1304,7 @@ def _qdump__QObject(d, value):
                         with SubItem(d, i):
                             pp = p.cast(namesType.pointer()).dereference();
                             d.putField("key", d.encodeByteArray(pp))
-                            d.putField("keyencoded", Hex2EncodedLatin1)
+                            d.putField("keyencoded", "latin1")
                             qq = q.cast(valuesType.pointer().pointer())
                             qq = qq.dereference();
                             d.putField("address", d.cleanAddress(qq))
@@ -1592,7 +1592,7 @@ def qdump__QRegExp(d, value):
 def qdump__QRegion(d, value):
     p = value["d"].dereference()["qt_rgn"]
     if d.isNull(p):
-        d.putSpecialValue(SpecialEmptyValue)
+        d.putSpecialValue("empty")
         d.putNumChild(0)
     else:
         # struct QRegionPrivate:
@@ -1806,7 +1806,7 @@ def qdump__QStringRef(d, value):
     data += 2 * int(value["m_position"])
     size = int(value["m_size"])
     s = d.readMemory(data, 2 * size)
-    d.putValue(s, Hex4EncodedLittleEndian)
+    d.putValue(s, "utf16")
     d.putPlainChildren(value)
 
 
@@ -1873,7 +1873,7 @@ def qdump__QUrl(d, value):
             d.putValue("<invalid>")
             return
         encodedOriginalAddress = privAddress + 8 * d.ptrSize()
-        d.putValue(d.encodeByteArrayHelper(d.extractPointer(encodedOriginalAddress), 100), Hex2EncodedLatin1)
+        d.putValue(d.encodeByteArrayHelper(d.extractPointer(encodedOriginalAddress), 100), "latin1")
         d.putNumChild(8)
         if d.isExpanded():
             stringType = d.lookupType(d.qtNamespace() + "QString")
@@ -1925,7 +1925,7 @@ def qdump__QUrl(d, value):
             url += "3a00"
             url += ''.join(["%02x00" % ord(c) for c in str(port)])
         url += path
-        d.putValue(url, Hex4EncodedLittleEndian)
+        d.putValue(url, "utf16")
 
         displayFormat = d.currentItemFormat()
         if displayFormat == SeparateFormat:
@@ -1937,13 +1937,13 @@ def qdump__QUrl(d, value):
             stringType = d.lookupType(d.qtNamespace() + "QString")
             with Children(d):
                 d.putIntItem("port", port)
-                d.putGenericItem("scheme", stringType, scheme, Hex4EncodedLittleEndian)
-                d.putGenericItem("userName", stringType, userName, Hex4EncodedLittleEndian)
-                d.putGenericItem("password", stringType, password, Hex4EncodedLittleEndian)
-                d.putGenericItem("host", stringType, host, Hex4EncodedLittleEndian)
-                d.putGenericItem("path", stringType, path, Hex4EncodedLittleEndian)
-                d.putGenericItem("query", stringType, query, Hex4EncodedLittleEndian)
-                d.putGenericItem("fragment", stringType, fragment, Hex4EncodedLittleEndian)
+                d.putGenericItem("scheme", stringType, scheme, "utf16")
+                d.putGenericItem("userName", stringType, userName, "utf16")
+                d.putGenericItem("password", stringType, password, "utf16")
+                d.putGenericItem("host", stringType, host, "utf16")
+                d.putGenericItem("path", stringType, path, "utf16")
+                d.putGenericItem("query", stringType, query, "utf16")
+                d.putGenericItem("fragment", stringType, fragment, "utf16")
                 d.putFields(value)
 
 
@@ -2281,7 +2281,7 @@ def qdump__QXmlStreamStringRef(d, value):
     data += 2 * int(value["m_position"])
     size = int(value["m_size"])
     s = d.readMemory(data, 2 * size)
-    d.putValue(s, Hex4EncodedLittleEndian)
+    d.putValue(s, "utf16")
     d.putPlainChildren(value)
 
 
@@ -2291,7 +2291,7 @@ def qdump__QXmlStreamAttribute(d, value):
     data += 2 * int(value["m_name"]["m_position"])
     size = int(value["m_name"]["m_size"])
     s = d.readMemory(data, 2 * size)
-    d.putValue(s, Hex4EncodedLittleEndian)
+    d.putValue(s, "utf16")
     d.putPlainChildren(value)
 
 
@@ -2363,7 +2363,7 @@ def qdump__QV4__Value(d, value):
         d.putValue("%d" % vv)
     elif v & IsDoubleMask:
         d.putBetterType("%sQV4::Value (double)" % ns)
-        d.putValue("%x" % (v ^ 0xffff800000000000), Hex2EncodedFloat8)
+        d.putValue("%x" % (v ^ 0xffff800000000000), "float:8")
     elif d.isNull(v):
         d.putBetterType("%sQV4::Value (null)" % ns)
         d.putValue("(null)")
@@ -2626,10 +2626,10 @@ def qdumpHelper__QJsonValue(d, data, base, pv):
         data = base + v;
         if latinOrIntValue:
             length = d.extractUShort(data)
-            d.putValue(d.readMemory(data + 2, length), Hex2EncodedLatin1)
+            d.putValue(d.readMemory(data + 2, length), "latin1")
         else:
             length = d.extractUInt(data)
-            d.putValue(d.readMemory(data + 4, length * 2), Hex4EncodedLittleEndian)
+            d.putValue(d.readMemory(data + 4, length * 2), "utf16")
         d.putNumChild(1)
         return
     if t == 4:
@@ -2696,11 +2696,11 @@ def qdumpHelper__QJsonObject(d, data, obj):
                     if isLatinKey:
                         keyLength = d.extractUShort(keyStart)
                         d.put('key="%s",' % d.readMemory(keyStart + 2, keyLength))
-                        d.put('keyencoded="%s",' % Hex2EncodedLatin1)
+                        d.put('keyencoded="latin1",')
                     else:
                         keyLength = d.extractUInt(keyStart)
                         d.put('key="%s",' % d.readMemory(keyStart + 4, keyLength))
-                        d.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
+                        d.put('keyencoded="utf16",')
 
                     qdumpHelper__QJsonValue(d, data, obj, val)
 

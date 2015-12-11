@@ -91,7 +91,7 @@ def readLiteral(d, value):
         return "<unsupported>"
 
 def dumpLiteral(d, value):
-    d.putValue(d.hexencode(readLiteral(d, value)), Hex2EncodedLatin1)
+    d.putValue(d.hexencode(readLiteral(d, value)), "latin1")
 
 def qdump__Core__Id(d, value):
     try:
@@ -104,7 +104,7 @@ def qdump__Core__Id(d, value):
 def qdump__Debugger__Internal__GdbMi(d, value):
     str = d.encodeByteArray(value["m_name"]) + "3a20" \
         + d.encodeByteArray(value["m_data"])
-    d.putValue(str, Hex2EncodedLatin1)
+    d.putValue(str, "latin1")
     d.putPlainChildren(value)
 
 def qdump__Debugger__Internal__DisassemblerLine(d, value):
@@ -153,7 +153,7 @@ def qdump__CPlusPlus__FullySpecifiedType(d, value):
     if typeName == "CPlusPlus::NamedType":
         dumpLiteral(d, type["_name"])
     elif typeName == "CPlusPlus::PointerType":
-        d.putValue(d.hexencode(extractPointerType(d, type)), Hex2EncodedLatin1)
+        d.putValue(d.hexencode(extractPointerType(d, type)), "latin1")
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__NamedType(d, value):
@@ -162,7 +162,7 @@ def qdump__CPlusPlus__NamedType(d, value):
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__PointerType(d, value):
-    d.putValue(d.hexencode(extractPointerType(d, value)), Hex2EncodedLatin1)
+    d.putValue(d.hexencode(extractPointerType(d, value)), "latin1")
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__TemplateNameId(d, value):
@@ -214,8 +214,7 @@ def qdump__CPlusPlus__Internal__PPToken(d, value):
     offset = int(value["utf16charOffset"])
     #warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
     #    % (size, alloc, offset, length, data))
-    d.putValue(d.readMemory(data + offset, min(100, length)),
-        Hex2EncodedLatin1)
+    d.putValue(d.readMemory(data + offset, min(100, length)), "latin1")
     d.putPlainChildren(value)
 
 def qdump__ProString(d, value):
@@ -225,7 +224,7 @@ def qdump__ProString(d, value):
         data += 2 * int(value["m_offset"])
         size = int(value["m_length"])
         s = d.readMemory(data, 2 * size)
-        d.putValue(s, Hex4EncodedLittleEndian)
+        d.putValue(s, "utf16")
     except:
         d.putEmptyValue()
     d.putPlainChildren(value)

@@ -266,15 +266,14 @@ class Dumper(DumperBase):
             if self.passExceptions:
                 showException("SUBITEM", exType, exValue, exTraceBack)
             self.putNumChild(0)
-            self.putSpecialValue(SpecialNotAccessibleValue)
+            self.putSpecialValue("notaccessible")
         try:
             if self.currentType.value:
                 typeName = self.currentType.value
                 if len(typeName) > 0 and typeName != self.currentChildType:
                     self.put('type="%s",' % typeName) # str(type.unqualified()) ?
             if  self.currentValue.value is None:
-                self.put('value="",encoding="%d",numchild="0",'
-                        % SpecialNotAccessibleValue)
+                self.put('value="",encoding="notaccessible",numchild="0",')
             else:
                 if not self.currentValue.encoding is None:
                     self.put('valueencoded="%s",' % self.currentValue.encoding)
@@ -571,28 +570,14 @@ class Dumper(DumperBase):
         size = typeobj.sizeof
         if code == lldb.eTypeClassBuiltin:
             name = str(typeobj)
-            if name == "float":
-                return Hex2EncodedFloat4
-            if name == "double":
-                return Hex2EncodedFloat8
-            if name.find("unsigned") >= 0:
-                if size == 1:
-                    return Hex2EncodedUInt1
-                if size == 2:
-                    return Hex2EncodedUInt2
-                if size == 4:
-                    return Hex2EncodedUInt4
-                if size == 8:
-                    return Hex2EncodedUInt8
+            if name == 'float':
+                return 'float:4'
+            if name == 'double':
+                return 'float:8'
+            if name.find('unsigned') >= 0:
+                return 'uint:%d' % size
             else:
-                if size == 1:
-                    return Hex2EncodedInt1
-                if size == 2:
-                    return Hex2EncodedInt2
-                if size == 4:
-                    return Hex2EncodedInt4
-                if size == 8:
-                    return Hex2EncodedInt8
+                return 'int:%d' % size
         return None
 
     def createPointerValue(self, address, pointeeType):

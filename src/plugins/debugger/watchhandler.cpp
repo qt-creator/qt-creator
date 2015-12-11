@@ -1788,7 +1788,7 @@ void WatchItem::parseWatchData(const GdbMi &input)
     };
 
     auto arrayDecoder = [itemAdder](const WatchData &childTemplate,
-            const QByteArray &encodedData, int encoding) {
+            const QByteArray &encodedData, const DebuggerEncoding &encoding) {
         decodeArrayData(itemAdder, childTemplate, encodedData, encoding);
     };
 

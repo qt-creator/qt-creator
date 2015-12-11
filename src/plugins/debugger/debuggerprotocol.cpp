@@ -560,139 +560,101 @@ static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time)
     *time = (status & NullTime) ? QTime() : QTime::fromMSecsSinceStartOfDay(ds);
 }
 
-QString decodeData(const QByteArray &ba, DebuggerEncoding encoding)
+QString decodeData(const QByteArray &ba, const QByteArray &encoding)
 {
-    switch (encoding) {
-        case Unencoded8Bit: // 0
-            return quoteUnprintableLatin1(ba);
-        case Base64Encoded8BitWithQuotes: { // 1, used for QByteArray
-            const QChar doubleQuote(QLatin1Char('"'));
-            QString rc = doubleQuote;
-            rc += quoteUnprintableLatin1(QByteArray::fromBase64(ba));
-            rc += doubleQuote;
-            return rc;
+    if (encoding.isEmpty())
+        return quoteUnprintableLatin1(ba); // The common case.
+
+    if (encoding == "empty")
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<empty>");
+    if (encoding == "minimumitemcount")
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<at least %n items>", 0, ba.toInt());
+    if (encoding == "undefined")
+        return QLatin1String("Undefined");
+    if (encoding == "null")
+        return QLatin1String("Null");
+    if (encoding == "itemcount")
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<%n items>", 0, ba.toInt());
+    if (encoding == "notaccessible")
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not accessible>");
+    if (encoding == "optimizedout")
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<optimized out>");
+    if (encoding == "nullreference")
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<null reference>");
+    if (encoding == "emptystructure")
+        return QLatin1String("{...}");
+    if (encoding == "uninitialized")
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<uninitialized>");
+    if (encoding == "invalid")
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<invalid>");
+    if (encoding == "notcallable")
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not callable>");
+
+    DebuggerEncoding enc(encoding);
+    QString result;
+    switch (enc.type) {
+        case DebuggerEncoding::Unencoded: {
+            result = quoteUnprintableLatin1(ba);
+            break;
         }
-        case Base64Encoded16BitWithQuotes: { // 2, used for QString
-            const QChar doubleQuote(QLatin1Char('"'));
-            const QByteArray decodedBa = QByteArray::fromBase64(ba);
-            QString rc = doubleQuote;
-            rc += QString::fromUtf16(reinterpret_cast<const ushort *>
+        case DebuggerEncoding::HexEncodedLocal8Bit: {
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            result = QString::fromLocal8Bit(decodedBa.data(), decodedBa.size());
+            break;
+        }
+        case DebuggerEncoding::HexEncodedLatin1: {
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            result = QString::fromLatin1(decodedBa.data(), decodedBa.size());
+            break;
+        }
+        case DebuggerEncoding::HexEncodedUtf8: {
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            result = QString::fromUtf8(decodedBa.data(), decodedBa.size());
+            break;
+        }
+        case DebuggerEncoding::HexEncodedUtf16: {
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            result = QString::fromUtf16(reinterpret_cast<const ushort *>
                 (decodedBa.data()), decodedBa.size() / 2);
-            rc += doubleQuote;
-            return rc;
+            break;
         }
-        case Base64Encoded32BitWithQuotes: { // 3
-            const QByteArray decodedBa = QByteArray::fromBase64(ba);
-            const QChar doubleQuote(QLatin1Char('"'));
-            QString rc = doubleQuote;
-            rc += QString::fromUcs4(reinterpret_cast<const uint *>
+        case DebuggerEncoding::HexEncodedUcs4: {
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            result = QString::fromUcs4(reinterpret_cast<const uint *>
                 (decodedBa.data()), decodedBa.size() / 4);
-            rc += doubleQuote;
-            return rc;
+            break;
         }
-        case Base64Encoded16Bit: { // 4, without quotes (see 2)
-            const QByteArray decodedBa = QByteArray::fromBase64(ba);
-            return QString::fromUtf16(reinterpret_cast<const ushort *>
-                (decodedBa.data()), decodedBa.size() / 2);
-        }
-        case Base64Encoded8Bit: { // 5, without quotes (see 1)
-            return quoteUnprintableLatin1(QByteArray::fromBase64(ba));
-        }
-        case Hex2EncodedLatin1WithQuotes: { // 6, %02x encoded 8 bit Latin1 data
-            const QChar doubleQuote(QLatin1Char('"'));
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
-            return doubleQuote + QString::fromLatin1(decodedBa, decodedBa.size()) + doubleQuote;
-        }
-        case Hex4EncodedLittleEndianWithQuotes: { // 7, %04x encoded 16 bit data
-            const QChar doubleQuote(QLatin1Char('"'));
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
-            return doubleQuote + QString::fromUtf16(reinterpret_cast<const ushort *>
-                (decodedBa.data()), decodedBa.size() / 2) + doubleQuote;
-        }
-        case Hex8EncodedLittleEndianWithQuotes: { // 8, %08x encoded 32 bit data
-            const QChar doubleQuote(QLatin1Char('"'));
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
-            return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
-                (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
-        }
-        case Hex2EncodedUtf8WithQuotes: { // 9, %02x encoded 8 bit UTF-8 data
-            const QChar doubleQuote(QLatin1Char('"'));
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
-            return doubleQuote + QString::fromUtf8(decodedBa) + doubleQuote;
-        }
-        case Hex8EncodedBigEndian: { // 10, %08x encoded 32 bit data
-            const QChar doubleQuote(QLatin1Char('"'));
-            QByteArray decodedBa = QByteArray::fromHex(ba);
-            for (int i = 0; i < decodedBa.size() - 3; i += 4) {
-                char c = decodedBa.at(i);
-                decodedBa[i] = decodedBa.at(i + 3);
-                decodedBa[i + 3] = c;
-                c = decodedBa.at(i + 1);
-                decodedBa[i + 1] = decodedBa.at(i + 2);
-                decodedBa[i + 2] = c;
-            }
-            return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
-                (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
-        }
-        case Hex4EncodedBigEndianWithQuotes: { // 11, %04x encoded 16 bit data
-            const QChar doubleQuote(QLatin1Char('"'));
-            QByteArray decodedBa = QByteArray::fromHex(ba);
-            for (int i = 0; i < decodedBa.size(); i += 2) {
-                char c = decodedBa.at(i);
-                decodedBa[i] = decodedBa.at(i + 1);
-                decodedBa[i + 1] = c;
-            }
-            return doubleQuote + QString::fromUtf16(reinterpret_cast<const ushort *>
-                (decodedBa.data()), decodedBa.size() / 2) + doubleQuote;
-        }
-        case Hex4EncodedLittleEndianWithoutQuotes: { // 12, see 7, without quotes
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
-            return QString::fromUtf16(reinterpret_cast<const ushort *>
-                (decodedBa.data()), decodedBa.size() / 2);
-        }
-        case Hex2EncodedLocal8BitWithQuotes: { // 13, %02x encoded 8 bit UTF-8 data
-            const QChar doubleQuote(QLatin1Char('"'));
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
-            return doubleQuote + QString::fromLocal8Bit(decodedBa) + doubleQuote;
-        }
-        case JulianDate: { // 14, an integer count
+        case DebuggerEncoding::JulianDate: {
             const QDate date = dateFromData(ba.toInt());
             return date.isValid() ? date.toString(Qt::TextDate) : QLatin1String("(invalid)");
         }
-        case MillisecondsSinceMidnight: { // 15
+        case DebuggerEncoding::MillisecondsSinceMidnight: {
             const QTime time = timeFromData(ba.toInt());
             return time.isValid() ? time.toString(Qt::TextDate) : QLatin1String("(invalid)");
         }
-        case JulianDateAndMillisecondsSinceMidnight: { // 16
+        case DebuggerEncoding::JulianDateAndMillisecondsSinceMidnight: {
             const int p = ba.indexOf('/');
             const QDate date = dateFromData(ba.left(p).toInt());
             const QTime time = timeFromData(ba.mid(p + 1 ).toInt());
             const QDateTime dateTime = QDateTime(date, time);
             return dateTime.isValid() ? dateTime.toString(Qt::TextDate) : QLatin1String("(invalid)");
         }
-        case Hex2EncodedInt1:   // 17
-        case Hex2EncodedInt2:   // 18
-        case Hex2EncodedInt4:   // 19
-        case Hex2EncodedInt8:   // 20
-        case Hex2EncodedUInt1:  // 21
-        case Hex2EncodedUInt2:  // 22
-        case Hex2EncodedUInt4:  // 23
-        case Hex2EncodedUInt8:  // 24
+        case DebuggerEncoding::HexEncodedUnsignedInteger:
+        case DebuggerEncoding::HexEncodedSignedInteger:
             qDebug("not implemented"); // Only used in Arrays, see watchdata.cpp
             return QString();
-        case Hex2EncodedFloat4: { // 25
+        case DebuggerEncoding::HexEncodedFloat: {
             const QByteArray s = QByteArray::fromHex(ba);
-            QTC_ASSERT(s.size() == 4, break);
-            union { char c[4]; float f; } u = { { s[3], s[2], s[1], s[0] } };
-            return QString::number(u.f);
+            if (enc.size == 4) {
+                union { char c[4]; float f; } u = { { s[3], s[2], s[1], s[0] } };
+                return QString::number(u.f);
+            }
+            if (enc.size == 8) {
+                union { char c[8]; double d; } u = { { s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0] } };
+                return QString::number(u.d);
+            }
         }
-        case Hex2EncodedFloat8: { // 26
-            const QByteArray s = QByteArray::fromHex(ba);
-            QTC_ASSERT(s.size() == 8, break);
-            union { char c[8]; double d; } u = { { s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0] } };
-            return QString::number(u.d);
-        }
-        case IPv6AddressAndHexScopeId: { // 27, 16 hex-encoded bytes, "%" and the string-encoded scope
+        case DebuggerEncoding::IPv6AddressAndHexScopeId: { // 16 hex-encoded bytes, "%" and the string-encoded scope
             const int p = ba.indexOf('%');
             QHostAddress ip6(QString::fromLatin1(p == -1 ? ba : ba.left(p)));
             if (ip6.isNull())
@@ -704,11 +666,7 @@ QString decodeData(const QByteArray &ba, DebuggerEncoding encoding)
                                                   scopeId.length() / 2));
             return ip6.toString();
         }
-        case Hex2EncodedUtf8WithoutQuotes: { // 28, %02x encoded 8 bit UTF-8 data without quotes
-            const QByteArray decodedBa = QByteArray::fromHex(ba);
-            return QString::fromUtf8(decodedBa);
-        }
-        case DateTimeInternal: { // 29, DateTimeInternal: msecs, spec, offset, tz, status
+        case DebuggerEncoding::DateTimeInternal: { // DateTimeInternal: msecs, spec, offset, tz, status
             int p0 = ba.indexOf('/');
             int p1 = ba.indexOf('/', p0 + 1);
             int p2 = ba.indexOf('/', p1 + 1);
@@ -740,45 +698,15 @@ QString decodeData(const QByteArray &ba, DebuggerEncoding encoding)
             }
             return dateTime.toString();
         }
-        case SpecialEmptyValue: { // 30
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<empty>");
-        }
-        case SpecialUninitializedValue:  { // 31
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<uninitialized>");
-        }
-        case SpecialInvalidValue:  { // 32
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<invalid>");
-        }
-        case SpecialNotAccessibleValue:  { // 33
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not accessible>");
-        }
-        case SpecialItemCountValue:  { // 34
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<%n items>", 0, ba.toInt());
-        }
-        case SpecialMinimumItemCountValue:  { // 35
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<at least %n items>", 0, ba.toInt());
-        }
-        case SpecialNotCallableValue:  { // 36
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not callable>");
-        }
-        case SpecialNullReferenceValue:  { // 37
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<null reference>");
-        }
-        case SpecialOptimizedOutValue:  { // 38
-            return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<optimized out>");
-        }
-        case SpecialEmptyStructureValue:  { // 39
-            return QLatin1String("{...}");
-        }
-        case SpecialUndefinedValue:  { // 40
-            return QLatin1String("Undefined");
-        }
-        case SpecialNullValue:  { // 41
-            return QLatin1String("Null");
-        }
+        qDebug() << "ENCODING ERROR: " << enc.type;
+        return QCoreApplication::translate("Debugger", "<Encoding error>");
     }
-    qDebug() << "ENCODING ERROR: " << encoding;
-    return QCoreApplication::translate("Debugger", "<Encoding error>");
+
+    if (enc.quotes) {
+        const QChar doubleQuote(QLatin1Char('"'));
+        result = doubleQuote + result + doubleQuote;
+    }
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -897,23 +825,61 @@ QByteArray DebuggerCommand::argsToString() const
     return args.toString().toLatin1();
 }
 
-DebuggerEncoding debuggerEncoding(const QByteArray &data)
+DebuggerEncoding::DebuggerEncoding(const QByteArray &data)
 {
-    if (data == "utf16")
-        return Hex4EncodedLittleEndianWithQuotes;
-    if (data == "empty")
-        return SpecialEmptyValue;
-    if (data == "minimumitemcount")
-        return SpecialMinimumItemCountValue;
-    if (data == "undefined")
-        return SpecialUndefinedValue;
-    if (data == "null")
-        return SpecialNullValue;
-    if (data == "itemcount")
-        return SpecialItemCountValue;
-    if (data == "notaccessible")
-        return SpecialNotAccessibleValue;
-    return DebuggerEncoding(data.toInt());
+    const QByteArrayList l = data.split(':');
+
+    const QByteArray &t = l.at(0);
+    if (t == "latin1") {
+        type = HexEncodedLatin1;
+        size = 1;
+        quotes = true;
+    } else if (t == "local8bit") {
+        type = HexEncodedLocal8Bit;
+        size = 1;
+        quotes = true;
+    } else if (t == "utf8") {
+        type = HexEncodedUtf8;
+        size = 1;
+        quotes = true;
+    } else if (t == "utf16") {
+        type = HexEncodedUtf16;
+        size = 2;
+        quotes = true;
+    } else if (t == "ucs4") {
+        type = HexEncodedUcs4;
+        size = 4;
+        quotes = true;
+    } else if (t == "int") {
+        type = HexEncodedSignedInteger;
+    } else if (t == "uint") {
+        type = HexEncodedUnsignedInteger;
+    } else if (t == "float") {
+        type = HexEncodedFloat;
+    } else if (t == "juliandate") {
+        type = JulianDate;
+    } else if (t == "juliandateandmillisecondssincemidnight") {
+        type = JulianDateAndMillisecondsSinceMidnight;
+    } else if (t == "millisecondssincemidnight") {
+        type = MillisecondsSinceMidnight;
+    } else if (t == "ipv6addressandhexscopeid") {
+        type = IPv6AddressAndHexScopeId;
+    } else if (t == "datetimeinternal") {
+        type = DateTimeInternal;
+    } else if (!t.isEmpty()) {
+        qDebug() << "CANNOT DECODE ENCODING" << data;
+    }
+
+    if (l.size() >= 2)
+        size = l.at(1).toInt();
+
+    if (l.size() >= 3)
+        quotes = bool(l.at(2).toInt());
+}
+
+QString DebuggerEncoding::toString() const
+{
+    return QString::fromLatin1("%1:%2:%3").arg(type).arg(size).arg(quotes);
 }
 
 } // namespace Internal

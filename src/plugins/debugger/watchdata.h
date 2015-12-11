@@ -127,18 +127,16 @@ public:
 void decodeArrayData(std::function<void(const WatchData &)> itemHandler,
                      const WatchData &tmplate,
                      const QByteArray &rawData,
-                     int encoding);
+                     const DebuggerEncoding &encoding);
 
 void readNumericVector(std::vector<double> *,
                        const QByteArray &rawData,
-                       DebuggerEncoding encoding);
+                       const DebuggerEncoding &encoding);
 
 void parseChildrenData(const WatchData &parent, const GdbMi &child,
                        std::function<void(const WatchData &)> itemHandler,
                        std::function<void(const WatchData &, const GdbMi &)> childHandler,
-                       std::function<void(const WatchData &childTemplate,
-                                          const QByteArray &encodedData,
-                                          int encoding)> arrayDecoder);
+                       std::function<void(const WatchData &, const QByteArray &, const DebuggerEncoding &)> arrayDecoder);
 
 void parseWatchData(const WatchData &parent, const GdbMi &child,
                     QList<WatchData> *insertions);

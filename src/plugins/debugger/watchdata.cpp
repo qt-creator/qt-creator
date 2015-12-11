@@ -122,7 +122,6 @@ WatchData::WatchData() :
     id(WatchData::InvalidId),
     state(InitialState),
     editformat(StopDisplay),
-    editencoding(Unencoded8Bit),
     address(0),
     origaddr(0),
     size(0),
@@ -389,9 +388,9 @@ QByteArray WatchData::hexAddress() const
 void WatchData::updateValue(const GdbMi &item)
 {
     GdbMi value = item["value"];
-    DebuggerEncoding encoding = debuggerEncoding(item["valueencoded"].data());
-    if (value.isValid() || encoding != Unencoded8Bit) {
-        setValue(decodeData(value.data(), encoding));
+    GdbMi encoding = item["valueencoded"];
+    if (value.isValid() || encoding.isValid()) {
+        setValue(decodeData(value.data(), encoding.data()));
     } else {
         setValueNeeded();
     }
@@ -483,48 +482,51 @@ void decodeArrayHelper(std::function<void(const WatchData &)> itemHandler, const
 }
 
 void decodeArrayData(std::function<void(const WatchData &)> itemHandler, const WatchData &tmplate,
-    const QByteArray &rawData, int encoding)
+    const QByteArray &rawData, const DebuggerEncoding &encoding)
 {
-    switch (encoding) {
-        case Hex2EncodedInt1:
-            decodeArrayHelper<signed char>(itemHandler, tmplate, rawData);
+    switch (encoding.type) {
+        case DebuggerEncoding::HexEncodedSignedInteger:
+            switch (encoding.size) {
+                case 1:
+                    return decodeArrayHelper<signed char>(itemHandler, tmplate, rawData);
+                case 2:
+                    return decodeArrayHelper<short>(itemHandler, tmplate, rawData);
+                case 4:
+                    return decodeArrayHelper<int>(itemHandler, tmplate, rawData);
+                case 8:
+                    return decodeArrayHelper<qint64>(itemHandler, tmplate, rawData);
+            }
             break;
-        case Hex2EncodedInt2:
-            decodeArrayHelper<short>(itemHandler, tmplate, rawData);
+        case DebuggerEncoding::HexEncodedUnsignedInteger:
+            switch (encoding.size) {
+                case 1:
+                    return decodeArrayHelper<uchar>(itemHandler, tmplate, rawData);
+                case 2:
+                    return decodeArrayHelper<ushort>(itemHandler, tmplate, rawData);
+                case 4:
+                    return decodeArrayHelper<uint>(itemHandler, tmplate, rawData);
+                case 8:
+                    return decodeArrayHelper<quint64>(itemHandler, tmplate, rawData);
+            }
             break;
-        case Hex2EncodedInt4:
-            decodeArrayHelper<int>(itemHandler, tmplate, rawData);
-            break;
-        case Hex2EncodedInt8:
-            decodeArrayHelper<qint64>(itemHandler, tmplate, rawData);
-            break;
-        case Hex2EncodedUInt1:
-            decodeArrayHelper<uchar>(itemHandler, tmplate, rawData);
-            break;
-        case Hex2EncodedUInt2:
-            decodeArrayHelper<ushort>(itemHandler, tmplate, rawData);
-            break;
-        case Hex2EncodedUInt4:
-            decodeArrayHelper<uint>(itemHandler, tmplate, rawData);
-            break;
-        case Hex2EncodedUInt8:
-            decodeArrayHelper<quint64>(itemHandler, tmplate, rawData);
-            break;
-        case Hex2EncodedFloat4:
-            decodeArrayHelper<float>(itemHandler, tmplate, rawData);
-            break;
-        case Hex2EncodedFloat8:
-            decodeArrayHelper<double>(itemHandler, tmplate, rawData);
-            break;
+        case DebuggerEncoding::HexEncodedFloat:
+            switch (encoding.size) {
+                case 4:
+                    return decodeArrayHelper<float>(itemHandler, tmplate, rawData);
+                case 8:
+                    return decodeArrayHelper<double>(itemHandler, tmplate, rawData);
+            }
         default:
-            qDebug() << "ENCODING ERROR: " << encoding;
+            break;
     }
+    qDebug() << "ENCODING ERROR: " << encoding.toString();
 }
 
 void parseChildrenData(const WatchData &data0, const GdbMi &item,
                        std::function<void(const WatchData &)> itemHandler,
                        std::function<void(const WatchData &, const GdbMi &)> childHandler,
-                       std::function<void(const WatchData &childTemplate, const QByteArray &encodedData, int encoding)> arrayDecoder)
+                       std::function<void(const WatchData &childTemplate, const QByteArray &encodedData,
+                                          const DebuggerEncoding &encoding)> arrayDecoder)
 {
     WatchData data = data0;
     data.setChildrenUnneeded();
@@ -535,7 +537,7 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
 
     data.editvalue = item["editvalue"].data();
     data.editformat = DebuggerDisplay(item["editformat"].toInt());
-    data.editencoding = DebuggerEncoding(item["editencoding"].toInt());
+    data.editencoding = DebuggerEncoding(item["editencoding"].data());
 
     GdbMi mi = item["valueelided"];
     if (mi.isValid())
@@ -582,7 +584,7 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
 
     mi = item["arraydata"];
     if (mi.isValid()) {
-        int encoding = item["arrayencoding"].toInt();
+        DebuggerEncoding encoding(item["arrayencoding"].data());
         childtemplate.iname = data.iname + '.';
         childtemplate.address = addressBase;
         arrayDecoder(childtemplate, mi.data(), encoding);
@@ -611,8 +613,7 @@ void parseChildrenData(const WatchData &data0, const GdbMi &item,
             }
             QByteArray key = child["key"].data();
             if (!key.isEmpty()) {
-                int encoding = child["keyencoded"].toInt();
-                data1.name = decodeData(key, DebuggerEncoding(encoding));
+                data1.name = decodeData(key, child["keyencoded"].data());
             }
             childHandler(data1, child);
         }
@@ -629,7 +630,7 @@ void parseWatchData(const WatchData &data0, const GdbMi &input,
         parseWatchData(innerData, innerInput, list);
     };
     auto arrayDecoder = [itemHandler](const WatchData &childTemplate,
-            const QByteArray &encodedData, int encoding) {
+            const QByteArray &encodedData, const DebuggerEncoding &encoding) {
         decodeArrayData(itemHandler, childTemplate, encodedData, encoding);
     };
 
@@ -648,43 +649,52 @@ void readNumericVectorHelper(std::vector<double> *v, const QByteArray &ba)
         (*v)[i] = static_cast<double>(p[i]);
 }
 
-void readNumericVector(std::vector<double> *v, const QByteArray &rawData, DebuggerEncoding encoding)
+void readNumericVector(std::vector<double> *v, const QByteArray &rawData, const DebuggerEncoding &encoding)
 {
-    switch (encoding) {
-        case Hex2EncodedInt1:
-            readNumericVectorHelper<signed char>(v, rawData);
-            break;
-        case Hex2EncodedInt2:
-            readNumericVectorHelper<short>(v, rawData);
-            break;
-        case Hex2EncodedInt4:
-            readNumericVectorHelper<int>(v, rawData);
-            break;
-        case Hex2EncodedInt8:
-            readNumericVectorHelper<qint64>(v, rawData);
-            break;
-        case Hex2EncodedUInt1:
-            readNumericVectorHelper<uchar>(v, rawData);
-            break;
-        case Hex2EncodedUInt2:
-            readNumericVectorHelper<ushort>(v, rawData);
-            break;
-        case Hex2EncodedUInt4:
-            readNumericVectorHelper<uint>(v, rawData);
-            break;
-        case Hex2EncodedUInt8:
-            readNumericVectorHelper<quint64>(v, rawData);
-            break;
-        case Hex2EncodedFloat4:
-            readNumericVectorHelper<float>(v, rawData);
-            break;
-        case Hex2EncodedFloat8:
-            readNumericVectorHelper<double>(v, rawData);
-            break;
+    switch (encoding.type) {
+        case DebuggerEncoding::HexEncodedSignedInteger:
+            switch (encoding.size) {
+                case 1:
+                    readNumericVectorHelper<signed char>(v, rawData);
+                    return;
+                case 2:
+                    readNumericVectorHelper<short>(v, rawData);
+                    return;
+                case 4:
+                    readNumericVectorHelper<int>(v, rawData);
+                    return;
+                case 8:
+                    readNumericVectorHelper<qint64>(v, rawData);
+                    return;
+            }
+        case DebuggerEncoding::HexEncodedUnsignedInteger:
+            switch (encoding.size) {
+                case 1:
+                    readNumericVectorHelper<uchar>(v, rawData);
+                    return;
+                case 2:
+                    readNumericVectorHelper<ushort>(v, rawData);
+                    return;
+                case 4:
+                    readNumericVectorHelper<uint>(v, rawData);
+                    return;
+                case 8:
+                    readNumericVectorHelper<quint64>(v, rawData);
+                    return;
+            }
+        case DebuggerEncoding::HexEncodedFloat:
+            switch (encoding.size) {
+                case 4:
+                    readNumericVectorHelper<float>(v, rawData);
+                    return;
+                case 8:
+                    readNumericVectorHelper<double>(v, rawData);
+                    return;
+            }
         default:
-            qDebug() << "ENCODING ERROR: " << encoding;
+                break;
     }
-
+    qDebug() << "ENCODING ERROR: " << encoding.toString();
 }
 
 } // namespace Internal

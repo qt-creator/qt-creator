@@ -1537,19 +1537,19 @@ class Dumper:
             v = value
             self.putType(tt)
             self.putValue(self.hexencode(v))
-            self.putField("valueencoded", 6)
+            self.putField("valueencoded", "utf8")
             self.putNumChild(0)
         elif tt == "unicode":
             v = value
             self.putType(tt)
             self.putValue(self.hexencode(v))
-            self.putField("valueencoded", 6)
+            self.putField("valueencoded", "utf8")
             self.putNumChild(0)
         elif tt == "buffer":
             v = str(value)
             self.putType(tt)
             self.putValue(self.hexencode(v))
-            self.putField("valueencoded", 6)
+            self.putField("valueencoded", "latin1")
             self.putNumChild(0)
         elif tt == "xrange":
             b = iter(value).next()

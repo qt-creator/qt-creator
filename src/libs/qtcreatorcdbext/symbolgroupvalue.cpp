@@ -1710,7 +1710,7 @@ static unsigned qAtomicIntSize(const SymbolGroupValueContext &ctx)
 }
 
 // Dump a QByteArray
-static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str, int *encoding,
+static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str, std::string *encoding,
                                   MemoryHandle **memoryHandle = 0)
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
@@ -1735,7 +1735,7 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
 
     // Qt 5: Data start at offset past the 'd' of type QByteArrayData.
     if (encoding)
-        *encoding = DumpEncodingHex_Latin1_WithQuotes;
+        *encoding = "latin1";
     wchar_t oldFill = str.fill(wchar_t('0'));
     str << std::hex;
     char *memory;
@@ -1839,7 +1839,7 @@ static bool dumpQByteArrayFromQPrivateClass(const SymbolGroupValue &v,
                                             QPrivateDumpMode mode,
                                             unsigned additionalOffset,
                                             std::wostream &str,
-                                            int *encoding)
+                                            std::string *encoding)
 {
     std::string errorMessage;
     const ULONG64 byteArrayAddress = addressOfQPrivateMember(v, mode, additionalOffset);
@@ -1935,7 +1935,7 @@ static inline bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
     return dumpQStringFromQPrivateClass(v, QPDM_qVirtual, qFileBasePrivateSize,  str);
 }
 
-static inline bool dumpQIPv6Address(const SymbolGroupValue &v, std::wostream &str, int *encoding)
+static inline bool dumpQIPv6Address(const SymbolGroupValue &v, std::wostream &str, std::string *encoding)
 {
     unsigned char *p = SymbolGroupValue::readMemory( v.context().dataspaces, v["c"].address(), 16);
     if (!p || !encoding)
@@ -1950,12 +1950,12 @@ static inline bool dumpQIPv6Address(const SymbolGroupValue &v, std::wostream &st
     }
     str << std::dec;
     str.fill(oldFill);
-    *encoding = DumpEncodingIPv6AddressAndHexScopeId;
+    *encoding = "ipv6addressandhexscopeid";
     return true;
 }
 /* Dump QHostAddress, for whose private class no debugging information is available.
  * Dump string 'ipString' past of its private class. Does not currently work? */
-static inline bool dumpQHostAddress(const SymbolGroupValue &v, std::wostream &str, int *encoding)
+static inline bool dumpQHostAddress(const SymbolGroupValue &v, std::wostream &str, std::string *encoding)
 {
     // Determine offset in private struct: qIPv6AddressType (array, unaligned) +  uint32 + enum.
     const QtInfo info = QtInfo::get(v.context());
@@ -2181,13 +2181,13 @@ static inline bool dumpQFlags(const SymbolGroupValue &v, std::wostream &str)
     return false;
 }
 
-static bool dumpQDate(const SymbolGroupValue &v, std::wostream &str, int *encoding)
+static bool dumpQDate(const SymbolGroupValue &v, std::wostream &str, std::string *encoding)
 {
     if (const SymbolGroupValue julianDayV = v["jd"]) {
         if (julianDayV.intValue() > 0) {
             str << julianDayV.intValue();
             if (encoding)
-                *encoding = DumpEncodingJulianDate;
+                *encoding = "juliandate";
         } else {
             str << L"(invalid)";
         }
@@ -2196,19 +2196,19 @@ static bool dumpQDate(const SymbolGroupValue &v, std::wostream &str, int *encodi
     return false;
 }
 
-static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str, int *encoding)
+static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str, std::string *encoding)
 {
     if (const SymbolGroupValue milliSecsV = v["mds"]) {
         const int milliSecs = milliSecsV.intValue();
         str << milliSecs;
         if (encoding)
-            *encoding = DumpEncodingMillisecondsSinceMidnight;
+            *encoding = "millisecondssincemidnight";
         return true;
     }
     return false;
 }
 
-static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str, int *encoding)
+static bool dumpQTimeZone(const SymbolGroupValue &v, std::wostream &str, std::string *encoding)
 {
     if (!dumpQByteArrayFromQPrivateClass(v, QPDM_qSharedDataPadded, SymbolGroupValue::pointerSize(), str, encoding))
         str << L"(null)";
@@ -2220,7 +2220,7 @@ static bool dumpQTimeZoneFromQPrivateClass(const SymbolGroupValue &v,
                                            QPrivateDumpMode mode,
                                            unsigned additionalOffset,
                                            std::wostream &str,
-                                           int *encoding)
+                                           std::string *encoding)
 {
     std::string errorMessage;
     const ULONG64 timeZoneAddress = addressOfQPrivateMember(v, mode, additionalOffset);
@@ -2250,7 +2250,7 @@ static bool dumpQTimeZoneFromQPrivateClass(const SymbolGroupValue &v,
 
 // QDateTime has an unexported private class. Obtain date and time
 // from memory.
-static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, int *encoding)
+static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, std::string *encoding)
 {
     // QDate is 64bit starting from Qt 5 which is always aligned 64bit.
     if (QtInfo::get(v.context()).version == 5) {
@@ -2298,7 +2298,7 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, int *en
             << status;
 
         if (encoding)
-            *encoding = DumpEncodingMillisecondsSinceEpoch;
+            *encoding = "datetimeinternal";
 
         return  true;
     }
@@ -2319,7 +2319,7 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, int *en
                                        timeAddr, SymbolGroupValue::intSize(), 0);
     str << date << '/' << time;
     if (encoding)
-        *encoding = DumpEncodingJulianDateAndMillisecondsSinceMidnight;
+        *encoding = "juliandateandmillisecondssincemidnight";
     return true;
 }
 
@@ -2651,7 +2651,7 @@ static inline std::string
     return rc;
 }
 
-static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, int *encoding,
+static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, std::string *encoding,
                          void **specialInfoIn = 0)
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
@@ -2695,7 +2695,8 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, int *enc
         if (const SymbolGroupValue mv = dataV.typeCast(vmType.c_str())) {
             SymbolGroupNode *mapNode = mv.node();
             std::wstring value;
-            if (dumpSimpleType(mapNode, dataV.context(), &value) == SymbolGroupNode::SimpleDumperOk) {
+            if (dumpSimpleType(mapNode, dataV.context(), &value, &std::string())
+                    == SymbolGroupNode::SimpleDumperOk) {
                 str << value;
                 if (specialInfoIn)
                     *specialInfoIn = mapNode;
@@ -2709,7 +2710,8 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, int *enc
         if (const SymbolGroupValue vl = dataV.typeCast(vLType.c_str())) {
             SymbolGroupNode *vListNode = vl.node();
             std::wstring value;
-            if (dumpSimpleType(vListNode, dataV.context(), &value) == SymbolGroupNode::SimpleDumperOk) {
+            if (dumpSimpleType(vListNode, dataV.context(), &value, &std::string())
+                    == SymbolGroupNode::SimpleDumperOk) {
                 str << value;
                 if (specialInfoIn)
                     *specialInfoIn = vListNode;
@@ -2734,7 +2736,8 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, int *enc
         if (const SymbolGroupValue sl = dataV.typeCast(qtInfo.prependQtCoreModule("QStringList *").c_str())) {
             SymbolGroupNode *listNode = sl.node();
             std::wstring value;
-            if (dumpSimpleType(listNode, dataV.context(), &value) == SymbolGroupNode::SimpleDumperOk) {
+            if (dumpSimpleType(listNode, dataV.context(), &value, &std::string())
+                    == SymbolGroupNode::SimpleDumperOk) {
                 str << value;
                 if (specialInfoIn)
                     *specialInfoIn = listNode;
@@ -2821,7 +2824,7 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, int *enc
     return true;
 }
 
-static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &str, int *encoding, void **specialInfoIn = 0)
+static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &str, std::string *encoding, void **specialInfoIn = 0)
 {
     const SymbolGroupValue externalRefCountV = v[unsigned(0)];
     const QtInfo qtInfo = QtInfo::get(v.context());
@@ -2865,7 +2868,7 @@ static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &
 
 // Dump builtin simple types using SymbolGroupValue expressions.
 unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
-                        std::wstring *s, int *encoding /* = 0 */, int *knownTypeIn /* = 0 */,
+                        std::wstring *s, std::string *encoding, int *knownTypeIn /* = 0 */,
                         int *containerSizeIn /* = 0 */,
                         void **specialInfoIn /* = 0 */,
                         MemoryHandle **memoryHandleIn /* = 0 */)

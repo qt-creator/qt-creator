@@ -158,62 +158,37 @@ void extractGdbVersion(const QString &msg,
     int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb, bool *isQnxGdb);
 
 
-// These enum values correspond to encodings produced by the dumpers
-// and consumed by \c decodeData(const QByteArray &baIn, DebuggerEncoding encoding);
-// They are never stored in settings.
-//
-// Keep in sync with dumper.py
-
-enum DebuggerEncoding
+class DebuggerEncoding
 {
-    Unencoded8Bit                          =  0,
-    Base64Encoded8BitWithQuotes            =  1,
-    Base64Encoded16BitWithQuotes           =  2,
-    Base64Encoded32BitWithQuotes           =  3,
-    Base64Encoded16Bit                     =  4,
-    Base64Encoded8Bit                      =  5,
-    Hex2EncodedLatin1WithQuotes            =  6,
-    Hex4EncodedLittleEndianWithQuotes      =  7,
-    Hex8EncodedLittleEndianWithQuotes      =  8,
-    Hex2EncodedUtf8WithQuotes              =  9,
-    Hex8EncodedBigEndian                   = 10,
-    Hex4EncodedBigEndianWithQuotes         = 11,
-    Hex4EncodedLittleEndianWithoutQuotes   = 12,
-    Hex2EncodedLocal8BitWithQuotes         = 13,
-    JulianDate                             = 14,
-    MillisecondsSinceMidnight              = 15,
-    JulianDateAndMillisecondsSinceMidnight = 16,
-    Hex2EncodedInt1                        = 17,
-    Hex2EncodedInt2                        = 18,
-    Hex2EncodedInt4                        = 19,
-    Hex2EncodedInt8                        = 20,
-    Hex2EncodedUInt1                       = 21,
-    Hex2EncodedUInt2                       = 22,
-    Hex2EncodedUInt4                       = 23,
-    Hex2EncodedUInt8                       = 24,
-    Hex2EncodedFloat4                      = 25,
-    Hex2EncodedFloat8                      = 26,
-    IPv6AddressAndHexScopeId               = 27,
-    Hex2EncodedUtf8WithoutQuotes           = 28,
-    DateTimeInternal                       = 29,
-    SpecialEmptyValue                      = 30,
-    SpecialUninitializedValue              = 31,
-    SpecialInvalidValue                    = 32,
-    SpecialNotAccessibleValue              = 33,
-    SpecialItemCountValue                  = 34,
-    SpecialMinimumItemCountValue           = 35,
-    SpecialNotCallableValue                = 36,
-    SpecialNullReferenceValue              = 37,
-    SpecialOptimizedOutValue               = 38,
-    SpecialEmptyStructureValue             = 39,
-    SpecialUndefinedValue                  = 40,
-    SpecialNullValue                       = 41
+public:
+    enum EncodingType {
+        Unencoded,
+        HexEncodedLocal8Bit,
+        HexEncodedLatin1,
+        HexEncodedUtf8,
+        HexEncodedUtf16,
+        HexEncodedUcs4,
+        HexEncodedSignedInteger,
+        HexEncodedUnsignedInteger,
+        HexEncodedFloat,
+        JulianDate,
+        MillisecondsSinceMidnight,
+        JulianDateAndMillisecondsSinceMidnight,
+        IPv6AddressAndHexScopeId,
+        DateTimeInternal,
+    };
+
+    DebuggerEncoding() {}
+    explicit DebuggerEncoding(const QByteArray &data);
+    QString toString() const;
+
+    EncodingType type = Unencoded;
+    int size = 0;
+    bool quotes = false;
 };
 
-DebuggerEncoding debuggerEncoding(const QByteArray &data);
-
 // Decode string data as returned by the dumper helpers.
-QString decodeData(const QByteArray &baIn, DebuggerEncoding encoding);
+QString decodeData(const QByteArray &baIn, const QByteArray &encoding);
 
 
 // These enum values correspond to possible value display format requests,

@@ -41,7 +41,7 @@ def qdump__boost__bimaps__bimap(d, value):
 
 def qdump__boost__optional(d, value):
     if int(value["m_initialized"]) == 0:
-        d.putSpecialValue(SpecialUninitializedValue)
+        d.putSpecialValue("uninitialized")
         d.putNumChild(0)
     else:
         type = d.templateArgument(value.type, 0)
@@ -114,18 +114,18 @@ def qdump__boost__container__list(d, value):
 
 
 def qdump__boost__gregorian__date(d, value):
-    d.putValue(int(value["days_"]), JulianDate)
+    d.putValue(int(value["days_"]), "juliandate")
     d.putNumChild(0)
 
 
 def qdump__boost__posix_time__ptime(d, value):
     ms = int(int(value["time_"]["time_count_"]["value_"]) / 1000)
-    d.putValue("%s/%s" % divmod(ms, 86400000), JulianDateAndMillisecondsSinceMidnight)
+    d.putValue("%s/%s" % divmod(ms, 86400000), "juliandateandmillisecondssincemidnight")
     d.putNumChild(0)
 
 
 def qdump__boost__posix_time__time_duration(d, value):
-    d.putValue(int(int(value["ticks_"]["value_"]) / 1000), MillisecondsSinceMidnight)
+    d.putValue(int(int(value["ticks_"]["value_"]) / 1000), "millisecondssincemidnight")
     d.putNumChild(0)
 
 

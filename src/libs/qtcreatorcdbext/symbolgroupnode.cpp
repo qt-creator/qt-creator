@@ -505,7 +505,7 @@ bool DumpParameters::recode(const std::string &type,
                             const std::string &iname,
                             const SymbolGroupValueContext &ctx,
                             ULONG64 address,
-                            std::wstring *value, int *encoding) const
+                            std::wstring *value, std::string *encoding) const
 {
     const DumpParameterRecodeResult check
         = checkRecode(type, iname, *value, ctx, address, this);
@@ -515,19 +515,19 @@ bool DumpParameters::recode(const std::string &type,
     switch (check.recommendedFormat) {
     case FormatLatin1String:
         *value = dataToHexW(check.buffer, check.buffer + check.size); // Latin1 + 0
-        *encoding = DumpEncodingHex_Latin1_WithQuotes;
+        *encoding = "latin1";
         break;
     case FormatUtf8String:
         *value = dataToHexW(check.buffer, check.buffer + check.size); // UTF8 + 0
-        *encoding = DumpEncodingHex_Utf8_LittleEndian_WithQuotes;
+        *encoding = "utf8";
         break;
     case FormatUtf16String: // Paranoia: make sure buffer is terminated at 2 byte borders
         *value = dataToHexW(check.buffer, check.buffer + check.size);
-        *encoding = DumpEncodingHex_Utf16_LittleEndian_WithQuotes;
+        *encoding = "utf16";
         break;
     case FormatUcs4String: // Paranoia: make sure buffer is terminated at 4 byte borders
         *value = dataToHexW(check.buffer, check.buffer + check.size); // UTF16 + 0
-        *encoding = DumpEncodingHex_Ucs4_LittleEndian_WithQuotes;
+        *encoding = "ucs4";
         break;
     }
     delete [] check.buffer;
@@ -612,7 +612,6 @@ SymbolGroupNode::SymbolGroupNode(SymbolGroup *symbolGroup,
     , m_symbolGroup(symbolGroup)
     , m_module(module)
     , m_index(index)
-    , m_dumperValueEncoding(0)
     , m_dumperType(-1)
     , m_dumperContainerSize(-1)
     , m_dumperSpecialInfo(0)
@@ -920,18 +919,6 @@ static void fixValue(const std::string &type, std::wstring *value)
     }
 }
 
-// Check for ASCII-encode-able stuff. Plain characters + tabs at the most, no newline.
-static bool isSevenBitClean(const wchar_t *buf, size_t size)
-{
-    const wchar_t *bufEnd = buf + size;
-    for (const wchar_t *bufPtr = buf; bufPtr < bufEnd; bufPtr++) {
-        const wchar_t c = *bufPtr;
-        if (c > 127 || (c < 32 && c != 9))
-            return false;
-    }
-    return true;
-}
-
 std::string SymbolGroupNode::type() const
 {
     static char buf[BufSize];
@@ -1059,7 +1046,7 @@ bool SymbolGroupNode::runSimpleDumpers(const SymbolGroupValueContext &ctx)
     return testFlags(SimpleDumperOk);
 }
 
-std::wstring SymbolGroupNode::simpleDumpValue(const SymbolGroupValueContext &ctx, int *encoding)
+std::wstring SymbolGroupNode::simpleDumpValue(const SymbolGroupValueContext &ctx, std::string *encoding)
 {
     if (testFlags(Uninitialized))
         return L"<not in scope>";
@@ -1114,7 +1101,7 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     const std::string watchExp = t.empty() ? aName : watchExpression(addr, t, m_dumperType, m_module);
     SymbolGroupNode::dumpBasicData(str, aName, aFullIName, t, watchExp);
 
-    int encoding = 0;
+    std::string encoding;
     std::wstring value = simpleDumpValue(ctx, &encoding);
 
     if (addr) {
@@ -1138,20 +1125,15 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     bool valueEditable = !uninitialized;
     bool valueEnabled = !uninitialized;
 
-    if (encoding) {
+    if (encoding.size()) {
         str << ",valueencoded=\"" << encoding << "\",value=\"" << gdbmiWStringFormat(value) <<'"';
     } else if (dumpParameters.recode(t, aFullIName, ctx, addr, &value, &encoding)) {
         str << ",valueencoded=\"" << encoding
             << "\",value=\"" << gdbmiWStringFormat(value) <<'"';
-    } else { // As is: ASCII or hex encoded?
-        if (isSevenBitClean(value.c_str(), value.size())) {
-            str << ",valueencoded=\"" << DumpEncodingAscii << "\",value=\""
-                << gdbmiWStringFormat(value) << '"';
-        } else {
-            str << ",valueencoded=\"" << DumpEncodingHex_Utf16_LittleEndian << "\",value=\"";
-            hexEncode(str, reinterpret_cast<const unsigned char*>(value.c_str()), value.size() * 2);
-            str << '"';
-        }
+    } else {
+        str << ",valueencoded=\"utf16:2:0\",value=\"";
+        hexEncode(str, reinterpret_cast<const unsigned char *>(value.c_str()), value.size() * sizeof(wchar_t));
+        str << '"';
         const int format = dumpParameters.format(t, aFullIName);
         if (format > 0)
             dumpEditValue(this, ctx, format, str);
