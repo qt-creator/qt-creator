@@ -83,7 +83,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
     QFileInfo entryInfo(entry);
-    QString name = entryInfo.fileName();
+    const QString entryFileName = entryInfo.fileName();
     QString directory = entryInfo.path();
     QString filePath = entryInfo.filePath();
     if (entryInfo.isRelative()) {
@@ -101,7 +101,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     }
     // use only 'name' for case sensitivity decision, because we need to make the path
     // match the case on the file system for case-sensitive file systems
-    const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(name);
+    const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entryFileName);
     QStringList dirs = dirInfo.entryList(dirFilter,
                                       QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     QStringList files = dirInfo.entryList(fileFilter,
@@ -109,7 +109,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     foreach (const QString &dir, dirs) {
         if (future.isCanceled())
             break;
-        if (QList<LocatorFilterEntry> *category = categorize(name, dir, caseSensitivity_, &betterEntries,
+        if (QList<LocatorFilterEntry> *category = categorize(entryFileName, dir, caseSensitivity_, &betterEntries,
                                                       &goodEntries)) {
             const QString fullPath = dirInfo.filePath(dir);
             LocatorFilterEntry filterEntry(this, dir, QVariant());
@@ -118,16 +118,15 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
         }
     }
     // file names can match with +linenumber or :linenumber
-    name = entry;
-    const QString lineNoSuffix = EditorManager::splitLineAndColumnNumber(&name);
-    name = QFileInfo(name).fileName();
+    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
+    const QString fileName = QFileInfo(fp.filePath).fileName();
     foreach (const QString &file, files) {
         if (future.isCanceled())
             break;
-        if (QList<LocatorFilterEntry> *category = categorize(name, file, caseSensitivity_, &betterEntries,
+        if (QList<LocatorFilterEntry> *category = categorize(fileName, file, caseSensitivity_, &betterEntries,
                                                       &goodEntries)) {
             const QString fullPath = dirInfo.filePath(file);
-            LocatorFilterEntry filterEntry(this, file, QString(fullPath + lineNoSuffix));
+            LocatorFilterEntry filterEntry(this, file, QString(fullPath + fp.postfix));
             filterEntry.fileName = fullPath;
             category->append(filterEntry);
         }
@@ -135,7 +134,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     betterEntries.append(goodEntries);
 
     // "create and open" functionality
-    const QString fullFilePath = dirInfo.filePath(name);
+    const QString fullFilePath = dirInfo.filePath(fileName);
     if (!QFileInfo::exists(fullFilePath) && dirInfo.exists()) {
         LocatorFilterEntry createAndOpen(this, tr("Create and Open \"%1\"").arg(entry), fullFilePath);
         createAndOpen.extraInfo = Utils::FileUtils::shortNativePath(

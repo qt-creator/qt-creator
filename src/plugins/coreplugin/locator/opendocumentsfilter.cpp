@@ -59,20 +59,19 @@ OpenDocumentsFilter::OpenDocumentsFilter()
             this, &OpenDocumentsFilter::refreshInternally);
 }
 
-QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry_)
+QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
-    QString entry = entry_;
-    const QString lineNoSuffix = EditorManager::splitLineAndColumnNumber(&entry);
+    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
     const QChar asterisk = QLatin1Char('*');
     QString pattern = QString(asterisk);
-    pattern += entry;
+    pattern += fp.filePath;
     pattern += asterisk;
     QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
+    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(fp.filePath);
     foreach (const Entry &editorEntry, editors()) {
         if (future.isCanceled())
             break;
@@ -81,10 +80,10 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
             continue;
         QString displayName = editorEntry.displayName;
         if (regexp.exactMatch(displayName)) {
-            LocatorFilterEntry fiEntry(this, displayName, QString(fileName + lineNoSuffix));
+            LocatorFilterEntry fiEntry(this, displayName, QString(fileName + fp.postfix));
             fiEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
             fiEntry.fileName = fileName;
-            QList<LocatorFilterEntry> &category = displayName.startsWith(entry, caseSensitivityForPrefix)
+            QList<LocatorFilterEntry> &category = displayName.startsWith(fp.filePath, caseSensitivityForPrefix)
                     ? betterEntries : goodEntries;
             category.append(fiEntry);
         }

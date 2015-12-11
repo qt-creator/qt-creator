@@ -184,22 +184,6 @@ static int extractNumericSuffix(QString *fileName, QString *postfix = 0)
     return -1;
 }
 
-static void extractLineAndColumnNumbers(QString *fileName, int *lineNumber, int *columnNumber)
-{
-    *lineNumber = -1;
-    *columnNumber = -1;
-    int lastSuffix = extractNumericSuffix(fileName);
-    if (lastSuffix == -1)
-        return;
-    int secondToLastSuffix = extractNumericSuffix(fileName);
-    if (secondToLastSuffix == -1) {
-        *lineNumber = lastSuffix;
-        return;
-    }
-    *lineNumber = secondToLastSuffix;
-    *columnNumber = lastSuffix - 1; //column is 0 based, despite line being 1 based
-}
-
 static QString autoSaveName(const QString &fileName)
 {
     return fileName + QLatin1String(".autosave");
@@ -582,7 +566,10 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     int lineNumber = -1;
     int columnNumber = -1;
     if ((flags & EditorManager::CanContainLineAndColumnNumber) && !fi.exists()) {
-        extractLineAndColumnNumbers(&fn, &lineNumber, &columnNumber);
+        const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(fn);
+        fn = fp.filePath;
+        lineNumber = fp.lineNumber;
+        columnNumber = fp.columnNumber;
         if (lineNumber != -1)
             fi.setFile(fn);
     }
@@ -2571,17 +2558,25 @@ IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int colu
                                               fileName, line, column, editorId, flags, newEditor);
 }
 
-// Extract line and column number suffix. Return the suffix (e.g. ":132") and truncates the filename accordingly.
-QString EditorManager::splitLineAndColumnNumber(QString *fileName)
+EditorManager::FilePathInfo EditorManager::splitLineAndColumnNumber(const QString &fullFilePath)
 {
     QString postfix;
-    if (extractNumericSuffix(fileName, &postfix)) {
+    QString filePath = fullFilePath;
+    int line = -1;
+    int column = -1;
+    const int last = extractNumericSuffix(&filePath, &postfix);
+    if (last != -1) {
         QString previousPostfix;
-        if (extractNumericSuffix(fileName, &previousPostfix))
+        const int secondLast = extractNumericSuffix(&filePath, &previousPostfix);
+        if (secondLast != -1) {
+            line = secondLast;
+            column = last - 1; //column is 0 based, despite line being 1 based
             postfix.prepend(previousPostfix);
-        return postfix;
+        } else {
+            line = last;
+        }
     }
-    return QString();
+    return {filePath, postfix, line, column};
 }
 
 bool EditorManager::isAutoSaveFile(const QString &fileName)

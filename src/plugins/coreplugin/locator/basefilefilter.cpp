@@ -102,22 +102,22 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
 {
     QList<LocatorFilterEntry> betterEntries;
     QList<LocatorFilterEntry> goodEntries;
-    QString needle = trimWildcards(QDir::fromNativeSeparators(origEntry));
-    const QString lineNoSuffix = EditorManager::splitLineAndColumnNumber(&needle);
-    QStringMatcher matcher(needle, Qt::CaseInsensitive);
+    const QString trimmed = trimWildcards(QDir::fromNativeSeparators(origEntry));
+    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(trimmed);
+    QStringMatcher matcher(fp.filePath, Qt::CaseInsensitive);
     const QChar asterisk = QLatin1Char('*');
-    QRegExp regexp(asterisk + needle+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
+    QRegExp regexp(asterisk + fp.filePath+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid()) {
         d->m_current.clear(); // free memory
         return betterEntries;
     }
     const QChar pathSeparator(QLatin1Char('/'));
-    const bool hasPathSeparator = needle.contains(pathSeparator);
-    const bool hasWildcard = needle.contains(asterisk) || needle.contains(QLatin1Char('?'));
+    const bool hasPathSeparator = fp.filePath.contains(pathSeparator);
+    const bool hasWildcard = fp.filePath.contains(asterisk) || fp.filePath.contains(QLatin1Char('?'));
     const bool containsPreviousEntry = !d->m_current.previousEntry.isEmpty()
-            && needle.contains(d->m_current.previousEntry);
+            && fp.filePath.contains(d->m_current.previousEntry);
     const bool pathSeparatorAdded = !d->m_current.previousEntry.contains(pathSeparator)
-            && needle.contains(pathSeparator);
+            && fp.filePath.contains(pathSeparator);
     const bool searchInPreviousResults = !d->m_current.forceNewSearchList && containsPreviousEntry
             && !pathSeparatorAdded;
     if (searchInPreviousResults)
@@ -127,8 +127,8 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     QTC_ASSERT(d->m_current.iterator.data(), return QList<LocatorFilterEntry>());
     d->m_current.previousResultPaths.clear();
     d->m_current.previousResultNames.clear();
-    d->m_current.previousEntry = needle;
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(needle);
+    d->m_current.previousEntry = fp.filePath;
+    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(fp.filePath);
     d->m_current.iterator->toFront();
     bool canceled = false;
     while (d->m_current.iterator->hasNext()) {
@@ -144,10 +144,10 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         if ((hasWildcard && regexp.exactMatch(matchText))
                 || (!hasWildcard && matcher.indexIn(matchText) != -1)) {
             QFileInfo fi(path);
-            LocatorFilterEntry entry(this, fi.fileName(), QString(path + lineNoSuffix));
+            LocatorFilterEntry entry(this, fi.fileName(), QString(path + fp.postfix));
             entry.extraInfo = FileUtils::shortNativePath(FileName(fi));
             entry.fileName = path;
-            if (matchText.startsWith(needle, caseSensitivityForPrefix))
+            if (matchText.startsWith(fp.filePath, caseSensitivityForPrefix))
                 betterEntries.append(entry);
             else
                 goodEntries.append(entry);

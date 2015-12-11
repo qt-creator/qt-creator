@@ -109,7 +109,13 @@ public:
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 
-    static QString splitLineAndColumnNumber(QString *fileName);
+    struct FilePathInfo {
+        QString filePath; // file path without line/column suffix
+        QString postfix; // line/column suffix as string, e.g. ":10:1"
+        int lineNumber; // extracted line number, -1 if none
+        int columnNumber; // extracted column number, -1 if none
+    };
+    static FilePathInfo splitLineAndColumnNumber(const QString &filePath);
     static IEditor *openEditor(const QString &fileName, Id editorId = Id(),
         OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
     static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
