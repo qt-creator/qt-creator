@@ -79,6 +79,8 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QMap>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QSet>
 #include <QSettings>
 #include <QTextCodec>
@@ -164,30 +166,6 @@ void EditorManagerPlaceHolder::currentModeChanged(IMode *mode)
 
 static EditorManager *m_instance = 0;
 static EditorManagerPrivate *d;
-
-static int extractNumericSuffix(QString *fileName, QString *postfix = 0)
-{
-    int i = fileName->length() - 1;
-    for (; i >= 0; --i) {
-        if (!fileName->at(i).isNumber())
-            break;
-    }
-    if (i == -1)
-        return -1;
-    const QChar c = fileName->at(i);
-    if (c == QLatin1Char(':') || c == QLatin1Char('+')) {
-        bool ok;
-        const QString suffix = fileName->mid(i + 1);
-        const int result = suffix.toInt(&ok);
-        if (suffix.isEmpty() || ok) {
-            if (postfix)
-                *postfix = fileName->mid(i);
-            fileName->truncate(i);
-            return result;
-        }
-    }
-    return -1;
-}
 
 static QString autoSaveName(const QString &fileName)
 {
@@ -2565,20 +2543,20 @@ IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int colu
 
 EditorManager::FilePathInfo EditorManager::splitLineAndColumnNumber(const QString &fullFilePath)
 {
+    static const auto regexp = QRegularExpression(QLatin1String("[:+](\\d+)?([:+](\\d+)?)?$"));
+    const QRegularExpressionMatch match = regexp.match(fullFilePath);
     QString postfix;
     QString filePath = fullFilePath;
     int line = -1;
     int column = -1;
-    const int last = extractNumericSuffix(&filePath, &postfix);
-    if (last != -1) {
-        QString previousPostfix;
-        const int secondLast = extractNumericSuffix(&filePath, &previousPostfix);
-        if (secondLast != -1) {
-            line = secondLast;
-            column = last - 1; //column is 0 based, despite line being 1 based
-            postfix.prepend(previousPostfix);
-        } else {
-            line = last;
+    if (match.hasMatch()) {
+        postfix = match.captured(0);
+        filePath = fullFilePath.left(match.capturedStart(0));
+        line = 0; // for the case that there's only a : at the end
+        if (match.lastCapturedIndex() > 0) {
+            line = match.captured(1).toInt();
+            if (match.lastCapturedIndex() > 2) // index 2 includes the + or : for the column number
+                column = match.captured(3).toInt() - 1; //column is 0 based, despite line being 1 based
         }
     }
     return {filePath, postfix, line, column};
