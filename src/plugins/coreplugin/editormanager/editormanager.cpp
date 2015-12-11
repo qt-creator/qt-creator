@@ -94,6 +94,11 @@
 
 #include <algorithm>
 
+#if defined(WITH_TESTS)
+#include <coreplugin/coreplugin.h>
+#include <QTest>
+#endif
+
 using namespace Utils;
 
 enum { debugEditorManager=0 };
@@ -2983,3 +2988,70 @@ void EditorManager::setWindowTitleVcsTopicHandler(WindowTitleHandler handler)
 {
     d->m_titleVcsTopicHandler = handler;
 }
+
+#if defined(WITH_TESTS)
+
+void CorePlugin::testSplitLineAndColumnNumber()
+{
+    QFETCH(QString, testFile);
+    QFETCH(QString, filePath);
+    QFETCH(QString, postfix);
+    QFETCH(int, line);
+    QFETCH(int, column);
+    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(testFile);
+    QCOMPARE(fp.filePath, filePath);
+    QCOMPARE(fp.postfix, postfix);
+    QCOMPARE(fp.lineNumber, line);
+    QCOMPARE(fp.columnNumber, column);
+}
+
+void CorePlugin::testSplitLineAndColumnNumber_data()
+{
+    QTest::addColumn<QString>("testFile");
+    QTest::addColumn<QString>("filePath");
+    QTest::addColumn<QString>("postfix");
+    QTest::addColumn<int>("line");
+    QTest::addColumn<int>("column");
+
+    QTest::newRow("no-line-no-column") << QString::fromLatin1("someFile.txt")
+                                       << QString::fromLatin1("someFile.txt")
+                                       << QString() << -1 << -1;
+    QTest::newRow(": at end") << QString::fromLatin1("someFile.txt:")
+                                       << QString::fromLatin1("someFile.txt")
+                                       << QString::fromLatin1(":") << 0 << -1;
+    QTest::newRow("+ at end") << QString::fromLatin1("someFile.txt+")
+                                       << QString::fromLatin1("someFile.txt")
+                                       << QString::fromLatin1("+") << 0 << -1;
+    QTest::newRow(": for column") << QString::fromLatin1("someFile.txt:10:")
+                                       << QString::fromLatin1("someFile.txt")
+                                       << QString::fromLatin1(":10:") << 10 << -1;
+    QTest::newRow("+ for column") << QString::fromLatin1("someFile.txt:10+")
+                                       << QString::fromLatin1("someFile.txt")
+                                       << QString::fromLatin1(":10+") << 10 << -1;
+    QTest::newRow(": and + at end") << QString::fromLatin1("someFile.txt:+")
+                                       << QString::fromLatin1("someFile.txt")
+                                       << QString::fromLatin1(":+") << 0 << -1;
+    QTest::newRow("empty line") << QString::fromLatin1("someFile.txt:+10")
+                                       << QString::fromLatin1("someFile.txt")
+                                       << QString::fromLatin1(":+10") << 0 << 9;
+    QTest::newRow(":line-no-column") << QString::fromLatin1("/some/path/file.txt:42")
+                                     << QString::fromLatin1("/some/path/file.txt")
+                                     << QString::fromLatin1(":42") << 42 << -1;
+    QTest::newRow("+line-no-column") << QString::fromLatin1("/some/path/file.txt+42")
+                                     << QString::fromLatin1("/some/path/file.txt")
+                                     << QString::fromLatin1("+42") << 42 << -1;
+    QTest::newRow(":line-:column") << QString::fromLatin1("/some/path/file.txt:42:3")
+                                     << QString::fromLatin1("/some/path/file.txt")
+                                     << QString::fromLatin1(":42:3") << 42 << 2;
+    QTest::newRow(":line-+column") << QString::fromLatin1("/some/path/file.txt:42+33")
+                                     << QString::fromLatin1("/some/path/file.txt")
+                                     << QString::fromLatin1(":42+33") << 42 << 32;
+    QTest::newRow("+line-:column") << QString::fromLatin1("/some/path/file.txt+142:30")
+                                     << QString::fromLatin1("/some/path/file.txt")
+                                     << QString::fromLatin1("+142:30") << 142 << 29;
+    QTest::newRow("+line-+column") << QString::fromLatin1("/some/path/file.txt+142+33")
+                                     << QString::fromLatin1("/some/path/file.txt")
+                                     << QString::fromLatin1("+142+33") << 142 << 32;
+}
+
+#endif // WITH_TESTS

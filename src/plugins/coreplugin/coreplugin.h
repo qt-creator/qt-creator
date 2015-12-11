@@ -77,6 +77,8 @@ private slots:
 #if defined(WITH_TESTS)
     void testVcsManager_data();
     void testVcsManager();
+    void testSplitLineAndColumnNumber();
+    void testSplitLineAndColumnNumber_data();
     // Locator:
     void test_basefilefilter();
     void test_basefilefilter_data();
