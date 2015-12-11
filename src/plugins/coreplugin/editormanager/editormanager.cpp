@@ -2543,7 +2543,10 @@ IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int colu
 
 EditorManager::FilePathInfo EditorManager::splitLineAndColumnNumber(const QString &fullFilePath)
 {
+    // :10:2 GCC/Clang-style
     static const auto regexp = QRegularExpression(QLatin1String("[:+](\\d+)?([:+](\\d+)?)?$"));
+    // (10) MSVC-style
+    static const auto vsRegexp = QRegularExpression(QLatin1String("[(]((\\d+)[)]?)?$"));
     const QRegularExpressionMatch match = regexp.match(fullFilePath);
     QString postfix;
     QString filePath = fullFilePath;
@@ -2558,6 +2561,12 @@ EditorManager::FilePathInfo EditorManager::splitLineAndColumnNumber(const QStrin
             if (match.lastCapturedIndex() > 2) // index 2 includes the + or : for the column number
                 column = match.captured(3).toInt() - 1; //column is 0 based, despite line being 1 based
         }
+    } else {
+        const QRegularExpressionMatch vsMatch = vsRegexp.match(fullFilePath);
+        postfix = vsMatch.captured(0);
+        filePath = fullFilePath.left(vsMatch.capturedStart(0));
+        if (vsMatch.lastCapturedIndex() > 1) // index 1 includes closing )
+            line = vsMatch.captured(2).toInt();
     }
     return {filePath, postfix, line, column};
 }
@@ -3030,6 +3039,15 @@ void CorePlugin::testSplitLineAndColumnNumber_data()
     QTest::newRow("+line-+column") << QString::fromLatin1("/some/path/file.txt+142+33")
                                      << QString::fromLatin1("/some/path/file.txt")
                                      << QString::fromLatin1("+142+33") << 142 << 32;
+    QTest::newRow("( at end") << QString::fromLatin1("/some/path/file.txt(")
+                              << QString::fromLatin1("/some/path/file.txt")
+                              << QString::fromLatin1("(") << -1 << -1;
+    QTest::newRow("(42 at end") << QString::fromLatin1("/some/path/file.txt(42")
+                              << QString::fromLatin1("/some/path/file.txt")
+                              << QString::fromLatin1("(42") << 42 << -1;
+    QTest::newRow("(42) at end") << QString::fromLatin1("/some/path/file.txt(42)")
+                              << QString::fromLatin1("/some/path/file.txt")
+                              << QString::fromLatin1("(42)") << 42 << -1;
 }
 
 #endif // WITH_TESTS
