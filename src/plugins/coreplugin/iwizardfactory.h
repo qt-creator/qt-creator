@@ -64,7 +64,7 @@ public:
     Q_DECLARE_FLAGS(WizardFlags, WizardFlag)
 
     Id id() const { return m_id; }
-    WizardKind kind() const { return m_kind; }
+    WizardKind kind() const { return m_supportedProjectTypes.isEmpty() ? FileWizard : ProjectWizard; }
     QIcon icon() const { return m_icon; }
     QString description() const { return m_description; }
     QString displayName() const { return m_displayName; }
@@ -73,9 +73,10 @@ public:
     QString descriptionImage() const { return m_descriptionImage; }
     QSet<Id> requiredFeatures() const { return m_requiredFeatures; }
     WizardFlags flags() const { return m_flags; }
+    QSet<Id> supportedProjectTypes() const { return m_supportedProjectTypes; }
 
     void setId(const Id id) { m_id = id; }
-    void setWizardKind(WizardKind kind) { m_kind = kind; }
+    void setSupportedProjectTypes(const QSet<Id> &projectTypes) { m_supportedProjectTypes = projectTypes; }
     void setIcon(const QIcon &icon) { m_icon = icon; }
     void setDescription(const QString &description) { m_description = description; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
@@ -132,10 +133,10 @@ private:
     QString m_category;
     QString m_displayCategory;
     QString m_descriptionImage;
-    Id m_id;
     QSet<Id> m_requiredFeatures;
-    WizardKind m_kind = FileWizard;
+    QSet<Id> m_supportedProjectTypes;
     WizardFlags m_flags = 0;
+    Id m_id;
 
     friend class Internal::CorePlugin;
 };

@@ -55,6 +55,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QUuid>
 
 namespace ProjectExplorer {
 
@@ -68,6 +69,7 @@ static const char VERSION_KEY[] = "version";
 static const char ENABLED_EXPRESSION_KEY[] = "enabled";
 
 static const char KIND_KEY[] = "kind";
+static const char SUPPORTED_PROJECTS[] = "supportedProjectTypes";
 static const char ID_KEY[] = "id";
 static const char CATEGORY_KEY[] = "category";
 static const char CATEGORY_NAME_KEY[] = "trDisplayCategory";
@@ -521,17 +523,25 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
 
     m_enabledExpression = data.value(QLatin1String(ENABLED_EXPRESSION_KEY), true);
 
-    QString strVal = data.value(QLatin1String(KIND_KEY)).toString();
-    if (strVal != QLatin1String("class")
+    QSet<Core::Id> projectTypes = Core::Id::fromStringList(data.value(QLatin1String(SUPPORTED_PROJECTS)).toStringList());
+    // FIXME: "kind" was relevant up to and including Qt Creator 3.6:
+    const QString unsetKind = QUuid::createUuid().toString();
+    QString strVal = data.value(QLatin1String(KIND_KEY), unsetKind).toString();
+    if (strVal != unsetKind
+            && strVal != QLatin1String("class")
             && strVal != QLatin1String("file")
             && strVal != QLatin1String("project")) {
         *errorMessage = tr("\"kind\" value \"%1\" is not \"class\" (deprecated), \"file\" or \"project\".").arg(strVal);
         return false;
     }
-    IWizardFactory::WizardKind kind = IWizardFactory::ProjectWizard;
-    if (strVal == QLatin1String("file") || strVal == QLatin1String("class"))
-        kind = IWizardFactory::FileWizard;
-    setWizardKind(kind);
+    if ((strVal == QLatin1String("file") || strVal == QLatin1String("class")) && !projectTypes.isEmpty()) {
+        *errorMessage = tr("\"kind\" is \"file\" or \"class\" (deprecated) and \"%1\" is also set.").arg(QLatin1String(SUPPORTED_PROJECTS));
+        return false;
+    }
+    if (strVal == QLatin1String("project") && projectTypes.isEmpty())
+        projectTypes.insert("UNKNOWN_PROJECT");
+    // end of legacy code
+    setSupportedProjectTypes(projectTypes);
 
     strVal = data.value(QLatin1String(ID_KEY)).toString();
     if (strVal.isEmpty()) {

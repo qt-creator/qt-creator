@@ -126,7 +126,8 @@ void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
     d->m_parameters = p;
 
     setId(p->id);
-    setWizardKind(p->kind);
+    setSupportedProjectTypes((p->kind == Core::IWizardFactory::FileWizard)
+                             ?  QSet<Core::Id>() : QSet<Core::Id>() << "UNKNOWN_PROJECT");
     setIcon(p->icon);
     setDescription(p->description);
     setDisplayName(p->displayName);

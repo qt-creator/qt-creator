@@ -60,7 +60,7 @@ using namespace QtSupport;
 // -------------------- QtWizard
 QtWizard::QtWizard()
 {
-    setWizardKind(Core::IWizardFactory::ProjectWizard);
+    setSupportedProjectTypes({ Constants::QMAKEPROJECT_ID });
 }
 
 QString QtWizard::sourceSuffix()

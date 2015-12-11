@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "genericprojectwizard.h"
+#include "genericprojectconstants.h"
 #include "filesselectionwizardpage.h"
 
 #include <coreplugin/icore.h>
@@ -114,7 +115,7 @@ QString GenericProjectWizardDialog::projectName() const
 
 GenericProjectWizard::GenericProjectWizard()
 {
-    setWizardKind(ProjectWizard);
+    setSupportedProjectTypes({ Constants::GENERICPROJECT_ID });
     // TODO do something about the ugliness of standard icons in sizes different than 16, 32, 64, 128
     {
         QPixmap icon(22, 22);
