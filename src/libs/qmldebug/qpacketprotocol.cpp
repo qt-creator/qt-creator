@@ -174,7 +174,6 @@ public Q_SLOTS:
                                         this, SLOT(aboutToClose()));
                     QObject::disconnect(dev, SIGNAL(bytesWritten(qint64)),
                                         this, SLOT(bytesWritten(qint64)));
-                    dev = 0;
                     emit invalidPacket();
                     return;
                 }

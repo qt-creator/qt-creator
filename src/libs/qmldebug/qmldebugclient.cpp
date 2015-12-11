@@ -115,6 +115,9 @@ void QmlDebugConnectionPrivate::disconnected()
     delete protocol;
     protocol = 0;
     if (device) {
+        // Don't allow any "connected()" or "disconnected()" signals to be triggered anymore.
+        // As the protocol is gone this would lead to crashes.
+        device->disconnect();
         // Don't immediately delete it as it may do some cleanup on returning from a signal.
         device->deleteLater();
         device = 0;
