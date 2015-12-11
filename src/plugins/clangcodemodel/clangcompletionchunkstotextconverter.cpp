@@ -36,7 +36,8 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-void CompletionChunksToTextConverter::parseChunks(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
+void CompletionChunksToTextConverter::parseChunks(
+        const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
 {
     m_text.clear();
     m_placeholderPositions.clear();
@@ -49,7 +50,7 @@ void CompletionChunksToTextConverter::parseChunks(const ClangBackEnd::CodeComple
                   m_codeCompletionChunks.cend(),
                   [this] (const ClangBackEnd::CodeCompletionChunk &chunk)
     {
-        parse(chunk);
+        parseDependendOnTheOptionalState(chunk);
         m_previousCodeCompletionChunk = chunk;
     });
 }
@@ -74,7 +75,8 @@ void CompletionChunksToTextConverter::setAddSpaces(bool addSpaces)
     m_addSpaces = addSpaces;
 }
 
-void CompletionChunksToTextConverter::setAddExtraVerticalSpaceBetweenBraces(bool addExtraVerticalSpaceBetweenBraces)
+void CompletionChunksToTextConverter::setAddExtraVerticalSpaceBetweenBraces(
+        bool addExtraVerticalSpaceBetweenBraces)
 {
     m_addExtraVerticalSpaceBetweenBraces = addExtraVerticalSpaceBetweenBraces;
 }
@@ -104,7 +106,8 @@ bool CompletionChunksToTextConverter::hasPlaceholderPositions() const
     return m_placeholderPositions.size() > 0;
 }
 
-QString CompletionChunksToTextConverter::convertToFunctionSignature(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
+QString CompletionChunksToTextConverter::convertToFunctionSignature(
+        const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
 {
     CompletionChunksToTextConverter converter;
     converter.setAddPlaceHolderText(true);
@@ -116,7 +119,8 @@ QString CompletionChunksToTextConverter::convertToFunctionSignature(const ClangB
     return converter.text();
 }
 
-QString CompletionChunksToTextConverter::convertToName(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
+QString CompletionChunksToTextConverter::convertToName(
+        const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
 {
     CompletionChunksToTextConverter converter;
 
@@ -125,7 +129,8 @@ QString CompletionChunksToTextConverter::convertToName(const ClangBackEnd::CodeC
     return converter.text();
 }
 
-QString CompletionChunksToTextConverter::convertToToolTip(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
+QString CompletionChunksToTextConverter::convertToToolTip(
+        const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
 {
     CompletionChunksToTextConverter converter;
     converter.setAddPlaceHolderText(true);
@@ -140,18 +145,27 @@ QString CompletionChunksToTextConverter::convertToToolTip(const ClangBackEnd::Co
     return converter.text();
 }
 
-void CompletionChunksToTextConverter::parse(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
+void CompletionChunksToTextConverter::parse(
+        const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     using ClangBackEnd::CodeCompletionChunk;
 
     switch (codeCompletionChunk.kind()) {
         case CodeCompletionChunk::ResultType: parseResultType(codeCompletionChunk.text()); break;
-        case CodeCompletionChunk::Optional: parseOptional(codeCompletionChunk); break;
         case CodeCompletionChunk::Placeholder: parsePlaceHolder(codeCompletionChunk); break;
         case CodeCompletionChunk::LeftParen: parseLeftParen(codeCompletionChunk); break;
         case CodeCompletionChunk::LeftBrace: parseLeftBrace(codeCompletionChunk); break;
         default: parseText(codeCompletionChunk.text()); break;
     }
+}
+
+void CompletionChunksToTextConverter::parseDependendOnTheOptionalState(
+        const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
+{
+    wrapInCursiveTagIfOptional(codeCompletionChunk);
+
+    if (isNotOptionalOrAddOptionals(codeCompletionChunk))
+        parse(codeCompletionChunk);
 }
 
 void CompletionChunksToTextConverter::parseResultType(const Utf8String &resultTypeText)
@@ -170,20 +184,21 @@ void CompletionChunksToTextConverter::parseText(const Utf8String &text)
     m_text += text.toString();
 }
 
-void CompletionChunksToTextConverter::parseOptional(const ClangBackEnd::CodeCompletionChunk &optionalCodeCompletionChunk)
+void CompletionChunksToTextConverter::wrapInCursiveTagIfOptional(
+        const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     if (m_addOptional) {
-        if (m_addHtmlTags)
-            m_text += QStringLiteral("<i>");
-
-        m_text += convertToFunctionSignature(optionalCodeCompletionChunk.optionalChunks());
-
-        if (m_addHtmlTags)
-            m_text += QStringLiteral("</i>");
+        if (m_addHtmlTags) {
+            if (!m_previousCodeCompletionChunk.isOptional() && codeCompletionChunk.isOptional())
+                m_text += QStringLiteral("<i>");
+            else if (m_previousCodeCompletionChunk.isOptional() && !codeCompletionChunk.isOptional())
+                m_text += QStringLiteral("</i>");
+        }
     }
 }
 
-void CompletionChunksToTextConverter::parsePlaceHolder(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
+void CompletionChunksToTextConverter::parsePlaceHolder(
+        const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     if (m_addPlaceHolderText)
         m_text += codeCompletionChunk.text().toString();
@@ -192,7 +207,8 @@ void CompletionChunksToTextConverter::parsePlaceHolder(const ClangBackEnd::CodeC
         m_placeholderPositions.push_back(m_text.size());
 }
 
-void CompletionChunksToTextConverter::parseLeftParen(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
+void CompletionChunksToTextConverter::parseLeftParen(
+        const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     if (canAddSpace())
         m_text += QChar(QChar::Space);
@@ -200,7 +216,8 @@ void CompletionChunksToTextConverter::parseLeftParen(const ClangBackEnd::CodeCom
     m_text += codeCompletionChunk.text().toString();
 }
 
-void CompletionChunksToTextConverter::parseLeftBrace(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
+void CompletionChunksToTextConverter::parseLeftBrace(
+        const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     if (canAddSpace())
         m_text += QChar(QChar::Space);
@@ -214,7 +231,8 @@ void CompletionChunksToTextConverter::addExtraVerticalSpaceBetweenBraces()
         addExtraVerticalSpaceBetweenBraces(m_codeCompletionChunks.begin());
 }
 
-void CompletionChunksToTextConverter::addExtraVerticalSpaceBetweenBraces(const ClangBackEnd::CodeCompletionChunks::iterator &begin)
+void CompletionChunksToTextConverter::addExtraVerticalSpaceBetweenBraces(
+        const ClangBackEnd::CodeCompletionChunks::iterator &begin)
 {
     using ClangBackEnd::CodeCompletionChunk;
 
@@ -261,6 +279,12 @@ bool CompletionChunksToTextConverter::canAddSpace() const
     return m_addSpaces
         && m_previousCodeCompletionChunk.kind() != ClangBackEnd::CodeCompletionChunk::HorizontalSpace
         && m_previousCodeCompletionChunk.kind() != ClangBackEnd::CodeCompletionChunk::RightAngle;
+}
+
+bool CompletionChunksToTextConverter::isNotOptionalOrAddOptionals(
+        const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk) const
+{
+    return !codeCompletionChunk.isOptional() || m_addOptional;
 }
 
 } // namespace Internal

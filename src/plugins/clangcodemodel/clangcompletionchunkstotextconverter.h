@@ -63,10 +63,11 @@ public:
     static QString convertToName(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
     static QString convertToToolTip(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
 private:
-    void parse(const ClangBackEnd::CodeCompletionChunk & codeCompletionChunk);
+    void parse(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
+    void parseDependendOnTheOptionalState(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
     void parseResultType(const Utf8String &text);
     void parseText(const Utf8String &text);
-    void parseOptional(const ClangBackEnd::CodeCompletionChunk &optionalCodeCompletionChunk);
+    void wrapInCursiveTagIfOptional(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
     void parsePlaceHolder(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
     void parseLeftParen(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
     void parseLeftBrace(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
@@ -74,6 +75,7 @@ private:
     void addExtraVerticalSpaceBetweenBraces(const ClangBackEnd::CodeCompletionChunks::iterator &);
 
     bool canAddSpace() const;
+    bool isNotOptionalOrAddOptionals(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk) const;
 
 private:
     std::vector<int> m_placeholderPositions;
