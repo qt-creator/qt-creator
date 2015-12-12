@@ -1942,6 +1942,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         setProxyAction(m_visibleStartAction, Id(Constants::INTERRUPT));
         m_hiddenStopAction->setAction(m_interruptAction);
         m_localsAndExpressionsWindow->setShowLocals(false);
+        activateDebugMode();
     } else if (state == DebuggerFinished) {
         Project *project = SessionManager::startupProject();
         const bool canRun = ProjectExplorerPlugin::canRun(project, ProjectExplorer::Constants::DEBUG_RUN_MODE);
@@ -1967,6 +1968,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_hiddenStopAction->setAction(m_exitAction);
         // show locals in core dumps
         m_localsAndExpressionsWindow->setShowLocals(true);
+        activateDebugMode();
     } else {
         // Everything else is "undisturbable".
         m_interruptAction->setEnabled(false);
