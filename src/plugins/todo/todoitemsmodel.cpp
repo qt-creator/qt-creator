@@ -100,7 +100,7 @@ QVariant TodoItemsModel::data(const QModelIndex &index, int role) const
 
         case Constants::OUTPUT_COLUMN_FILE:
             if (role == Qt::DisplayRole)
-                return item.file;
+                return item.file.toUserOutput();
             break;
 
         case Constants::OUTPUT_COLUMN_LINE:

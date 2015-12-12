@@ -30,6 +30,8 @@
 #include "constants.h"
 #include "todoicons.h"
 
+#include <utils/fileutils.h>
+
 #include <QMetaType>
 #include <QString>
 #include <QColor>
@@ -43,7 +45,7 @@ public:
     TodoItem() : line(-1) {}
 
     QString text;
-    QString file;
+    Utils::FileName file;
     int line;
     IconType iconType;
     QColor color;
