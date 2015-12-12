@@ -281,7 +281,7 @@ public:
 
     QPointer<QWidget> m_widget;
 
-private slots:
+private:
     void loadSnippetGroup(int index);
     void markSnippetsCollection();
     void addSnippet();
@@ -295,7 +295,6 @@ private slots:
     void updateCurrentSnippetDependent(const QModelIndex &modelIndex = QModelIndex());
     void decorateEditors(const TextEditor::FontSettings &fontSettings);
 
-private:
     SnippetEditorWidget *currentEditor() const;
     SnippetEditorWidget *editorAt(int i) const;
 
@@ -341,7 +340,8 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
         SnippetEditorWidget *snippetEditor = new SnippetEditorWidget(w);
         provider->decorateEditor(snippetEditor);
         m_ui.snippetsEditorStack->insertWidget(m_ui.groupCombo->count() - 1, snippetEditor);
-        connect(snippetEditor, SIGNAL(snippetContentChanged()), this, SLOT(setSnippetContent()));
+        connect(snippetEditor, &SnippetEditorWidget::snippetContentChanged,
+                this, &SnippetsSettingsPagePrivate::setSnippetContent);
     }
 
     m_ui.snippetsTable->setModel(m_model);
@@ -352,33 +352,40 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     loadSettings();
     loadSnippetGroup(m_ui.groupCombo->currentIndex());
 
-    connect(m_model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(selectSnippet(QModelIndex,int)));
-    connect(m_model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(markSnippetsCollection()));
-    connect(m_model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-            this, SLOT(markSnippetsCollection()));
-    connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
-            this, SLOT(selectMovedSnippet(QModelIndex,int,int,QModelIndex,int)));
-    connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
-            this, SLOT(markSnippetsCollection()));
-    connect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(markSnippetsCollection()));
-    connect(m_model, SIGNAL(modelReset()), this, SLOT(updateCurrentSnippetDependent()));
-    connect(m_model, SIGNAL(modelReset()), this, SLOT(markSnippetsCollection()));
+    connect(m_model, &QAbstractItemModel::rowsInserted,
+            this, &SnippetsSettingsPagePrivate::selectSnippet);
+    connect(m_model, &QAbstractItemModel::rowsInserted,
+            this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
+    connect(m_model, &QAbstractItemModel::rowsRemoved,
+            this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
+    connect(m_model, &QAbstractItemModel::rowsMoved,
+            this, &SnippetsSettingsPagePrivate::selectMovedSnippet);
+    connect(m_model, &QAbstractItemModel::rowsMoved,
+            this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
+    connect(m_model, &QAbstractItemModel::dataChanged,
+            this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
+    connect(m_model, &QAbstractItemModel::modelReset,
+            this, [this] { this->updateCurrentSnippetDependent(); });
+    connect(m_model, &QAbstractItemModel::modelReset,
+            this, &SnippetsSettingsPagePrivate::markSnippetsCollection);
 
-    connect(m_ui.groupCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(loadSnippetGroup(int)));
-    connect(m_ui.addButton, SIGNAL(clicked()), this, SLOT(addSnippet()));
-    connect(m_ui.removeButton, SIGNAL(clicked()), this, SLOT(removeSnippet()));
-    connect(m_ui.resetAllButton, SIGNAL(clicked()), this, SLOT(resetAllSnippets()));
-    connect(m_ui.restoreRemovedButton, SIGNAL(clicked()),
-            this, SLOT(restoreRemovedBuiltInSnippets()));
-    connect(m_ui.revertButton, SIGNAL(clicked()), this, SLOT(revertBuiltInSnippet()));
-    connect(m_ui.snippetsTable->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(updateCurrentSnippetDependent(QModelIndex)));
+    connect(m_ui.groupCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &SnippetsSettingsPagePrivate::loadSnippetGroup);
+    connect(m_ui.addButton, &QAbstractButton::clicked,
+            this, &SnippetsSettingsPagePrivate::addSnippet);
+    connect(m_ui.removeButton, &QAbstractButton::clicked,
+            this, &SnippetsSettingsPagePrivate::removeSnippet);
+    connect(m_ui.resetAllButton, &QAbstractButton::clicked,
+            this, &SnippetsSettingsPagePrivate::resetAllSnippets);
+    connect(m_ui.restoreRemovedButton, &QAbstractButton::clicked,
+            this, &SnippetsSettingsPagePrivate::restoreRemovedBuiltInSnippets);
+    connect(m_ui.revertButton, &QAbstractButton::clicked,
+            this, &SnippetsSettingsPagePrivate::revertBuiltInSnippet);
+    connect(m_ui.snippetsTable->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &SnippetsSettingsPagePrivate::updateCurrentSnippetDependent);
 
-    connect(TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            this, SLOT(decorateEditors(TextEditor::FontSettings)));
+    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+            this, &SnippetsSettingsPagePrivate::decorateEditors);
 }
 
 void SnippetsSettingsPagePrivate::apply()

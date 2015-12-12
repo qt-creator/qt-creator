@@ -147,17 +147,15 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     parameters.nameFilters = fileNameFilters();
     parameters.additionalParameters = additionalParameters();
     search->setUserData(qVariantFromValue(parameters));
-    connect(search, SIGNAL(activated(Core::SearchResultItem)), this, SLOT(openEditor(Core::SearchResultItem)));
-    if (searchMode == SearchResultWindow::SearchAndReplace) {
-        connect(search, SIGNAL(replaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)),
-                this, SLOT(doReplace(QString,QList<Core::SearchResultItem>,bool)));
-    }
-    connect(search, SIGNAL(visibilityChanged(bool)), this, SLOT(hideHighlightAll(bool)));
-    connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
-    connect(search, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
-    connect(search, SIGNAL(searchAgainRequested()), this, SLOT(searchAgain()));
-    connect(this, SIGNAL(enabledChanged(bool)), search, SIGNAL(requestEnabledCheck()));
-    connect(search, SIGNAL(requestEnabledCheck()), this, SLOT(recheckEnabled()));
+    connect(search, &SearchResult::activated, this, &BaseFileFind::openEditor);
+    if (searchMode == SearchResultWindow::SearchAndReplace)
+        connect(search, &SearchResult::replaceButtonClicked, this, &BaseFileFind::doReplace);
+    connect(search, &SearchResult::visibilityChanged, this, &BaseFileFind::hideHighlightAll);
+    connect(search, &SearchResult::cancelled, this, &BaseFileFind::cancel);
+    connect(search, &SearchResult::paused, this, &BaseFileFind::setPaused);
+    connect(search, &SearchResult::searchAgainRequested, this, &BaseFileFind::searchAgain);
+    connect(this, &BaseFileFind::enabledChanged, search, &SearchResult::requestEnabledCheck);
+    connect(search, &SearchResult::requestEnabledCheck, this, &BaseFileFind::recheckEnabled);
 
     runSearch(search);
 }
@@ -166,15 +164,15 @@ void BaseFileFind::runSearch(SearchResult *search)
 {
     FileFindParameters parameters = search->userData().value<FileFindParameters>();
     CountingLabel *label = new CountingLabel;
-    connect(search, SIGNAL(countChanged(int)), label, SLOT(updateCount(int)));
+    connect(search, &SearchResult::countChanged, label, &CountingLabel::updateCount);
     CountingLabel *statusLabel = new CountingLabel;
-    connect(search, SIGNAL(countChanged(int)), statusLabel, SLOT(updateCount(int)));
+    connect(search, &SearchResult::countChanged, statusLabel, &CountingLabel::updateCount);
     SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch|IOutputPane::WithFocus));
     QFutureWatcher<FileSearchResultList> *watcher = new QFutureWatcher<FileSearchResultList>();
     d->m_watchers.insert(watcher, search);
     watcher->setPendingResultsLimit(1);
-    connect(watcher, SIGNAL(resultReadyAt(int)), this, SLOT(displayResult(int)));
-    connect(watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
+    connect(watcher, &QFutureWatcherBase::resultReadyAt, this, &BaseFileFind::displayResult);
+    connect(watcher, &QFutureWatcherBase::finished, this, &BaseFileFind::searchFinished);
     if (parameters.flags & FindRegularExpression) {
         watcher->setFuture(Utils::findInFilesRegExp(parameters.text,
             files(parameters.nameFilters, parameters.additionalParameters),
@@ -190,7 +188,7 @@ void BaseFileFind::runSearch(SearchResult *search)
         ProgressManager::addTask(watcher->future(), tr("Searching"), Constants::TASK_SEARCH);
     progress->setWidget(label);
     progress->setStatusBarWidget(statusLabel);
-    connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
+    connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
 }
 
 void BaseFileFind::findAll(const QString &txt, FindFlags findFlags)

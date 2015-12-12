@@ -113,8 +113,8 @@ FunctionHintProposalWidget::FunctionHintProposalWidget()
     popupLayout->addWidget(d->m_pager);
     popupLayout->addWidget(d->m_hintLabel);
 
-    connect(upArrow, SIGNAL(clicked()), SLOT(previousPage()));
-    connect(downArrow, SIGNAL(clicked()), SLOT(nextPage()));
+    connect(upArrow, &QAbstractButton::clicked, this, &FunctionHintProposalWidget::previousPage);
+    connect(downArrow, &QAbstractButton::clicked, this, &FunctionHintProposalWidget::nextPage);
     connect(d->m_popupFrame.data(), &QObject::destroyed, this, &FunctionHintProposalWidget::abort);
 
     setFocusPolicy(Qt::NoFocus);

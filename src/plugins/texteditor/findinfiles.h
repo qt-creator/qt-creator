@@ -59,6 +59,7 @@ public:
     void readSettings(QSettings *settings);
 
     void setDirectory(const Utils::FileName &directory);
+    static void findOnFileSystem(const QString &path);
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,
@@ -67,13 +68,9 @@ protected:
     QString label() const;
     QString toolTip() const;
 
-public slots:
-    static void findOnFileSystem(const QString &path);
-
-private slots:
+private:
     void openFileBrowser();
 
-private:
     Utils::FileName path() const;
 
     QStringListModel m_directoryStrings;

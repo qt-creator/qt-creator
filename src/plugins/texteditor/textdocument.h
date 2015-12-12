@@ -136,7 +136,6 @@ public:
     void setCompletionAssistProvider(CompletionAssistProvider *provider);
     virtual CompletionAssistProvider *completionAssistProvider() const;
 
-public slots:
     void setTabSettings(const TextEditor::TabSettings &tabSettings);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
@@ -148,7 +147,7 @@ signals:
     void tabSettingsChanged();
     void fontSettingsChanged();
 
-protected slots:
+protected:
     virtual void applyFontSettings();
 
 private:

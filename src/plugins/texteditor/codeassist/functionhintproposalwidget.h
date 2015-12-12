@@ -61,11 +61,9 @@ public:
 protected:
     bool eventFilter(QObject *o, QEvent *e) override;
 
-private slots:
+private:
     void nextPage();
     void previousPage();
-
-private:
     bool updateAndCheck(const QString &prefix);
     void updateContent();
     void updatePosition();

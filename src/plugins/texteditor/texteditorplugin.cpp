@@ -204,8 +204,8 @@ void TextEditorPlugin::extensionsInitialized()
         });
 
 
-    connect(ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
-            this, SLOT(updateCurrentSelection(QString)));
+    connect(ExternalToolManager::instance(), &ExternalToolManager::replaceSelectionRequested,
+            this, &TextEditorPlugin::updateCurrentSelection);
 }
 
 LineNumberFilter *TextEditorPlugin::lineNumberFilter()

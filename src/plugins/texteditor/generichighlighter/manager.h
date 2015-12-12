@@ -81,13 +81,11 @@ public:
     void downloadAvailableDefinitionsMetaData();
     void downloadDefinitions(const QList<QUrl> &urls, const QString &savePath);
     bool isDownloadingDefinitions() const;
+    void registerHighlightingFiles();
 
     static DefinitionMetaDataPtr parseMetadata(const QFileInfo &fileInfo);
 
-public slots:
-    void registerHighlightingFiles();
-
-private slots:
+private:
     void registerHighlightingFilesFinished();
     void downloadAvailableDefinitionsListFinished();
     void downloadDefinitionsFinished();

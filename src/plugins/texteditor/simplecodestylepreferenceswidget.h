@@ -55,11 +55,10 @@ public:
     void setFlat(bool on);
     TabSettingsWidget *tabSettingsWidget() const;
 
-private slots:
+private:
     void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences);
     void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
 
-private:
     TabSettingsWidget *m_tabSettingsWidget;
     ICodeStylePreferences *m_preferences;
 };

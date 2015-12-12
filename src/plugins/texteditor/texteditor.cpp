@@ -5311,17 +5311,17 @@ void TextEditorWidget::setCodeStyle(ICodeStylePreferences *preferences)
 {
     textDocument()->indenter()->setCodeStylePreferences(preferences);
     if (d->m_codeStylePreferences) {
-        disconnect(d->m_codeStylePreferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-                d->m_document.data(), SLOT(setTabSettings(TextEditor::TabSettings)));
-        disconnect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
-                this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
+        disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                   d->m_document.data(), &TextDocument::setTabSettings);
+        disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
+                   this, &TextEditorWidget::slotCodeStyleSettingsChanged);
     }
     d->m_codeStylePreferences = preferences;
     if (d->m_codeStylePreferences) {
-        connect(d->m_codeStylePreferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-                d->m_document.data(), SLOT(setTabSettings(TextEditor::TabSettings)));
-        connect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
-                this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
+        connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                d->m_document.data(), &TextDocument::setTabSettings);
+        connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
+                this, &TextEditorWidget::slotCodeStyleSettingsChanged);
         d->m_document->setTabSettings(d->m_codeStylePreferences->currentTabSettings());
         slotCodeStyleSettingsChanged(d->m_codeStylePreferences->currentValue());
     }

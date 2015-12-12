@@ -131,8 +131,8 @@ QWidget *BehaviorSettingsPage::widget()
 
         TabSettingsWidget *tabSettingsWidget = d->m_page->behaviorWidget->tabSettingsWidget();
         tabSettingsWidget->setCodingStyleWarningVisible(true);
-        connect(tabSettingsWidget, SIGNAL(codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink)),
-                this, SLOT(openCodingStylePreferences(TextEditor::TabSettingsWidget::CodingStyleLink)));
+        connect(tabSettingsWidget, &TabSettingsWidget::codingStyleLinkClicked,
+                this, &BehaviorSettingsPage::openCodingStylePreferences);
 
         settingsToUI();
     }

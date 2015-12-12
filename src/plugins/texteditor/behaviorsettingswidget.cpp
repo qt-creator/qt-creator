@@ -85,36 +85,37 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
         d->m_codecs.prepend(QTextCodec::codecForLocale());
     }
 
-    connect(d->m_ui.autoIndent, SIGNAL(toggled(bool)),
-            this, SLOT(slotTypingSettingsChanged()));
-    connect(d->m_ui.smartBackspaceBehavior, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotTypingSettingsChanged()));
-    connect(d->m_ui.tabKeyBehavior, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotTypingSettingsChanged()));
-    connect(d->m_ui.cleanWhitespace, SIGNAL(clicked(bool)),
-            this, SLOT(slotStorageSettingsChanged()));
-    connect(d->m_ui.inEntireDocument, SIGNAL(clicked(bool)),
-            this, SLOT(slotStorageSettingsChanged()));
-    connect(d->m_ui.addFinalNewLine, SIGNAL(clicked(bool)),
-            this, SLOT(slotStorageSettingsChanged()));
-    connect(d->m_ui.cleanIndentation, SIGNAL(clicked(bool)),
-            this, SLOT(slotStorageSettingsChanged()));
-    connect(d->m_ui.mouseHiding, SIGNAL(clicked()),
-            this, SLOT(slotBehaviorSettingsChanged()));
-    connect(d->m_ui.mouseNavigation, SIGNAL(clicked()),
-            this, SLOT(slotBehaviorSettingsChanged()));
-    connect(d->m_ui.scrollWheelZooming, SIGNAL(clicked(bool)),
-            this, SLOT(slotBehaviorSettingsChanged()));
-    connect(d->m_ui.camelCaseNavigation, SIGNAL(clicked()),
-            this, SLOT(slotBehaviorSettingsChanged()));
-    connect(d->m_ui.utf8BomBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotExtraEncodingChanged()));
-    connect(d->m_ui.encodingBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotEncodingBoxChanged(int)));
-    connect(d->m_ui.constrainTooltipsBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotBehaviorSettingsChanged()));
-    connect(d->m_ui.keyboardTooltips, SIGNAL(clicked()),
-            this, SLOT(slotBehaviorSettingsChanged()));
+    auto currentIndexChanged = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
+    connect(d->m_ui.autoIndent, &QAbstractButton::toggled,
+            this, &BehaviorSettingsWidget::slotTypingSettingsChanged);
+    connect(d->m_ui.smartBackspaceBehavior, currentIndexChanged,
+            this, &BehaviorSettingsWidget::slotTypingSettingsChanged);
+    connect(d->m_ui.tabKeyBehavior, currentIndexChanged,
+            this, &BehaviorSettingsWidget::slotTypingSettingsChanged);
+    connect(d->m_ui.cleanWhitespace, &QAbstractButton::clicked,
+            this, &BehaviorSettingsWidget::slotStorageSettingsChanged);
+    connect(d->m_ui.inEntireDocument, &QAbstractButton::clicked,
+            this, &BehaviorSettingsWidget::slotStorageSettingsChanged);
+    connect(d->m_ui.addFinalNewLine, &QAbstractButton::clicked,
+            this, &BehaviorSettingsWidget::slotStorageSettingsChanged);
+    connect(d->m_ui.cleanIndentation, &QAbstractButton::clicked,
+            this, &BehaviorSettingsWidget::slotStorageSettingsChanged);
+    connect(d->m_ui.mouseHiding, &QAbstractButton::clicked,
+            this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
+    connect(d->m_ui.mouseNavigation, &QAbstractButton::clicked,
+            this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
+    connect(d->m_ui.scrollWheelZooming, &QAbstractButton::clicked,
+            this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
+    connect(d->m_ui.camelCaseNavigation, &QAbstractButton::clicked,
+            this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
+    connect(d->m_ui.utf8BomBox, currentIndexChanged,
+            this, &BehaviorSettingsWidget::slotExtraEncodingChanged);
+    connect(d->m_ui.encodingBox, currentIndexChanged,
+            this, &BehaviorSettingsWidget::slotEncodingBoxChanged);
+    connect(d->m_ui.constrainTooltipsBox, currentIndexChanged,
+            this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
+    connect(d->m_ui.keyboardTooltips, &QAbstractButton::clicked,
+            this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
 }
 
 BehaviorSettingsWidget::~BehaviorSettingsWidget()

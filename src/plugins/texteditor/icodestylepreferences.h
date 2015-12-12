@@ -103,8 +103,6 @@ signals:
 
 protected:
     virtual QString settingsSuffix() const = 0;
-
-protected slots:
     void slotCodeStyleRemoved(ICodeStylePreferences *preferences);
 
 private:

@@ -341,20 +341,20 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
         new SnippetsSettingsPage(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS, this);
     ExtensionSystem::PluginManager::addObject(d->m_snippetsSettingsPage);
 
-    connect(d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
-            this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)));
-    connect(d->m_behaviorSettingsPage, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
-            this, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)));
-    connect(d->m_behaviorSettingsPage, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-            this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)));
-    connect(d->m_behaviorSettingsPage, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
-            this, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)));
-    connect(d->m_behaviorSettingsPage, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
-            this, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)));
-    connect(d->m_displaySettingsPage, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)),
-            this, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)));
-    connect(d->m_displaySettingsPage, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)));
+    connect(d->m_fontSettingsPage, &FontSettingsPage::changed,
+            this, &TextEditorSettings::fontSettingsChanged);
+    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::typingSettingsChanged,
+            this, &TextEditorSettings::typingSettingsChanged);
+    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::storageSettingsChanged,
+            this, &TextEditorSettings::storageSettingsChanged);
+    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
+            this, &TextEditorSettings::behaviorSettingsChanged);
+    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::extraEncodingSettingsChanged,
+            this, &TextEditorSettings::extraEncodingSettingsChanged);
+    connect(d->m_displaySettingsPage, &DisplaySettingsPage::marginSettingsChanged,
+            this, &TextEditorSettings::marginSettingsChanged);
+    connect(d->m_displaySettingsPage, &DisplaySettingsPage::displaySettingsChanged,
+            this, &TextEditorSettings::displaySettingsChanged);
 
     // TODO: Move these settings to TextEditor category
     d->m_completionSettings.fromSettings(QLatin1String("CppTools/"), Core::ICore::settings());

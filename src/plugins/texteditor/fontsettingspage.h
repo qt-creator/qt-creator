@@ -135,7 +135,7 @@ public:
 signals:
     void changed(const TextEditor::FontSettings&);
 
-private slots:
+private:
     void delayedChange();
     void fontSelected(const QFont &font);
     void fontSizeSelected(const QString &sizeString);
@@ -147,7 +147,6 @@ private slots:
     void confirmDeleteColorScheme();
     void deleteColorScheme();
 
-private:
     void maybeSaveColorScheme();
     void updatePointSizes();
     QList<int> pointSizesForSelectedFont() const;

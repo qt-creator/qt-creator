@@ -86,7 +86,8 @@ public:
         m_installedDefinitions(installedDefinitions),
         m_downloadPath(savePath)
     {
-        connect(&m_downloadWatcher, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
+        connect(&m_downloadWatcher, &QFutureWatcherBase::finished,
+                this, &MultiDefinitionDownloader::downloadDefinitionsFinished);
     }
 
     ~MultiDefinitionDownloader()
@@ -100,11 +101,10 @@ public:
 signals:
     void finished();
 
-private slots:
+private:
     void downloadReferencedDefinition(const QString &name);
     void downloadDefinitionsFinished();
 
-private:
     QFutureWatcher<void> m_downloadWatcher;
     QList<DefinitionDownloader *> m_downloaders;
     QList<QString> m_installedDefinitions;
@@ -116,7 +116,8 @@ Manager::Manager() :
     m_multiDownloader(0),
     m_hasQueuedRegistration(false)
 {
-    connect(&m_registeringWatcher, SIGNAL(finished()), this, SLOT(registerHighlightingFilesFinished()));
+    connect(&m_registeringWatcher, &QFutureWatcherBase::finished,
+            this, &Manager::registerHighlightingFilesFinished);
 }
 
 Manager::~Manager()
@@ -328,7 +329,8 @@ void Manager::registerHighlightingFiles()
         ManagerProcessor *processor = new ManagerProcessor;
         QFuture<RegisterData> future =
             QtConcurrent::run(&ManagerProcessor::process, processor);
-        connect(&m_registeringWatcher, SIGNAL(finished()), processor, SLOT(deleteLater()));
+        connect(&m_registeringWatcher, &QFutureWatcherBase::finished,
+                processor, &QObject::deleteLater);
         m_registeringWatcher.setFuture(future);
     } else {
         m_hasQueuedRegistration = true;
@@ -418,7 +420,8 @@ void Manager::downloadAvailableDefinitionsMetaData()
     QNetworkRequest request(url);
     // Currently this takes a couple of seconds on Windows 7: QTBUG-10106.
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);
-    connect(reply, SIGNAL(finished()), this, SLOT(downloadAvailableDefinitionsListFinished()));
+    connect(reply, &QNetworkReply::finished,
+            this, &Manager::downloadAvailableDefinitionsListFinished);
 }
 
 void Manager::downloadAvailableDefinitionsListFinished()
@@ -435,7 +438,8 @@ void Manager::downloadAvailableDefinitionsListFinished()
 void Manager::downloadDefinitions(const QList<QUrl> &urls, const QString &savePath)
 {
     m_multiDownloader = new MultiDefinitionDownloader(savePath, m_register.m_idByName.keys());
-    connect(m_multiDownloader, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
+    connect(m_multiDownloader, &MultiDefinitionDownloader::finished,
+            this, &Manager::downloadDefinitionsFinished);
     m_multiDownloader->downloadDefinitions(urls);
 }
 
@@ -444,8 +448,8 @@ void MultiDefinitionDownloader::downloadDefinitions(const QList<QUrl> &urls)
     m_downloaders.clear();
     foreach (const QUrl &url, urls) {
         DefinitionDownloader *downloader = new DefinitionDownloader(url, m_downloadPath);
-        connect(downloader, SIGNAL(foundReferencedDefinition(QString)),
-                this, SLOT(downloadReferencedDefinition(QString)));
+        connect(downloader, &DefinitionDownloader::foundReferencedDefinition,
+                this, &MultiDefinitionDownloader::downloadReferencedDefinition);
         m_downloaders.append(downloader);
     }
 

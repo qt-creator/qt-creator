@@ -507,7 +507,7 @@ void FontSettingsPage::openCopyColorSchemeDialog()
     dialog->setLabelText(tr("Color scheme name:"));
     dialog->setTextValue(tr("%1 (copy)").arg(d_ptr->m_value.colorScheme().displayName()));
 
-    connect(dialog, SIGNAL(textValueSelected(QString)), this, SLOT(copyColorScheme(QString)));
+    connect(dialog, &QInputDialog::textValueSelected, this, &FontSettingsPage::copyColorScheme);
     dialog->open();
 }
 
@@ -561,8 +561,8 @@ void FontSettingsPage::confirmDeleteColorScheme()
     messageBox->addButton(deleteButton, QMessageBox::AcceptRole);
     messageBox->setDefaultButton(deleteButton);
 
-    connect(deleteButton, SIGNAL(clicked()), messageBox, SLOT(accept()));
-    connect(messageBox, SIGNAL(accepted()), this, SLOT(deleteColorScheme()));
+    connect(deleteButton, &QAbstractButton::clicked, messageBox, &QDialog::accept);
+    connect(messageBox, &QDialog::accepted, this, &FontSettingsPage::deleteColorScheme);
     messageBox->setAttribute(Qt::WA_DeleteOnClose);
     messageBox->open();
 }
@@ -676,7 +676,7 @@ void FontSettingsPage::saveSettings()
         d_ptr->m_lastValue = d_ptr->m_value;
         d_ptr->m_value.toSettings(d_ptr->m_settingsGroup, Core::ICore::settings());
 
-        QTimer::singleShot(0, this, SLOT(delayedChange()));
+        QTimer::singleShot(0, this, &FontSettingsPage::delayedChange);
     }
 }
 

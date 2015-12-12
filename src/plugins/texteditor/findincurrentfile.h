@@ -63,10 +63,9 @@ protected:
     QString label() const;
     QString toolTip() const;
 
-private slots:
+private:
     void handleFileChange(Core::IEditor *editor);
 
-private:
     QPointer<Core::IDocument> m_currentDocument;
 };
 

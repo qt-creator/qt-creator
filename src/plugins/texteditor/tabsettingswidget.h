@@ -58,19 +58,16 @@ public:
 
     void setFlat(bool on);
     void setCodingStyleWarningVisible(bool visible);
-
-public slots:
     void setTabSettings(const TextEditor::TabSettings& s);
 
 signals:
     void settingsChanged(const TextEditor::TabSettings &);
     void codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink link);
 
-private slots:
+private:
     void slotSettingsChanged();
     void codingStyleLinkActivated(const QString &linkString);
 
-private:
     Internal::Ui::TabSettingsWidget *ui;
 };
 

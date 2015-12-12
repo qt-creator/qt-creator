@@ -59,7 +59,7 @@ public:
 
     void setCodeStyle(TextEditor::ICodeStylePreferences *codeStyle);
 
-private slots:
+private:
     void slotComboBoxActivated(int index);
     void slotCurrentDelegateChanged(TextEditor::ICodeStylePreferences *delegate);
     void slotCopyClicked();
@@ -71,7 +71,6 @@ private slots:
     void slotCodeStyleRemoved(ICodeStylePreferences*);
     void slotUpdateName();
 
-private:
     void updateName(ICodeStylePreferences *codeStyle);
     ICodeStylePreferencesFactory *m_factory;
     ICodeStylePreferences *m_codeStyle;

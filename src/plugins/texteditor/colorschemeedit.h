@@ -65,7 +65,7 @@ public:
     void setColorScheme(const ColorScheme &colorScheme);
     const ColorScheme &colorScheme() const;
 
-private slots:
+private:
     void currentItemChanged(const QModelIndex &index);
     void changeForeColor();
     void changeBackColor();
@@ -76,7 +76,6 @@ private slots:
     void eraseUnderlineColor();
     void changeUnderlineStyle(int index);
 
-private:
     void updateControls();
     void updateForegroundControls();
     void updateBackgroundControls();

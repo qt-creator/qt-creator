@@ -50,7 +50,7 @@ public:
     ExternalToolManager();
     ~ExternalToolManager();
 
-    static QObject *instance();
+    static ExternalToolManager *instance();
     static QMap<QString, QList<Internal::ExternalTool *> > toolsByCategory();
     static QMap<QString, Internal::ExternalTool *> toolsById();
     static void setToolsByCategory(const QMap<QString, QList<Internal::ExternalTool *> > &tools);

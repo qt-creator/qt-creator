@@ -122,14 +122,14 @@ CodecSelector::CodecSelector(QWidget *parent, TextDocument *doc)
     if (currentIndex >= 0)
         m_listWidget->setCurrentRow(currentIndex);
 
-    connect(m_listWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateButtons()));
+    connect(m_listWidget, &QListWidget::itemSelectionChanged, this, &CodecSelector::updateButtons);
 
     m_dialogButtonBox = new QDialogButtonBox(this);
     m_reloadButton = m_dialogButtonBox->addButton(tr("Reload with Encoding"), QDialogButtonBox::DestructiveRole);
     m_saveButton =  m_dialogButtonBox->addButton(tr("Save with Encoding"), QDialogButtonBox::DestructiveRole);
     m_dialogButtonBox->addButton(QDialogButtonBox::Cancel);
-    connect(m_dialogButtonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
-    connect(m_listWidget, SIGNAL(activated(QModelIndex)), m_reloadButton, SLOT(click()));
+    connect(m_dialogButtonBox, &QDialogButtonBox::clicked, this, &CodecSelector::buttonClicked);
+    connect(m_listWidget, &QAbstractItemView::activated, m_reloadButton, &QAbstractButton::click);
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->addWidget(m_label);

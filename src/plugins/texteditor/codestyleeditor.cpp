@@ -73,12 +73,12 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
     m_layout->addWidget(selector);
     m_layout->addWidget(m_preview);
     m_layout->addWidget(label);
-    connect(codeStyle, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-            this, SLOT(updatePreview()));
-    connect(codeStyle, SIGNAL(currentValueChanged(QVariant)),
-            this, SLOT(updatePreview()));
-    connect(codeStyle, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
-            this, SLOT(updatePreview()));
+    connect(codeStyle, &ICodeStylePreferences::currentTabSettingsChanged,
+            this, &CodeStyleEditor::updatePreview);
+    connect(codeStyle, &ICodeStylePreferences::currentValueChanged,
+            this, &CodeStyleEditor::updatePreview);
+    connect(codeStyle, &ICodeStylePreferences::currentPreferencesChanged,
+            this, &CodeStyleEditor::updatePreview);
     m_preview->setCodeStyle(m_codeStyle);
     m_preview->setPlainText(factory->previewText());
 

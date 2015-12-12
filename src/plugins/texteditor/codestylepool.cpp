@@ -185,9 +185,12 @@ void CodeStylePool::addCodeStyle(ICodeStylePreferences *codeStyle)
     // take ownership
     codeStyle->setParent(this);
 
-    connect(codeStyle, SIGNAL(valueChanged(QVariant)), this, SLOT(slotSaveCodeStyle()));
-    connect(codeStyle, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)), this, SLOT(slotSaveCodeStyle()));
-    connect(codeStyle, SIGNAL(displayNameChanged(QString)), this, SLOT(slotSaveCodeStyle()));
+    connect(codeStyle, &ICodeStylePreferences::valueChanged,
+            this, &CodeStylePool::slotSaveCodeStyle);
+    connect(codeStyle, &ICodeStylePreferences::tabSettingsChanged,
+            this, &CodeStylePool::slotSaveCodeStyle);
+    connect(codeStyle, &ICodeStylePreferences::displayNameChanged,
+            this, &CodeStylePool::slotSaveCodeStyle);
     emit codeStyleAdded(codeStyle);
 }
 

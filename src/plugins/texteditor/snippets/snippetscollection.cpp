@@ -101,7 +101,8 @@ SnippetsCollection::SnippetsCollection() :
     foreach (const QFileInfo &fi, dir.entryInfoList())
         m_builtInSnippetsFiles.append(fi.absoluteFilePath());
 
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(identifyGroups()));
+    connect(Core::ICore::instance(), &Core::ICore::coreOpened,
+            this, &SnippetsCollection::identifyGroups);
 }
 
 SnippetsCollection::~SnippetsCollection()

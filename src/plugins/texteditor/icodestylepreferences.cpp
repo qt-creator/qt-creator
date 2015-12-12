@@ -151,13 +151,13 @@ void ICodeStylePreferences::setDelegatingPool(CodeStylePool *pool)
 
     setCurrentDelegate(0);
     if (d->m_pool) {
-        disconnect(d->m_pool, SIGNAL(codeStyleRemoved(ICodeStylePreferences*)),
-                this, SLOT(slotCodeStyleRemoved(ICodeStylePreferences*)));
+        disconnect(d->m_pool, &CodeStylePool::codeStyleRemoved,
+                   this, &ICodeStylePreferences::slotCodeStyleRemoved);
     }
     d->m_pool = pool;
     if (d->m_pool) {
-        connect(d->m_pool, SIGNAL(codeStyleRemoved(ICodeStylePreferences*)),
-                this, SLOT(slotCodeStyleRemoved(ICodeStylePreferences*)));
+        connect(d->m_pool, &CodeStylePool::codeStyleRemoved,
+                this, &ICodeStylePreferences::slotCodeStyleRemoved);
     }
 }
 
@@ -182,21 +182,21 @@ void ICodeStylePreferences::setCurrentDelegate(ICodeStylePreferences *delegate)
         return; // nothing changes
 
     if (d->m_currentDelegate) {
-        disconnect(d->m_currentDelegate, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-                   this, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)));
-        disconnect(d->m_currentDelegate, SIGNAL(currentValueChanged(QVariant)),
-                   this, SIGNAL(currentValueChanged(QVariant)));
-        disconnect(d->m_currentDelegate, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
-                   this, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)));
+        disconnect(d->m_currentDelegate, &ICodeStylePreferences::currentTabSettingsChanged,
+                   this, &ICodeStylePreferences::currentTabSettingsChanged);
+        disconnect(d->m_currentDelegate, &ICodeStylePreferences::currentValueChanged,
+                   this, &ICodeStylePreferences::currentValueChanged);
+        disconnect(d->m_currentDelegate, &ICodeStylePreferences::currentPreferencesChanged,
+                   this, &ICodeStylePreferences::currentPreferencesChanged);
     }
     d->m_currentDelegate = delegate;
     if (d->m_currentDelegate) {
-        connect(d->m_currentDelegate, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-                   this, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)));
-        connect(d->m_currentDelegate, SIGNAL(currentValueChanged(QVariant)),
-                this, SIGNAL(currentValueChanged(QVariant)));
-        connect(d->m_currentDelegate, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
-                   this, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)));
+        connect(d->m_currentDelegate, &ICodeStylePreferences::currentTabSettingsChanged,
+                   this, &ICodeStylePreferences::currentTabSettingsChanged);
+        connect(d->m_currentDelegate, &ICodeStylePreferences::currentValueChanged,
+                this, &ICodeStylePreferences::currentValueChanged);
+        connect(d->m_currentDelegate, &ICodeStylePreferences::currentPreferencesChanged,
+                   this, &ICodeStylePreferences::currentPreferencesChanged);
     }
     emit currentDelegateChanged(d->m_currentDelegate);
     emit currentPreferencesChanged(currentPreferences());

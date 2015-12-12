@@ -60,11 +60,10 @@ public:
         Cancel, Reload, Save
     };
 
-private slots:
+private:
     void updateButtons();
     void buttonClicked(QAbstractButton *button);
 
-private:
     bool m_hasDecodingError;
     bool m_isModified;
     QLabel *m_label;

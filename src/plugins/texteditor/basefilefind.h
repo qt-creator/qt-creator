@@ -85,7 +85,7 @@ protected:
     void updateComboEntries(QComboBox *combo, bool onTop);
     QStringList fileNameFilters() const;
 
-private slots:
+private:
     void displayResult(int index);
     void searchFinished();
     void cancel();
@@ -98,7 +98,6 @@ private slots:
     void searchAgain();
     void recheckEnabled();
 
-private:
     void runNewSearch(const QString &txt, Core::FindFlags findFlags,
                       Core::SearchResultWindow::SearchMode searchMode);
     void runSearch(Core::SearchResult *search);

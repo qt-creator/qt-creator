@@ -60,12 +60,9 @@ private:
     bool isCursorSynchronized() const;
     QWidget *dummyWidget() const;
     void updateFilterMenu();
-
-private slots:
     void toggleCursorSynchronization();
     void updateCurrentEditor(Core::IEditor *editor);
 
-private:
     QStackedWidget *m_widgetStack;
     OutlineFactory *m_factory;
     QToolButton *m_toggleSync;

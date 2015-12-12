@@ -54,10 +54,9 @@ public:
 
     void clearMargins();
 
-private slots:
+private:
     void updatePreview();
 
-private:
     QVBoxLayout *m_layout;
     ICodeStylePreferencesFactory *m_factory;
     ICodeStylePreferences *m_codeStyle;

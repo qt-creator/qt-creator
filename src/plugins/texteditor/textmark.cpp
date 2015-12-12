@@ -221,13 +221,13 @@ void TextMark::setBaseTextDocument(TextDocument *baseTextDocument)
 TextMarkRegistry::TextMarkRegistry(QObject *parent)
     : QObject(parent)
 {
-    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-        SLOT(editorOpened(Core::IEditor*)));
+    connect(EditorManager::instance(), &EditorManager::editorOpened,
+            this, &TextMarkRegistry::editorOpened);
 
-    connect(DocumentManager::instance(), SIGNAL(allDocumentsRenamed(QString,QString)),
-            this, SLOT(allDocumentsRenamed(QString,QString)));
-    connect(DocumentManager::instance(), SIGNAL(documentRenamed(Core::IDocument*,QString,QString)),
-            this, SLOT(documentRenamed(Core::IDocument*,QString,QString)));
+    connect(DocumentManager::instance(), &DocumentManager::allDocumentsRenamed,
+            this, &TextMarkRegistry::allDocumentsRenamed);
+    connect(DocumentManager::instance(), &DocumentManager::documentRenamed,
+            this, &TextMarkRegistry::documentRenamed);
 }
 
 void TextMarkRegistry::add(TextMark *mark)

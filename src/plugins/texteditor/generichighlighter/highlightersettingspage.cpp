@@ -106,11 +106,12 @@ QWidget *HighlighterSettingsPage::widget()
 
         settingsToUI();
 
-        connect(m_d->m_page->useFallbackLocation, SIGNAL(clicked(bool)),
-                this, SLOT(setFallbackLocationState(bool)));
-        connect(m_d->m_page->definitionFilesPath, SIGNAL(validChanged(bool)),
-                this, SLOT(setDownloadDefinitionsState(bool)));
-        connect(m_d->m_widget, SIGNAL(destroyed()), this, SLOT(ignoreDownloadReply()));
+        connect(m_d->m_page->useFallbackLocation, &QAbstractButton::clicked,
+                this, &HighlighterSettingsPage::setFallbackLocationState);
+        connect(m_d->m_page->definitionFilesPath, &Utils::PathChooser::validChanged,
+                this, &HighlighterSettingsPage::setDownloadDefinitionsState);
+        connect(m_d->m_widget.data(), &QObject::destroyed,
+                this, &HighlighterSettingsPage::ignoreDownloadReply);
     }
     return m_d->m_widget;
 }
@@ -187,24 +188,19 @@ void HighlighterSettingsPage::requestAvailableDefinitionsMetaData()
 {
     setDownloadDefinitionsState(false);
 
-    connect(Manager::instance(),
-            SIGNAL(definitionsMetaDataReady(QList<Internal::DefinitionMetaDataPtr>)),
-            this,
-            SLOT(manageDefinitions(QList<Internal::DefinitionMetaDataPtr>)),
-            Qt::UniqueConnection);
-    connect(Manager::instance(), SIGNAL(errorDownloadingDefinitionsMetaData()),
-            this, SLOT(showError()), Qt::UniqueConnection);
+    connect(Manager::instance(), &Manager::definitionsMetaDataReady,
+            this, &HighlighterSettingsPage::manageDefinitions, Qt::UniqueConnection);
+    connect(Manager::instance(), &Manager::errorDownloadingDefinitionsMetaData,
+            this, &HighlighterSettingsPage::showError, Qt::UniqueConnection);
     Manager::instance()->downloadAvailableDefinitionsMetaData();
 }
 
 void HighlighterSettingsPage::ignoreDownloadReply()
 {
-    disconnect(Manager::instance(),
-               SIGNAL(definitionsMetaDataReady(QList<Internal::DefinitionMetaDataPtr>)),
-               this,
-               SLOT(manageDefinitions(QList<Internal::DefinitionMetaDataPtr>)));
-    disconnect(Manager::instance(), SIGNAL(errorDownloadingDefinitionsMetaData()),
-               this, SLOT(showError()));
+    disconnect(Manager::instance(), &Manager::definitionsMetaDataReady,
+               this, &HighlighterSettingsPage::manageDefinitions);
+    disconnect(Manager::instance(), &Manager::errorDownloadingDefinitionsMetaData,
+               this, &HighlighterSettingsPage::showError);
 }
 
 void HighlighterSettingsPage::manageDefinitions(const QList<DefinitionMetaDataPtr> &metaData)

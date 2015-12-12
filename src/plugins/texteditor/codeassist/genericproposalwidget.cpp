@@ -265,7 +265,6 @@ public:
     CodeAssistant *m_assistant;
     bool m_autoWidth;
 
-public slots:
     void handleActivation(const QModelIndex &modelIndex);
     void maybeShowInfoTip();
 };
@@ -280,12 +279,12 @@ GenericProposalWidgetPrivate::GenericProposalWidgetPrivate(QWidget *completionWi
     , m_assistant(0)
     , m_autoWidth(true)
 {
-    connect(m_completionListView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(handleActivation(QModelIndex)));
+    connect(m_completionListView, &QAbstractItemView::activated,
+            this, &GenericProposalWidgetPrivate::handleActivation);
 
     m_infoTimer.setInterval(Constants::COMPLETION_ASSIST_TOOLTIP_DELAY);
     m_infoTimer.setSingleShot(true);
-    connect(&m_infoTimer, SIGNAL(timeout()), SLOT(maybeShowInfoTip()));
+    connect(&m_infoTimer, &QTimer::timeout, this, &GenericProposalWidgetPrivate::maybeShowInfoTip);
 }
 
 void GenericProposalWidgetPrivate::handleActivation(const QModelIndex &modelIndex)
@@ -342,12 +341,12 @@ GenericProposalWidget::GenericProposalWidget()
     d->m_completionListView->setSelectionMode(QAbstractItemView::SingleSelection);
     d->m_completionListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     d->m_completionListView->setMinimumSize(1, 1);
-    connect(d->m_completionListView->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            this, SLOT(updatePositionAndSize()));
-    connect(d->m_completionListView->verticalScrollBar(), SIGNAL(sliderPressed()),
-            this, SLOT(turnOffAutoWidth()));
-    connect(d->m_completionListView->verticalScrollBar(), SIGNAL(sliderReleased()),
-            this, SLOT(turnOnAutoWidth()));
+    connect(d->m_completionListView->verticalScrollBar(), &QAbstractSlider::valueChanged,
+            this, &GenericProposalWidget::updatePositionAndSize);
+    connect(d->m_completionListView->verticalScrollBar(), &QAbstractSlider::sliderPressed,
+            this, &GenericProposalWidget::turnOffAutoWidth);
+    connect(d->m_completionListView->verticalScrollBar(), &QAbstractSlider::sliderReleased,
+            this, &GenericProposalWidget::turnOnAutoWidth);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
@@ -394,10 +393,8 @@ void GenericProposalWidget::setModel(IAssistProposalModel *model)
     d->m_model = static_cast<GenericProposalModel *>(model);
     d->m_completionListView->setModel(new ModelAdapter(d->m_model, d->m_completionListView));
 
-    connect(d->m_completionListView->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            &d->m_infoTimer,
-            SLOT(start()));
+    connect(d->m_completionListView->selectionModel(), &QItemSelectionModel::currentChanged,
+            &d->m_infoTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
 }
 
 void GenericProposalWidget::setDisplayRect(const QRect &rect)

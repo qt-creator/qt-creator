@@ -43,16 +43,18 @@ TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
     ui->setupUi(this);
     ui->codingStyleWarning->setVisible(false);
 
-    connect(ui->codingStyleWarning, SIGNAL(linkActivated(QString)),
-            this, SLOT(codingStyleLinkActivated(QString)));
-    connect(ui->tabPolicy, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotSettingsChanged()));
-    connect(ui->tabSize, SIGNAL(valueChanged(int)),
-            this, SLOT(slotSettingsChanged()));
-    connect(ui->indentSize, SIGNAL(valueChanged(int)),
-            this, SLOT(slotSettingsChanged()));
-    connect(ui->continuationAlignBehavior, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotSettingsChanged()));
+    auto comboIndexChanged = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
+    auto spinValueChanged = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
+    connect(ui->codingStyleWarning, &QLabel::linkActivated,
+            this, &TabSettingsWidget::codingStyleLinkActivated);
+    connect(ui->tabPolicy, comboIndexChanged,
+            this, &TabSettingsWidget::slotSettingsChanged);
+    connect(ui->tabSize, spinValueChanged,
+            this, &TabSettingsWidget::slotSettingsChanged);
+    connect(ui->indentSize, spinValueChanged,
+            this, &TabSettingsWidget::slotSettingsChanged);
+    connect(ui->continuationAlignBehavior, comboIndexChanged,
+            this, &TabSettingsWidget::slotSettingsChanged);
 }
 
 TabSettingsWidget::~TabSettingsWidget()

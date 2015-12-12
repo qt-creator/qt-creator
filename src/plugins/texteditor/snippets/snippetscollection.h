@@ -97,10 +97,9 @@ public:
     void reload();
     bool synchronize(QString *errorString);
 
-private slots:
+private:
     void identifyGroups();
 
-private:
     SnippetsCollection();
 
     int groupIndex(const QString &groupId) const;

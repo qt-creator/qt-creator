@@ -66,8 +66,6 @@ private:
     bool updateAndCheck(const QString &prefix);
     void notifyActivation(int index);
     void abort();
-
-private slots:
     void updatePositionAndSize();
     void turnOffAutoWidth();
     void turnOnAutoWidth();

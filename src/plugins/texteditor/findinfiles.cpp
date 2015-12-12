@@ -56,8 +56,8 @@ FindInFiles::FindInFiles()
     m_directory(0)
 {
     m_instance = this;
-    connect(EditorManager::instance(), SIGNAL(findOnFileSystemRequest(QString)),
-            this, SLOT(findOnFileSystem(QString)));
+    connect(EditorManager::instance(), &EditorManager::findOnFileSystemRequest,
+            this, &FindInFiles::findOnFileSystem);
 }
 
 FindInFiles::~FindInFiles()
@@ -132,7 +132,7 @@ QWidget *FindInFiles::createConfigWidget()
         gridLayout->addWidget(m_directory, 0, 1);
         QPushButton *browseButton = new QPushButton(Utils::PathChooser::browseButtonLabel());
         gridLayout->addWidget(browseButton, 0, 2);
-        connect(browseButton, SIGNAL(clicked()), this, SLOT(openFileBrowser()));
+        connect(browseButton, &QAbstractButton::clicked, this, &FindInFiles::openFileBrowser);
 
         QLabel * const filePatternLabel = new QLabel(tr("Fi&le pattern:"));
         filePatternLabel->setMinimumWidth(80);

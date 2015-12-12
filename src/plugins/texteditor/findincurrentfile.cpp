@@ -46,8 +46,8 @@ using namespace TextEditor::Internal;
 FindInCurrentFile::FindInCurrentFile()
   : m_currentDocument(0)
 {
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(handleFileChange(Core::IEditor*)));
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, &FindInCurrentFile::handleFileChange);
     handleFileChange(Core::EditorManager::currentEditor());
 }
 

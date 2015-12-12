@@ -158,26 +158,26 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
 
     populateUnderlineStyleComboBox();
 
-    connect(m_ui->itemList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            SLOT(currentItemChanged(QModelIndex)));
-    connect(m_ui->foregroundToolButton, SIGNAL(clicked()), SLOT(changeForeColor()));
-    connect(m_ui->backgroundToolButton, SIGNAL(clicked()), SLOT(changeBackColor()));
-    connect(m_ui->eraseBackgroundToolButton, SIGNAL(clicked()), SLOT(eraseBackColor()));
-    connect(m_ui->eraseForegroundToolButton, SIGNAL(clicked()), SLOT(eraseForeColor()));
-    connect(m_ui->boldCheckBox, SIGNAL(toggled(bool)), SLOT(checkCheckBoxes()));
-    connect(m_ui->italicCheckBox, SIGNAL(toggled(bool)), SLOT(checkCheckBoxes()));
-    connect(m_ui->underlineColorToolButton,
-            &QToolButton::clicked,
-            this,
-            &ColorSchemeEdit::changeUnderlineColor);
-    connect(m_ui->eraseUnderlineColorToolButton,
-            &QToolButton::clicked,
-            this,
-            &ColorSchemeEdit::eraseUnderlineColor);
-    connect(m_ui->underlineComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this,
-            &ColorSchemeEdit::changeUnderlineStyle);
+    connect(m_ui->itemList->selectionModel(), &QItemSelectionModel::currentRowChanged,
+            this, &ColorSchemeEdit::currentItemChanged);
+    connect(m_ui->foregroundToolButton, &QAbstractButton::clicked,
+            this, &ColorSchemeEdit::changeForeColor);
+    connect(m_ui->backgroundToolButton, &QAbstractButton::clicked,
+            this, &ColorSchemeEdit::changeBackColor);
+    connect(m_ui->eraseBackgroundToolButton, &QAbstractButton::clicked,
+            this, &ColorSchemeEdit::eraseBackColor);
+    connect(m_ui->eraseForegroundToolButton, &QAbstractButton::clicked,
+            this, &ColorSchemeEdit::eraseForeColor);
+    connect(m_ui->boldCheckBox, &QAbstractButton::toggled,
+            this, &ColorSchemeEdit::checkCheckBoxes);
+    connect(m_ui->italicCheckBox, &QAbstractButton::toggled,
+            this, &ColorSchemeEdit::checkCheckBoxes);
+    connect(m_ui->underlineColorToolButton, &QToolButton::clicked,
+            this, &ColorSchemeEdit::changeUnderlineColor);
+    connect(m_ui->eraseUnderlineColorToolButton, &QToolButton::clicked,
+            this, &ColorSchemeEdit::eraseUnderlineColor);
+    connect(m_ui->underlineComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &ColorSchemeEdit::changeUnderlineStyle);
 }
 
 ColorSchemeEdit::~ColorSchemeEdit()

@@ -56,7 +56,7 @@ protected:
     QString label() const;
     QString toolTip() const;
 
-private slots:
+private:
     void updateEnabledState();
 };
 

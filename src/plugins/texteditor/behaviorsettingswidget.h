@@ -86,14 +86,12 @@ signals:
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &settings);
     void textCodecChanged(QTextCodec *codec);
 
-private slots:
+private:
     void slotTypingSettingsChanged();
     void slotStorageSettingsChanged();
     void slotBehaviorSettingsChanged();
     void slotExtraEncodingChanged();
     void slotEncodingBoxChanged(int index);
-
-private:
     void updateConstrainTooltipsBoxTooltip() const;
 
     BehaviorSettingsWidgetPrivate *d;

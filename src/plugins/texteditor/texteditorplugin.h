@@ -61,12 +61,11 @@ public:
     static LineNumberFilter *lineNumberFilter();
     static TextMarkRegistry *baseTextMarkRegistry();
 
-private slots:
+private:
     void updateSearchResultsFont(const TextEditor::FontSettings &);
     void updateSearchResultsTabWidth(const TextEditor::TabSettings &tabSettings);
     void updateCurrentSelection(const QString &text);
 
-private:
     TextEditorSettings *m_settings;
     LineNumberFilter *m_lineNumberFilter;
     OutlineFactory *m_outlineFactory;

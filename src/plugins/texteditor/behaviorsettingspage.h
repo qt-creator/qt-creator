@@ -80,10 +80,9 @@ signals:
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
 
-private slots:
+private:
     void openCodingStylePreferences(TextEditor::TabSettingsWidget::CodingStyleLink link);
 
-private:
     void settingsFromUI(TypingSettings *typingSettings,
                         StorageSettings *storageSettings,
                         BehaviorSettings *behaviorSettings,

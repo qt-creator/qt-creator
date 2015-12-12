@@ -33,6 +33,7 @@
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <QToolButton>
 #include <QLabel>
@@ -62,7 +63,8 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(true);
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
-    connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleCursorSynchronization()));
+    connect(m_toggleSync, &QAbstractButton::clicked,
+            this, &OutlineWidgetStack::toggleCursorSynchronization);
 
     m_filterButton = new QToolButton;
     m_filterButton->setIcon(Core::Icons::FILTER.icon());
@@ -72,8 +74,8 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_filterMenu = new QMenu(m_filterButton);
     m_filterButton->setMenu(m_filterMenu);
 
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(updateCurrentEditor(Core::IEditor*)));
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, &OutlineWidgetStack::updateCurrentEditor);
     updateCurrentEditor(Core::EditorManager::currentEditor());
 }
 

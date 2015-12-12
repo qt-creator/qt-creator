@@ -55,12 +55,12 @@ void SimpleCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *pre
 
     // cleanup old
     if (m_preferences) {
-        disconnect(m_preferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-                m_tabSettingsWidget, SLOT(setTabSettings(TextEditor::TabSettings)));
-        disconnect(m_preferences, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
-                this, SLOT(slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences*)));
-        disconnect(m_tabSettingsWidget, SIGNAL(settingsChanged(TextEditor::TabSettings)),
-                this, SLOT(slotTabSettingsChanged(TextEditor::TabSettings)));
+        disconnect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                   m_tabSettingsWidget, &TabSettingsWidget::setTabSettings);
+        disconnect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
+                   this, &SimpleCodeStylePreferencesWidget::slotCurrentPreferencesChanged);
+        disconnect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
+                   this, &SimpleCodeStylePreferencesWidget::slotTabSettingsChanged);
     }
     m_preferences = preferences;
     // fillup new
@@ -68,12 +68,12 @@ void SimpleCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *pre
         slotCurrentPreferencesChanged(m_preferences->currentPreferences());
         m_tabSettingsWidget->setTabSettings(m_preferences->currentTabSettings());
 
-        connect(m_preferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-                m_tabSettingsWidget, SLOT(setTabSettings(TextEditor::TabSettings)));
-        connect(m_preferences, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
-                this, SLOT(slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences*)));
-        connect(m_tabSettingsWidget, SIGNAL(settingsChanged(TextEditor::TabSettings)),
-                this, SLOT(slotTabSettingsChanged(TextEditor::TabSettings)));
+        connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                m_tabSettingsWidget, &TabSettingsWidget::setTabSettings);
+        connect(m_preferences, &ICodeStylePreferences::currentPreferencesChanged,
+                this, &SimpleCodeStylePreferencesWidget::slotCurrentPreferencesChanged);
+        connect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
+                this, &SimpleCodeStylePreferencesWidget::slotTabSettingsChanged);
     }
     m_tabSettingsWidget->setEnabled(m_preferences);
 }

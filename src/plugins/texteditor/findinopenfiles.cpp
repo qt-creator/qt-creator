@@ -44,10 +44,10 @@ using namespace TextEditor::Internal;
 
 FindInOpenFiles::FindInOpenFiles()
 {
-    connect(Core::EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-            this, SLOT(updateEnabledState()));
-    connect(Core::EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
-            this, SLOT(updateEnabledState()));
+    connect(Core::EditorManager::instance(), &Core::EditorManager::editorOpened,
+            this, &FindInOpenFiles::updateEnabledState);
+    connect(Core::EditorManager::instance(), &Core::EditorManager::editorsClosed,
+            this, &FindInOpenFiles::updateEnabledState);
 }
 
 QString FindInOpenFiles::id() const

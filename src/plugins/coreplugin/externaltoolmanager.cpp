@@ -122,7 +122,7 @@ ExternalToolManager::~ExternalToolManager()
     delete d;
 }
 
-QObject *ExternalToolManager::instance()
+ExternalToolManager *ExternalToolManager::instance()
 {
     return m_instance;
 }
