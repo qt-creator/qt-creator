@@ -4796,5 +4796,38 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_ConvertQt4Connect_differentNamespace()
+{
+    const QByteArray prefix =
+        "namespace NsA {\n"
+        "class ClassA : public QObject\n"
+        "{\n"
+        "  static ClassA *instance();\n"
+        "signals:\n"
+        "  void sig();\n"
+        "};\n"
+        "}\n"
+        "\n"
+        "namespace NsB {\n"
+        "class ClassB : public QObject\n"
+        "{\n"
+        "  void slot();\n"
+        "  void connector() {\n";
+
+    const QByteArray suffix = "  }\n};\n}";
+
+    const QByteArray original = "co@nnect(NsA::ClassA::instance(), SIGNAL(sig()),\n"
+                                "        this, SLOT(slot()));\n";
+    const QByteArray expected = "connect(NsA::ClassA::instance(), &NsA::ClassA::sig,\n"
+                                "        this, &ClassB::slot);\n";
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    testDocuments << QuickFixTestDocument::create("file.cpp",
+                                              prefix + original + suffix,
+                                              prefix + expected + suffix);
+
+    ConvertQt4Connect factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
 } // namespace Internal
 } // namespace CppEditor

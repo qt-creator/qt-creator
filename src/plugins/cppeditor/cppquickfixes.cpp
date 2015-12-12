@@ -5783,7 +5783,10 @@ Class *senderOrReceiverClass(const CppQuickFixInterface &interface,
     QTC_ASSERT(objectType, return 0);
 
     ClassOrNamespace *objectClassCON = context.lookupType(objectType->name(), objectPointerScope);
-    QTC_ASSERT(objectClassCON, return 0);
+    if (!objectClassCON) {
+        objectClassCON = objectPointerExpressions.first().binding();
+        QTC_ASSERT(objectClassCON, return 0);
+    }
     QTC_ASSERT(!objectClassCON->symbols().isEmpty(), return 0);
 
     Symbol *objectClassSymbol = skipForwardDeclarations(objectClassCON->symbols());
