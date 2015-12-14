@@ -162,8 +162,8 @@ std::string gdbmiRegisters(CIDebugRegisters *regs,
                            unsigned flags,
                            std::string *errorMessage);
 
-std::string memoryToBase64(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
-                           std::string *errorMessage = 0);
+std::string memoryToHex(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
+                        std::string *errorMessage = 0);
 std::wstring memoryToHexW(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
                           std::string *errorMessage = 0);
 // Stack helpers

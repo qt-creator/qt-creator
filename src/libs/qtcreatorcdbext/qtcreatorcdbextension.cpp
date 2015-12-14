@@ -959,7 +959,7 @@ extern "C" HRESULT CALLBACK help(CIDebugClient *, PCSTR)
 }
 
 // Extension command 'memory':
-// Display memory as base64
+// Display memory as hex
 
 extern "C" HRESULT CALLBACK memory(CIDebugClient *Client, PCSTR argsIn)
 {
@@ -975,7 +975,7 @@ extern "C" HRESULT CALLBACK memory(CIDebugClient *Client, PCSTR argsIn)
     if (tokens.size()  == 2
             && integerFromString(tokens.front(), &address)
             && integerFromString(tokens.at(1), &length)) {
-        memory = memoryToBase64(exc.dataSpaces(), address, length, &errorMessage);
+        memory = memoryToHex(exc.dataSpaces(), address, length, &errorMessage);
     } else {
         errorMessage = singleLineUsage(commandDescriptions[CmdMemory]);
     }

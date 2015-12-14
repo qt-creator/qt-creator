@@ -580,12 +580,12 @@ std::string gdbmiRegisters(CIDebugRegisters *regs,
     return str.str();
 }
 
-std::string memoryToBase64(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
+std::string memoryToHex(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
                            std::string *errorMessage /* = 0 */)
 {
     if (const unsigned char *buffer = SymbolGroupValue::readMemory(ds, address, length, errorMessage)) {
         std::ostringstream str;
-        base64Encode(str, buffer, length);
+        hexEncode(str, buffer, length);
         delete [] buffer;
         return str.str();
     }

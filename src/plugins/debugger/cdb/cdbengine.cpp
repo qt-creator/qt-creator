@@ -1541,7 +1541,7 @@ void CdbEngine::postFetchMemory(const MemoryViewCookie &cookie)
     cmd.args = QLatin1String(args);
     cmd.callback = [this, cookie](const DebuggerResponse &response) {
         if (response.resultClass == ResultDone && cookie.agent) {
-            const QByteArray data = QByteArray::fromBase64(response.data.data());
+            const QByteArray data = QByteArray::fromHex(response.data.data());
             if (unsigned(data.size()) == cookie.length)
                 cookie.agent->addLazyData(cookie.editorToken, cookie.address, data);
         } else {
