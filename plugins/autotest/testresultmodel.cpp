@@ -116,7 +116,8 @@ void TestResultItem::updateResult()
 TestResultModel::TestResultModel(QObject *parent)
     : Utils::TreeModel(parent),
       m_widthOfLineNumber(0),
-      m_maxWidthOfFileName(0)
+      m_maxWidthOfFileName(0),
+      m_disabled(0)
 {
 }
 
@@ -140,6 +141,8 @@ void TestResultModel::addTestResult(TestResult *testResult, bool autoExpand)
     // we'll add the new item, so raising it's counter
     if (!isCurrentTestMssg) {
         int count = m_testResultCount.value(testResult->result(), 0);
+        if (testResult->result() == Result::MessageDisabledTests)
+            m_disabled += testResult->line();
         m_testResultCount.insert(testResult->result(), ++count);
     } else {
         // MessageCurrentTest should always be the last top level item
@@ -205,6 +208,7 @@ void TestResultModel::clearTestResults()
 {
     clear();
     m_testResultCount.clear();
+    m_disabled = 0;
     m_processedIndices.clear();
     m_maxWidthOfFileName = 0;
     m_widthOfLineNumber = 0;

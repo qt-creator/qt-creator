@@ -62,11 +62,13 @@ public:
     int maxWidthOfLineNumber(const QFont &font);
 
     int resultTypeCount(Result::Type type) const { return m_testResultCount.value(type, 0); }
+    int disabledTests() const { return m_disabled; }
 
 private:
     QMap<Result::Type, int> m_testResultCount;
     int m_widthOfLineNumber;
     int m_maxWidthOfFileName;
+    int m_disabled;
     QList<int> m_processedIndices;
     QFont m_measurementFont;
 };

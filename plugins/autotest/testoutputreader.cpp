@@ -344,9 +344,10 @@ void TestOutputReader::processGTestOutput()
                 description.clear();
             } else if (disabledTests.exactMatch(line)) {
                 auto testResult = new GTestResult();
-                testResult->setResult(Result::MessageInternal);
+                testResult->setResult(Result::MessageDisabledTests);
                 int disabled = disabledTests.cap(1).toInt();
                 testResult->setDescription(tr("You have %n disabled test(s).", 0, disabled));
+                testResult->setLine(disabled); // misuse line property to hold number of disabled
                 testResultCreated(testResult);
                 description.clear();
             }

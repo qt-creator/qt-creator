@@ -42,6 +42,7 @@ enum Type {
     MessageFatal,
 
     MessageInternal, INTERNAL_MESSAGES_BEGIN = MessageInternal,
+    MessageDisabledTests,
     MessageTestCaseStart,
     MessageTestCaseSuccess,
     MessageTestCaseWarn,

@@ -445,6 +445,10 @@ void TestResultsPane::updateSummaryLabel()
         labelText.append(QString::fromLatin1(", %1 %2")
                          .arg(QString::number(count), tr("blacklisted")));
 
+    count = m_model->disabledTests();
+    if (count)
+        labelText.append(tr(", %1 disabled").arg(count));
+
     labelText.append(QLatin1String(".</p>"));
     m_summaryLabel->setText(labelText);
 }
