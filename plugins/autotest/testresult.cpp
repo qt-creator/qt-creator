@@ -37,6 +37,7 @@ TestResult::TestResult(const QString &className)
     : m_class(className)
     , m_result(Result::Invalid)
     , m_line(0)
+    , m_type(Qt)
 {
 }
 
@@ -144,6 +145,17 @@ bool operator==(const TestResult &t1, const TestResult &t2)
             && t1.testCase() == t2.testCase()
             && t1.dataTag() == t2.dataTag()
             && t1.result() == t2.result();
+}
+
+QTestResult::QTestResult(const QString &className)
+    : TestResult(className)
+{
+}
+
+GTestResult::GTestResult(const QString &className)
+    : TestResult(className)
+{
+    setTestType(GTest);
 }
 
 } // namespace Internal

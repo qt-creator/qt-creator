@@ -57,6 +57,12 @@ enum Type {
 class TestResult
 {
 public:
+    enum TestType
+    {
+        Qt,
+        GTest
+    };
+
     TestResult();
     TestResult(const QString &className);
 
@@ -67,6 +73,7 @@ public:
     QString description() const { return m_description; }
     QString fileName() const { return m_file; }
     int line() const { return m_line; }
+    TestType type() const { return m_type; }
 
     void setDescription(const QString &description) { m_description = description; }
     void setFileName(const QString &fileName) { m_file = fileName; }
@@ -74,6 +81,7 @@ public:
     void setResult(Result::Type type) { m_result = type; }
     void setTestCase(const QString &testCase) { m_case = testCase; }
     void setDataTag(const QString &dataTag) { m_dataTag = dataTag; }
+    void setTestType(TestType type) { m_type = type; }
 
     static Result::Type resultFromString(const QString &resultString);
     static Result::Type toResultType(int rt);
@@ -88,6 +96,7 @@ private:
     QString m_description;
     QString m_file;
     int m_line;
+    TestType m_type;
     // environment?
 };
 
@@ -95,6 +104,18 @@ class FaultyTestResult : public TestResult
 {
 public:
     FaultyTestResult(Result::Type result, const QString &description);
+};
+
+class QTestResult : public TestResult
+{
+public:
+    QTestResult(const QString &className = QString());
+};
+
+class GTestResult : public TestResult
+{
+public:
+    GTestResult(const QString &className = QString());
 };
 
 bool operator==(const TestResult &t1, const TestResult &t2);

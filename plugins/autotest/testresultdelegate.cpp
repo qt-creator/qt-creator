@@ -48,7 +48,10 @@ QString TestResultDelegate::outputString(const TestResult &testResult, bool sele
     case Result::UnexpectedPass:
     case Result::BlacklistedFail:
     case Result::BlacklistedPass:
-        output = testResult.className() + QLatin1String("::") + testResult.testCase();
+        if (testResult.type() == TestResult::Qt)
+            output = testResult.className() + QLatin1String("::") + testResult.testCase();
+        else // TestResult::GTest
+            output = testResult.testCase();
         if (!testResult.dataTag().isEmpty())
             output.append(QString::fromLatin1(" (%1)").arg(testResult.dataTag()));
         if (selected && !desc.isEmpty()) {

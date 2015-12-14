@@ -183,14 +183,14 @@ void TestOutputReader::processOutput()
                 if (currentTag == QStringLiteral("TestCase")) {
                     className = xmlReader.attributes().value(QStringLiteral("name")).toString();
                     QTC_ASSERT(!className.isEmpty(), continue);
-                    auto testResult = new TestResult(className);
+                    auto testResult = new QTestResult(className);
                     testResult->setResult(Result::MessageTestCaseStart);
                     testResult->setDescription(tr("Executing test case %1").arg(className));
                     testResultCreated(testResult);
                 } else if (currentTag == QStringLiteral("TestFunction")) {
                     testCase = xmlReader.attributes().value(QStringLiteral("name")).toString();
                     QTC_ASSERT(!testCase.isEmpty(), continue);
-                    auto testResult = new TestResult();
+                    auto testResult = new QTestResult();
                     testResult->setResult(Result::MessageCurrentTest);
                     testResult->setDescription(tr("Entering test function %1::%2").arg(className,
                                                                                        testCase));
@@ -274,7 +274,7 @@ void TestOutputReader::processOutput()
                 const QStringRef currentTag = xmlReader.name();
                 if (currentTag == QStringLiteral("TestFunction")) {
                     if (!duration.isEmpty()) {
-                        auto testResult = new TestResult(className);
+                        auto testResult = new QTestResult(className);
                         testResult->setTestCase(testCase);
                         testResult->setResult(Result::MessageInternal);
                         testResult->setDescription(tr("Execution took %1 ms.").arg(duration));
@@ -282,14 +282,14 @@ void TestOutputReader::processOutput()
                     }
                     emit increaseProgress();
                 } else if (currentTag == QStringLiteral("TestCase")) {
-                    auto testResult = new TestResult(className);
+                    auto testResult = new QTestResult(className);
                     testResult->setResult(Result::MessageTestCaseEnd);
                     testResult->setDescription(
                             duration.isEmpty() ? tr("Test finished.")
                                                : tr("Test execution took %1 ms.").arg(duration));
                     testResultCreated(testResult);
                 } else if (validEndTags.contains(currentTag.toString())) {
-                    auto testResult = new TestResult(className);
+                    auto testResult = new QTestResult(className);
                     testResult->setTestCase(testCase);
                     testResult->setDataTag(dataTag);
                     testResult->setResult(result);
@@ -337,13 +337,13 @@ void TestOutputReader::processGTestOutput()
         if (!line.startsWith(QLatin1Char('['))) {
             description.append(line).append(QLatin1Char('\n'));
             if (line.startsWith(QStringLiteral("Note:"))) {
-                auto testResult = new TestResult();
+                auto testResult = new GTestResult();
                 testResult->setResult(Result::MessageInternal);
                 testResult->setDescription(line);
                 testResultCreated(testResult);
                 description.clear();
             } else if (disabledTests.exactMatch(line)) {
-                auto testResult = new TestResult();
+                auto testResult = new GTestResult();
                 testResult->setResult(Result::MessageInternal);
                 int disabled = disabledTests.cap(1).toInt();
                 testResult->setDescription(tr("You have %n disabled test(s).", 0, disabled));
@@ -354,7 +354,7 @@ void TestOutputReader::processGTestOutput()
         }
 
         if (testEnds.exactMatch(line)) {
-            auto testResult = new TestResult(currentTestName);
+            auto testResult = new GTestResult(currentTestName);
             testResult->setTestCase(currentTestSet);
             testResult->setResult(Result::MessageTestCaseEnd);
             testResult->setDescription(tr("Test execution took %1").arg(testEnds.cap(2)));
@@ -363,29 +363,29 @@ void TestOutputReader::processGTestOutput()
             currentTestSet.clear();
         } else if (newTestStarts.exactMatch(line)) {
             currentTestName = newTestStarts.cap(1);
-            auto testResult = new TestResult(currentTestName);
+            auto testResult = new GTestResult(currentTestName);
             testResult->setResult(Result::MessageTestCaseStart);
             testResult->setDescription(tr("Executing test case %1").arg(currentTestName));
             testResultCreated(testResult);
         } else if (newTestSetStarts.exactMatch(line)) {
             currentTestSet = newTestSetStarts.cap(1);
-            auto testResult = new TestResult();
+            auto testResult = new GTestResult();
             testResult->setResult(Result::MessageCurrentTest);
             testResult->setDescription(tr("Entering test set %1").arg(currentTestSet));
             testResultCreated(testResult);
         } else if (testSetSuccess.exactMatch(line)) {
-            auto testResult = new TestResult(currentTestName);
+            auto testResult = new GTestResult(currentTestName);
             testResult->setTestCase(currentTestSet);
             testResult->setResult(Result::Pass);
             testResultCreated(testResult);
-            testResult = new TestResult(currentTestName);
+            testResult = new GTestResult(currentTestName);
             testResult->setTestCase(currentTestSet);
             testResult->setResult(Result::MessageInternal);
             testResult->setDescription(tr("Execution took %1.").arg(testSetSuccess.cap(2)));
             testResultCreated(testResult);
             emit increaseProgress();
         } else if (testSetFail.exactMatch(line)) {
-            auto testResult = new TestResult(currentTestName);
+            auto testResult = new GTestResult(currentTestName);
             testResult->setTestCase(currentTestSet);
             testResult->setResult(Result::Fail);
             description.chop(1);
@@ -402,7 +402,7 @@ void TestOutputReader::processGTestOutput()
             }
             testResultCreated(testResult);
             description.clear();
-            testResult = new TestResult(currentTestName);
+            testResult = new GTestResult(currentTestName);
             testResult->setTestCase(currentTestSet);
             testResult->setResult(Result::MessageInternal);
             testResult->setDescription(tr("Execution took %1.").arg(testSetFail.cap(2)));
