@@ -164,8 +164,6 @@ std::string gdbmiRegisters(CIDebugRegisters *regs,
 
 std::string memoryToHex(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
                         std::string *errorMessage = 0);
-std::wstring memoryToHexW(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
-                          std::string *errorMessage = 0);
 // Stack helpers
 StackFrames getStackTrace(CIDebugControl *debugControl, CIDebugSymbols *debugSymbols,
                                  unsigned maxFrames, bool *incomplete, std::string *errorMessage);

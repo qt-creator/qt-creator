@@ -120,9 +120,9 @@ static StopReasonMap breakPointStopReasonParameters(PDEBUG_BREAKPOINT b)
     if (CIDebugClient *client = ExtensionContext::instance().hookedClient()) {
         IInterfacePointer<CIDebugDataSpaces> dataSpaces(client);
         if (dataSpaces) {
-            const std::wstring memoryHex = memoryToHexW(dataSpaces.data(), memoryRange.first, memoryRange.second);
+            const std::string memoryHex = memoryToHex(dataSpaces.data(), memoryRange.first, memoryRange.second);
             if (!memoryHex.empty())
-                rc.insert(StopReasonMapValue("memory", wStringToString(memoryHex)));
+                rc.insert(StopReasonMapValue("memory", memoryHex));
         } // dataSpaces
     } // client
     return rc;

@@ -592,17 +592,6 @@ std::string memoryToHex(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
     return std::string();
 }
 
-std::wstring memoryToHexW(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
-                          std::string *errorMessage /* = 0 */)
-{
-    if (const unsigned char *buffer = SymbolGroupValue::readMemory(ds, address, length, errorMessage)) {
-        const std::wstring hex = dataToHexW(buffer, buffer + length);
-        delete [] buffer;
-        return hex;
-    }
-    return std::wstring();
-}
-
 // Format stack as GDBMI
 static StackFrames getStackTrace(CIDebugControl *debugControl,
                                  CIDebugSymbols *debugSymbols,
@@ -789,9 +778,9 @@ static bool gdbmiFormatBreakpoint(std::ostream &str,
             // Report the memory of watchpoints for comparing bitfields
             if (dataSpaces && memoryRange.second > 0) {
                 str << ",size=\"" << memoryRange.second << '"';
-                const std::wstring memoryHex = memoryToHexW(dataSpaces, memoryRange.first, memoryRange.second);
+                const std::string memoryHex = memoryToHex(dataSpaces, memoryRange.first, memoryRange.second);
                 if (!memoryHex.empty())
-                    str << ",memory=\"" << gdbmiWStringFormat(memoryHex) << '"';
+                    str << ",memory=\"" << gdbmiStringFormat(memoryHex) << '"';
             }
         } // Got address
     } // !deferred
