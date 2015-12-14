@@ -2237,7 +2237,9 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
     }
 
     if (what == "debuggee_output") {
-        showMessage(StringFromBase64EncodedUtf16(message), AppOutput);
+        const QByteArray decoded = QByteArray::fromHex(message);
+        showMessage(QString::fromUtf16(reinterpret_cast<const ushort *>(decoded.data()), decoded.size() / 2),
+                    AppOutput);
         return;
     }
 

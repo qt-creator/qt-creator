@@ -352,14 +352,6 @@ QString debugByteArray(const QByteArray &a)
     return rc;
 }
 
-QString StringFromBase64EncodedUtf16(const QByteArray &a)
-{
-    QByteArray utf16 = QByteArray::fromBase64(a);
-    utf16.append('\0');
-    utf16.append('\0');
-    return QString::fromUtf16(reinterpret_cast<const unsigned short *>(utf16.constData()));
-}
-
 WinException::WinException() :
     exceptionCode(0), exceptionFlags(0), exceptionAddress(0),
     info1(0),info2(0), firstChance(false), lineNumber(0)

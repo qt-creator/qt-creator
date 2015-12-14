@@ -78,7 +78,6 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r, QString *express
 QByteArray cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);
 
 QString debugByteArray(const QByteArray &a);
-QString StringFromBase64EncodedUtf16(const QByteArray &a);
 
 DisassemblerLines parseCdbDisassembler(const QByteArray &a);
 
