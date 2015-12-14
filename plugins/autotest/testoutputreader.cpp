@@ -282,10 +282,12 @@ void TestOutputReader::processOutput()
                         testResultCreated(testResult);
                     }
                     emit increaseProgress();
-                } else if (currentTag == QStringLiteral("TestCase") && !duration.isEmpty()) {
+                } else if (currentTag == QStringLiteral("TestCase")) {
                     auto testResult = new TestResult(className);
                     testResult->setResult(Result::MessageTestCaseEnd);
-                    testResult->setDescription(tr("Test execution took %1 ms.").arg(duration));
+                    testResult->setDescription(
+                            duration.isEmpty() ? tr("Test finished.")
+                                               : tr("Test execution took %1 ms.").arg(duration));
                     testResultCreated(testResult);
                 } else if (validEndTags.contains(currentTag.toString())) {
                     auto testResult = new TestResult(className);
