@@ -523,8 +523,8 @@ bool DumpParameters::recode(const std::string &type,
         *encoding = DumpEncodingHex_Utf8_LittleEndian_WithQuotes;
         break;
     case FormatUtf16String: // Paranoia: make sure buffer is terminated at 2 byte borders
-        *value = base64EncodeToWString(check.buffer, check.size);
-        *encoding = DumpEncodingBase64_Utf16_WithQuotes;
+        *value = dataToHexW(check.buffer, check.buffer + check.size);
+        *encoding = DumpEncodingHex_Utf16_LittleEndian_WithQuotes;
         break;
     case FormatUcs4String: // Paranoia: make sure buffer is terminated at 4 byte borders
         *value = dataToHexW(check.buffer, check.buffer + check.size); // UTF16 + 0
@@ -1149,8 +1149,8 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
             str << ",valueencoded=\"" << DumpEncodingAscii << "\",value=\""
                 << gdbmiWStringFormat(value) << '"';
         } else {
-            str << ",valueencoded=\"" << DumpEncodingBase64_Utf16 << "\",value=\"";
-            base64Encode(str, reinterpret_cast<const unsigned char *>(value.c_str()), value.size() * sizeof(wchar_t));
+            str << ",valueencoded=\"" << DumpEncodingHex_Utf16_LittleEndian << "\",value=\"";
+            hexEncode(str, reinterpret_cast<const unsigned char*>(value.c_str()), value.size() * 2);
             str << '"';
         }
         const int format = dumpParameters.format(t, aFullIName);
