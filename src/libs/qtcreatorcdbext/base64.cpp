@@ -105,3 +105,14 @@ std::wstring base64EncodeToWString(const unsigned char *source, size_t sourcelen
     base64EncodeW(str, source, sourcelen);
     return str.str();
 }
+
+static char hexDigit(unsigned char nibble)
+{
+    return nibble < 10 ? '0' + nibble : 'a' + nibble - 10;
+}
+
+void hexEncode(std::ostream &str, const unsigned char *source, size_t sourcelen)
+{
+    for (size_t i = 0; i < sourcelen; ++i)
+        str << hexDigit(source[i] >> 4) << hexDigit(source[i] & 0xf);
+}

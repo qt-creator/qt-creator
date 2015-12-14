@@ -40,4 +40,6 @@ std::string base64EncodeToString(const unsigned char *source, size_t sourcelen);
 void base64EncodeW(std::wostream &str, const unsigned char *source, size_t sourcelen);
 std::wstring base64EncodeToWString(const unsigned char *source, size_t sourcelen);
 
+void hexEncode(std::ostream &str, const unsigned char *source, size_t sourcelen);
+
 #endif // BASE64_H
