@@ -59,6 +59,7 @@ void serialize(Archive &archive, Project &project)
     archive || qark::tag(QStringLiteral("project"), project)
             || qark::attr(QStringLiteral("uid"), project, &Project::uid, &Project::setUid)
             || qark::attr(QStringLiteral("root-package"), project, &Project::rootPackage, &Project::setRootPackage)
+            || qark::attr(QStringLiteral("config-path"), project, &Project::configPath, &Project::setConfigPath)
             || qark::end;
 }
 

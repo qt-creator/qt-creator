@@ -35,6 +35,7 @@
 #include "modelsmanager.h"
 #include "extdocumentcontroller.h"
 
+#include "qmt/config/configcontroller.h"
 #include "qmt/infrastructure/ioexceptions.h"
 #include "qmt/model_controller/modelcontroller.h"
 #include "qmt/model/mdiagram.h"
@@ -45,6 +46,7 @@
 #include <utils/fileutils.h>
 
 #include <QFileInfo>
+#include <QDir>
 
 namespace ModelEditor {
 namespace Internal {
@@ -156,6 +158,17 @@ Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const QStr
     } catch (const qmt::Exception &ex) {
         *errorString = tr("Could not open \"%1\" for reading: %2.").arg(fileName).arg(ex.errorMessage());
         return OpenResult::CannotHandle;
+    }
+
+    QString configPath = d->documentController->projectController()->project()->configPath();
+    if (!configPath.isEmpty()) {
+        QString canonicalPath = QFileInfo(QDir(QFileInfo(fileName).path()).filePath(configPath)).canonicalFilePath();
+        if (!canonicalPath.isEmpty()) {
+            // TODO error output on reading definition files
+            d->documentController->configController()->readStereotypeDefinitions(canonicalPath);
+        } else {
+            // TODO error output
+        }
     }
 
     emit contentSet();

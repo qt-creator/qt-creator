@@ -52,11 +52,14 @@ public:
     void setFileName(const QString &fileName);
     MPackage *rootPackage() const { return m_rootPackage; }
     void setRootPackage(MPackage *rootPackage);
+    QString configPath() const { return m_configPath; }
+    void setConfigPath(const QString &configPath);
 
 private:
     Uid m_uid;
     QString m_fileName;
     MPackage *m_rootPackage;
+    QString m_configPath;
 };
 
 } // namespace qmt

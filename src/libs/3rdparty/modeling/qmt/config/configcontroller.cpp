@@ -68,15 +68,32 @@ void ConfigController::setStereotypeController(StereotypeController *stereotypeC
 
 void ConfigController::readStereotypeDefinitions(const QString &path)
 {
+    if (path.isEmpty()) {
+        // TODO add error handling
+        return;
+    }
+
     StereotypeDefinitionParser parser;
     connect(&parser, &StereotypeDefinitionParser::iconParsed,
             this, &ConfigController::onStereotypeIconParsed);
     connect(&parser, &StereotypeDefinitionParser::toolbarParsed,
             this, &ConfigController::onToolbarParsed);
 
-    QDir dir(path);
-    dir.setNameFilters(QStringList() << QStringLiteral("*.def"));
-    foreach (const QString &fileName, dir.entryList(QDir::Files)) {
+    QStringList fileNames;
+    QDir dir;
+    QFileInfo fileInfo(path);
+    if (fileInfo.isFile()) {
+        dir.setPath(fileInfo.path());
+        fileNames.append(fileInfo.fileName());
+    } else if (fileInfo.isDir()) {
+        dir.setPath(path);
+        dir.setNameFilters(QStringList() << QStringLiteral("*.def"));
+        fileNames = dir.entryList(QDir::Files);
+    } else {
+        // TODO add error handling
+        return;
+    }
+    foreach (const QString &fileName, fileNames) {
         QFile file(QFileInfo(dir, fileName).absoluteFilePath());
         if (file.open(QIODevice::ReadOnly)) {
             QString text = QString::fromUtf8(file.readAll());
@@ -87,10 +104,13 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
             try {
                 parser.parse(&source);
             } catch (StereotypeDefinitionParserError x) {
+                // TODO add error handling
                 qDebug() << x.errorMessage() << "in line" << x.sourcePos().lineNumber();
             } catch (TextScannerError x) {
+                // TODO add error handling
                 qDebug() << x.errorMessage() << "in line" << x.sourcePos().lineNumber();
             } catch (...) {
+                // TODO add error handling
             }
         }
     }
