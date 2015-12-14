@@ -255,8 +255,7 @@ void TestOutputReader::processOutput()
                     description = tr("Qt version: %1").arg(text.toString());
                     break;
                 case QtBuild:
-                    // FIXME due to string freeze this is not a tr()
-                    description = QString::fromLatin1("Qt build: %1").arg(text.toString());
+                    description = tr("Qt build: %1").arg(text.toString());
                     break;
                 case QTestVersion:
                     description = tr("QTest version: %1").arg(text.toString());
