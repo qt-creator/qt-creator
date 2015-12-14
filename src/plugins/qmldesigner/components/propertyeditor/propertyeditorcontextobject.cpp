@@ -26,6 +26,7 @@
 #include "propertyeditorcontextobject.h"
 
 #include <QQmlContext>
+#include <qmldesignerplugin.h>
 
 static uchar fromHex(const uchar c, const uchar c2)
 {
@@ -100,6 +101,13 @@ QString PropertyEditorContextObject::convertColorToString(const QColor &color)
 QColor PropertyEditorContextObject::colorFromString(const QString &colorString)
 {
     return convertColorFromString(colorString);
+}
+
+QString PropertyEditorContextObject::translateFunction()
+{
+    if (QmlDesignerPlugin::instance()->settings().useQsTrFunction)
+        return QStringLiteral("qsTr");
+    return QStringLiteral("qsTrId");
 }
 
 int PropertyEditorContextObject::majorVersion() const

@@ -65,6 +65,8 @@ void DesignerSettings::fromSettings(QSettings *settings)
                 QLatin1String(QmlDesigner::Constants::QML_ALWAYS_SAFE_IN_CRUMBLEBAR), QVariant(false)).toBool();
     useOnlyFallbackPuppet = settings->value(
                 QLatin1String(QmlDesigner::Constants::QML_USE_ONLY_FALLBACK_PUPPET), QVariant(true)).toBool();
+    useQsTrFunction = settings->value(
+                QLatin1String(QmlDesigner::Constants::QML_USE_QSTR_FUNCTION), QVariant(true)).toBool();
     puppetFallbackDirectory = settings->value(
                 QLatin1String(QmlDesigner::Constants::QML_PUPPET_FALLBACK_DIRECTORY)).toString();
     puppetToplevelBuildDirectory = settings->value(
@@ -91,6 +93,7 @@ void DesignerSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ENABLE_DEBUGVIEW), enableDebugView);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ALWAYS_SAFE_IN_CRUMBLEBAR), alwaysSaveInCrumbleBar);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_USE_ONLY_FALLBACK_PUPPET), useOnlyFallbackPuppet);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_USE_QSTR_FUNCTION), useQsTrFunction);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_PUPPET_FALLBACK_DIRECTORY), puppetFallbackDirectory);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_PUPPET_TOPLEVEL_BUILD_DIRECTORY), puppetToplevelBuildDirectory);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CONTROLS_STYLE), controlsStyle);
@@ -110,6 +113,7 @@ bool DesignerSettings::equals(const DesignerSettings &other) const
             && enableDebugView == other.enableDebugView
             && alwaysSaveInCrumbleBar == other.alwaysSaveInCrumbleBar
             && useOnlyFallbackPuppet == other.useOnlyFallbackPuppet
+            && useQsTrFunction == other.useQsTrFunction
             && puppetFallbackDirectory == other.puppetFallbackDirectory
             && puppetToplevelBuildDirectory == other.puppetToplevelBuildDirectory
             && controlsStyle == other.controlsStyle;

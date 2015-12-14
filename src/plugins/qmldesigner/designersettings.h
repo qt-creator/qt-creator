@@ -54,6 +54,7 @@ public:
     bool enableDebugView;
     bool alwaysSaveInCrumbleBar;
     bool useOnlyFallbackPuppet;
+    bool useQsTrFunction;
     QString puppetFallbackDirectory;
     QString puppetToplevelBuildDirectory;
     QString controlsStyle;

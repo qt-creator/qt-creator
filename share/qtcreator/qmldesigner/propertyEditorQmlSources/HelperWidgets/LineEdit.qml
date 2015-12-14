@@ -97,7 +97,7 @@ Controls.TextField {
             return
 
         if (backendValue.isTranslated) {
-            backendValue.expression = "qsTr(\"" + trCheckbox.escapeString(text) + "\")"
+            backendValue.expression = translateFunction() + "(\"" + trCheckbox.escapeString(text) + "\")"
         } else {
             if (lineEdit.backendValue.value !== text)
                 lineEdit.backendValue.value = text;
@@ -154,7 +154,7 @@ Controls.TextField {
 
         onClicked: {
             if (trCheckbox.checked) {
-                lineEdit.backendValue.expression = "qsTr(\"" + escapeString(lineEdit.text) + "\")"
+                lineEdit.backendValue.expression = translateFunction() + "(\"" + escapeString(lineEdit.text) + "\")"
             } else {
                 var textValue = lineEdit.text
                 lineEdit.backendValue.value = textValue

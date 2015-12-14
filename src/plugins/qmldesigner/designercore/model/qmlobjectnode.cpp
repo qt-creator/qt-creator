@@ -35,6 +35,7 @@
 #include "bindingproperty.h"
 #include "nodelistproperty.h"
 #include "nodeinstanceview.h"
+#include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 
@@ -186,7 +187,7 @@ bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
     if (modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name))
         if (modelNode().metaInfo().propertyTypeName(name) == "QString" || modelNode().metaInfo().propertyTypeName(name) == "string") {
             if (modelNode().hasBindingProperty(name)) {
-                static QRegExp regularExpressionPatter(QLatin1String("qsTr\\((\".*\")\\)"));
+                static QRegExp regularExpressionPatter(QLatin1String("qsTr(|Id)\\((\".*\")\\)"));
                 return regularExpressionPatter.exactMatch(modelNode().bindingProperty(name).expression());
             }
 
@@ -199,7 +200,7 @@ bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
 QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
 {
     if (modelNode().hasBindingProperty(name)) {
-        static QRegExp regularExpressionPatter(QLatin1String("qsTr\\(\"(.*)\"\\)"));
+        static QRegExp regularExpressionPatter(QLatin1String("qsTr(|Id)\\(\"(.*)\"\\)"));
         if (regularExpressionPatter.exactMatch(modelNode().bindingProperty(name).expression()))
             return regularExpressionPatter.cap(1);
     } else {
@@ -433,7 +434,10 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const Property
 
 QString QmlObjectNode::generateTranslatableText(const QString &text)
 {
-    return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
+    if (QmlDesignerPlugin::instance()->settings().useQsTrFunction)
+        return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
+    else
+        return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);
 }
 
 TypeName QmlObjectNode::instanceType(const PropertyName &name) const

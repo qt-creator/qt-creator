@@ -63,6 +63,7 @@ const char QML_USE_ONLY_FALLBACK_PUPPET[] = "UseOnlyFallbackPuppet";
 const char QML_PUPPET_TOPLEVEL_BUILD_DIRECTORY[] = "PuppetToplevelBuildDirectory";
 const char QML_PUPPET_FALLBACK_DIRECTORY[] = "PuppetFallbackDirectory";
 const char QML_CONTROLS_STYLE[] = "ControlsStyle";
+const char QML_USE_QSTR_FUNCTION[] = "UseQsTrFunction";
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 

@@ -70,6 +70,7 @@ public:
 
     Q_INVOKABLE QString convertColorToString(const QColor &color);
     Q_INVOKABLE QColor colorFromString(const QString &colorString);
+    Q_INVOKABLE QString translateFunction();
 
     int majorVersion() const;
     int majorQtQuickVersion() const;

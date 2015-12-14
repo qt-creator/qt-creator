@@ -236,9 +236,8 @@ bool PropertyEditorValue::isTranslated() const
         if (modelNode().metaInfo().propertyTypeName(name()) == "QString" || modelNode().metaInfo().propertyTypeName(name()) == "string") {
             const QmlDesigner::QmlObjectNode objectNode(modelNode());
             if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
-                QRegExp rx("qsTr(\"*\")");
+                QRegExp rx("qsTr(|Id)\\(\".*\"\\)");
                 //qsTr()
-                rx.setPatternSyntax(QRegExp::Wildcard);
                 if (objectNode.propertyAffectedByCurrentState(name())) {
                     return rx.exactMatch(expression());
                 } else {

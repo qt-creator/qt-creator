@@ -67,6 +67,7 @@ DesignerSettings SettingsPageWidget::settings() const
     designerSettings.showDebugView = m_ui.designerShowDebuggerCheckBox->isChecked();
     designerSettings.enableDebugView = m_ui.designerEnableDebuggerCheckBox->isChecked();
     designerSettings.useOnlyFallbackPuppet = m_ui.useDefaultPuppetRadioButton->isChecked();
+    designerSettings.useQsTrFunction = m_ui.useQsTrFunctionRadioButton->isChecked();
     designerSettings.controlsStyle = m_ui.styleLineEdit->text();
 
     if (!m_ui.fallbackPuppetPathLineEdit->path().isEmpty() &&
@@ -94,6 +95,8 @@ void SettingsPageWidget::setSettings(const DesignerSettings &designerSettings)
     m_ui.designerEnableDebuggerCheckBox->setChecked(designerSettings.enableDebugView);
     m_ui.useDefaultPuppetRadioButton->setChecked(designerSettings.useOnlyFallbackPuppet);
     m_ui.useQtRelatedPuppetRadioButton->setChecked(!designerSettings.useOnlyFallbackPuppet);
+    m_ui.useQsTrFunctionRadioButton->setChecked(designerSettings.useQsTrFunction);
+    m_ui.useQsTrIdFunctionRadioButton->setChecked(!designerSettings.useQsTrFunction);
     m_ui.styleLineEdit->setText(designerSettings.controlsStyle);
 
     if (designerSettings.puppetFallbackDirectory.isEmpty())
