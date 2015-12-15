@@ -260,14 +260,14 @@ void SettingsDatabase::beginTransaction()
 {
     if (!d->m_db.isOpen())
         return;
-    d->m_db.exec(QLatin1String("BEGIN TRANSACTION;"));
+    d->m_db.transaction();
 }
 
 void SettingsDatabase::endTransaction()
 {
     if (!d->m_db.isOpen())
         return;
-    d->m_db.exec(QLatin1String("END TRANSACTION;"));
+    d->m_db.commit();
 }
 
 void SettingsDatabase::sync()
