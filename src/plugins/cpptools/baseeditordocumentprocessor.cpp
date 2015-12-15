@@ -33,13 +33,7 @@
 #include "cppmodelmanager.h"
 #include "editordocumenthandle.h"
 
-#include <texteditor/fontsettings.h>
 #include <texteditor/quickfix.h>
-#include <texteditor/texteditorsettings.h>
-
-#include <utils/qtcassert.h>
-
-#include <QTextBlock>
 
 namespace CppTools {
 
@@ -55,7 +49,6 @@ BaseEditorDocumentProcessor::BaseEditorDocumentProcessor(
         TextEditor::TextDocument *document)
     : m_baseTextDocument(document)
 {
-    QTC_CHECK(document);
 }
 
 BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor()
@@ -79,46 +72,6 @@ BaseEditorDocumentProcessor *BaseEditorDocumentProcessor::get(const QString &fil
     if (CppEditorDocumentHandle *cppEditorDocument = cmmi->cppEditorDocument(filePath))
         return cppEditorDocument->processor();
     return 0;
-}
-
-QList<QTextEdit::ExtraSelection> BaseEditorDocumentProcessor::toTextEditorSelections(
-        const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics,
-        QTextDocument *textDocument)
-{
-    const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
-
-    QTextCharFormat warningFormat = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
-    QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
-
-    QList<QTextEdit::ExtraSelection> result;
-    foreach (const CPlusPlus::Document::DiagnosticMessage &m, diagnostics) {
-        QTextEdit::ExtraSelection sel;
-        if (m.isWarning())
-            sel.format = warningFormat;
-        else
-            sel.format = errorFormat;
-
-        QTextCursor c(textDocument->findBlockByNumber(m.line() - 1));
-        const QString text = c.block().text();
-        const int startPos = m.column() > 0 ? m.column() - 1 : 0;
-        if (m.length() > 0 && startPos + m.length() <= (unsigned)text.size()) {
-            c.setPosition(c.position() + startPos);
-            c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
-        } else {
-            for (int i = 0; i < text.size(); ++i) {
-                if (!text.at(i).isSpace()) {
-                    c.setPosition(c.position() + i);
-                    break;
-                }
-            }
-            c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-        }
-        sel.cursor = c;
-        sel.format.setToolTip(m.text());
-        result.append(sel);
-    }
-
-    return result;
 }
 
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,

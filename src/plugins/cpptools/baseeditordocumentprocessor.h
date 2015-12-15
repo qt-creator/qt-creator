@@ -87,10 +87,6 @@ signals:
     void semanticInfoUpdated(const CppTools::SemanticInfo semanticInfo); // TODO: Remove me
 
 protected:
-    static QList<QTextEdit::ExtraSelection> toTextEditorSelections(
-            const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics,
-            QTextDocument *textDocument);
-
     static void runParser(QFutureInterface<void> &future,
                           BaseEditorDocumentParser::Ptr parser,
                           BaseEditorDocumentParser::InMemoryInfo info);
