@@ -137,7 +137,6 @@ void TestResultModel::addTestResult(TestResult *testResult, bool autoExpand)
 
     QVector<Utils::TreeItem *> topLevelItems = rootItem()->children();
     int lastRow = topLevelItems.size() - 1;
-    TestResultItem *newItem = new TestResultItem(testResult);
     // we'll add the new item, so raising it's counter
     if (!isCurrentTestMssg) {
         int count = m_testResultCount.value(testResult->result(), 0);
@@ -150,14 +149,16 @@ void TestResultModel::addTestResult(TestResult *testResult, bool autoExpand)
             if (result && result->result() == Result::MessageCurrentTest) {
                 current->updateDescription(testResult->description());
                 emit dataChanged(current->index(), current->index());
+                delete testResult;
                 return;
             }
         }
 
-        rootItem()->appendChild(newItem);
+        rootItem()->appendChild(new TestResultItem(testResult));
         return;
     }
 
+    TestResultItem *newItem = new TestResultItem(testResult);
     // FIXME this might be totally wrong... we need some more unique information!
     for (int row = lastRow; row >= 0; --row) {
         TestResultItem *current = static_cast<TestResultItem *>(topLevelItems.at(row));
