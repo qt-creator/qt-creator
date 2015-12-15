@@ -32,7 +32,6 @@
 #include "baseeditordocumentprocessor.h"
 
 #include "cppmodelmanager.h"
-#include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
 
 namespace CppTools {
@@ -82,10 +81,10 @@ void BaseEditorDocumentParser::setConfiguration(const Configuration &configurati
     m_configuration = configuration;
 }
 
-void BaseEditorDocumentParser::update(const InMemoryInfo &info)
+void BaseEditorDocumentParser::update(const WorkingCopy &workingCopy)
 {
     QMutexLocker locker(&m_updateIsRunning);
-    updateHelper(info);
+    updateHelper(workingCopy);
 }
 
 BaseEditorDocumentParser::State BaseEditorDocumentParser::state() const
@@ -146,13 +145,6 @@ ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(const QString &f
     }
 
     return projectPart;
-}
-
-BaseEditorDocumentParser::InMemoryInfo::InMemoryInfo(bool withModifiedFiles)
-    : workingCopy(CppTools::CppModelManager::instance()->workingCopy())
-{
-    if (withModifiedFiles)
-        modifiedFiles = CppTools::modifiedFiles();
 }
 
 } // namespace CppTools

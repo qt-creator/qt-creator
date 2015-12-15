@@ -60,7 +60,7 @@ BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath
     qRegisterMetaType<CPlusPlus::Snapshot>("CPlusPlus::Snapshot");
 }
 
-void BuiltinEditorDocumentParser::updateHelper(const InMemoryInfo &info)
+void BuiltinEditorDocumentParser::updateHelper(const WorkingCopy &theWorkingCopy)
 {
     if (filePath().isEmpty())
         return;
@@ -70,7 +70,7 @@ void BuiltinEditorDocumentParser::updateHelper(const InMemoryInfo &info)
 
     State baseState = state();
     ExtraState state = extraState();
-    WorkingCopy workingCopy = info.workingCopy;
+    WorkingCopy workingCopy = theWorkingCopy;
 
     bool invalidateSnapshot = false, invalidateConfig = false, editorDefinesChanged_ = false;
 

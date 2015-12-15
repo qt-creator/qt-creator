@@ -37,8 +37,6 @@
 
 #include <cplusplus/CppDocument.h>
 
-#include <utils/fileutils.h>
-
 QT_BEGIN_NAMESPACE
 class QChar;
 class QFileInfo;
@@ -53,8 +51,6 @@ class LookupContext;
 } // namespace CPlusPlus
 
 namespace CppTools {
-
-Utils::FileNameList CPPTOOLS_EXPORT modifiedFiles();
 
 void CPPTOOLS_EXPORT moveCursorToEndOfIdentifier(QTextCursor *tc);
 void CPPTOOLS_EXPORT moveCursorToStartOfIdentifier(QTextCursor *tc);

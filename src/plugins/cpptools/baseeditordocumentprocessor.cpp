@@ -76,7 +76,7 @@ BaseEditorDocumentProcessor *BaseEditorDocumentProcessor::get(const QString &fil
 
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
                                             BaseEditorDocumentParser::Ptr parser,
-                                            BaseEditorDocumentParser::InMemoryInfo info)
+                                            const WorkingCopy workingCopy)
 {
     future.setProgressRange(0, 1);
     if (future.isCanceled()) {
@@ -84,7 +84,7 @@ void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
         return;
     }
 
-    parser->update(info);
+    parser->update(workingCopy);
     CppModelManager::instance()
         ->finishedRefreshingSourceFiles(QSet<QString>() << parser->filePath());
 

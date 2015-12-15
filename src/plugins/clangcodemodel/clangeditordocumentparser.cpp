@@ -40,7 +40,7 @@ ClangEditorDocumentParser::ClangEditorDocumentParser(const QString &filePath)
     setConfiguration(config);
 }
 
-void ClangEditorDocumentParser::updateHelper(const BaseEditorDocumentParser::InMemoryInfo &)
+void ClangEditorDocumentParser::updateHelper(const CppTools::WorkingCopy &)
 {
     State state_ = state();
     state_.projectPart = determineProjectPart(filePath(), configuration(), state_);

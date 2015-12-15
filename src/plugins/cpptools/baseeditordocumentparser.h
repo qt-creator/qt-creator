@@ -63,13 +63,7 @@ public:
     Configuration configuration() const;
     void setConfiguration(const Configuration &configuration);
 
-    struct CPPTOOLS_EXPORT InMemoryInfo {
-        InMemoryInfo(bool withModifiedFiles);
-
-        WorkingCopy workingCopy;
-        Utils::FileNameList modifiedFiles;
-    };
-    void update(const InMemoryInfo &info);
+    void update(const WorkingCopy &workingCopy);
 
     ProjectPart::Ptr projectPart() const;
 
@@ -88,7 +82,7 @@ protected:
     mutable QMutex m_stateAndConfigurationMutex;
 
 private:
-    virtual void updateHelper(const InMemoryInfo &inMemoryInfo) = 0;
+    virtual void updateHelper(const WorkingCopy &workingCopy) = 0;
 
     const QString m_filePath;
     Configuration m_configuration;

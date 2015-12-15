@@ -210,7 +210,7 @@ void BuiltinEditorDocumentProcessor::run()
 {
     m_parserFuture = QtConcurrent::run(&runParser,
                                        parser(),
-                                       BuiltinEditorDocumentParser::InMemoryInfo(false));
+                                       CppModelManager::instance()->workingCopy());
 }
 
 BaseEditorDocumentParser::Ptr BuiltinEditorDocumentProcessor::parser()

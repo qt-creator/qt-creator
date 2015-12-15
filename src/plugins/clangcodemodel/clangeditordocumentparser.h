@@ -43,7 +43,7 @@ public:
     ClangEditorDocumentParser(const QString &filePath);
 
 private:
-    void updateHelper(const BaseEditorDocumentParser::InMemoryInfo &) override;
+    void updateHelper(const CppTools::WorkingCopy &) override;
 };
 
 } // namespace ClangCodeModel

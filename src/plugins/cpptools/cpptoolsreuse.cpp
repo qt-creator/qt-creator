@@ -289,11 +289,4 @@ bool skipFileDueToSizeLimit(const QFileInfo &fileInfo, int limitInMB)
     return false;
 }
 
-Utils::FileNameList modifiedFiles()
-{
-    Utils::FileNameList files = Utils::transform(Core::DocumentManager::modifiedDocuments(),
-                                                 [](Core::IDocument *d) -> Utils::FileName { return d->filePath(); });
-    return Utils::filteredUnique(files);
-}
-
 } // CppTools

@@ -89,7 +89,7 @@ signals:
 protected:
     static void runParser(QFutureInterface<void> &future,
                           BaseEditorDocumentParser::Ptr parser,
-                          BaseEditorDocumentParser::InMemoryInfo info);
+                          const CppTools::WorkingCopy workingCopy);
 
     // Convenience
     QString filePath() const { return m_baseTextDocument->filePath().toString(); }
