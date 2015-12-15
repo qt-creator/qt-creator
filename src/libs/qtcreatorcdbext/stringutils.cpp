@@ -210,11 +210,9 @@ inline unsigned hexDigit(char c)
 }
 
 // Convert an ASCII hex digit to its value 'A'->10
-inline char toHexDigit(unsigned v)
+static char toHexDigit(unsigned char v)
 {
-    if (v < 10)
-        return char(v) + '0';
-    return char(v - 10) + 'a';
+    return v < 10 ? char(v) + '0' : char(v) - 10 + 'a';
 }
 
 // Strings from raw data.
@@ -326,7 +324,7 @@ inline String dataToHexHelper(const unsigned char *p, const unsigned char *end)
     String rc;
     rc.reserve(2 * (end - p));
     for ( ; p < end ; ++p) {
-        const unsigned c = *p;
+        const unsigned char c = *p;
         rc.push_back(toHexDigit(c / 16));
         rc.push_back(toHexDigit(c &0xF));
     }
@@ -374,4 +372,10 @@ void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> 
     }
     if (closeHash)
         os << '}';
+}
+
+void hexEncode(std::ostream &str, const unsigned char *source, size_t sourcelen)
+{
+    for (size_t i = 0; i < sourcelen; ++i)
+        str << toHexDigit(source[i] >> 4) << toHexDigit(source[i] & 0xf);
 }

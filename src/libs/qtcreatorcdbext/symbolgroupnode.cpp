@@ -32,7 +32,6 @@
 #include "symbolgroup.h"
 #include "symbolgroupvalue.h"
 #include "stringutils.h"
-#include "base64.h"
 #include "containers.h"
 #include "extensioncontext.h"
 
@@ -1144,7 +1143,7 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     } else if (dumpParameters.recode(t, aFullIName, ctx, addr, &value, &encoding)) {
         str << ",valueencoded=\"" << encoding
             << "\",value=\"" << gdbmiWStringFormat(value) <<'"';
-    } else { // As is: ASCII or base64?
+    } else { // As is: ASCII or hex encoded?
         if (isSevenBitClean(value.c_str(), value.size())) {
             str << ",valueencoded=\"" << DumpEncodingAscii << "\",value=\""
                 << gdbmiWStringFormat(value) << '"';

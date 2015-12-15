@@ -79,7 +79,6 @@ SOURCES += qtcreatorcdbextension.cpp \
     stringutils.cpp \
     gdbmihelpers.cpp \
     outputcallback.cpp \
-    base64.cpp \
     symbolgroupvalue.cpp \
     containers.cpp
 
@@ -91,7 +90,6 @@ HEADERS += extensioncontext.h \
     stringutils.h \
     gdbmihelpers.h \
     outputcallback.h \
-    base64.h \
     symbolgroupvalue.h \
     containers.h \
     knowntype.h \

@@ -59,8 +59,6 @@ QtcLibrary {
         return FileInfo.joinPaths(project.libDirName, dirName);
     }
     files: [
-        "base64.cpp",
-        "base64.h",
         "common.cpp",
         "common.h",
         "containers.cpp",

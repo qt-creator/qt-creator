@@ -31,7 +31,6 @@
 #include "gdbmihelpers.h"
 #include "stringutils.h"
 #include "iinterfacepointer.h"
-#include "base64.h"
 #include "symbolgroupvalue.h"
 #include "extensioncontext.h"
 

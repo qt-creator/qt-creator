@@ -228,4 +228,7 @@ private:
 // Format a map as a GDBMI hash {key="value",..}
 void formatGdbmiHash(std::ostream &os, const std::map<std::string, std::string> &, bool closeHash = true);
 
+// Hex encoding helpers
+void hexEncode(std::ostream &str, const unsigned char *source, size_t sourcelen);
+
 #endif // STRINGUTILS_H

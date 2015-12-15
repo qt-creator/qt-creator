@@ -31,14 +31,13 @@
 #include "outputcallback.h"
 #include "stringutils.h"
 #include "extensioncontext.h"
-#include "base64.h"
 
 #include <cstring>
 
 /* \class OutputCallback
 
     OutputCallback catches DEBUG_OUTPUT_DEBUGGEE and reports it
-    base64-encoded back to Qt Creator.
+    hex-encoded back to Qt Creator.
     \ingroup qtcreatorcdbext
  */
 
