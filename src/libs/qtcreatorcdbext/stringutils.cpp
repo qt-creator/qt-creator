@@ -68,33 +68,6 @@ void trimBack(std::string &s)
     }
 }
 
-void simplify(std::string &s)
-{
-    trimFront(s);
-    trimBack(s);
-    if (s.empty())
-        return;
-
-    // 1) All blanks
-    const std::string::size_type size1 = s.size();
-    std::string::size_type pos = 0;
-    for ( ; pos < size1; pos++)
-        if (std::isspace(s.at(pos)))
-                s[pos] = ' ';
-    // 2) Simplify
-    for (pos = 0; pos < s.size(); ) {
-        std::string::size_type blankpos = s.find(' ', pos);
-        if (blankpos == std::string::npos)
-            break;
-        std::string::size_type tokenpos = blankpos + 1;
-        while (tokenpos < s.size() && s.at(tokenpos) == ' ')
-            tokenpos++;
-        if (tokenpos - blankpos > 1)
-            s.erase(blankpos, tokenpos - blankpos - 1);
-        pos = blankpos + 1;
-    }
-}
-
 void replace(std::wstring &s, wchar_t before, wchar_t after)
 {
     const std::wstring::size_type size = s.size();
@@ -168,13 +141,6 @@ void gdbmiWStringFormat::format(std::ostream &str) const
         formatGdbmiChar(str, m_w.at(i));
 }
 
-std::string wStringToGdbmiString(const std::wstring &w)
-{
-    std::ostringstream str;
-    str << gdbmiWStringFormat(w);
-    return str.str();
-}
-
 std::string wStringToString(const std::wstring &w)
 {
     if (w.empty())
@@ -184,18 +150,6 @@ std::string wStringToString(const std::wstring &w)
     rc.reserve(size);
     for (std::string::size_type i = 0; i < size; ++i)
         rc.push_back(char(w.at(i)));
-    return rc;
-}
-
-std::wstring stringToWString(const std::string &w)
-{
-    if (w.empty())
-        return std::wstring();
-    const std::wstring::size_type size = w.size();
-    std::wstring rc;
-    rc.reserve(size);
-    for (std::wstring::size_type i = 0; i < size; ++i)
-        rc.push_back(w.at(i));
     return rc;
 }
 

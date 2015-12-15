@@ -39,7 +39,6 @@
 void trimFront(std::string &s); // Strip blanks off front
 void trimBack(std::string &s);  // Strip blanks off back
 // Simplify blanks, that is " A \tB " -> "A B".
-void simplify(std::string &s);
 
 // Split a token sequence in a string by character separator.
 template <class Iterator>
@@ -173,9 +172,7 @@ inline std::ostream &operator<<(std::ostream &str, const gdbmiWStringFormat &wsf
     return str;
 }
 
-std::string wStringToGdbmiString(const std::wstring &w);
 std::string wStringToString(const std::wstring &w);
-std::wstring stringToWString(const std::string &w);
 
 // Strings from raw data.
 std::wstring quotedWStringFromCharData(const unsigned char *data, size_t size, bool truncated = false);
