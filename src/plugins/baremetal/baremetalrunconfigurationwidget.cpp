@@ -32,6 +32,7 @@
 #include "baremetalrunconfiguration.h"
 
 #include <coreplugin/coreicons.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <utils/detailswidget.h>
 
 #include <QLineEdit>
@@ -39,6 +40,8 @@
 #include <QLabel>
 #include <QCoreApplication>
 #include <QDir>
+
+using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
@@ -54,7 +57,6 @@ public:
     QWidget topWidget;
     QLabel disabledIcon;
     QLabel disabledReason;
-    QLineEdit argsLineEdit;
     QLineEdit workingDirLineEdit;
     QLabel localExecutableLabel;
     QFormLayout genericWidgetsLayout;
@@ -74,8 +76,32 @@ BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunCon
     topLayout->addWidget(&d->topWidget);
     QVBoxLayout *mainLayout = new QVBoxLayout(&d->topWidget);
     mainLayout->setMargin(0);
-    addGenericWidgets(mainLayout);
 
+    Utils::DetailsWidget *detailsContainer = new Utils::DetailsWidget(this);
+    detailsContainer->setState(Utils::DetailsWidget::NoSummary);
+
+    QWidget *details = new QWidget(this);
+    details->setLayout(&d->genericWidgetsLayout);
+    detailsContainer->setWidget(details);
+
+    mainLayout->addWidget(detailsContainer);
+
+    d->genericWidgetsLayout.setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    d->localExecutableLabel.setText(d->runConfiguration->localExecutableFilePath());
+    d->genericWidgetsLayout.addRow(tr("Executable:"),&d->localExecutableLabel);
+
+    //d->genericWidgetsLayout.addRow(tr("Debugger host:"),d->runConfiguration);
+    //d->genericWidgetsLayout.addRow(tr("Debugger port:"),d->runConfiguration);
+    runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, &d->genericWidgetsLayout);
+
+    d->workingDirLineEdit.setPlaceholderText(tr("<default>"));
+    d->workingDirLineEdit.setText(d->runConfiguration->workingDirectory());
+    d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
+    connect(d->runConfiguration, &BareMetalRunConfiguration::targetInformationChanged,
+            this, &BareMetalRunConfigurationWidget::updateTargetInformation);
+    connect(&d->workingDirLineEdit, &QLineEdit::textEdited,
+            this, &BareMetalRunConfigurationWidget::handleWorkingDirectoryChanged);
     connect(d->runConfiguration, &ProjectExplorer::RunConfiguration::enabledChanged,
             this, &BareMetalRunConfigurationWidget::runConfigurationEnabledChange);
     runConfigurationEnabledChange();
@@ -96,43 +122,6 @@ void BareMetalRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
     hl->addWidget(&d->disabledReason);
     hl->addStretch();
     topLayout->addLayout(hl);
-}
-
-void BareMetalRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
-{
-    Utils::DetailsWidget *detailsContainer = new Utils::DetailsWidget(this);
-    detailsContainer->setState(Utils::DetailsWidget::NoSummary);
-
-    QWidget *details = new QWidget(this);
-    details->setLayout(&d->genericWidgetsLayout);
-    detailsContainer->setWidget(details);
-
-    mainLayout->addWidget(detailsContainer);
-
-    d->genericWidgetsLayout.setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-
-    d->localExecutableLabel.setText(d->runConfiguration->localExecutableFilePath());
-    d->genericWidgetsLayout.addRow(tr("Executable:"),&d->localExecutableLabel);
-
-    //d->genericWidgetsLayout.addRow(tr("Debugger host:"),d->runConfiguration);
-    //d->genericWidgetsLayout.addRow(tr("Debugger port:"),d->runConfiguration);
-    d->argsLineEdit.setText(d->runConfiguration->arguments());
-    d->genericWidgetsLayout.addRow(tr("Arguments:"), &d->argsLineEdit);
-
-    d->workingDirLineEdit.setPlaceholderText(tr("<default>"));
-    d->workingDirLineEdit.setText(d->runConfiguration->workingDirectory());
-    d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
-    connect(&d->argsLineEdit, &QLineEdit::textEdited,
-            this, &BareMetalRunConfigurationWidget::argumentsEdited);
-    connect(d->runConfiguration, &BareMetalRunConfiguration::targetInformationChanged,
-            this, &BareMetalRunConfigurationWidget::updateTargetInformation);
-    connect(&d->workingDirLineEdit, &QLineEdit::textEdited,
-            this, &BareMetalRunConfigurationWidget::handleWorkingDirectoryChanged);
-}
-
-void BareMetalRunConfigurationWidget::argumentsEdited(const QString &args)
-{
-    d->runConfiguration->setArguments(args);
 }
 
 void BareMetalRunConfigurationWidget::updateTargetInformation()

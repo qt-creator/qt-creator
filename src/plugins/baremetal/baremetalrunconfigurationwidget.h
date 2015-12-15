@@ -57,12 +57,10 @@ public:
     Q_SLOT void runConfigurationEnabledChange();
 
 private slots:
-    void argumentsEdited(const QString &args);
     void updateTargetInformation();
     void handleWorkingDirectoryChanged();
 
 private:
-    void addGenericWidgets(QVBoxLayout *mainLayout);
     void setLabelText(QLabel &label, const QString &regularText, const QString &errorText);
 
     BareMetalRunConfigurationWidgetPrivate * const d;

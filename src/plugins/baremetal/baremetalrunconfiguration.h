@@ -57,7 +57,6 @@ public:
 
     virtual QString localExecutableFilePath() const;
     QString arguments() const;
-    void setArguments(const QString &args);
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &wd);
 
@@ -87,7 +86,6 @@ private:
     void init();
 
     QString m_projectFilePath;
-    QString m_arguments;
     mutable QString m_disabledReason;
     QString m_workingDirectory;
 };

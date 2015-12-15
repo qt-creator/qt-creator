@@ -31,6 +31,7 @@
 #include "baremetalcustomrunconfiguration.h"
 
 #include <projectexplorer/target.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <utils/detailswidget.h>
 #include <utils/qtcprocess.h>
@@ -38,19 +39,22 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QFormLayout>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QString>
 #include <QLineEdit>
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalCustomRunConfigWidget : public ProjectExplorer::RunConfigWidget
+class BareMetalCustomRunConfigWidget : public RunConfigWidget
 {
     Q_OBJECT
+
 public:
     BareMetalCustomRunConfigWidget(BareMetalCustomRunConfiguration *runConfig)
         : m_runConfig(runConfig)
@@ -67,28 +71,21 @@ public:
         auto executableChooser = new PathChooser;
         executableChooser->setExpectedKind(PathChooser::File);
         executableChooser->setPath(m_runConfig->localExecutableFilePath());
-        auto argumentsLabel = new QLabel(tr("Arguments:"));
-        auto arguments = new QLineEdit();
-        arguments->setText(m_runConfig->arguments());
+
         auto wdirLabel = new QLabel(tr("Work directory:"));
         auto workdirChooser = new PathChooser;
         workdirChooser->setExpectedKind(PathChooser::Directory);
         workdirChooser->setPath(m_runConfig->workingDirectory());
 
-        auto clayout = new QGridLayout(this);
+        auto clayout = new QFormLayout(this);
         detailsWidget->setLayout(clayout);
 
-        clayout->addWidget(exeLabel, 0, 0);
-        clayout->addWidget(executableChooser, 0, 1);
-        clayout->addWidget(argumentsLabel, 1, 0);
-        clayout->addWidget(arguments, 1, 1);
-        clayout->addWidget(wdirLabel, 2, 0);
-        clayout->addWidget(workdirChooser, 2, 1);
+        clayout->addRow(exeLabel, executableChooser);
+        runConfig->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, clayout);
+        clayout->addRow(wdirLabel, workdirChooser);
 
         connect(executableChooser, &PathChooser::pathChanged,
                 this, &BareMetalCustomRunConfigWidget::handleLocalExecutableChanged);
-        connect(arguments, &QLineEdit::textChanged,
-                this, &BareMetalCustomRunConfigWidget::handleArgumentsChanged);
         connect(workdirChooser, &PathChooser::pathChanged,
                 this, &BareMetalCustomRunConfigWidget::handleWorkingDirChanged);
         connect(this, &BareMetalCustomRunConfigWidget::setWorkdir,
@@ -107,11 +104,6 @@ private:
             emit setWorkdir(fi.dir().canonicalPath());
             handleWorkingDirChanged(fi.dir().canonicalPath());
         }
-    }
-
-    void handleArgumentsChanged(const QString &arguments)
-    {
-        m_runConfig->setArguments(arguments.trimmed());
     }
 
     void handleWorkingDirChanged(const QString &wd)

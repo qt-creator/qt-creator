@@ -36,6 +36,7 @@
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtoutputformatter.h>
 
@@ -45,7 +46,6 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char ArgumentsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.Arguments";
 const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
 const char WorkingDirectoryKey[] = "BareMetal.RunConfig.WorkingDirectory";
 
@@ -53,7 +53,6 @@ const char WorkingDirectoryKey[] = "BareMetal.RunConfig.WorkingDirectory";
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent, BareMetalRunConfiguration *other)
     : RunConfiguration(parent, other),
       m_projectFilePath(other->m_projectFilePath),
-      m_arguments(other->m_arguments),
       m_workingDirectory(other->m_workingDirectory)
 {
     init();
@@ -65,6 +64,7 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent,
     : RunConfiguration(parent, id),
       m_projectFilePath(projectFilePath)
 {
+    addExtraAspect(new ArgumentsAspect(this, QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.Arguments")));
     init();
 }
 
@@ -104,7 +104,6 @@ OutputFormatter *BareMetalRunConfiguration::createOutputFormatter() const
 QVariantMap BareMetalRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
-    map.insert(QLatin1String(ArgumentsKey), m_arguments);
     const QDir dir = QDir(target()->project()->projectDirectory().toString());
     map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(m_projectFilePath));
     map.insert(QLatin1String(WorkingDirectoryKey), m_workingDirectory);
@@ -116,7 +115,6 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    m_arguments = map.value(QLatin1String(ArgumentsKey)).toString();
     const QDir dir = QDir(target()->project()->projectDirectory().toString());
     m_projectFilePath
             = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
@@ -144,12 +142,7 @@ QString BareMetalRunConfiguration::localExecutableFilePath() const
 
 QString BareMetalRunConfiguration::arguments() const
 {
-    return m_arguments;
-}
-
-void BareMetalRunConfiguration::setArguments(const QString &args)
-{
-    m_arguments = args;
+    return extraAspect<ArgumentsAspect>()->arguments();
 }
 
 QString BareMetalRunConfiguration::workingDirectory() const
