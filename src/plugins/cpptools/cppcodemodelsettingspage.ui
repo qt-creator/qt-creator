@@ -24,10 +24,10 @@
    <item>
     <widget class="QGroupBox" name="clangSettingsGroupBox">
      <property name="title">
-      <string>Use Clang Code Model</string>
+      <string>Clang Code Model</string>
      </property>
      <property name="checkable">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>

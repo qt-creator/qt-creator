@@ -34,7 +34,6 @@
 #include "baseeditordocumentprocessor.h"
 #include "builtinindexingsupport.h"
 #include "cppcodemodelinspectordumper.h"
-#include "cppcodemodelsettings.h"
 #include "cppfindreferences.h"
 #include "cppindexingsupport.h"
 #include "cppmodelmanagersupportinternal.h"
@@ -152,7 +151,6 @@ public:
     QSet<AbstractEditorSupport *> m_extraEditorSupports;
 
     // Model Manager Supports for e.g. completion and highlighting
-    ModelManagerSupportProvider *m_clangModelManagerSupportProvider;
     ModelManagerSupport::Ptr m_builtinModelManagerSupport;
     ModelManagerSupport::Ptr m_activeModelManagerSupport;
 
@@ -298,9 +296,8 @@ CppModelManager *CppModelManager::instance()
     return m_instance;
 }
 
-void CppModelManager::initializeModelManagerSupports()
+void CppModelManager::initializeBuiltinModelManagerSupport()
 {
-    d->m_clangModelManagerSupportProvider = nullptr;
     d->m_builtinModelManagerSupport
             = ModelManagerSupportProviderInternal().createModelManagerSupport();
     d->m_activeModelManagerSupport = d->m_builtinModelManagerSupport;
@@ -348,12 +345,7 @@ CppModelManager::CppModelManager(QObject *parent)
     qRegisterMetaType<QList<Document::DiagnosticMessage>>(
                 "QList<CPlusPlus::Document::DiagnosticMessage>");
 
-    QSharedPointer<CppCodeModelSettings> codeModelSettings
-            = CppToolsPlugin::instance()->codeModelSettings();
-    connect(codeModelSettings.data(), &CppCodeModelSettings::changed,
-            this, &CppModelManager::onCodeModelSettingsChanged);
-
-    initializeModelManagerSupports();
+    initializeBuiltinModelManagerSupport();
 
     d->m_internalIndexingSupport = new BuiltinIndexingSupport;
 }
@@ -673,14 +665,6 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
     }
 }
 
-void CppModelManager::closeCppEditorDocuments()
-{
-    QList<Core::IDocument *> cppDocumentsToClose;
-    foreach (CppEditorDocumentHandle *cppDocument, cppEditorDocuments())
-        cppDocumentsToClose << cppDocument->processor()->baseTextDocument();
-    QTC_CHECK(Core::EditorManager::closeDocuments(cppDocumentsToClose));
-}
-
 QList<CppEditorDocumentHandle *> CppModelManager::cppEditorDocuments() const
 {
     QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
@@ -947,15 +931,9 @@ bool CppModelManager::isCppEditor(Core::IEditor *editor)
     return editor->context().contains(ProjectExplorer::Constants::LANG_CXX);
 }
 
-bool CppModelManager::isClangCodeModelAvailable() const
-{
-    return d->m_clangModelManagerSupportProvider != nullptr;
-}
-
 bool CppModelManager::isClangCodeModelActive() const
 {
-    return isClangCodeModelAvailable()
-        && d->m_activeModelManagerSupport != d->m_builtinModelManagerSupport;
+    return d->m_activeModelManagerSupport != d->m_builtinModelManagerSupport;
 }
 
 void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
@@ -1036,27 +1014,6 @@ void CppModelManager::onCurrentEditorChanged(Core::IEditor *editor)
             theCppEditorDocument->setNeedsRefresh(false);
             theCppEditorDocument->processor()->run();
         }
-    }
-}
-
-void CppModelManager::onCodeModelSettingsChanged()
-{
-    const bool isClangActive = isClangCodeModelActive();
-    const QSharedPointer<CppCodeModelSettings> settings
-            = CppToolsPlugin::instance()->codeModelSettings();
-
-    ModelManagerSupport::Ptr newCodeModelSupport;
-
-    if (isClangCodeModelAvailable()) {
-        if (!isClangActive && settings->useClangCodeModel())
-            newCodeModelSupport = d->m_clangModelManagerSupportProvider->createModelManagerSupport();
-        else if (isClangActive && !settings->useClangCodeModel())
-            newCodeModelSupport = d->m_builtinModelManagerSupport;
-    }
-
-    if (newCodeModelSupport) {
-        closeCppEditorDocuments();
-        d->m_activeModelManagerSupport = newCodeModelSupport;
     }
 }
 
@@ -1169,15 +1126,12 @@ void CppModelManager::finishedRefreshingSourceFiles(const QSet<QString> &files)
     emit sourceFilesRefreshed(files);
 }
 
-void CppModelManager::setClangModelManagerSupportProvider(
+void CppModelManager::activateClangCodeModel(
         ModelManagerSupportProvider *modelManagerSupportProvider)
 {
     QTC_ASSERT(modelManagerSupportProvider, return);
-    QTC_CHECK(d->m_clangModelManagerSupportProvider == nullptr);
 
-    d->m_clangModelManagerSupportProvider = modelManagerSupportProvider;
-
-    onCodeModelSettingsChanged();
+    d->m_activeModelManagerSupport = modelManagerSupportProvider->createModelManagerSupport();
 }
 
 CppCompletionAssistProvider *CppModelManager::completionAssistProvider() const

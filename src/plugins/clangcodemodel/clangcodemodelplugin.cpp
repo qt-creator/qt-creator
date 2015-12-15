@@ -60,9 +60,7 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    // Register ModelManagerSupportProvider
-    auto cppModelManager = CppTools::CppModelManager::instance();
-    cppModelManager->setClangModelManagerSupportProvider(&m_modelManagerSupportProvider);
+    CppTools::CppModelManager::instance()->activateClangCodeModel(&m_modelManagerSupportProvider);
 
     initializeTextMarks();
 

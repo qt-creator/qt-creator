@@ -80,14 +80,10 @@ void CppCodeModelSettingsWidget::applyToSettings() const
 
 void CppCodeModelSettingsWidget::setupClangCodeModelWidgets() const
 {
-    bool isClangActive = false;
-    const bool isClangAvailable = CppModelManager::instance()->isClangCodeModelAvailable();
-    if (isClangAvailable)
-        isClangActive = m_settings->useClangCodeModel();
+    const bool isClangActive = CppModelManager::instance()->isClangCodeModelActive();
 
-    m_ui->activateClangCodeModelPluginHint->setVisible(!isClangAvailable);
-    m_ui->clangSettingsGroupBox->setEnabled(isClangAvailable);
-    m_ui->clangSettingsGroupBox->setChecked(isClangActive);
+    m_ui->activateClangCodeModelPluginHint->setVisible(!isClangActive);
+    m_ui->clangSettingsGroupBox->setEnabled(isClangActive);
 
     const QString extraClangOptions = m_settings->extraClangOptions().join(QLatin1Char('\n'));
     m_ui->clangOptionsToAppendTextEdit->document()->setPlainText(extraClangOptions);
@@ -102,13 +98,6 @@ void CppCodeModelSettingsWidget::setupPchCheckBox() const
 bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
 {
     bool settingsChanged = false;
-
-    const bool previouslyClangWasActive = m_settings->useClangCodeModel();
-    const bool nowClangIsActive = m_ui->clangSettingsGroupBox->isChecked();
-    if (nowClangIsActive != previouslyClangWasActive) {
-        m_settings->setUseClangCodeModel(nowClangIsActive);
-        settingsChanged = true;
-    }
 
     const QStringList previousOptions = m_settings->extraClangOptions();
     const QString newOptionsAsString = m_ui->clangOptionsToAppendTextEdit->document()->toPlainText();

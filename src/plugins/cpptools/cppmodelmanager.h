@@ -122,7 +122,6 @@ public:
     void emitAbstractEditorSupportRemoved(const QString &filePath);
 
     static bool isCppEditor(Core::IEditor *editor);
-    bool isClangCodeModelAvailable() const;
     bool isClangCodeModelActive() const;
 
     QSet<AbstractEditorSupport*> abstractEditorSupports() const;
@@ -145,7 +144,7 @@ public:
 
     void finishedRefreshingSourceFiles(const QSet<QString> &files);
 
-    void setClangModelManagerSupportProvider(ModelManagerSupportProvider *modelManagerSupportProvider);
+    void activateClangCodeModel(ModelManagerSupportProvider *modelManagerSupportProvider);
     CppCompletionAssistProvider *completionAssistProvider() const;
     BaseEditorDocumentProcessor *editorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument) const;
@@ -203,19 +202,16 @@ private slots:
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onSourceFilesRefreshed() const;
     void onCurrentEditorChanged(Core::IEditor *editor);
-    void onCodeModelSettingsChanged();
     void onCoreAboutToClose();
 
 private:
-    void initializeModelManagerSupports();
+    void initializeBuiltinModelManagerSupport();
     void delayedGC();
     void recalculateProjectPartMappings();
 
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
     void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
-
-    void closeCppEditorDocuments();
 
     WorkingCopy buildWorkingCopyList();
 

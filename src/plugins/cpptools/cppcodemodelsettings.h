@@ -57,9 +57,6 @@ public:
     void toSettings(QSettings *s);
 
 public:
-    bool useClangCodeModel() const;
-    void setUseClangCodeModel(bool useClangCodeModel);
-
     static QStringList defaultExtraClangOptions();
     QStringList extraClangOptions() const;
     void setExtraClangOptions(const QStringList &extraClangOptions);
@@ -74,8 +71,6 @@ signals:
     void changed();
 
 private:
-    bool m_isClangCodeModelAvailable = false;
-    bool m_useClangCodeModel = false;
     QStringList m_extraClangOptions;
     PCHUsage m_pchUsage = PchUse_None;
 };

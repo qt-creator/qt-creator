@@ -38,13 +38,11 @@ using namespace CppTools;
 static QLatin1String cppHeaderMimeType(Constants::CPP_HEADER_MIMETYPE);
 static QLatin1String cHeaderMimeType(Constants::C_HEADER_MIMETYPE);
 static QLatin1String clangExtraOptionsKey(Constants::CPPTOOLS_EXTRA_CLANG_OPTIONS);
-static QLatin1String useClangCodeModelKey(Constants::CPPTOOLS_USE_CLANG_CODE_MODEL);
 
 void CppCodeModelSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
 
-    setUseClangCodeModel(s->value(useClangCodeModelKey, false).toBool());
     setExtraClangOptions(s->value(clangExtraOptionsKey, defaultExtraClangOptions()).toStringList());
 
     QVariant v = s->value(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), PchUse_None);
@@ -58,23 +56,12 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
 
-    s->setValue(useClangCodeModelKey, useClangCodeModel());
     s->setValue(clangExtraOptionsKey, extraClangOptions());
     s->setValue(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), pchUsage());
 
     s->endGroup();
 
     emit changed();
-}
-
-bool CppCodeModelSettings::useClangCodeModel() const
-{
-    return m_useClangCodeModel;
-}
-
-void CppCodeModelSettings::setUseClangCodeModel(bool useClangCodeModel)
-{
-    m_useClangCodeModel = useClangCodeModel;
 }
 
 QStringList CppCodeModelSettings::defaultExtraClangOptions()

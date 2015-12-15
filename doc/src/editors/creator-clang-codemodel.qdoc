@@ -140,10 +140,6 @@
 
         \li Restart \QC to be able to use the plugin.
 
-        \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol {C++} > \uicontrol {Code Model},
-            and select \uicontrol {Use Clang Code Model}.
-
         \li To process pre-compiled headers before processing any project files,
             deselect the \uicontrol {Ignore pre-compiled headers} check box.
 

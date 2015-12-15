@@ -43,13 +43,7 @@ class ClangCodeCompletionTest : public QObject
 {
     Q_OBJECT
 
-public:
-    ClangCodeCompletionTest();
-    ~ClangCodeCompletionTest();
-
 private slots:
-    void initTestCase();
-
     void testCompleteDoxygenKeywords();
     void testCompletePreprocessorKeywords();
     void testCompleteIncludeDirective();
@@ -69,9 +63,6 @@ private slots:
     void testCompleteAfterChangingIncludedAndNotOpenHeaderExternally();
 
     void testUpdateBackendAfterRestart();
-
-private:
-    QScopedPointer<ActivateClangModelManagerSupport> m_activater;
 };
 
 } // namespace Tests

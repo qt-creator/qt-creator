@@ -39,7 +39,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/modelmanagertesthelper.h>
@@ -857,52 +856,6 @@ private:
 namespace ClangCodeModel {
 namespace Internal {
 namespace Tests {
-
-typedef QSharedPointer<CppTools::CppCodeModelSettings> CppCodeModelSettingsPtr;
-
-class ActivateClangModelManagerSupport
-{
-public:
-    ActivateClangModelManagerSupport(CppCodeModelSettingsPtr codeModelSettings);
-    ~ActivateClangModelManagerSupport();
-
-private:
-    ActivateClangModelManagerSupport();
-
-    CppCodeModelSettingsPtr m_codeModelSettings;
-    bool m_clangCodeModelWasUsedPreviously;
-};
-
-ActivateClangModelManagerSupport::ActivateClangModelManagerSupport(
-        CppCodeModelSettingsPtr codeModelSettings)
-    : m_codeModelSettings(codeModelSettings)
-{
-    QTC_CHECK(m_codeModelSettings);
-
-    m_clangCodeModelWasUsedPreviously = m_codeModelSettings->useClangCodeModel();
-
-    m_codeModelSettings->setUseClangCodeModel(true);
-    m_codeModelSettings->emitChanged();
-}
-
-ActivateClangModelManagerSupport::~ActivateClangModelManagerSupport()
-{
-    m_codeModelSettings->setUseClangCodeModel(m_clangCodeModelWasUsedPreviously);
-    m_codeModelSettings->emitChanged();
-}
-
-ClangCodeCompletionTest::ClangCodeCompletionTest()
-{
-}
-
-ClangCodeCompletionTest::~ClangCodeCompletionTest()
-{
-}
-
-void ClangCodeCompletionTest::initTestCase()
-{
-    m_activater.reset(new ActivateClangModelManagerSupport(CppTools::codeModelSettings()));
-}
 
 void ClangCodeCompletionTest::testCompleteDoxygenKeywords()
 {
