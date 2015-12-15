@@ -659,6 +659,18 @@ static void bracketSearchForward(QTextCursor *tc, const QString &needleExp, int 
     }
 }
 
+static char backslashed(char t)
+{
+    switch (t) {
+        case 'e': return 27;
+        case 't': return '\t';
+        case 'r': return '\r';
+        case 'n': return '\n';
+        case 'b': return 8;
+    }
+    return t;
+}
+
 static bool substituteText(QString *text, QRegExp &pattern, const QString &replacement,
     bool global)
 {
@@ -693,7 +705,7 @@ static bool substituteText(QString *text, QRegExp &pattern, const QString &repla
                     if (c.digitValue() <= pattern.captureCount())
                         repl += pattern.cap(c.digitValue());
                 } else {
-                    repl += c;
+                    repl += QLatin1Char(backslashed(c.unicode()));
                 }
             } else {
                 if (c == QLatin1Char('\\'))
