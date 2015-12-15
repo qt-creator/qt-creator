@@ -31,6 +31,7 @@
 #include "baseeditordocumentparser.h"
 #include "baseeditordocumentprocessor.h"
 
+#include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
 

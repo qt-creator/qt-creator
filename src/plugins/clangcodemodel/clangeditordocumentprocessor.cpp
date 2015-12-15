@@ -40,6 +40,7 @@
 #include <sourcelocationcontainer.h>
 
 #include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojects.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>

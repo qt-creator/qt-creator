@@ -35,6 +35,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cpptools/baseeditordocumentparser.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>

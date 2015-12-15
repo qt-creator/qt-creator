@@ -40,6 +40,7 @@
 
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/baseeditordocumentprocessor.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
 
 #include <texteditor/codeassist/functionhintproposal.h>

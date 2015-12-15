@@ -32,10 +32,6 @@
 
 #include "clangfixitoperation.h"
 
-#include <clangbackendipc/sourcerangecontainer.h>
-
-#include <utils/qtcassert.h>
-
 #include <QDebug>
 
 using ClangBackEnd::DiagnosticContainer;

@@ -34,11 +34,10 @@
 #include "clangcompletionassistinterface.h"
 
 #include <cpptools/cppcompletionassistprocessor.h>
-#include <texteditor/texteditor.h>
 
 #include <clangbackendipc/codecompletion.h>
 
-#include <QCoreApplication>
+#include <QTextCursor>
 
 namespace ClangCodeModel {
 namespace Internal {

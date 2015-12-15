@@ -38,13 +38,15 @@
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/quickfix.h>
 
 #include <cplusplus/CppDocument.h>
 
 #include <QTextEdit>
 
-namespace TextEditor { class TextDocument; }
+namespace TextEditor {
+class TextDocument;
+class QuickFixOperations;
+}
 
 namespace CppTools {
 

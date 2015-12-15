@@ -37,7 +37,6 @@
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
 
-#include <texteditor/texteditor.h>
 #include <texteditor/convenience.h>
 
 #include <cplusplus/CppDocument.h>

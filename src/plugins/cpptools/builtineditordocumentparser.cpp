@@ -30,7 +30,6 @@
 
 #include "builtineditordocumentparser.h"
 #include "cppsourceprocessor.h"
-#include "editordocumenthandle.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 

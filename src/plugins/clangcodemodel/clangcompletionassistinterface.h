@@ -34,8 +34,6 @@
 #include "clangbackendipcintegration.h"
 #include "clangutils.h"
 
-#include <cpptools/cppcompletionassistprovider.h>
-
 #include <texteditor/codeassist/assistinterface.h>
 
 namespace ClangCodeModel {

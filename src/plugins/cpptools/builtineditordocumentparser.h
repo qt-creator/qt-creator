@@ -33,7 +33,6 @@
 
 #include "baseeditordocumentparser.h"
 #include "cpptools_global.h"
-#include "cppmodelmanager.h"
 
 #include <cplusplus/CppDocument.h>
 

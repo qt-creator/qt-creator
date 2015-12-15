@@ -35,7 +35,6 @@
 #include <coreplugin/coreicons.h>
 
 #include <QString>
-#include <QApplication>
 
 namespace ClangCodeModel {
 

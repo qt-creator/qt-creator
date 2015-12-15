@@ -31,11 +31,12 @@
 #ifndef BASEEDITORDOCUMENTPARSER_H
 #define BASEEDITORDOCUMENTPARSER_H
 
-#include "cppmodelmanager.h"
 #include "cpptools_global.h"
+#include "cppprojects.h"
 #include "cppworkingcopy.h"
 
 #include <QObject>
+#include <QMutex>
 
 namespace CppTools {
 

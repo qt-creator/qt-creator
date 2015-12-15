@@ -30,10 +30,6 @@
 
 #include "clangcompletionassistinterface.h"
 
-#include "clangutils.h"
-
-#include <cpptools/cpptoolsreuse.h>
-
 #include <texteditor/texteditor.h>
 
 namespace ClangCodeModel {

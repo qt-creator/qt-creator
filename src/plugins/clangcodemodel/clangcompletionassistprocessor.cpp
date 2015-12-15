@@ -37,11 +37,10 @@
 #include "clangcompletioncontextanalyzer.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangfunctionhintmodel.h"
-#include "clangutils.h"
 #include "clangcompletionchunkstotextconverter.h"
 
-#include <utils/qtcassert.h>
-
+#include <cpptools/cppdoxygen.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
 
 #include <texteditor/codeassist/assistproposalitem.h>
@@ -49,17 +48,16 @@
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/convenience.h>
 
-#include <cpptools/cppdoxygen.h>
-
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/SimpleLexer.h>
 
-#include <QDirIterator>
-#include <QTextBlock>
-#include <filecontainer.h>
+#include <clangbackendipc/filecontainer.h>
 
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
+
+#include <QDirIterator>
 
 namespace ClangCodeModel {
 namespace Internal {

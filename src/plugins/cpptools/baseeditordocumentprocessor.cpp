@@ -29,12 +29,12 @@
 ****************************************************************************/
 
 #include "baseeditordocumentprocessor.h"
-#include "cppworkingcopy.h"
 
-#include "cpptoolsreuse.h"
+#include "cppmodelmanager.h"
 #include "editordocumenthandle.h"
 
 #include <texteditor/fontsettings.h>
+#include <texteditor/quickfix.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/qtcassert.h>
