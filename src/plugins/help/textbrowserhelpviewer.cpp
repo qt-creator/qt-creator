@@ -315,7 +315,7 @@ TextBrowserHelpWidget::TextBrowserHelpWidget(TextBrowserHelpViewer *parent)
 
 QVariant TextBrowserHelpWidget::loadResource(int type, const QUrl &name)
 {
-    if (type < 4)
+    if (type < QTextDocument::UserResource)
         return LocalHelpManager::helpData(name).data;
     return QByteArray();
 }
