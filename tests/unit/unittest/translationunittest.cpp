@@ -33,6 +33,7 @@
 #include <highlightinginformations.h>
 #include <filecontainer.h>
 #include <projectpart.h>
+#include <projectpartcontainer.h>
 #include <projects.h>
 #include <translationunitdoesnotexistexception.h>
 #include <translationunitfilenotexitexception.h>
@@ -55,10 +56,11 @@
 #include <chrono>
 #include <thread>
 
-
+using ClangBackEnd::FileContainer;
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
+using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::TranslationUnits;
 
 using testing::IsNull;
@@ -74,19 +76,18 @@ namespace {
 class TranslationUnit : public ::testing::Test
 {
 protected:
+    void SetUp() override;
     ::TranslationUnit createTemporaryTranslationUnit();
     QByteArray readContentFromTranslationUnitFile() const;
 
 protected:
     ClangBackEnd::ProjectParts projects;
-    ProjectPart projectPart{Utf8StringLiteral("/path/to/projectfile")};
+    Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
+    ProjectPart projectPart;
     Utf8String translationUnitFilePath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::TranslationUnits translationUnits{projects, unsavedFiles};
-    ::TranslationUnit translationUnit{translationUnitFilePath,
-                                      projectPart,
-                                      Utf8StringVector(),
-                                      translationUnits};
+    ::TranslationUnit translationUnit;
 };
 
 TEST_F(TranslationUnit, DefaultTranslationUnitIsInvalid)
@@ -338,6 +339,36 @@ TEST_F(TranslationUnit, HasNoNewHighlightingInformationsAfterGettingHighlighting
     ASSERT_FALSE(translationUnit.hasNewHighlightingInformations());
 }
 
+TEST_F(TranslationUnit, SetDirtyIfProjectPartIsOutdated)
+{
+    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
+    translationUnit.cxTranslationUnit();
+    projects.createOrUpdate({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-DNEW")})});
+
+    translationUnit.setDirtyIfProjectPartIsOutdated();
+
+    ASSERT_TRUE(translationUnit.isNeedingReparse());
+}
+
+TEST_F(TranslationUnit, SetNotDirtyIfProjectPartIsNotOutdated)
+{
+    translationUnit.cxTranslationUnit();
+
+    translationUnit.setDirtyIfProjectPartIsOutdated();
+
+    ASSERT_FALSE(translationUnit.isNeedingReparse());
+}
+
+void TranslationUnit::SetUp()
+{
+    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
+    projectPart = *projects.findProjectPart(projectPartId);
+
+    const QVector<FileContainer> fileContainer{FileContainer(translationUnitFilePath, projectPartId)};
+    const auto createdTranslationUnits = translationUnits.create(fileContainer);
+    translationUnit = createdTranslationUnits.front();
+}
+
 ::TranslationUnit TranslationUnit::createTemporaryTranslationUnit()
 {
     QTemporaryFile temporaryFile;
@@ -348,7 +379,7 @@ TEST_F(TranslationUnit, HasNoNewHighlightingInformationsAfterGettingHighlighting
                                       Utf8StringVector(),
                                       translationUnits);
 
-return translationUnit;
+    return translationUnit;
 }
 
 QByteArray TranslationUnit::readContentFromTranslationUnitFile() const

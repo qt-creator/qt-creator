@@ -25,6 +25,7 @@ Editing
   (QTCREATORBUG-15193)
 * Fixed that editors were closing even when closing Qt Creator was cancelled
   (QTCREATORBUG-14401)
+* Fixed zooming text with touch pads, which was too sensitive (QTBUG-49024)
 
 Project Management
 
@@ -40,6 +41,8 @@ Project Management
 
 QMake Projects
 
+* Added a build configuration type for profiling
+  (release build with separate debug information)
 * Changed project display names to be `QMAKE_PROJECT_NAME` if set
   (QTCREATORBUG-13950)
 * Fixed that `.pri` files were shown in flat list instead of tree
@@ -76,9 +79,13 @@ Debugging
     * Fixed auto-detection of CDB from Windows 10 Kits
 * LLDB
     * Fixed handling of large registers
+* QML/JS
+    * Fixed that debugger stopped at disabled breakpoints (QTCREATORBUG-15395)
 * QML/JS Console
     * Implemented lazy loading of sub-items
     * Improved error reporting
+* GDB/MinGW
+    * Fixed wrong `GDB not responding` message (QTCREATORBUG-14350)
 
 Analyzer
 
@@ -122,9 +129,12 @@ OS X
   default (QTCREATORBUG-13507)
 * Added option to set `DYLD_LIBRARY_PATH` and `DYLD_FRAMEWORK_PATH` in
   run configurations (QTCREATORBUG-14022)
+* Fixed that `DYLD_LIBRARY_PATH`, `DYLD_FRAMEWORK_PATH` and `DYLD_IMAGE_SUFFIX`
+  were not taking effect when debugging with recent LLDB
 
 Android
 
+* Added support for Android 6.0
 * Fixed that QML syntax errors where not clickable in application output
   (QTCREATORBUG-14832)
 * Fixed deployment on devices without `readlink` (QTCREATORBUG-15006)
@@ -134,6 +144,7 @@ Android
 iOS
 
 * Improved error messages for deployment
+* Fixed issues with profiling QML (QTCREATORBUG-15383)
 
 Remote Linux
 
@@ -143,10 +154,12 @@ Remote Linux
 * Fixed attaching to remote debugging server (QTCREATORBUG-15210)
 
 Credits for these changes go to:  
+Adam Strzelecki  
 Aleix Pol  
 Alessandro Portale  
 Alexander Drozdov  
-Andre Hartmann  
+Allan Sandfeld Jensen  
+André Hartmann  
 André Pönitz  
 Benjamin Zeller  
 BogDan Vatra  
@@ -156,32 +169,48 @@ Christian Strømme
 Claus Steuer  
 Cristian Adam  
 Daniel Teske  
+David Fries  
 David Schulz  
+Davide Pesavento  
+Denis Shienkov  
 Eike Ziller  
+Finn Brudal  
+Friedemann Kleint  
+J-P Nurmi  
 Jake Petroules  
 Jakub Golebiewski  
 Jan Dalheimer  
 Jarek Kobus  
 Jean Gressmann  
 Jochen Becher  
+Jörg Bornemann  
+Lassi Hämäläinen  
 Leena Miettinen  
 Lorenz Haas  
+Marc Mutz  
+Marco Benelli  
 Marco Bubke  
+Martin Kampas  
 Maurice Kalinowski  
 Mitch Curtis  
 Montel Laurent  
+Nico Vertriest  
 Niels Weber  
 Nikita Baryshnikov  
 Nikolai Kosjar  
 Oliver Wolff  
 Orgad Shaneh  
 Oswald Buddenhagen  
-Robert Loehning  
+Robert Löhning  
+Sergey Belyashov  
 Sze Howe Koh  
 Thiago Macieira  
 Thomas Hartmann  
 Thorbjørn Lindeijer  
 Tim Jenssen  
 Tobias Hunger  
+Tom Deblauwe  
+Topi Reinio  
 Ulf Hermann  
+Viktor Ostashevskyi  
 Vladyslav Gapchych  

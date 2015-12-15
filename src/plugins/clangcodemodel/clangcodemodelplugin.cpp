@@ -31,17 +31,12 @@
 #include "clangcodemodelplugin.h"
 
 #include "clangconstants.h"
-#include "clangprojectsettingspropertiespage.h"
 
 #ifdef WITH_TESTS
 #  include "test/clangcodecompletion_test.h"
 #endif
 
 #include <cpptools/cppmodelmanager.h>
-
-#include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 
 #include <texteditor/textmark.h>
 
@@ -64,13 +59,6 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
-
-    // Register widget for project panel
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
-    panelFactory->setPriority(60);
-    panelFactory->setDisplayName(ClangProjectSettingsWidget::tr("Clang Settings"));
-    panelFactory->setSimpleCreateWidgetFunction<ClangProjectSettingsWidget>(QIcon());
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
     // Register ModelManagerSupportProvider
     auto cppModelManager = CppTools::CppModelManager::instance();

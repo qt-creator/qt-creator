@@ -62,6 +62,7 @@ public:
         DestructorCompletionKind,
         VariableCompletionKind,
         ClassCompletionKind,
+        TypeAliasCompletionKind,
         TemplateClassCompletionKind,
         EnumerationCompletionKind,
         EnumeratorCompletionKind,

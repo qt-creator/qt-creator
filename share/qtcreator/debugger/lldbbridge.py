@@ -218,6 +218,9 @@ class Dumper(DumperBase):
         self.startMode_ = None
         self.processArgs_ = None
         self.attachPid_ = None
+        self.dyldImageSuffix = None
+        self.dyldLibraryPath = None
+        self.dyldFrameworkPath = None
 
         self.charType_ = None
         self.intType_ = None
@@ -658,6 +661,9 @@ class Dumper(DumperBase):
         self.breakOnMain_ = args.get('breakonmain', 0)
         self.useTerminal_ = args.get('useterminal', 0)
         self.processArgs_ = args.get('processargs', [])
+        self.dyldImageSuffix = args.get('dyldimagesuffix', '')
+        self.dyldLibraryPath = args.get('dyldlibrarypath', '')
+        self.dyldFrameworkPath = args.get('dyldframeworkpath', '')
         self.processArgs_ = map(lambda x: self.hexdecode(x), self.processArgs_)
         self.attachPid_ = args.get('attachpid', 0)
         self.sysRoot_ = args.get('sysroot', '')
@@ -738,6 +744,12 @@ class Dumper(DumperBase):
             launchInfo = lldb.SBLaunchInfo(self.processArgs_)
             launchInfo.SetWorkingDirectory(os.getcwd())
             environmentList = [key + "=" + value for key,value in os.environ.items()]
+            if self.dyldImageSuffix:
+                environmentList.append('DYLD_IMAGE_SUFFIX=' + self.dyldImageSuffix)
+            if self.dyldLibraryPath:
+                environmentList.append('DYLD_LIBRARY_PATH=' + self.dyldLibraryPath)
+            if self.dyldFrameworkPath:
+                environmentList.append('DYLD_FRAMEWORK_PATH=' + self.dyldFrameworkPath)
             launchInfo.SetEnvironmentEntries(environmentList, False)
             if self.breakOnMain_:
                 self.createBreakpointAtMain()

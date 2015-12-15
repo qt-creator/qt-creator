@@ -570,7 +570,7 @@ QString WatchItem::formattedValue() const
         QString v = value;
         v.chop(1);
         QString len = elided > 0 ? QString::number(elided) : QLatin1String("unknown length");
-        return v + QLatin1String("\"... (") + len  + QLatin1Char(')');
+        return quoteUnprintable(v) + QLatin1String("\"... (") + len  + QLatin1Char(')');
     }
 
     return quoteUnprintable(value);

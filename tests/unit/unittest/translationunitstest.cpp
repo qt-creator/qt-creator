@@ -57,6 +57,7 @@
 using ClangBackEnd::TranslationUnit;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::ProjectPart;
+using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::DiagnosticsChangedMessage;
 using ClangBackEnd::HighlightingChangedMessage;
 using ClangBackEnd::DocumentAnnotationsSendState;
@@ -483,9 +484,24 @@ TEST_F(TranslationUnits, SendDocumentAnnotationsOnlyOnceForVisibleEditor)
     sendAllDocumentAnnotationsForVisibleEditors();
 }
 
+TEST_F(TranslationUnits, SendDocumentAnnotationsAfterProjectPartChange)
+{
+    translationUnits.create({fileContainer, headerContainer});
+    auto fileTranslationUnit = translationUnits.translationUnit(fileContainer);
+    fileTranslationUnit.setIsVisibleInEditor(true);
+    fileTranslationUnit.diagnostics(); // Reset
+    fileTranslationUnit.highlightingInformations(); // Reset
+    projects.createOrUpdate({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-DNEW")})});
+    translationUnits.setTranslationUnitsDirtyIfProjectPartChanged();
+
+    EXPECT_CALL(mockSendDocumentAnnotationsCallback, sendDocumentAnnotations()).Times(1);
+
+    sendAllDocumentAnnotationsForVisibleEditors();
+}
+
 void TranslationUnits::SetUp()
 {
-    projects.createOrUpdate({ClangBackEnd::ProjectPartContainer(projectPartId)});
+    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
 
     auto callback = [&] (const DiagnosticsChangedMessage &, const HighlightingChangedMessage &) {
         mockSendDocumentAnnotationsCallback.sendDocumentAnnotations();

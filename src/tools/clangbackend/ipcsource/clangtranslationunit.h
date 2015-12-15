@@ -120,6 +120,7 @@ public:
 
     const QSet<Utf8String> &dependedFilePaths() const;
 
+    void setDirtyIfProjectPartIsOutdated();
     void setDirtyIfDependencyIsMet(const Utf8String &filePath);
 
     CommandLineArguments commandLineArguments() const;
@@ -139,6 +140,7 @@ public:
     SkippedSourceRanges skippedSourceRanges() const;
 
 private:
+    void setDirty();
     void checkIfNull() const;
     void checkIfFileExists() const;
     void updateLastProjectPartChangeTimePoint() const;

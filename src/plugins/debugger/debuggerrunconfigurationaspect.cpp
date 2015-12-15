@@ -245,6 +245,10 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
     if (d.useQmlDebugger == AutoEnabledLanguage) {
+        const Core::Context languages = runConfiguration()->target()->project()->projectLanguages();
+        if (!languages.contains(ProjectExplorer::Constants::LANG_QMLJS))
+            return false;
+
         //
         // Try to find a build step (qmake) to check whether qml debugging is enabled there
         // (Using the Qt metatype system to avoid a hard qt4projectmanager dependency)
@@ -259,9 +263,7 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
             }
         }
 
-        const Core::Context languages = runConfiguration()->target()->project()->projectLanguages();
-        return languages.contains(ProjectExplorer::Constants::LANG_QMLJS)
-            && !languages.contains(ProjectExplorer::Constants::LANG_CXX);
+        return !languages.contains(ProjectExplorer::Constants::LANG_CXX);
     }
     return d.useQmlDebugger == EnabledLanguage;
 }

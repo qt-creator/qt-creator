@@ -118,6 +118,7 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
         switch (ccr.completionKind()) {
         case CodeCompletion::ClassCompletionKind:
         case CodeCompletion::TemplateClassCompletionKind:
+        case CodeCompletion::TypeAliasCompletionKind:
             item->setIcon(m_icons.iconForType(Icons::ClassIconType)); break;
         case CodeCompletion::EnumerationCompletionKind: item->setIcon(m_icons.iconForType(Icons::EnumIconType)); break;
         case CodeCompletion::EnumeratorCompletionKind: item->setIcon(m_icons.iconForType(Icons::EnumeratorIconType)); break;
@@ -178,6 +179,7 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
             break;
 
         case CodeCompletion::Other:
+            item->setIcon(m_icons.iconForType(Icons::UnknownIconType));
             break;
         }
     }

@@ -128,6 +128,8 @@ QVariant AddNewTree::data(int, int role) const
         return m_displayName;
     if (role == Qt::ToolTipRole)
         return m_toolTip;
+    if (role == Qt::UserRole)
+        return QVariant::fromValue(static_cast<void*>(node()));
     return QVariant();
 }
 
@@ -403,9 +405,8 @@ void ProjectWizardPage::setBestNode(AddNewTree *tree)
 
 FolderNode *ProjectWizardPage::currentNode() const
 {
-    QModelIndex index = m_ui->projectComboBox->view()->currentIndex();
-    TreeItem *item = m_model->itemForIndex(index);
-    return item ? static_cast<AddNewTree *>(item)->node() : 0;
+    QVariant v = m_ui->projectComboBox->currentData(Qt::UserRole);
+    return v.isNull() ? 0 : static_cast<FolderNode *>(v.value<void *>());
 }
 
 void ProjectWizardPage::setAddingSubProject(bool addingSubProject)

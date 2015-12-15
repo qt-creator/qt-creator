@@ -51,8 +51,8 @@ class Targets:
 
     @staticmethod
     def qt4Classes():
-        return (Targets.DESKTOP_474_GCC & Targets.DESKTOP_480_DEFAULT
-                & Targets.SIMULATOR & Targets.EMBEDDED_LINUX)
+        return (Targets.DESKTOP_474_GCC | Targets.DESKTOP_480_DEFAULT
+                | Targets.SIMULATOR | Targets.EMBEDDED_LINUX)
 
     @staticmethod
     def getStringForTarget(target):

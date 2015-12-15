@@ -7174,7 +7174,7 @@ int main(int argc, char *argv[])
     qstack::testQStack();
     qstringlist::testQStringList();
     qstring::testQString();
-    qthread::testQThread();
+    // qthread::testQThread();
     qprocess::testQProcess();
     qurl::testQUrl();
     qvariant::testQVariant();

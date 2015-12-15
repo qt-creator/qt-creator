@@ -53,6 +53,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/syntaxhighlighter.h>
@@ -236,13 +237,10 @@ void GlslEditorWidget::updateDocumentNow()
         CreateRanges createRanges(document(), doc);
         createRanges(ast);
 
-        QTextCharFormat errorFormat;
-        errorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-        errorFormat.setUnderlineColor(Qt::red);
+        const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
 
-        QTextCharFormat warningFormat;
-        warningFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-        warningFormat.setUnderlineColor(Qt::darkYellow);
+        QTextCharFormat warningFormat = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
+        QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
 
         QList<QTextEdit::ExtraSelection> sels;
         QSet<int> errors;

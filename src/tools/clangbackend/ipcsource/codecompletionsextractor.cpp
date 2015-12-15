@@ -126,6 +126,10 @@ void CodeCompletionsExtractor::extractCompletionKind()
         case CXCursor_TemplateTypeParameter:
             currentCodeCompletion_.setCompletionKind(CodeCompletion::ClassCompletionKind);
             break;
+        case CXCursor_TypedefDecl:
+        case CXCursor_TypeAliasDecl:
+            currentCodeCompletion_.setCompletionKind(CodeCompletion::TypeAliasCompletionKind);
+            break;
         case CXCursor_ClassTemplatePartialSpecialization:
         case CXCursor_ClassTemplate:
         case CXCursor_TemplateTemplateParameter:
