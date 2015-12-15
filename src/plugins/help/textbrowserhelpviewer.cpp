@@ -55,6 +55,7 @@ TextBrowserHelpViewer::TextBrowserHelpViewer(QWidget *parent)
     : HelpViewer(parent)
     , m_textBrowser(new TextBrowserHelpWidget(this))
 {
+    m_textBrowser->setOpenLinks(false);
     QVBoxLayout *layout = new QVBoxLayout;
     setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -68,6 +69,8 @@ TextBrowserHelpViewer::TextBrowserHelpViewer(QWidget *parent)
     p.setColor(QPalette::Text, Qt::black);
     setPalette(p);
 
+    connect(m_textBrowser, &TextBrowserHelpWidget::anchorClicked,
+            this, &TextBrowserHelpViewer::setSource);
     connect(m_textBrowser, SIGNAL(sourceChanged(QUrl)), this, SIGNAL(titleChanged()));
     connect(m_textBrowser, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
     connect(m_textBrowser, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
