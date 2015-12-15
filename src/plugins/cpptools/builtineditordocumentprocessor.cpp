@@ -190,6 +190,11 @@ void BuiltinEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
 void BuiltinEditorDocumentProcessor::semanticRehighlight()
 {
     if (m_semanticHighlighter && m_semanticInfoUpdater.semanticInfo().doc) {
+        if (const CPlusPlus::Document::Ptr document = m_documentSnapshot.document(filePath())) {
+            m_codeWarnings = toTextEditorSelections(document->diagnosticMessages(), textDocument());
+            m_codeWarningsUpdated = false;
+        }
+
         m_semanticHighlighter->updateFormatMapFromFontSettings();
         m_semanticHighlighter->run();
     }

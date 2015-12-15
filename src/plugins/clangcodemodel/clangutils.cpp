@@ -41,7 +41,6 @@
 
 #include <QDir>
 #include <QFile>
-#include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QStringList>
 
@@ -52,8 +51,6 @@ using namespace CppTools;
 
 namespace ClangCodeModel {
 namespace Utils {
-
-Q_LOGGING_CATEGORY(verboseRunLog, "qtc.clangcodemodel.verboserun")
 
 /**
  * @brief Creates list of message-line arguments required for correct parsing
@@ -93,9 +90,6 @@ public:
             return QStringList();
 
         LibClangOptionsBuilder optionsBuilder(*projectPart.data());
-
-        if (verboseRunLog().isDebugEnabled())
-            optionsBuilder.add(QLatin1String("-v"));
 
         optionsBuilder.addLanguageOption(fileKind);
         optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);

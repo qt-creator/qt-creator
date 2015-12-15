@@ -36,8 +36,10 @@
 
 #include <coreplugin/editormanager/documentmodel.h>
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <QTextBlock>
 
@@ -246,10 +248,8 @@ QStringList highlightExceptionCode(int lineNumber, const QString &filePath, cons
     QStringList messages;
     QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
 
-    // set up the format for the errors
-    QTextCharFormat errorFormat;
-    errorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    errorFormat.setUnderlineColor(Qt::red);
+    const  TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
+    QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
 
     foreach (IEditor *editor, editors) {
         TextEditorWidget *ed = qobject_cast<TextEditorWidget *>(editor->widget());

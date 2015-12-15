@@ -337,6 +337,11 @@ void LldbEngine::setupInferior()
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
 
+    // FIXME: separate Inferior and Debugger environments properly
+    cmd2.arg("dyldimagesuffix", rp.environment.value(_("DYLD_IMAGE_SUFFIX")));
+    cmd2.arg("dyldframeworkpath", rp.environment.value(_("DYLD_LIBRARY_PATH")));
+    cmd2.arg("dyldlibrarypath", rp.environment.value(_("DYLD_FRAMEWORK_PATH")));
+
     QJsonArray processArgs;
     foreach (const QString &arg, args.toUnixArgs())
         processArgs.append(QLatin1String(arg.toUtf8().toHex()));

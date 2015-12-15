@@ -63,10 +63,6 @@ def main():
     if not availableConfigs:
         test.fatal("Haven't found a suitable Qt version - leaving without building.")
     for kit, config in availableConfigs:
-        if (checkedTargets[kit] == Targets.DESKTOP_480_DEFAULT
-            and config == "Profile" and JIRA.isBugStillOpen(15457)):
-            test.warning("Skipping MSVC build of Qt 4 because of QTCREATORBUG-15457.")
-            continue
         selectBuildConfig(len(checkedTargets), kit, config)
         test.log("Testing build configuration: " + config)
 

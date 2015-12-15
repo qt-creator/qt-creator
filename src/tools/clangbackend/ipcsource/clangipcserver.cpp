@@ -193,6 +193,8 @@ void ClangIpcServer::registerProjectPartsForEditor(const RegisterProjectPartsFor
 
     try {
         projects.createOrUpdate(message.projectContainers());
+        translationUnits.setTranslationUnitsDirtyIfProjectPartChanged();
+        sendDocumentAnnotationsTimer.start(0);
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangIpcServer::registerProjectPartsForEditor:" << exception.what();
     }

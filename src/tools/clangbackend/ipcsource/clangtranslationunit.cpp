@@ -276,13 +276,16 @@ const QSet<Utf8String> &TranslationUnit::dependedFilePaths() const
     return d->dependedFilePaths;
 }
 
+void TranslationUnit::setDirtyIfProjectPartIsOutdated()
+{
+    if (projectPartIsOutdated())
+        setDirty();
+}
+
 void TranslationUnit::setDirtyIfDependencyIsMet(const Utf8String &filePath)
 {
-    if (d->dependedFilePaths.contains(filePath) && isMainFileAndExistsOrIsOtherFile(filePath)) {
-        d->needsToBeReparsed = true;
-        d->hasNewDiagnostics = true;
-        d->hasNewHighlightingInformations = true;
-    }
+    if (d->dependedFilePaths.contains(filePath) && isMainFileAndExistsOrIsOtherFile(filePath))
+        setDirty();
 }
 
 SourceLocation TranslationUnit::sourceLocationAt(uint line, uint column) const
@@ -367,6 +370,13 @@ void TranslationUnit::removeTranslationUnitIfProjectPartWasChanged() const
 bool TranslationUnit::projectPartIsOutdated() const
 {
     return d->projectPart.lastChangeTimePoint() >= d->lastProjectPartChangeTimePoint;
+}
+
+void TranslationUnit::setDirty()
+{
+    d->needsToBeReparsed = true;
+    d->hasNewDiagnostics = true;
+    d->hasNewHighlightingInformations = true;
 }
 
 bool TranslationUnit::isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) const

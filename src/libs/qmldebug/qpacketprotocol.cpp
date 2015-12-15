@@ -169,7 +169,6 @@ public slots:
                                         this, &QPacketProtocolPrivate::aboutToClose);
                     QObject::disconnect(dev, &QIODevice::bytesWritten,
                                         this, &QPacketProtocolPrivate::bytesWritten);
-                    dev = 0;
                     emit invalidPacket();
                     return;
                 }

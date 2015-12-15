@@ -145,6 +145,9 @@ void QmlDebugConnection::socketDisconnected()
     delete d->protocol;
     d->protocol = 0;
     if (d->device) {
+        // Don't allow any "connected()" or "disconnected()" signals to be triggered anymore.
+        // As the protocol is gone this would lead to crashes.
+        d->device->disconnect();
         // Don't immediately delete it as it may do some cleanup on returning from a signal.
         d->device->deleteLater();
         d->device = 0;

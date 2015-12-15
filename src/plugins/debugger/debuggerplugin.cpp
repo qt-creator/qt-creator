@@ -2122,7 +2122,11 @@ void DebuggerPluginPrivate::activatePreviousMode()
 {
     if (ModeManager::currentMode() == ModeManager::mode(MODE_DEBUG)
             && m_previousMode.isValid()) {
-        ModeManager::activateMode(m_previousMode);
+        // If stopping the application also makes Qt Creator active (as the
+        // "previously active application"), doing the switch synchronously
+        // leads to funny effects with floating dock widgets
+        const Core::Id mode = m_previousMode;
+        QTimer::singleShot(0, this, [mode]() { ModeManager::activateMode(mode); });
         m_previousMode = Id();
     }
 }

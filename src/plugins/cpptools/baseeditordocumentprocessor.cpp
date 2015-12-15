@@ -34,6 +34,9 @@
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
 
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
+
 #include <utils/qtcassert.h>
 
 #include <QTextBlock>
@@ -82,15 +85,10 @@ QList<QTextEdit::ExtraSelection> BaseEditorDocumentProcessor::toTextEditorSelect
         const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics,
         QTextDocument *textDocument)
 {
-    // Format for errors
-    QTextCharFormat errorFormat;
-    errorFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    errorFormat.setUnderlineColor(Qt::red);
+    const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
 
-    // Format for warnings
-    QTextCharFormat warningFormat;
-    warningFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    warningFormat.setUnderlineColor(Qt::darkYellow);
+    QTextCharFormat warningFormat = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
+    QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
 
     QList<QTextEdit::ExtraSelection> result;
     foreach (const CPlusPlus::Document::DiagnosticMessage &m, diagnostics) {

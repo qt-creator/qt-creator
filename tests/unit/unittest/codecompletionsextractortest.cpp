@@ -281,6 +281,28 @@ TEST_F(CodeCompletionsExtractor, Union)
                                          CodeCompletion::Available));
 }
 
+TEST_F(CodeCompletionsExtractor, Typedef)
+{
+    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+
+    ::CodeCompletionsExtractor extractor(completeResults.data());
+
+    ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("TypeDef"),
+                                         CodeCompletion::TypeAliasCompletionKind,
+                                         CodeCompletion::Available));
+}
+
+TEST_F(CodeCompletionsExtractor, UsingAsTypeAlias)
+{
+    ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
+
+    ::CodeCompletionsExtractor extractor(completeResults.data());
+
+    ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("UsingClass"),
+                                         CodeCompletion::TypeAliasCompletionKind,
+                                         CodeCompletion::Available));
+}
+
 TEST_F(CodeCompletionsExtractor, TemplateTypeParameter)
 {
     ClangCodeCompleteResults completeResults(getResults(classTranslationUnit, 20));
