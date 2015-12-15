@@ -3047,55 +3047,27 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     return rc;
 }
 
-static inline void formatEditValue(int displayFormat, const MemoryHandle *mh, std::ostream &str)
+static inline void formatEditValue(const std::string &displayFormat, const MemoryHandle *mh, std::ostream &str)
 {
     str << "editformat=\"" << displayFormat << "\",editvalue=\""
         << mh->toHex() << "\",";
 }
 
-bool dumpEditValue(const SymbolGroupNode *n, const SymbolGroupValueContext &,
-                   int desiredFormat, std::ostream &str)
+void dumpEditValue(const SymbolGroupNode *n, const SymbolGroupValueContext &,
+                   const std::string &desiredFormat, std::ostream &str)
 {
-    // Keep in sync watchhandler.cpp/showEditValue(), dumper.py.
-    enum DebuggerEditFormats {
-        DisplayImageData                       = 1,
-        DisplayUtf16String                     = 2,
-        DisplayImageFile                       = 3,
-        DisplayLatin1String                    = 4,
-        DisplayUtf8String                      = 5
-    };
-
-    enum Formats {
-        NormalFormat = 0,
-        StringSeparateWindow = 1 // corresponds to menu index.
-    };
-
-    if (desiredFormat <= 0)
-        return true;
-
     if (SymbolGroupValue::verbose)
         DebugPrint() << __FUNCTION__ << ' ' << n->name() << '/' << desiredFormat;
 
-    switch (n->dumperType()) {
-    case KT_QString:
-    case KT_StdWString:
-        if (desiredFormat == StringSeparateWindow)
-            if (const MemoryHandle *mh = n->memory())
-                formatEditValue(DisplayUtf16String, mh, str);
-        break;
-    case KT_QByteArray:
-    case KT_StdString:
-        if (desiredFormat == StringSeparateWindow)
-            if (const MemoryHandle *mh = n->memory())
-                formatEditValue(DisplayLatin1String, mh, str);
-        break;
-    case KT_QImage:
-        if (desiredFormat == 1) // Image.
-            if (const MemoryHandle *mh = n->memory())
-                formatEditValue(DisplayImageData, mh, str);
-        break;
-    }
-    return true;
+    auto separatorPos = desiredFormat.find(':');
+    if (separatorPos == std::string::npos)
+        return;
+
+    if (desiredFormat.substr(separatorPos) != "separate")
+        return;
+
+    if (const MemoryHandle *mh = n->memory())
+        formatEditValue(desiredFormat, mh, str);
 }
 
 // Dump of QByteArray: Display as an array of unsigned chars.

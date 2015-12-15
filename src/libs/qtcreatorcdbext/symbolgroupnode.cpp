@@ -319,9 +319,7 @@ DumpParameters::FormatMap DumpParameters::decodeFormatArgument(const std::string
         std::string::size_type nextPos = f.find(',', numberPos);
         if (nextPos == std::string::npos)
             nextPos = size;
-        int format;
-        if (!integerFromString(f.substr(numberPos, nextPos - numberPos), &format))
-            return rc;
+        std::string format = f.substr(numberPos, nextPos - numberPos);
         if (name == "std::basic_string") {  // Python dumper naming convention for types
             rc.insert(FormatMap::value_type(stdStringTypeC, format));
             rc.insert(FormatMap::value_type(stdWStringTypeC, format));
@@ -334,7 +332,7 @@ DumpParameters::FormatMap DumpParameters::decodeFormatArgument(const std::string
     return rc;
 }
 
-int DumpParameters::format(const std::string &type, const std::string &iname) const
+std::string DumpParameters::format(const std::string &type, const std::string &iname) const
 {
     if (!individualFormats.empty()) {
         const FormatMap::const_iterator iit = individualFormats.find(iname);
@@ -351,19 +349,8 @@ int DumpParameters::format(const std::string &type, const std::string &iname) co
         if (tit != typeFormats.end())
             return tit->second;
     }
-    return -1;
+    return std::string();
 }
-
-// Watch data pointer format requests. This should match the values
-// in DisplayFormat in watchhandler.h.
-enum PointerFormats
-{
-    FormatAuto = 0,
-    FormatLatin1String = 101,
-    FormatUtf8String = 102,
-    FormatUtf16String = 104,
-    FormatUcs4String = 105
-};
 
 /* Recode arrays/pointers of char*, wchar_t according to users
  * specification. Handles char formats for 'char *', '0x834478 "hallo.."'
@@ -440,19 +427,13 @@ DumpParameters::checkRecode(const std::string &type,
     if (!length)
         return result;
     // Choose format
-    result.recommendedFormat = dp ? dp->format(type, iname) : FormatAuto;
+    if (dp)
+        result.recommendedFormat = dp->format(type, iname);
     // The user did not specify any format, still, there are '?'/'.'
     // (indicating non-printable) in what the debugger prints.
     // Reformat in this case. If there are no '?'-> all happy.
-    if (result.recommendedFormat < FormatLatin1String) {
-        const bool hasNonPrintable = value.find(L'?', quote1 + 1) != std::wstring::npos
-                || value.find(L'.', quote1 + 1) != std::wstring::npos;
-        if (!hasNonPrintable)
-            return result; // All happy, no need to re-encode
-        // Pass as on 8-bit such that Watchmodel's reformatting can trigger.
-        result.recommendedFormat = result.isWide ?
-            FormatUtf16String : FormatLatin1String;
-    }
+    if (result.recommendedFormat.empty())
+        result.recommendedFormat = "latin1";
     // Get address from value if it is a pointer.
     if (reformatType == ReformatPointer) {
         address = 0;
@@ -468,16 +449,6 @@ DumpParameters::checkRecode(const std::string &type,
     if (!elementSize)
         return result;
     result.size = length * elementSize;
-    switch (result.recommendedFormat) {
-    case FormatUtf16String: // Paranoia: make sure buffer is terminated at 2 byte borders
-        if (result.size % 2)
-            result.size &= ~1;
-        break;
-    case FormatUcs4String: // Paranoia: make sure buffer is terminated at 4 byte borders
-        if (result.size % 4)
-            result.size &= ~3;
-        break;
-    }
     result.buffer = new unsigned char[result.size];
     std::fill(result.buffer, result.buffer + result.size, 0);
     ULONG obtained = 0;
@@ -506,25 +477,8 @@ bool DumpParameters::recode(const std::string &type,
         = checkRecode(type, iname, *value, ctx, address, this);
     if (!check.buffer)
         return false;
-    // Recode raw memory
-    switch (check.recommendedFormat) {
-    case FormatLatin1String:
-        *value = dataToHexW(check.buffer, check.buffer + check.size); // Latin1 + 0
-        *encoding = "latin1";
-        break;
-    case FormatUtf8String:
-        *value = dataToHexW(check.buffer, check.buffer + check.size); // UTF8 + 0
-        *encoding = "utf8";
-        break;
-    case FormatUtf16String: // Paranoia: make sure buffer is terminated at 2 byte borders
-        *value = dataToHexW(check.buffer, check.buffer + check.size);
-        *encoding = "utf16";
-        break;
-    case FormatUcs4String: // Paranoia: make sure buffer is terminated at 4 byte borders
-        *value = dataToHexW(check.buffer, check.buffer + check.size); // UTF16 + 0
-        *encoding = "ucs4";
-        break;
-    }
+    *value = dataToHexW(check.buffer, check.buffer + check.size);
+    *encoding = check.recommendedFormat;
     delete [] check.buffer;
     return true;
 }
@@ -1138,8 +1092,8 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
         str << ",valueencoded=\"utf16:2:0\",value=\"";
         hexEncode(str, reinterpret_cast<const unsigned char *>(value.c_str()), value.size() * sizeof(wchar_t));
         str << '"';
-        const int format = dumpParameters.format(t, aFullIName);
-        if (format > 0)
+        const std::string &format = dumpParameters.format(t, aFullIName);
+        if (!format.empty())
             dumpEditValue(this, ctx, format, str);
     }
     // Children: Dump all known non-obscured or subelements

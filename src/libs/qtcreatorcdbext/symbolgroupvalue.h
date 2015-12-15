@@ -255,8 +255,8 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
                         void **specialInfoIn = 0,
                         MemoryHandle **memoryHandleIn = 0);
 
-bool dumpEditValue(const SymbolGroupNode *n, const SymbolGroupValueContext &,
-                   int desiredFormat, std::ostream &str);
+void dumpEditValue(const SymbolGroupNode *n, const SymbolGroupValueContext &,
+                   const std::string &desiredFormat, std::ostream &str);
 
 enum AssignEncoding
 {

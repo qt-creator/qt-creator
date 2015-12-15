@@ -241,15 +241,24 @@ enum DisplayFormat
 // They are never stored in settings.
 
 // Keep in sync with dumper.py, symbolgroupvalue.cpp of CDB
-enum DebuggerDisplay
+class DebuggerDisplay
 {
-    StopDisplay                            = 0,
-    DisplayImageData                       = 1,
-    DisplayUtf16String                     = 2,
-    DisplayImageFile                       = 3,
-    DisplayLatin1String                    = 4,
-    DisplayUtf8String                      = 5,
-    DisplayPlotData                        = 6
+public:
+    enum DisplayType {
+        StopDisplay             = 0,
+        DisplayImageData        = 1,
+        DisplayUtf16String      = 2,
+        DisplayImageFile        = 3,
+        DisplayLatin1String     = 4,
+        DisplayUtf8String       = 5,
+        DisplayPlotData         = 6
+    };
+
+    DebuggerDisplay() {}
+    DebuggerDisplay(const QByteArray &data);
+
+    DisplayType type = StopDisplay;
+    bool separate = false;
 };
 
 } // namespace Internal

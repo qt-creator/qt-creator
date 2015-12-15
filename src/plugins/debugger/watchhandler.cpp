@@ -1466,16 +1466,16 @@ static void swapEndian(char *d, int nchar)
 void WatchModel::showEditValue(const WatchItem *item)
 {
     const QByteArray key = item->address ? item->hexAddress() : item->iname;
-    switch (item->editformat) {
-    case StopDisplay:
+    switch (item->editformat.type) {
+    case DebuggerDisplay::StopDisplay:
         m_separatedView->removeObject(key);
         break;
-    case DisplayImageData:
-    case DisplayImageFile: {  // QImage
+    case DebuggerDisplay::DisplayImageData:
+    case DebuggerDisplay::DisplayImageFile: {  // QImage
         int width = 0, height = 0, nbytes = 0, format = 0;
         QByteArray ba;
         uchar *bits = 0;
-        if (item->editformat == DisplayImageData) {
+        if (item->editformat.type == DebuggerDisplay::DisplayImageData) {
             ba = QByteArray::fromHex(item->editvalue);
             QTC_ASSERT(ba.size() > 16, return);
             const int *header = (int *)(ba.data());
@@ -1486,7 +1486,7 @@ void WatchModel::showEditValue(const WatchItem *item)
             height = header[1];
             nbytes = header[2];
             format = header[3];
-        } else if (item->editformat == DisplayImageFile) {
+        } else if (item->editformat.type == DebuggerDisplay::DisplayImageFile) {
             QTextStream ts(item->editvalue);
             QString fileName;
             ts >> width >> height >> nbytes >> format >> fileName;
@@ -1515,23 +1515,23 @@ void WatchModel::showEditValue(const WatchItem *item)
         v->setImage(im);
         break;
     }
-    case DisplayUtf16String:
-    case DisplayLatin1String:
-    case DisplayUtf8String: { // String data.
+    case DebuggerDisplay::DisplayUtf16String:
+    case DebuggerDisplay::DisplayLatin1String:
+    case DebuggerDisplay::DisplayUtf8String: { // String data.
         QByteArray ba = QByteArray::fromHex(item->editvalue);
         QString str;
-        if (item->editformat == DisplayUtf16String)
+        if (item->editformat.type == DebuggerDisplay::DisplayUtf16String)
             str = QString::fromUtf16((ushort *)ba.constData(), ba.size()/2);
-        else if (item->editformat == DisplayLatin1String)
+        else if (item->editformat.type == DebuggerDisplay::DisplayLatin1String)
             str = QString::fromLatin1(ba.constData(), ba.size());
-        else if (item->editformat == DisplayUtf8String)
+        else if (item->editformat.type == DebuggerDisplay::DisplayUtf8String)
             str = QString::fromUtf8(ba.constData(), ba.size());
         QTextEdit *t = m_separatedView->prepareObject<QTextEdit>(key, item->name);
         t->setProperty(INameProperty, item->iname);
         t->setText(str);
         break;
     }
-    case DisplayPlotData: { // Plots
+    case DebuggerDisplay::DisplayPlotData: { // Plots
         std::vector<double> data;
         readNumericVector(&data, QByteArray::fromHex(item->editvalue), item->editencoding);
         PlotViewer *v = m_separatedView->prepareObject<PlotViewer>(key, item->name);
@@ -1540,7 +1540,7 @@ void WatchModel::showEditValue(const WatchItem *item)
         break;
     }
     default:
-        QTC_ASSERT(false, qDebug() << "Display format: " << item->editformat);
+        QTC_ASSERT(false, qDebug() << "Display format: " << item->editformat.type);
         break;
     }
 }
@@ -1681,6 +1681,24 @@ QString WatchHandler::nameForFormat(int format)
     return WatchModel::nameForFormat(format);
 }
 
+static const char *formatStringFromFormatCode(int code)
+{
+    switch (code) {
+    // Taken from debuggerprotocol.h, DisplayFormat.
+    case Latin1StringFormat:
+        return "latin";
+    case SeparateLatin1StringFormat:
+        return "latin:separate";
+    case Utf8StringFormat:
+        return "utf8";
+    case SeparateUtf8StringFormat:
+        return "utf8:separate";
+    case Utf16StringFormat:
+        return "utf16";
+    }
+    return "";
+}
+
 QByteArray WatchHandler::typeFormatRequests() const
 {
     QByteArray ba;
@@ -1692,7 +1710,7 @@ QByteArray WatchHandler::typeFormatRequests() const
             if (format != AutomaticFormat) {
                 ba.append(it.key().toHex());
                 ba.append('=');
-                ba.append(QByteArray::number(format));
+                ba.append(formatStringFromFormatCode(format));
                 ba.append(',');
             }
         }
@@ -1712,7 +1730,7 @@ QByteArray WatchHandler::individualFormatRequests() const
             if (format != AutomaticFormat) {
                 ba.append(it.key());
                 ba.append('=');
-                ba.append(QByteArray::number(it.value()));
+                ba.append(formatStringFromFormatCode(it.value()));
                 ba.append(',');
             }
         }
