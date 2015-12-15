@@ -100,7 +100,7 @@ CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssis
 CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument)
 {
-    return new ClangEditorDocumentProcessor(this, baseTextDocument);
+    return new ClangEditorDocumentProcessor(m_ipcCommunicator, baseTextDocument);
 }
 
 void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *)

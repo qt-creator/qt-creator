@@ -34,12 +34,10 @@
 #include "clangdiagnosticmanager.h"
 #include "clangeditordocumentparser.h"
 
-#include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/builtineditordocumentprocessor.h>
 #include <cpptools/semantichighlighter.h>
 
 #include <QFutureWatcher>
-#include <QPointer>
 
 namespace ClangBackEnd {
 class DiagnosticContainer;
@@ -50,14 +48,14 @@ class FileContainer;
 namespace ClangCodeModel {
 namespace Internal {
 
-class ModelManagerSupportClang;
+class IpcCommunicator;
 
 class ClangEditorDocumentProcessor : public CppTools::BaseEditorDocumentProcessor
 {
     Q_OBJECT
 
 public:
-    ClangEditorDocumentProcessor(ModelManagerSupportClang *modelManagerSupport,
+    ClangEditorDocumentProcessor(IpcCommunicator &ipcCommunicator,
                                  TextEditor::TextDocument *document);
     ~ClangEditorDocumentProcessor();
 
@@ -103,7 +101,7 @@ private:
 
 private:
     ClangDiagnosticManager m_diagnosticManager;
-    QPointer<ModelManagerSupportClang> m_modelManagerSupport;
+    IpcCommunicator &m_ipcCommunicator;
     QSharedPointer<ClangEditorDocumentParser> m_parser;
     CppTools::ProjectPart::Ptr m_projectPart;
     QFutureWatcher<void> m_parserWatcher;

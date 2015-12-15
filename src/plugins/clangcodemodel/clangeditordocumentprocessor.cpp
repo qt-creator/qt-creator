@@ -30,10 +30,10 @@
 
 #include "clangeditordocumentprocessor.h"
 
+#include "clangbackendipcintegration.h"
 #include "clangfixitoperation.h"
 #include "clangfixitoperationsextractor.h"
 #include "clanghighlightingmarksreporter.h"
-#include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 
 #include <diagnosticcontainer.h>
@@ -62,11 +62,11 @@ namespace ClangCodeModel {
 namespace Internal {
 
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
-        ModelManagerSupportClang *modelManagerSupport,
+        IpcCommunicator &ipcCommunicator,
         TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document)
     , m_diagnosticManager(document)
-    , m_modelManagerSupport(modelManagerSupport)
+    , m_ipcCommunicator(ipcCommunicator)
     , m_parser(new ClangEditorDocumentParser(document->filePath().toString()))
     , m_parserRevision(0)
     , m_semanticHighlighter(document)
@@ -86,8 +86,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
     m_parserWatcher.waitForFinished();
 
     if (m_projectPart) {
-        QTC_ASSERT(m_modelManagerSupport, return);
-        m_modelManagerSupport->ipcCommunicator().unregisterTranslationUnitsForEditor(
+        m_ipcCommunicator.unregisterTranslationUnitsForEditor(
             {ClangBackEnd::FileContainer(filePath(), m_projectPart->id())});
     }
 }
@@ -281,16 +280,13 @@ void ClangEditorDocumentProcessor::onParserFinished()
 
 void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(CppTools::ProjectPart *projectPart)
 {
-    QTC_ASSERT(m_modelManagerSupport, return);
-    IpcCommunicator &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
-
     if (m_projectPart) {
         if (projectPart->id() != m_projectPart->id()) {
-            ipcCommunicator.unregisterTranslationUnitsForEditor({fileContainerWithArguments()});
-            ipcCommunicator.registerTranslationUnitsForEditor({fileContainerWithArguments(projectPart)});
+            m_ipcCommunicator.unregisterTranslationUnitsForEditor({fileContainerWithArguments()});
+            m_ipcCommunicator.registerTranslationUnitsForEditor({fileContainerWithArguments(projectPart)});
         }
     } else {
-        ipcCommunicator.registerTranslationUnitsForEditor({{fileContainerWithArguments(projectPart)}});
+        m_ipcCommunicator.registerTranslationUnitsForEditor({{fileContainerWithArguments(projectPart)}});
     }
 }
 
@@ -299,7 +295,7 @@ void ClangEditorDocumentProcessor::updateTranslationUnitIfProjectPartExists()
     if (m_projectPart) {
         const ClangBackEnd::FileContainer fileContainer = fileContainerWithDocumentContent(m_projectPart->id());
 
-        m_modelManagerSupport->ipcCommunicator().updateTranslationUnitWithRevisionCheck(fileContainer);
+        m_ipcCommunicator.updateTranslationUnitWithRevisionCheck(fileContainer);
     }
 }
 
@@ -307,9 +303,8 @@ void ClangEditorDocumentProcessor::requestDocumentAnnotations(const QString &pro
 {
     const auto fileContainer = fileContainerWithDocumentContent(projectpartId);
 
-    auto &ipcCommunicator = m_modelManagerSupport->ipcCommunicator();
-    ipcCommunicator.requestDiagnostics(fileContainer);
-    ipcCommunicator.requestHighlighting(fileContainer);
+    m_ipcCommunicator.requestDiagnostics(fileContainer);
+    m_ipcCommunicator.requestHighlighting(fileContainer);
 }
 
 static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart *projectPart)
