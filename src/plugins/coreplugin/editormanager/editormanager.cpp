@@ -981,15 +981,12 @@ Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isEx
 
 void EditorManagerPrivate::saveSettings()
 {
-    SettingsDatabase *settings = ICore::settingsDatabase();
-    settings->beginTransaction();
-    settings->setValue(QLatin1String(documentStatesKey), d->m_editorStates);
-    settings->setValue(QLatin1String(reloadBehaviorKey), d->m_reloadSetting);
-    settings->setValue(QLatin1String(autoSaveEnabledKey), d->m_autoSaveEnabled);
-    settings->setValue(QLatin1String(autoSaveIntervalKey), d->m_autoSaveInterval);
-    settings->endTransaction();
+    ICore::settingsDatabase()->setValue(QLatin1String(documentStatesKey), d->m_editorStates);
 
     QSettings *qsettings = ICore::settings();
+    qsettings->setValue(QLatin1String(reloadBehaviorKey), d->m_reloadSetting);
+    qsettings->setValue(QLatin1String(autoSaveEnabledKey), d->m_autoSaveEnabled);
+    qsettings->setValue(QLatin1String(autoSaveIntervalKey), d->m_autoSaveInterval);
     qsettings->setValue(QLatin1String(warnBeforeOpeningBigTextFilesKey),
                         d->m_warnBeforeOpeningBigFilesEnabled);
     qsettings->setValue(QLatin1String(bigTextFileSizeLimitKey), d->m_bigFileSizeLimitInMB);
@@ -1005,15 +1002,7 @@ void EditorManagerPrivate::saveSettings()
 
 void EditorManagerPrivate::readSettings()
 {
-    // TODO remove
-    // Backward compatibility to old locations for these settings
     QSettings *qs = ICore::settings();
-    if (qs->contains(QLatin1String(documentStatesKey))) {
-        d->m_editorStates = qs->value(QLatin1String(documentStatesKey))
-            .value<QMap<QString, QVariant> >();
-        qs->remove(QLatin1String(documentStatesKey));
-    }
-
     if (qs->contains(QLatin1String(warnBeforeOpeningBigTextFilesKey))) {
         d->m_warnBeforeOpeningBigFilesEnabled
                 = qs->value(QLatin1String(warnBeforeOpeningBigTextFilesKey)).toBool();
@@ -1042,16 +1031,29 @@ void EditorManagerPrivate::readSettings()
     }
 
     SettingsDatabase *settings = ICore::settingsDatabase();
-    if (settings->contains(QLatin1String(documentStatesKey)))
+    if (settings->contains(QLatin1String(documentStatesKey))) {
         d->m_editorStates = settings->value(QLatin1String(documentStatesKey))
             .value<QMap<QString, QVariant> >();
+    }
 
-    if (settings->contains(QLatin1String(reloadBehaviorKey)))
+    if (settings->contains(QLatin1String(reloadBehaviorKey))) {
         d->m_reloadSetting = (IDocument::ReloadSetting)settings->value(QLatin1String(reloadBehaviorKey)).toInt();
+        settings->remove(QLatin1String(reloadBehaviorKey));
+    }
 
     if (settings->contains(QLatin1String(autoSaveEnabledKey))) {
         d->m_autoSaveEnabled = settings->value(QLatin1String(autoSaveEnabledKey)).toBool();
         d->m_autoSaveInterval = settings->value(QLatin1String(autoSaveIntervalKey)).toInt();
+        settings->remove(QLatin1String(autoSaveEnabledKey));
+        settings->remove(QLatin1String(autoSaveIntervalKey));
+    }
+
+    if (qs->contains(QLatin1String(reloadBehaviorKey)))
+        d->m_reloadSetting = (IDocument::ReloadSetting)qs->value(QLatin1String(reloadBehaviorKey)).toInt();
+
+    if (qs->contains(QLatin1String(autoSaveEnabledKey))) {
+        d->m_autoSaveEnabled = qs->value(QLatin1String(autoSaveEnabledKey)).toBool();
+        d->m_autoSaveInterval = qs->value(QLatin1String(autoSaveIntervalKey)).toInt();
     }
     updateAutoSave();
 }
