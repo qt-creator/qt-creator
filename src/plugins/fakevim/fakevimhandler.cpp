@@ -994,7 +994,7 @@ public:
             // cursor keys. This breaks some of the logic later on
             // relying on text() being empty for "special" keys.
             // FIXME: Check the real conditions.
-            if (x.unicode() < ' ')
+            if (x.unicode() < ' ' && x.unicode() != 27)
                 m_text.clear();
             else if (x.isLetter())
                 m_key = x.toUpper().unicode();
