@@ -61,31 +61,30 @@ using namespace ProjectExplorer;
 
 namespace {
 const char CMAKE_RC_PREFIX[] = "CMakeProjectManager.CMakeRunConfiguration.";
-
-const char USER_WORKING_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory";
 const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
-
 } // namespace
 
 CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const QString &target,
                                              const QString &workingDirectory, const QString &title) :
     LocalApplicationRunConfiguration(parent, id),
     m_buildTarget(target),
-    m_workingDirectory(workingDirectory),
     m_title(title),
     m_enabled(true)
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.Arguments")));
     addExtraAspect(new TerminalAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.UseTerminal")));
+
+    auto wd = new WorkingDirectoryAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"));
+    wd->setDefaultWorkingDirectory(workingDirectory);
+    addExtraAspect(wd);
+
     ctor();
 }
 
 CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, CMakeRunConfiguration *source) :
     LocalApplicationRunConfiguration(parent, source),
     m_buildTarget(source->m_buildTarget),
-    m_workingDirectory(source->m_workingDirectory),
-    m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_title(source->m_title),
     m_enabled(source->m_enabled)
 {
@@ -109,17 +108,17 @@ ApplicationLauncher::Mode CMakeRunConfiguration::runMode() const
 
 QString CMakeRunConfiguration::workingDirectory() const
 {
-    EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(aspect, return QString());
-    return QDir::cleanPath(aspect->environment().expandVariables(
-                macroExpander()->expand(baseWorkingDirectory())));
+    const auto *wdAspect = extraAspect<WorkingDirectoryAspect>();
+    QTC_ASSERT(wdAspect, return baseWorkingDirectory());
+    return wdAspect->workingDirectory();
 }
 
 QString CMakeRunConfiguration::baseWorkingDirectory() const
 {
-    if (!m_userWorkingDirectory.isEmpty())
-        return m_userWorkingDirectory;
-    return m_workingDirectory;
+    const QString exe = executable();
+    if (!exe.isEmpty())
+        return QFileInfo(executable()).absolutePath();
+    return QString();
 }
 
 QString CMakeRunConfiguration::commandLineArguments() const
@@ -139,41 +138,19 @@ void CMakeRunConfiguration::setExecutable(const QString &executable)
 
 void CMakeRunConfiguration::setBaseWorkingDirectory(const QString &wd)
 {
-    const QString &oldWorkingDirectory = workingDirectory();
-
-    m_workingDirectory = wd;
-
-    const QString &newWorkingDirectory = workingDirectory();
-    if (oldWorkingDirectory != newWorkingDirectory)
-        emit baseWorkingDirectoryChanged(newWorkingDirectory);
-}
-
-void CMakeRunConfiguration::setUserWorkingDirectory(const QString &wd)
-{
-    const QString & oldWorkingDirectory = workingDirectory();
-
-    m_userWorkingDirectory = wd;
-
-    const QString &newWorkingDirectory = workingDirectory();
-    if (oldWorkingDirectory != newWorkingDirectory)
-        emit baseWorkingDirectoryChanged(newWorkingDirectory);
+    extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(wd);
 }
 
 QVariantMap CMakeRunConfiguration::toMap() const
 {
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
-
-    map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     map.insert(QLatin1String(TITLE_KEY), m_title);
-
     return map;
 }
 
 bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 {
-    m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
     m_title = map.value(QLatin1String(TITLE_KEY)).toString();
-
     return RunConfiguration::fromMap(map);
 }
 
@@ -217,93 +194,28 @@ QString CMakeRunConfiguration::disabledReason() const
 
 // Configuration widget
 CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent)
-    : QWidget(parent), m_ignoreChange(false), m_cmakeRunConfiguration(cmakeRunConfiguration)
+    : QWidget(parent)
 {
-    QFormLayout *fl = new QFormLayout();
+    auto fl = new QFormLayout();
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     cmakeRunConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
+    cmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, fl);
+    cmakeRunConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
 
-    m_workingDirectoryEdit = new Utils::PathChooser();
-    m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
-    m_workingDirectoryEdit->setBaseFileName(m_cmakeRunConfiguration->target()->project()->projectDirectory());
-    m_workingDirectoryEdit->setPath(m_cmakeRunConfiguration->baseWorkingDirectory());
-    m_workingDirectoryEdit->setHistoryCompleter(QLatin1String("CMake.WorkingDir.History"));
-    EnvironmentAspect *aspect
-            = m_cmakeRunConfiguration->extraAspect<EnvironmentAspect>();
-    if (aspect) {
-        connect(aspect, &EnvironmentAspect::environmentChanged,
-                this, &CMakeRunConfigurationWidget::environmentWasChanged);
-        environmentWasChanged();
-    }
-    m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
+    auto detailsContainer = new Utils::DetailsWidget(this);
+    detailsContainer->setState(Utils::DetailsWidget::NoSummary);
 
-    QToolButton *resetButton = new QToolButton();
-    resetButton->setToolTip(tr("Reset to Default"));
-    resetButton->setIcon(Core::Icons::RESET.icon());
+    auto detailsWidget = new QWidget(detailsContainer);
+    detailsContainer->setWidget(detailsWidget);
+    detailsWidget->setLayout(fl);
 
-    QHBoxLayout *boxlayout = new QHBoxLayout();
-    boxlayout->addWidget(m_workingDirectoryEdit);
-    boxlayout->addWidget(resetButton);
-
-    fl->addRow(tr("Working directory:"), boxlayout);
-
-    m_cmakeRunConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
-
-    m_detailsContainer = new Utils::DetailsWidget(this);
-    m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
-
-    QWidget *m_details = new QWidget(m_detailsContainer);
-    m_detailsContainer->setWidget(m_details);
-    m_details->setLayout(fl);
-
-    QVBoxLayout *vbx = new QVBoxLayout(this);
+    auto vbx = new QVBoxLayout(this);
     vbx->setMargin(0);
-    vbx->addWidget(m_detailsContainer);
+    vbx->addWidget(detailsContainer);
 
-    connect(m_workingDirectoryEdit, &Utils::PathChooser::rawPathChanged,
-            this, &CMakeRunConfigurationWidget::setWorkingDirectory);
-
-    connect(resetButton, &QToolButton::clicked,
-            this, &CMakeRunConfigurationWidget::resetWorkingDirectory);
-
-    connect(m_cmakeRunConfiguration, &CMakeRunConfiguration::baseWorkingDirectoryChanged,
-            this, &CMakeRunConfigurationWidget::workingDirectoryChanged);
-
-    setEnabled(m_cmakeRunConfiguration->isEnabled());
-}
-
-void CMakeRunConfigurationWidget::setWorkingDirectory()
-{
-    if (m_ignoreChange)
-        return;
-    m_ignoreChange = true;
-    m_cmakeRunConfiguration->setUserWorkingDirectory(m_workingDirectoryEdit->rawPath());
-    m_ignoreChange = false;
-}
-
-void CMakeRunConfigurationWidget::workingDirectoryChanged(const QString &workingDirectory)
-{
-    if (!m_ignoreChange) {
-        m_ignoreChange = true;
-        m_workingDirectoryEdit->setPath(workingDirectory);
-        m_ignoreChange = false;
-    }
-}
-
-void CMakeRunConfigurationWidget::resetWorkingDirectory()
-{
-    // This emits a signal connected to workingDirectoryChanged()
-    // that sets the m_workingDirectoryEdit
-    m_cmakeRunConfiguration->setUserWorkingDirectory(QString());
-}
-
-void CMakeRunConfigurationWidget::environmentWasChanged()
-{
-    EnvironmentAspect *aspect = m_cmakeRunConfiguration->extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(aspect, return);
-    m_workingDirectoryEdit->setEnvironment(aspect->environment());
+    setEnabled(cmakeRunConfiguration->isEnabled());
 }
 
 // Factory

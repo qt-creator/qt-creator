@@ -76,22 +76,16 @@ public:
     bool isEnabled() const override;
     QString disabledReason() const override;
 
-signals:
-    void baseWorkingDirectoryChanged(const QString&);
-
 protected:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, CMakeRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
 private:
-    void setUserWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     void ctor();
 
     QString m_buildTarget;
-    QString m_workingDirectory;
-    QString m_userWorkingDirectory;
     QString m_title;
     bool m_enabled;
 };
@@ -99,22 +93,9 @@ private:
 class CMakeRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent = 0);
-
-private slots:
-    void setWorkingDirectory();
-    void resetWorkingDirectory();
-    void environmentWasChanged();
-
-    void workingDirectoryChanged(const QString &workingDirectory);
-
-private:
-    void ctor();
-    bool m_ignoreChange;
-    CMakeRunConfiguration *m_cmakeRunConfiguration;
-    Utils::PathChooser *m_workingDirectoryEdit;
-    Utils::DetailsWidget *m_detailsContainer;
 };
 
 class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
