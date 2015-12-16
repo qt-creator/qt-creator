@@ -150,6 +150,10 @@
 
             \image qtcreator-custom-parser.png
 
+            The custom error parser enables you to capture errors and warnings separately.
+            You can configure the error parser in the \uicontrol Error tab and the warning
+            parser in the \uicontrol Warning tab:
+
             \list 1
 
                 \li In the \uicontrol {Error message capture pattern} field, specify
@@ -162,6 +166,10 @@
                 \li In the \uicontrol {Capture Positions} field, map the regular
                     expression groups to \uicontrol {File name}, \uicontrol {Line number},
                     and \uicontrol Message.
+
+                \li In the \uicontrol {Capture Output Channels} field, specify whether
+                    messages from standard output, standard error, or both channels
+                    should be captured.
 
                 \li In the \uicontrol {Test} group, you can test how the message that
                     you enter in the \uicontrol {Error message} field is matched when

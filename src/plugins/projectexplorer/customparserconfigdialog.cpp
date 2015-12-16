@@ -31,6 +31,7 @@
 #include "customparserconfigdialog.h"
 #include "ui_customparserconfigdialog.h"
 
+#include <QLineEdit>
 #include <QPushButton>
 #include <QRegularExpression>
 
@@ -44,10 +45,15 @@ CustomParserConfigDialog::CustomParserConfigDialog(QDialog *parent) :
     ui->setupUi(this);
 
     connect(ui->errorPattern, SIGNAL(textChanged(QString)), this, SLOT(changed()));
-    connect(ui->errorMessage, SIGNAL(textChanged(QString)), this, SLOT(changed()));
-    connect(ui->fileNameCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
-    connect(ui->lineNumberCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
-    connect(ui->messageCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
+    connect(ui->errorOutputMessage, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+    connect(ui->errorFileNameCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
+    connect(ui->errorLineNumberCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
+    connect(ui->errorMessageCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
+    connect(ui->warningPattern, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+    connect(ui->warningOutputMessage, SIGNAL(textChanged(QString)), this, SLOT(changed()));
+    connect(ui->warningFileNameCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
+    connect(ui->warningLineNumberCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
+    connect(ui->warningMessageCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
 
     changed();
     m_dirty = false;
@@ -60,33 +66,58 @@ CustomParserConfigDialog::~CustomParserConfigDialog()
 
 void CustomParserConfigDialog::setExampleSettings()
 {
-    setErrorPattern(QLatin1String("#error (.*):(\\d+): (.*)$"));
-    setFileNameCap(1);
-    setLineNumberCap(2);
-    setMessageCap(3);
-    ui->errorMessage->setText(QLatin1String("#error /home/user/src/test.c:891: Unknown identifier `test`"));
+    setErrorPattern(QLatin1String("#error (.*):(\\d+): (.*)"));
+    setErrorFileNameCap(1);
+    setErrorLineNumberCap(2);
+    setErrorMessageCap(3);
+    setErrorChannel(CustomParserExpression::ParseBothChannels);
+    setWarningPattern(QLatin1String("#warning (.*):(\\d+): (.*)"));
+    setWarningFileNameCap(1);
+    setWarningLineNumberCap(2);
+    setWarningMessageCap(3);
+    setWarningChannel(CustomParserExpression::ParseBothChannels);
+    ui->errorOutputMessage->setText(
+                QLatin1String("#error /home/user/src/test.c:891: Unknown identifier `test`"));
+    ui->warningOutputMessage->setText(
+                QLatin1String("#warning /home/user/src/test.c:49: Unreferenced variable `test`"));
 }
 
 void CustomParserConfigDialog::setSettings(const CustomParserSettings &settings)
 {
-    if (settings.errorPattern.isEmpty()) {
+    if (settings.error.pattern().isEmpty() && settings.warning.pattern().isEmpty()) {
         setExampleSettings();
         return;
     }
 
-    setErrorPattern(settings.errorPattern);
-    setFileNameCap(settings.fileNameCap);
-    setLineNumberCap(settings.lineNumberCap);
-    setMessageCap(settings.messageCap);
+    setErrorPattern(settings.error.pattern());
+    setErrorFileNameCap(settings.error.fileNameCap());
+    setErrorLineNumberCap(settings.error.lineNumberCap());
+    setErrorMessageCap(settings.error.messageCap());
+    setErrorChannel(settings.error.channel());
+    setErrorExample(settings.error.example());
+    setWarningPattern(settings.warning.pattern());
+    setWarningFileNameCap(settings.warning.fileNameCap());
+    setWarningLineNumberCap(settings.warning.lineNumberCap());
+    setWarningMessageCap(settings.warning.messageCap());
+    setWarningChannel(settings.warning.channel());
+    setWarningExample(settings.warning.example());
 }
 
 CustomParserSettings CustomParserConfigDialog::settings() const
 {
     CustomParserSettings result;
-    result.errorPattern = errorPattern();
-    result.fileNameCap = fileNameCap();
-    result.lineNumberCap = lineNumberCap();
-    result.messageCap = messageCap();
+    result.error.setPattern(errorPattern());
+    result.error.setFileNameCap(errorFileNameCap());
+    result.error.setLineNumberCap(errorLineNumberCap());
+    result.error.setMessageCap(errorMessageCap());
+    result.error.setChannel(errorChannel());
+    result.error.setExample(errorExample());
+    result.warning.setPattern(warningPattern());
+    result.warning.setFileNameCap(warningFileNameCap());
+    result.warning.setLineNumberCap(warningLineNumberCap());
+    result.warning.setMessageCap(warningMessageCap());
+    result.warning.setChannel(warningChannel());
+    result.warning.setExample(warningExample());
     return result;
 }
 
@@ -100,34 +131,128 @@ QString CustomParserConfigDialog::errorPattern() const
     return ui->errorPattern->text();
 }
 
-void CustomParserConfigDialog::setFileNameCap(int fileNameCap)
+void CustomParserConfigDialog::setErrorFileNameCap(int fileNameCap)
 {
-    ui->fileNameCap->setValue(fileNameCap);
+    ui->errorFileNameCap->setValue(fileNameCap);
 }
 
-int CustomParserConfigDialog::fileNameCap() const
+int CustomParserConfigDialog::errorFileNameCap() const
 {
-    return ui->fileNameCap->value();
+    return ui->errorFileNameCap->value();
 }
 
-void CustomParserConfigDialog::setLineNumberCap(int lineNumberCap)
+void CustomParserConfigDialog::setErrorLineNumberCap(int lineNumberCap)
 {
-    ui->lineNumberCap->setValue(lineNumberCap);
+    ui->errorLineNumberCap->setValue(lineNumberCap);
 }
 
-int CustomParserConfigDialog::lineNumberCap() const
+int CustomParserConfigDialog::errorLineNumberCap() const
 {
-    return ui->lineNumberCap->value();
+    return ui->errorLineNumberCap->value();
 }
 
-void CustomParserConfigDialog::setMessageCap(int messageCap)
+void CustomParserConfigDialog::setErrorMessageCap(int messageCap)
 {
-    ui->messageCap->setValue(messageCap);
+    ui->errorMessageCap->setValue(messageCap);
 }
 
-int CustomParserConfigDialog::messageCap() const
+int CustomParserConfigDialog::errorMessageCap() const
 {
-    return ui->messageCap->value();
+    return ui->errorMessageCap->value();
+}
+
+void CustomParserConfigDialog::setErrorChannel(CustomParserExpression::CustomParserChannel errorChannel)
+{
+    ui->errorStdErrChannel->setChecked(
+                errorChannel & static_cast<int>(CustomParserExpression::ParseStdErrChannel));
+    ui->errorStdOutChannel->setChecked(
+                errorChannel & static_cast<int>(CustomParserExpression::ParseStdOutChannel));
+}
+
+CustomParserExpression::CustomParserChannel CustomParserConfigDialog::errorChannel() const
+{
+    if (ui->errorStdErrChannel->isChecked() && !ui->errorStdOutChannel->isChecked())
+        return CustomParserExpression::ParseStdErrChannel;
+    if (ui->errorStdOutChannel->isChecked() && !ui->errorStdErrChannel->isChecked())
+        return CustomParserExpression::ParseStdOutChannel;
+    return CustomParserExpression::ParseBothChannels;
+}
+
+void CustomParserConfigDialog::setErrorExample(const QString &errorExample)
+{
+    ui->errorOutputMessage->setText(errorExample);
+}
+
+QString CustomParserConfigDialog::errorExample() const
+{
+    return ui->errorOutputMessage->text();
+}
+
+void CustomParserConfigDialog::setWarningPattern(const QString &warningPattern)
+{
+    ui->warningPattern->setText(warningPattern);
+}
+
+QString CustomParserConfigDialog::warningPattern() const
+{
+    return ui->warningPattern->text();
+}
+
+void CustomParserConfigDialog::setWarningFileNameCap(int warningFileNameCap)
+{
+    ui->warningFileNameCap->setValue(warningFileNameCap);
+}
+
+int CustomParserConfigDialog::warningFileNameCap() const
+{
+    return ui->warningFileNameCap->value();
+}
+
+void CustomParserConfigDialog::setWarningLineNumberCap(int warningLineNumberCap)
+{
+    ui->warningLineNumberCap->setValue(warningLineNumberCap);
+}
+
+int CustomParserConfigDialog::warningLineNumberCap() const
+{
+    return ui->warningLineNumberCap->value();
+}
+
+void CustomParserConfigDialog::setWarningMessageCap(int warningMessageCap)
+{
+    ui->warningMessageCap->setValue(warningMessageCap);
+}
+
+int CustomParserConfigDialog::warningMessageCap() const
+{
+    return ui->warningMessageCap->value();
+}
+
+void CustomParserConfigDialog::setWarningChannel(CustomParserExpression::CustomParserChannel warningChannel)
+{
+    ui->warningStdErrChannel->setChecked(
+                warningChannel & static_cast<int>(CustomParserExpression::ParseStdErrChannel));
+    ui->warningStdOutChannel->setChecked(
+                warningChannel & static_cast<int>(CustomParserExpression::ParseStdOutChannel));
+}
+
+CustomParserExpression::CustomParserChannel CustomParserConfigDialog::warningChannel() const
+{
+    if (ui->warningStdErrChannel->isChecked() && !ui->warningStdOutChannel->isChecked())
+        return CustomParserExpression::ParseStdErrChannel;
+    if (ui->warningStdOutChannel->isChecked() && !ui->warningStdErrChannel->isChecked())
+        return CustomParserExpression::ParseStdOutChannel;
+    return CustomParserExpression::ParseBothChannels;
+}
+
+void CustomParserConfigDialog::setWarningExample(const QString &warningExample)
+{
+    ui->warningOutputMessage->setText(warningExample);
+}
+
+QString CustomParserConfigDialog::warningExample() const
+{
+    return ui->warningOutputMessage->text();
 }
 
 bool CustomParserConfigDialog::isDirty() const
@@ -135,37 +260,60 @@ bool CustomParserConfigDialog::isDirty() const
     return m_dirty;
 }
 
-void CustomParserConfigDialog::changed()
+bool CustomParserConfigDialog::checkPattern(QLineEdit *pattern, const QString &outputText,
+                                            QString *errorMessage, QRegularExpressionMatch *match)
 {
     QRegularExpression rx;
-    rx.setPattern(ui->errorPattern->text());
+    rx.setPattern(pattern->text());
 
     QPalette palette;
     palette.setColor(QPalette::Text, rx.isValid() ? Qt::black : Qt::red);
-    ui->errorPattern->setPalette(palette);
-    ui->errorPattern->setToolTip(rx.isValid() ? QString() : rx.errorString());
+    pattern->setPalette(palette);
+    pattern->setToolTip(rx.isValid() ? QString() : rx.errorString());
 
-    const QRegularExpressionMatch match = rx.match(ui->errorMessage->text());
-    if (rx.pattern().isEmpty() || !rx.isValid() || !match.hasMatch()) {
-        QString error = QLatin1String("<font color=\"red\">") + tr("Not applicable:") + QLatin1Char(' ');
+    *match = rx.match(outputText);
+    if (rx.pattern().isEmpty() || !rx.isValid() || !match->hasMatch()) {
+        *errorMessage = QLatin1String("<font color=\"red\">") + tr("Not applicable:") + QLatin1Char(' ');
         if (rx.pattern().isEmpty())
-            error += tr("Pattern is empty.");
+            *errorMessage += tr("Pattern is empty.");
         else if (!rx.isValid())
-            error += rx.errorString();
+            *errorMessage += rx.errorString();
+        else if (outputText.isEmpty())
+            *errorMessage += tr("No message given.");
         else
-            error += tr("Pattern does not match the message.");
+            *errorMessage += tr("Pattern does not match the message.");
 
-        ui->fileNameTest->setText(error);
-        ui->lineNumberTest->setText(error);
-        ui->messageTest->setText(error);
-        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-        return;
+        return false;
     }
 
-    ui->fileNameTest->setText(match.captured(ui->fileNameCap->value()));
-    ui->lineNumberTest->setText(match.captured(ui->lineNumberCap->value()));
-    ui->messageTest->setText(match.captured(ui->messageCap->value()));
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    errorMessage->clear();
+    return true;
+}
+
+void CustomParserConfigDialog::changed()
+{
+    QRegularExpressionMatch match;
+    QString errorMessage;
+
+    if (checkPattern(ui->errorPattern, ui->errorOutputMessage->text(), &errorMessage, &match)) {
+        ui->errorFileNameTest->setText(match.captured(ui->errorFileNameCap->value()));
+        ui->errorLineNumberTest->setText(match.captured(ui->errorLineNumberCap->value()));
+        ui->errorMessageTest->setText(match.captured(ui->errorMessageCap->value()));
+    } else {
+        ui->errorFileNameTest->setText(errorMessage);
+        ui->errorLineNumberTest->setText(errorMessage);
+        ui->errorMessageTest->setText(errorMessage);
+    }
+
+    if (checkPattern(ui->warningPattern, ui->warningOutputMessage->text(), &errorMessage, &match)) {
+        ui->warningFileNameTest->setText(match.captured(ui->warningFileNameCap->value()));
+        ui->warningLineNumberTest->setText(match.captured(ui->warningLineNumberCap->value()));
+        ui->warningMessageTest->setText(match.captured(ui->warningMessageCap->value()));
+    } else {
+        ui->warningFileNameTest->setText(errorMessage);
+        ui->warningLineNumberTest->setText(errorMessage);
+        ui->warningMessageTest->setText(errorMessage);
+    }
     m_dirty = true;
 }
 

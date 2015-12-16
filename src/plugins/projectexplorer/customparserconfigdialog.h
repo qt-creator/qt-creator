@@ -35,6 +35,10 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -53,18 +57,38 @@ public:
     CustomParserSettings settings() const;
     void setErrorPattern(const QString &errorPattern);
     QString errorPattern() const;
-    void setFileNameCap(int fileNameCap);
-    int fileNameCap() const;
-    void setLineNumberCap(int lineNumberCap);
-    int lineNumberCap() const;
-    void setMessageCap(int messageCap);
-    int messageCap() const;
+    void setErrorFileNameCap(int errorFileNameCap);
+    int errorFileNameCap() const;
+    void setErrorLineNumberCap(int errorLineNumberCap);
+    int errorLineNumberCap() const;
+    void setErrorMessageCap(int errorMessageCap);
+    int errorMessageCap() const;
+    void setErrorChannel(CustomParserExpression::CustomParserChannel errorChannel);
+    CustomParserExpression::CustomParserChannel errorChannel() const;
+    void setErrorExample(const QString &errorExample);
+    QString errorExample() const;
+    void setWarningPattern(const QString &warningPattern);
+    QString warningPattern() const;
+    void setWarningFileNameCap(int warningFileNameCap);
+    int warningFileNameCap() const;
+    void setWarningLineNumberCap(int warningLineNumberCap);
+    int warningLineNumberCap() const;
+    void setWarningMessageCap(int warningMessageCap);
+    int warningMessageCap() const;
+    void setWarningChannel(CustomParserExpression::CustomParserChannel warningChannel);
+    CustomParserExpression::CustomParserChannel warningChannel() const;
+    void setWarningExample(const QString &warningExample);
+    QString warningExample() const;
+
     bool isDirty() const;
 
 private slots:
     void changed();
 
 private:
+    bool checkPattern(QLineEdit *pattern, const QString &outputText,
+                      QString *errorMessage, QRegularExpressionMatch *match);
+
     Ui::CustomParserConfigDialog *ui;
     bool m_dirty;
 };

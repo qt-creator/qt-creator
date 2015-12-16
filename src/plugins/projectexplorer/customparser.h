@@ -39,39 +39,28 @@
 
 namespace ProjectExplorer {
 
-class CustomParserSettings
+class CustomParserExpression
 {
 public:
-    CustomParserSettings();
-
-    bool operator ==(const CustomParserSettings &other) const;
-    bool operator !=(const CustomParserSettings &other) const { return !operator==(other); }
-
-    QString errorPattern;
-    int fileNameCap;
-    int lineNumberCap;
-    int messageCap;
-};
-
-class CustomParser : public ProjectExplorer::IOutputParser
-{
-public:
-    enum CustomParserChannels {
+    enum CustomParserChannel {
         ParseNoChannel = 0,
         ParseStdErrChannel = 1,
         ParseStdOutChannel = 2,
         ParseBothChannels = 3
     };
 
-    CustomParser(const CustomParserSettings &settings = CustomParserSettings());
-    ~CustomParser();
-    void stdError(const QString &line);
-    void stdOutput(const QString &line);
+    bool operator ==(const CustomParserExpression &other) const;
 
-    void setSettings(const CustomParserSettings &settings);
+    QString pattern() const;
+    void setPattern(const QString &pattern);
+    QRegularExpressionMatch match(const QString &line) const { return m_regExp.match(line); }
 
-    void setErrorPattern(const QString &errorPattern);
-    QString errorPattern() const;
+    CustomParserExpression::CustomParserChannel channel() const;
+    void setChannel(CustomParserExpression::CustomParserChannel channel);
+
+    QString example() const;
+    void setExample(const QString &example);
+
     int fileNameCap() const;
     void setFileNameCap(int fileNameCap);
     int lineNumberCap() const;
@@ -80,16 +69,45 @@ public:
     void setMessageCap(int messageCap);
 
 private:
-    bool parseLine(const QString &rawLine);
+    QRegularExpression m_regExp;
+    CustomParserExpression::CustomParserChannel m_channel = ParseBothChannels;
+    QString m_example;
+    int m_fileNameCap = 1;
+    int m_lineNumberCap = 2;
+    int m_messageCap = 3;
+};
 
-    QRegularExpression m_errorRegExp;
-    int m_fileNameCap;
-    int m_lineNumberCap;
-    int m_messageCap;
+class CustomParserSettings
+{
+public:
+    bool operator ==(const CustomParserSettings &other) const;
+    bool operator !=(const CustomParserSettings &other) const { return !operator==(other); }
 
-    CustomParserChannels m_parserChannels;
+    CustomParserExpression error;
+    CustomParserExpression warning;
+};
+
+class CustomParser : public ProjectExplorer::IOutputParser
+{
+public:
+    CustomParser(const CustomParserSettings &settings = CustomParserSettings());
+    ~CustomParser();
+    void stdError(const QString &line);
+    void stdOutput(const QString &line);
+
+    void setSettings(const CustomParserSettings &settings);
+
+private:
+    bool hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
+                  const CustomParserExpression &expression, Task::TaskType taskType);
+    bool parseLine(const QString &rawLine, CustomParserExpression::CustomParserChannel channel);
+
+    CustomParserExpression m_error;
+    CustomParserExpression m_warning;
 };
 
 } // namespace ProjectExplorer
+
+Q_DECLARE_METATYPE(ProjectExplorer::CustomParserExpression::CustomParserChannel);
 
 #endif // CUSTOMPARSER_H

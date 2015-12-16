@@ -69,6 +69,19 @@ static const char cxx11FlagsKeyC[] = "ProjectExplorer.CustomToolChain.Cxx11Flags
 static const char mkspecsKeyC[] = "ProjectExplorer.CustomToolChain.Mkspecs";
 static const char outputParserKeyC[] = "ProjectExplorer.CustomToolChain.OutputParser";
 static const char errorPatternKeyC[] = "ProjectExplorer.CustomToolChain.ErrorPattern";
+static const char errorLineNumberCapKeyC[] = "ProjectExplorer.CustomToolChain.ErrorLineNumberCap";
+static const char errorFileNameCapKeyC[] = "ProjectExplorer.CustomToolChain.ErrorFileNameCap";
+static const char errorMessageCapKeyC[] = "ProjectExplorer.CustomToolChain.ErrorMessageCap";
+static const char errorChannelKeyC[] = "ProjectExplorer.CustomToolChain.ErrorChannel";
+static const char errorExampleKeyC[] = "ProjectExplorer.CustomToolChain.ErrorExample";
+static const char warningPatternKeyC[] = "ProjectExplorer.CustomToolChain.WarningPattern";
+static const char warningLineNumberCapKeyC[] = "ProjectExplorer.CustomToolChain.WarningLineNumberCap";
+static const char warningFileNameCapKeyC[] = "ProjectExplorer.CustomToolChain.WarningFileNameCap";
+static const char warningMessageCapKeyC[] = "ProjectExplorer.CustomToolChain.WarningMessageCap";
+static const char warningChannelKeyC[] = "ProjectExplorer.CustomToolChain.WarningChannel";
+static const char warningExampleKeyC[] = "ProjectExplorer.CustomToolChain.WarningExample";
+
+// TODO Creator 4.1: remove (added in 3.7 for compatibility)
 static const char lineNumberCapKeyC[] = "ProjectExplorer.CustomToolChain.LineNumberCap";
 static const char fileNameCapKeyC[] = "ProjectExplorer.CustomToolChain.FileNameCap";
 static const char messageCapKeyC[] = "ProjectExplorer.CustomToolChain.MessageCap";
@@ -282,10 +295,18 @@ QVariantMap CustomToolChain::toMap() const
     data.insert(QLatin1String(cxx11FlagsKeyC), m_cxx11Flags);
     data.insert(QLatin1String(mkspecsKeyC), mkspecs());
     data.insert(QLatin1String(outputParserKeyC), m_outputParser);
-    data.insert(QLatin1String(errorPatternKeyC), m_customParserSettings.errorPattern);
-    data.insert(QLatin1String(fileNameCapKeyC), m_customParserSettings.fileNameCap);
-    data.insert(QLatin1String(lineNumberCapKeyC), m_customParserSettings.lineNumberCap);
-    data.insert(QLatin1String(messageCapKeyC), m_customParserSettings.messageCap);
+    data.insert(QLatin1String(errorPatternKeyC), m_customParserSettings.error.pattern());
+    data.insert(QLatin1String(errorFileNameCapKeyC), m_customParserSettings.error.fileNameCap());
+    data.insert(QLatin1String(errorLineNumberCapKeyC), m_customParserSettings.error.lineNumberCap());
+    data.insert(QLatin1String(errorMessageCapKeyC), m_customParserSettings.error.messageCap());
+    data.insert(QLatin1String(errorChannelKeyC), m_customParserSettings.error.channel());
+    data.insert(QLatin1String(errorExampleKeyC), m_customParserSettings.error.example());
+    data.insert(QLatin1String(warningPatternKeyC), m_customParserSettings.warning.pattern());
+    data.insert(QLatin1String(warningFileNameCapKeyC), m_customParserSettings.warning.fileNameCap());
+    data.insert(QLatin1String(warningLineNumberCapKeyC), m_customParserSettings.warning.lineNumberCap());
+    data.insert(QLatin1String(warningMessageCapKeyC), m_customParserSettings.warning.messageCap());
+    data.insert(QLatin1String(warningChannelKeyC), m_customParserSettings.warning.channel());
+    data.insert(QLatin1String(warningExampleKeyC), m_customParserSettings.warning.example());
 
     return data;
 }
@@ -303,10 +324,29 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
     m_cxx11Flags = data.value(QLatin1String(cxx11FlagsKeyC)).toStringList();
     setMkspecs(data.value(QLatin1String(mkspecsKeyC)).toString());
     m_outputParser = (OutputParser)data.value(QLatin1String(outputParserKeyC)).toInt();
-    m_customParserSettings.errorPattern = data.value(QLatin1String(errorPatternKeyC)).toString();
-    m_customParserSettings.fileNameCap = data.value(QLatin1String(fileNameCapKeyC)).toInt();
-    m_customParserSettings.lineNumberCap = data.value(QLatin1String(lineNumberCapKeyC)).toInt();
-    m_customParserSettings.messageCap = data.value(QLatin1String(messageCapKeyC)).toInt();
+    m_customParserSettings.error.setPattern(data.value(QLatin1String(errorPatternKeyC)).toString());
+    m_customParserSettings.error.setFileNameCap(data.value(QLatin1String(errorFileNameCapKeyC)).toInt());
+    m_customParserSettings.error.setLineNumberCap(data.value(QLatin1String(errorLineNumberCapKeyC)).toInt());
+    m_customParserSettings.error.setMessageCap(data.value(QLatin1String(errorMessageCapKeyC)).toInt());
+    m_customParserSettings.error.setChannel(
+                static_cast<CustomParserExpression::CustomParserChannel>(data.value(QLatin1String(errorChannelKeyC)).toInt()));
+    m_customParserSettings.error.setExample(data.value(QLatin1String(errorExampleKeyC)).toString());
+    m_customParserSettings.warning.setPattern(data.value(QLatin1String(warningPatternKeyC)).toString());
+    m_customParserSettings.warning.setFileNameCap(data.value(QLatin1String(warningFileNameCapKeyC)).toInt());
+    m_customParserSettings.warning.setLineNumberCap(data.value(QLatin1String(warningLineNumberCapKeyC)).toInt());
+    m_customParserSettings.warning.setMessageCap(data.value(QLatin1String(warningMessageCapKeyC)).toInt());
+    m_customParserSettings.warning.setChannel(
+                static_cast<CustomParserExpression::CustomParserChannel>(data.value(QLatin1String(warningChannelKeyC)).toInt()));
+    m_customParserSettings.warning.setExample(data.value(QLatin1String(warningExampleKeyC)).toString());
+
+    // TODO Creator 4.1: remove (added in 3.7 for compatibility)
+    if (m_customParserSettings.error.fileNameCap() == 0)
+        m_customParserSettings.error.setFileNameCap(data.value(QLatin1String(fileNameCapKeyC)).toInt());
+    if (m_customParserSettings.error.lineNumberCap() == 0)
+        m_customParserSettings.error.setLineNumberCap(data.value(QLatin1String(lineNumberCapKeyC)).toInt());
+    if (m_customParserSettings.error.messageCap() == 0)
+        m_customParserSettings.error.setMessageCap(data.value(QLatin1String(messageCapKeyC)).toInt());
+
     QTC_ASSERT(m_outputParser >= Gcc && m_outputParser < OutputParserCount, return false);
 
     return true;
