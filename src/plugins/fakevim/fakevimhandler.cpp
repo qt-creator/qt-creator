@@ -2531,10 +2531,14 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     //        || !atBlockEnd() || block().length() <= 1,
     //    qDebug() << "Cursor at EOL before key handler");
 
-    enterFakeVim();
-    EventResult result = handleKey(Input(key, mods, ev->text()));
-    leaveFakeVim(result);
+    const Input input(key, mods, ev->text());
+    const QString text = ev->text();
+    if (!input.isValid())
+        return EventUnhandled;
 
+    enterFakeVim();
+    EventResult result = handleKey(input);
+    leaveFakeVim(result);
     return result;
 }
 
@@ -2786,6 +2790,8 @@ EventResult FakeVimHandler::Private::handleCurrentMapAsDefault()
 {
     // If mapping has failed take the first input from it and try default command.
     const Inputs &inputs = g.currentMap.currentInputs();
+    if (inputs.isEmpty())
+        return EventHandled;
 
     Input in = inputs.front();
     if (inputs.size() > 1)
