@@ -48,8 +48,7 @@ BareMetalDeviceConfigurationFactory::BareMetalDeviceConfigurationFactory(QObject
 
 QString BareMetalDeviceConfigurationFactory::displayNameForId(Core::Id type) const
 {
-    QTC_ASSERT(type == Constants::BareMetalOsType, return QString());
-    return tr("Bare Metal Device");
+    return type == Constants::BareMetalOsType ? tr("Bare Metal Device") : QString();
 }
 
 QList<Core::Id> BareMetalDeviceConfigurationFactory::availableCreationIds() const
