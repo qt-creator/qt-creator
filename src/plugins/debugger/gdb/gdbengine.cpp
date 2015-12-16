@@ -3645,7 +3645,7 @@ void GdbEngine::handleVarAssign(const DebuggerResponse &)
 void GdbEngine::assignValueInDebugger(WatchItem *item,
     const QString &expression, const QVariant &value)
 {
-    DebuggerCommand cmd("assignValue");
+    DebuggerCommand cmd("assignValue", PythonCommand);
     cmd.arg("type", item->type.toHex());
     cmd.arg("expr", expression.toLatin1().toHex());
     cmd.arg("value", value.toString().toLatin1().toHex());
