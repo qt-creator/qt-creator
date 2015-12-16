@@ -56,6 +56,8 @@ public:
         QTextCodec *encoding;
     };
 
+    typedef Item value_type;
+
     class const_iterator
     {
     public:
@@ -65,27 +67,27 @@ public:
         typedef const value_type *pointer;
         typedef const value_type &reference;
 
-        const_iterator(FileIterator *parent, Item item, int id)
+        const_iterator(const FileIterator *parent, Item item, int id)
             : m_parent(parent), m_item(item), m_index(id)
         {}
         const Item operator*() const { return m_item; }
         const Item *operator->() const { return &m_item; }
-        void operator++() { m_parent->next(this); }
+        void operator++() { m_parent->advance(this); }
         bool operator==(const const_iterator &other) const
         {
             return m_parent == other.m_parent && m_index == other.m_index;
         }
         bool operator!=(const const_iterator &other) const { return !operator==(other); }
 
-        FileIterator *m_parent;
+        const FileIterator *m_parent;
         Item m_item;
         int m_index; // -1 == end
     };
 
     virtual ~FileIterator() {}
-    void next(const_iterator *it);
-    const_iterator begin();
-    const_iterator end();
+    void advance(const_iterator *it) const;
+    const_iterator begin() const;
+    const_iterator end() const;
 
     virtual int maxProgress() const = 0;
     virtual int currentProgress() const = 0;
