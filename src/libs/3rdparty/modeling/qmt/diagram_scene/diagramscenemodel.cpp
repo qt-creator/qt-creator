@@ -300,11 +300,25 @@ void DiagramSceneModel::copyToClipboard()
 {
     auto mimeData = new QMimeData();
 
+    QSet<QGraphicsItem *> selectedItems = m_selectedItems;
+    QSet<QGraphicsItem *> secondarySelectedItems = m_secondarySelectedItems;
+    QGraphicsItem *focusItem = m_focusItem;
     // Selections would also render to the clipboard
     m_graphicsScene->clearSelection();
     removeExtraSceneItems();
 
-    QRectF sceneBoundingRect = m_graphicsScene->itemsBoundingRect();
+    bool copyAll = selectedItems.isEmpty() && secondarySelectedItems.isEmpty();
+    QRectF sceneBoundingRect;
+    if (copyAll) {
+        sceneBoundingRect = m_graphicsScene->itemsBoundingRect();
+    } else {
+        foreach (QGraphicsItem *item, m_graphicsItems) {
+            if (selectedItems.contains(item) || secondarySelectedItems.contains(item))
+                sceneBoundingRect |= item->mapRectToScene(item->boundingRect());
+            else
+                item->hide();
+        }
+    }
 
     {
         // Create the image with the size of the shrunk scene
@@ -384,7 +398,25 @@ void DiagramSceneModel::copyToClipboard()
 
     QApplication::clipboard()->setMimeData(mimeData, QClipboard::Clipboard);
 
+    if (!copyAll) {
+        // TODO once an annotation item had focus the call to show() will give it focus again. Bug in Qt?
+        foreach (QGraphicsItem *item, m_graphicsItems)
+            item->show();
+    }
+
     addExtraSceneItems();
+
+    foreach (QGraphicsItem *item, selectedItems)
+        item->setSelected(true);
+
+    // reset focus item
+    if (focusItem) {
+        ISelectable *selectable = dynamic_cast<ISelectable *>(focusItem);
+        if (selectable) {
+            selectable->setFocusSelected(true);
+            m_focusItem = focusItem;
+        }
+    }
 }
 
 bool DiagramSceneModel::exportPng(const QString &fileName)

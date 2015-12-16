@@ -174,6 +174,7 @@ void DocumentController::copyFromModel(const MSelection &selection)
 
 void DocumentController::copyFromDiagram(const qmt::MDiagram *diagram)
 {
+    m_diagramsManager->diagramSceneModel(diagram)->copyToClipboard();
     *m_diagramClipboard = m_diagramController->copyElements(m_diagramsManager->diagramSceneModel(diagram)->selectedElements(), diagram);
     emit diagramClipboardChanged(isDiagramClipboardEmpty());
 }
