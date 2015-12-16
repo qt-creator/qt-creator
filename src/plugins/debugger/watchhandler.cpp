@@ -725,9 +725,7 @@ QString WatchItem::displayValue() const
 
 QString WatchItem::displayType() const
 {
-    QString result = displayedType.isEmpty()
-        ? niceTypeHelper(type)
-        : displayedType;
+    QString result = niceTypeHelper(type);
     if (bitsize)
         result += QString::fromLatin1(":%1").arg(bitsize);
     result.remove(QLatin1Char('\''));
@@ -776,9 +774,6 @@ QVariant WatchItem::data(int column, int role) const
                 case 1:
                     return editValue();
                 case 2:
-                    // FIXME:: To be tested: Can debuggers handle those?
-                    if (!displayedType.isEmpty())
-                        return displayedType;
                     return QString::fromUtf8(type);
             }
         }

@@ -319,8 +319,6 @@ QString WatchData::toToolTip() const
     formatToolTipRow(str, tr("Name"), name);
     formatToolTipRow(str, tr("Expression"), QLatin1String(exp));
     formatToolTipRow(str, tr("Internal Type"), QLatin1String(type));
-    if (!displayedType.isEmpty())
-        formatToolTipRow(str, tr("Displayed Type"), displayedType);
     bool ok;
     const quint64 intValue = value.toULongLong(&ok);
     if (ok && intValue) {
@@ -445,17 +443,10 @@ static void setWatchDataSize(WatchData &data, const GdbMi &mi)
     }
 }
 
-// Find the "type" and "displayedtype" children of root and set up type.
 void WatchData::updateType(const GdbMi &item)
 {
     if (item.isValid())
         setType(item.data());
-}
-
-void WatchData::updateDisplayedType(const GdbMi &item)
-{
-    if (item.isValid())
-        displayedType = QString::fromLatin1(item.data());
 }
 
 // Utilities to decode string data returned by the dumper helpers.

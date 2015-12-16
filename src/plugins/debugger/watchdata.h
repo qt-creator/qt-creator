@@ -98,7 +98,6 @@ public:
     void updateValue(const GdbMi &item);
     void updateChildCount(const GdbMi &mi);
     void updateType(const GdbMi &item);
-    void updateDisplayedType(const GdbMi &item);
 
 public:
     qint64          id;            // Token for the engine for internal mapping
@@ -111,7 +110,6 @@ public:
     DebuggerDisplay editformat;    // Format of displayed value
     DebuggerEncoding editencoding; // Encoding of displayed value
     QByteArray      type;          // Type for further processing
-    QString         displayedType; // Displayed type (optional)
     quint64         address;       // Displayed address of the actual object
     quint64         origaddr;      // Address of the pointer referencing this item (gdb auto-deref)
     uint            size;          // Size
