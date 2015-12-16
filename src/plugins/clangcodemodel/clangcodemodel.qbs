@@ -103,4 +103,13 @@ QtcPlugin {
         files: [ "*" ]
         excludeFiles: "clangtestdata.qrc"
     }
+
+    Group {
+        name: "Other files"
+        fileTags: "none"
+        files: [
+            "README",
+            project.ide_source_tree + "/doc/src/editors/creator-clang-codemodel.qdoc",
+        ]
+    }
 }

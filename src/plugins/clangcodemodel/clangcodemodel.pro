@@ -56,6 +56,10 @@ HEADERS += \
     clangtextmark.h \
     clangutils.h
 
+DISTFILES += \
+    README \
+    $${IDE_SOURCE_TREE}/doc/src/editors/creator-clang-codemodel.qdoc
+
 equals(TEST, 1) {
     HEADERS += \
         test/clangcodecompletion_test.h
