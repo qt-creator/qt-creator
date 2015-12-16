@@ -338,6 +338,8 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
         m_engine, &DebuggerEngine::updateAll);
     connect(action(ShowQtNamespace), &SavedAction::valueChanged,
         m_engine, &DebuggerEngine::updateAll);
+    connect(action(ShowQObjectNames), &SavedAction::valueChanged,
+        m_engine, &DebuggerEngine::updateAll);
 }
 
 void WatchModel::reinitialize(bool includeInspectData)

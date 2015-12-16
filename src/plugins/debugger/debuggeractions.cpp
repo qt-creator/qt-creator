@@ -269,6 +269,18 @@ DebuggerSettings::DebuggerSettings()
     insertItem(ShowQtNamespace, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ShowQObjectNames"));
+    item->setText(tr("Show QObject names if available"));
+    item->setDialogText(tr("Show QObject names if available"));
+    item->setToolTip(tr("<p>Displays the objectName property of QObject based items. "
+                        "Note that this can negatively impact debugger performance "
+                        "even if no QObjects are present."));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    insertItem(ShowQObjectNames, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("SortStructMembers"));
     item->setText(tr("Sort Members of Classes and Structs Alphabetically"));
     item->setDialogText(tr("Sort members of classes and structs alphabetically"));

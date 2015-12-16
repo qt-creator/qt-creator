@@ -586,7 +586,7 @@ QSet<Id> KitFeatureProvider::availablePlatforms() const
 
 QString KitFeatureProvider::displayNameForPlatform(Id id) const
 {
-    foreach (const IDeviceFactory *f, ExtensionSystem::PluginManager::getObjects<IDeviceFactory>()) {
+    foreach (IDeviceFactory *f, ExtensionSystem::PluginManager::getObjects<IDeviceFactory>()) {
         const QString dn = f->displayNameForId(id);
         if (!dn.isEmpty())
             return dn;

@@ -254,6 +254,7 @@ class Dumper(DumperBase):
         self.useFancy = int(args.get("fancy", "0"))
         self.forceQtNamespace = int(args.get("forcens", "0"))
         self.passExceptions = int(args.get("passexceptions", "0"))
+        self.showQObjectNames = int(args.get("qobjectnames", "0"))
         self.nativeMixed = int(args.get("nativemixed", "0"))
         self.autoDerefPointers = int(args.get("autoderef", "0"))
         self.partialUpdate = int(args.get("partial", "0"))
@@ -1115,9 +1116,10 @@ class Dumper(DumperBase):
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
-        staticMetaObject = self.extractStaticMetaObject(value.type)
-        if staticMetaObject:
-            self.putQObjectNameValue(value)
+        if self.showQObjectNames:
+            staticMetaObject = self.extractStaticMetaObject(value.type)
+            if staticMetaObject:
+                self.putQObjectNameValue(value)
         self.putType(typeName)
         self.putEmptyValue()
         self.putNumChild(len(typeobj.fields()))
@@ -1126,6 +1128,8 @@ class Dumper(DumperBase):
             innerType = None
             with Children(self, 1, childType=innerType):
                 self.putFields(value)
+                if not self.showQObjectNames:
+                    staticMetaObject = self.extractStaticMetaObject(value.type)
                 if staticMetaObject:
                     self.putQObjectGuts(value, staticMetaObject)
 
@@ -1801,6 +1805,7 @@ class CliDumper(Dumper):
         args['fancy'] = 1
         args['passexception'] = 1
         args['autoderef'] = 1
+        args['qobjectnames'] = 1
         name = args['varlist']
         self.prepare(args)
         self.output = name + ' = '

@@ -197,6 +197,7 @@ class Dumper(DumperBase):
         self.eventState = lldb.eStateInvalid
         self.expandedINames = {}
         self.passExceptions = False
+        self.showQObjectNames = False
         self.useLldbDumpers = False
         self.autoDerefPointers = True
         self.useDynamicType = True
@@ -1096,22 +1097,24 @@ class Dumper(DumperBase):
         # Normal value
         #numchild = 1 if value.MightHaveChildren() else 0
         numchild = value.GetNumChildren()
-        self.putType(typeName)
-        self.putEmptyValue(-1)
-        staticMetaObject = self.extractStaticMetaObject(value.GetType())
-        if staticMetaObject:
-            self.context = value
-            self.putQObjectNameValue(value)
-        else:
-            v = value.GetValue()
-            if v:
-                self.putValue(v)
+        v = value.GetValue()
+        if v:
+            self.putValue(v)
 
-        self.put('numchild="%s",' % numchild)
+        self.putType(typeName)
+        self.putEmptyValue()
+        self.putNumChild(numchild)
+        if self.showQObjectNames:
+            staticMetaObject = self.extractStaticMetaObject(value.GetType())
+            if staticMetaObject:
+                self.context = value
+                self.putQObjectNameValue(value)
 
         if self.currentIName in self.expandedINames:
             with Children(self):
                 self.putFields(value)
+                if not self.showQObjectNames:
+                    staticMetaObject = self.extractStaticMetaObject(value.GetType())
                 if staticMetaObject:
                     self.putQObjectGuts(value, staticMetaObject)
 
@@ -1189,6 +1192,7 @@ class Dumper(DumperBase):
         self.useDynamicType = int(args.get('dyntype', '0'))
         self.useFancy = int(args.get('fancy', '0'))
         self.passExceptions = int(args.get('passexceptions', '0'))
+        self.showQObjectNames = int(args.get('qobjectnames', '0'))
         self.currentWatchers = args.get('watchers', {})
         self.typeformats = args.get('typeformats', {})
         self.formats = args.get('formats', {})

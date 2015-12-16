@@ -213,6 +213,7 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     m_group->insert(action(MaximalStackDepth), spinBoxMaximalStackDepth);
     m_group->insert(action(ShowStdNamespace), 0);
     m_group->insert(action(ShowQtNamespace), 0);
+    m_group->insert(action(ShowQObjectNames), 0);
     m_group->insert(action(SortStructMembers), 0);
     m_group->insert(action(LogTimeStamps), 0);
     m_group->insert(action(VerboseLog), 0);
@@ -372,6 +373,7 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         auto checkBoxShowThreadNames = new QCheckBox(debuggingHelperGroupBox);
         auto checkBoxShowStdNamespace = new QCheckBox(m_widget);
         auto checkBoxShowQtNamespace = new QCheckBox(m_widget);
+        auto checkBoxShowQObjectNames = new QCheckBox(m_widget);
 
         auto spinBoxMaximalStringLength = new QSpinBox(m_widget);
         spinBoxMaximalStringLength->setSpecialValueText(tr("<unlimited>"));
@@ -394,6 +396,7 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         layout1->addItem(new QSpacerItem(10, 10));
         layout1->addRow(checkBoxShowStdNamespace);
         layout1->addRow(checkBoxShowQtNamespace);
+        layout1->addRow(checkBoxShowQObjectNames);
         layout1->addItem(new QSpacerItem(10, 10));
         layout1->addRow(tr("Maximum string length:"), spinBoxMaximalStringLength);
         layout1->addRow(tr("Display string length:"), spinBoxDisplayStringLimit);
@@ -413,6 +416,7 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         m_group.insert(action(ShowThreadNames), checkBoxShowThreadNames);
         m_group.insert(action(ShowStdNamespace), checkBoxShowStdNamespace);
         m_group.insert(action(ShowQtNamespace), checkBoxShowQtNamespace);
+        m_group.insert(action(ShowQObjectNames), checkBoxShowQObjectNames);
         m_group.insert(action(DisplayStringLimit), spinBoxDisplayStringLimit);
         m_group.insert(action(MaximalStringLength), spinBoxMaximalStringLength);
 

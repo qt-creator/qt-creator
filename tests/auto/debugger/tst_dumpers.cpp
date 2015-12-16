@@ -1303,6 +1303,7 @@ void tst_Dumpers::dumper()
                 "python theDumper.fetchVariables({"
                     "'token':2,'fancy':1,'forcens':1,'sortstructs':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
+                    "'qobjectnames':1,"
                     "'expanded':[" + expandedq + "]})\n";
 
         cmds += "quit\n";
@@ -1334,6 +1335,7 @@ void tst_Dumpers::dumper()
               // "sc print(dir())\n"
                "sc Tester('" + t->buildPath.toLatin1() + "/doit', {'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
+                    "'qobjectnames':1,"
                     "'expanded':[" + expandedq + "]})\n"
                "quit\n";
 

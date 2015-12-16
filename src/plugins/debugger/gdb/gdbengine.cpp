@@ -4586,6 +4586,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
     cmd.arg("autoderef", boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", boolSetting(UseDynamicType));
+    cmd.arg("qobjectnames", boolSetting(ShowQObjectNames));
     cmd.arg("nativemixed", isNativeMixedActive());
 
     StackFrame frame = stackHandler()->currentFrame();

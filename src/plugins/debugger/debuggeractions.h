@@ -157,6 +157,7 @@ enum DebuggerActionCode
     // Watchers & Locals
     ShowStdNamespace,
     ShowQtNamespace,
+    ShowQObjectNames,
     SortStructMembers,
     AutoDerefPointers,
     MaximalStringLength,
