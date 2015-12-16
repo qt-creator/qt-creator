@@ -67,7 +67,6 @@ CustomParser::~CustomParser()
 void CustomParser::setErrorPattern(const QString &errorPattern)
 {
     m_errorRegExp.setPattern(errorPattern);
-    m_errorRegExp.setMinimal(true);
     QTC_CHECK(m_errorRegExp.isValid());
 }
 
@@ -134,15 +133,16 @@ void CustomParser::setSettings(const CustomParserSettings &settings)
 
 bool CustomParser::parseLine(const QString &rawLine)
 {
-    if (m_errorRegExp.isEmpty())
+    if (m_errorRegExp.pattern().isEmpty())
         return false;
 
-    if (m_errorRegExp.indexIn(rawLine.trimmed()) == -1)
+    const QRegularExpressionMatch match = m_errorRegExp.match(rawLine.trimmed());
+    if (!match.hasMatch())
         return false;
 
-    const FileName fileName = FileName::fromUserInput(m_errorRegExp.cap(m_fileNameCap));
-    const int lineNumber = m_errorRegExp.cap(m_lineNumberCap).toInt();
-    const QString message = m_errorRegExp.cap(m_messageCap);
+    const FileName fileName = FileName::fromUserInput(match.captured(m_fileNameCap));
+    const int lineNumber = match.captured(m_lineNumberCap).toInt();
+    const QString message = match.captured(m_messageCap);
 
     Task task = Task(Task::Error, message, fileName, lineNumber, Constants::TASK_CATEGORY_COMPILE);
     emit addTask(task, 1);

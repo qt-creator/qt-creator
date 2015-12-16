@@ -32,7 +32,7 @@
 #include "ui_customparserconfigdialog.h"
 
 #include <QPushButton>
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -137,24 +137,23 @@ bool CustomParserConfigDialog::isDirty() const
 
 void CustomParserConfigDialog::changed()
 {
-    QRegExp rx;
+    QRegularExpression rx;
     rx.setPattern(ui->errorPattern->text());
-    rx.setMinimal(true);
 
     QPalette palette;
     palette.setColor(QPalette::Text, rx.isValid() ? Qt::black : Qt::red);
     ui->errorPattern->setPalette(palette);
     ui->errorPattern->setToolTip(rx.isValid() ? QString() : rx.errorString());
 
-    int pos = rx.indexIn(ui->errorMessage->text());
-    if (rx.isEmpty() || !rx.isValid() || pos < 0) {
+    const QRegularExpressionMatch match = rx.match(ui->errorMessage->text());
+    if (rx.pattern().isEmpty() || !rx.isValid() || !match.hasMatch()) {
         QString error = QLatin1String("<font color=\"red\">") + tr("Not applicable:") + QLatin1Char(' ');
-        if (rx.isEmpty())
+        if (rx.pattern().isEmpty())
             error += tr("Pattern is empty.");
         else if (!rx.isValid())
             error += rx.errorString();
         else
-            error += tr("Pattern does not match the error message.");
+            error += tr("Pattern does not match the message.");
 
         ui->fileNameTest->setText(error);
         ui->lineNumberTest->setText(error);
@@ -163,9 +162,9 @@ void CustomParserConfigDialog::changed()
         return;
     }
 
-    ui->fileNameTest->setText(rx.cap(ui->fileNameCap->value()));
-    ui->lineNumberTest->setText(rx.cap(ui->lineNumberCap->value()));
-    ui->messageTest->setText(rx.cap(ui->messageCap->value()));
+    ui->fileNameTest->setText(match.captured(ui->fileNameCap->value()));
+    ui->lineNumberTest->setText(match.captured(ui->lineNumberCap->value()));
+    ui->messageTest->setText(match.captured(ui->messageCap->value()));
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     m_dirty = true;
 }

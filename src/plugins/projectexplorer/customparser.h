@@ -35,7 +35,7 @@
 
 #include <projectexplorer/task.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace ProjectExplorer {
 
@@ -82,7 +82,7 @@ public:
 private:
     bool parseLine(const QString &rawLine);
 
-    QRegExp m_errorRegExp;
+    QRegularExpression m_errorRegExp;
     int m_fileNameCap;
     int m_lineNumberCap;
     int m_messageCap;
