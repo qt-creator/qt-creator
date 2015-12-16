@@ -33,10 +33,11 @@
 
 #include "debuggerprotocol.h"
 
+#include <utils/treemodel.h>
+
 #include <QCoreApplication>
 #include <QMetaType>
 
-#include <functional>
 #include <vector>
 
 namespace Debugger {
@@ -44,20 +45,35 @@ namespace Internal {
 
 class GdbMi;
 
-class WatchData
+class WatchItem : public Utils::TreeItem
 {
 public:
-    WatchData();
+    WatchItem();
+
+    void parse(const GdbMi &input);
+
+    bool isLocal()   const;
+    bool isWatcher() const;
+    bool isInspect() const;
+
+    QString expression() const;
+    QString realName() const;
+    quint64 realAddress() const;
+    QByteArray internalName() const;
+    QString toToolTip() const;
+
+    QVariant editValue() const;
+    int editType() const;
+
+    WatchItem *findItem(const QByteArray &iname);
+    WatchItem *parentItem() const;
 
     enum State
     {
-        HasChildrenNeeded = 1,
         ValueNeeded       = 2,
         ChildrenNeeded    = 8,
 
-        InitialState = ValueNeeded
-            | ChildrenNeeded
-            | HasChildrenNeeded
+        InitialState = ValueNeeded | ChildrenNeeded
     };
 
     static const qint64 InvalidId = -1;
@@ -73,31 +89,20 @@ public:
     void setChildrenUnneeded() { state = State(state & ~ChildrenNeeded); }
     void setHasChildren(bool c)   { wantsChildren = c;  if (!c) setChildrenUnneeded(); }
 
-    bool isLocal()   const { return iname.startsWith("local."); }
-    bool isWatcher() const { return iname.startsWith("watch."); }
-    bool isInspect() const { return iname.startsWith("inspect."); }
     bool isValid()   const { return !iname.isEmpty(); }
     bool isVTablePointer() const;
-
-    bool isAncestorOf(const QByteArray &childIName) const;
 
     void setError(const QString &);
     void setValue(const QString &);
     void setType(const QByteArray &, bool guessChildrenFromType = true);
 
     QString toString()  const;
-    QString toToolTip() const;
 
     static QString msgNotInScope();
     static QString shadowedName(const QString &name, int seen);
     static const QString &shadowedNameFormat();
 
     QByteArray hexAddress()  const;
-
-    // Protocol interaction.
-    void updateValue(const GdbMi &item);
-    void updateChildCount(const GdbMi &mi);
-    void updateType(const GdbMi &item);
 
 public:
     qint64          id;            // Token for the engine for internal mapping
@@ -116,35 +121,18 @@ public:
     uint            bitpos;        // Position within bit fields
     uint            bitsize;       // Size in case of bit fields
     int             elided;        // Full size if value was cut off, -1 if cut on unknown size, 0 otherwise
+    int             arrayIndex;    // -1 if not an array member
     bool            wantsChildren;
     bool            valueEnabled;  // Value will be enabled or not
     bool            valueEditable; // Value will be editable
     bool            outdated;      // \internal item is to be removed.
 
+private:
+    void parseHelper(const GdbMi &input);
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::WatchHandler)
 };
 
-void decodeArrayData(std::function<void(const WatchData &)> itemHandler,
-                     const WatchData &tmplate,
-                     const QByteArray &rawData,
-                     const DebuggerEncoding &encoding);
-
-void readNumericVector(std::vector<double> *,
-                       const QByteArray &rawData,
-                       const DebuggerEncoding &encoding);
-
-void parseChildrenData(const WatchData &parent, const GdbMi &child,
-                       std::function<void(const WatchData &)> itemHandler,
-                       std::function<void(const WatchData &, const GdbMi &)> childHandler,
-                       std::function<void(const WatchData &, const QByteArray &, const DebuggerEncoding &)> arrayDecoder);
-
-void parseWatchData(const WatchData &parent, const GdbMi &child,
-                    QList<WatchData> *insertions);
-
 } // namespace Internal
 } // namespace Debugger
-
-Q_DECLARE_METATYPE(Debugger::Internal::WatchData)
-
 
 #endif // DEBUGGER_WATCHDATA_H

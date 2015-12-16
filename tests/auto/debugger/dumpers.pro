@@ -1,8 +1,6 @@
 QT = core network
 
-win32-msvc* {
-    QTC_LIB_DEPENDS += utils
-}
+QTC_LIB_DEPENDS += utils
 
 include(../qttest.pri)
 

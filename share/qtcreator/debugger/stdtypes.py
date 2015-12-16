@@ -807,7 +807,10 @@ def qdump__std__vector(d, value):
                 base = d.pointerValue(start)
                 for i in d.childRange():
                     q = base + int(i / 8)
-                    d.putBoolItem(str(i), (int(d.extractPointer(q)) >> (i % 8)) & 1)
+                    with SubItem(d, i):
+                        d.putValue((int(d.extractPointer(q)) >> (i % 8)) & 1)
+                        d.putType("bool")
+                        d.putNumChild(0)
     else:
         d.putPlotData(start, size, type)
 
@@ -840,7 +843,10 @@ def qdump__std__vector__QNX(d, value):
             with Children(d, size, maxNumChild=10000, childType=innerType):
                 for i in d.childRange():
                     q = start + int(i / storagesize)
-                    d.putBoolItem(str(i), (q.dereference() >> (i % storagesize)) & 1)
+                    with SubItem(d, i):
+                        d.putValue((q.dereference() >> (i % storagesize)) & 1)
+                        d.putType("bool")
+                        d.putNumChild(0)
         else:
             d.putArrayData(start, size, innerType)
 

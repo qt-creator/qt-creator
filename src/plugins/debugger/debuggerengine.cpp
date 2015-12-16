@@ -1982,9 +1982,10 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
 
     GdbMi data = all["data"];
     foreach (const GdbMi &child, data.children()) {
-        WatchItem *item = new WatchItem(child);
+        WatchItem *item = new WatchItem;
+        item->parse(child);
         const TypeInfo ti = d->m_typeInfoCache.value(item->type);
-        if (ti.size)
+        if (ti.size && !item->size)
             item->size = ti.size;
 
         handler->insertItem(item);

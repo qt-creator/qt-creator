@@ -33,8 +33,6 @@
 
 #include "watchdata.h"
 
-#include <utils/treemodel.h>
-
 #include <QVector>
 
 namespace Debugger {
@@ -45,44 +43,6 @@ class DebuggerEngine;
 class WatchModel;
 
 typedef QVector<DisplayFormat> DisplayFormats;
-
-class WatchItem : public Utils::TreeItem, public WatchData
-{
-public:
-    WatchItem() {}
-    WatchItem(const QByteArray &i, const QString &n);
-    explicit WatchItem(const WatchData &data);
-    explicit WatchItem(const GdbMi &data);
-
-    void fetchMore();
-
-    QString displayName() const;
-    QString displayType() const;
-    QString displayValue() const;
-    QString formattedValue() const;
-    QString expression() const;
-
-    int itemFormat() const;
-
-    QVariant editValue() const;
-    int editType() const;
-    QColor valueColor(int column) const;
-
-    int requestedFormat() const;
-    WatchItem *findItem(const QByteArray &iname);
-
-private:
-    WatchItem *parentItem() const;
-    const WatchModel *watchModel() const;
-    WatchModel *watchModel();
-    DisplayFormats typeFormatList() const;
-
-    bool canFetchMore() const;
-    QVariant data(int column, int role) const;
-    Qt::ItemFlags flags(int column) const;
-
-    void parseWatchData(const GdbMi &input);
-};
 
 class WatchModelBase : public Utils::TreeModel
 {

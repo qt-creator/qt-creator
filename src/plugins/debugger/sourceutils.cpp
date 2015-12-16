@@ -179,7 +179,7 @@ static void blockRecursion(const Overview &overview,
             // Is the declaration on or past the current line, that is,
             // the variable not initialized.
             if (symbol->line() >= line)
-                uninitializedVariables->push_back(WatchData::shadowedName(name, it.value()));
+                uninitializedVariables->push_back(WatchItem::shadowedName(name, it.value()));
         }
     }
     // Next block scope.

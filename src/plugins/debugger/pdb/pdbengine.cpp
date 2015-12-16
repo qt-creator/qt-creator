@@ -518,8 +518,11 @@ void PdbEngine::refreshLocals(const GdbMi &vars)
     WatchHandler *handler = watchHandler();
     handler->resetValueCache();
 
-    foreach (const GdbMi &child, vars.children())
-        handler->insertItem(new WatchItem(child));
+    foreach (const GdbMi &child, vars.children()) {
+        WatchItem *item = new WatchItem;
+        item->parse(child);
+        handler->insertItem(item);
+    }
 
     handler->notifyUpdateFinished();
 

@@ -40,7 +40,6 @@
 namespace Debugger {
 namespace Internal {
 
-class WatchData;
 class WatchItem;
 class QmlEnginePrivate;
 class QmlInspectorAgent;

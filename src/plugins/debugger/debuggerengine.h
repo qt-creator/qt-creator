@@ -63,7 +63,6 @@ class DebuggerEnginePrivate;
 class DebuggerPluginPrivate;
 class DisassemblerAgent;
 class MemoryAgent;
-class WatchData;
 class WatchItem;
 class BreakHandler;
 class LocationMark;

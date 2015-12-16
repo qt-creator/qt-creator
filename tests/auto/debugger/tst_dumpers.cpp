@@ -1425,62 +1425,65 @@ void tst_Dumpers::dumper()
     GdbMi actual;
     actual.fromString(contents);
 
-    WatchData local;
+    WatchItem local;
     local.iname = "local";
 
-    QList<WatchData> list;
     foreach (const GdbMi &child, actual.children()) {
-        WatchData dummy;
-        dummy.iname = child["iname"].data();
-        dummy.name = QLatin1String(child["name"].data());
-        if (dummy.iname == "local.qtversion")
+        const QByteArray iname = child["iname"].data();
+        if (iname == "local.qtversion")
             context.qtVersion = child["value"].toInt();
-        else if (dummy.iname == "local.gccversion")
+        else if (iname == "local.gccversion")
             context.gccVersion = child["value"].toInt();
-        else if (dummy.iname == "local.clangversion")
+        else if (iname == "local.clangversion")
             context.clangVersion = child["value"].toInt();
-        else if (dummy.iname == "local.boostversion")
+        else if (iname == "local.boostversion")
             context.boostVersion = child["value"].toInt();
-        else
-            parseWatchData(dummy, child, &list);
+        else {
+            WatchItem *item = new WatchItem;
+            item->parse(child);
+            local.appendChild(item);
+        }
     }
 
     //qDebug() << "QT VERSION " << QByteArray::number(context.qtVersion, 16);
     QSet<QByteArray> seenINames;
     bool ok = true;
-    foreach (const WatchData &item, list) {
-        seenINames.insert(item.iname);
+
+    for (int i = data.checks.size(); --i >= 0; ) {
         //qDebug() << "NUM CHECKS" << data.checks.size();
-        for (int i = data.checks.size(); --i >= 0; ) {
-            Check check = data.checks.at(i);
+        Check check = data.checks.at(i);
+        QByteArray iname = "local." + check.iname;
+        if (const WatchItem *item = local.findItem(iname)) {
+            seenINames.insert(iname);
             //qDebug() << "CHECKS" << i << check.iname;
-            if ("local." + check.iname == item.iname) {
-                data.checks.removeAt(i);
-                if (check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
-                    //qDebug() << "USING MATCHING TEST FOR " << item.iname;
-                    if (!check.expectedName.matches(item.name.toLatin1(), context)) {
-                        qDebug() << "INAME        : " << item.iname;
-                        qDebug() << "NAME ACTUAL  : " << item.name.toLatin1();
-                        qDebug() << "NAME EXPECTED: " << check.expectedName.name;
-                        ok = false;
-                    }
-                    if (!check.expectedValue.matches(item.value, context)) {
-                        qDebug() << "INAME         : " << item.iname;
-                        qDebug() << "VALUE ACTUAL  : " << item.value << toHex(item.value);
-                        qDebug() << "VALUE EXPECTED: "
-                            << check.expectedValue.value << toHex(check.expectedValue.value);
-                        ok = false;
-                    }
-                    if (!check.expectedType.matches(item.type, context)) {
-                        qDebug() << "INAME        : " << item.iname;
-                        qDebug() << "TYPE ACTUAL  : " << item.type;
-                        qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
-                        ok = false;
-                    }
-                } else {
-                    qDebug() << "SKIPPING NON-MATCHING TEST FOR " << item.iname;
+            data.checks.removeAt(i);
+            if (check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
+                //qDebug() << "USING MATCHING TEST FOR " << iname;
+                QByteArray name = item->realName().toLatin1();
+                QByteArray type = item->type;
+                if (!check.expectedName.matches(name, context)) {
+                    qDebug() << "INAME        : " << iname;
+                    qDebug() << "NAME ACTUAL  : " << name;
+                    qDebug() << "NAME EXPECTED: " << check.expectedName.name;
+                    ok = false;
                 }
+                if (!check.expectedValue.matches(item->value, context)) {
+                    qDebug() << "INAME         : " << iname;
+                    qDebug() << "VALUE ACTUAL  : " << item->value << toHex(item->value);
+                    qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << toHex(check.expectedValue.value);
+                    ok = false;
+                }
+                if (!check.expectedType.matches(type, context)) {
+                    qDebug() << "INAME        : " << iname;
+                    qDebug() << "TYPE ACTUAL  : " << type;
+                    qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
+                    ok = false;
+                }
+            } else {
+                qDebug() << "SKIPPING NON-MATCHING TEST FOR " << iname;
             }
+        } else {
+            qDebug() << "NOT SEEN: " << check.iname;
         }
     }
 

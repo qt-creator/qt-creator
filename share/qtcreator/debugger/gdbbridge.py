@@ -354,7 +354,13 @@ class Dumper(DumperBase):
     def canCallLocale(self):
         return False if self.is32bit() else True
 
+    def reportTime(self, hint):
+        #from datetime import datetime
+        #warn("%s: %s" % (hint, datetime.now().time().isoformat()))
+        pass
+
     def fetchVariables(self, args):
+        self.reportTime("begin fetch")
         self.prepare(args)
         partialVariable = args.get("partialvar", "")
         isPartial = len(partialVariable) > 0
@@ -389,6 +395,8 @@ class Dumper(DumperBase):
             locals = [item]
         else:
             locals = self.listOfLocals()
+
+        self.reportTime("locals")
 
         # Take care of the return value of the last function call.
         if len(self.resultVarName) > 0:
@@ -439,7 +447,9 @@ class Dumper(DumperBase):
 
         self.output.append(',partial="%d"' % isPartial)
 
+        self.reportTime("before print: %s" % len(self.output))
         safePrint(''.join(self.output))
+        self.reportTime("after print")
 
     def enterSubItem(self, item):
         if not item.iname:

@@ -193,11 +193,11 @@ void DraggableLabel::mouseMoveEvent(QMouseEvent * event)
 //
 /////////////////////////////////////////////////////////////////////////
 
-class ToolTipWatchItem : public Utils::TreeItem
+class ToolTipWatchItem : public TreeItem
 {
 public:
     ToolTipWatchItem() : expandable(false) {}
-    ToolTipWatchItem(WatchItem *item);
+    ToolTipWatchItem(TreeItem *item);
 
     bool hasChildren() const { return expandable; }
     bool canFetchMore() const { return childCount() == 0 && expandable && model(); }
@@ -214,17 +214,19 @@ public:
     QByteArray iname;
 };
 
-ToolTipWatchItem::ToolTipWatchItem(WatchItem *item)
+ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
 {
-    name = item->displayName();
-    value = item->displayValue();
-    type = item->displayType();
-    iname = item->iname;
-    valueColor = item->valueColor(1);
+    const TreeModel *model = item->model();
+    QModelIndex idx = model->indexForItem(item);
+    name = model->data(idx.sibling(idx.row(), 0), Qt::DisplayRole).toString();
+    value = model->data(idx.sibling(idx.row(), 1), Qt::DisplayRole).toString();
+    type = model->data(idx.sibling(idx.row(), 2), Qt::DisplayRole).toString();
+    iname = model->data(idx.sibling(idx.row(), 0), LocalsINameRole).toByteArray();
+    valueColor = model->data(idx.sibling(idx.row(), 1), Qt::ForegroundRole).value<QColor>();
     expandable = item->hasChildren();
-    expression = item->expression();
+    expression = model->data(idx.sibling(idx.row(), 0), Qt::EditRole).toString();
     foreach (TreeItem *child, item->children())
-        appendChild(new ToolTipWatchItem(static_cast<WatchItem *>(child)));
+        appendChild(new ToolTipWatchItem(child));
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -1175,7 +1177,7 @@ static void slotTooltipOverrideRequested
     purgeClosedToolTips();
 
     // Prefer a filter on an existing local variable if it can be found.
-    const WatchData *localVariable = engine->watchHandler()->findCppLocalVariable(context.expression);
+    const WatchItem *localVariable = engine->watchHandler()->findCppLocalVariable(context.expression);
     if (localVariable) {
         context.expression = QLatin1String(localVariable->exp);
         if (context.expression.isEmpty())

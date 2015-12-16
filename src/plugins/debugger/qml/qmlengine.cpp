@@ -1089,11 +1089,11 @@ void QmlEngine::updateCurrentContext()
         context = stackHandler()->currentFrame().function;
     } else {
         QModelIndex currentIndex = inspectorView()->currentIndex();
-        const WatchData *currentData = watchHandler()->watchItem(currentIndex);
+        const WatchItem *currentData = watchHandler()->watchItem(currentIndex);
         if (!currentData)
             return;
-        const WatchData *parentData = watchHandler()->watchItem(currentIndex.parent());
-        const WatchData *grandParentData = watchHandler()->watchItem(currentIndex.parent().parent());
+        const WatchItem *parentData = watchHandler()->watchItem(currentIndex.parent());
+        const WatchItem *grandParentData = watchHandler()->watchItem(currentIndex.parent().parent());
         if (currentData->id != parentData->id)
             context = currentData->name;
         else if (parentData->id != grandParentData->id)
@@ -1351,7 +1351,9 @@ void QmlEnginePrivate::handleEvaluateExpression(const QVariantMap &response,
     QmlV8ObjectData body = extractData(bodyVal);
     WatchHandler *watchHandler = engine->watchHandler();
 
-    auto item = new WatchItem(iname, exp);
+    auto item = new WatchItem;
+    item->iname = iname;
+    item->name = exp;
     item->exp = exp.toLatin1();
     item->id = body.handle;
     bool success = response.value(_("success")).toBool();
@@ -2170,9 +2172,11 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
     {
         QByteArray iname = "local.this";
         QString exp = QLatin1String("this");
-
-        auto item = new WatchItem(iname, exp);
         QmlV8ObjectData objectData = extractData(body.value(_("receiver")));
+
+        auto item = new WatchItem;
+        item->iname = iname;
+        item->name = exp;
         item->id = objectData.handle;
         item->type = objectData.type;
         item->value = objectData.value.toString();

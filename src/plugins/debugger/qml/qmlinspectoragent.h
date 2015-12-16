@@ -52,7 +52,7 @@ namespace Internal {
 
 class DebuggerEngine;
 class QmlEngine;
-class WatchData;
+class WatchItem;
 
 //map <filename, editorRevision> -> <lineNumber, columnNumber> -> debugId
 typedef
@@ -67,8 +67,8 @@ public:
     void fetchObject(int debugId);
     quint32 queryExpressionResult(int debugId, const QString &expression);
 
-    void assignValue(const WatchData *data, const QString &expression, const QVariant &valueV);
-    void updateWatchData(const WatchData &data);
+    void assignValue(const WatchItem *data, const QString &expression, const QVariant &valueV);
+    void updateWatchData(const WatchItem &data);
     void watchDataSelected(qint64 id);
     bool selectObjectInTree(int debugId);
     void addObjectWatch(int objectDebugId);

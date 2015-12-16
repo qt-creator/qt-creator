@@ -52,7 +52,6 @@
 namespace Debugger {
 namespace Internal {
 
-class WatchData;
 class GdbMi;
 
 /* A debugger engine interfacing the LLDB debugger
