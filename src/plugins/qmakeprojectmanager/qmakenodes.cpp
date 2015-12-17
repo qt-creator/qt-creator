@@ -1793,7 +1793,7 @@ void QmakeProFileNode::asyncUpdate()
     m_project->incrementPendingEvaluateFutures();
     setupReader();
     if (!includedInExactParse())
-        m_readerExact->setVerbose(false);
+        m_readerExact->setExact(false);
     m_parseFutureWatcher.waitForFinished();
     EvalInput input = evalInput();
     QFuture<EvalResult *> future = QtConcurrent::run(&QmakeProFileNode::asyncEvaluate, this, input);
