@@ -34,8 +34,6 @@
 #include "qmt/model_ui/stereotypescontroller.h"
 #include "qmt/infrastructure/qmtassert.h"
 
-// TODO implement multi-line signatures for attributes and methods
-
 namespace qmt {
 
 class ClassMembersEdit::Cursor
@@ -90,7 +88,7 @@ QString ClassMembersEdit::Cursor::readWord()
         m_lastPos = m_pos;
         QChar c = m_text.at(m_pos);
         ++m_pos;
-        if (c.isLetterOrNumber() ||c == QLatin1Char('_')) {
+        if (c.isLetterOrNumber() || c == QLatin1Char('_')) {
             word = c;
             while (m_isValid && m_pos < m_text.length()
                    && (m_text.at(m_pos).isLetterOrNumber() || m_text.at(m_pos) == QLatin1Char('_'))) {
@@ -246,25 +244,35 @@ QString ClassMembersEdit::Cursor::preparse(const QString &text)
         QChar lastChar = QLatin1Char(' ');
         bool inCComment = false;
         bool inCppComment = false;
-        foreach (const QChar &c, text) {
+        int braces = 0;
+        foreach (QChar c, text) {
             if (!inCComment && !inCppComment && lastChar == QLatin1Char('/') && c == QLatin1Char('/')) {
                 inCppComment = true;
-                lastChar = QLatin1Char('\n');
+                lastChar = QLatin1Char(' ');
             } else if (!inCComment && !inCppComment && lastChar == QLatin1Char('/') && c == QLatin1Char('*')) {
                 inCComment = true;
                 lastChar = QLatin1Char(' ');
             } else if (inCComment && !inCppComment && lastChar == QLatin1Char('*') && c == QLatin1Char('/')) {
                 inCComment = false;
+                lastChar = QLatin1Char(' ');
             } else if (!inCComment && inCppComment && c == QLatin1Char('\n')) {
                 inCppComment = false;
+                lastChar = QLatin1Char('\n');
             } else if (inCComment || inCppComment) {
-                // ignore char
+                lastChar = c;
             } else {
+                if (c == QLatin1Char('(') || c == QLatin1Char('{') || c == QLatin1Char('['))
+                    ++braces;
+                else if (c == QLatin1Char(')') || c == QLatin1Char('}') || c == QLatin1Char(']'))
+                    --braces;
+                else if (c == QLatin1Char('\n') && braces != 0)
+                    c = QLatin1Char(' ');
                 parsedText += lastChar;
                 lastChar = c;
             }
         }
-        parsedText += lastChar;
+        if (!inCComment && !inCppComment)
+            parsedText += lastChar;
     }
     return parsedText;
 }
@@ -475,13 +483,13 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
             } else if (word == QStringLiteral("virtual")) {
                 member.setProperties(member.properties() | MClassMember::PropertyVirtual);
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("signal") || word == QStringLiteral("qSignal")) {
+            } else if (word == QStringLiteral("signal") || word == QStringLiteral("q_signal")) {
                 member.setProperties(member.properties() | MClassMember::PropertyQsignal);
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("slot") || word == QStringLiteral("qSlot")) {
+            } else if (word == QStringLiteral("slot") || word == QStringLiteral("q_slot")) {
                 member.setProperties(member.properties() | MClassMember::PropertyQslot);
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("invokable") || word == QStringLiteral("qInvokable")) {
+            } else if (word == QStringLiteral("invokable") || word == QStringLiteral("q_invokable")) {
                 member.setProperties(member.properties() | MClassMember::PropertyQinvokable);
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral(":")) {
