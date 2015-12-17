@@ -622,25 +622,25 @@ void ClassItem::updateMembers(const Style *style)
                     addSpace = true;
                     break;
                 case MClassMember::VisibilitySignals:
-                    vis = haveIconFonts ? QString(QChar(0xe994)) : QStringLiteral(">");
+                    vis = haveIconFonts ? QString(QChar(0xe994)) : QStringLiteral("&gt;");
                     haveSignal = true;
                     addSpace = true;
                     break;
                 case MClassMember::VisibilityPrivateSlots:
                     vis = haveIconFonts ? QString(QChar(0xe98f)) + QChar(0xe9cb)
-                                          : QStringLiteral("-$");
+                                        : QStringLiteral("-$");
                     haveSlot = true;
                     addSpace = true;
                     break;
                 case MClassMember::VisibilityProtectedSlots:
                     vis = haveIconFonts ? QString(QChar(0xe98e)) + QChar(0xe9cb)
-                                          : QStringLiteral("#$");
+                                        : QStringLiteral("#$");
                     haveSlot = true;
                     addSpace = true;
                     break;
                 case MClassMember::VisibilityPublicSlots:
                     vis = haveIconFonts ? QString(QChar(0xe990)) + QChar(0xe9cb)
-                                          : QStringLiteral("+$");
+                                        : QStringLiteral("+$");
                     haveSlot = true;
                     addSpace = true;
                     break;
@@ -650,7 +650,7 @@ void ClassItem::updateMembers(const Style *style)
         }
 
         if (member.properties() & MClassMember::PropertyQsignal && !haveSignal) {
-            *text += haveIconFonts ? QString(QChar(0xe994)) : QStringLiteral(">");
+            *text += haveIconFonts ? QString(QChar(0xe994)) : QStringLiteral("&gt;");
             addSpace = true;
         }
         if (member.properties() & MClassMember::PropertyQslot && !haveSlot) {
@@ -667,7 +667,7 @@ void ClassItem::updateMembers(const Style *style)
         }
         if (member.properties() & MClassMember::PropertyVirtual)
             *text += QStringLiteral("virtual ");
-        *text += member.declaration();
+        *text += member.declaration().toHtmlEscaped();
         if (member.properties() & MClassMember::PropertyConst)
             *text += QStringLiteral(" const");
         if (member.properties() & MClassMember::PropertyOverride)
