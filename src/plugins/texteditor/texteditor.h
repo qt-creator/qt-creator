@@ -479,8 +479,6 @@ signals:
     void assistFinished(); // Used in tests.
     void readOnlyChanged();
 
-    void requestFontZoom(int zoom);
-    void requestZoomReset();
     void requestBlockUpdate(const QTextBlock &);
 
 protected:

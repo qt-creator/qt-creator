@@ -103,8 +103,8 @@ public:
 
     static void registerMimeTypeForLanguageId(const char *mimeType, Core::Id languageId);
     static Core::Id languageId(const QString &mimeType);
-    void fontZoomRequested(int zoom);
-    void zoomResetRequested();
+    static int increaseFontZoom(int step);
+    static void resetFontZoom();
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);

@@ -81,6 +81,7 @@
 #include <utils/linecolumnlabel.h>
 #include <utils/fileutils.h>
 #include <utils/dropsupport.h>
+#include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -3022,11 +3023,6 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
     connect(settings, &TextEditorSettings::extraEncodingSettingsChanged,
             q, &TextEditorWidget::setExtraEncodingSettings);
 
-    connect(q, &TextEditorWidget::requestFontZoom,
-            settings, &TextEditorSettings::fontZoomRequested);
-    connect(q, &TextEditorWidget::requestZoomReset,
-            settings, &TextEditorSettings::zoomResetRequested);
-
     // Apply current settings
     m_document->setFontSettings(settings->fontSettings());
     m_document->setTabSettings(settings->codeStyle()->tabSettings()); // also set through code style ???
@@ -5494,12 +5490,15 @@ void TextEditorWidget::zoomF(float delta)
     else if (step < 0 && step > -1)
         step = -1;
 
-    emit requestFontZoom(step);
+    const int newZoom = TextEditorSettings::instance()->increaseFontZoom(int(step));
+    Utils::FadingIndicator::showText(this,
+                                     tr("Zoom: %1%").arg(newZoom),
+                                     Utils::FadingIndicator::SmallText);
 }
 
 void TextEditorWidget::zoomReset()
 {
-    emit requestZoomReset();
+    TextEditorSettings::instance()->resetFontZoom();
 }
 
 TextEditorWidget::Link TextEditorWidget::findLinkAt(const QTextCursor &, bool, bool)
