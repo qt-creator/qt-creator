@@ -70,7 +70,6 @@ const char QMAKE_RC_PREFIX[] = "Qt4ProjectManager.Qt4RunConfiguration:";
 const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
 const char USE_DYLD_IMAGE_SUFFIX_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix";
 const char USE_LIBRARY_SEARCH_PATH[] = "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath";
-const char USER_WORKING_DIRECTORY_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory";
 
 static Utils::FileName pathFromId(Core::Id id)
 {
@@ -88,6 +87,8 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core:
     addExtraAspect(new LocalEnvironmentAspect(this));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments")));
     addExtraAspect(new TerminalAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.UseTerminal")));
+    addExtraAspect(new WorkingDirectoryAspect(this,
+                       QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory")));
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     m_parseSuccess = project->validParse(m_proFilePath);
@@ -101,7 +102,6 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Deskt
     m_proFilePath(source->m_proFilePath),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
     m_isUsingLibrarySearchPath(source->m_isUsingLibrarySearchPath),
-    m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_parseSuccess(source->m_parseSuccess),
     m_parseInProgress(source->m_parseInProgress)
 {
@@ -206,29 +206,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     toplayout->addRow(tr("Executable:"), m_executableLineLabel);
 
     m_qmakeRunConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
-
-    m_workingDirectoryEdit = new PathChooser(this);
-    m_workingDirectoryEdit->setExpectedKind(PathChooser::Directory);
-    m_workingDirectoryEdit->setHistoryCompleter(QLatin1String("Qmake.WorkingDir.History"));
-    m_workingDirectoryEdit->setPath(m_qmakeRunConfiguration->baseWorkingDirectory());
-    m_workingDirectoryEdit->setBaseFileName(m_qmakeRunConfiguration->target()->project()->projectDirectory());
-    EnvironmentAspect *aspect = qmakeRunConfiguration->extraAspect<EnvironmentAspect>();
-    if (aspect) {
-        connect(aspect, SIGNAL(environmentChanged()), this, SLOT(environmentWasChanged()));
-        environmentWasChanged();
-    }
-    m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
-
-    QToolButton *resetButton = new QToolButton(this);
-    resetButton->setToolTip(tr("Reset to Default"));
-    resetButton->setIcon(Core::Icons::RESET.icon());
-
-    QHBoxLayout *boxlayout = new QHBoxLayout();
-    boxlayout->setMargin(0);
-    boxlayout->addWidget(m_workingDirectoryEdit);
-    boxlayout->addWidget(resetButton);
-    toplayout->addRow(tr("Working directory:"), boxlayout);
-
+    m_qmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
     m_qmakeRunConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
 
     m_useQvfbCheck = new QCheckBox(tr("Run on QVFb"), this);
@@ -270,17 +248,8 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
 
     runConfigurationEnabledChange();
 
-    connect(m_workingDirectoryEdit, SIGNAL(rawPathChanged(QString)),
-            this, SLOT(workDirectoryEdited()));
-
-    connect(resetButton, SIGNAL(clicked()),
-            this, SLOT(workingDirectoryReseted()));
-
     connect(m_useQvfbCheck, SIGNAL(toggled(bool)),
             this, SLOT(qvfbToggled(bool)));
-
-    connect(qmakeRunConfiguration, SIGNAL(baseWorkingDirectoryChanged(QString)),
-            this, SLOT(workingDirectoryChanged(QString)));
 
     connect(qmakeRunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
             this, SLOT(usingDyldImageSuffixChanged(bool)));
@@ -299,35 +268,12 @@ DesktopQmakeRunConfigurationWidget::~DesktopQmakeRunConfigurationWidget()
 {
 }
 
-void DesktopQmakeRunConfigurationWidget::environmentWasChanged()
-{
-    EnvironmentAspect *aspect = m_qmakeRunConfiguration->extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(aspect, return);
-    m_workingDirectoryEdit->setEnvironment(aspect->environment());
-}
-
 void DesktopQmakeRunConfigurationWidget::runConfigurationEnabledChange()
 {
     bool enabled = m_qmakeRunConfiguration->isEnabled();
     m_disabledIcon->setVisible(!enabled);
     m_disabledReason->setVisible(!enabled);
     m_disabledReason->setText(m_qmakeRunConfiguration->disabledReason());
-}
-
-void DesktopQmakeRunConfigurationWidget::workDirectoryEdited()
-{
-    if (m_ignoreChange)
-        return;
-    m_ignoreChange = true;
-    m_qmakeRunConfiguration->setBaseWorkingDirectory(m_workingDirectoryEdit->rawPath());
-    m_ignoreChange = false;
-}
-
-void DesktopQmakeRunConfigurationWidget::workingDirectoryReseted()
-{
-    // This emits a signal connected to workingDirectoryChanged()
-    // that sets the m_workingDirectoryEdit
-    m_qmakeRunConfiguration->setBaseWorkingDirectory(QString());
 }
 
 void DesktopQmakeRunConfigurationWidget::qvfbToggled(bool on)
@@ -351,12 +297,6 @@ void DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathToggled(bool stat
     m_ignoreChange = false;
 }
 
-void DesktopQmakeRunConfigurationWidget::workingDirectoryChanged(const QString &workingDirectory)
-{
-    if (!m_ignoreChange)
-        m_workingDirectoryEdit->setPath(workingDirectory);
-}
-
 void DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
 {
     if (!m_ignoreChange && m_usingDyldImageSuffix)
@@ -371,25 +311,13 @@ void DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathChanged(bool stat
 
 void DesktopQmakeRunConfigurationWidget::effectiveTargetInformationChanged()
 {
-    if (m_isShown) {
-        m_executableLineLabel->setText(QDir::toNativeSeparators(m_qmakeRunConfiguration->executable()));
-        m_ignoreChange = true;
-        m_workingDirectoryEdit->setPath(QDir::toNativeSeparators(m_qmakeRunConfiguration->baseWorkingDirectory()));
-        m_ignoreChange = false;
-    }
-}
+    m_executableLineLabel->setText(QDir::toNativeSeparators(m_qmakeRunConfiguration->executable()));
 
-void DesktopQmakeRunConfigurationWidget::showEvent(QShowEvent *event)
-{
-    m_isShown = true;
-    effectiveTargetInformationChanged();
-    QWidget::showEvent(event);
-}
-
-void DesktopQmakeRunConfigurationWidget::hideEvent(QHideEvent *event)
-{
-    m_isShown = false;
-    QWidget::hideEvent(event);
+    m_ignoreChange = true;
+    auto aspect = m_qmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>();
+    aspect->setDefaultWorkingDirectory(m_qmakeRunConfiguration->baseWorkingDirectory());
+    aspect->pathChooser()->setBaseFileName(m_qmakeRunConfiguration->target()->project()->projectDirectory());
+    m_ignoreChange = false;
 }
 
 QWidget *DesktopQmakeRunConfiguration::createConfigurationWidget()
@@ -404,7 +332,6 @@ QVariantMap DesktopQmakeRunConfiguration::toMap() const
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath.toString()));
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
     map.insert(QLatin1String(USE_LIBRARY_SEARCH_PATH), m_isUsingLibrarySearchPath);
-    map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     return map;
 }
 
@@ -414,8 +341,6 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
     m_isUsingLibrarySearchPath = map.value(QLatin1String(USE_LIBRARY_SEARCH_PATH), true).toBool();
-
-    m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
 
     m_parseSuccess = static_cast<QmakeProject *>(target()->project())->validParse(m_proFilePath);
     m_parseInProgress = static_cast<QmakeProject *>(target()->project())->parseInProgress(m_proFilePath);
@@ -467,19 +392,11 @@ void DesktopQmakeRunConfiguration::setUsingLibrarySearchPath(bool state)
 
 QString DesktopQmakeRunConfiguration::workingDirectory() const
 {
-    EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(aspect, return baseWorkingDirectory());
-    return QDir::cleanPath(aspect->environment().expandVariables(
-                macroExpander()->expand(baseWorkingDirectory())));
+    return extraAspect<WorkingDirectoryAspect>()->workingDirectory();
 }
 
 QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
 {
-    // if the user overrode us, then return his working directory
-    if (!m_userWorkingDirectory.isEmpty())
-        return m_userWorkingDirectory;
-
-    // else what the pro file reader tells us
     QmakeProject *pro = static_cast<QmakeProject *>(target()->project());
     const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePath);
     return extractWorkingDirAndExecutable(node).first;
@@ -488,17 +405,6 @@ QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
 QString DesktopQmakeRunConfiguration::commandLineArguments() const
 {
     return extraAspect<ArgumentsAspect>()->arguments();
-}
-
-void DesktopQmakeRunConfiguration::setBaseWorkingDirectory(const QString &wd)
-{
-    const QString &oldWorkingDirectory = workingDirectory();
-
-    m_userWorkingDirectory = wd;
-
-    const QString &newWorkingDirectory = workingDirectory();
-    if (oldWorkingDirectory != newWorkingDirectory)
-        emit baseWorkingDirectoryChanged(newWorkingDirectory);
 }
 
 void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const

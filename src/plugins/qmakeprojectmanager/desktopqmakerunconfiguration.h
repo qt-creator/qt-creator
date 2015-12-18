@@ -111,7 +111,6 @@ protected:
 
 private:
     QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFileNode *node) const;
-    void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
 
@@ -123,7 +122,6 @@ private:
     // Cached startup sub project information
     bool m_isUsingDyldImageSuffix = false;
     bool m_isUsingLibrarySearchPath = true;
-    QString m_userWorkingDirectory;
     bool m_parseSuccess = false;
     bool m_parseInProgress = false;
 };
@@ -136,17 +134,8 @@ public:
     DesktopQmakeRunConfigurationWidget(DesktopQmakeRunConfiguration *qmakeRunConfiguration, QWidget *parent);
     ~DesktopQmakeRunConfigurationWidget();
 
-protected:
-    void showEvent(QShowEvent *event);
-    void hideEvent(QHideEvent *event);
-
 private slots:
     void runConfigurationEnabledChange();
-    void workDirectoryEdited();
-    void workingDirectoryReseted();
-    void environmentWasChanged();
-
-    void workingDirectoryChanged(const QString &workingDirectory);
 
     void effectiveTargetInformationChanged();
     void qvfbToggled(bool);
@@ -161,13 +150,11 @@ private:
     QLabel *m_disabledIcon = nullptr;
     QLabel *m_disabledReason = nullptr;
     QLabel *m_executableLineLabel = nullptr;
-    Utils::PathChooser *m_workingDirectoryEdit = nullptr;
     QCheckBox *m_useQvfbCheck = nullptr;
     QCheckBox *m_usingDyldImageSuffix = nullptr;
     QCheckBox *m_usingLibrarySearchPath = nullptr;
     QLineEdit *m_qmlDebugPort = nullptr;
     Utils::DetailsWidget *m_detailsContainer = nullptr;
-    bool m_isShown = false;
 };
 
 class DesktopQmakeRunConfigurationFactory : public QmakeRunConfigurationFactory
