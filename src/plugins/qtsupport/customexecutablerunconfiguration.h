@@ -102,7 +102,6 @@ private:
 
     QString m_executable;
     QString m_workingDirectory;
-    ProjectExplorer::ApplicationLauncher::Mode m_runMode;
     QWidget *m_dialog;
 };
 
