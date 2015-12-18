@@ -152,12 +152,12 @@ void ICodeStylePreferences::setDelegatingPool(CodeStylePool *pool)
     setCurrentDelegate(0);
     if (d->m_pool) {
         disconnect(d->m_pool, &CodeStylePool::codeStyleRemoved,
-                   this, &ICodeStylePreferences::slotCodeStyleRemoved);
+                   this, &ICodeStylePreferences::codeStyleRemoved);
     }
     d->m_pool = pool;
     if (d->m_pool) {
         connect(d->m_pool, &CodeStylePool::codeStyleRemoved,
-                this, &ICodeStylePreferences::slotCodeStyleRemoved);
+                this, &ICodeStylePreferences::codeStyleRemoved);
     }
 }
 
@@ -246,7 +246,7 @@ void ICodeStylePreferences::fromMap(const QString &prefix, const QVariantMap &ma
     }
 }
 
-void ICodeStylePreferences::slotCodeStyleRemoved(ICodeStylePreferences *preferences)
+void ICodeStylePreferences::codeStyleRemoved(ICodeStylePreferences *preferences)
 {
     if (currentDelegate() == preferences) {
         CodeStylePool *pool = delegatingPool();

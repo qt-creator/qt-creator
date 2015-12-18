@@ -103,9 +103,10 @@ signals:
 
 protected:
     virtual QString settingsSuffix() const = 0;
-    void slotCodeStyleRemoved(ICodeStylePreferences *preferences);
 
 private:
+    void codeStyleRemoved(ICodeStylePreferences *preferences);
+
     Internal::ICodeStylePreferencesPrivate *d;
 };
 
