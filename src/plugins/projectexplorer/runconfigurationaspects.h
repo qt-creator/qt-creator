@@ -103,7 +103,6 @@ private:
     void toMap(QVariantMap &map) const override;
 
     void resetPath();
-    void updateEnvironment();
     QString keyForDefaultWd() const;
 
     QString m_workingDirectory;

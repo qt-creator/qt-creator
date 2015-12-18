@@ -173,23 +173,16 @@ void WorkingDirectoryAspect::addToMainConfigurationWidget(QWidget *parent, QForm
     connect(resetButton, &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
 
     if (auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>()) {
-        connect(envAspect, &EnvironmentAspect::environmentChanged,
-                this, &WorkingDirectoryAspect::updateEnvironment);
-        updateEnvironment();
+        connect(envAspect, &EnvironmentAspect::environmentChanged, m_chooser.data(), [this, envAspect] {
+            m_chooser->setEnvironment(envAspect->environment());
+        });
+        m_chooser->setEnvironment(envAspect->environment());
     }
 
     auto hbox = new QHBoxLayout;
     hbox->addWidget(m_chooser);
     hbox->addWidget(resetButton);
     layout->addRow(tr("Working directory:"), hbox);
-}
-
-void WorkingDirectoryAspect::updateEnvironment()
-{
-    auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(envAspect, return);
-    QTC_ASSERT(m_chooser, return);
-    m_chooser->setEnvironment(envAspect->environment());
 }
 
 QString WorkingDirectoryAspect::keyForDefaultWd() const
