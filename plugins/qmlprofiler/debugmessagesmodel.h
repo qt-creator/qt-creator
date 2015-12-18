@@ -29,7 +29,7 @@ class DebugMessagesModel : public QmlProfiler::QmlProfilerTimelineModel
     Q_OBJECT
 
 protected:
-    bool accepted(const QmlProfiler::QmlProfilerDataModel::QmlEventTypeData &event) const;
+    bool accepted(const QmlProfiler::QmlProfilerDataModel::QmlEventTypeData &event) const override;
 
 public:
     DebugMessagesModel(QmlProfiler::QmlProfilerModelManager *manager, QObject *parent = 0);
