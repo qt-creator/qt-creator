@@ -55,8 +55,8 @@ void SimpleCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *pre
 
     // cleanup old
     if (m_preferences) {
-        disconnect(m_preferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
-                m_tabSettingsWidget, SLOT(setSettings(TextEditor::TabSettings)));
+        disconnect(m_preferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
+                m_tabSettingsWidget, SLOT(setTabSettings(TextEditor::TabSettings)));
         disconnect(m_preferences, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
                 this, SLOT(slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences*)));
         disconnect(m_tabSettingsWidget, SIGNAL(settingsChanged(TextEditor::TabSettings)),
