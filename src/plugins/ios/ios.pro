@@ -66,7 +66,6 @@ SOURCES += \
 FORMS += \
     iossettingswidget.ui \
     iosbuildstep.ui \
-    iosrunconfiguration.ui \
     iosdeploystepwidget.ui \
     iospresetbuildstep.ui
 

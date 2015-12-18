@@ -32,7 +32,6 @@
 #include "iosconstants.h"
 #include "iosmanager.h"
 #include "iosdeploystep.h"
-#include "ui_iosrunconfiguration.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -47,12 +46,20 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/fileutils.h>
-
-#include <QList>
-#include <QStandardItemModel>
-
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+
+#include <QAction>
+#include <QApplication>
+#include <QComboBox>
+#include <QFormLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QList>
+#include <QStandardItemModel>
+#include <QVariant>
+#include <QWidget>
 
 using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
@@ -66,23 +73,23 @@ static const QLatin1String deviceTypeKey("Ios.device_type");
 
 class IosRunConfigurationWidget : public RunConfigWidget
 {
-    Q_OBJECT
-
 public:
     IosRunConfigurationWidget(IosRunConfiguration *runConfiguration);
-    ~IosRunConfigurationWidget();
     QString argListToString(const QStringList &args) const;
     QStringList stringToArgList(const QString &args) const;
-    QString displayName() const;
+    QString displayName() const override;
 
-private slots:
+private:
     void argumentsLineEditTextEdited();
     void updateValues();
     void setDeviceTypeIndex(int devIndex);
-private:
-    Ui::IosRunConfiguration *m_ui;
+
     IosRunConfiguration *m_runConfiguration;
     QStandardItemModel m_deviceTypeModel;
+    QLabel *m_deviceTypeLabel;
+    QLineEdit *m_executableLineEdit;
+    QLineEdit *m_argumentsLineEdit;
+    QComboBox *m_deviceTypeComboBox;
 };
 
 IosRunConfiguration::IosRunConfiguration(Target *parent, Core::Id id, const FileName &path)
@@ -108,12 +115,12 @@ void IosRunConfiguration::init()
     m_lastIsEnabled = isEnabled();
     m_lastDisabledReason = disabledReason();
     updateDisplayNames();
-    connect(DeviceManager::instance(), SIGNAL(updated()),
-            SLOT(deviceChanges()));
-    connect(KitManager::instance(), SIGNAL(kitsChanged()),
-            SLOT(deviceChanges()));
-    connect(target()->project(), SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)),
-            this, SLOT(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)));
+    connect(DeviceManager::instance(), &DeviceManager::updated,
+            this, &IosRunConfiguration::deviceChanges);
+    connect(KitManager::instance(), &KitManager::kitsChanged,
+            this, &IosRunConfiguration::deviceChanges);
+    connect(project, &QmakeProject::proFileUpdated,
+            this, &IosRunConfiguration::proFileUpdated);
 }
 
 void IosRunConfiguration::enabledCheck()
@@ -383,24 +390,37 @@ void IosRunConfiguration::setDeviceType(const IosDeviceType &deviceType)
     m_deviceType = deviceType;
 }
 
-IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runConfiguration) :
-    m_ui(new Ui::IosRunConfiguration), m_runConfiguration(runConfiguration)
+IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runConfiguration)
+    : m_runConfiguration(runConfiguration)
 {
-    m_ui->setupUi(this);
-    m_ui->deviceTypeComboBox->setModel(&m_deviceTypeModel);
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+    setSizePolicy(sizePolicy);
+
+    m_argumentsLineEdit = new QLineEdit(this);
+
+    m_executableLineEdit = new QLineEdit(this);
+    m_executableLineEdit->setReadOnly(true);
+
+    m_deviceTypeComboBox = new QComboBox(this);
+    m_deviceTypeComboBox->setModel(&m_deviceTypeModel);
+
+    m_deviceTypeLabel = new QLabel(IosRunConfiguration::tr("Device type:"), this);
+
+    auto layout = new QFormLayout(this);
+    layout->addRow(IosRunConfiguration::tr("Arguments:"), m_argumentsLineEdit);
+    layout->addRow(IosRunConfiguration::tr("Executable:"), m_executableLineEdit);
+    layout->addRow(m_deviceTypeLabel, m_deviceTypeComboBox);
 
     updateValues();
-    connect(m_ui->deviceTypeComboBox, SIGNAL(currentIndexChanged(int)),
-            SLOT(setDeviceTypeIndex(int)));
-    connect(m_ui->argumentsLineEdit, SIGNAL(editingFinished()),
-            SLOT(argumentsLineEditTextEdited()));
-    connect(runConfiguration, SIGNAL(localExecutableChanged()),
-            SLOT(updateValues()));
-}
 
-IosRunConfigurationWidget::~IosRunConfigurationWidget()
-{
-    delete m_ui;
+    connect(m_deviceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &IosRunConfigurationWidget::setDeviceTypeIndex);
+    connect(m_argumentsLineEdit, &QLineEdit::editingFinished,
+            this, &IosRunConfigurationWidget::argumentsLineEditTextEdited);
+    connect(runConfiguration, &IosRunConfiguration::localExecutableChanged,
+            this, &IosRunConfigurationWidget::updateValues);
 }
 
 QString IosRunConfigurationWidget::argListToString(const QStringList &args) const
@@ -444,10 +464,10 @@ QString IosRunConfigurationWidget::displayName() const
 
 void IosRunConfigurationWidget::argumentsLineEditTextEdited()
 {
-    QString argsString = m_ui->argumentsLineEdit->text();
+    QString argsString = m_argumentsLineEdit->text();
     QStringList args = stringToArgList(argsString);
     m_runConfiguration->m_arguments = args;
-    m_ui->argumentsLineEdit->setText(argListToString(args));
+    m_argumentsLineEdit->setText(argListToString(args));
 }
 
 void IosRunConfigurationWidget::setDeviceTypeIndex(int devIndex)
@@ -461,8 +481,8 @@ void IosRunConfigurationWidget::setDeviceTypeIndex(int devIndex)
 void IosRunConfigurationWidget::updateValues()
 {
     bool showDeviceSelector = m_runConfiguration->deviceType().type != IosDeviceType::IosDevice;
-    m_ui->deviceTypeLabel->setVisible(showDeviceSelector);
-    m_ui->deviceTypeComboBox->setVisible(showDeviceSelector);
+    m_deviceTypeLabel->setVisible(showDeviceSelector);
+    m_deviceTypeComboBox->setVisible(showDeviceSelector);
     if (showDeviceSelector && m_deviceTypeModel.rowCount() == 0) {
         foreach (const IosDeviceType &dType, IosSimulator::availableDevices()) {
             QStandardItem *item = new QStandardItem(dType.displayName);
@@ -477,15 +497,15 @@ void IosRunConfigurationWidget::updateValues()
 
     IosDeviceType currentDType = m_runConfiguration->deviceType();
     if (currentDType.type == IosDeviceType::SimulatedDevice && !currentDType.identifier.isEmpty()
-            && (!m_ui->deviceTypeComboBox->currentData().isValid()
-                || currentDType != m_ui->deviceTypeComboBox->currentData().value<IosDeviceType>()))
+            && (!m_deviceTypeComboBox->currentData().isValid()
+                || currentDType != m_deviceTypeComboBox->currentData().value<IosDeviceType>()))
     {
         bool didSet = false;
         for (int i = 0; m_deviceTypeModel.hasIndex(i, 0); ++i) {
             QVariant vData = m_deviceTypeModel.data(m_deviceTypeModel.index(i, 0), Qt::UserRole + 1);
             IosDeviceType dType = vData.value<IosDeviceType>();
             if (dType == currentDType) {
-                m_ui->deviceTypeComboBox->setCurrentIndex(i);
+                m_deviceTypeComboBox->setCurrentIndex(i);
                 didSet = true;
                 break;
             }
@@ -494,11 +514,9 @@ void IosRunConfigurationWidget::updateValues()
             qCWarning(iosLog) << "could not set " << currentDType << " as it is not in model";
         }
     }
-    m_ui->argumentsLineEdit->setText(argsString);
-    m_ui->executableLineEdit->setText(m_runConfiguration->localExecutable().toUserOutput());
+    m_argumentsLineEdit->setText(argsString);
+    m_executableLineEdit->setText(m_runConfiguration->localExecutable().toUserOutput());
 }
 
 } // namespace Internal
 } // namespace Ios
-
-#include "iosrunconfiguration.moc"

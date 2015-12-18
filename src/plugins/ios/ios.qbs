@@ -54,7 +54,6 @@ QtcPlugin {
         "iosqtversionfactory.h",
         "iosrunconfiguration.cpp",
         "iosrunconfiguration.h",
-        "iosrunconfiguration.ui",
         "iosruncontrol.cpp",
         "iosruncontrol.h",
         "iosrunfactories.cpp",
