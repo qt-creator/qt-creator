@@ -137,6 +137,7 @@ public slots:
 
     static void split(Qt::Orientation orientation);
     static void removeAllSplits();
+    static void gotoPreviousSplit();
     static void gotoNextSplit();
 
     void handleDocumentStateChange();
@@ -224,6 +225,7 @@ private:
     QAction *m_splitNewWindowAction;
     QAction *m_removeCurrentSplitAction;
     QAction *m_removeAllSplitsAction;
+    QAction *m_gotoPreviousSplitAction;
     QAction *m_gotoNextSplitAction;
 
     QAction *m_copyFilePathContextAction;

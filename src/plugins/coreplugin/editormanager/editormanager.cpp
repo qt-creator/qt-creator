@@ -412,6 +412,12 @@ void EditorManagerPrivate::init()
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_removeAllSplitsAction, SIGNAL(triggered()), this, SLOT(removeAllSplits()));
 
+    m_gotoPreviousSplitAction = new QAction(tr("Go to Previous Split or Window"), this);
+    cmd = ActionManager::registerAction(m_gotoPreviousSplitAction, Constants::GOTO_PREV_SPLIT, editManagerContext);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,i") : tr("Ctrl+E,i")));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_gotoPreviousSplitAction, SIGNAL(triggered()), this, SLOT(gotoPreviousSplit()));
+
     m_gotoNextSplitAction = new QAction(tr("Go to Next Split or Window"), this);
     cmd = ActionManager::registerAction(m_gotoNextSplitAction, Constants::GOTO_NEXT_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,o") : tr("Ctrl+E,o")));
@@ -1656,6 +1662,30 @@ void EditorManagerPrivate::gotoNextSplit()
 
     if (nextView)
         activateView(nextView);
+}
+
+void EditorManagerPrivate::gotoPreviousSplit()
+{
+    EditorView *view = currentEditorView();
+    if (!view)
+        return;
+    EditorView *prevView = view->findPreviousView();
+    if (!prevView) {
+        // we are in the "first" view in this editor area
+        int index = -1;
+        EditorArea *area = findEditorArea(view, &index);
+        QTC_ASSERT(area, return);
+        QTC_ASSERT(index >= 0 && index < d->m_editorAreas.size(), return);
+        // find previous editor area. this might be the same editor area if there's only one.
+        int nextIndex = index - 1;
+        if (nextIndex < 0)
+            nextIndex = d->m_editorAreas.count() - 1;
+        prevView = d->m_editorAreas.at(nextIndex)->findLastView();
+        QTC_CHECK(prevView);
+    }
+
+    if (prevView)
+        activateView(prevView);
 }
 
 void EditorManagerPrivate::makeCurrentEditorWritable()

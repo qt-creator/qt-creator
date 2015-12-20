@@ -184,6 +184,29 @@ EditorView *EditorView::findNextView()
     return 0;
 }
 
+EditorView *EditorView::findPreviousView()
+{
+    SplitterOrView *current = parentSplitterOrView();
+    QTC_ASSERT(current, return 0);
+    SplitterOrView *parent = current->findParentSplitter();
+    while (parent) {
+        QSplitter *splitter = parent->splitter();
+        QTC_ASSERT(splitter, return 0);
+        QTC_ASSERT(splitter->count() == 2, return 0);
+        // is current the last child? then the previous view is the first child in current's sibling
+        if (splitter->widget(1) == current) {
+            SplitterOrView *first = qobject_cast<SplitterOrView *>(splitter->widget(0));
+            QTC_ASSERT(first, return 0);
+            return first->findFirstView();
+        }
+        // otherwise go up the hierarchy
+        current = parent;
+        parent = current->findParentSplitter();
+    }
+    // current has no parent, so we are at the top and there is no "previous" view
+    return 0;
+}
+
 void EditorView::closeCurrentEditor()
 {
     IEditor *editor = currentEditor();
@@ -630,6 +653,19 @@ EditorView *SplitterOrView::findFirstView()
         for (int i = 0; i < m_splitter->count(); ++i) {
             if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
                 if (EditorView *result = splitterOrView->findFirstView())
+                    return result;
+        }
+        return 0;
+    }
+    return m_view;
+}
+
+EditorView *SplitterOrView::findLastView()
+{
+    if (m_splitter) {
+        for (int i = m_splitter->count() - 1; 0 < i; --i) {
+            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
+                if (EditorView *result = splitterOrView->findLastView())
                     return result;
         }
         return 0;

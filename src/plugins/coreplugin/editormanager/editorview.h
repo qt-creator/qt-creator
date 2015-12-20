@@ -85,6 +85,7 @@ public:
 
     SplitterOrView *parentSplitterOrView() const;
     EditorView *findNextView();
+    EditorView *findPreviousView();
 
     int editorCount() const;
     void addEditor(IEditor *editor);
@@ -197,6 +198,7 @@ public:
     void restoreState(const QByteArray &);
 
     EditorView *findFirstView();
+    EditorView *findLastView();
     SplitterOrView *findParentSplitter() const;
 
     QSize sizeHint() const { return minimumSizeHint(); }
