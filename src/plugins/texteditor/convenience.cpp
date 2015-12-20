@@ -61,5 +61,13 @@ QString textAt(QTextCursor tc, int pos, int length)
     return tc.selectedText().replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
 }
 
+QTextCursor flippedCursor(const QTextCursor &cursor)
+{
+    QTextCursor flipped = cursor;
+    flipped.clearSelection();
+    flipped.setPosition(cursor.anchor(), QTextCursor::KeepAnchor);
+    return flipped;
+}
+
 } // Util
 } // TextEditor

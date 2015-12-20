@@ -1300,14 +1300,6 @@ void TextEditorWidget::gotoNextWordCamelCaseWithSelection()
     setTextCursor(c);
 }
 
-static QTextCursor flippedCursor(const QTextCursor &cursor)
-{
-    QTextCursor flipped = cursor;
-    flipped.clearSelection();
-    flipped.setPosition(cursor.anchor(), QTextCursor::KeepAnchor);
-    return flipped;
-}
-
 bool TextEditorWidget::selectBlockUp()
 {
     QTextCursor cursor = textCursor();
@@ -1321,7 +1313,7 @@ bool TextEditorWidget::selectBlockUp()
     if (!TextBlockUserData::findNextClosingParenthesis(&cursor, true))
         return false;
 
-    setTextCursor(flippedCursor(cursor));
+    setTextCursor(Convenience::flippedCursor(cursor));
     d->_q_matchParentheses();
     return true;
 }
@@ -1346,7 +1338,7 @@ bool TextEditorWidget::selectBlockDown()
     if ( cursor != d->m_selectBlockAnchor)
         TextBlockUserData::findNextClosingParenthesis(&cursor, true);
 
-    setTextCursor(flippedCursor(cursor));
+    setTextCursor(Convenience::flippedCursor(cursor));
     d->_q_matchParentheses();
     return true;
 }
@@ -5344,6 +5336,11 @@ const DisplaySettings &TextEditorWidget::displaySettings() const
 const MarginSettings &TextEditorWidget::marginSettings() const
 {
     return d->m_marginSettings;
+}
+
+const BehaviorSettings &TextEditorWidget::behaviorSettings() const
+{
+    return d->m_behaviorSettings;
 }
 
 void TextEditorWidgetPrivate::handleHomeKey(bool anchor)

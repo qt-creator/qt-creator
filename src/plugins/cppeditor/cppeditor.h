@@ -92,6 +92,9 @@ public slots:
     void renameSymbolUnderCursor();
     void renameUsages(const QString &replacement = QString());
 
+    bool selectBlockUp() override;
+    bool selectBlockDown() override;
+
 protected:
     bool event(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *) override;

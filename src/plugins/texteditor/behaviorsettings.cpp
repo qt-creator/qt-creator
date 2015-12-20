@@ -37,6 +37,7 @@ static const char constrainTooltips[] = "ConstrainTooltips";
 static const char camelCaseNavigationKey[] = "CamelCaseNavigation";
 static const char keyboardTooltips[] = "KeyboardTooltips";
 static const char groupPostfix[] = "BehaviorSettings";
+static const char smartSelectionChanging[] = "SmartSelectionChanging";
 
 namespace TextEditor {
 
@@ -46,7 +47,8 @@ BehaviorSettings::BehaviorSettings() :
     m_scrollWheelZooming(true),
     m_constrainHoverTooltips(false),
     m_camelCaseNavigation(true),
-    m_keyboardTooltips(false)
+    m_keyboardTooltips(false),
+    m_smartSelectionChanging(true)
 {
 }
 
@@ -69,6 +71,7 @@ void BehaviorSettings::toMap(const QString &prefix, QVariantMap *map) const
     map->insert(prefix + QLatin1String(constrainTooltips), m_constrainHoverTooltips);
     map->insert(prefix + QLatin1String(camelCaseNavigationKey), m_camelCaseNavigation);
     map->insert(prefix + QLatin1String(keyboardTooltips), m_keyboardTooltips);
+    map->insert(prefix + QLatin1String(smartSelectionChanging), m_smartSelectionChanging);
 }
 
 void BehaviorSettings::fromMap(const QString &prefix, const QVariantMap &map)
@@ -85,6 +88,9 @@ void BehaviorSettings::fromMap(const QString &prefix, const QVariantMap &map)
         map.value(prefix + QLatin1String(camelCaseNavigationKey), m_camelCaseNavigation).toBool();
     m_keyboardTooltips =
         map.value(prefix + QLatin1String(keyboardTooltips), m_keyboardTooltips).toBool();
+    m_smartSelectionChanging =
+        map.value(prefix + QLatin1String(smartSelectionChanging), m_smartSelectionChanging)
+           .toBool();
 }
 
 bool BehaviorSettings::equals(const BehaviorSettings &ds) const
@@ -95,6 +101,7 @@ bool BehaviorSettings::equals(const BehaviorSettings &ds) const
         && m_constrainHoverTooltips == ds.m_constrainHoverTooltips
         && m_camelCaseNavigation == ds.m_camelCaseNavigation
         && m_keyboardTooltips == ds.m_keyboardTooltips
+        && m_smartSelectionChanging == ds.m_smartSelectionChanging
         ;
 }
 

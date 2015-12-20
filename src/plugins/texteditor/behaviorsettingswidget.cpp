@@ -111,6 +111,8 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
     connect(d->m_ui.keyboardTooltips, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
+    connect(d->m_ui.smartSelectionChanging, &QAbstractButton::clicked,
+            this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
 }
 
 BehaviorSettingsWidget::~BehaviorSettingsWidget()
@@ -198,6 +200,7 @@ void BehaviorSettingsWidget::setAssignedBehaviorSettings(const BehaviorSettings 
     d->m_ui.constrainTooltipsBox->setCurrentIndex(behaviorSettings.m_constrainHoverTooltips ? 1 : 0);
     d->m_ui.camelCaseNavigation->setChecked(behaviorSettings.m_camelCaseNavigation);
     d->m_ui.keyboardTooltips->setChecked(behaviorSettings.m_keyboardTooltips);
+    d->m_ui.smartSelectionChanging->setChecked(behaviorSettings.m_smartSelectionChanging);
     updateConstrainTooltipsBoxTooltip();
 }
 
@@ -209,6 +212,7 @@ void BehaviorSettingsWidget::assignedBehaviorSettings(BehaviorSettings *behavior
     behaviorSettings->m_constrainHoverTooltips = (d->m_ui.constrainTooltipsBox->currentIndex() == 1);
     behaviorSettings->m_camelCaseNavigation = d->m_ui.camelCaseNavigation->isChecked();
     behaviorSettings->m_keyboardTooltips = d->m_ui.keyboardTooltips->isChecked();
+    behaviorSettings->m_smartSelectionChanging = d->m_ui.smartSelectionChanging->isChecked();
 }
 
 void BehaviorSettingsWidget::setAssignedExtraEncodingSettings(
