@@ -833,8 +833,17 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
             nameIndex++;
         }
     }
-    if (isTopLevel)
+
+    if (isTopLevel) {
         m_parameters.SubElements = ULONG(children().size());
+    } else {
+        int delta = int(m_parameters.SubElements - children().size());
+        if (delta != 0) {
+            m_symbolGroup->root()->notifyIndexesMoved(m_index + m_parameters.SubElements,
+                                                      delta < 0, abs(delta));
+            m_parameters.SubElements = ULONG(children().size());
+        }
+    }
 }
 
 SymbolGroupNode *SymbolGroupNode::create(SymbolGroup *sg, const std::string &module,
