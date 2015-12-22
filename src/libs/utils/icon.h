@@ -51,14 +51,19 @@ typedef QPair<QString, Theme::Color> IconMaskAndColor;
 class QTCREATOR_UTILS_EXPORT Icon : public QVector<IconMaskAndColor>
 {
 public:
-    enum class Style {
-        Plain,
-        Tinted,
-        TintedWithShadow
+    enum IconStyleOption {
+        None = 0,
+        Tint = 1,
+        DropShadow = 2,
+        PunchEdges = 4,
+
+        ToolBarStyle = Tint | DropShadow | PunchEdges
     };
 
+    Q_DECLARE_FLAGS(IconStyleOptions, IconStyleOption)
+
     Icon();
-    Icon(std::initializer_list<IconMaskAndColor> args, Style style = Style::TintedWithShadow);
+    Icon(std::initializer_list<IconMaskAndColor> args, IconStyleOptions style = ToolBarStyle);
     Icon(const QString &imageFileName);
     Icon(const Icon &other) = default;
 
@@ -80,9 +85,11 @@ public:
     static QIcon combinedIcon(const QList<QIcon> &icons);
 
 private:
-    Style m_style = Style::Plain;
+    IconStyleOptions m_style = None;
 };
 
 } // namespace Utils
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Icon::IconStyleOptions)
 
 #endif // THEMEHELPER_H

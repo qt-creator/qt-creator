@@ -90,7 +90,7 @@ const Utils::Icon NEXT({
 const Utils::Icon PREV({
         {QLatin1String(":/core/images/prev.png"), Utils::Theme::IconsNavigationArrowsColor}});
 const Utils::Icon MAGNIFIER({
-        {QLatin1String(":/core/images/magnifier.png"), Utils::Theme::PanelTextColorMid}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/core/images/magnifier.png"), Utils::Theme::BackgroundColorHover}}, Utils::Icon::Tint);
 const Utils::Icon CLEAN_PANE({
         {QLatin1String(":/core/images/clean_pane_small.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon RELOAD({
@@ -100,9 +100,9 @@ const Utils::Icon TOGGLE_SIDEBAR({
 const Utils::Icon CLOSE_TOOLBAR({
         {QLatin1String(":/core/images/close.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon CLOSE_FOREGROUND({
-        {QLatin1String(":/core/images/close.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/core/images/close.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 const Utils::Icon CLOSE_BACKGROUND({
-        {QLatin1String(":/core/images/close.png"), Utils::Theme::PanelTextColorLight}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/core/images/close.png"), Utils::Theme::PanelTextColorLight}}, Utils::Icon::Tint);
 const Utils::Icon SPLIT_HORIZONTAL({
         {QLatin1String(":/core/images/splitbutton_horizontal.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon SPLIT_VERTICAL({
@@ -121,19 +121,19 @@ const Utils::Icon LINK({
         {QLatin1String(":/core/images/linkicon.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon WARNING({
         {QLatin1String(":/core/images/warningfill.png"), Utils::Theme::BackgroundColorNormal},
-        {QLatin1String(":/core/images/warning.png"), Utils::Theme::IconsWarningColor}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/core/images/warning.png"), Utils::Theme::IconsWarningColor}}, Utils::Icon::Tint);
 const Utils::Icon WARNING_TOOLBAR({
         {QLatin1String(":/core/images/warning.png"), Utils::Theme::IconsWarningToolBarColor}});
 const Utils::Icon ERROR({
         {QLatin1String(":/core/images/warningfill.png"), Utils::Theme::BackgroundColorNormal},
-        {QLatin1String(":/core/images/error.png"), Utils::Theme::IconsErrorColor}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/core/images/error.png"), Utils::Theme::IconsErrorColor}}, Utils::Icon::Tint);
 const Utils::Icon ERROR_TOOLBAR({
         {QLatin1String(":/core/images/error.png"), Utils::Theme::IconsErrorToolBarColor}});
 const Utils::Icon ERROR_TASKBAR({
-        {QLatin1String(":/core/images/compile_error_taskbar.png"), Utils::Theme::IconsErrorColor}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/core/images/compile_error_taskbar.png"), Utils::Theme::IconsErrorColor}}, Utils::Icon::Tint);
 const Utils::Icon INFO({
         {QLatin1String(":/core/images/warningfill.png"), Utils::Theme::BackgroundColorNormal},
-        {QLatin1String(":/core/images/info.png"), Utils::Theme::IconsInfoColor}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/core/images/info.png"), Utils::Theme::IconsInfoColor}}, Utils::Icon::Tint);
 const Utils::Icon INFO_TOOLBAR({
         {QLatin1String(":/core/images/info.png"), Utils::Theme::IconsInfoToolBarColor}});
 const Utils::Icon EXPAND({

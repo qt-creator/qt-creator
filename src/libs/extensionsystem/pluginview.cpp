@@ -96,20 +96,20 @@ static const QIcon &icon(IconIndex icon)
     case OkIcon: {
         static const QIcon ok =
                 Icon({{QLatin1String(":/extensionsystem/images/ok.png"),
-                       Theme::IconsRunColor}}, Icon::Style::Tinted).icon();
+                       Theme::IconsRunColor}}, Icon::Tint).icon();
         return ok;
     }
     case ErrorIcon: {
         static const QIcon error =
                 Icon({{QLatin1String(":/extensionsystem/images/error.png"),
-                       Theme::IconsErrorColor}}, Icon::Style::Tinted).icon();
+                       Theme::IconsErrorColor}}, Icon::Tint).icon();
         return error;
     }
     default:
     case NotLoadedIcon: {
         static const QIcon notLoaded =
                 Icon({{QLatin1String(":/extensionsystem/images/notloaded.png"),
-                       Theme::IconsErrorColor}}, Icon::Style::Tinted).icon();
+                       Theme::IconsErrorColor}}, Icon::Tint).icon();
         return notLoaded;
     }
     }

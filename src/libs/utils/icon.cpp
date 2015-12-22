@@ -87,7 +87,7 @@ static void smearPixmap(QPainter *painter, const QPixmap &pixmap, qreal radius)
     painter->drawPixmap(QPointF(nagative, 0), pixmap);
 }
 
-static QPixmap combinedMask(const MasksAndColors &masks)
+static QPixmap combinedMask(const MasksAndColors &masks, Icon::IconStyleOptions style)
 {
     if (masks.count() == 1)
         return masks.first().first;
@@ -98,18 +98,20 @@ static QPixmap combinedMask(const MasksAndColors &masks)
     auto maskImage = masks.constBegin();
     maskImage++;
     for (;maskImage != masks.constEnd(); ++maskImage) {
-        p.save();
-        p.setOpacity(0.4);
-        p.setCompositionMode(QPainter::CompositionMode_Lighten);
-        smearPixmap(&p, maskToColorAndAlpha((*maskImage).first, Qt::white), 0.5);
-        p.restore();
+        if (style & Icon::PunchEdges) {
+            p.save();
+            p.setOpacity(0.4);
+            p.setCompositionMode(QPainter::CompositionMode_Lighten);
+            smearPixmap(&p, maskToColorAndAlpha((*maskImage).first, Qt::white), 0.5);
+            p.restore();
+        }
         p.drawPixmap(0, 0, (*maskImage).first);
     }
     p.end();
     return result;
 }
 
-static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedMask, Icon::Style style)
+static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedMask, Icon::IconStyleOptions style)
 {
     QPixmap result(combinedMask.size());
     result.setDevicePixelRatio(combinedMask.devicePixelRatio());
@@ -118,7 +120,7 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
 
     for (MasksAndColors::const_iterator maskImage = masks.constBegin();
          maskImage != masks.constEnd(); ++maskImage) {
-        if (style == Icon::Style::TintedWithShadow && maskImage != masks.constBegin()) {
+        if (style & Icon::PunchEdges && maskImage != masks.constBegin()) {
             // Punch a transparent outline around an overlay.
             p.save();
             p.setOpacity(0.4);
@@ -129,7 +131,7 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
         p.drawPixmap(0, 0, maskToColorAndAlpha((*maskImage).first, (*maskImage).second));
     }
 
-    if (style == Icon::Style::TintedWithShadow) {
+    if (style & Icon::DropShadow) {
         const QPixmap shadowMask = maskToColorAndAlpha(combinedMask, Qt::black);
         p.setCompositionMode(QPainter::CompositionMode_DestinationOver);
         p.setOpacity(0.05);
@@ -163,14 +165,14 @@ Icon::Icon()
 {
 }
 
-Icon::Icon(std::initializer_list<IconMaskAndColor> args, Style style)
+Icon::Icon(std::initializer_list<IconMaskAndColor> args, Icon::IconStyleOptions style)
     : QVector<IconMaskAndColor>(args)
     , m_style(style)
 {
 }
 
 Icon::Icon(const QString &imageFileName)
-    : m_style(Style::Plain)
+    : m_style(None)
 {
     append({imageFileName, Theme::Color(-1)});
 }
@@ -179,12 +181,12 @@ QIcon Icon::icon() const
 {
     if (isEmpty()) {
         return QIcon();
-    } else if (m_style == Style::Plain) {
+    } else if (m_style == None) {
         return QIcon(combinedPlainPixmaps(*this));
     } else {
         QIcon result;
         const MasksAndColors masks = masksAndColors(*this, qRound(qApp->devicePixelRatio()));
-        const QPixmap combinedMask = Utils::combinedMask(masks);
+        const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
         result.addPixmap(masksToIcon(masks, combinedMask, m_style));
 
         QColor disabledColor = creatorTheme()->palette().mid().color();
@@ -198,12 +200,12 @@ QPixmap Icon::pixmap() const
 {
     if (isEmpty()) {
         return QPixmap();
-    } else if (m_style == Style::Plain) {
+    } else if (m_style == None) {
         return combinedPlainPixmaps(*this);
     } else {
         const MasksAndColors masks =
                 masksAndColors(*this, qRound(qApp->devicePixelRatio()));
-        const QPixmap combinedMask = Utils::combinedMask(masks);
+        const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
         return masksToIcon(masks, combinedMask, m_style);
     }
 }

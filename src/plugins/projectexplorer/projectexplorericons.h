@@ -65,13 +65,13 @@ const Utils::Icon DEBUG_START_FLAT({
         {QLatin1String(":/projectexplorer/images/debugger_run_mask.png"), Utils::Theme::IconsRunColor}});
 
 const Utils::Icon BUILDSTEP_MOVEUP({
-        {QLatin1String(":/projectexplorer/images/buildstepmoveup.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/projectexplorer/images/buildstepmoveup.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 const Utils::Icon BUILDSTEP_MOVEDOWN({
-        {QLatin1String(":/projectexplorer/images/buildstepmovedown.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/projectexplorer/images/buildstepmovedown.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 const Utils::Icon BUILDSTEP_DISABLE({
-        {QLatin1String(":/projectexplorer/images/buildstepdisable.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/projectexplorer/images/buildstepdisable.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 const Utils::Icon BUILDSTEP_REMOVE({
-        {QLatin1String(":/projectexplorer/images/buildstepremove.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/projectexplorer/images/buildstepremove.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 
 const Utils::Icon RUN_SMALL({
         {QLatin1String(":/projectexplorer/images/run_small.png"), Utils::Theme::IconsRunColor}});

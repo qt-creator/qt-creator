@@ -76,7 +76,7 @@ const Utils::Icon EMPTY(
 const Utils::Icon STEP_OVER({
         {QLatin1String(":/debugger/images/debugger_stepover_small.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon STEP_OVER_TOOLBUTTON({
-        {QLatin1String(":/debugger/images/debugger_stepover_small.png"), Utils::Theme::TextColorNormal}}, Utils::Icon::Style::Tinted);
+        {QLatin1String(":/debugger/images/debugger_stepover_small.png"), Utils::Theme::TextColorNormal}}, Utils::Icon::Tint);
 const Utils::Icon STEP_INTO({
         {QLatin1String(":/debugger/images/debugger_stepinto_small.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon STEP_OUT({
