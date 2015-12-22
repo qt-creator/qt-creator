@@ -147,7 +147,7 @@ static QStringList readLines(const QString &absoluteFileName)
         QTextStream stream(&file);
 
         forever {
-            QString line = stream.readLine();
+            const QString line = stream.readLine();
             if (line.isNull())
                 break;
 
@@ -194,7 +194,7 @@ bool GenericProject::addFiles(const QStringList &filePaths)
     QSet<QString> toAdd;
 
     foreach (const QString &filePath, filePaths) {
-        QString directory = QFileInfo(filePath).absolutePath();
+        const QString directory = QFileInfo(filePath).absolutePath();
         if (!includes.contains(directory) && !toAdd.contains(directory))
             toAdd << directory;
     }
