@@ -337,9 +337,7 @@ void BranchDialog::reset()
     if (QMessageBox::question(this, tr("Git Reset"), tr("Hard reset branch \"%1\" to \"%2\"?")
                               .arg(currentName).arg(branchName),
                               QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-        GitPlugin::instance()->client()->reset(QString(m_repository), QLatin1String("--hard"),
-                                                  branchName);
-
+        GitPlugin::instance()->client()->reset(m_repository, QLatin1String("--hard"), branchName);
     }
 }
 
