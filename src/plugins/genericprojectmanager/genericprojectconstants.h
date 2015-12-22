@@ -47,13 +47,6 @@ const char CONFIG_MIMETYPE[]    = "application/vnd.qtcreator.generic.config";
 // Project
 const char GENERICPROJECT_ID[]  = "GenericProjectManager.GenericProject";
 
-const char HIDE_FILE_FILTER_SETTING[] = "GenericProject/FileFilter";
-const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; *.files;"
-    " *.config; *.creator; *.user; *.includes; *.autosave";
-
-const char SHOW_FILE_FILTER_SETTING[] = "GenericProject/ShowFileFilter";
-const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
-
 } // namespace Constants
 } // namespace GenericProjectManager
 
