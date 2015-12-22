@@ -54,6 +54,7 @@ public:
 
     QString readWordFromRight();
     bool skipFromRight(const QString &s);
+    bool searchOutsideOfBracketsFromRight(const QString &s);
 
     QString extractSubstr(int start, int stop);
 
@@ -210,6 +211,30 @@ bool ClassMembersEdit::Cursor::skipFromRight(const QString &s)
         m_pos -= s.length();
         return true;
     }
+    return false;
+}
+
+bool ClassMembersEdit::Cursor::searchOutsideOfBracketsFromRight(const QString &s)
+{
+    if (!m_isValid)
+        return false;
+    int startPos = m_pos;
+    int lastPos = m_lastPos;
+    int brackets = 0;
+    for (;;) {
+        const QString word = readWordFromRight();
+        if (!m_isValid || word == QStringLiteral("\n"))
+            break;
+        if (brackets == 0 && word == s)
+            return true;
+        else if (word == QStringLiteral("(") || word == QStringLiteral("[") || word == QStringLiteral("{"))
+            ++brackets;
+        else if (word == QStringLiteral(")") || word == QStringLiteral("]") || word == QStringLiteral("}"))
+            --brackets;
+    }
+    m_isValid = true;
+    m_pos = startPos;
+    m_lastPos = lastPos;
     return false;
 }
 
@@ -411,6 +436,8 @@ QString ClassMembersEdit::build(const QList<MClassMember> &members)
             text += QStringLiteral("invokable ");
         if (member.properties() & MClassMember::PropertyVirtual)
             text += QStringLiteral("virtual ");
+        if (member.properties() & MClassMember::PropertyConstexpr)
+            text += QStringLiteral("constexpr ");
         text += member.declaration();
         if (member.properties() & MClassMember::PropertyConst)
             text += QStringLiteral(" const");
@@ -483,6 +510,10 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
             } else if (word == QStringLiteral("virtual")) {
                 member.setProperties(member.properties() | MClassMember::PropertyVirtual);
                 word = cursor.readWord().toLower();
+            } else if (word == QStringLiteral("constexpr") || word == QStringLiteral("q_decl_constexpr")
+                       || word == QStringLiteral("q_decl_relaxed_constexpr")) {
+                member.setProperties(member.properties() | MClassMember::PropertyConstexpr);
+                word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("signal") || word == QStringLiteral("q_signal")) {
                 member.setProperties(member.properties() | MClassMember::PropertyQsignal);
                 word = cursor.readWord().toLower();
@@ -507,22 +538,27 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
             int nextLinePosition = cursor.position();
             cursor.setPosition(nextLinePosition - 1);
             word = cursor.readWordFromRight().toLower();
-            if (word == QStringLiteral(";"))
-                word = cursor.readWordFromRight().toLower();
+            if (word != QStringLiteral(";"))
+                cursor.unreadWord();
+
+            int endPosition = cursor.position();
+            QString expr;
+            if (cursor.searchOutsideOfBracketsFromRight(QStringLiteral("=")))
+                expr = cursor.extractSubstr(cursor.position() + 2, endPosition).trimmed();
+            word = cursor.readWordFromRight().toLower();
             for (;;) {
-                if (word == QStringLiteral("0")) {
-                    member.setProperties(member.properties() | MClassMember::PropertyAbstract);
-                    word = cursor.readWordFromRight().toLower();
-                } else if (word == QStringLiteral("=")) {
-                    word = cursor.readWordFromRight().toLower();
-                } else if (word == QStringLiteral("final")) {
+                // TODO ignore throw(), noexpect(*),
+                if (word == QStringLiteral("final") || word == QStringLiteral("q_decl_final")) {
                     member.setProperties(member.properties() | MClassMember::PropertyFinal);
                     word = cursor.readWordFromRight().toLower();
-                } else if (word == QStringLiteral("override")) {
+                } else if (word == QStringLiteral("override") || word == QStringLiteral("q_decl_override")) {
                     member.setProperties(member.properties() | MClassMember::PropertyOverride);
                     word = cursor.readWordFromRight().toLower();
                 } else if (word == QStringLiteral("const")) {
                     member.setProperties(member.properties() | MClassMember::PropertyConst);
+                    word = cursor.readWordFromRight().toLower();
+                } else if (word == QStringLiteral("noexpect")) {
+                    // just ignore it
                     word = cursor.readWordFromRight().toLower();
                 } else {
                     cursor.unreadWord();
@@ -535,10 +571,14 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
                 break;
             if (!declaration.isEmpty()) {
                 member.setDeclaration(declaration);
-                if (declaration.endsWith(QStringLiteral(")")))
+                // TODO recognize function pointer
+                if (declaration.endsWith(QStringLiteral(")"))) {
                     member.setMemberType(MClassMember::MemberMethod);
-                else
+                    if (expr == QStringLiteral("0"))
+                        member.setProperties(member.properties() | MClassMember::PropertyAbstract);
+                } else {
                     member.setMemberType(MClassMember::MemberAttribute);
+                }
                 members.append(member);
             }
             cursor.setPosition(nextLinePosition);
