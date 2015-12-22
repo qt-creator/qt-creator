@@ -30,36 +30,36 @@
 
 #include "diffeditor.h"
 #include "diffeditorconstants.h"
-#include "diffeditoricons.h"
 #include "diffeditordocument.h"
+#include "diffeditoricons.h"
 #include "diffview.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 
-#include <texteditor/texteditor.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/marginsettings.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
-#include <QStackedWidget>
-#include <QToolButton>
-#include <QSpinBox>
-#include <QStyle>
-#include <QLabel>
-#include <QHBoxLayout>
-#include <QToolBar>
 #include <QComboBox>
 #include <QDir>
-#include <QTextCodec>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSpinBox>
+#include <QStackedWidget>
+#include <QStyle>
 #include <QTextBlock>
+#include <QTextCodec>
+#include <QToolBar>
+#include <QToolButton>
 
 static const char settingsGroupC[] = "DiffEditor";
 static const char descriptionVisibleKeyC[] = "DescriptionVisible";
