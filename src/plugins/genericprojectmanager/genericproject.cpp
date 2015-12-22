@@ -46,6 +46,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -171,14 +172,19 @@ bool GenericProject::saveRawList(const QStringList &rawList, const QString &file
     return result;
 }
 
+static void insertSorted(QStringList *list, const QString &value)
+{
+    int pos = Utils::indexOf(*list, [value](const QString &s) { return s > value; });
+    list->insert(pos, value);
+}
+
 bool GenericProject::addFiles(const QStringList &filePaths)
 {
     QStringList newList = m_rawFileList;
 
     QDir baseDir(projectDirectory().toString());
     foreach (const QString &filePath, filePaths)
-        newList.append(baseDir.relativeFilePath(filePath));
-
+        insertSorted(&newList, baseDir.relativeFilePath(filePath));
 
     QSet<QString> includes = projectIncludePaths().toSet();
     QSet<QString> toAdd;
@@ -223,6 +229,7 @@ bool GenericProject::setFiles(const QStringList &filePaths)
     QDir baseDir(projectDirectory().toString());
     foreach (const QString &filePath, filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
+    Utils::sort(newList);
 
     return saveRawFileList(newList);
 }
@@ -236,7 +243,8 @@ bool GenericProject::renameFile(const QString &filePath, const QString &newFileP
         int index = newList.indexOf(i.value());
         if (index != -1) {
             QDir baseDir(projectDirectory().toString());
-            newList.replace(index, baseDir.relativeFilePath(newFilePath));
+            newList.removeAt(index);
+            insertSorted(&newList, baseDir.relativeFilePath(newFilePath));
         }
     }
 
