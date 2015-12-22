@@ -918,7 +918,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 
     if (command.flags & RebuildBreakpointModel) {
         ++m_pendingBreakpointRequests;
-        PENDING_DEBUG("   BRWAKPOINT MODEL:" << cmd.function
+        PENDING_DEBUG("   BREAKPOINT MODEL:" << cmd.function
                       << "INCREMENTS PENDING TO" << m_pendingBreakpointRequests);
     } else {
         PENDING_DEBUG("   OTHER (IN):" << cmd.function
