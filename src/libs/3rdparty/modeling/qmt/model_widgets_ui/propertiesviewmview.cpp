@@ -1118,8 +1118,22 @@ void PropertiesView::MView::onParseClassMembers()
 
 void PropertiesView::MView::onClassMembersChanged(QList<MClassMember> &classMembers)
 {
+    QSet<Uid> showMembers;
+    if (!classMembers.isEmpty()) {
+        foreach (MElement *element, m_modelElements) {
+            MClass *klass = dynamic_cast<MClass *>(element);
+            if (klass && klass->members().isEmpty())
+                showMembers.insert(klass->uid());
+        }
+    }
     assignModelElement<MClass, QList<MClassMember> >(m_modelElements, SelectionSingle, classMembers,
                                                      &MClass::members, &MClass::setMembers);
+    foreach (DElement *element, m_diagramElements) {
+        if (showMembers.contains(element->modelUid())) {
+            assignModelElement<DClass, bool>(QList<DElement *>() << element, SelectionSingle, true,
+                                             &DClass::showAllMembers, &DClass::setShowAllMembers);
+        }
+    }
 }
 
 void PropertiesView::MView::onItemVarietyChanged(const QString &variety)
