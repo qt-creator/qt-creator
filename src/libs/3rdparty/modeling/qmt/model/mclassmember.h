@@ -65,6 +65,7 @@ public:
         PropertyOverride   = 0x8,
         PropertyFinal      = 0x10,
         PropertyConstexpr  = 0x20,
+        PropertyStatic     = 0x40,
         PropertyQsignal    = 0x100,
         PropertyQslot      = 0x200,
         PropertyQinvokable = 0x400,

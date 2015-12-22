@@ -665,6 +665,8 @@ void ClassItem::updateMembers(const Style *style)
             *text += StereotypesItem::format(member.stereotypes());
             *text += QStringLiteral(" ");
         }
+        if (member.properties() & MClassMember::PropertyStatic)
+            *text += QStringLiteral("static ");
         if (member.properties() & MClassMember::PropertyVirtual)
             *text += QStringLiteral("virtual ");
         *text += member.declaration().toHtmlEscaped();

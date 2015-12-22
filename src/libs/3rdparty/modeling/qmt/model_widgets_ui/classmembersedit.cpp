@@ -434,6 +434,8 @@ QString ClassMembersEdit::build(const QList<MClassMember> &members)
             text += QStringLiteral("slot ");
         if (member.properties() & MClassMember::PropertyQinvokable)
             text += QStringLiteral("invokable ");
+        if (member.properties() & MClassMember::PropertyStatic)
+            text += QStringLiteral("static ");
         if (member.properties() & MClassMember::PropertyVirtual)
             text += QStringLiteral("virtual ");
         if (member.properties() & MClassMember::PropertyConstexpr)
@@ -506,6 +508,9 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
                 QString stereotypes = cursor.readUntil(QStringLiteral(">>"));
                 StereotypesController ctrl;
                 member.setStereotypes(ctrl.fromString(stereotypes));
+                word = cursor.readWord().toLower();
+            } else if (word == QStringLiteral("static")) {
+                member.setProperties(member.properties() | MClassMember::PropertyStatic);
                 word = cursor.readWord().toLower();
             } else if (word == QStringLiteral("virtual")) {
                 member.setProperties(member.properties() | MClassMember::PropertyVirtual);
