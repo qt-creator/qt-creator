@@ -47,19 +47,6 @@ class RectangularSelectionItem : public QGraphicsItem
     class GraphicsHandleItem;
     friend class GraphicsHandleItem;
 
-    enum Handle {
-        HandleFirst = 0,
-        HandleTopLeft = HandleFirst,
-        HandleTop,
-        HandleTopRight,
-        HandleLeft,
-        HandleRight,
-        HandleBottomLeft,
-        HandleBottom,
-        HandleBottomRight,
-        HandleLast = HandleBottomRight
-    };
-
     enum HandleStatus {
         Press,
         Move,
@@ -73,6 +60,20 @@ class RectangularSelectionItem : public QGraphicsItem
     };
 
 public:
+    enum Handle {
+        HandleNone = -1,
+        HandleFirst = 0,
+        HandleTopLeft = HandleFirst,
+        HandleTop,
+        HandleTopRight,
+        HandleLeft,
+        HandleRight,
+        HandleBottomLeft,
+        HandleBottom,
+        HandleBottomRight,
+        HandleLast = HandleBottomRight
+    };
+
     enum Freedom {
         FreedomAny,
         FreedomVerticalOnly,
@@ -97,6 +98,7 @@ public:
     void setFreedom(Freedom freedom);
     bool isSecondarySelected() const { return m_isSecondarySelected; }
     void setSecondarySelected(bool secondarySelected);
+    Handle activeHandle() const { return m_activeHandle; }
 
 private:
     void update();
@@ -113,6 +115,7 @@ private:
     QGraphicsRectItem *m_borderItem = 0;
     Freedom m_freedom = FreedomAny;
     bool m_isSecondarySelected = false;
+    Handle m_activeHandle = HandleNone;
 };
 
 } // namespace qmt

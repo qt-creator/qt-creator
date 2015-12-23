@@ -39,6 +39,7 @@
 QT_BEGIN_NAMESPACE
 class QGraphicsScene;
 class QGraphicsSceneMouseEvent;
+class QKeyEvent;
 QT_END_NAMESPACE
 
 namespace qmt {
@@ -60,9 +61,16 @@ public:
     void addToGraphicsScene(QGraphicsScene *graphicsScene);
     void removeFromGraphicsScene(QGraphicsScene *graphicsScene);
 
+    void keyPressEventLatching(QKeyEvent *event);
+    void keyReleaseEventLatching(QKeyEvent *event);
     void mousePressEventLatching(QGraphicsSceneMouseEvent *event);
     void mouseMoveEventLatching(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event);
+
+private:
+    void handleLatches();
+    void hideLatches();
+    void applyLatches();
 
 private:
     DiagramSceneModel *m_diagramSceneModel;

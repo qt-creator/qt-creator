@@ -107,6 +107,8 @@ public:
     bool isFocusSelected() const override;
     void setFocusSelected(bool focusSelected) override;
 
+    Action horizontalLatchAction() const override;
+    Action verticalLatchAction() const override;
     QList<Latch> horizontalLatches(Action action, bool grabbedItem) const override;
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const override;
 

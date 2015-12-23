@@ -92,7 +92,7 @@ protected:
 
 private:
     RectangularSelectionItem *m_owner = 0;
-    RectangularSelectionItem::Handle m_handle = RectangularSelectionItem::HandleFirst;
+    RectangularSelectionItem::Handle m_handle = RectangularSelectionItem::HandleNone;
     bool m_isSecondarySelected = false;
     QPointF m_startPos;
 };
@@ -167,10 +167,10 @@ void RectangularSelectionItem::update()
 
     for (int i = 0; i <= 7; ++i) {
         if (!m_points[i])
-            m_points[i] = new GraphicsHandleItem((Handle) i, this);
+            m_points[i] = new GraphicsHandleItem(static_cast<Handle>(i), this);
         m_points[i]->setRect(-m_pointSize.width() / 2.0, -m_pointSize.height() / 2.0, m_pointSize.width(), m_pointSize.height());
         bool visible = false;
-        switch ((Handle) i) {
+        switch (static_cast<Handle>(i)) {
         case HandleTopLeft:
             visible = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
             break;
@@ -194,6 +194,9 @@ void RectangularSelectionItem::update()
             break;
         case HandleBottomRight:
             visible = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
+            break;
+        case HandleNone:
+            QMT_CHECK(false);
             break;
         }
         m_points[i]->setSecondarySelected(m_isSecondarySelected);
@@ -230,9 +233,18 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
 {
     Q_UNUSED(handleQualifier);
 
-    if (handleStatus == Press) {
+    switch (handleStatus) {
+    case Press:
+        m_activeHandle = handle;
         m_originalResizePos = m_itemResizer->pos();
         m_originalResizeRect = m_itemResizer->rect();
+        break;
+    case Move:
+        break;
+    case Release:
+    case Cancel:
+        m_activeHandle = HandleNone;
+        break;
     }
 
     bool moveable = false;
@@ -260,6 +272,9 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
         break;
     case HandleBottomRight:
         moveable = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
+        break;
+    case HandleNone:
+        QMT_CHECK(false);
         break;
     }
     if (!moveable)
@@ -317,6 +332,9 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
             else if (deltaMove.x() < 0 && deltaMove.y() < 0)
                 bottomRightDelta = -(v * deltaLength);
             break;
+        case HandleNone:
+            QMT_CHECK(false);
+            break;
         }
     } else {
         switch (handle) {
@@ -346,6 +364,9 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
         case HandleBottomRight:
             bottomRightDelta = deltaMove;
             break;
+        case HandleNone:
+            QMT_CHECK(false);
+            break;
         }
     }
 
@@ -369,6 +390,9 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
         if (sizeDelta.width() > 0.0)
             bottomRightDelta.setX(bottomRightDelta.x() + sizeDelta.width());
         break;
+    case HandleNone:
+        QMT_CHECK(false);
+        break;
     }
 
     // correct vertical resize against minimum height
@@ -387,6 +411,9 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
     case HandleBottomRight:
         if (sizeDelta.height() > 0.0)
             bottomRightDelta.setY(bottomRightDelta.y() + sizeDelta.height());
+        break;
+    case HandleNone:
+        QMT_CHECK(false);
         break;
     }
 
@@ -410,6 +437,9 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
         case HandleBottom:
             // nothing
             break;
+        case HandleNone:
+            QMT_CHECK(false);
+            break;
         }
         switch (handle) {
         case HandleTopLeft:
@@ -425,6 +455,9 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
         case HandleLeft:
         case HandleRight:
             // nothing
+            break;
+        case HandleNone:
+            QMT_CHECK(false);
             break;
         }
         m_itemResizer->alignItemSizeToRaster(horiz, vert, 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);

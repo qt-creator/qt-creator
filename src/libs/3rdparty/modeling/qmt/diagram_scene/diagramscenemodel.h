@@ -43,6 +43,7 @@ class QGraphicsItem;
 class QPointF;
 class QGraphicsScene;
 class QGraphicsSceneMouseEvent;
+class QKeyEvent;
 QT_END_NAMESPACE
 
 namespace qmt {
@@ -129,6 +130,8 @@ public:
 
 private:
     void sceneActivated();
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mousePressEventReparenting(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);

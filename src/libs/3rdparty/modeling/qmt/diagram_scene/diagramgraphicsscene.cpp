@@ -97,11 +97,13 @@ void DiagramGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *event)
 void DiagramGraphicsScene::keyPressEvent(QKeyEvent *event)
 {
     QGraphicsScene::keyPressEvent(event);
+    m_diagramSceneModel->keyPressEvent(event);
 }
 
 void DiagramGraphicsScene::keyReleaseEvent(QKeyEvent *event)
 {
     QGraphicsScene::keyReleaseEvent(event);
+    m_diagramSceneModel->keyReleaseEvent(event);
 }
 
 void DiagramGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)

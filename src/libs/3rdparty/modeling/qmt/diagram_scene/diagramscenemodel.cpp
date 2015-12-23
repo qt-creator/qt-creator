@@ -595,6 +595,16 @@ void DiagramSceneModel::sceneActivated()
     emit diagramSceneActivated(m_diagram);
 }
 
+void DiagramSceneModel::keyPressEvent(QKeyEvent *event)
+{
+    m_latchController->keyPressEventLatching(event);
+}
+
+void DiagramSceneModel::keyReleaseEvent(QKeyEvent *event)
+{
+    m_latchController->keyReleaseEventLatching(event);
+}
+
 void DiagramSceneModel::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     updateFocusItem(QSet<QGraphicsItem *>::fromList(m_graphicsScene->selectedItems()));

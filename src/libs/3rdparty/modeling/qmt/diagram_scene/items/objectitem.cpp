@@ -204,12 +204,49 @@ void ObjectItem::setFocusSelected(bool focusSelected)
     }
 }
 
+ILatchable::Action ObjectItem::horizontalLatchAction() const
+{
+    switch (m_selectionMarker->activeHandle()) {
+    case RectangularSelectionItem::HandleTopLeft:
+    case RectangularSelectionItem::HandleLeft:
+    case RectangularSelectionItem::HandleBottomLeft:
+        return ResizeLeft;
+    case RectangularSelectionItem::HandleTopRight:
+    case RectangularSelectionItem::HandleRight:
+    case RectangularSelectionItem::HandleBottomRight:
+        return ResizeRight;
+    case RectangularSelectionItem::HandleTop:
+    case RectangularSelectionItem::HandleBottom:
+        return Move; // TODO should be ActionNone
+    case RectangularSelectionItem::HandleNone:
+        return Move;
+    }
+}
+
+ILatchable::Action ObjectItem::verticalLatchAction() const
+{
+    switch (m_selectionMarker->activeHandle()) {
+    case RectangularSelectionItem::HandleTopLeft:
+    case RectangularSelectionItem::HandleTop:
+    case RectangularSelectionItem::HandleTopRight:
+        return ResizeTop;
+    case RectangularSelectionItem::HandleBottomLeft:
+    case RectangularSelectionItem::HandleBottom:
+    case RectangularSelectionItem::HandleBottomRight:
+        return ResizeBottom;
+    case RectangularSelectionItem::HandleLeft:
+    case RectangularSelectionItem::HandleRight:
+        return Move; // TODO should be ActionNone
+    case RectangularSelectionItem::HandleNone:
+        return Move;
+    }
+}
+
 QList<ILatchable::Latch> ObjectItem::horizontalLatches(ILatchable::Action action, bool grabbedItem) const
 {
     Q_UNUSED(grabbedItem);
 
-    QRectF rect = object()->rect();
-    rect.translate(object()->pos());
+    QRectF rect = mapRectToScene(this->rect());
     QList<ILatchable::Latch> result;
     switch (action) {
     case ILatchable::Move:
@@ -237,8 +274,7 @@ QList<ILatchable::Latch> ObjectItem::verticalLatches(ILatchable::Action action, 
 {
     Q_UNUSED(grabbedItem);
 
-    QRectF rect = object()->rect();
-    rect.translate(object()->pos());
+    QRectF rect = mapRectToScene(this->rect());
     QList<ILatchable::Latch> result;
     switch (action) {
     case ILatchable::Move:

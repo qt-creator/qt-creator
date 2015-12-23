@@ -40,6 +40,7 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
+#include <QKeyEvent>
 
 namespace qmt {
 
@@ -96,22 +97,45 @@ void LatchController::removeFromGraphicsScene(QGraphicsScene *graphicsScene)
     }
 }
 
+void LatchController::keyPressEventLatching(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Shift)
+        handleLatches();
+}
+
+void LatchController::keyReleaseEventLatching(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Shift)
+        hideLatches();
+}
+
 void LatchController::mousePressEventLatching(QGraphicsSceneMouseEvent *event)
 {
-    // TODO add keyboard event handler to handle latching also on modified change without move
     mouseMoveEventLatching(event);
 }
 
 void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
 {
+    if (event->modifiers() & Qt::ShiftModifier)
+        handleLatches();
+    else
+        hideLatches();
+}
+
+void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
+{
+    if (event->modifiers() & Qt::ShiftModifier) {
+        handleLatches();
+        applyLatches();
+    } else {
+        hideLatches();
+    }
+}
+
+void LatchController::handleLatches()
+{
     m_foundHorizontalLatch = false;
     m_foundVerticalLatch = false;
-
-    if (!(event->modifiers() & Qt::ShiftModifier)) {
-        m_horizontalAlignLine->setVisible(false);
-        m_verticalAlignLine->setVisible(false);
-        return;
-    }
 
     if (!m_diagramSceneModel->focusItem())
         return;
@@ -120,8 +144,12 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
     if (!palpedLatchable)
         return;
 
-    ILatchable::Action horizAction = ILatchable::Move;
-    ILatchable::Action vertAction = ILatchable::Move;
+    ILatchable::Action horizAction = palpedLatchable->horizontalLatchAction();
+    ILatchable::Action vertAction = palpedLatchable->verticalLatchAction();
+
+    // TODO fix resize of items with latches
+    if (horizAction != ILatchable::Move || vertAction != ILatchable::Move)
+        return;
 
     QList<ILatchable::Latch> palpedHorizontals = palpedLatchable->horizontalLatches(horizAction, true);
     QList<ILatchable::Latch> palpedVerticals = palpedLatchable->verticalLatches(vertAction, true);
@@ -215,10 +243,17 @@ void LatchController::mouseMoveEventLatching(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
+void LatchController::hideLatches()
 {
-    Q_UNUSED(event);
+    m_foundHorizontalLatch = false;
+    m_foundVerticalLatch = false;
+    m_horizontalAlignLine->setVisible(false);
+    m_verticalAlignLine->setVisible(false);
+}
 
+void LatchController::applyLatches()
+{
+    // TODO fix calculation of distance. Final position is usually not correct.
     if (m_foundHorizontalLatch) {
         switch (m_horizontalLatch.m_latchType) {
         case ILatchable::Left:
@@ -267,11 +302,9 @@ void LatchController::mouseReleaseEventLatching(QGraphicsSceneMouseEvent *event)
             QMT_CHECK(false);
             break;
         }
-
     }
 
-    m_horizontalAlignLine->setVisible(false);
-    m_verticalAlignLine->setVisible(false);
+    hideLatches();
 }
 
 } // namespace qmt

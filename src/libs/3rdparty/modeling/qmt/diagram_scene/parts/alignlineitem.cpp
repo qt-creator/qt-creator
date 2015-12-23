@@ -43,7 +43,7 @@ AlignLineItem::AlignLineItem(Direction direction, QGraphicsItem *parent)
       m_highlightLine(new QGraphicsLineItem(this))
 {
     m_alignLine->setPen(QPen(QBrush(Qt::blue), 1.0, Qt::DotLine));
-    m_highlightLine->setPen(QPen(QBrush(Qt::red), 2.0, Qt::DotLine));
+    m_highlightLine->setPen(QPen(QBrush(Qt::red), 1.0, Qt::SolidLine));
     m_highlightLine->setZValue(1);
 }
 
@@ -58,6 +58,9 @@ void AlignLineItem::setLine(qreal pos)
 
 void AlignLineItem::setLine(qreal pos, qreal otherPos1, qreal otherPos2)
 {
+    // parameters are given in scene coordinates and are not mapped to this object's
+    // coordinbate system because it is a trivial conversion.(in the way how AlignLineItem
+    // is used)
     QRectF sceneRect = scene()->sceneRect();
     switch (m_direction) {
     case Horizontal:
