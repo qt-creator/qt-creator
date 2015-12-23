@@ -199,6 +199,7 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
             retval = 1;
         break;
     case PM_ToolBarIconSize:
+    case PM_ButtonIconSize:
         if (panelWidget(widget))
             retval = 16;
         break;
