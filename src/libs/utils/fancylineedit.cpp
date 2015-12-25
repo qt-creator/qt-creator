@@ -101,7 +101,7 @@ public:
     bool m_iconEnabled[2];
 
     bool m_isFiltering = false;
-    bool m_firstChange = false;
+    bool m_firstChange = true;
 
     QString m_lastFilterText;
 
