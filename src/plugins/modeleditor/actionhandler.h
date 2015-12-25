@@ -87,8 +87,9 @@ private slots:
 
 private:
     Core::Command *registerCommand(const Core::Id &id, const std::function<void()> &slot,
-                                  bool scriptable = true, const QString &title = QString(),
-                                  const QKeySequence &keySequence = QKeySequence());
+                                   const Core::Context &context,
+                                   bool scriptable = true, const QString &title = QString(),
+                                   const QKeySequence &keySequence = QKeySequence());
 
 private:
     ActionHandlerPrivate *d;

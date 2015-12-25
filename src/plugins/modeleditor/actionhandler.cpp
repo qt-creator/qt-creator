@@ -120,30 +120,30 @@ void ActionHandler::createActions()
 {
     Core::ActionContainer *medit = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
 
-    d->undoAction = registerCommand(Core::Constants::UNDO, [this]() { undo(); })->action();
-    d->redoAction = registerCommand(Core::Constants::REDO, [this]() { redo(); })->action();
-    d->cutAction = registerCommand(Core::Constants::CUT, [this]() { cut(); })->action();
-    d->copyAction = registerCommand(Core::Constants::COPY, [this]() { copy(); })->action();
-    d->pasteAction = registerCommand(Core::Constants::PASTE, [this]() { paste(); })->action();
+    d->undoAction = registerCommand(Core::Constants::UNDO, [this]() { undo(); }, d->context)->action();
+    d->redoAction = registerCommand(Core::Constants::REDO, [this]() { redo(); }, d->context)->action();
+    d->cutAction = registerCommand(Core::Constants::CUT, [this]() { cut(); }, d->context)->action();
+    d->copyAction = registerCommand(Core::Constants::COPY, [this]() { copy(); }, d->context)->action();
+    d->pasteAction = registerCommand(Core::Constants::PASTE, [this]() { paste(); }, d->context)->action();
     Core::Command *removeCommand = registerCommand(
-                Constants::REMOVE_SELECTED_ELEMENTS, [this]() { removeSelectedElements(); }, true,
+                Constants::REMOVE_SELECTED_ELEMENTS, [this]() { removeSelectedElements(); }, d->context, true,
                 tr("&Remove"), QKeySequence::Delete);
     medit->addAction(removeCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->removeAction = removeCommand->action();
     Core::Command *deleteCommand = registerCommand(
-                Constants::DELETE_SELECTED_ELEMENTS, [this]() { deleteSelectedElements(); }, true,
+                Constants::DELETE_SELECTED_ELEMENTS, [this]() { deleteSelectedElements(); }, d->context, true,
                 tr("&Delete"), QKeySequence(QStringLiteral("Ctrl+D")));
     medit->addAction(deleteCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->deleteAction = deleteCommand->action();
-    d->selectAllAction = registerCommand(Core::Constants::SELECTALL, [this]() { selectAll(); })->action();
+    d->selectAllAction = registerCommand(Core::Constants::SELECTALL, [this]() { selectAll(); }, d->context)->action();
     d->openParentDiagramAction = registerCommand(
-                Constants::OPEN_PARENT_DIAGRAM, [this]() { openParentDiagram(); }, true,
+                Constants::OPEN_PARENT_DIAGRAM, [this]() { openParentDiagram(); }, Core::Context(), true,
                 tr("Open Parent Diagram"), QKeySequence(QStringLiteral("Ctrl+Shift+P")))->action();
     d->openParentDiagramAction->setIcon(QIcon(QStringLiteral(":/modeleditor/up.png")));
-    registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr);
-    registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr);
-    registerCommand(Constants::ACTION_ADD_CLASS, nullptr);
-    registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr);
+    registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr, Core::Context());
+    registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr, Core::Context());
+    registerCommand(Constants::ACTION_ADD_CLASS, nullptr, Core::Context());
+    registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context());
 }
 
 void ActionHandler::createEditPropertiesShortcut(const Core::Id &shortcutId)
@@ -226,11 +226,11 @@ void ActionHandler::onEditProperties()
 }
 
 Core::Command *ActionHandler::registerCommand(const Core::Id &id, const std::function<void()> &slot,
-                                              bool scriptable, const QString &title,
+                                              const Core::Context &context, bool scriptable, const QString &title,
                                               const QKeySequence &keySequence)
 {
     auto action = new QAction(title, this);
-    Core::Command *command = Core::ActionManager::registerAction(action, id, d->context, scriptable);
+    Core::Command *command = Core::ActionManager::registerAction(action, id, context, scriptable);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(keySequence);
     if (slot)
