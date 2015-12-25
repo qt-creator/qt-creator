@@ -304,7 +304,7 @@ void ElementTasks::openDiagram(const qmt::DElement *element, const qmt::MDiagram
 
 bool ElementTasks::hasParentDiagram(const qmt::MElement *element) const
 {
-    if (element && element->owner()) {
+    while (element && element->owner()) {
         qmt::MObject *parentObject = element->owner()->owner();
         if (parentObject) {
             qmt::FindDiagramVisitor visitor;
@@ -314,6 +314,7 @@ bool ElementTasks::hasParentDiagram(const qmt::MElement *element) const
                 return true;
             }
         }
+        element = element->owner();
     }
     return false;
 }
@@ -333,7 +334,7 @@ bool ElementTasks::hasParentDiagram(const qmt::DElement *element, const qmt::MDi
 
 void ElementTasks::openParentDiagram(const qmt::MElement *element)
 {
-    if (element && element->owner()) {
+    while (element && element->owner()) {
         qmt::MObject *parentObject = element->owner()->owner();
         if (parentObject) {
             qmt::FindDiagramVisitor visitor;
@@ -346,6 +347,7 @@ void ElementTasks::openParentDiagram(const qmt::MElement *element)
                 return;
             }
         }
+        element = element->owner();
     }
 }
 
