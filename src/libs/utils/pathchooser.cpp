@@ -714,9 +714,9 @@ void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList
     ef->setArguments(arguments);
 }
 
-void PathChooser::setHistoryCompleter(const QString &historyKey)
+void PathChooser::setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory)
 {
-    d->m_lineEdit->setHistoryCompleter(historyKey);
+    d->m_lineEdit->setHistoryCompleter(historyKey, restoreLastItemFromHistory);
 }
 
 QStringList PathChooser::commandVersionArguments() const

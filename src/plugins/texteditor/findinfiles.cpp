@@ -27,8 +27,10 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
+#include <coreplugin/icore.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
+#include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
@@ -38,7 +40,6 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QLabel>
-#include <QComboBox>
 #include <QHBoxLayout>
 
 using namespace Core;
@@ -46,6 +47,7 @@ using namespace TextEditor;
 using namespace Utils;
 
 static FindInFiles *m_instance = 0;
+static const char HistoryKey[] = "FindInFiles.Directories.History";
 
 FindInFiles::FindInFiles()
   : m_configWidget(0),
@@ -68,12 +70,6 @@ QString FindInFiles::id() const
 QString FindInFiles::displayName() const
 {
     return tr("Files in File System");
-}
-
-void FindInFiles::findAll(const QString &txt, FindFlags findFlags)
-{
-    updateComboEntries(m_directory, true);
-    BaseFileFind::findAll(txt, findFlags);
 }
 
 FileIterator *FindInFiles::files(const QStringList &nameFilters,
@@ -115,20 +111,22 @@ QWidget *FindInFiles::createConfigWidget()
 
         QLabel *dirLabel = new QLabel(tr("Director&y:"));
         gridLayout->addWidget(dirLabel, 0, 0, Qt::AlignRight);
-        m_directory = new QComboBox;
-        m_directory->setEditable(true);
-        m_directory->setMaxCount(30);
-        m_directory->setMinimumContentsLength(10);
-        m_directory->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
-        m_directory->setInsertPolicy(QComboBox::InsertAtTop);
-        m_directory->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        m_directory->setModel(&m_directoryStrings);
-        syncComboWithSettings(m_directory, m_directorySetting.toUserOutput());
+        m_directory = new PathChooser;
+        m_directory->setExpectedKind(PathChooser::ExistingDirectory);
+        m_directory->setHistoryCompleter(QLatin1String(HistoryKey),
+                                         /*restoreLastItemFromHistory=*/ true);
+        m_directory->setPromptDialogTitle(tr("Directory to Search"));
+        connect(m_directory.data(), &PathChooser::validChanged,
+                this, &FindInFiles::enabledChanged);
+        if (!HistoryCompleter::historyExistsFor(QLatin1String(HistoryKey))) {
+            auto completer = static_cast<HistoryCompleter *>(m_directory->lineEdit()->completer());
+            const QStringList legacyHistory = Core::ICore::settings()->value(
+                        QLatin1String("Find/FindInFiles/directories")).toStringList();
+            for (const QString &dir: legacyHistory)
+                completer->addEntry(dir);
+        }
         dirLabel->setBuddy(m_directory);
-        gridLayout->addWidget(m_directory, 0, 1);
-        QPushButton *browseButton = new QPushButton(PathChooser::browseButtonLabel());
-        gridLayout->addWidget(browseButton, 0, 2);
-        connect(browseButton, &QAbstractButton::clicked, this, &FindInFiles::openFileBrowser);
+        gridLayout->addWidget(m_directory, 0, 1, 1, 2);
 
         QLabel * const filePatternLabel = new QLabel(tr("Fi&le pattern:"));
         filePatternLabel->setMinimumWidth(80);
@@ -143,31 +141,15 @@ QWidget *FindInFiles::createConfigWidget()
     return m_configWidget;
 }
 
-void FindInFiles::openFileBrowser()
-{
-    if (!m_directory)
-        return;
-    QString oldDir = path().toString();
-    if (!QDir(oldDir).exists())
-        oldDir.clear();
-    QString dir = QFileDialog::getExistingDirectory(m_configWidget,
-        tr("Directory to search"), oldDir);
-    if (!dir.isEmpty())
-        m_directory->setEditText(QDir::toNativeSeparators(dir));
-}
-
 FileName FindInFiles::path() const
 {
-    return FileName::fromUserInput(FileUtils::normalizePathName(m_directory->currentText()));
+    return m_directory->fileName();
 }
 
 void FindInFiles::writeSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("FindInFiles"));
     writeCommonSettings(settings);
-    settings->setValue(QLatin1String("directories"), m_directoryStrings.stringList());
-    if (m_directory)
-        settings->setValue(QLatin1String("currentDirectory"), path().toString());
     settings->endGroup();
 }
 
@@ -175,16 +157,12 @@ void FindInFiles::readSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("FindInFiles"));
     readCommonSettings(settings, QLatin1String("*.cpp,*.h"));
-    m_directoryStrings.setStringList(settings->value(QLatin1String("directories")).toStringList());
-    m_directorySetting = FileName::fromString(
-                settings->value(QLatin1String("currentDirectory")).toString());
     settings->endGroup();
-    syncComboWithSettings(m_directory, m_directorySetting.toUserOutput());
 }
 
 void FindInFiles::setDirectory(const FileName &directory)
 {
-    syncComboWithSettings(m_directory, directory.toUserOutput());
+    m_directory->setFileName(directory);
 }
 
 void FindInFiles::findOnFileSystem(const QString &path)

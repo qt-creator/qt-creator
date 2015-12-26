@@ -134,7 +134,7 @@ public:
     static void installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments);
 
     // Enable a history completer with a history of entries.
-    void setHistoryCompleter(const QString &historyKey);
+    void setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory = false);
 
     bool isReadOnly() const;
     void setReadOnly(bool b);

@@ -34,7 +34,8 @@
 #include <QStringListModel>
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
-QT_FORWARD_DECLARE_CLASS(QComboBox)
+
+namespace Utils { class PathChooser; }
 
 namespace TextEditor {
 
@@ -48,7 +49,6 @@ public:
 
     QString id() const;
     QString displayName() const;
-    void findAll(const QString &txt, Core::FindFlags findFlags);
     QWidget *createConfigWidget();
     void writeSettings(QSettings *settings);
     void readSettings(QSettings *settings);
@@ -64,14 +64,10 @@ protected:
     QString toolTip() const;
 
 private:
-    void openFileBrowser();
-
     Utils::FileName path() const;
 
-    QStringListModel m_directoryStrings;
-    Utils::FileName m_directorySetting;
     QPointer<QWidget> m_configWidget;
-    QPointer<QComboBox> m_directory;
+    QPointer<Utils::PathChooser> m_directory;
 };
 
 } // namespace TextEditor

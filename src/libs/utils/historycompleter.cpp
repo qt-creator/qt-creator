@@ -196,6 +196,13 @@ QString HistoryCompleter::historyItem() const
     return d->list.at(0);
 }
 
+bool HistoryCompleter::historyExistsFor(const QString &historyKey)
+{
+    QTC_ASSERT(theSettings, return false);
+    const QString fullKey = QLatin1String("CompleterHistory/") + historyKey;
+    return theSettings->value(fullKey).isValid();
+}
+
 HistoryCompleter::~HistoryCompleter()
 {
     delete d;
