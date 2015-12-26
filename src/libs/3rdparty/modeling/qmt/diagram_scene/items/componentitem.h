@@ -79,7 +79,6 @@ private:
     QGraphicsRectItem *m_shape = 0;
     QGraphicsRectItem *m_upperRect = 0;
     QGraphicsRectItem *m_lowerRect = 0;
-    QGraphicsSimpleTextItem *m_componentName = 0;
     ContextLabelItem *m_contextLabel = 0;
     RelationStarter *m_relationStarter = 0;
 };

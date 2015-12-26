@@ -36,6 +36,7 @@
 #include "qmt/diagram_scene/diagramscenemodel.h"
 #include "qmt/diagram_scene/parts/contextlabelitem.h"
 #include "qmt/diagram_scene/parts/customiconitem.h"
+#include "qmt/diagram_scene/parts/editabletextitem.h"
 #include "qmt/diagram_scene/parts/relationstarter.h"
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
 #include "qmt/infrastructure/geometryutilities.h"
@@ -123,11 +124,7 @@ void PackageItem::update()
     updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), style);
 
     // package name
-    if (!m_packageName)
-        m_packageName = new QGraphicsSimpleTextItem(this);
-    m_packageName->setBrush(style->textBrush());
-    m_packageName->setFont(style->headerFont());
-    m_packageName->setText(object()->name());
+    updateNameItem(style);
 
     // context
     if (showContext()) {
@@ -234,9 +231,9 @@ PackageItem::ShapeGeometry PackageItem::calcMinimumGeometry() const
         tabWidth = std::max(tabWidth, stereotypesItem->boundingRect().width() + 2 * TAB_HORIZ_BORDER);
         tabHeight += stereotypesItem->boundingRect().height();
     }
-    if (m_packageName) {
-        tabWidth = std::max(tabWidth, m_packageName->boundingRect().width() + 2 * TAB_HORIZ_BORDER);
-        tabHeight += m_packageName->boundingRect().height();
+    if (nameItem()) {
+        tabWidth = std::max(tabWidth, nameItem()->boundingRect().width() + 2 * TAB_HORIZ_BORDER);
+        tabHeight += nameItem()->boundingRect().height();
     }
     tabHeight += TAB_VERT_BORDER;
     width = std::max(width, tabWidth + TAB_MIN_RIGHT_SPACE);
@@ -309,9 +306,9 @@ void PackageItem::updateGeometry()
             stereotypesItem->setPos(-stereotypesItem->boundingRect().width() / 2.0, y);
             y += stereotypesItem->boundingRect().height();
         }
-        if (m_packageName) {
-            m_packageName->setPos(-m_packageName->boundingRect().width() / 2.0, y);
-            y += m_packageName->boundingRect().height();
+        if (nameItem()) {
+            nameItem()->setPos(-nameItem()->boundingRect().width() / 2.0, y);
+            y += nameItem()->boundingRect().height();
         }
         if (m_contextLabel) {
             m_contextLabel->resetMaxWidth();
@@ -333,9 +330,9 @@ void PackageItem::updateGeometry()
             stereotypesItem->setPos(left + TAB_HORIZ_BORDER, y);
             y += stereotypesItem->boundingRect().height();
         }
-        if (m_packageName) {
-            m_packageName->setPos(left + TAB_HORIZ_BORDER, y);
-            y += m_packageName->boundingRect().height();
+        if (nameItem()) {
+            nameItem()->setPos(left + TAB_HORIZ_BORDER, y);
+            y += nameItem()->boundingRect().height();
         }
         y += TAB_VERT_BORDER;
         y += BODY_VERT_BORDER;

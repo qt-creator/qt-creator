@@ -60,7 +60,6 @@ private:
     CustomIconItem *m_customIcon = 0;
     QGraphicsPolygonItem *m_body = 0;
     QGraphicsPolygonItem *m_fold = 0;
-    QGraphicsSimpleTextItem *m_diagramName = 0;
 };
 
 } // namespace qmt

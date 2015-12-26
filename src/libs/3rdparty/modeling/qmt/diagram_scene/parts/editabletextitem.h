@@ -28,35 +28,45 @@
 **
 ****************************************************************************/
 
-#ifndef QMT_NAMECONTROLLER_H
-#define QMT_NAMECONTROLLER_H
+#ifndef QMT_EDITABLETEXTITEM_H
+#define QMT_EDITABLETEXTITEM_H
 
-#include <QObject>
-#include "qmt/infrastructure/qmt_global.h"
-
-#include <QString>
-#include <QStringList>
+#include <QGraphicsTextItem>
 
 namespace qmt {
 
-class QMT_EXPORT NameController : public QObject
+class EditableTextItem : public QGraphicsTextItem
 {
     Q_OBJECT
 
-private:
-    explicit NameController(QObject *parent = 0);
-    ~NameController() override;
+public:
+    explicit EditableTextItem(QGraphicsItem *parent);
+    ~EditableTextItem();
+
+signals:
+    void returnKeyPressed();
 
 public:
-    static QString convertFileNameToElementName(const QString &fileName);
-    static QString convertElementNameToBaseFileName(const QString &elementName);
-    static QString calcRelativePath(const QString &absoluteFileName, const QString &anchorPath);
-    static QString calcElementNameSearchId(const QString &elementName);
-    static QStringList buildElementsPath(const QString &filePath, bool ignoreLastFilePathPart);
-    static bool parseClassName(const QString &fullClassName, QString *umlNamespace,
-                               QString *className, QStringList *templateParameters);
+    void setShowFocus(bool showFocus);
+    void setFilterReturnKey(bool filterReturnKey);
+    void setFilterTabKey(bool filterTabKey);
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+
+    void selectAll();
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
+
+private:
+    bool m_showFocus = false;
+    bool m_filterReturnKey = false;
+    bool m_filterTabKey = false;
 };
 
 } // namespace qmt
 
-#endif // QMT_NAMECONTROLLER_H
+#endif // QMT_EDITABLETEXTITEM_H

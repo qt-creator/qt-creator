@@ -30,18 +30,22 @@
 
 #include "classitem.h"
 
+#include "qmt/controller/namecontroller.h"
 #include "qmt/diagram/dclass.h"
 #include "qmt/diagram_scene/diagramsceneconstants.h"
 #include "qmt/diagram_scene/diagramscenemodel.h"
 #include "qmt/diagram_scene/parts/contextlabelitem.h"
 #include "qmt/diagram_scene/parts/customiconitem.h"
+#include "qmt/diagram_scene/parts/editabletextitem.h"
 #include "qmt/diagram_scene/parts/relationstarter.h"
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
 #include "qmt/diagram_scene/parts/templateparameterbox.h"
 #include "qmt/infrastructure/contextmenuaction.h"
 #include "qmt/infrastructure/geometryutilities.h"
 #include "qmt/infrastructure/qmtassert.h"
+#include "qmt/model/mclass.h"
 #include "qmt/model/mclassmember.h"
+#include "qmt/model_controller/modelcontroller.h"
 #include "qmt/stereotype/stereotypecontroller.h"
 #include "qmt/stereotype/stereotypeicon.h"
 #include "qmt/style/stylecontroller.h"
@@ -138,34 +142,8 @@ void ClassItem::update()
         m_namespace = 0;
     }
 
-    DClass::TemplateDisplay templateDisplay = diagramClass->templateDisplay();
-    if (templateDisplay == DClass::TemplateSmart) {
-        if (m_customIcon)
-            templateDisplay = DClass::TemplateName;
-        else
-            templateDisplay = DClass::TemplateBox;
-    }
-
     // class name
-    if (!m_className)
-        m_className = new QGraphicsSimpleTextItem(this);
-    m_className->setFont(style->headerFont());
-    m_className->setBrush(style->textBrush());
-    if (templateDisplay == DClass::TemplateName && !diagramClass->templateParameters().isEmpty()) {
-        QString name = object()->name();
-        name += QLatin1Char('<');
-        bool first = true;
-        foreach (const QString &p, diagramClass->templateParameters()) {
-            if (!first)
-                name += QLatin1Char(',');
-            name += p;
-            first = false;
-        }
-        name += QLatin1Char('>');
-        m_className->setText(name);
-    } else {
-        m_className->setText(object()->name());
-    }
+    updateNameItem(style);
 
     // context
     if (showContext()) {
@@ -233,7 +211,11 @@ void ClassItem::update()
     }
 
     // template parameters
-    if (templateDisplay == DClass::TemplateBox && !diagramClass->templateParameters().isEmpty()) {
+    if (templateDisplay() == DClass::TemplateBox && !diagramClass->templateParameters().isEmpty()) {
+        // TODO due to a bug in Qt the m_nameItem may get focus back when this item is newly created
+        // 1. Select name item of class without template
+        // 2. Click into template property (item name loses focus) and enter a letter
+        // 3. Template box is created which gives surprisingly focus back to item name
         if (!m_templateParameterBox)
             m_templateParameterBox = new TemplateParameterBox(this);
         QPen pen = style->outerLinePen();
@@ -339,6 +321,67 @@ bool ClassItem::handleSelectedContextMenuAction(QAction *action)
     return false;
 }
 
+QString ClassItem::buildDisplayName() const
+{
+    auto diagramClass = dynamic_cast<DClass *>(object());
+    QMT_CHECK(diagramClass);
+
+    QString name;
+    if (templateDisplay() == DClass::TemplateName && !diagramClass->templateParameters().isEmpty()) {
+        name = object()->name();
+        name += QLatin1Char('<');
+        bool first = true;
+        foreach (const QString &p, diagramClass->templateParameters()) {
+            if (!first)
+                name += QLatin1Char(',');
+            name += p;
+            first = false;
+        }
+        name += QLatin1Char('>');
+    } else {
+        name = object()->name();
+    }
+    return name;
+}
+
+void ClassItem::setFromDisplayName(const QString &displayName)
+{
+    if (templateDisplay() == DClass::TemplateName) {
+        QString name;
+        QStringList templateParameters;
+        // NOTE namespace is ignored because it has its own edit field
+        if (NameController::parseClassName(displayName, 0, &name, &templateParameters)) {
+            auto diagramClass = dynamic_cast<DClass *>(object());
+            QMT_CHECK(diagramClass);
+            ModelController *modelController = diagramSceneModel()->diagramSceneController()->modelController();
+            MClass *mklass = modelController->findObject<MClass>(diagramClass->modelUid());
+            if (mklass && (name != mklass->name() || templateParameters != mklass->templateParameters())) {
+                modelController->startUpdateObject(mklass);
+                mklass->setName(name);
+                mklass->setTemplateParameters(templateParameters);
+                modelController->finishUpdateObject(mklass, false);
+            }
+        }
+    } else {
+        ObjectItem::setFromDisplayName(displayName);
+    }
+}
+
+DClass::TemplateDisplay ClassItem::templateDisplay() const
+{
+    auto diagramClass = dynamic_cast<DClass *>(object());
+    QMT_CHECK(diagramClass);
+
+    DClass::TemplateDisplay templateDisplay = diagramClass->templateDisplay();
+    if (templateDisplay == DClass::TemplateSmart) {
+        if (m_customIcon)
+            templateDisplay = DClass::TemplateName;
+        else
+            templateDisplay = DClass::TemplateBox;
+    }
+    return templateDisplay;
+}
+
 QSizeF ClassItem::calcMinimumGeometry() const
 {
     double width = 0.0;
@@ -362,9 +405,9 @@ QSizeF ClassItem::calcMinimumGeometry() const
         width = std::max(width, m_namespace->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         height += m_namespace->boundingRect().height();
     }
-    if (m_className) {
-        width = std::max(width, m_className->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
-        height += m_className->boundingRect().height();
+    if (nameItem()) {
+        width = std::max(width, nameItem()->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        height += nameItem()->boundingRect().height();
     }
     if (m_contextLabel)
         height += m_contextLabel->height();
@@ -450,9 +493,9 @@ void ClassItem::updateGeometry()
         m_namespace->setPos(-m_namespace->boundingRect().width() / 2.0, y);
         y += m_namespace->boundingRect().height();
     }
-    if (m_className) {
-        m_className->setPos(-m_className->boundingRect().width() / 2.0, y);
-        y += m_className->boundingRect().height();
+    if (nameItem()) {
+        nameItem()->setPos(-nameItem()->boundingRect().width() / 2.0, y);
+        y += nameItem()->boundingRect().height();
     }
     if (m_contextLabel) {
         if (m_customIcon)

@@ -39,6 +39,7 @@
 #include "qmt/diagram_scene/capabilities/selectable.h"
 #include "qmt/diagram_scene/capabilities/latchable.h"
 #include "qmt/diagram_scene/capabilities/alignable.h"
+#include "qmt/diagram_scene/capabilities/editable.h"
 
 #include "qmt/stereotype/stereotypeicon.h"
 
@@ -52,6 +53,7 @@ class DObject;
 class DiagramSceneModel;
 class StereotypesItem;
 class CustomIconItem;
+class EditableTextItem;
 class RectangularSelectionItem;
 class AlignButtonsItem;
 class Style;
@@ -68,7 +70,8 @@ class ObjectItem :
         public IMoveable,
         public ISelectable,
         public ILatchable,
-        public IAlignable
+        public IAlignable,
+        public IEditable
 {
 protected:
     enum ResizeFlags {
@@ -114,6 +117,9 @@ public:
 
     void align(AlignType alignType, const QString &identifier) override;
 
+    bool isEditable() const override;
+    void edit() override;
+
 protected:
     void updateStereotypeIconDisplay();
     QString stereotypeIconId() const { return m_stereotypeIconId; }
@@ -125,6 +131,11 @@ protected:
     CustomIconItem *stereotypeIconItem() const { return m_stereotypeIcon; }
     QSizeF stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth,
                                      qreal minimumHeight) const;
+    void updateNameItem(const Style *style);
+    EditableTextItem *nameItem() const { return m_nameItem; }
+    virtual QString buildDisplayName() const;
+    virtual void setFromDisplayName(const QString &displayName);
+    void setObjectName(const QString &objectName);
 
     void updateDepth();
     void updateSelectionMarker(CustomIconItem *customIconItem);
@@ -158,6 +169,7 @@ private:
     StereotypeIcon::Display m_stereotypeIconDisplay = StereotypeIcon::DisplayLabel;
     StereotypesItem *m_stereotypes = 0;
     CustomIconItem *m_stereotypeIcon = 0;
+    EditableTextItem *m_nameItem = 0;
     RectangularSelectionItem *m_selectionMarker = 0;
     AlignButtonsItem *m_horizontalAlignButtons = 0;
     AlignButtonsItem *m_verticalAlignButtons = 0;

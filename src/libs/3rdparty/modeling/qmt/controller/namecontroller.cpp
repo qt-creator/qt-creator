@@ -139,7 +139,7 @@ QString NameController::calcElementNameSearchId(const QString &elementName)
     return searchId;
 }
 
-QList<QString> NameController::buildElementsPath(const QString &filePath, bool ignoreLastFilePathPart)
+QStringList NameController::buildElementsPath(const QString &filePath, bool ignoreLastFilePathPart)
 {
     QList<QString> relativeElements;
 
@@ -152,6 +152,128 @@ QList<QString> NameController::buildElementsPath(const QString &filePath, bool i
         relativeElements.append(packageName);
     }
     return relativeElements;
+}
+
+bool NameController::parseClassName(const QString &fullClassName, QString *umlNamespace,
+                                    QString *className, QStringList *templateParameters)
+{
+    enum Status {
+        IdentifierFirstLetter,
+        Identifier,
+        FirstColon,
+        FirstColonOrBeginTemplate,
+        Template,
+        FirstColonOrEndOfName,
+    };
+
+    if (umlNamespace)
+        umlNamespace->clear();
+    className->clear();
+    templateParameters->clear();
+
+    Status status = IdentifierFirstLetter;
+    int identifierStart = -1;
+    int identifierEnd = -1;
+    int umlNamespaceStart = -1;
+    int umlNamespaceEnd = -1;
+    int templateDepth = 0;
+    int templateArgumentStart = -1;
+    int templateEnd = -1;
+
+    for (int i = 0; i < fullClassName.size(); ++i) {
+        QChar c = fullClassName.at(i);
+        switch (status) {
+        case IdentifierFirstLetter:
+            if (c.isLetter() || c == QLatin1Char('_')) {
+                identifierStart = i;
+                identifierEnd = i;
+                status = Identifier;
+            } else if (!c.isSpace()) {
+                return false;
+            }
+            break;
+        case Identifier:
+            if (c == QLatin1Char(':')) {
+                if (umlNamespaceStart < 0)
+                    umlNamespaceStart = identifierStart;
+                umlNamespaceEnd = i - 1;
+                identifierStart = -1;
+                identifierEnd = -1;
+                status = FirstColon;
+            } else if (c == QLatin1Char('<')) {
+                templateDepth = 1;
+                templateArgumentStart = i + 1;
+                status = Template;
+            } else if (c.isSpace()) {
+                status = FirstColonOrBeginTemplate;
+            } else if (c.isLetterOrNumber() || c == QLatin1Char('_')) {
+                identifierEnd = i;
+            } else {
+                return false;
+            }
+            break;
+        case FirstColon:
+            if (c == QLatin1Char(':'))
+                status = IdentifierFirstLetter;
+            else
+                return false;
+            break;
+        case FirstColonOrBeginTemplate:
+            if (c == QLatin1Char(':')) {
+                if (umlNamespaceStart < 0)
+                    umlNamespaceStart = identifierStart;
+                umlNamespaceEnd = identifierEnd;
+                identifierStart = -1;
+                identifierEnd = -1;
+                status = FirstColon;
+            } else if (c == QLatin1Char('<')) {
+                templateDepth = 1;
+                templateArgumentStart = i + 1;
+                status = Template;
+            } else if (!c.isSpace()) {
+                return false;
+            }
+            break;
+        case Template:
+            if (c == QLatin1Char('<')) {
+                ++templateDepth;
+            } else if (c == QLatin1Char('>')) {
+                if (templateDepth == 0) {
+                    return false;
+                } else if (templateDepth == 1) {
+                    QString arg = fullClassName.mid(templateArgumentStart, i - templateArgumentStart).trimmed();
+                    if (!arg.isEmpty())
+                        templateParameters->append(arg);
+                    templateEnd = i;
+                    status = FirstColonOrEndOfName;
+                }
+                --templateDepth;
+            } else if (c == QLatin1Char(',') && templateDepth == 1) {
+                QString arg = fullClassName.mid(templateArgumentStart, i - templateArgumentStart).trimmed();
+                if (!arg.isEmpty())
+                    templateParameters->append(arg);
+                templateArgumentStart = i + 1;
+            }
+            break;
+        case FirstColonOrEndOfName:
+            if (c == QLatin1Char(':')) {
+                templateParameters->clear();
+                if (umlNamespaceStart < 0)
+                    umlNamespaceStart = identifierStart;
+                umlNamespaceEnd = templateEnd;
+                identifierStart = -1;
+                identifierEnd = -1;
+                status = FirstColon;
+            } else if (!c.isSpace()) {
+                return false;
+            }
+        }
+    }
+    if (umlNamespace && umlNamespaceStart >= 0 && umlNamespaceEnd >= 0)
+        *umlNamespace = fullClassName.mid(umlNamespaceStart, umlNamespaceEnd - umlNamespaceStart + 1);
+    if (identifierStart >= 0 && identifierEnd >= 0)
+        *className = fullClassName.mid(identifierStart, identifierEnd - identifierStart + 1);
+    return true;
 }
 
 } // namespace qmt

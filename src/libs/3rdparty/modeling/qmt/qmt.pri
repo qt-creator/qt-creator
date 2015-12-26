@@ -67,6 +67,7 @@ HEADERS += \
     $$PWD/diagram_scene/parts/arrowitem.h \
     $$PWD/diagram_scene/parts/contextlabelitem.h \
     $$PWD/diagram_scene/parts/customiconitem.h \
+    $$PWD/diagram_scene/parts/editabletextitem.h \
     $$PWD/diagram_scene/parts/pathselectionitem.h \
     $$PWD/diagram_scene/parts/rectangularselectionitem.h \
     $$PWD/diagram_scene/parts/relationstarter.h \
@@ -206,6 +207,7 @@ SOURCES += \
     $$PWD/diagram_scene/parts/arrowitem.cpp \
     $$PWD/diagram_scene/parts/contextlabelitem.cpp \
     $$PWD/diagram_scene/parts/customiconitem.cpp \
+    $$PWD/diagram_scene/parts/editabletextitem.cpp \
     $$PWD/diagram_scene/parts/pathselectionitem.cpp \
     $$PWD/diagram_scene/parts/rectangularselectionitem.cpp \
     $$PWD/diagram_scene/parts/relationstarter.cpp \

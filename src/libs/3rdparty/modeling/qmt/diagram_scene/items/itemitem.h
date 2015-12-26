@@ -75,7 +75,6 @@ private:
 
     CustomIconItem *m_customIcon = 0;
     QGraphicsRectItem *m_shape = 0;
-    QGraphicsSimpleTextItem *m_itemName = 0;
     ContextLabelItem *m_contextLabel = 0;
     RelationStarter *m_relationStarter = 0;
 };

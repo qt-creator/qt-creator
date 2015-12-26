@@ -34,6 +34,7 @@
 #include "qmt/diagram_scene/diagramsceneconstants.h"
 #include "qmt/diagram_scene/diagramscenemodel.h"
 #include "qmt/diagram_scene/parts/customiconitem.h"
+#include "qmt/diagram_scene/parts/editabletextitem.h"
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
 #include "qmt/infrastructure/geometryutilities.h"
 #include "qmt/stereotype/stereotypecontroller.h"
@@ -117,11 +118,7 @@ void DiagramItem::update()
     updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), style);
 
     // diagram name
-    if (!m_diagramName)
-        m_diagramName = new QGraphicsSimpleTextItem(this);
-    m_diagramName->setFont(style->headerFont());
-    m_diagramName->setBrush(style->textBrush());
-    m_diagramName->setText(object()->name());
+    updateNameItem(style);
 
     updateSelectionMarker(m_customIcon);
     updateAlignmentButtons();
@@ -170,9 +167,9 @@ QSizeF DiagramItem::calcMinimumGeometry() const
         width = std::max(width, stereotypesItem->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
         height += stereotypesItem->boundingRect().height();
     }
-    if (m_diagramName) {
-        width = std::max(width, m_diagramName->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
-        height += m_diagramName->boundingRect().height();
+    if (nameItem()) {
+        width = std::max(width, nameItem()->boundingRect().width() + 2 * BODY_HORIZ_BORDER);
+        height += nameItem()->boundingRect().height();
     }
     height += BODY_VERT_BORDER;
 
@@ -258,9 +255,9 @@ void DiagramItem::updateGeometry()
         stereotypesItem->setPos(-stereotypesItem->boundingRect().width() / 2.0, y);
         y += stereotypesItem->boundingRect().height();
     }
-    if (m_diagramName) {
-        m_diagramName->setPos(-m_diagramName->boundingRect().width() / 2.0, y);
-        y += m_diagramName->boundingRect().height();
+    if (nameItem()) {
+        nameItem()->setPos(-nameItem()->boundingRect().width() / 2.0, y);
+        y += nameItem()->boundingRect().height();
     }
 
     updateSelectionMarkerGeometry(rect);

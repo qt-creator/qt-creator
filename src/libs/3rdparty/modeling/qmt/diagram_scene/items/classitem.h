@@ -34,6 +34,7 @@
 #include "objectitem.h"
 
 #include "qmt/diagram_scene/capabilities/relationable.h"
+#include "qmt/diagram/dclass.h"
 
 QT_BEGIN_NAMESPACE
 class QGraphicsRectItem;
@@ -45,7 +46,6 @@ QT_END_NAMESPACE
 namespace qmt {
 
 class DiagramSceneModel;
-class DClass;
 class CustomIconItem;
 class ContextLabelItem;
 class TemplateParameterBox;
@@ -72,8 +72,11 @@ public:
 protected:
     bool extendContextMenu(QMenu *menu) override;
     bool handleSelectedContextMenuAction(QAction *action) override;
+    QString buildDisplayName() const override;
+    void setFromDisplayName(const QString &displayName) override;
 
 private:
+    DClass::TemplateDisplay templateDisplay() const;
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
     void updateMembers(const Style *style);
@@ -81,7 +84,6 @@ private:
     CustomIconItem *m_customIcon = 0;
     QGraphicsRectItem *m_shape = 0;
     QGraphicsSimpleTextItem *m_namespace = 0;
-    QGraphicsSimpleTextItem *m_className = 0;
     ContextLabelItem *m_contextLabel = 0;
     QGraphicsLineItem *m_attributesSeparator = 0;
     QString m_attributesText;

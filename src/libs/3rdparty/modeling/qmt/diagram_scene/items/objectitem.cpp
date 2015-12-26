@@ -37,6 +37,7 @@
 #include "qmt/diagram_scene/diagramscenemodel.h"
 #include "qmt/diagram_scene/items/stereotypedisplayvisitor.h"
 #include "qmt/diagram_scene/parts/alignbuttonsitem.h"
+#include "qmt/diagram_scene/parts/editabletextitem.h"
 #include "qmt/diagram_scene/parts/rectangularselectionitem.h"
 #include "qmt/diagram_scene/parts/customiconitem.h"
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
@@ -57,6 +58,7 @@
 #include <QGraphicsView>
 #include <QCursor>
 #include <QMenu>
+#include <QTextDocument>
 
 namespace qmt {
 
@@ -356,6 +358,18 @@ void ObjectItem::align(IAlignable::AlignType alignType, const QString &identifie
     }
 }
 
+bool ObjectItem::isEditable() const
+{
+    return true;
+}
+
+void ObjectItem::edit()
+{
+    // TODO if name is initial name ("New Class" etc) select all text
+    if (m_nameItem)
+        m_nameItem->setFocus();
+}
+
 void ObjectItem::updateStereotypeIconDisplay()
 {
     StereotypeDisplayVisitor stereotypeDisplayVisitor;
@@ -437,6 +451,50 @@ QSizeF ObjectItem::stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIco
         width = height * stereotypeIcon.width() / stereotypeIcon.height();
     }
     return QSizeF(width, height);
+}
+
+void ObjectItem::updateNameItem(const Style *style)
+{
+    if (!m_nameItem) {
+        m_nameItem = new EditableTextItem(this);
+        m_nameItem->setShowFocus(true);
+        m_nameItem->setFilterReturnKey(true);
+        m_nameItem->setFilterTabKey(true);
+        QObject::connect(m_nameItem->document(), &QTextDocument::contentsChanged, m_nameItem,
+                         [=]() { this->setFromDisplayName(m_nameItem->toPlainText()); });
+        QObject::connect(m_nameItem, &EditableTextItem::returnKeyPressed, m_nameItem,
+                         [=]() { this->m_nameItem->clearFocus(); });
+    }
+    if (style->headerFont() != m_nameItem->font())
+        m_nameItem->setFont(style->headerFont());
+    if (style->textBrush().color() != m_nameItem->defaultTextColor())
+        m_nameItem->setDefaultTextColor(style->textBrush().color());
+    if (!m_nameItem->hasFocus()) {
+        QString name = buildDisplayName();
+        if (name != m_nameItem->toPlainText())
+            m_nameItem->setPlainText(name);
+    }
+}
+
+QString ObjectItem::buildDisplayName() const
+{
+    return m_object->name();
+}
+
+void ObjectItem::setFromDisplayName(const QString &displayName)
+{
+    setObjectName(displayName);
+}
+
+void ObjectItem::setObjectName(const QString &objectName)
+{
+    ModelController *modelController = m_diagramSceneModel->diagramSceneController()->modelController();
+    MObject *mobject = modelController->findObject(m_object->modelUid());
+    if (mobject && objectName != mobject->name()) {
+        modelController->startUpdateObject(mobject);
+        mobject->setName(objectName);
+        modelController->finishUpdateObject(mobject, false);
+    }
 }
 
 void ObjectItem::updateDepth()

@@ -36,6 +36,7 @@
 #include "qmt/diagram_scene/diagramscenemodel.h"
 #include "qmt/diagram_scene/parts/contextlabelitem.h"
 #include "qmt/diagram_scene/parts/customiconitem.h"
+#include "qmt/diagram_scene/parts/editabletextitem.h"
 #include "qmt/diagram_scene/parts/relationstarter.h"
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
 #include "qmt/infrastructure/geometryutilities.h"
@@ -112,11 +113,7 @@ void ItemItem::update()
     updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), adaptedStyle(stereotypeIconId()));
 
     // component name
-    if (!m_itemName)
-        m_itemName = new QGraphicsSimpleTextItem(this);
-    m_itemName->setFont(style->headerFont());
-    m_itemName->setBrush(style->textBrush());
-    m_itemName->setText(object()->name());
+    updateNameItem(style);
 
     // context
     if (showContext()) {
@@ -219,9 +216,9 @@ QSizeF ItemItem::calcMinimumGeometry() const
         width = std::max(width, stereotypesItem->boundingRect().width());
         height += stereotypesItem->boundingRect().height();
     }
-    if (m_itemName) {
-        width = std::max(width, m_itemName->boundingRect().width());
-        height += m_itemName->boundingRect().height();
+    if (nameItem()) {
+        width = std::max(width, nameItem()->boundingRect().width());
+        height += nameItem()->boundingRect().height();
     }
     if (m_contextLabel)
         height += m_contextLabel->height();
@@ -287,9 +284,9 @@ void ItemItem::updateGeometry()
         stereotypesItem->setPos(-stereotypesItem->boundingRect().width() / 2.0, y);
         y += stereotypesItem->boundingRect().height();
     }
-    if (m_itemName) {
-        m_itemName->setPos(-m_itemName->boundingRect().width() / 2.0, y);
-        y += m_itemName->boundingRect().height();
+    if (nameItem()) {
+        nameItem()->setPos(-nameItem()->boundingRect().width() / 2.0, y);
+        y += nameItem()->boundingRect().height();
     }
     if (m_contextLabel) {
         if (m_customIcon) {

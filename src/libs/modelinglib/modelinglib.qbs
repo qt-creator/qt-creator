@@ -131,6 +131,8 @@ QtcLibrary {
             "diagram_scene/parts/contextlabelitem.h",
             "diagram_scene/parts/customiconitem.cpp",
             "diagram_scene/parts/customiconitem.h",
+            "diagram_scene/parts/editabletextitem.cpp",
+            "diagram_scene/parts/editabletextitem.h",
             "diagram_scene/parts/pathselectionitem.cpp",
             "diagram_scene/parts/pathselectionitem.h",
             "diagram_scene/parts/rectangularselectionitem.cpp",
