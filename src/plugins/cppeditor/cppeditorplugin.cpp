@@ -61,6 +61,7 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/colorpreviewhoverhandler.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -107,6 +108,7 @@ public:
                               | TextEditorActionHandler::FollowSymbolUnderCursor);
 
         addHoverHandler(new CppHoverHandler);
+        addHoverHandler(new ColorPreviewHoverHandler);
     }
 };
 
