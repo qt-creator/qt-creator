@@ -71,8 +71,6 @@ Core::IEditor *ModelEditorFactory::createEditor()
 void ModelEditorFactory::extensionsInitialized()
 {
     d->actionHandler->createActions();
-    d->actionHandler->createEditPropertiesShortcut(
-                Constants::SHORTCUT_MODEL_EDITOR_EDIT_PROPERTIES);
 }
 
 } // namespace Internal

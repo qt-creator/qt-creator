@@ -50,6 +50,8 @@ const char ACTION_EXPLORER_OPEN_DIAGRAM[] = "ModelEditor.Action.Explorer.OpenDia
 
 const char SHORTCUT_MODEL_EDITOR_EDIT_PROPERTIES[] =
         "ModelEditor.ModelEditor.Shortcut.EditProperties";
+const char SHORTCUT_MODEL_EDITOR_EDIT_ITEM[] =
+        "ModelEditor.ModelEditor.Shortcut.EditItem";
 
 const char WIZARD_CATEGORY[] = "O.Model";
 const char WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Modeling", "Modeling");

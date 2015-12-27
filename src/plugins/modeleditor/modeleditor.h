@@ -90,6 +90,7 @@ public:
     void selectAll();
     void openParentDiagram();
     void editProperties();
+    void editSelectedItem();
     qmt::MPackage *guessSelectedPackage() const;
 
 private:

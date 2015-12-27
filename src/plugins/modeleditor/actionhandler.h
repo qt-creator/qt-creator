@@ -71,7 +71,6 @@ public:
     QAction *openParentDiagramAction() const;
 
     void createActions();
-    void createEditPropertiesShortcut(const Core::Id &shortcutId);
 
 private slots:
     void undo();
@@ -84,6 +83,7 @@ private slots:
     void selectAll();
     void openParentDiagram();
     void onEditProperties();
+    void onEditItem();
 
 private:
     Core::Command *registerCommand(const Core::Id &id, const std::function<void()> &slot,

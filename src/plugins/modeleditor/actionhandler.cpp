@@ -144,15 +144,18 @@ void ActionHandler::createActions()
     registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr, Core::Context());
     registerCommand(Constants::ACTION_ADD_CLASS, nullptr, Core::Context());
     registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context());
-}
 
-void ActionHandler::createEditPropertiesShortcut(const Core::Id &shortcutId)
-{
-    auto editAction = new QAction(tr("Edit Element Properties"), Core::ICore::mainWindow());
-    Core::Command *editCommand = Core::ActionManager::registerAction(
-                editAction, shortcutId, d->context);
-    editCommand->setDefaultKeySequence(QKeySequence(tr("Return")));
-    connect(editAction, &QAction::triggered, this, &ActionHandler::onEditProperties);
+    auto editPropertiesAction = new QAction(tr("Edit Element Properties"), Core::ICore::mainWindow());
+    Core::Command *editPropertiesCommand = Core::ActionManager::registerAction(
+                editPropertiesAction, Constants::SHORTCUT_MODEL_EDITOR_EDIT_PROPERTIES, d->context);
+    editPropertiesCommand->setDefaultKeySequence(QKeySequence(tr("Shift+Return")));
+    connect(editPropertiesAction, &QAction::triggered, this, &ActionHandler::onEditProperties);
+
+    auto editItemAction = new QAction(tr("Edit Item on Diagram"), Core::ICore::mainWindow());
+    Core::Command *editItemCommand = Core::ActionManager::registerAction(
+                editItemAction, Constants::SHORTCUT_MODEL_EDITOR_EDIT_ITEM, d->context);
+    editItemCommand->setDefaultKeySequence(QKeySequence(tr("Return")));
+    connect(editItemAction, &QAction::triggered, this, &ActionHandler::onEditItem);
 }
 
 void ActionHandler::undo()
@@ -223,6 +226,13 @@ void ActionHandler::onEditProperties()
     auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
     if (editor)
         editor->editProperties();
+}
+
+void ActionHandler::onEditItem()
+{
+    auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
+    if (editor)
+        editor->editSelectedItem();
 }
 
 Core::Command *ActionHandler::registerCommand(const Core::Id &id, const std::function<void()> &slot,

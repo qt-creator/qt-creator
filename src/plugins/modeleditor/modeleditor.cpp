@@ -508,6 +508,11 @@ void ModelEditor::editProperties()
     d->propertiesView->editSelectedElement();
 }
 
+void ModelEditor::editSelectedItem()
+{
+    onEditSelectedElement();
+}
+
 qmt::MPackage *ModelEditor::guessSelectedPackage() const
 {
     qmt::MPackage *package = 0;
@@ -1184,6 +1189,7 @@ void ModelEditor::onEditSelectedElement()
         if (element) {
             qmt::DiagramSceneModel *diagramSceneModel = d->document->documentController()->diagramsManager()->diagramSceneModel(diagram);
             if (diagramSceneModel->isElementEditable(element)) {
+                d->diagramStack->currentWidget()->setFocus();
                 diagramSceneModel->editElement(element);
                 return;
             }
