@@ -20,9 +20,10 @@ function llvmConfig(qbs, qtcFunctions, processOutputReader)
     ];
 
     // Prefer llvm-config* from LLVM_INSTALL_DIR
+    var suffix = qbs.hostOS.contains("windows") ? ".exe" : "";
     if (llvmInstallDirFromEnv) {
         for (var i = 0; i < llvmConfigVariants.length; ++i) {
-            var variant = llvmInstallDirFromEnv + "/bin/" + llvmConfigVariants[i];
+            var variant = llvmInstallDirFromEnv + "/bin/" + llvmConfigVariants[i] + suffix;
             if (isSuitableLLVMConfig(variant, qtcFunctions, processOutputReader))
                 return variant;
         }
@@ -34,7 +35,7 @@ function llvmConfig(qbs, qtcFunctions, processOutputReader)
     var pathList = pathListString.split(separator);
     for (var i = 0; i < llvmConfigVariants.length; ++i) {
         for (var j = 0; j < pathList.length; ++j) {
-            var variant = pathList[j] + "/" + llvmConfigVariants[i];
+            var variant = pathList[j] + "/" + llvmConfigVariants[i] + suffix;
             if (isSuitableLLVMConfig(variant, qtcFunctions, processOutputReader))
                 return variant;
         }
