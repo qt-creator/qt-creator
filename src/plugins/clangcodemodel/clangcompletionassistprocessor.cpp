@@ -30,13 +30,13 @@
 #include "clangassistproposalmodel.h"
 #include "clangcompletionassistprocessor.h"
 #include "clangcompletioncontextanalyzer.h"
-#include "clangeditordocumentprocessor.h"
 #include "clangfunctionhintmodel.h"
 #include "clangcompletionchunkstotextconverter.h"
 #include "clangpreprocessorassistproposalitem.h"
 
 #include <cpptools/cppdoxygen.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsbridge.h>
 #include <cpptools/editordocumenthandle.h>
 
 #include <texteditor/codeassist/assistproposalitem.h>
@@ -54,6 +54,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDirIterator>
+#include <QTextDocument>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -651,17 +652,6 @@ void setLastCompletionPosition(const QString &filePath,
         document->sendTracker().setLastCompletionPosition(completionPosition);
 }
 
-QString projectPartIdForEditorDocument(const QString &filePath)
-{
-    auto projectPart = ClangEditorDocumentProcessor::get(filePath)->projectPart();
-
-    QString projectPartId;
-
-    if (projectPart)
-        projectPartId = projectPart->id();
-
-    return projectPartId;
-}
 }
 
 bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
@@ -682,7 +672,7 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
             setLastDocumentRevision(filePath);
         }
 
-        const QString projectPartId = projectPartIdForEditorDocument(filePath);
+        const QString projectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
         ipcCommunicator.completeCode(this, filePath, uint(line), uint(column), projectPartId);
         setLastCompletionPosition(filePath, position);
         return true;
