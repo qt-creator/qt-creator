@@ -33,8 +33,12 @@
 
 #include <QObject>
 #include "qmt/infrastructure/exceptions.h"
+#include "qmt/stereotype/toolbar.h"
 
 #include "sourcepos.h"
+
+#include <QPair>
+#include <QHash>
 
 namespace qmt {
 
@@ -75,10 +79,17 @@ public:
 
 private:
     void parseFile();
+
     void parseIcon();
-    void parseIconProperties(StereotypeIcon *stereotypeIcon);
+    static QPair<int, IconCommandParameter> SCALED(int keyword);
+    static QPair<int, IconCommandParameter> FIX(int keyword);
+    static QPair<int, IconCommandParameter> ABSOLUTE(int keyword);
+    void parseIconShape(StereotypeIcon *stereotypeIcon);
+    QHash<int, ShapeValueF> parseIconShapeProperties(const QHash<int, IconCommandParameter> &parameters);
+
     void parseToolbar();
-    void parseToolbarProperties(Toolbar *toolbar);
+    void parseToolbarTools(Toolbar *toolbar);
+    void parseToolbarTool(Toolbar::Tool *tool);
 
     QString parseStringProperty();
     int parseIntProperty();
@@ -88,11 +99,6 @@ private:
     bool parseBoolProperty();
     QColor parseColorProperty();
 
-    void parseIconCommands(StereotypeIcon *stereotypeIcon);
-    QList<ShapeValueF> parseIconCommandParameters(const QList<IconCommandParameter> &parameters);
-
-    void parseToolbarCommands(Toolbar *toolbar);
-
     QString parseStringExpression();
     qreal parseFloatExpression();
     int parseIntExpression();
@@ -100,14 +106,19 @@ private:
     bool parseBoolExpression();
     QColor parseColorExpression();
 
-    Token readNextToken();
+    void expectBlockBegin();
+    bool readProperty(Token *token);
+    void throwUnknownPropertyError(const Token &token);
+    bool expectPropertySeparatorOrBlockEnd();
+    void skipOptionalEmptyBlock();
 
     qreal expectAbsoluteValue(const ShapeValueF &value, const SourcePos &sourcePos);
-    void expectSemicolonOrEndOfLine();
-    bool nextIsComma();
+    bool isOperator(const Token &token, int op) const;
     void expectOperator(int op, const QString &opName);
-    void expectComma();
     void expectColon();
+
+    void skipEOLTokens();
+    Token readNextToken();
 
     StereotypeDefinitionParserPrivate *d;
 };

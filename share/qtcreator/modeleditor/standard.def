@@ -2,296 +2,334 @@
 //
 // Language syntax and commands:
 //
-// Icon <name>
-//     Title: <a UI title. Defaults to the name of the icon.>
-//     Elements: <comma-separated list of element types the
+// Icon {
+//     id: <id>
+//     title: <a UI title. Defaults to the id of the icon.>
+//     elements: <comma-separated list of element types the
 //                definiton applies to: class, component, package, diagram, item.
 //                Default applies definition to all element types.>
-//     Stereotype: <stereotype as a string.>
-//     Display: <default display of element.
+//     stereotype: <stereotype as a string.>
+//     display: <default display of element.
 //               One of: none, label, decoration, icon, smart.
 //               Default is smart.>
-//     Width: <width of icon in pixels. The width defines the width of the icon as decoration.>
-//     Height: <height of icon in pixels. The height defines the height of the icon as decoration.>
-//     MinWidth: <minimum width of custom icon in pixels.>
-//     MinHeight: <minimum height of custom icon in pixels.>
-//     LockSize: <lock resizing.
+//     width: <width of icon in pixels. The width defines the width of the icon as decoration.>
+//     height: <height of icon in pixels. The height defines the height of the icon as decoration.>
+//     minwidth: <minimum width of custom icon in pixels.>
+//     minheight: <minimum height of custom icon in pixels.>
+//     lockSize: <lock resizing.
 //                One of: none, width, height, size, ratio.
 //                Default is none.>
-//     TextAlignment: <alignment of text.
+//     textAlignment: <alignment of text.
 //                     One of: top, center, below.
 //                     Defaults to center.>
-//     BaseColor: <color #rrggbb>
-// Begin
-//     Line <x1>, <y1>, <x2>, <y2>
-//     Rect <x>, <y>, <width>, <height>
-//     RoundedRect <x>, <y>, <width>, <height>, <radius>
-//     Circle <center_x>, <center_y>, <radius>
-//     Ellipse <center_x>, <center_y>, <radius_x>, <radius_y>
-//     Arc <center_x>, <center_y>, <radius_x>, <radius_y>, <start_angle>, <span_angle>
-//     MoveTo <x>, <y>
-//     LineTo <x>, <y>
-//     ArcMoveTo <center_x>, <center_y>, <radius_x>, <radius_y>, <angle>
-//     ArcTo <center_x>, <center_y>, <radius_x>, <radius_y>, <angle>, <span_angle>
-//     Close
-// End
+//     baseColor: <color #rrggbb>
+//     Shape {
+//         Line { x1: <x1>; y1: <y1>; x2:<x2>; y2: <y2> }
+//         Rect { x: <x>; y: <y>; width: <width>; height: <height> }
+//         RoundedRect { x: <x>; y: <y>; width: <width>; height: <height>; radius: <radius> }
+//         Circle { x: <center_x>; y: <center_y>; radius: <radius> }
+//         Ellipse { x: <center_x>; y: <center_y>; radiusX: <radius_x>; radiusY: <radius_y> }
+//         Arc { x: <center_x>; y: <center_y>; radiusX: <radius_x>; radiusY: <radius_y>; start: <start_angle>; span: <span_angle> }
+//         MoveTo { x: <x>; y: <y> }
+//         LineTo { x: <x>; y: <y> }
+//         ArcMoveTo { x: <center_x>; y: <center_y>; radiusX: <radius_x>; radiusY: <radius_y>; angle: <angle> }
+//         ArcTo { x: <center_x>; y: <center_y>; radiusX: <radius_x>; radiusY: <radius_y>; start: <start_angle>; span: <span_angle> }
+//         Close
+//     }
+// }
 //
-// Toolbar <name>
-//     Priority: <priority which decides about the position of toolbar in toolbox>
-// Begin
-//     Tool <title>, <element type>[, <stereotype>]
-//     Separator
-// End
+// Toolbar {
+//     id: <id>
+//     title: <a Ui title. Defaults to the id of the toolbar>
+//     priority: <priority number which decides about the position of toolbar in toolbox. Defaults to 0>
+//     Tools {
+//         Tool { title: <Ui title>; element: <element type>; stereotype: <stereotype, defaults to nothing> }
+//         Separator
+//     }
+// }
 //
 
 // *************
 // ** Classes **
 // *************
 
-Icon Interface
-    Elements: class
-    Stereotype: 'interface'
-    Display: icon
-    Width: 20.0
-    Height: 20.0
-    LockSize: ratio
-Begin
-    Circle 10.0, 10.0, 10.0
-End
+Icon {
+    id: Interface
+    elements: class
+    stereotype: 'interface'
+    display: icon
+    width: 20.0
+    height: 20.0
+    lockSize: ratio
+    Shape {
+        Circle { x: 10.0; y: 10.0; radius: 10.0 }
+    }
+}
 
-Icon Boundary
-    Stereotype: 'boundary'
-    Width: 24.0
-    Height: 20.0
-    LockSize: ratio
-Begin
-    Circle 14.0, 10.0, 10.0
-    Line 0.0, 0.0, 0.0, 20.0
-    Line 0.0, 10.0, 4.0, 10.0
-End
+Icon {
+    id: Boundary
+    stereotype: 'boundary'
+    width: 24.0
+    height: 20.0
+    lockSize: ratio
+    Shape {
+        Circle { x: 14.0; y: 10.0; radius: 10.0 }
+        Line { x0: 0.0; y0: 0.0; x1: 0.0; y1: 20.0 }
+        Line { x0: 0.0; y0: 10.0; x1: 4.0; y1: 10.0 }
+    }
+}
 
-Icon Control
-    Stereotype: 'control'
-    Width: 20.0
-    Height: 20.0
-    LockSize: ratio
-Begin
-    Circle 10.0, 10.0, 10.0
-    Line 10.0, 0.0, 14.0, -2.0
-    Line 10.0, 0.0, 14.0, 4.0
-End
+Icon {
+    id: Control
+    stereotype: 'control'
+    width: 20.0
+    height: 20.0
+    lockSize: ratio
+    Shape {
+        Circle { x: 10.0; y: 10.0; radius: 10.0 }
+        Line { x0: 10.0; y0: 0.0; x1: 14.0; y1: -2.0 }
+        Line { x0: 10.0; y0: 0.0; x1: 14.0; y1: 4.0 }
+    }
+}
 
-Icon Entity
-    Stereotype: 'entity'
-    Width: 20.0
-    Height: 20.0
-    LockSize: ratio
-Begin
-    Circle 10.0, 10.0, 10.0
-    Line 0.0, 20.0, 20.0, 20.0
-End
-
+Icon {
+    id: Entity
+    stereotype: 'entity'
+    width: 20.0
+    height: 20.0
+    lockSize: ratio
+    Shape {
+        Circle { x: 10.0; y: 10.0; radius: 10.0 }
+        Line { x0: 0.0; y0: 20.0; x1: 20.0; y1: 20.0 }
+    }
+}
 
 // ****************
 // ** Components **
 // ****************
 
-Icon Database
-    Stereotype: 'database'
-    Display: icon
-    Width: 20.0
-    Height: 20.0
-Begin
-    MoveTo 0.0, 3.0
-    LineTo 0.0, 17.0
-    ArcTo 10.0, 17.0, 10.0, 3.0, 180.0, 180.0
-    LineTo 20.0, 3.0
-    ArcTo 10.0, 3.0, 10.0, 3.0, 0.0, -180.0
-    Close
-    Arc 10.0, 3.0, 10.0, 3.0, 0.0, 180.0
-End
+Icon {
+    id: Database
+    stereotype: 'database'
+    display: icon
+    width: 20.0
+    height: 20.0
+    Shape {
+        MoveTo { x: 0.0; y: 3.0 }
+        LineTo { x: 0.0; y: 17.0 }
+        ArcTo { x: 10.0; y: 17.0; radiusX: 10.0; radiusY: 3.0; start: 180.0; span: 180.0 }
+        LineTo { x: 20.0; y: 3.0 }
+        ArcTo { x: 10.0; y: 3.0; radiusX: 10.0; radiusY: 3.0; start: 0.0; span: -180.0 }
+        Close
+        Arc { x: 10.0; y: 3.0; radiusX: 10.0; radiusY: 3.0; start: 0.0; span: 180.0 }
+    }
+}
 
 // experimental replacement of default shape with custom shape
-Icon Component
-    Elements: component, package, diagram
-    Stereotype: 'component'
-    Display: decoration
-    Width: 20.0
-    Height: 16.0
-    TextAlignment: center
-Begin
-    Rect 0, 0, 20.0, 16.0
-    Rect -4.0, 2.5, 8, 4
-    Rect -4.0, 9.5, 8, 4
-End
+Icon {
+    id: Component
+    elements: component, package, diagram
+    stereotype: 'component'
+    display: decoration
+    width: 20.0
+    height: 16.0
+    textAlignment: center
+    Shape {
+        Rect { x: 0; y: 0; width: 20.0; height: 16.0 }
+        Rect { x: -4.0; y: 2.5; width: 8; height: 4 }
+        Rect { x: -4.0; y: 9.5; width: 8; height: 4 }
+    }
+}
 
 
 // ***************
 // ** Use Cases **
 // ***************
 
-Icon UseCase
+Icon {
+    id: UseCase
     Title: "Use-Case"
-    Elements: item
-    Stereotype: 'usecase'
-    Display: icon
-    Width: 40
-    Height: 20
-    BaseColor: #5fb4f0
-Begin
-    Ellipse 20, 10, 20, 10
-End
+    elements: item
+    stereotype: 'usecase'
+    display: icon
+    width: 40
+    height: 20
+    baseColor: #5fb4f0
+    Shape {
+        Ellipse { x: 20; y: 10; radiusX: 20; radiusY: 10 }
+    }
+}
 
-Icon Actor
-    Elements: item
-    Stereotype: 'actor'
-    Display: icon
-    Width: 20
-    Height: 40
-    LockSize: ratio
-    BaseColor: #5fb4f0
-Begin
-    Circle 10, 5, 5
-    Line 0, 15, 20, 15
-    Line 10, 10, 10, 25
-    Line 10, 25, 3, 40
-    Line 10, 25, 17, 40
-End
-
+Icon {
+    id: Actor
+    elements: item
+    stereotype: 'actor'
+    display: icon
+    width: 20
+    height: 40
+    lockSize: ratio
+    baseColor: #5fb4f0
+    Shape {
+        Circle { x: 10; y: 5; radius: 5 }
+        Line { x0: 0; y0: 15; x1: 20; y1: 15 }
+        Line { x0: 10; y0: 10; x1: 10; y1: 25 }
+        Line { x0: 10; y0: 25; x1: 3; y1: 40 }
+        Line { x0: 10; y0: 25; x1: 17; y1: 40 }
+    }
+}
 
 // ****************
 // ** Activities **
 // ****************
 
-Icon Start
-    Elements: item
-    Stereotype: 'start'
-    Display: icon
-    Width: 20
-    Height: 20
-    LockSize: ratio
-    BaseColor: #81d657
-Begin
-    Circle 10, 10, 7
-End
+Icon {
+    id: Start
+    elements: item
+    stereotype: 'start'
+    display: icon
+    width: 20
+    height: 20
+    lockSize: ratio
+    baseColor: #81d657
+    Shape {
+        Circle { x: 10; y: 10; radius: 7 }
+    }
+}
 
-Icon Activity
-    Elements: item
-    Stereotype: 'activity'
-    Display: icon
-    Width: 40
-    Height: 20
-    BaseColor: #81d657
-Begin
-    RoundedRect 0, 0, 40, 20, 10
-End
+Icon {
+    id: Activity
+    elements: item
+    stereotype: 'activity'
+    display: icon
+    width: 40
+    height: 20
+    baseColor: #81d657
+    Shape {
+        RoundedRect { x: 0; y: 0; width: 40; height: 20; radius: 10 }
+    }
+}
 
-Icon Condition
-    Elements: item
-    Stereotype: 'condition'
-    Display: icon
-    Width: 20
-    Height: 20
-    LockSize: ratio
-    BaseColor: #81d657
-Begin
-    MoveTo 10, 0
-    LineTo 20, 10
-    LineTo 10, 20
-    LineTo 0, 10
-    Close
-End
+Icon {
+    id: Condition
+    elements: item
+    stereotype: 'condition'
+    display: icon
+    width: 20
+    height: 20
+    lockSize: ratio
+    baseColor: #81d657
+    Shape {
+        MoveTo { x: 10; y: 0 }
+        LineTo { x: 20; y: 10 }
+        LineTo { x: 10; y: 20 }
+        LineTo { x: 0; y: 10 }
+        Close
+    }
+}
 
-Icon HorizontalBar
+Icon {
+    id: HorizontalBar
     Title: "Horizontal Bar"
-    Elements: item
-    Stereotype: 'horizontalbar'
-    Display: icon
-    Width: 20
-    Height: 5
-    MinWidth: 20
-    MinHeight: 5
-    LockSize: height
-    BaseColor: #000000
-Begin
-    RoundedRect 0, 0, 20, 5, 1
-End
+    elements: item
+    stereotype: 'horizontalbar'
+    display: icon
+    width: 20
+    height: 5
+    minWidth: 20
+    minHeight: 5
+    lockSize: height
+    baseColor: #000000
+    Shape {
+        RoundedRect { x: 0; y: 0; width: 20; height: 5; radius: 1 }
+    }
+}
 
-Icon VerticalBar
+Icon {
+    id: VerticalBar
     Title: "Vertical Bar"
-    Elements: item
-    Stereotype: 'verticalbar'
-    Display: icon
-    Width: 5
-    Height: 20
-    MinWidth: 5
-    MinHeight: 20
-    LockSize: width
-    BaseColor: #000000
-Begin
-    RoundedRect 0, 0, 5, 20, 1
-End
+    elements: item
+    stereotype: 'verticalbar'
+    display: icon
+    width: 5
+    height: 20
+    minWidth: 5
+    minHeight: 20
+    lockSize: width
+    baseColor: #000000
+    Shape {
+        RoundedRect { x: 0; y: 0; width: 5; height: 20; radius: 1 }
+    }
+}
 
-Icon Termination
-    Elements: item
-    Stereotype: 'termination'
-    Display: icon
-    Width: 20
-    Height: 20
-    LockSize: ratio
-    BaseColor: #81d657
-Begin
-    Circle 10, 10, 10
-    Circle 10, 10, 7
-End
-
+Icon {
+    id: Termination
+    elements: item
+    stereotype: 'termination'
+    display: icon
+    width: 20
+    height: 20
+    lockSize: ratio
+    baseColor: #81d657
+    Shape {
+        Circle { x: 10; y: 10; radius: 10 }
+        Circle { x: 10; y: 10; radius: 7 }
+    }
+}
 
 // **************
 // ** Toolbars **
 // **************
 
-Toolbar Classes
-Begin
-    Tool "Package", package
-    Tool "Class", class
-    Tool "Interface", class, "interface"
-    Tool "Control", class, "control"
-    Tool "Entity", class, "entity"
-    Tool "Boundary", class, "boundary"
-    Separator
-    Tool "Annotation", annotation
-    Tool "Boundary", boundary
-End
+Toolbar {
+    id: Classes
+    Tools {
+        Tool { title: "Package"; element: package }
+        Tool { title: "Class"; element: class }
+        Tool { title: "Interface"; element: class; stereotype: "interface" }
+        Tool { title: "Control"; element: class; stereotype: "control" }
+        Tool { title: "Entity"; element: class; stereotype: "entity" }
+        Tool { title: "Boundary"; element: class; stereotype: "boundary" }
+        Separator
+        Tool { title: "Annotation"; element: annotation }
+        Tool { title: "Boundary"; element: boundary }
+    }
+}
 
-Toolbar Components
-Begin
-    Tool "Package", package
-    Tool "Component", component
-    Tool "Database", component, "database"
-    Separator
-    Tool "Annotation", annotation
-    Tool "Boundary", boundary
-End
+Toolbar {
+    id: Components
+    Tools {
+        Tool { title: "Package"; element: package }
+        Tool { title: "Component"; element: component }
+        Tool { title: "Database"; element: component; stereotype: "database" }
+        Separator
+        Tool { title: "Annotation"; element: annotation }
+        Tool { title: "Boundary"; element: boundary }
+    }
+}
 
-Toolbar UseCases
-Begin
-    Tool "Package", package
-    Tool "UseCase", item, "usecase"
-    Tool "Actor", item, "actor"
-    Separator
-    Tool "Annotation", annotation
-    Tool "Boundary", boundary
-End
+Toolbar {
+    id: UseCases
+    Tools {
+        Tool { title: "Package"; element: package }
+        Tool { title: "UseCase"; element: item; stereotype: "usecase" }
+        Tool { title: "Actor"; element: item; stereotype: "actor" }
+        Separator
+        Tool { title: "Annotation"; element: annotation }
+        Tool { title: "Boundary"; element: boundary }
+    }
+}
 
-Toolbar Activities
-Begin
-    Tool "Start", item, "start"
-    Tool "Activity", item, "activity"
-    Tool "Condition", item, "condition"
-    Tool "Horiz. Bar", item, "horizontalbar"
-    Tool "Vert. Bar", item, "verticalbar"
-    Tool "Termination", item, "termination"
-    Separator
-    Tool "Annotation", annotation
-    Tool "Boundary", boundary
-End
+Toolbar {
+    id: Activities
+    Tools {
+        Tool { title: "Start"; element: item; stereotype: "start" }
+        Tool { title: "Activity"; element: item; stereotype: "activity" }
+        Tool { title: "Condition"; element: item; stereotype: "condition" }
+        Tool { title: "Horiz. Bar"; element: item; stereotype: "horizontalbar" }
+        Tool { title: "Vert. Bar"; element: item; stereotype: "verticalbar" }
+        Tool { title: "Termination"; element: item; stereotype: "termination" }
+        Separator
+        Tool { title: "Annotation"; element: annotation }
+        Tool { title: "Boundary"; element: boundary }
+    }
+}
