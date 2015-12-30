@@ -853,6 +853,17 @@ bool Lexer::scanOptionalIntegerSuffix(bool allowU)
             scanOptionalIntegerSuffix(false);
         }
         return true;
+    case 'i':
+    case 'I':
+        yyinp();
+        if (_yychar == '6') {
+            yyinp();
+            if (_yychar == '4') {
+                yyinp();
+                return true;
+            }
+        }
+        return false;
     case 'l':
         yyinp();
         if (_yychar == 'l')

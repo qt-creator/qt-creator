@@ -337,6 +337,30 @@ void tst_SimpleLexer::literals_data()
     QTest::newRow("integer-literals") << source << expectedTokenKindList;
 
     source =
+            "42ui64\n"
+            "43UI64\n"
+            "44Ui64\n"
+            "45uI64\n"
+            "46i64\n"
+            "47I64\n"
+            "0xffffui64\n"
+            "0xfffeUi64\n"
+            "0xfffdi64\n"
+            "56ui\n"   // incomplete
+            "56ui6\n"
+            "57ui67\n" // wrong
+            "58i67\n"
+            ;
+    expectedTokenKindList =
+            TokenKindList() << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_ERROR << T_ERROR
+                               ;
+    QTest::newRow("microsoft-suffix") << source << expectedTokenKindList;
+
+    source =
             "R\"(raw text)\"\n"
             "R\"delimiter(raw text)delimiter\"\n"
             "R\"delimiter(\nraw text line1\nraw text line2\n)delimiter\"\n"
