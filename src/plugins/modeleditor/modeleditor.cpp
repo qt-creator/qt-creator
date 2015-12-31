@@ -95,6 +95,8 @@
 #include <QUndoStack>
 #include <QVBoxLayout>
 
+#include <algorithm>
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -861,10 +863,12 @@ void ModelEditor::onToolbarSelectionChanged()
 void ModelEditor::initToolbars()
 {
     QHash<QString, QWidget *> toolBars;
-    // TODO add toolbars sorted by prio
     qmt::DocumentController *documentController = d->document->documentController();
     qmt::StereotypeController *stereotypeController = documentController->stereotypeController();
-    foreach (const qmt::Toolbar &toolbar, stereotypeController->toolbars()) {
+    QList<qmt::Toolbar> toolbars = stereotypeController->toolbars();
+    std::stable_sort(toolbars.begin(), toolbars.end(),
+                     [=](const qmt::Toolbar &lhs, const qmt::Toolbar &rhs) { return lhs.priority() > rhs.priority(); });
+    foreach (const qmt::Toolbar &toolbar, toolbars) {
         QWidget *toolBar = toolBars.value(toolbar.id());
         QLayout *toolBarLayout = 0;
         if (!toolBar) {
