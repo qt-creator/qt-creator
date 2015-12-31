@@ -51,6 +51,8 @@ public:
     void setPxNodeController(PxNodeController *pxNodeController);
 
 private:
+    void dropProjectExplorerNodes(const QList<QVariant> &values, const QPoint &pos);
+
     EditorDiagramViewPrivate *d;
 };
 

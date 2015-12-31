@@ -54,20 +54,8 @@ EditorDiagramView::EditorDiagramView(QWidget *parent)
                 this,
                 [this](QDropEvent *event, Utils::DropSupport *dropSupport)
             -> bool { return dropSupport->isValueDrop(event); });
-    // TODO use slot instead of lambda, lambda is to long and complex
     connect(droputils, &Utils::DropSupport::valuesDropped,
-            this,
-            [this](const QList<QVariant> &values, const QPoint &pos) {
-        foreach (const QVariant &value, values) {
-            if (value.canConvert<ProjectExplorer::Node *>()) {
-                auto node = value.value<ProjectExplorer::Node *>();
-                QPointF scenePos = mapToScene(pos);
-                d->pxNodeController->addExplorerNode(
-                            node, diagramSceneModel()->findTopmostElement(scenePos),
-                            scenePos, diagramSceneModel()->diagram());
-            }
-        }
-    });
+            this, &EditorDiagramView::dropProjectExplorerNodes);
 }
 
 EditorDiagramView::~EditorDiagramView()
@@ -78,6 +66,19 @@ EditorDiagramView::~EditorDiagramView()
 void EditorDiagramView::setPxNodeController(PxNodeController *pxNodeController)
 {
     d->pxNodeController = pxNodeController;
+}
+
+void EditorDiagramView::dropProjectExplorerNodes(const QList<QVariant> &values, const QPoint &pos)
+{
+    foreach (const QVariant &value, values) {
+        if (value.canConvert<ProjectExplorer::Node *>()) {
+            auto node = value.value<ProjectExplorer::Node *>();
+            QPointF scenePos = mapToScene(pos);
+            d->pxNodeController->addExplorerNode(
+                        node, diagramSceneModel()->findTopmostElement(scenePos),
+                        scenePos, diagramSceneModel()->diagram());
+        }
+    }
 }
 
 } // namespace Internal
