@@ -65,7 +65,7 @@ bool fileContainersContainsItemMatchingToCxUnsavedFile(const QVector<FileContain
 MATCHER_P(HasUnsavedFiles, fileContainers, "")
 {
     ClangBackEnd::UnsavedFiles unsavedFiles = arg;
-    if (unsavedFiles.count() != fileContainers.size()) {
+    if (unsavedFiles.count() != uint(fileContainers.size())) {
         *result_listener << "unsaved count is " << unsavedFiles.count() << " and not " << fileContainers.size();
         return false;
     }
