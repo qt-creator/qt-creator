@@ -40,7 +40,7 @@ using namespace Core;
 
 namespace TextEditor {
 
-BaseHoverHandler::BaseHoverHandler() : m_diagnosticTooltip(false)
+BaseHoverHandler::BaseHoverHandler() : m_diagnosticTooltip(false), m_priority(-1)
 {
 }
 
@@ -53,6 +53,37 @@ void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point
 
     process(widget, pos);
     operateTooltip(widget, point);
+}
+
+int BaseHoverHandler::checkToolTip(TextEditorWidget *widget, int pos)
+{
+    widget->setContextHelpId(QString());
+
+    process(widget, pos);
+
+    return priority();
+}
+
+int BaseHoverHandler::priority() const
+{
+    if (m_priority >= 0)
+        return m_priority;
+
+    if (isDiagnosticTooltip())
+        return Priority_Diagnostic;
+
+    if (lastHelpItemIdentified().isValid())
+        return Priority_Help;
+
+    if (!toolTip().isEmpty())
+        return Priority_Tooltip;
+
+    return Priority_None;
+}
+
+void BaseHoverHandler::setPriority(int priority)
+{
+    m_priority = priority;
 }
 
 QString BaseHoverHandler::contextHelpId(TextEditorWidget *widget, int pos)
@@ -106,6 +137,7 @@ void BaseHoverHandler::clear()
 {
     m_diagnosticTooltip = false;
     m_toolTip.clear();
+    m_priority = -1;
     m_lastHelpItemIdentified = HelpItem();
 }
 

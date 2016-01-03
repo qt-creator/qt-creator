@@ -3107,11 +3107,24 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
     emit q->tooltipOverrideRequested(q, toolTipPoint, c.position(), &handled);
     if (handled)
         return;
-    if (!m_hoverHandlers.isEmpty()) {
-        m_hoverHandlers.first()->showToolTip(q, toolTipPoint, c.position());
+
+    if (m_hoverHandlers.isEmpty()) {
+        emit q->tooltipRequested(toolTipPoint, c.position());
         return;
     }
-    emit q->tooltipRequested(toolTipPoint, c.position());
+
+    int highestPriority = -1;
+    BaseHoverHandler *highest = 0;
+    foreach (BaseHoverHandler *handler, m_hoverHandlers) {
+        int priority = handler->checkToolTip(q, c.position());
+        if (priority > highestPriority) {
+            highestPriority = priority;
+            highest = handler;
+        }
+    }
+
+    if (highest)
+        highest->showToolTip(q, toolTipPoint, c.position());
 }
 
 bool TextEditorWidget::viewportEvent(QEvent *event)

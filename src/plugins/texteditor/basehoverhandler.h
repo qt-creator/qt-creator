@@ -52,7 +52,10 @@ public:
     ~BaseHoverHandler();
 
     QString contextHelpId(TextEditorWidget *widget, int pos);
+    int checkToolTip(TextEditorWidget *widget, int pos);
     void showToolTip(TextEditorWidget *widget, const QPoint &point, int pos);
+
+    int priority() const;
 
 protected:
     void setToolTip(const QString &tooltip);
@@ -67,6 +70,14 @@ protected:
 
     virtual void decorateToolTip();
     virtual void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point);
+
+    enum {
+        Priority_None = 0,
+        Priority_Tooltip = 5,
+        Priority_Help = 10,
+        Priority_Diagnostic = 20
+    };
+    void setPriority(int priority);
 private:
     void clear();
     void process(TextEditorWidget *widget, int pos);
@@ -76,6 +87,7 @@ private:
     bool m_diagnosticTooltip;
     QString m_toolTip;
     HelpItem m_lastHelpItemIdentified;
+    int m_priority;
 };
 
 } // namespace TextEditor
