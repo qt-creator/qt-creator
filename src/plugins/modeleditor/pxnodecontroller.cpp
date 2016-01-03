@@ -296,14 +296,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         // TODO handle template classes
         auto klass = new qmt::MClass();
         klass->setFlags(qmt::MElement::ReverseEngineered);
-        QString qualifiedName = action->className;
-        int i = qualifiedName.lastIndexOf(QStringLiteral("::"));
-        if (i >= 0) {
-            klass->setUmlNamespace(qualifiedName.left(i));
-            klass->setName(qualifiedName.mid(i + 2));
-        } else {
-            klass->setName(qualifiedName);
-        }
+        parseFullClassName(klass, action->className);
         newObject = klass;
         break;
     }
@@ -382,6 +375,21 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
                 d->diagramSceneController->modelController()->addObject(package, newDiagramInObject);
         }
         d->diagramSceneController->modelController()->undoController()->endMergeSequence();
+    }
+}
+
+void PxNodeController::parseFullClassName(qmt::MClass *klass, const QString &fullClassName)
+{
+    QString umlNamespace;
+    QString className;
+    QStringList templateParameters;
+
+    if (qmt::NameController::parseClassName(fullClassName, &umlNamespace, &className, &templateParameters)) {
+        klass->setName(className);
+        klass->setUmlNamespace(umlNamespace);
+        klass->setTemplateParameters(templateParameters);
+    } else {
+        klass->setName(fullClassName);
     }
 }
 

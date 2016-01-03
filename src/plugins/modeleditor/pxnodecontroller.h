@@ -36,6 +36,7 @@
 namespace ProjectExplorer { class Node; }
 
 namespace qmt {
+class MClass;
 class MDiagram;
 class DElement;
 class DiagramSceneController;
@@ -63,12 +64,13 @@ public:
     bool hasDiagramForExplorerNode(const ProjectExplorer::Node *node);
     qmt::MDiagram *findDiagramForExplorerNode(const ProjectExplorer::Node *node);
 
-private slots:
+private:
     void onMenuActionTriggered(MenuAction *action, const ProjectExplorer::Node *node,
                                qmt::DElement *topMostElementAtPos, const QPointF &pos,
                                qmt::MDiagram *diagram);
 
-private:
+    void parseFullClassName(qmt::MClass *klass, const QString &fullClassName);
+
     PxNodeControllerPrivate *d;
 };
 
