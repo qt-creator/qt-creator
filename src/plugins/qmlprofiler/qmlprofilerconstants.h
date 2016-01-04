@@ -49,6 +49,11 @@ const char QmlProfilerToolId[] = "QmlProfiler";
 const char QmlProfilerLocalActionId[] = "QmlProfiler.Local";
 const char QmlProfilerRemoteActionId[] = "QmlProfiler.Remote";
 
+const char QmlProfilerLoadActionId[] =
+        "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace";
+const char QmlProfilerSaveActionId[] =
+        "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace";
+
 } // namespace Constants
 } // namespace QmlProfiler
 

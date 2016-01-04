@@ -57,11 +57,9 @@ public:
     QmlProfilerStatisticsView *eventsView;
     QmlProfilerStateManager *profilerState;
     QmlProfilerModelManager *profilerModelManager;
-    QmlProfilerTool *profilerTool;
 };
 
 QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
-                                               QmlProfilerTool *profilerTool,
                                                QmlProfilerModelManager *modelManager,
                                                QmlProfilerStateManager *profilerState)
     : QObject(parent), d(new QmlProfilerViewManagerPrivate(this))
@@ -71,7 +69,6 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     d->eventsView = 0;
     d->profilerState = profilerState;
     d->profilerModelManager = modelManager;
-    d->profilerTool = profilerTool;
     createViews();
 }
 
@@ -88,15 +85,12 @@ void QmlProfilerViewManager::createViews()
 
     Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
 
-    d->traceView = new QmlProfilerTraceView(mw,
-                                            d->profilerTool,
-                                            this,
-                                            d->profilerModelManager);
+    d->traceView = new QmlProfilerTraceView(mw, this, d->profilerModelManager);
     d->traceView->setWindowTitle(tr("Timeline"));
     connect(d->traceView, &QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
 
-    d->eventsView = new QmlProfilerStatisticsView(mw, d->profilerTool, d->profilerModelManager);
+    d->eventsView = new QmlProfilerStatisticsView(mw, d->profilerModelManager);
     d->eventsView->setWindowTitle(tr("Statistics"));
     connect(d->eventsView, &QmlProfilerStatisticsView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);

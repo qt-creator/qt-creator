@@ -31,6 +31,7 @@
 #ifndef QMLPROFILERTOOL_H
 #define QMLPROFILERTOOL_H
 
+#include "qmlprofiler_global.h"
 #include "qmlprofilerconstants.h"
 #include "qmldebug/qmlprofilereventtypes.h"
 
@@ -44,7 +45,7 @@ QT_END_NAMESPACE
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerTool : public QObject
+class QMLPROFILER_EXPORT QmlProfilerTool : public QObject
 {
     Q_OBJECT
 
@@ -59,7 +60,7 @@ public:
     bool prepareTool();
     void startRemoteTool();
 
-    QList <QAction *> profilerContextMenuActions() const;
+    static QList <QAction *> profilerContextMenuActions();
 
     // display dialogs / log output
     static QMessageBox *requestMessageBox();

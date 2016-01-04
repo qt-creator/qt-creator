@@ -81,7 +81,7 @@ class QmlProfilerStatisticsView : public QmlProfilerEventsView
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerStatisticsView(QWidget *parent, QmlProfilerTool *profilerTool,
+    explicit QmlProfilerStatisticsView(QWidget *parent,
                                        QmlProfilerModelManager *profilerModelManager);
     ~QmlProfilerStatisticsView();
 

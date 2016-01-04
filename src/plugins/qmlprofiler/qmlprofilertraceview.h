@@ -53,8 +53,7 @@ class QmlProfilerTraceView : public QWidget
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *profilerTool,
-                                  QmlProfilerViewManager *container,
+    explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManager *container,
                                   QmlProfilerModelManager *modelManager);
     ~QmlProfilerTraceView();
 

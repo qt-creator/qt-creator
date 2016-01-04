@@ -178,13 +178,13 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     options->menu()->setEnabled(true);
 
     QAction *act = d->m_loadQmlTrace = new QAction(tr("Load QML Trace"), options);
-    command = ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace");
+    command = ActionManager::registerAction(act, Constants::QmlProfilerLoadActionId);
     connect(act, &QAction::triggered, this, &QmlProfilerTool::showLoadDialog);
     options->addAction(command);
 
     act = d->m_saveQmlTrace = new QAction(tr("Save QML Trace"), options);
     d->m_saveQmlTrace->setEnabled(false);
-    command = ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace");
+    command = ActionManager::registerAction(act, Constants::QmlProfilerSaveActionId);
     connect(act, &QAction::triggered, this, &QmlProfilerTool::showSaveDialog);
     options->addAction(command);
 
@@ -257,7 +257,6 @@ QWidget *QmlProfilerTool::createWidgets()
 
 
     d->m_viewContainer = new QmlProfilerViewManager(this,
-                                                    this,
                                                     d->m_profilerModelManager,
                                                     d->m_profilerState);
     connect(d->m_viewContainer, &QmlProfilerViewManager::gotoSourceLocation,
@@ -750,10 +749,18 @@ void QmlProfilerTool::profilerDataModelStateChanged()
     }
 }
 
-QList <QAction *> QmlProfilerTool::profilerContextMenuActions() const
+QList <QAction *> QmlProfilerTool::profilerContextMenuActions()
 {
     QList <QAction *> commonActions;
-    commonActions << d->m_loadQmlTrace << d->m_saveQmlTrace;
+    ActionManager *manager = ActionManager::instance();
+    if (manager) {
+        Command *command = manager->command(Constants::QmlProfilerLoadActionId);
+        if (command)
+            commonActions << command->action();
+        command = manager->command(Constants::QmlProfilerSaveActionId);
+        if (command)
+            commonActions << command->action();
+    }
     return commonActions;
 }
 

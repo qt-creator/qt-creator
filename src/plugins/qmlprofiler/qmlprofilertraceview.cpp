@@ -77,7 +77,6 @@ public:
     QmlProfilerTraceViewPrivate(QmlProfilerTraceView *qq) : q(qq) {}
     QmlProfilerTraceView *q;
 
-    QmlProfilerTool *m_profilerTool;
     QmlProfilerViewManager *m_viewContainer;
 
     QSize m_sizeHint;
@@ -90,7 +89,8 @@ public:
     Timeline::TimelineZoomControl *m_zoomControl;
 };
 
-QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager)
+QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManager *container,
+                                           QmlProfilerModelManager *modelManager)
     : QWidget(parent), d(new QmlProfilerTraceViewPrivate(this))
 {
     setObjectName(QLatin1String("QML Profiler"));
@@ -126,9 +126,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerTool *pro
     groupLayout->addWidget(new Core::FindToolBarPlaceHolder(this));
     setLayout(groupLayout);
 
-    d->m_profilerTool = profilerTool;
     d->m_viewContainer = container;
-
     d->m_modelProxy = new Timeline::TimelineModelAggregator(modelManager->notesModel(), this);
     d->m_modelManager = modelManager;
 
@@ -241,11 +239,7 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     QMenu menu;
     QAction *viewAllAction = 0;
 
-    QmlProfilerTool *profilerTool = qobject_cast<QmlProfilerTool *>(d->m_profilerTool);
-
-    if (profilerTool)
-        menu.addActions(profilerTool->profilerContextMenuActions());
-
+    menu.addActions(QmlProfilerTool::profilerContextMenuActions());
     menu.addSeparator();
 
     QAction *getLocalStatsAction = menu.addAction(tr("Limit Statistics Pane to Current Range"));

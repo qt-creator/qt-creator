@@ -46,7 +46,6 @@ class QmlProfilerViewManager : public QObject
     Q_OBJECT
 public:
     explicit QmlProfilerViewManager(QObject *parent,
-                                    QmlProfilerTool *profilerTool,
                                     QmlProfilerModelManager *modelManager,
                                     QmlProfilerStateManager *profilerState);
     ~QmlProfilerViewManager();

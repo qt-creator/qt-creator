@@ -117,7 +117,6 @@ public:
 
     QmlProfilerStatisticsView *q;
 
-    QmlProfilerTool *m_profilerTool;
     QmlProfilerStatisticsMainView *m_eventTree;
     QmlProfilerStatisticsRelativesView *m_eventChildren;
     QmlProfilerStatisticsRelativesView *m_eventParents;
@@ -188,8 +187,8 @@ static void getSourceLocation(QStandardItem *infoItem,
         receiver(fileName, line, column);
 }
 
-QmlProfilerStatisticsView::QmlProfilerStatisticsView(QWidget *parent, QmlProfilerTool *profilerTool,
-                                                     QmlProfilerModelManager *profilerModelManager )
+QmlProfilerStatisticsView::QmlProfilerStatisticsView(QWidget *parent,
+                                                     QmlProfilerModelManager *profilerModelManager)
     : QmlProfilerEventsView(parent), d(new QmlProfilerStatisticsViewPrivate(this))
 {
     setObjectName(QLatin1String("QmlProfilerStatisticsView"));
@@ -239,7 +238,6 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QWidget *parent, QmlProfile
     groupLayout->addWidget(splitterVertical);
     setLayout(groupLayout);
 
-    d->m_profilerTool = profilerTool;
     d->rangeStart = d->rangeEnd = -1;
 }
 
@@ -278,12 +276,9 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 
     QPoint position = ev->globalPos();
 
-    if (d->m_profilerTool) {
-        QList <QAction *> commonActions = d->m_profilerTool->profilerContextMenuActions();
-        foreach (QAction *act, commonActions) {
-            menu.addAction(act);
-        }
-    }
+    QList <QAction *> commonActions = QmlProfilerTool::profilerContextMenuActions();
+    foreach (QAction *act, commonActions)
+        menu.addAction(act);
 
     if (mouseOnTable(position)) {
         menu.addSeparator();
