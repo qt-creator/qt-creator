@@ -118,8 +118,6 @@ public:
     QmlProfilerStatisticsView *q;
 
     QmlProfilerTool *m_profilerTool;
-    QmlProfilerViewManager *m_viewContainer;
-
     QmlProfilerStatisticsMainView *m_eventTree;
     QmlProfilerStatisticsRelativesView *m_eventChildren;
     QmlProfilerStatisticsRelativesView *m_eventParents;
@@ -191,7 +189,6 @@ static void getSourceLocation(QStandardItem *infoItem,
 }
 
 QmlProfilerStatisticsView::QmlProfilerStatisticsView(QWidget *parent, QmlProfilerTool *profilerTool,
-                                                     QmlProfilerViewManager *container,
                                                      QmlProfilerModelManager *profilerModelManager )
     : QmlProfilerEventsView(parent), d(new QmlProfilerStatisticsViewPrivate(this))
 {
@@ -243,7 +240,6 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QWidget *parent, QmlProfile
     setLayout(groupLayout);
 
     d->m_profilerTool = profilerTool;
-    d->m_viewContainer = container;
     d->rangeStart = d->rangeEnd = -1;
 }
 
@@ -274,13 +270,10 @@ QModelIndex QmlProfilerStatisticsView::selectedModelIndex() const
 
 void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QTC_ASSERT(d->m_viewContainer, return;);
-
     QMenu menu;
     QAction *copyRowAction = 0;
     QAction *copyTableAction = 0;
     QAction *showExtendedStatsAction = 0;
-    QAction *getLocalStatsAction = 0;
     QAction *getGlobalStatsAction = 0;
 
     QPoint position = ev->globalPos();
@@ -304,9 +297,6 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     menu.addSeparator();
-    getLocalStatsAction = menu.addAction(tr("Limit to Current Range"));
-    if (!d->m_viewContainer->hasValidSelection())
-        getLocalStatsAction->setEnabled(false);
     getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
     if (!isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
@@ -318,10 +308,6 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
             copyRowToClipboard();
         if (selectedAction == copyTableAction)
             copyTableToClipboard();
-        if (selectedAction == getLocalStatsAction) {
-            restrictToRange(d->m_viewContainer->selectionStart(),
-                            d->m_viewContainer->selectionEnd());
-        }
         if (selectedAction == getGlobalStatsAction)
             restrictToRange(-1, -1);
         if (selectedAction == showExtendedStatsAction)

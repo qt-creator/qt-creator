@@ -96,8 +96,7 @@ void QmlProfilerViewManager::createViews()
     connect(d->traceView, &QmlProfilerTraceView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
 
-    d->eventsView = new QmlProfilerStatisticsView(mw, d->profilerTool, this,
-                                                d->profilerModelManager);
+    d->eventsView = new QmlProfilerStatisticsView(mw, d->profilerTool, d->profilerModelManager);
     d->eventsView->setWindowTitle(tr("Statistics"));
     connect(d->eventsView, &QmlProfilerStatisticsView::gotoSourceLocation,
             this, &QmlProfilerViewManager::gotoSourceLocation);
