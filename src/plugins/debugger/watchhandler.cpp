@@ -535,25 +535,40 @@ static QString reformatInteger(quint64 value, int format, int size, bool isSigne
 }
 
 // Format printable (char-type) characters
-static QString reformatCharacter(int code, int format, bool isSigned)
+static QString reformatCharacter(int code, int size, bool isSigned)
 {
-    const QString codeS = reformatInteger(code, format, 1, isSigned);
-    if (code < 0) // Append unsigned value.
-        return codeS + QLatin1String(" / ") + reformatInteger(256 + code, format, 1, false);
     const QChar c = QChar(uint(code));
+    QString out;
     if (c.isPrint())
-        return codeS + QLatin1String(" '") + c + QLatin1Char('\'');
-    switch (code) {
-    case 0:
-        return codeS + QLatin1String(" '\\0'");
-    case '\r':
-        return codeS + QLatin1String(" '\\r'");
-    case '\t':
-        return codeS + QLatin1String(" '\\t'");
-    case '\n':
-        return codeS + QLatin1String(" '\\n'");
+        out = QString::fromLatin1("'") + c + QLatin1String("' ");
+    else if (code == 0)
+        out = QLatin1String("'\\0'");
+    else if (code == '\r')
+        out = QLatin1String("'\\r'");
+    else if (code == '\n')
+        out = QLatin1String("'\\n'");
+    else if (code == '\t')
+        out = QLatin1String("'\\t'");
+    else
+        out = QLatin1String("    ");
+
+    out += QLatin1Char('\t');
+
+    if (isSigned) {
+        out += QString::number(code);
+        if (code < 0)
+            out += QString::fromLatin1("/%1    ").arg((1 << (8*size)) + code).left(2 + 2 * size);
+        else
+            out += QString(2 + 2 * size, QLatin1Char(' '));
+    } else {
+        out += QString::number(unsigned(code));
     }
-    return codeS;
+
+    out += QLatin1Char('\t');
+
+    out += QString::fromLatin1("0x%1").arg(uint(code & ((1ULL << (8*size)) - 1)),
+                                           2 * size, 16, QLatin1Char('0'));
+    return out;
 }
 
 static QString quoteUnprintable(const QString &str)
@@ -616,11 +631,22 @@ static QString formattedValue(const WatchItem *item)
 
     // Append quoted, printable character also for decimal.
     // FIXME: This is unreliable.
-    if (item->type.endsWith("char") || item->type.endsWith("QChar")) {
+    if (item->type.endsWith("char")) {
         bool ok;
         const int code = item->value.toInt(&ok);
         bool isUnsigned = item->type == "unsigned char" || item->type == "uchar";
-        return ok ? reformatCharacter(code, format, !isUnsigned) : item->value;
+        if (ok)
+            return reformatCharacter(code, 1, !isUnsigned);
+    } else if (item->type.endsWith("wchar_t")) {
+        bool ok;
+        const int code = item->value.toInt(&ok);
+        if (ok)
+            return reformatCharacter(code, 4, false);
+    } else if (item->type.endsWith("QChar")) {
+        bool ok;
+        const int code = item->value.toInt(&ok);
+        if (ok)
+            return reformatCharacter(code, 2, false);
     }
 
     if (format == HexadecimalIntegerFormat
