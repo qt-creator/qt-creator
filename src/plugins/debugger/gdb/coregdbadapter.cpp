@@ -244,18 +244,20 @@ void GdbCoreEngine::handleTargetCore(const DebuggerResponse &response)
 {
     CHECK_STATE(EngineRunRequested);
     notifyEngineRunOkAndInferiorUnrunnable();
-    if (response.resultClass == ResultDone) {
-        showMessage(tr("Attached to core."), StatusBar);
-        // Due to the auto-solib-add off setting, we don't have any
-        // symbols yet. Load them in order of importance.
-        reloadStack();
-        reloadModulesInternal();
-        runCommand({"p 5", NoFlags, CB(handleRoundTrip)});
-        return;
+    showMessage(tr("Attached to core."), StatusBar);
+    if (response.resultClass == ResultError) {
+        // We'll accept any kind of error e.g. &"Cannot access memory at address 0x2abc2a24\n"
+        // Even without the stack, the user can find interesting stuff by exploring
+        // the memory, globals etc.
+        showStatusMessage(tr("Attach to core \"%1\" failed:").arg(runParameters().coreFile)
+                          + QLatin1Char('\n') + QString::fromLocal8Bit(response.data["msg"].data())
+                          + QLatin1Char('\n') + tr("Continuing nevertheless."));
     }
-    showStatusMessage(tr("Attach to core \"%1\" failed:").arg(runParameters().coreFile)
-        + QLatin1Char('\n') + QString::fromLocal8Bit(response.data["msg"].data()));
-    notifyEngineIll();
+    // Due to the auto-solib-add off setting, we don't have any
+    // symbols yet. Load them in order of importance.
+    reloadStack();
+    reloadModulesInternal();
+    runCommand({"p 5", NoFlags, CB(handleRoundTrip)});
 }
 
 void GdbCoreEngine::handleRoundTrip(const DebuggerResponse &response)
