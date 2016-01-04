@@ -48,20 +48,20 @@ class QTSUPPORT_EXPORT QtKitInformation : public ProjectExplorer::KitInformation
 public:
     QtKitInformation();
 
-    QVariant defaultValue(ProjectExplorer::Kit *k) const;
+    QVariant defaultValue(ProjectExplorer::Kit *k) const override;
 
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const;
-    void fix(ProjectExplorer::Kit *);
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
+    void fix(ProjectExplorer::Kit *) override;
 
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
 
-    QString displayNamePostfix(const ProjectExplorer::Kit *k) const;
+    QString displayNamePostfix(const ProjectExplorer::Kit *k) const override;
 
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
 
-    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
-    ProjectExplorer::IOutputParser *createOutputParser(const ProjectExplorer::Kit *k) const;
-    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
+    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
+    ProjectExplorer::IOutputParser *createOutputParser(const ProjectExplorer::Kit *k) const override;
+    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
 
     static Core::Id id();
     static int qtVersionId(const ProjectExplorer::Kit *k);
@@ -74,8 +74,8 @@ public:
                                  const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
                                  const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX));
 
-    QSet<Core::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const;
-    QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const;
+    QSet<Core::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const override;
+    QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const override;
 
 private slots:
     void qtVersionsChanged(const QList<int> &addedIds,

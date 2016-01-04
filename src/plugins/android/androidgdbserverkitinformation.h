@@ -73,13 +73,13 @@ class AndroidGdbServerKitInformation : public ProjectExplorer::KitInformation
 public:
     AndroidGdbServerKitInformation();
 
-    QVariant defaultValue(ProjectExplorer::Kit *) const;
+    QVariant defaultValue(ProjectExplorer::Kit *) const override;
 
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *) const;
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *) const override;
 
-    ItemList toUserOutput(const ProjectExplorer::Kit *) const;
+    ItemList toUserOutput(const ProjectExplorer::Kit *) const override;
 
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *) const;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *) const override;
 
     static Core::Id id();
     static bool isAndroidKit(const ProjectExplorer::Kit *kit);

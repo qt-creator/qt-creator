@@ -44,14 +44,14 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeKitInformation : public ProjectExplorer::K
 public:
     QmakeKitInformation();
 
-    QVariant defaultValue(ProjectExplorer::Kit *k) const;
+    QVariant defaultValue(ProjectExplorer::Kit *k) const override;
 
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const;
-    void setup(ProjectExplorer::Kit *k);
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
+    void setup(ProjectExplorer::Kit *k) override;
 
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
 
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
 
     static Core::Id id();
     static void setMkspec(ProjectExplorer::Kit *k, const Utils::FileName &fn);

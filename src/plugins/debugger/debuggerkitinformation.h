@@ -46,23 +46,23 @@ class DEBUGGER_EXPORT DebuggerKitInformation : public ProjectExplorer::KitInform
 public:
     DebuggerKitInformation();
 
-    QVariant defaultValue(ProjectExplorer::Kit *k) const;
+    QVariant defaultValue(ProjectExplorer::Kit *k) const override;
 
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override
         { return DebuggerKitInformation::validateDebugger(k); }
 
-    void setup(ProjectExplorer::Kit *k);
-    void fix(ProjectExplorer::Kit *k);
+    void setup(ProjectExplorer::Kit *k) override;
+    void fix(ProjectExplorer::Kit *k) override;
 
     static const DebuggerItem *debugger(const ProjectExplorer::Kit *kit);
 
     static QList<ProjectExplorer::Task> validateDebugger(const ProjectExplorer::Kit *k);
     static bool isValidDebugger(const ProjectExplorer::Kit *k);
 
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
-    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
 
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
 
     static void setDebugger(ProjectExplorer::Kit *k, const QVariant &id);
 
