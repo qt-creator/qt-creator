@@ -45,7 +45,6 @@ namespace Internal { class MacroExpanderPrivate; }
 
 class MacroExpander;
 typedef std::function<MacroExpander *()> MacroExpanderProvider;
-typedef QVector<MacroExpander *> MacroExpanders;
 typedef QVector<MacroExpanderProvider> MacroExpanderProviders;
 
 class QTCREATOR_UTILS_EXPORT MacroExpander

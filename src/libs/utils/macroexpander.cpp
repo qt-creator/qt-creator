@@ -112,7 +112,6 @@ public:
     QMap<QByteArray, QString> m_descriptions;
     QString m_displayName;
     QVector<MacroExpanderProvider> m_subProviders;
-    QVector<MacroExpander *> m_subExpanders; // Not owned
     bool m_accumulating;
 
     bool m_aborted;
