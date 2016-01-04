@@ -120,8 +120,6 @@ void TypeDescriptionReader::readDocument(UiProgram *ast)
         addError(import->versionToken, tr("Major version different from 1 not supported."));
         return;
     }
-    if (version.minorVersion() > 1)
-        addWarning(import->versionToken, tr("Reading only version 1.1 parts."));
 
     if (!ast->members || !ast->members->member || ast->members->next) {
         addError(SourceLocation(), tr("Expected document to contain a single object definition."));
@@ -153,8 +151,6 @@ void TypeDescriptionReader::readModule(UiObjectDefinition *ast)
             typeName = toString(component->qualifiedTypeNameId);
 
         if (!component || (typeName != QLatin1String("Component") && typeName != QLatin1String("ModuleApi"))) {
-            addWarning(member->firstSourceLocation(),
-                       tr("Expected only Component and ModuleApi object definitions."));
             continue;
         }
 

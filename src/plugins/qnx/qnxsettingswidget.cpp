@@ -171,7 +171,7 @@ void QnxSettingsWidget::populateConfigsCombo()
 void QnxSettingsWidget::setConfigState(QnxConfiguration *config,
                                        QnxSettingsWidget::State state)
 {
-    QnxSettingsWidget::State stateToRemove;
+    QnxSettingsWidget::State stateToRemove = QnxSettingsWidget::Activated;
     switch (state) {
     case QnxSettingsWidget::Added :
         stateToRemove = QnxSettingsWidget::Removed;
@@ -184,6 +184,7 @@ void QnxSettingsWidget::setConfigState(QnxConfiguration *config,
         break;
     case QnxSettingsWidget::Deactivated:
         stateToRemove = QnxSettingsWidget::Activated;
+        break;
     }
 
     foreach (const ConfigState &configState, m_changedConfigs) {

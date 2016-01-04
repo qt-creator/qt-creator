@@ -38,7 +38,6 @@
 #include "qmakeparser.h"
 #include "ioutils.h"
 
-#include <qiodevice.h>
 #include <qlist.h>
 #include <qlinkedlist.h>
 #include <qmap.h>
@@ -49,6 +48,8 @@
 #include <qshareddata.h>
 #ifndef QT_BOOTSTRAPPED
 # include <qprocess.h>
+#else
+# include <qiodevice.h>
 #endif
 #ifdef PROEVALUATOR_THREAD_SAFE
 # include <qmutex.h>

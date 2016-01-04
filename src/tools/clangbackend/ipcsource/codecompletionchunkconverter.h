@@ -47,7 +47,6 @@ public:
     static Utf8String chunkText(CXCompletionString completionString, uint chunkIndex);
 
 private:
-    CodeCompletionChunks  optionalChunks(CXCompletionString completionString, uint chunkIndex);
     static CodeCompletionChunk::Kind chunkKind(CXCompletionString completionString, uint chunkIndex);
     void extractCompletionChunks(CXCompletionString completionString);
     void extractOptionalCompletionChunks(CXCompletionString completionString);

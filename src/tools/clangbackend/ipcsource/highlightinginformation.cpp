@@ -201,6 +201,7 @@ HighlightingType HighlightingInformation::identifierKind(const Cursor &cursor) c
         case CXCursor_TemplateTemplateParameter:
         case CXCursor_UnionDecl:
         case CXCursor_StructDecl:
+        case CXCursor_OverloadedDeclRef:
         case CXCursor_TemplateRef:
         case CXCursor_Namespace:
         case CXCursor_NamespaceRef:

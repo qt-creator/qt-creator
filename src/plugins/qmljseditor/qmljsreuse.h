@@ -42,6 +42,8 @@ namespace QmlJSEditor {
 namespace Internal {
 
 bool isIdentifierChar(const QChar &c, bool atStart = false, bool acceptDollar = true);
+bool isValidFirstIdentifierChar(const QChar &c);
+bool isValidIdentifierChar(const QChar &c);
 bool isDelimiterChar(const QChar &c);
 bool isActivationChar(const QChar &c);
 

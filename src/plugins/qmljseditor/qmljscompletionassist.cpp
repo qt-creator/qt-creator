@@ -858,6 +858,8 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
         maybeAccept = true;
     } else {
         const QChar &charUnderCursor = m_interface->textDocument()->characterAt(cursorPos);
+        if (isValidIdentifierChar(charUnderCursor))
+            return false;
         if (isIdentifierChar(charBeforeCursor)
                 && ((charUnderCursor.isSpace()
                     || charUnderCursor.isNull()

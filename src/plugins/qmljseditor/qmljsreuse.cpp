@@ -54,6 +54,15 @@ bool isIdentifierChar(const QChar &c, bool atStart, bool acceptDollar)
     }
 }
 
+bool isValidFirstIdentifierChar(const QChar &ch) {
+    return ch.isLetter() || ch == QLatin1Char('_') || ch.isHighSurrogate()
+            || ch.isLowSurrogate();
+}
+
+bool isValidIdentifierChar(const QChar &ch) {
+    return isValidFirstIdentifierChar(ch) || ch.isNumber();
+}
+
 bool isDelimiterChar(const QChar &c)
 {
     switch (c.unicode()) {

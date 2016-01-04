@@ -42,13 +42,12 @@ void CodeCompletionChunkConverter::extractCompletionChunks(CXCompletionString co
     for (uint chunkIndex = 0; chunkIndex < completionChunkCount; ++chunkIndex) {
         const CodeCompletionChunk::Kind kind = chunkKind(completionString, chunkIndex);
 
-        if (kind == CodeCompletionChunk::Optional)
-            chunks.append(CodeCompletionChunk(kind,
-                                              chunkText(completionString, chunkIndex),
-                                              optionalChunks(completionString, chunkIndex)));
-        else
+        if (kind == CodeCompletionChunk::Optional) {
+            extractOptionalCompletionChunks(clang_getCompletionChunkCompletionString(completionString, chunkIndex));
+        } else {
             chunks.append(CodeCompletionChunk(kind,
                                               chunkText(completionString, chunkIndex)));
+        }
     }
 }
 
@@ -62,7 +61,7 @@ void CodeCompletionChunkConverter::extractOptionalCompletionChunks(CXCompletionS
         if (kind == CodeCompletionChunk::Optional)
             extractOptionalCompletionChunks(clang_getCompletionChunkCompletionString(completionString, chunkIndex));
         else
-            chunks.append(CodeCompletionChunk(kind, chunkText(completionString, chunkIndex)));
+            chunks.append(CodeCompletionChunk(kind, chunkText(completionString, chunkIndex), true));
     }
 }
 
@@ -83,15 +82,6 @@ CodeCompletionChunks CodeCompletionChunkConverter::extract(CXCompletionString co
 Utf8String CodeCompletionChunkConverter::chunkText(CXCompletionString completionString, uint chunkIndex)
 {
     return ClangString(clang_getCompletionChunkText(completionString, chunkIndex));
-}
-
-CodeCompletionChunks CodeCompletionChunkConverter::optionalChunks(CXCompletionString completionString, uint chunkIndex)
-{
-    CodeCompletionChunkConverter converter;
-
-    converter.extractOptionalCompletionChunks(clang_getCompletionChunkCompletionString(completionString, chunkIndex));
-
-    return converter.chunks;
 }
 
 } // namespace ClangBackEnd

@@ -50,7 +50,7 @@ public:
 
 private:
     ClangBackEnd::CodeCompletions m_functionSymbols;
-    mutable int m_currentArg;
+    mutable int m_currentArgument;
 };
 
 } // namespace Internal

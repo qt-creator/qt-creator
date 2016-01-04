@@ -49,7 +49,7 @@ class CMBIPC_EXPORT CodeCompletionChunk
     friend CMBIPC_EXPORT bool operator==(const CodeCompletionChunk &first, const CodeCompletionChunk &second);
 
 public:
-    enum Kind : quint32 {
+    enum Kind : quint8 {
         Optional,
         TypedText,
         Text,
@@ -71,25 +71,25 @@ public:
         Equal,
         HorizontalSpace,
         VerticalSpace,
-        Invalid = 255};
+        Invalid = 255
+    };
 
-    CodeCompletionChunk();
+    CodeCompletionChunk() = default;
     CodeCompletionChunk(Kind kind,
                         const Utf8String &text,
-                        const CodeCompletionChunks &optionalChunks = CodeCompletionChunks());
+                        bool isOptional = false);
 
     Kind kind() const;
     const Utf8String &text() const;
-    const CodeCompletionChunks &optionalChunks() const;
+    bool isOptional() const;
 
 private:
-    quint32 &kindAsInt();
+    quint8 &kindAsInt();
 
 private:
     Utf8String text_;
-    CodeCompletionChunks optionalChunks_;
     Kind kind_ = Invalid;
-
+    bool isOptional_ = false;
 };
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk);

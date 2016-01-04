@@ -630,11 +630,10 @@ TEST_F(CodeCompletionsExtractor, CompletionChunksFunctionWithOptionalChunks)
                                                                      {CodeCompletionChunk::TypedText, Utf8StringLiteral("FunctionWithOptional")},
                                                                      {CodeCompletionChunk::LeftParen, Utf8StringLiteral("(")},
                                                                      {CodeCompletionChunk::Placeholder, Utf8StringLiteral("int x")},
-                                                                     {CodeCompletionChunk::Optional, Utf8String(), CodeCompletionChunks({
-                                                                          {CodeCompletionChunk::Comma, Utf8StringLiteral(", ")},
-                                                                          {CodeCompletionChunk::Placeholder, Utf8StringLiteral("char y")},
-                                                                          {CodeCompletionChunk::Comma, Utf8StringLiteral(", ")},
-                                                                          {CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z")}})},
+                                                                     {CodeCompletionChunk::Comma, Utf8StringLiteral(", "), true},
+                                                                     {CodeCompletionChunk::Placeholder, Utf8StringLiteral("char y"), true},
+                                                                     {CodeCompletionChunk::Comma, Utf8StringLiteral(", "), true},
+                                                                     {CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z"), true},
                                                                      {CodeCompletionChunk::RightParen, Utf8StringLiteral(")")}})));
 }
 

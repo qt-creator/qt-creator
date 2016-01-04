@@ -37,17 +37,12 @@
 
 namespace ClangBackEnd {
 
-CodeCompletionChunk::CodeCompletionChunk()
-    : kind_(Invalid)
-{
-}
-
 CodeCompletionChunk::CodeCompletionChunk(CodeCompletionChunk::Kind kind,
                                          const Utf8String &text,
-                                         const CodeCompletionChunks &optionalChunks)
+                                         bool isOptional)
     : text_(text),
-      optionalChunks_(optionalChunks),
-      kind_(kind)
+      kind_(kind),
+      isOptional_(isOptional)
 {
 }
 
@@ -61,23 +56,21 @@ const Utf8String &CodeCompletionChunk::text() const
     return text_;
 }
 
-const CodeCompletionChunks &CodeCompletionChunk::optionalChunks() const
+bool CodeCompletionChunk::isOptional() const
 {
-    return optionalChunks_;
+    return isOptional_;
 }
 
-quint32 &CodeCompletionChunk::kindAsInt()
+quint8 &CodeCompletionChunk::kindAsInt()
 {
-    return reinterpret_cast<quint32&>(kind_);
+    return reinterpret_cast<quint8&>(kind_);
 }
 
 QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk)
 {
-    out << chunk.kind_;
+    out << quint8(chunk.kind_);
     out << chunk.text_;
-
-    if (chunk.kind() == CodeCompletionChunk::Optional)
-        out << chunk.optionalChunks_;
+    out << chunk.isOptional_;
 
     return out;
 }
@@ -86,9 +79,7 @@ QDataStream &operator>>(QDataStream &in, CodeCompletionChunk &chunk)
 {
     in >> chunk.kindAsInt();
     in >> chunk.text_;
-
-    if (chunk.kind_ == CodeCompletionChunk::Optional)
-        in >> chunk.optionalChunks_;
+    in >> chunk.isOptional_;
 
     return in;
 }
@@ -97,7 +88,7 @@ bool operator==(const CodeCompletionChunk &first, const CodeCompletionChunk &sec
 {
     return first.kind() == second.kind()
             && first.text() == second.text()
-            && first.optionalChunks() == second.optionalChunks();
+            && first.isOptional() == second.isOptional();
 }
 
 static const char *completionChunkKindToString(CodeCompletionChunk::Kind kind)
@@ -136,8 +127,8 @@ QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk)
     debug.nospace() << completionChunkKindToString(chunk.kind()) << ", ";
     debug.nospace() << chunk.text();
 
-    if (chunk.kind() == CodeCompletionChunk::Optional)
-        debug.nospace() << ", " << chunk.optionalChunks();
+    if (chunk.isOptional())
+        debug.nospace() << ", optional";
 
     debug.nospace() << ")";
 
@@ -150,20 +141,8 @@ void PrintTo(const CodeCompletionChunk &chunk, ::std::ostream* os)
     *os << completionChunkKindToString(chunk.kind()) << ", ";
     *os << chunk.text().constData();
 
-    if (chunk.kind() == CodeCompletionChunk::Optional) {
-        const auto optionalChunks = chunk.optionalChunks();
-        *os << ", {";
-
-        for (auto optionalChunkPosition = optionalChunks.cbegin();
-             optionalChunkPosition != optionalChunks.cend();
-             ++optionalChunkPosition) {
-            PrintTo(*optionalChunkPosition, os);
-            if (std::next(optionalChunkPosition) != optionalChunks.cend())
-                *os << ", ";
-        }
-
-        *os << "}";
-    }
+    if (chunk.isOptional())
+        *os << ", optional";
 
     *os << "}";
 }
