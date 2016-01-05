@@ -810,7 +810,7 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     //cmd.arg("resultvarname", m_resultVarName);
 
     m_lastDebuggableCommand = cmd;
-    m_lastDebuggableCommand.arg("passexceptions", 0);
+    m_lastDebuggableCommand.arg("passexceptions", "1");
 
     cmd.callback = [this](const DebuggerResponse &response) {
         updateLocalsView(response.data);
