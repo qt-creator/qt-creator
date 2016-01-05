@@ -67,6 +67,7 @@ signals:
 protected:
     QByteArray fileContents() const override;
     void updateFileModel() override;
+    void forceUpdateFileModel();
 
 private:
     void slotDiffSelected(const QList<int> &rows);

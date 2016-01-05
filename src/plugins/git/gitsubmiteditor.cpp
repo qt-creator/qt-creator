@@ -35,6 +35,7 @@
 #include "gitsubmiteditorwidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/submitfilemodel.h>
@@ -43,6 +44,7 @@
 #include <QDebug>
 #include <QStringList>
 #include <QTextCodec>
+#include <QTimer>
 #include <QtConcurrentRun>
 
 static const char TASK_UPDATE_COMMIT[] = "Git.UpdateCommit";
@@ -134,6 +136,8 @@ GitSubmitEditor::GitSubmitEditor(const VcsBaseSubmitEditorParameters *parameters
 {
     connect(this, &VcsBaseSubmitEditor::diffSelectedRows, this, &GitSubmitEditor::slotDiffSelected);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::show, this, &GitSubmitEditor::showCommit);
+    connect(GitPlugin::instance()->versionControl(), &Core::IVersionControl::repositoryChanged,
+            this, &GitSubmitEditor::forceUpdateFileModel);
 }
 
 GitSubmitEditor::~GitSubmitEditor()
@@ -268,6 +272,15 @@ void GitSubmitEditor::updateFileModel()
     Core::ProgressManager::addTask(future, tr("Refreshing Commit Data"), TASK_UPDATE_COMMIT);
 
     GitPlugin::instance()->client()->addFuture(future);
+}
+
+void GitSubmitEditor::forceUpdateFileModel()
+{
+    GitSubmitEditorWidget *w = submitEditorWidget();
+    if (w->updateInProgress())
+        QTimer::singleShot(10, &GitSubmitEditor::forceUpdateFileModel);
+    else
+        updateFileModel();
 }
 
 void GitSubmitEditor::commitDataRetrieved(bool success)
