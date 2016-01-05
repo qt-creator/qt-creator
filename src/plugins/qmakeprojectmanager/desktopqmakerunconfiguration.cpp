@@ -201,7 +201,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
-    m_executableLineLabel = new QLabel(m_qmakeRunConfiguration->executable(), this);
+    m_executableLineLabel = new QLabel(this);
     m_executableLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     toplayout->addRow(tr("Executable:"), m_executableLineLabel);
 
@@ -247,6 +247,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     }
 
     runConfigurationEnabledChange();
+    effectiveTargetInformationChanged();
 
     connect(m_useQvfbCheck, SIGNAL(toggled(bool)),
             this, SLOT(qvfbToggled(bool)));
