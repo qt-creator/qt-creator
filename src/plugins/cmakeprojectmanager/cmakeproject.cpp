@@ -404,22 +404,18 @@ QList<CMakeBuildTarget> CMakeProject::buildTargets() const
 
 QStringList CMakeProject::buildTargetTitles(bool runnable) const
 {
-    QStringList results;
-    foreach (const CMakeBuildTarget &ct, m_buildTargets) {
-        if (runnable && (ct.executable.isEmpty() || ct.targetType != ExecutableType))
-            continue;
-        results << ct.title;
-    }
-    return results;
+    const QList<CMakeBuildTarget> targets
+            = runnable ? Utils::filtered(m_buildTargets,
+                                         [](const CMakeBuildTarget &ct) {
+                                             return !ct.executable.isEmpty() && ct.targetType == ExecutableType;
+                                         })
+                       : m_buildTargets;
+    return Utils::transform(targets, [](const CMakeBuildTarget &ct) { return ct.title; });
 }
 
 bool CMakeProject::hasBuildTarget(const QString &title) const
 {
-    foreach (const CMakeBuildTarget &ct, m_buildTargets) {
-        if (ct.title == title)
-            return true;
-    }
-    return false;
+    return Utils::anyOf(m_buildTargets, [title](const CMakeBuildTarget &ct) { return ct.title == title; });
 }
 
 void CMakeProject::gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list)
