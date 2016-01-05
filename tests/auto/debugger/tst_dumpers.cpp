@@ -3979,10 +3979,10 @@ void tst_Dumpers::dumper_data()
 
                + Check("map3", "<6 items>", "Map")
                + Check("map3.0", "[0] 11", "11", "float")
-               + Check("it1.first", "11", "int")
-               + Check("it1.second", "11", "float")
-               + Check("it6.first", "66", "int")
-               + Check("it6.second", "66", "float")
+               + Check("it1.first", "11", "int") % GdbEngine
+               + Check("it1.second", "11", "float") % GdbEngine
+               + Check("it6.first", "66", "int") % GdbEngine
+               + Check("it6.second", "66", "float") % GdbEngine
 
                + Check("map4", "<5 items>", "std::multimap<unsigned int, float>")
                + Check("map4.0", "[0] 11", "11", "float")

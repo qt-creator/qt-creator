@@ -391,12 +391,90 @@ def qdump__std__set__QNX(d, value):
                     if node['_Right'] != parent:
                         node = parent
 
+def std1TreeMin(d, node):
+    #_NodePtr __tree_min(_NodePtr __x):
+    #    while (__x->__left_ != nullptr)
+    #        __x = __x->__left_;
+    #    return __x;
+    #
+    left = node['__left_']
+    if not d.isNull(left):
+        node = left
+    return node
+
+def std1TreeIsLeftChild(d, node):
+    # bool __tree_is_left_child(_NodePtr __x):
+    #     return __x == __x->__parent_->__left_;
+    #
+    other = node['__parent_']['__left_']
+    return toInteger(node) == toInteger(other)
+
+
+def std1TreeNext(d, node):
+    #_NodePtr __tree_next(_NodePtr __x):
+    #    if (__x->__right_ != nullptr)
+    #        return __tree_min(__x->__right_);
+    #    while (!__tree_is_left_child(__x))
+    #        __x = __x->__parent_;
+    #    return __x->__parent_;
+    #
+    right = node['__right_']
+    if not d.isNull(right):
+        return std1TreeMin(d, right)
+    while not std1TreeIsLeftChild(d, node):
+        node = node['__parent_']
+    return node['__parent_']
+
 def qdump__std____1__set(d, value):
-    base3 = d.addressOf(value["__tree_"]["__pair3_"])
+    tree = value["__tree_"]
+    base3 = d.addressOf(tree["__pair3_"])
     size = d.extractUInt(base3)
     d.check(size <= 100*1000*1000)
     d.putItemCount(size)
-    d.putNumChild(0)
+    if d.isExpanded():
+        # type of node is std::__1::__tree_node<Foo, void *>::value_type
+        valueType = d.templateArgument(value.type, 0)
+        d.putFields(tree)
+        node = tree["__begin_node_"]
+        nodeType = node.type
+        with Children(d, size):
+            for i in d.childRange():
+                with SubItem(d, i):
+                    d.putItem(node['__value_'])
+                    d.putBetterType(valueType)
+                node = std1TreeNext(d, node).cast(nodeType)
+
+def qform__std____1__map():
+    return mapForms()
+
+def qdump__std____1__map(d, value):
+    tree = value["__tree_"]
+    base3 = d.addressOf(tree["__pair3_"])
+    size = d.extractUInt(base3)
+    d.check(size <= 100*1000*1000)
+    d.putItemCount(size)
+    if d.isExpanded():
+        # type of node is std::__1::__tree_node<Foo, Bar>::value_type
+        valueType = d.templateArgument(value.type, 0)
+        node = tree["__begin_node_"]
+        nodeType = node.type
+        pairType = d.templateArgument(d.templateArgument(value.type, 3), 0)
+        with PairedChildren(d, size, pairType=pairType, maxNumChild=1000):
+            node = tree["__begin_node_"]
+            nodeType = node.type
+            for i in d.childRange():
+                with SubItem(d, i):
+                    # There's possibly also:
+                    #pair = node['__value_']['__nc']
+                    pair = node['__value_']['__cc']
+                    d.putPair(pair, i)
+                node = std1TreeNext(d, node).cast(nodeType)
+
+def qform__std____1__multimap():
+    return mapForms()
+
+def qdump__std____1__multimap(d, value):
+    qdump__std____1__map(d, value)
 
 def qdump__std__stack(d, value):
     d.putItem(value["c"])
