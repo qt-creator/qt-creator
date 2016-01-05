@@ -65,6 +65,7 @@
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
+using namespace ProjectExplorer;
 
 ///////
 //  Page Flow:
@@ -93,7 +94,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cm
       m_useNinja(info->useNinja),
       m_kit(0)
 {
-    m_kit = ProjectExplorer::KitManager::find(info->kitId);
+    m_kit = KitManager::find(info->kitId);
 
     CMakeRunPage::Mode rmode;
     if (mode == CMakeOpenProjectWizard::NeedToCreate)
@@ -136,9 +137,9 @@ bool CMakeOpenProjectWizard::hasInSourceBuild() const
 bool CMakeOpenProjectWizard::compatibleKitExist() const
 {
     bool preferNinja = m_cmakeManager->preferNinja();
-    QList<ProjectExplorer::Kit *> kitList = ProjectExplorer::KitManager::kits();
+    const QList<Kit *> kitList = KitManager::kits();
 
-    foreach (ProjectExplorer::Kit *k, kitList) {
+    foreach (Kit *k, kitList) {
         CMakeTool *cmake = CMakeKitInformation::cmakeTool(k);
         if (!cmake)
             continue;
@@ -213,12 +214,12 @@ Utils::Environment CMakeOpenProjectWizard::environment() const
     return m_environment;
 }
 
-ProjectExplorer::Kit *CMakeOpenProjectWizard::kit() const
+Kit *CMakeOpenProjectWizard::kit() const
 {
     return m_kit;
 }
 
-void CMakeOpenProjectWizard::setKit(ProjectExplorer::Kit *kit)
+void CMakeOpenProjectWizard::setKit(Kit *kit)
 {
     m_kit = kit;
 }
@@ -240,8 +241,7 @@ NoKitPage::NoKitPage(CMakeOpenProjectWizard *cmakeWizard)
     m_optionsButton = new QPushButton;
     m_optionsButton->setText(Core::ICore::msgShowOptionsDialog());
 
-    connect(m_optionsButton, SIGNAL(clicked()),
-            this, SLOT(showOptions()));
+    connect(m_optionsButton, &QAbstractButton::clicked, this, &NoKitPage::showOptions);
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->addWidget(m_optionsButton);
@@ -251,8 +251,7 @@ NoKitPage::NoKitPage(CMakeOpenProjectWizard *cmakeWizard)
 
     setTitle(tr("Check Kits"));
 
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()),
-            this, SLOT(kitsChanged()));
+    connect(KitManager::instance(), &KitManager::kitsChanged, this, &NoKitPage::kitsChanged);
 
     kitsChanged();
 }
@@ -320,7 +319,7 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool chang
     m_pc->setPath(m_cmakeWizard->buildDirectory());
     m_pc->setExpectedKind(Utils::PathChooser::Directory);
     m_pc->setHistoryCompleter(QLatin1String("Cmake.BuildDir.History"));
-    connect(m_pc, SIGNAL(rawPathChanged(QString)), this, SLOT(buildDirectoryChanged()));
+    connect(m_pc, &Utils::PathChooser::rawPathChanged, this, &ShadowBuildPage::buildDirectoryChanged);
     fl->addRow(tr("Build directory:"), m_pc);
     setTitle(tr("Build Location"));
 }
@@ -347,8 +346,7 @@ NoCMakePage::NoCMakePage(CMakeOpenProjectWizard *cmakeWizard)
     m_optionsButton = new QPushButton;
     m_optionsButton->setText(Core::ICore::msgShowOptionsDialog());
 
-    connect(m_optionsButton, SIGNAL(clicked()),
-            this, SLOT(showOptions()));
+    connect(m_optionsButton, &QAbstractButton::clicked, this, &NoCMakePage::showOptions);
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->addWidget(m_optionsButton);
@@ -417,7 +415,7 @@ void CMakeRunPage::initWidgets()
     m_argumentsLineEdit->setHistoryCompleter(QLatin1String("CMakeArgumentsLineEdit"));
     m_argumentsLineEdit->selectAll();
 
-    connect(m_argumentsLineEdit,SIGNAL(returnPressed()), this, SLOT(runCMake()));
+    connect(m_argumentsLineEdit, &QLineEdit::returnPressed, this, &CMakeRunPage::runCMake);
     fl->addRow(tr("Arguments:"), m_argumentsLineEdit);
 
     m_generatorComboBox = new QComboBox(this);
@@ -428,7 +426,7 @@ void CMakeRunPage::initWidgets()
 
     m_runCMake = new QPushButton(this);
     m_runCMake->setText(tr("Run CMake"));
-    connect(m_runCMake, SIGNAL(clicked()), this, SLOT(runCMake()));
+    connect(m_runCMake, &QAbstractButton::clicked, this, &CMakeRunPage::runCMake);
 
     QHBoxLayout *hbox2 = new QHBoxLayout;
     hbox2->addStretch(10);
@@ -458,8 +456,7 @@ void CMakeRunPage::initWidgets()
     m_continueCheckBox->setText(tr("Open project with errors."));
     fl->addRow(m_continueCheckBox);
 
-    connect(m_continueCheckBox, &QCheckBox::toggled,
-            this, &CMakeRunPage::completeChanged);
+    connect(m_continueCheckBox, &QCheckBox::toggled, this, &CMakeRunPage::completeChanged);
 
     setTitle(tr("Run CMake"));
     setMinimumSize(600, 400);
