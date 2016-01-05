@@ -39,8 +39,10 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 
 #include <qmakeprojectmanager/qmakebuildinfo.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 
 using namespace QmakeAndroidSupport::Internal;
 
@@ -96,7 +98,16 @@ ProjectExplorer::BuildConfiguration *AndroidQmakeBuildConfigurationFactory::rest
 AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target)
     : QmakeProjectManager::QmakeBuildConfiguration(target)
 {
+    using QmakeProjectManager::QmakeProject;
+    auto updateGrade = [this] {
+        Android::AndroidManager::updateGradleProperties(BuildConfiguration::target());
+    };
 
+    QmakeProject *project = qobject_cast<QmakeProject *>(target->project());
+    if (project)
+        connect(project, &QmakeProject::proFilesEvaluated, this, updateGrade);
+    else
+        connect(this, &AndroidQmakeBuildConfiguration::enabledChanged, this, updateGrade);
 }
 
 AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, AndroidQmakeBuildConfiguration *source)

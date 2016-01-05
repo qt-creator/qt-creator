@@ -700,8 +700,20 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     AndroidBuildApkStep *buildApkStep
         = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
 
-    if (!buildApkStep || !buildApkStep->androidPackageSourceDir().appendPath(QLatin1String("gradlew")).exists())
+    if (!buildApkStep || !buildApkStep->useGradle() || !buildApkStep->androidPackageSourceDir().appendPath(QLatin1String("gradlew")).exists())
         return false;
+
+    Utils::FileName wrapperProps(buildApkStep->androidPackageSourceDir());
+    wrapperProps.appendPath(QLatin1String("gradle/wrapper/gradle-wrapper.properties"));
+    if (wrapperProps.exists()) {
+        GradleProperties wrapperProperties = readGradleProperties(wrapperProps.toString());
+        QString distributionUrl = QString::fromLocal8Bit(wrapperProperties["distributionUrl"]);
+        QRegExp re(QLatin1String(".*services.gradle.org/distributions/gradle-2..*.zip"));
+        if (!re.exactMatch(distributionUrl)) {
+            wrapperProperties["distributionUrl"] = "https\\://services.gradle.org/distributions/gradle-2.2.1-all.zip";
+            mergeGradleProperties(wrapperProps.toString(), wrapperProperties);
+        }
+    }
 
     GradleProperties localProperties;
     localProperties["sdk.dir"] = AndroidConfigurations::currentConfig().sdkLocation().toString().toLocal8Bit();
