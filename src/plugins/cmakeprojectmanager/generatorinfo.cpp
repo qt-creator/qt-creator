@@ -43,6 +43,20 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
+static bool isMsvcFlavor(const ProjectExplorer::Abi &abi) {
+    switch (abi.osFlavor()) {
+    case ProjectExplorer::Abi::WindowsMsvc2005Flavor:
+    case ProjectExplorer::Abi::WindowsMsvc2008Flavor:
+    case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
+    case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
+    case ProjectExplorer::Abi::WindowsMsvc2013Flavor:
+    case ProjectExplorer::Abi::WindowsMsvc2015Flavor:
+        return true;
+    default:
+        return false;
+    }
+}
+
 GeneratorInfo::GeneratorInfo()
     : m_kit(0), m_isNinja(false)
 {}
@@ -69,12 +83,7 @@ QByteArray GeneratorInfo::generator() const
     if (m_isNinja) {
         return "Ninja";
     } else if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
-        if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor) {
+        if (isMsvcFlavor(targetAbi)) {
             return "NMake Makefiles";
         } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
             if (Utils::HostOsInfo::isWindowsHost())
@@ -109,12 +118,7 @@ QString GeneratorInfo::displayName() const
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit);
     ProjectExplorer::Abi targetAbi = tc->targetAbi();
     if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
-        if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor) {
+        if (isMsvcFlavor(targetAbi)) {
             return tr("NMake Generator (%1)").arg(m_kit->displayName());
         } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
             if (Utils::HostOsInfo::isWindowsHost())
@@ -144,12 +148,7 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
     ProjectExplorer::Abi targetAbi = tc->targetAbi();
     if (n != ForceNinja) {
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
-            if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor) {
+            if (isMsvcFlavor(targetAbi)) {
                 if (hasCodeBlocks)
                     results << GeneratorInfo(k);
             } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
