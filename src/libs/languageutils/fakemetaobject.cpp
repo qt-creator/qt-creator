@@ -261,6 +261,7 @@ void FakeMetaProperty::addToHash(QCryptographicHash &hash) const
 
 QString FakeMetaProperty::describe(int baseIndent) const
 {
+    auto boolStr = [] (bool v) { return v ? QLatin1String("true") : QLatin1String("false"); };
     QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
     QString res = QLatin1String("Property  {");
     res += newLine;
@@ -274,13 +275,13 @@ QString FakeMetaProperty::describe(int baseIndent) const
     res += QString::number(revision());
     res += newLine;
     res += QLatin1String("  isList:");
-    res += isList();
+    res += boolStr(isList());
     res += newLine;
     res += QLatin1String("  isPointer:");
-    res += isPointer();
+    res += boolStr(isPointer());
     res += newLine;
     res += QLatin1String("  isWritable:");
-    res += isWritable();
+    res += boolStr(isWritable());
     res += newLine;
     res += QLatin1Char('}');
     return res;
@@ -485,6 +486,7 @@ QString FakeMetaObject::describe(bool printDetails, int baseIndent) const
          .arg((quintptr)(void *)this, 0, 16);
     if (!printDetails)
         return res;
+    auto boolStr = [] (bool v) { return v ? QLatin1String("true") : QLatin1String("false"); };
     QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
     res += QLatin1Char('{');
     res += newLine;
@@ -495,13 +497,13 @@ QString FakeMetaObject::describe(bool printDetails, int baseIndent) const
     res += superclassName();
     res += newLine;
     res += QLatin1String("isSingleton:");
-    res += isSingleton();
+    res += boolStr(isSingleton());
     res += newLine;
     res += QLatin1String("isCreatable:");
-    res += isCreatable();
+    res += boolStr(isCreatable());
     res += newLine;
     res += QLatin1String("isComposite:");
-    res += isComposite();
+    res += boolStr(isComposite());
     res += newLine;
     res += QLatin1String("defaultPropertyName:");
     res += defaultPropertyName();
