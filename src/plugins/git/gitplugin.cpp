@@ -639,16 +639,6 @@ GitVersionControl *GitPlugin::gitVersionControl() const
     return static_cast<GitVersionControl *>(versionControl());
 }
 
-void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList &staged)
-{
-    m_gitClient->diffFiles(m_submitRepository, unstaged, staged);
-}
-
-void GitPlugin::submitEditorMerge(const QStringList &unmerged)
-{
-    m_gitClient->merge(m_submitRepository, unmerged);
-}
-
 void GitPlugin::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
@@ -960,10 +950,6 @@ IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &
     IDocument *document = submitEditor->document();
     document->setPreferredDisplayName(title);
     VcsBasePlugin::setSource(document, m_submitRepository);
-    connect(submitEditor, &GitSubmitEditor::diff, this, &GitPlugin::submitEditorDiff);
-    connect(submitEditor, &GitSubmitEditor::merge, this, &GitPlugin::submitEditorMerge);
-    connect(submitEditor, &GitSubmitEditor::show,
-            m_gitClient, [this](const QString &wd, const QString &c) { m_gitClient->show(wd, c); });
     return editor;
 }
 

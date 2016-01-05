@@ -42,6 +42,7 @@ namespace VcsBase { class SubmitFileModel; }
 namespace Git {
 namespace Internal {
 
+class GitClient;
 class GitSubmitEditorWidget;
 class CommitData;
 class CommitDataFetcher;
@@ -58,11 +59,6 @@ public:
     GitSubmitEditorPanelData panelData() const;
     CommitType commitType() const { return m_commitType; }
     QString amendSHA1() const;
-
-signals:
-    void diff(const QStringList &unstagedFiles, const QStringList &stagedFiles);
-    void merge(const QStringList &unmergedFiles);
-    void show(const QString &workingDirectory, const QString &commit);
 
 protected:
     QByteArray fileContents() const override;
@@ -85,6 +81,7 @@ private:
     QString m_workingDirectory;
     bool m_firstUpdate;
     CommitDataFetcher *m_commitDataFetcher;
+    GitClient *m_gitClient;
 };
 
 } // namespace Internal

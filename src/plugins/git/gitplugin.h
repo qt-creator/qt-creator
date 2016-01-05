@@ -113,8 +113,6 @@ private slots:
 private:
     void diffCurrentFile();
     void diffCurrentProject();
-    void submitEditorDiff(const QStringList &unstaged, const QStringList &staged);
-    void submitEditorMerge(const QStringList &unmerged);
     void submitCurrentLog();
     void logFile();
     void blameFile();

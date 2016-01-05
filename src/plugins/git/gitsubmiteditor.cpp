@@ -132,7 +132,8 @@ GitSubmitEditor::GitSubmitEditor(const VcsBaseSubmitEditorParameters *parameters
     m_commitEncoding(0),
     m_commitType(SimpleCommit),
     m_firstUpdate(true),
-    m_commitDataFetcher(0)
+    m_commitDataFetcher(0),
+    m_gitClient(GitPlugin::instance()->client())
 {
     connect(this, &VcsBaseSubmitEditor::diffSelectedRows, this, &GitSubmitEditor::slotDiffSelected);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::show, this, &GitSubmitEditor::showCommit);
@@ -242,15 +243,15 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
         }
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())
-        emit diff(unstagedFiles, stagedFiles);
+        m_gitClient->diffFiles(m_workingDirectory, unstagedFiles, stagedFiles);
     if (!unmergedFiles.empty())
-        emit merge(unmergedFiles);
+        m_gitClient->merge(m_workingDirectory, unmergedFiles);
 }
 
 void GitSubmitEditor::showCommit(const QString &commit)
 {
     if (!m_workingDirectory.isEmpty())
-        emit show(m_workingDirectory, commit);
+        m_gitClient->show(m_workingDirectory, commit);
 }
 
 void GitSubmitEditor::updateFileModel()
@@ -271,7 +272,7 @@ void GitSubmitEditor::updateFileModel()
     QFuture<void> future = QtConcurrent::run(m_commitDataFetcher, &CommitDataFetcher::start);
     Core::ProgressManager::addTask(future, tr("Refreshing Commit Data"), TASK_UPDATE_COMMIT);
 
-    GitPlugin::instance()->client()->addFuture(future);
+    m_gitClient->addFuture(future);
 }
 
 void GitSubmitEditor::forceUpdateFileModel()
