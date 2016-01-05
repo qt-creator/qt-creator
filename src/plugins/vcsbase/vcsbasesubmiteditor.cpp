@@ -417,11 +417,11 @@ QStringList VcsBaseSubmitEditor::checkedFiles() const
 void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model)
 {
     QTC_ASSERT(model, return);
-    if (SubmitFileModel *oldModel = d->m_widget->fileModel()) {
+    SubmitFileModel *oldModel = d->m_widget->fileModel();
+    if (oldModel)
         model->updateSelections(oldModel);
-        delete oldModel;
-    }
     d->m_widget->setFileModel(model);
+    delete oldModel;
 
     QSet<QString> uniqueSymbols;
     const CPlusPlus::Snapshot cppSnapShot = CppTools::CppModelManager::instance()->snapshot();
