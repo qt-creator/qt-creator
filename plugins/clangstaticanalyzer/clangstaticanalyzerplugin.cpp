@@ -130,8 +130,8 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
 
     auto widgetCreator = [tool] { return tool->createWidgets(); };
     auto runControlCreator = [tool](const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration) {
-        return tool->createRunControl(sp, runConfiguration);
+        ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode) {
+        return tool->createRunControl(sp, runConfiguration, runMode);
     };
 
     const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the clang project "

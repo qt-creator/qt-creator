@@ -160,7 +160,8 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
 
 AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
         const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration)
+        RunConfiguration *runConfiguration,
+        Core::Id runMode)
 {
     QTC_ASSERT(runConfiguration, return 0);
     QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return 0);
@@ -176,8 +177,8 @@ AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
                return 0);
     m_projectInfoBeforeBuild = CppTools::ProjectInfo();
 
-    ClangStaticAnalyzerRunControl *engine
-            = new ClangStaticAnalyzerRunControl(sp, runConfiguration, projectInfoAfterBuild);
+    auto engine = new ClangStaticAnalyzerRunControl(sp, runConfiguration, runMode,
+                                                    projectInfoAfterBuild);
     connect(engine, &ClangStaticAnalyzerRunControl::starting,
             this, &ClangStaticAnalyzerTool::onEngineIsStarting);
     connect(engine, &ClangStaticAnalyzerRunControl::newDiagnosticsAvailable,

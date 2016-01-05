@@ -109,14 +109,7 @@ RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runCo
         return 0;
     }
 
-    AnalyzerStartParameters sp;
-    sp.displayName = runConfiguration->displayName();
-    sp.runMode = runMode;
-    BuildConfiguration * const buildConfiguration = target->activeBuildConfiguration();
-    QTC_ASSERT(buildConfiguration, return 0);
-    sp.environment = buildConfiguration->environment();
-
-    return AnalyzerManager::createRunControl(sp, runConfiguration);
+    return AnalyzerManager::createRunControl(AnalyzerStartParameters(), runConfiguration, runMode);
 }
 
 } // namespace Internal

@@ -36,6 +36,7 @@
 #include <cpptools/cppprojectfile.h>
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
@@ -57,15 +58,20 @@ namespace Internal {
 
 ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
             const Analyzer::AnalyzerStartParameters &startParams,
-            ProjectExplorer::RunConfiguration *runConfiguration,
+            RunConfiguration *runConfiguration,
+            Core::Id runMode,
             const ProjectInfo &projectInfo)
-    : AnalyzerRunControl(startParams, runConfiguration)
+    : AnalyzerRunControl(startParams, runConfiguration, runMode)
     , m_projectInfo(projectInfo)
     , m_wordWidth(runConfiguration->abi().wordWidth())
     , m_initialFilesToProcessSize(0)
     , m_filesAnalyzed(0)
     , m_filesNotAnalyzed(0)
 {
+    Target *target = runConfiguration->target();
+    BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
+    QTC_ASSERT(buildConfiguration, return);
+    m_environment = buildConfiguration->environment();
 }
 
 static void prependWordWidthArgumentIfNotIncluded(QStringList *arguments, unsigned char wordWidth)
@@ -347,7 +353,7 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_progress.reportStarted();
 
     // Start process(es)
-    qCDebug(LOG) << "Environment:" << startParameters().environment;
+    qCDebug(LOG) << "Environment:" << m_environment;
     m_runners.clear();
     const int parallelRuns = ClangStaticAnalyzerSettings::instance()->simultaneousProcesses();
     QTC_ASSERT(parallelRuns >= 1, emit finished(); return false);
@@ -406,11 +412,10 @@ ClangStaticAnalyzerRunner *ClangStaticAnalyzerRunControl::createRunner()
     QTC_ASSERT(!m_clangExecutable.isEmpty(), return 0);
     QTC_ASSERT(!m_clangLogFileDir.isEmpty(), return 0);
 
-    ClangStaticAnalyzerRunner *runner
-            = new ClangStaticAnalyzerRunner(m_clangExecutable,
-                                            m_clangLogFileDir,
-                                            startParameters().environment,
-                                            this);
+    auto runner = new ClangStaticAnalyzerRunner(m_clangExecutable,
+                                                m_clangLogFileDir,
+                                                m_environment,
+                                                this);
     connect(runner, &ClangStaticAnalyzerRunner::finishedWithSuccess,
             this, &ClangStaticAnalyzerRunControl::onRunnerFinishedWithSuccess);
     connect(runner, &ClangStaticAnalyzerRunner::finishedWithFailure,

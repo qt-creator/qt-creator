@@ -53,7 +53,8 @@ public:
 
     QWidget *createWidgets();
     Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                                            ProjectExplorer::RunConfiguration *runConfiguration);
+                                                   ProjectExplorer::RunConfiguration *runConfiguration,
+                                                   Core::Id runMode);
     void startTool();
 
 signals:

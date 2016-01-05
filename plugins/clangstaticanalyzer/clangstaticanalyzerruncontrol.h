@@ -21,6 +21,7 @@
 
 #include <analyzerbase/analyzerruncontrol.h>
 #include <cpptools/cppprojects.h>
+#include <utils/environment.h>
 
 #include <QFutureInterface>
 #include <QStringList>
@@ -45,9 +46,10 @@ class ClangStaticAnalyzerRunControl : public Analyzer::AnalyzerRunControl
     Q_OBJECT
 
 public:
-    explicit ClangStaticAnalyzerRunControl(const Analyzer::AnalyzerStartParameters &startParams,
-                                           ProjectExplorer::RunConfiguration *runConfiguration,
-                                           const CppTools::ProjectInfo &projectInfo);
+    ClangStaticAnalyzerRunControl(const Analyzer::AnalyzerStartParameters &startParams,
+                                  ProjectExplorer::RunConfiguration *runConfiguration,
+                                  Core::Id runMode,
+                                  const CppTools::ProjectInfo &projectInfo);
 
     bool startEngine();
     void stopEngine();
@@ -75,6 +77,7 @@ private:
     const CppTools::ProjectInfo m_projectInfo;
     const unsigned char m_wordWidth;
 
+    Utils::Environment m_environment;
     QString m_clangExecutable;
     QString m_clangLogFileDir;
     QFutureInterface<void> m_progress;
