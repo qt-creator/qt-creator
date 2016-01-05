@@ -322,7 +322,12 @@ QString PathChooser::path() const
 
 QString PathChooser::rawPath() const
 {
-    return FileName::fromUserInput(QDir::fromNativeSeparators(d->m_lineEdit->text())).toString();
+    return rawFileName().toString();
+}
+
+FileName PathChooser::rawFileName() const
+{
+    return FileName::fromUserInput(d->m_lineEdit->text());
 }
 
 FileName PathChooser::fileName() const

@@ -316,7 +316,7 @@ void DesktopQmakeRunConfigurationWidget::effectiveTargetInformationChanged()
 
     m_ignoreChange = true;
     auto aspect = m_qmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>();
-    aspect->setDefaultWorkingDirectory(m_qmakeRunConfiguration->baseWorkingDirectory());
+    aspect->setDefaultWorkingDirectory(FileName::fromString(m_qmakeRunConfiguration->baseWorkingDirectory()));
     aspect->pathChooser()->setBaseFileName(m_qmakeRunConfiguration->target()->project()->projectDirectory());
     m_ignoreChange = false;
 }
@@ -393,7 +393,7 @@ void DesktopQmakeRunConfiguration::setUsingLibrarySearchPath(bool state)
 
 QString DesktopQmakeRunConfiguration::workingDirectory() const
 {
-    return extraAspect<WorkingDirectoryAspect>()->workingDirectory();
+    return extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
 }
 
 QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const

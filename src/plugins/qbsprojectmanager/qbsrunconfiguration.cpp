@@ -248,7 +248,7 @@ QString QbsRunConfiguration::workingDirectory() const
 {
     const auto *wdAspect = extraAspect<WorkingDirectoryAspect>();
     QTC_ASSERT(wdAspect, return baseWorkingDirectory());
-    return wdAspect->workingDirectory();
+    return wdAspect->workingDirectory().toString();
 }
 
 QString QbsRunConfiguration::baseWorkingDirectory() const
@@ -393,7 +393,7 @@ void QbsRunConfigurationWidget::targetInformationHasChanged()
     setExecutableLineText(m_rc->executable());
 
     WorkingDirectoryAspect *aspect = m_rc->extraAspect<WorkingDirectoryAspect>();
-    aspect->setDefaultWorkingDirectory(m_rc->baseWorkingDirectory());
+    aspect->setDefaultWorkingDirectory(Utils::FileName::fromString(m_rc->baseWorkingDirectory()));
     aspect->pathChooser()->setBaseFileName(m_rc->target()->project()->projectDirectory());
     m_ignoreChange = false;
 }

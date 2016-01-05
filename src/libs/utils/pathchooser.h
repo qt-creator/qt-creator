@@ -98,6 +98,7 @@ public:
 
     QString path() const;
     QString rawPath() const; // The raw unexpanded input.
+    FileName rawFileName() const; // The raw unexpanded input.
     FileName fileName() const;
 
     QString baseDirectory() const;

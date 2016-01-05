@@ -34,6 +34,8 @@
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
 
+#include <utils/fileutils.h>
+
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QFormLayout;
@@ -92,10 +94,10 @@ public:
 
     void addToMainConfigurationWidget(QWidget *parent, QFormLayout *layout);
 
-    QString workingDirectory() const;
-    QString defaultWorkingDirectory() const;
-    QString unexpandedWorkingDirectory() const;
-    void setDefaultWorkingDirectory(const QString &defaultWorkingDir);
+    Utils::FileName workingDirectory() const;
+    Utils::FileName defaultWorkingDirectory() const;
+    Utils::FileName unexpandedWorkingDirectory() const;
+    void setDefaultWorkingDirectory(const Utils::FileName &defaultWorkingDir);
     Utils::PathChooser *pathChooser() const;
 
 private:
@@ -105,8 +107,8 @@ private:
     void resetPath();
     QString keyForDefaultWd() const;
 
-    QString m_workingDirectory;
-    QString m_defaultWorkingDirectory;
+    Utils::FileName m_workingDirectory;
+    Utils::FileName m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;
     QString m_key;
 };
