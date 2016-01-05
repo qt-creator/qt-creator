@@ -255,7 +255,7 @@ QString QbsRunConfiguration::baseWorkingDirectory() const
 {
     const QString exe = executable();
     if (!exe.isEmpty())
-        return QFileInfo(executable()).absolutePath();
+        return QFileInfo(exe).absolutePath();
     return QString();
 }
 
