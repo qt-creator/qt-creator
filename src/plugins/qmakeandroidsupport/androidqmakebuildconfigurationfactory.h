@@ -61,8 +61,11 @@ public:
     AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, AndroidQmakeBuildConfiguration *source);
     AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
     void addToEnvironment(Utils::Environment &env) const;
+    void manifestSaved();
 
     using BuildConfiguration::emitEnvironmentChanged;
+private:
+    mutable QString m_androidNdkPlatform;
 };
 
 } // namespace Internal

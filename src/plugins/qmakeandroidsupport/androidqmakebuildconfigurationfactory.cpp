@@ -34,7 +34,10 @@
 
 #include <android/androidmanager.h>
 #include <android/androidconfigurations.h>
+
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <qmakeprojectmanager/qmakebuildinfo.h>
@@ -110,6 +113,27 @@ AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::
 
 void AndroidQmakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
-    env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
-            Android::AndroidConfigurations::currentConfig().bestNdkPlatformMatch(Android::AndroidManager::minimumSDK(target())));
+    m_androidNdkPlatform = Android::AndroidConfigurations::currentConfig().bestNdkPlatformMatch(Android::AndroidManager::minimumSDK(target()));
+    env.set(QLatin1String("ANDROID_NDK_PLATFORM"), m_androidNdkPlatform);
+}
+
+void AndroidQmakeBuildConfiguration::manifestSaved()
+{
+    using QmakeProjectManager::QMakeStep;
+    QString androidNdkPlatform = Android::AndroidConfigurations::currentConfig().bestNdkPlatformMatch(Android::AndroidManager::minimumSDK(target()));
+    if (m_androidNdkPlatform == androidNdkPlatform)
+        return;
+
+    emitEnvironmentChanged();
+
+    QMakeStep *qs = qmakeStep();
+    if (!qs)
+        return;
+
+    qs->setForced(true);
+
+    ProjectExplorer::BuildManager::buildList(stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
+                  ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    ProjectExplorer::BuildManager::appendStep(qs, ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    setSubNodeBuild(0);
 }
