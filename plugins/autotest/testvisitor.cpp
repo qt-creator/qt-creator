@@ -359,7 +359,7 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
 
     CPlusPlus::LookupContext lc;
     const QString prettyName = m_overview.prettyName(lc.fullyQualifiedName(ast->symbol));
-    if (!AutoTest::Internal::isGTestMacro(prettyName))
+    if (!TestUtils::isGTestMacro(prettyName))
         return false;
 
     CPlusPlus::Argument *testCaseNameArg = ast->symbol->argumentAt(0)->asArgument();

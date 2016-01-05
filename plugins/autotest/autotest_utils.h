@@ -22,18 +22,34 @@
 
 #include <QStringList>
 
-namespace AutoTest {
+namespace Autotest {
 namespace Internal {
 
-static bool isGTestMacro(const QString &macro)
+class TestUtils
 {
-    static QStringList valid = {
-        QStringLiteral("TEST"), QStringLiteral("TEST_F"), QStringLiteral("TEST_P")
-    };
-    return valid.contains(macro);
-}
+public:
+    static bool isGTestMacro(const QString &macro)
+    {
+        static QStringList valid = {
+            QStringLiteral("TEST"), QStringLiteral("TEST_F"), QStringLiteral("TEST_P")
+        };
+        return valid.contains(macro);
+    }
+
+    static bool isQTestMacro(const QByteArray &macro)
+    {
+        static QByteArrayList valid = {"QTEST_MAIN", "QTEST_APPLESS_MAIN", "QTEST_GUILESS_MAIN"};
+        return valid.contains(macro);
+    }
+
+    static bool isQuickTestMacro(const QByteArray &macro)
+    {
+        static const QByteArrayList valid = {"QUICK_TEST_MAIN", "QUICK_TEST_OPENGL_MAIN"};
+        return valid.contains(macro);
+    }
+};
 
 } // namespace Internal
-} // namespace AutoTest
+} // namespace Autotest
 
 #endif // AUTOTEST_UTILS_H

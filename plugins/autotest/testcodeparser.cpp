@@ -277,14 +277,13 @@ static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
 static QString testClass(const CppTools::CppModelManager *modelManager,
                          CPlusPlus::Document::Ptr &document)
 {
-    static const QByteArray qtTestMacros[] = {"QTEST_MAIN", "QTEST_APPLESS_MAIN", "QTEST_GUILESS_MAIN"};
     const QList<CPlusPlus::Document::MacroUse> macros = document->macroUses();
 
     foreach (const CPlusPlus::Document::MacroUse &macro, macros) {
         if (!macro.isFunctionLike())
             continue;
         const QByteArray name = macro.macro().name();
-        if (name == qtTestMacros[0] || name == qtTestMacros[1] || name == qtTestMacros[2]) {
+        if (TestUtils::isQTestMacro(name)) {
             const CPlusPlus::Document::Block arg = macro.arguments().at(0);
             return QLatin1String(getFileContent(document->fileName())
                                  .mid(arg.bytesBegin(), arg.bytesEnd() - arg.bytesBegin()));
@@ -303,14 +302,13 @@ static QString testClass(const CppTools::CppModelManager *modelManager,
 
 static QString quickTestName(const CPlusPlus::Document::Ptr &doc)
 {
-    static const QByteArray qtTestMacros[] = {"QUICK_TEST_MAIN", "QUICK_TEST_OPENGL_MAIN"};
     const QList<CPlusPlus::Document::MacroUse> macros = doc->macroUses();
 
     foreach (const CPlusPlus::Document::MacroUse &macro, macros) {
         if (!macro.isFunctionLike())
             continue;
         const QByteArray name = macro.macro().name();
-        if (name == qtTestMacros[0] || name == qtTestMacros[1] || name == qtTestMacros[2]) {
+        if (TestUtils::isQuickTestMacro(name)) {
             CPlusPlus::Document::Block arg = macro.arguments().at(0);
             return QLatin1String(getFileContent(doc->fileName())
                                  .mid(arg.bytesBegin(), arg.bytesEnd() - arg.bytesBegin()));
@@ -325,7 +323,7 @@ static QSet<QString> testNames(CPlusPlus::Document::Ptr &document)
     foreach (const CPlusPlus::Document::MacroUse &macro, document->macroUses()) {
         if (!macro.isFunctionLike())
             continue;
-        if (AutoTest::Internal::isGTestMacro(QLatin1String(macro.macro().name()))) {
+        if (TestUtils::isGTestMacro(QLatin1String(macro.macro().name()))) {
             const QVector<CPlusPlus::Document::Block> args = macro.arguments();
             if (args.size() != 2)
                 continue;
