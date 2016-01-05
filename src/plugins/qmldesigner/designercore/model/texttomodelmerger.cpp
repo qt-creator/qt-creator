@@ -65,10 +65,12 @@ static inline bool isSupportedAttachedProperties(const QString &propertyName)
 
 static inline QStringList supportedVersionsList()
 {
-    QStringList list;
-    list << QStringLiteral("2.0") << QStringLiteral("2.1")
-         << QStringLiteral("2.2") << QStringLiteral("2.3")
-         << QStringLiteral("2.4") << QStringLiteral("2.5");
+    static const QStringList list = {
+        QStringLiteral("2.0"), QStringLiteral("2.1"),
+        QStringLiteral("2.2"), QStringLiteral("2.3"),
+        QStringLiteral("2.4"), QStringLiteral("2.5"),
+        QStringLiteral("2.6")
+    };
     return list;
 }
 
