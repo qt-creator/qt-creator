@@ -22,7 +22,7 @@ QtcTool {
     property string llvmConfig: Clang.llvmConfig(qbs, QtcFunctions, QtcProcessOutputReader)
     property string llvmIncludeDir: Clang.includeDir(llvmConfig, QtcProcessOutputReader)
     property string llvmLibDir: Clang.libDir(llvmConfig, QtcProcessOutputReader)
-    property string llvmLibs: Clang.libraries(qbs.targetOS)
+    property stringList llvmLibs: Clang.libraries(qbs.targetOS)
 
     condition: llvmConfig && File.exists(llvmIncludeDir.concat("/clang-c/Index.h"))
 

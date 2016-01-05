@@ -62,5 +62,5 @@ function version(llvmConfig, processOutputReader)
 
 function libraries(targetOS)
 {
-    return ["clang"] + (targetOS.contains("windows") ? ["advapi32", "shell32"] : [])
+    return targetOS.contains("windows") ? ["libclang.lib", "advapi32.lib", "shell32.lib"] : ["clang"]
 }
