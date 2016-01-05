@@ -39,6 +39,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
@@ -68,15 +69,12 @@ using namespace Utils;
 namespace Ios {
 namespace Internal {
 
-static const QLatin1String runConfigurationKey("Ios.run_arguments");
 static const QLatin1String deviceTypeKey("Ios.device_type");
 
 class IosRunConfigurationWidget : public RunConfigWidget
 {
 public:
     IosRunConfigurationWidget(IosRunConfiguration *runConfiguration);
-    QString argListToString(const QStringList &args) const;
-    QStringList stringToArgList(const QString &args) const;
     QString displayName() const override;
 
 private:
@@ -88,7 +86,6 @@ private:
     QStandardItemModel m_deviceTypeModel;
     QLabel *m_deviceTypeLabel;
     QLineEdit *m_executableLineEdit;
-    QLineEdit *m_argumentsLineEdit;
     QComboBox *m_deviceTypeComboBox;
 };
 
@@ -96,13 +93,13 @@ IosRunConfiguration::IosRunConfiguration(Target *parent, Core::Id id, const File
     : RunConfiguration(parent, id)
     , m_profilePath(path)
 {
+    addExtraAspect(new ArgumentsAspect(this, QLatin1String("Ios.run_arguments")));
     init();
 }
 
 IosRunConfiguration::IosRunConfiguration(Target *parent, IosRunConfiguration *source)
     : RunConfiguration(parent, source)
     , m_profilePath(source->m_profilePath)
-    , m_arguments(source->m_arguments)
 {
     init();
 }
@@ -163,9 +160,9 @@ OutputFormatter *IosRunConfiguration::createOutputFormatter() const
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
-QStringList IosRunConfiguration::commandLineArguments()
+QString IosRunConfiguration::commandLineArguments() const
 {
-    return m_arguments;
+    return extraAspect<ArgumentsAspect>()->arguments();
 }
 
 void IosRunConfiguration::updateDisplayNames()
@@ -274,7 +271,6 @@ FileName IosRunConfiguration::localExecutable() const
 
 bool IosRunConfiguration::fromMap(const QVariantMap &map)
 {
-    m_arguments = map.value(runConfigurationKey).toStringList();
     bool deviceTypeIsInt;
     map.value(deviceTypeKey).toInt(&deviceTypeIsInt);
     if (deviceTypeIsInt || !m_deviceType.fromMap(map.value(deviceTypeKey).toMap())) {
@@ -289,7 +285,6 @@ bool IosRunConfiguration::fromMap(const QVariantMap &map)
 QVariantMap IosRunConfiguration::toMap() const
 {
     QVariantMap res = RunConfiguration::toMap();
-    res[runConfigurationKey] = m_arguments;
     res[deviceTypeKey] = deviceType().toMap();
     return res;
 }
@@ -398,8 +393,6 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
     sizePolicy.setVerticalStretch(0);
     setSizePolicy(sizePolicy);
 
-    m_argumentsLineEdit = new QLineEdit(this);
-
     m_executableLineEdit = new QLineEdit(this);
     m_executableLineEdit->setReadOnly(true);
 
@@ -409,7 +402,7 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
     m_deviceTypeLabel = new QLabel(IosRunConfiguration::tr("Device type:"), this);
 
     auto layout = new QFormLayout(this);
-    layout->addRow(IosRunConfiguration::tr("Arguments:"), m_argumentsLineEdit);
+    runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, layout);
     layout->addRow(IosRunConfiguration::tr("Executable:"), m_executableLineEdit);
     layout->addRow(m_deviceTypeLabel, m_deviceTypeComboBox);
 
@@ -417,57 +410,13 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
 
     connect(m_deviceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &IosRunConfigurationWidget::setDeviceTypeIndex);
-    connect(m_argumentsLineEdit, &QLineEdit::editingFinished,
-            this, &IosRunConfigurationWidget::argumentsLineEditTextEdited);
     connect(runConfiguration, &IosRunConfiguration::localExecutableChanged,
             this, &IosRunConfigurationWidget::updateValues);
-}
-
-QString IosRunConfigurationWidget::argListToString(const QStringList &args) const
-{
-    return QtcProcess::joinArgs(args);
-}
-
-QStringList IosRunConfigurationWidget::stringToArgList(const QString &args) const
-{
-    QtcProcess::SplitError err;
-    QStringList res = QtcProcess::splitArgs(args, OsTypeMac, false, &err);
-    switch (err) {
-    case QtcProcess::SplitOk:
-        break;
-    case QtcProcess::BadQuoting:
-        if (args.at(args.size()-1) == QLatin1Char('\\')) {
-            res = QtcProcess::splitArgs(args + QLatin1Char('\\'), OsTypeMac, false, &err);
-            if (err != QtcProcess::SplitOk)
-                res = QtcProcess::splitArgs(args + QLatin1Char('\\') + QLatin1Char('\''),
-                                            OsTypeMac, false, &err);
-            if (err != QtcProcess::SplitOk)
-                res = QtcProcess::splitArgs(args + QLatin1Char('\\') + QLatin1Char('\"'),
-                                            OsTypeMac, false, &err);
-        }
-        if (err != QtcProcess::SplitOk)
-            res = QtcProcess::splitArgs(args + QLatin1Char('\''), OsTypeMac, false, &err);
-        if (err != QtcProcess::SplitOk)
-            res = QtcProcess::splitArgs(args + QLatin1Char('\"'), OsTypeMac, false, &err);
-        break;
-    case QtcProcess::FoundMeta:
-        qCWarning(iosLog) << "IosRunConfigurationWidget FoundMeta (should not happen)";
-        break;
-    }
-    return res;
 }
 
 QString IosRunConfigurationWidget::displayName() const
 {
     return tr("iOS run settings");
-}
-
-void IosRunConfigurationWidget::argumentsLineEditTextEdited()
-{
-    QString argsString = m_argumentsLineEdit->text();
-    QStringList args = stringToArgList(argsString);
-    m_runConfiguration->m_arguments = args;
-    m_argumentsLineEdit->setText(argListToString(args));
 }
 
 void IosRunConfigurationWidget::setDeviceTypeIndex(int devIndex)
@@ -492,8 +441,6 @@ void IosRunConfigurationWidget::updateValues()
             m_deviceTypeModel.appendRow(item);
         }
     }
-    QStringList args = m_runConfiguration->commandLineArguments();
-    QString argsString = argListToString(args);
 
     IosDeviceType currentDType = m_runConfiguration->deviceType();
     if (currentDType.type == IosDeviceType::SimulatedDevice && !currentDType.identifier.isEmpty()
@@ -514,7 +461,6 @@ void IosRunConfigurationWidget::updateValues()
             qCWarning(iosLog) << "could not set " << currentDType << " as it is not in model";
         }
     }
-    m_argumentsLineEdit->setText(argsString);
     m_executableLineEdit->setText(m_runConfiguration->localExecutable().toUserOutput());
 }
 

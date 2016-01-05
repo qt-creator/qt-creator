@@ -81,7 +81,7 @@ RunControl *IosAnalyzeSupport::createAnalyzeRunControl(IosRunConfiguration *runC
         return 0;
     AnalyzerStartParameters params;
     params.debuggee = runConfig->localExecutable().toUserOutput();
-    params.debuggeeArgs = Utils::QtcProcess::joinArgs(runConfig->commandLineArguments());
+    params.debuggeeArgs = runConfig->commandLineArguments();
     params.analyzerHost = QLatin1String("localhost");
     if (device->type() == Core::Id(Ios::Constants::IOS_DEVICE_TYPE)) {
         IosDevice::ConstPtr iosDevice = device.dynamicCast<const IosDevice>();

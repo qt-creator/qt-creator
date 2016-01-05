@@ -60,7 +60,7 @@ public:
     Utils::OutputFormatter *createOutputFormatter() const override;
     IosDeployStep *deployStep() const;
 
-    QStringList commandLineArguments();
+    QString commandLineArguments() const;
     Utils::FileName profilePath() const;
     QString applicationName() const;
     Utils::FileName bundleDirectory() const;
@@ -88,7 +88,6 @@ private:
     void updateDisplayNames();
 
     Utils::FileName m_profilePath;
-    QStringList m_arguments;
     QString m_lastDisabledReason;
     bool m_lastIsEnabled;
     bool m_parseInProgress;
