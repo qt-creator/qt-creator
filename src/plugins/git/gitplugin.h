@@ -91,6 +91,7 @@ public:
 
     GitClient *client() const;
     Gerrit::Internal::GerritPlugin *gerritPlugin() const;
+    bool isCommitEditorOpen() const;
 
 public slots:
     void startCommit();
@@ -190,7 +191,6 @@ private:
                                                  const Core::Context &context);
 
     void updateRepositoryBrowserAction();
-    bool isCommitEditorOpen() const;
     Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
     void cleanCommitMessageFile();
     void cleanRepository(const QString &directory);
