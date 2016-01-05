@@ -52,8 +52,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     setLayout(fl);
 
     QPushButton *runCmakeButton = new QPushButton(tr("Run CMake..."));
-    connect(runCmakeButton, SIGNAL(clicked()),
-            this, SLOT(runCMake()));
+    connect(runCmakeButton, &QAbstractButton::clicked, this, &CMakeBuildSettingsWidget::runCMake);
     fl->addRow(tr("Reconfigure project:"), runCmakeButton);
 
     m_pathLineEdit = new QLineEdit(this);
@@ -64,7 +63,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     m_changeButton = new QPushButton(this);
     m_changeButton->setText(tr("&Change"));
-    connect(m_changeButton, SIGNAL(clicked()), this, SLOT(openChangeBuildDirectoryDialog()));
+    connect(m_changeButton, &QAbstractButton::clicked, this,
+            &CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog);
     hbox->addWidget(m_changeButton);
 
     fl->addRow(tr("Build directory:"), hbox);
