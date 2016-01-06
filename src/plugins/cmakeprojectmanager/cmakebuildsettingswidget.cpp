@@ -91,14 +91,14 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
-    CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
-    CMakeManager *manager = static_cast<CMakeManager *>(project->projectManager());
+    auto project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
+    auto manager = static_cast<CMakeManager *>(project->projectManager());
     CMakeBuildInfo info(m_buildConfiguration);
     CMakeOpenProjectWizard copw(Core::ICore::mainWindow(),
                                 manager, CMakeOpenProjectWizard::ChangeDirectory,
                                 &info,
-                                project->activeTarget()->displayName(),
-                                project->activeTarget()->activeBuildConfiguration()->displayName());
+                                m_buildConfiguration->target()->displayName(),
+                                m_buildConfiguration->displayName());
     if (copw.exec() == QDialog::Accepted) {
         project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
         m_pathLineEdit->setText(m_buildConfiguration->rawBuildDirectory().toString());
@@ -109,13 +109,13 @@ void CMakeBuildSettingsWidget::runCMake()
 {
     if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
         return;
-    CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
-    CMakeManager *manager = static_cast<CMakeManager *>(project->projectManager());
+    auto project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
+    auto manager = static_cast<CMakeManager *>(project->projectManager());
     CMakeBuildInfo info(m_buildConfiguration);
     CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), manager,
                                 CMakeOpenProjectWizard::WantToUpdate, &info,
-                                project->activeTarget()->displayName(),
-                                project->activeTarget()->activeBuildConfiguration()->displayName());
+                                m_buildConfiguration->target()->displayName(),
+                                m_buildConfiguration->displayName());
     if (copw.exec() == QDialog::Accepted)
         project->parseCMakeLists();
 }
