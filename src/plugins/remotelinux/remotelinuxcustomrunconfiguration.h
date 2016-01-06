@@ -55,13 +55,13 @@ public:
 
     QString localExecutableFilePath() const override { return m_localExecutable; }
     QString remoteExecutableFilePath() const override { return m_remoteExecutable; }
-    QStringList arguments() const override { return m_arguments; }
+    QString arguments() const override { return m_arguments; }
     QString workingDirectory() const override { return m_workingDirectory; }
     Utils::Environment environment() const override;
 
     void setLocalExecutableFilePath(const QString &executable) { m_localExecutable = executable; }
     void setRemoteExecutableFilePath(const QString &executable);
-    void setArguments(const QStringList &args) { m_arguments = args; }
+    void setArguments(const QString &args) { m_arguments = args; }
     void setWorkingDirectory(const QString &wd) { m_workingDirectory = wd; }
 
     static Core::Id runConfigId();
@@ -72,7 +72,7 @@ private:
 
     QString m_localExecutable;
     QString m_remoteExecutable;
-    QStringList m_arguments;
+    QString m_arguments;
     QString m_workingDirectory;
 
 };

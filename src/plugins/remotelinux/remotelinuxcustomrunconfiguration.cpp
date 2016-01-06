@@ -59,8 +59,7 @@ public:
         m_ui.localExecutablePathChooser->setExpectedKind(Utils::PathChooser::File);
         m_ui.localExecutablePathChooser->setPath(m_runConfig->localExecutableFilePath());
         m_ui.remoteExeLineEdit->setText(m_runConfig->remoteExecutableFilePath());
-        m_ui.argsLineEdit->setText(Utils::QtcProcess::joinArgs(m_runConfig->arguments(),
-                                                               Utils::OsTypeLinux));
+        m_ui.argsLineEdit->setText(m_runConfig->arguments());
         m_ui.workingDirLineEdit->setText(m_runConfig->workingDirectory());
         connect(m_ui.localExecutablePathChooser, SIGNAL(pathChanged(QString)),
                 SLOT(handleLocalExecutableChanged(QString)));
@@ -83,8 +82,7 @@ private slots:
     }
 
     void handleArgumentsChanged(const QString &arguments) {
-        m_runConfig->setArguments(Utils::QtcProcess::splitArgs(arguments.trimmed(),
-                                                               Utils::OsTypeLinux));
+        m_runConfig->setArguments(arguments.trimmed());
     }
 
     void handleWorkingDirChanged(const QString &wd) {
@@ -198,7 +196,11 @@ bool RemoteLinuxCustomRunConfiguration::fromMap(const QVariantMap &map)
         return false;
     setLocalExecutableFilePath(map.value(localExeKey()).toString());
     setRemoteExecutableFilePath(map.value(remoteExeKey()).toString());
-    setArguments(map.value(argsKey()).toStringList());
+    QVariant args = map.value(argsKey());
+    if (args.type() == QVariant::StringList) // Until 3.7 a QStringList was stored.
+        setArguments(Utils::QtcProcess::joinArgs(args.toStringList(), Utils::OsTypeLinux));
+    else
+        setArguments(args.toString());
     setWorkingDirectory(map.value(workingDirKey()).toString());
     return true;
 }

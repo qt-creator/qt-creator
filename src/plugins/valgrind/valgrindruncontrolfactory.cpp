@@ -104,7 +104,7 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
                qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.debuggee = rc2->remoteExecutableFilePath();
         sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
-        sp.debuggeeArgs = rc2->arguments().join(QLatin1Char(' '));
+        sp.debuggeeArgs = rc2->arguments();
     } else {
         QTC_ASSERT(false, return 0);
     }

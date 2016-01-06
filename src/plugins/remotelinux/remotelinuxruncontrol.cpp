@@ -36,10 +36,9 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/target.h>
-#include <utils/environment.h>
 
-#include <QString>
-#include <QIcon>
+#include <utils/environment.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 
@@ -52,7 +51,7 @@ public:
     DeviceApplicationRunner runner;
     IDevice::ConstPtr device;
     QString remoteExecutable;
-    QStringList arguments;
+    QString arguments;
     Utils::Environment environment;
     QString workingDir;
 };
@@ -93,7 +92,8 @@ void RemoteLinuxRunControl::start()
             this, &RemoteLinuxRunControl::handleProgressReport);
     d->runner.setEnvironment(d->environment);
     d->runner.setWorkingDirectory(d->workingDir);
-    d->runner.start(d->device, d->remoteExecutable, d->arguments);
+    d->runner.start(d->device, d->remoteExecutable,
+                    Utils::QtcProcess::splitArgs(d->arguments, Utils::OsTypeLinux));
 }
 
 RunControl::StopResult RemoteLinuxRunControl::stop()

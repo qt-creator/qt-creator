@@ -72,7 +72,7 @@ public:
     }
 
     QString targetName;
-    QStringList arguments;
+    QString arguments;
     bool useAlternateRemoteExecutable;
     QString alternateRemoteExecutable;
     QString workingDirectory;
@@ -147,7 +147,11 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    d->arguments = map.value(QLatin1String(ArgumentsKey)).toStringList();
+    QVariant args = map.value(QLatin1String(ArgumentsKey));
+    if (args.type() == QVariant::StringList) // Until 3.7 a QStringList was stored.
+        d->arguments = QtcProcess::joinArgs(args.toStringList(), OsTypeLinux);
+    else
+        d->arguments = args.toString();
     d->targetName = map.value(QLatin1String(TargetNameKey)).toString();
     d->useAlternateRemoteExecutable = map.value(QLatin1String(UseAlternateExeKey), false).toBool();
     d->alternateRemoteExecutable = map.value(QLatin1String(AlternateExeKey)).toString();
@@ -167,7 +171,7 @@ QString RemoteLinuxRunConfiguration::defaultDisplayName()
     return tr("Run on Remote Device");
 }
 
-QStringList RemoteLinuxRunConfiguration::arguments() const
+QString RemoteLinuxRunConfiguration::arguments() const
 {
     return d->arguments;
 }
@@ -198,7 +202,7 @@ QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
 
 void RemoteLinuxRunConfiguration::setArguments(const QString &args)
 {
-    d->arguments = QtcProcess::splitArgs(args, OsTypeLinux); // TODO: Widget should be list-based.
+    d->arguments = args;
 }
 
 QString RemoteLinuxRunConfiguration::workingDirectory() const

@@ -73,7 +73,7 @@ public:
     QString localExecutableFilePath() const override;
     QString defaultRemoteExecutableFilePath() const;
     QString remoteExecutableFilePath() const override;
-    QStringList arguments() const override;
+    QString arguments() const override;
     void setArguments(const QString &args);
     QString workingDirectory() const override;
     void setWorkingDirectory(const QString &wd);

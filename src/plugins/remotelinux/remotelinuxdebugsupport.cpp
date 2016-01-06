@@ -44,7 +44,7 @@
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
+
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QPointer>
@@ -99,11 +99,11 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
     }
     if (aspect->useCppDebugger()) {
         aspect->setUseMultiProcess(true);
-        QStringList args = runConfig->arguments();
-        if (aspect->useQmlDebugger())
-            args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
-
-        params.processArgs = Utils::QtcProcess::joinArgs(args, Utils::OsTypeLinux);
+        params.processArgs = runConfig->arguments();
+        if (aspect->useQmlDebugger()) {
+            params.processArgs.prepend(QLatin1Char(' '));
+            params.processArgs.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
+        }
         params.executable = runConfig->localExecutableFilePath();
         params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
         params.remoteExecutable = runConfig->remoteExecutableFilePath();

@@ -33,8 +33,6 @@
 #include "remotelinux_export.h"
 #include <projectexplorer/runconfiguration.h>
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
-
 namespace Utils { class Environment; }
 
 namespace RemoteLinux {
@@ -50,7 +48,7 @@ public:
 
     virtual QString localExecutableFilePath() const = 0;
     virtual QString remoteExecutableFilePath() const = 0;
-    virtual QStringList arguments() const = 0;
+    virtual QString arguments() const = 0;
     virtual QString workingDirectory() const = 0;
     virtual Utils::Environment environment() const = 0;
 

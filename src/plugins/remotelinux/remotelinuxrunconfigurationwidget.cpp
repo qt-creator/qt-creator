@@ -33,7 +33,6 @@
 
 #include <coreplugin/coreicons.h>
 #include <utils/detailswidget.h>
-#include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -154,8 +153,7 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     altRemoteExeLayout->addWidget(&d->useAlternateCommandBox);
     d->genericWidgetsLayout.addRow(tr("Alternate executable on device:"), altRemoteExeWidget);
 
-    d->argsLineEdit.setText(Utils::QtcProcess::joinArgs(d->runConfiguration->arguments(),
-                                                        Utils::OsTypeLinux));
+    d->argsLineEdit.setText(d->runConfiguration->arguments());
     d->genericWidgetsLayout.addRow(tr("Arguments:"), &d->argsLineEdit);
 
     d->workingDirLineEdit.setPlaceholderText(tr("<default>"));

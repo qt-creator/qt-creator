@@ -79,7 +79,7 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
     params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
     params.remoteSetupNeeded = true;
     params.closeMode = KillAtClose;
-    params.processArgs = runConfig->arguments().join(QLatin1Char(' '));
+    params.processArgs = runConfig->arguments();
 
     auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
@@ -105,7 +105,7 @@ static AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfigu
         return params;
 
     params.debuggee = runConfig->remoteExecutableFilePath();
-    params.debuggeeArgs = runConfig->arguments().join(QLatin1Char(' '));
+    params.debuggeeArgs = runConfig->arguments();
     params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
     params.analyzerHost = params.connParams.host;
     params.analyzerPort = params.connParams.port;
