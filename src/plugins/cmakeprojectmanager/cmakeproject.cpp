@@ -32,6 +32,7 @@
 
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
+#include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
 #include "cmakerunconfiguration.h"
@@ -387,6 +388,16 @@ bool CMakeProject::needsConfiguration() const
 bool CMakeProject::requiresTargetPanel() const
 {
     return !targets().isEmpty();
+}
+
+bool CMakeProject::supportsKit(Kit *k, QString *errorMessage) const
+{
+    if (!CMakeKitInformation::cmakeTool(k)) {
+        if (errorMessage)
+            *errorMessage = tr("No cmake tool set.");
+        return false;
+    }
+    return true;
 }
 
 bool CMakeProject::isProjectFile(const FileName &fileName)

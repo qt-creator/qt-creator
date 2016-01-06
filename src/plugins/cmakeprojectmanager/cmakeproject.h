@@ -118,6 +118,8 @@ public:
 
     bool requiresTargetPanel() const override;
 
+    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage = 0) const override;
+
 signals:
     /// emitted after parsing
     void buildTargetsChanged();
