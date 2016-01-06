@@ -30,41 +30,38 @@
 
 #include "winrtrunconfigurationwidget.h"
 #include "winrtrunconfiguration.h"
-#include "ui_winrtrunconfigurationwidget.h"
+
+#include <projectexplorer/runconfigurationaspects.h>
+
+#include <QCheckBox>
+#include <QFormLayout>
 
 namespace WinRt {
 namespace Internal {
 
-WinRtRunConfigurationWidget::WinRtRunConfigurationWidget(WinRtRunConfiguration *rc, QWidget *parent)
-    : Utils::DetailsWidget(parent)
-    , m_runConfiguration(rc)
-    , m_ui(new Ui::WinRtRunConfigurationWidget)
+WinRtRunConfigurationWidget::WinRtRunConfigurationWidget(WinRtRunConfiguration *rc)
+    : m_runConfiguration(rc)
 {
     setState(Expanded);
     setSummaryText(tr("Launch App"));
-    setWidget(new QWidget(this));
-    m_ui->setupUi(widget());
-    widget()->setContentsMargins(0, 0, 0, 0);
-    m_ui->arguments->setText(rc->arguments());
-    connect(m_ui->arguments, SIGNAL(textChanged(QString)),
-            rc, SLOT(setArguments(QString)));
-    connect(m_ui->uninstallAfterStop, SIGNAL(stateChanged(int)),
-            SLOT(onUninstallCheckBoxChanged()));
-}
 
-WinRtRunConfigurationWidget::~WinRtRunConfigurationWidget()
-{
-    delete m_ui;
-}
+    auto widget = new QWidget(this);
+    widget->setContentsMargins(0, 0, 0, 0);
+    setWidget(widget);
 
-void WinRtRunConfigurationWidget::setArguments(const QString &args)
-{
-    m_ui->arguments->setText(args);
-}
+    auto verticalLayout = new QFormLayout(widget);
 
-void WinRtRunConfigurationWidget::onUninstallCheckBoxChanged()
-{
-    m_runConfiguration->setUninstallAfterStop(m_ui->uninstallAfterStop->isChecked());
+    rc->extraAspect<ProjectExplorer::ArgumentsAspect>()
+            ->addToMainConfigurationWidget(widget, verticalLayout);
+
+    auto uninstallAfterStop = new QCheckBox(widget);
+    verticalLayout->addWidget(uninstallAfterStop);
+
+    uninstallAfterStop->setText(tr("Uninstall package after application stops"));
+
+    connect(uninstallAfterStop, &QCheckBox::stateChanged, this, [this] (int checked) {
+        m_runConfiguration->setUninstallAfterStop(checked == Qt::Checked);
+    });
 }
 
 } // namespace Internal

@@ -33,13 +33,14 @@
 #include "winrtconstants.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 namespace WinRt {
 namespace Internal {
 
-static const char argumentsIdC[] = "WinRtRunConfigurationArgumentsId";
 static const char uninstallAfterStopIdC[] = "WinRtRunConfigurationUninstallAfterStopId";
 
 static QString pathFromId(Core::Id id)
@@ -53,6 +54,8 @@ WinRtRunConfiguration::WinRtRunConfiguration(ProjectExplorer::Target *parent, Co
     , m_uninstallAfterStop(false)
 {
     setDisplayName(tr("Run App Package"));
+    addExtraAspect(new ProjectExplorer::ArgumentsAspect(this,
+                   QLatin1String("WinRtRunConfigurationArgumentsId")));
 }
 
 QWidget *WinRtRunConfiguration::createConfigurationWidget()
@@ -63,7 +66,6 @@ QWidget *WinRtRunConfiguration::createConfigurationWidget()
 QVariantMap WinRtRunConfiguration::toMap() const
 {
     QVariantMap map = RunConfiguration::toMap();
-    map.insert(QLatin1String(argumentsIdC), m_arguments);
     map.insert(QLatin1String(uninstallAfterStopIdC), m_uninstallAfterStop);
     return map;
 }
@@ -72,17 +74,13 @@ bool WinRtRunConfiguration::fromMap(const QVariantMap &map)
 {
     if (!RunConfiguration::fromMap(map))
         return false;
-    setArguments(map.value(QLatin1String(argumentsIdC)).toString());
     setUninstallAfterStop(map.value(QLatin1String(uninstallAfterStopIdC)).toBool());
     return true;
 }
 
-void WinRtRunConfiguration::setArguments(const QString &args)
+QString WinRtRunConfiguration::arguments() const
 {
-    if (m_arguments == args)
-        return;
-    m_arguments = args;
-    emit argumentsChanged(m_arguments);
+    return extraAspect<ProjectExplorer::ArgumentsAspect>()->arguments();
 }
 
 void WinRtRunConfiguration::setUninstallAfterStop(bool b)

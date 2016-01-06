@@ -36,30 +36,19 @@
 namespace WinRt {
 namespace Internal {
 
-namespace Ui {
-class WinRtRunConfigurationWidget;
-}
-
 class WinRtRunConfiguration;
 
 class WinRtRunConfigurationWidget : public Utils::DetailsWidget
 {
     Q_OBJECT
+
 public:
-    explicit WinRtRunConfigurationWidget(WinRtRunConfiguration *rc, QWidget *parent = 0);
-    ~WinRtRunConfigurationWidget();
+    explicit WinRtRunConfigurationWidget(WinRtRunConfiguration *rc);
 
     bool isValid() const;
 
-public slots:
-    void setArguments(const QString &args);
-
-private slots:
-    void onUninstallCheckBoxChanged();
-
 private:
     WinRtRunConfiguration *m_runConfiguration;
-    Ui::WinRtRunConfigurationWidget *m_ui;
 };
 
 } // namespace Internal

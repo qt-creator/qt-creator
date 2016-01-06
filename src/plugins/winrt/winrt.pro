@@ -38,5 +38,4 @@ SOURCES += \
 DEFINES += WINRT_LIBRARY
 
 FORMS += \
-    winrtpackagedeploymentstepwidget.ui \
-    winrtrunconfigurationwidget.ui
+    winrtpackagedeploymentstepwidget.ui

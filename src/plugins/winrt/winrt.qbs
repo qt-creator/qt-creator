@@ -37,7 +37,6 @@ QtcPlugin {
         "winrtrunconfiguration.h",
         "winrtrunconfigurationwidget.cpp",
         "winrtrunconfigurationwidget.h",
-        "winrtrunconfigurationwidget.ui",
         "winrtruncontrol.cpp",
         "winrtruncontrol.h",
         "winrtrunfactories.cpp",

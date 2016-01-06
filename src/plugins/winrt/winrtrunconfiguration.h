@@ -49,7 +49,7 @@ public:
     bool fromMap(const QVariantMap &map) override;
 
     const QString &proFilePath() const { return m_proFilePath; }
-    const QString &arguments() const { return m_arguments; }
+    QString arguments() const;
     bool uninstallAfterStop() const { return m_uninstallAfterStop; }
 
 signals:
@@ -57,12 +57,10 @@ signals:
     void uninstallAfterStopChanged(bool);
 
 public slots:
-    void setArguments(const QString &args);
     void setUninstallAfterStop(bool b);
 
 private:
     QString m_proFilePath;
-    QString m_arguments;
     bool m_uninstallAfterStop;
 };
 
