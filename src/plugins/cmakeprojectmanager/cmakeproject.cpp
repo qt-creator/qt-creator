@@ -97,7 +97,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
-    m_projectName = fileName.parentDir().fileName();
+    m_rootNode->setDisplayName(fileName.parentDir().fileName());
 
     m_file = new CMakeFile(this, fileName);
 
@@ -290,7 +290,6 @@ bool CMakeProject::parseCMakeLists()
     // how can we ensure that it is completely written?
     m_watcher->addPath(cbpFile);
 
-    m_projectName = cbpparser.projectName();
     m_rootNode->setDisplayName(cbpparser.projectName());
 
     //qDebug()<<"Building Tree";
@@ -505,7 +504,7 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
 
 QString CMakeProject::displayName() const
 {
-    return m_projectName;
+    return m_rootNode->displayName();
 }
 
 Core::IDocument *CMakeProject::document() const

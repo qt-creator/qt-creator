@@ -149,7 +149,6 @@ private:
     ProjectExplorer::Target *m_activeTarget;
     Utils::FileName m_fileName;
     Internal::CMakeFile *m_file;
-    QString m_projectName;
 
     // TODO probably need a CMake specific node structure
     Internal::CMakeProjectNode *m_rootNode;
