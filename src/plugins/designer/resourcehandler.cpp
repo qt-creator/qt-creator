@@ -123,8 +123,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
         qDebug() << "ResourceHandler::updateResources()" << fileName;
 
     // Filename could change in the meantime.
-    Project *project = SessionManager::projectForFile(
-                Utils::FileName::fromUserInput(QDir::fromNativeSeparators(fileName)));
+    Project *project = SessionManager::projectForFile(Utils::FileName::fromUserInput(fileName));
     const bool dirty = m_form->property("_q_resourcepathchanged").toBool();
     if (dirty)
         m_form->setDirty(true);
