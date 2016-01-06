@@ -2163,7 +2163,7 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
 {
     showMessage(msg0, LogStatus);
     QString msg = msg0;
-    msg.replace(QChar::LineFeed, QChar::Space);
+    msg.replace(QChar::LineFeed, QLatin1String("; "));
     m_statusLabel->showStatusMessage(msg, timeout);
 }
 
