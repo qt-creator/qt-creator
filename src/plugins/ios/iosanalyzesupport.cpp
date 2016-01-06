@@ -80,8 +80,6 @@ RunControl *IosAnalyzeSupport::createAnalyzeRunControl(IosRunConfiguration *runC
     if (device.isNull())
         return 0;
     AnalyzerStartParameters params;
-    params.runMode = ProjectExplorer::Constants::QML_PROFILER_RUN_MODE;
-    params.sysroot = SysRootKitInformation::sysRoot(target->kit()).toString();
     params.debuggee = runConfig->localExecutable().toUserOutput();
     params.debuggeeArgs = Utils::QtcProcess::joinArgs(runConfig->commandLineArguments());
     params.analyzerHost = QLatin1String("localhost");
@@ -90,9 +88,10 @@ RunControl *IosAnalyzeSupport::createAnalyzeRunControl(IosRunConfiguration *runC
         if (iosDevice.isNull())
                 return 0;
     }
-    params.displayName = runConfig->applicationName();
-
-    AnalyzerRunControl *analyzerRunControl = AnalyzerManager::createRunControl(params, runConfig);
+    AnalyzerRunControl *analyzerRunControl =
+            AnalyzerManager::createRunControl(params, runConfig, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    if (analyzerRunControl)
+        analyzerRunControl->setDisplayName(runConfig->applicationName());
     (void) new IosAnalyzeSupport(runConfig, analyzerRunControl, false, true);
     return analyzerRunControl;
 }

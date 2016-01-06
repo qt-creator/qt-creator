@@ -104,8 +104,8 @@ public:
 
     /// Returns a new engine for the given start parameters.
     /// Called each time the tool is launched.
-    typedef std::function<AnalyzerRunControl *(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration)> RunControlCreator;
+    typedef std::function<AnalyzerRunControl *(const AnalyzerStartParameters &,
+        ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode)> RunControlCreator;
     RunControlCreator runControlCreator() const { return m_runControlCreator; }
     void setRunControlCreator(const RunControlCreator &creator) { m_runControlCreator = creator; }
 

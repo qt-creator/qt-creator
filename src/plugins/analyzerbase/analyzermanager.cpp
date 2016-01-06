@@ -715,12 +715,11 @@ void AnalyzerManager::handleToolFinished()
     d->handleToolFinished();
 }
 
-AnalyzerRunControl *AnalyzerManager::createRunControl(
-    const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
+AnalyzerRunControl *AnalyzerManager::createRunControl(const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration, Id runMode)
 {
     foreach (AnalyzerAction *action, d->m_actions) {
-        if (action->runMode() == sp.runMode)
-            return action->runControlCreator()(sp, runConfiguration);
+        if (action->runMode() == runMode)
+            return action->runControlCreator()(sp, runConfiguration, runMode);
     }
     return 0;
 }

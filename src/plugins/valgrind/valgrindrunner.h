@@ -76,7 +76,6 @@ public:
     bool useStartupProject() const;
 
     void setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode);
-    ProjectExplorer::ApplicationLauncher::Mode localRunMode() const;
 
     void setConnectionParameters(const QSsh::SshConnectionParameters &connParams);
     const QSsh::SshConnectionParameters &connectionParameters() const;

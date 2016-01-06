@@ -56,11 +56,6 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
 {
     Target *target = runConfig->target();
     AnalyzerStartParameters params;
-    params.runMode = runMode;
-    params.displayName = AndroidManager::packageName(target);
-    params.sysroot = SysRootKitInformation::sysRoot(target->kit()).toString();
-    // TODO: Not sure if these are the right paths.
-    params.workingDirectory = target->project()->projectDirectory().toString();
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
@@ -68,8 +63,11 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
         params.analyzerHost = server.serverAddress().toString();
     }
 
-    AnalyzerRunControl *analyzerRunControl = AnalyzerManager::createRunControl(params, runConfig);
-    (void) new AndroidAnalyzeSupport(runConfig, analyzerRunControl);
+    AnalyzerRunControl *analyzerRunControl = AnalyzerManager::createRunControl(params, runConfig, runMode);
+    if (analyzerRunControl) {
+        analyzerRunControl->setDisplayName(AndroidManager::packageName(target));
+        (void) new AndroidAnalyzeSupport(runConfig, analyzerRunControl);
+    }
     return analyzerRunControl;
 }
 

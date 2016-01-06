@@ -46,7 +46,8 @@ class MemcheckRunControl : public ValgrindRunControl
 
 public:
     MemcheckRunControl(const Analyzer::AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration);
+                       ProjectExplorer::RunConfiguration *runConfiguration,
+                       Core::Id runMode);
 
     bool startEngine() override;
     void stopEngine() override;

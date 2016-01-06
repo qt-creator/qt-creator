@@ -30,6 +30,7 @@
 ****************************************************************************/
 
 #include "memcheckengine.h"
+#include "memchecktool.h"
 #include "valgrindprocess.h"
 #include "valgrindsettings.h"
 #include "xmlprotocol/error.h"
@@ -56,8 +57,8 @@ namespace Valgrind {
 namespace Internal {
 
 MemcheckRunControl::MemcheckRunControl(const AnalyzerStartParameters &sp,
-        RunConfiguration *runConfiguration)
-    : ValgrindRunControl(sp, runConfiguration)
+        RunConfiguration *runConfiguration, Core::Id runMode)
+    : ValgrindRunControl(sp, runConfiguration, runMode)
 {
     connect(&m_parser, &XmlProtocol::ThreadedParser::error,
             this, &MemcheckRunControl::parserError);
@@ -135,7 +136,7 @@ QStringList MemcheckRunControl::suppressionFiles() const
 
 MemcheckWithGdbRunControl::MemcheckWithGdbRunControl(const AnalyzerStartParameters &sp,
                                                      RunConfiguration *runConfiguration)
-    : MemcheckRunControl(sp, runConfiguration)
+    : MemcheckRunControl(sp, runConfiguration, MEMCHECK_WITH_GDB_RUN_MODE)
 {
     connect(&m_runner, &Memcheck::MemcheckRunner::started,
             this, &MemcheckWithGdbRunControl::startDebugger);

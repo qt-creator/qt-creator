@@ -60,7 +60,7 @@ Analyzer::AnalyzerRunControl *LocalQmlProfilerRunner::createLocalRunControl(
     QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
 
     Analyzer::AnalyzerRunControl *rc = Analyzer::AnalyzerManager::createRunControl(
-                sp, runConfiguration);
+                sp, runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     QmlProfilerRunControl *engine = qobject_cast<QmlProfilerRunControl *>(rc);
     if (!engine) {
         delete rc;
@@ -70,9 +70,10 @@ Analyzer::AnalyzerRunControl *LocalQmlProfilerRunner::createLocalRunControl(
     Configuration conf;
     conf.executable = sp.debuggee;
     conf.executableArguments = sp.debuggeeArgs;
-    conf.workingDirectory = sp.workingDirectory;
-    conf.environment = sp.environment;
+    conf.workingDirectory = rc->workingDirectory();
     conf.socket = sp.analyzerSocket;
+    if (EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>())
+        conf.environment = environment->environment();
     conf.port = sp.analyzerPort;
 
     if (conf.executable.isEmpty()) {

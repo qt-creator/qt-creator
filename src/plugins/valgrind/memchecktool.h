@@ -91,7 +91,8 @@ public:
     QWidget *createWidgets();
 
     MemcheckRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration);
+                                         ProjectExplorer::RunConfiguration *runConfiguration,
+                                         Core::Id runMode);
 
 private slots:
     void settingsDestroyed(QObject *settings);
@@ -115,11 +116,6 @@ private:
     void updateFromSettings();
     int updateUiAfterFinishedHelper();
 
-protected:
-    virtual MemcheckRunControl *createMemcheckRunControl(
-            const Analyzer::AnalyzerStartParameters &sp,
-            ProjectExplorer::RunConfiguration *runConfiguration);
-
 private:
     ValgrindBaseSettings *m_settings;
     QMenu *m_filterMenu;
@@ -136,16 +132,6 @@ private:
     QAction *m_loadExternalLogFile;
     QAction *m_goBack;
     QAction *m_goNext;
-};
-
-class MemcheckWithGdbTool : public MemcheckTool
-{
-public:
-    MemcheckWithGdbTool(QObject *parent);
-
-    MemcheckRunControl *createMemcheckRunControl(
-            const Analyzer::AnalyzerStartParameters &sp,
-            ProjectExplorer::RunConfiguration *runConfiguration) override;
 };
 
 } // namespace Internal

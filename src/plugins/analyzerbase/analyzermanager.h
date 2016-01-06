@@ -34,9 +34,7 @@
 
 #include "analyzerbase_global.h"
 
-#include <coreplugin/id.h>
-
-#include <QObject>
+#include <projectexplorer/runconfiguration.h>
 
 QT_BEGIN_NAMESPACE
 class QDockWidget;
@@ -44,7 +42,6 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace Utils { class FancyMainWindow; }
-namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Analyzer {
 
@@ -86,7 +83,7 @@ public:
     static QAction *stopAction();
 
     static AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration);
+        ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 };
 
 } // namespace Analyzer

@@ -95,7 +95,7 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
     return params;
 }
 
-static AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfiguration *runConfig, Core::Id mode)
+static AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfiguration *runConfig)
 {
     AnalyzerStartParameters params;
     Target *target = runConfig->target();
@@ -105,17 +105,11 @@ static AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfigu
     if (device.isNull())
         return params;
 
-    params.runMode = mode;
     params.debuggee = runConfig->remoteExecutableFilePath();
     params.debuggeeArgs = runConfig->arguments().join(QLatin1Char(' '));
     params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
-    params.displayName = runConfig->displayName();
-    params.sysroot = SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
     params.analyzerHost = params.connParams.host;
     params.analyzerPort = params.connParams.port;
-
-    if (EnvironmentAspect *environment = runConfig->extraAspect<EnvironmentAspect>())
-        params.environment = environment->environment();
 
     return params;
 }
@@ -170,10 +164,9 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id m
 
         return runControl;
     }
-
     if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        const AnalyzerStartParameters params = createAnalyzerStartParameters(rc, mode);
-        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig);
+        const AnalyzerStartParameters params = createAnalyzerStartParameters(rc);
+        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode);
         QnxAnalyzeSupport * const analyzeSupport = new QnxAnalyzeSupport(rc, runControl);
         connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
         return runControl;

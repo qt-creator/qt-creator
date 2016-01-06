@@ -55,12 +55,13 @@ namespace Valgrind {
 namespace Internal {
 
 ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
-        RunConfiguration *runConfiguration)
-    : AnalyzerRunControl(sp, runConfiguration),
+        RunConfiguration *runConfiguration, Core::Id runMode)
+    : AnalyzerRunControl(sp, runConfiguration, runMode),
       m_settings(0),
       m_isStopping(false)
 {
     m_isCustomStart = false;
+    m_localRunMode = ApplicationLauncher::Gui;
 
     if (runConfiguration)
         if (IRunConfigurationAspect *aspect = runConfiguration->extraAspect(ANALYZER_VALGRIND_SETTINGS))
@@ -94,15 +95,15 @@ bool ValgrindRunControl::startEngine()
 #endif
 
     ValgrindRunner *run = runner();
-    run->setWorkingDirectory(sp.workingDirectory);
+    run->setWorkingDirectory(workingDirectory());
     run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
     run->setDebuggeeExecutable(sp.debuggee);
     run->setDebuggeeArguments(sp.debuggeeArgs);
-    run->setEnvironment(sp.environment);
+    run->setEnvironment(m_environment);
     run->setConnectionParameters(sp.connParams);
     run->setUseStartupProject(!m_isCustomStart);
-    run->setLocalRunMode(sp.localRunMode);
+    run->setLocalRunMode(m_localRunMode);
 
     connect(run, &ValgrindRunner::processOutputReceived,
             this, &ValgrindRunControl::receiveProcessOutput);
@@ -127,6 +128,16 @@ void ValgrindRunControl::stopEngine()
 QString ValgrindRunControl::executable() const
 {
     return startParameters().debuggee;
+}
+
+void ValgrindRunControl::setEnvironment(const Utils::Environment &environment)
+{
+    m_environment = environment;
+}
+
+void ValgrindRunControl::setLocalRunMode(ApplicationLauncher::Mode localRunMode)
+{
+    m_localRunMode = localRunMode;
 }
 
 QStringList ValgrindRunControl::genericToolArguments() const

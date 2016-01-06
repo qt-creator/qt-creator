@@ -76,34 +76,13 @@ public:
 
 using namespace Internal;
 
-AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RunConfiguration *runConfig,
-                                                                   Core::Id runMode)
-{
-    AnalyzerStartParameters params;
-    params.runMode = runMode;
-    params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
-    params.displayName = runConfig->displayName();
-    params.sysroot = SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
-    params.analyzerHost = params.connParams.host;
-
-    auto rc = qobject_cast<const AbstractRemoteLinuxRunConfiguration *>(runConfig);
-    QTC_ASSERT(rc, return params);
-
-    params.debuggee = rc->remoteExecutableFilePath();
-    params.debuggeeArgs = Utils::QtcProcess::Arguments::createUnixArgs(rc->arguments()).toString();
-    params.workingDirectory = rc->workingDirectory();
-    params.environment = rc->environment();
-
-    return params;
-}
-
 RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
                                                      AnalyzerRunControl *engine, Core::Id runMode)
     : AbstractRemoteLinuxRunSupport(runConfig, engine),
       d(new RemoteLinuxAnalyzeSupportPrivate(engine, runMode))
 {
-    connect(d->runControl, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
-            SLOT(handleRemoteSetupRequested()));
+    connect(d->runControl.data(), &AnalyzerRunControl::starting,
+            this, &RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested);
     connect(&d->outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
             this, &RemoteLinuxAnalyzeSupport::remoteIsRunning);
     connect(engine, &RunControl::finished,

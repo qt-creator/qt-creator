@@ -429,13 +429,17 @@ QWidget *MemcheckTool::createWidgets()
 }
 
 MemcheckRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters &sp,
-                                            RunConfiguration *runConfiguration)
+                                                   RunConfiguration *runConfiguration,
+                                                   Core::Id runMode)
 {
     m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
         ->project()->files(Project::AllFiles) : QStringList());
 
-    MemcheckRunControl *engine = createMemcheckRunControl(sp, runConfiguration);
-
+    MemcheckRunControl *engine = 0;
+    if (runMode == MEMCHECK_RUN_MODE)
+        engine = new MemcheckRunControl(sp, runConfiguration, runMode);
+    else
+        engine = new MemcheckWithGdbRunControl(sp, runConfiguration);
     connect(engine, &MemcheckRunControl::starting, this, &MemcheckTool::engineStarting);
     connect(engine, &MemcheckRunControl::parserError, this, &MemcheckTool::parserError);
     connect(engine, &MemcheckRunControl::internalParserError, this, &MemcheckTool::internalParserError);
@@ -567,12 +571,6 @@ int MemcheckTool::updateUiAfterFinishedHelper()
     return issuesFound;
 }
 
-MemcheckRunControl *MemcheckTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,
-                                                           RunConfiguration *runConfiguration)
-{
-    return new MemcheckRunControl(sp, runConfiguration);
-}
-
 void MemcheckTool::engineFinished()
 {
     const int issuesFound = updateUiAfterFinishedHelper();
@@ -593,18 +591,6 @@ void MemcheckTool::setBusyCursor(bool busy)
 {
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_errorView->setCursor(cursor);
-}
-
-MemcheckWithGdbTool::MemcheckWithGdbTool(QObject *parent) :
-    MemcheckTool(parent)
-{
-    setObjectName(QLatin1String("MemcheckWithGdbTool"));
-}
-
-MemcheckRunControl *MemcheckWithGdbTool::createMemcheckRunControl(const AnalyzerStartParameters &sp,
-                                                                  RunConfiguration *runConfiguration)
-{
-    return new MemcheckWithGdbRunControl(sp, runConfiguration);
 }
 
 } // namespace Internal

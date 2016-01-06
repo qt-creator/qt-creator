@@ -35,6 +35,10 @@
 #include "analyzermanager.h"
 #include "analyzerstartparameters.h"
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/target.h>
+
 #include <QDebug>
 #include <QAction>
 
@@ -49,11 +53,18 @@ using namespace ProjectExplorer;
 namespace Analyzer {
 
 AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
-        RunConfiguration *runConfiguration)
-    : RunControl(runConfiguration, sp.runMode)
+        RunConfiguration *runConfiguration, Core::Id runMode)
+    : RunControl(runConfiguration, runMode)
 {
     setIcon(Icons::ANALYZER_CONTROL_START);
 
+    if (runConfiguration) {
+        m_displayName = runConfiguration->displayName();
+        if (auto aspect = runConfiguration->extraAspect<WorkingDirectoryAspect>())
+            m_workingDirectory = aspect->workingDirectory().toString();
+        if (m_workingDirectory.isEmpty())
+            m_workingDirectory = runConfiguration->target()->project()->projectDirectory().toString();
+    }
     m_sp = sp;
 
     connect(this, &AnalyzerRunControl::finished,
@@ -72,6 +83,11 @@ void AnalyzerRunControl::runControlFinished()
 {
     m_isRunning = false;
     AnalyzerManager::handleToolFinished();
+}
+
+QString AnalyzerRunControl::workingDirectory() const
+{
+    return m_workingDirectory;
 }
 
 void AnalyzerRunControl::start()
@@ -101,7 +117,17 @@ bool AnalyzerRunControl::isRunning() const
 
 QString AnalyzerRunControl::displayName() const
 {
-    return m_sp.displayName;
+    return m_displayName;
+}
+
+void AnalyzerRunControl::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
+}
+
+void AnalyzerRunControl::setWorkingDirectory(const QString &workingDirectory)
+{
+    m_workingDirectory = workingDirectory;
 }
 
 } // namespace Analyzer

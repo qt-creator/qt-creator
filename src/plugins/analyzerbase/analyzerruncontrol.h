@@ -32,16 +32,12 @@
 #ifndef ANALYZERRUNCONTROL_H
 #define ANALYZERRUNCONTROL_H
 
-#include "analyzerbase_global.h"
-
-#include <projectexplorer/runconfiguration.h>
-
 #include "analyzerstartparameters.h"
 
-#include <utils/outputformat.h>
+#include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/runconfiguration.h>
 
-#include <QObject>
-#include <QString>
+#include <utils/outputformat.h>
 
 namespace Analyzer {
 
@@ -56,7 +52,8 @@ class ANALYZER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
 
 public:
     AnalyzerRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration);
+        ProjectExplorer::RunConfiguration *runConfiguration,
+        Core::Id runMode);
 
     /// Start analyzation process.
     virtual bool startEngine() = 0;
@@ -74,13 +71,15 @@ public:
     virtual void notifyRemoteSetupDone(quint16) {}
     virtual void notifyRemoteFinished() {}
 
-    bool m_isRunning;
-
     // ProjectExplorer::RunControl
     void start();
     StopResult stop();
     bool isRunning() const;
     QString displayName() const;
+
+    void setDisplayName(const QString &displayName);
+    QString workingDirectory() const;
+    void setWorkingDirectory(const QString &workingDirectory);
 
 public slots:
     virtual void logApplicationMessage(const QString &, Utils::OutputFormat) {}
@@ -95,6 +94,13 @@ signals:
 
 private:
     bool supportsReRunning() const { return false; }
+
+protected:
+    bool m_isRunning;
+
+private:
+    QString m_displayName; // Default to runConfig->displayName, unless overridden by setDisplayName
+    QString m_workingDirectory;
     AnalyzerStartParameters m_sp;
 };
 } // namespace Analyzer

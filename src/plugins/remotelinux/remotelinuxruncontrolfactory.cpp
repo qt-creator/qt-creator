@@ -116,10 +116,12 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
     }
 
     if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        AnalyzerStartParameters params = RemoteLinuxAnalyzeSupport::startParameters(runConfig, mode);
+        AnalyzerStartParameters params;
+        params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
+        params.analyzerHost = params.connParams.host;
         auto * const rc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig);
         QTC_ASSERT(rc, return 0);
-        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig);
+        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode);
         (void) new RemoteLinuxAnalyzeSupport(rc, runControl, mode);
         return runControl;
     }

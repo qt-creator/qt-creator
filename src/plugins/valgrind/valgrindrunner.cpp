@@ -183,11 +183,6 @@ void ValgrindRunner::setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode 
     d->localRunMode = localRunMode;
 }
 
-ProjectExplorer::ApplicationLauncher::Mode ValgrindRunner::localRunMode() const
-{
-    return d->localRunMode;
-}
-
 const QSsh::SshConnectionParameters &ValgrindRunner::connectionParameters() const
 {
     return d->connParams;

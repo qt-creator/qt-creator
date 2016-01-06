@@ -49,14 +49,18 @@ class ValgrindRunControl : public Analyzer::AnalyzerRunControl
 
 public:
     ValgrindRunControl(const Analyzer::AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration);
+                       ProjectExplorer::RunConfiguration *runConfiguration,
+                       Core::Id runMode);
     ~ValgrindRunControl();
 
     bool startEngine();
     void stopEngine();
 
     QString executable() const;
+
     void setCustomStart() { m_isCustomStart = true; }
+    void setEnvironment(const Utils::Environment &environment);
+    void setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode);
 
 protected:
     virtual QString progressTitle() const = 0;
@@ -66,6 +70,8 @@ protected:
     ValgrindBaseSettings *m_settings;
     QFutureInterface<void> m_progress;
     bool m_isCustomStart;
+    Utils::Environment m_environment;
+    ProjectExplorer::ApplicationLauncher::Mode m_localRunMode;
 
 private slots:
     void handleProgressCanceled();

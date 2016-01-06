@@ -29,6 +29,8 @@
 ****************************************************************************/
 
 #include "valgrindruncontrolfactory.h"
+
+#include "valgrindengine.h"
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
 #include "callgrindtool.h"
@@ -55,6 +57,7 @@
 
 using namespace Analyzer;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Valgrind {
 namespace Internal {
@@ -74,15 +77,15 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
 {
     Q_UNUSED(errorMessage);
 
+    ApplicationLauncher::Mode localRunMode = ApplicationLauncher::Gui;
+    Utils::Environment environment;
     AnalyzerStartParameters sp;
-    sp.displayName = runConfiguration->displayName();
-    sp.runMode = mode;
-    if (LocalApplicationRunConfiguration *rc1 =
-            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
+    QString workingDirectory;
+    if (auto rc1 = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
         EnvironmentAspect *aspect = runConfiguration->extraAspect<EnvironmentAspect>();
         if (aspect)
-            sp.environment = aspect->environment();
-        sp.workingDirectory = rc1->workingDirectory();
+            environment = aspect->environment();
+        workingDirectory = rc1->workingDirectory();
         sp.debuggee = rc1->executable();
         sp.debuggeeArgs = rc1->commandLineArguments();
         const IDevice::ConstPtr device =
@@ -96,19 +99,23 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         }
         sp.connParams.host = server.serverAddress().toString();
         sp.connParams.port = server.serverPort();
-        sp.localRunMode = static_cast<ApplicationLauncher::Mode>(rc1->runMode());
+        localRunMode = rc1->runMode();
     } else if (RemoteLinux::AbstractRemoteLinuxRunConfiguration *rc2 =
                qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.debuggee = rc2->remoteExecutableFilePath();
         sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
         sp.debuggeeArgs = rc2->arguments().join(QLatin1Char(' '));
-        sp.workingDirectory = rc2->workingDirectory();
-        sp.environment = rc2->environment();
     } else {
         QTC_ASSERT(false, return 0);
     }
 
-    return AnalyzerManager::createRunControl(sp, runConfiguration);
+    auto analyzerRunControl = AnalyzerManager::createRunControl(sp, runConfiguration, mode);
+    if (auto valgrindRunControl = qobject_cast<ValgrindRunControl *>(analyzerRunControl)) {
+        valgrindRunControl->setLocalRunMode(localRunMode);
+        valgrindRunControl->setEnvironment(environment);
+        valgrindRunControl->setWorkingDirectory(workingDirectory);
+    }
+    return analyzerRunControl;
 }
 
 

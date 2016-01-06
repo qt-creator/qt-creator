@@ -34,40 +34,26 @@
 #include "analyzerbase_global.h"
 #include "analyzerconstants.h"
 
-#include <QMetaType>
-
 #include <coreplugin/id.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
-#include <projectexplorer/applicationlauncher.h>
-#include <projectexplorer/projectexplorerconstants.h>
+
+#include <QMetaType>
 
 namespace Analyzer {
-
-// Note: This is part of the "soft interface" of the analyzer plugin.
-// Do not add anything that needs implementation in a .cpp file.
 
 class ANALYZER_EXPORT AnalyzerStartParameters
 {
 public:
-    Core::Id runMode = ProjectExplorer::Constants::NO_RUN_MODE;
     QSsh::SshConnectionParameters connParams;
-    ProjectExplorer::ApplicationLauncher::Mode localRunMode
-        = ProjectExplorer::ApplicationLauncher::Gui;
-
     QString debuggee;
     QString debuggeeArgs;
-    QString displayName;
-    Utils::Environment environment;
-    QString workingDirectory;
-    QString sysroot;
     QString analyzerHost;
     QString analyzerSocket;
     quint16 analyzerPort = 0;
 };
 
 } // namespace Analyzer
-
-Q_DECLARE_METATYPE(Analyzer::AnalyzerStartParameters)
 
 #endif // ANALYZERSTARTPARAMETERS_H

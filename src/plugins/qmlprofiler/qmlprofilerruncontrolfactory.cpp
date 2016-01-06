@@ -69,18 +69,12 @@ bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, Co
 static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration *runConfiguration)
 {
     AnalyzerStartParameters sp;
-    EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>();
 
     // FIXME: This is only used to communicate the connParams settings.
-    LocalApplicationRunConfiguration *rc =
-                qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+    auto rc = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return sp);
-    if (environment)
-        sp.environment = environment->environment();
-    sp.workingDirectory = rc->workingDirectory();
     sp.debuggee = rc->executable();
     sp.debuggeeArgs = rc->commandLineArguments();
-    sp.displayName = rc->displayName();
 
     const QtSupport::BaseQtVersion *version =
             QtSupport::QtKitInformation::qtVersion(runConfiguration->target()->kit());
@@ -103,7 +97,6 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
     AnalyzerStartParameters sp = createQmlProfilerStartParameters(runConfiguration);
-    sp.runMode = mode;
     return LocalQmlProfilerRunner::createLocalRunControl(runConfiguration, sp, errorMessage);
 }
 

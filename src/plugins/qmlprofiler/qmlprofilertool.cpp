@@ -197,6 +197,15 @@ QmlProfilerTool::~QmlProfilerTool()
     delete d;
 }
 
+static QString sysroot(RunConfiguration *runConfig)
+{
+    QTC_ASSERT(runConfig, return QString());
+    Kit *k = runConfig->target()->kit();
+    if (k && SysRootKitInformation::hasSysRoot(k))
+        return SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
+    return QString();
+}
+
 AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParameters &sp,
     RunConfiguration *runConfiguration)
 {
@@ -231,7 +240,7 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
         projectDirectory = project->projectDirectory().toString();
     }
 
-    populateFileFinder(projectDirectory, sp.sysroot);
+    populateFileFinder(projectDirectory, sysroot(runConfiguration));
 
     if (sp.analyzerSocket.isEmpty())
         connect(engine, &QmlProfilerRunControl::processRunning,
@@ -240,15 +249,6 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
             engine, &QmlProfilerRunControl::cancelProcess);
 
     return engine;
-}
-
-static QString sysroot(RunConfiguration *runConfig)
-{
-    QTC_ASSERT(runConfig, return QString());
-    Kit *k = runConfig->target()->kit();
-    if (k && SysRootKitInformation::hasSysRoot(k))
-        return SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
-    return QString();
 }
 
 QWidget *QmlProfilerTool::createWidgets()
@@ -526,7 +526,6 @@ void QmlProfilerTool::startRemoteTool()
         sp.connParams = device->sshParameters();
         sp.analyzerHost = device->qmlProfilerHost();
     }
-    sp.sysroot = SysRootKitInformation::sysRoot(kit).toString();
     sp.analyzerPort = port;
 
     AnalyzerRunControl *rc = createRunControl(sp, 0);
