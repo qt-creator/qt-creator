@@ -560,8 +560,15 @@ void CMakeRunPage::runCMake()
                 this, &CMakeRunPage::cmakeReadyReadStandardError);
         connect(m_cmakeProcess, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
                 this, &CMakeRunPage::cmakeFinished);
+
+        QString arguments = m_argumentsLineEdit->text();
+
+        m_output->appendPlainText(tr("Running: '%1' with arguments '%2' in '%3'.\n")
+                                     .arg(cmake->cmakeExecutable().toUserOutput())
+                                     .arg(arguments)
+                                     .arg(QDir::toNativeSeparators(m_buildDirectory)));
         cmakeManager->createXmlFile(m_cmakeProcess, cmake->cmakeExecutable().toString(),
-                                    m_argumentsLineEdit->text(), m_cmakeWizard->sourceDirectory(),
+                                    arguments, m_cmakeWizard->sourceDirectory(),
                                     m_buildDirectory, env,
                                     QString::fromLatin1(generatorInfo.generatorArgument()),
                                     generatorInfo.preLoadCacheFileArgument());
