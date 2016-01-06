@@ -223,6 +223,9 @@ ILatchable::Action ObjectItem::horizontalLatchAction() const
     case RectangularSelectionItem::HandleNone:
         return Move;
     }
+    // avoid warning from MSVC compiler
+    QMT_CHECK(false);
+    return Move;
 }
 
 ILatchable::Action ObjectItem::verticalLatchAction() const
@@ -242,6 +245,9 @@ ILatchable::Action ObjectItem::verticalLatchAction() const
     case RectangularSelectionItem::HandleNone:
         return Move;
     }
+    // avoid warning from MSVC compiler
+    QMT_CHECK(false);
+    return Move;
 }
 
 QList<ILatchable::Latch> ObjectItem::horizontalLatches(ILatchable::Action action, bool grabbedItem) const
