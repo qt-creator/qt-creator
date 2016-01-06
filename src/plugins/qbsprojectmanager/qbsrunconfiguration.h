@@ -46,10 +46,7 @@ QT_END_NAMESPACE
 
 namespace qbs { class InstallOptions; }
 
-namespace Utils {
-class PathChooser;
-class DetailsWidget;
-}
+namespace Utils { class PathChooser; }
 
 namespace ProjectExplorer { class BuildStepList; }
 
@@ -83,8 +80,6 @@ public:
     QString commandLineArguments() const override;
 
     Utils::OutputFormatter *createOutputFormatter() const override;
-
-    void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void addToBaseEnvironment(Utils::Environment &env) const override;
 
@@ -125,24 +120,19 @@ class QbsRunConfigurationWidget : public QWidget
     Q_OBJECT
 
 public:
-    QbsRunConfigurationWidget(QbsRunConfiguration *rc, QWidget *parent);
-
-private slots:
-    void runConfigurationEnabledChange();
-    void targetInformationHasChanged();
+    QbsRunConfigurationWidget(QbsRunConfiguration *rc);
 
 private:
+    void runConfigurationEnabledChange();
+    void targetInformationHasChanged();
     void setExecutableLineText(const QString &text = QString());
 
     QbsRunConfiguration *m_rc;
-    bool m_ignoreChange;
+    bool m_ignoreChange = false;
     QLabel *m_disabledIcon;
     QLabel *m_disabledReason;
     QLabel *m_executableLineLabel;
-    QCheckBox *m_usingDyldImageSuffix;
-    QLineEdit *m_qmlDebugPort;
-    Utils::DetailsWidget *m_detailsContainer;
-    bool m_isShown;
+    bool m_isShown = false;
 };
 
 class QbsRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

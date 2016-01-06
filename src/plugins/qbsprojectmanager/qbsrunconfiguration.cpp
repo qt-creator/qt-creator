@@ -179,17 +179,22 @@ void QbsRunConfiguration::ctor()
 
 QWidget *QbsRunConfiguration::createConfigurationWidget()
 {
-    return new QbsRunConfigurationWidget(this, 0);
+    return new QbsRunConfigurationWidget(this);
 }
 
 void QbsRunConfiguration::installStepChanged()
 {
     if (m_currentInstallStep)
-        disconnect(m_currentInstallStep, SIGNAL(changed()), this, SIGNAL(targetInformationChanged()));
+        disconnect(m_currentInstallStep, &QbsInstallStep::changed,
+                   this, &QbsRunConfiguration::targetInformationChanged);
+
     if (m_currentBuildStepList) {
-        disconnect(m_currentBuildStepList, SIGNAL(stepInserted(int)), this, SLOT(installStepChanged()));
-        disconnect(m_currentBuildStepList, SIGNAL(stepRemoved(int)), this, SLOT(installStepChanged()));
-        disconnect(m_currentBuildStepList, SIGNAL(stepMoved(int,int)), this, SLOT(installStepChanged()));
+        disconnect(m_currentBuildStepList, &BuildStepList::stepInserted,
+                   this, &QbsRunConfiguration::installStepChanged);
+        disconnect(m_currentBuildStepList, &BuildStepList::stepRemoved,
+                   this, &QbsRunConfiguration::installStepChanged);
+        disconnect(m_currentBuildStepList, &BuildStepList::stepMoved,
+                   this, &QbsRunConfiguration::installStepChanged);
     }
 
     QbsDeployConfiguration *activeDc = qobject_cast<QbsDeployConfiguration *>(target()->activeDeployConfiguration());
@@ -197,14 +202,18 @@ void QbsRunConfiguration::installStepChanged()
     m_currentInstallStep = activeDc ? activeDc->qbsInstallStep() : 0;
 
     if (m_currentInstallStep)
-        connect(m_currentInstallStep, SIGNAL(changed()), this, SIGNAL(targetInformationChanged()));
+        connect(m_currentInstallStep, &QbsInstallStep::changed,
+                this, &QbsRunConfiguration::targetInformationChanged);
 
     if (m_currentBuildStepList) {
-        connect(m_currentBuildStepList, SIGNAL(stepInserted(int)), this, SLOT(installStepChanged()));
-        connect(m_currentBuildStepList, SIGNAL(aboutToRemoveStep(int)), this,
-                SLOT(installStepToBeRemoved(int)));
-        connect(m_currentBuildStepList, SIGNAL(stepRemoved(int)), this, SLOT(installStepChanged()));
-        connect(m_currentBuildStepList, SIGNAL(stepMoved(int,int)), this, SLOT(installStepChanged()));
+        connect(m_currentBuildStepList, &BuildStepList::stepInserted,
+                this, &QbsRunConfiguration::installStepChanged);
+        connect(m_currentBuildStepList, &BuildStepList::aboutToRemoveStep, this,
+                &QbsRunConfiguration::installStepToBeRemoved);
+        connect(m_currentBuildStepList, &BuildStepList::stepRemoved,
+                this, &QbsRunConfiguration::installStepChanged);
+        connect(m_currentBuildStepList, &BuildStepList::stepMoved,
+                this, &QbsRunConfiguration::installStepChanged);
     }
 
     emit targetInformationChanged();
@@ -217,7 +226,8 @@ void QbsRunConfiguration::installStepToBeRemoved(int pos)
     // but we ignore all but the first one.
     if (m_currentBuildStepList->steps().at(pos) != m_currentInstallStep)
         return;
-    disconnect(m_currentInstallStep, SIGNAL(changed()), this, SIGNAL(targetInformationChanged()));
+    disconnect(m_currentInstallStep, &QbsInstallStep::changed,
+               this, &QbsRunConfiguration::targetInformationChanged);
     m_currentInstallStep = 0;
 }
 
@@ -262,11 +272,6 @@ QString QbsRunConfiguration::baseWorkingDirectory() const
 QString QbsRunConfiguration::commandLineArguments() const
 {
     return extraAspect<ArgumentsAspect>()->arguments();
-}
-
-void QbsRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
-{
-    extraAspect<TerminalAspect>()->setRunMode(runMode);
 }
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
@@ -329,16 +334,13 @@ Utils::OutputFormatter *QbsRunConfiguration::createOutputFormatter() const
 // QbsRunConfigurationWidget:
 // --------------------------------------------------------------------
 
-QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QWidget *parent)
-    : QWidget(parent),
-    m_rc(rc),
-    m_ignoreChange(false),
-    m_isShown(false)
+QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
+    : m_rc(rc)
 {
-    QVBoxLayout *vboxTopLayout = new QVBoxLayout(this);
+    auto vboxTopLayout = new QVBoxLayout(this);
     vboxTopLayout->setMargin(0);
 
-    QHBoxLayout *hl = new QHBoxLayout();
+    auto hl = new QHBoxLayout();
     hl->addStretch();
     m_disabledIcon = new QLabel(this);
     m_disabledIcon->setPixmap(Core::Icons::WARNING.pixmap());
@@ -349,12 +351,12 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
     hl->addStretch();
     vboxTopLayout->addLayout(hl);
 
-    m_detailsContainer = new Utils::DetailsWidget(this);
-    m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
-    vboxTopLayout->addWidget(m_detailsContainer);
-    QWidget *detailsWidget = new QWidget(m_detailsContainer);
-    m_detailsContainer->setWidget(detailsWidget);
-    QFormLayout *toplayout = new QFormLayout(detailsWidget);
+    auto detailsContainer = new Utils::DetailsWidget(this);
+    detailsContainer->setState(Utils::DetailsWidget::NoSummary);
+    vboxTopLayout->addWidget(detailsContainer);
+    auto detailsWidget = new QWidget(detailsContainer);
+    detailsContainer->setWidget(detailsWidget);
+    auto toplayout = new QFormLayout(detailsWidget);
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
@@ -370,11 +372,11 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
 
     runConfigurationEnabledChange();
 
-    connect(m_rc, SIGNAL(targetInformationChanged()),
-            this, SLOT(targetInformationHasChanged()), Qt::QueuedConnection);
+    connect(m_rc, &QbsRunConfiguration::targetInformationChanged,
+            this, &QbsRunConfigurationWidget::targetInformationHasChanged, Qt::QueuedConnection);
 
-    connect(m_rc, SIGNAL(enabledChanged()),
-            this, SLOT(runConfigurationEnabledChange()));
+    connect(m_rc, &RunConfiguration::enabledChanged,
+            this, &QbsRunConfigurationWidget::runConfigurationEnabledChange);
 }
 
 void QbsRunConfigurationWidget::runConfigurationEnabledChange()
