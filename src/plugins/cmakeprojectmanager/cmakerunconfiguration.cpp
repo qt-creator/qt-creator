@@ -76,7 +76,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const 
     addExtraAspect(new TerminalAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.UseTerminal")));
 
     auto wd = new WorkingDirectoryAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"));
-    wd->setDefaultWorkingDirectory(workingDirectory);
+    wd->setDefaultWorkingDirectory(Utils::FileName::fromString(workingDirectory));
     addExtraAspect(wd);
 
     ctor();
@@ -110,7 +110,7 @@ QString CMakeRunConfiguration::workingDirectory() const
 {
     const auto *wdAspect = extraAspect<WorkingDirectoryAspect>();
     QTC_ASSERT(wdAspect, return baseWorkingDirectory());
-    return wdAspect->workingDirectory();
+    return wdAspect->workingDirectory().toString();
 }
 
 QString CMakeRunConfiguration::baseWorkingDirectory() const
@@ -138,7 +138,8 @@ void CMakeRunConfiguration::setExecutable(const QString &executable)
 
 void CMakeRunConfiguration::setBaseWorkingDirectory(const QString &wd)
 {
-    extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(wd);
+    extraAspect<WorkingDirectoryAspect>()
+        ->setDefaultWorkingDirectory(Utils::FileName::fromString(wd));
 }
 
 QVariantMap CMakeRunConfiguration::toMap() const
