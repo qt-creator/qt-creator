@@ -536,13 +536,13 @@ class Dumper(DumperBase):
         except:
             return None
 
-    def isBadPointer(self, value):
+    def pointerInfo(self, value):
         try:
             target = value.dereference()
             target.is_optimized_out # Access test.
-            return False
+            return (True, toInteger(value))
         except:
-            return True
+            return (False, toInteger(value))
 
     def makeValue(self, typeobj, init):
         typename = "::" + self.stripClassTag(str(typeobj));

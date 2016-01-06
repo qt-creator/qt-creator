@@ -364,9 +364,10 @@ class Dumper(DumperBase):
         #self.warn("  -> %s" % result)
         return result
 
-    def isBadPointer(self, value):
+    def pointerInfo(self, value):
+        # -> (dereferencable, address)
         target = value.dereference()
-        return target.GetError().Fail()
+        return (target.GetError().Success(), value.GetValueAsUnsigned())
 
     def makeValue(self, type, *args):
         thread = self.currentThread()
