@@ -1410,35 +1410,37 @@ class Dumper(DumperBase):
             result  = 'lldbid="%s"' % (qqWatchpointOffset + bp.GetID())
         else:
             result  = 'lldbid="%s"' % bp.GetID()
-        if not bp.IsValid():
-            return
+        result += ',valid="%s"' % (1 if bp.IsValid() else 0)
         result += ',hitcount="%s"' % bp.GetHitCount()
-        result += ',threadid="%s"' % bp.GetThreadID()
-        result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
+        if bp.IsValid():
+            if isinstance(bp, lldb.SBBreakpoint):
+                result += ',threadid="%s"' % bp.GetThreadID()
+                result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
         cond = bp.GetCondition()
         result += ',condition="%s"' % self.hexencode("" if cond is None else cond)
         result += ',enabled="%s"' % (1 if bp.IsEnabled() else 0)
         result += ',valid="%s"' % (1 if bp.IsValid() else 0)
         result += ',ignorecount="%s"' % bp.GetIgnoreCount()
-        result += ',locations=['
-        lineEntry = None
-        for i in xrange(bp.GetNumLocations()):
-            loc = bp.GetLocationAtIndex(i)
-            addr = loc.GetAddress()
-            lineEntry = addr.GetLineEntry()
-            result += '{locid="%s"' % loc.GetID()
-            result += ',function="%s"' % addr.GetFunction().GetName()
-            result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
-            result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
-            result += ',valid="%s"' % (1 if loc.IsValid() else 0)
-            result += ',ignorecount="%s"' % loc.GetIgnoreCount()
-            result += ',file="%s"' % lineEntry.GetFileSpec()
-            result += ',line="%s"' % lineEntry.GetLine()
-            result += ',addr="%s"},' % addr.GetFileAddress()
-        result += ']'
-        if lineEntry is not None:
-            result += ',file="%s"' % lineEntry.GetFileSpec()
-            result += ',line="%s"' % lineEntry.GetLine()
+        if bp.IsValid() and isinstance(bp, lldb.SBBreakpoint):
+            result += ',locations=['
+            lineEntry = None
+            for i in xrange(bp.GetNumLocations()):
+                loc = bp.GetLocationAtIndex(i)
+                addr = loc.GetAddress()
+                lineEntry = addr.GetLineEntry()
+                result += '{locid="%s"' % loc.GetID()
+                result += ',function="%s"' % addr.GetFunction().GetName()
+                result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
+                result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
+                result += ',valid="%s"' % (1 if loc.IsValid() else 0)
+                result += ',ignorecount="%s"' % loc.GetIgnoreCount()
+                result += ',file="%s"' % lineEntry.GetFileSpec()
+                result += ',line="%s"' % lineEntry.GetLine()
+                result += ',addr="%s"},' % addr.GetFileAddress()
+            result += ']'
+            if lineEntry is not None:
+                result += ',file="%s"' % lineEntry.GetFileSpec()
+                result += ',line="%s"' % lineEntry.GetLine()
         return result
 
     def createBreakpointAtMain(self):
@@ -1472,8 +1474,9 @@ class Dumper(DumperBase):
                 lldb.eLanguageTypeC_plus_plus, True, False)
         elif bpType == WatchpointAtAddress:
             error = lldb.SBError()
+            # This might yield bp.IsValid() == False and
+            # error.desc == "process is not alive".
             bp = self.target.WatchAddress(args["address"], 4, False, True, error)
-            #warn("BPNEW: %s" % bp)
             extra = self.describeError(error)
         elif bpType == WatchpointAtExpression:
             # FIXME: Top level-only for now.
@@ -1491,11 +1494,12 @@ class Dumper(DumperBase):
             bp = self.target.BreakpointCreateByName(None)
             more = False
 
-        if more:
+        if more and bp.IsValid():
             bp.SetIgnoreCount(int(args["ignorecount"]))
             bp.SetCondition(self.hexdecode(args["condition"]))
             bp.SetEnabled(bool(args["enabled"]))
-            bp.SetOneShot(bool(args["oneshot"]))
+            if isinstance(bp, lldb.SBBreakpoint):
+                bp.SetOneShot(bool(args["oneshot"]))
         self.reportResult(self.describeBreakpoint(bp) + extra, args)
 
     def changeBreakpoint(self, args):
@@ -1504,10 +1508,12 @@ class Dumper(DumperBase):
             bp = self.target.FindWatchpointByID(lldbId)
         else:
             bp = self.target.FindBreakpointByID(lldbId)
-        bp.SetIgnoreCount(int(args["ignorecount"]))
-        bp.SetCondition(self.hexdecode(args["condition"]))
-        bp.SetEnabled(bool(args["enabled"]))
-        bp.SetOneShot(bool(args["oneshot"]))
+        if bp.IsValid():
+            bp.SetIgnoreCount(int(args["ignorecount"]))
+            bp.SetCondition(self.hexdecode(args["condition"]))
+            bp.SetEnabled(bool(args["enabled"]))
+            if isinstance(bp, lldb.SBBreakpoint):
+                bp.SetOneShot(bool(args["oneshot"]))
         self.reportResult(self.describeBreakpoint(bp), args)
 
     def removeBreakpoint(self, args):
