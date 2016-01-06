@@ -429,6 +429,12 @@ FeatureSet BaseQtVersion::availableFeatures() const
     if (qtVersion().matches(5, 5))
         return features;
 
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_PREFIX, 2, 6);
+    features |= FeatureSet::versionedFeatures(Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1, 5);
+
+    if (qtVersion().matches(5, 6))
+        return features;
+
     return features;
 }
 
