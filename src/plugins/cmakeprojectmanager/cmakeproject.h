@@ -95,15 +95,15 @@ class CMAKE_EXPORT CMakeProject : public ProjectExplorer::Project
     friend class Internal::CMakeBuildSettingsWidget;
 public:
     CMakeProject(Internal::CMakeManager *manager, const Utils::FileName &filename);
-    ~CMakeProject();
+    ~CMakeProject() override;
 
-    QString displayName() const;
-    Core::IDocument *document() const;
-    ProjectExplorer::IProjectManager *projectManager() const;
+    QString displayName() const override;
+    Core::IDocument *document() const override;
+    ProjectExplorer::IProjectManager *projectManager() const override;
 
-    ProjectExplorer::ProjectNode *rootProjectNode() const;
+    ProjectExplorer::ProjectNode *rootProjectNode() const override;
 
-    QStringList files(FilesMode fileMode) const;
+    QStringList files(FilesMode fileMode) const override;
     QStringList buildTargetTitles(bool runnable = false) const;
     QList<CMakeBuildTarget> buildTargets() const;
     bool hasBuildTarget(const QString &title) const;
@@ -114,17 +114,17 @@ public:
 
     bool parseCMakeLists();
 
-    bool needsConfiguration() const;
+    bool needsConfiguration() const override;
 
-    bool requiresTargetPanel() const;
+    bool requiresTargetPanel() const override;
 
 signals:
     /// emitted after parsing
     void buildTargetsChanged();
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
-    bool setupTarget(ProjectExplorer::Target *t);
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    bool setupTarget(ProjectExplorer::Target *t) override;
 
     // called by CMakeBuildSettingsWidget
     void changeBuildDirectory(Internal::CMakeBuildConfiguration *bc, const QString &newBuildDirectory);
