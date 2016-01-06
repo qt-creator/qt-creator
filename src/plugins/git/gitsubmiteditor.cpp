@@ -279,7 +279,7 @@ void GitSubmitEditor::forceUpdateFileModel()
 {
     GitSubmitEditorWidget *w = submitEditorWidget();
     if (w->updateInProgress())
-        QTimer::singleShot(10, &GitSubmitEditor::forceUpdateFileModel);
+        QTimer::singleShot(10, this, [this] { forceUpdateFileModel(); });
     else
         updateFileModel();
 }
