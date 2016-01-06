@@ -113,9 +113,11 @@ public:
     NoKitPage(CMakeOpenProjectWizard *cmakeWizard);
     bool isComplete() const override;
     void initializePage() override;
+
 private slots:
     void kitsChanged();
     void showOptions();
+
 private:
     QLabel *m_descriptionLabel;
     QPushButton *m_optionsButton;
@@ -136,9 +138,10 @@ class ShadowBuildPage : public QWizardPage
     Q_OBJECT
 public:
     explicit ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool change = false);
-private slots:
-    void buildDirectoryChanged();
+
 private:
+    void buildDirectoryChanged();
+
     CMakeOpenProjectWizard *m_cmakeWizard;
     Utils::PathChooser *m_pc;
 };
@@ -149,10 +152,11 @@ class NoCMakePage : public QWizardPage
 public:
     NoCMakePage(CMakeOpenProjectWizard *cmakeWizard);
     bool isComplete() const;
-private slots:
+
+private:
     void cmakeToolsChanged();
     void showOptions();
-private:
+
     QLabel *m_descriptionLabel;
     QPushButton *m_optionsButton;
 };
@@ -172,14 +176,16 @@ public:
     virtual bool validatePage();
     virtual void cleanupPage();
     virtual bool isComplete() const;
-private slots:
+
+private:
     void runCMake();
     void cmakeFinished();
     void cmakeReadyReadStandardOutput();
     void cmakeReadyReadStandardError();
-private:
+
     void initWidgets();
     QByteArray cachedGeneratorFromFile(const QString &cache);
+
     CMakeOpenProjectWizard *m_cmakeWizard;
     QPlainTextEdit *m_output;
     QPushButton *m_runCMake;

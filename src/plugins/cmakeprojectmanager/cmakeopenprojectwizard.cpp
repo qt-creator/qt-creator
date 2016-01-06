@@ -91,10 +91,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cm
       m_cmakeManager(cmakeManager),
       m_sourceDirectory(info->sourceDirectory),
       m_environment(info->environment),
-      m_kit(0)
+      m_kit(KitManager::find(info->kitId))
 {
-    m_kit = KitManager::find(info->kitId);
-
     CMakeRunPage::Mode rmode;
     if (mode == CMakeOpenProjectWizard::NeedToCreate)
         rmode = CMakeRunPage::Recreate;
