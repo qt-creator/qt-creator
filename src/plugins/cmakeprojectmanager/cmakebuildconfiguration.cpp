@@ -85,7 +85,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent,
                                                  CMakeBuildConfiguration *source) :
     BuildConfiguration(parent, source),
-    m_msvcVersion(source->m_msvcVersion),
     m_initialArguments(source->m_initialArguments)
 {
     Q_ASSERT(parent);

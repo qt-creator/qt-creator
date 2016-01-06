@@ -69,7 +69,6 @@ protected:
     bool fromMap(const QVariantMap &map);
 
 private:
-    QString m_msvcVersion;
     QString m_initialArguments;
 
     friend class CMakeProjectManager::CMakeProject;
