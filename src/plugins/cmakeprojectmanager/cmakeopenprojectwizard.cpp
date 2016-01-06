@@ -84,9 +84,7 @@ using namespace ProjectExplorer;
 //////////////
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager,
                                                CMakeOpenProjectWizard::Mode mode,
-                                               const CMakeBuildInfo *info,
-                                               const QString &kitName,
-                                               const QString &buildConfigurationName)
+                                               const CMakeBuildInfo *info)
     : Utils::Wizard(parent),
       m_cmakeManager(cmakeManager),
       m_sourceDirectory(info->sourceDirectory),
@@ -112,7 +110,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cm
         addPage(new NoCMakePage(this));
 
     addPage(new CMakeRunPage(this, rmode, info->buildDirectory.toString(), info->arguments,
-                             kitName, buildConfigurationName));
+                             m_kit->displayName(), info->displayName));
     init();
 }
 

@@ -77,11 +77,8 @@ public:
     /// used to update if we have already a .user file
     /// recreates or updates the cbp file
     /// Also used to change the build directory of one buildconfiguration or create a new buildconfiguration
-    CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager,
-                           Mode mode,
-                           const CMakeBuildInfo *info,
-                           const QString &kitName,
-                           const QString &buildConfigurationName);
+    CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager, Mode mode,
+                           const CMakeBuildInfo *info);
 
     QString buildDirectory() const;
     QString sourceDirectory() const;

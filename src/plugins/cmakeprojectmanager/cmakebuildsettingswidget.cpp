@@ -96,9 +96,7 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
     CMakeBuildInfo info(m_buildConfiguration);
     CMakeOpenProjectWizard copw(Core::ICore::mainWindow(),
                                 manager, CMakeOpenProjectWizard::ChangeDirectory,
-                                &info,
-                                m_buildConfiguration->target()->displayName(),
-                                m_buildConfiguration->displayName());
+                                &info);
     if (copw.exec() == QDialog::Accepted) {
         project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
         m_pathLineEdit->setText(m_buildConfiguration->rawBuildDirectory().toString());
@@ -113,9 +111,7 @@ void CMakeBuildSettingsWidget::runCMake()
     auto manager = static_cast<CMakeManager *>(project->projectManager());
     CMakeBuildInfo info(m_buildConfiguration);
     CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), manager,
-                                CMakeOpenProjectWizard::WantToUpdate, &info,
-                                m_buildConfiguration->target()->displayName(),
-                                m_buildConfiguration->displayName());
+                                CMakeOpenProjectWizard::WantToUpdate, &info);
     if (copw.exec() == QDialog::Accepted)
         project->parseCMakeLists();
 }

@@ -145,8 +145,7 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
 
     if (mode != CMakeOpenProjectWizard::Nothing) {
         CMakeBuildInfo info(cmakebc);
-        CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info,
-                                    bc->target()->displayName(), bc->displayName());
+        CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info);
         if (copw.exec() == QDialog::Accepted)
             cmakebc->setInitialArguments(QString());
     }
@@ -566,8 +565,7 @@ Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *er
 
         if (mode != CMakeOpenProjectWizard::Nothing) {
             CMakeBuildInfo info(activeBC);
-            CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info,
-                                        activeBC->target()->displayName(), activeBC->displayName());
+            CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info);
             if (copw.exec() != QDialog::Accepted)
                 return RestoreResult::UserAbort;
             else
