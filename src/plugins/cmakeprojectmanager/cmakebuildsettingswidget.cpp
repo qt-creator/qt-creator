@@ -39,6 +39,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
+#include <utils/detailswidget.h>
+
 #include <QFormLayout>
 
 namespace CMakeProjectManager {
@@ -46,10 +48,18 @@ namespace Internal {
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) : m_buildConfiguration(0)
 {
-    QFormLayout *fl = new QFormLayout(this);
-    fl->setContentsMargins(20, -1, 0, -1);
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setMargin(0);
+    Utils::DetailsWidget *container = new Utils::DetailsWidget;
+    container->setState(Utils::DetailsWidget::NoSummary);
+    vbox->addWidget(container);
+
+    QWidget *details = new QWidget(container);
+    container->setWidget(details);
+
+    QFormLayout *fl = new QFormLayout(details);
+    fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    setLayout(fl);
 
     QPushButton *runCmakeButton = new QPushButton(tr("Run CMake..."));
     connect(runCmakeButton, &QAbstractButton::clicked, this, &CMakeBuildSettingsWidget::runCMake);
