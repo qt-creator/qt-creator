@@ -91,7 +91,6 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cm
       m_cmakeManager(cmakeManager),
       m_sourceDirectory(info->sourceDirectory),
       m_environment(info->environment),
-      m_useNinja(info->useNinja),
       m_kit(0)
 {
     m_kit = KitManager::find(info->kitId);
@@ -150,8 +149,7 @@ bool CMakeOpenProjectWizard::compatibleKitExist() const
         // OfferNinja and ForceNinja differ in what they return
         // but not whether the list is empty or not, which is what we
         // are interested in here
-        QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(k,
-                                                                      hasNinjaGenerator ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja,
+        QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(k, hasNinjaGenerator,
                                                                       preferNinja,
                                                                       hasCodeBlocksGenerator);
         if (!infos.isEmpty())
@@ -187,16 +185,6 @@ QString CMakeOpenProjectWizard::sourceDirectory() const
 void CMakeOpenProjectWizard::setBuildDirectory(const QString &directory)
 {
     m_buildDirectory = directory;
-}
-
-bool CMakeOpenProjectWizard::useNinja() const
-{
-    return m_useNinja;
-}
-
-void CMakeOpenProjectWizard::setUseNinja(bool b)
-{
-    m_useNinja = b;
 }
 
 QString CMakeOpenProjectWizard::arguments() const
@@ -529,20 +517,7 @@ void CMakeRunPage::initializePage()
     if (cmake) {
         // Note: We don't compare the actually cached generator to what is set in the buildconfiguration
         // We assume that the buildconfiguration is correct
-        GeneratorInfo::Ninja ninja;
-        if (m_mode == CMakeRunPage::NeedToUpdate || m_mode == CMakeRunPage::WantToUpdate) {
-            ninja = m_cmakeWizard->useNinja() ? GeneratorInfo::ForceNinja : GeneratorInfo::NoNinja;
-        } else { // Recreate, ChangeDirectory
-            // Note: ReCreate is technically just a removed .cbp file, we assume the cache
-            // got removed too. If the cache still exists the error message from cmake should
-            // be a good hint to change the generator
-            ninja = cmake->hasCodeBlocksNinjaGenerator() ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja;
-        }
-
-        infos = GeneratorInfo::generatorInfosFor(m_cmakeWizard->kit(),
-                                                 ninja,
-                                                 preferNinja,
-                                                 true);
+        infos = GeneratorInfo::generatorInfosFor(m_cmakeWizard->kit(), true, preferNinja, true);
     }
     foreach (const GeneratorInfo &info, infos)
         m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
@@ -556,7 +531,6 @@ bool CMakeRunPage::validatePage()
         return false;
     GeneratorInfo generatorInfo = m_generatorComboBox->itemData(index).value<GeneratorInfo>();
     m_cmakeWizard->setKit(generatorInfo.kit());
-    m_cmakeWizard->setUseNinja(generatorInfo.isNinja());
     return QWizardPage::validatePage();
 }
 
@@ -573,7 +547,6 @@ void CMakeRunPage::runCMake()
     }
     GeneratorInfo generatorInfo = m_generatorComboBox->itemData(index).value<GeneratorInfo>();
     m_cmakeWizard->setKit(generatorInfo.kit());
-    m_cmakeWizard->setUseNinja(generatorInfo.isNinja());
 
     m_runCMake->setEnabled(false);
     m_argumentsLineEdit->setEnabled(false);

@@ -59,16 +59,10 @@ public:
 
     BuildType buildType() const;
 
-    bool useNinja() const;
-    void setUseNinja(bool);
-
     void emitBuildTypeChanged();
 
     void setInitialArguments(const QString &arguments);
     QString initialArguments() const;
-
-signals:
-    void useNinjaChanged(bool);
 
 protected:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, CMakeBuildConfiguration *source);
@@ -76,7 +70,6 @@ protected:
 
 private:
     QString m_msvcVersion;
-    bool m_useNinja;
     QString m_initialArguments;
 
     friend class CMakeProjectManager::CMakeProject;

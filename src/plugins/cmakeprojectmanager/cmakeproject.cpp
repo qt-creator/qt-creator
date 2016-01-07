@@ -146,10 +146,8 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
         CMakeBuildInfo info(cmakebc);
         CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info,
                                     bc->target()->displayName(), bc->displayName());
-        if (copw.exec() == QDialog::Accepted) {
-            cmakebc->setUseNinja(copw.useNinja()); // NeedToCreate can change the Ninja setting
+        if (copw.exec() == QDialog::Accepted)
             cmakebc->setInitialArguments(QString());
-        }
     }
 
     // reparse
@@ -559,12 +557,10 @@ Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *er
             CMakeBuildInfo info(activeBC);
             CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, mode, &info,
                                         activeBC->target()->displayName(), activeBC->displayName());
-            if (copw.exec() != QDialog::Accepted) {
+            if (copw.exec() != QDialog::Accepted)
                 return RestoreResult::UserAbort;
-            } else {
-                activeBC->setUseNinja(copw.useNinja());
+            else
                 activeBC->setInitialArguments(QString());
-            }
         }
     }
 

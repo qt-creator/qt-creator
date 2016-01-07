@@ -58,7 +58,6 @@ using namespace Utils;
 namespace CMakeProjectManager {
 namespace Internal {
 
-const char USE_NINJA_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.UseNinja";
 const char INITIAL_ARGUMENTS[] = "CMakeProjectManager.CMakeBuildConfiguration.InitialArgument";
 
 static FileName shadowBuildDirectory(const FileName &projectFilePath, const Kit *k,
@@ -75,7 +74,7 @@ static FileName shadowBuildDirectory(const FileName &projectFilePath, const Kit 
 }
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
-    BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID)), m_useNinja(false)
+    BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID))
 {
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     setBuildDirectory(shadowBuildDirectory(project->projectFilePath(),
@@ -87,7 +86,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
                                                  CMakeBuildConfiguration *source) :
     BuildConfiguration(parent, source),
     m_msvcVersion(source->m_msvcVersion),
-    m_useNinja(source->m_useNinja),
     m_initialArguments(source->m_initialArguments)
 {
     Q_ASSERT(parent);
@@ -97,7 +95,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
 QVariantMap CMakeBuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());
-    map.insert(QLatin1String(USE_NINJA_KEY), m_useNinja);
     map.insert(QLatin1String(INITIAL_ARGUMENTS), m_initialArguments);
     return map;
 }
@@ -107,23 +104,9 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_useNinja = map.value(QLatin1String(USE_NINJA_KEY), false).toBool();
     m_initialArguments = map.value(QLatin1String(INITIAL_ARGUMENTS)).toString();
 
     return true;
-}
-
-bool CMakeBuildConfiguration::useNinja() const
-{
-    return m_useNinja;
-}
-
-void CMakeBuildConfiguration::setUseNinja(bool useNninja)
-{
-    if (m_useNinja != useNninja) {
-        m_useNinja = useNninja;
-        emit useNinjaChanged(m_useNinja);
-    }
 }
 
 void CMakeBuildConfiguration::emitBuildTypeChanged()
@@ -298,7 +281,6 @@ CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExp
     info->kitId = k->id();
     info->environment = Environment::systemEnvironment();
     k->addToEnvironment(info->environment);
-    info->useNinja = false;
     info->sourceDirectory = sourceDir;
     switch (buildType) {
     case BuildTypeNone:

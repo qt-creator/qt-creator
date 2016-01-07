@@ -91,7 +91,6 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
                                 project->activeTarget()->activeBuildConfiguration()->displayName());
     if (copw.exec() == QDialog::Accepted) {
         project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
-        m_buildConfiguration->setUseNinja(copw.useNinja());
         m_pathLineEdit->setText(m_buildConfiguration->rawBuildDirectory().toString());
     }
 }
@@ -103,8 +102,7 @@ void CMakeBuildSettingsWidget::runCMake()
     CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
     CMakeManager *manager = static_cast<CMakeManager *>(project->projectManager());
     CMakeBuildInfo info(m_buildConfiguration);
-    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(),
-                                manager,
+    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), manager,
                                 CMakeOpenProjectWizard::WantToUpdate, &info,
                                 project->activeTarget()->displayName(),
                                 project->activeTarget()->activeBuildConfiguration()->displayName());

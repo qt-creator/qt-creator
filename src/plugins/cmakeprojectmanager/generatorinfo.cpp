@@ -70,10 +70,6 @@ ProjectExplorer::Kit *GeneratorInfo::kit() const
     return m_kit;
 }
 
-bool GeneratorInfo::isNinja() const {
-    return m_isNinja;
-}
-
 QByteArray GeneratorInfo::generator() const
 {
     if (!m_kit)
@@ -133,7 +129,8 @@ QString GeneratorInfo::displayName() const
     return QString();
 }
 
-QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool preferNinja, bool hasCodeBlocks)
+QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, bool hasNinja,
+                                                      bool preferNinja, bool hasCodeBlocks)
 {
     QList<GeneratorInfo> results;
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
@@ -146,25 +143,25 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
             && deviceType != Qnx::Constants::QNX_QNX_OS_TYPE)
         return results;
     ProjectExplorer::Abi targetAbi = tc->targetAbi();
-    if (n != ForceNinja) {
-        if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
-            if (isMsvcFlavor(targetAbi)) {
-                if (hasCodeBlocks)
-                    results << GeneratorInfo(k);
-            } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
+    if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
+        if (isMsvcFlavor(targetAbi)) {
+            if (hasCodeBlocks)
                 results << GeneratorInfo(k);
-            }
-        } else {
-            // Non windows
+        } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
             results << GeneratorInfo(k);
         }
+    } else {
+        // Non windows
+        results << GeneratorInfo(k);
     }
-    if (n != NoNinja) {
+
+    if (hasNinja) {
         if (preferNinja)
             results.prepend(GeneratorInfo(k, true));
         else
             results.append(GeneratorInfo(k, true));
     }
+
     return results;
 }
 

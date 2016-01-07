@@ -86,8 +86,6 @@ public:
     QString buildDirectory() const;
     QString sourceDirectory() const;
     void setBuildDirectory(const QString &directory);
-    bool useNinja() const;
-    void setUseNinja(bool b);
     CMakeManager *cmakeManager() const;
     QString arguments() const;
     void setArguments(const QString &args);
@@ -105,7 +103,6 @@ private:
     QString m_sourceDirectory;
     QString m_arguments;
     Utils::Environment m_environment;
-    bool m_useNinja;
     ProjectExplorer::Kit *m_kit;
 };
 

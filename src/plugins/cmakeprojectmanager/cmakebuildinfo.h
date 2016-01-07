@@ -45,8 +45,8 @@ namespace CMakeProjectManager {
 class CMakeBuildInfo : public ProjectExplorer::BuildInfo
 {
 public:
-    CMakeBuildInfo(const ProjectExplorer::IBuildConfigurationFactory *f) :
-        ProjectExplorer::BuildInfo(f), useNinja(false) { }
+    CMakeBuildInfo(const ProjectExplorer::IBuildConfigurationFactory *f) : ProjectExplorer::BuildInfo(f)
+    { }
 
     CMakeBuildInfo(const Internal::CMakeBuildConfiguration *bc) :
         ProjectExplorer::BuildInfo(ProjectExplorer::IBuildConfigurationFactory::find(bc->target()))
@@ -55,7 +55,6 @@ public:
         buildDirectory = bc->buildDirectory();
         kitId = bc->target()->kit()->id();
         environment = bc->environment();
-        useNinja = bc->useNinja();
 
         QTC_ASSERT(bc->target()->project(), return);
         sourceDirectory = bc->target()->project()->projectDirectory().toString();
@@ -65,7 +64,6 @@ public:
     Utils::Environment environment;
     QString sourceDirectory;
     QString arguments;
-    bool useNinja;
 };
 
 } // namespace CMakeProjectManager

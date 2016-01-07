@@ -44,8 +44,8 @@ class GeneratorInfo
 {
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::GeneratorInfo)
 public:
-    enum Ninja { NoNinja, OfferNinja, ForceNinja };
-    static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool preferNinja, bool hasCodeBlocks);
+    static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, bool hasNinja,
+                                                  bool preferNinja, bool hasCodeBlocks);
 
     GeneratorInfo();
     explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false);
