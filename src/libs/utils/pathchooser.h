@@ -96,6 +96,9 @@ public:
     FileName rawFileName() const; // The raw unexpanded input.
     FileName fileName() const;
 
+    static QString expandedDirectory(const QString &input, const Utils::Environment &env,
+                                     const QString &baseDir);
+
     QString baseDirectory() const;
     void setBaseDirectory(const QString &directory);
 

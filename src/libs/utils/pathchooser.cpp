@@ -330,6 +330,20 @@ FileName PathChooser::fileName() const
     return FileName::fromString(path());
 }
 
+// FIXME: try to remove again
+QString PathChooser::expandedDirectory(const QString &input, const Environment &env,
+                                       const QString &baseDir)
+{
+    if (input.isEmpty())
+        return input;
+    const QString path = QDir::cleanPath(env.expandVariables(input));
+    if (path.isEmpty())
+        return path;
+    if (!baseDir.isEmpty() && QFileInfo(path).isRelative())
+        return QFileInfo(baseDir + QLatin1Char('/') + path).absoluteFilePath();
+    return path;
+}
+
 void PathChooser::setPath(const QString &path)
 {
     d->m_lineEdit->setText(QDir::toNativeSeparators(path));

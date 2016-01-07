@@ -204,11 +204,20 @@ void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 
 FileName WorkingDirectoryAspect::workingDirectory() const
 {
-    QTC_ASSERT(m_chooser, return m_defaultWorkingDirectory);
     if (m_workingDirectory.isEmpty())
         return m_defaultWorkingDirectory;
-    return FileName::fromString(
+
+    if (m_chooser) {
+        return FileName::fromString(
                 runConfiguration()->macroExpander()->expandProcessArgs(m_chooser->path()));
+    } else {
+        auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>();
+        const Utils::Environment env = envAspect ? envAspect->environment()
+                                                 : Utils::Environment::systemEnvironment();
+        return FileName::fromString(
+                runConfiguration()->macroExpander()->expandProcessArgs(
+                        PathChooser::expandedDirectory(m_workingDirectory.toString(), env, QString())));
+    }
 }
 
 FileName WorkingDirectoryAspect::defaultWorkingDirectory() const
