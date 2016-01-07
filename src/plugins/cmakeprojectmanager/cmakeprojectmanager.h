@@ -58,15 +58,11 @@ public:
     ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
     QString mimeType() const override;
 
-    void createXmlFile(Utils::QtcProcess *process,
-                       const QString &executable,
-                       const QString &arguments,
-                       const QString &sourceDirectory,
-                       const QDir &buildDirectory,
-                       const Utils::Environment &env,
-                       const QString &generator,
-                       const QString &preloadCache);
-    bool preferNinja() const;
+    static void createXmlFile(Utils::QtcProcess *process, const QString &executable,
+                              const QString &arguments, const QString &sourceDirectory,
+                              const QDir &buildDirectory, const Utils::Environment &env,
+                              const QString &generator, const QString &preloadCache);
+    static bool preferNinja();
     static QString findCbpFile(const QDir &);
 
 private:

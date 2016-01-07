@@ -77,13 +77,11 @@ public:
     /// used to update if we have already a .user file
     /// recreates or updates the cbp file
     /// Also used to change the build directory of one buildconfiguration or create a new buildconfiguration
-    CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager, Mode mode,
-                           const CMakeBuildInfo *info);
+    CMakeOpenProjectWizard(QWidget *parent, Mode mode, const CMakeBuildInfo *info);
 
     QString buildDirectory() const;
     QString sourceDirectory() const;
     void setBuildDirectory(const QString &directory);
-    CMakeManager *cmakeManager() const;
     QString arguments() const;
     void setArguments(const QString &args);
     Utils::Environment environment() const;
@@ -94,7 +92,6 @@ public:
 
 private:
     bool hasInSourceBuild() const;
-    CMakeManager *m_cmakeManager;
     QString m_buildDirectory;
     QString m_sourceDirectory;
     QString m_arguments;

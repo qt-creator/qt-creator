@@ -82,14 +82,13 @@ using namespace ProjectExplorer;
 //////////////
 /// CMakeOpenProjectWizard
 //////////////
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager,
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent,
                                                CMakeOpenProjectWizard::Mode mode,
-                                               const CMakeBuildInfo *info)
-    : Utils::Wizard(parent),
-      m_cmakeManager(cmakeManager),
-      m_sourceDirectory(info->sourceDirectory),
-      m_environment(info->environment),
-      m_kit(KitManager::find(info->kitId))
+                                               const CMakeBuildInfo *info) :
+    Utils::Wizard(parent),
+    m_sourceDirectory(info->sourceDirectory),
+    m_environment(info->environment),
+    m_kit(KitManager::find(info->kitId))
 {
     CMakeRunPage::Mode rmode;
     if (mode == CMakeOpenProjectWizard::NeedToCreate)
@@ -115,11 +114,6 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cm
     setWindowTitle(tr("CMake Wizard"));
 }
 
-CMakeManager *CMakeOpenProjectWizard::cmakeManager() const
-{
-    return m_cmakeManager;
-}
-
 bool CMakeOpenProjectWizard::hasInSourceBuild() const
 {
     return QFileInfo::exists(m_sourceDirectory + QLatin1String("/CMakeCache.txt"));
@@ -127,7 +121,7 @@ bool CMakeOpenProjectWizard::hasInSourceBuild() const
 
 bool CMakeOpenProjectWizard::compatibleKitExist() const
 {
-    bool preferNinja = m_cmakeManager->preferNinja();
+    bool preferNinja = CMakeManager::preferNinja();
     const QList<Kit *> kitList = KitManager::kits();
 
     foreach (Kit *k, kitList) {
@@ -493,7 +487,7 @@ void CMakeRunPage::initializePage()
     // Build the list of generators/toolchains we want to offer
     m_generatorComboBox->clear();
 
-    bool preferNinja = m_cmakeWizard->cmakeManager()->preferNinja();
+    bool preferNinja = CMakeManager::preferNinja();
 
     QList<GeneratorInfo> infos;
     CMakeTool *cmake = CMakeKitInformation::cmakeTool(m_cmakeWizard->kit());
@@ -539,7 +533,6 @@ void CMakeRunPage::runCMake()
     m_output->clear();
 
     CMakeTool *cmake = CMakeKitInformation::cmakeTool(generatorInfo.kit());
-    CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
     if (cmake && cmake->isValid()) {
         m_cmakeProcess = new Utils::QtcProcess();
         connect(m_cmakeProcess, &QProcess::readyReadStandardOutput,
@@ -555,7 +548,7 @@ void CMakeRunPage::runCMake()
                                      .arg(cmake->cmakeExecutable().toUserOutput())
                                      .arg(arguments)
                                      .arg(QDir::toNativeSeparators(m_buildDirectory)));
-        cmakeManager->createXmlFile(m_cmakeProcess, cmake->cmakeExecutable().toString(),
+        CMakeManager::createXmlFile(m_cmakeProcess, cmake->cmakeExecutable().toString(),
                                     arguments, m_cmakeWizard->sourceDirectory(),
                                     m_buildDirectory, env,
                                     QString::fromLatin1(generatorInfo.generatorArgument()),

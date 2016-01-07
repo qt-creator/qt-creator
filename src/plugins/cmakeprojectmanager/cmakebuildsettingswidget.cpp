@@ -91,13 +91,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
-    auto project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
-    auto manager = static_cast<CMakeManager *>(project->projectManager());
     CMakeBuildInfo info(m_buildConfiguration);
-    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(),
-                                manager, CMakeOpenProjectWizard::ChangeDirectory,
+    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), CMakeOpenProjectWizard::ChangeDirectory,
                                 &info);
     if (copw.exec() == QDialog::Accepted) {
+        auto project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
         project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
         m_pathLineEdit->setText(m_buildConfiguration->rawBuildDirectory().toString());
     }
@@ -107,13 +105,13 @@ void CMakeBuildSettingsWidget::runCMake()
 {
     if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
         return;
-    auto project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
-    auto manager = static_cast<CMakeManager *>(project->projectManager());
     CMakeBuildInfo info(m_buildConfiguration);
-    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), manager,
-                                CMakeOpenProjectWizard::WantToUpdate, &info);
-    if (copw.exec() == QDialog::Accepted)
+    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), CMakeOpenProjectWizard::WantToUpdate,
+                                &info);
+    if (copw.exec() == QDialog::Accepted) {
+        auto project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
         project->parseCMakeLists();
+    }
 }
 } // namespace Internal
 } // namespace CMakeProjectManager

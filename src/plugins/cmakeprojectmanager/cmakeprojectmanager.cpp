@@ -112,8 +112,7 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
 
     CMakeBuildInfo info(bc);
 
-    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), this, CMakeOpenProjectWizard::WantToUpdate,
-                                &info);
+    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), CMakeOpenProjectWizard::WantToUpdate, &info);
     if (copw.exec() == QDialog::Accepted)
         cmakeProject->parseCMakeLists();
 }
@@ -136,7 +135,7 @@ QString CMakeManager::mimeType() const
     return QLatin1String(Constants::CMAKEPROJECTMIMETYPE);
 }
 
-bool CMakeManager::preferNinja() const
+bool CMakeManager::preferNinja()
 {
     return CMakeToolManager::preferNinja();
 }
@@ -145,9 +144,10 @@ bool CMakeManager::preferNinja() const
 // we probably want the process instead of this function
 // cmakeproject then could even run the cmake process in the background, adding the files afterwards
 // sounds like a plan
-void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &executable, const QString &arguments,
-                                 const QString &sourceDirectory, const QDir &buildDirectory,
-                                 const Utils::Environment &env, const QString &generator, const QString &preloadCache)
+void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &executable,
+                                 const QString &arguments, const QString &sourceDirectory,
+                                 const QDir &buildDirectory, const Utils::Environment &env,
+                                 const QString &generator, const QString &preloadCache)
 {
     QString buildDirectoryPath = buildDirectory.absolutePath();
     buildDirectory.mkpath(buildDirectoryPath);
