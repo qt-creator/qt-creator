@@ -66,26 +66,24 @@ public:
     ~CustomExecutableConfigurationWidget();
 
     void apply(); // only used for DelayedApply
-
     bool isValid() const;
+
 signals:
     void validChanged();
 
-private slots:
+private:
     void changed();
-
     void executableEdited();
     void workingDirectoryEdited();
     void environmentWasChanged();
 
-private:
-    bool m_ignoreChange;
-    CustomExecutableRunConfiguration *m_runConfiguration;
-    ProjectExplorer::ArgumentsAspect *m_temporaryArgumentsAspect;
-    ProjectExplorer::TerminalAspect *m_temporaryTerminalAspect;
-    Utils::PathChooser *m_executableChooser;
-    Utils::PathChooser *m_workingDirectory;
-    Utils::DetailsWidget *m_detailsContainer;
+    bool m_ignoreChange = false;
+    CustomExecutableRunConfiguration *m_runConfiguration = 0;
+    ProjectExplorer::ArgumentsAspect *m_temporaryArgumentsAspect = 0;
+    ProjectExplorer::TerminalAspect *m_temporaryTerminalAspect = 0;
+    Utils::PathChooser *m_executableChooser = 0;
+    Utils::PathChooser *m_workingDirectory = 0;
+    Utils::DetailsWidget *m_detailsContainer = 0;
 };
 
 } // namespace Internal

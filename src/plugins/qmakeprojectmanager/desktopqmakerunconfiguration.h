@@ -37,25 +37,18 @@
 
 #include <utils/fileutils.h>
 
-#include <QStringList>
-#include <QLabel>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
+class QLabel;
 class QLineEdit;
-class QRadioButton;
-class QComboBox;
 QT_END_NAMESPACE
-
-namespace Utils {
-class PathChooser;
-class DetailsWidget;
-}
 
 namespace QmakeProjectManager {
 
 class QmakeProFileNode;
+class QmakeProject;
 
 namespace Internal {
 class DesktopQmakeRunConfigurationFactory;
@@ -113,6 +106,7 @@ private:
     QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFileNode *node) const;
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
+    QmakeProject *qmakeProject() const;
 
     void ctor();
 
@@ -131,14 +125,11 @@ class DesktopQmakeRunConfigurationWidget : public QWidget
     Q_OBJECT
 
 public:
-    DesktopQmakeRunConfigurationWidget(DesktopQmakeRunConfiguration *qmakeRunConfiguration, QWidget *parent);
-    ~DesktopQmakeRunConfigurationWidget();
+    explicit DesktopQmakeRunConfigurationWidget(DesktopQmakeRunConfiguration *qmakeRunConfiguration);
 
-private slots:
+private:
     void runConfigurationEnabledChange();
-
     void effectiveTargetInformationChanged();
-    void qvfbToggled(bool);
     void usingDyldImageSuffixToggled(bool);
     void usingDyldImageSuffixChanged(bool);
     void usingLibrarySearchPathToggled(bool state);
@@ -154,7 +145,6 @@ private:
     QCheckBox *m_usingDyldImageSuffix = nullptr;
     QCheckBox *m_usingLibrarySearchPath = nullptr;
     QLineEdit *m_qmlDebugPort = nullptr;
-    Utils::DetailsWidget *m_detailsContainer = nullptr;
 };
 
 class DesktopQmakeRunConfigurationFactory : public QmakeRunConfigurationFactory
@@ -163,25 +153,25 @@ class DesktopQmakeRunConfigurationFactory : public QmakeRunConfigurationFactory
 
 public:
     explicit DesktopQmakeRunConfigurationFactory(QObject *parent = 0);
-    ~DesktopQmakeRunConfigurationFactory();
 
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
-    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const override;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
+                                             ProjectExplorer::RunConfiguration *source) override;
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
-    QString displayNameForId(Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QString displayNameForId(Core::Id id) const override;
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                        const ProjectExplorer::Node *n);
+                                                                        const ProjectExplorer::Node *n) override;
 
 private:
-    bool canHandle(ProjectExplorer::Target *t) const;
+    bool canHandle(ProjectExplorer::Target *t) const override;
 
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id);
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id) override;
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
-                                                 const QVariantMap &map);
+                                                 const QVariantMap &map) override;
 };
 
 } // namespace Internal
