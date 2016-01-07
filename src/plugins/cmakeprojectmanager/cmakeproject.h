@@ -65,7 +65,8 @@ class CMakeManager;
 enum TargetType {
     ExecutableType = 0,
     StaticLibraryType = 2,
-    DynamicLibraryType = 3
+    DynamicLibraryType = 3,
+    UtilityType = 64
 };
 
 struct CMAKE_EXPORT CMakeBuildTarget

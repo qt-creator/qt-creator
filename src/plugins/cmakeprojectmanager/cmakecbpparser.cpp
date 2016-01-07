@@ -177,6 +177,16 @@ bool CMakeCbpParser::parseCbpFile(Kit *kit, const QString &fileName, const QStri
         sortFiles();
 
         fi.close();
+
+        // There is always a clean target:
+        CMakeBuildTarget cleanTarget;
+        cleanTarget.title = QLatin1String("clean");
+        cleanTarget.targetType = UtilityType;
+        cleanTarget.workingDirectory = m_buildDirectory;
+        cleanTarget.sourceDirectory = m_sourceDirectory;
+
+        m_buildTargets.append(cleanTarget);
+
         return true;
     }
     return false;
