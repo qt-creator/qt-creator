@@ -252,7 +252,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="toolTip">
-            <string>&lt;html&gt;Influences how file names are matched to decide if they are the same.</string>
+            <string>Influences how file names are matched to decide if they are the same.</string>
            </property>
            <property name="text">
             <string>File system case sensitivity:</string>
