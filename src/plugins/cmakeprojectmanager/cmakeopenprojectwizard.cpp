@@ -111,11 +111,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cm
 
     addPage(new CMakeRunPage(this, rmode, info->buildDirectory.toString(), info->arguments,
                              m_kit->displayName(), info->displayName));
-    init();
-}
 
-void CMakeOpenProjectWizard::init()
-{
     setWindowTitle(tr("CMake Wizard"));
 }
 

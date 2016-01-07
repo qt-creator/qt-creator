@@ -93,7 +93,6 @@ public:
     bool compatibleKitExist() const;
 
 private:
-    void init();
     bool hasInSourceBuild() const;
     CMakeManager *m_cmakeManager;
     QString m_buildDirectory;
