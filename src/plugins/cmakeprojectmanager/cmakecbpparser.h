@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_CMAKECBPPARSER_H
-#define CMAKEPROJECTMANAGER_INTERNAL_CMAKECBPPARSER_H
+#ifndef CMAKECBPPARSER_H
+#define CMAKECBPPARSER_H
 
 #include "cmakeproject.h"
 
@@ -73,7 +73,7 @@ private:
     void sortFiles();
 
     QMap<Utils::FileName, QString> m_unitTargetMap;
-    ProjectExplorer::Kit *m_kit;
+    ProjectExplorer::Kit *m_kit = 0;
     QList<ProjectExplorer::FileNode *> m_fileList;
     QList<ProjectExplorer::FileNode *> m_cmakeFileList;
     QSet<Utils::FileName> m_processedUnits;
@@ -91,4 +91,4 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTMANAGER_INTERNAL_CMAKECBPPARSER_H
+#endif // CMAKECBPPARSER_H

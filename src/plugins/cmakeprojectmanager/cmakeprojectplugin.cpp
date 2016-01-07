@@ -52,14 +52,6 @@
 
 using namespace CMakeProjectManager::Internal;
 
-CMakeProjectPlugin::CMakeProjectPlugin()
-{
-}
-
-CMakeProjectPlugin::~CMakeProjectPlugin()
-{
-}
-
 bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)

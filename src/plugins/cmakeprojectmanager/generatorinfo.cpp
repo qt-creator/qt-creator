@@ -57,13 +57,8 @@ static bool isMsvcFlavor(const ProjectExplorer::Abi &abi) {
     }
 }
 
-GeneratorInfo::GeneratorInfo()
-    : m_kit(0), m_isNinja(false)
-{}
-
-GeneratorInfo::GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja)
-    : m_kit(kit), m_isNinja(ninja)
-{}
+GeneratorInfo::GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja) : m_kit(kit), m_isNinja(ninja)
+{ }
 
 ProjectExplorer::Kit *GeneratorInfo::kit() const
 {

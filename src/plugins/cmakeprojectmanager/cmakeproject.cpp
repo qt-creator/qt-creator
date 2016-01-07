@@ -501,7 +501,7 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
         }
         if (!found) {
             // No FolderNode yet, so create it
-            ProjectExplorer::FolderNode *tmp = new ProjectExplorer::FolderNode(path);
+            auto tmp = new ProjectExplorer::FolderNode(path);
             tmp->setDisplayName(part);
             parent->addFolderNodes(QList<ProjectExplorer::FolderNode *>() << tmp);
             parent = tmp;

@@ -86,9 +86,6 @@ public:
 
     static QString cleanTarget();
 
-private:
-    void buildTargetsChanged();
-
 signals:
     void cmakeCommandChanged();
     void targetsToBuildChanged();
@@ -103,10 +100,12 @@ protected:
     bool fromMap(const QVariantMap &map) override;
 
     // For parsing [ 76%]
-    virtual void stdOutput(const QString &line) override;
+    void stdOutput(const QString &line) override;
 
 private:
     void ctor();
+
+    void buildTargetsChanged();
     CMakeRunConfiguration *targetsActiveRunConfiguration() const;
 
     QRegExp m_percentProgress;
@@ -114,8 +113,8 @@ private:
     QString m_ninjaProgressString;
     QStringList m_buildTargets;
     QString m_toolArguments;
-    bool m_addRunConfigurationArgument;
-    bool m_useNinja;
+    bool m_addRunConfigurationArgument = false;
+    bool m_useNinja = false;
 };
 
 class CMakeBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
@@ -123,8 +122,8 @@ class CMakeBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep);
-    virtual QString displayName() const;
-    virtual QString summaryText() const;
+    QString displayName() const override;
+    QString summaryText() const override;
 
 private:
     void itemChanged(QListWidgetItem*);
@@ -133,10 +132,9 @@ private:
     void buildTargetsChanged();
     void selectedBuildTargetsChanged();
 
-private:
     CMakeBuildStep *m_buildStep;
-    QListWidget *m_buildTargetsList;
     QLineEdit *m_toolArguments;
+    QListWidget *m_buildTargetsList;
     QString m_summaryText;
 };
 
@@ -147,15 +145,15 @@ class CMakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit CMakeBuildStepFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
-    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source);
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const override;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
+    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const override;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) override;
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const;
-    QString displayNameForId(Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const override;
+    QString displayNameForId(Core::Id id) const override;
 };
 
 } // namespace Internal

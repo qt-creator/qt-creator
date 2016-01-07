@@ -56,12 +56,9 @@ const char CMAKETOOL_FILENAME[] = "/qtcreator/cmaketools.xml";
 
 class CMakeToolManagerPrivate
 {
-
 public:
-    CMakeToolManagerPrivate() :
-        m_preferNinja(false),
-        m_writer(0)
-    {}
+    CMakeToolManagerPrivate() : m_preferNinja(false), m_writer(0)
+    { }
 
     bool m_preferNinja;
     Id m_defaultCMake;
@@ -110,7 +107,7 @@ static QList<CMakeTool *> readCMakeTools(const FileName &fileName, Core::Id *def
             continue;
 
         const QVariantMap dbMap = data.value(key).toMap();
-        CMakeTool *item = new CMakeTool(dbMap,fromSDK);
+        auto item = new CMakeTool(dbMap,fromSDK);
         if (item->isAutoDetected()) {
             if (!item->cmakeExecutable().toFileInfo().isExecutable()) {
                 qWarning() << QString::fromLatin1("CMakeTool \"%1\" (%2) read from \"%3\" dropped since the command is not executable.")
@@ -190,7 +187,7 @@ static QList<CMakeTool *> autoDetectCMakeTools()
 
     QList<CMakeTool *> found;
     foreach (const FileName &command, suspects) {
-        CMakeTool *item = new CMakeTool(CMakeTool::AutoDetection);
+        auto item = new CMakeTool(CMakeTool::AutoDetection);
         item->setCMakeExecutable(command);
         item->setDisplayName(CMakeToolManager::tr("System CMake at %1").arg(command.toUserOutput()));
 
@@ -206,8 +203,7 @@ static QList<CMakeTool *> autoDetectCMakeTools()
 
 CMakeToolManager *CMakeToolManager::m_instance = 0;
 
-CMakeToolManager::CMakeToolManager(QObject *parent) :
-    QObject(parent)
+CMakeToolManager::CMakeToolManager(QObject *parent) : QObject(parent)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;

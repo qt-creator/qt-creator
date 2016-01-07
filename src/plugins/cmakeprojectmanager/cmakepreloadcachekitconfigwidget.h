@@ -46,19 +46,18 @@ class CMakePreloadCacheKitConfigWidget : public ProjectExplorer::KitConfigWidget
 
 public:
     CMakePreloadCacheKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
-    ~CMakePreloadCacheKitConfigWidget();
+    ~CMakePreloadCacheKitConfigWidget() override;
 
-    QWidget *mainWidget() const;
-    QString displayName() const;
-    QString toolTip() const;
+    QWidget *mainWidget() const override;
+    QString displayName() const override;
+    QString toolTip() const override;
 
-    void makeReadOnly();
-    void refresh();
-
-private slots:
-    void preloadFileWasChanged(const QString &text);
+    void makeReadOnly() override;
+    void refresh() override;
 
 private:
+    void preloadFileWasChanged(const QString &text);
+
     QLineEdit *m_lineEdit = nullptr;
     bool m_ignoreChange = false;
 };

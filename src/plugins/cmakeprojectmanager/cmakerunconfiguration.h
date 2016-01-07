@@ -78,7 +78,7 @@ public:
 
 protected:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, CMakeRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map) override;
+    bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
 private:
@@ -87,7 +87,7 @@ private:
 
     QString m_buildTarget;
     QString m_title;
-    bool m_enabled;
+    bool m_enabled = true;
 };
 
 class CMakeRunConfigurationWidget : public QWidget
@@ -104,15 +104,15 @@ class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFa
 
 public:
     explicit CMakeRunConfigurationFactory(QObject *parent = 0);
-    ~CMakeRunConfigurationFactory();
 
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const;
-    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product);
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const override;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
+                                             ProjectExplorer::RunConfiguration *product) override;
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
-    QString displayNameForId(Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QString displayNameForId(Core::Id id) const override;
 
     static Core::Id idFromBuildTarget(const QString &target);
     static QString buildTargetFromId(Core::Id id);
@@ -120,12 +120,12 @@ public:
 private:
     bool canHandle(ProjectExplorer::Target *parent) const;
 
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id);
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id) override;
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
-                                                 const QVariantMap &map);
+                                                 const QVariantMap &map) override;
 };
 
-}
-}
+} // namespace Internal
+} // namespace CMakeProjectManager
 
 #endif // CMAKERUNCONFIGURATION_H

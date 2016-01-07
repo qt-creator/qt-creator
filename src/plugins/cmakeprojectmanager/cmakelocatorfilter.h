@@ -44,18 +44,17 @@ class CMakeLocatorFilter : public Core::ILocatorFilter
 
 public:
     CMakeLocatorFilter();
-    ~CMakeLocatorFilter();
 
-    void prepareSearch(const QString &entry);
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
-    void accept(Core::LocatorFilterEntry selection) const;
-    void refresh(QFutureInterface<void> &future);
+    void prepareSearch(const QString &entry) override;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection) const override;
+    void refresh(QFutureInterface<void> &future) override;
 
-private slots:
-    void slotProjectListUpdated();
 private:
-    QList<Core::LocatorFilterEntry> m_result;
+    void slotProjectListUpdated();
 
+    QList<Core::LocatorFilterEntry> m_result;
 };
 
 } // namespace Internal

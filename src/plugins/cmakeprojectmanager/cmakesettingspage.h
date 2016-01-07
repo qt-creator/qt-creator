@@ -27,8 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_CMAKESETTINGSPAGE_H
-#define CMAKEPROJECTMANAGER_INTERNAL_CMAKESETTINGSPAGE_H
+#ifndef CMAKESETTINGSPAGE_H
+#define CMAKESETTINGSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/pathchooser.h>
@@ -48,17 +48,16 @@ class CMakeSettingsPage : public Core::IOptionsPage
 
 public:
     CMakeSettingsPage();
-    ~CMakeSettingsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
-    CMakeToolConfigWidget *m_widget;
+    CMakeToolConfigWidget *m_widget = 0;
 };
 
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTMANAGER_INTERNAL_CMAKESETTINGSPAGE_H
+#endif // CMAKESETTINGSPAGE_H

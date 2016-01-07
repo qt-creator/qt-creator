@@ -27,8 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
-#define CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
+#ifndef CMAKE_GENERATORINFO_H
+#define CMAKE_GENERATORINFO_H
 
 #include "cmakeprojectmanager.h"
 
@@ -46,21 +46,20 @@ class GeneratorInfo
 public:
     static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, bool hasNinja,
                                                   bool preferNinja, bool hasCodeBlocks);
-
-    GeneratorInfo();
-    explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false);
+    GeneratorInfo() = default;
 
     ProjectExplorer::Kit *kit() const;
     bool isNinja() const;
-
     QString displayName() const;
     QByteArray generatorArgument() const;
     QByteArray generator() const;
     QString preLoadCacheFileArgument() const;
 
 private:
-    ProjectExplorer::Kit *m_kit;
-    bool m_isNinja;
+    explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false);
+
+    ProjectExplorer::Kit *m_kit = 0;
+    bool m_isNinja = false;
 };
 
 } // namespace Internal
@@ -68,4 +67,4 @@ private:
 
 Q_DECLARE_METATYPE(CMakeProjectManager::Internal::GeneratorInfo)
 
-#endif // CMAKEPROJECTMANAGER_INTERNAL_GENERATORINFO_H
+#endif // CMAKE_GENERATORINFO_H

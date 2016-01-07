@@ -123,9 +123,6 @@ QString CMakeBuildConfiguration::initialArguments() const
     return m_initialArguments;
 }
 
-CMakeBuildConfiguration::~CMakeBuildConfiguration()
-{ }
-
 ProjectExplorer::NamedWidget *CMakeBuildConfiguration::createConfigWidget()
 {
     return new CMakeBuildSettingsWidget(this);
@@ -137,10 +134,6 @@ ProjectExplorer::NamedWidget *CMakeBuildConfiguration::createConfigWidget()
 
 CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory(QObject *parent) :
     ProjectExplorer::IBuildConfigurationFactory(parent)
-{
-}
-
-CMakeBuildConfigurationFactory::~CMakeBuildConfigurationFactory()
 {
 }
 
@@ -207,7 +200,7 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
                                                    copy.displayName, info->buildType);
     }
 
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(parent);
+    auto bc = new CMakeBuildConfiguration(parent);
     bc->setDisplayName(copy.displayName);
     bc->setDefaultDisplayName(copy.displayName);
 
@@ -257,7 +250,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::restore(ProjectExplorer
 {
     if (!canRestore(parent, map))
         return 0;
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(parent);
+    auto bc = new CMakeBuildConfiguration(parent);
     if (bc->fromMap(map))
         return bc;
     delete bc;

@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEOUTPUTPARSER_H
-#define CMAKEOUTPUTPARSER_H
+#ifndef CMAKEPARSER_H
+#define CMAKEPARSER_H
 
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
@@ -43,20 +43,20 @@ class CMakeParser : public ProjectExplorer::IOutputParser
 
 public:
     explicit CMakeParser();
-    void stdError(const QString &line);
+    void stdError(const QString &line) override;
 
 protected:
-    void doFlush();
+    void doFlush() override;
 
 private:
     ProjectExplorer::Task m_lastTask;
     QRegExp m_commonError;
     QRegExp m_nextSubError;
-    bool m_skippedFirstEmptyLine;
+    bool m_skippedFirstEmptyLine = false;
     int m_lines = 0;
 };
 
 } // namespace CMakeProjectManager
 } // namespace Internal
 
-#endif // CMAKEOUTPUTPARSER_H
+#endif // CMAKEPARSER_H

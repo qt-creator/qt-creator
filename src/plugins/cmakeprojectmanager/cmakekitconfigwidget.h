@@ -27,8 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_CMAKEKITCONFIGWIDGET_H
-#define CMAKEPROJECTMANAGER_INTERNAL_CMAKEKITCONFIGWIDGET_H
+#ifndef CMAKEKITCONFIGWIDGET_H
+#define CMAKEKITCONFIGWIDGET_H
 
 #include <projectexplorer/kitconfigwidget.h>
 
@@ -70,8 +70,7 @@ private:
     void currentCMakeToolChanged(int index);
     void manageCMakeTools();
 
-private:
-    bool m_removingItem;
+    bool m_removingItem = false;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
 };
@@ -79,4 +78,4 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTMANAGER_INTERNAL_CMAKEKITCONFIGWIDGET_H
+#endif // CMAKEKITCONFIGWIDGET_H

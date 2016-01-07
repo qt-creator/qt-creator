@@ -55,8 +55,8 @@ class CMakeManager : public ProjectExplorer::IProjectManager
 public:
     CMakeManager();
 
-    virtual ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
-    virtual QString mimeType() const;
+    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
+    QString mimeType() const override;
 
     void createXmlFile(Utils::QtcProcess *process,
                        const QString &executable,
@@ -73,8 +73,6 @@ private:
     void updateRunCmakeAction();
     void runCMake(ProjectExplorer::Project *project);
 
-private:
-    CMakeSettingsPage *m_settingsPage;
     QAction *m_runCMakeAction;
     QAction *m_runCMakeActionContextMenu;
 };

@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEVALIDATOR_H
-#define CMAKEVALIDATOR_H
+#ifndef CMAKETOOL_H
+#define CMAKETOOL_H
 
 #include "cmake_global.h"
 
@@ -60,7 +60,7 @@ public:
 
     explicit CMakeTool(Detection d, const Core::Id &id = Core::Id());
     explicit CMakeTool(const QVariantMap &map, bool fromSdk);
-    ~CMakeTool();
+    ~CMakeTool() override;
 
     enum State { Invalid, RunningBasic, RunningFunctionList, RunningFunctionDetails,
                  RunningPropertyList, RunningVariableList, RunningDone };
@@ -82,10 +82,9 @@ public:
     void setPathMapper(const PathMapper &includePathMapper);
     QString mapAllPaths(ProjectExplorer::Kit *kit, const QString &in) const;
 
-private slots:
+private:
     void finished(int exitCode);
 
-private:
     void createId();
     void finishStep();
     void startNextStep();
@@ -96,13 +95,13 @@ private:
     void parseDone();
     QString formatFunctionDetails(const QString &command, const QString &args);
 
-    State m_state;
-    QProcess *m_process;
+    State m_state = Invalid;
+    QProcess *m_process = 0;
     Utils::FileName m_executable;
 
     bool m_isAutoDetected;
-    bool m_hasCodeBlocksMsvcGenerator;
-    bool m_hasCodeBlocksNinjaGenerator;
+    bool m_hasCodeBlocksMsvcGenerator = false;
+    bool m_hasCodeBlocksNinjaGenerator = false;
 
     QMap<QString, QStringList> m_functionArgs;
     QStringList m_variables;
@@ -115,4 +114,4 @@ private:
 
 } // namespace CMakeProjectManager
 
-#endif // CMAKEVALIDATOR_H
+#endif // CMAKETOOL_H

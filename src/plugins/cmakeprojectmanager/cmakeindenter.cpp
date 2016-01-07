@@ -39,10 +39,6 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-CMakeIndenter::CMakeIndenter()
-{
-}
-
 bool CMakeIndenter::isElectricCharacter(const QChar &ch) const
 {
     return ch == QLatin1Char('(') || ch == QLatin1Char(')');

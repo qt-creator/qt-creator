@@ -46,32 +46,32 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) : m_buildConfiguration(0)
+CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) :
+    m_pathLineEdit(new QLineEdit),
+    m_changeButton(new QPushButton)
 {
-    QVBoxLayout *vbox = new QVBoxLayout(this);
+    auto vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
-    Utils::DetailsWidget *container = new Utils::DetailsWidget;
+    auto container = new Utils::DetailsWidget;
     container->setState(Utils::DetailsWidget::NoSummary);
     vbox->addWidget(container);
 
-    QWidget *details = new QWidget(container);
+    auto details = new QWidget(container);
     container->setWidget(details);
 
-    QFormLayout *fl = new QFormLayout(details);
+    auto fl = new QFormLayout(details);
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    QPushButton *runCmakeButton = new QPushButton(tr("Run CMake..."));
+    auto runCmakeButton = new QPushButton(tr("Run CMake..."));
     connect(runCmakeButton, &QAbstractButton::clicked, this, &CMakeBuildSettingsWidget::runCMake);
     fl->addRow(tr("Reconfigure project:"), runCmakeButton);
 
-    m_pathLineEdit = new QLineEdit(this);
     m_pathLineEdit->setReadOnly(true);
 
-    QHBoxLayout *hbox = new QHBoxLayout();
+    auto hbox = new QHBoxLayout();
     hbox->addWidget(m_pathLineEdit);
 
-    m_changeButton = new QPushButton(this);
     m_changeButton->setText(tr("&Change"));
     connect(m_changeButton, &QAbstractButton::clicked, this,
             &CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog);

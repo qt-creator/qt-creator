@@ -27,8 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CMAKEPROJECTMANAGER_CMAKEPRELOADCACHEKITINFORMATION_H
-#define CMAKEPROJECTMANAGER_CMAKEPRELOADCACHEKITINFORMATION_H
+#ifndef CMAKEPRELOADCACHEKITINFORMATION_H
+#define CMAKEPRELOADCACHEKITINFORMATION_H
 
 #include "cmake_global.h"
 
@@ -58,4 +58,4 @@ public:
 
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTMANAGER_CMAKEPRELOADCACHEKITINFORMATION_H
+#endif // CMAKEPRELOADCACHEKITINFORMATION_H

@@ -54,9 +54,6 @@ using namespace ProjectExplorer;
 CMakeFileCompletionAssistProvider::CMakeFileCompletionAssistProvider()
 {}
 
-CMakeFileCompletionAssistProvider::~CMakeFileCompletionAssistProvider()
-{}
-
 bool CMakeFileCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == CMakeProjectManager::Constants::CMAKE_EDITOR_ID;

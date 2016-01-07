@@ -41,9 +41,6 @@ namespace Internal {
 class CMAKE_EXPORT CMakeIndenter : public TextEditor::Indenter
 {
 public:
-    CMakeIndenter();
-    virtual ~CMakeIndenter() {}
-
     bool isElectricCharacter(const QChar &ch) const override;
     void indentBlock(QTextDocument *doc, const QTextBlock &block, const QChar &typedChar, const TextEditor::TabSettings &tabSettings) override;
 };

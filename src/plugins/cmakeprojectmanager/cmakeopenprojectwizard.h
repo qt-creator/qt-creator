@@ -111,11 +111,10 @@ public:
     bool isComplete() const override;
     void initializePage() override;
 
-private slots:
+private:
     void kitsChanged();
     void showOptions();
 
-private:
     QLabel *m_descriptionLabel;
     QPushButton *m_optionsButton;
     CMakeOpenProjectWizard *m_cmakeWizard;
@@ -126,6 +125,7 @@ class InSourceBuildPage : public QWizardPage
     Q_OBJECT
 public:
     InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard);
+
 private:
     CMakeOpenProjectWizard *m_cmakeWizard;
 };
@@ -148,7 +148,7 @@ class NoCMakePage : public QWizardPage
     Q_OBJECT
 public:
     NoCMakePage(CMakeOpenProjectWizard *cmakeWizard);
-    bool isComplete() const;
+    bool isComplete() const override;
 
 private:
     void cmakeToolsChanged();
@@ -169,10 +169,10 @@ public:
                           const QString &kitName,
                           const QString &buildConfigurationName);
 
-    virtual void initializePage();
-    virtual bool validatePage();
-    virtual void cleanupPage();
-    virtual bool isComplete() const;
+    void initializePage() override;
+    bool validatePage() override;
+    void cleanupPage() override;
+    bool isComplete() const override;
 
 private:
     void runCMake();
@@ -180,27 +180,26 @@ private:
     void cmakeReadyReadStandardOutput();
     void cmakeReadyReadStandardError();
 
-    void initWidgets();
     QByteArray cachedGeneratorFromFile(const QString &cache);
 
     CMakeOpenProjectWizard *m_cmakeWizard;
-    QPlainTextEdit *m_output;
-    QPushButton *m_runCMake;
-    Utils::QtcProcess *m_cmakeProcess;
+    QLabel *m_descriptionLabel;
     Utils::FancyLineEdit *m_argumentsLineEdit;
     QComboBox *m_generatorComboBox;
     QLabel *m_generatorExtraText;
-    QLabel *m_descriptionLabel;
+    QPushButton *m_runCMake;
+    QPlainTextEdit *m_output;
     QLabel *m_exitCodeLabel;
     QCheckBox *m_continueCheckBox;
-    bool m_haveCbpFile;
+    Utils::QtcProcess *m_cmakeProcess = 0;
+    bool m_haveCbpFile = false;
     Mode m_mode;
     QString m_buildDirectory;
     QString m_kitName;
     QString m_buildConfigurationName;
 };
 
-}
-}
+} // namespace Internal
+} // namespace CMakeProjectManager
 
 #endif // CMAKEOPENPROJECTWIZARD_H

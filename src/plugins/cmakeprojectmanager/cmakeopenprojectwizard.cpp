@@ -215,7 +215,7 @@ void CMakeOpenProjectWizard::setKit(Kit *kit)
 NoKitPage::NoKitPage(CMakeOpenProjectWizard *cmakeWizard)
     : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
 {
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     setLayout(layout);
 
     m_descriptionLabel = new QLabel(this);
@@ -227,7 +227,7 @@ NoKitPage::NoKitPage(CMakeOpenProjectWizard *cmakeWizard)
 
     connect(m_optionsButton, &QAbstractButton::clicked, this, &NoKitPage::showOptions);
 
-    QHBoxLayout *hbox = new QHBoxLayout;
+    auto hbox = new QHBoxLayout;
     hbox->addWidget(m_optionsButton);
     hbox->addStretch();
 
@@ -272,7 +272,7 @@ InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
     : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
 {
     setLayout(new QVBoxLayout);
-    QLabel *label = new QLabel(this);
+    auto label = new QLabel(this);
     label->setWordWrap(true);
     label->setText(tr("Qt Creator has detected an <b>in-source-build in %1</b> "
                    "which prevents shadow builds. Qt Creator will not allow you to change the build directory. "
@@ -285,10 +285,10 @@ InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
 ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool change)
     : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
 {
-    QFormLayout *fl = new QFormLayout;
+    auto fl = new QFormLayout;
     this->setLayout(fl);
 
-    QLabel *label = new QLabel(this);
+    auto label = new QLabel(this);
     label->setWordWrap(true);
     if (change)
         label->setText(tr("Please enter the directory in which you want to build your project.") + QLatin1Char(' '));
@@ -317,10 +317,9 @@ void ShadowBuildPage::buildDirectoryChanged()
 // NoCMakePage
 /////
 
-NoCMakePage::NoCMakePage(CMakeOpenProjectWizard *cmakeWizard)
-    : QWizardPage(cmakeWizard)
+NoCMakePage::NoCMakePage(CMakeOpenProjectWizard *cmakeWizard) : QWizardPage(cmakeWizard)
 {
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     setLayout(layout);
 
     m_descriptionLabel = new QLabel(this);
@@ -332,7 +331,7 @@ NoCMakePage::NoCMakePage(CMakeOpenProjectWizard *cmakeWizard)
 
     connect(m_optionsButton, &QAbstractButton::clicked, this, &NoCMakePage::showOptions);
 
-    QHBoxLayout *hbox = new QHBoxLayout;
+    auto hbox = new QHBoxLayout;
     hbox->addWidget(m_optionsButton);
     hbox->addStretch();
 
@@ -370,55 +369,48 @@ void NoCMakePage::showOptions()
 
 CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode,
                            const QString &buildDirectory, const QString &initialArguments,
-                           const QString &kitName, const QString &buildConfigurationName)
-    : QWizardPage(cmakeWizard),
-      m_cmakeWizard(cmakeWizard),
-      m_haveCbpFile(false),
-      m_mode(mode),
-      m_buildDirectory(buildDirectory),
-      m_kitName(kitName),
-      m_buildConfigurationName(buildConfigurationName)
+                           const QString &kitName, const QString &buildConfigurationName) :
+    QWizardPage(cmakeWizard),
+    m_cmakeWizard(cmakeWizard),
+    m_descriptionLabel(new QLabel(this)),
+    m_argumentsLineEdit(new Utils::FancyLineEdit(this)),
+    m_generatorComboBox(new QComboBox(this)),
+    m_generatorExtraText(new QLabel(this)),
+    m_runCMake(new QPushButton(this)),
+    m_output(new QPlainTextEdit(this)),
+    m_exitCodeLabel(new QLabel(this)),
+    m_continueCheckBox(new QCheckBox(this)),
+    m_mode(mode),
+    m_buildDirectory(buildDirectory),
+    m_kitName(kitName),
+    m_buildConfigurationName(buildConfigurationName)
 {
-    initWidgets();
-    m_argumentsLineEdit->setText(initialArguments);
-}
-
-void CMakeRunPage::initWidgets()
-{
-    QFormLayout *fl = new QFormLayout;
+    auto fl = new QFormLayout;
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
     // Description Label
-    m_descriptionLabel = new QLabel(this);
     m_descriptionLabel->setWordWrap(true);
 
     fl->addRow(m_descriptionLabel);
 
     // Run CMake Line (with arguments)
-    m_argumentsLineEdit = new Utils::FancyLineEdit(this);
     m_argumentsLineEdit->setHistoryCompleter(QLatin1String("CMakeArgumentsLineEdit"));
     m_argumentsLineEdit->selectAll();
 
     connect(m_argumentsLineEdit, &QLineEdit::returnPressed, this, &CMakeRunPage::runCMake);
     fl->addRow(tr("Arguments:"), m_argumentsLineEdit);
-
-    m_generatorComboBox = new QComboBox(this);
     fl->addRow(tr("Generator:"), m_generatorComboBox);
-
-    m_generatorExtraText = new QLabel(this);
     fl->addRow(m_generatorExtraText);
 
-    m_runCMake = new QPushButton(this);
     m_runCMake->setText(tr("Run CMake"));
     connect(m_runCMake, &QAbstractButton::clicked, this, &CMakeRunPage::runCMake);
 
-    QHBoxLayout *hbox2 = new QHBoxLayout;
+    auto hbox2 = new QHBoxLayout;
     hbox2->addStretch(10);
     hbox2->addWidget(m_runCMake);
     fl->addRow(hbox2);
 
     // Bottom output window
-    m_output = new QPlainTextEdit(this);
     m_output->setReadOnly(true);
     // set smaller minimum size to avoid vanishing descriptions if all of the
     // above is shown and the dialog not vertically resizing to fit stuff in (Mac)
@@ -431,19 +423,18 @@ void CMakeRunPage::initWidgets()
     m_output->setSizePolicy(pl);
     fl->addRow(m_output);
 
-    m_exitCodeLabel = new QLabel(this);
     m_exitCodeLabel->setVisible(false);
     fl->addRow(m_exitCodeLabel);
 
-    m_continueCheckBox = new QCheckBox(this);
     m_continueCheckBox->setVisible(false);
     m_continueCheckBox->setText(tr("Open project with errors."));
-    fl->addRow(m_continueCheckBox);
-
     connect(m_continueCheckBox, &QCheckBox::toggled, this, &CMakeRunPage::completeChanged);
+    fl->addRow(m_continueCheckBox);
 
     setTitle(tr("Run CMake"));
     setMinimumSize(600, 400);
+
+    m_argumentsLineEdit->setText(initialArguments);
 }
 
 QByteArray CMakeRunPage::cachedGeneratorFromFile(const QString &cache)
@@ -532,6 +523,7 @@ bool CMakeRunPage::validatePage()
 
 void CMakeRunPage::runCMake()
 {
+    QTC_ASSERT(!m_cmakeProcess, return);
     m_haveCbpFile = false;
 
     Utils::Environment env = m_cmakeWizard->environment();

@@ -27,8 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CMAKEPROJECTMANAGER_CMAKEKITINFORMATION_H
-#define CMAKEPROJECTMANAGER_CMAKEKITINFORMATION_H
+#ifndef CMAKEKITINFORMATION_H
+#define CMAKEKITINFORMATION_H
 
 #include "cmake_global.h"
 
@@ -55,10 +55,10 @@ public:
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
     void setup(ProjectExplorer::Kit *k) override;
     void fix(ProjectExplorer::Kit *k) override;
-    virtual ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
-    virtual ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
 };
 
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTMANAGER_CMAKEKITINFORMATION_H
+#endif // CMAKEKITINFORMATION_H

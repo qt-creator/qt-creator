@@ -537,7 +537,7 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurren
 // CMakeSettingsPage
 ////
 
-CMakeSettingsPage::CMakeSettingsPage() : m_widget(0)
+CMakeSettingsPage::CMakeSettingsPage()
 {
     setId(Constants::CMAKE_SETTINGSPAGE_ID);
     setDisplayName(tr("CMake"));
@@ -545,10 +545,6 @@ CMakeSettingsPage::CMakeSettingsPage() : m_widget(0)
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
        ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
-}
-
-CMakeSettingsPage::~CMakeSettingsPage()
-{
 }
 
 QWidget *CMakeSettingsPage::widget()

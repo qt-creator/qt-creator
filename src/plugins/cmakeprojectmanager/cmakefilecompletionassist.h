@@ -54,10 +54,9 @@ class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistPro
 
 public:
     CMakeFileCompletionAssistProvider();
-    ~CMakeFileCompletionAssistProvider();
 
-    bool supportsEditor(Core::Id editorId) const;
-    TextEditor::IAssistProcessor *createProcessor() const;
+    bool supportsEditor(Core::Id editorId) const override;
+    TextEditor::IAssistProcessor *createProcessor() const override;
 };
 
 } // Internal

@@ -48,9 +48,9 @@ namespace Internal {
 CMakeKitConfigWidget::CMakeKitConfigWidget(ProjectExplorer::Kit *kit,
                                            const ProjectExplorer::KitInformation *ki) :
     ProjectExplorer::KitConfigWidget(kit, ki),
-    m_removingItem(false)
+    m_comboBox(new QComboBox),
+    m_manageButton(new QPushButton(KitConfigWidget::msgManage()))
 {
-    m_comboBox = new QComboBox;
     m_comboBox->setEnabled(false);
     m_comboBox->setToolTip(toolTip());
 
@@ -63,7 +63,6 @@ CMakeKitConfigWidget::CMakeKitConfigWidget(ProjectExplorer::Kit *kit,
     connect(m_comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &CMakeKitConfigWidget::currentCMakeToolChanged);
 
-    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     connect(m_manageButton, &QPushButton::clicked,
             this, &CMakeKitConfigWidget::manageCMakeTools);

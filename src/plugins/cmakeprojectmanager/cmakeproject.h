@@ -69,8 +69,9 @@ enum TargetType {
     UtilityType = 64
 };
 
-struct CMAKE_EXPORT CMakeBuildTarget
+class CMAKE_EXPORT CMakeBuildTarget
 {
+public:
     QString title;
     QString executable; // TODO: rename to output?
     TargetType targetType;
@@ -131,14 +132,13 @@ protected:
     // called by CMakeBuildSettingsWidget
     void changeBuildDirectory(Internal::CMakeBuildConfiguration *bc, const QString &newBuildDirectory);
 
-private slots:
+private:
     void fileChanged(const QString &fileName);
     void activeTargetWasChanged(ProjectExplorer::Target *target);
     void changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*);
 
     void updateRunConfigurations();
 
-private:
     void buildTree(Internal::CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
     ProjectExplorer::FolderNode *findOrCreateFolder(Internal::CMakeProjectNode *rootNode, QString directory);

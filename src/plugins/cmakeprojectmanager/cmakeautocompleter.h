@@ -42,7 +42,6 @@ class CMAKE_EXPORT CMakeAutoCompleter : public TextEditor::AutoCompleter
 {
 public:
     CMakeAutoCompleter();
-    virtual ~CMakeAutoCompleter() {}
 
     bool isInComment(const QTextCursor &cursor) const override;
     bool isInString(const QTextCursor &cursor) const override;

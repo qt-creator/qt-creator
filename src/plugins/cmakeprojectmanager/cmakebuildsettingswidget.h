@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_CMAKEBUILDSETTINGSWIDGET_H
-#define CMAKEPROJECTMANAGER_INTERNAL_CMAKEBUILDSETTINGSWIDGET_H
+#ifndef CMAKEBUILDSETTINGSWIDGET_H
+#define CMAKEBUILDSETTINGSWIDGET_H
 
 #include <projectexplorer/namedwidget.h>
 
@@ -47,16 +47,16 @@ class CMakeBuildSettingsWidget : public ProjectExplorer::NamedWidget
 public:
     CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
 
-private slots:
+private:
     void openChangeBuildDirectoryDialog();
     void runCMake();
-private:
+
     QLineEdit *m_pathLineEdit;
     QPushButton *m_changeButton;
-    CMakeBuildConfiguration *m_buildConfiguration;
+    CMakeBuildConfiguration *m_buildConfiguration = 0;
 };
 
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTMANAGER_INTERNAL_CMAKEBUILDSETTINGSWIDGET_H
+#endif // CMAKEBUILDSETTINGSWIDGET_H

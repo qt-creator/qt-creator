@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECTMANAGER_INTERNAL_CMAKEFILE_H
-#define CMAKEPROJECTMANAGER_INTERNAL_CMAKEFILE_H
+#ifndef CMAKEFILE_H
+#define CMAKEFILE_H
 
 #include <coreplugin/idocument.h>
 
@@ -62,4 +62,4 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTMANAGER_INTERNAL_CMAKEFILE_H
+#endif // CMAKEFILE_H

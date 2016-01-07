@@ -53,18 +53,13 @@ CMakeLocatorFilter::CMakeLocatorFilter()
     setShortcutString(QLatin1String("cm"));
     setPriority(High);
 
-    connect(SessionManager::instance(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(slotProjectListUpdated()));
-    connect(SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            this, SLOT(slotProjectListUpdated()));
+    connect(SessionManager::instance(), &SessionManager::projectAdded,
+            this, &CMakeLocatorFilter::slotProjectListUpdated);
+    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+            this, &CMakeLocatorFilter::slotProjectListUpdated);
 
     // Initialize the filter
     slotProjectListUpdated();
-}
-
-CMakeLocatorFilter::~CMakeLocatorFilter()
-{
-
 }
 
 void CMakeLocatorFilter::prepareSearch(const QString &entry)

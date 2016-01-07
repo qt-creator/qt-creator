@@ -74,14 +74,12 @@ const char ADD_RUNCONFIGURATION_ARGUMENT_KEY[] = "CMakeProjectManager.MakeStep.A
 const char ADD_RUNCONFIGURATION_TEXT[] = "Current executable";
 }
 
-CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(MS_ID)), m_addRunConfigurationArgument(false)
+CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Core::Id(MS_ID))
 {
     ctor();
 }
 
-CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id), m_addRunConfigurationArgument(false)
+CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
 {
     ctor();
 }
@@ -357,25 +355,26 @@ QString CMakeBuildStep::cleanTarget()
 // CMakeBuildStepConfigWidget
 //
 
-CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep)
-    : m_buildStep(buildStep)
+CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep) :
+    m_buildStep(buildStep),
+    m_toolArguments(new QLineEdit),
+    m_buildTargetsList(new QListWidget)
 {
-    QFormLayout *fl = new QFormLayout(this);
+    auto fl = new QFormLayout(this);
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
 
-    m_toolArguments = new QLineEdit(this);
     fl->addRow(tr("Tool arguments:"), m_toolArguments);
     m_toolArguments->setText(m_buildStep->toolArguments());
 
-    m_buildTargetsList = new QListWidget;
+
     m_buildTargetsList->setFrameStyle(QFrame::NoFrame);
     m_buildTargetsList->setMinimumHeight(200);
 
-    QFrame *frame = new QFrame(this);
+    auto frame = new QFrame(this);
     frame->setFrameStyle(QFrame::StyledPanel);
-    QVBoxLayout *frameLayout = new QVBoxLayout(frame);
+    auto frameLayout = new QVBoxLayout(frame);
     frameLayout->setMargin(0);
     frameLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_buildTargetsList,
                                                                        Core::ItemViewFind::LightColored));
@@ -393,7 +392,7 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
     QStringList targetList = pro->buildTargetTitles();
     targetList.sort();
     foreach (const QString &buildTarget, targetList) {
-        QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
+        auto item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(m_buildStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
@@ -437,7 +436,7 @@ void CMakeBuildStepConfigWidget::buildTargetsChanged()
 
     CMakeProject *pro = static_cast<CMakeProject *>(m_buildStep->target()->project());
     foreach (const QString& buildTarget, pro->buildTargetTitles()) {
-        QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
+        auto item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(m_buildStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
@@ -501,7 +500,7 @@ BuildStep *CMakeBuildStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
-    CMakeBuildStep *step = new CMakeBuildStep(parent);
+    auto step = new CMakeBuildStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
         step->setBuildTarget(CMakeBuildStep::cleanTarget(), true);
     return step;
@@ -528,7 +527,7 @@ BuildStep *CMakeBuildStepFactory::restore(BuildStepList *parent, const QVariantM
 {
     if (!canRestore(parent, map))
         return 0;
-    CMakeBuildStep *bs(new CMakeBuildStep(parent));
+    auto bs = new CMakeBuildStep(parent);
     if (bs->fromMap(map))
         return bs;
     delete bs;

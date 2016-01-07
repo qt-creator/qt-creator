@@ -52,7 +52,9 @@
 
 using namespace CMakeProjectManager::Internal;
 
-CMakeManager::CMakeManager()
+CMakeManager::CMakeManager() :
+    m_runCMakeAction(new QAction(QIcon(), tr("Run CMake"), this)),
+    m_runCMakeActionContextMenu(new QAction(QIcon(), tr("Run CMake"), this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
@@ -64,7 +66,6 @@ CMakeManager::CMakeManager()
     const Core::Context projectContext(CMakeProjectManager::Constants::PROJECTCONTEXT);
     const Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
-    m_runCMakeAction = new QAction(QIcon(), tr("Run CMake"), this);
     Core::Command *command = Core::ActionManager::registerAction(m_runCMakeAction,
                                                                  Constants::RUNCMAKE, globalcontext);
     command->setAttribute(Core::Command::CA_Hide);
@@ -73,7 +74,6 @@ CMakeManager::CMakeManager()
         runCMake(ProjectExplorer::SessionManager::startupProject());
     });
 
-    m_runCMakeActionContextMenu = new QAction(QIcon(), tr("Run CMake"), this);
     command = Core::ActionManager::registerAction(m_runCMakeActionContextMenu,
                                                   Constants::RUNCMAKECONTEXTMENU, projectContext);
     command->setAttribute(Core::Command::CA_Hide);

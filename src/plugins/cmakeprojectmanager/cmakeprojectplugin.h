@@ -41,19 +41,15 @@ class CMakeToolManager;
 
 namespace Internal {
 
-class CMakeProjectPlugin
-  : public ExtensionSystem::IPlugin
+class CMakeProjectPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
 
 public:
-    CMakeProjectPlugin();
-    ~CMakeProjectPlugin();
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-
-    void extensionsInitialized();
+    void extensionsInitialized() override;
 
 private slots:
 #ifdef WITH_TESTS

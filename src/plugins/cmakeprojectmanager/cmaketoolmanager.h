@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECTMANAGER_CMAKETOOLMANAGER_H
-#define CMAKEPROJECTMANAGER_CMAKETOOLMANAGER_H
+#ifndef CMAKETOOLMANAGER_H
+#define CMAKETOOLMANAGER_H
 
 #include "cmake_global.h"
 #include "cmaketool.h"
@@ -49,7 +49,7 @@ public:
     typedef std::function<QList<CMakeTool *> ()> AutodetectionHelper;
 
     CMakeToolManager(QObject *parent);
-    ~CMakeToolManager();
+    ~CMakeToolManager() override;
 
     static CMakeToolManager *instance();
 
@@ -86,4 +86,4 @@ private:
 
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTMANAGER_CMAKETOOLMANAGER_H
+#endif // CMAKETOOLMANAGER_H

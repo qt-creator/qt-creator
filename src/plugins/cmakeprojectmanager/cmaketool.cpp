@@ -48,23 +48,17 @@ const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 ///////////////////////////
 // CMakeTool
 ///////////////////////////
-CMakeTool::CMakeTool(Detection d, const Core::Id &id)
-    : m_state(Invalid), m_process(0),
-      m_isAutoDetected(d == AutoDetection),
-      m_hasCodeBlocksMsvcGenerator(false),
-      m_hasCodeBlocksNinjaGenerator(false),
-      m_id(id)
+CMakeTool::CMakeTool(Detection d, const Core::Id &id) :
+    m_isAutoDetected(d == AutoDetection),
+    m_id(id)
 {
     //make sure every CMakeTool has a valid ID
     if (!m_id.isValid())
         createId();
 }
 
-CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk)
-    : m_state(Invalid), m_process(0),
-      m_isAutoDetected(fromSdk),
-      m_hasCodeBlocksMsvcGenerator(false),
-      m_hasCodeBlocksNinjaGenerator(false)
+CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
+    m_isAutoDetected(fromSdk)
 {
     m_id = Core::Id::fromSetting(map.value(QLatin1String(CMAKE_INFORMATION_ID)));
     m_displayName = map.value(QLatin1String(CMAKE_INFORMATION_DISPLAYNAME)).toString();

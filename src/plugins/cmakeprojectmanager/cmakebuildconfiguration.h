@@ -51,13 +51,12 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
 public:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent);
-    ~CMakeBuildConfiguration();
 
-    ProjectExplorer::NamedWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget() override;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
-    BuildType buildType() const;
+    BuildType buildType() const override;
 
     void emitBuildTypeChanged();
 
@@ -66,7 +65,7 @@ public:
 
 protected:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, CMakeBuildConfiguration *source);
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) override;
 
 private:
     QString m_initialArguments;
@@ -80,20 +79,19 @@ class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurati
 
 public:
     CMakeBuildConfigurationFactory(QObject *parent = 0);
-    ~CMakeBuildConfigurationFactory();
 
-    int priority(const ProjectExplorer::Target *parent) const;
-    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const;
-    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const;
+    int priority(const ProjectExplorer::Target *parent) const override;
+    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const override;
+    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const override;
     QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k,
-                                                        const QString &projectPath) const;
+                                                        const QString &projectPath) const override;
     ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
-                                                const ProjectExplorer::BuildInfo *info) const;
+                                                const ProjectExplorer::BuildInfo *info) const override;
 
-    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
-    CMakeBuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
-    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    CMakeBuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const override;
+    CMakeBuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) override;
+    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const override;
+    CMakeBuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
 
 private:
     bool canHandle(const ProjectExplorer::Target *t) const;

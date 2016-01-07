@@ -42,8 +42,7 @@ using namespace ProjectExplorer;
 const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*):([0-9]*) \\((.*)\\):";
 const char NEXT_SUBERROR_PATTERN[] = "^CMake Error in (.*):";
 
-CMakeParser::CMakeParser() :
-    m_skippedFirstEmptyLine(false)
+CMakeParser::CMakeParser()
 {
     m_commonError.setPattern(QLatin1String(COMMON_ERROR_PATTERN));
     m_commonError.setMinimal(true);

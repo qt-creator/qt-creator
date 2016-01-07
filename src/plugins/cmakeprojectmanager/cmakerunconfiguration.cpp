@@ -68,8 +68,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const 
                                              const QString &workingDirectory, const QString &title) :
     LocalApplicationRunConfiguration(parent, id),
     m_buildTarget(target),
-    m_title(title),
-    m_enabled(true)
+    m_title(title)
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.Arguments")));
@@ -223,10 +222,6 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 CMakeRunConfigurationFactory::CMakeRunConfigurationFactory(QObject *parent) :
     IRunConfigurationFactory(parent)
 { setObjectName(QLatin1String("CMakeRunConfigurationFactory")); }
-
-CMakeRunConfigurationFactory::~CMakeRunConfigurationFactory()
-{
-}
 
 // used to show the list of possible additons to a project, returns a list of ids
 QList<Core::Id> CMakeRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
