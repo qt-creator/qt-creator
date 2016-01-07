@@ -47,7 +47,7 @@ CMakePreloadCacheKitInformation::CMakePreloadCacheKitInformation()
 {
     setObjectName(QLatin1String("CMakePreloadCacheKitInformation"));
     setId(CMakePreloadCacheKitInformation::id());
-    setPriority(20000);
+    setPriority(19000);
 }
 
 Core::Id CMakePreloadCacheKitInformation::id()
