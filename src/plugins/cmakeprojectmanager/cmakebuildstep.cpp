@@ -49,6 +49,7 @@
 
 #include <coreplugin/find/itemviewfind.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
 #include <utils/pathchooser.h>
 
@@ -148,11 +149,9 @@ void CMakeBuildStep::activeBuildConfigurationChanged()
 
 void CMakeBuildStep::buildTargetsChanged()
 {
-    QStringList filteredTargets;
-    foreach (const QString &t, static_cast<CMakeProject *>(project())->buildTargetTitles()) {
-        if (m_buildTargets.contains(t))
-            filteredTargets.append(t);
-    }
+    const QStringList filteredTargets
+            = Utils::filtered(static_cast<CMakeProject *>(project())->buildTargetTitles(),
+                              [this](const QString &s) { return m_buildTargets.contains(s); });
     setBuildTargets(filteredTargets);
 }
 
