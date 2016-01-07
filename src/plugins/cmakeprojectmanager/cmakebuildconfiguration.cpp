@@ -237,8 +237,7 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
 
     MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
     cleanSteps->insertStep(0, cleanMakeStep);
-    cleanMakeStep->setAdditionalArguments(QLatin1String("clean"));
-    cleanMakeStep->setClean(true);
+    cleanMakeStep->setBuildTarget(MakeStep::cleanTarget(), true);
 
     bc->setBuildDirectory(copy.buildDirectory);
     bc->setInitialArguments(copy.arguments);

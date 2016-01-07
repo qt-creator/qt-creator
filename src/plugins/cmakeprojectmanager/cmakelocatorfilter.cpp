@@ -124,7 +124,6 @@ void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection) const
 
     // Change the make step to build only the given target
     QStringList oldTargets = makeStep->buildTargets();
-    makeStep->setClean(false);
     makeStep->clearBuildTargets();
     makeStep->setBuildTarget(selection.displayName, true);
 

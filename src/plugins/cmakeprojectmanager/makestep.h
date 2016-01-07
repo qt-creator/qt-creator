@@ -81,12 +81,13 @@ public:
 
     QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const;
 
-    void setClean(bool clean);
-
     QVariantMap toMap() const override;
 
     void setUserMakeCommand(const QString &make);
     QString userMakeCommand() const;
+
+    static QString cleanTarget();
+
 private:
     void activeBuildConfigurationChanged();
     void buildTargetsChanged();
@@ -112,7 +113,6 @@ private:
     CMakeBuildConfiguration *targetsActiveBuildConfiguration() const;
     CMakeRunConfiguration *targetsActiveRunConfiguration() const;
 
-    bool m_clean;
     QRegExp m_percentProgress;
     QRegExp m_ninjaProgress;
     QString m_ninjaProgressString;

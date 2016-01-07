@@ -64,7 +64,7 @@ using namespace ProjectExplorer;
 
 namespace {
 const char MS_ID[] = "CMakeProjectManager.MakeStep";
-const char CLEAN_KEY[] = "CMakeProjectManager.MakeStep.Clean";
+const char CLEAN_KEY[] = "CMakeProjectManager.MakeStep.Clean"; // Obsolete since QtC 3.7
 const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
 const char ADDITIONAL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
 const char ADD_RUNCONFIGURATION_ARGUMENT_KEY[] = "CMakeProjectManager.MakeStep.AddRunConfigurationArgument";
@@ -73,20 +73,19 @@ const char ADD_RUNCONFIGURATION_TEXT[] = "Current executable";
 }
 
 MakeStep::MakeStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(MS_ID)), m_clean(false), m_addRunConfigurationArgument(false)
+    AbstractProcessStep(bsl, Core::Id(MS_ID)), m_addRunConfigurationArgument(false)
 {
     ctor();
 }
 
 MakeStep::MakeStep(BuildStepList *bsl, Core::Id id) :
-    AbstractProcessStep(bsl, id), m_clean(false), m_addRunConfigurationArgument(false)
+    AbstractProcessStep(bsl, id), m_addRunConfigurationArgument(false)
 {
     ctor();
 }
 
 MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
     AbstractProcessStep(bsl, bs),
-    m_clean(bs->m_clean),
     m_buildTargets(bs->m_buildTargets),
     m_additionalArguments(bs->m_additionalArguments),
     m_addRunConfigurationArgument(bs->m_addRunConfigurationArgument),
@@ -157,15 +156,9 @@ void MakeStep::buildTargetsChanged()
     setBuildTargets(filteredTargets);
 }
 
-void MakeStep::setClean(bool clean)
-{
-    m_clean = clean;
-}
-
 QVariantMap MakeStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
-    map.insert(QLatin1String(CLEAN_KEY), m_clean);
     map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
     map.insert(QLatin1String(ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
     map.insert(QLatin1String(ADD_RUNCONFIGURATION_ARGUMENT_KEY), m_addRunConfigurationArgument);
@@ -175,9 +168,12 @@ QVariantMap MakeStep::toMap() const
 
 bool MakeStep::fromMap(const QVariantMap &map)
 {
-    m_clean = map.value(QLatin1String(CLEAN_KEY), false).toBool();
-    m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
-    m_additionalArguments = map.value(QLatin1String(ADDITIONAL_ARGUMENTS_KEY)).toString();
+    if (map.value(QLatin1String(CLEAN_KEY), false).toBool()) {
+        m_buildTargets = QStringList({ MakeStep::cleanTarget() });
+    } else {
+        m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
+        m_additionalArguments = map.value(QLatin1String(ADDITIONAL_ARGUMENTS_KEY)).toString();
+    }
     m_addRunConfigurationArgument = map.value(QLatin1String(ADD_RUNCONFIGURATION_ARGUMENT_KEY), false).toBool();
     m_makeCmd = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
 
@@ -225,7 +221,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     Utils::QtcProcess::addArgs(&arguments, m_buildTargets);
     Utils::QtcProcess::addArgs(&arguments, additionalArguments());
 
-    setIgnoreReturnValue(m_clean);
+    setIgnoreReturnValue(m_buildTargets.contains(MakeStep::cleanTarget()));
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
@@ -373,6 +369,11 @@ void MakeStep::setUserMakeCommand(const QString &make)
 QString MakeStep::userMakeCommand() const
 {
     return m_makeCmd;
+}
+
+QString MakeStep::cleanTarget()
+{
+    return QLatin1String("clean");
 }
 
 //
@@ -557,10 +558,8 @@ BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)
     if (!canCreate(parent, id))
         return 0;
     MakeStep *step = new MakeStep(parent);
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-        step->setClean(true);
-        step->setAdditionalArguments(QLatin1String("clean"));
-    }
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
+        step->setBuildTarget(MakeStep::cleanTarget(), true);
     return step;
 }
 
