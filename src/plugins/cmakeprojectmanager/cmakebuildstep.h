@@ -59,10 +59,9 @@ public:
     explicit CMakeBuildStep(ProjectExplorer::BuildStepList *bsl);
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
+    CMakeBuildConfiguration *targetsActiveBuildConfiguration() const;
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
-
-    void run(QFutureInterface<bool> &fi) override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override;
@@ -73,27 +72,25 @@ public:
     void setBuildTargets(const QStringList &targets);
     void clearBuildTargets();
 
-    QString additionalArguments() const;
-    void setAdditionalArguments(const QString &list);
+    QString toolArguments() const;
+    void setToolArguments(const QString &list);
+
+    QString allArguments(const CMakeRunConfiguration *rc) const;
 
     bool addRunConfigurationArgument() const;
     void setAddRunConfigurationArgument(bool add);
 
-    QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const;
+    QString cmakeCommand() const;
 
     QVariantMap toMap() const override;
-
-    void setUserMakeCommand(const QString &make);
-    QString userMakeCommand() const;
 
     static QString cleanTarget();
 
 private:
-    void activeBuildConfigurationChanged();
     void buildTargetsChanged();
 
 signals:
-    void makeCommandChanged();
+    void cmakeCommandChanged();
     void targetsToBuildChanged();
 
 protected:
@@ -110,18 +107,15 @@ protected:
 
 private:
     void ctor();
-    CMakeBuildConfiguration *targetsActiveBuildConfiguration() const;
     CMakeRunConfiguration *targetsActiveRunConfiguration() const;
 
     QRegExp m_percentProgress;
     QRegExp m_ninjaProgress;
     QString m_ninjaProgressString;
     QStringList m_buildTargets;
-    QString m_additionalArguments;
+    QString m_toolArguments;
     bool m_addRunConfigurationArgument;
     bool m_useNinja;
-    CMakeBuildConfiguration *m_activeConfiguration;
-    QString m_makeCmd;
 };
 
 class CMakeBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
@@ -134,17 +128,15 @@ public:
 
 private:
     void itemChanged(QListWidgetItem*);
-    void makeEdited();
-    void additionalArgumentsEdited();
+    void toolArgumentsEdited();
     void updateDetails();
     void buildTargetsChanged();
     void selectedBuildTargetsChanged();
 
 private:
     CMakeBuildStep *m_buildStep;
-    Utils::PathChooser *m_makePathChooser;
     QListWidget *m_buildTargetsList;
-    QLineEdit *m_additionalArguments;
+    QLineEdit *m_toolArguments;
     QString m_summaryText;
 };
 
@@ -154,7 +146,6 @@ class CMakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
 
 public:
     explicit CMakeBuildStepFactory(QObject *parent = 0);
-    virtual ~CMakeBuildStepFactory();
 
     bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
     ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
