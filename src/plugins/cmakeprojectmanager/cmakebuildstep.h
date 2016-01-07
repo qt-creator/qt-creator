@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 
-#ifndef MAKESTEP_H
-#define MAKESTEP_H
+#ifndef CMAKEBUILDSTEP_H
+#define CMAKEBUILDSTEP_H
 
 #include <projectexplorer/abstractprocessstep.h>
 
@@ -48,15 +48,15 @@ namespace Internal {
 
 class CMakeBuildConfiguration;
 class CMakeRunConfiguration;
-class MakeStepFactory;
+class CMakeBuildStepFactory;
 
-class MakeStep : public ProjectExplorer::AbstractProcessStep
+class CMakeBuildStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
-    friend class MakeStepFactory;
+    friend class CMakeBuildStepFactory;
 
 public:
-    explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
+    explicit CMakeBuildStep(ProjectExplorer::BuildStepList *bsl);
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
@@ -100,8 +100,8 @@ protected:
     void processStarted() override;
     void processFinished(int exitCode, QProcess::ExitStatus status) override;
 
-    MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs);
-    MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
+    CMakeBuildStep(ProjectExplorer::BuildStepList *bsl, CMakeBuildStep *bs);
+    CMakeBuildStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     bool fromMap(const QVariantMap &map) override;
 
@@ -124,11 +124,11 @@ private:
     QString m_makeCmd;
 };
 
-class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+class CMakeBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    MakeStepConfigWidget(MakeStep *makeStep);
+    CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep);
     virtual QString displayName() const;
     virtual QString summaryText() const;
 
@@ -141,20 +141,20 @@ private:
     void selectedBuildTargetsChanged();
 
 private:
-    MakeStep *m_makeStep;
+    CMakeBuildStep *m_buildStep;
     Utils::PathChooser *m_makePathChooser;
     QListWidget *m_buildTargetsList;
     QLineEdit *m_additionalArguments;
     QString m_summaryText;
 };
 
-class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
+class CMakeBuildStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
 
 public:
-    explicit MakeStepFactory(QObject *parent = 0);
-    virtual ~MakeStepFactory();
+    explicit CMakeBuildStepFactory(QObject *parent = 0);
+    virtual ~CMakeBuildStepFactory();
 
     bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
     ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
@@ -170,4 +170,4 @@ public:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // MAKESTEP_H
+#endif // CMAKEBUILDSTEP_H

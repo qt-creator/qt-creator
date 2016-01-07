@@ -31,10 +31,10 @@
 #include "cmakeproject.h"
 
 #include "cmakebuildconfiguration.h"
+#include "cmakebuildstep.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
 #include "cmakerunconfiguration.h"
-#include "makestep.h"
 #include "cmakeopenprojectwizard.h"
 #include "cmakecbpparser.h"
 #include "cmakefile.h"

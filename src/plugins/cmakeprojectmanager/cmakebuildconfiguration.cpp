@@ -31,12 +31,12 @@
 #include "cmakebuildconfiguration.h"
 
 #include "cmakebuildinfo.h"
+#include "cmakebuildstep.h"
 #include "cmakeopenprojectwizard.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakebuildsettingswidget.h"
 #include "cmakeprojectmanager.h"
-#include "makestep.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -232,19 +232,19 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
     ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 
-    MakeStep *makeStep = new MakeStep(buildSteps);
-    buildSteps->insertStep(0, makeStep);
+    auto buildStep = new CMakeBuildStep(buildSteps);
+    buildSteps->insertStep(0, buildStep);
 
-    MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
-    cleanSteps->insertStep(0, cleanMakeStep);
-    cleanMakeStep->setBuildTarget(MakeStep::cleanTarget(), true);
+    auto cleanStep = new CMakeBuildStep(cleanSteps);
+    cleanSteps->insertStep(0, cleanStep);
+    cleanStep->setBuildTarget(CMakeBuildStep::cleanTarget(), true);
 
     bc->setBuildDirectory(copy.buildDirectory);
     bc->setInitialArguments(copy.arguments);
 
     // Default to all
     if (project->hasBuildTarget(QLatin1String("all")))
-        makeStep->setBuildTarget(QLatin1String("all"), true);
+        buildStep->setBuildTarget(QLatin1String("all"), true);
 
     return bc;
 }

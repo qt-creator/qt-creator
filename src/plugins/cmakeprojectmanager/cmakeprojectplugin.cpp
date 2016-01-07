@@ -31,10 +31,10 @@
 #include "cmakeprojectplugin.h"
 
 #include "cmakeeditor.h"
+#include "cmakebuildstep.h"
 #include "cmakeprojectmanager.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakerunconfiguration.h"
-#include "makestep.h"
 #include "cmakeprojectconstants.h"
 #include "cmakelocatorfilter.h"
 #include "cmakesettingspage.h"
@@ -67,7 +67,7 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 
     addAutoReleasedObject(new CMakeSettingsPage);
     addAutoReleasedObject(new CMakeManager);
-    addAutoReleasedObject(new MakeStepFactory);
+    addAutoReleasedObject(new CMakeBuildStepFactory);
     addAutoReleasedObject(new CMakeRunConfigurationFactory);
     addAutoReleasedObject(new CMakeBuildConfigurationFactory);
     addAutoReleasedObject(new CMakeEditorFactory);

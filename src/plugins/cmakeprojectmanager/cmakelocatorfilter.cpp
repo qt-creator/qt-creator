@@ -29,16 +29,17 @@
 ****************************************************************************/
 
 #include "cmakelocatorfilter.h"
+#include "cmakebuildstep.h"
 #include "cmakeproject.h"
-#include "makestep.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildsteplist.h>
-#include <utils/fileutils.h>
 
+#include <utils/algorithm.h>
+#include <utils/fileutils.h>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -111,25 +112,22 @@ void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection) const
         return;
 
     // Find the make step
-    MakeStep *makeStep = 0;
     ProjectExplorer::BuildStepList *buildStepList = cmakeProject->activeTarget()->activeBuildConfiguration()
             ->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    for (int i = 0; i < buildStepList->count(); ++i) {
-        makeStep = qobject_cast<MakeStep *>(buildStepList->at(i));
-        if (makeStep)
-            break;
-    }
-    if (!makeStep)
+    auto buildStep
+            = qobject_cast<CMakeBuildStep *>(findOrDefault(buildStepList->steps(),
+                                                           [](BuildStep *s) -> bool { return qobject_cast<CMakeBuildStep *>(s); }));
+    if (!buildStep)
         return;
 
     // Change the make step to build only the given target
-    QStringList oldTargets = makeStep->buildTargets();
-    makeStep->clearBuildTargets();
-    makeStep->setBuildTarget(selection.displayName, true);
+    QStringList oldTargets = buildStep->buildTargets();
+    buildStep->clearBuildTargets();
+    buildStep->setBuildTarget(selection.displayName, true);
 
     // Build
     ProjectExplorerPlugin::buildProject(cmakeProject);
-    makeStep->setBuildTargets(oldTargets);
+    buildStep->setBuildTargets(oldTargets);
 }
 
 void CMakeLocatorFilter::refresh(QFutureInterface<void> &future)
