@@ -5,8 +5,8 @@ QtcLibrary {
 
     cpp.defines: base.concat("QMT_LIBRARY")
     cpp.includePaths: base.concat([
-        "../3rdparty/modeling",
-        "../3rdparty/modeling/qtserialization/inc",
+        ".",
+        "./qtserialization/inc",
     ])
 
     Depends { name: "Qt.widgets" }
@@ -14,7 +14,7 @@ QtcLibrary {
 
     Group {
         name: "Qmt"
-        prefix: "../3rdparty/modeling/qmt/"
+        prefix: "./qmt/"
         files: [
             "config/configcontroller.cpp",
             "config/configcontroller.h",
@@ -296,7 +296,7 @@ QtcLibrary {
 
     Group {
         name: "QStringParser"
-        prefix: "../3rdparty/modeling/qstringparser/"
+        prefix: "./qstringparser/"
         files: [
             "qstringparser.cpp",
             "qstringparser.h",
@@ -305,7 +305,7 @@ QtcLibrary {
 
     Group {
         name: "QtSerialization"
-        prefix: "../3rdparty/modeling/qtserialization/"
+        prefix: "./qtserialization/"
         files: [
             "inc/qark/access.h",
             "inc/qark/archivebasics.h",
@@ -334,8 +334,9 @@ QtcLibrary {
 
     Group {
         name: "Images"
-        prefix: "../3rdparty/modeling/qmt/resources/"
+        prefix: "./qmt/resources/"
         files: [
+            "resources.qrc",
             "25x25/align-bottom.png",
             "25x25/align-horizontal.png",
             "25x25/align-left.png",
@@ -362,8 +363,8 @@ QtcLibrary {
 
     Export {
         cpp.includePaths: [
-            "../3rdparty/modeling",
-            "../3rdparty/modeling/qtserialization/inc"
+            ".",
+            "./qtserialization/inc"
         ]
     }
 }
