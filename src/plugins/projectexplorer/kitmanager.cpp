@@ -268,7 +268,7 @@ static bool isLoaded()
     return d->m_initialized;
 }
 
-bool greaterPriority(KitInformation *a, KitInformation *b)
+static bool greaterPriority(KitInformation *a, KitInformation *b)
 {
     return a->priority() > b->priority();
 }
