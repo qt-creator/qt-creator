@@ -180,12 +180,10 @@ void Project::addTarget(Target *t)
 
     // add it
     d->m_targets.push_back(t);
-    connect(t, SIGNAL(environmentChanged()),
-            SLOT(changeEnvironment()));
-    connect(t, SIGNAL(buildConfigurationEnabledChanged()),
-            this, SLOT(changeBuildConfigurationEnabled()));
-    connect(t, SIGNAL(buildDirectoryChanged()),
-            this, SLOT(onBuildDirectoryChanged()));
+    connect(t, &Target::environmentChanged, this, &Project::changeEnvironment);
+    connect(t, &Target::buildConfigurationEnabledChanged,
+            this, &Project::changeBuildConfigurationEnabled);
+    connect(t, &Target::buildDirectoryChanged, this, &Project::onBuildDirectoryChanged);
     emit addedTarget(t);
 
     // check activeTarget:

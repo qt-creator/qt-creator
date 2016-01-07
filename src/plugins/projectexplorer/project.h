@@ -61,8 +61,7 @@ class Target;
 class ProjectPrivate;
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT Project
-    : public QObject
+class PROJECTEXPLORER_EXPORT Project : public QObject
 {
     friend class SessionManager; // for setActiveTarget
     Q_OBJECT
@@ -180,12 +179,11 @@ protected:
     void removeProjectLanguage(Core::Id id);
     void setProjectLanguage(Core::Id id, bool enabled);
 
-private slots:
+private:
     void changeEnvironment();
     void changeBuildConfigurationEnabled();
     void onBuildDirectoryChanged();
 
-private:
     void setActiveTarget(Target *target);
     ProjectPrivate *d;
 };
