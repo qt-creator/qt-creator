@@ -40,6 +40,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icontext.h>
+#include <utils/algorithm.h>
 #include <utils/appmainwindow.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
@@ -485,11 +486,7 @@ QList<ILocatorFilter *> LocatorWidget::filtersFor(const QString &text, QString &
             return prefixFilters;
     }
     searchText = text.trimmed();
-    QList<ILocatorFilter *> activeFilters;
-    foreach (ILocatorFilter *filter, filters)
-        if (filter->isIncludedByDefault())
-            activeFilters << filter;
-    return activeFilters;
+    return Utils::filtered(filters, &ILocatorFilter::isIncludedByDefault);
 }
 
 void LocatorWidget::setProgressIndicatorVisible(bool visible)
