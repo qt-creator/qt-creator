@@ -57,18 +57,18 @@ class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
 
 public:
     QmlProject(Internal::Manager *manager, const Utils::FileName &filename);
-    virtual ~QmlProject();
+    ~QmlProject() override;
 
     Utils::FileName filesFileName() const;
 
-    QString displayName() const;
-    Core::IDocument *document() const;
-    ProjectExplorer::IProjectManager *projectManager() const;
+    QString displayName() const override;
+    Core::IDocument *document() const override;
+    ProjectExplorer::IProjectManager *projectManager() const override;
 
-    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
+    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
 
-    ProjectExplorer::ProjectNode *rootProjectNode() const;
-    QStringList files(FilesMode fileMode) const;
+    ProjectExplorer::ProjectNode *rootProjectNode() const override;
+    QStringList files(FilesMode fileMode) const override;
 
     bool validProjectFile() const;
 
@@ -102,7 +102,7 @@ private slots:
     void addedRunConfiguration(ProjectExplorer::RunConfiguration *);
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
 private:
     // plain format

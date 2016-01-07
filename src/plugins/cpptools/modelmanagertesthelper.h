@@ -47,22 +47,14 @@ class CPPTOOLS_EXPORT TestProject: public ProjectExplorer::Project
 
 public:
     TestProject(const QString &name, QObject *parent);
-    virtual ~TestProject();
+    ~TestProject() override;
 
-    virtual QString displayName() const
-    { return m_name; }
+    QString displayName() const override { return m_name; }
+    Core::IDocument *document() const override { return 0; }
+    ProjectExplorer::IProjectManager *projectManager() const override { return 0; }
+    ProjectExplorer::ProjectNode *rootProjectNode() const override { return 0; }
 
-    virtual Core::IDocument *document() const
-    { return 0; }
-
-    virtual ProjectExplorer::IProjectManager *projectManager() const
-    { return 0; }
-
-    virtual ProjectExplorer::ProjectNode *rootProjectNode() const
-    { return 0; }
-
-    virtual QStringList files(FilesMode fileMode) const
-    { Q_UNUSED(fileMode); return QStringList(); }
+    QStringList files(FilesMode fileMode) const override { Q_UNUSED(fileMode); return QStringList(); }
 
 private:
     QString m_name;
@@ -77,7 +69,7 @@ public:
 
     explicit ModelManagerTestHelper(QObject *parent = 0,
                                     bool testOnlyForCleanedProjects = true);
-    ~ModelManagerTestHelper();
+    ~ModelManagerTestHelper() override;
 
     void cleanup();
 

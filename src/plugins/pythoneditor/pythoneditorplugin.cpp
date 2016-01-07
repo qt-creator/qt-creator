@@ -246,7 +246,7 @@ class PythonProject : public Project
 {
 public:
     PythonProject(PythonProjectManager *manager, const QString &filename);
-    ~PythonProject();
+    ~PythonProject() override;
 
     QString displayName() const override { return m_projectName; }
     IDocument *document() const override;

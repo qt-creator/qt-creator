@@ -71,18 +71,18 @@ class AutotoolsProject : public ProjectExplorer::Project
 
 public:
     AutotoolsProject(AutotoolsManager *manager, const QString &fileName);
-    ~AutotoolsProject();
+    ~AutotoolsProject() override;
 
-    QString displayName() const;
-    Core::IDocument *document() const;
-    ProjectExplorer::IProjectManager *projectManager() const;
-    ProjectExplorer::ProjectNode *rootProjectNode() const;
+    QString displayName() const override;
+    Core::IDocument *document() const override;
+    ProjectExplorer::IProjectManager *projectManager() const override;
+    ProjectExplorer::ProjectNode *rootProjectNode() const override;
     QStringList files(FilesMode fileMode) const;
     static QString defaultBuildDirectory(const QString &projectPath);
     QStringList buildTargets() const;
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
 private slots:
     /**

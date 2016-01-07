@@ -76,7 +76,7 @@ public:
     };
 
     Project();
-    virtual ~Project();
+    ~Project() override;
 
     virtual QString displayName() const = 0;
     Core::Id id() const;

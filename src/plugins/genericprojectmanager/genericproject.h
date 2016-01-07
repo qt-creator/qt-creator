@@ -54,18 +54,18 @@ class GenericProject : public ProjectExplorer::Project
 
 public:
     GenericProject(Manager *manager, const QString &filename);
-    ~GenericProject();
+    ~GenericProject() override;
 
     QString filesFileName() const;
     QString includesFileName() const;
     QString configFileName() const;
 
-    QString displayName() const;
-    Core::IDocument *document() const;
-    ProjectExplorer::IProjectManager *projectManager() const;
+    QString displayName() const override;
+    Core::IDocument *document() const override;
+    ProjectExplorer::IProjectManager *projectManager() const override;
 
-    GenericProjectNode *rootProjectNode() const;
-    QStringList files(FilesMode fileMode) const;
+    GenericProjectNode *rootProjectNode() const override;
+    QStringList files(FilesMode fileMode) const override;
 
     QStringList buildTargets() const;
 
@@ -86,7 +86,7 @@ public:
     QStringList files() const;
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
 private:
     bool saveRawFileList(const QStringList &rawFileList);

@@ -63,15 +63,15 @@ class QbsProject : public ProjectExplorer::Project
 
 public:
     QbsProject(QbsManager *manager, const QString &filename);
-    ~QbsProject();
+    ~QbsProject() override;
 
-    QString displayName() const;
-    Core::IDocument *document() const;
-    QbsManager *projectManager() const;
+    QString displayName() const override;
+    Core::IDocument *document() const override;
+    QbsManager *projectManager() const override;
 
-    ProjectExplorer::ProjectNode *rootProjectNode() const;
+    ProjectExplorer::ProjectNode *rootProjectNode() const override;
 
-    QStringList files(FilesMode fileMode) const;
+    QStringList files(FilesMode fileMode) const override;
 
     bool isProjectEditable() const;
     bool addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
@@ -104,7 +104,7 @@ public:
     qbs::Project qbsProject() const;
     qbs::ProjectData qbsProjectData() const;
 
-    bool needsSpecialDeployment() const;
+    bool needsSpecialDeployment() const override;
     void generateErrors(const qbs::ErrorInfo &e);
 
     static QString productDisplayName(const qbs::Project &project,
@@ -128,7 +128,7 @@ private slots:
     void startParsing();
 
 private:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
 
