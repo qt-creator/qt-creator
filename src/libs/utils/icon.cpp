@@ -50,9 +50,9 @@ static QPixmap maskToColorAndAlpha(const QPixmap &mask, const QColor &color)
     QRgb *bitsStart = reinterpret_cast<QRgb*>(result.bits());
     const QRgb *bitsEnd = bitsStart + result.width() * result.height();
     const QRgb tint = color.rgb() & 0x00ffffff;
-    const qreal alpha = color.alphaF();
+    const QRgb alpha = QRgb(color.alpha());
     for (QRgb *pixel = bitsStart; pixel < bitsEnd; ++pixel) {
-        QRgb pixelAlpha = ~(*pixel & 0xff) * alpha;
+        QRgb pixelAlpha = (((~*pixel) & 0xff) * alpha) >> 8;
         *pixel = (pixelAlpha << 24) | tint;
     }
     return QPixmap::fromImage(result);
