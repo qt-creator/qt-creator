@@ -1303,7 +1303,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConfigFeatures()
                 config.detach();
                 processed.insert(config);
                 VisitReturn vr = evaluateFeatureFile(config, true);
-                if (vr == ReturnError)
+                if (vr == ReturnError && !m_cumulative)
                     return vr;
                 if (vr == ReturnTrue) {
                     finished = false;
@@ -1981,7 +1981,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFileInto(
 void QMakeEvaluator::message(int type, const QString &msg) const
 {
     if (!m_skipLevel)
-        m_handler->message(type, msg,
+        m_handler->message(type | (m_cumulative ? QMakeHandler::CumulativeEvalMessage : 0), msg,
                 m_current.line ? m_current.pro->fileName() : QString(),
                 m_current.line != 0xffff ? m_current.line : -1);
 }

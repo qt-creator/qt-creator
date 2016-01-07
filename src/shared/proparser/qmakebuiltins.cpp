@@ -399,7 +399,9 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
     if (!errout.isEmpty()) {
         if (errout.endsWith('\n'))
             errout.chop(1);
-        m_handler->message(QMakeHandler::EvalError, QString::fromLocal8Bit(errout));
+        m_handler->message(
+            QMakeHandler::EvalError | (m_cumulative ? QMakeHandler::CumulativeEvalMessage : 0),
+            QString::fromLocal8Bit(errout));
     }
 # endif
     out = proc.readAllStandardOutput();
@@ -1467,8 +1469,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                 fputs(msg.toLatin1().constData(), stderr);
 #endif
             } else {
-                m_handler->fileMessage(fL1S("Project %1: %2")
-                                       .arg(function.toQString(m_tmp1).toUpper(), msg));
+                m_handler->fileMessage(
+                        (func_t == T_ERROR   ? QMakeHandler::ErrorMessage :
+                         func_t == T_WARNING ? QMakeHandler::WarningMessage :
+                                               QMakeHandler::InfoMessage)
+                        | (m_cumulative ? QMakeHandler::CumulativeEvalMessage : 0),
+                        fL1S("Project %1: %2").arg(function.toQString(m_tmp1).toUpper(), msg));
             }
         }
         return (func_t == T_ERROR && !m_cumulative) ? ReturnError : ReturnTrue;

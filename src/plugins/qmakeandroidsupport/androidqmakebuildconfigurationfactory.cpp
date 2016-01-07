@@ -34,10 +34,15 @@
 
 #include <android/androidmanager.h>
 #include <android/androidconfigurations.h>
+
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 
 #include <qmakeprojectmanager/qmakebuildinfo.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 
 using namespace QmakeAndroidSupport::Internal;
 
@@ -93,7 +98,16 @@ ProjectExplorer::BuildConfiguration *AndroidQmakeBuildConfigurationFactory::rest
 AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target)
     : QmakeProjectManager::QmakeBuildConfiguration(target)
 {
+    using QmakeProjectManager::QmakeProject;
+    auto updateGrade = [this] {
+        Android::AndroidManager::updateGradleProperties(BuildConfiguration::target());
+    };
 
+    QmakeProject *project = qobject_cast<QmakeProject *>(target->project());
+    if (project)
+        connect(project, &QmakeProject::proFilesEvaluated, this, updateGrade);
+    else
+        connect(this, &AndroidQmakeBuildConfiguration::enabledChanged, this, updateGrade);
 }
 
 AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, AndroidQmakeBuildConfiguration *source)
@@ -110,6 +124,27 @@ AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::
 
 void AndroidQmakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
-    env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
-            Android::AndroidConfigurations::currentConfig().bestNdkPlatformMatch(Android::AndroidManager::minimumSDK(target())));
+    m_androidNdkPlatform = Android::AndroidConfigurations::currentConfig().bestNdkPlatformMatch(Android::AndroidManager::minimumSDK(target()));
+    env.set(QLatin1String("ANDROID_NDK_PLATFORM"), m_androidNdkPlatform);
+}
+
+void AndroidQmakeBuildConfiguration::manifestSaved()
+{
+    using QmakeProjectManager::QMakeStep;
+    QString androidNdkPlatform = Android::AndroidConfigurations::currentConfig().bestNdkPlatformMatch(Android::AndroidManager::minimumSDK(target()));
+    if (m_androidNdkPlatform == androidNdkPlatform)
+        return;
+
+    emitEnvironmentChanged();
+
+    QMakeStep *qs = qmakeStep();
+    if (!qs)
+        return;
+
+    qs->setForced(true);
+
+    ProjectExplorer::BuildManager::buildList(stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
+                  ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    ProjectExplorer::BuildManager::appendStep(qs, ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    setSubNodeBuild(0);
 }

@@ -47,8 +47,9 @@ class QMAKE_EXPORT QMakeParserHandler
 public:
     enum {
         CategoryMask = 0xf00,
-        WarningMessage = 0x000,
-        ErrorMessage = 0x100,
+        InfoMessage = 0x100,
+        WarningMessage = 0x200,
+        ErrorMessage = 0x300,
 
         SourceMask = 0xf0,
         SourceParser = 0,

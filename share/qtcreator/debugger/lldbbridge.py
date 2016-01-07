@@ -961,7 +961,7 @@ class Dumper(DumperBase):
         #if int(addr) == 0xffffffffffffffff:
         #    raise RuntimeError("Illegal address")
         if self.currentPrintsAddress and not addr is None:
-            self.put('addr="0x%x",' % int(addr))
+            self.put('address="0x%x",' % int(addr))
 
     def isFunctionType(self, typeobj):
         if self.isGoodLldb:
@@ -994,7 +994,7 @@ class Dumper(DumperBase):
             self.put('iname="%s",' % self.currentIName)
             self.putType(typeName)
             self.put('numchild="%s",' % numchild)
-            self.put('addr="0x%x",' % value.GetLoadAddress())
+            self.put('address="0x%x",' % value.GetLoadAddress())
             self.putItemCount(numchild)
             if self.currentIName in self.expandedINames:
                 with Children(self):

@@ -46,8 +46,11 @@ static QString format(const QString &fileName, int lineNo, const QString &msg)
         return msg;
 }
 
-ProMessageHandler::ProMessageHandler(bool verbose)
+ProMessageHandler::ProMessageHandler(bool verbose, bool exact)
     : m_verbose(verbose)
+    , m_exact(exact)
+    //: Prefix used for output from the cumulative evaluation of project files.
+    , m_prefix(tr("[Inexact] "))
 {
     QObject::connect(this, SIGNAL(writeMessage(QString,Core::MessageManager::PrintToOutputPaneFlags)),
                      Core::MessageManager::instance(), SLOT(write(QString,Core::MessageManager::PrintToOutputPaneFlags)),
@@ -56,14 +59,24 @@ ProMessageHandler::ProMessageHandler(bool verbose)
 
 void ProMessageHandler::message(int type, const QString &msg, const QString &fileName, int lineNo)
 {
-    if ((type & CategoryMask) == ErrorMessage && ((type & SourceMask) == SourceParser || m_verbose))
-        emit writeMessage(format(fileName, lineNo, msg), Core::MessageManager::NoModeSwitch);
+    if ((type & CategoryMask) == ErrorMessage && ((type & SourceMask) == SourceParser || m_verbose)) {
+        QString fmsg = format(fileName, lineNo, msg);
+        if ((type & SourceMask) == SourceParser || m_exact)
+            emit writeMessage(fmsg, Core::MessageManager::NoModeSwitch);
+        else
+            emit writeMessage(m_prefix + fmsg, Core::MessageManager::NoModeSwitch);
+    }
 }
 
-void ProMessageHandler::fileMessage(const QString &msg)
+void ProMessageHandler::fileMessage(int type, const QString &msg)
 {
-    if (m_verbose)
-        emit writeMessage(msg, Core::MessageManager::NoModeSwitch);
+    Q_UNUSED(type)
+    if (m_verbose) {
+        if (m_exact)
+            emit writeMessage(msg, Core::MessageManager::NoModeSwitch);
+        else
+            emit writeMessage(m_prefix + msg, Core::MessageManager::NoModeSwitch);
+    }
 }
 
 

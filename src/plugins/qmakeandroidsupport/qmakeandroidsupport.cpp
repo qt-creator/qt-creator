@@ -36,17 +36,9 @@
 
 #include <android/androidconstants.h>
 #include <android/androidglobal.h>
-#include <projectexplorer/buildmanager.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakestep.h>
 
 using namespace QmakeProjectManager;
 
@@ -136,20 +128,8 @@ Utils::FileName QmakeAndroidSupport::androiddeployJsonPath(ProjectExplorer::Targ
 void QmakeAndroidSupport::manifestSaved(const ProjectExplorer::Target *target)
 {
     ProjectExplorer::BuildConfiguration *bc = target->activeBuildConfiguration();
-    if (auto qbc = qobject_cast<AndroidQmakeBuildConfiguration *>(bc)) {
-        qbc->emitEnvironmentChanged();
-
-        QMakeStep *qs = qbc->qmakeStep();
-        if (!qs)
-            return;
-
-        qs->setForced(true);
-
-        ProjectExplorer::BuildManager::buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
-                      ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
-        ProjectExplorer::BuildManager::appendStep(qs, ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
-        qbc->setSubNodeBuild(0);
-    }
+    if (auto qbc = qobject_cast<AndroidQmakeBuildConfiguration *>(bc))
+        qbc->manifestSaved();
 }
 
 Utils::FileName QmakeAndroidSupport::manifestSourcePath(const ProjectExplorer::Target *target)

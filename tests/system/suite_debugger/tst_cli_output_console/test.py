@@ -95,8 +95,6 @@ def main():
         invokeMenuItem("Debug", "Start Debugging", "Start Debugging")
         JIRA.performWorkaroundForBug(6853, JIRA.Bug.CREATOR, config)
         handleDebuggerWarnings(config, isMsvc)
-        JIRA.performWorkaroundForBug(15456, JIRA.Bug.CREATOR, isMsvc,
-                                     checkedTargets[kit] & ~Targets.qt4Classes(), config)
         ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
         waitFor("'Debugging has finished' in str(outputWindow.plainText)", 20000)
