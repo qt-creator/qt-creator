@@ -155,13 +155,11 @@ public slots:
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
 
-private slots:
+private:
     void asyncUpdate();
     void buildFinished(bool success);
-
     void activeTargetWasChanged();
 
-private:
     QString executableFor(const QmakeProFileNode *node);
     void updateRunConfigurations();
 

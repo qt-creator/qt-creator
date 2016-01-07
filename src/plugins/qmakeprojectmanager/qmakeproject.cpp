@@ -121,16 +121,15 @@ class CentralizedFolderWatcher : public QObject
     Q_OBJECT
 public:
     CentralizedFolderWatcher(QmakeProject *parent);
-    ~CentralizedFolderWatcher();
+
     void watchFolders(const QList<QString> &folders, QmakePriFileNode *node);
     void unwatchFolders(const QList<QString> &folders, QmakePriFileNode *node);
 
-private slots:
+private:
     void folderChanged(const QString &folder);
     void onTimer();
     void delayedFolderChanged(const QString &folder);
 
-private:
     QmakeProject *m_project;
     QSet<QString> recursiveDirs(const QString &folder);
     QFileSystemWatcher m_watcher;
@@ -322,10 +321,10 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
 
     m_asyncUpdateTimer.setSingleShot(true);
     m_asyncUpdateTimer.setInterval(3000);
-    connect(&m_asyncUpdateTimer, SIGNAL(timeout()), this, SLOT(asyncUpdate()));
+    connect(&m_asyncUpdateTimer, &QTimer::timeout, this, &QmakeProject::asyncUpdate);
 
-    connect(BuildManager::instance(), SIGNAL(buildQueueFinished(bool)),
-            SLOT(buildFinished(bool)));
+    connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
+            this, &QmakeProject::buildFinished);
 
     setPreferredKitMatcher(KitMatcher([this](const Kit *kit) -> bool {
                                return matchesKit(kit);
@@ -1166,15 +1165,9 @@ CentralizedFolderWatcher::CentralizedFolderWatcher(QmakeProject *parent)
 {
     m_compressTimer.setSingleShot(true);
     m_compressTimer.setInterval(200);
-    connect(&m_compressTimer, SIGNAL(timeout()),
-            this, SLOT(onTimer()));
-    connect (&m_watcher, SIGNAL(directoryChanged(QString)),
-             this, SLOT(folderChanged(QString)));
-}
-
-CentralizedFolderWatcher::~CentralizedFolderWatcher()
-{
-
+    connect(&m_compressTimer, &QTimer::timeout, this, &CentralizedFolderWatcher::onTimer);
+    connect(&m_watcher, &QFileSystemWatcher::directoryChanged,
+            this, &CentralizedFolderWatcher::folderChanged);
 }
 
 QSet<QString> CentralizedFolderWatcher::recursiveDirs(const QString &folder)
