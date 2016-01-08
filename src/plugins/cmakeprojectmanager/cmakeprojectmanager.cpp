@@ -147,8 +147,7 @@ bool CMakeManager::preferNinja()
 // sounds like a plan
 void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &executable,
                                  const QString &arguments, const QString &sourceDirectory,
-                                 const QDir &buildDirectory, const Utils::Environment &env,
-                                 const QString &generator, const QString &preloadCache)
+                                 const QDir &buildDirectory, const Utils::Environment &env)
 {
     QString buildDirectoryPath = buildDirectory.absolutePath();
     buildDirectory.mkpath(buildDirectoryPath);
@@ -160,9 +159,7 @@ void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &executa
     QString args;
     Utils::QtcProcess::addArg(&args, srcdir);
     Utils::QtcProcess::addArgs(&args, arguments);
-    Utils::QtcProcess::addArg(&args, generator);
-    if (!preloadCache.isEmpty())
-        Utils::QtcProcess::addArg(&args, preloadCache);
+
     proc->setCommand(executable, args);
     proc->start();
 }

@@ -544,15 +544,17 @@ void CMakeRunPage::runCMake()
 
         QString arguments = m_argumentsLineEdit->text();
 
-        m_output->appendPlainText(tr("Running: '%1' with arguments '%2' in '%3'.\n")
-                                     .arg(cmake->cmakeExecutable().toUserOutput())
-                                     .arg(arguments)
-                                     .arg(QDir::toNativeSeparators(m_buildDirectory)));
+        Utils::QtcProcess::addArg(&arguments, QString::fromLatin1(generatorInfo.generatorArgument()));
+        const QString preloadCache = generatorInfo.preLoadCacheFileArgument();
+        if (!preloadCache.isEmpty())
+            Utils::QtcProcess::addArg(&arguments, preloadCache);
+        m_output->appendHtml(tr("<b>Running: '%1' with arguments '%2' in '%3'.</b><br>")
+                             .arg(cmake->cmakeExecutable().toUserOutput())
+                             .arg(arguments)
+                             .arg(QDir::toNativeSeparators(m_buildDirectory)));
         CMakeManager::createXmlFile(m_cmakeProcess, cmake->cmakeExecutable().toString(),
                                     arguments, m_cmakeWizard->sourceDirectory(),
-                                    m_buildDirectory, env,
-                                    QString::fromLatin1(generatorInfo.generatorArgument()),
-                                    generatorInfo.preLoadCacheFileArgument());
+                                    m_buildDirectory, env);
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
