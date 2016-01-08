@@ -76,8 +76,7 @@ public:
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const override;
 
-    ProjectExplorer::ProjectNode *rootProjectNode() const override;
-    QmakeProFileNode *rootQmakeProjectNode() const;
+    QmakeProFileNode *rootProjectNode() const override;
     bool validParse(const Utils::FileName &proFilePath) const;
     bool parseInProgress(const Utils::FileName &proFilePath) const;
 
@@ -179,8 +178,6 @@ private:
             ProjectExplorer::DeploymentData &deploymentData);
     void startAsyncTimer(QmakeProFileNode::AsyncUpdateDelay delay);
     bool matchesKit(const ProjectExplorer::Kit *kit);
-
-    QmakeProFileNode *m_rootProjectNode = 0;
 
     // Current configuration
     QString m_oldQtIncludePath;

@@ -264,7 +264,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     appendOutputParser(new QMakeParser); // make may cause qmake to be run, add last to make sure
                                          // it has a low priority.
 
-    m_scriptTarget = (static_cast<QmakeProject *>(bc->target()->project())->rootQmakeProjectNode()->projectType() == ScriptTemplate);
+    m_scriptTarget = (static_cast<QmakeProject *>(bc->target()->project())->rootProjectNode()->projectType() == ScriptTemplate);
 
     return AbstractProcessStep::init(earlierSteps);
 }

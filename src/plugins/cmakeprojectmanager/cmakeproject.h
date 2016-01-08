@@ -100,8 +100,6 @@ public:
 
     QString displayName() const override;
 
-    ProjectExplorer::ProjectNode *rootProjectNode() const override;
-
     QStringList files(FilesMode fileMode) const override;
     QStringList buildTargetTitles(bool runnable = false) const;
     QList<CMakeBuildTarget> buildTargets() const;
@@ -149,7 +147,6 @@ private:
     ProjectExplorer::Target *m_activeTarget = 0;
 
     // TODO probably need a CMake specific node structure
-    Internal::CMakeProjectNode *m_rootNode;
     QStringList m_files;
     QList<CMakeBuildTarget> m_buildTargets;
     QFileSystemWatcher *m_watcher;

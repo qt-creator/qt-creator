@@ -337,11 +337,6 @@ QmakeProject::~QmakeProject()
     projectManager()->unregisterProject(this);
     delete m_projectFiles;
     m_cancelEvaluate = true;
-    // Deleting the root node triggers a few things, make sure rootProjectNode
-    // returns 0 already
-    QmakeProFileNode *root = m_rootProjectNode;
-    m_rootProjectNode = 0;
-    delete root;
     Q_ASSERT(m_qmakeGlobalsRefCnt == 0);
     delete m_qmakeVfs;
 }
@@ -349,7 +344,7 @@ QmakeProject::~QmakeProject()
 void QmakeProject::updateFileList()
 {
     QmakeProjectFiles newFiles;
-    ProjectFilesVisitor::findProjectFiles(m_rootProjectNode, &newFiles);
+    ProjectFilesVisitor::findProjectFiles(rootProjectNode(), &newFiles);
     if (newFiles != *m_projectFiles) {
         *m_projectFiles = newFiles;
         emit fileListChanged();
@@ -376,7 +371,7 @@ Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *er
 
     projectManager()->registerProject(this);
 
-    m_rootProjectNode = new QmakeProFileNode(this, projectFilePath());
+    setRootProjectNode(new QmakeProFileNode(this, projectFilePath()));
 
     // On active buildconfiguration changes, reevaluate the .pro files
     m_activeTarget = activeTarget();
@@ -702,7 +697,7 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay)
         m_cancelEvaluate = true;
         m_asyncUpdateState = AsyncFullUpdatePending;
         enableActiveQmakeBuildConfiguration(activeTarget(), false);
-        m_rootProjectNode->setParseInProgressRecursive(true);
+        rootProjectNode()->setParseInProgressRecursive(true);
         return;
     }
 
@@ -710,7 +705,7 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay)
         qDebug()<<"  starting timer for full update, setting state to full update pending";
     m_partialEvaluate.clear();
     enableActiveQmakeBuildConfiguration(activeTarget(), false);
-    m_rootProjectNode->setParseInProgressRecursive(true);
+    rootProjectNode()->setParseInProgressRecursive(true);
     m_asyncUpdateState = AsyncFullUpdatePending;
 
     // Cancel running code model update
@@ -805,7 +800,7 @@ void QmakeProject::asyncUpdate()
     if (m_asyncUpdateState == AsyncFullUpdatePending) {
         if (debug)
             qDebug()<<"  full update, starting with root node";
-        m_rootProjectNode->asyncUpdate();
+        rootProjectNode()->asyncUpdate();
     } else {
         if (debug)
             qDebug()<<"  partial update,"<<m_partialEvaluate.size()<<"nodes to update";
@@ -883,8 +878,8 @@ QString QmakeProject::generatedUiHeader(const FileName &formFile) const
 {
     // Look in sub-profiles as SessionManager::projectForFile returns
     // the top-level project only.
-    if (m_rootProjectNode)
-        if (const QmakeProFileNode *pro = proFileNodeOf(m_rootProjectNode, FormType, formFile))
+    if (rootProjectNode())
+        if (const QmakeProFileNode *pro = proFileNodeOf(rootProjectNode(), FormType, formFile))
             return QmakeProFileNode::uiHeaderFile(
                         pro->uiDirectory(Utils::FileName::fromString(pro->buildDir())),
                         formFile, pro->singleVariableValue(QmakeVariable::UiHeaderExtensionVar));
@@ -927,14 +922,14 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
             m_qmakeGlobals->qmake_abslocation = QDir::cleanPath(qtVersion->qmakeCommand().toString());
             m_qmakeGlobals->setProperties(qtVersion->versionInfo());
         }
-        m_qmakeGlobals->setDirectories(m_rootProjectNode->sourceDir(), m_rootProjectNode->buildDir());
+        m_qmakeGlobals->setDirectories(rootProjectNode()->sourceDir(), rootProjectNode()->buildDir());
         m_qmakeGlobals->sysroot = systemRoot;
 
         Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
         for (; eit != eend; ++eit)
             m_qmakeGlobals->environment.insert(env.key(eit), env.value(eit));
 
-        m_qmakeGlobals->setCommandLineArguments(m_rootProjectNode->buildDir(), qmakeArgs);
+        m_qmakeGlobals->setCommandLineArguments(rootProjectNode()->buildDir(), qmakeArgs);
 
         QtSupport::ProFileCacheManager::instance()->incRefCount();
 
@@ -986,29 +981,24 @@ void QmakeProject::destroyProFileReader(QtSupport::ProFileReader *reader)
     }
 }
 
-ProjectNode *QmakeProject::rootProjectNode() const
+QmakeProFileNode *QmakeProject::rootProjectNode() const
 {
-    return m_rootProjectNode;
-}
-
-QmakeProFileNode *QmakeProject::rootQmakeProjectNode() const
-{
-    return m_rootProjectNode;
+    return static_cast<QmakeProFileNode *>(Project::rootProjectNode());
 }
 
 bool QmakeProject::validParse(const FileName &proFilePath) const
 {
-    if (!m_rootProjectNode)
+    if (!rootProjectNode())
         return false;
-    const QmakeProFileNode *node = m_rootProjectNode->findProFileFor(proFilePath);
+    const QmakeProFileNode *node = rootProjectNode()->findProFileFor(proFilePath);
     return node && node->validParse();
 }
 
 bool QmakeProject::parseInProgress(const FileName &proFilePath) const
 {
-    if (!m_rootProjectNode)
+    if (!rootProjectNode())
         return false;
-    const QmakeProFileNode *node = m_rootProjectNode->findProFileFor(proFilePath);
+    const QmakeProFileNode *node = rootProjectNode()->findProFileFor(proFilePath);
     return node && node->parseInProgress();
 }
 
@@ -1035,7 +1025,7 @@ QList<QmakeProFileNode *> QmakeProject::allProFiles(const QList<QmakeProjectType
     QList<QmakeProFileNode *> list;
     if (!rootProjectNode())
         return list;
-    collectAllProFiles(list, rootQmakeProjectNode(), parse, projectTypes);
+    collectAllProFiles(list, rootProjectNode(), parse, projectTypes);
     return list;
 }
 
@@ -1116,7 +1106,7 @@ void QmakeProject::notifyChanged(const FileName &name)
 {
     if (files(QmakeProject::ExcludeGeneratedFiles).contains(name.toString())) {
         QList<QmakeProFileNode *> list;
-        findProFile(name, rootQmakeProjectNode(), list);
+        findProFile(name, rootProjectNode(), list);
         foreach (QmakeProFileNode *node, list) {
             QtSupport::ProFileCacheManager::instance()->discardFile(name.toString());
             node->scheduleUpdate(QmakeProFileNode::ParseNow);
@@ -1357,10 +1347,10 @@ QString QmakeProject::disabledReasonForRunConfiguration(const FileName &proFileP
         return tr("The .pro file \"%1\" does not exist.")
                 .arg(proFilePath.fileName());
 
-    if (!m_rootProjectNode) // Shutting down
+    if (!rootProjectNode()) // Shutting down
         return QString();
 
-    if (!m_rootProjectNode->findProFileFor(proFilePath))
+    if (!rootProjectNode()->findProFileFor(proFilePath))
         return tr("The .pro file \"%1\" is not part of the project.")
                 .arg(proFilePath.fileName());
 
@@ -1381,7 +1371,7 @@ void QmakeProject::updateBuildSystemData()
     Target * const target = activeTarget();
     if (!target)
         return;
-    const QmakeProFileNode * const rootNode = rootQmakeProjectNode();
+    const QmakeProFileNode * const rootNode = rootProjectNode();
     if (!rootNode || rootNode->parseInProgress())
         return;
 

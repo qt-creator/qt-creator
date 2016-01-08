@@ -33,6 +33,8 @@
 
 #include "qbsprojectmanager.h"
 
+#include "qbsnodes.h"
+
 #include <cpptools/cppprojects.h>
 
 #include <projectexplorer/project.h>
@@ -53,7 +55,6 @@ namespace QbsProjectManager {
 namespace Internal {
 class QbsBaseProjectNode;
 class QbsProjectNode;
-class QbsRootProjectNode;
 class QbsProjectParser;
 class QbsBuildConfiguration;
 
@@ -67,8 +68,7 @@ public:
 
     QString displayName() const override;
     QbsManager *projectManager() const override;
-
-    ProjectExplorer::ProjectNode *rootProjectNode() const override;
+    QbsRootProjectNode *rootProjectNode() const override;
 
     QStringList files(FilesMode fileMode) const override;
 
@@ -149,7 +149,6 @@ private:
     qbs::Project m_qbsProject;
     qbs::ProjectData m_projectData;
     QSet<Core::IDocument *> m_qbsDocuments;
-    QbsRootProjectNode *m_rootProjectNode;
 
     QbsProjectParser *m_qbsProjectParser;
 

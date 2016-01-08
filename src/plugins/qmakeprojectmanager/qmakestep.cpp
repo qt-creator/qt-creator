@@ -227,7 +227,7 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
 
     setOutputParser(new QMakeParser);
 
-    QmakeProFileNode *node = static_cast<QmakeProject *>(qt4bc->target()->project())->rootQmakeProjectNode();
+    QmakeProFileNode *node = static_cast<QmakeProject *>(qt4bc->target()->project())->rootProjectNode();
     if (qt4bc->subNodeBuild())
         node = qt4bc->subNodeBuild();
     QString proFile = node->filePath().toString();

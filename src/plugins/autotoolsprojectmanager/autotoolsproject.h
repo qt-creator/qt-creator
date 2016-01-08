@@ -74,7 +74,6 @@ public:
     ~AutotoolsProject() override;
 
     QString displayName() const override;
-    ProjectExplorer::ProjectNode *rootProjectNode() const override;
     QStringList files(FilesMode fileMode) const override;
     static QString defaultBuildDirectory(const QString &projectPath);
     QStringList buildTargets() const;
@@ -139,9 +138,6 @@ private:
 
     /// Return value for AutotoolsProject::files()
     QStringList m_files;
-
-    /// Return value for AutotoolsProject::rootProjectNode()
-    AutotoolsProjectNode *m_rootNode;
 
     /// Watches project files for changes.
     Utils::FileSystemWatcher *m_fileWatcher;

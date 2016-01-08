@@ -50,7 +50,6 @@ public:
     ~TestProject() override;
 
     QString displayName() const override { return m_name; }
-    ProjectExplorer::ProjectNode *rootProjectNode() const override { return 0; }
 
     QStringList files(FilesMode fileMode) const override { Q_UNUSED(fileMode); return QStringList(); }
 

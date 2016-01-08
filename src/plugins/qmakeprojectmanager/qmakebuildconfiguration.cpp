@@ -238,7 +238,7 @@ void QmakeBuildConfiguration::setBuildDirectory(const FileName &directory)
 
 QString QmakeBuildConfiguration::makefile() const
 {
-    return static_cast<QmakeProject *>(target()->project())->rootQmakeProjectNode()->makefile();
+    return static_cast<QmakeProject *>(target()->project())->rootProjectNode()->makefile();
 }
 
 BaseQtVersion::QmakeBuildConfigs QmakeBuildConfiguration::qmakeBuildConfiguration() const

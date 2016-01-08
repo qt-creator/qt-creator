@@ -352,7 +352,7 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
 QString DesktopQmakeRunConfiguration::executable() const
 {
     QmakeProject *pro = static_cast<QmakeProject *>(target()->project());
-    const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePath);
+    const QmakeProFileNode *node = pro->rootProjectNode()->findProFileFor(m_proFilePath);
     return extractWorkingDirAndExecutable(node).second;
 }
 
@@ -399,7 +399,7 @@ QString DesktopQmakeRunConfiguration::workingDirectory() const
 QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
 {
     QmakeProject *pro = static_cast<QmakeProject *>(target()->project());
-    const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePath);
+    const QmakeProFileNode *node = pro->rootProjectNode()->findProFileFor(m_proFilePath);
     return extractWorkingDirAndExecutable(node).first;
 }
 
@@ -416,7 +416,7 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
     // The user could be linking to a library found via a -L/some/dir switch
     // to find those libraries while actually running we explicitly prepend those
     // dirs to the library search path
-    const QmakeProFileNode *node = static_cast<QmakeProject *>(target()->project())->rootQmakeProjectNode()->findProFileFor(m_proFilePath);
+    const QmakeProFileNode *node = static_cast<QmakeProject *>(target()->project())->rootProjectNode()->findProFileFor(m_proFilePath);
     if (m_isUsingLibrarySearchPath && node) {
         const QStringList libDirectories = node->variableValue(LibDirectoriesVar);
         if (!libDirectories.isEmpty()) {
@@ -444,7 +444,7 @@ Utils::FileName DesktopQmakeRunConfiguration::proFilePath() const
 QString DesktopQmakeRunConfiguration::defaultDisplayName()
 {
     auto project = static_cast<QmakeProject *>(target()->project());
-    const QmakeProFileNode *root = project->rootQmakeProjectNode();
+    const QmakeProFileNode *root = project->rootProjectNode();
     if (root) {
         const QmakeProFileNode *node = root->findProFileFor(m_proFilePath);
         if (node) // should always be found

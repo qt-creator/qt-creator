@@ -207,7 +207,7 @@ QString IosRunConfiguration::applicationName() const
     QmakeProject *pro = qobject_cast<QmakeProject *>(target()->project());
     const QmakeProFileNode *node = 0;
     if (pro)
-        node = pro->rootQmakeProjectNode();
+        node = pro->rootProjectNode();
     if (node)
         node = node->findProFileFor(profilePath());
     if (node) {
@@ -233,7 +233,7 @@ FileName IosRunConfiguration::bundleDirectory() const
         QmakeProject *pro = qobject_cast<QmakeProject *>(target()->project());
         const QmakeProFileNode *node = 0;
         if (pro)
-            node = pro->rootQmakeProjectNode();
+            node = pro->rootProjectNode();
         if (node)
             node = node->findProFileFor(profilePath());
         if (node) {

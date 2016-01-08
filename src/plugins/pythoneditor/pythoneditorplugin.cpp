@@ -251,7 +251,6 @@ public:
     QString displayName() const override { return m_projectName; }
     PythonProjectManager *projectManager() const override;
 
-    ProjectNode *rootProjectNode() const override;
     QStringList files(FilesMode) const override { return m_files; }
     QStringList files() const { return m_files; }
 
@@ -274,8 +273,6 @@ private:
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
-
-    ProjectNode *m_rootNode;
 };
 
 class PythonProjectFile : public Core::IDocument
@@ -620,6 +617,7 @@ PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileN
     setProjectManager(manager);
     setDocument(new PythonProjectFile(this, fileName));
     DocumentManager::addDocument(document());
+    setRootProjectNode(new PythonProjectNode(this));
 
     setProjectContext(Context(PythonProjectContext));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
@@ -627,7 +625,6 @@ PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileN
     QFileInfo fileInfo = projectFilePath().toFileInfo();
 
     m_projectName = fileInfo.completeBaseName();
-    m_rootNode = new PythonProjectNode(this);
 
     projectManager()->registerProject(this);
 }
@@ -635,8 +632,6 @@ PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileN
 PythonProject::~PythonProject()
 {
     projectManager()->unregisterProject(this);
-
-    delete m_rootNode;
 }
 
 PythonProjectManager *PythonProject::projectManager() const
@@ -775,7 +770,7 @@ private:
 
 void PythonProject::refresh()
 {
-    m_rootNode->removeFileNodes(m_rootNode->fileNodes());
+    rootProjectNode()->removeFileNodes(rootProjectNode()->fileNodes());
     parseProject();
 
     QDir baseDir(projectDirectory().toString());
@@ -786,7 +781,7 @@ void PythonProject::refresh()
         fileNodes.append(new PythonFileNode(FileName::fromString(file), displayName));
     }
 
-    m_rootNode->addFileNodes(fileNodes);
+    rootProjectNode()->addFileNodes(fileNodes);
 }
 
 /**
@@ -842,11 +837,6 @@ QStringList PythonProject::processEntries(const QStringList &paths,
     }
     absolutePaths.removeDuplicates();
     return absolutePaths;
-}
-
-ProjectNode *PythonProject::rootProjectNode() const
-{
-    return m_rootNode;
 }
 
 Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *errorMessage)

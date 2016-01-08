@@ -114,7 +114,7 @@ Utils::FileName QmakeAndroidSupport::androiddeployJsonPath(ProjectExplorer::Targ
         return Utils::FileName();
 
     const QmakeProFileNode *node =
-            pro->rootQmakeProjectNode()->findProFileFor(buildApkStep->proFilePathForInputFile());
+            pro->rootProjectNode()->findProFileFor(buildApkStep->proFilePathForInputFile());
     if (!node) // should never happen
         return Utils::FileName();
 
@@ -138,7 +138,7 @@ Utils::FileName QmakeAndroidSupport::manifestSourcePath(const ProjectExplorer::T
     if (auto qrc = qobject_cast<QmakeAndroidRunConfiguration *>(rc)) {
         Utils::FileName proFilePath = qrc->proFilePath();
         const auto project = static_cast<QmakeProjectManager::QmakeProject *>(target->project());
-        const QmakeProFileNode *node = project->rootQmakeProjectNode()->findProFileFor(proFilePath);
+        const QmakeProFileNode *node = project->rootProjectNode()->findProFileFor(proFilePath);
         if (node) {
             QString packageSource = node->singleVariableValue(AndroidPackageSourceDir);
             if (!packageSource.isEmpty()) {

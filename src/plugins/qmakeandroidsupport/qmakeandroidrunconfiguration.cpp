@@ -112,7 +112,7 @@ QVariantMap QmakeAndroidRunConfiguration::toMap() const
 QString QmakeAndroidRunConfiguration::defaultDisplayName()
 {
     auto project = static_cast<QmakeProject *>(target()->project());
-    const QmakeProjectManager::QmakeProFileNode *root = project->rootQmakeProjectNode();
+    const QmakeProjectManager::QmakeProFileNode *root = project->rootProjectNode();
     if (root) {
         const QmakeProjectManager::QmakeProFileNode *node = root->findProFileFor(m_proFilePath);
         if (node) // should always be found

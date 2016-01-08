@@ -34,6 +34,7 @@
 #include "qmlprojectmanager_global.h"
 
 #include "qmlprojectmanager.h"
+#include "qmlprojectnodes.h"
 
 #include <projectexplorer/project.h>
 
@@ -47,10 +48,7 @@ namespace QmlProjectManager {
 
 class QmlProjectItem;
 
-namespace Internal {
-class QmlProjectFile;
-class QmlProjectNode;
-} // namespace Internal
+namespace Internal { class QmlProjectFile; }
 
 class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
 {
@@ -67,7 +65,7 @@ public:
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
 
-    ProjectExplorer::ProjectNode *rootProjectNode() const override;
+    Internal::QmlProjectNode *rootProjectNode() const override;
     QStringList files(FilesMode fileMode) const override;
 
     bool validProjectFile() const;
@@ -118,8 +116,6 @@ private:
     QStringList m_files;
 
     QPointer<QmlProjectItem> m_projectItem;
-
-    Internal::QmlProjectNode *m_rootNode;
 };
 
 } // namespace QmlProjectManager

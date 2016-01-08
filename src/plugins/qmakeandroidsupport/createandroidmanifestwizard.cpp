@@ -211,7 +211,7 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target
     const QmakeProFileNode *currentRunNode = 0;
     ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration();
     if (auto qrc = qobject_cast<QmakeAndroidRunConfiguration *>(rc))
-        currentRunNode = project->rootQmakeProjectNode()->findProFileFor(qrc->proFilePath());
+        currentRunNode = project->rootProjectNode()->findProFileFor(qrc->proFilePath());
 
     if (nodes.isEmpty()) {
         // oh uhm can't create anything

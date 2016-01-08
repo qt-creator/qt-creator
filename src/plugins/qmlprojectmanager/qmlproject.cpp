@@ -65,13 +65,12 @@ QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileNa
     setProjectManager(manager);
     setDocument(new Internal::QmlProjectFile(this, fileName));
     DocumentManager::addDocument(document(), true);
+    setRootProjectNode(new Internal::QmlProjectNode(this));
 
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_QMLJS));
 
     m_projectName = projectFilePath().toFileInfo().completeBaseName();
-
-    m_rootNode = new Internal::QmlProjectNode(this);
 
     projectManager()->registerProject(this);
 }
@@ -81,7 +80,6 @@ QmlProject::~QmlProject()
     projectManager()->unregisterProject(this);
 
     delete m_projectItem.data();
-    delete m_rootNode;
 }
 
 void QmlProject::addedTarget(Target *target)
@@ -177,7 +175,7 @@ void QmlProject::parseProject(RefreshOptions options)
                 }
             }
         }
-        m_rootNode->refresh();
+        rootProjectNode()->refresh();
     }
 
     if (options & Configuration) {
@@ -193,7 +191,7 @@ void QmlProject::refresh(RefreshOptions options)
     parseProject(options);
 
     if (options & Files)
-        m_rootNode->refresh();
+        rootProjectNode()->refresh();
 
     if (!modelManager())
         return;
@@ -323,9 +321,9 @@ bool QmlProject::supportsKit(Kit *k, QString *errorMessage) const
     return true;
 }
 
-ProjectNode *QmlProject::rootProjectNode() const
+Internal::QmlProjectNode *QmlProject::rootProjectNode() const
 {
-    return m_rootNode;
+    return static_cast<Internal::QmlProjectNode *>(Project::rootProjectNode());
 }
 
 QStringList QmlProject::files(FilesMode) const

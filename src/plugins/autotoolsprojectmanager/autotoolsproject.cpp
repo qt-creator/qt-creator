@@ -78,24 +78,18 @@ AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fil
     setId(Constants::AUTOTOOLS_PROJECT_ID);
     setProjectManager(manager);
     setDocument(new AutotoolsProjectFile(fileName));
-    m_rootNode = new AutotoolsProjectNode(projectFilePath());
+    setRootProjectNode(new AutotoolsProjectNode(projectFilePath()));
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
     const QFileInfo fileInfo = projectFilePath().toFileInfo();
     m_projectName = fileInfo.absoluteDir().dirName();
-    m_rootNode->setDisplayName(fileInfo.absoluteDir().dirName());
+    rootProjectNode()->setDisplayName(m_projectName);
 }
 
 AutotoolsProject::~AutotoolsProject()
 {
-    // Although ProjectExplorer::ProjectNode is a QObject, the ctor
-    // does not allow to specify the parent. Manually setting the
-    // parent would be possible, but we use the same approach as in the
-    // other project managers and delete the node manually (TBD).
-    //
-    delete m_rootNode;
-    m_rootNode = 0;
+    setRootProjectNode(0);
 
     if (m_makefileParserThread != 0) {
         m_makefileParserThread->wait();
@@ -112,11 +106,6 @@ QString AutotoolsProject::displayName() const
 QString AutotoolsProject::defaultBuildDirectory(const QString &projectPath)
 {
     return QFileInfo(projectPath).absolutePath();
-}
-
-ProjectNode *AutotoolsProject::rootProjectNode() const
-{
-    return m_rootNode;
 }
 
 QStringList AutotoolsProject::files(FilesMode fileMode) const
@@ -261,7 +250,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
     // This allows to reuse existing nodes and to remove obsolete
     // nodes later.
     QHash<QString, Node *> nodeHash;
-    foreach (Node * node, nodes(m_rootNode))
+    foreach (Node *node, nodes(rootProjectNode()))
         nodeHash.insert(node->filePath().toString(), node);
 
     // Add the sources to the filenode project tree. Sources
@@ -291,7 +280,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
             parentFolder = insertFolderNode(QDir(subDir), nodeHash);
             if (parentFolder == 0) {
                 // No node gets created for the root folder
-                parentFolder = m_rootNode;
+                parentFolder = rootProjectNode();
             }
         }
         QTC_ASSERT(parentFolder, return);
@@ -332,7 +321,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
                 FolderNode *grandParent = parent->parentFolderNode();
                 grandParent->removeFolderNodes(QList<FolderNode *>() << parent);
                 parent = grandParent;
-                if (parent == m_rootNode)
+                if (parent == rootProjectNode())
                     break;
             }
         }
@@ -343,7 +332,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
 FolderNode *AutotoolsProject::insertFolderNode(const QDir &nodeDir, QHash<QString, Node *> &nodes)
 {
     const Utils::FileName nodePath = Utils::FileName::fromString(nodeDir.absolutePath());
-    QFileInfo rootInfo = m_rootNode->filePath().toFileInfo();
+    QFileInfo rootInfo = rootProjectNode()->filePath().toFileInfo();
     const Utils::FileName rootPath = Utils::FileName::fromString(rootInfo.absolutePath());
 
     // Do not create a folder for the root node
@@ -356,7 +345,7 @@ FolderNode *AutotoolsProject::insertFolderNode(const QDir &nodeDir, QHash<QStrin
 
     // Get parent-folder. If it does not exist, create it recursively.
     // Take care that the m_rootNode is considered as top folder.
-    FolderNode *parentFolder = m_rootNode;
+    FolderNode *parentFolder = rootProjectNode();
     if ((rootPath != folder->filePath()) && dir.cdUp()) {
         const QString parentDir = dir.absolutePath();
         if (!nodes.contains(parentDir)) {

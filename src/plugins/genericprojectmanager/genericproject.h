@@ -63,7 +63,6 @@ public:
     QString displayName() const override;
     Manager *projectManager() const override;
 
-    GenericProjectNode *rootProjectNode() const override;
     QStringList files(FilesMode fileMode) const override;
 
     QStringList buildTargets() const;
@@ -109,7 +108,6 @@ private:
     QStringList m_rawProjectIncludePaths;
     QStringList m_projectIncludePaths;
 
-    GenericProjectNode *m_rootNode;
     QFuture<void> m_codeModelFuture;
 };
 

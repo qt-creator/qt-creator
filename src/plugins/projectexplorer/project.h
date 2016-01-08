@@ -88,6 +88,8 @@ public:
 
     virtual IProjectManager *projectManager() const;
 
+    virtual ProjectNode *rootProjectNode() const;
+
     bool hasActiveBuildSettings() const;
 
     // EditorConfiguration:
@@ -111,8 +113,6 @@ public:
     void saveSettings();
     enum class RestoreResult { Ok, Error, UserAbort };
     RestoreResult restoreSettings(QString *errorMessage);
-
-    virtual ProjectNode *rootProjectNode() const = 0;
 
     enum FilesMode { AllFiles, ExcludeGeneratedFiles };
     virtual QStringList files(FilesMode fileMode) const = 0;
@@ -175,6 +175,7 @@ protected:
     void setId(Core::Id id);
     void setDocument(Core::IDocument *doc); // takes ownership!
     void setProjectManager(IProjectManager *manager);
+    void setRootProjectNode(ProjectNode *root); // takes ownership!
     void setProjectContext(Core::Context context);
     void setProjectLanguages(Core::Context language);
     void addProjectLanguage(Core::Id id);

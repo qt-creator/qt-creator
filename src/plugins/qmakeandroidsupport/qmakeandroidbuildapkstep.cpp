@@ -158,7 +158,7 @@ Utils::FileName QmakeAndroidBuildApkStep::androidPackageSourceDir() const
 {
     QmakeProjectManager::QmakeProject *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
     const QmakeProjectManager::QmakeProFileNode *node
-            = pro->rootQmakeProjectNode()->findProFileFor(proFilePathForInputFile());
+            = pro->rootProjectNode()->findProFileFor(proFilePathForInputFile());
     if (!node)
         return Utils::FileName();
     return Utils::FileName::fromString(node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir));
@@ -199,7 +199,7 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     QString outputDir = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
 
     const auto *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
-    const QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(proFilePathForInputFile());
+    const QmakeProjectManager::QmakeProFileNode *node = pro->rootProjectNode()->findProFileFor(proFilePathForInputFile());
     m_skipBuilding = !node;
     if (m_skipBuilding)
         return true;

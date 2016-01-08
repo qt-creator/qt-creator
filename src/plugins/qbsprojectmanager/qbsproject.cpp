@@ -101,7 +101,6 @@ static const char CONFIG_PRECOMPILEDHEADER[] = "precompiledHeader";
 
 QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_projectName(QFileInfo(fileName).completeBaseName()),
-    m_rootProjectNode(0),
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
     m_parsingScheduled(false),
@@ -112,9 +111,9 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
 
     setId(Constants::PROJECT_ID);
     setProjectManager(manager);
-
     setDocument(new QbsProjectFile(this, fileName));
     DocumentManager::addDocument(document());
+    setRootProjectNode(new QbsRootProjectNode(this));
 
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
@@ -126,9 +125,6 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     connect(this, SIGNAL(environmentChanged()), this, SLOT(delayParsing()));
 
     connect(&m_parsingDelay, SIGNAL(timeout()), this, SLOT(startParsing()));
-
-    // NOTE: QbsProjectNode does not use this as a parent!
-    m_rootProjectNode = new QbsRootProjectNode(this); // needs documents to be initialized!
 }
 
 QbsProject::~QbsProject()
@@ -141,12 +137,6 @@ QbsProject::~QbsProject()
         delete m_qbsUpdateFutureInterface;
         m_qbsUpdateFutureInterface = 0;
     }
-
-    // Deleting the root node triggers a few things, make sure rootProjectNode
-    // returns 0 already
-    QbsProjectNode *root = m_rootProjectNode;
-    m_rootProjectNode = 0;
-    delete root;
 }
 
 QString QbsProject::displayName() const
@@ -159,9 +149,9 @@ QbsManager *QbsProject::projectManager() const
     return static_cast<QbsManager *>(Project::projectManager());
 }
 
-ProjectNode *QbsProject::rootProjectNode() const
+QbsRootProjectNode *QbsProject::rootProjectNode() const
 {
-    return m_rootProjectNode;
+    return static_cast<QbsRootProjectNode *>(Project::rootProjectNode());
 }
 
 static void collectFilesForProject(const qbs::ProjectData &project, QSet<QString> &result)
@@ -286,7 +276,7 @@ bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &
         m_projectData = m_qbsProject.projectData();
         QbsGroupNode::setupFiles(node, reRetrieveGroupData(productData, groupData),
                                  allPaths, QFileInfo(productFilePath).absolutePath(), true);
-        m_rootProjectNode->update();
+        rootProjectNode()->update();
         emit fileListChanged();
     }
     return notAdded->isEmpty();
@@ -315,7 +305,7 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
         m_projectData = m_qbsProject.projectData();
         QbsGroupNode::setupFiles(node, reRetrieveGroupData(productData, groupData), allPaths,
                                  QFileInfo(productFilePath).absolutePath(), true);
-        m_rootProjectNode->update();
+        rootProjectNode()->update();
         emit fileListChanged();
     }
     return notRemoved->isEmpty();
@@ -454,7 +444,7 @@ void QbsProject::handleQbsParsingDone(bool success)
 
         if (projectData != m_projectData) {
             m_projectData = projectData;
-            m_rootProjectNode->update();
+            rootProjectNode()->update();
 
             updateDocuments(m_qbsProject.isValid()
                             ? m_qbsProject.buildSystemFiles() : QSet<QString>() << projectFilePath().toString());
@@ -767,7 +757,7 @@ void QbsProject::updateCppCodeModel()
 
             foreach (const QString &file, grp.allFilePaths()) {
                 if (file.endsWith(QLatin1String(".ui"))) {
-                    QStringList generated = m_rootProjectNode->qbsProject()
+                    QStringList generated = rootProjectNode()->qbsProject()
                             .generatedFiles(prd, file, QStringList(QLatin1String("hpp")));
                     if (generated.count() == 1)
                         uiFiles.insert(file, generated.at(0));

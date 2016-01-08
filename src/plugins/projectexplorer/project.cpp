@@ -36,6 +36,7 @@
 #include "editorconfiguration.h"
 #include "kit.h"
 #include "projectexplorer.h"
+#include "projectnodes.h"
 #include "target.h"
 #include "session.h"
 #include "settingsaccessor.h"
@@ -95,6 +96,7 @@ public:
     Core::Id m_id;
     Core::IDocument *m_document = 0;
     IProjectManager *m_manager = 0;
+    ProjectNode *m_rootProjectNode = 0;
     QList<Target *> m_targets;
     Target *m_activeTarget = 0;
     EditorConfiguration m_editorConfiguration;
@@ -111,8 +113,13 @@ public:
 
 ProjectPrivate::~ProjectPrivate()
 {
-    delete m_accessor;
+    // Make sure our root node is 0 when deleting
+    ProjectNode *oldNode = m_rootProjectNode;
+    m_rootProjectNode = 0;
+    delete oldNode;
+
     delete m_document;
+    delete m_accessor;
 }
 
 Project::Project() : d(new ProjectPrivate)
@@ -432,6 +439,13 @@ void Project::setProjectManager(IProjectManager *manager)
     d->m_manager = manager;
 }
 
+void Project::setRootProjectNode(ProjectNode *root)
+{
+    ProjectNode *oldNode = d->m_rootProjectNode;
+    d->m_rootProjectNode = root;
+    delete oldNode;
+}
+
 Target *Project::restoreTarget(const QVariantMap &data)
 {
     Core::Id id = idFromMap(data);
@@ -520,6 +534,11 @@ IProjectManager *Project::projectManager() const
 {
     QTC_CHECK(d->m_manager);
     return d->m_manager;
+}
+
+ProjectNode *Project::rootProjectNode() const
+{
+    return d->m_rootProjectNode;
 }
 
 Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMessage)

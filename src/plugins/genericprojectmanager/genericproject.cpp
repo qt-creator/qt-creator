@@ -72,6 +72,7 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     setId(Constants::GENERICPROJECT_ID);
     setProjectManager(manager);
     setDocument(new GenericProjectFile(this, fileName, GenericProject::Everything));
+    setRootProjectNode(new GenericProjectNode(this));
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -92,8 +93,6 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     DocumentManager::addDocument(m_includesIDocument);
     DocumentManager::addDocument(m_configIDocument);
 
-    m_rootNode = new GenericProjectNode(this);
-
     FileNode *projectFilesNode = new FileNode(Utils::FileName::fromString(m_filesFileName),
                                               ProjectFileType,
                                               /* generated = */ false);
@@ -106,10 +105,8 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
                                                ProjectFileType,
                                                /* generated = */ false);
 
-    m_rootNode->addFileNodes(QList<FileNode *>()
-                             << projectFilesNode
-                             << projectIncludesNode
-                             << projectConfigNode);
+    rootProjectNode()->addFileNodes(QList<FileNode *>() << projectFilesNode
+                                    << projectIncludesNode << projectConfigNode);
 
     projectManager()->registerProject(this);
 }
@@ -118,8 +115,6 @@ GenericProject::~GenericProject()
 {
     m_codeModelFuture.cancel();
     projectManager()->unregisterProject(this);
-
-    delete m_rootNode;
 }
 
 QString GenericProject::filesFileName() const
@@ -281,7 +276,7 @@ void GenericProject::refresh(RefreshOptions options)
     parseProject(options);
 
     if (options & Files)
-        m_rootNode->refresh(oldFileList);
+        static_cast<GenericProjectNode *>(rootProjectNode())->refresh(oldFileList);
 
     refreshCppCodeModel();
 }
@@ -390,11 +385,6 @@ QString GenericProject::displayName() const
 Manager *GenericProject::projectManager() const
 {
     return static_cast<Manager *>(Project::projectManager());
-}
-
-GenericProjectNode *GenericProject::rootProjectNode() const
-{
-    return m_rootNode;
 }
 
 QStringList GenericProject::files(FilesMode fileMode) const

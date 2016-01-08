@@ -88,16 +88,16 @@ using namespace Utils;
   \class CMakeProject
 */
 CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName) :
-    m_rootNode(new CMakeProjectNode(fileName)),
     m_watcher(new QFileSystemWatcher(this))
 {
     setId(Constants::CMAKEPROJECT_ID);
     setProjectManager(manager);
     setDocument(new CMakeFile(fileName));
+    setRootProjectNode(new CMakeProjectNode(fileName));
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
-    m_rootNode->setDisplayName(fileName.parentDir().fileName());
+    rootProjectNode()->setDisplayName(fileName.parentDir().fileName());
 
     connect(this, &CMakeProject::buildTargetsChanged, this, &CMakeProject::updateRunConfigurations);
     connect(m_watcher, &QFileSystemWatcher::fileChanged, this, &CMakeProject::fileChanged);
@@ -106,7 +106,6 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName) :
 CMakeProject::~CMakeProject()
 {
     m_codeModelFuture.cancel();
-    delete m_rootNode;
 }
 
 void CMakeProject::fileChanged(const QString &fileName)
@@ -265,7 +264,7 @@ bool CMakeProject::parseCMakeLists()
     Kit *k = activeTarget()->kit();
 
     // setFolderName
-    m_rootNode->setDisplayName(QFileInfo(cbpFile).completeBaseName());
+    rootProjectNode()->setDisplayName(QFileInfo(cbpFile).completeBaseName());
     CMakeCbpParser cbpparser;
     // Parsing
     //qDebug()<<"Parsing file "<<cbpFile;
@@ -282,7 +281,7 @@ bool CMakeProject::parseCMakeLists()
     // how can we ensure that it is completely written?
     m_watcher->addPath(cbpFile);
 
-    m_rootNode->setDisplayName(cbpparser.projectName());
+    rootProjectNode()->setDisplayName(cbpparser.projectName());
 
     //qDebug()<<"Building Tree";
     QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
@@ -306,7 +305,7 @@ bool CMakeProject::parseCMakeLists()
         m_files.append(fn->filePath().toString());
     m_files.sort();
 
-    buildTree(m_rootNode, fileList);
+    buildTree(static_cast<CMakeProjectNode *>(rootProjectNode()), fileList);
 
     //qDebug()<<"Adding Targets";
     m_buildTargets = cbpparser.buildTargets();
@@ -506,14 +505,8 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
 
 QString CMakeProject::displayName() const
 {
-    return m_rootNode->displayName();
+    return rootProjectNode()->displayName();
 }
-
-ProjectExplorer::ProjectNode *CMakeProject::rootProjectNode() const
-{
-    return m_rootNode;
-}
-
 
 QStringList CMakeProject::files(FilesMode fileMode) const
 {

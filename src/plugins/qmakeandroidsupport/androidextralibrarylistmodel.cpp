@@ -123,7 +123,7 @@ QmakeProjectManager::QmakeProFileNode *AndroidExtraLibraryListModel::activeNode(
     if (!qarc)
         return 0;
     auto project = static_cast<QmakeProject *>(m_target->project());
-    return project->rootQmakeProjectNode()->findProFileFor(qarc->proFilePath());
+    return project->rootProjectNode()->findProFileFor(qarc->proFilePath());
 }
 
 void AndroidExtraLibraryListModel::proFileUpdated(QmakeProjectManager::QmakeProFileNode *node)
