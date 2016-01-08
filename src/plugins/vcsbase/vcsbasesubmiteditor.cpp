@@ -743,7 +743,7 @@ void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositor
         return;
 
     const QSet<QString> projectFiles
-            = QSet<QString>::fromList(vcsProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
+            = QSet<QString>::fromList(vcsProject->files(ProjectExplorer::Project::SourceFiles));
 
     if (projectFiles.empty())
         return;

@@ -2078,8 +2078,7 @@ void ClearCasePlugin::updateIndex()
         return;
     m_checkInAllAction->setEnabled(false);
     m_statusMap->clear();
-    QFuture<void> result = QtConcurrent::run(&sync,
-               project->files(Project::ExcludeGeneratedFiles));
+    QFuture<void> result = QtConcurrent::run(&sync, project->files(Project::SourceFiles));
     if (!m_settings.disableIndexer)
         ProgressManager::addTask(result, tr("Updating ClearCase Index"), ClearCase::Constants::TASK_INDEX);
 }

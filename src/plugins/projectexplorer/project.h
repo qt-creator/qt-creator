@@ -114,7 +114,11 @@ public:
     enum class RestoreResult { Ok, Error, UserAbort };
     RestoreResult restoreSettings(QString *errorMessage);
 
-    enum FilesMode { AllFiles, ExcludeGeneratedFiles };
+    enum FilesMode {
+        SourceFiles    = 0x1,
+        GeneratedFiles = 0x2,
+        AllFiles       = SourceFiles | GeneratedFiles
+    };
     virtual QStringList files(FilesMode fileMode) const = 0;
     // TODO: generalize to find source(s) of generated files?
     virtual QString generatedUiHeader(const Utils::FileName &formFile) const;

@@ -421,10 +421,10 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         m_rp.projectSourceDirectory = m_project->projectDirectory().toString();
 
     if (m_project && m_rp.projectSourceFiles.isEmpty())
-        m_rp.projectSourceFiles = m_project->files(Project::ExcludeGeneratedFiles);
+        m_rp.projectSourceFiles = m_project->files(Project::SourceFiles);
 
     if (m_project && m_rp.projectSourceFiles.isEmpty())
-        m_rp.projectSourceFiles = m_project->files(Project::ExcludeGeneratedFiles);
+        m_rp.projectSourceFiles = m_project->files(Project::SourceFiles);
 
     if (false && m_project && m_kit) {
         const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_kit);
@@ -453,7 +453,7 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
 
     if (m_project) {
         m_rp.projectSourceDirectory = m_project->projectDirectory().toString();
-        m_rp.projectSourceFiles = m_project->files(Project::ExcludeGeneratedFiles);
+        m_rp.projectSourceFiles = m_project->files(Project::SourceFiles);
     }
 
     if (m_runConfig)

@@ -1539,7 +1539,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     }
     QStringList sourceFiles;
     foreach (Project *project, projects)
-        sourceFiles << project->files(Project::ExcludeGeneratedFiles);
+        sourceFiles << project->files(Project::SourceFiles);
 
     rp.projectSourceDirectory =
             !projects.isEmpty() ? projects.first()->projectDirectory().toString() : QString();

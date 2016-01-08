@@ -842,8 +842,9 @@ QStringList QmakeProject::files(FilesMode fileMode) const
 {
     QStringList files;
     for (int i = 0; i < FileTypeSize; ++i) {
-        files += m_projectFiles->files[i];
-        if (fileMode == AllFiles)
+        if (fileMode & SourceFiles)
+            files += m_projectFiles->files[i];
+        if (fileMode & GeneratedFiles)
             files += m_projectFiles->generatedFiles[i];
     }
 
@@ -1104,7 +1105,7 @@ void QmakeProject::findProFile(const FileName &fileName, QmakeProFileNode *root,
 
 void QmakeProject::notifyChanged(const FileName &name)
 {
-    if (files(QmakeProject::ExcludeGeneratedFiles).contains(name.toString())) {
+    if (files(QmakeProject::SourceFiles).contains(name.toString())) {
         QList<QmakeProFileNode *> list;
         findProFile(name, rootProjectNode(), list);
         foreach (QmakeProFileNode *node, list) {

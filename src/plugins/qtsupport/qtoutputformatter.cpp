@@ -90,7 +90,7 @@ QtOutputFormatter::QtOutputFormatter(Project *project)
     : d(new Internal::QtOutputFormatterPrivate(project))
 {
     if (project) {
-        d->projectFinder.setProjectFiles(project->files(Project::ExcludeGeneratedFiles));
+        d->projectFinder.setProjectFiles(project->files(Project::SourceFiles));
         d->projectFinder.setProjectDirectory(project->projectDirectory().toString());
 
         connect(project, SIGNAL(fileListChanged()),
@@ -284,7 +284,7 @@ void QtOutputFormatter::openEditor(const QString &fileName, int line, int column
 void QtOutputFormatter::updateProjectFileList()
 {
     if (d->project)
-        d->projectFinder.setProjectFiles(d->project.data()->files(Project::ExcludeGeneratedFiles));
+        d->projectFinder.setProjectFiles(d->project.data()->files(Project::SourceFiles));
 }
 
 } // namespace QtSupport

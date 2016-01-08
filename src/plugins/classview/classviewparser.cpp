@@ -651,7 +651,7 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     // check all projects
     foreach (const Project *prj, SessionManager::projects()) {
         if (prj)
-            fileList += prj->files(Project::ExcludeGeneratedFiles);
+            fileList += prj->files(Project::SourceFiles);
     }
     setFileList(fileList);
 

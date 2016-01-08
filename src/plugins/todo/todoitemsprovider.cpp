@@ -124,7 +124,7 @@ void TodoItemsProvider::createScanners()
 void TodoItemsProvider::setItemsListWithinStartupProject()
 {
     QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
-    QSet<QString> fileNames = QSet<QString>::fromList(m_startupProject->files(Project::ExcludeGeneratedFiles));
+    QSet<QString> fileNames = QSet<QString>::fromList(m_startupProject->files(Project::SourceFiles));
 
     QVariantMap settings = m_startupProject->namedSettings(QLatin1String(Constants::SETTINGS_NAME_KEY)).toMap();
 
@@ -161,7 +161,7 @@ void TodoItemsProvider::setItemsListWithinSubproject()
             QSet<Utils::FileName> subprojectFileNames =
                     QSet<Utils::FileName>::fromList(filesVisitor.filePaths());
             QSet<QString> fileNames = QSet<QString>::fromList(
-                        m_startupProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
+                        m_startupProject->files(ProjectExplorer::Project::SourceFiles));
             QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
             while (it.hasNext()) {
                 it.next();

@@ -348,7 +348,7 @@ void QmlProfilerTool::populateFileFinder(QString projectDirectory, QString activ
         projects.insert(0, startupProject);
     }
     foreach (Project *project, projects)
-        sourceFiles << project->files(Project::ExcludeGeneratedFiles);
+        sourceFiles << project->files(Project::SourceFiles);
 
     if (!projects.isEmpty()) {
         if (projectDirectory.isEmpty())
