@@ -91,7 +91,6 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
     params.startMode = AttachToRemoteServer;
     params.closeMode = KillAndExitMonitorAtClose;
     params.remoteSetupNeeded = true;
-    params.displayName = runConfig->displayName();
 
     auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {
