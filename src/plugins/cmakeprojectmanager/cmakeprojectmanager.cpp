@@ -50,6 +50,7 @@
 #include <QAction>
 #include <QDateTime>
 
+using namespace ProjectExplorer;
 using namespace CMakeProjectManager::Internal;
 
 CMakeManager::CMakeManager() :
@@ -71,7 +72,7 @@ CMakeManager::CMakeManager() :
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
     connect(m_runCMakeAction, &QAction::triggered, [this]() {
-        runCMake(ProjectExplorer::SessionManager::startupProject());
+        runCMake(SessionManager::startupProject());
     });
 
     command = Core::ActionManager::registerAction(m_runCMakeActionContextMenu,
@@ -80,23 +81,23 @@ CMakeManager::CMakeManager() :
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_runCMakeActionContextMenu, &QAction::triggered, [this]() {
-        runCMake(ProjectExplorer::ProjectTree::currentProject());
+        runCMake(ProjectTree::currentProject());
     });
 
-    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::startupProjectChanged,
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &CMakeManager::updateRunCmakeAction);
-    connect(ProjectExplorer::BuildManager::instance(), &ProjectExplorer::BuildManager::buildStateChanged,
+    connect(BuildManager::instance(), &BuildManager::buildStateChanged,
             this, &CMakeManager::updateRunCmakeAction);
 
 }
 
 void CMakeManager::updateRunCmakeAction()
 {
-    auto project = qobject_cast<CMakeProject *>(ProjectExplorer::SessionManager::startupProject());
-    m_runCMakeAction->setVisible(project && !ProjectExplorer::BuildManager::isBuilding(project));
+    auto project = qobject_cast<CMakeProject *>(SessionManager::startupProject());
+    m_runCMakeAction->setVisible(project && !BuildManager::isBuilding(project));
 }
 
-void CMakeManager::runCMake(ProjectExplorer::Project *project)
+void CMakeManager::runCMake(Project *project)
 {
     if (!project)
         return;
@@ -104,7 +105,7 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
     if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
-    if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
+    if (!ProjectExplorerPlugin::saveModifiedFiles())
         return;
 
     CMakeBuildConfiguration *bc
@@ -117,7 +118,7 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
         cmakeProject->parseCMakeLists();
 }
 
-ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QString *errorString)
+Project *CMakeManager::openProject(const QString &fileName, QString *errorString)
 {
     Utils::FileName file = Utils::FileName::fromString(fileName);
     if (!file.toFileInfo().isFile()) {

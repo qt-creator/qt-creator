@@ -102,10 +102,8 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
 
     m_file = new CMakeFile(this, fileName);
 
-    connect(this, SIGNAL(buildTargetsChanged()),
-            this, SLOT(updateRunConfigurations()));
-
-    connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
+    connect(this, &CMakeProject::buildTargetsChanged, this, &CMakeProject::updateRunConfigurations);
+    connect(m_watcher, &QFileSystemWatcher::fileChanged, this, &CMakeProject::fileChanged);
 }
 
 CMakeProject::~CMakeProject()
@@ -157,8 +155,8 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
 void CMakeProject::activeTargetWasChanged(Target *target)
 {
     if (m_activeTarget) {
-        disconnect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                   this, SLOT(changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+        disconnect(m_activeTarget, &Target::activeBuildConfigurationChanged,
+                   this, &CMakeProject::changeActiveBuildConfiguration);
     }
 
     m_activeTarget = target;
@@ -166,9 +164,8 @@ void CMakeProject::activeTargetWasChanged(Target *target)
     if (!m_activeTarget)
         return;
 
-    connect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-
+    connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
+            this, &CMakeProject::changeActiveBuildConfiguration);
     changeActiveBuildConfiguration(m_activeTarget->activeBuildConfiguration());
 }
 
@@ -577,11 +574,10 @@ Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *er
 
     m_activeTarget = activeTarget();
     if (m_activeTarget)
-        connect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                this, SLOT(changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-
-    connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-            this, SLOT(activeTargetWasChanged(ProjectExplorer::Target*)));
+        connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
+                this, &CMakeProject::changeActiveBuildConfiguration);
+    connect(this, &Project::activeTargetChanged,
+            this, &CMakeProject::activeTargetWasChanged);
 
     return RestoreResult::Ok;
 }
@@ -636,11 +632,11 @@ QString CMakeProject::uiHeaderFile(const QString &uiFile)
 void CMakeProject::updateRunConfigurations()
 {
     foreach (Target *t, targets())
-        updateRunConfigurations(t);
+        updateTargetRunConfigurations(t);
 }
 
 // TODO Compare with updateDefaultRunConfigurations();
-void CMakeProject::updateRunConfigurations(Target *t)
+void CMakeProject::updateTargetRunConfigurations(Target *t)
 {
     // create new and remove obsolete RCs using the factories
     t->updateDefaultRunConfigurations();

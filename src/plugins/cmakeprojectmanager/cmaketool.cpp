@@ -78,7 +78,8 @@ CMakeTool::~CMakeTool()
 void CMakeTool::cancel()
 {
     if (m_process) {
-        disconnect(m_process, SIGNAL(finished(int)));
+        disconnect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                   this, &CMakeTool::finished);
 
         if (m_process->state() != QProcess::NotRunning)
             m_process->kill();

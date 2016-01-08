@@ -144,7 +144,7 @@ private:
     ProjectExplorer::FolderNode *findOrCreateFolder(Internal::CMakeProjectNode *rootNode, QString directory);
     void createUiCodeModelSupport();
     QString uiHeaderFile(const QString &uiFile);
-    void updateRunConfigurations(ProjectExplorer::Target *t);
+    void updateTargetRunConfigurations(ProjectExplorer::Target *t);
     void updateApplicationAndDeploymentTargets();
     QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QByteArray *cachedBuildNinja);
 
