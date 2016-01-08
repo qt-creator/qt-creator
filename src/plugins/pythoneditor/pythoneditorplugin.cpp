@@ -270,7 +270,6 @@ private:
     QStringList processEntries(const QStringList &paths,
                                QHash<QString, QString> *map = 0) const;
 
-    QString m_projectFileName;
     QString m_projectName;
     QStringList m_rawFileList;
     QStringList m_files;
@@ -615,19 +614,17 @@ private:
     }
 };
 
-
-PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileName) :
-    m_projectFileName(fileName)
+PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileName)
 {
     setId(PythonProjectId);
     setProjectManager(manager);
-    setDocument(new PythonProjectFile(this, m_projectFileName));
+    setDocument(new PythonProjectFile(this, fileName));
     DocumentManager::addDocument(document());
 
     setProjectContext(Context(PythonProjectContext));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
-    QFileInfo fileInfo(m_projectFileName);
+    QFileInfo fileInfo = projectFilePath().toFileInfo();
 
     m_projectName = fileInfo.completeBaseName();
     m_rootNode = new PythonProjectNode(this);
@@ -669,7 +666,7 @@ static QStringList readLines(const QString &absoluteFileName)
 
 bool PythonProject::saveRawFileList(const QStringList &rawFileList)
 {
-    bool result = saveRawList(rawFileList, m_projectFileName);
+    bool result = saveRawList(rawFileList, projectFilePath().toString());
 //    refresh(PythonProject::Files);
     return result;
 }
@@ -694,7 +691,7 @@ bool PythonProject::addFiles(const QStringList &filePaths)
 {
     QStringList newList = m_rawFileList;
 
-    QDir baseDir(QFileInfo(m_projectFileName).dir());
+    QDir baseDir(projectDirectory().toString());
     foreach (const QString &filePath, filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
@@ -706,7 +703,7 @@ bool PythonProject::addFiles(const QStringList &filePaths)
             toAdd << directory;
     }
 
-    bool result = saveRawList(newList, m_projectFileName);
+    bool result = saveRawList(newList, projectFilePath().toString());
     refresh();
 
     return result;
@@ -728,7 +725,7 @@ bool PythonProject::removeFiles(const QStringList &filePaths)
 bool PythonProject::setFiles(const QStringList &filePaths)
 {
     QStringList newList;
-    QDir baseDir(QFileInfo(m_projectFileName).dir());
+    QDir baseDir(projectFilePath().toString());
     foreach (const QString &filePath, filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
@@ -743,7 +740,7 @@ bool PythonProject::renameFile(const QString &filePath, const QString &newFilePa
     if (i != m_rawListEntries.end()) {
         int index = newList.indexOf(i.value());
         if (index != -1) {
-            QDir baseDir(QFileInfo(m_projectFileName).dir());
+            QDir baseDir(projectFilePath().toString());
             newList.replace(index, baseDir.relativeFilePath(newFilePath));
         }
     }
@@ -754,8 +751,8 @@ bool PythonProject::renameFile(const QString &filePath, const QString &newFilePa
 void PythonProject::parseProject()
 {
     m_rawListEntries.clear();
-    m_rawFileList = readLines(m_projectFileName);
-    m_rawFileList << FileName::fromString(m_projectFileName).fileName();
+    m_rawFileList = readLines(projectFilePath().toString());
+    m_rawFileList << projectFilePath().fileName();
     m_files = processEntries(m_rawFileList, &m_rawListEntries);
     emit fileListChanged();
 }
@@ -781,7 +778,7 @@ void PythonProject::refresh()
     m_rootNode->removeFileNodes(m_rootNode->fileNodes());
     parseProject();
 
-    QDir baseDir = FileName::fromString(m_projectFileName).toFileInfo().absoluteDir();
+    QDir baseDir(projectDirectory().toString());
 
     QList<FileNode *> fileNodes;
     foreach (const QString &file, m_files) {
@@ -822,7 +819,7 @@ QStringList PythonProject::processEntries(const QStringList &paths,
                                            QHash<QString, QString> *map) const
 {
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    const QDir projectDir(QFileInfo(m_projectFileName).dir());
+    const QDir projectDir(projectDirectory().toString());
 
     QFileInfo fileInfo;
     QStringList absolutePaths;

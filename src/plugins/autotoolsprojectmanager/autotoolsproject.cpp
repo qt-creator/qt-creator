@@ -72,18 +72,17 @@ using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
 AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fileName) :
-    m_fileName(fileName),
     m_fileWatcher(new Utils::FileSystemWatcher(this)),
     m_makefileParserThread(0)
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
     setProjectManager(manager);
-    setDocument(new AutotoolsProjectFile(m_fileName));
+    setDocument(new AutotoolsProjectFile(fileName));
     m_rootNode = new AutotoolsProjectNode(projectFilePath());
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
-    const QFileInfo fileInfo(m_fileName);
+    const QFileInfo fileInfo = projectFilePath().toFileInfo();
     m_projectName = fileInfo.absoluteDir().dirName();
     m_rootNode->setDisplayName(fileInfo.absoluteDir().dirName());
 }
@@ -161,7 +160,7 @@ void AutotoolsProject::loadProjectTree()
     }
 
     // Parse the makefile asynchronously in a thread
-    m_makefileParserThread = new MakefileParserThread(m_fileName);
+    m_makefileParserThread = new MakefileParserThread(projectFilePath().toString());
 
     connect(m_makefileParserThread, &MakefileParserThread::started,
             this, &AutotoolsProject::makefileParsingStarted);
@@ -207,7 +206,7 @@ void AutotoolsProject::makefileParsingFinished()
     m_watchedFiles.clear();
 
     // Apply sources to m_files, which are returned at AutotoolsProject::files()
-    const QFileInfo fileInfo(m_fileName);
+    const QFileInfo fileInfo = projectFilePath().toFileInfo();
     const QDir dir = fileInfo.absoluteDir();
     QStringList files = m_makefileParserThread->sources();
     foreach (const QString& file, files)

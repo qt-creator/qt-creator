@@ -101,7 +101,6 @@ static const char CONFIG_PRECOMPILEDHEADER[] = "precompiledHeader";
 
 QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_projectName(QFileInfo(fileName).completeBaseName()),
-    m_fileName(fileName),
     m_rootProjectNode(0),
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
@@ -114,7 +113,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     setId(Constants::PROJECT_ID);
     setProjectManager(manager);
 
-    setDocument(new QbsProjectFile(this, m_fileName));
+    setDocument(new QbsProjectFile(this, fileName));
     DocumentManager::addDocument(document());
 
     setProjectContext(Context(Constants::PROJECT_ID));
@@ -458,7 +457,7 @@ void QbsProject::handleQbsParsingDone(bool success)
             m_rootProjectNode->update();
 
             updateDocuments(m_qbsProject.isValid()
-                            ? m_qbsProject.buildSystemFiles() : QSet<QString>() << m_fileName);
+                            ? m_qbsProject.buildSystemFiles() : QSet<QString>() << projectFilePath().toString());
             dataChanged = true;
         }
     } else {
@@ -662,7 +661,7 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
 {
     // Update documents:
     QSet<QString> newFiles = files;
-    QTC_ASSERT(!newFiles.isEmpty(), newFiles << m_fileName);
+    QTC_ASSERT(!newFiles.isEmpty(), newFiles << projectFilePath().toString());
     QSet<QString> oldFiles;
     foreach (IDocument *doc, m_qbsDocuments)
         oldFiles.insert(doc->filePath().toString());

@@ -67,15 +67,15 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-GenericProject::GenericProject(Manager *manager, const QString &fileName) : m_fileName(fileName)
+GenericProject::GenericProject(Manager *manager, const QString &fileName)
 {
     setId(Constants::GENERICPROJECT_ID);
     setProjectManager(manager);
-    setDocument(new GenericProjectFile(this, m_fileName, GenericProject::Everything));
+    setDocument(new GenericProjectFile(this, fileName, GenericProject::Everything));
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
-    QFileInfo fileInfo(m_fileName);
+    QFileInfo fileInfo = projectFilePath().toFileInfo();
     QDir dir = fileInfo.dir();
 
     m_projectName      = fileInfo.completeBaseName();
@@ -184,7 +184,7 @@ bool GenericProject::addFiles(const QStringList &filePaths)
 {
     QStringList newList = m_rawFileList;
 
-    QDir baseDir(QFileInfo(m_fileName).dir());
+    QDir baseDir(projectDirectory().toString());
     foreach (const QString &filePath, filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
@@ -229,7 +229,7 @@ bool GenericProject::removeFiles(const QStringList &filePaths)
 bool GenericProject::setFiles(const QStringList &filePaths)
 {
     QStringList newList;
-    QDir baseDir(QFileInfo(m_fileName).dir());
+    QDir baseDir(projectDirectory().toString());
     foreach (const QString &filePath, filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
@@ -244,7 +244,7 @@ bool GenericProject::renameFile(const QString &filePath, const QString &newFileP
     if (i != m_rawListEntries.end()) {
         int index = newList.indexOf(i.value());
         if (index != -1) {
-            QDir baseDir(QFileInfo(m_fileName).dir());
+            QDir baseDir(projectDirectory().toString());
             newList.replace(index, baseDir.relativeFilePath(newFilePath));
         }
     }
@@ -316,7 +316,7 @@ QStringList GenericProject::processEntries(const QStringList &paths,
                                            QHash<QString, QString> *map) const
 {
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    const QDir projectDir(QFileInfo(m_fileName).dir());
+    const QDir projectDir(projectDirectory().toString());
 
     QFileInfo fileInfo;
     QStringList absolutePaths;

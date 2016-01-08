@@ -88,7 +88,6 @@ using namespace Utils;
   \class CMakeProject
 */
 CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName) :
-    m_fileName(fileName),
     m_rootNode(new CMakeProjectNode(fileName)),
     m_watcher(new QFileSystemWatcher(this))
 {
@@ -545,7 +544,7 @@ Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *er
         CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
         if (!cbpFileFi.exists())
             mode = CMakeOpenProjectWizard::NeedToCreate;
-        else if (cbpFileFi.lastModified() < m_fileName.toFileInfo().lastModified())
+        else if (cbpFileFi.lastModified() < projectFilePath().toFileInfo().lastModified())
             mode = CMakeOpenProjectWizard::NeedToUpdate;
 
         if (mode != CMakeOpenProjectWizard::Nothing) {

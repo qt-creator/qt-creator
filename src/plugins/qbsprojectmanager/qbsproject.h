@@ -146,7 +146,6 @@ private:
                                        const qbs::GroupData &oldGroup);
 
     const QString m_projectName;
-    const QString m_fileName;
     qbs::Project m_qbsProject;
     qbs::ProjectData m_projectData;
     QSet<Core::IDocument *> m_qbsDocuments;

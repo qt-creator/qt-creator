@@ -96,7 +96,6 @@ private:
 
     void refreshCppCodeModel();
 
-    QString m_fileName;
     QString m_filesFileName;
     QString m_includesFileName;
     QString m_configFileName;

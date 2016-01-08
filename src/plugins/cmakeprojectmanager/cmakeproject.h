@@ -147,7 +147,6 @@ private:
     QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QByteArray *cachedBuildNinja);
 
     ProjectExplorer::Target *m_activeTarget = 0;
-    Utils::FileName m_fileName;
 
     // TODO probably need a CMake specific node structure
     Internal::CMakeProjectNode *m_rootNode;

@@ -135,8 +135,6 @@ private:
     void updateCppCodeModel();
 
 private:
-    /// File name of the makefile that has been passed in the constructor
-    QString m_fileName;
     QString m_projectName;
 
     /// Return value for AutotoolsProject::files()
