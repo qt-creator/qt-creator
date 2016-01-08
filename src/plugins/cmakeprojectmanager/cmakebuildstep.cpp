@@ -168,7 +168,7 @@ QVariantMap CMakeBuildStep::toMap() const
 bool CMakeBuildStep::fromMap(const QVariantMap &map)
 {
     if (map.value(QLatin1String(CLEAN_KEY), false).toBool()) {
-        m_buildTargets = QStringList({ CMakeBuildStep::cleanTarget() });
+        m_buildTargets = {CMakeBuildStep::cleanTarget()};
     } else {
         m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
         m_additionalArguments = map.value(QLatin1String(ADDITIONAL_ARGUMENTS_KEY)).toString();
