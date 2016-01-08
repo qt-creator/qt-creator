@@ -1,2 +1,4 @@
 TEMPLATE=subdirs
 SUBDIRS += auto manual tools
+isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
+exists($$LLVM_INSTALL_DIR):SUBDIRS += unit
