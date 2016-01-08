@@ -100,8 +100,6 @@ public:
     int activePlugin() const { return m_activePlugin; }
 
 public slots:
-    void onThemeChanged();
-
     void setActivePlugin(int pos)
     {
         if (m_activePlugin != pos) {
@@ -118,6 +116,7 @@ private:
     void sceneGraphError(QQuickWindow::SceneGraphError, const QString &message);
     void facilitateQml(QQmlEngine *engine);
     void addPages(const QList<IWelcomePage *> &pages);
+    void applyTheme();
 
     QWidget *m_modeWidget;
     QuickContainer *m_welcomePage;
@@ -153,7 +152,7 @@ WelcomeMode::WelcomeMode()
     layout->setSpacing(0);
 
     m_welcomePage = new QuickContainer();
-    onThemeChanged(); // initialize background color and theme properties
+    applyTheme(); // initialize background color and theme properties
     m_welcomePage->setResizeMode(QuickContainer::SizeRootObjectToView);
 
     m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
@@ -175,12 +174,10 @@ WelcomeMode::WelcomeMode()
     layout->addWidget(container);
 #endif // USE_QUICK_WIDGET
 
-    connect(ICore::instance(), &ICore::themeChanged, this, &WelcomeMode::onThemeChanged);
-
     setWidget(m_modeWidget);
 }
 
-void WelcomeMode::onThemeChanged()
+void WelcomeMode::applyTheme()
 {
     const QVariantHash creatorTheme = Utils::creatorTheme()->values();
     for (auto it = creatorTheme.constBegin(); it != creatorTheme.constEnd(); ++it)

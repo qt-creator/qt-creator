@@ -155,30 +155,15 @@ void ThemeSettingsWidget::apply()
     const int index = d->m_ui->themeComboBox->currentIndex();
     if (index == -1)
         return;
-    ThemeEntry currentTheme = d->m_themeListModel->themeAt(index);
-    const QString themeId = currentTheme.id().toString();
-    Theme *newTheme = new Theme(themeId);
-    QSettings themeSettings(currentTheme.filePath(), QSettings::IniFormat);
-    newTheme->readSettings(themeSettings);
-    setCreatorTheme(newTheme);
-    emit ICore::instance()->themeChanged();
-    QPalette pal = newTheme->flag(Theme::ApplyThemePaletteGlobally) ? newTheme->palette()
-                                                                    : Theme::initialPalette();
-    QApplication::setPalette(pal);
-    if (ManhattanStyle *style = qobject_cast<ManhattanStyle *>(QApplication::style())) {
-        QStyle *baseStyle = 0;
-        foreach (const QString &s, creatorTheme()->preferredStyles()) {
-            if ((baseStyle = QStyleFactory::create(s)))
-                break;
-        }
-        style->setBaseStyle(baseStyle);
-    }
-    foreach (QWidget *w, QApplication::topLevelWidgets())
-        w->update();
-
-    // save filename of selected theme in global config
+    const QString themeId = d->m_themeListModel->themeAt(index).id().toString();
     QSettings *settings = ICore::settings();
-    settings->setValue(QLatin1String(Constants::SETTINGS_THEME), themeId);
+    if (settings->value(QLatin1String(Constants::SETTINGS_THEME)).toString() != themeId) {
+        QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
+                                 tr("The theme change will take effect after a restart of Qt Creator."));
+
+        // save filename of selected theme in global config
+        settings->setValue(QLatin1String(Constants::SETTINGS_THEME), themeId);
+    }
 }
 
 } // namespace Internal
