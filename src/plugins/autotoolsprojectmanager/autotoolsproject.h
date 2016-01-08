@@ -74,7 +74,6 @@ public:
     ~AutotoolsProject() override;
 
     QString displayName() const override;
-    ProjectExplorer::IProjectManager *projectManager() const override;
     ProjectExplorer::ProjectNode *rootProjectNode() const override;
     QStringList files(FilesMode fileMode) const override;
     static QString defaultBuildDirectory(const QString &projectPath);
@@ -136,9 +135,6 @@ private:
     void updateCppCodeModel();
 
 private:
-    /// Project manager that has been passed in the constructor
-    AutotoolsManager *m_manager;
-
     /// File name of the makefile that has been passed in the constructor
     QString m_fileName;
     QString m_projectName;

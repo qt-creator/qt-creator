@@ -72,12 +72,12 @@ using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
 AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fileName) :
-    m_manager(manager),
     m_fileName(fileName),
     m_fileWatcher(new Utils::FileSystemWatcher(this)),
     m_makefileParserThread(0)
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
+    setProjectManager(manager);
     setDocument(new AutotoolsProjectFile(m_fileName));
     m_rootNode = new AutotoolsProjectNode(projectFilePath());
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
@@ -108,11 +108,6 @@ AutotoolsProject::~AutotoolsProject()
 QString AutotoolsProject::displayName() const
 {
     return m_projectName;
-}
-
-IProjectManager *AutotoolsProject::projectManager() const
-{
-    return m_manager;
 }
 
 QString AutotoolsProject::defaultBuildDirectory(const QString &projectPath)

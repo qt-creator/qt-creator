@@ -33,6 +33,8 @@
 
 #include "qmlprojectmanager_global.h"
 
+#include "qmlprojectmanager.h"
+
 #include <projectexplorer/project.h>
 
 #include <QPointer>
@@ -46,7 +48,6 @@ namespace QmlProjectManager {
 class QmlProjectItem;
 
 namespace Internal {
-class Manager;
 class QmlProjectFile;
 class QmlProjectNode;
 } // namespace Internal
@@ -62,7 +63,7 @@ public:
     Utils::FileName filesFileName() const;
 
     QString displayName() const override;
-    ProjectExplorer::IProjectManager *projectManager() const override;
+    Internal::Manager *projectManager() const override;
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
 
@@ -109,11 +110,10 @@ private:
     QStringList convertToAbsoluteFiles(const QStringList &paths) const;
     QmlJS::ModelManagerInterface *modelManager() const;
 
-    Internal::Manager *m_manager;
     Utils::FileName m_fileName;
     QString m_projectName;
     QmlImport m_defaultImport;
-    ProjectExplorer::Target *m_activeTarget;
+    ProjectExplorer::Target *m_activeTarget = 0;
 
     // plain format
     QStringList m_files;

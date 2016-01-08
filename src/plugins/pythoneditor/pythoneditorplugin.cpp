@@ -249,7 +249,7 @@ public:
     ~PythonProject() override;
 
     QString displayName() const override { return m_projectName; }
-    IProjectManager *projectManager() const override { return m_manager; }
+    PythonProjectManager *projectManager() const override;
 
     ProjectNode *rootProjectNode() const override;
     QStringList files(FilesMode) const override { return m_files; }
@@ -270,7 +270,6 @@ private:
     QStringList processEntries(const QStringList &paths,
                                QHash<QString, QString> *map = 0) const;
 
-    PythonProjectManager *m_manager;
     QString m_projectFileName;
     QString m_projectName;
     QStringList m_rawFileList;
@@ -617,11 +616,11 @@ private:
 };
 
 
-PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileName)
-    : m_manager(manager),
-      m_projectFileName(fileName)
+PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileName) :
+    m_projectFileName(fileName)
 {
     setId(PythonProjectId);
+    setProjectManager(manager);
     setDocument(new PythonProjectFile(this, m_projectFileName));
     DocumentManager::addDocument(document());
 
@@ -633,14 +632,19 @@ PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileN
     m_projectName = fileInfo.completeBaseName();
     m_rootNode = new PythonProjectNode(this);
 
-    m_manager->registerProject(this);
+    projectManager()->registerProject(this);
 }
 
 PythonProject::~PythonProject()
 {
-    m_manager->unregisterProject(this);
+    projectManager()->unregisterProject(this);
 
     delete m_rootNode;
+}
+
+PythonProjectManager *PythonProject::projectManager() const
+{
+    return static_cast<PythonProjectManager *>(Project::projectManager());
 }
 
 static QStringList readLines(const QString &absoluteFileName)

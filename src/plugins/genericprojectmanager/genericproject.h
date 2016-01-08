@@ -61,7 +61,7 @@ public:
     QString configFileName() const;
 
     QString displayName() const override;
-    ProjectExplorer::IProjectManager *projectManager() const override;
+    Manager *projectManager() const override;
 
     GenericProjectNode *rootProjectNode() const override;
     QStringList files(FilesMode fileMode) const override;
@@ -96,7 +96,6 @@ private:
 
     void refreshCppCodeModel();
 
-    Manager *m_manager;
     QString m_fileName;
     QString m_filesFileName;
     QString m_includesFileName;

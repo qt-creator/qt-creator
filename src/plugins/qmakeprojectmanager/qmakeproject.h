@@ -32,6 +32,7 @@
 #define QMAKEPROJECT_H
 
 #include "qmakeprojectmanager_global.h"
+#include "qmakeprojectmanager.h"
 #include "qmakenodes.h"
 
 #include <projectexplorer/project.h>
@@ -52,7 +53,6 @@ namespace QtSupport { class ProFileReader; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
-class QmakeManager;
 class QmakePriFileNode;
 class QmakeProFileNode;
 
@@ -72,8 +72,7 @@ public:
     ~QmakeProject() override;
 
     QString displayName() const override;
-    ProjectExplorer::IProjectManager *projectManager() const override;
-    QmakeManager *qmakeProjectManager() const;
+    QmakeManager *projectManager() const override;
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const override;
 
@@ -181,7 +180,6 @@ private:
     void startAsyncTimer(QmakeProFileNode::AsyncUpdateDelay delay);
     bool matchesKit(const ProjectExplorer::Kit *kit);
 
-    QmakeManager *m_manager;
     QmakeProFileNode *m_rootProjectNode = 0;
 
     // Current configuration

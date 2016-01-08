@@ -67,11 +67,10 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-GenericProject::GenericProject(Manager *manager, const QString &fileName)
-    : m_manager(manager),
-      m_fileName(fileName)
+GenericProject::GenericProject(Manager *manager, const QString &fileName) : m_fileName(fileName)
 {
     setId(Constants::GENERICPROJECT_ID);
+    setProjectManager(manager);
     setDocument(new GenericProjectFile(this, m_fileName, GenericProject::Everything));
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
@@ -112,13 +111,13 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
                              << projectIncludesNode
                              << projectConfigNode);
 
-    m_manager->registerProject(this);
+    projectManager()->registerProject(this);
 }
 
 GenericProject::~GenericProject()
 {
     m_codeModelFuture.cancel();
-    m_manager->unregisterProject(this);
+    projectManager()->unregisterProject(this);
 
     delete m_rootNode;
 }
@@ -388,9 +387,9 @@ QString GenericProject::displayName() const
     return m_projectName;
 }
 
-IProjectManager *GenericProject::projectManager() const
+Manager *GenericProject::projectManager() const
 {
-    return m_manager;
+    return static_cast<Manager *>(Project::projectManager());
 }
 
 GenericProjectNode *GenericProject::rootProjectNode() const

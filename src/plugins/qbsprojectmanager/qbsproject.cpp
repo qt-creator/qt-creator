@@ -100,7 +100,6 @@ static const char CONFIG_PRECOMPILEDHEADER[] = "precompiledHeader";
 // --------------------------------------------------------------------
 
 QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
-    m_manager(manager),
     m_projectName(QFileInfo(fileName).completeBaseName()),
     m_fileName(fileName),
     m_rootProjectNode(0),
@@ -113,6 +112,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
     setId(Constants::PROJECT_ID);
+    setProjectManager(manager);
 
     setDocument(new QbsProjectFile(this, m_fileName));
     DocumentManager::addDocument(document());
@@ -157,7 +157,7 @@ QString QbsProject::displayName() const
 
 QbsManager *QbsProject::projectManager() const
 {
-    return m_manager;
+    return static_cast<QbsManager *>(Project::projectManager());
 }
 
 ProjectNode *QbsProject::rootProjectNode() const
@@ -402,7 +402,7 @@ qbs::InstallJob *QbsProject::install(const qbs::InstallOptions &opts)
 
 QString QbsProject::profileForTarget(const Target *t) const
 {
-    return m_manager->profileForKit(t->kit());
+    return projectManager()->profileForKit(t->kit());
 }
 
 bool QbsProject::isParsing() const

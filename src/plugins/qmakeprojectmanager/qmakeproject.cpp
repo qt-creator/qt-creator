@@ -308,11 +308,11 @@ bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType 
   */
 
 QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
-    m_manager(manager),
     m_projectFiles(new QmakeProjectFiles),
     m_qmakeVfs(new QMakeVfs)
 {
     setId(Constants::QMAKEPROJECT_ID);
+    setProjectManager(manager);
     setDocument(new QmakeProjectFile(fileName));
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -334,7 +334,7 @@ QmakeProject::~QmakeProject()
 {
     m_codeModelFuture.cancel();
     m_asyncUpdateState = ShuttingDown;
-    m_manager->unregisterProject(this);
+    projectManager()->unregisterProject(this);
     delete m_projectFiles;
     m_cancelEvaluate = true;
     // Deleting the root node triggers a few things, make sure rootProjectNode
@@ -374,7 +374,7 @@ Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *er
         }
     }
 
-    m_manager->registerProject(this);
+    projectManager()->registerProject(this);
 
     m_rootProjectNode = new QmakeProFileNode(this, projectFilePath());
 
@@ -825,14 +825,9 @@ void QmakeProject::buildFinished(bool success)
         m_qmakeVfs->invalidateContents();
 }
 
-IProjectManager *QmakeProject::projectManager() const
+QmakeManager *QmakeProject::projectManager() const
 {
-    return m_manager;
-}
-
-QmakeManager *QmakeProject::qmakeProjectManager() const
-{
-    return m_manager;
+    return static_cast<QmakeManager *>(Project::projectManager());
 }
 
 bool QmakeProject::supportsKit(Kit *k, QString *errorMessage) const

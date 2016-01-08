@@ -94,6 +94,7 @@ public:
 
     Core::Id m_id;
     Core::IDocument *m_document = 0;
+    IProjectManager *m_manager = 0;
     QList<Target *> m_targets;
     Target *m_activeTarget = 0;
     EditorConfiguration m_editorConfiguration;
@@ -424,6 +425,13 @@ void Project::setDocument(Core::IDocument *doc)
     d->m_document = doc;
 }
 
+void Project::setProjectManager(IProjectManager *manager)
+{
+    QTC_ASSERT(manager, return);
+    QTC_ASSERT(!d->m_manager, return);
+    d->m_manager = manager;
+}
+
 Target *Project::restoreTarget(const QVariantMap &data)
 {
     Core::Id id = idFromMap(data);
@@ -508,6 +516,11 @@ Utils::FileName Project::projectDirectory(const Utils::FileName &top)
     return Utils::FileName::fromString(top.toFileInfo().absoluteDir().path());
 }
 
+IProjectManager *Project::projectManager() const
+{
+    QTC_CHECK(d->m_manager);
+    return d->m_manager;
+}
 
 Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMessage)
 {

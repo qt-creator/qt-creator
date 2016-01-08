@@ -99,7 +99,6 @@ public:
     ~CMakeProject() override;
 
     QString displayName() const override;
-    ProjectExplorer::IProjectManager *projectManager() const override;
 
     ProjectExplorer::ProjectNode *rootProjectNode() const override;
 
@@ -147,8 +146,7 @@ private:
     void updateApplicationAndDeploymentTargets();
     QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QByteArray *cachedBuildNinja);
 
-    Internal::CMakeManager *m_manager;
-    ProjectExplorer::Target *m_activeTarget;
+    ProjectExplorer::Target *m_activeTarget = 0;
     Utils::FileName m_fileName;
 
     // TODO probably need a CMake specific node structure

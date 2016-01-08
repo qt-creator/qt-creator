@@ -86,7 +86,7 @@ public:
     Utils::FileName projectDirectory() const;
     static Utils::FileName projectDirectory(const Utils::FileName &top);
 
-    virtual IProjectManager *projectManager() const = 0;
+    virtual IProjectManager *projectManager() const;
 
     bool hasActiveBuildSettings() const;
 
@@ -174,6 +174,7 @@ protected:
 
     void setId(Core::Id id);
     void setDocument(Core::IDocument *doc); // takes ownership!
+    void setProjectManager(IProjectManager *manager);
     void setProjectContext(Core::Context context);
     void setProjectLanguages(Core::Context language);
     void addProjectLanguage(Core::Id id);

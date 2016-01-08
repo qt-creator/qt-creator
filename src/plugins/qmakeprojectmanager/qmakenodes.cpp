@@ -1180,7 +1180,7 @@ bool QmakePriFileNode::saveModifiedEditors()
 
     // force instant reload of ourselves
     QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath.toString());
-    m_project->qmakeProjectManager()->notifyChanged(m_projectFilePath);
+    m_project->projectManager()->notifyChanged(m_projectFilePath);
     return true;
 }
 
@@ -1369,7 +1369,7 @@ void QmakePriFileNode::save(const QStringList &lines)
     saver.write(lines.join(QLatin1Char('\n')).toLocal8Bit());
     saver.finalize(Core::ICore::mainWindow());
 
-    m_project->qmakeProjectManager()->notifyChanged(m_projectFilePath);
+    m_project->projectManager()->notifyChanged(m_projectFilePath);
     Core::DocumentManager::unexpectFileChange(m_projectFilePath.toString());
     // This is a hack.
     // We are saving twice in a very short timeframe, once the editor and once the ProFile.

@@ -58,13 +58,12 @@ namespace Internal {
 
 } // namespace Internal
 
-QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileName)
-    : m_manager(manager),
-      m_fileName(fileName),
-      m_defaultImport(UnknownImport),
-      m_activeTarget(0)
+QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileName) :
+    m_fileName(fileName),
+    m_defaultImport(UnknownImport)
 {
     setId("QmlProjectManager.QmlProject");
+    setProjectManager(manager);
     setDocument(new Internal::QmlProjectFile(this, fileName));
     DocumentManager::addDocument(document(), true);
 
@@ -76,12 +75,12 @@ QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileNa
 
     m_rootNode = new Internal::QmlProjectNode(this);
 
-    m_manager->registerProject(this);
+    projectManager()->registerProject(this);
 }
 
 QmlProject::~QmlProject()
 {
-    m_manager->unregisterProject(this);
+    projectManager()->unregisterProject(this);
 
     delete m_projectItem.data();
     delete m_rootNode;
@@ -290,9 +289,9 @@ QString QmlProject::displayName() const
     return m_projectName;
 }
 
-IProjectManager *QmlProject::projectManager() const
+Internal::Manager *QmlProject::projectManager() const
 {
-    return m_manager;
+    return static_cast<Internal::Manager *>(Project::projectManager());
 }
 
 bool QmlProject::supportsKit(Kit *k, QString *errorMessage) const

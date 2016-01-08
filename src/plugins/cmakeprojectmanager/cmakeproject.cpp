@@ -87,14 +87,13 @@ using namespace Utils;
 /*!
   \class CMakeProject
 */
-CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
-    : m_manager(manager),
-      m_activeTarget(0),
-      m_fileName(fileName),
-      m_rootNode(new CMakeProjectNode(fileName)),
-      m_watcher(new QFileSystemWatcher(this))
+CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName) :
+    m_fileName(fileName),
+    m_rootNode(new CMakeProjectNode(fileName)),
+    m_watcher(new QFileSystemWatcher(this))
 {
     setId(Constants::CMAKEPROJECT_ID);
+    setProjectManager(manager);
     setDocument(new CMakeFile(fileName));
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -509,11 +508,6 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
 QString CMakeProject::displayName() const
 {
     return m_rootNode->displayName();
-}
-
-IProjectManager *CMakeProject::projectManager() const
-{
-    return m_manager;
 }
 
 ProjectExplorer::ProjectNode *CMakeProject::rootProjectNode() const
