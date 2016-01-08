@@ -99,7 +99,6 @@ public:
     ~CMakeProject() override;
 
     QString displayName() const override;
-    Core::IDocument *document() const override;
     ProjectExplorer::IProjectManager *projectManager() const override;
 
     ProjectExplorer::ProjectNode *rootProjectNode() const override;
@@ -151,7 +150,6 @@ private:
     Internal::CMakeManager *m_manager;
     ProjectExplorer::Target *m_activeTarget;
     Utils::FileName m_fileName;
-    Internal::CMakeFile *m_file;
 
     // TODO probably need a CMake specific node structure
     Internal::CMakeProjectNode *m_rootNode;

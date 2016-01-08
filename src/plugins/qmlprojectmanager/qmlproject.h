@@ -62,7 +62,6 @@ public:
     Utils::FileName filesFileName() const;
 
     QString displayName() const override;
-    Core::IDocument *document() const override;
     ProjectExplorer::IProjectManager *projectManager() const override;
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
@@ -112,7 +111,6 @@ private:
 
     Internal::Manager *m_manager;
     Utils::FileName m_fileName;
-    Internal::QmlProjectFile *m_file;
     QString m_projectName;
     QmlImport m_defaultImport;
     ProjectExplorer::Target *m_activeTarget;

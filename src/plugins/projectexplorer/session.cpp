@@ -1027,7 +1027,7 @@ bool SessionManager::loadSession(const QString &session)
     auto end = oldProjects.end();
 
     while (it != end) {
-        int index = fileList.indexOf((*it)->document()->filePath().toString());
+        int index = fileList.indexOf((*it)->projectFilePath().toString());
         if (index != -1) {
             fileList.removeAt(index);
             it = oldProjects.erase(it);

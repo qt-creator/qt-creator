@@ -61,7 +61,6 @@ public:
     QString configFileName() const;
 
     QString displayName() const override;
-    Core::IDocument *document() const override;
     ProjectExplorer::IProjectManager *projectManager() const override;
 
     GenericProjectNode *rootProjectNode() const override;
@@ -103,7 +102,6 @@ private:
     QString m_includesFileName;
     QString m_configFileName;
     QString m_projectName;
-    GenericProjectFile *m_creatorIDocument;
     GenericProjectFile *m_filesIDocument;
     GenericProjectFile *m_includesIDocument;
     GenericProjectFile *m_configIDocument;

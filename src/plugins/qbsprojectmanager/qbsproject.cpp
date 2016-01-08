@@ -113,6 +113,10 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
     setId(Constants::PROJECT_ID);
+
+    setDocument(new QbsProjectFile(this, m_fileName));
+    DocumentManager::addDocument(document());
+
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -123,8 +127,6 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     connect(this, SIGNAL(environmentChanged()), this, SLOT(delayParsing()));
 
     connect(&m_parsingDelay, SIGNAL(timeout()), this, SLOT(startParsing()));
-
-    updateDocuments(QSet<QString>() << fileName);
 
     // NOTE: QbsProjectNode does not use this as a parent!
     m_rootProjectNode = new QbsRootProjectNode(this); // needs documents to be initialized!
@@ -151,15 +153,6 @@ QbsProject::~QbsProject()
 QString QbsProject::displayName() const
 {
     return m_projectName;
-}
-
-IDocument *QbsProject::document() const
-{
-    foreach (IDocument *doc, m_qbsDocuments) {
-        if (doc->filePath().toString() == m_fileName)
-            return doc;
-    }
-    QTC_ASSERT(false, return 0);
 }
 
 QbsManager *QbsProject::projectManager() const

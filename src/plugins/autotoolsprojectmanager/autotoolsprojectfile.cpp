@@ -37,9 +37,7 @@
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 
-AutotoolsProjectFile::AutotoolsProjectFile(AutotoolsProject *project, const QString &fileName) :
-    Core::IDocument(project),
-    m_project(project)
+AutotoolsProjectFile::AutotoolsProjectFile(const QString &fileName)
 {
     setId("Autotools.ProjectFile");
     setMimeType(QLatin1String(Constants::MAKEFILE_MIMETYPE));

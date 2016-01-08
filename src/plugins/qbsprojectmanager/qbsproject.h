@@ -66,7 +66,6 @@ public:
     ~QbsProject() override;
 
     QString displayName() const override;
-    Core::IDocument *document() const override;
     QbsManager *projectManager() const override;
 
     ProjectExplorer::ProjectNode *rootProjectNode() const override;

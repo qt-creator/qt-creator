@@ -58,9 +58,9 @@ class QmakeProFileNode;
 
 namespace Internal {
 class CentralizedFolderWatcher;
+class QmakeProjectFile;
 class QmakeProjectFiles;
 class QmakeProjectConfigWidget;
-class QmakeProjectFile;
 }
 
 class  QMAKEPROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
@@ -72,7 +72,6 @@ public:
     ~QmakeProject() override;
 
     QString displayName() const override;
-    Core::IDocument *document() const override;
     ProjectExplorer::IProjectManager *projectManager() const override;
     QmakeManager *qmakeProjectManager() const;
 
@@ -184,8 +183,6 @@ private:
 
     QmakeManager *m_manager;
     QmakeProFileNode *m_rootProjectNode = 0;
-
-    Internal::QmakeProjectFile *m_fileInfo = nullptr;
 
     // Current configuration
     QString m_oldQtIncludePath;

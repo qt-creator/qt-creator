@@ -55,7 +55,7 @@ class AutotoolsProjectFile : public Core::IDocument
     Q_OBJECT
 
 public:
-    AutotoolsProjectFile(AutotoolsProject *project, const QString &fileName);
+    AutotoolsProjectFile(const QString &fileName);
 
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
     QString defaultPath() const override;
@@ -63,9 +63,6 @@ public:
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-
-private:
-    AutotoolsProject *m_project;
 };
 
 } // namespace Internal

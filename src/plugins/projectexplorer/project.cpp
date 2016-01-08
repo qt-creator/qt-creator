@@ -90,17 +90,17 @@ namespace ProjectExplorer {
 class ProjectPrivate
 {
 public:
-    ProjectPrivate();
     ~ProjectPrivate();
 
     Core::Id m_id;
+    Core::IDocument *m_document = 0;
     QList<Target *> m_targets;
-    Target *m_activeTarget;
+    Target *m_activeTarget = 0;
     EditorConfiguration m_editorConfiguration;
     Core::Context m_projectContext;
     Core::Context m_projectLanguages;
     QVariantMap m_pluginSettings;
-    Internal::UserFileAccessor *m_accessor;
+    Internal::UserFileAccessor *m_accessor = 0;
 
     KitMatcher m_requiredKitMatcher;
     KitMatcher m_preferredKitMatcher;
@@ -108,13 +108,11 @@ public:
     Utils::MacroExpander m_macroExpander;
 };
 
-ProjectPrivate::ProjectPrivate() :
-    m_activeTarget(0),
-    m_accessor(0)
-{ }
-
 ProjectPrivate::~ProjectPrivate()
-{ delete m_accessor; }
+{
+    delete m_accessor;
+    delete m_document;
+}
 
 Project::Project() : d(new ProjectPrivate)
 {
@@ -135,8 +133,15 @@ Core::Id Project::id() const
     return d->m_id;
 }
 
+Core::IDocument *Project::document() const
+{
+    QTC_CHECK(d->m_document);
+    return d->m_document;
+}
+
 Utils::FileName Project::projectFilePath() const
 {
+    QTC_ASSERT(document(), return Utils::FileName());
     return document()->filePath();
 }
 
@@ -410,6 +415,13 @@ bool Project::setupTarget(Target *t)
 void Project::setId(Core::Id id)
 {
     d->m_id = id;
+}
+
+void Project::setDocument(Core::IDocument *doc)
+{
+    QTC_ASSERT(doc, return);
+    QTC_ASSERT(!d->m_document, return);
+    d->m_document = doc;
 }
 
 Target *Project::restoreTarget(const QVariantMap &data)

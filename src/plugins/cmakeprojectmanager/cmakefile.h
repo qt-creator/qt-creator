@@ -42,7 +42,7 @@ class CMakeFile : public Core::IDocument
 {
     Q_OBJECT
 public:
-    CMakeFile(CMakeProject *parent, const Utils::FileName &fileName);
+    CMakeFile(const Utils::FileName &fileName);
 
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
 
@@ -54,9 +54,6 @@ public:
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-
-private:
-    CMakeProject *m_project;
 };
 
 } // namespace Internal

@@ -249,7 +249,6 @@ public:
     ~PythonProject() override;
 
     QString displayName() const override { return m_projectName; }
-    IDocument *document() const override;
     IProjectManager *projectManager() const override { return m_manager; }
 
     ProjectNode *rootProjectNode() const override;
@@ -274,7 +273,6 @@ private:
     PythonProjectManager *m_manager;
     QString m_projectFileName;
     QString m_projectName;
-    PythonProjectFile *m_document;
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
@@ -285,9 +283,7 @@ private:
 class PythonProjectFile : public Core::IDocument
 {
 public:
-    PythonProjectFile(PythonProject *parent, QString fileName)
-        : IDocument(parent),
-          m_project(parent)
+    PythonProjectFile(PythonProject *parent, QString fileName) : m_project(parent)
     {
         setId("Generic.ProjectFile");
         setMimeType(QLatin1String(PythonMimeType));
@@ -626,16 +622,15 @@ PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileN
       m_projectFileName(fileName)
 {
     setId(PythonProjectId);
+    setDocument(new PythonProjectFile(this, m_projectFileName));
+    DocumentManager::addDocument(document());
+
     setProjectContext(Context(PythonProjectContext));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
     QFileInfo fileInfo(m_projectFileName);
 
     m_projectName = fileInfo.completeBaseName();
-    m_document = new PythonProjectFile(this, m_projectFileName);
-
-    DocumentManager::addDocument(m_document);
-
     m_rootNode = new PythonProjectNode(this);
 
     m_manager->registerProject(this);
@@ -646,11 +641,6 @@ PythonProject::~PythonProject()
     m_manager->unregisterProject(this);
 
     delete m_rootNode;
-}
-
-IDocument *PythonProject::document() const
-{
-    return m_document;
 }
 
 static QStringList readLines(const QString &absoluteFileName)

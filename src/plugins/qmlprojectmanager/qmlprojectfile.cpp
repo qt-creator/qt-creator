@@ -36,9 +36,8 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlProjectFile::QmlProjectFile(QmlProject *parent, const Utils::FileName &fileName)
-    : Core::IDocument(parent),
-      m_project(parent)
+QmlProjectFile::QmlProjectFile(QmlProject *parent, const Utils::FileName &fileName) :
+    m_project(parent)
 {
     QTC_CHECK(m_project);
     QTC_CHECK(!fileName.isEmpty());

@@ -72,6 +72,7 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
       m_fileName(fileName)
 {
     setId(Constants::GENERICPROJECT_ID);
+    setDocument(new GenericProjectFile(this, m_fileName, GenericProject::Everything));
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -83,12 +84,11 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     m_includesFileName = QFileInfo(dir, m_projectName + QLatin1String(".includes")).absoluteFilePath();
     m_configFileName   = QFileInfo(dir, m_projectName + QLatin1String(".config")).absoluteFilePath();
 
-    m_creatorIDocument  = new GenericProjectFile(this, m_fileName, GenericProject::Everything);
     m_filesIDocument    = new GenericProjectFile(this, m_filesFileName, GenericProject::Files);
     m_includesIDocument = new GenericProjectFile(this, m_includesFileName, GenericProject::Configuration);
     m_configIDocument   = new GenericProjectFile(this, m_configFileName, GenericProject::Configuration);
 
-    DocumentManager::addDocument(m_creatorIDocument);
+    DocumentManager::addDocument(document());
     DocumentManager::addDocument(m_filesIDocument);
     DocumentManager::addDocument(m_includesIDocument);
     DocumentManager::addDocument(m_configIDocument);
@@ -388,11 +388,6 @@ QString GenericProject::displayName() const
     return m_projectName;
 }
 
-IDocument *GenericProject::document() const
-{
-    return m_creatorIDocument;
-}
-
 IProjectManager *GenericProject::projectManager() const
 {
     return m_manager;
@@ -451,8 +446,8 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options)
-    : IDocument(parent),
+GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName,
+                                       GenericProject::RefreshOptions options) :
       m_project(parent),
       m_options(options)
 {

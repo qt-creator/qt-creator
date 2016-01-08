@@ -79,10 +79,14 @@ public:
 
     virtual QString displayName() const = 0;
     Core::Id id() const;
-    virtual Core::IDocument *document() const = 0;
-    virtual IProjectManager *projectManager() const = 0;
 
+    Core::IDocument *document() const;
     Utils::FileName projectFilePath() const;
+    // The directory that holds the project. This includes the absolute path.
+    Utils::FileName projectDirectory() const;
+    static Utils::FileName projectDirectory(const Utils::FileName &top);
+
+    virtual IProjectManager *projectManager() const = 0;
 
     bool hasActiveBuildSettings() const;
 
@@ -118,10 +122,6 @@ public:
     static QString makeUnique(const QString &preferredName, const QStringList &usedNames);
 
     virtual QVariantMap toMap() const;
-
-    // The directory that holds the project. This includes the absolute path.
-    Utils::FileName projectDirectory() const;
-    static Utils::FileName projectDirectory(const Utils::FileName &top);
 
     Core::Context projectContext() const;
     Core::Context projectLanguages() const;
@@ -173,6 +173,7 @@ protected:
     virtual bool setupTarget(Target *t);
 
     void setId(Core::Id id);
+    void setDocument(Core::IDocument *doc); // takes ownership!
     void setProjectContext(Core::Context context);
     void setProjectLanguages(Core::Context language);
     void addProjectLanguage(Core::Id id);

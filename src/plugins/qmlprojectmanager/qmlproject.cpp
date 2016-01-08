@@ -65,16 +65,16 @@ QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileNa
       m_activeTarget(0)
 {
     setId("QmlProjectManager.QmlProject");
+    setDocument(new Internal::QmlProjectFile(this, fileName));
+    DocumentManager::addDocument(document(), true);
+
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_QMLJS));
 
     QFileInfo fileInfo = m_fileName.toFileInfo();
     m_projectName = fileInfo.completeBaseName();
 
-    m_file = new Internal::QmlProjectFile(this, fileName);
     m_rootNode = new Internal::QmlProjectNode(this);
-
-    DocumentManager::addDocument(m_file, true);
 
     m_manager->registerProject(this);
 }
@@ -82,8 +82,6 @@ QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileNa
 QmlProject::~QmlProject()
 {
     m_manager->unregisterProject(this);
-
-    DocumentManager::removeDocument(m_file);
 
     delete m_projectItem.data();
     delete m_rootNode;
@@ -290,11 +288,6 @@ void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString
 QString QmlProject::displayName() const
 {
     return m_projectName;
-}
-
-IDocument *QmlProject::document() const
-{
-    return m_file;
 }
 
 IProjectManager *QmlProject::projectManager() const

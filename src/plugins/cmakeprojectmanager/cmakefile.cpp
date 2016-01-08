@@ -39,8 +39,7 @@ using namespace Utils;
 namespace CMakeProjectManager {
 namespace Internal {
 
-CMakeFile::CMakeFile(CMakeProject *parent, const FileName &fileName)
-    : Core::IDocument(parent), m_project(parent)
+CMakeFile::CMakeFile(const FileName &fileName)
 {
     setId("Cmake.ProjectFile");
     setMimeType(QLatin1String(Constants::CMAKEPROJECTMIMETYPE));

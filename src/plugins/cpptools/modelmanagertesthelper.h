@@ -50,7 +50,6 @@ public:
     ~TestProject() override;
 
     QString displayName() const override { return m_name; }
-    Core::IDocument *document() const override { return 0; }
     ProjectExplorer::IProjectManager *projectManager() const override { return 0; }
     ProjectExplorer::ProjectNode *rootProjectNode() const override { return 0; }
 

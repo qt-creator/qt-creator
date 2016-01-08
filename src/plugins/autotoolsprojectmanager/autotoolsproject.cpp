@@ -74,14 +74,12 @@ using namespace ProjectExplorer;
 AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fileName) :
     m_manager(manager),
     m_fileName(fileName),
-    m_files(),
-    m_file(new AutotoolsProjectFile(this, m_fileName)),
-    m_rootNode(new AutotoolsProjectNode(m_file->filePath())),
     m_fileWatcher(new Utils::FileSystemWatcher(this)),
-    m_watchedFiles(),
     m_makefileParserThread(0)
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
+    setDocument(new AutotoolsProjectFile(m_fileName));
+    m_rootNode = new AutotoolsProjectNode(projectFilePath());
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -110,11 +108,6 @@ AutotoolsProject::~AutotoolsProject()
 QString AutotoolsProject::displayName() const
 {
     return m_projectName;
-}
-
-Core::IDocument *AutotoolsProject::document() const
-{
-    return m_file;
 }
 
 IProjectManager *AutotoolsProject::projectManager() const

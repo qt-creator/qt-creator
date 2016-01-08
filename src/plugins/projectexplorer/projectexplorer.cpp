@@ -1282,8 +1282,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         [this]() -> QString {
             Utils::FileName projectFilePath;
             if (Project *project = ProjectTree::currentProject())
-                if (IDocument *doc = project->document())
-                    projectFilePath = doc->filePath();
+                projectFilePath = project->projectFilePath();
             return projectFilePath.toString();
         });
 

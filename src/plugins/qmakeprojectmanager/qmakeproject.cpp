@@ -98,7 +98,7 @@ class QmakeProjectFile : public Core::IDocument
     Q_OBJECT
 
 public:
-    QmakeProjectFile(const QString &filePath, QObject *parent = 0);
+    QmakeProjectFile(const QString &filePath);
 
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
 
@@ -251,8 +251,7 @@ void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 
 // ----------- QmakeProjectFile
 namespace Internal {
-QmakeProjectFile::QmakeProjectFile(const QString &filePath, QObject *parent)
-    : Core::IDocument(parent)
+QmakeProjectFile::QmakeProjectFile(const QString &filePath)
 {
     setId("Qmake.ProFile");
     setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
@@ -310,11 +309,11 @@ bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType 
 
 QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     m_manager(manager),
-    m_fileInfo(new QmakeProjectFile(fileName, this)),
     m_projectFiles(new QmakeProjectFiles),
     m_qmakeVfs(new QMakeVfs)
 {
     setId(Constants::QMAKEPROJECT_ID);
+    setDocument(new QmakeProjectFile(fileName));
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
     setRequiredKitMatcher(QtSupport::QtKitInformation::qtVersionMatcher());
@@ -377,7 +376,7 @@ Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *er
 
     m_manager->registerProject(this);
 
-    m_rootProjectNode = new QmakeProFileNode(this, m_fileInfo->filePath());
+    m_rootProjectNode = new QmakeProFileNode(this, projectFilePath());
 
     // On active buildconfiguration changes, reevaluate the .pro files
     m_activeTarget = activeTarget();
@@ -849,11 +848,6 @@ QString QmakeProject::displayName() const
     return projectFilePath().toFileInfo().completeBaseName();
 }
 
-Core::IDocument *QmakeProject::document() const
-{
-    return m_fileInfo;
-}
-
 QStringList QmakeProject::files(FilesMode fileMode) const
 {
     QStringList files;
@@ -986,7 +980,7 @@ void QmakeProject::destroyProFileReader(QtSupport::ProFileReader *reader)
 {
     delete reader;
     if (!--m_qmakeGlobalsRefCnt) {
-        QString dir = m_fileInfo->filePath().toFileInfo().absolutePath();
+        QString dir = projectFilePath().toString();
         if (!dir.endsWith(QLatin1Char('/')))
             dir += QLatin1Char('/');
         QtSupport::ProFileCacheManager::instance()->discardFiles(dir);

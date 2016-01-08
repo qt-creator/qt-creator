@@ -95,12 +95,11 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
       m_watcher(new QFileSystemWatcher(this))
 {
     setId(Constants::CMAKEPROJECT_ID);
+    setDocument(new CMakeFile(fileName));
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
     m_rootNode->setDisplayName(fileName.parentDir().fileName());
-
-    m_file = new CMakeFile(this, fileName);
 
     connect(this, &CMakeProject::buildTargetsChanged, this, &CMakeProject::updateRunConfigurations);
     connect(m_watcher, &QFileSystemWatcher::fileChanged, this, &CMakeProject::fileChanged);
@@ -510,11 +509,6 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
 QString CMakeProject::displayName() const
 {
     return m_rootNode->displayName();
-}
-
-Core::IDocument *CMakeProject::document() const
-{
-    return m_file;
 }
 
 IProjectManager *CMakeProject::projectManager() const
