@@ -976,6 +976,27 @@ TEST_F(HighlightingInformations, LambdaCapture)
     ASSERT_THAT(infos[4], HasType(HighlightingType::LocalVariable));
 }
 
+TEST_F(HighlightingInformations, LambdaCapturedVarUsage)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(443, 41));
+
+    ASSERT_THAT(infos[1], HasType(HighlightingType::LocalVariable));
+}
+
+TEST_F(HighlightingInformations, LambdaArgumentUsage)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(443, 41));
+
+    ASSERT_THAT(infos[3], HasType(HighlightingType::LocalVariable));
+}
+
+TEST_F(HighlightingInformations, LambdaFieldUsage)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(443, 41));
+
+    ASSERT_THAT(infos[5], HasType(HighlightingType::Field));
+}
+
 Data *HighlightingInformations::d;
 
 void HighlightingInformations::SetUpTestCase()
