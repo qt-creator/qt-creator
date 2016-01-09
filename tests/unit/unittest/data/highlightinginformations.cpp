@@ -433,3 +433,15 @@ void argumentToUserDefinedIndexOperator(Bar object, int index = 3)
 {
     object[index];
 }
+
+struct LambdaTester
+{
+    int member = 0;
+    void func() {
+        const int var = 42, var2 = 84;
+        auto lambda = [var, this](int input) {
+            return var + input + member;
+        };
+        lambda(var2);
+    }
+};

@@ -969,6 +969,13 @@ TEST_F(HighlightingInformations, DISABLED_ArgumentToUserDefinedIndexOperator)
     ASSERT_THAT(infos[2], HasType(HighlightingType::LocalVariable));
 }
 
+TEST_F(HighlightingInformations, LambdaCapture)
+{
+    const auto infos = translationUnit.highlightingInformationsInRange(sourceRange(442, 47));
+
+    ASSERT_THAT(infos[4], HasType(HighlightingType::LocalVariable));
+}
+
 Data *HighlightingInformations::d;
 
 void HighlightingInformations::SetUpTestCase()

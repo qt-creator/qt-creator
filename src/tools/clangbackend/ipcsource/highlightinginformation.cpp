@@ -180,6 +180,7 @@ HighlightingType HighlightingInformation::identifierKind(const Cursor &cursor) c
         case CXCursor_NonTypeTemplateParameter:
         case CXCursor_ParmDecl:                  return HighlightingType::LocalVariable;
         case CXCursor_VarDecl:                   return variableKind(cursor);
+        case CXCursor_VariableRef:
         case CXCursor_DeclRefExpr:               return identifierKind(cursor.referenced());
         case CXCursor_MemberRefExpr:             return memberReferenceKind(cursor);
         case CXCursor_FieldDecl:
