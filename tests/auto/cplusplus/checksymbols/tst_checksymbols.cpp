@@ -325,16 +325,16 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(2, 11, 1, Highlighting::FunctionUse));
 
     QTest::newRow("PseudoKeywordUse")
-        << _("class D : public B {"
+        << _("class D : public B {\n"
              "   virtual void f() override {}\n"
              "   virtual void f() final {}\n"
              "};\n")
         << (UseList()
             << Use(1, 7, 1, Highlighting::TypeUse)
-            << Use(1, 37, 1, Highlighting::VirtualMethodUse)
-            << Use(1, 41, 8, Highlighting::PseudoKeywordUse)
             << Use(2, 17, 1, Highlighting::VirtualMethodUse)
-            << Use(2, 21, 5, Highlighting::PseudoKeywordUse));
+            << Use(2, 21, 8, Highlighting::PseudoKeywordUse)
+            << Use(3, 17, 1, Highlighting::VirtualMethodUse)
+            << Use(3, 21, 5, Highlighting::PseudoKeywordUse));
 
     QTest::newRow("StaticUse")
         << _("struct Outer\n"
