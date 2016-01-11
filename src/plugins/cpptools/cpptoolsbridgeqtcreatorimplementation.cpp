@@ -30,6 +30,8 @@
 #include "projectpart.h"
 #include "editordocumenthandle.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 namespace CppTools {
 
 namespace Internal {
@@ -84,6 +86,11 @@ void CppToolsBridgeQtCreatorImplementation::finishedRefreshingSourceFiles(
         const QSet<QString> &filePaths) const
 {
     CppModelManager::instance()->finishedRefreshingSourceFiles(filePaths);
+}
+
+QList<Core::IEditor *> CppToolsBridgeQtCreatorImplementation::visibleEditors() const
+{
+    return Core::EditorManager::visibleEditors();
 }
 
 } // namespace Internal

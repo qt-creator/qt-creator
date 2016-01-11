@@ -27,6 +27,8 @@
 
 #include "cpptoolsbridgeinterface.h"
 
+#include <QList>
+
 namespace CppTools {
 
 std::unique_ptr<CppToolsBridgeInterface> CppToolsBridge::m_interface;
@@ -54,6 +56,11 @@ BaseEditorDocumentProcessor *CppToolsBridge::baseEditorDocumentProcessor(const Q
 void CppToolsBridge::finishedRefreshingSourceFiles(const QSet<QString> &filePaths)
 {
     m_interface->finishedRefreshingSourceFiles(filePaths);
+}
+
+QList<Core::IEditor *> CppToolsBridge::visibleEditors()
+{
+    return m_interface->visibleEditors();
 }
 
 } // namespace CppTools

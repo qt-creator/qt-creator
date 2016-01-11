@@ -32,6 +32,10 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
+namespace Core {
+class IEditor;
+}
+
 namespace CppTools {
 class CppEditorDocumentHandle;
 class BaseEditorDocumentProcessor;
@@ -44,6 +48,8 @@ public:
     virtual QString projectPartIdForFile(const QString &filePath) const = 0;
     virtual BaseEditorDocumentProcessor *baseEditorDocumentProcessor(const QString &filePath) const = 0;
     virtual void finishedRefreshingSourceFiles(const QSet<QString> &filePaths) const = 0;
+    virtual QList<Core::IEditor *> visibleEditors() const = 0;
+
 };
 
 } // namespace CppTools

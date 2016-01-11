@@ -32,6 +32,10 @@
 
 #include <memory>
 
+namespace Core {
+class IEditor;
+}
+
 namespace CppTools {
 class CppEditorDocumentHandle;
 class BaseEditorDocumentProcessor;
@@ -47,6 +51,7 @@ public:
     static QString projectPartIdForFile(const QString &filePath);
     static BaseEditorDocumentProcessor *baseEditorDocumentProcessor(const QString &filePath);
     static void finishedRefreshingSourceFiles(const QSet<QString> &filePaths);
+    static QList<Core::IEditor *> visibleEditors();
 
 private:
     static std::unique_ptr<CppToolsBridgeInterface> m_interface;

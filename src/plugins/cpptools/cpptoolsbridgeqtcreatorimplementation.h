@@ -39,6 +39,7 @@ public:
     QString projectPartIdForFile(const QString &filePath) const override;
     BaseEditorDocumentProcessor *baseEditorDocumentProcessor(const QString &filePath) const override;
     void finishedRefreshingSourceFiles(const QSet<QString> &filePaths) const override;
+    QList<Core::IEditor *> visibleEditors() const override;
 };
 
 } // namespace Internal
