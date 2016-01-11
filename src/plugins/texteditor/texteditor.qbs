@@ -27,6 +27,7 @@ QtcPlugin {
         "behaviorsettingswidget.cpp",
         "behaviorsettingswidget.h",
         "behaviorsettingswidget.ui",
+        "blockrange.h",
         "circularclipboard.cpp",
         "circularclipboard.h",
         "circularclipboardassist.cpp",

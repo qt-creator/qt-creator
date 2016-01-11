@@ -32,6 +32,7 @@
 #define TEXTEDITOR_H
 
 #include "texteditor_global.h"
+#include "blockrange.h"
 #include "codeassist/assistenums.h"
 
 #include <coreplugin/editormanager/ieditor.h>
@@ -90,24 +91,6 @@ class Indenter;
 class MarginSettings;
 class StorageSettings;
 class TypingSettings;
-
-class TEXTEDITOR_EXPORT BlockRange
-{
-public:
-    BlockRange() : _first(0), _last(-1) {}
-    BlockRange(int firstPosition, int lastPosition)
-      : _first(firstPosition), _last(lastPosition)
-    {}
-
-    inline bool isNull() const { return _last < _first; }
-
-    int first() const { return _first; }
-    int last() const { return _last; }
-
-private:
-    int _first;
-    int _last;
-};
 
 enum TextPositionOperation
 {
