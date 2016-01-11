@@ -175,7 +175,11 @@ TEST_F(ReadAndWriteMessageBlock, CompareCodeCompletedMessage)
 {
     ClangBackEnd::CodeCompletions codeCompletions({Utf8StringLiteral("newFunction()")});
 
-    CompareMessage(ClangBackEnd::CodeCompletedMessage(codeCompletions, 1));
+    CompareMessage(
+        ClangBackEnd::CodeCompletedMessage(codeCompletions,
+                                           ClangBackEnd::CompletionCorrection::NoCorrection,
+                                           1)
+    );
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareDiagnosticsChangedMessage)
@@ -244,7 +248,10 @@ TEST_F(ReadAndWriteMessageBlock, ReadMessageAfterInterruption)
 
 QVariant ReadAndWriteMessageBlock::writeCodeCompletedMessage()
 {
-    ClangBackEnd::CodeCompletedMessage message(ClangBackEnd::CodeCompletions({Utf8StringLiteral("newFunction()")}), 1);
+    ClangBackEnd::CodeCompletedMessage message(
+        ClangBackEnd::CodeCompletions({Utf8StringLiteral("newFunction()")}),
+        ClangBackEnd::CompletionCorrection::NoCorrection,
+        1);
     const QVariant writeMessage = QVariant::fromValue(message);
     writeMessageBlock.write(writeMessage);
 

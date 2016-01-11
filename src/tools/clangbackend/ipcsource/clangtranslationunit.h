@@ -99,6 +99,8 @@ public:
     CXTranslationUnit cxTranslationUnit() const;
     CXTranslationUnit cxTranslationUnitWithoutReparsing() const;
     CXUnsavedFile * cxUnsavedFiles() const;
+    const std::vector<CXUnsavedFile> &cxUnsavedFilesVector() const;
+
     uint unsavedFilesCount() const;
 
     const Utf8String &filePath() const;
@@ -125,6 +127,7 @@ public:
 
     CommandLineArguments commandLineArguments() const;
 
+    SourceLocation sourceLocationAtWithoutReparsing(uint line, uint column) const;
     SourceLocation sourceLocationAt(uint line, uint column) const;
     SourceLocation sourceLocationAt(const Utf8String &filePath, uint line, uint column) const;
 

@@ -480,6 +480,11 @@ CommandLineArguments TranslationUnit::commandLineArguments() const
                                 isVerboseModeEnabled());
 }
 
+SourceLocation TranslationUnit::sourceLocationAtWithoutReparsing(uint line, uint column) const
+{
+    return SourceLocation(cxTranslationUnitWithoutReparsing(), filePath(), line, column);
+}
+
 uint TranslationUnit::defaultOptions()
 {
     return CXTranslationUnit_CacheCompletionResults
@@ -496,6 +501,11 @@ uint TranslationUnit::unsavedFilesCount() const
 CXUnsavedFile *TranslationUnit::cxUnsavedFiles() const
 {
     return unsavedFiles().cxUnsavedFiles();
+}
+
+const std::vector<CXUnsavedFile> &TranslationUnit::cxUnsavedFilesVector() const
+{
+    return unsavedFiles().cxUnsavedFileVector();
 }
 
 TranslationUnit::~TranslationUnit() = default;

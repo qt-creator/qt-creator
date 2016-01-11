@@ -39,7 +39,7 @@
 
 namespace ClangBackEnd {
 
-class TranslationUnit;
+class ClangCodeCompleteResults;
 
 class CodeCompleter
 {
@@ -49,12 +49,22 @@ public:
 
     CodeCompletions complete(uint line, uint column);
 
+    CompletionCorrection neededCorrection() const;
+
 private:
+    ClangCodeCompleteResults complete(uint line,
+                                      uint column,
+                                      CXUnsavedFile *unsavedFiles,
+                                      unsigned unsavedFileCount);
+
+    ClangCodeCompleteResults completeWithArrowInsteadOfDot(uint line, uint column);
+
     Utf8String filePath() const;
     static void checkCodeCompleteResult(CXCodeCompleteResults *completeResults);
 
 private:
     TranslationUnit translationUnit;
+    CompletionCorrection neededCorrection_ = CompletionCorrection::NoCorrection;
 };
 
 } // namespace ClangBackEnd

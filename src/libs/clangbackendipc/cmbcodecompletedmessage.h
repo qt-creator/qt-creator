@@ -48,15 +48,22 @@ class CMBIPC_EXPORT CodeCompletedMessage
     friend void PrintTo(const CodeCompletedMessage &message, ::std::ostream* os);
 public:
     CodeCompletedMessage() = default;
-    CodeCompletedMessage(const CodeCompletions &codeCompletions, quint64 ticketNumber);
+    CodeCompletedMessage(const CodeCompletions &codeCompletions,
+                         CompletionCorrection neededCorrection,
+                         quint64 ticketNumber);
 
     const CodeCompletions &codeCompletions() const;
+    CompletionCorrection neededCorrection() const;
 
     quint64 ticketNumber() const;
 
 private:
+    quint32 &neededCorrectionAsInt();
+
+private:
     CodeCompletions codeCompletions_;
     quint64 ticketNumber_ = 0;
+    CompletionCorrection neededCorrection_ = CompletionCorrection::NoCorrection;
 };
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message);

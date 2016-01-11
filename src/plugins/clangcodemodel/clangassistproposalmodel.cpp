@@ -39,6 +39,12 @@
 namespace ClangCodeModel {
 namespace Internal {
 
+ClangAssistProposalModel::ClangAssistProposalModel(
+        ClangBackEnd::CompletionCorrection neededCorrection)
+    : m_neededCorrection(neededCorrection)
+{
+}
+
 bool ClangAssistProposalModel::isSortable(const QString &/*prefix*/) const
 {
     return true;
@@ -55,6 +61,11 @@ void ClangAssistProposalModel::sort(const QString &/*prefix*/)
     };
 
     std::sort(m_currentItems.begin(), m_currentItems.end(), currentItemsCompare);
+}
+
+ClangBackEnd::CompletionCorrection ClangAssistProposalModel::neededCorrection() const
+{
+    return m_neededCorrection;
 }
 
 } // namespace Internal

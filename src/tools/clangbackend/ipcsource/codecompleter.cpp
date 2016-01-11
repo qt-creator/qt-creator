@@ -32,15 +32,32 @@
 
 #include "clangcodecompleteresults.h"
 #include "clangstring.h"
+#include "cursor.h"
 #include "codecompletefailedexception.h"
 #include "codecompletionsextractor.h"
+#include "sourcelocation.h"
+#include "temporarymodifiedunsavedfiles.h"
 #include "clangtranslationunit.h"
+#include "sourcerange.h"
 
 #include <clang-c/Index.h>
 
-#include <QDebug>
-
 namespace ClangBackEnd {
+
+namespace {
+
+CodeCompletions toCodeCompletions(const ClangCodeCompleteResults &results)
+{
+    if (results.isNull())
+        return CodeCompletions();
+
+    CodeCompletionsExtractor extractor(results.data());
+    CodeCompletions codeCompletions = extractor.extractAll();
+
+    return codeCompletions;
+}
+
+} // anonymous namespace
 
 CodeCompleter::CodeCompleter(TranslationUnit translationUnit)
     : translationUnit(std::move(translationUnit))
@@ -49,17 +66,64 @@ CodeCompleter::CodeCompleter(TranslationUnit translationUnit)
 
 CodeCompletions CodeCompleter::complete(uint line, uint column)
 {
-    ClangCodeCompleteResults completeResults(clang_codeCompleteAt(translationUnit.cxTranslationUnitWithoutReparsing(),
-                                                                  translationUnit.filePath().constData(),
-                                                                  line,
-                                                                  column,
-                                                                  translationUnit.cxUnsavedFiles(),
-                                                                  translationUnit.unsavedFilesCount(),
-                                                                  CXCodeComplete_IncludeMacros | CXCodeComplete_IncludeCodePatterns));
+    neededCorrection_ = CompletionCorrection::NoCorrection;
 
-    CodeCompletionsExtractor extractor(completeResults.data());
+    ClangCodeCompleteResults results = complete(line,
+                                                column,
+                                                translationUnit.cxUnsavedFiles(),
+                                                translationUnit.unsavedFilesCount());
 
-    return extractor.extractAll();
+    if (results.hasNoResultsForDotCompletion())
+        results = completeWithArrowInsteadOfDot(line, column);
+
+    return toCodeCompletions(results);
+}
+
+CompletionCorrection CodeCompleter::neededCorrection() const
+{
+    return neededCorrection_;
+}
+
+ClangCodeCompleteResults CodeCompleter::complete(uint line,
+                                                 uint column,
+                                                 CXUnsavedFile *unsavedFiles,
+                                                 unsigned unsavedFileCount)
+{
+    const auto options = CXCodeComplete_IncludeMacros | CXCodeComplete_IncludeCodePatterns;
+
+    return clang_codeCompleteAt(translationUnit.cxTranslationUnitWithoutReparsing(),
+                                translationUnit.filePath().constData(),
+                                line,
+                                column,
+                                unsavedFiles,
+                                unsavedFileCount,
+                                options);
+}
+
+ClangCodeCompleteResults CodeCompleter::completeWithArrowInsteadOfDot(uint line, uint column)
+{
+    TemporaryModifiedUnsavedFiles modifiedUnsavedFiles(translationUnit.cxUnsavedFilesVector());
+    const SourceLocation location = translationUnit.sourceLocationAtWithoutReparsing(line,
+                                                                                     column - 1);
+
+    const bool replaced = modifiedUnsavedFiles.replaceInFile(filePath(),
+                                                             location.offset(),
+                                                             1,
+                                                             Utf8StringLiteral("->"));
+
+    ClangCodeCompleteResults results;
+
+    if (replaced) {
+        results = complete(line,
+                           column + 1,
+                           modifiedUnsavedFiles.cxUnsavedFiles(),
+                           modifiedUnsavedFiles.count());
+
+        if (results.hasResults())
+            neededCorrection_ = CompletionCorrection::DotToArrowCorrection;
+    }
+
+    return results;
 }
 
 Utf8String CodeCompleter::filePath() const

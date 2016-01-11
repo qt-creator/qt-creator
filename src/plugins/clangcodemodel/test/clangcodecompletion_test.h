@@ -53,6 +53,8 @@ private slots:
     void testCompleteFunctions();
     void testCompleteConstructorAndFallbackToGlobalCompletion();
 
+    void testCompleteWithDotToArrowCorrection();
+
     void testCompleteProjectDependingCode();
     void testCompleteProjectDependingCodeAfterChangingProject();
     void testCompleteProjectDependingCodeInGeneratedUiFile();

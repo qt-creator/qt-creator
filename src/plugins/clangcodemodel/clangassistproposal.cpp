@@ -42,7 +42,10 @@ ClangAssistProposal::ClangAssistProposal(int cursorPos, TextEditor::GenericPropo
 
 bool ClangAssistProposal::isCorrective() const
 {
-    return false;
+    auto clangAssistProposalModel = static_cast<ClangAssistProposalModel*>(model());
+
+    return clangAssistProposalModel->neededCorrection()
+        == ClangBackEnd::CompletionCorrection::DotToArrowCorrection;
 }
 
 void ClangAssistProposal::makeCorrection(TextEditor::TextEditorWidget *editorWidget)

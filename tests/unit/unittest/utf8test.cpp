@@ -164,6 +164,15 @@ TEST(Utf8, Replace)
     ASSERT_THAT(text, Utf8StringLiteral("any text"));
 }
 
+TEST(Utf8, ReplaceNBytesFromIndexPosition)
+{
+    Utf8String text(Utf8StringLiteral("min"));
+
+    text.replace(1, 1, Utf8StringLiteral("aa"));
+
+    ASSERT_THAT(text, Utf8StringLiteral("maan"));
+}
+
 TEST(Utf8, StartsWith)
 {
     Utf8String text(Utf8StringLiteral("$column"));

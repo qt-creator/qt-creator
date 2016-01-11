@@ -37,9 +37,12 @@
 
 namespace ClangBackEnd {
 
-CodeCompletedMessage::CodeCompletedMessage(const CodeCompletions &codeCompletions, quint64 ticketNumber)
+CodeCompletedMessage::CodeCompletedMessage(const CodeCompletions &codeCompletions,
+                                           CompletionCorrection neededCorrection,
+                                           quint64 ticketNumber)
     : codeCompletions_(codeCompletions),
-      ticketNumber_(ticketNumber)
+      ticketNumber_(ticketNumber),
+      neededCorrection_(neededCorrection)
 {
 }
 
@@ -48,14 +51,25 @@ const CodeCompletions &CodeCompletedMessage::codeCompletions() const
     return codeCompletions_;
 }
 
+CompletionCorrection CodeCompletedMessage::neededCorrection() const
+{
+    return neededCorrection_;
+}
+
 quint64 CodeCompletedMessage::ticketNumber() const
 {
     return ticketNumber_;
 }
 
+quint32 &CodeCompletedMessage::neededCorrectionAsInt()
+{
+    return reinterpret_cast<quint32&>(neededCorrection_);
+}
+
 QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message)
 {
     out << message.codeCompletions_;
+    out << quint32(message.neededCorrection_);
     out << message.ticketNumber_;
 
     return out;
@@ -64,6 +78,7 @@ QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message)
 QDataStream &operator>>(QDataStream &in, CodeCompletedMessage &message)
 {
     in >> message.codeCompletions_;
+    in >> message.neededCorrectionAsInt();
     in >> message.ticketNumber_;
 
     return in;
@@ -72,7 +87,8 @@ QDataStream &operator>>(QDataStream &in, CodeCompletedMessage &message)
 bool operator==(const CodeCompletedMessage &first, const CodeCompletedMessage &second)
 {
     return first.ticketNumber_ == second.ticketNumber_
-            && first.codeCompletions_ == second.codeCompletions_;
+        && first.neededCorrection_ == second.neededCorrection_
+        && first.codeCompletions_ == second.codeCompletions_;
 }
 
 bool operator<(const CodeCompletedMessage &first, const CodeCompletedMessage &second)
@@ -80,11 +96,24 @@ bool operator<(const CodeCompletedMessage &first, const CodeCompletedMessage &se
     return first.ticketNumber_ < second.ticketNumber_;
 }
 
+#define RETURN_TEXT_FOR_CASE(enumValue) case CompletionCorrection::enumValue: return #enumValue
+static const char *completionCorrectionToText(CompletionCorrection correction)
+{
+    switch (correction) {
+        RETURN_TEXT_FOR_CASE(NoCorrection);
+        RETURN_TEXT_FOR_CASE(DotToArrowCorrection);
+        default: return "UnhandledCompletionCorrection";
+    }
+}
+#undef RETURN_TEXT_FOR_CASE
+
 QDebug operator<<(QDebug debug, const CodeCompletedMessage &message)
 {
     debug.nospace() << "CodeCompletedMessage(";
 
-    debug.nospace() << message.codeCompletions_ << ", " << message.ticketNumber_;
+    debug.nospace() << message.codeCompletions_ << ", "
+                    << completionCorrectionToText(message.neededCorrection()) << ", "
+                    << message.ticketNumber_;
 
     debug.nospace() << ")";
 

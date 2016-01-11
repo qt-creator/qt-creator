@@ -103,6 +103,11 @@ void Utf8String::replace(const Utf8String &before, const Utf8String &after)
     byteArray.replace(before.byteArray, after.byteArray);
 }
 
+void Utf8String::replace(int position, int length, const Utf8String &after)
+{
+    byteArray.replace(position, length, after.byteArray);
+}
+
 Utf8StringVector Utf8String::split(char separator) const
 {
     Utf8StringVector utf8Vector;

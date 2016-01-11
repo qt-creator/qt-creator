@@ -59,7 +59,8 @@ SOURCES += \
     highlightinginformationstest.cpp \
     skippedsourcerangestest.cpp \
     highlightingmarksreportertest.cpp \
-    chunksreportedmonitor.cpp
+    chunksreportedmonitor.cpp \
+    temporarymodifiedunsavedfilestest.cpp
 
 HEADERS += \
     gtest-qt-printing.h \

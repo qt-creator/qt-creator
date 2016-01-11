@@ -40,6 +40,8 @@ namespace ClangBackEnd {
 class ClangCodeCompleteResults
 {
 public:
+    ClangCodeCompleteResults() = default;
+
     ClangCodeCompleteResults(CXCodeCompleteResults *cxCodeCompleteResults);
     ~ClangCodeCompleteResults();
 
@@ -50,6 +52,12 @@ public:
     ClangCodeCompleteResults &operator=(ClangCodeCompleteResults &&ClangCodeCompleteResults);
 
     bool isNull() const;
+    bool isEmpty() const;
+
+    bool hasResults() const;
+    bool hasNoResultsForDotCompletion() const;
+
+    bool isDotCompletion() const;
 
     CXCodeCompleteResults *data() const;
 

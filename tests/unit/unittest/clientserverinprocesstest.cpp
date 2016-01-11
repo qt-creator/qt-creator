@@ -217,7 +217,9 @@ TEST_F(ClientServerInProcess, SendRequestHighlightingMessage)
 TEST_F(ClientServerInProcess, SendCodeCompletedMessage)
 {
     ClangBackEnd::CodeCompletions codeCompletions({Utf8StringLiteral("newFunction()")});
-    ClangBackEnd::CodeCompletedMessage message(codeCompletions, 1);
+    ClangBackEnd::CodeCompletedMessage message(codeCompletions,
+                                               ClangBackEnd::CompletionCorrection::NoCorrection,
+                                               1);
 
     EXPECT_CALL(mockIpcClient, codeCompleted(message))
         .Times(1);

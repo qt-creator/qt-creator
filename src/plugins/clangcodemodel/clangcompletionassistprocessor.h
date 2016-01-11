@@ -43,6 +43,7 @@ namespace ClangCodeModel {
 namespace Internal {
 
 using ClangBackEnd::CodeCompletions;
+using ClangBackEnd::CompletionCorrection;
 
 class ClangCompletionAssistProcessor : public CppTools::CppCompletionAssistProcessor
 {
@@ -54,7 +55,8 @@ public:
 
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
-    bool handleAvailableAsyncCompletions(const CodeCompletions &completions);
+    bool handleAvailableAsyncCompletions(const CodeCompletions &completions,
+                                         CompletionCorrection neededCorrection);
 
     const TextEditor::TextEditorWidget *textEditorWidget() const;
 
@@ -64,7 +66,8 @@ private:
     int findStartOfName(int pos = -1) const;
     bool accepts() const;
 
-    TextEditor::IAssistProposal *createProposal() const;
+    TextEditor::IAssistProposal *createProposal(
+            CompletionCorrection neededCorrection = CompletionCorrection::NoCorrection) const;
 
     bool completeInclude(const QTextCursor &cursor);
     bool completeInclude(int position);
@@ -85,7 +88,8 @@ private:
     void sendFileContent(const QByteArray &customFileContent);
     bool sendCompletionRequest(int position, const QByteArray &customFileContent);
 
-    void handleAvailableCompletions(const CodeCompletions &completions);
+    void handleAvailableCompletions(const CodeCompletions &completions,
+                                    CompletionCorrection neededCorrection);
     bool handleAvailableFunctionHintCompletions(const CodeCompletions &completions);
 
 private:

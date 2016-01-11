@@ -253,7 +253,9 @@ void ClangIpcServer::completeCode(const ClangBackEnd::CompleteCodeMessage &messa
 
         const auto codeCompletions = codeCompleter.complete(message.line(), message.column());
 
-        client()->codeCompleted(CodeCompletedMessage(codeCompletions, message.ticketNumber()));
+        client()->codeCompleted(CodeCompletedMessage(codeCompletions,
+                                                     codeCompleter.neededCorrection(),
+                                                     message.ticketNumber()));
     } catch (const TranslationUnitDoesNotExistException &exception) {
         client()->translationUnitDoesNotExist(TranslationUnitDoesNotExistMessage(exception.fileContainer()));
     } catch (const ProjectPartDoNotExistException &exception) {

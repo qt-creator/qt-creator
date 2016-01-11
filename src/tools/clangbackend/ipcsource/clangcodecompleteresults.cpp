@@ -51,6 +51,28 @@ bool ClangCodeCompleteResults::isNull() const
     return cxCodeCompleteResults == nullptr;
 }
 
+bool ClangCodeCompleteResults::isEmpty() const
+{
+    return cxCodeCompleteResults->NumResults == 0;
+}
+
+bool ClangCodeCompleteResults::hasResults() const
+{
+    return !isNull() && !isEmpty();
+}
+
+bool ClangCodeCompleteResults::hasNoResultsForDotCompletion() const
+{
+    return !hasResults() && isDotCompletion();
+}
+
+bool ClangCodeCompleteResults::isDotCompletion() const
+{
+    const unsigned long long contexts = clang_codeCompleteGetContexts(cxCodeCompleteResults);
+
+    return contexts & CXCompletionContext_DotMemberAccess;
+}
+
 CXCodeCompleteResults *ClangCodeCompleteResults::data() const
 {
     return cxCodeCompleteResults;

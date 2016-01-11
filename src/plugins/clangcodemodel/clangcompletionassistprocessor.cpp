@@ -240,13 +240,14 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
 }
 
 bool ClangCompletionAssistProcessor::handleAvailableAsyncCompletions(
-        const CodeCompletions &completions)
+        const CodeCompletions &completions,
+        CompletionCorrection neededCorrection)
 {
     bool handled = true;
 
     switch (m_sentRequestType) {
     case CompletionRequestType::NormalCompletion:
-        handleAvailableCompletions(completions);
+        handleAvailableCompletions(completions, neededCorrection);
         break;
     case CompletionRequestType::FunctionHintCompletion:
         handled = handleAvailableFunctionHintCompletions(completions);
@@ -775,14 +776,17 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
     return false;
 }
 
-TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal() const
+TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal(
+        CompletionCorrection neededCorrection) const
 {
-    ClangAssistProposalModel *model = new ClangAssistProposalModel;
+    ClangAssistProposalModel *model = new ClangAssistProposalModel(neededCorrection);
     model->loadContent(m_completions);
     return new ClangAssistProposal(m_positionForProposal, model);
 }
 
-void ClangCompletionAssistProcessor::handleAvailableCompletions(const CodeCompletions &completions)
+void ClangCompletionAssistProcessor::handleAvailableCompletions(
+        const CodeCompletions &completions,
+        CompletionCorrection neededCorrection)
 {
     QTC_CHECK(m_completions.isEmpty());
 
@@ -790,7 +794,7 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(const CodeComple
     if (m_addSnippets)
         addSnippets();
 
-    setAsyncProposalAvailable(createProposal());
+    setAsyncProposalAvailable(createProposal(neededCorrection));
 }
 
 bool ClangCompletionAssistProcessor::handleAvailableFunctionHintCompletions(

@@ -78,5 +78,11 @@ enum class HighlightingType
     OutputArgument
 };
 
+enum class CompletionCorrection
+{
+    NoCorrection,
+    DotToArrowCorrection
+};
+
 }
 #endif // CLANGBACKENDIPC_GLOBAL_H

@@ -76,6 +76,7 @@ public:
 
     Utf8String mid(int position, int length = -1) const;
     void replace(const Utf8String &before, const Utf8String &after);
+    void replace(int position, int length, const Utf8String &after);
     Utf8StringVector split(char separator) const;
 
     void clear();

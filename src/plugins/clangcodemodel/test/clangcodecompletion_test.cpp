@@ -689,6 +689,7 @@ class ProjectLessCompletionTest
 {
 public:
     ProjectLessCompletionTest(const QByteArray &testFileName,
+                              const QString &textToInsert = QString(),
                               const QStringList &includePaths = QStringList())
     {
         CppTools::Tests::TestCase garbageCollectionGlobalSnapshot;
@@ -697,8 +698,11 @@ public:
         const TestDocument testDocument(testFileName, globalTemporaryDir());
         QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
         OpenEditorAtCursorPosition openEditor(testDocument);
-
         QVERIFY(openEditor.succeeded());
+
+        if (!textToInsert.isEmpty())
+            openEditor.editor()->insert(textToInsert);
+
         proposal = completionResults(openEditor.editor(), includePaths);
     }
 
@@ -880,7 +884,9 @@ void ClangCodeCompletionTest::testCompletePreprocessorKeywords()
 void ClangCodeCompletionTest::testCompleteIncludeDirective()
 {
     CppTools::Tests::TemporaryCopiedDir testDir(qrcPath("exampleIncludeDir"));
-    ProjectLessCompletionTest t("includeDirectiveCompletion.cpp", QStringList(testDir.path()));
+    ProjectLessCompletionTest t("includeDirectiveCompletion.cpp",
+                                QString(),
+                                QStringList(testDir.path()));
 
     QVERIFY(hasItem(t.proposal, "file.h"));
     QVERIFY(hasItem(t.proposal, "otherFile.h"));
@@ -929,6 +935,18 @@ void ClangCodeCompletionTest::testCompleteConstructorAndFallbackToGlobalCompleti
     QVERIFY(hasItem(t.proposal, "globalVariable"));
     QVERIFY(hasItem(t.proposal, "GlobalClassWithCustomConstructor"));
     QVERIFY(!hasSnippet(t.proposal, "class"));
+}
+
+void ClangCodeCompletionTest::testCompleteWithDotToArrowCorrection()
+{
+    // Inserting the dot for this test is important since it will send the editor
+    // content to the backend and thus generate an unsaved file on the backend
+    // side. The unsaved file enables us to do the dot to arrow correction.
+
+    ProjectLessCompletionTest t("dotToArrowCorrection.cpp",
+                                QStringLiteral("."));
+
+    QVERIFY(hasItem(t.proposal, "member"));
 }
 
 void ClangCodeCompletionTest::testCompleteProjectDependingCode()

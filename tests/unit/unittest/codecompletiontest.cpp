@@ -81,6 +81,7 @@ protected:
     void SetUp();
     void copyTargetHeaderToTemporaryIncludeDirecory();
     void copyChangedTargetHeaderToTemporaryIncludeDirecory();
+    ClangBackEnd::CodeCompleter setupCompleter(const ClangBackEnd::FileContainer &fileContainer);
     static Utf8String readFileContent(const QString &fileName);
 
 protected:
@@ -103,6 +104,55 @@ protected:
                                                                  projectPart.projectPartId(),
                                                                  readFileContent(QStringLiteral("/complete_target_header_unsaved.h")),
                                                                  true};
+
+    ClangBackEnd::FileContainer arrowFileContainer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_arrow.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_arrow.cpp")),
+        true
+    };
+    ClangBackEnd::FileContainer dotArrowCorrectionForPointerFileContainer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForPointer.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForPointer.cpp")),
+        true
+    };
+    ClangBackEnd::FileContainer noDotArrowCorrectionForObjectFileContainer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForObject.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForObject.cpp")),
+        true
+    };
+    ClangBackEnd::FileContainer noDotArrowCorrectionForFloatFileContainer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForFloat.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForFloat.cpp")),
+        true
+    };
+    ClangBackEnd::FileContainer noDotArrowCorrectionForObjectWithArrowOperatortFileContainer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForObjectWithArrowOperator.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForObjectWithArrowOperator.cpp")),
+        true
+    };
+    ClangBackEnd::FileContainer noDotArrowCorrectionForDotDotFileContainer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForDotDot.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForDotDot.cpp")),
+        true
+    };
+    ClangBackEnd::FileContainer noDotArrowCorrectionForArrowDotFileContainer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForArrowDot.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForArrowDot.cpp")),
+        true
+    };
+    ClangBackEnd::FileContainer noDotArrowCorrectionForOnlyDotContainer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForOnlyDot.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForOnlyDot.cpp")),
+        true
+    };
 };
 
 Utf8String CodeCompleter::readFileContent(const QString &fileName)
@@ -235,6 +285,107 @@ TEST_F(CodeCompleter, DISABLED_FunctionInChangedIncludedHeaderWithUnsavedContent
     ASSERT_THAT(completer.complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeaderChanged"),
                                           CodeCompletion::FunctionCompletionKind)));
+}
+
+TEST_F(CodeCompleter, ArrowCompletion)
+{
+    auto myCompleter = setupCompleter(arrowFileContainer);
+
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 10);
+
+    ASSERT_THAT(completions,
+                Contains(IsCodeCompletion(Utf8StringLiteral("member"),
+                                          CodeCompletion::VariableCompletionKind)));
+    ASSERT_THAT(myCompleter.neededCorrection(),
+                ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+TEST_F(CodeCompleter, DotToArrowCompletionForPointer)
+{
+    auto myCompleter = setupCompleter(dotArrowCorrectionForPointerFileContainer);
+
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 9);
+
+    ASSERT_THAT(completions,
+                Contains(IsCodeCompletion(Utf8StringLiteral("member"),
+                                          CodeCompletion::VariableCompletionKind)));
+    ASSERT_THAT(myCompleter.neededCorrection(),
+                ClangBackEnd::CompletionCorrection::DotToArrowCorrection);
+}
+
+TEST_F(CodeCompleter, NoDotToArrowCompletionForObject)
+{
+    auto myCompleter = setupCompleter(noDotArrowCorrectionForObjectFileContainer);
+
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 9);
+
+    ASSERT_THAT(completions,
+                Contains(IsCodeCompletion(Utf8StringLiteral("member"),
+                                          CodeCompletion::VariableCompletionKind)));
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+TEST_F(CodeCompleter, NoDotToArrowCompletionForFloat)
+{
+    auto myCompleter = setupCompleter(noDotArrowCorrectionForFloatFileContainer);
+
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(3, 18);
+
+    ASSERT_TRUE(completions.isEmpty());
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+TEST_F(CodeCompleter, NoDotArrowCorrectionForObjectWithArrowOperator)
+{
+    auto myCompleter = setupCompleter(noDotArrowCorrectionForObjectWithArrowOperatortFileContainer);
+
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(8, 9);
+
+    ASSERT_THAT(completions,
+                Contains(IsCodeCompletion(Utf8StringLiteral("member"),
+                                          CodeCompletion::VariableCompletionKind)));
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+TEST_F(CodeCompleter, NoDotArrowCorrectionForDotDot)
+{
+    auto myCompleter = setupCompleter(noDotArrowCorrectionForDotDotFileContainer);
+
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 10);
+
+    ASSERT_TRUE(completions.isEmpty());
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+TEST_F(CodeCompleter, NoDotArrowCorrectionForArrowDot)
+{
+    auto myCompleter = setupCompleter(noDotArrowCorrectionForArrowDotFileContainer);
+
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 11);
+
+    ASSERT_TRUE(completions.isEmpty());
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+TEST_F(CodeCompleter, NoDotArrowCorrectionForOnlyDot)
+{
+    auto myCompleter = setupCompleter(noDotArrowCorrectionForOnlyDotContainer);
+
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 6);
+
+    ASSERT_THAT(completions,
+                Contains(IsCodeCompletion(Utf8StringLiteral("Foo"),
+                                          CodeCompletion::ClassCompletionKind)));
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+ClangBackEnd::CodeCompleter CodeCompleter::setupCompleter(
+        const ClangBackEnd::FileContainer &fileContainer)
+{
+    translationUnits.create({fileContainer});
+    unsavedFiles.createOrUpdate({fileContainer});
+
+    return ClangBackEnd::CodeCompleter(translationUnits.translationUnit(fileContainer));
 }
 
 }

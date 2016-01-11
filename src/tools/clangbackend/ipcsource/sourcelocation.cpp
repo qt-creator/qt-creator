@@ -97,6 +97,7 @@ SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
       line_(line),
       column_(column)
 {
+    clang_getFileLocation(cxSourceLocation, 0, 0, 0, &offset_);
 }
 
 bool operator==(const SourceLocation &first, const SourceLocation &second)
