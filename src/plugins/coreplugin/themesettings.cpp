@@ -29,7 +29,6 @@
 ****************************************************************************/
 
 #include "themesettings.h"
-#include "themesettingswidget.h"
 #include "coreconstants.h"
 #include "icore.h"
 
@@ -71,39 +70,6 @@ QString ThemeEntry::filePath() const
     return m_filePath;
 }
 
-ThemeSettings::ThemeSettings()
-{
-    setId(Constants::SETTINGS_ID_INTERFACE);
-    setDisplayName(tr("Theme"));
-    setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CORE_ICON));
-}
-
-ThemeSettings::~ThemeSettings()
-{
-    delete m_widget;
-}
-
-QWidget *ThemeSettings::widget()
-{
-    if (!m_widget)
-        m_widget = new ThemeSettingsWidget;
-    return m_widget;
-}
-
-void ThemeSettings::apply()
-{
-    if (m_widget)
-        m_widget->apply();
-}
-
-void ThemeSettings::finish()
-{
-    delete m_widget;
-    m_widget = 0;
-}
-
 static void addThemesFromPath(const QString &path, QList<ThemeEntry> *themes)
 {
     static const QLatin1String extension("*.creatortheme");
@@ -117,7 +83,7 @@ static void addThemesFromPath(const QString &path, QList<ThemeEntry> *themes)
     }
 }
 
-QList<ThemeEntry> ThemeSettings::availableThemes()
+QList<ThemeEntry> ThemeEntry::availableThemes()
 {
     QList<ThemeEntry> themes;
 

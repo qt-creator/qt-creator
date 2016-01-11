@@ -143,7 +143,7 @@ ThemeSettingsWidget::~ThemeSettingsWidget()
 
 void ThemeSettingsWidget::refreshThemeList()
 {
-    const QList<ThemeEntry> themes = ThemeSettings::availableThemes();
+    const QList<ThemeEntry> themes = ThemeEntry::availableThemes();
     const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id,
                                                              Id::fromString(creatorTheme()->id())));
 

@@ -49,28 +49,12 @@ public:
     Id id() const;
     QString displayName() const;
     QString filePath() const;
+    static QList<ThemeEntry> availableThemes();
 
 private:
     Id m_id;
     QString m_filePath;
     mutable QString m_displayName;
-};
-
-class ThemeSettings : public IOptionsPage
-{
-    Q_OBJECT
-
-public:
-    ThemeSettings();
-    ~ThemeSettings();
-
-    QWidget *widget();
-    void apply();
-    void finish();
-
-    static QList<ThemeEntry> availableThemes();
-private:
-    ThemeSettingsWidget *m_widget = 0;
 };
 
 } // namespace Internal

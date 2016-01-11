@@ -120,7 +120,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
             i++;
         }
     }
-    const QList<ThemeEntry> availableThemes = ThemeSettings::availableThemes();
+    const QList<ThemeEntry> availableThemes = ThemeEntry::availableThemes();
     int themeIndex = Utils::indexOf(availableThemes, Utils::equal(&ThemeEntry::id, themeId));
     if (themeIndex < 0) {
         themeIndex = Utils::indexOf(availableThemes,
@@ -151,7 +151,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
 
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    if (ThemeSettings::availableThemes().isEmpty()) {
+    if (ThemeEntry::availableThemes().isEmpty()) {
         *errorMessage = tr("No themes found in installation.");
         return false;
     }
