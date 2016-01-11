@@ -96,7 +96,7 @@ QByteArray GeneratorInfo::generatorArgument() const
 
 QString GeneratorInfo::preLoadCacheFileArgument() const
 {
-    const QString tmp = CMakePreloadCacheKitInformation::preloadCacheFile(m_kit);
+    const QString tmp = CMakePreloadCacheKitInformation::preloadCacheFile(m_kit).toUserOutput();
     return tmp.isEmpty() ? QString() : QString::fromLatin1("-C") + tmp;
 }
 

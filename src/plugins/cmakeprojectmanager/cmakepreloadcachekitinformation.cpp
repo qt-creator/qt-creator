@@ -86,18 +86,18 @@ KitConfigWidget *CMakePreloadCacheKitInformation::createConfigWidget(Kit *k) con
     return new Internal::CMakePreloadCacheKitConfigWidget(k, this);
 }
 
-void CMakePreloadCacheKitInformation::setPreloadCacheFile(Kit *k, const QString &preload)
+void CMakePreloadCacheKitInformation::setPreloadCacheFile(Kit *k, const Utils::FileName &preload)
 {
     if (!k)
         return;
-    k->setValue(CMakePreloadCacheKitInformation::id(), preload);
+    k->setValue(CMakePreloadCacheKitInformation::id(), preload.toString());
 }
 
-QString CMakePreloadCacheKitInformation::preloadCacheFile(const Kit *k)
+Utils::FileName CMakePreloadCacheKitInformation::preloadCacheFile(const Kit *k)
 {
     if (!k)
-        return QString();
-    return k->value(CMakePreloadCacheKitInformation::id()).toString();
+        return Utils::FileName();
+    return Utils::FileName::fromString(k->value(CMakePreloadCacheKitInformation::id()).toString());
 }
 
 } // namespace CMakeProjectManager

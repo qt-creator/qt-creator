@@ -52,8 +52,8 @@ public:
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
 
-    static void setPreloadCacheFile(ProjectExplorer::Kit *k, const QString &preload);
-    static QString preloadCacheFile(const ProjectExplorer::Kit *k);
+    static void setPreloadCacheFile(ProjectExplorer::Kit *k, const Utils::FileName &preload);
+    static Utils::FileName preloadCacheFile(const ProjectExplorer::Kit *k);
 };
 
 } // namespace CMakeProjectManager
