@@ -44,18 +44,16 @@ class ThemeEntry
 {
 public:
     ThemeEntry() = default;
-    ThemeEntry(Id id, const QString &filePath, bool readOnly);
+    ThemeEntry(Id id, const QString &filePath);
 
     Id id() const;
     QString displayName() const;
     QString filePath() const;
-    bool readOnly() const;
 
 private:
     Id m_id;
     QString m_filePath;
     mutable QString m_displayName;
-    bool m_readOnly = true;
 };
 
 class ThemeSettings : public IOptionsPage

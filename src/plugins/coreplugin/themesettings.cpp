@@ -45,10 +45,9 @@ static const char themeNameKey[] = "ThemeName";
 namespace Core {
 namespace Internal {
 
-ThemeEntry::ThemeEntry(Id id, const QString &filePath, bool readOnly)
-    : m_id(id),
-      m_filePath(filePath),
-      m_readOnly(readOnly)
+ThemeEntry::ThemeEntry(Id id, const QString &filePath)
+    : m_id(id)
+    , m_filePath(filePath)
 {
 }
 
@@ -63,8 +62,6 @@ QString ThemeEntry::displayName() const
         QSettings settings(m_filePath, QSettings::IniFormat);
         m_displayName = settings.value(QLatin1String(themeNameKey),
                                        QCoreApplication::tr("unnamed")).toString();
-        if (false) // TODO: Revert to m_readOnly
-            m_displayName = QCoreApplication::tr("%1 (built-in)").arg(m_displayName);
     }
     return m_displayName;
 }
@@ -72,11 +69,6 @@ QString ThemeEntry::displayName() const
 QString ThemeEntry::filePath() const
 {
     return m_filePath;
-}
-
-bool ThemeEntry::readOnly() const
-{
-    return m_readOnly;
 }
 
 ThemeSettings::ThemeSettings()
@@ -112,16 +104,16 @@ void ThemeSettings::finish()
     m_widget = 0;
 }
 
-static void addThemesFromPath(const QString &path, bool readOnly, QList<ThemeEntry> *themes)
+static void addThemesFromPath(const QString &path, QList<ThemeEntry> *themes)
 {
-    static const QLatin1String extension(".creatortheme");
+    static const QLatin1String extension("*.creatortheme");
     QDir themeDir(path);
-    themeDir.setNameFilters(QStringList() << QLatin1String("*.creatortheme"));
+    themeDir.setNameFilters(QStringList() << extension);
     themeDir.setFilter(QDir::Files);
     const QStringList themeList = themeDir.entryList();
     foreach (const QString &fileName, themeList) {
         QString id = QFileInfo(fileName).completeBaseName();
-        themes->append(ThemeEntry(Id::fromString(id), themeDir.absoluteFilePath(fileName), readOnly));
+        themes->append(ThemeEntry(Id::fromString(id), themeDir.absoluteFilePath(fileName)));
     }
 }
 
@@ -131,7 +123,7 @@ QList<ThemeEntry> ThemeSettings::availableThemes()
 
     static const QString installThemeDir = ICore::resourcePath() + QLatin1String("/themes");
     static const QString userThemeDir = ICore::userResourcePath() + QLatin1String("/themes");
-    addThemesFromPath(installThemeDir, /*readOnly=*/true, &themes);
+    addThemesFromPath(installThemeDir, &themes);
     if (themes.isEmpty())
         qWarning() << "Warning: No themes found in installation: "
                    << QDir::toNativeSeparators(installThemeDir);
@@ -141,7 +133,7 @@ QList<ThemeEntry> ThemeSettings::availableThemes()
         ThemeEntry defaultEntry = themes.takeAt(defaultIndex);
         themes.prepend(defaultEntry);
     }
-    addThemesFromPath(userThemeDir, /*readOnly=*/false, &themes);
+    addThemesFromPath(userThemeDir, &themes);
     return themes;
 }
 

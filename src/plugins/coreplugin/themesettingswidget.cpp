@@ -32,7 +32,6 @@
 #include "coreconstants.h"
 #include "icore.h"
 #include "manhattanstyle.h"
-#include "themeeditor/themesettingstablemodel.h"
 #include "themesettings.h"
 
 #include <utils/algorithm.h>
@@ -53,33 +52,6 @@ using namespace Utils;
 
 namespace Core {
 namespace Internal {
-
-static QString customThemesPath()
-{
-    return ICore::userResourcePath() + QLatin1String("/themes/");
-}
-
-static QString createThemeFileName(const QString &pattern)
-{
-    const QString stylesPath = customThemesPath();
-    QString baseFileName = stylesPath;
-    baseFileName += pattern;
-
-    // Find an available file name
-    int i = 1;
-    QString fileName;
-    do {
-        fileName = baseFileName.arg((i == 1) ? QString() : QString::number(i));
-        ++i;
-    } while (QFile::exists(fileName));
-
-    // Create the base directory when it doesn't exist
-    if (!QFile::exists(stylesPath) && !QDir().mkpath(stylesPath)) {
-        qWarning() << "Failed to create theme directory:" << stylesPath;
-        return QString();
-    }
-    return fileName;
-}
 
 class ThemeListModel : public QAbstractListModel
 {
@@ -135,7 +107,6 @@ public:
     ThemeListModel *m_themeListModel;
     bool m_refreshingThemeList;
     Ui::ThemeSettings *m_ui;
-    ThemeEntry m_currentTheme;
 };
 
 ThemeSettingsPrivate::ThemeSettingsPrivate(QWidget *widget)
@@ -143,13 +114,7 @@ ThemeSettingsPrivate::ThemeSettingsPrivate(QWidget *widget)
     , m_refreshingThemeList(false)
     , m_ui(new Ui::ThemeSettings)
 {
-    m_currentTheme = ThemeEntry(Id::fromString(creatorTheme()->id()), creatorTheme()->filePath(), true);
     m_ui->setupUi(widget);
-    // TODO: Restore the editor and the buttons after improving the editor
-    m_ui->editor->hide();
-    m_ui->copyButton->hide();
-    m_ui->deleteButton->hide();
-    m_ui->renameButton->hide();
     m_ui->themeComboBox->setModel(m_themeListModel);
 }
 
@@ -164,12 +129,6 @@ ThemeSettingsWidget::ThemeSettingsWidget(QWidget *parent) :
 {
     d = new ThemeSettingsPrivate(this);
 
-    connect(d->m_ui->themeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-           this, &ThemeSettingsWidget::themeSelected);
-    connect(d->m_ui->copyButton, &QAbstractButton::clicked, this, &ThemeSettingsWidget::copyTheme);
-    connect(d->m_ui->renameButton, &QAbstractButton::clicked, this, &ThemeSettingsWidget::renameTheme);
-    connect(d->m_ui->deleteButton, &QAbstractButton::clicked, this, &ThemeSettingsWidget::confirmDeleteTheme);
-
     refreshThemeList();
 }
 
@@ -181,190 +140,26 @@ ThemeSettingsWidget::~ThemeSettingsWidget()
 void ThemeSettingsWidget::refreshThemeList()
 {
     const QList<ThemeEntry> themes = ThemeSettings::availableThemes();
-    const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, d->m_currentTheme.id()));
+    const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id,
+                                                             Id::fromString(creatorTheme()->id())));
 
     d->m_refreshingThemeList = true;
     d->m_themeListModel->setThemes(themes);
-    if (selected >= 0) {
-        d->m_currentTheme = themes[selected];
+    if (selected >= 0)
         d->m_ui->themeComboBox->setCurrentIndex(selected);
-    }
     d->m_refreshingThemeList = false;
-}
-
-void ThemeSettingsWidget::themeSelected(int index)
-{
-    bool readOnly = true;
-    if (index != -1) {
-        // Check whether we're switching away from a changed theme
-        if (!d->m_refreshingThemeList)
-            maybeSaveTheme();
-
-        const ThemeEntry &entry = d->m_themeListModel->themeAt(index);
-        readOnly = entry.readOnly();
-        d->m_currentTheme = entry;
-
-        QSettings settings(entry.filePath(), QSettings::IniFormat);
-        Theme theme(entry.id().toString());
-        theme.readSettings(settings);
-        d->m_ui->editor->initFrom(&theme);
-    }
-    d->m_ui->copyButton->setEnabled(index != -1);
-    d->m_ui->deleteButton->setEnabled(!readOnly);
-    d->m_ui->renameButton->setEnabled(!readOnly);
-    d->m_ui->editor->setReadOnly(readOnly);
-}
-
-void ThemeSettingsWidget::confirmDeleteTheme()
-{
-    const int index = d->m_ui->themeComboBox->currentIndex();
-    if (index == -1)
-        return;
-
-    const ThemeEntry &entry = d->m_themeListModel->themeAt(index);
-    if (entry.readOnly())
-        return;
-
-    QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
-                                              tr("Delete Theme"),
-                                              tr("Are you sure you want to delete the theme \"%1\" permanently?").arg(entry.displayName()),
-                                              QMessageBox::Discard | QMessageBox::Cancel,
-                                              d->m_ui->deleteButton->window());
-
-    // Change the text and role of the discard button
-    QPushButton *deleteButton = static_cast<QPushButton*>(messageBox->button(QMessageBox::Discard));
-    deleteButton->setText(tr("Delete"));
-    messageBox->addButton(deleteButton, QMessageBox::AcceptRole);
-    messageBox->setDefaultButton(deleteButton);
-
-    connect(deleteButton, &QAbstractButton::clicked, messageBox, &QDialog::accept);
-    connect(messageBox, &QDialog::accepted, this, &ThemeSettingsWidget::deleteTheme);
-    messageBox->setAttribute(Qt::WA_DeleteOnClose);
-    messageBox->open();
-}
-
-void ThemeSettingsWidget::deleteTheme()
-{
-    const int index = d->m_ui->themeComboBox->currentIndex();
-    QTC_ASSERT(index != -1, return);
-
-    const ThemeEntry &entry = d->m_themeListModel->themeAt(index);
-    QTC_ASSERT(!entry.readOnly(), return);
-
-    if (QFile::remove(entry.filePath()))
-        d->m_themeListModel->removeTheme(index);
-}
-
-void ThemeSettingsWidget::copyTheme()
-{
-    QInputDialog *dialog = new QInputDialog(d->m_ui->copyButton->window());
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setInputMode(QInputDialog::TextInput);
-    dialog->setWindowTitle(tr("Copy Theme"));
-    dialog->setLabelText(tr("Theme name:"));
-
-    //TODO
-    //dialog->setTextValue(tr("%1 (copy)").arg(d_ptr->m_value.colorScheme().displayName()));
-
-    connect(dialog, &QInputDialog::textValueSelected, this, &ThemeSettingsWidget::copyThemeByName);
-    dialog->open();
-}
-
-void ThemeSettingsWidget::maybeSaveTheme()
-{
-    if (!d->m_ui->editor->model()->hasChanges())
-        return;
-
-    QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
-                                              tr("Theme Changed"),
-                                              tr("The theme \"%1\" was modified, do you want to save the changes?")
-                                                  .arg(d->m_currentTheme.displayName()),
-                                              QMessageBox::Discard | QMessageBox::Save,
-                                              d->m_ui->themeComboBox->window());
-
-    // Change the text of the discard button
-    QPushButton *discardButton = static_cast<QPushButton*>(messageBox->button(QMessageBox::Discard));
-    discardButton->setText(tr("Discard"));
-    messageBox->addButton(discardButton, QMessageBox::DestructiveRole);
-    messageBox->setDefaultButton(QMessageBox::Save);
-
-    if (messageBox->exec() == QMessageBox::Save) {
-        Theme newTheme(d->m_currentTheme.id().toString());
-        d->m_ui->editor->model()->toTheme(&newTheme);
-        newTheme.writeSettings(d->m_currentTheme.filePath());
-    }
-}
-
-void ThemeSettingsWidget::renameTheme()
-{
-    int index = d->m_ui->themeComboBox->currentIndex();
-    if (index == -1)
-        return;
-    const ThemeEntry &entry = d->m_themeListModel->themeAt(index);
-
-    maybeSaveTheme();
-
-    QInputDialog *dialog = new QInputDialog(d->m_ui->renameButton->window());
-    dialog->setInputMode(QInputDialog::TextInput);
-    dialog->setWindowTitle(tr("Rename Theme"));
-    dialog->setLabelText(tr("Theme name:"));
-    dialog->setTextValue(d->m_ui->editor->model()->m_displayName);
-    int ret = dialog->exec();
-    QString newName = dialog->textValue();
-    delete dialog;
-
-    if (ret != QDialog::Accepted || newName.isEmpty())
-        return;
-
-    // overwrite file with new name
-    Theme newTheme(entry.id().toString());
-    d->m_ui->editor->model()->toTheme(&newTheme);
-    newTheme.setDisplayName(newName);
-    newTheme.writeSettings(entry.filePath());
-
-    refreshThemeList();
-}
-
-void ThemeSettingsWidget::copyThemeByName(const QString &name)
-{
-    int index = d->m_ui->themeComboBox->currentIndex();
-    if (index == -1)
-        return;
-
-    const ThemeEntry &entry = d->m_themeListModel->themeAt(index);
-
-    QString baseFileName = QFileInfo(entry.filePath()).completeBaseName();
-    baseFileName += QLatin1String("_copy%1.creatortheme");
-    QString fileName = createThemeFileName(baseFileName);
-    QString id = QFileInfo(fileName).completeBaseName();
-
-    if (fileName.isEmpty() || id.isEmpty())
-        return;
-
-    // Ask about saving any existing modifactions
-    maybeSaveTheme();
-
-    Theme newTheme(fileName);
-    d->m_ui->editor->model()->toTheme(&newTheme);
-    newTheme.setDisplayName(name);
-    newTheme.writeSettings(fileName);
-
-    d->m_currentTheme = ThemeEntry(Id::fromString(id), fileName, true);
-
-    refreshThemeList();
 }
 
 void ThemeSettingsWidget::apply()
 {
-    const QString themeId = d->m_currentTheme.id().toString();
+    const int index = d->m_ui->themeComboBox->currentIndex();
+    if (index == -1)
+        return;
+    ThemeEntry currentTheme = d->m_themeListModel->themeAt(index);
+    const QString themeId = currentTheme.id().toString();
     Theme *newTheme = new Theme(themeId);
-    if (d->m_currentTheme.readOnly()) {
-        QSettings themeSettings(d->m_currentTheme.filePath(), QSettings::IniFormat);
-        newTheme->readSettings(themeSettings);
-    } else {
-        d->m_ui->editor->model()->toTheme(newTheme);
-        newTheme->writeSettings(d->m_currentTheme.filePath());
-    }
+    QSettings themeSettings(currentTheme.filePath(), QSettings::IniFormat);
+    newTheme->readSettings(themeSettings);
     setCreatorTheme(newTheme);
     emit ICore::instance()->themeChanged();
     QPalette pal = newTheme->flag(Theme::ApplyThemePaletteGlobally) ? newTheme->palette()

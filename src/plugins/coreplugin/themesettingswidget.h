@@ -48,15 +48,6 @@ public:
 
     void apply();
 
-private slots:
-    void themeSelected(int index);
-    void copyTheme();
-    void renameTheme();
-    void copyThemeByName(const QString &);
-    void confirmDeleteTheme();
-    void deleteTheme();
-    void maybeSaveTheme();
-
 private:
     void refreshThemeList();
     ThemeSettingsPrivate *d;

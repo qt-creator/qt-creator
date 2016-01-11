@@ -287,7 +287,6 @@ public:
 
     QVariantHash values() const;
 
-    void writeSettings(const QString &filename) const;
     void readSettings(QSettings &settings);
 
     static QPalette initialPalette();

@@ -29,27 +29,6 @@
       <widget class="QComboBox" name="themeComboBox"/>
      </item>
      <item>
-      <widget class="QPushButton" name="renameButton">
-       <property name="text">
-        <string>Rename...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="copyButton">
-       <property name="text">
-        <string>Copy...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="deleteButton">
-       <property name="text">
-        <string>Delete</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -64,26 +43,8 @@
      </item>
     </layout>
    </item>
-   <item>
-    <widget class="Core::Internal::ThemeEditor::ThemeEditorWidget" name="editor" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Core::Internal::ThemeEditor::ThemeEditorWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">coreplugin/themeeditor/themeeditorwidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

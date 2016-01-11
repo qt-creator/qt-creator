@@ -105,14 +105,6 @@ SOURCES += corejsextensions.cpp \
     patchtool.cpp \
     windowsupport.cpp \
     opendocumentstreeview.cpp \
-    themeeditor/themecolors.cpp \
-    themeeditor/themecolorstableview.cpp \
-    themeeditor/colorvariable.cpp \
-    themeeditor/themeeditorwidget.cpp \
-    themeeditor/colorrole.cpp \
-    themeeditor/themesettingstablemodel.cpp \
-    themeeditor/sectionedtablemodel.cpp \
-    themeeditor/themesettingsitemdelegate.cpp \
     messagebox.cpp \
     iwelcomepage.cpp \
     externaltoolmanager.cpp \
@@ -222,14 +214,6 @@ HEADERS += corejsextensions.h \
     patchtool.h \
     windowsupport.h \
     opendocumentstreeview.h \
-    themeeditor/themecolors.h \
-    themeeditor/themecolorstableview.h \
-    themeeditor/colorvariable.h \
-    themeeditor/themeeditorwidget.h \
-    themeeditor/colorrole.h \
-    themeeditor/themesettingstablemodel.h \
-    themeeditor/sectionedtablemodel.h \
-    themeeditor/themesettingsitemdelegate.h \
     messagebox.h \
     iwelcomepage.h \
     systemsettings.h \
@@ -246,7 +230,6 @@ FORMS += dialogs/newdialog.ui \
     mimetypemagicdialog.ui \
     removefiledialog.ui \
     dialogs/addtovcsdialog.ui \
-    themeeditor/themeeditorwidget.ui \
     systemsettings.ui
 
 RESOURCES += core.qrc \
