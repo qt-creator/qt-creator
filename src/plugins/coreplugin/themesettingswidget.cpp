@@ -39,14 +39,16 @@
 #include <utils/theme/theme_p.h>
 #include <utils/qtcassert.h>
 
+#include <QAbstractListModel>
+#include <QComboBox>
 #include <QDebug>
 #include <QDir>
+#include <QHBoxLayout>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QSpacerItem>
 #include <QStyleFactory>
-
-#include "ui_themesettings.h"
 
 using namespace Utils;
 
@@ -105,23 +107,25 @@ public:
 
 public:
     ThemeListModel *m_themeListModel;
+    QComboBox *m_themeComboBox;
     bool m_refreshingThemeList;
-    Ui::ThemeSettings *m_ui;
 };
 
 ThemeSettingsPrivate::ThemeSettingsPrivate(QWidget *widget)
     : m_themeListModel(new ThemeListModel)
+    , m_themeComboBox(new QComboBox)
     , m_refreshingThemeList(false)
-    , m_ui(new Ui::ThemeSettings)
 {
-    m_ui->setupUi(widget);
-    m_ui->themeComboBox->setModel(m_themeListModel);
+    QHBoxLayout *layout = new QHBoxLayout(widget);
+    layout->addWidget(m_themeComboBox);
+    auto horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    layout->addSpacerItem(horizontalSpacer);
+    m_themeComboBox->setModel(m_themeListModel);
 }
 
 ThemeSettingsPrivate::~ThemeSettingsPrivate()
 {
     delete m_themeListModel;
-    delete m_ui;
 }
 
 ThemeSettingsWidget::ThemeSettingsWidget(QWidget *parent) :
@@ -146,7 +150,7 @@ void ThemeSettingsWidget::refreshThemeList()
     d->m_refreshingThemeList = true;
     d->m_themeListModel->setThemes(themes);
     if (selected >= 0)
-        d->m_ui->themeComboBox->setCurrentIndex(selected);
+        d->m_themeComboBox->setCurrentIndex(selected);
     d->m_refreshingThemeList = false;
 }
 

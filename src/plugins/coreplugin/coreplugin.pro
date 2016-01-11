@@ -224,7 +224,6 @@ FORMS += dialogs/newdialog.ui \
     dialogs/readonlyfilesdialog.ui \
     dialogs/openwithdialog.ui \
     generalsettings.ui \
-    themesettings.ui \
     dialogs/externaltoolconfig.ui \
     mimetypesettingspage.ui \
     mimetypemagicdialog.ui \
