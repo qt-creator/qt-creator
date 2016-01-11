@@ -88,6 +88,7 @@ QtcPlugin {
         "insertionpointlocator.cpp", "insertionpointlocator.h",
         "projectinfo.cpp", "projectinfo.h",
         "projectpart.cpp", "projectpart.h",
+        "projectpartbuilder.cpp", "projectpartbuilder.h",
         "projectpartheaderpath.h",
         "searchsymbols.cpp", "searchsymbols.h",
         "semantichighlighter.cpp", "semantichighlighter.h",

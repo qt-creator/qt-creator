@@ -70,25 +70,6 @@ public:
 
 QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile);
 
-namespace Internal {
-
-class ProjectFileAdder
-{
-public:
-    ProjectFileAdder(QVector<ProjectFile> &files);
-    ~ProjectFileAdder();
-
-    bool maybeAdd(const QString &path);
-
-private:
-
-    void addMapping(const char *mimeName, ProjectFile::Kind kind);
-
-    QVector<ProjectFile> &m_files;
-    QHash<QString, ProjectFile::Kind> m_mimeNameMapping;
-};
-
-} // namespace Internal
 } // namespace CppTools
 
 #endif // CPPTOOLS_CPPPROJECTFILE_H

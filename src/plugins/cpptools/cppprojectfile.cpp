@@ -123,42 +123,5 @@ QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile)
     return stream;
 }
 
-namespace Internal {
-
-ProjectFileAdder::ProjectFileAdder(QVector<ProjectFile> &files)
-    : m_files(files)
-{
-    addMapping(CppTools::Constants::C_SOURCE_MIMETYPE, ProjectFile::CSource);
-    addMapping(CppTools::Constants::C_HEADER_MIMETYPE, ProjectFile::CHeader);
-    addMapping(CppTools::Constants::CPP_SOURCE_MIMETYPE, ProjectFile::CXXSource);
-    addMapping(CppTools::Constants::CPP_HEADER_MIMETYPE, ProjectFile::CXXHeader);
-    addMapping(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE, ProjectFile::ObjCSource);
-    addMapping(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE, ProjectFile::ObjCXXSource);
-}
-
-ProjectFileAdder::~ProjectFileAdder()
-{
-}
-
-bool ProjectFileAdder::maybeAdd(const QString &path)
-{
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mt = mdb.mimeTypeForFile(path);
-    if (m_mimeNameMapping.contains(mt.name())) {
-        m_files << ProjectFile(path, m_mimeNameMapping.value(mt.name()));
-        return true;
-    }
-    return false;
-}
-
-void ProjectFileAdder::addMapping(const char *mimeName, ProjectFile::Kind kind)
-{
-    Utils::MimeDatabase mdb;
-    Utils::MimeType mimeType = mdb.mimeTypeForName(QLatin1String(mimeName));
-    if (mimeType.isValid())
-        m_mimeNameMapping.insert(mimeType.name(), kind);
-}
-
-} // namespace Internal
 } // namespace CppTools
 

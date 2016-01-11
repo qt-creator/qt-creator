@@ -72,7 +72,8 @@ HEADERS += \
     cpptoolsbridgeqtcreatorimplementation.h \
     projectpart.h \
     projectpartheaderpath.h \
-    projectinfo.h
+    projectinfo.h \
+    projectpartbuilder.h
 
 SOURCES += \
     abstracteditorsupport.cpp \
@@ -140,7 +141,8 @@ SOURCES += \
     cpptoolsbridge.cpp \
     cpptoolsbridgeqtcreatorimplementation.cpp \
     projectpart.cpp \
-    projectinfo.cpp
+    projectinfo.cpp \
+    projectpartbuilder.cpp
 
 FORMS += \
     completionsettingspage.ui \

@@ -28,65 +28,45 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPROJECTPART_H
-#define CPPPROJECTPART_H
+#ifndef CPPTOOLS_PROJECTPARTBUILDER_H
+#define CPPTOOLS_PROJECTPARTBUILDER_H
 
 #include "cpptools_global.h"
 
-#include "cppprojectfile.h"
-#include "projectpartbuilder.h"
 #include "projectinfo.h"
 #include "projectpart.h"
 
-#include <projectexplorer/toolchain.h>
-
-#include <cplusplus/Token.h>
-
-#include <QPointer>
-#include <QSet>
-
-#include <functional>
-
-namespace ProjectExplorer { class Project; }
-
-namespace Utils { class FileName; }
-
 namespace CppTools {
 
-
-class CPPTOOLS_EXPORT CompilerOptionsBuilder
+class CPPTOOLS_EXPORT ProjectPartBuilder
 {
 public:
-    CompilerOptionsBuilder(const ProjectPart &projectPart);
-    virtual ~CompilerOptionsBuilder() {}
+    ProjectPartBuilder(ProjectInfo &m_pInfo);
 
-    QStringList options() const;
+    void setQtVersion(ProjectPart::QtVersion qtVersion);
+    void setCFlags(const QStringList &flags);
+    void setCxxFlags(const QStringList &flags);
+    void setDefines(const QByteArray &defines);
+    void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
+    void setIncludePaths(const QStringList &includePaths);
+    void setPreCompiledHeaders(const QStringList &pchs);
+    void setProjectFile(const QString &projectFile);
+    void setDisplayName(const QString &displayName);
+    void setConfigFileName(const QString &configFileName);
 
-    // Add custom options
-    void add(const QString &option);
-    void addDefine(const QByteArray &defineLine);
-
-    // Add options based on project part
-    void addHeaderPathOptions();
-    void addToolchainAndProjectDefines();
-    virtual void addLanguageOption(ProjectFile::Kind fileKind);
-    virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
-
-protected:
-    virtual bool excludeDefineLine(const QByteArray &defineLine) const;
-    virtual bool excludeHeaderPath(const QString &headerPath) const;
-
-    virtual QString defineOption() const;
-    virtual QString includeOption() const;
-
-    const ProjectPart m_projectPart;
+    QList<Core::Id> createProjectPartsForFiles(const QStringList &files);
 
 private:
-    QString defineLineToDefineOption(const QByteArray &defineLine);
+    void createProjectPart(const QStringList &theSources, const QString &partName,
+                           ProjectPart::LanguageVersion languageVersion,
+                           ProjectPart::LanguageExtensions languageExtensions);
 
-    QStringList m_options;
+private:
+    ProjectPart::Ptr m_templatePart;
+    ProjectInfo &m_pInfo;
+    QStringList m_cFlags, m_cxxFlags;
 };
 
 } // namespace CppTools
 
-#endif // CPPPROJECTPART_H
+#endif // CPPTOOLS_PROJECTPARTBUILDER_H
