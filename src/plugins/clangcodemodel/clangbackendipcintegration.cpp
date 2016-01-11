@@ -36,6 +36,7 @@
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsbridge.h>
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectinfo.h>
 
@@ -172,9 +173,10 @@ void IpcReceiver::diagnosticsChanged(const DiagnosticsChangedMessage &message)
 
     auto processor = ClangEditorDocumentProcessor::get(message.file().filePath());
 
-    if (processor && processor->projectPart()) {
+    if (processor) {
         const QString diagnosticsProjectPartId = message.file().projectPartId();
-        const QString documentProjectPartId = processor->projectPart()->id();
+        const QString filePath = message.file().filePath();
+        const QString documentProjectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
         if (diagnosticsProjectPartId == documentProjectPartId)
             processor->updateCodeWarnings(message.diagnostics(), message.file().documentRevision());
     }
@@ -187,9 +189,10 @@ void IpcReceiver::highlightingChanged(const HighlightingChangedMessage &message)
 
     auto processor = ClangEditorDocumentProcessor::get(message.file().filePath());
 
-    if (processor && processor->projectPart()) {
+    if (processor) {
         const QString highlightingProjectPartId = message.file().projectPartId();
-        const QString documentProjectPartId = processor->projectPart()->id();
+        const QString filePath = message.file().filePath();
+        const QString documentProjectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
         if (highlightingProjectPartId == documentProjectPartId) {
             processor->updateHighlighting(message.highlightingMarks(),
                                           message.skippedPreprocessorRanges(),
@@ -422,7 +425,7 @@ void removeNonCppEditors(QList<Core::IEditor*> &visibleEditors)
 
 Utf8StringVector visibleCppEditorDocumentsFilePaths()
 {
-    auto visibleEditors = Core::EditorManager::visibleEditors();
+    auto visibleEditors = CppTools::CppToolsBridge::visibleEditors();
 
     removeNonCppEditors(visibleEditors);
 
@@ -606,7 +609,7 @@ void IpcCommunicator::updateTranslationUnitWithRevisionCheck(Core::IDocument *do
 {
     const auto textDocument = qobject_cast<TextDocument*>(document);
     const auto filePath = textDocument->filePath().toString();
-    const QString projectPartId = Utils::projectPartIdForFile(filePath);
+    const QString projectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
 
     updateTranslationUnitWithRevisionCheck(FileContainer(filePath,
                                                          projectPartId,
