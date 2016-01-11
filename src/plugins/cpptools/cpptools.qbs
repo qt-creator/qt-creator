@@ -31,6 +31,7 @@ QtcPlugin {
         "builtineditordocumentparser.cpp", "builtineditordocumentparser.h",
         "builtineditordocumentprocessor.cpp", "builtineditordocumentprocessor.h",
         "builtinindexingsupport.cpp", "builtinindexingsupport.h",
+        "compileroptionsbuilder.cpp", "compileroptionsbuilder.h",
         "commentssettings.cpp", "commentssettings.h",
         "completionsettingspage.cpp", "completionsettingspage.h", "completionsettingspage.ui",
         "cppchecksymbols.cpp", "cppchecksymbols.h",

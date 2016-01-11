@@ -28,34 +28,48 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPROJECTPART_H
-#define CPPPROJECTPART_H
+#ifndef CPPTOOLS_COMPILEROPTIONSBUILDER_H
+#define CPPTOOLS_COMPILEROPTIONSBUILDER_H
 
 #include "cpptools_global.h"
 
-#include "cppprojectfile.h"
-#include "projectpartbuilder.h"
-#include "projectinfo.h"
 #include "projectpart.h"
-#include "compileroptionsbuilder.h"
-
-#include <projectexplorer/toolchain.h>
-
-#include <cplusplus/Token.h>
-
-#include <QPointer>
-#include <QSet>
-
-#include <functional>
-
-namespace ProjectExplorer { class Project; }
-
-namespace Utils { class FileName; }
 
 namespace CppTools {
 
+class CPPTOOLS_EXPORT CompilerOptionsBuilder
+{
+public:
+    CompilerOptionsBuilder(const ProjectPart &projectPart);
+    virtual ~CompilerOptionsBuilder() {}
 
+    QStringList options() const;
+
+    // Add custom options
+    void add(const QString &option);
+    void addDefine(const QByteArray &defineLine);
+
+    // Add options based on project part
+    void addHeaderPathOptions();
+    void addToolchainAndProjectDefines();
+    virtual void addLanguageOption(ProjectFile::Kind fileKind);
+    virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
+
+protected:
+    virtual bool excludeDefineLine(const QByteArray &defineLine) const;
+    virtual bool excludeHeaderPath(const QString &headerPath) const;
+
+    virtual QString defineOption() const;
+    virtual QString includeOption() const;
+
+    const ProjectPart m_projectPart;
+
+private:
+    QString defineLineToDefineOption(const QByteArray &defineLine);
+
+    QStringList m_options;
+};
 
 } // namespace CppTools
 
-#endif // CPPPROJECTPART_H
+#endif // CPPTOOLS_COMPILEROPTIONSBUILDER_H
