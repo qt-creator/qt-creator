@@ -1014,7 +1014,10 @@ class DumperBase:
             # This should not happen. But it does, see QTCREATORBUG-14755.
             # GDB/GCC produce sizeof == 0 for QProcess arr[3]
             s = str(value.type)
-            arrayByteSize = int(s[s.find('[')+1:s.find(']')]) * ts;
+            itemCount = s[s.find('[')+1:s.find(']')]
+            if not itemCount:
+                itemCount = '100'
+            arrayByteSize = int(itemCount) * ts;
 
         n = int(arrayByteSize / ts)
         if displayFormat != RawFormat and p:
