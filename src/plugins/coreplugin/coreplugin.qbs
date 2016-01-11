@@ -100,7 +100,6 @@ QtcPlugin {
             "systemsettings.cpp", "systemsettings.h", "systemsettings.ui",
             "textdocument.cpp", "textdocument.h",
             "themesettings.cpp", "themesettings.h",
-            "themesettingswidget.cpp", "themesettingswidget.h",
             "toolsettings.cpp", "toolsettings.h",
             "variablechooser.cpp", "variablechooser.h",
             "vcsmanager.cpp", "vcsmanager.h",

@@ -30,10 +30,12 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QWidget>
+
 namespace Core {
 namespace Internal {
 
-class ThemeSettingsWidget;
+class ThemeSettingsPrivate;
 
 class ThemeEntry
 {
@@ -50,6 +52,21 @@ private:
     Id m_id;
     QString m_filePath;
     mutable QString m_displayName;
+};
+
+class ThemeSettingsWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    ThemeSettingsWidget(QWidget *parent = 0);
+    ~ThemeSettingsWidget();
+
+    void apply();
+
+private:
+    void refreshThemeList();
+    ThemeSettingsPrivate *d;
 };
 
 } // namespace Internal

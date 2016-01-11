@@ -20,7 +20,6 @@ SOURCES += corejsextensions.cpp \
     fancytabwidget.cpp \
     generalsettings.cpp \
     themesettings.cpp \
-    themesettingswidget.cpp \
     id.cpp \
     icontext.cpp \
     jsexpander.cpp \
@@ -120,7 +119,6 @@ HEADERS += corejsextensions.h \
     fancytabwidget.h \
     generalsettings.h \
     themesettings.h \
-    themesettingswidget.h \
     id.h \
     jsexpander.h \
     messagemanager.h \
