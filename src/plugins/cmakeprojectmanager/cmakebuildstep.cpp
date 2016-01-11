@@ -178,9 +178,9 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     if (m_addRunConfigurationArgument && (!rc || rc->title().isEmpty())) {
         emit addTask(Task(Task::Error,
                           QCoreApplication::translate("ProjectExplorer::Task",
-                                    "You asked to build the current Run Configurations build target only, "
-                                    "but the current Run Configuration is not associated with a build target. "
-                                    "Please update the Make Step in your build settings."),
+                                    "You asked to build the current Run Configuration's build target only, "
+                                    "but it is not associated with a build target. "
+                                    "Update the Make Step in your build settings."),
                         Utils::FileName(), -1,
                         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         canInit = false;
