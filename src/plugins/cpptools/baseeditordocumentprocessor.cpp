@@ -45,19 +45,15 @@ namespace CppTools {
            semantic calculations) after a text document has changed.
 */
 
-BaseEditorDocumentProcessor::BaseEditorDocumentProcessor(
-        TextEditor::TextDocument *document)
-    : m_baseTextDocument(document)
+BaseEditorDocumentProcessor::BaseEditorDocumentProcessor(QTextDocument *textDocument,
+                                                         const QString &filePath)
+    : m_filePath(filePath),
+      m_textDocument(textDocument)
 {
 }
 
 BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor()
 {
-}
-
-TextEditor::TextDocument *BaseEditorDocumentProcessor::baseTextDocument() const
-{
-    return m_baseTextDocument;
 }
 
 TextEditor::QuickFixOperations

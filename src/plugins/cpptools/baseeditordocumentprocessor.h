@@ -55,10 +55,8 @@ class CPPTOOLS_EXPORT BaseEditorDocumentProcessor : public QObject
     Q_OBJECT
 
 public:
-    BaseEditorDocumentProcessor(TextEditor::TextDocument *document);
+    BaseEditorDocumentProcessor(QTextDocument *textDocument, const QString &filePath);
     virtual ~BaseEditorDocumentProcessor();
-
-    TextEditor::TextDocument *baseTextDocument() const;
 
     // Function interface to implement
     virtual void run() = 0;
@@ -92,12 +90,13 @@ protected:
                           const CppTools::WorkingCopy workingCopy);
 
     // Convenience
-    QString filePath() const { return m_baseTextDocument->filePath().toString(); }
-    unsigned revision() const { return static_cast<unsigned>(textDocument()->revision()); }
-    QTextDocument *textDocument() const { return m_baseTextDocument->document(); }
+    QString filePath() const { return m_filePath; }
+    unsigned revision() const { return static_cast<unsigned>(m_textDocument->revision()); }
+    QTextDocument *textDocument() const { return m_textDocument; }
 
 private:
-    TextEditor::TextDocument *m_baseTextDocument;
+    QString m_filePath;
+    QTextDocument *m_textDocument;
 };
 
 } // namespace CppTools

@@ -166,7 +166,7 @@ namespace CppTools {
 BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
         TextEditor::TextDocument *document,
         bool enableSemanticHighlighter)
-    : BaseEditorDocumentProcessor(document)
+    : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
     , m_parser(new BuiltinEditorDocumentParser(document->filePath().toString()))
     , m_codeWarningsUpdated(false)
     , m_semanticHighlighter(enableSemanticHighlighter
@@ -186,7 +186,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
             [this]() -> QFuture<TextEditor::HighlightingResult> {
                 const SemanticInfo semanticInfo = m_semanticInfoUpdater.semanticInfo();
                 CheckSymbols *checkSymbols = createHighlighter(semanticInfo.doc, semanticInfo.snapshot,
-                                                               baseTextDocument()->document());
+                                                               textDocument());
                 QTC_ASSERT(checkSymbols, return QFuture<TextEditor::HighlightingResult>());
                 connect(checkSymbols, &CheckSymbols::codeWarningsUpdated,
                         this, &BuiltinEditorDocumentProcessor::onCodeWarningsUpdated);

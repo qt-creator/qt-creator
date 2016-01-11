@@ -64,7 +64,7 @@ namespace Internal {
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
         IpcCommunicator &ipcCommunicator,
         TextEditor::TextDocument *document)
-    : BaseEditorDocumentProcessor(document)
+    : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
     , m_diagnosticManager(document)
     , m_ipcCommunicator(ipcCommunicator)
     , m_parser(new ClangEditorDocumentParser(document->filePath().toString()))
@@ -344,7 +344,7 @@ ClangEditorDocumentProcessor::fileContainerWithDocumentContent(const QString &pr
 {
     return ClangBackEnd::FileContainer(filePath(),
                                        projectpartId,
-                                       baseTextDocument()->plainText(),
+                                       textDocument()->toPlainText(),
                                        true,
                                        revision());
 }
