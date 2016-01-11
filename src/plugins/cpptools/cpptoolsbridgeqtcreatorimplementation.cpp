@@ -28,55 +28,69 @@
 **
 ****************************************************************************/
 
-#include "baseeditordocumentprocessor.h"
+#include "cpptoolsbridgeqtcreatorimplementation.h"
 
+#include "baseeditordocumentparser.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsbridge.h"
+#include "cppprojects.h"
 #include "editordocumenthandle.h"
-
-#include <texteditor/quickfix.h>
 
 namespace CppTools {
 
-/*!
-    \class CppTools::BaseEditorDocumentProcessor
+namespace Internal {
 
-    \brief The BaseEditorDocumentProcessor class controls and executes all
-           document relevant actions (reparsing, semantic highlighting, additional
-           semantic calculations) after a text document has changed.
-*/
-
-BaseEditorDocumentProcessor::BaseEditorDocumentProcessor(QTextDocument *textDocument,
-                                                         const QString &filePath)
-    : m_filePath(filePath),
-      m_textDocument(textDocument)
+CppEditorDocumentHandle *
+CppToolsBridgeQtCreatorImplementation::cppEditorDocument(const QString &filePath) const
 {
+    return CppModelManager::instance()->cppEditorDocument(filePath);
 }
 
-BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor()
+namespace {
+
+CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath)
 {
+    if (const auto parser = BaseEditorDocumentParser::get(filePath))
+        return parser->projectPart();
+
+    return CppTools::ProjectPart::Ptr();
 }
 
-TextEditor::QuickFixOperations
-BaseEditorDocumentProcessor::extraRefactoringOperations(const TextEditor::AssistInterface &)
+bool isProjectPartValid(const CppTools::ProjectPart::Ptr projectPart)
 {
-    return TextEditor::QuickFixOperations();
+    if (projectPart)
+        return CppTools::CppModelManager::instance()->projectPartForId(projectPart->id());
+
+    return false;
 }
 
-void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
-                                            BaseEditorDocumentParser::Ptr parser,
-                                            const WorkingCopy workingCopy)
+} // anonymous namespace
+
+QString CppToolsBridgeQtCreatorImplementation::projectPartIdForFile(const QString &filePath) const
 {
-    future.setProgressRange(0, 1);
-    if (future.isCanceled()) {
-        future.setProgressValue(1);
-        return;
-    }
+    const CppTools::ProjectPart::Ptr projectPart = projectPartForFile(filePath);
 
-    parser->update(workingCopy);
-    CppToolsBridge::finishedRefreshingSourceFiles({parser->filePath()});
+    if (isProjectPartValid(projectPart))
+        return projectPart->id(); // OK, Project Part is still loaded
 
-    future.setProgressValue(1);
+    return QString();
 }
+
+BaseEditorDocumentProcessor *
+CppToolsBridgeQtCreatorImplementation::baseEditorDocumentProcessor(const QString &filePath) const
+{
+    auto *document = cppEditorDocument(filePath);
+    if (document)
+        return document->processor();
+
+    return 0;
+}
+
+void CppToolsBridgeQtCreatorImplementation::finishedRefreshingSourceFiles(
+        const QSet<QString> &filePaths) const
+{
+    CppModelManager::instance()->finishedRefreshingSourceFiles(filePaths);
+}
+
+} // namespace Internal
 
 } // namespace CppTools

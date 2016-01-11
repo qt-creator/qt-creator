@@ -44,6 +44,7 @@
 #include <cpptools/cppclassesfilter.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpppointerdeclarationformatter.h>
+#include <cpptools/cpptoolsbridge.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/includeutils.h>
@@ -5965,7 +5966,7 @@ void ConvertQt4Connect::match(const CppQuickFixInterface &interface, QuickFixOpe
 void ExtraRefactoringOperations::match(const CppQuickFixInterface &interface,
                                        QuickFixOperations &result)
 {
-    const auto processor = CppTools::BaseEditorDocumentProcessor::get(interface.fileName());
+    const auto processor = CppTools::CppToolsBridge::baseEditorDocumentProcessor(interface.fileName());
     if (processor) {
         const auto clangFixItOperations = processor->extraRefactoringOperations(interface);
         result.append(clangFixItOperations);

@@ -66,7 +66,10 @@ HEADERS += \
     symbolfinder.h \
     symbolsfindfilter.h \
     typehierarchybuilder.h \
-    senddocumenttracker.h
+    senddocumenttracker.h \
+    cpptoolsbridge.h \
+    cpptoolsbridgeinterface.h \
+    cpptoolsbridgeqtcreatorimplementation.h
 
 SOURCES += \
     abstracteditorsupport.cpp \
@@ -130,7 +133,9 @@ SOURCES += \
     symbolfinder.cpp \
     symbolsfindfilter.cpp \
     typehierarchybuilder.cpp \
-    senddocumenttracker.cpp
+    senddocumenttracker.cpp \
+    cpptoolsbridge.cpp \
+    cpptoolsbridgeqtcreatorimplementation.cpp
 
 FORMS += \
     completionsettingspage.ui \

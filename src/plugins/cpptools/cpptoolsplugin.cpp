@@ -45,6 +45,8 @@
 #include "cppprojectfile.h"
 #include "cpplocatordata.h"
 #include "cppincludesfilter.h"
+#include "cpptoolsbridge.h"
+#include "cpptoolsbridgeqtcreatorimplementation.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -88,6 +90,8 @@ CppToolsPlugin::CppToolsPlugin()
     , m_codeModelSettings(new CppCodeModelSettings)
 {
     m_instance = this;
+    auto bridgeImplementation = std::unique_ptr<CppToolsBridgeQtCreatorImplementation>(new CppToolsBridgeQtCreatorImplementation);
+    CppToolsBridge::setCppToolsBridgeImplementation(std::move(bridgeImplementation));
 }
 
 CppToolsPlugin::~CppToolsPlugin()

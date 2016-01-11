@@ -70,9 +70,6 @@ public:
     virtual TextEditor::QuickFixOperations
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface);
 
-public:
-    static BaseEditorDocumentProcessor *get(const QString &filePath);
-
 signals:
     // Signal interface to implement
     void codeWarningsUpdated(unsigned revision,

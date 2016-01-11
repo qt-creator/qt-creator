@@ -42,6 +42,7 @@
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojects.h>
+#include <cpptools/cpptoolsbridge.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>
 
@@ -249,7 +250,9 @@ void ClangEditorDocumentProcessor::clearDiagnosticsWithFixIts()
 
 ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
 {
-    return qobject_cast<ClangEditorDocumentProcessor *>(BaseEditorDocumentProcessor::get(filePath));
+    auto *processor = CppTools::CppToolsBridge::baseEditorDocumentProcessor(filePath);
+
+    return qobject_cast<ClangEditorDocumentProcessor*>(processor);
 }
 
 static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPart)

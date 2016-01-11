@@ -35,6 +35,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsbridge.h>
 #include <cpptools/editordocumenthandle.h>
 #include <texteditor/texteditor.h>
 
@@ -184,7 +185,7 @@ void CppIncludeHierarchyModel::fetchMore(const QModelIndex &parent)
         }
 
         if (item == m_includesItem) {
-            auto *processor = BaseEditorDocumentProcessor::get(editorFilePath);
+            auto *processor = CppToolsBridge::baseEditorDocumentProcessor(editorFilePath);
             QTC_ASSERT(processor, return);
             const Snapshot editorDocumentSnapshot = processor->snapshot();
             buildHierarchyIncludes_helper(parentItem->filePath(), parentItem,
@@ -286,7 +287,7 @@ void CppIncludeHierarchyModel::buildHierarchyIncludes(const QString &currentFile
         return;
 
     const QString editorFilePath = m_editor->document()->filePath().toString();
-    auto *documentProcessor = BaseEditorDocumentProcessor::get(editorFilePath);
+    auto *documentProcessor = CppToolsBridge::baseEditorDocumentProcessor(editorFilePath);
     QTC_ASSERT(documentProcessor, return);
     const Snapshot editorDocumentSnapshot = documentProcessor->snapshot();
     QSet<QString> cyclic;

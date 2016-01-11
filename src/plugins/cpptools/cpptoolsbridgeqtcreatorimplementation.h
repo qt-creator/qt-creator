@@ -28,55 +28,25 @@
 **
 ****************************************************************************/
 
-#include "baseeditordocumentprocessor.h"
+#ifndef CPPTOOLS_CPPTOOLSBRIDGEQTCREATORIMPLEMENTATION_H
+#define CPPTOOLS_CPPTOOLSBRIDGEQTCREATORIMPLEMENTATION_H
 
-#include "cppmodelmanager.h"
-#include "cpptoolsbridge.h"
-#include "editordocumenthandle.h"
-
-#include <texteditor/quickfix.h>
+#include "cpptoolsbridgeinterface.h"
 
 namespace CppTools {
 
-/*!
-    \class CppTools::BaseEditorDocumentProcessor
+namespace Internal {
 
-    \brief The BaseEditorDocumentProcessor class controls and executes all
-           document relevant actions (reparsing, semantic highlighting, additional
-           semantic calculations) after a text document has changed.
-*/
-
-BaseEditorDocumentProcessor::BaseEditorDocumentProcessor(QTextDocument *textDocument,
-                                                         const QString &filePath)
-    : m_filePath(filePath),
-      m_textDocument(textDocument)
+class CppToolsBridgeQtCreatorImplementation final : public CppToolsBridgeInterface
 {
-}
+public:
+    CppEditorDocumentHandle *cppEditorDocument(const QString &filePath) const override;
+    QString projectPartIdForFile(const QString &filePath) const override;
+    BaseEditorDocumentProcessor *baseEditorDocumentProcessor(const QString &filePath) const override;
+    void finishedRefreshingSourceFiles(const QSet<QString> &filePaths) const override;
+};
 
-BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor()
-{
-}
-
-TextEditor::QuickFixOperations
-BaseEditorDocumentProcessor::extraRefactoringOperations(const TextEditor::AssistInterface &)
-{
-    return TextEditor::QuickFixOperations();
-}
-
-void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
-                                            BaseEditorDocumentParser::Ptr parser,
-                                            const WorkingCopy workingCopy)
-{
-    future.setProgressRange(0, 1);
-    if (future.isCanceled()) {
-        future.setProgressValue(1);
-        return;
-    }
-
-    parser->update(workingCopy);
-    CppToolsBridge::finishedRefreshingSourceFiles({parser->filePath()});
-
-    future.setProgressValue(1);
-}
-
+} // namespace Internal
 } // namespace CppTools
+
+#endif // CPPTOOLS_CPPTOOLSBRIDGEQTCREATORIMPLEMENTATION_H
