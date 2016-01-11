@@ -77,7 +77,7 @@ BookmarkDelegate::BookmarkDelegate(QObject *parent)
 
 QSize BookmarkDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 opt = option;
+    QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
 
     QFontMetrics fm(option.font);
@@ -116,7 +116,7 @@ void BookmarkDelegate::generateGradientPixmap(int width, int height, const QColo
 
 void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 opt = option;
+    QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
     painter->save();
 
