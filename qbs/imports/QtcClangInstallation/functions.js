@@ -1,5 +1,5 @@
 var File = loadExtension("qbs.File")
-var MinimumLLVMVersion = "3.6.0"
+var MinimumLLVMVersion = "3.6.2"
 
 function isSuitableLLVMConfig(llvmConfigCandidate, qtcFunctions, processOutputReader)
 {

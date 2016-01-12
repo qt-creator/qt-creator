@@ -6,15 +6,21 @@ isEmpty(LLVM_INSTALL_DIR): error("No LLVM_INSTALL_DIR provided")
 defineReplace(extractVersion)      { return($$replace(1, ^(\\d+\\.\\d+\\.\\d+)$, \\1)) }
 defineReplace(extractMajorVersion) { return($$replace(1, ^(\\d+)\\.\\d+\\.\\d+$, \\1)) }
 defineReplace(extractMinorVersion) { return($$replace(1, ^\\d+\\.(\\d+)\\.\\d+$, \\1)) }
+defineReplace(extractPatchVersion) { return($$replace(1, ^\\d+\\.\\d+\\.(\\d+)$, \\1)) }
 
 defineTest(versionIsAtLeast) {
     actual_major_version = $$extractMajorVersion($$1)
     actual_minor_version = $$extractMinorVersion($$1)
+    actual_patch_version = $$extractPatchVersion($$1)
     required_min_major_version = $$2
     required_min_minor_version = $$3
+    required_min_patch_version = $$4
 
     isEqual(actual_major_version, $$required_min_major_version) {
-        isEqual(actual_minor_version, $$required_min_minor_version): return(true)
+        isEqual(actual_minor_version, $$required_min_minor_version) {
+            isEqual(actual_patch_version, $$required_min_patch_version): return(true)
+            greaterThan(actual_patch_version, $$required_min_patch_version): return(true)
+        }
         greaterThan(actual_minor_version, $$required_min_minor_version): return(true)
     }
     greaterThan(actual_major_version, $$required_min_major_version): return(true)
@@ -97,6 +103,6 @@ unix {
 }
 
 isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")
-!versionIsAtLeast($$LLVM_VERSION, 3, 6): {
-    error("LLVM/Clang version >= 3.6.0 required, version provided: $$LLVM_VERSION")
+!versionIsAtLeast($$LLVM_VERSION, 3, 6, 2): {
+    error("LLVM/Clang version >= 3.6.2 required, version provided: $$LLVM_VERSION")
 }
