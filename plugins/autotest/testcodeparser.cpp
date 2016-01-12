@@ -970,7 +970,7 @@ void TestCodeParser::updateModelAndCppDocMap(CPlusPlus::Document::Ptr document,
             const bool setReferencingFile = (files.size() == 2 && file == declaringFile);
             TestInfo testInfo(testCaseName, testItem->getChildNames(),
                               document->revision(), document->editorRevision());
-            testInfo.setProfile(proFile);
+            testInfo.setProFile(proFile);
             if (setReferencingFile)
                 testInfo.setReferencingFile(fileName);
             m_cppDocMap.insert(file, testInfo);
@@ -980,7 +980,7 @@ void TestCodeParser::updateModelAndCppDocMap(CPlusPlus::Document::Ptr document,
         emit testItemCreated(testItem, TestTreeModel::AutoTest);
         TestInfo ti(testCaseName, testItem->getChildNames(),
                     document->revision(), document->editorRevision());
-        ti.setProfile(proFile);
+        ti.setProFile(proFile);
         m_cppDocMap.insert(fileName, ti);
         if (declaringFile != fileName) {
             ti.setReferencingFile(fileName);
@@ -1003,7 +1003,7 @@ void TestCodeParser::updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
     if (m_quickDocMap.contains(fileName)) {
         TestInfo testInfo(testItem->name(), testItem->getChildNames(), 0, document->editorRevision());
         testInfo.setReferencingFile(referencingFile);
-        testInfo.setProfile(proFile);
+        testInfo.setProFile(proFile);
         emit testItemModified(testItem, TestTreeModel::QuickTest, { fileName });
         m_quickDocMap.insert(fileName, testInfo);
     } else {
@@ -1013,7 +1013,7 @@ void TestCodeParser::updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
         const QString &filePath = testItem->filePath();
         TestInfo testInfo(testItem->name(), testItem->getChildNames(), 0, document->editorRevision());
         testInfo.setReferencingFile(referencingFile);
-        testInfo.setProfile(proFile);
+        testInfo.setProFile(proFile);
         emit testItemCreated(testItem, TestTreeModel::QuickTest);
         m_quickDocMap.insert(filePath, testInfo);
     }
@@ -1034,7 +1034,7 @@ void TestCodeParser::updateGTests(const CPlusPlus::Document::Ptr &doc,
     foreach (const QString &testName, tests.keys()) {
         TestTreeItem *item = constructGTestTreeItem(fileName, testName, proFile, tests.value(testName));
         TestInfo info(item->name(), item->getChildNames(), doc->revision(), doc->editorRevision());
-        info.setProfile(proFile);
+        info.setProFile(proFile);
         foreach (const TestCodeLocationAndType &testSet, tests.value(testName)) {
             GTestInfo gtestInfo(testName, testSet.m_name, fileName);
             if (testSet.m_type == TestTreeItem::GTestNameDisabled)

@@ -44,7 +44,7 @@ public:
     const QString referencingFile() const { return m_referencingFile; }
     void setReferencingFile(const QString &refFile) { m_referencingFile = refFile; }
     const QString proFile() const { return m_proFile; }
-    void setProfile(const QString &proFile) { m_proFile = proFile; }
+    void setProFile(const QString &proFile) { m_proFile = proFile; }
 
 private:
     QString m_className;
