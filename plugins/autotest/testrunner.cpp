@@ -110,14 +110,10 @@ void performTestRun(QFutureInterface<void> &futureInterface,
                     const QString metricsOption, TestRunner* testRunner)
 {
     int testCaseCount = 0;
-    bool hasQtTests = false;
-    bool hasGTests = false;
     foreach (TestConfiguration *config, selectedTests) {
         config->completeTestInformation();
         if (config->project()) {
             testCaseCount += config->testCaseCount();
-            hasQtTests |= config->testType() == TestConfiguration::Qt;
-            hasGTests |= config->testType() == TestConfiguration::GTest;
         } else {
             emitTestResultCreated(new FaultyTestResult(Result::MessageWarn,
                 QObject::tr("Project is null for \"%1\". Removing from test run.\n"
