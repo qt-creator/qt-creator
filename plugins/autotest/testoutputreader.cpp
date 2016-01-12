@@ -324,16 +324,22 @@ void TestOutputReader::processGTestOutput()
     static QString description;
     static QByteArray unprocessed;
 
-    while (m_testApplication->canReadLine())
-        unprocessed.append(m_testApplication->readLine());
-
-    int lineBreak;
-    while ((lineBreak = unprocessed.indexOf('\n')) != -1) {
-        const QString line = QLatin1String(unprocessed.left(lineBreak));
-        unprocessed.remove(0, lineBreak + 1);
-        if (line.isEmpty()) {
+    while (m_testApplication->canReadLine()) {
+        QByteArray read = m_testApplication->readLine();
+        if (!unprocessed.isEmpty()) {
+            read = unprocessed + read;
+            unprocessed.clear();
+        }
+        if (!read.endsWith('\n')) {
+            unprocessed = read;
             continue;
         }
+        read.chop(1); // remove the newline from the output
+
+        const QString line = QString::fromLatin1(read);
+        if (line.trimmed().isEmpty())
+            continue;
+
         if (!line.startsWith(QLatin1Char('['))) {
             description.append(line).append(QLatin1Char('\n'));
             if (line.startsWith(QStringLiteral("Note:"))) {
