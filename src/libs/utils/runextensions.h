@@ -520,6 +520,16 @@ void blockingMapReduce(QFutureInterface<ReduceResult> futureInterface, const Con
     futureInterface.reportFinished();
 }
 
+template <typename ResultType, typename Function, typename... Args>
+void runAsyncImpl(QFutureInterface<ResultType> futureInterface, const Function &function, const Args&... args)
+{
+    futureInterface.reportStarted();
+    function(futureInterface, args...);
+    if (futureInterface.isPaused())
+        futureInterface.waitForResume();
+    futureInterface.reportFinished();
+}
+
 } // Internal
 
 template <typename ReduceResult, typename Container, typename InitFunction, typename MapFunction,
@@ -545,6 +555,15 @@ QFuture<ReduceResult> mapReduce(const Container &container, const InitFunction &
     std::thread(Internal::blockingMapReduce<Container, InitFunction, MapFunction, ReduceResult, ReduceFunction, CleanUpFunction>,
                 fi, container, init, map, reduce, cleanup).detach();
     return future;
+}
+
+template <typename ResultType, typename Function, typename... Args>
+QFuture<ResultType> runAsync(Function &&function, Args&&... args)
+{
+    QFutureInterface<ResultType> futureInterface;
+    std::thread(Internal::runAsyncImpl<ResultType,Function,Args...>, futureInterface,
+                std::forward<Function>(function), std::forward<Args>(args)...).detach();
+    return futureInterface.future();
 }
 
 } // Utils

@@ -47,7 +47,7 @@ uint qHash(const LocatorFilterEntry &entry)
 } // namespace Core
 
 void Core::Internal::runSearch(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                  QList<ILocatorFilter *> filters, QString searchText)
+                               const QList<ILocatorFilter *> &filters, const QString &searchText)
 {
     QSet<LocatorFilterEntry> alreadyAdded;
     const bool checkDuplicates = (filters.size() > 1);
