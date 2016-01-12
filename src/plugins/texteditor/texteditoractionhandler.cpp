@@ -429,11 +429,11 @@ void TextEditorActionHandlerPrivate::createActions()
             QKeySequence(),
             G_EDIT_COLLAPSING, advancedEditMenu);
     m_increaseFontSizeAction = registerAction(INCREASE_FONT_SIZE,
-            [this] (TextEditorWidget *w) { w->zoomIn(); }, false, tr("Increase Font Size"),
+            [this] (TextEditorWidget *w) { w->zoomF(1.f); }, false, tr("Increase Font Size"),
             QKeySequence(tr("Ctrl++")),
             G_EDIT_FONT, advancedEditMenu);
     m_decreaseFontSizeAction = registerAction(DECREASE_FONT_SIZE,
-            [this] (TextEditorWidget *w) { w->zoomOut(); }, false, tr("Decrease Font Size"),
+            [this] (TextEditorWidget *w) { w->zoomF(-1.f); }, false, tr("Decrease Font Size"),
             QKeySequence(tr("Ctrl+-")),
             G_EDIT_FONT, advancedEditMenu);
     m_resetFontSizeAction = registerAction(RESET_FONT_SIZE,
