@@ -48,7 +48,8 @@ public:
         TestDataTag,
         TestDataFunction,
         TestSpecialFunction,
-        GTestCase,              // should we distinguish between Case and Fixture?
+        GTestCase,
+        GTestCaseParameterized,
         GTestName,
         GTestNameDisabled
     };

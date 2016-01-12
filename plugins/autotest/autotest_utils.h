@@ -36,6 +36,11 @@ public:
         return valid.contains(macro);
     }
 
+    static bool isGTestParameterized(const QString &macro)
+    {
+        return macro == QStringLiteral("TEST_P");
+    }
+
     static bool isQTestMacro(const QByteArray &macro)
     {
         static QByteArrayList valid = {"QTEST_MAIN", "QTEST_APPLESS_MAIN", "QTEST_GUILESS_MAIN"};

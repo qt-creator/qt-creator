@@ -380,7 +380,10 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         locationAndType.m_column = column - 1;
         locationAndType.m_type = disabled ? TestTreeItem::GTestNameDisabled
                                           : TestTreeItem::GTestName;
-        m_gtestFunctions[testCaseName].append(locationAndType);
+        GTestCaseSpec spec;
+        spec.testCaseName = testCaseName;
+        spec.parameterized = TestUtils::isGTestParameterized(prettyName);
+        m_gtestFunctions[spec].append(locationAndType);
     }
 
     return false;

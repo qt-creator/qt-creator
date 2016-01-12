@@ -108,6 +108,7 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                     || (type == TestTreeItem::TestClass && index.data().toString() != unnamed)
                     || (type == TestTreeItem::TestDataTag)
                     || (type == TestTreeItem::GTestCase)
+                    || (type == TestTreeItem::GTestCaseParameterized)
                     || (type == TestTreeItem::GTestName)) {
                 runThisTest = new QAction(tr("Run This Test"), &menu);
                 runThisTest->setEnabled(enabled);
@@ -255,6 +256,7 @@ void TestNavigationWidget::onRunThisTestTriggered()
     if (item->type() == TestTreeItem::TestClass || item->type() == TestTreeItem::TestFunction
             || item->type() == TestTreeItem::TestDataTag
             || item->type() == TestTreeItem::GTestCase
+            || item->type() == TestTreeItem::GTestCaseParameterized
             || item->type() == TestTreeItem::GTestName) {
         if (TestConfiguration *configuration = m_model->getTestConfiguration(item)) {
             TestRunner *runner = TestRunner::instance();

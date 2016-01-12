@@ -41,6 +41,7 @@ struct TestCodeLocationAndType;
 class TestInfo;
 class UnnamedQuickTestInfo;
 class GTestInfo;
+struct GTestCaseSpec;
 
 class TestCodeParser : public QObject
 {
@@ -84,7 +85,7 @@ public slots:
     void updateTestTree();
     void checkDocumentForTestCode(CPlusPlus::Document::Ptr document);
     void handleQtQuickTest(CPlusPlus::Document::Ptr document);
-    void handleGTest(const QString &filePath, const QSet<QString> &names);
+    void handleGTest(const QString &filePath);
 
     void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document);
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);
@@ -109,7 +110,7 @@ private:
     void updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
                                    const QString &referencingFile, TestTreeItem *testItem);
     void updateGTests(const CPlusPlus::Document::Ptr &doc,
-                      const QMap<QString, TestCodeLocationList> &tests);
+                      const QMap<GTestCaseSpec, TestCodeLocationList> &tests);
     void removeUnnamedQuickTestsByName(const QString &fileName);
     void removeGTestsByName(const QString &fileName);
 

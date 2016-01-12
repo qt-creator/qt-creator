@@ -40,6 +40,7 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
     case TestClass:
     case TestFunction:
     case GTestCase:
+    case GTestCaseParameterized:
     case GTestName:
     case GTestNameDisabled:
         m_checked = Qt::Checked;
@@ -76,7 +77,7 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
         QIcon(QLatin1String(":/images/func.png")),
         QIcon(QLatin1String(":/images/data.png"))
     };
-    if (type == TestTreeItem::GTestCase)
+    if (type == TestTreeItem::GTestCase || type == TestTreeItem::GTestCaseParameterized)
         return icons[1];
 
     if (int(type) >= int(sizeof icons / sizeof *icons))
@@ -111,6 +112,7 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
             return QVariant();
         case TestClass:
         case GTestCase:
+        case GTestCaseParameterized:
             return m_name.isEmpty() ? QVariant() : checked();
         case TestFunction:
         case GTestName:
@@ -191,7 +193,8 @@ void TestTreeItem::setChecked(const Qt::CheckState checkState)
         break;
     }
     case TestClass:
-    case GTestCase: {
+    case GTestCase:
+    case GTestCaseParameterized: {
         Qt::CheckState usedState = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
         for (int row = 0, count = childCount(); row < count; ++row)
             childItem(row)->setChecked(usedState);
@@ -208,6 +211,7 @@ Qt::CheckState TestTreeItem::checked() const
     case TestClass:
     case TestFunction:
     case GTestCase:
+    case GTestCaseParameterized:
     case GTestName:
     case GTestNameDisabled:
         return m_checked;

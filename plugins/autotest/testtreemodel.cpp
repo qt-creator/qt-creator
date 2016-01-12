@@ -140,6 +140,7 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
             switch (item->type()) {
             case TestTreeItem::TestClass:
             case TestTreeItem::GTestCase:
+            case TestTreeItem::GTestCaseParameterized:
                 if (item->childCount() > 0)
                     emit dataChanged(index.child(0, 0), index.child(item->childCount() - 1, 0));
                 break;
@@ -166,6 +167,7 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
     switch(item->type()) {
     case TestTreeItem::TestClass:
     case TestTreeItem::GTestCase:
+    case TestTreeItem::GTestCaseParameterized:
         if (item->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsTristate | Qt::ItemIsUserCheckable;
@@ -389,8 +391,14 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
             const TestTreeItem *grandChild = child->childItem(grandChildRow);
             const QString &proFile = grandChild->mainFile();
             QStringList enabled = proFilesWithEnabledTestSets.value(proFile);
-            if (grandChild->checked() == Qt::Checked)
-                enabled << child->name() + QLatin1Char('.') + grandChild->name();
+            if (grandChild->checked() == Qt::Checked) {
+                QString testSpecifier = child->name() + QLatin1Char('.') + grandChild->name();
+                if (child->type() == TestTreeItem::GTestCaseParameterized) {
+                    testSpecifier.prepend(QLatin1String("*/"));
+                    testSpecifier.append(QLatin1String("/*"));
+                }
+                enabled << testSpecifier;
+            }
             proFilesWithEnabledTestSets.insert(proFile, enabled);
         }
     }
@@ -461,10 +469,14 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
         config->setProject(project);
         break;
     }
-    case TestTreeItem::GTestCase: {
+    case TestTreeItem::GTestCase:
+    case TestTreeItem::GTestCaseParameterized: {
+        QString testSpecifier = item->name() + QLatin1String(".*");
+        if (item->type() == TestTreeItem::GTestCaseParameterized)
+            testSpecifier.prepend(QLatin1String("*/"));
+
         if (int childCount = item->childCount()) {
-            config = new TestConfiguration(QString(),
-                                           QStringList(item->name() + QLatin1String(".*")));
+            config = new TestConfiguration(QString(), QStringList(testSpecifier));
             config->setTestCaseCount(childCount);
             config->setProFile(item->childItem(0)->mainFile());
             config->setProject(project);
@@ -474,8 +486,13 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
     }
     case TestTreeItem::GTestName: {
         const TestTreeItem *parent = item->parentItem();
-        config = new TestConfiguration(QString(),
-                                       QStringList(parent->name() + QLatin1Char('.') + item->name()));
+        QString testSpecifier = parent->name() + QLatin1Char('.') + item->name();
+
+        if (parent->type() == TestTreeItem::GTestCaseParameterized) {
+            testSpecifier.prepend(QLatin1String("*/"));
+            testSpecifier.append(QLatin1String("/*"));
+        }
+        config = new TestConfiguration(QString(), QStringList(testSpecifier));
         config->setProFile(item->mainFile());
         config->setProject(project);
         config->setTestType(TestTypeGTest);
@@ -578,7 +595,7 @@ void TestTreeModel::addTestTreeItem(TestTreeItem *item, TestTreeModel::Type type
         TestTreeItem *toBeUpdated = 0;
         for (int row = 0, count = parent->childCount(); row < count; ++row) {
             TestTreeItem *current = parent->childItem(row);
-            if (current->name() == item->name()) {
+            if (current->name() == item->name() && current->type() == item->type()) {
                 toBeUpdated = current;
                 break;
             }

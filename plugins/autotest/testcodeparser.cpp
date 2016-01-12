@@ -317,9 +317,8 @@ static QString quickTestName(const CPlusPlus::Document::Ptr &doc)
     return QString();
 }
 
-static QSet<QString> testNames(CPlusPlus::Document::Ptr &document)
+static bool hasGTestNames(CPlusPlus::Document::Ptr &document)
 {
-    QSet<QString> result;
     foreach (const CPlusPlus::Document::MacroUse &macro, document->macroUses()) {
         if (!macro.isFunctionLike())
             continue;
@@ -327,12 +326,10 @@ static QSet<QString> testNames(CPlusPlus::Document::Ptr &document)
             const QVector<CPlusPlus::Document::Block> args = macro.arguments();
             if (args.size() != 2)
                 continue;
-            const CPlusPlus::Document::Block name = args.first();
-            result.insert(QLatin1String(getFileContent(document->fileName())
-                                        .mid(name.bytesBegin(), name.bytesEnd() - name.bytesBegin())));
+            return true;
         }
     }
-    return result;
+    return false;
 }
 
 static QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QString &srcDir)
@@ -457,12 +454,14 @@ static TestTreeItem *constructTestTreeItem(const QString &fileName,
     return treeItem;
 }
 
-static TestTreeItem *constructGTestTreeItem(const QString &filePath, const QString &caseName,
+static TestTreeItem *constructGTestTreeItem(const QString &filePath, const GTestCaseSpec &caseSpec,
                                             const QString &proFile,
-                                            const TestCodeLocationList &testNames)
+                                            const TestCodeLocationList &testSets)
 {
-    TestTreeItem *item = new TestTreeItem(caseName, QString(), TestTreeItem::GTestCase);
-    foreach (const TestCodeLocationAndType &locationAndType, testNames) {
+    TestTreeItem *item = new TestTreeItem(caseSpec.testCaseName, QString(),
+            caseSpec.parameterized ? TestTreeItem::GTestCaseParameterized
+                                   : TestTreeItem::GTestCase);
+    foreach (const TestCodeLocationAndType &locationAndType, testSets) {
         TestTreeItem *treeItemChild = new TestTreeItem(locationAndType.m_name, filePath,
                                                        locationAndType.m_type);
         treeItemChild->setLine(locationAndType.m_line);
@@ -549,9 +548,8 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr document)
     }
 
     if (includesGTest(document, modelManager)) {
-        const QSet<QString> &names = testNames(document);
-        if (!names.isEmpty()) {
-            handleGTest(document->fileName(), names);
+        if (hasGTestNames(document)) {
+            handleGTest(document->fileName());
             return;
         }
     }
@@ -609,7 +607,7 @@ void TestCodeParser::handleQtQuickTest(CPlusPlus::Document::Ptr document)
     }
 }
 
-void TestCodeParser::handleGTest(const QString &filePath, const QSet<QString> &names)
+void TestCodeParser::handleGTest(const QString &filePath)
 {
     const QByteArray &fileContent = getFileContent(filePath);
     const CPlusPlus::Snapshot snapshot = CPlusPlus::CppModelManagerBase::instance()->snapshot();
@@ -619,8 +617,7 @@ void TestCodeParser::handleGTest(const QString &filePath, const QSet<QString> &n
     GTestVisitor visitor(document);
     visitor.accept(ast);
 
-    QMap<QString, TestCodeLocationList> result = visitor.gtestFunctions();
-    QTC_CHECK(names.contains(result.keys().toSet()));
+    QMap<GTestCaseSpec, TestCodeLocationList> result = visitor.gtestFunctions();
     updateGTests(document, result);
 }
 
@@ -1018,7 +1015,7 @@ void TestCodeParser::updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
 }
 
 void TestCodeParser::updateGTests(const CPlusPlus::Document::Ptr &doc,
-                                  const QMap<QString, TestCodeLocationList> &tests)
+                                  const QMap<GTestCaseSpec, TestCodeLocationList> &tests)
 {
     const QString &fileName = doc->fileName();
     removeGTestsByName(fileName);
@@ -1029,12 +1026,12 @@ void TestCodeParser::updateGTests(const CPlusPlus::Document::Ptr &doc,
     if (ppList.size())
         proFile = ppList.at(0)->projectFile;
 
-    foreach (const QString &testName, tests.keys()) {
-        TestTreeItem *item = constructGTestTreeItem(fileName, testName, proFile, tests.value(testName));
+    foreach (const GTestCaseSpec &testSpec, tests.keys()) {
+        TestTreeItem *item = constructGTestTreeItem(fileName, testSpec, proFile, tests.value(testSpec));
         TestInfo info(item->name(), item->getChildNames(), doc->revision(), doc->editorRevision());
         info.setProFile(proFile);
-        foreach (const TestCodeLocationAndType &testSet, tests.value(testName)) {
-            GTestInfo gtestInfo(testName, testSet.m_name, fileName);
+        foreach (const TestCodeLocationAndType &testSet, tests.value(testSpec)) {
+            GTestInfo gtestInfo(testSpec.testCaseName, testSet.m_name, fileName);
             if (testSet.m_type == TestTreeItem::GTestNameDisabled)
                 gtestInfo.setEnabled(false);
             m_gtestDocList.append(gtestInfo);

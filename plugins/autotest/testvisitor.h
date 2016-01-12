@@ -123,18 +123,31 @@ private:
 
 };
 
+struct GTestCaseSpec
+{
+    QString testCaseName;
+    bool parameterized;
+};
+
+inline bool operator<(const GTestCaseSpec &spec1, const GTestCaseSpec &spec2)
+{
+    if (spec1.testCaseName != spec2.testCaseName)
+        return spec1.testCaseName < spec2.testCaseName;
+    return !spec1.parameterized;
+}
+
 class GTestVisitor : public CPlusPlus::ASTVisitor
 {
 public:
     GTestVisitor(CPlusPlus::Document::Ptr doc);
     bool visit(CPlusPlus::FunctionDefinitionAST *ast);
 
-    QMap<QString, TestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }
+    QMap<GTestCaseSpec, TestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }
 
 private:
     CPlusPlus::Document::Ptr m_document;
     CPlusPlus::Overview m_overview;
-    QMap<QString, TestCodeLocationList> m_gtestFunctions;
+    QMap<GTestCaseSpec, TestCodeLocationList> m_gtestFunctions;
 
 };
 
