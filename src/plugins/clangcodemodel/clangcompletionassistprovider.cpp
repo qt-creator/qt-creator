@@ -36,7 +36,7 @@
 
 #include <cplusplus/Token.h>
 #include <cpptools/cppcompletionassistprocessor.h>
-#include <cpptools/cppprojects.h>
+#include <cpptools/projectpart.h>
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>

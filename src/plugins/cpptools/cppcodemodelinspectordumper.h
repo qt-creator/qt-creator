@@ -33,7 +33,8 @@
 
 #include "cpptools_global.h"
 
-#include <cpptools/cppprojects.h>
+#include <cpptools/projectpart.h>
+#include <cpptools/projectinfo.h>
 #include <cplusplus/CppDocument.h>
 
 #include <QFile>

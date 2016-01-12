@@ -31,7 +31,10 @@
 
 #include "cpptodoitemsscanner.h"
 
+#include <cpptools/projectinfo.h>
+
 #include <projectexplorer/project.h>
+
 #include <cplusplus/TranslationUnit.h>
 
 #include <cctype>

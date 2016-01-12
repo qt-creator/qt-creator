@@ -36,6 +36,7 @@
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolstestcase.h>
+#include <cpptools/projectinfo.h>
 
 #include <QFileInfo>
 #include <QTest>

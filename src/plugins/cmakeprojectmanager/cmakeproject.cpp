@@ -57,6 +57,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/uicodemodelsupport.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/projectinfo.h>
+#include <cpptools/projectpartbuilder.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

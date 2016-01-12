@@ -31,7 +31,7 @@
 #ifndef CPPTOOLS_CLANGUTILS_H
 #define CPPTOOLS_CLANGUTILS_H
 
-#include <cpptools/cppprojects.h>
+#include <cpptools/projectpart.h>
 
 namespace ClangCodeModel {
 namespace Utils {

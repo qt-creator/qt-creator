@@ -39,9 +39,9 @@
 #include <diagnosticcontainer.h>
 #include <sourcelocationcontainer.h>
 
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppprojects.h>
 #include <cpptools/cpptoolsbridge.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>

@@ -46,6 +46,7 @@
 #include "cpplocatordata.h"
 #include "cppincludesfilter.h"
 #include "cpptoolsbridge.h"
+#include "projectinfo.h"
 #include "cpptoolsbridgeqtcreatorimplementation.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>

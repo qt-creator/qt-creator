@@ -35,7 +35,7 @@
 
 #include "qbsnodes.h"
 
-#include <cpptools/cppprojects.h>
+#include <cpptools/projectinfo.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>

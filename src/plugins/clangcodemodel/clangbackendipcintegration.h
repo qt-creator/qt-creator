@@ -31,7 +31,7 @@
 #ifndef CLANGCODEMODEL_INTERNAL_CLANGBACKENDIPCINTEGRATION_H
 #define CLANGCODEMODEL_INTERNAL_CLANGBACKENDIPCINTEGRATION_H
 
-#include <cpptools/cppprojects.h>
+#include <cpptools/projectpart.h>
 
 #include <clangbackendipc/connectionclient.h>
 #include <clangbackendipc/filecontainer.h>

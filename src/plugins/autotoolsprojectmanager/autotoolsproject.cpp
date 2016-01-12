@@ -51,6 +51,8 @@
 #include <projectexplorer/headerpath.h>
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/projectinfo.h>
+#include <cpptools/projectpartbuilder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <qtsupport/baseqtversion.h>

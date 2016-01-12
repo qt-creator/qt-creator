@@ -40,6 +40,7 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>
+#include <cpptools/projectinfo.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/textdocument.h>

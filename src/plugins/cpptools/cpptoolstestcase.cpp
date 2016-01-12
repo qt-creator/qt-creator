@@ -35,6 +35,7 @@
 #include "editordocumenthandle.h"
 #include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
+#include "projectinfo.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>

@@ -32,8 +32,8 @@
 #define BASEEDITORDOCUMENTPARSER_H
 
 #include "cpptools_global.h"
-#include "cppprojects.h"
 #include "cppworkingcopy.h"
+#include "projectpart.h"
 
 #include <QObject>
 #include <QMutex>

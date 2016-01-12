@@ -37,7 +37,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
+#include <cpptools/projectinfo.h>
+
 #include <texteditor/quickfix.h>
+
 #include <projectexplorer/project.h>
 
 #include <clangbackendipc/cmbregisterprojectsforeditormessage.h>

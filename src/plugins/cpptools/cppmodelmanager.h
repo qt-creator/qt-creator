@@ -34,7 +34,8 @@
 #include "cpptools_global.h"
 
 #include "cppmodelmanagersupport.h"
-#include "cppprojects.h"
+#include "projectpart.h"
+#include "projectpartheaderpath.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
 
@@ -60,6 +61,7 @@ class CppEditorDocumentHandle;
 class CppIndexingSupport;
 class SymbolFinder;
 class WorkingCopy;
+class ProjectInfo;
 
 namespace Internal {
 class CppSourceProcessor;

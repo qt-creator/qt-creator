@@ -32,7 +32,7 @@
 
 #include "baseeditordocumentparser.h"
 #include "cppmodelmanager.h"
-#include "cppprojects.h"
+#include "projectpart.h"
 #include "editordocumenthandle.h"
 
 namespace CppTools {

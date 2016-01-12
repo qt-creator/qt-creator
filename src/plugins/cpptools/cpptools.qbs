@@ -64,7 +64,6 @@ QtcPlugin {
         "cppmodelmanagersupportinternal.cpp", "cppmodelmanagersupportinternal.h",
         "cpppointerdeclarationformatter.cpp", "cpppointerdeclarationformatter.h",
         "cppprojectfile.cpp", "cppprojectfile.h",
-        "cppprojects.cpp", "cppprojects.h",
         "cppqtstyleindenter.cpp", "cppqtstyleindenter.h",
         "cpprefactoringchanges.cpp", "cpprefactoringchanges.h",
         "cppsemanticinfo.cpp", "cppsemanticinfo.h",

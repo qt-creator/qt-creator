@@ -32,6 +32,7 @@
 
 #include "cpptoolstestcase.h"
 #include "cppworkingcopy.h"
+#include "projectinfo.h"
 
 #include <QtTest>
 

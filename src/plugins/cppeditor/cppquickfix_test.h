@@ -30,7 +30,7 @@
 
 #include "cppeditortestcase.h"
 
-#include <cpptools/cppprojects.h>
+#include <cpptools/projectpartheaderpath.h>
 
 #include <QByteArray>
 #include <QList>

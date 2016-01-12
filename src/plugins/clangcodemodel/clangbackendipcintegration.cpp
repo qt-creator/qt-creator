@@ -42,6 +42,7 @@
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
+#include <cpptools/projectinfo.h>
 
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/iassistprocessor.h>
