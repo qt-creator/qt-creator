@@ -20,6 +20,8 @@
 #ifndef TESTRESULT_H
 #define TESTRESULT_H
 
+#include "autotestconstants.h"
+
 #include <QString>
 #include <QColor>
 #include <QMetaType>
@@ -58,12 +60,6 @@ enum Type {
 class TestResult
 {
 public:
-    enum TestType
-    {
-        Qt,
-        GTest
-    };
-
     TestResult();
     TestResult(const QString &className);
 

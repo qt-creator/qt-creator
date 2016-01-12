@@ -43,7 +43,7 @@ TestConfiguration::TestConfiguration(const QString &testClass, const QStringList
       m_unnamedOnly(false),
       m_project(0),
       m_guessedConfiguration(false),
-      m_type(Qt)
+      m_type(TestTypeQt)
 {
     if (testCases.size() != 0)
         m_testCaseCount = testCases.size();

@@ -20,6 +20,8 @@
 #ifndef TESTCONFIGURATION_H
 #define TESTCONFIGURATION_H
 
+#include "autotestconstants.h"
+
 #include <utils/environment.h>
 
 #include <QObject>
@@ -37,11 +39,6 @@ class TestConfiguration : public QObject
 {
     Q_OBJECT
 public:
-    enum TestType {
-        Qt,
-        GTest
-    };
-
     explicit TestConfiguration(const QString &testClass, const QStringList &testCases,
                                int testCaseCount = 0, QObject *parent = 0);
     ~TestConfiguration();

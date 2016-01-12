@@ -142,8 +142,8 @@ void performTestRun(QFutureInterface<void> &futureInterface,
         if (connection)
             QObject::disconnect(connection);
 
-        TestConfiguration::TestType testType = testConfiguration->testType();
-        if (testType == TestConfiguration::Qt) {
+        TestType testType = testConfiguration->testType();
+        if (testType == TestTypeQt) {
             connection = QObject::connect(&testProcess, &QProcess::readyRead, &outputReader,
                                           &TestOutputReader::processOutput);
         } else {
@@ -166,14 +166,14 @@ void performTestRun(QFutureInterface<void> &futureInterface,
             continue;
         }
 
-        if (testType == TestConfiguration::Qt) {
+        if (testType == TestTypeQt) {
             QStringList argumentList(QLatin1String("-xml"));
             if (!metricsOption.isEmpty())
                 argumentList << metricsOption;
             if (testConfiguration->testCases().count())
                 argumentList << testConfiguration->testCases();
             testProcess.setArguments(argumentList);
-        } else { // TestConfiguration::GTest
+        } else { // TestTypeGTest
             const QStringList &testSets = testConfiguration->testCases();
             if (testSets.size()) {
                 QStringList argumentList;

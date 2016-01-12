@@ -37,7 +37,7 @@ TestResult::TestResult(const QString &className)
     : m_class(className)
     , m_result(Result::Invalid)
     , m_line(0)
-    , m_type(Qt)
+    , m_type(TestTypeQt)
 {
 }
 
@@ -155,7 +155,7 @@ QTestResult::QTestResult(const QString &className)
 GTestResult::GTestResult(const QString &className)
     : TestResult(className)
 {
-    setTestType(GTest);
+    setTestType(TestTypeGTest);
 }
 
 } // namespace Internal

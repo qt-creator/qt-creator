@@ -256,7 +256,7 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
                                                       foundMains.value(proFile));
         tc->setProFile(proFile);
         tc->setProject(project);
-        tc->setTestType(TestConfiguration::GTest);
+        tc->setTestType(TestTypeGTest);
         result << tc;
     }
 
@@ -398,7 +398,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     foreach (const QString &proFile, proFilesWithEnabledTestSets.keys()) {
         TestConfiguration *tc = new TestConfiguration(QString(),
                                                       proFilesWithEnabledTestSets.value(proFile));
-        tc->setTestType(TestConfiguration::GTest);
+        tc->setTestType(TestTypeGTest);
         tc->setProFile(proFile);
         tc->setProject(project);
         result << tc;
@@ -468,7 +468,7 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
             config->setTestCaseCount(childCount);
             config->setProFile(item->childItem(0)->mainFile());
             config->setProject(project);
-            config->setTestType(TestConfiguration::GTest);
+            config->setTestType(TestTypeGTest);
         }
         break;
     }
@@ -478,7 +478,7 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
                                        QStringList(parent->name() + QLatin1Char('.') + item->name()));
         config->setProFile(item->mainFile());
         config->setProject(project);
-        config->setTestType(TestConfiguration::GTest);
+        config->setTestType(TestTypeGTest);
         break;
     }
     // not supported items
