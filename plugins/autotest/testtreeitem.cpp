@@ -93,6 +93,8 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
             return QString(m_name + QObject::tr(" (none)"));
         else if (m_name.isEmpty())
             return QObject::tr(Constants::UNNAMED_QUICKTESTS);
+        else if (m_type == GTestCaseParameterized)
+            return QString(m_name + QObject::tr(" [parameterized]"));
         else
             return m_name;
     case Qt::ToolTipRole:
