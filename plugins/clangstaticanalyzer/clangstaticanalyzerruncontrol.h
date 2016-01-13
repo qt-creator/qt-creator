@@ -20,7 +20,7 @@
 #define CLANGSTATICANALYZERRUNCONTROL_H
 
 #include <analyzerbase/analyzerruncontrol.h>
-#include <cpptools/cppprojects.h>
+#include <cpptools/projectinfo.h>
 #include <utils/environment.h>
 
 #include <QFutureInterface>

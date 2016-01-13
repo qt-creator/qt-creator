@@ -20,7 +20,7 @@
 #define CLANGSTATICANALYZERTOOL_H
 
 #include <analyzerbase/ianalyzertool.h>
-#include <cpptools/cppprojects.h>
+#include <cpptools/projectinfo.h>
 
 #include <QHash>
 

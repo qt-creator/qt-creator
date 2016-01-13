@@ -31,9 +31,10 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppprojects.h>
 #include <cpptools/cppprojectfile.h>
+#include <cpptools/projectinfo.h>
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -42,6 +43,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
 

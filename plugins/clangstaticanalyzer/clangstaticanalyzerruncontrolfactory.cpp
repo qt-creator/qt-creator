@@ -27,7 +27,6 @@
 #include <coreplugin/icontext.h>
 
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/cppprojects.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/gcctoolchain.h>
