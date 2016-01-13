@@ -45,14 +45,28 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-    connect(m_ui.designerEnableDebuggerCheckBox, &QCheckBox::toggled,
-            this, &SettingsPageWidget::debugViewEnabledToggled);
+    connect(m_ui.designerEnableDebuggerCheckBox, &QCheckBox::toggled, [=](bool checked) {
+        if (checked && ! m_ui.designerShowDebuggerCheckBox->isChecked())
+            m_ui.designerShowDebuggerCheckBox->setChecked(true);
+        }
+    );
     m_ui.resetFallbackPuppetPathButton->hide();
-    connect(m_ui.resetFallbackPuppetPathButton, &QPushButton::clicked, this, &SettingsPageWidget::resetFallbackPuppetPath);
-    connect(m_ui.resetQmlPuppetBuildPathButton, &QPushButton::clicked, this, &SettingsPageWidget::resetQmlPuppetBuildPath);
-    connect(m_ui.useDefaultPuppetRadioButton, &QRadioButton::toggled, m_ui.fallbackPuppetPathLineEdit, &QLineEdit::setEnabled);
-    connect(m_ui.useQtRelatedPuppetRadioButton, &QRadioButton::toggled, m_ui.puppetBuildPathLineEdit, &QLineEdit::setEnabled);
-    connect(m_ui.resetStyle, &QPushButton::clicked, this, &SettingsPageWidget::resetQmlStyle);
+    connect(m_ui.resetFallbackPuppetPathButton, &QPushButton::clicked, [=]() {
+        m_ui.fallbackPuppetPathLineEdit->setPath(
+            PuppetCreator::defaultPuppetFallbackDirectory());
+        }
+    );
+    connect(m_ui.resetQmlPuppetBuildPathButton, &QPushButton::clicked, [=]() {
+        m_ui.puppetBuildPathLineEdit->setPath(
+            PuppetCreator::defaultPuppetToplevelBuildDirectory());
+        }
+    );
+    connect(m_ui.useDefaultPuppetRadioButton, &QRadioButton::toggled,
+        m_ui.fallbackPuppetPathLineEdit, &QLineEdit::setEnabled);
+    connect(m_ui.useQtRelatedPuppetRadioButton, &QRadioButton::toggled,
+        m_ui.puppetBuildPathLineEdit, &QLineEdit::setEnabled);
+    connect(m_ui.resetStyle, &QPushButton::clicked,
+        m_ui.styleLineEdit, &QLineEdit::clear);
 }
 
 DesignerSettings SettingsPageWidget::settings() const
@@ -121,39 +135,14 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::CONTROLS_STYLE).toString());
 
     QString puppetFallbackDirectory = settings.value(
-        DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY).toString();
-    if (puppetFallbackDirectory.isEmpty())
-        resetFallbackPuppetPath();
-    else
-        m_ui.fallbackPuppetPathLineEdit->setPath(puppetFallbackDirectory);
+        DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY,
+        PuppetCreator::defaultPuppetFallbackDirectory()).toString();
+    m_ui.fallbackPuppetPathLineEdit->setPath(puppetFallbackDirectory);
 
     QString puppetToplevelBuildDirectory = settings.value(
-        DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY).toString();
-    if (puppetToplevelBuildDirectory.isEmpty())
-        resetQmlPuppetBuildPath();
-    else
-        m_ui.puppetBuildPathLineEdit->setPath(puppetToplevelBuildDirectory);
-}
-
-void SettingsPageWidget::resetFallbackPuppetPath()
-{
-    m_ui.fallbackPuppetPathLineEdit->setPath(PuppetCreator::defaultPuppetFallbackDirectory());
-}
-
-void SettingsPageWidget::resetQmlPuppetBuildPath()
-{
-    m_ui.puppetBuildPathLineEdit->setPath(PuppetCreator::defaultPuppetToplevelBuildDirectory());
-}
-
-void SettingsPageWidget::resetQmlStyle()
-{
-    m_ui.styleLineEdit->setText(QString());
-}
-
-void SettingsPageWidget::debugViewEnabledToggled(bool b)
-{
-    if (b && ! m_ui.designerShowDebuggerCheckBox->isChecked())
-        m_ui.designerShowDebuggerCheckBox->setChecked(true);
+        DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
+        PuppetCreator::defaultPuppetToplevelBuildDirectory()).toString();
+    m_ui.puppetBuildPathLineEdit->setPath(puppetToplevelBuildDirectory);
 }
 
 SettingsPage::SettingsPage() :
@@ -184,14 +173,17 @@ void SettingsPage::apply()
     DesignerSettings currentSettings(QmlDesignerPlugin::instance()->settings());
     DesignerSettings newSettings(m_widget->settings());
 
-    if (currentSettings.value(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY) !=
-        newSettings.value(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY) ||
-        currentSettings.value(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY) !=
-        newSettings.value(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY)) {
+    QList<QByteArray> restartNecessaryKeys;
+    restartNecessaryKeys << DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY
+                         << DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY;
 
-        QMessageBox::information(Core::ICore::mainWindow(), tr("Restart Required"),
-            tr("The QML emulation layer path changes will take effect after a "
-               "restart of the QML Emulation layer or Qt Creator."));
+    foreach (const QByteArray &key, restartNecessaryKeys) {
+        if (currentSettings.value(key) != newSettings.value(key)) {
+            QMessageBox::information(Core::ICore::mainWindow(), tr("Restart Required"),
+                tr("The QML emulation layer path changes will take effect after a "
+                   "restart of the QML Emulation layer or Qt Creator."));
+            break;
+        }
     }
 
     QmlDesignerPlugin::instance()->setSettings(newSettings);
