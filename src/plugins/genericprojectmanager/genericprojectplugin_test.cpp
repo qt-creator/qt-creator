@@ -78,7 +78,7 @@ void GenericProjectPlugin::test_simple()
     QCOMPARE(pPart->files.first().kind, ProjectFile::CXXSource);
 }
 
-static QStringList simplify(const QList<ProjectFile> &files, const QString &prefix)
+static QStringList simplify(const QVector<ProjectFile> &files, const QString &prefix)
 {
     QStringList result;
 

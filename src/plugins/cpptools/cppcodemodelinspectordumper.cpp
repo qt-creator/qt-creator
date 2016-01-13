@@ -143,7 +143,7 @@ QString Utils::toString(ProjectPart::QtVersion qtVersion)
     return QString();
 }
 
-QString Utils::toString(const QList<ProjectFile> &projectFiles)
+QString Utils::toString(const QVector<ProjectFile> &projectFiles)
 {
     QStringList filesList;
     foreach (const ProjectFile &projectFile, projectFiles)
@@ -411,10 +411,10 @@ QString Utils::pathListToString(const QStringList &pathList)
     return result.join(QLatin1Char('\n'));
 }
 
-QString Utils::pathListToString(const ProjectPart::HeaderPaths &pathList)
+QString Utils::pathListToString(const ProjectPartHeaderPaths &pathList)
 {
     QStringList result;
-    foreach (const ProjectPart::HeaderPath &path, pathList) {
+    foreach (const ProjectPartHeaderPath &path, pathList) {
         result << QString(QLatin1String("%1 (%2 path)")).arg(
                       QDir::toNativeSeparators(path.path),
                       path.isFrameworkPath() ? QLatin1String("framework") : QLatin1String("include")
@@ -523,9 +523,9 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
 
             if (!part->headerPaths.isEmpty()) {
                 m_out << i3 << "Header Paths:{{{4\n";
-                foreach (const ProjectPart::HeaderPath &headerPath, part->headerPaths)
+                foreach (const ProjectPartHeaderPath &headerPath, part->headerPaths)
                     m_out << i4 << headerPath.path
-                          << (headerPath.type == ProjectPart::HeaderPath::IncludePath
+                          << (headerPath.type == ProjectPartHeaderPath::IncludePath
                               ? "(include path)"
                               : "(framework path)")
                           << "\n";
@@ -590,7 +590,7 @@ void Dumper::dumpWorkingCopy(const WorkingCopy &workingCopy)
     }
 }
 
-void Dumper::dumpMergedEntities(const ProjectPart::HeaderPaths &mergedHeaderPaths,
+void Dumper::dumpMergedEntities(const ProjectPartHeaderPaths &mergedHeaderPaths,
                                 const QByteArray &mergedMacros)
 {
     m_out << "Merged Entities{{{1\n";
@@ -598,7 +598,7 @@ void Dumper::dumpMergedEntities(const ProjectPart::HeaderPaths &mergedHeaderPath
     const QByteArray i3 = indent(3);
 
     m_out << i2 << "Merged Header Paths{{{2\n";
-    foreach (const ProjectPart::HeaderPath &hp, mergedHeaderPaths)
+    foreach (const ProjectPartHeaderPath &hp, mergedHeaderPaths)
         m_out << i3 << hp.path
               << (hp.isFrameworkPath() ? " (framework path)" : " (include path)")
               << "\n";

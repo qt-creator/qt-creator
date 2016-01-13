@@ -189,7 +189,7 @@ public:
                                  int position,
                                  TextEditor::AssistReason reason,
                                  const CPlusPlus::Snapshot &snapshot,
-                                 const ProjectPart::HeaderPaths &headerPaths,
+                                 const ProjectPartHeaderPaths &headerPaths,
                                  const CPlusPlus::LanguageFeatures &features)
         : TextEditor::AssistInterface(textDocument, position, filePath, reason)
         , m_gotCppSpecifics(true)
@@ -199,7 +199,7 @@ public:
     {}
 
     const CPlusPlus::Snapshot &snapshot() const { getCppSpecifics(); return m_snapshot; }
-    const ProjectPart::HeaderPaths &headerPaths() const
+    const ProjectPartHeaderPaths &headerPaths() const
     { getCppSpecifics(); return m_headerPaths; }
     CPlusPlus::LanguageFeatures languageFeatures() const
     { getCppSpecifics(); return m_languageFeatures; }
@@ -211,7 +211,7 @@ private:
     mutable bool m_gotCppSpecifics;
     WorkingCopy m_workingCopy;
     mutable CPlusPlus::Snapshot m_snapshot;
-    mutable ProjectPart::HeaderPaths m_headerPaths;
+    mutable ProjectPartHeaderPaths m_headerPaths;
     mutable CPlusPlus::LanguageFeatures m_languageFeatures;
 };
 

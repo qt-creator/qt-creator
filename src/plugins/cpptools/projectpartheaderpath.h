@@ -28,67 +28,60 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPPROJECTFILE_H
-#define CPPTOOLS_CPPPROJECTFILE_H
+#ifndef PROJECTPARTHEADERPATH_H
+#define PROJECTPARTHEADERPATH_H
 
-#include "cpptools_global.h"
-
-#include <QHash>
-#include <QList>
-#include <QString>
+#include <QVector>
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT ProjectFile
-{
-public:
-    // enums and types
-    enum Kind {
-        Unclassified = 0,
-        CHeader = 1,
-        CSource = 2,
-        CXXHeader = 3,
-        CXXSource = 4,
-        ObjCHeader = 5,
-        ObjCSource = 6,
-        ObjCXXHeader = 7,
-        ObjCXXSource = 8,
-        CudaSource = 9,
-        OpenCLSource = 10
+struct ProjectPartHeaderPath {
+    enum Type {
+        InvalidPath,
+        IncludePath,
+        FrameworkPath
     };
 
-    ProjectFile();
-    ProjectFile(const QString &file, Kind kind);
-
-    static Kind classify(const QString &file);
-    static bool isHeader(Kind kind);
-    static bool isSource(Kind kind);
-
-    QString path;
-    Kind kind;
-};
-
-QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile);
-
-namespace Internal {
-
-class ProjectFileAdder
-{
 public:
-    ProjectFileAdder(QVector<ProjectFile> &files);
-    ~ProjectFileAdder();
+    QString path;
+    Type type;
 
-    bool maybeAdd(const QString &path);
+    ProjectPartHeaderPath()
+        : type(InvalidPath)
+    {}
 
-private:
+    ProjectPartHeaderPath(const QString &path, Type type)
+        : path(path),
+          type(type)
+    {}
 
-    void addMapping(const char *mimeName, ProjectFile::Kind kind);
+    bool isValid() const
+    {
+        return type != InvalidPath;
+    }
 
-    QVector<ProjectFile> &m_files;
-    QHash<QString, ProjectFile::Kind> m_mimeNameMapping;
+    bool isFrameworkPath() const
+    {
+        return type == FrameworkPath;
+    }
+
+    bool operator==(const ProjectPartHeaderPath &other) const
+    {
+        return path == other.path
+            && type == other.type;
+    }
+
+    bool operator!=(const ProjectPartHeaderPath &other) const
+    {
+        return !(*this == other);
+    }
 };
 
-} // namespace Internal
-} // namespace CppTools
+using ProjectPartHeaderPaths = QVector<ProjectPartHeaderPath>;
 
-#endif // CPPTOOLS_CPPPROJECTFILE_H
+inline uint qHash(const ProjectPartHeaderPath &key, uint seed = 0)
+{
+    return ((qHash(key.path) << 2) | key.type) ^ seed;
+}
+} // namespace CppTools
+#endif // PROJECTPARTHEADERPATH_H

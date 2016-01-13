@@ -542,10 +542,10 @@ static QList<Include> includesForSource(const QString &filePath)
     CppModelManager *cmm = CppModelManager::instance();
     cmm->GC();
     QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
-    sourceProcessor->setHeaderPaths(ProjectPart::HeaderPaths()
-                                    << ProjectPart::HeaderPath(
+    sourceProcessor->setHeaderPaths(ProjectPartHeaderPaths()
+                                    << ProjectPartHeaderPath(
                                         TestIncludePaths::globalIncludePath(),
-                                        ProjectPart::HeaderPath::IncludePath));
+                                        ProjectPartHeaderPath::IncludePath));
     sourceProcessor->run(filePath);
 
     Document::Ptr document = cmm->document(filePath);

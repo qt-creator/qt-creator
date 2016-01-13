@@ -113,7 +113,7 @@ public:
             = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath().toString(),
                                                m_textDocument, m_position,
                                                ExplicitlyInvoked, m_snapshot,
-                                               ProjectPart::HeaderPaths(),
+                                               ProjectPartHeaderPaths(),
                                                languageFeatures);
         InternalCppCompletionAssistProcessor processor;
 

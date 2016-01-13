@@ -142,7 +142,7 @@ public:
     // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
     QStringList m_projectFiles;
-    ProjectPart::HeaderPaths m_headerPaths;
+    ProjectPartHeaderPaths m_headerPaths;
     QByteArray m_definedMacros;
 
     // Editor integration
@@ -412,16 +412,16 @@ QStringList CppModelManager::internalProjectFiles() const
     return files;
 }
 
-ProjectPart::HeaderPaths CppModelManager::internalHeaderPaths() const
+ProjectPartHeaderPaths CppModelManager::internalHeaderPaths() const
 {
-    ProjectPart::HeaderPaths headerPaths;
+    ProjectPartHeaderPaths headerPaths;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(d->m_projectToProjectsInfo);
     while (it.hasNext()) {
         it.next();
         const ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
-            foreach (const ProjectPart::HeaderPath &path, part->headerPaths) {
-                const ProjectPart::HeaderPath hp(QDir::cleanPath(path.path), path.type);
+            foreach (const ProjectPartHeaderPath &path, part->headerPaths) {
+                const ProjectPartHeaderPath hp(QDir::cleanPath(path.path), path.type);
                 if (!headerPaths.contains(hp))
                     headerPaths += hp;
             }
@@ -1168,7 +1168,7 @@ QStringList CppModelManager::projectFiles()
     return d->m_projectFiles;
 }
 
-ProjectPart::HeaderPaths CppModelManager::headerPaths()
+ProjectPartHeaderPaths CppModelManager::headerPaths()
 {
     QMutexLocker locker(&d->m_projectMutex);
     ensureUpdated();
@@ -1176,7 +1176,7 @@ ProjectPart::HeaderPaths CppModelManager::headerPaths()
     return d->m_headerPaths;
 }
 
-void CppModelManager::setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)
+void CppModelManager::setHeaderPaths(const ProjectPartHeaderPaths &headerPaths)
 {
     QMutexLocker locker(&d->m_projectMutex);
     d->m_headerPaths = headerPaths;

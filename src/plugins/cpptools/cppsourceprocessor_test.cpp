@@ -68,9 +68,9 @@ public:
     {
         QScopedPointer<CppSourceProcessor> sourceProcessor(
                     CppModelManager::createSourceProcessor());
-        const ProjectPart::HeaderPath hp(TestIncludePaths::directoryOfTestFile(),
-                                         ProjectPart::HeaderPath::IncludePath);
-        sourceProcessor->setHeaderPaths(ProjectPart::HeaderPaths() << hp);
+        const ProjectPartHeaderPath hp(TestIncludePaths::directoryOfTestFile(),
+                                       ProjectPartHeaderPath::IncludePath);
+        sourceProcessor->setHeaderPaths(ProjectPartHeaderPaths() << hp);
         sourceProcessor->run(filePath);
 
         Document::Ptr document = m_cmm->document(filePath);
@@ -212,9 +212,9 @@ void CppToolsPlugin::test_cppsourceprocessor_includeNext()
 
     CppSourceProcessor::DocumentCallback documentCallback = [](const Document::Ptr &){};
     CppSourceProcessor sourceProcessor(Snapshot(), documentCallback);
-    ProjectPart::HeaderPaths headerPaths = ProjectPart::HeaderPaths()
-        << ProjectPart::HeaderPath(customHeaderPath, ProjectPart::HeaderPath::IncludePath)
-        << ProjectPart::HeaderPath(systemHeaderPath, ProjectPart::HeaderPath::IncludePath);
+    ProjectPartHeaderPaths headerPaths = ProjectPartHeaderPaths()
+        << ProjectPartHeaderPath(customHeaderPath, ProjectPartHeaderPath::IncludePath)
+        << ProjectPartHeaderPath(systemHeaderPath, ProjectPartHeaderPath::IncludePath);
     sourceProcessor.setHeaderPaths(headerPaths);
 
     sourceProcessor.run(mainFilePath);

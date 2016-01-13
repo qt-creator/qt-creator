@@ -34,6 +34,7 @@
 #include "cpptools_global.h"
 
 #include "cppprojectfile.h"
+#include "projectpart.h"
 
 #include <projectexplorer/toolchain.h>
 
@@ -50,99 +51,6 @@ namespace Utils { class FileName; }
 
 namespace CppTools {
 class ProjectFile;
-
-class CPPTOOLS_EXPORT ProjectPart
-{
-public: // Types
-    enum LanguageVersion {
-        C89,
-        C99,
-        C11,
-        CXX98,
-        CXX03,
-        CXX11,
-        CXX14,
-        CXX17
-    };
-
-    enum LanguageExtension {
-        NoExtensions         = 0,
-        GnuExtensions        = 1 << 0,
-        MicrosoftExtensions  = 1 << 1,
-        BorlandExtensions    = 1 << 2,
-        OpenMPExtensions     = 1 << 3,
-        ObjectiveCExtensions = 1 << 4,
-
-        AllExtensions = GnuExtensions | MicrosoftExtensions | BorlandExtensions | OpenMPExtensions
-                      | ObjectiveCExtensions
-    };
-    Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
-
-    enum QtVersion {
-        UnknownQt = -1,
-        NoQt = 0,
-        Qt4 = 1,
-        Qt5 = 2
-    };
-
-    typedef QSharedPointer<ProjectPart> Ptr;
-
-    struct HeaderPath {
-        enum Type { InvalidPath, IncludePath, FrameworkPath };
-
-    public:
-        QString path;
-        Type type;
-
-        HeaderPath(): type(InvalidPath) {}
-        HeaderPath(const QString &path, Type type): path(path), type(type) {}
-
-        bool isValid() const { return type != InvalidPath; }
-        bool isFrameworkPath() const { return type == FrameworkPath; }
-
-        bool operator==(const HeaderPath &other) const
-        { return path == other.path && type == other.type; }
-
-        bool operator!=(const HeaderPath &other) const
-        { return !(*this == other); }
-    };
-    typedef QList<HeaderPath> HeaderPaths;
-
-public: // methods
-    ProjectPart();
-
-    void evaluateToolchain(const ProjectExplorer::ToolChain *tc,
-                           const QStringList &commandLineFlags,
-                           const Utils::FileName &sysRoot);
-
-    void updateLanguageFeatures();
-    Ptr copy() const;
-
-    QString id() const;
-
-    static QByteArray readProjectConfigFile(const ProjectPart::Ptr &part);
-
-public: // fields
-    QString displayName;
-    QString projectFile;
-    ProjectExplorer::Project *project;
-    QList<ProjectFile> files;
-    QString projectConfigFile; // currently only used by the Generic Project Manager
-    QByteArray projectDefines;
-    QByteArray toolchainDefines;
-    Core::Id toolchainType;
-    QList<HeaderPath> headerPaths;
-    QStringList precompiledHeaders;
-    LanguageVersion languageVersion;
-    LanguageExtensions languageExtensions;
-    CPlusPlus::LanguageFeatures languageFeatures;
-    QtVersion qtVersion;
-    ProjectExplorer::ToolChain::WarningFlags warningFlags;
-    bool selectedForBuilding;
-};
-
-inline uint qHash(const ProjectPart::HeaderPath &key, uint seed = 0)
-{ return ((qHash(key.path) << 2) | key.type) ^ seed; }
 
 class CPPTOOLS_EXPORT ProjectInfo
 {
@@ -164,7 +72,7 @@ public:
     void appendProjectPart(const ProjectPart::Ptr &part);
     void finish();
 
-    const ProjectPart::HeaderPaths headerPaths() const;
+    const ProjectPartHeaderPaths headerPaths() const;
     const QSet<QString> sourceFiles() const;
     const QByteArray defines() const;
 
@@ -178,7 +86,7 @@ private:
     QList<ProjectPart::Ptr> m_projectParts;
     CompilerCallData m_compilerCallData;
     // The members below are (re)calculated from the project parts with finish()
-    ProjectPart::HeaderPaths m_headerPaths;
+    ProjectPartHeaderPaths m_headerPaths;
     QSet<QString> m_sourceFiles;
     QByteArray m_defines;
 };
@@ -192,7 +100,7 @@ public:
     void setCFlags(const QStringList &flags);
     void setCxxFlags(const QStringList &flags);
     void setDefines(const QByteArray &defines);
-    void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
+    void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
     void setIncludePaths(const QStringList &includePaths);
     void setPreCompiledHeaders(const QStringList &pchs);
     void setProjectFile(const QString &projectFile);

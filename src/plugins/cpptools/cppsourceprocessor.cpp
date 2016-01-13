@@ -129,15 +129,15 @@ CppSourceProcessor::~CppSourceProcessor()
 void CppSourceProcessor::setWorkingCopy(const WorkingCopy &workingCopy)
 { m_workingCopy = workingCopy; }
 
-void CppSourceProcessor::setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)
+void CppSourceProcessor::setHeaderPaths(const ProjectPartHeaderPaths &headerPaths)
 {
     m_headerPaths.clear();
 
     for (int i = 0, ei = headerPaths.size(); i < ei; ++i) {
-        const ProjectPart::HeaderPath &path = headerPaths.at(i);
+        const ProjectPartHeaderPath &path = headerPaths.at(i);
 
-        if (path.type == ProjectPart::HeaderPath::IncludePath)
-            m_headerPaths.append(ProjectPart::HeaderPath(cleanPath(path.path), path.type));
+        if (path.type == ProjectPartHeaderPath::IncludePath)
+            m_headerPaths.append(ProjectPartHeaderPath(cleanPath(path.path), path.type));
         else
             addFrameworkPath(path);
     }
@@ -155,15 +155,15 @@ void CppSourceProcessor::setLanguageFeatures(const LanguageFeatures languageFeat
 // has private frameworks in:
 //  <framework-path>/ApplicationServices.framework/Frameworks
 // if the "Frameworks" folder exists inside the top level framework.
-void CppSourceProcessor::addFrameworkPath(const ProjectPart::HeaderPath &frameworkPath)
+void CppSourceProcessor::addFrameworkPath(const ProjectPartHeaderPath &frameworkPath)
 {
     QTC_ASSERT(frameworkPath.isFrameworkPath(), return);
 
     // The algorithm below is a bit too eager, but that's because we're not getting
     // in the frameworks we're linking against. If we would have that, then we could
     // add only those private frameworks.
-    const ProjectPart::HeaderPath cleanFrameworkPath(cleanPath(frameworkPath.path),
-                                                     frameworkPath.type);
+    const ProjectPartHeaderPath cleanFrameworkPath(cleanPath(frameworkPath.path),
+                                                   frameworkPath.type);
     if (!m_headerPaths.contains(cleanFrameworkPath))
         m_headerPaths.append(cleanFrameworkPath);
 
@@ -175,8 +175,8 @@ void CppSourceProcessor::addFrameworkPath(const ProjectPart::HeaderPath &framewo
         const QFileInfo privateFrameworks(framework.absoluteFilePath(),
                                           QLatin1String("Frameworks"));
         if (privateFrameworks.exists() && privateFrameworks.isDir())
-            addFrameworkPath(ProjectPart::HeaderPath(privateFrameworks.absoluteFilePath(),
-                                                     frameworkPath.type));
+            addFrameworkPath(ProjectPartHeaderPath(privateFrameworks.absoluteFilePath(),
+                                                   frameworkPath.type));
     }
 }
 
@@ -312,7 +312,7 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName, IncludeT
         const QString name = frameworkName + QLatin1String(".framework/Headers/")
             + fileName.mid(index + 1);
 
-        foreach (const ProjectPart::HeaderPath &headerPath, m_headerPaths) {
+        foreach (const ProjectPartHeaderPath &headerPath, m_headerPaths) {
             if (!headerPath.isFrameworkPath())
                 continue;
             const QString path = headerPath.path + name;

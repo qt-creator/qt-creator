@@ -86,6 +86,8 @@ QtcPlugin {
         "includeutils.cpp", "includeutils.h",
         "indexitem.cpp", "indexitem.h",
         "insertionpointlocator.cpp", "insertionpointlocator.h",
+        "projectpart.cpp", "projectpart.h",
+        "projectpartheaderpath.h",
         "searchsymbols.cpp", "searchsymbols.h",
         "semantichighlighter.cpp", "semantichighlighter.h",
         "senddocumenttracker.cpp", "senddocumenttracker.h",

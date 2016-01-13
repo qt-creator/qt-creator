@@ -66,7 +66,7 @@ public:
     ~CppSourceProcessor();
 
     void setWorkingCopy(const CppTools::WorkingCopy &workingCopy);
-    void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
+    void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
     void setLanguageFeatures(CPlusPlus::LanguageFeatures languageFeatures);
     void setTodo(const QSet<QString> &files);
 
@@ -80,7 +80,7 @@ public:
     void setGlobalSnapshot(const CPlusPlus::Snapshot &snapshot) { m_globalSnapshot = snapshot; }
 
 private:
-    void addFrameworkPath(const ProjectPart::HeaderPath &frameworkPath);
+    void addFrameworkPath(const ProjectPartHeaderPath &frameworkPath);
 
     CPlusPlus::Document::Ptr switchCurrentDocument(CPlusPlus::Document::Ptr doc);
 
@@ -116,7 +116,7 @@ private:
     DocumentCallback m_documentFinished;
     CPlusPlus::Environment m_env;
     CPlusPlus::Preprocessor m_preprocess;
-    ProjectPart::HeaderPaths m_headerPaths;
+    ProjectPartHeaderPaths m_headerPaths;
     CPlusPlus::LanguageFeatures m_languageFeatures;
     CppTools::WorkingCopy m_workingCopy;
     QSet<QString> m_included;

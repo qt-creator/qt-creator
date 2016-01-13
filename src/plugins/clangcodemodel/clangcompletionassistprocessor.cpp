@@ -565,9 +565,9 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     }
 
     // Make completion for all relevant includes
-    CppTools::ProjectPart::HeaderPaths headerPaths = m_interface->headerPaths();
-    const CppTools::ProjectPart::HeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
-                                                            CppTools::ProjectPart::HeaderPath::IncludePath);
+    CppTools::ProjectPartHeaderPaths headerPaths = m_interface->headerPaths();
+    const CppTools::ProjectPartHeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
+                                                          CppTools::ProjectPartHeaderPath::IncludePath);
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
@@ -575,7 +575,7 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     const ::Utils::MimeType mimeType = mdb.mimeTypeForName(QLatin1String("text/x-c++hdr"));
     const QStringList suffixes = mimeType.suffixes();
 
-    foreach (const CppTools::ProjectPart::HeaderPath &headerPath, headerPaths) {
+    foreach (const CppTools::ProjectPartHeaderPath &headerPath, headerPaths) {
         QString realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');

@@ -1751,7 +1751,7 @@ namespace {
 
 QString findShortestInclude(const QString currentDocumentFilePath,
                             const QString candidateFilePath,
-                            const ProjectPart::HeaderPaths &headerPaths)
+                            const ProjectPartHeaderPaths &headerPaths)
 {
     QString result;
 
@@ -1760,7 +1760,7 @@ QString findShortestInclude(const QString currentDocumentFilePath,
     if (fileInfo.path() == QFileInfo(currentDocumentFilePath).path()) {
         result = QLatin1Char('"') + fileInfo.fileName() + QLatin1Char('"');
     } else {
-        foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+        foreach (const ProjectPartHeaderPath &headerPath, headerPaths) {
             if (!candidateFilePath.startsWith(headerPath.path))
                 continue;
             QString relativePath = candidateFilePath.mid(headerPath.path.size());
@@ -1775,12 +1775,12 @@ QString findShortestInclude(const QString currentDocumentFilePath,
 }
 
 QString findQtIncludeWithSameName(const QString &className,
-                                  const ProjectPart::HeaderPaths &headerPaths)
+                                  const ProjectPartHeaderPaths &headerPaths)
 {
     QString result;
 
     // Check for a header file with the same name in the Qt include paths
-    foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+    foreach (const ProjectPartHeaderPath &headerPath, headerPaths) {
         if (!headerPath.path.contains(QLatin1String("/Qt"))) // "QtCore", "QtGui" etc...
             continue;
 
@@ -1795,9 +1795,9 @@ QString findQtIncludeWithSameName(const QString &className,
     return result;
 }
 
-ProjectPart::HeaderPaths relevantHeaderPaths(const QString &filePath)
+ProjectPartHeaderPaths relevantHeaderPaths(const QString &filePath)
 {
-    ProjectPart::HeaderPaths headerPaths;
+    ProjectPartHeaderPaths headerPaths;
 
     CppModelManager *modelManager = CppModelManager::instance();
     const QList<ProjectPart::Ptr> projectParts = modelManager->projectPart(filePath);
@@ -1924,7 +1924,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
         return;
 
     const QString currentDocumentFilePath = interface.semanticInfo().doc->fileName();
-    const ProjectPart::HeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
+    const ProjectPartHeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
     bool qtHeaderFileIncludeOffered = false;
 
     // Find an include file through the locator

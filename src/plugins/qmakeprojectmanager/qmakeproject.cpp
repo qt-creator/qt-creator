@@ -44,6 +44,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/projectpartheaderpath.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -469,16 +470,16 @@ void QmakeProject::updateCppCodeModel()
 
         foreach (const QString &inc, pro->variableValue(IncludePathVar)) {
             const auto headerPath
-                = ProjectPart::HeaderPath(inc, ProjectPart::HeaderPath::IncludePath);
+                = CppTools::ProjectPartHeaderPath(inc, CppTools::ProjectPartHeaderPath::IncludePath);
             if (!templatePart->headerPaths.contains(headerPath))
                 templatePart->headerPaths += headerPath;
         }
 
         if (qtVersion) {
             if (!qtVersion->frameworkInstallPath().isEmpty()) {
-                templatePart->headerPaths += ProjectPart::HeaderPath(
+                templatePart->headerPaths += CppTools::ProjectPartHeaderPath(
                             qtVersion->frameworkInstallPath(),
-                            ProjectPart::HeaderPath::FrameworkPath);
+                            CppTools::ProjectPartHeaderPath::FrameworkPath);
             }
         }
 

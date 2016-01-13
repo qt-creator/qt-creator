@@ -125,7 +125,7 @@ QDebug operator<<(QDebug stream, const CppTools::ProjectFile &cxxFile)
 
 namespace Internal {
 
-ProjectFileAdder::ProjectFileAdder(QList<ProjectFile> &files)
+ProjectFileAdder::ProjectFileAdder(QVector<ProjectFile> &files)
     : m_files(files)
 {
     addMapping(CppTools::Constants::C_SOURCE_MIMETYPE, ProjectFile::CSource);

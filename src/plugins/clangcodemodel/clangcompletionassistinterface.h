@@ -47,21 +47,21 @@ public:
                                    int position,
                                    const QString &fileName,
                                    TextEditor::AssistReason reason,
-                                   const CppTools::ProjectPart::HeaderPaths &headerPaths,
+                                   const CppTools::ProjectPartHeaderPaths &headerPaths,
                                    const CPlusPlus::LanguageFeatures &features);
 
     IpcCommunicator &ipcCommunicator() const;
     bool objcEnabled() const;
-    const CppTools::ProjectPart::HeaderPaths &headerPaths() const;
+    const CppTools::ProjectPartHeaderPaths &headerPaths() const;
     CPlusPlus::LanguageFeatures languageFeatures() const;
     const TextEditor::TextEditorWidget *textEditorWidget() const;
 
-    void setHeaderPaths(const CppTools::ProjectPart::HeaderPaths &headerPaths); // For tests
+    void setHeaderPaths(const CppTools::ProjectPartHeaderPaths &headerPaths); // For tests
 
 private:
     IpcCommunicator &m_ipcCommunicator;
     QStringList m_options;
-    CppTools::ProjectPart::HeaderPaths m_headerPaths;
+    CppTools::ProjectPartHeaderPaths m_headerPaths;
     CPlusPlus::LanguageFeatures m_languageFeatures;
     const TextEditor::TextEditorWidget *m_textEditorWidget;
 };

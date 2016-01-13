@@ -154,10 +154,10 @@ public:
 
     QStringList projectFiles();
 
-    ProjectPart::HeaderPaths headerPaths();
+    ProjectPartHeaderPaths headerPaths();
 
     // Use this *only* for auto tests
-    void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
+    void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
 
     QByteArray definedMacros();
 
@@ -217,7 +217,7 @@ private:
 
     void ensureUpdated();
     QStringList internalProjectFiles() const;
-    ProjectPart::HeaderPaths internalHeaderPaths() const;
+    ProjectPartHeaderPaths internalHeaderPaths() const;
     QByteArray internalDefinedMacros() const;
 
     void dumpModelManagerConfiguration(const QString &logFileId);

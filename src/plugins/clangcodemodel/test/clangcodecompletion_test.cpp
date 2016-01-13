@@ -432,13 +432,13 @@ public:
     QString senderLog;
 };
 
-const CppTools::ProjectPart::HeaderPaths toHeaderPaths(const QStringList &paths)
+const CppTools::ProjectPartHeaderPaths toHeaderPaths(const QStringList &paths)
 {
     using namespace CppTools;
 
-    ProjectPart::HeaderPaths result;
+    ProjectPartHeaderPaths result;
     foreach (const QString &path, paths)
-        result << ProjectPart::HeaderPath(path, ProjectPart::HeaderPath::IncludePath);
+        result << ProjectPartHeaderPath(path, ProjectPartHeaderPath::IncludePath);
     return result;
 }
 

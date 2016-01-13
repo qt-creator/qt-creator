@@ -69,7 +69,9 @@ HEADERS += \
     senddocumenttracker.h \
     cpptoolsbridge.h \
     cpptoolsbridgeinterface.h \
-    cpptoolsbridgeqtcreatorimplementation.h
+    cpptoolsbridgeqtcreatorimplementation.h \
+    projectpart.h \
+    projectpartheaderpath.h
 
 SOURCES += \
     abstracteditorsupport.cpp \
@@ -135,7 +137,8 @@ SOURCES += \
     typehierarchybuilder.cpp \
     senddocumenttracker.cpp \
     cpptoolsbridge.cpp \
-    cpptoolsbridgeqtcreatorimplementation.cpp
+    cpptoolsbridgeqtcreatorimplementation.cpp \
+    projectpart.cpp
 
 FORMS += \
     completionsettingspage.ui \

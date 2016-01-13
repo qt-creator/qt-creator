@@ -49,131 +49,7 @@ using namespace CppTools;
 using namespace CppTools::Internal;
 using namespace ProjectExplorer;
 
-ProjectPart::ProjectPart()
-    : project(0)
-    , languageVersion(CXX14)
-    , languageExtensions(NoExtensions)
-    , qtVersion(UnknownQt)
-    , warningFlags(ToolChain::WarningsDefault)
-    , selectedForBuilding(true)
-{
-}
 
-static ProjectPart::HeaderPath toProjectPartHeaderPath(const ProjectExplorer::HeaderPath &headerPath)
-{
-    const ProjectPart::HeaderPath::Type headerPathType =
-        headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath
-            ? ProjectPart::HeaderPath::FrameworkPath
-            : ProjectPart::HeaderPath::IncludePath;
-
-    return ProjectPart::HeaderPath(headerPath.path(), headerPathType);
-}
-
-/*!
-    \brief Retrieves info from concrete compiler using it's flags.
-
-    \param tc Either nullptr or toolchain for project's active target.
-    \param cxxflags C++ or Objective-C++ flags.
-    \param cflags C or ObjectiveC flags if possible, \a cxxflags otherwise.
-*/
-void ProjectPart::evaluateToolchain(const ToolChain *tc,
-                                    const QStringList &commandLineFlags,
-                                    const Utils::FileName &sysRoot)
-{
-    if (!tc)
-        return;
-
-    using namespace ProjectExplorer;
-    ToolChain::CompilerFlags flags = tc->compilerFlags(commandLineFlags);
-
-    if (flags & ToolChain::StandardC11)
-        languageVersion = C11;
-    else if (flags & ToolChain::StandardC99)
-        languageVersion = C99;
-    else if (flags & ToolChain::StandardCxx17)
-        languageVersion = CXX17;
-    else if (flags & ToolChain::StandardCxx14)
-        languageVersion = CXX14;
-    else if (flags & ToolChain::StandardCxx11)
-        languageVersion = CXX11;
-    else if (flags & ToolChain::StandardCxx98)
-        languageVersion = CXX98;
-    else
-        languageVersion = CXX11;
-
-    if (flags & ToolChain::BorlandExtensions)
-        languageExtensions |= BorlandExtensions;
-    if (flags & ToolChain::GnuExtensions)
-        languageExtensions |= GnuExtensions;
-    if (flags & ToolChain::MicrosoftExtensions)
-        languageExtensions |= MicrosoftExtensions;
-    if (flags & ToolChain::OpenMP)
-        languageExtensions |= OpenMPExtensions;
-    if (flags & ToolChain::ObjectiveC)
-        languageExtensions |= ObjectiveCExtensions;
-
-    warningFlags = tc->warningFlags(commandLineFlags);
-
-    const QList<ProjectExplorer::HeaderPath> headers = tc->systemHeaderPaths(commandLineFlags, sysRoot);
-    foreach (const ProjectExplorer::HeaderPath &header, headers) {
-        const HeaderPath headerPath = toProjectPartHeaderPath(header);
-        if (!headerPaths.contains(headerPath))
-            headerPaths << headerPath;
-    }
-
-    toolchainDefines = tc->predefinedMacros(commandLineFlags);
-    toolchainType = tc->typeId();
-    updateLanguageFeatures();
-}
-
-void ProjectPart::updateLanguageFeatures()
-{
-    const bool hasQt = qtVersion != NoQt;
-    languageFeatures.cxx11Enabled = languageVersion >= CXX11;
-    languageFeatures.qtEnabled = hasQt;
-    languageFeatures.qtMocRunEnabled = hasQt;
-    if (!hasQt) {
-        languageFeatures.qtKeywordsEnabled = false;
-    } else {
-        const QByteArray noKeywordsMacro = "#define QT_NO_KEYWORDS";
-        const int noKeywordsIndex = projectDefines.indexOf(noKeywordsMacro);
-        if (noKeywordsIndex == -1) {
-            languageFeatures.qtKeywordsEnabled = true;
-        } else {
-            const char nextChar = projectDefines.at(noKeywordsIndex + noKeywordsMacro.length());
-            // Detect "#define QT_NO_KEYWORDS" and "#define QT_NO_KEYWORDS 1", but exclude
-            // "#define QT_NO_KEYWORDS_FOO"
-            languageFeatures.qtKeywordsEnabled = nextChar != '\n' && nextChar != ' ';
-        }
-    }
-}
-
-ProjectPart::Ptr ProjectPart::copy() const
-{
-    return Ptr(new ProjectPart(*this));
-}
-
-QString ProjectPart::id() const
-{
-    QString projectPartId = QDir::fromNativeSeparators(projectFile);
-    if (!displayName.isEmpty())
-        projectPartId.append(QLatin1Char(' ') + displayName);
-    return projectPartId;
-}
-
-QByteArray ProjectPart::readProjectConfigFile(const ProjectPart::Ptr &part)
-{
-    QByteArray result;
-
-    QFile f(part->projectConfigFile);
-    if (f.open(QIODevice::ReadOnly)) {
-        QTextStream is(&f);
-        result = is.readAll().toUtf8();
-        f.close();
-    }
-
-    return result;
-}
 
 ProjectInfo::ProjectInfo()
 {}
@@ -235,7 +111,7 @@ void ProjectInfo::appendProjectPart(const ProjectPart::Ptr &part)
 
 void ProjectInfo::finish()
 {
-    typedef ProjectPart::HeaderPath HeaderPath;
+    typedef ProjectPartHeaderPath HeaderPath;
 
     QSet<HeaderPath> incs;
     foreach (const ProjectPart::Ptr &part, m_projectParts) {
@@ -263,7 +139,7 @@ void ProjectInfo::finish()
     }
 }
 
-const ProjectPart::HeaderPaths ProjectInfo::headerPaths() const
+const ProjectPartHeaderPaths ProjectInfo::headerPaths() const
 {
     return m_headerPaths;
 }
@@ -392,7 +268,7 @@ void ProjectPartBuilder::setDefines(const QByteArray &defines)
     m_templatePart->projectDefines = defines;
 }
 
-void ProjectPartBuilder::setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)
+void ProjectPartBuilder::setHeaderPaths(const ProjectPartHeaderPaths &headerPaths)
 {
     m_templatePart->headerPaths = headerPaths;
 }
@@ -402,7 +278,7 @@ void ProjectPartBuilder::setIncludePaths(const QStringList &includePaths)
     m_templatePart->headerPaths.clear();
 
     foreach (const QString &includeFile, includePaths) {
-        ProjectPart::HeaderPath hp(includeFile, ProjectPart::HeaderPath::IncludePath);
+        ProjectPartHeaderPath hp(includeFile, ProjectPartHeaderPath::IncludePath);
 
         // The simple project managers are utterly ignorant of frameworks on OSX, and won't report
         // framework paths. The work-around is to check if the include path ends in ".framework",
@@ -410,8 +286,8 @@ void ProjectPartBuilder::setIncludePaths(const QStringList &includePaths)
         if (includeFile.endsWith(QLatin1String(".framework"))) {
             const int slashIdx = includeFile.lastIndexOf(QLatin1Char('/'));
             if (slashIdx != -1) {
-                hp = ProjectPart::HeaderPath(includeFile.left(slashIdx),
-                                             ProjectPart::HeaderPath::FrameworkPath);
+                hp = ProjectPartHeaderPath(includeFile.left(slashIdx),
+                                           ProjectPartHeaderPath::FrameworkPath);
             }
         }
 
@@ -548,7 +424,7 @@ void CompilerOptionsBuilder::addDefine(const QByteArray &defineLine)
 
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
-    typedef ProjectPart::HeaderPath HeaderPath;
+    typedef ProjectPartHeaderPath HeaderPath;
     const QString defaultPrefix = includeOption();
 
     QStringList result;

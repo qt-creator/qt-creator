@@ -1339,16 +1339,16 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
     }
 
     // Make completion for all relevant includes
-    ProjectPart::HeaderPaths headerPaths = m_interface->headerPaths();
-    const ProjectPart::HeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
-                                                   ProjectPart::HeaderPath::IncludePath);
+    ProjectPartHeaderPaths headerPaths = m_interface->headerPaths();
+    const ProjectPartHeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
+                                                ProjectPartHeaderPath::IncludePath);
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
     Utils::MimeDatabase mdb;
     const QStringList suffixes = mdb.mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
 
-    foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+    foreach (const ProjectPartHeaderPath &headerPath, headerPaths) {
         QString realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');

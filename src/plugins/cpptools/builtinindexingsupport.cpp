@@ -61,7 +61,7 @@ namespace {
 class ParseParams
 {
 public:
-    ProjectPart::HeaderPaths headerPaths;
+    ProjectPartHeaderPaths headerPaths;
     WorkingCopy workingCopy;
     QSet<QString> sourceFiles;
 };
@@ -203,7 +203,7 @@ void index(QFutureInterface<void> &future, const ParseParams params)
     bool processingHeaders = false;
 
     CppModelManager *cmm = CppModelManager::instance();
-    const ProjectPart::HeaderPaths fallbackHeaderPaths = cmm->headerPaths();
+    const ProjectPartHeaderPaths fallbackHeaderPaths = cmm->headerPaths();
     const CPlusPlus::LanguageFeatures defaultFeatures =
             CPlusPlus::LanguageFeatures::defaultFeatures();
     for (int i = 0; i < files.size(); ++i) {
@@ -229,7 +229,7 @@ void index(QFutureInterface<void> &future, const ParseParams params)
             processingHeaders = true;
         }
 
-        ProjectPart::HeaderPaths headerPaths = parts.isEmpty()
+        ProjectPartHeaderPaths headerPaths = parts.isEmpty()
                 ? fallbackHeaderPaths
                 : parts.first()->headerPaths;
         sourceProcessor->setHeaderPaths(headerPaths);

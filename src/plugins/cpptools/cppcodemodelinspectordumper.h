@@ -54,13 +54,13 @@ struct CPPTOOLS_EXPORT Utils
     static QString toString(CppTools::ProjectPart::LanguageVersion languageVersion);
     static QString toString(CppTools::ProjectPart::LanguageExtensions languageExtension);
     static QString toString(CppTools::ProjectPart::QtVersion qtVersion);
-    static QString toString(const QList<CppTools::ProjectFile> &projectFiles);
+    static QString toString(const QVector<CppTools::ProjectFile> &projectFiles);
     static QString toString(CppTools::ProjectFile::Kind kind);
     static QString toString(CPlusPlus::Kind kind);
     static QString partsForFile(const QString &fileName);
     static QString unresolvedFileNameWithDelimiters(const CPlusPlus::Document::Include &include);
     static QString pathListToString(const QStringList &pathList);
-    static QString pathListToString(const ProjectPart::HeaderPaths &pathList);
+    static QString pathListToString(const ProjectPartHeaderPaths &pathList);
     static QList<CPlusPlus::Document::Ptr> snapshotToList(const CPlusPlus::Snapshot &snapshot);
 };
 
@@ -76,7 +76,7 @@ public:
                       const QString &title,
                       bool isGlobalSnapshot = false);
     void dumpWorkingCopy(const CppTools::WorkingCopy &workingCopy);
-    void dumpMergedEntities(const ProjectPart::HeaderPaths &mergedHeaderPaths,
+    void dumpMergedEntities(const ProjectPartHeaderPaths &mergedHeaderPaths,
                             const QByteArray &mergedMacros);
 
 private:

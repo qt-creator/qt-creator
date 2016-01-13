@@ -728,20 +728,20 @@ void QbsProject::updateCppCodeModel()
                                                          QLatin1String(CONFIG_INCLUDEPATHS));
             list.append(props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                               QLatin1String(CONFIG_SYSTEM_INCLUDEPATHS)));
-            CppTools::ProjectPart::HeaderPaths grpHeaderPaths;
+            CppTools::ProjectPartHeaderPaths grpHeaderPaths;
             foreach (const QString &p, list)
-                grpHeaderPaths += CppTools::ProjectPart::HeaderPath(
+                grpHeaderPaths += CppTools::ProjectPartHeaderPath(
                             FileName::fromUserInput(p).toString(),
-                            CppTools::ProjectPart::HeaderPath::IncludePath);
+                            CppTools::ProjectPartHeaderPath::IncludePath);
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_FRAMEWORKPATHS));
             list.append(props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                               QLatin1String(CONFIG_SYSTEM_FRAMEWORKPATHS)));
             foreach (const QString &p, list)
-                grpHeaderPaths += CppTools::ProjectPart::HeaderPath(
+                grpHeaderPaths += CppTools::ProjectPartHeaderPath(
                             FileName::fromUserInput(p).toString(),
-                            CppTools::ProjectPart::HeaderPath::FrameworkPath);
+                            CppTools::ProjectPartHeaderPath::FrameworkPath);
 
             ppBuilder.setHeaderPaths(grpHeaderPaths);
 

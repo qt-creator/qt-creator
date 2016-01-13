@@ -81,8 +81,8 @@ public:
     /// Exactly one QuickFixTestDocument must contain the cursor position marker '@'
     /// or "@{start}" and "@{end}"
     BaseQuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &testDocuments,
-                         const CppTools::ProjectPart::HeaderPaths &headerPaths
-                            = CppTools::ProjectPart::HeaderPaths());
+                         const CppTools::ProjectPartHeaderPaths &headerPaths
+                            = CppTools::ProjectPartHeaderPaths());
 
     ~BaseQuickFixTestCase();
 
@@ -96,7 +96,7 @@ private:
     CppTools::CppCodeStylePreferences *m_cppCodeStylePreferences;
     QByteArray m_cppCodeStylePreferencesOriginalDelegateId;
 
-    CppTools::ProjectPart::HeaderPaths m_headerPathsToRestore;
+    CppTools::ProjectPartHeaderPaths m_headerPathsToRestore;
     bool m_restoreHeaderPaths;
 };
 
@@ -106,8 +106,8 @@ class QuickFixOperationTest : public BaseQuickFixTestCase
 public:
     QuickFixOperationTest(const QList<QuickFixTestDocument::Ptr> &testDocuments,
                           CppQuickFixFactory *factory,
-                          const CppTools::ProjectPart::HeaderPaths &headerPaths
-                            = CppTools::ProjectPart::HeaderPaths(),
+                          const CppTools::ProjectPartHeaderPaths &headerPaths
+                            = CppTools::ProjectPartHeaderPaths(),
                           int operationIndex = 0,
                           const QByteArray &expectedFailMessage = QByteArray());
 
@@ -123,8 +123,8 @@ class QuickFixOfferedOperationsTest : public BaseQuickFixTestCase
 public:
     QuickFixOfferedOperationsTest(const QList<QuickFixTestDocument::Ptr> &testDocuments,
                                   CppQuickFixFactory *factory,
-                                  const CppTools::ProjectPart::HeaderPaths &headerPaths
-                                    = CppTools::ProjectPart::HeaderPaths(),
+                                  const CppTools::ProjectPartHeaderPaths &headerPaths
+                                    = CppTools::ProjectPartHeaderPaths(),
                                   const QStringList &expectedOperations = QStringList());
 };
 
