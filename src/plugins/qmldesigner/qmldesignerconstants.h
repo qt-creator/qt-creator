@@ -47,24 +47,6 @@ const char TOGGLE_LEFT_SIDEBAR[] = "QmlDesigner.ToggleLeftSideBar";
 const char TOGGLE_RIGHT_SIDEBAR[] = "QmlDesigner.ToggleRightSideBar";
 const char GO_INTO_COMPONENT[] = "QmlDesigner.GoIntoComponent";
 
-// This setting is also accessed by the QMlJsEditor.
-const char QML_SETTINGS_GROUP[] = "QML";
-const char QML_DESIGNER_SETTINGS_GROUP[] = "Designer";
-const char QML_ITEMSPACING_KEY[] = "ItemSpacing";
-const char QML_CONTAINERPADDING_KEY[] = "ContainerPadding";
-const char QML_CANVASWIDTH_KEY[] = "CanvasWidth";
-const char QML_CANVASHEIGHT_KEY[] = "CanvasHeight";
-const char QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY[] = "WarnAboutQtQuickFeaturesInDesigner";
-const char QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY[] = "WarnAboutQtQuickDesignerFeaturesInCodeEditor";
-const char QML_SHOW_DEBUGVIEW[] = "ShowQtQuickDesignerDebugView";
-const char QML_ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
-const char QML_ALWAYS_SAFE_IN_CRUMBLEBAR[] = "AlwaysSafeInCrumbleBar";
-const char QML_USE_ONLY_FALLBACK_PUPPET[] = "UseOnlyFallbackPuppet";
-const char QML_PUPPET_TOPLEVEL_BUILD_DIRECTORY[] = "PuppetToplevelBuildDirectory";
-const char QML_PUPPET_FALLBACK_DIRECTORY[] = "PuppetFallbackDirectory";
-const char QML_CONTROLS_STYLE[] = "ControlsStyle";
-const char QML_USE_QSTR_FUNCTION[] = "UseQsTrFunction";
-
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 
 namespace Internal {

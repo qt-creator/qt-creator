@@ -51,7 +51,7 @@ public:
     explicit SettingsPageWidget(QWidget *parent = 0);
 
     DesignerSettings settings() const;
-    void setSettings(const DesignerSettings &designerSettings);
+    void setSettings(const DesignerSettings &settings);
 
 public slots:
     void debugViewEnabledToggled(bool b);

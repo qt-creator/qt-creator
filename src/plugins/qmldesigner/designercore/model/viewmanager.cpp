@@ -190,7 +190,8 @@ void ViewManager::detachComponentView()
 
 void ViewManager::attachViewsExceptRewriterAndComponetView()
 {
-    if (QmlDesignerPlugin::instance()->settings().enableDebugView)
+    if (QmlDesignerPlugin::instance()->settings().value(
+            DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool())
         currentModel()->attachView(&d->debugView);
 
     attachNodeInstanceView();

@@ -57,57 +57,82 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 
 DesignerSettings SettingsPageWidget::settings() const
 {
-    DesignerSettings designerSettings;
-    designerSettings.itemSpacing = m_ui.spinItemSpacing->value();
-    designerSettings.containerPadding = m_ui.spinSnapMargin->value();
-    designerSettings.canvasWidth = m_ui.spinCanvasWidth->value();
-    designerSettings.canvasHeight = m_ui.spinCanvasHeight->value();
-    designerSettings.warningsInDesigner = m_ui.designerWarningsCheckBox->isChecked();
-    designerSettings.designerWarningsInEditor = m_ui.designerWarningsInEditorCheckBox->isChecked();
-    designerSettings.showDebugView = m_ui.designerShowDebuggerCheckBox->isChecked();
-    designerSettings.enableDebugView = m_ui.designerEnableDebuggerCheckBox->isChecked();
-    designerSettings.useOnlyFallbackPuppet = m_ui.useDefaultPuppetRadioButton->isChecked();
-    designerSettings.useQsTrFunction = m_ui.useQsTrFunctionRadioButton->isChecked();
-    designerSettings.controlsStyle = m_ui.styleLineEdit->text();
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    settings.insert(DesignerSettingsKey::ITEMSPACING, m_ui.spinItemSpacing->value());
+    settings.insert(DesignerSettingsKey::CONTAINERPADDING, m_ui.spinSnapMargin->value());
+    settings.insert(DesignerSettingsKey::CANVASWIDTH, m_ui.spinCanvasWidth->value());
+    settings.insert(DesignerSettingsKey::CANVASHEIGHT, m_ui.spinCanvasHeight->value());
+    settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER,
+        m_ui.designerWarningsCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR,
+        m_ui.designerWarningsInEditorCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::SHOW_DEBUGVIEW,
+        m_ui.designerShowDebuggerCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::ENABLE_DEBUGVIEW,
+        m_ui.designerEnableDebuggerCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET,
+        m_ui.useDefaultPuppetRadioButton->isChecked());
+    settings.insert(DesignerSettingsKey::USE_QSTR_FUNCTION,
+        m_ui.useQsTrFunctionRadioButton->isChecked());
+    settings.insert(DesignerSettingsKey::CONTROLS_STYLE, m_ui.styleLineEdit->text());
 
     if (!m_ui.fallbackPuppetPathLineEdit->path().isEmpty() &&
         m_ui.fallbackPuppetPathLineEdit->path() != PuppetCreator::defaultPuppetFallbackDirectory()) {
-        designerSettings.puppetFallbackDirectory = m_ui.fallbackPuppetPathLineEdit->path();
+        settings.insert(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY,
+            m_ui.fallbackPuppetPathLineEdit->path());
     }
 
     if (!m_ui.puppetBuildPathLineEdit->path().isEmpty() &&
         m_ui.puppetBuildPathLineEdit->path() != PuppetCreator::defaultPuppetToplevelBuildDirectory()) {
-        designerSettings.puppetToplevelBuildDirectory = m_ui.puppetBuildPathLineEdit->path();
+        settings.insert(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
+            m_ui.puppetBuildPathLineEdit->path());
     }
 
-    return designerSettings;
+    return settings;
 }
 
-void SettingsPageWidget::setSettings(const DesignerSettings &designerSettings)
+void SettingsPageWidget::setSettings(const DesignerSettings &settings)
 {
-    m_ui.spinItemSpacing->setValue(designerSettings.itemSpacing);
-    m_ui.spinSnapMargin->setValue(designerSettings.containerPadding);
-    m_ui.spinCanvasWidth->setValue(designerSettings.canvasWidth);
-    m_ui.spinCanvasHeight->setValue(designerSettings.canvasHeight);
-    m_ui.designerWarningsCheckBox->setChecked(designerSettings.warningsInDesigner);
-    m_ui.designerWarningsInEditorCheckBox->setChecked(designerSettings.designerWarningsInEditor);
-    m_ui.designerShowDebuggerCheckBox->setChecked(designerSettings.showDebugView);
-    m_ui.designerEnableDebuggerCheckBox->setChecked(designerSettings.enableDebugView);
-    m_ui.useDefaultPuppetRadioButton->setChecked(designerSettings.useOnlyFallbackPuppet);
-    m_ui.useQtRelatedPuppetRadioButton->setChecked(!designerSettings.useOnlyFallbackPuppet);
-    m_ui.useQsTrFunctionRadioButton->setChecked(designerSettings.useQsTrFunction);
-    m_ui.useQsTrIdFunctionRadioButton->setChecked(!designerSettings.useQsTrFunction);
-    m_ui.styleLineEdit->setText(designerSettings.controlsStyle);
+    m_ui.spinItemSpacing->setValue(settings.value(
+        DesignerSettingsKey::ITEMSPACING).toInt());
+    m_ui.spinSnapMargin->setValue(settings.value(
+        DesignerSettingsKey::CONTAINERPADDING).toInt());
+    m_ui.spinCanvasWidth->setValue(settings.value(
+        DesignerSettingsKey::CANVASWIDTH).toInt());
+    m_ui.spinCanvasHeight->setValue(settings.value(
+        DesignerSettingsKey::CANVASHEIGHT).toInt());
+    m_ui.designerWarningsCheckBox->setChecked(settings.value(
+        DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool());
+    m_ui.designerWarningsInEditorCheckBox->setChecked(settings.value(
+        DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR).toBool());
+    m_ui.designerShowDebuggerCheckBox->setChecked(settings.value(
+        DesignerSettingsKey::SHOW_DEBUGVIEW).toBool());
+    m_ui.designerEnableDebuggerCheckBox->setChecked(settings.value(
+        DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool());
+    m_ui.useDefaultPuppetRadioButton->setChecked(settings.value(
+        DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET).toBool());
+    m_ui.useQtRelatedPuppetRadioButton->setChecked(!settings.value(
+        DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET).toBool());
+    m_ui.useQsTrFunctionRadioButton->setChecked(settings.value(
+        DesignerSettingsKey::USE_QSTR_FUNCTION).toBool());
+    m_ui.useQsTrIdFunctionRadioButton->setChecked(!settings.value(
+        DesignerSettingsKey::USE_QSTR_FUNCTION).toBool());
+    m_ui.styleLineEdit->setText(settings.value(
+        DesignerSettingsKey::CONTROLS_STYLE).toString());
 
-    if (designerSettings.puppetFallbackDirectory.isEmpty())
+    QString puppetFallbackDirectory = settings.value(
+        DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY).toString();
+    if (puppetFallbackDirectory.isEmpty())
         resetFallbackPuppetPath();
     else
-        m_ui.fallbackPuppetPathLineEdit->setPath(designerSettings.puppetFallbackDirectory);
+        m_ui.fallbackPuppetPathLineEdit->setPath(puppetFallbackDirectory);
 
-    if (designerSettings.puppetToplevelBuildDirectory.isEmpty())
+    QString puppetToplevelBuildDirectory = settings.value(
+        DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY).toString();
+    if (puppetToplevelBuildDirectory.isEmpty())
         resetQmlPuppetBuildPath();
     else
-        m_ui.puppetBuildPathLineEdit->setPath(designerSettings.puppetToplevelBuildDirectory);
+        m_ui.puppetBuildPathLineEdit->setPath(puppetToplevelBuildDirectory);
 }
 
 void SettingsPageWidget::resetFallbackPuppetPath()
@@ -156,16 +181,20 @@ void SettingsPage::apply()
     if (!m_widget) // page was never shown
         return;
 
-    DesignerSettings currentDesignerSettings(QmlDesignerPlugin::instance()->settings());
-    DesignerSettings newDesignerSettings(m_widget->settings());
+    DesignerSettings currentSettings(QmlDesignerPlugin::instance()->settings());
+    DesignerSettings newSettings(m_widget->settings());
 
-    if (currentDesignerSettings.puppetFallbackDirectory != newDesignerSettings.puppetFallbackDirectory ||
-        currentDesignerSettings.puppetToplevelBuildDirectory != newDesignerSettings.puppetToplevelBuildDirectory) {
+    if (currentSettings.value(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY) !=
+        newSettings.value(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY) ||
+        currentSettings.value(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY) !=
+        newSettings.value(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY)) {
+
         QMessageBox::information(Core::ICore::mainWindow(), tr("Restart Required"),
-            tr("The QML emulation layer path changes will take effect after a restart of the QML Emulation layer or Qt Creator."));
+            tr("The QML emulation layer path changes will take effect after a "
+               "restart of the QML Emulation layer or Qt Creator."));
     }
 
-    QmlDesignerPlugin::instance()->setSettings(newDesignerSettings);
+    QmlDesignerPlugin::instance()->setSettings(newSettings);
 }
 
 void SettingsPage::finish()

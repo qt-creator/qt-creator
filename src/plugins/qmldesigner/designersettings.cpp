@@ -24,97 +24,69 @@
 ****************************************************************************/
 
 #include "designersettings.h"
-#include "qmldesignerconstants.h"
 
 #include <QSettings>
 
-using namespace QmlDesigner;
+namespace QmlDesigner {
+
+namespace DesignerSettingsGroupKey {
+    const char QML_SETTINGS_GROUP[] = "QML";
+    const char QML_DESIGNER_SETTINGS_GROUP[] = "Designer";
+}
 
 DesignerSettings::DesignerSettings()
-    : itemSpacing(0),
-    containerPadding(0),
-    canvasWidth(10000),
-    canvasHeight(10000),
-    warningsInDesigner(true),
-    designerWarningsInEditor(false),
-    showDebugView(false),
-    enableDebugView(false),
-    alwaysSaveInCrumbleBar(false),
-    useOnlyFallbackPuppet(true)
-{}
+{
+}
+
+void DesignerSettings::restoreValue(QSettings *settings, const QByteArray &key, const QVariant &defaultValue)
+{
+    insert(key, settings->value(QString::fromLatin1(key), defaultValue));
+}
 
 void DesignerSettings::fromSettings(QSettings *settings)
 {
-    settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP));
-    settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP));
-    itemSpacing = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), QVariant(6)).toInt();
-    containerPadding = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_CONTAINERPADDING_KEY), QVariant(8)).toInt();
-    canvasWidth = settings->value(QLatin1String(QmlDesigner::Constants::QML_CANVASWIDTH_KEY), QVariant(10000)).toInt();
-    canvasHeight = settings->value(QLatin1String(QmlDesigner::Constants::QML_CANVASHEIGHT_KEY), QVariant(10000)).toInt();
-    warningsInDesigner = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY), QVariant(true)).toBool();
-    designerWarningsInEditor = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY), QVariant(false)).toBool();
-    showDebugView = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_SHOW_DEBUGVIEW), QVariant(false)).toBool();
-    enableDebugView = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_ENABLE_DEBUGVIEW), QVariant(false)).toBool();
-    alwaysSaveInCrumbleBar = settings->value(
-                QLatin1String(QmlDesigner::Constants::QML_ALWAYS_SAFE_IN_CRUMBLEBAR), QVariant(false)).toBool();
-    useOnlyFallbackPuppet = settings->value(
-                QLatin1String(QmlDesigner::Constants::QML_USE_ONLY_FALLBACK_PUPPET), QVariant(true)).toBool();
-    useQsTrFunction = settings->value(
-                QLatin1String(QmlDesigner::Constants::QML_USE_QSTR_FUNCTION), QVariant(true)).toBool();
-    puppetFallbackDirectory = settings->value(
-                QLatin1String(QmlDesigner::Constants::QML_PUPPET_FALLBACK_DIRECTORY)).toString();
-    puppetToplevelBuildDirectory = settings->value(
-                QLatin1String(QmlDesigner::Constants::QML_PUPPET_TOPLEVEL_BUILD_DIRECTORY)).toString();
-    controlsStyle = settings->value(
-                QLatin1String(QmlDesigner::Constants::QML_CONTROLS_STYLE)).toString();
+    settings->beginGroup(QLatin1String(DesignerSettingsGroupKey::QML_SETTINGS_GROUP));
+    settings->beginGroup(QLatin1String(DesignerSettingsGroupKey::QML_DESIGNER_SETTINGS_GROUP));
 
+    restoreValue(settings, DesignerSettingsKey::ITEMSPACING, 6);
+    restoreValue(settings, DesignerSettingsKey::CONTAINERPADDING, 8);
+    restoreValue(settings, DesignerSettingsKey::CANVASWIDTH, 10000);
+    restoreValue(settings, DesignerSettingsKey::CANVASHEIGHT, 10000);
+    restoreValue(settings, DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, true);
+    restoreValue(settings, DesignerSettingsKey::WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR, false);
+    restoreValue(settings, DesignerSettingsKey::SHOW_DEBUGVIEW, false);
+    restoreValue(settings, DesignerSettingsKey::ENABLE_DEBUGVIEW, false);
+    restoreValue(settings, DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR, false);
+    restoreValue(settings, DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET, true);
+    restoreValue(settings, DesignerSettingsKey::USE_QSTR_FUNCTION, true);
+    restoreValue(settings, DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY);
+    restoreValue(settings, DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY);
+    restoreValue(settings, DesignerSettingsKey::CONTROLS_STYLE);
 
     settings->endGroup();
     settings->endGroup();
+}
+
+void DesignerSettings::storeValue(QSettings *settings, const QByteArray &key, const QVariant &value) const
+{
+    if (key.isEmpty())
+        return;
+    settings->setValue(QString::fromLatin1(key), value);
 }
 
 void DesignerSettings::toSettings(QSettings *settings) const
 {
-    settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP));
-    settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP));
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), itemSpacing);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CONTAINERPADDING_KEY), containerPadding);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CANVASWIDTH_KEY), canvasWidth);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CANVASHEIGHT_KEY), canvasHeight);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY), warningsInDesigner);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY), designerWarningsInEditor);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_SHOW_DEBUGVIEW), showDebugView);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ENABLE_DEBUGVIEW), enableDebugView);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ALWAYS_SAFE_IN_CRUMBLEBAR), alwaysSaveInCrumbleBar);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_USE_ONLY_FALLBACK_PUPPET), useOnlyFallbackPuppet);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_USE_QSTR_FUNCTION), useQsTrFunction);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_PUPPET_FALLBACK_DIRECTORY), puppetFallbackDirectory);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_PUPPET_TOPLEVEL_BUILD_DIRECTORY), puppetToplevelBuildDirectory);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CONTROLS_STYLE), controlsStyle);
+    settings->beginGroup(QLatin1String(DesignerSettingsGroupKey::QML_SETTINGS_GROUP));
+    settings->beginGroup(QLatin1String(DesignerSettingsGroupKey::QML_DESIGNER_SETTINGS_GROUP));
+
+    QHash<QByteArray, QVariant>::const_iterator i = constBegin();
+    while (i != constEnd()) {
+        storeValue(settings, i.key(), i.value());
+        ++i;
+    }
 
     settings->endGroup();
     settings->endGroup();
 }
 
-bool DesignerSettings::equals(const DesignerSettings &other) const
-{
-    return containerPadding == other.containerPadding
-            && canvasWidth == other.canvasWidth
-            && canvasHeight == other.canvasHeight
-            && warningsInDesigner == other.warningsInDesigner
-            && designerWarningsInEditor == other.designerWarningsInEditor
-            && showDebugView == other.showDebugView
-            && enableDebugView == other.enableDebugView
-            && alwaysSaveInCrumbleBar == other.alwaysSaveInCrumbleBar
-            && useOnlyFallbackPuppet == other.useOnlyFallbackPuppet
-            && useQsTrFunction == other.useQsTrFunction
-            && puppetFallbackDirectory == other.puppetFallbackDirectory
-            && puppetToplevelBuildDirectory == other.puppetToplevelBuildDirectory
-            && controlsStyle == other.controlsStyle;
-}
+} // namespace QmlDesigner

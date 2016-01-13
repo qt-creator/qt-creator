@@ -105,7 +105,8 @@ QColor PropertyEditorContextObject::colorFromString(const QString &colorString)
 
 QString PropertyEditorContextObject::translateFunction()
 {
-    if (QmlDesignerPlugin::instance()->settings().useQsTrFunction)
+    if (QmlDesignerPlugin::instance()->settings().value(
+            DesignerSettingsKey::USE_QSTR_FUNCTION).toBool())
         return QStringLiteral("qsTr");
     return QStringLiteral("qsTrId");
 }

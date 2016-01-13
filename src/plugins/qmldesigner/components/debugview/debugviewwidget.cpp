@@ -89,7 +89,7 @@ void DebugViewWidget::setDebugViewEnabled(bool b)
 void DebugViewWidget::enabledCheckBoxToggled(bool b)
 {
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    settings.warningsInDesigner = b;
+    settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, b);
     QmlDesignerPlugin::instance()->setSettings(settings);
 }
 

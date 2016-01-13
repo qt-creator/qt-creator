@@ -27,7 +27,9 @@
 #define DESIGNERSETTINGS_H
 
 #include <QtGlobal>
-#include <QString>
+#include <QHash>
+#include <QVariant>
+#include <QByteArray>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -35,34 +37,35 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class DesignerSettings {
+namespace DesignerSettingsKey {
+const char ITEMSPACING[] = "ItemSpacing";
+const char CONTAINERPADDING[] = "ContainerPadding";
+const char CANVASWIDTH[] = "CanvasWidth";
+const char CANVASHEIGHT[] = "CanvasHeight";
+const char WARNING_FOR_FEATURES_IN_DESIGNER[] = "WarnAboutQtQuickFeaturesInDesigner";
+const char WARNING_FOR_DESIGNER_FEATURES_IN_EDITOR[] = "WarnAboutQtQuickDesignerFeaturesInCodeEditor";
+const char SHOW_DEBUGVIEW[] = "ShowQtQuickDesignerDebugView";
+const char ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
+const char ALWAYS_SAFE_IN_CRUMBLEBAR[] = "AlwaysSafeInCrumbleBar";
+const char USE_ONLY_FALLBACK_PUPPET[] = "UseOnlyFallbackPuppet";
+const char PUPPET_TOPLEVEL_BUILD_DIRECTORY[] = "PuppetToplevelBuildDirectory";
+const char PUPPET_FALLBACK_DIRECTORY[] = "PuppetFallbackDirectory";
+const char CONTROLS_STYLE[] = "ControlsStyle";
+const char USE_QSTR_FUNCTION[] = "UseQsTrFunction";
+}
+
+class DesignerSettings : public QHash<QByteArray, QVariant>
+{
 public:
     DesignerSettings();
 
     void fromSettings(QSettings *);
     void toSettings(QSettings *) const;
-
-    bool equals(const DesignerSettings &other) const;
-    int itemSpacing;
-    int containerPadding;
-    int canvasWidth;
-    int canvasHeight;
-    bool warningsInDesigner;
-    bool designerWarningsInEditor;
-    bool showDebugView;
-    bool enableDebugView;
-    bool alwaysSaveInCrumbleBar;
-    bool useOnlyFallbackPuppet;
-    bool useQsTrFunction;
-    QString puppetFallbackDirectory;
-    QString puppetToplevelBuildDirectory;
-    QString controlsStyle;
+private:
+    void restoreValue(QSettings *settings, const QByteArray &key,
+        const QVariant &defaultValue = QVariant());
+    void storeValue(QSettings *settings, const QByteArray &key, const QVariant &value) const;
 };
-
-inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)
-{ return s1.equals(s2); }
-inline bool operator!=(const DesignerSettings &s1, const DesignerSettings &s2)
-{ return !s1.equals(s2); }
 
 } // namespace QmlDesigner
 

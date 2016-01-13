@@ -103,9 +103,8 @@ QDateTime PuppetCreator::puppetSourceLastModified() const
 
 bool PuppetCreator::useOnlyFallbackPuppet() const
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.useOnlyFallbackPuppet
-            || !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty() || m_kit == 0 || !m_kit->isValid();
+    return m_designerSettings.value(DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET
+        ).toBool() || m_kit == 0 || !m_kit->isValid();
 }
 
 PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion, const Model *model)
@@ -277,9 +276,11 @@ QString PuppetCreator::defaultPuppetToplevelBuildDirectory()
 
 QString PuppetCreator::qmlPuppetToplevelBuildDirectory() const
 {
-    if (m_designerSettings.puppetToplevelBuildDirectory.isEmpty())
+    QString puppetToplevelBuildDirectory = m_designerSettings.value(
+        DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY).toString();
+    if (puppetToplevelBuildDirectory.isEmpty())
         return defaultPuppetToplevelBuildDirectory();
-    return QmlDesignerPlugin::instance()->settings().puppetToplevelBuildDirectory;
+    return puppetToplevelBuildDirectory;
 }
 
 QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
@@ -301,9 +302,11 @@ QString PuppetCreator::defaultPuppetFallbackDirectory()
 
 QString PuppetCreator::qmlPuppetFallbackDirectory() const
 {
-    if (m_designerSettings.puppetFallbackDirectory.isEmpty())
+    QString puppetFallbackDirectory = m_designerSettings.value(
+        DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY).toString();
+    if (puppetFallbackDirectory.isEmpty())
         return defaultPuppetFallbackDirectory();
-    return QmlDesignerPlugin::instance()->settings().puppetFallbackDirectory;
+    return puppetFallbackDirectory;
 }
 
 QString PuppetCreator::qml2PuppetPath(PuppetType puppetType) const
@@ -325,7 +328,8 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     environment.set(QLatin1String("QML_USE_MOCKUPS"), QLatin1String("true"));
     environment.set(QLatin1String("QML_PUPPET_MODE"), QLatin1String("true"));
 
-    const QString controlsStyle = QmlDesignerPlugin::instance()->settings().controlsStyle;
+    const QString controlsStyle = m_designerSettings.value(DesignerSettingsKey::
+            CONTROLS_STYLE).toString();
     if (!controlsStyle.isEmpty())
         environment.set(QLatin1String("QT_QUICK_CONTROLS_STYLE"), controlsStyle);
 

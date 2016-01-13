@@ -75,13 +75,13 @@ void QmlWarningDialog::okButtonPressed()
 bool QmlWarningDialog::warningsEnabled() const
 {
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.warningsInDesigner;
+    return settings.value(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
 }
 
 void QmlWarningDialog::checkBoxToggled(bool b)
 {
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    settings.warningsInDesigner = b;
+    settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, b);
     QmlDesignerPlugin::instance()->setSettings(settings);
 }
 
