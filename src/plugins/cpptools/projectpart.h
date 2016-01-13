@@ -27,6 +27,7 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
 #ifndef CPPTOOLS_PROJECTPART_H
 #define CPPTOOLS_PROJECTPART_H
 

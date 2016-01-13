@@ -86,6 +86,7 @@ QtcPlugin {
         "includeutils.cpp", "includeutils.h",
         "indexitem.cpp", "indexitem.h",
         "insertionpointlocator.cpp", "insertionpointlocator.h",
+        "projectinfo.cpp", "projectinfo.h",
         "projectpart.cpp", "projectpart.h",
         "projectpartheaderpath.h",
         "searchsymbols.cpp", "searchsymbols.h",

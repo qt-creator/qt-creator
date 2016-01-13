@@ -34,6 +34,7 @@
 #include "cpptools_global.h"
 
 #include "cppprojectfile.h"
+#include "projectinfo.h"
 #include "projectpart.h"
 
 #include <projectexplorer/toolchain.h>
@@ -50,46 +51,6 @@ namespace ProjectExplorer { class Project; }
 namespace Utils { class FileName; }
 
 namespace CppTools {
-class ProjectFile;
-
-class CPPTOOLS_EXPORT ProjectInfo
-{
-public:
-    ProjectInfo();
-    ProjectInfo(QPointer<ProjectExplorer::Project> project);
-
-    bool isValid() const;
-
-    bool operator ==(const ProjectInfo &other) const;
-    bool operator !=(const ProjectInfo &other) const;
-    bool definesChanged(const ProjectInfo &other) const;
-    bool configurationChanged(const ProjectInfo &other) const;
-    bool configurationOrFilesChanged(const ProjectInfo &other) const;
-
-    QPointer<ProjectExplorer::Project> project() const;
-    const QList<ProjectPart::Ptr> projectParts() const;
-
-    void appendProjectPart(const ProjectPart::Ptr &part);
-    void finish();
-
-    const ProjectPartHeaderPaths headerPaths() const;
-    const QSet<QString> sourceFiles() const;
-    const QByteArray defines() const;
-
-    // Source file --> List of compiler calls
-    typedef QHash<QString, QList<QStringList>> CompilerCallData;
-    void setCompilerCallData(const CompilerCallData &data);
-    CompilerCallData compilerCallData() const;
-
-private:
-    QPointer<ProjectExplorer::Project> m_project;
-    QList<ProjectPart::Ptr> m_projectParts;
-    CompilerCallData m_compilerCallData;
-    // The members below are (re)calculated from the project parts with finish()
-    ProjectPartHeaderPaths m_headerPaths;
-    QSet<QString> m_sourceFiles;
-    QByteArray m_defines;
-};
 
 class CPPTOOLS_EXPORT ProjectPartBuilder
 {

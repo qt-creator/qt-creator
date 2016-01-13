@@ -27,6 +27,7 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
 #include "projectpart.h"
 
 #include <projectexplorer/headerpath.h>
