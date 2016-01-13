@@ -24,6 +24,7 @@
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolstestcase.h>
+#include <cpptools/projectinfo.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>

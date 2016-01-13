@@ -20,6 +20,7 @@
 #include "testconfiguration.h"
 
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/projectinfo.h>
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/environmentaspect.h>
