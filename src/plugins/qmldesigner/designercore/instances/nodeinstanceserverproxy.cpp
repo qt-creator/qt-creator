@@ -25,51 +25,38 @@
 
 #include "nodeinstanceserverproxy.h"
 
-#include <QLocalServer>
-#include <QLocalSocket>
-#include <QProcess>
-#include <QCoreApplication>
-#include <QUuid>
-#include <QFileInfo>
-#include <QDir>
-#include <QTimer>
-#include <QTextStream>
-#include <QMessageBox>
-
-#include "createinstancescommand.h"
-#include "createscenecommand.h"
-#include "changevaluescommand.h"
-#include "changebindingscommand.h"
-#include "changeauxiliarycommand.h"
-#include "changefileurlcommand.h"
-#include "removeinstancescommand.h"
-#include "clearscenecommand.h"
-#include "removepropertiescommand.h"
-#include "reparentinstancescommand.h"
-#include "changeidscommand.h"
-#include "changestatecommand.h"
-#include "completecomponentcommand.h"
-#include "changenodesourcecommand.h"
-
-#include "informationchangedcommand.h"
-#include "pixmapchangedcommand.h"
-#include "valueschangedcommand.h"
-#include "childrenchangedcommand.h"
-#include "statepreviewimagechangedcommand.h"
-#include "componentcompletedcommand.h"
-#include "tokencommand.h"
-#include "removesharedmemorycommand.h"
-#include "endpuppetcommand.h"
-#include "synchronizecommand.h"
-#include "debugoutputcommand.h"
-
-#include "nodeinstanceview.h"
-
-#include "import.h"
-
-#include "qmldesignerplugin.h"
-
 #include "puppetcreator.h"
+
+#include <createinstancescommand.h>
+#include <createscenecommand.h>
+#include <changevaluescommand.h>
+#include <changebindingscommand.h>
+#include <changeauxiliarycommand.h>
+#include <changefileurlcommand.h>
+#include <removeinstancescommand.h>
+#include <clearscenecommand.h>
+#include <removepropertiescommand.h>
+#include <reparentinstancescommand.h>
+#include <changeidscommand.h>
+#include <changestatecommand.h>
+#include <completecomponentcommand.h>
+#include <changenodesourcecommand.h>
+
+#include <informationchangedcommand.h>
+#include <pixmapchangedcommand.h>
+#include <valueschangedcommand.h>
+#include <childrenchangedcommand.h>
+#include <statepreviewimagechangedcommand.h>
+#include <componentcompletedcommand.h>
+#include <tokencommand.h>
+#include <removesharedmemorycommand.h>
+#include <endpuppetcommand.h>
+#include <synchronizecommand.h>
+#include <debugoutputcommand.h>
+
+#include <nodeinstanceview.h>
+#include <import.h>
+#include <qmldesignerplugin.h>
 
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
@@ -80,6 +67,16 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include <QLocalServer>
+#include <QLocalSocket>
+#include <QProcess>
+#include <QCoreApplication>
+#include <QUuid>
+#include <QFileInfo>
+#include <QDir>
+#include <QTimer>
+#include <QTextStream>
+#include <QMessageBox>
 
 namespace QmlDesigner {
 
