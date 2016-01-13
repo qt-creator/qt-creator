@@ -50,5 +50,8 @@
         <file>unit_test/simple_gt/tests/tests.pro</file>
         <file>unit_test/simple_gt/simple_gt.pro</file>
         <file>unit_test/simple_gt/tests/gtest_dependency.pri</file>
+        <file>unit_test/simple_gt/tests/gt3/dummytest.h</file>
+        <file>unit_test/simple_gt/tests/gt3/gt3.pro</file>
+        <file>unit_test/simple_gt/tests/gt3/main.cpp</file>
     </qresource>
 </RCC>

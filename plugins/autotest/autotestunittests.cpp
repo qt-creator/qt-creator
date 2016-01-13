@@ -205,19 +205,22 @@ void AutoTestUnitTests::testCodeParserGTest()
     QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
     QVERIFY(parserSpy.wait(20000));
 
-    QCOMPARE(m_model->gtestNamesCount(), 4);
-    QCOMPARE(m_model->parser()->gtestNamesAndSetsCount(), 9); // 9 == 3 + 2 + 2 + 2, see below
+    QCOMPARE(m_model->gtestNamesCount(), 6);
+    // 11 == 3 + 2 + 2 + 2 + 1 + 1, see below
+    QCOMPARE(m_model->parser()->gtestNamesAndSetsCount(), 11);
 
-    QMap<QString, int> expectedNamesAndSets;
+    QMultiMap<QString, int> expectedNamesAndSets;
     expectedNamesAndSets.insert(QStringLiteral("FactorialTest"), 3);
     expectedNamesAndSets.insert(QStringLiteral("FactorialTest_Iterative"), 2);
     expectedNamesAndSets.insert(QStringLiteral("Sum"), 2);
     expectedNamesAndSets.insert(QStringLiteral("QueueTest"), 2);
+    expectedNamesAndSets.insert(QStringLiteral("DummyTest"), 1); // used as parameterized test
+    expectedNamesAndSets.insert(QStringLiteral("DummyTest"), 1); // used as 'normal' test
 
-    QMap<QString, int> foundNamesAndSets = m_model->gtestNamesAndSets();
+    QMultiMap<QString, int> foundNamesAndSets = m_model->gtestNamesAndSets();
     QCOMPARE(expectedNamesAndSets.size(), foundNamesAndSets.size());
     foreach (const QString &name, expectedNamesAndSets.keys())
-        QCOMPARE(expectedNamesAndSets.value(name), foundNamesAndSets.value(name));
+        QCOMPARE(expectedNamesAndSets.values(name), foundNamesAndSets.values(name));
 
     // check also that no Qt related tests have been found
     QCOMPARE(m_model->autoTestsCount(), 0);

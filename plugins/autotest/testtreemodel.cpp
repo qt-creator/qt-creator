@@ -824,9 +824,9 @@ int TestTreeModel::gtestNamesCount() const
     return m_googleTestRootItem ? m_googleTestRootItem->childCount() : 0;
 }
 
-QMap<QString, int> TestTreeModel::gtestNamesAndSets() const
+QMultiMap<QString, int> TestTreeModel::gtestNamesAndSets() const
 {
-    QMap<QString, int> result;
+    QMultiMap<QString, int> result;
 
     if (m_googleTestRootItem) {
         for (int row = 0, count = m_googleTestRootItem->childCount(); row < count; ++row) {
