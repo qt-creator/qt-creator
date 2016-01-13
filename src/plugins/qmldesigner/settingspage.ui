@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>629</width>
-    <height>458</height>
+    <height>468</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -291,50 +291,27 @@
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_4">
+      <widget class="QGroupBox" name="groupBox_8">
        <property name="title">
-        <string>Debugging</string>
+        <string>Internationalization</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_4">
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="designerShowDebuggerCheckBox">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QRadioButton" name="useQsTrFunctionRadioButton">
           <property name="text">
-           <string>Show the debugging view</string>
+           <string>qsTr()</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="designerEnableDebuggerCheckBox">
+        <item>
+         <widget class="QRadioButton" name="useQsTrIdFunctionRadioButton">
           <property name="text">
-           <string>Enable the debugging view</string>
+           <string>qsTrId()</string>
           </property>
          </widget>
-        </item>
-        <item row="0" column="1">
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="1" column="1">
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>
@@ -342,25 +319,22 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_8">
+    <widget class="QGroupBox" name="groupBox_4">
      <property name="title">
-      <string>Internationalization</string>
+      <string>Debugging</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_4">
-      <item>
-       <widget class="QRadioButton" name="useQsTrFunctionRadioButton">
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="designerShowDebuggerCheckBox">
         <property name="text">
-         <string>qsTr()</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>Show the debugging view</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QRadioButton" name="useQsTrIdFunctionRadioButton">
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="designerEnableDebuggerCheckBox">
         <property name="text">
-         <string>qsTrId()</string>
+         <string>Enable the debugging view</string>
         </property>
        </widget>
       </item>
