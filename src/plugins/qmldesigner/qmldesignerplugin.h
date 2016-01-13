@@ -64,8 +64,8 @@ public:
     virtual ~QmlDesignerPlugin();
 
     //Plugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
+    void extensionsInitialized() override;
 
     static QmlDesignerPlugin *instance();
 
