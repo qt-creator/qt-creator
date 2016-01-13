@@ -28,14 +28,6 @@
 
 #include <QTextDocument>
 
-using namespace TextEditor;
-
-NormalIndenter::NormalIndenter()
-{}
-
-NormalIndenter::~NormalIndenter()
-{}
-
 // Indent a text block based on previous line.
 // Simple text paragraph layout:
 // aaaa aaaa
@@ -55,31 +47,21 @@ NormalIndenter::~NormalIndenter()
 // for additional block being inserted. It might be possible
 // to do in 2 steps (indenting/wrapping)}
 //
-void NormalIndenter::indentBlock(QTextDocument *doc,
-                                 const QTextBlock &block,
-                                 const QChar &typedChar,
-                                 const TabSettings &tabSettings)
+
+using namespace TextEditor;
+
+int NormalIndenter::indentFor(const QTextBlock &block, const TabSettings &tabSettings)
 {
-    Q_UNUSED(typedChar)
+    Q_UNUSED(tabSettings);
 
-    // At beginning: Leave as is.
-    if (block == doc->begin())
-        return;
+    QTextBlock previous = block.previous();
+    if (!previous.isValid())
+        return 0;
 
-    const QTextBlock previous = block.previous();
     const QString previousText = previous.text();
     // Empty line indicates a start of a new paragraph. Leave as is.
     if (previousText.isEmpty() || previousText.trimmed().isEmpty())
-        return;
+        return 0;
 
-    // Just use previous line.
-    // Skip blank characters when determining the indentation
-    int i = 0;
-    while (i < previousText.size()) {
-        if (!previousText.at(i).isSpace()) {
-            tabSettings.indentLine(block, tabSettings.columnAt(previousText, i));
-            break;
-        }
-        ++i;
-    }
+    return tabSettings.indentationColumn(previousText);
 }

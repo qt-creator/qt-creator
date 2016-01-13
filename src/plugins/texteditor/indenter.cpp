@@ -25,6 +25,7 @@
 
 #include "indenter.h"
 #include "tabsettings.h"
+#include "textdocumentlayout.h"
 
 #include <QTextDocument>
 #include <QTextCursor>
@@ -48,9 +49,11 @@ void Indenter::indentBlock(QTextDocument *doc,
                              const TabSettings &tabSettings)
 {
     Q_UNUSED(doc);
-    Q_UNUSED(block);
     Q_UNUSED(typedChar);
-    Q_UNUSED(tabSettings);
+    const int indent = indentFor(block, tabSettings);
+    if (indent < 0)
+        return;
+    tabSettings.indentLine(block, indent);
 }
 
 void Indenter::indent(QTextDocument *doc,
@@ -107,4 +110,11 @@ void Indenter::setCodeStylePreferences(ICodeStylePreferences *)
 
 void Indenter::invalidateCache(QTextDocument *)
 {
+}
+
+int Indenter::indentFor(const QTextBlock &block, const TabSettings &tabSettings)
+{
+    Q_UNUSED(block)
+    Q_UNUSED(tabSettings)
+    return -1;
 }

@@ -3337,11 +3337,11 @@ void TextEditorWidgetPrivate::setCursorToColumn(QTextCursor &cursor, int column,
         cursor.setPosition(cursor.block().position() + pos - 1, QTextCursor::KeepAnchor);
         cursor.insertText(ts.indentationString(
                               ts.columnAt(cursor.block().text(), pos - 1),
-                              ts.columnAt(cursor.block().text(), pos), cursor.block()));
+                              ts.columnAt(cursor.block().text(), pos), 0, cursor.block()));
     } else {
         // column is behind the last position
         cursor.insertText(ts.indentationString(ts.columnAt(cursor.block().text(), pos),
-                                               column, cursor.block()));
+                                               column, 0, cursor.block()));
     }
     if (moveMode == QTextCursor::KeepAnchor)
         cursor.setPosition(cursorPosition);
@@ -6360,7 +6360,7 @@ void TextEditorWidget::rewrapParagraph()
 
     if (commonPrefix.isEmpty()) {
         spacing = d->m_document->tabSettings().indentationString(
-                    0, indentLevel, textCursor().block());
+                    0, indentLevel, 0, textCursor().block());
     } else {
         spacing = commonPrefix;
         indentLevel = commonPrefix.length();

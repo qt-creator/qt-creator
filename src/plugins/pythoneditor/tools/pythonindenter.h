@@ -35,17 +35,16 @@ class PythonIndenter : public TextEditor::Indenter
 {
 public:
     PythonIndenter();
-    virtual ~PythonIndenter();
+    virtual ~PythonIndenter() override;
 
-    bool isElectricCharacter(const QChar &ch) const;
-    void indentBlock(QTextDocument *document,
-                     const QTextBlock &block,
-                     const QChar &typedChar,
-                     const TextEditor::TabSettings &settings);
+    bool isElectricCharacter(const QChar &ch) const override;
+
+    int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
 
 protected:
     bool isElectricLine(const QString &line) const;
-    int getIndentDiff(const QString &previousLine) const;
+    int getIndentDiff(const QString &previousLine,
+                      const TextEditor::TabSettings &tabSettings) const;
 
 private:
     QStringList m_jumpKeywords;

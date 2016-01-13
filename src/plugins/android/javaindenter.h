@@ -34,16 +34,18 @@ class JavaIndenter : public TextEditor::Indenter
 {
 public:
     JavaIndenter();
-    virtual ~JavaIndenter();
+    ~JavaIndenter() override;
 
-    bool isElectricCharacter(const QChar &ch) const;
+    bool isElectricCharacter(const QChar &ch) const override;
 
-    virtual void indentBlock(QTextDocument *doc,
-                             const QTextBlock &block,
-                             const QChar &typedChar,
-                             const TextEditor::TabSettings &tabSettings);
+    void indentBlock(QTextDocument *doc,
+                     const QTextBlock &block,
+                     const QChar &typedChar,
+                     const TextEditor::TabSettings &tabSettings) override;
+
+    int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
 };
-}
-}
+} // namespace Internal
+} // namespace Android
 
 #endif // JAVAINDENTER_H

@@ -48,40 +48,36 @@ bool JavaIndenter::isElectricCharacter(const QChar &ch) const
 }
 
 void JavaIndenter::indentBlock(QTextDocument *doc,
-                                 const QTextBlock &block,
-                                 const QChar &typedChar,
-                                 const TextEditor::TabSettings &tabSettings)
+                               const QTextBlock &block,
+                               const QChar &typedChar,
+                               const TextEditor::TabSettings &tabSettings)
 {
-    // At beginning: Leave as is.
-    if (block == doc->begin())
-        return;
+    Q_UNUSED(doc);
+    int indent = indentFor(block, tabSettings);
+    if (typedChar == QLatin1Char('}'))
+        indent -= tabSettings.m_indentSize;
+    tabSettings.indentLine(block, qMax(0, indent));
+}
 
-    const int tabsize = tabSettings.m_indentSize;
-
+int JavaIndenter::indentFor(const QTextBlock &block,
+                            const TextEditor::TabSettings &tabSettings)
+{
     QTextBlock previous = block.previous();
+    if (!previous.isValid())
+        return 0;
+
     QString previousText = previous.text();
     while (previousText.trimmed().isEmpty()) {
         previous = previous.previous();
-        if (previous == doc->begin())
-            return;
+        if (!previous.isValid())
+            return 0;
         previousText = previous.text();
     }
 
-    int adjust = 0;
-    if (previousText.contains(QLatin1Char('{')))
-        adjust = tabsize;
+    int indent = tabSettings.indentationColumn(previousText);
 
-    if (block.text().contains(QLatin1Char('}')) || typedChar == QLatin1Char('}'))
-        adjust += -tabsize;
+    int adjust = previousText.count(QLatin1Char('{')) - previousText.count(QLatin1Char('}'));
+    adjust *= tabSettings.m_indentSize;
 
-    // Count the indentation of the previous line.
-    int i = 0;
-    while (i < previousText.size()) {
-        if (!previousText.at(i).isSpace()) {
-            tabSettings.indentLine(block, tabSettings.columnAt(previousText, i)
-                                   + adjust);
-            break;
-        }
-        ++i;
-    }
+    return qMax(0, indent + adjust);
 }

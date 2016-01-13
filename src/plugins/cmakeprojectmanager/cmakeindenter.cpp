@@ -98,34 +98,29 @@ static int paranthesesLevel(const QString &line)
         return -1;
 }
 
-void CMakeIndenter::indentBlock(QTextDocument *doc, const QTextBlock &block, const QChar &typedChar, const TextEditor::TabSettings &tabSettings)
+int CMakeIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
 {
-    Q_UNUSED(doc)
-    Q_UNUSED(typedChar)
-
     QTextBlock previousBlock = block.previous();
     // find the next previous block that is non-empty (contains non-whitespace characters)
     while (previousBlock.isValid() && lineIsEmpty(previousBlock.text()))
         previousBlock = previousBlock.previous();
-    if (previousBlock.isValid()) {
-        const QString previousLine = previousBlock.text();
-        const QString currentLine = block.text();
-        int indentation = tabSettings.indentationColumn(previousLine);
+    if (!previousBlock.isValid())
+        return 0;
 
-        if (lineStartsBlock(previousLine))
-            indentation += tabSettings.m_indentSize;
-        if (lineEndsBlock(currentLine))
-            indentation = qMax(0, indentation - tabSettings.m_indentSize);
+    const QString previousLine = previousBlock.text();
+    const QString currentLine = block.text();
+    int indentation = tabSettings.indentationColumn(previousLine);
 
-        // increase/decrease/keep the indentation level depending on if we have more opening or closing parantheses
-        indentation = qMax(0, indentation + tabSettings.m_indentSize * paranthesesLevel(previousLine));
+    if (lineStartsBlock(previousLine))
+        indentation += tabSettings.m_indentSize;
+    if (lineEndsBlock(currentLine))
+        indentation = qMax(0, indentation - tabSettings.m_indentSize);
 
-        tabSettings.indentLine(block, indentation);
-    } else {
-        // First line in whole document
-        tabSettings.indentLine(block, 0);
-    }
+    // increase/decrease/keep the indentation level depending on if we have more opening or closing parantheses
+    return qMax(0, indentation + tabSettings.m_indentSize * paranthesesLevel(previousLine));
 }
 
 } // namespace Internal
 } // namespace CMakeProjectManager
+
+

@@ -142,7 +142,7 @@ QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor,
                 indentPosition = ts.firstNonSpace(text);
             int targetColumn = ts.indentedColumn(ts.columnAt(text, indentPosition), doIndent);
             cursor.setPosition(block.position() + indentPosition);
-            cursor.insertText(ts.indentationString(0, targetColumn, block));
+            cursor.insertText(ts.indentationString(0, targetColumn, 0, block));
             cursor.setPosition(block.position());
             cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
@@ -159,7 +159,7 @@ QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor,
             int blockColumn = ts.columnAt(text, text.size());
             if (blockColumn < column) {
                 cursor.setPosition(block.position() + text.size());
-                cursor.insertText(ts.indentationString(blockColumn, column, block));
+                cursor.insertText(ts.indentationString(blockColumn, column, 0, block));
                 text = block.text();
             }
 
@@ -170,7 +170,7 @@ QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor,
             cursor.setPosition(block.position() + indentPosition);
             cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
-            cursor.insertText(ts.indentationString(startColumn, targetColumn, block));
+            cursor.insertText(ts.indentationString(startColumn, targetColumn, 0, block));
         }
         // Preserve initial anchor of block selection
         if (blockSelection) {
@@ -750,7 +750,8 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, b
 
             QString blockText = block.text();
             d->m_tabSettings.removeTrailingWhitespace(cursor, block);
-            if (cleanIndentation && !d->m_tabSettings.isIndentationClean(block)) {
+            const int indent = d->m_indenter->indentFor(block, d->m_tabSettings);
+            if (cleanIndentation && !d->m_tabSettings.isIndentationClean(block, indent)) {
                 cursor.setPosition(block.position());
                 int firstNonSpace = d->m_tabSettings.firstNonSpace(blockText);
                 if (firstNonSpace == blockText.length()) {
@@ -759,7 +760,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, b
                 } else {
                     int column = d->m_tabSettings.columnAt(blockText, firstNonSpace);
                     cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, firstNonSpace);
-                    QString indentationString = d->m_tabSettings.indentationString(0, column, block);
+                    QString indentationString = d->m_tabSettings.indentationString(0, column, column - indent, block);
                     cursor.insertText(indentationString);
                 }
             }

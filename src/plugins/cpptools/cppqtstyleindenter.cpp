@@ -168,6 +168,18 @@ void CppQtStyleIndenter::invalidateCache(QTextDocument *doc)
     formatter.invalidateCache(doc);
 }
 
+int CppQtStyleIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
+{
+    QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
+
+    codeFormatter.updateStateUntil(block);
+    int indent;
+    int padding;
+    codeFormatter.indentFor(block, &indent, &padding);
+
+    return indent;
+}
+
 CppCodeStyleSettings CppQtStyleIndenter::codeStyleSettings() const
 {
     if (m_cppCodeStylePreferences)

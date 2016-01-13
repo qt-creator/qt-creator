@@ -32,9 +32,6 @@
 
 namespace PythonEditor {
 
-// Tab size hardcoded as PEP8 style guide requires, but can be moved to settings
-static const int TAB_SIZE = 4;
-
 PythonIndenter::PythonIndenter()
 {
     m_jumpKeywords << QLatin1String("return")
@@ -59,39 +56,21 @@ bool PythonIndenter::isElectricCharacter(const QChar &ch) const
     return (ch == QLatin1Char(':'));
 }
 
-/**
- * @brief Indents one block (i.e. one line) of code
- * @param doc Unused
- * @param block Block that represents line
- * @param typedChar Unused
- * @param tabSettings An IDE tabulation settings
- *
- * Usually this function called once when you begin new line of code by pressing
- * Enter. If Indenter reimplements indent() function, than indentBlock() may be
- * called in other cases.
- */
-void PythonIndenter::indentBlock(QTextDocument *document,
-                                 const QTextBlock &block,
-                                 const QChar &typedChar,
-                                 const TextEditor::TabSettings &settings)
+int PythonIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
 {
-    Q_UNUSED(document);
-    Q_UNUSED(typedChar);
     QTextBlock previousBlock = block.previous();
-    if (previousBlock.isValid()) {
-        QString previousLine = previousBlock.text();
-        int indentation = settings.indentationColumn(previousLine);
+    if (!previousBlock.isValid())
+        return 0;
 
-        if (isElectricLine(previousLine))
-            indentation += TAB_SIZE;
-        else
-            indentation = qMax<int>(0, indentation + getIndentDiff(previousLine));
+    QString previousLine = previousBlock.text();
+    int indentation = tabSettings.indentationColumn(previousLine);
 
-        settings.indentLine(block, indentation);
-    } else {
-        // First line in whole document
-        settings.indentLine(block, 0);
-    }
+    if (isElectricLine(previousLine))
+        indentation += tabSettings.m_indentSize;
+    else
+        indentation = qMax<int>(0, indentation + getIndentDiff(previousLine, tabSettings));
+
+    return indentation;
 }
 
 /// @return True if electric character is last non-space character at given string
@@ -109,13 +88,14 @@ bool PythonIndenter::isElectricLine(const QString &line) const
 }
 
 /// @return negative indent diff if previous line breaks control flow branch
-int PythonIndenter::getIndentDiff(const QString &previousLine) const
+int PythonIndenter::getIndentDiff(const QString &previousLine,
+                                  const TextEditor::TabSettings &tabSettings) const
 {
     Internal::Scanner sc(previousLine.constData(), previousLine.length());
     forever {
         Internal::FormatToken tk = sc.read();
         if ((tk.format() == Internal::Format_Keyword) && m_jumpKeywords.contains(sc.value(tk)))
-            return -TAB_SIZE;
+            return -tabSettings.m_indentSize;
         if (tk.format() != Internal::Format_Whitespace)
             break;
     }

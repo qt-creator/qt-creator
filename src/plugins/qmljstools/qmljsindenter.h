@@ -37,14 +37,16 @@ class QMLJSTOOLS_EXPORT Indenter : public TextEditor::Indenter
 {
 public:
     Indenter();
-    virtual ~Indenter();
+    ~Indenter() override;
 
-    virtual bool isElectricCharacter(const QChar &ch) const;
-    virtual void indentBlock(QTextDocument *doc,
-                             const QTextBlock &block,
-                             const QChar &typedChar,
-                             const TextEditor::TabSettings &tabSettings);
-    virtual void invalidateCache(QTextDocument *doc);
+    bool isElectricCharacter(const QChar &ch) const override;
+    void indentBlock(QTextDocument *doc,
+                     const QTextBlock &block,
+                     const QChar &typedChar,
+                     const TextEditor::TabSettings &tabSettings) override;
+    void invalidateCache(QTextDocument *doc) override;
+
+    int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
 };
 
 } // Internal

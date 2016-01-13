@@ -68,6 +68,8 @@ public:
     virtual void setCodeStylePreferences(ICodeStylePreferences *preferences);
 
     virtual void invalidateCache(QTextDocument *doc);
+
+    virtual int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings);
 };
 
 } // namespace TextEditor

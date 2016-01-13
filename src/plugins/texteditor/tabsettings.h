@@ -55,7 +55,9 @@ public:
         ContinuationAlignWithIndent = 2
     };
 
-    TabSettings();
+    TabSettings() = default;
+    TabSettings(TabPolicy tabPolicy, int tabSize,
+                int indentSize, ContinuationAlignBehavior continuationAlignBehavior);
 
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);
@@ -68,7 +70,7 @@ public:
     int positionAtColumn(const QString &text, int column, int *offset = 0, bool allowOverstep = false) const;
     int columnCountForText(const QString &text, int startColumn = 0) const;
     int indentedColumn(int column, bool doIndent = true) const;
-    QString indentationString(int startColumn, int targetColumn, const QTextBlock &currentBlock = QTextBlock()) const;
+    QString indentationString(int startColumn, int targetColumn, int padding, const QTextBlock &currentBlock = QTextBlock()) const;
     QString indentationString(const QString &text) const;
     int indentationColumn(const QString &text) const;
     static int maximumPadding(const QString &text);
@@ -76,7 +78,7 @@ public:
     void indentLine(QTextBlock block, int newIndent, int padding = 0) const;
     void reindentLine(QTextBlock block, int delta) const;
 
-    bool isIndentationClean(const QTextBlock &block) const;
+    bool isIndentationClean(const QTextBlock &block, const int indent) const;
     bool guessSpacesForTabs(const QTextBlock &block) const;
 
     static int firstNonSpace(const QString &text);
@@ -86,10 +88,10 @@ public:
     static int trailingWhitespaces(const QString &text);
     static void removeTrailingWhitespace(QTextCursor cursor, QTextBlock &block);
 
-    TabPolicy m_tabPolicy;
-    int m_tabSize;
-    int m_indentSize;
-    ContinuationAlignBehavior m_continuationAlignBehavior;
+    TabPolicy m_tabPolicy = SpacesOnlyTabPolicy;
+    int m_tabSize = 8;
+    int m_indentSize = 4;
+    ContinuationAlignBehavior m_continuationAlignBehavior = ContinuationAlignWithSpaces;
 
     bool equals(const TabSettings &ts) const;
 };
@@ -100,5 +102,7 @@ inline bool operator!=(const TabSettings &t1, const TabSettings &t2) { return !t
 } // namespace TextEditor
 
 Q_DECLARE_METATYPE(TextEditor::TabSettings)
+Q_DECLARE_METATYPE(TextEditor::TabSettings::TabPolicy)
+Q_DECLARE_METATYPE(TextEditor::TabSettings::ContinuationAlignBehavior)
 
 #endif // TABSETTINGS_H

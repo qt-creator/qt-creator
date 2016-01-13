@@ -47,6 +47,8 @@ public:
                         const QTextCursor &cursor,
                         const QChar &typedChar,
                         const TextEditor::TabSettings &tabSettings);
+
+    int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
 };
 
 } // namespace Internal

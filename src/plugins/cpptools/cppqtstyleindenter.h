@@ -43,21 +43,22 @@ class CPPTOOLS_EXPORT CppQtStyleIndenter : public TextEditor::Indenter
 {
 public:
     CppQtStyleIndenter();
-    virtual ~CppQtStyleIndenter();
+    ~CppQtStyleIndenter() override;
 
-    virtual bool isElectricCharacter(const QChar &ch) const;
-    virtual void indentBlock(QTextDocument *doc,
-                             const QTextBlock &block,
-                             const QChar &typedChar,
-                             const TextEditor::TabSettings &tabSettings);
+    bool isElectricCharacter(const QChar &ch) const override;
+    void indentBlock(QTextDocument *doc,
+                     const QTextBlock &block,
+                     const QChar &typedChar,
+                     const TextEditor::TabSettings &tabSettings) override;
 
-    virtual void indent(QTextDocument *doc,
-                        const QTextCursor &cursor,
-                        const QChar &typedChar,
-                        const TextEditor::TabSettings &tabSettings);
+    void indent(QTextDocument *doc,
+                const QTextCursor &cursor,
+                const QChar &typedChar,
+                const TextEditor::TabSettings &tabSettings) override;
 
-    virtual void setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences);
-    virtual void invalidateCache(QTextDocument *doc);
+    void setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences) override;
+    void invalidateCache(QTextDocument *doc) override;
+    int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
 private:
     CppCodeStyleSettings codeStyleSettings() const;
     CppCodeStylePreferences *m_cppCodeStylePreferences;

@@ -33,13 +33,10 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT NormalIndenter : public Indenter
 {
 public:
-    NormalIndenter();
-    virtual ~NormalIndenter();
+    NormalIndenter() {}
+    ~NormalIndenter() override {}
 
-    virtual void indentBlock(QTextDocument *doc,
-                             const QTextBlock &block,
-                             const QChar &typedChar,
-                             const TextEditor::TabSettings &tabSettings);
+    int indentFor(const QTextBlock &block, const TabSettings &tabSettings) override;
 };
 
 } // namespace TextEditor

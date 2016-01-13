@@ -79,6 +79,9 @@ private slots:
     void testBlockSelectionRemove();
     void testBlockSelectionCopy_data();
     void testBlockSelectionCopy();
+
+    void testIndentationClean_data();
+    void testIndentationClean();
 #endif
 
 };

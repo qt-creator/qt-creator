@@ -58,12 +58,12 @@ void Indenter::indentBlock(QTextDocument *doc,
 {
     Q_UNUSED(doc)
 
-    QmlJSTools::CreatorCodeFormatter codeFormatter(tabSettings);
-
-    codeFormatter.updateStateUntil(block);
-    const int depth = codeFormatter.indentFor(block);
+    const int depth = indentFor(block, tabSettings);
     if (depth == -1)
         return;
+
+    QmlJSTools::CreatorCodeFormatter codeFormatter(tabSettings);
+    codeFormatter.updateStateUntil(block);
 
     if (isElectricCharacter(typedChar)) {
         // only reindent the current line when typing electric characters if the
@@ -80,4 +80,13 @@ void Indenter::invalidateCache(QTextDocument *doc)
 {
     QmlJSTools::CreatorCodeFormatter codeFormatter;
     codeFormatter.invalidateCache(doc);
+}
+
+
+int Indenter::indentFor(const QTextBlock &block,
+                        const TextEditor::TabSettings &tabSettings)
+{
+    QmlJSTools::CreatorCodeFormatter codeFormatter(tabSettings);
+    codeFormatter.updateStateUntil(block);
+    return codeFormatter.indentFor(block);
 }

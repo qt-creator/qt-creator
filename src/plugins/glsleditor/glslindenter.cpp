@@ -111,5 +111,18 @@ void GlslIndenter::indent(QTextDocument *doc,
     }
 }
 
+int GlslIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
+{
+    CppTools::QtStyleCodeFormatter codeFormatter(tabSettings,
+              CppTools::CppToolsSettings::instance()->cppCodeStyle()->codeStyleSettings());
+
+    codeFormatter.updateStateUntil(block);
+    int indent;
+    int padding;
+    codeFormatter.indentFor(block, &indent, &padding);
+
+    return indent;
+}
+
 } // namespace Internal
 } // namespace GlslEditor
