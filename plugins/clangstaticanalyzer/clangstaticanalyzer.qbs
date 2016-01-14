@@ -1,6 +1,6 @@
 import qbs
 
-QtcCommercialPlugin {
+QtcPlugin {
     name: "ClangStaticAnalyzer"
 
     Depends { name: "AnalyzerBase" }
@@ -29,7 +29,6 @@ QtcCommercialPlugin {
         "clangstaticanalyzerdiagnosticmodel.h",
         "clangstaticanalyzerdiagnosticview.cpp",
         "clangstaticanalyzerdiagnosticview.h",
-        "clangstaticanalyzerlicensecheck.h",
         "clangstaticanalyzerlogfilereader.cpp",
         "clangstaticanalyzerlogfilereader.h",
         "clangstaticanalyzerplugin.cpp",

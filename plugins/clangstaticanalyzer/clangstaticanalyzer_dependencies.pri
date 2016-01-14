@@ -8,5 +8,3 @@ QTC_PLUGIN_DEPENDS += \
 QTC_TEST_DEPENDS += \
     qbsprojectmanager \
     qmakeprojectmanager
-
-CONFIG(licensechecker): QTC_PLUGIN_DEPENDS += licensechecker

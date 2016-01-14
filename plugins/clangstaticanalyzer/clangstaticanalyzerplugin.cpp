@@ -27,7 +27,6 @@
 
 #include "clangstaticanalyzerconfigwidget.h"
 #include "clangstaticanalyzerconstants.h"
-#include "clangstaticanalyzerlicensecheck.h"
 #include "clangstaticanalyzerprojectsettingswidget.h"
 #include "clangstaticanalyzerruncontrolfactory.h"
 #include "clangstaticanalyzertool.h"
@@ -127,9 +126,6 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
-
-    if (!enterpriseFeaturesAvailable())
-        return true;
 
     auto tool = m_analyzerTool = new ClangStaticAnalyzerTool(this);
     addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory(m_analyzerTool));

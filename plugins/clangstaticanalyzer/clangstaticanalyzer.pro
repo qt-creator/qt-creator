@@ -28,7 +28,6 @@ HEADERS += \
     clangstaticanalyzerdiagnosticmodel.h \
     clangstaticanalyzerdiagnosticview.h \
     clangstaticanalyzer_global.h \
-    clangstaticanalyzerlicensecheck.h \
     clangstaticanalyzerlogfilereader.h \
     clangstaticanalyzerplugin.h \
     clangstaticanalyzerprojectsettings.h \
@@ -50,8 +49,6 @@ equals(TEST, 1) {
     SOURCES += clangstaticanalyzerunittests.cpp
     RESOURCES += clangstaticanalyzerunittests.qrc
 }
-
-CONFIG(licensechecker): DEFINES += LICENSECHECKER
 
 DISTFILES += \
     tests/tests.pri
