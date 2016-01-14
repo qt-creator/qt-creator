@@ -118,8 +118,8 @@ class RestoredDocument : public IDocument
 {
 public:
     bool save(QString *, const QString &, bool) override { return false; }
-    QString defaultPath() const override { return filePath().toFileInfo().absolutePath(); }
-    QString suggestedFileName() const override { return filePath().fileName(); }
+    QString fallbackSaveAsPath() const override { return filePath().toFileInfo().absolutePath(); }
+    QString fallbackSaveAsFileName() const override { return filePath().fileName(); }
     bool isModified() const override { return false; }
     bool isSaveAsAllowed() const override { return false; }
     bool reload(QString *, ReloadFlag, ChangeType) override { return true; }

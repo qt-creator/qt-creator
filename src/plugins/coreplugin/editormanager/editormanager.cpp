@@ -1930,7 +1930,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     if (!filePath.isEmpty()) {
         selectedFilter = mdb.mimeTypeForFile(filePath).filterString();
     } else {
-        const QString suggestedName = document->suggestedFileName();
+        const QString suggestedName = document->fallbackSaveAsFileName();
         if (!suggestedName.isEmpty()) {
             const QList<MimeType> types = mdb.mimeTypesForFileName(suggestedName);
             if (!types.isEmpty())

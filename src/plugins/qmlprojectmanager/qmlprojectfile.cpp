@@ -51,12 +51,12 @@ bool QmlProjectFile::save(QString *, const QString &, bool)
     return false;
 }
 
-QString QmlProjectFile::defaultPath() const
+QString QmlProjectFile::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-QString QmlProjectFile::suggestedFileName() const
+QString QmlProjectFile::fallbackSaveAsFileName() const
 {
     return QString();
 }

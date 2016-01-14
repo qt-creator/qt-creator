@@ -565,12 +565,12 @@ bool ResourceFileWatcher::save(QString *errorString, const QString &fileName, bo
     return false;
 }
 
-QString ResourceFileWatcher::defaultPath() const
+QString ResourceFileWatcher::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-QString ResourceFileWatcher::suggestedFileName() const
+QString ResourceFileWatcher::fallbackSaveAsFileName() const
 {
     return QString();
 }

@@ -262,12 +262,12 @@ bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, Chang
     return true;
 }
 
-QString ResourceEditorDocument::defaultPath() const
+QString ResourceEditorDocument::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-QString ResourceEditorDocument::suggestedFileName() const
+QString ResourceEditorDocument::fallbackSaveAsFileName() const
 {
     return QString();
 }

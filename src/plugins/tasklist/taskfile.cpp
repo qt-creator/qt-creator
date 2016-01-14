@@ -54,12 +54,12 @@ bool TaskFile::save(QString *errorString, const QString &fileName, bool autoSave
     return false;
 }
 
-QString TaskFile::defaultPath() const
+QString TaskFile::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-QString TaskFile::suggestedFileName() const
+QString TaskFile::fallbackSaveAsFileName() const
 {
     return QString();
 }

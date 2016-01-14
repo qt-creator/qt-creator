@@ -49,12 +49,12 @@ bool QbsProjectFile::save(QString *, const QString &, bool)
     return false;
 }
 
-QString QbsProjectFile::defaultPath() const
+QString QbsProjectFile::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-QString QbsProjectFile::suggestedFileName() const
+QString QbsProjectFile::fallbackSaveAsFileName() const
 {
     return QString();
 }

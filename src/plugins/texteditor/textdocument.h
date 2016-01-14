@@ -113,11 +113,11 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
     void setFilePath(const Utils::FileName &newName) override;
 
-    QString defaultPath() const override;
-    QString suggestedFileName() const override;
+    QString fallbackSaveAsPath() const override;
+    QString fallbackSaveAsFileName() const override;
 
-    void setDefaultPath(const QString &defaultPath);
-    void setSuggestedFileName(const QString &suggestedFileName);
+    void setFallbackSaveAsPath(const QString &fallbackSaveAsPath);
+    void setFallbackSaveAsFileName(const QString &fallbackSaveAsFileName);
 
     OpenResult open(QString *errorString, const QString &fileName,
                     const QString &realFileName) override;

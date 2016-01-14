@@ -58,8 +58,8 @@ class JavaDocument : public TextEditor::TextDocument
 {
 public:
     JavaDocument();
-    QString defaultPath() const override;
-    QString suggestedFileName() const override;
+    QString fallbackSaveAsPath() const override;
+    QString fallbackSaveAsFileName() const override;
 };
 
 
@@ -70,12 +70,12 @@ JavaDocument::JavaDocument()
     setIndenter(new JavaIndenter);
 }
 
-QString JavaDocument::defaultPath() const
+QString JavaDocument::fallbackSaveAsPath() const
 {
     return filePath().toFileInfo().absolutePath();
 }
 
-QString JavaDocument::suggestedFileName() const
+QString JavaDocument::fallbackSaveAsFileName() const
 {
     return filePath().fileName();
 }

@@ -559,7 +559,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
         if (document && document->isModified()) {
             QString name = document->filePath().toString();
             if (name.isEmpty())
-                name = document->suggestedFileName();
+                name = document->fallbackSaveAsFileName();
 
             // There can be several IDocuments pointing to the same file
             // Prefer one that is not readonly
@@ -719,8 +719,8 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document, const QStr
     QString path;
     QString fileName;
     if (absoluteFilePath.isEmpty()) {
-        fileName = document->suggestedFileName();
-        const QString defaultPath = document->defaultPath();
+        fileName = document->fallbackSaveAsFileName();
+        const QString defaultPath = document->fallbackSaveAsPath();
         if (!defaultPath.isEmpty())
             path = defaultPath;
     } else {

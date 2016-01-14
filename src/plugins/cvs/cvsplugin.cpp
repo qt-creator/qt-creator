@@ -1195,7 +1195,7 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
     if (!e)
         return 0;
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
-    e->textDocument()->setSuggestedFileName(s);
+    e->textDocument()->setFallbackSaveAsFileName(s);
     e->setForceReadOnly(true);
     if (!source.isEmpty())
         e->setSource(source);

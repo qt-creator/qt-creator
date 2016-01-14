@@ -293,8 +293,8 @@ public:
         return false;
     }
 
-    QString defaultPath() const override { return QString(); }
-    QString suggestedFileName() const override { return QString(); }
+    QString fallbackSaveAsPath() const override { return QString(); }
+    QString fallbackSaveAsFileName() const override { return QString(); }
 
     bool isModified() const override { return false; }
     bool isSaveAsAllowed() const override { return false; }

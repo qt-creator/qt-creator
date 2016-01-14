@@ -106,12 +106,12 @@ bool ModelDocument::save(QString *errorString, const QString &name, bool autoSav
     return true;
 }
 
-QString ModelDocument::defaultPath() const
+QString ModelDocument::fallbackSaveAsPath() const
 {
     return QLatin1String(".");
 }
 
-QString ModelDocument::suggestedFileName() const
+QString ModelDocument::fallbackSaveAsFileName() const
 {
     return tr("model.qmodel");
 }

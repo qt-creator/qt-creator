@@ -452,12 +452,12 @@ bool GenericProjectFile::save(QString *, const QString &, bool)
     return false;
 }
 
-QString GenericProjectFile::defaultPath() const
+QString GenericProjectFile::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-QString GenericProjectFile::suggestedFileName() const
+QString GenericProjectFile::fallbackSaveAsFileName() const
 {
     return QString();
 }

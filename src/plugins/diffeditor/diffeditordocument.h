@@ -71,8 +71,8 @@ public:
     bool ignoreWhitespace() const;
 
     bool setContents(const QByteArray &contents) override;
-    QString defaultPath() const override;
-    QString suggestedFileName() const override;
+    QString fallbackSaveAsPath() const override;
+    QString fallbackSaveAsFileName() const override;
 
     bool isModified() const override { return false; }
     bool isSaveAsAllowed() const override { return true; }

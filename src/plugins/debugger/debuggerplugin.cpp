@@ -3083,7 +3083,7 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
         QString suggestion = titlePattern;
         if (!suggestion.contains(QLatin1Char('.')))
             suggestion.append(QLatin1String(".txt"));
-        textEditor->textDocument()->setSuggestedFileName(suggestion);
+        textEditor->textDocument()->setFallbackSaveAsFileName(suggestion);
     }
     QTC_ASSERT(editor, return);
 }

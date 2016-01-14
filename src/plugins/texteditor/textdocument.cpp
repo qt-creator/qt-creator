@@ -429,22 +429,22 @@ bool TextDocument::isSaveAsAllowed() const
     return true;
 }
 
-QString TextDocument::defaultPath() const
+QString TextDocument::fallbackSaveAsPath() const
 {
     return d->m_defaultPath;
 }
 
-QString TextDocument::suggestedFileName() const
+QString TextDocument::fallbackSaveAsFileName() const
 {
     return d->m_suggestedFileName;
 }
 
-void TextDocument::setDefaultPath(const QString &defaultPath)
+void TextDocument::setFallbackSaveAsPath(const QString &defaultPath)
 {
     d->m_defaultPath = defaultPath;
 }
 
-void TextDocument::setSuggestedFileName(const QString &suggestedFileName)
+void TextDocument::setFallbackSaveAsFileName(const QString &suggestedFileName)
 {
     d->m_suggestedFileName = suggestedFileName;
 }

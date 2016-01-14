@@ -67,7 +67,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
         QString directory;
         QString fileName = document->filePath().toString();
         if (fileName.isEmpty()) {
-            visibleName = document->suggestedFileName();
+            visibleName = document->fallbackSaveAsFileName();
         } else {
             QFileInfo info = QFileInfo(fileName);
             directory = info.absolutePath();

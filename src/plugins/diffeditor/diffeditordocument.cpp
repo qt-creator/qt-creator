@@ -198,7 +198,7 @@ bool DiffEditorDocument::setContents(const QByteArray &contents)
     return true;
 }
 
-QString DiffEditorDocument::defaultPath() const
+QString DiffEditorDocument::fallbackSaveAsPath() const
 {
     if (!m_baseDirectory.isEmpty())
         return m_baseDirectory;
@@ -274,7 +274,7 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
     return ok ? OpenResult::Success : OpenResult::CannotHandle;
 }
 
-QString DiffEditorDocument::suggestedFileName() const
+QString DiffEditorDocument::fallbackSaveAsFileName() const
 {
     const int maxSubjectLength = 50;
 

@@ -56,12 +56,12 @@ bool CMakeFile::save(QString *errorString, const QString &fileName, bool autoSav
     return false;
 }
 
-QString CMakeFile::defaultPath() const
+QString CMakeFile::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-QString CMakeFile::suggestedFileName() const
+QString CMakeFile::fallbackSaveAsFileName() const
 {
     return QString();
 }

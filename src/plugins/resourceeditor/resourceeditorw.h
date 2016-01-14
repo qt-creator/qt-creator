@@ -66,8 +66,8 @@ public:
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-    QString defaultPath() const override;
-    QString suggestedFileName() const override;
+    QString fallbackSaveAsPath() const override;
+    QString fallbackSaveAsFileName() const override;
     void setFilePath(const Utils::FileName &newName) override;
     void setBlockDirtyChanged(bool value);
 

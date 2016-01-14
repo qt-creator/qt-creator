@@ -242,8 +242,8 @@ class CMakeDocument : public TextDocument
 public:
     CMakeDocument();
 
-    QString defaultPath() const override;
-    QString suggestedFileName() const override;
+    QString fallbackSaveAsPath() const override;
+    QString fallbackSaveAsFileName() const override;
 };
 
 CMakeDocument::CMakeDocument()
@@ -252,12 +252,12 @@ CMakeDocument::CMakeDocument()
     setMimeType(QLatin1String(Constants::CMAKEMIMETYPE));
 }
 
-QString CMakeDocument::defaultPath() const
+QString CMakeDocument::fallbackSaveAsPath() const
 {
     return filePath().toFileInfo().absolutePath();
 }
 
-QString CMakeDocument::suggestedFileName() const
+QString CMakeDocument::fallbackSaveAsFileName() const
 {
     return filePath().fileName();
 }

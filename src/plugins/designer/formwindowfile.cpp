@@ -221,12 +221,12 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
     return true;
 }
 
-QString FormWindowFile::defaultPath() const
+QString FormWindowFile::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-void FormWindowFile::setSuggestedFileName(const QString &fn)
+void FormWindowFile::setFallbackSaveAsFileName(const QString &fn)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << filePath() << fn;
@@ -234,7 +234,7 @@ void FormWindowFile::setSuggestedFileName(const QString &fn)
     m_suggestedName = fn;
 }
 
-QString FormWindowFile::suggestedFileName() const
+QString FormWindowFile::fallbackSaveAsFileName() const
 {
     return m_suggestedName;
 }

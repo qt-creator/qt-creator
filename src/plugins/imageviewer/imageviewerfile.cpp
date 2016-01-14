@@ -268,12 +268,12 @@ bool ImageViewerFile::setContents(const QByteArray &contents)
     return false;
 }
 
-QString ImageViewerFile::defaultPath() const
+QString ImageViewerFile::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-QString ImageViewerFile::suggestedFileName() const
+QString ImageViewerFile::fallbackSaveAsFileName() const
 {
     return QString();
 }

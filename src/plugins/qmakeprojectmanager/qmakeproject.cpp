@@ -104,8 +104,8 @@ public:
 
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
 
-    QString defaultPath() const override;
-    QString suggestedFileName() const override;
+    QString fallbackSaveAsPath() const override;
+    QString fallbackSaveAsFileName() const override;
 
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
@@ -266,12 +266,12 @@ bool QmakeProjectFile::save(QString *, const QString &, bool)
     return false;
 }
 
-QString QmakeProjectFile::defaultPath() const
+QString QmakeProjectFile::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-QString QmakeProjectFile::suggestedFileName() const
+QString QmakeProjectFile::fallbackSaveAsFileName() const
 {
     return QString();
 }

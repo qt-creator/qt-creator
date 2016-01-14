@@ -59,12 +59,12 @@ bool AndroidManifestDocument::save(QString *errorString, const QString &fileName
     return result;
 }
 
-QString AndroidManifestDocument::defaultPath() const
+QString AndroidManifestDocument::fallbackSaveAsPath() const
 {
     return filePath().toFileInfo().absolutePath();
 }
 
-QString AndroidManifestDocument::suggestedFileName() const
+QString AndroidManifestDocument::fallbackSaveAsFileName() const
 {
     return filePath().fileName();
 }

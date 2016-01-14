@@ -53,12 +53,12 @@ bool AutotoolsProjectFile::save(QString *errorString, const QString &fileName, b
     return false;
 }
 
-QString AutotoolsProjectFile::defaultPath() const
+QString AutotoolsProjectFile::fallbackSaveAsPath() const
 {
     return QString();
 }
 
-QString AutotoolsProjectFile::suggestedFileName() const
+QString AutotoolsProjectFile::fallbackSaveAsFileName() const
 {
     return QString();
 }
