@@ -221,11 +221,6 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
     return true;
 }
 
-QString FormWindowFile::fallbackSaveAsPath() const
-{
-    return QString();
-}
-
 void FormWindowFile::setFallbackSaveAsFileName(const QString &fn)
 {
     if (Designer::Constants::Internal::debug)

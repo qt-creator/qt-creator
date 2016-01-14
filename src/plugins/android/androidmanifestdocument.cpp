@@ -59,16 +59,6 @@ bool AndroidManifestDocument::save(QString *errorString, const QString &fileName
     return result;
 }
 
-QString AndroidManifestDocument::fallbackSaveAsPath() const
-{
-    return filePath().toFileInfo().absolutePath();
-}
-
-QString AndroidManifestDocument::fallbackSaveAsFileName() const
-{
-    return filePath().fileName();
-}
-
 bool AndroidManifestDocument::isModified() const
 {
     return TextDocument::isModified() ||  m_editorWidget->isModified();

@@ -46,9 +46,6 @@ public:
 
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
 
-    QString fallbackSaveAsPath() const override;
-    QString fallbackSaveAsFileName() const override;
-
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
 

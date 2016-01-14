@@ -61,7 +61,6 @@ public:
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-    QString fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
 
     // Internal

@@ -49,16 +49,6 @@ bool QbsProjectFile::save(QString *, const QString &, bool)
     return false;
 }
 
-QString QbsProjectFile::fallbackSaveAsPath() const
-{
-    return QString();
-}
-
-QString QbsProjectFile::fallbackSaveAsFileName() const
-{
-    return QString();
-}
-
 bool QbsProjectFile::isModified() const
 {
     return false;

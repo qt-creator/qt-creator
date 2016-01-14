@@ -262,16 +262,6 @@ bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, Chang
     return true;
 }
 
-QString ResourceEditorDocument::fallbackSaveAsPath() const
-{
-    return QString();
-}
-
-QString ResourceEditorDocument::fallbackSaveAsFileName() const
-{
-    return QString();
-}
-
 void ResourceEditorDocument::dirtyChanged(bool dirty)
 {
     if (m_blockDirtyChanged)

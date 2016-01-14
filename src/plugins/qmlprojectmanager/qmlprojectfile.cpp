@@ -51,16 +51,6 @@ bool QmlProjectFile::save(QString *, const QString &, bool)
     return false;
 }
 
-QString QmlProjectFile::fallbackSaveAsPath() const
-{
-    return QString();
-}
-
-QString QmlProjectFile::fallbackSaveAsFileName() const
-{
-    return QString();
-}
-
 bool QmlProjectFile::isModified() const
 {
     return false;

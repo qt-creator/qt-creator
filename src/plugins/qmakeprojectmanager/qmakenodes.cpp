@@ -280,16 +280,6 @@ bool QmakePriFile::save(QString *errorString, const QString &fileName, bool auto
     return false;
 }
 
-QString QmakePriFile::fallbackSaveAsPath() const
-{
-    return QString();
-}
-
-QString QmakePriFile::fallbackSaveAsFileName() const
-{
-    return QString();
-}
-
 bool QmakePriFile::isModified() const
 {
     return false;

@@ -56,16 +56,6 @@ bool CMakeFile::save(QString *errorString, const QString &fileName, bool autoSav
     return false;
 }
 
-QString CMakeFile::fallbackSaveAsPath() const
-{
-    return QString();
-}
-
-QString CMakeFile::fallbackSaveAsFileName() const
-{
-    return QString();
-}
-
 bool CMakeFile::isModified() const
 {
     return false;

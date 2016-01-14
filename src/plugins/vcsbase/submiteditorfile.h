@@ -50,8 +50,6 @@ public:
     OpenResult open(QString *errorString, const QString &fileName,
                     const QString &realFileName) override;
     bool setContents(const QByteArray &contents) override;
-    QString fallbackSaveAsPath() const override { return QString(); }
-    QString fallbackSaveAsFileName() const override { return QString(); }
 
     bool isModified() const override { return m_modified; }
     bool isSaveAsAllowed() const override { return false; }

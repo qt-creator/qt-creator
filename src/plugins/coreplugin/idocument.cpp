@@ -211,6 +211,16 @@ void IDocument::setTemporary(bool temporary)
     d->temporary = temporary;
 }
 
+QString IDocument::fallbackSaveAsPath() const
+{
+    return QString();
+}
+
+QString IDocument::fallbackSaveAsFileName() const
+{
+    return QString();
+}
+
 QString IDocument::mimeType() const
 {
     return d->mimeType;

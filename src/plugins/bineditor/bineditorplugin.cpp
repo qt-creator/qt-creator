@@ -339,10 +339,6 @@ private slots:
 
 public:
 
-    QString fallbackSaveAsPath() const override { return QString(); }
-
-    QString fallbackSaveAsFileName() const override { return QString(); }
-
     bool isModified() const override
     {
         return isTemporary()/*e.g. memory view*/ ? false

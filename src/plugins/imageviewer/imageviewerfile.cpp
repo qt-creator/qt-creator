@@ -262,16 +262,6 @@ bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool a
     return false;
 }
 
-QString ImageViewerFile::fallbackSaveAsPath() const
-{
-    return QString();
-}
-
-QString ImageViewerFile::fallbackSaveAsFileName() const
-{
-    return QString();
-}
-
 bool ImageViewerFile::isModified() const
 {
     return false;

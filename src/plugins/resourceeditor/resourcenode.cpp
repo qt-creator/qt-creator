@@ -565,16 +565,6 @@ bool ResourceFileWatcher::save(QString *errorString, const QString &fileName, bo
     return false;
 }
 
-QString ResourceFileWatcher::fallbackSaveAsPath() const
-{
-    return QString();
-}
-
-QString ResourceFileWatcher::fallbackSaveAsFileName() const
-{
-    return QString();
-}
-
 bool ResourceFileWatcher::isModified() const
 {
     return false;

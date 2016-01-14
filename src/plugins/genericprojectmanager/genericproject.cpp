@@ -452,16 +452,6 @@ bool GenericProjectFile::save(QString *, const QString &, bool)
     return false;
 }
 
-QString GenericProjectFile::fallbackSaveAsPath() const
-{
-    return QString();
-}
-
-QString GenericProjectFile::fallbackSaveAsFileName() const
-{
-    return QString();
-}
-
 bool GenericProjectFile::isModified() const
 {
     return false;

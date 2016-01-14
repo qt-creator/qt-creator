@@ -165,8 +165,6 @@ class ProFileDocument : public TextDocument
 {
 public:
     ProFileDocument();
-    QString fallbackSaveAsPath() const override;
-    QString fallbackSaveAsFileName() const override;
 
     // qmake project files doesn't support UTF8-BOM
     // If the BOM would be added qmake would fail and QtCreator couldn't parse the project file
@@ -177,16 +175,6 @@ ProFileDocument::ProFileDocument()
 {
     setId(Constants::PROFILE_EDITOR_ID);
     setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
-}
-
-QString ProFileDocument::fallbackSaveAsPath() const
-{
-    return filePath().toFileInfo().absolutePath();
-}
-
-QString ProFileDocument::fallbackSaveAsFileName() const
-{
-    return filePath().fileName();
 }
 
 //

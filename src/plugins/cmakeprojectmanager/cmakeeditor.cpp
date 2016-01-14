@@ -241,25 +241,12 @@ class CMakeDocument : public TextDocument
 {
 public:
     CMakeDocument();
-
-    QString fallbackSaveAsPath() const override;
-    QString fallbackSaveAsFileName() const override;
 };
 
 CMakeDocument::CMakeDocument()
 {
     setId(Constants::CMAKE_EDITOR_ID);
     setMimeType(QLatin1String(Constants::CMAKEMIMETYPE));
-}
-
-QString CMakeDocument::fallbackSaveAsPath() const
-{
-    return filePath().toFileInfo().absolutePath();
-}
-
-QString CMakeDocument::fallbackSaveAsFileName() const
-{
-    return filePath().fileName();
 }
 
 //

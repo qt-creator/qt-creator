@@ -106,16 +106,6 @@ bool ModelDocument::save(QString *errorString, const QString &name, bool autoSav
     return true;
 }
 
-QString ModelDocument::fallbackSaveAsPath() const
-{
-    return QLatin1String(".");
-}
-
-QString ModelDocument::fallbackSaveAsFileName() const
-{
-    return tr("model.qmodel");
-}
-
 bool ModelDocument::isModified() const
 {
     return d->documentController ? d->documentController->projectController()->isModified() : false;

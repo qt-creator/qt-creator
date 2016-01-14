@@ -54,16 +54,6 @@ bool TaskFile::save(QString *errorString, const QString &fileName, bool autoSave
     return false;
 }
 
-QString TaskFile::fallbackSaveAsPath() const
-{
-    return QString();
-}
-
-QString TaskFile::fallbackSaveAsFileName() const
-{
-    return QString();
-}
-
 bool TaskFile::isModified() const
 {
     return false;

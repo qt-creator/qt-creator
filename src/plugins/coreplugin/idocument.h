@@ -108,8 +108,8 @@ public:
     bool isTemporary() const;
     void setTemporary(bool temporary);
 
-    virtual QString fallbackSaveAsPath() const = 0;
-    virtual QString fallbackSaveAsFileName() const = 0;
+    virtual QString fallbackSaveAsPath() const;
+    virtual QString fallbackSaveAsFileName() const;
 
     QString mimeType() const;
     void setMimeType(const QString &mimeType);
