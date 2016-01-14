@@ -7,6 +7,7 @@ QtcCommercialPlugin {
     Depends { name: "QmlProfiler" }
     Depends { name: "Timeline" }
 
+    Depends { name: "Qt.quickwidgets" }
     Depends { name: "Qt.widgets" }
 
     files: [
