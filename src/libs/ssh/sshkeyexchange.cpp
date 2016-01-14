@@ -33,15 +33,13 @@
 #include "ssh_global.h"
 #include "sshbotanconversions_p.h"
 #include "sshcapabilities_p.h"
+#include "sshlogging_p.h"
 #include "sshsendfacility_p.h"
 #include "sshexception_p.h"
 #include "sshincomingpacket_p.h"
 
 #include <botan/botan.h>
 
-#ifdef CREATOR_SSH_DEBUG
-#include <iostream>
-#endif
 #include <string>
 
 using namespace Botan;
@@ -54,26 +52,16 @@ namespace {
     // For debugging
     void printNameList(const char *listName, const SshNameList &list)
     {
-#ifdef CREATOR_SSH_DEBUG
-        qDebug("%s:", listName);
+        qCDebug(sshLog, "%s:", listName);
         foreach (const QByteArray &name, list.names)
-            qDebug("%s", name.constData());
-#else
-        Q_UNUSED(listName);
-        Q_UNUSED(list);
-#endif
+            qCDebug(sshLog, "%s", name.constData());
     }
 
-#ifdef CREATOR_SSH_DEBUG
     void printData(const char *name, const QByteArray &data)
     {
-        std::cerr << std::hex;
-        qDebug("The client thinks the %s has length %d and is:", name, data.count());
-        for (int i = 0; i < data.count(); ++i)
-            std::cerr << (static_cast<unsigned int>(data.at(i)) & 0xff) << ' ';
-        std::cerr << std::endl;
+        qCDebug(sshLog, "The client thinks the %s has length %d and is: %s", name, data.count(),
+                data.toHex().constData());
     }
-#endif
 
 } // anonymous namespace
 
@@ -93,9 +81,7 @@ void SshKeyExchange::sendKexInitPacket(const QByteArray &serverId)
 
 bool SshKeyExchange::sendDhInitPacket(const SshIncomingPacket &serverKexInit)
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("server requests key exchange");
-#endif
+    qCDebug(sshLog, "server requests key exchange");
     serverKexInit.printRawBytes();
     SshKeyExchangeInit kexInitParams
             = serverKexInit.extractKeyExchangeInitData();
@@ -110,9 +96,7 @@ bool SshKeyExchange::sendDhInitPacket(const SshIncomingPacket &serverKexInit)
     printNameList("Compression algorithms client to server", kexInitParams.compressionAlgorithmsClientToServer);
     printNameList("Languages client to server", kexInitParams.languagesClientToServer);
     printNameList("Languages server to client", kexInitParams.languagesServerToClient);
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("First packet follows: %d", kexInitParams.firstKexPacketFollows);
-#endif
+    qCDebug(sshLog, "First packet follows: %d", kexInitParams.firstKexPacketFollows);
 
     m_kexAlgoName = SshCapabilities::findBestMatch(SshCapabilities::KeyExchangeMethods,
                                                    kexInitParams.keyAlgorithms.names);
@@ -161,6 +145,13 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
     concatenatedData += AbstractSshPacket::encodeString(m_clientKexInitPayload);
     concatenatedData += AbstractSshPacket::encodeString(m_serverKexInitPayload);
     concatenatedData += reply.k_s;
+
+    printData("Client Id", AbstractSshPacket::encodeString(clientId));
+    printData("Server Id", AbstractSshPacket::encodeString(m_serverId));
+    printData("Client Payload", AbstractSshPacket::encodeString(m_clientKexInitPayload));
+    printData("Server payload", AbstractSshPacket::encodeString(m_serverKexInitPayload));
+    printData("K_S", reply.k_s);
+
     SecureVector<byte> encodedK;
     if (m_dhKey) {
         concatenatedData += AbstractSshPacket::encodeMpInt(m_dhKey->get_y());
@@ -169,6 +160,8 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
         SecureVector<byte> encodedF = BigInt::encode(reply.f);
         encodedK = dhOp.agree(encodedF, encodedF.size());
         m_dhKey.reset(nullptr);
+        printData("y", AbstractSshPacket::encodeMpInt(m_dhKey->get_y()));
+        printData("f", AbstractSshPacket::encodeMpInt(reply.f));
     } else {
         Q_ASSERT(m_ecdhKey);
         concatenatedData // Q_C.
@@ -181,25 +174,15 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
 
     const BigInt k = BigInt::decode(encodedK);
     m_k = AbstractSshPacket::encodeMpInt(k); // Roundtrip, as Botan encodes BigInts somewhat differently.
+    printData("K", m_k);
     concatenatedData += m_k;
+    printData("Concatenated data", concatenatedData);
 
     m_hash.reset(get_hash(botanHMacAlgoName(hashAlgoForKexAlgo())));
     const SecureVector<byte> &hashResult = m_hash->process(convertByteArray(concatenatedData),
                                                            concatenatedData.size());
     m_h = convertByteArray(hashResult);
-
-#ifdef CREATOR_SSH_DEBUG
-    printData("Client Id", AbstractSshPacket::encodeString(clientId));
-    printData("Server Id", AbstractSshPacket::encodeString(m_serverId));
-    printData("Client Payload", AbstractSshPacket::encodeString(m_clientKexInitPayload));
-    printData("Server payload", AbstractSshPacket::encodeString(m_serverKexInitPayload));
-    printData("K_S", reply.k_s);
-    printData("y", AbstractSshPacket::encodeMpInt(m_dhKey->get_y()));
-    printData("f", AbstractSshPacket::encodeMpInt(reply.f));
-    printData("K", m_k);
-    printData("Concatenated data", concatenatedData);
     printData("H", m_h);
-#endif // CREATOR_SSH_DEBUG
 
     QScopedPointer<Public_Key> sigKey;
     if (m_serverHostKeyAlgo == SshCapabilities::PubKeyDss) {

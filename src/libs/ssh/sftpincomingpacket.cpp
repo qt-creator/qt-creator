@@ -31,6 +31,7 @@
 #include "sftpincomingpacket_p.h"
 
 #include "sshexception_p.h"
+#include "sshlogging_p.h"
 #include "sshpacketparser_p.h"
 
 namespace QSsh {
@@ -42,10 +43,8 @@ SftpIncomingPacket::SftpIncomingPacket() : m_length(0)
 
 void SftpIncomingPacket::consumeData(QByteArray &newData)
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("%s: current data size = %d, new data size = %d", Q_FUNC_INFO,
+    qCDebug(sshLog, "%s: current data size = %d, new data size = %d", Q_FUNC_INFO,
         m_data.size(), newData.size());
-#endif
 
     if (isComplete() || dataSize() + newData.size() < sizeof m_length)
         return;

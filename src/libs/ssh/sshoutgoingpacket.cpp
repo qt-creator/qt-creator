@@ -32,6 +32,7 @@
 
 #include "sshcapabilities_p.h"
 #include "sshcryptofacility_p.h"
+#include "sshlogging_p.h"
 
 #include <QtEndian>
 
@@ -328,13 +329,9 @@ void SshOutgoingPacket::finalize()
     setPadding();
     setLengthField(m_data);
     m_length = m_data.size() - 4;
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Encrypting packet of type %u", m_data.at(TypeOffset));
-#endif
+    qCDebug(sshLog, "Encrypting packet of type %u", m_data.at(TypeOffset));
     encrypt();
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Sending packet of size %d", rawData().count());
-#endif
+    qCDebug(sshLog, "Sending packet of size %d", rawData().count());
     Q_ASSERT(isComplete());
 }
 

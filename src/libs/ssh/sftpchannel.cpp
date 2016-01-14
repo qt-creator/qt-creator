@@ -33,6 +33,7 @@
 
 #include "sshexception_p.h"
 #include "sshincomingpacket_p.h"
+#include "sshlogging_p.h"
 #include "sshsendfacility_p.h"
 
 #include <QDir>
@@ -256,9 +257,7 @@ void SftpChannelPrivate::handleChannelSuccess()
 {
     if (channelState() == CloseRequested)
         return;
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("sftp subsystem initialized");
-#endif
+    qCDebug(sshLog, "sftp subsystem initialized");
     sendData(m_outgoingPacket.generateInit(ProtocolVersion).rawData());
     m_sftpState = InitSent;
 }
@@ -293,15 +292,13 @@ void SftpChannelPrivate::handleChannelDataInternal(const QByteArray &data)
 void SftpChannelPrivate::handleChannelExtendedDataInternal(quint32 type,
     const QByteArray &data)
 {
-    qWarning("Unexpected extended data '%s' of type %d on SFTP channel.",
-        data.data(), type);
+    qCWarning(sshLog, "Unexpected extended data '%s' of type %d on SFTP channel.",
+              data.data(), type);
 }
 
 void SftpChannelPrivate::handleExitStatus(const SshChannelExitStatus &exitStatus)
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Remote SFTP service exited with exit code %d", exitStatus.exitStatus);
-#endif
+    qCDebug(sshLog, "Remote SFTP service exited with exit code %d", exitStatus.exitStatus);
 
     if (channelState() == CloseRequested || channelState() == Closed)
         return;
@@ -322,9 +319,7 @@ void SftpChannelPrivate::handleExitSignal(const SshChannelExitSignal &signal)
 
 void SftpChannelPrivate::handleCurrentPacket()
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Handling SFTP packet of type %d", m_incomingPacket.type());
-#endif
+    qCDebug(sshLog, "Handling SFTP packet of type %d", m_incomingPacket.type());
     switch (m_incomingPacket.type()) {
     case SSH_FXP_VERSION:
         handleServerVersion();
@@ -359,9 +354,7 @@ void SftpChannelPrivate::handleServerVersion()
             "Unexpected SSH_FXP_VERSION packet.");
     }
 
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("sftp init received");
-#endif
+    qCDebug(sshLog, "sftp init received");
     const quint32 serverVersion = m_incomingPacket.extractServerVersion();
     if (serverVersion != ProtocolVersion) {
         emit channelError(tr("Protocol version mismatch: Expected %1, got %2")
@@ -450,9 +443,7 @@ void SftpChannelPrivate::handlePutHandle(const JobMap::Iterator &it)
 void SftpChannelPrivate::handleStatus()
 {
     const SftpStatusResponse &response = m_incomingPacket.asStatusResponse();
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("%s: status = %d", Q_FUNC_INFO, response.status);
-#endif
+    qCDebug(sshLog, "%s: status = %d", Q_FUNC_INFO, response.status);
     JobMap::Iterator it = lookupJob(response.requestId);
     switch (it.value()->type()) {
     case AbstractSftpOperation::ListDir:
@@ -850,9 +841,7 @@ void SftpChannelPrivate::closeHook()
 
 void SftpChannelPrivate::handleOpenSuccessInternal()
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("SFTP session started");
-#endif
+    qCDebug(sshLog, "SFTP session started");
     m_sendFacility.sendSftpPacket(remoteChannel());
     m_sftpState = SubsystemRequested;
 }

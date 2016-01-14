@@ -29,6 +29,8 @@
 ****************************************************************************/
 #include "sshhostkeydatabase.h"
 
+#include "sshlogging_p.h"
+
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QDir>
@@ -72,7 +74,7 @@ bool SshHostKeyDatabase::load(const QString &filePath, QString *error)
     foreach (const QByteArray &line, content.split('\n')) {
         const QList<QByteArray> &lineData = line.trimmed().split(' ');
         if (lineData.count() != 2) {
-            qDebug("Unexpected line \"%s\" in file \"%s\".", line.constData(),
+            qCDebug(Internal::sshLog, "Unexpected line \"%s\" in file \"%s\".", line.constData(),
                    qPrintable(filePath));
             continue;
         }

@@ -35,6 +35,7 @@
 #include "sshexception_p.h"
 #include "sshkeyexchange_p.h"
 #include "sshkeypasswordretriever_p.h"
+#include "sshlogging_p.h"
 #include "sshpacket_p.h"
 
 #include <botan/botan.h>
@@ -213,9 +214,7 @@ void SshEncryptionFacility::createAuthenticationKey(const QByteArray &privKeyFil
         return;
 
     m_authKeyAlgoName.clear();
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("%s: Key not cached, reading", Q_FUNC_INFO);
-#endif
+    qCDebug(sshLog, "%s: Key not cached, reading", Q_FUNC_INFO);
     QList<BigInt> pubKeyParams;
     QList<BigInt> allKeyParams;
     QString error1;
@@ -223,9 +222,7 @@ void SshEncryptionFacility::createAuthenticationKey(const QByteArray &privKeyFil
     if (!createAuthenticationKeyFromPKCS8(privKeyFileContents, pubKeyParams, allKeyParams, error1)
             && !createAuthenticationKeyFromOpenSSL(privKeyFileContents, pubKeyParams, allKeyParams,
                 error2)) {
-#ifdef CREATOR_SSH_DEBUG
-        qDebug("%s: %s\n\t%s\n", Q_FUNC_INFO, qPrintable(error1), qPrintable(error2));
-#endif
+        qCDebug(sshLog, "%s: %s\n\t%s\n", Q_FUNC_INFO, qPrintable(error1), qPrintable(error2));
         throw SshClientException(SshKeyFileError, SSH_TR("Decoding of private key file failed: "
             "Format not understood."));
     }
@@ -274,7 +271,8 @@ bool SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &p
                          << ecdsaKey->public_point().get_affine_y();
             allKeyParams << pubKeyParams << value;
         } else {
-            qWarning("%s: Unexpected code flow, expected success or exception.", Q_FUNC_INFO);
+            qCWarning(sshLog, "%s: Unexpected code flow, expected success or exception.",
+                      Q_FUNC_INFO);
             return false;
         }
     } catch (const Exception &ex) {
@@ -438,13 +436,11 @@ void SshDecryptionFacility::decrypt(QByteArray &data, quint32 offset,
     quint32 dataSize) const
 {
     convert(data, offset, dataSize);
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Decrypted data:");
+    qCDebug(sshLog, "Decrypted data:");
     const char * const start = data.constData() + offset;
     const char * const end = start + dataSize;
     for (const char *c = start; c < end; ++c)
-        qDebug() << "'" << *c << "' (0x" << (static_cast<int>(*c) & 0xff) << ")";
-#endif
+        qCDebug(sshLog, ) << "'" << *c << "' (0x" << (static_cast<int>(*c) & 0xff) << ")";
 }
 
 } // namespace Internal

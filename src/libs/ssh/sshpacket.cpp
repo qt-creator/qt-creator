@@ -33,6 +33,7 @@
 #include "sshcapabilities_p.h"
 #include "sshcryptofacility_p.h"
 #include "sshexception_p.h"
+#include "sshlogging_p.h"
 #include "sshpacketparser_p.h"
 
 #include <QDebug>
@@ -47,18 +48,10 @@ const quint32 AbstractSshPacket::PayloadOffset = PaddingLengthOffset + 1;
 const quint32 AbstractSshPacket::TypeOffset = PayloadOffset;
 const quint32 AbstractSshPacket::MinPaddingLength = 4;
 
-namespace {
-
-    void printByteArray(const QByteArray &data)
-    {
-#ifdef CREATOR_SSH_DEBUG
-        for (int i = 0; i < data.count(); ++i)
-            qDebug() << std::hex << (static_cast<unsigned int>(data[i]) & 0xff) << " ";
-#else
-        Q_UNUSED(data);
-#endif
-    }
-} // anonymous namespace
+static void printByteArray(const QByteArray &data)
+{
+    qCDebug(sshLog, "%s", data.toHex().constData());
+}
 
 
 AbstractSshPacket::AbstractSshPacket() : m_length(0) { }

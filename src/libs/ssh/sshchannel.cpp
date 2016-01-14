@@ -31,6 +31,7 @@
 #include "sshchannel_p.h"
 
 #include "sshincomingpacket_p.h"
+#include "sshlogging_p.h"
 #include "sshsendfacility_p.h"
 
 #include <botan/botan.h>
@@ -80,7 +81,7 @@ void AbstractSshChannel::requestSessionStart()
         setChannelState(SessionRequested);
         m_timeoutTimer.start(ReplyTimeout);
     }  catch (const Botan::Exception &e) {
-        qDebug("Botan error: %s", e.what());
+        qCWarning(sshLog, "Botan error: %s", e.what());
         closeChannel();
     }
 }
@@ -91,7 +92,7 @@ void AbstractSshChannel::sendData(const QByteArray &data)
         m_sendBuffer += data;
         flushSendBuffer();
     }  catch (const Botan::Exception &e) {
-        qDebug("Botan error: %s", e.what());
+        qCWarning(sshLog, "Botan error: %s", e.what());
         closeChannel();
     }
 }
@@ -154,11 +155,9 @@ void AbstractSshChannel::handleOpenSuccess(quint32 remoteChannelId,
            "Maximum packet size too low.");
    }
 
-#ifdef CREATOR_SSH_DEBUG
-   qDebug("Channel opened. remote channel id: %u, remote window size: %u, "
+   qCDebug(sshLog, "Channel opened. remote channel id: %u, remote window size: %u, "
        "remote max packet size: %u",
        remoteChannelId, remoteWindowSize, remoteMaxPacketSize);
-#endif
    m_remoteChannel = remoteChannelId;
    m_remoteWindowSize = remoteWindowSize;
    m_remoteMaxPacketSize = remoteMaxPacketSize;
@@ -183,9 +182,7 @@ void AbstractSshChannel::handleOpenFailure(const QString &reason)
 
     m_timeoutTimer.stop();
 
-#ifdef CREATOR_SSH_DEBUG
-   qDebug("Channel open request failed for channel %u", m_localChannel);
-#endif
+   qCDebug(sshLog, "Channel open request failed for channel %u", m_localChannel);
    handleOpenFailureInternal(reason);
 }
 
@@ -201,9 +198,7 @@ void AbstractSshChannel::handleChannelEof()
 
 void AbstractSshChannel::handleChannelClose()
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Receiving CLOSE for channel %u", m_localChannel);
-#endif
+    qCDebug(sshLog, "Receiving CLOSE for channel %u", m_localChannel);
     if (channelState() == Inactive || channelState() == Closed) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected SSH_MSG_CHANNEL_CLOSE message.");
@@ -235,7 +230,7 @@ void AbstractSshChannel::handleChannelRequest(const SshIncomingPacket &packet)
     else if (requestType == SshIncomingPacket::ExitSignalType)
         handleExitSignal(packet.extractChannelExitSignal());
     else if (requestType != "eow@openssh.com") // Suppress warning for this one, as it's sent all the time.
-        qWarning("Ignoring unknown request type '%s'", requestType.data());
+        qCWarning(sshLog, "Ignoring unknown request type '%s'", requestType.data());
 }
 
 int AbstractSshChannel::handleChannelOrExtendedChannelData(const QByteArray &data)
@@ -244,7 +239,7 @@ int AbstractSshChannel::handleChannelOrExtendedChannelData(const QByteArray &dat
 
     const int bytesToDeliver = qMin<quint32>(data.size(), maxDataSize());
     if (bytesToDeliver != data.size())
-        qWarning("Misbehaving server does not respect local window, clipping.");
+        qCWarning(sshLog, "Misbehaving server does not respect local window, clipping.");
 
     m_localWindowSize -= bytesToDeliver;
     if (m_localWindowSize < maxPacketSize()) {

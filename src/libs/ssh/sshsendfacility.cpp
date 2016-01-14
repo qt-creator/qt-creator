@@ -31,6 +31,7 @@
 #include "sshsendfacility_p.h"
 
 #include "sshkeyexchange_p.h"
+#include "sshlogging_p.h"
 #include "sshoutgoingpacket_p.h"
 
 #include <QTcpSocket>
@@ -46,9 +47,7 @@ SshSendFacility::SshSendFacility(QTcpSocket *socket)
 
 void SshSendFacility::sendPacket()
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Sending packet, client seq nr is %u", m_clientSeqNr);
-#endif
+    qCDebug(sshLog, "Sending packet, client seq nr is %u", m_clientSeqNr);
     if (m_socket->isValid()
         && m_socket->state() == QAbstractSocket::ConnectedState) {
         m_socket->write(m_outgoingPacket.rawData());

@@ -33,6 +33,7 @@
 
 #include "ssh_global.h"
 #include "sshincomingpacket_p.h"
+#include "sshlogging_p.h"
 #include "sshsendfacility_p.h"
 
 #include <botan/botan.h>
@@ -195,9 +196,7 @@ void SshRemoteProcess::requestTerminal(const SshPseudoTerminal &terminal)
 void SshRemoteProcess::start()
 {
     if (d->channelState() == Internal::SshRemoteProcessPrivate::Inactive) {
-#ifdef CREATOR_SSH_DEBUG
-        qDebug("process start requested, channel id = %u", d->localChannelId());
-#endif
+        qCDebug(Internal::sshLog, "process start requested, channel id = %u", d->localChannelId());
         QIODevice::open(QIODevice::ReadWrite);
         d->requestSessionStart();
     }
@@ -267,9 +266,7 @@ void SshRemoteProcessPrivate::init()
 
 void SshRemoteProcessPrivate::setProcState(ProcessState newState)
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("channel: old state = %d,new state = %d", m_procState, newState);
-#endif
+    qCDebug(sshLog, "channel: old state = %d,new state = %d", m_procState, newState);
     m_procState = newState;
     if (newState == StartFailed) {
         emit closed(SshRemoteProcess::FailedToStart);
@@ -351,7 +348,7 @@ void SshRemoteProcessPrivate::handleChannelExtendedDataInternal(quint32 type,
     const QByteArray &data)
 {
     if (type != SSH_EXTENDED_DATA_STDERR) {
-        qWarning("Unknown extended data type %u", type);
+        qCWarning(sshLog, "Unknown extended data type %u", type);
     } else {
         m_stderr += data;
         emit readyReadStandardError();
@@ -362,18 +359,14 @@ void SshRemoteProcessPrivate::handleChannelExtendedDataInternal(quint32 type,
 
 void SshRemoteProcessPrivate::handleExitStatus(const SshChannelExitStatus &exitStatus)
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Process exiting with exit code %d", exitStatus.exitStatus);
-#endif
+    qCDebug(sshLog, "Process exiting with exit code %d", exitStatus.exitStatus);
     m_exitCode = exitStatus.exitStatus;
     m_procState = Exited;
 }
 
 void SshRemoteProcessPrivate::handleExitSignal(const SshChannelExitSignal &signal)
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Exit due to signal %s", signal.signal.data());
-#endif
+    qCDebug(sshLog, "Exit due to signal %s", signal.signal.data());
 
     for (size_t i = 0; i < sizeof signalMap/sizeof *signalMap; ++i) {
         if (signalMap[i].signalString == signal.signal) {

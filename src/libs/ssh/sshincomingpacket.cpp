@@ -33,6 +33,7 @@
 #include "ssh_global.h"
 #include "sshbotanconversions_p.h"
 #include "sshcapabilities_p.h"
+#include "sshlogging_p.h"
 
 namespace QSsh {
 namespace Internal {
@@ -66,10 +67,8 @@ void SshIncomingPacket::reset()
 
 void SshIncomingPacket::consumeData(QByteArray &newData)
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("%s: current data size = %d, new data size = %d",
+    qCDebug(sshLog, "%s: current data size = %d, new data size = %d",
         Q_FUNC_INFO, m_data.size(), newData.size());
-#endif
 
     if (isComplete() || newData.isEmpty())
         return;
@@ -83,9 +82,7 @@ void SshIncomingPacket::consumeData(QByteArray &newData)
         const int bytesToTake
             = qMin<quint32>(minSize - currentDataSize(), newData.size());
         moveFirstBytes(m_data, newData, bytesToTake);
-#ifdef CREATOR_SSH_DEBUG
-        qDebug("Took %d bytes from new data", bytesToTake);
-#endif
+        qCDebug(sshLog, "Took %d bytes from new data", bytesToTake);
         if (currentDataSize() < minSize)
             return;
     }
@@ -97,14 +94,10 @@ void SshIncomingPacket::consumeData(QByteArray &newData)
         = qMin<quint32>(length() + 4 + macLength() - currentDataSize(),
               newData.size());
     moveFirstBytes(m_data, newData, bytesToTake);
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Took %d bytes from new data", bytesToTake);
-#endif
+    qCDebug(sshLog, "Took %d bytes from new data", bytesToTake);
     if (isComplete()) {
-#ifdef CREATOR_SSH_DEBUG
-        qDebug("Message complete. Overall size: %u, payload size: %u",
+        qCDebug(sshLog, "Message complete. Overall size: %u, payload size: %u",
             m_data.size(), m_length - paddingLength() - 1);
-#endif
         decrypt();
         ++m_serverSeqNr;
     }
@@ -509,19 +502,13 @@ QByteArray SshIncomingPacket::extractChannelRequestType() const
 void SshIncomingPacket::calculateLength() const
 {
     Q_ASSERT(currentDataSize() >= minPacketSize());
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Length field before decryption: %d-%d-%d-%d", m_data.at(0) & 0xff,
+    qCDebug(sshLog, "Length field before decryption: %d-%d-%d-%d", m_data.at(0) & 0xff,
         m_data.at(1) & 0xff, m_data.at(2) & 0xff, m_data.at(3) & 0xff);
-#endif
     m_decrypter.decrypt(m_data, 0, cipherBlockSize());
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("Length field after decryption: %d-%d-%d-%d", m_data.at(0) & 0xff, m_data.at(1) & 0xff, m_data.at(2) & 0xff, m_data.at(3) & 0xff);
-    qDebug("message type = %d", m_data.at(TypeOffset));
-#endif
+    qCDebug(sshLog, "Length field after decryption: %d-%d-%d-%d", m_data.at(0) & 0xff, m_data.at(1) & 0xff, m_data.at(2) & 0xff, m_data.at(3) & 0xff);
+    qCDebug(sshLog, "message type = %d", m_data.at(TypeOffset));
     m_length = SshPacketParser::asUint32(m_data, static_cast<quint32>(0));
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("decrypted length is %u", m_length);
-#endif
+    qCDebug(sshLog, "decrypted length is %u", m_length);
 }
 
 } // namespace Internal

@@ -39,6 +39,7 @@
 #include "sshexception_p.h"
 #include "sshinit_p.h"
 #include "sshkeyexchange_p.h"
+#include "sshlogging_p.h"
 #include "sshremoteprocess.h"
 
 #include <botan/botan.h>
@@ -196,7 +197,7 @@ int SshConnection::closeAllChannels()
     try {
         return d->m_channelManager->closeAllChannels(Internal::SshChannelManager::CloseAllRegular);
     } catch (const Botan::Exception &e) {
-        qDebug("%s: %s", Q_FUNC_INFO, e.what());
+        qCWarning(Internal::sshLog, "%s: %s", Q_FUNC_INFO, e.what());
         return -1;
     }
 }
@@ -324,10 +325,7 @@ void SshConnectionPrivate::handleIncomingData()
         if (!canUseSocket())
             return;
         m_incomingData += m_socket->readAll();
-#ifdef CREATOR_SSH_DEBUG
-        qDebug("state = %d, remote data size = %d", m_state,
-            m_incomingData.count());
-#endif
+        qCDebug(sshLog, "state = %d, remote data size = %d", m_state, m_incomingData.count());
         if (m_serverId.isEmpty())
             handleServerId();
         handlePackets();
@@ -346,10 +344,8 @@ void SshConnectionPrivate::handleIncomingData()
 // RFC 4253, 4.2.
 void SshConnectionPrivate::handleServerId()
 {
-#ifdef CREATOR_SSH_DEBUG
-    qDebug("%s: incoming data size = %d, incoming data = '%s'",
+    qCDebug(sshLog, "%s: incoming data size = %d, incoming data = '%s'",
         Q_FUNC_INFO, m_incomingData.count(), m_incomingData.data());
-#endif
     const int newLinePos = m_incomingData.indexOf('\n');
     if (newLinePos == -1)
         return; // Not enough data yet.

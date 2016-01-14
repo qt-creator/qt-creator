@@ -36,6 +36,7 @@ QtcLibrary {
         "sshkeygenerator.cpp", "sshkeygenerator.h",
         "sshkeypasswordretriever.cpp",
         "sshkeypasswordretriever_p.h",
+        "sshlogging.cpp", "sshlogging_p.h",
         "sshoutgoingpacket.cpp", "sshoutgoingpacket_p.h",
         "sshpacket.cpp", "sshpacket_p.h",
         "sshpacketparser.cpp", "sshpacketparser_p.h",
