@@ -1,7 +1,6 @@
 TARGET = QmlProfilerExtension
 TEMPLATE = lib
 
-PROVIDER = Digia
 include(../../qtcreatorplugin.pri)
 
 QT += qml quick quickwidgets
