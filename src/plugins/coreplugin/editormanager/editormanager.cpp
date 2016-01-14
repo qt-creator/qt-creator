@@ -1926,11 +1926,17 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     Utils::MimeDatabase mdb;
     const QString filter = Utils::MimeDatabase::allFiltersString();
     QString selectedFilter;
-    QString filePath = document->filePath().toString();
-    if (filePath.isEmpty())
-        filePath = document->defaultPath() + QLatin1Char('/') + document->suggestedFileName();
-    if (!filePath.isEmpty())
+    const QString filePath = document->filePath().toString();
+    if (!filePath.isEmpty()) {
         selectedFilter = mdb.mimeTypeForFile(filePath).filterString();
+    } else {
+        const QString suggestedName = document->suggestedFileName();
+        if (!suggestedName.isEmpty()) {
+            const QList<MimeType> types = mdb.mimeTypesForFileName(suggestedName);
+            if (!types.isEmpty())
+                selectedFilter = types.first().filterString();
+        }
+    }
     if (selectedFilter.isEmpty())
         selectedFilter = mdb.mimeTypeForName(document->mimeType()).filterString();
     const QString &absoluteFilePath =
