@@ -156,7 +156,7 @@ void ThemeSettingsWidget::refreshThemeList()
 
 void ThemeSettingsWidget::apply()
 {
-    const int index = d->m_ui->themeComboBox->currentIndex();
+    const int index = d->m_themeComboBox->currentIndex();
     if (index == -1)
         return;
     const QString themeId = d->m_themeListModel->themeAt(index).id().toString();
