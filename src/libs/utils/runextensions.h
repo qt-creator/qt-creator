@@ -512,7 +512,6 @@ void blockingMapReduce(QFutureInterface<ReduceResult> futureInterface, const Con
                        const ReduceFunction &reduce, const CleanUpFunction &cleanup)
 {
     auto state = init(futureInterface);
-    futureInterface.reportStarted();
     mapReduceLoop(futureInterface, container, map, state, reduce);
     cleanup(futureInterface, state);
     if (futureInterface.isPaused())
@@ -523,7 +522,6 @@ void blockingMapReduce(QFutureInterface<ReduceResult> futureInterface, const Con
 template <typename ResultType, typename Function, typename... Args>
 void runAsyncImpl(QFutureInterface<ResultType> futureInterface, const Function &function, const Args&... args)
 {
-    futureInterface.reportStarted();
     function(futureInterface, args...);
     if (futureInterface.isPaused())
         futureInterface.waitForResume();
@@ -540,6 +538,7 @@ QFuture<ReduceResult> mapReduce(std::reference_wrapper<Container> containerWrapp
 {
     auto fi = QFutureInterface<ReduceResult>();
     QFuture<ReduceResult> future = fi.future();
+    fi.reportStarted();
     std::thread(Internal::blockingMapReduce<Container, InitFunction, MapFunction, ReduceResult, ReduceFunction, CleanUpFunction>,
                 fi, containerWrapper, init, map, reduce, cleanup).detach();
     return future;
@@ -561,6 +560,7 @@ template <typename ResultType, typename Function, typename... Args>
 QFuture<ResultType> runAsync(Function &&function, Args&&... args)
 {
     QFutureInterface<ResultType> futureInterface;
+    futureInterface.reportStarted();
     std::thread(Internal::runAsyncImpl<ResultType,Function,Args...>, futureInterface,
                 std::forward<Function>(function), std::forward<Args>(args)...).detach();
     return futureInterface.future();
