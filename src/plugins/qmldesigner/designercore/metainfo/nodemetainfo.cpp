@@ -751,6 +751,21 @@ const CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
     // maybe 'type' is a cpp name
     const CppComponentValue *cppValue = context()->valueOwner()->cppQmlTypes().objectByCppName(type);
 
+    if (cppValue) {
+        foreach (const LanguageUtils::FakeMetaObject::Export &exportValue, cppValue->metaObject()->exports()) {
+            if (exportValue.package.toUtf8() != "<cpp>") {
+                foreach (const QmlJS::Import &import, context()->imports(document())->all()) {
+                    if (import.info.path() != exportValue.package)
+                        continue;
+                    const Value *lookupResult = import.object->lookupMember(exportValue.type, context());
+                    const CppComponentValue *cppValue = value_cast<CppComponentValue>(lookupResult);
+                    if (cppValue)
+                        return cppValue;
+                }
+            }
+        }
+    }
+
     return cppValue;
 }
 

@@ -69,11 +69,10 @@ ModelManagerSupportClang::ModelManagerSupportClang()
     m_instance_forTestsOnly = this;
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
+    connect(editorManager, &Core::EditorManager::editorOpened,
+            this, &ModelManagerSupportClang::onEditorOpened);
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
             this, &ModelManagerSupportClang::onCurrentEditorChanged,
-            Qt::QueuedConnection);
-    connect(editorManager, &Core::EditorManager::editorOpened,
-            this, &ModelManagerSupportClang::onEditorOpened,
             Qt::QueuedConnection);
     connect(editorManager, &Core::EditorManager::editorsClosed,
             this, &ModelManagerSupportClang::onEditorClosed,
