@@ -51,6 +51,8 @@ private slots:
     void findBreakpoints3();
 
     void astPathOnGeneratedTokens();
+
+    void typeMatcher();
 };
 
 void tst_Misc::diagnosticClient_error()
@@ -241,6 +243,31 @@ void tst_Misc::astPathOnGeneratedTokens()
         QCOMPARE(paths.size(), 2);
         QVERIFY(paths.at(0)->asTranslationUnit());
         QVERIFY(paths.at(1)->asSimpleDeclaration());
+    }
+}
+
+void tst_Misc::typeMatcher()
+{
+    IntegerType dummyType(IntegerType::Int);
+    FullySpecifiedType type1(&dummyType);
+    FullySpecifiedType type2(&dummyType);
+
+    for (int i = 0; i < (1<<8); ++i) {
+        type1.setConst   (i & (1 << 0));
+        type1.setVolatile(i & (1 << 1));
+        type1.setSigned  (i & (1 << 2));
+        type1.setUnsigned(i & (1 << 3));
+
+        type2.setConst   (i & (1 << 4));
+        type2.setVolatile(i & (1 << 5));
+        type2.setSigned  (i & (1 << 6));
+        type2.setUnsigned(i & (1 << 7));
+
+        const unsigned type1Specifiers = (i & 0x0f);
+        const unsigned type2Specifiers = (i >> 4);
+        const bool sameSpecifiers = type1Specifiers == type2Specifiers;
+        QCOMPARE(type1.match(type2), sameSpecifiers);
+        QCOMPARE(type2.match(type1), sameSpecifiers);
     }
 }
 

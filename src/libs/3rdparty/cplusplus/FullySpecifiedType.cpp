@@ -216,5 +216,16 @@ void FullySpecifiedType::setFlags(unsigned flags)
 
 bool FullySpecifiedType::match(const FullySpecifiedType &otherTy, Matcher *matcher) const
 {
+    static const unsigned flagsMask = [](){
+        FullySpecifiedType ty;
+        ty.f._isConst = true;
+        ty.f._isVolatile = true;
+        ty.f._isSigned = true;
+        ty.f._isUnsigned = true;
+        return ty._flags;
+    }();
+
+    if ((_flags & flagsMask) != (otherTy._flags & flagsMask))
+        return false;
     return type()->match(otherTy.type(), matcher);
 }
