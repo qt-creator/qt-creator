@@ -49,6 +49,8 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QDialogButtonBox>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QFormLayout>
 #include <QLineEdit>
@@ -84,6 +86,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("Attach to Process Not Yet Started"));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     m_kitChooser = new DebuggerKitChooser(DebuggerKitChooser::LocalDebugging, this);
     m_kitChooser->populate();
@@ -124,19 +127,11 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     m_waitingLabel = new QLabel(QString(), this);
     m_waitingLabel->setAlignment(Qt::AlignCenter);
 
-    m_watchingPushButton = new QPushButton(this);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close, this);
+    m_watchingPushButton = buttonBox->addButton(tr("Start Watching"), QDialogButtonBox::ActionRole);
     m_watchingPushButton->setCheckable(true);
     m_watchingPushButton->setChecked(false);
     m_watchingPushButton->setEnabled(false);
-    m_watchingPushButton->setText(tr("Start Watching"));
-
-    m_closePushButton = new QPushButton(this);
-    m_closePushButton->setText(tr("Close"));
-
-    QHBoxLayout *buttonsLine = new QHBoxLayout();
-    buttonsLine->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
-    buttonsLine->addWidget(m_watchingPushButton);
-    buttonsLine->addWidget(m_closePushButton);
 
     QFormLayout *mainLayout = new QFormLayout(this);
     mainLayout->addRow(new QLabel(tr("Kit: "), this), m_kitChooser);
@@ -145,7 +140,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     mainLayout->addRow(m_continueOnAttachCheckBox);
     mainLayout->addRow(m_waitingLabel);
     mainLayout->addItem(new QSpacerItem(20, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    mainLayout->addRow(buttonsLine);
+    mainLayout->addRow(buttonBox);
     setLayout(mainLayout);
 
     connect(m_pathChooser, &Utils::PathChooser::beforeBrowsing,
@@ -154,8 +149,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
             this, &UnstartedAppWatcherDialog::startStopWatching);
     connect(m_pathChooser, &Utils::PathChooser::pathChanged, this,
             &UnstartedAppWatcherDialog::stopAndCheckExecutable);
-    connect(m_closePushButton, &QAbstractButton::clicked,
-            this, &QDialog::reject);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(&m_timer, &QTimer::timeout,
             this, &UnstartedAppWatcherDialog::findProcess);
     connect(m_kitChooser, &KitChooser::currentIndexChanged,
@@ -163,6 +157,18 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     kitChanged();
 
     setWaitingState(checkExecutableString() ? NotWatchingState : InvalidWacherState);
+}
+
+bool UnstartedAppWatcherDialog::event(QEvent *e)
+{
+    if (e->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+            ke->accept();
+            return true;
+        }
+    }
+    return QDialog::event(e);
 }
 
 void UnstartedAppWatcherDialog::selectExecutable()
