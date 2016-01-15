@@ -96,6 +96,8 @@ static const FileTypeDataStorage fileTypeDataStorage[] = {
       ":/qmakeprojectmanager/images/sources.png", "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
     { FormType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Forms"),
       ":/qtsupport/images/forms.png", "*.ui;" },
+    { StateChartType, Theme::ProjectExplorerForm, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "StateCharts"),
+      ":/qtsupport/images/statecharts.png", "*.scxml;" },
     { ResourceType, Theme::ProjectExplorerResource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "Resources"),
       ":/qtsupport/images/qt_qrc.png", "*.qrc;" },
     { QMLType, Theme::ProjectExplorerQML, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFileNode", "QML"),
@@ -1387,8 +1389,9 @@ QStringList QmakePriFileNode::varNames(FileType type, QtSupport::ProFileReader *
         foreach (const QString &var, listOfExtraCompilers) {
             QStringList inputs = readerExact->values(var + QLatin1String(".input"));
             foreach (const QString &input, inputs)
-                // FORMS and RESOURCES are handled below
+                // FORMS, RESOURCES, and STATECHARTS are handled below, HEADERS above
                 if (input != QLatin1String("FORMS")
+                        && input != QLatin1String("STATECHARTS")
                         && input != QLatin1String("RESOURCES")
                         && input != QLatin1String("HEADERS"))
                     vars << input;
@@ -1400,6 +1403,9 @@ QStringList QmakePriFileNode::varNames(FileType type, QtSupport::ProFileReader *
         break;
     case FormType:
         vars << QLatin1String("FORMS");
+        break;
+    case StateChartType:
+        vars << QLatin1String("STATECHARTS");
         break;
     case ProjectFileType:
         vars << QLatin1String("SUBDIRS");

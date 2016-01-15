@@ -56,6 +56,7 @@ enum FileType {
     HeaderType,
     SourceType,
     FormType,
+    StateChartType,
     ResourceType,
     QMLType,
     ProjectFileType,

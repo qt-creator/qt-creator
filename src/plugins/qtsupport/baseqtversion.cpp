@@ -233,6 +233,7 @@ BaseQtVersion::BaseQtVersion(const BaseQtVersion &other) :
     m_linguistCommand(other.m_linguistCommand),
     m_qmlsceneCommand(other.m_qmlsceneCommand),
     m_qmlviewerCommand(other.m_qmlviewerCommand),
+    m_qscxmlcCommand(other.m_qscxmlcCommand),
     m_qtAbis(other.m_qtAbis)
 {
     setupExpander();
@@ -264,6 +265,7 @@ void BaseQtVersion::ctor(const FileName &qmakePath)
     m_linguistCommand.clear();
     m_qmlviewerCommand.clear();
     m_uicCommand.clear();
+    m_qscxmlcCommand.clear();
     m_mkspecUpToDate = false;
     m_mkspecReadUpToDate = false;
     m_versionInfoUpToDate = false;
@@ -856,6 +858,16 @@ QString BaseQtVersion::qmlviewerCommand() const
     return m_qmlviewerCommand;
 }
 
+QString BaseQtVersion::qscxmlcCommand() const
+{
+    if (!isValid())
+        return QString();
+
+    if (m_qscxmlcCommand.isNull())
+        m_qscxmlcCommand = findQtBinary(QScxmlc);
+    return m_qscxmlcCommand;
+}
+
 QString BaseQtVersion::findQtBinary(Binaries binary) const
 {
     QString baseDir;
@@ -875,6 +887,7 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
             baseDir = m_mkspecValues.value(QLatin1String("QT.designer.bins"));
             break;
         case Uic:
+        case QScxmlc:
             baseDir = qmakeProperty("QT_HOST_BINS");
             break;
         default:
@@ -918,6 +931,9 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
             possibleCommands << QLatin1String("uic-qt4") << QLatin1String("uic4")
                              << QLatin1String("uic");
         }
+        break;
+    case QScxmlc:
+        possibleCommands << HostOsInfo::withExecutableSuffix(QLatin1String("qscxmlc"));
         break;
     default:
         Q_ASSERT(false);

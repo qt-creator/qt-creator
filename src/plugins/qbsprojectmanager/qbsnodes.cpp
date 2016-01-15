@@ -565,6 +565,8 @@ ProjectExplorer::FileType QbsGroupNode::fileType(const qbs::GroupData &group,
         return ProjectExplorer::ResourceType;
     if (artifact.fileTags().contains(QLatin1String("ui")))
         return ProjectExplorer::FormType;
+    if (artifact.fileTags().contains(QLatin1String("scxml")))
+        return ProjectExplorer::StateChartType;
     return ProjectExplorer::UnknownFileType;
 }
 

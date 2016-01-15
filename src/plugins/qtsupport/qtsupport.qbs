@@ -104,6 +104,7 @@ QtcPlugin {
         "images/qml.png",
         "images/qt_project.png",
         "images/qt_qrc.png",
+        "images/statecharts.png",
     ]
 
     Group {

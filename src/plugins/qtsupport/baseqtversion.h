@@ -134,6 +134,7 @@ public:
     virtual QString linguistCommand() const;
     QString qmlsceneCommand() const;
     QString qmlviewerCommand() const;
+    QString qscxmlcCommand() const;
 
     virtual QString qtVersionString() const;
     virtual QtVersionNumber qtVersion() const;
@@ -250,7 +251,7 @@ private:
     void setupExpander();
     void updateSourcePath() const;
     void updateVersionInfo() const;
-    enum Binaries { QmlViewer, QmlScene, Designer, Linguist, Uic };
+    enum Binaries { QmlViewer, QmlScene, Designer, Linguist, Uic, QScxmlc };
     QString findQtBinary(Binaries binary) const;
     void updateMkspec() const;
     void setId(int id); // used by the qtversionmanager for legacy restore
@@ -294,6 +295,7 @@ private:
     mutable QString m_linguistCommand;
     mutable QString m_qmlsceneCommand;
     mutable QString m_qmlviewerCommand;
+    mutable QString m_qscxmlcCommand;
 
     mutable QList<ProjectExplorer::Abi> m_qtAbis;
 
