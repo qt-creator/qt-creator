@@ -130,10 +130,10 @@ public:
 signals:
     void diffSelectedFiles(const QStringList &files);
     void diffSelectedRows(const QList<int> &rows);
+    void fileContentsChanged();
 
 private slots:
     void slotDiffSelectedVcsFiles(const QList<int> &rawList);
-    void slotDescriptionChanged();
     void slotCheckSubmitMessage();
     void slotInsertNickName();
     void slotSetFieldNickName(int);

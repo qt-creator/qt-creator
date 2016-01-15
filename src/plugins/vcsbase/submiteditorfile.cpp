@@ -50,6 +50,8 @@ SubmitEditorFile::SubmitEditorFile(const VcsBaseSubmitEditorParameters *paramete
     setId(parameters->id);
     setMimeType(QLatin1String(parameters->mimeType));
     setTemporary(true);
+    connect(m_editor, &VcsBaseSubmitEditor::fileContentsChanged,
+            this, &Core::IDocument::contentsChanged);
 }
 
 Core::IDocument::OpenResult SubmitEditorFile::open(QString *errorString, const QString &fileName,
@@ -69,6 +71,11 @@ Core::IDocument::OpenResult SubmitEditorFile::open(QString *errorString, const Q
     setFilePath(FileName::fromString(fileName));
     setModified(fileName != realFileName);
     return OpenResult::Success;
+}
+
+QByteArray SubmitEditorFile::contents() const
+{
+    return m_editor->fileContents();
 }
 
 bool SubmitEditorFile::setContents(const QByteArray &contents)

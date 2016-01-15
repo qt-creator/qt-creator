@@ -203,7 +203,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     connect(d->m_widget, &SubmitEditorWidget::diffSelected,
             this, &VcsBaseSubmitEditor::slotDiffSelectedVcsFiles);
     connect(descriptionEdit, &QTextEdit::textChanged,
-            this, &VcsBaseSubmitEditor::slotDescriptionChanged);
+            this, &VcsBaseSubmitEditor::fileContentsChanged);
 
     const CommonVcsSettings settings = VcsPlugin::instance()->settings();
     // Add additional context menu settings
@@ -351,10 +351,6 @@ int VcsBaseSubmitEditor::lineWrapWidth() const
 void VcsBaseSubmitEditor::setLineWrapWidth(int w)
 {
     d->m_widget->setLineWrapWidth(w);
-}
-
-void VcsBaseSubmitEditor::slotDescriptionChanged()
-{
 }
 
 Core::IDocument *VcsBaseSubmitEditor::document()

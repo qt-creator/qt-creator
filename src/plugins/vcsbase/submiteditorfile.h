@@ -44,6 +44,7 @@ public:
 
     OpenResult open(QString *errorString, const QString &fileName,
                     const QString &realFileName) override;
+    QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
 
     bool isModified() const override { return m_modified; }
