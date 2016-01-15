@@ -56,6 +56,7 @@ public:
     OpenResult open(QString *errorString, const QString &fileName,
                     const QString &realFileName) override;
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;
     bool isModified() const override;

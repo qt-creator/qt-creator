@@ -141,6 +141,11 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
     return true;
 }
 
+QByteArray FormWindowFile::contents() const
+{
+    return formWindowContents().toUtf8();
+}
+
 bool FormWindowFile::setContents(const QByteArray &contents)
 {
     if (Designer::Constants::Internal::debug)
@@ -184,6 +189,8 @@ void FormWindowFile::setFilePath(const FileName &newName)
 void FormWindowFile::updateIsModified()
 {
     bool value = m_formWindow && m_formWindow->isDirty();
+    if (value)
+        emit contentsChanged();
     if (value == m_isModified)
         return;
     m_isModified = value;
