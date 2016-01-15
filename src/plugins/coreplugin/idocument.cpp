@@ -151,6 +151,15 @@ IDocument::OpenResult IDocument::open(QString *errorString, const QString &fileN
 }
 
 /*!
+ * Returns the current contents of the document. The base implementation returns an empty
+ * QByteArray.
+ */
+QByteArray IDocument::contents() const
+{
+    return QByteArray();
+}
+
+/*!
     Used for example by EditorManager::openEditorWithContents() to set the contents
     of this document.
     Returns if setting the contents was successful.

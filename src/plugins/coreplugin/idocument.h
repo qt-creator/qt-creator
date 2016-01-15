@@ -95,6 +95,8 @@ public:
     virtual OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
 
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
+
+    virtual QByteArray contents() const;
     virtual bool setContents(const QByteArray &contents);
 
     const Utils::FileName &filePath() const;
@@ -133,7 +135,12 @@ public:
     InfoBar *infoBar();
 
 signals:
+    // For meta data changes: file name, modified state, ...
     void changed();
+
+    // For changes in the contents of the document
+    void contentsChanged();
+
     void mimeTypeChanged();
 
     void aboutToReload();
