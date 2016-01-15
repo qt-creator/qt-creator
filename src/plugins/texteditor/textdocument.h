@@ -104,6 +104,7 @@ public:
 
     // IDocument implementation.
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
+    QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;
     bool isFileReadOnly() const override;
@@ -142,7 +143,6 @@ public:
 signals:
     void aboutToOpen(const QString &fileName, const QString &realFileName);
     void openFinishedSuccessfully();
-    void contentsChanged();
     void contentsChangedWithPosition(int position, int charsRemoved, int charsAdded);
     void tabSettingsChanged();
     void fontSettingsChanged();

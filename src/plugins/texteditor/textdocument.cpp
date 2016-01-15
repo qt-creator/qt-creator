@@ -237,7 +237,7 @@ TextDocument::TextDocument(Id id)
     });
 
     connect(&d->m_document, &QTextDocument::contentsChanged,
-            this, &TextDocument::contentsChanged);
+            this, &Core::IDocument::contentsChanged);
     connect(&d->m_document, &QTextDocument::contentsChange,
             this, &TextDocument::contentsChangedWithPosition);
 
@@ -549,6 +549,11 @@ bool TextDocument::save(QString *errorString, const QString &saveFileName, bool 
     setFilePath(Utils::FileName::fromUserInput(fi.absoluteFilePath()));
     emit changed();
     return true;
+}
+
+QByteArray TextDocument::contents() const
+{
+    return plainText().toUtf8();
 }
 
 bool TextDocument::setContents(const QByteArray &contents)
