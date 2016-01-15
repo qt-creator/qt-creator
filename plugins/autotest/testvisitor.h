@@ -133,7 +133,7 @@ inline bool operator<(const GTestCaseSpec &spec1, const GTestCaseSpec &spec2)
 {
     if (spec1.testCaseName != spec2.testCaseName)
         return spec1.testCaseName < spec2.testCaseName;
-    return !spec1.parameterized;
+    return spec1.parameterized == spec2.parameterized ? false : !spec1.parameterized;
 }
 
 class GTestVisitor : public CPlusPlus::ASTVisitor
