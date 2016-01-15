@@ -2556,7 +2556,8 @@ QStringList QmakeProFileNode::generatedFiles(const QString &buildDir,
     // cannot parse QMAKE_EXTRA_COMPILERS and qmake has facilities to put
     // ui_*.h files into a special directory, or even change the .h suffix, we
     // cannot help doing this here.
-    if (sourceFile->fileType() == FormType) {
+    switch (sourceFile->fileType()) {
+    case FormType: {
         FileName location;
         auto it = m_varValues.constFind(UiDirVar);
         if (it != m_varValues.constEnd() && !it.value().isEmpty())
@@ -2569,7 +2570,16 @@ QStringList QmakeProFileNode::generatedFiles(const QString &buildDir,
                             + sourceFile->filePath().toFileInfo().completeBaseName()
                             + singleVariableValue(HeaderExtensionVar));
         return QStringList(QDir::cleanPath(location.toString()));
-    } else {
+    }
+    case StateChartType: {
+        if (buildDir.isEmpty())
+            return QStringList();
+        QString location = QDir::cleanPath(FileName::fromString(buildDir).appendPath(
+                    sourceFile->filePath().toFileInfo().completeBaseName()).toString());
+        return QStringList({location + singleVariableValue(HeaderExtensionVar),
+                            location + singleVariableValue(CppExtensionVar)});
+    }
+    default:
         // TODO: Other types will be added when adapters for their compilers become available.
         return QStringList();
     }

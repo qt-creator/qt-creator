@@ -33,7 +33,8 @@ HEADERS += \
     desktopqtversion.h \
     winceqtversionfactory.h \
     winceqtversion.h \
-    uicgenerator.h
+    uicgenerator.h \
+    qscxmlcgenerator.h
 
 SOURCES += \
     codegenerator.cpp \
@@ -60,7 +61,8 @@ SOURCES += \
     desktopqtversion.cpp \
     winceqtversionfactory.cpp \
     winceqtversion.cpp \
-    uicgenerator.cpp
+    uicgenerator.cpp \
+    qscxmlcgenerator.cpp
 
 FORMS   +=  \
     codegensettingspagewidget.ui \

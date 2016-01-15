@@ -35,6 +35,7 @@
 #include "qtversionmanager.h"
 #include "winceqtversionfactory.h"
 #include "uicgenerator.h"
+#include "qscxmlcgenerator.h"
 
 #include "profilereader.h"
 
@@ -89,6 +90,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     ProjectExplorer::ExtraCompilerFactory::registerExtraCompilerFactory(
                 new UicGeneratorFactory);
+    ProjectExplorer::ExtraCompilerFactory::registerExtraCompilerFactory(
+                new QScxmlcGeneratorFactory);
 
     QtVersionManager::initialized();
 
