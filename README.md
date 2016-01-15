@@ -257,10 +257,10 @@ we thank the authors who made this possible:
 
 ### ClassView and ImageViewer plugins
 
-  Copyright (C) 2015 The Qt Company Ltd.
+  Copyright (C) 2016 The Qt Company Ltd.
 
   All rights reserved.
-  Copyright (C) 2015 Denis Mingulov.
+  Copyright (C) 2016 Denis Mingulov.
 
   Contact: http://www.qt.io
 
