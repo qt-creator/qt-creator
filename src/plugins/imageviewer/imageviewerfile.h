@@ -68,7 +68,6 @@ public:
     OpenResult open(QString *errorString, const QString &fileName,
                     const QString &realFileName) override;
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
-    bool setContents(const QByteArray &contents) override;
 
     QString fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;

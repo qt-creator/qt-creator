@@ -262,12 +262,6 @@ bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool a
     return false;
 }
 
-bool ImageViewerFile::setContents(const QByteArray &contents)
-{
-    Q_UNUSED(contents);
-    return false;
-}
-
 QString ImageViewerFile::fallbackSaveAsPath() const
 {
     return QString();
