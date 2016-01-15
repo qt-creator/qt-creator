@@ -30,7 +30,8 @@ namespace {
     enum ItemRole {
         LinkRole = Qt::UserRole + 2, // can be removed if AnnotationRole comes back
         ItalicRole, // used only inside the delegate
-        TypeRole
+        TypeRole,
+        StateRole
     };
 }
 
@@ -41,7 +42,8 @@ class TestTreeItem : public Utils::TreeItem
 {
 
 public:
-    enum Type {
+    enum Type
+    {
         Root,
         TestClass,
         TestFunction,
@@ -50,9 +52,17 @@ public:
         TestSpecialFunction,
         GTestCase,
         GTestCaseParameterized,
-        GTestName,
-        GTestNameDisabled
+        GTestName
     };
+
+    enum TestState
+    {
+        Enabled         = 0x00,
+        Disabled        = 0x01,
+    };
+
+    Q_FLAGS(TestState)
+    Q_DECLARE_FLAGS(TestStates, TestState)
 
     TestTreeItem(const QString &name = QString(), const QString &filePath = QString(),
                  Type type = Root);
@@ -74,6 +84,8 @@ public:
     void setChecked(const Qt::CheckState checked);
     Qt::CheckState checked() const;
     Type type() const { return m_type; }
+    void setState(TestStates states) { m_state = states; }
+    TestStates state() const { return m_state; }
     QList<QString> getChildNames() const;
     TestTreeItem *parentItem() const;
     TestTreeItem *childItem(int row) const;
@@ -88,6 +100,7 @@ private:
     unsigned m_line;
     unsigned m_column;
     QString m_mainFile;  // main for Quick tests, project file for gtest
+    TestStates m_state;
 };
 
 struct TestCodeLocationAndType {
@@ -95,6 +108,7 @@ struct TestCodeLocationAndType {
     unsigned m_line;
     unsigned m_column;
     TestTreeItem::Type m_type;
+    TestTreeItem::TestStates m_state;
 };
 
 typedef QVector<TestCodeLocationAndType> TestCodeLocationList;

@@ -146,7 +146,6 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
                 break;
             case TestTreeItem::TestFunction:
             case TestTreeItem::GTestName:
-            case TestTreeItem::GTestNameDisabled:
                 emit dataChanged(index.parent(), index.parent());
                 break;
             default: // avoid warning regarding unhandled enum member
@@ -173,7 +172,6 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsTristate | Qt::ItemIsUserCheckable;
     case TestTreeItem::TestFunction:
     case TestTreeItem::GTestName:
-    case TestTreeItem::GTestNameDisabled:
         if (item->parentItem()->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;

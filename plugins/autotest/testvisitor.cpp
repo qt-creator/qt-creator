@@ -89,6 +89,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                     locationAndType.m_type = TestTreeItem::TestDataFunction;
                 else
                     locationAndType.m_type = TestTreeItem::TestFunction;
+                locationAndType.m_state = TestTreeItem::Enabled;
                 m_privSlots.insert(name, locationAndType);
             }
         }
@@ -218,6 +219,7 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::CallAST *ast)
                         locationAndType.m_column = column - 1;
                         locationAndType.m_line = line;
                         locationAndType.m_type = TestTreeItem::TestDataTag;
+                        locationAndType.m_state = TestTreeItem::Enabled;
                         m_currentTags.append(locationAndType);
                     }
                 }
@@ -329,6 +331,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
         else
             locationAndType.m_type = TestTreeItem::TestFunction;
 
+        locationAndType.m_state = TestTreeItem::Enabled;
         m_testFunctions.insert(name.toString(), locationAndType);
     }
     return false;
@@ -378,8 +381,8 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         locationAndType.m_name = disabled ? testName.mid(9) : testName;
         locationAndType.m_line = line;
         locationAndType.m_column = column - 1;
-        locationAndType.m_type = disabled ? TestTreeItem::GTestNameDisabled
-                                          : TestTreeItem::GTestName;
+        locationAndType.m_type = TestTreeItem::GTestName;
+        locationAndType.m_state = disabled ? TestTreeItem::Disabled : TestTreeItem::Enabled;
         GTestCaseSpec spec;
         spec.testCaseName = testCaseName;
         spec.parameterized = TestUtils::isGTestParameterized(prettyName);

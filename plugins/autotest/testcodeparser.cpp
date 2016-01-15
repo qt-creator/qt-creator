@@ -434,6 +434,7 @@ static TestTreeItem *constructTestTreeItem(const QString &fileName,
                                                        locationAndType.m_type);
         treeItemChild->setLine(locationAndType.m_line);
         treeItemChild->setColumn(locationAndType.m_column);
+        treeItemChild->setState(locationAndType.m_state);
 
         // check for data tags and if there are any for this function add them
         const QString qualifiedFunctionName = testCaseName + QLatin1String("::") + functionName;
@@ -445,6 +446,7 @@ static TestTreeItem *constructTestTreeItem(const QString &fileName,
                                                              tagLocation.m_type);
                 tagTreeItem->setLine(tagLocation.m_line);
                 tagTreeItem->setColumn(tagLocation.m_column);
+                tagTreeItem->setState(tagLocation.m_state);
                 treeItemChild->appendChild(tagTreeItem);
             }
         }
@@ -464,6 +466,7 @@ static TestTreeItem *constructGTestTreeItem(const QString &filePath, const GTest
     foreach (const TestCodeLocationAndType &locationAndType, testSets) {
         TestTreeItem *treeItemChild = new TestTreeItem(locationAndType.m_name, filePath,
                                                        locationAndType.m_type);
+        treeItemChild->setState(locationAndType.m_state);
         treeItemChild->setLine(locationAndType.m_line);
         treeItemChild->setColumn(locationAndType.m_column);
         treeItemChild->setMainFile(proFile);
@@ -1032,7 +1035,7 @@ void TestCodeParser::updateGTests(const CPlusPlus::Document::Ptr &doc,
         info.setProFile(proFile);
         foreach (const TestCodeLocationAndType &testSet, tests.value(testSpec)) {
             GTestInfo gtestInfo(testSpec.testCaseName, testSet.m_name, fileName);
-            if (testSet.m_type == TestTreeItem::GTestNameDisabled)
+            if (testSet.m_state & TestTreeItem::Disabled)
                 gtestInfo.setEnabled(false);
             m_gtestDocList.append(gtestInfo);
         }
