@@ -18,6 +18,7 @@ Project {
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
         "qtcprocess/qtcprocess.qbs",
+        "runextensions/runextensions.qbs",
         "sdktool/sdktool.qbs",
         "timeline/timeline.qbs",
         "treeviewfind/treeviewfind.qbs",

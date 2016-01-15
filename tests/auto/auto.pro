@@ -16,6 +16,7 @@ SUBDIRS += \
     json \
     utils \
     filesearch \
+    runextensions \
     sdktool \
     valgrind
 
