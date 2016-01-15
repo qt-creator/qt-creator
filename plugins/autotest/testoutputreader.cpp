@@ -210,9 +210,11 @@ void TestOutputReader::processOutput()
                     result = TestResult::resultFromString(
                                 attributes.value(QStringLiteral("type")).toString());
                     file = decode(attributes.value(QStringLiteral("file")).toString());
-                    if (!file.isEmpty())
-                        file = constructSourceFilePath(m_testApplication->workingDirectory(), file,
+                    if (!file.isEmpty()) {
+                        const QString base = QFileInfo(m_testApplication->program()).absolutePath();
+                        file = constructSourceFilePath(base, file,
                                                        m_testApplication->program());
+                    }
                     lineNumber = attributes.value(QStringLiteral("line")).toInt();
                 } else if (currentTag == QStringLiteral("BenchmarkResult")) {
                     const QXmlStreamAttributes &attributes = xmlReader.attributes();
@@ -400,8 +402,8 @@ void TestOutputReader::processGTestOutput()
             int firstColon = description.indexOf(QLatin1Char(':'));
             if (firstColon != -1) {
                 int secondColon = description.indexOf(QLatin1Char(':'), firstColon + 1);
-                QString file = constructSourceFilePath(m_testApplication->workingDirectory(),
-                                                       description.left(firstColon),
+                const QString base = QFileInfo(m_testApplication->program()).absolutePath();
+                QString file = constructSourceFilePath(base, description.left(firstColon),
                                                        m_testApplication->program());
                 QString line = description.mid(firstColon + 1, secondColon - firstColon - 1);
                 testResult->setFileName(file);
