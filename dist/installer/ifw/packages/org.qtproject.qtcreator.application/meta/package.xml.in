@@ -7,8 +7,7 @@
     <Name>org.qtproject.qtcreator.application</Name>
     <Script>installscript.qs</Script>
     <Licenses>
-        <License name="GNU LGPL version 2.1" file="LICENSE.LGPLv21" />
-        <License name="GNU LGPL version 3" file="LICENSE.LGPLv3" />
+        <License name="GNU GPL version 3 (with exception clauses)" file="LICENSE.GPL3-EXCEPT" />
     </Licenses>
     <ForcedInstallation>true</ForcedInstallation>
     <Default>true</Default>
