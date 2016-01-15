@@ -56,6 +56,7 @@ public:
                     const QString &realFileName) override;
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
     QString plainText() const;
+    QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;
     bool isModified() const override;

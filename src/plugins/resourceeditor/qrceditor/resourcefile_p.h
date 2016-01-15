@@ -268,6 +268,7 @@ private:
 
 signals:
     void dirtyChanged(bool b);
+    void contentsChanged();
 
 private:
     ResourceFile m_resource_file;

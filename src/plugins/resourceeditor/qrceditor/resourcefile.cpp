@@ -552,6 +552,8 @@ ResourceModel::ResourceModel(QObject *parent)
 
 void ResourceModel::setDirty(bool b)
 {
+    if (b)
+        emit contentsChanged();
     if (b == m_dirty)
         return;
 

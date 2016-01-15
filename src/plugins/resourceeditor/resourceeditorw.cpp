@@ -64,6 +64,8 @@ ResourceEditorDocument::ResourceEditorDocument(QObject *parent) :
     setMimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE));
     connect(m_model, &RelativeResourceModel::dirtyChanged,
             this, &ResourceEditorDocument::dirtyChanged);
+    connect(m_model, &ResourceModel::contentsChanged,
+            this, &IDocument::contentsChanged);
 
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorFile::ResourceEditorFile()";
@@ -180,6 +182,11 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
 QString ResourceEditorDocument::plainText() const
 {
     return m_model->contents();
+}
+
+QByteArray ResourceEditorDocument::contents() const
+{
+    return m_model->contents().toUtf8();
 }
 
 bool ResourceEditorDocument::setContents(const QByteArray &contents)
