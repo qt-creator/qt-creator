@@ -63,6 +63,8 @@ public:
 
     Q_INVOKABLE void setSizes(quint64 startAddr, int range, int blockSize = 4096);
     int dataBlockSize() const { return m_blockSize; }
+    QByteArray contents() const { return dataMid(0, m_size); }
+
     Q_INVOKABLE void addData(quint64 block, const QByteArray &data);
 
     bool newWindowRequestAllowed() const { return m_canRequestNewWindow; }

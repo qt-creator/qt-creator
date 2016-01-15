@@ -232,13 +232,19 @@ public:
             this, SLOT(provideData(quint64)));
         connect(m_widget, SIGNAL(newRangeRequested(quint64)),
             this, SLOT(provideNewRange(quint64)));
+        connect(m_widget, &BinEditorWidget::dataChanged, this, &IDocument::contentsChanged);
+    }
+
+    QByteArray contents() const override
+    {
+        return m_widget->contents();
     }
 
     bool setContents(const QByteArray &contents) override
     {
-        if (!contents.isEmpty())
-            return false;
         m_widget->clear();
+        m_widget->setSizes(0, contents.length(), contents.length());
+        m_widget->addData(0, contents);
         return true;
     }
 
