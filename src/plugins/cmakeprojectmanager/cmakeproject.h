@@ -29,6 +29,7 @@
 #include "cmakeprojectnodes.h"
 #include "configmodel.h"
 
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/namedwidget.h>
@@ -141,8 +142,8 @@ private:
     void buildTree(Internal::CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list) const;
     ProjectExplorer::FolderNode *findOrCreateFolder(Internal::CMakeProjectNode *rootNode, QString directory);
-    void createUiCodeModelSupport();
-    QString uiHeaderFile(const QString &uiFile);
+    void createGeneratedCodeModelSupport();
+    QStringList filesGeneratedFrom(const QString &sourceFile) const override;
     void updateTargetRunConfigurations(ProjectExplorer::Target *t);
     void updateApplicationAndDeploymentTargets();
     QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache);
@@ -155,6 +156,7 @@ private:
     // TODO probably need a CMake specific node structure
     QList<CMakeBuildTarget> m_buildTargets;
     QFuture<void> m_codeModelFuture;
+    QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 };
 
 } // namespace CMakeProjectManager

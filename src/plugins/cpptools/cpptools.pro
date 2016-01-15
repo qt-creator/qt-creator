@@ -56,6 +56,7 @@ HEADERS += \
     doxygengenerator.h \
     editordocumenthandle.h \
     functionutils.h \
+    generatedcodemodelsupport.h \
     includeutils.h \
     indexitem.h \
     insertionpointlocator.h \
@@ -127,6 +128,7 @@ SOURCES += \
     doxygengenerator.cpp \
     editordocumenthandle.cpp \
     functionutils.cpp \
+    generatedcodemodelsupport.cpp \
     includeutils.cpp \
     indexitem.cpp \
     insertionpointlocator.cpp \

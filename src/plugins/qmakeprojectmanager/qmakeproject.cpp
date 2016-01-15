@@ -54,8 +54,9 @@
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
-#include <qtsupport/uicodemodelsupport.h>
+#include <cpptools/generatedcodemodelsupport.h>
 #include <resourceeditor/resourcenode.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QDebug>
 #include <QDir>
@@ -435,7 +436,7 @@ void QmakeProject::updateCppCodeModel()
             qtVersionForPart = ProjectPart::Qt5;
     }
 
-    QHash<QString, QString> uiCodeModelData;
+    QList<ProjectExplorer::ExtraCompiler *> generators;
     QStringList allFiles;
     foreach (QmakeProFileNode *pro, proFiles) {
         ProjectPart::Ptr templatePart(new ProjectPart);
@@ -483,27 +484,6 @@ void QmakeProject::updateCppCodeModel()
                 allFiles << file;
                 cppPart->files << ProjectFile(file, ProjectFile::CXXHeader);
             }
-
-            // Ui Files:
-            QHash<QString, QString> uiData = pro->uiFiles();
-            for (QHash<QString, QString>::const_iterator i = uiData.constBegin(); i != uiData.constEnd(); ++i) {
-                allFiles << i.value();
-                cppPart->files << ProjectFile(i.value(), ProjectFile::CXXHeader);
-            }
-            uiCodeModelData.unite(uiData);
-
-            cppPart->files.prepend(ProjectFile(CppTools::CppModelManager::configurationFileName(),
-                                            ProjectFile::CXXSource));
-            const QStringList cxxflags = pro->variableValue(CppFlagsVar);
-            CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(cppPart.data(),
-                                                                       ToolChainKitInformation::toolChain(k),
-                                                                       cxxflags,
-                                                                       SysRootKitInformation::sysRoot(k));
-
-            if (!cppPart->files.isEmpty()) {
-                pinfo.appendProjectPart(cppPart);
-                setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
-            }
         }
 
         ProjectPart::Ptr objcppPart = templatePart->copy();
@@ -532,6 +512,44 @@ void QmakeProject::updateCppCodeModel()
             }
         }
 
+        // generated files:
+        QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
+        foreach (ProjectExplorer::ExtraCompiler *ec, proGenerators) {
+            foreach (const FileName &generatedFile, ec->targets()) {
+                QString name = generatedFile.toString();
+                allFiles << name;
+                ProjectFile::Kind kind = ProjectFile::classify(name);
+                switch (kind) {
+                case ProjectFile::CHeader:
+                case ProjectFile::CSource:
+                case ProjectFile::CXXHeader:
+                case ProjectFile::CXXSource:
+                    cppPart->files << ProjectFile(name, kind);
+                    break;
+                case ProjectFile::ObjCHeader:
+                case ProjectFile::ObjCSource:
+                case ProjectFile::ObjCXXHeader:
+                case ProjectFile::ObjCXXSource:
+                    objcppPart->files << ProjectFile(name, kind);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+        generators.append(proGenerators);
+
+        cppPart->files.prepend(ProjectFile(CppTools::CppModelManager::configurationFileName(),
+                                           ProjectFile::CXXSource));
+        const QStringList cxxflags = pro->variableValue(CppFlagsVar);
+        CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(
+                    cppPart.data(), ToolChainKitInformation::toolChain(k), cxxflags,
+                    SysRootKitInformation::sysRoot(k));
+        if (!cppPart->files.isEmpty()) {
+            pinfo.appendProjectPart(cppPart);
+            setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, true);
+        }
+
         if (!objcppPart->files.isEmpty())
             cppPart->displayName += QLatin1String(" (C++)");
         if (!cppPart->files.isEmpty())
@@ -539,8 +557,8 @@ void QmakeProject::updateCppCodeModel()
     }
     pinfo.finish();
 
-    // Also update Ui Code Model Support:
-    QtSupport::UiCodeModelManager::update(this, uiCodeModelData);
+    // Also update Code Model Support for generated files:
+    CppTools::GeneratedCodeModelSupport::update(generators);
 
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
 }
@@ -840,38 +858,46 @@ QStringList QmakeProject::files(FilesMode fileMode) const
     return files;
 }
 
-// Find the folder that contains a file a certain type (recurse down)
-static FolderNode *folderOf(FolderNode *in, FileType fileType, const FileName &fileName)
+// Find the folder that contains a file with a certain name (recurse down)
+static FolderNode *folderOf(FolderNode *in, const FileName &fileName)
 {
     foreach (FileNode *fn, in->fileNodes())
-        if (fn->fileType() == fileType && fn->filePath() == fileName)
+        if (fn->filePath() == fileName)
             return in;
     foreach (FolderNode *folder, in->subFolderNodes())
-        if (FolderNode *pn = folderOf(folder, fileType, fileName))
+        if (FolderNode *pn = folderOf(folder, fileName))
             return pn;
     return 0;
 }
 
-// Find the QmakeProFileNode that contains a file of a certain type.
+// Find the QmakeProFileNode that contains a certain file.
 // First recurse down to folder, then find the pro-file.
-static QmakeProFileNode *proFileNodeOf(QmakeProFileNode *in, FileType fileType, const FileName &fileName)
+static FileNode *fileNodeOf(QmakeProFileNode *in, const FileName &fileName)
 {
-    for (FolderNode *folder =  folderOf(in, fileType, fileName); folder; folder = folder->parentFolderNode())
-        if (QmakeProFileNode *proFile = dynamic_cast<QmakeProFileNode *>(folder))
-            return proFile;
+    for (FolderNode *folder = folderOf(in, fileName); folder; folder = folder->parentFolderNode()) {
+        if (QmakeProFileNode *proFile = dynamic_cast<QmakeProFileNode *>(folder)) {
+            foreach (FileNode *fileNode, proFile->fileNodes()) {
+                if (fileNode->filePath() == fileName)
+                    return fileNode;
+            }
+        }
+    }
     return 0;
 }
 
-QString QmakeProject::generatedUiHeader(const FileName &formFile) const
+QStringList QmakeProject::filesGeneratedFrom(const QString &input) const
 {
     // Look in sub-profiles as SessionManager::projectForFile returns
     // the top-level project only.
-    if (rootProjectNode())
-        if (const QmakeProFileNode *pro = proFileNodeOf(rootProjectNode(), FormType, formFile))
-            return QmakeProFileNode::uiHeaderFile(
-                        pro->uiDirectory(Utils::FileName::fromString(pro->buildDir())),
-                        formFile, pro->singleVariableValue(QmakeVariable::HeaderExtensionVar));
-    return QString();
+    if (!rootProjectNode())
+        return QStringList();
+
+    if (const FileNode *file = fileNodeOf(rootProjectNode(), FileName::fromString(input))) {
+        QmakeProFileNode *pro = static_cast<QmakeProFileNode *>(file->parentFolderNode());
+        return pro->generatedFiles(pro->buildDir(), file);
+    } else {
+        return QStringList();
+    }
 }
 
 void QmakeProject::proFileParseError(const QString &errorMessage)

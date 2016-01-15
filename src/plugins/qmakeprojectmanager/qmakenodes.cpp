@@ -41,13 +41,15 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projecttree.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qtsupport/uicodemodelsupport.h>
+#include <cpptools/generatedcodemodelsupport.h>
 
 #include <resourceeditor/resourcenode.h>
 
@@ -1576,9 +1578,14 @@ static QmakeProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::Templ
 }
 
 namespace {
-    // find all ui files in project
-    class FindUiFileNodesVisitor : public NodesVisitor {
+    // feed all files accepted by any of the factories to the callback.
+    class FindGeneratorSourcesVisitor : public NodesVisitor {
     public:
+        FindGeneratorSourcesVisitor(
+                const QList<ProjectExplorer::ExtraCompilerFactory *> &factories,
+                std::function<void(FileNode *, ProjectExplorer::ExtraCompilerFactory *)> callback) :
+            factories(factories), callback(callback) {}
+
         void visitProjectNode(ProjectNode *projectNode)
         {
             visitFolderNode(projectNode);
@@ -1586,11 +1593,15 @@ namespace {
         void visitFolderNode(FolderNode *folderNode)
         {
             foreach (FileNode *fileNode, folderNode->fileNodes()) {
-                if (fileNode->fileType() == FormType)
-                    uiFileNodes << fileNode;
+                foreach (ProjectExplorer::ExtraCompilerFactory *factory, factories) {
+                    if (factory->sourceType() == fileNode->fileType())
+                        callback(fileNode, factory);
+                }
             }
         }
-        QList<FileNode*> uiFileNodes;
+
+        const QList<ProjectExplorer::ExtraCompilerFactory *> factories;
+        std::function<void(FileNode *, ProjectExplorer::ExtraCompilerFactory *)> callback;
     };
 }
 
@@ -1674,6 +1685,7 @@ QmakeProFileNode::QmakeProFileNode(QmakeProject *project,
 
 QmakeProFileNode::~QmakeProFileNode()
 {
+    qDeleteAll(m_extraCompilers);
     m_parseFutureWatcher.waitForFinished();
     if (m_readerExact)
         applyAsyncEvaluate();
@@ -1730,11 +1742,6 @@ QString QmakeProFileNode::singleVariableValue(const QmakeVariable var) const
 {
     const QStringList &values = variableValue(var);
     return values.isEmpty() ? QString() : values.first();
-}
-
-QHash<QString, QString> QmakeProFileNode::uiFiles() const
-{
-    return m_uiFiles;
 }
 
 void QmakeProFileNode::emitProFileUpdatedRecursive()
@@ -2309,7 +2316,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 
     setParseInProgress(false);
 
-    updateUiFiles(buildDirectory);
+    updateGeneratedFiles(buildDirectory);
 
     cleanupProFileReaders();
 }
@@ -2542,48 +2549,63 @@ QString QmakeProFileNode::buildDir(QmakeBuildConfiguration *bc) const
     return QDir::cleanPath(QDir(bc->buildDirectory().toString()).absoluteFilePath(relativeDir));
 }
 
-Utils::FileName QmakeProFileNode::uiDirectory(const Utils::FileName &buildDir) const
+QStringList QmakeProFileNode::generatedFiles(const QString &buildDir,
+                                             const ProjectExplorer::FileNode *sourceFile) const
 {
-    if (buildDir.isEmpty())
-        return buildDir;
-    const QmakeVariablesHash::const_iterator it = m_varValues.constFind(UiDirVar);
-    if (it != m_varValues.constEnd() && !it.value().isEmpty())
-        return Utils::FileName::fromString(it.value().front());
-    return buildDir;
-}
-
-QString QmakeProFileNode::uiHeaderFile(const Utils::FileName &uiDir, const FileName &formFile,
-                                       const QString &extension)
-{
-    if (uiDir.isEmpty())
-        return QString();
-
-    Utils::FileName uiHeaderFilePath = uiDir;
-    uiHeaderFilePath.appendPath(QLatin1String("ui_") + formFile.toFileInfo().completeBaseName()
-                                + extension);
-    return QDir::cleanPath(uiHeaderFilePath.toString());
-}
-
-void QmakeProFileNode::updateUiFiles(const QString &buildDir)
-{
-    m_uiFiles.clear();
-
-    // Only those two project types can have ui files for us
-    if (m_projectType == ApplicationTemplate ||
-            m_projectType == SharedLibraryTemplate ||
-            m_projectType == StaticLibraryTemplate) {
-        // Find all ui files
-        FindUiFileNodesVisitor uiFilesVisitor;
-        this->accept(&uiFilesVisitor);
-        const QList<FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
-
-        // Find the UiDir, there can only ever be one
-        const Utils::FileName uiDir = uiDirectory(Utils::FileName::fromString(buildDir));
-        const QString uiExtensions = singleVariableValue(HeaderExtensionVar);
-        foreach (const FileNode *uiFile, uiFiles) {
-            QString headerFile = uiHeaderFile(uiDir, uiFile->filePath(), uiExtensions);
-            if (!headerFile.isEmpty())
-                m_uiFiles.insert(uiFile->filePath().toString(), headerFile);
-        }
+    // The mechanism for finding the file names is rather crude, but as we
+    // cannot parse QMAKE_EXTRA_COMPILERS and qmake has facilities to put
+    // ui_*.h files into a special directory, or even change the .h suffix, we
+    // cannot help doing this here.
+    if (sourceFile->fileType() == FormType) {
+        FileName location;
+        auto it = m_varValues.constFind(UiDirVar);
+        if (it != m_varValues.constEnd() && !it.value().isEmpty())
+            location = FileName::fromString(it.value().front());
+        else
+            location = FileName::fromString(buildDir);
+        if (location.isEmpty())
+            return QStringList();
+        location.appendPath(QLatin1String("ui_")
+                            + sourceFile->filePath().toFileInfo().completeBaseName()
+                            + singleVariableValue(HeaderExtensionVar));
+        return QStringList(QDir::cleanPath(location.toString()));
+    } else {
+        // TODO: Other types will be added when adapters for their compilers become available.
+        return QStringList();
     }
+}
+
+QList<ExtraCompiler *> QmakeProFileNode::extraCompilers() const
+{
+    return m_extraCompilers;
+}
+
+void QmakeProFileNode::updateGeneratedFiles(const QString &buildDir)
+{
+    // We can do this because other plugins are not supposed to keep the compilers around.
+    qDeleteAll(m_extraCompilers);
+    m_extraCompilers.clear();
+
+    // Only those project types can have generated files for us
+    if (m_projectType != ApplicationTemplate && m_projectType != SharedLibraryTemplate &&
+            m_projectType != StaticLibraryTemplate) {
+        return;
+    }
+
+    QList<ExtraCompilerFactory *> factories =
+            ProjectExplorer::ExtraCompilerFactory::extraCompilerFactories();
+
+    FindGeneratorSourcesVisitor filesVisitor(factories, [&](
+                                             FileNode *file, ExtraCompilerFactory *factory) {
+        QStringList generated = generatedFiles(buildDir, file);
+        if (!generated.isEmpty()) {
+            FileNameList fileNames = Utils::transform(generated, [](const QString &name) {
+                return FileName::fromString(name);
+            });
+            m_extraCompilers.append(factory->create(m_project, file->filePath(), fileNames));
+        }
+    });
+
+    // Find all generated files
+    accept(&filesVisitor);
 }

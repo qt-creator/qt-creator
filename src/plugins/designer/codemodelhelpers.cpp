@@ -48,7 +48,9 @@ static QString generatedHeaderOf(const QString &uiFileName)
 {
     if (const ProjectExplorer::Project *uiProject =
             ProjectExplorer::SessionManager::projectForFile(Utils::FileName::fromString(uiFileName))) {
-        return uiProject->generatedUiHeader(Utils::FileName::fromString(uiFileName));
+        QStringList files = uiProject->filesGeneratedFrom(uiFileName);
+        if (!files.isEmpty()) // There should be at most one header generated from a .ui
+            return files.front();
     }
     return QString();
 }

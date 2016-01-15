@@ -114,8 +114,7 @@ public:
         AllFiles       = SourceFiles | GeneratedFiles
     };
     virtual QStringList files(FilesMode fileMode) const = 0;
-    // TODO: generalize to find source(s) of generated files?
-    virtual QString generatedUiHeader(const Utils::FileName &formFile) const;
+    virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
 
     static QString makeUnique(const QString &preferredName, const QStringList &usedNames);
 

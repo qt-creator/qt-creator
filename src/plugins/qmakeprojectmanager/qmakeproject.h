@@ -76,7 +76,7 @@ public:
     bool parseInProgress(const Utils::FileName &proFilePath) const;
 
     virtual QStringList files(FilesMode fileMode) const override;
-    virtual QString generatedUiHeader(const Utils::FileName &formFile) const override;
+    virtual QStringList filesGeneratedFrom(const QString &file) const override;
 
     enum Parsing {ExactParse, ExactAndCumulativeParse };
     QList<QmakeProFileNode *> allProFiles(const QList<QmakeProjectType> &projectTypes = QList<QmakeProjectType>(),

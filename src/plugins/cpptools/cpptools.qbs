@@ -83,6 +83,7 @@ QtcPlugin {
         "doxygengenerator.cpp", "doxygengenerator.h",
         "editordocumenthandle.cpp", "editordocumenthandle.h",
         "functionutils.cpp", "functionutils.h",
+        "generatedcodemodelsupport.cpp", "generatedcodemodelsupport.h",
         "includeutils.cpp", "includeutils.h",
         "indexitem.cpp", "indexitem.h",
         "insertionpointlocator.cpp", "insertionpointlocator.h",

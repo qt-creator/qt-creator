@@ -23,39 +23,45 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTEDITORSUPPORT_H
-#define ABSTRACTEDITORSUPPORT_H
+#pragma once
 
 #include "cpptools_global.h"
 
-#include <QString>
-#include <QObject>
+#include <cpptools/abstracteditorsupport.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/extracompiler.h>
+
+#include <QDateTime>
+#include <QHash>
+#include <QProcess>
+#include <QSet>
+
+namespace Core { class IEditor; }
+namespace ProjectExplorer { class Project; }
 
 namespace CppTools {
-class CppModelManager;
 
-class CPPTOOLS_EXPORT AbstractEditorSupport : public QObject
+class CPPTOOLS_EXPORT GeneratedCodeModelSupport : public AbstractEditorSupport
 {
     Q_OBJECT
+
 public:
-    explicit AbstractEditorSupport(CppModelManager *modelmanager, QObject *parent = 0);
-    ~AbstractEditorSupport();
+    GeneratedCodeModelSupport(CppModelManager *modelmanager,
+                              ProjectExplorer::ExtraCompiler *generator,
+                              const Utils::FileName &generatedFile);
+    ~GeneratedCodeModelSupport();
 
-    /// \returns the contents, encoded as UTF-8
-    virtual QByteArray contents() const = 0;
-    virtual QString fileName() const = 0;
+    /// \returns the contents encoded in UTF-8.
+    QByteArray contents() const;
+    QString fileName() const; // The generated file
 
-    void updateDocument();
-    void notifyAboutUpdatedContents() const;
-    unsigned revision() const { return m_revision; }
-
-    static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());
+    static void update(const QList<ProjectExplorer::ExtraCompiler *> &generators);
 
 private:
-    CppModelManager *m_modelmanager;
-    unsigned m_revision;
+    void onContentsChanged(const Utils::FileName &file);
+    void init() const;
+    Utils::FileName m_generatedFileName;
+    ProjectExplorer::ExtraCompiler *m_generator;
 };
 
-} // namespace CppTools
-
-#endif // ABSTRACTEDITORSUPPORT_H
+} // CppTools

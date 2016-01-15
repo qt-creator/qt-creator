@@ -43,6 +43,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectpartbuilder.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -56,7 +57,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qtsupport/uicodemodelsupport.h>
+#include <cpptools/generatedcodemodelsupport.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/hostosinfo.h>
@@ -133,6 +134,7 @@ QbsProject::~QbsProject()
         delete m_qbsUpdateFutureInterface;
         m_qbsUpdateFutureInterface = 0;
     }
+    qDeleteAll(m_extraCompilers);
 }
 
 QString QbsProject::displayName() const
@@ -693,7 +695,13 @@ void QbsProject::updateCppCodeModel()
         ppBuilder.setQtVersion(CppTools::ProjectPart::NoQt);
     }
 
-    QHash<QString, QString> uiFiles;
+    QList<ProjectExplorer::ExtraCompilerFactory *> factories =
+            ProjectExplorer::ExtraCompilerFactory::extraCompilerFactories();
+    const auto factoriesBegin = factories.constBegin();
+    const auto factoriesEnd = factories.constEnd();
+
+    qDeleteAll(m_extraCompilers);
+    m_extraCompilers.clear();
     foreach (const qbs::ProductData &prd, m_projectData.allProducts()) {
         foreach (const qbs::GroupData &grp, prd.groups()) {
             const qbs::PropertyMap &props = grp.properties();
@@ -751,12 +759,23 @@ void QbsProject::updateCppCodeModel()
                     .arg(grp.location().line())
                     .arg(grp.location().column()));
 
-            foreach (const QString &file, grp.allFilePaths()) {
-                if (file.endsWith(QLatin1String(".ui"))) {
-                    QStringList generated = rootProjectNode()->qbsProject()
-                            .generatedFiles(prd, file, QStringList(QLatin1String("hpp")));
-                    if (generated.count() == 1)
-                        uiFiles.insert(file, generated.at(0));
+            foreach (const qbs::SourceArtifact &source, grp.allSourceArtifacts()) {
+                foreach (const QString &tag, source.fileTags()) {
+                    for (auto i = factoriesBegin; i != factoriesEnd; ++i) {
+                        if ((*i)->sourceTag() != tag)
+                            continue;
+                        QStringList generated = qbsProject().generatedFiles(prd, source.filePath(),
+                                                                            QStringList());
+                        if (generated.isEmpty())
+                            continue;
+
+                        const FileNameList fileNames = Utils::transform(generated,
+                                                                        [](const QString &s) {
+                            return Utils::FileName::fromString(s);
+                        });
+                        m_extraCompilers.append((*i)->create(
+                                this, FileName::fromString(source.filePath()), fileNames));
+                    }
                 }
             }
 
@@ -769,7 +788,7 @@ void QbsProject::updateCppCodeModel()
 
     pinfo.finish();
 
-    QtSupport::UiCodeModelManager::update(this, uiFiles);
+    CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
 
     // Update the code model
     m_codeModelFuture.cancel();

@@ -577,9 +577,10 @@ EditorConfiguration *Project::editorConfiguration() const
     return &d->m_editorConfiguration;
 }
 
-QString Project::generatedUiHeader(const Utils::FileName & /* formFile */) const
+QStringList Project::filesGeneratedFrom(const QString &file) const
 {
-    return QString();
+    Q_UNUSED(file);
+    return QStringList();
 }
 
 void Project::setProjectContext(Core::Context context)

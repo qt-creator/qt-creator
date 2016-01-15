@@ -34,9 +34,15 @@
 
 namespace CppTools {
 
-AbstractEditorSupport::AbstractEditorSupport(CppModelManager *modelmanager) :
-    m_modelmanager(modelmanager), m_revision(1)
+AbstractEditorSupport::AbstractEditorSupport(CppModelManager *modelmanager, QObject *parent) :
+    QObject(parent), m_modelmanager(modelmanager), m_revision(1)
 {
+    modelmanager->addExtraEditorSupport(this);
+}
+
+AbstractEditorSupport::~AbstractEditorSupport()
+{
+    m_modelmanager->removeExtraEditorSupport(this);
 }
 
 void AbstractEditorSupport::updateDocument()

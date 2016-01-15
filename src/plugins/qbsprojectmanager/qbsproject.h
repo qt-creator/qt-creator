@@ -32,6 +32,7 @@
 
 #include <cpptools/projectinfo.h>
 
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/task.h>
@@ -162,6 +163,7 @@ private:
     QbsBuildConfiguration *m_currentBc;
 
     QTimer m_parsingDelay;
+    QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 };
 
 } // namespace Internal

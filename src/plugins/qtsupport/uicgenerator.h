@@ -23,39 +23,44 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTEDITORSUPPORT_H
-#define ABSTRACTEDITORSUPPORT_H
+#ifndef UICGENERATOR_H
+#define UICGENERATOR_H
 
-#include "cpptools_global.h"
+#include <projectexplorer/extracompiler.h>
+#include <utils/fileutils.h>
 
-#include <QString>
-#include <QObject>
+#include <QProcess>
 
-namespace CppTools {
-class CppModelManager;
+namespace QtSupport {
 
-class CPPTOOLS_EXPORT AbstractEditorSupport : public QObject
+class UicGenerator : public ProjectExplorer::ExtraCompiler
 {
     Q_OBJECT
 public:
-    explicit AbstractEditorSupport(CppModelManager *modelmanager, QObject *parent = 0);
-    ~AbstractEditorSupport();
+    UicGenerator(const ProjectExplorer::Project *project, const Utils::FileName &source,
+                 const Utils::FileNameList &targets, QObject *parent = 0);
 
-    /// \returns the contents, encoded as UTF-8
-    virtual QByteArray contents() const = 0;
-    virtual QString fileName() const = 0;
-
-    void updateDocument();
-    void notifyAboutUpdatedContents() const;
-    unsigned revision() const { return m_revision; }
-
-    static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());
+private slots:
+    void finishProcess();
+    void run(const QByteArray &sourceContent) override;
 
 private:
-    CppModelManager *m_modelmanager;
-    unsigned m_revision;
+    QProcess m_process;
+    static QLoggingCategory m_log;
 };
 
-} // namespace CppTools
+class UicGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory
+{
+    Q_OBJECT
+public:
+    ProjectExplorer::FileType sourceType() const override;
 
-#endif // ABSTRACTEDITORSUPPORT_H
+    QString sourceTag() const override;
+
+    ProjectExplorer::ExtraCompiler *create(const ProjectExplorer::Project *project,
+                                           const Utils::FileName &source,
+                                           const Utils::FileNameList &targets) override;
+};
+
+} // QtSupport
+#endif // UICGENERATOR_H

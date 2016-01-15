@@ -31,7 +31,7 @@
 
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectnodes.h>
-#include <qtsupport/uicodemodelsupport.h>
+#include <cpptools/generatedcodemodelsupport.h>
 
 #include <QHash>
 #include <QStringList>
@@ -344,10 +344,9 @@ public:
     QString sourceDir() const;
     QString buildDir(QmakeBuildConfiguration *bc = 0) const;
 
-    Utils::FileName uiDirectory(const Utils::FileName &buildDir) const;
-    static QString uiHeaderFile(const Utils::FileName &uiDir, const Utils::FileName &formFile,
-                                const QString &extension);
-    QHash<QString, QString> uiFiles() const;
+    QStringList generatedFiles(const QString &buildDirectory,
+                               const ProjectExplorer::FileNode *sourceFile) const;
+    QList<ProjectExplorer::ExtraCompiler *> extraCompilers() const;
 
     QmakeProFileNode *findProFileFor(const Utils::FileName &string) const;
     TargetInformation targetInformation() const;
@@ -392,7 +391,7 @@ private:
 
     typedef QHash<QmakeVariable, QStringList> QmakeVariablesHash;
 
-    void updateUiFiles(const QString &buildDir);
+    void updateGeneratedFiles(const QString &buildDir);
 
     static QStringList fileListForVar(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
                                       const QString &varName, const QString &projectDir, const QString &buildDir);
@@ -412,13 +411,11 @@ private:
 
     QmakeProjectType m_projectType = InvalidProject;
     QmakeVariablesHash m_varValues;
+    QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
-    QMap<QString, QDateTime> m_uitimestamps;
     TargetInformation m_qmakeTargetInformation;
     QStringList m_subProjectsNotToDeploy;
     InstallsList m_installsList;
-
-    QHash<QString, QString> m_uiFiles; // ui-file path, ui header path
 
     // Async stuff
     QFutureWatcher<Internal::EvalResult *> m_parseFutureWatcher;
