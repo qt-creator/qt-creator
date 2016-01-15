@@ -73,32 +73,34 @@ void tst_RunExtensions::runAsync()
     // free function pointer
     QCOMPARE(Utils::runAsync<int>(&report3).results(),
              QList<int>({0, 2, 1}));
+    QCOMPARE(Utils::runAsync<int>(report3).results(),
+             QList<int>({0, 2, 1}));
 
-    QCOMPARE(Utils::runAsync<double>(&reportN, 4).results(),
+    QCOMPARE(Utils::runAsync<double>(reportN, 4).results(),
              QList<double>({0, 0, 0, 0}));
-    QCOMPARE(Utils::runAsync<double>(&reportN, 2).results(),
+    QCOMPARE(Utils::runAsync<double>(reportN, 2).results(),
              QList<double>({0, 0}));
 
     QString s = QLatin1String("string");
     const QString &crs = QLatin1String("cr string");
     const QString cs = QLatin1String("c string");
 
-    QCOMPARE(Utils::runAsync<QString>(&reportString1, std::cref(s)).results(),
+    QCOMPARE(Utils::runAsync<QString>(reportString1, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(&reportString1, crs).results(),
+    QCOMPARE(Utils::runAsync<QString>(reportString1, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(&reportString1, cs).results(),
+    QCOMPARE(Utils::runAsync<QString>(reportString1, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(&reportString1, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync<QString>(reportString1, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 
-    QCOMPARE(Utils::runAsync<QString>(&reportString2, std::cref(s)).results(),
+    QCOMPARE(Utils::runAsync<QString>(reportString2, s).results(),
              QList<QString>({s}));
-    QCOMPARE(Utils::runAsync<QString>(&reportString2, crs).results(),
+    QCOMPARE(Utils::runAsync<QString>(reportString2, crs).results(),
              QList<QString>({crs}));
-    QCOMPARE(Utils::runAsync<QString>(&reportString2, cs).results(),
+    QCOMPARE(Utils::runAsync<QString>(reportString2, cs).results(),
              QList<QString>({cs}));
-    QCOMPARE(Utils::runAsync<QString>(&reportString2, QString(QLatin1String("rvalue"))).results(),
+    QCOMPARE(Utils::runAsync<QString>(reportString2, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 
     // lambda

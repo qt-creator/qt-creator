@@ -561,8 +561,8 @@ QFuture<ResultType> runAsync(Function &&function, Args&&... args)
 {
     QFutureInterface<ResultType> futureInterface;
     futureInterface.reportStarted();
-    std::thread(Internal::runAsyncImpl<ResultType,Function,Args...>, futureInterface,
-                std::forward<Function>(function), std::forward<Args>(args)...).detach();
+    std::thread(Internal::runAsyncImpl<ResultType,typename std::decay<Function>::type,typename std::decay<Args>::type...>,
+                futureInterface, std::forward<Function>(function), std::forward<Args>(args)...).detach();
     return futureInterface.future();
 }
 
