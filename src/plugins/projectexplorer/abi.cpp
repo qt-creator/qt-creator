@@ -513,6 +513,11 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             if (flavor == Abi::UnknownFlavor)
                 flavor = Abi::FreeBsdFlavor;
             format = Abi::ElfFormat;
+        } else if (p.startsWith(QLatin1String("openbsd"))) {
+            os = Abi::BsdOS;
+            if (flavor == Abi::UnknownFlavor)
+                flavor = Abi::OpenBsdFlavor;
+            format = Abi::ElfFormat;
         } else if (p == QLatin1String("mingw32") || p == QLatin1String("win32")
                    || p == QLatin1String("mingw32msvc") || p == QLatin1String("msys")
                    || p == QLatin1String("cygwin")) {
@@ -1127,6 +1132,10 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
     QTest::newRow("arm-wrs-vxworks") << int(Abi::ArmArchitecture)
                                      << int(Abi::VxWorks) << int(Abi::VxWorksFlavor)
                                      << int(Abi::ElfFormat) << 32;
+
+    QTest::newRow("x86_64-unknown-openbsd") << int(Abi::X86Architecture)
+                                            << int(Abi::BsdOS) << int(Abi::OpenBsdFlavor)
+                                            << int(Abi::ElfFormat) << 64;
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()
