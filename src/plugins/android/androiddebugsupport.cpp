@@ -81,6 +81,14 @@ static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
     return paths.toList();
 }
 
+static QStringList uniquePaths(const QStringList &files)
+{
+    QSet<QString> paths;
+    foreach (const QString &file, files)
+        paths<<QFileInfo(file).absolutePath();
+    return paths.toList();
+}
+
 RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig, QString *errorMessage)
 {
     Target *target = runConfig->target();
@@ -99,6 +107,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.solibSearchPath = AndroidManager::androidQtSupport(target)->soLibSearchPath(target);
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         params.solibSearchPath.append(qtSoPaths(version));
+        params.solibSearchPath.append(uniquePaths(AndroidManager::androidQtSupport(target)->androidExtraLibs(target)));
     }
     if (aspect->useQmlDebugger()) {
         QTcpServer server;

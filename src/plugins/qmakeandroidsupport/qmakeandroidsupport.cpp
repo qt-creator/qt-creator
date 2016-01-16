@@ -72,6 +72,17 @@ QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *
     return res;
 }
 
+QStringList QmakeAndroidSupport::androidExtraLibs(const ProjectExplorer::Target *target) const
+{
+    ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration();
+    QmakeAndroidRunConfiguration *qarc = qobject_cast<QmakeAndroidRunConfiguration *>(rc);
+    if (!qarc)
+        return QStringList();
+    auto project = static_cast<QmakeProject *>(target->project());
+    QmakeProFileNode *node = project->rootQmakeProjectNode()->findProFileFor(qarc->proFilePath());
+    return node->variableValue(QmakeProjectManager::AndroidExtraLibs);
+}
+
 QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer::Target *target) const
 {
     QStringList apps;

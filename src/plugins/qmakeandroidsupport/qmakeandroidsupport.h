@@ -43,6 +43,7 @@ class QmakeAndroidSupport : public Android::AndroidQtSupport
 public:
     bool canHandle(const ProjectExplorer::Target *target) const;
     QStringList soLibSearchPath(const ProjectExplorer::Target *target) const;
+    QStringList androidExtraLibs(const ProjectExplorer::Target *target) const override;
     QStringList projectTargetApplications(const ProjectExplorer::Target *target) const;
     Utils::FileName androiddeployqtPath(ProjectExplorer::Target *target) const;
     Utils::FileName androiddeployJsonPath(ProjectExplorer::Target *target) const;
