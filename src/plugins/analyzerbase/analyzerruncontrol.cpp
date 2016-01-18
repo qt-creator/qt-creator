@@ -60,12 +60,24 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
         if (m_workingDirectory.isEmpty())
             m_workingDirectory = runConfiguration->target()->project()->projectDirectory().toString();
     }
-    m_sp = sp;
+
+    setRunnable(AnalyzerRunnable(sp));
+    setConnection(AnalyzerConnection(sp));
 
     connect(this, &AnalyzerRunControl::finished,
             this, &AnalyzerRunControl::runControlFinished);
     connect(AnalyzerManager::stopAction(), &QAction::triggered,
             this, &AnalyzerRunControl::stopIt);
+}
+
+const AnalyzerRunnable &AnalyzerRunControl::runnable() const
+{
+    return RunControl::runnable().as<AnalyzerRunnable>();
+}
+
+const AnalyzerConnection &AnalyzerRunControl::connection() const
+{
+    return RunControl::connection().as<AnalyzerConnection>();
 }
 
 void AnalyzerRunControl::stopIt()

@@ -82,21 +82,20 @@ bool ValgrindRunControl::startEngine()
             this, &ValgrindRunControl::handleProgressFinished);
     m_progress.reportStarted();
 
-    const AnalyzerStartParameters &sp = startParameters();
 #if VALGRIND_DEBUG_OUTPUT
     emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(QLatin1Char(' '))), DebugFormat);
-    emit outputReceived(tr("Working directory: %1").arg(sp.workingDirectory), DebugFormat);
-    emit outputReceived(tr("Command line arguments: %1").arg(sp.debuggeeArgs), DebugFormat);
+    emit outputReceived(tr("Working directory: %1").arg(runnable().workingDirectory), DebugFormat);
+    emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), DebugFormat);
 #endif
 
     ValgrindRunner *run = runner();
     run->setWorkingDirectory(workingDirectory());
     run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
-    run->setDebuggeeExecutable(sp.debuggee);
-    run->setDebuggeeArguments(sp.debuggeeArgs);
+    run->setDebuggeeExecutable(runnable().debuggee);
+    run->setDebuggeeArguments(runnable().debuggeeArgs);
     run->setEnvironment(m_environment);
-    run->setConnectionParameters(sp.connParams);
+    run->setConnectionParameters(connection().connParams);
     run->setUseStartupProject(!m_isCustomStart);
     run->setLocalRunMode(m_localRunMode);
 
@@ -122,7 +121,7 @@ void ValgrindRunControl::stopEngine()
 
 QString ValgrindRunControl::executable() const
 {
-    return startParameters().debuggee;
+    return runnable().debuggee;
 }
 
 void ValgrindRunControl::setEnvironment(const Utils::Environment &environment)

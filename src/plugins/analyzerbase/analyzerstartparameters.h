@@ -38,15 +38,26 @@
 
 namespace Analyzer {
 
-class ANALYZER_EXPORT AnalyzerStartParameters
+class ANALYZER_EXPORT AnalyzerRunnable
+{
+public:
+    QString debuggee;
+    QString debuggeeArgs;
+};
+
+class ANALYZER_EXPORT AnalyzerConnection
 {
 public:
     QSsh::SshConnectionParameters connParams;
-    QString debuggee;
-    QString debuggeeArgs;
     QString analyzerHost;
     QString analyzerSocket;
     quint16 analyzerPort = 0;
+};
+
+class ANALYZER_EXPORT AnalyzerStartParameters
+    : public AnalyzerRunnable, public AnalyzerConnection
+{
+public:
 };
 
 } // namespace Analyzer

@@ -151,10 +151,9 @@ QStringList MemcheckWithGdbRunControl::toolArguments() const
 void MemcheckWithGdbRunControl::startDebugger()
 {
     const qint64 valgrindPid = runner()->valgrindProcess()->pid();
-    const AnalyzerStartParameters &mySp = startParameters();
 
     Debugger::DebuggerStartParameters sp;
-    sp.executable = mySp.debuggee;
+    sp.executable = runnable().debuggee;
     sp.startMode = Debugger::AttachToRemoteServer;
     sp.displayName = QString::fromLatin1("VGdb %1").arg(valgrindPid);
     sp.remoteChannel = QString::fromLatin1("| vgdb --pid=%1").arg(valgrindPid);

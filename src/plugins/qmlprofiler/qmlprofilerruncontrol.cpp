@@ -105,9 +105,9 @@ bool QmlProfilerRunControl::startEngine()
 {
     QTC_ASSERT(d->m_profilerState, return false);
 
-    if (startParameters().analyzerPort != 0)
-        emit processRunning(startParameters().analyzerPort);
-    else if (startParameters().analyzerSocket.isEmpty())
+    if (connection().analyzerPort != 0)
+        emit processRunning(connection().analyzerPort);
+    else if (connection().analyzerSocket.isEmpty())
         d->m_noDebugOutputTimer.start();
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
@@ -229,7 +229,7 @@ void QmlProfilerRunControl::processIsRunning(quint16 port)
     d->m_noDebugOutputTimer.stop();
 
     if (port == 0)
-        port = startParameters().analyzerPort;
+        port = connection().analyzerPort;
     if (port != 0)
         emit processRunning(port);
 }

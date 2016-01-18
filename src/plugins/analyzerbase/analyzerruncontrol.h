@@ -50,6 +50,9 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration,
         Core::Id runMode);
 
+    AnalyzerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
+        Core::Id runMode);
+
     /// Start analyzation process.
     virtual bool startEngine() = 0;
     /// Trigger async stop of the analyzation process.
@@ -60,8 +63,8 @@ public:
     virtual void pause() {}
     virtual void unpause() {}
 
-    /// The start parameters for this engine.
-    const AnalyzerStartParameters &startParameters() const { return m_sp; }
+    const AnalyzerRunnable &runnable() const;
+    const AnalyzerConnection &connection() const;
 
     virtual void notifyRemoteSetupDone(quint16) {}
     virtual void notifyRemoteFinished() {}
@@ -96,7 +99,6 @@ protected:
 private:
     QString m_displayName; // Default to runConfig->displayName, unless overridden by setDisplayName
     QString m_workingDirectory;
-    AnalyzerStartParameters m_sp;
 };
 } // namespace Analyzer
 
