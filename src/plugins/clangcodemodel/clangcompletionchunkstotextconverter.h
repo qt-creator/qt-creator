@@ -56,6 +56,8 @@ public:
     void setAddOptional(bool addOptional);
     void setPlaceHolderToEmphasize(int placeHolderNumber);
 
+    void setupForKeywords();
+
     const QString &text() const;
     const std::vector<int> &placeholderPositions() const;
     bool hasPlaceholderPositions() const;

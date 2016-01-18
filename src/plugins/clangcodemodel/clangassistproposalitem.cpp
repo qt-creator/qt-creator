@@ -104,9 +104,7 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidge
         }
     } else if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
         CompletionChunksToTextConverter converter;
-        converter.setAddPlaceHolderPositions(true);
-        converter.setAddSpaces(true);
-        converter.setAddExtraVerticalSpaceBetweenBraces(true);
+        converter.setupForKeywords();
 
         converter.parseChunks(ccr.chunks());
 

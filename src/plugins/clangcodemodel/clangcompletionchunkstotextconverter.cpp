@@ -96,6 +96,13 @@ void CompletionChunksToTextConverter::setPlaceHolderToEmphasize(int placeHolderN
     m_placeHolderPositionToEmphasize = placeHolderNumber;
 }
 
+void CompletionChunksToTextConverter::setupForKeywords()
+{
+    setAddPlaceHolderPositions(true);
+    setAddSpaces(true);
+    setAddExtraVerticalSpaceBetweenBraces(true);
+}
+
 const QString &CompletionChunksToTextConverter::text() const
 {
     return m_text;

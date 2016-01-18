@@ -269,7 +269,7 @@ TEST_F(CompletionChunksToTextConverter, Switch)
                                            leftBrace,
                                            verticalSpace,
                                            rightBrace});
-    setupConverterForKeywords();
+    converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
 
@@ -292,7 +292,7 @@ TEST_F(CompletionChunksToTextConverter, For)
                                                    statements,
                                                    verticalSpace,
                                                    rightBrace});
-    setupConverterForKeywords();
+    converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
 
@@ -306,7 +306,7 @@ TEST_F(CompletionChunksToTextConverter, const_cast)
                                                    rightAngle,
                                                    leftParen,
                                                    rightParen});
-    setupConverterForKeywords();
+    converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
 
@@ -333,7 +333,7 @@ TEST_F(CompletionChunksToTextConverter, ElseIf)
                                                    statements,
                                                    verticalSpace,
                                                    rightBrace});
-    setupConverterForKeywords();
+    converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
 
@@ -348,17 +348,11 @@ TEST_F(CompletionChunksToTextConverter, EnableIfT)
                                            optionalComma,
                                            optionalEnableIfTType,
                                            rightAngle});
-    setupConverterForKeywords();
+    converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
 
     ASSERT_THAT(converter.text(), QStringLiteral("enable_if_t&lt;&gt;"));
 }
 
-void CompletionChunksToTextConverter::setupConverterForKeywords()
-{
-    converter.setAddPlaceHolderPositions(true);
-    converter.setAddSpaces(true);
-    converter.setAddExtraVerticalSpaceBetweenBraces(true);
-}
 }
