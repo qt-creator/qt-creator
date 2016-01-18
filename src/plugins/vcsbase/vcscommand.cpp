@@ -30,28 +30,12 @@
 
 #include "vcscommand.h"
 #include "vcsbaseplugin.h"
+#include "vcsoutputwindow.h"
 
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
-#include <coreplugin/icore.h>
-#include <vcsbase/vcsoutputwindow.h>
-#include <utils/fileutils.h>
 #include <utils/synchronousprocess.h>
-#include <utils/runextensions.h>
-#include <utils/qtcassert.h>
 
-#include <QDebug>
-#include <QProcess>
 #include <QProcessEnvironment>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QtConcurrentRun>
-#include <QFileInfo>
-#include <QCoreApplication>
-#include <QVariant>
-#include <QStringList>
-#include <QTextCodec>
-#include <QMutex>
 
 namespace VcsBase {
 
