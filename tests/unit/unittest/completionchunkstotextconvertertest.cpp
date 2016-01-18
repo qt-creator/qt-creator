@@ -53,6 +53,7 @@ protected:
     CodeCompletionChunk templateResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("Foo<int>")};
     CodeCompletionChunk enumerationResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("Enumeration")};
     CodeCompletionChunk functionName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Function")};
+    CodeCompletionChunk namespaceName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Namespace")};
     CodeCompletionChunk variableName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Variable")};
     CodeCompletionChunk enumeratorName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumerator")};
     CodeCompletionChunk enumerationName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumeration")};
@@ -61,6 +62,7 @@ protected:
     CodeCompletionChunk rightParen{CodeCompletionChunk::RightParen, Utf8StringLiteral(")")};
     CodeCompletionChunk comma{CodeCompletionChunk::Comma, Utf8StringLiteral(", ")};
     CodeCompletionChunk semicolon{CodeCompletionChunk::SemiColon, Utf8StringLiteral(";")};
+    CodeCompletionChunk colonColonText{CodeCompletionChunk::Text, Utf8StringLiteral("::")};
     CodeCompletionChunk functionArgumentX{CodeCompletionChunk::Placeholder, Utf8StringLiteral("char x")};
     CodeCompletionChunk functionArgumentY{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int y")};
     CodeCompletionChunk functionArgumentZ{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z")};
@@ -353,6 +355,15 @@ TEST_F(CompletionChunksToTextConverter, EnableIfT)
     converter.parseChunks(completionChunks);
 
     ASSERT_THAT(converter.text(), QStringLiteral("enable_if_t<>"));
+}
+
+TEST_F(CompletionChunksToTextConverter, Namespace)
+{
+    CodeCompletionChunks completionChunks({namespaceName, colonColonText});
+
+    converter.parseChunks(completionChunks);
+
+    ASSERT_THAT(converter.text(), QStringLiteral("Namespace::"));
 }
 
 }

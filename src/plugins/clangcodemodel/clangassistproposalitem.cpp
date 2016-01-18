@@ -111,6 +111,12 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::TextEditorWidge
         textToBeInserted = converter.text();
         if (converter.hasPlaceholderPositions())
             cursorOffset = converter.placeholderPositions().at(0) - converter.text().size();
+    } else if (ccr.completionKind() == CodeCompletion::NamespaceCompletionKind) {
+        CompletionChunksToTextConverter converter;
+
+        converter.parseChunks(ccr.chunks()); // Appends "::" after name space name
+
+        textToBeInserted = converter.text();
     } else if (!ccr.text().isEmpty()) {
         const TextEditor::CompletionSettings &completionSettings =
                 TextEditor::TextEditorSettings::instance()->completionSettings();
