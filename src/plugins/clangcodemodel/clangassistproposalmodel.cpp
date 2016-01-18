@@ -39,6 +39,11 @@
 namespace ClangCodeModel {
 namespace Internal {
 
+ClangAssistProposalModel::ClangAssistProposalModel()
+{
+    setDetailTextFormat(Qt::RichText);
+}
+
 bool ClangAssistProposalModel::isSortable(const QString &/*prefix*/) const
 {
     return true;

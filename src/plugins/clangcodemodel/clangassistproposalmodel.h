@@ -41,6 +41,8 @@ namespace Internal {
 class ClangAssistProposalModel : public TextEditor::GenericProposalModel
 {
 public:
+    ClangAssistProposalModel();
+
     bool isSortable(const QString &prefix) const override;
     void sort(const QString &prefix) override;
 };

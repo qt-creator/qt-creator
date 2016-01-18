@@ -168,6 +168,11 @@ public:
         m_label->setText(text);
     }
 
+    void setTextFormat(Qt::TextFormat textFormat)
+    {
+        m_label->setTextFormat(textFormat);
+    }
+
     // Workaround QTCREATORBUG-11653
     void calculateMaximumWidth()
     {
@@ -312,6 +317,7 @@ void GenericProposalWidgetPrivate::maybeShowInfoTip()
 
     m_infoFrame->move(m_completionListView->infoFramePos());
     m_infoFrame->setText(infoTip);
+    m_infoFrame->setTextFormat(m_model->detailTextFormat());
     m_infoFrame->calculateMaximumWidth();
     m_infoFrame->adjustSize();
     m_infoFrame->show();
