@@ -48,6 +48,7 @@
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 static FindInFiles *m_instance = 0;
 
@@ -80,12 +81,12 @@ void FindInFiles::findAll(const QString &txt, FindFlags findFlags)
     BaseFileFind::findAll(txt, findFlags);
 }
 
-Utils::FileIterator *FindInFiles::files(const QStringList &nameFilters,
-                                        const QVariant &additionalParameters) const
+FileIterator *FindInFiles::files(const QStringList &nameFilters,
+                                 const QVariant &additionalParameters) const
 {
-    return new Utils::SubDirFileIterator(QStringList() << additionalParameters.toString(),
-                                         nameFilters,
-                                         EditorManager::defaultTextCodec());
+    return new SubDirFileIterator(QStringList() << additionalParameters.toString(),
+                                  nameFilters,
+                                  EditorManager::defaultTextCodec());
 }
 
 QVariant FindInFiles::additionalParameters() const
@@ -130,7 +131,7 @@ QWidget *FindInFiles::createConfigWidget()
         syncComboWithSettings(m_directory, m_directorySetting.toUserOutput());
         dirLabel->setBuddy(m_directory);
         gridLayout->addWidget(m_directory, 0, 1);
-        QPushButton *browseButton = new QPushButton(Utils::PathChooser::browseButtonLabel());
+        QPushButton *browseButton = new QPushButton(PathChooser::browseButtonLabel());
         gridLayout->addWidget(browseButton, 0, 2);
         connect(browseButton, &QAbstractButton::clicked, this, &FindInFiles::openFileBrowser);
 
@@ -160,10 +161,9 @@ void FindInFiles::openFileBrowser()
         m_directory->setEditText(QDir::toNativeSeparators(dir));
 }
 
-Utils::FileName FindInFiles::path() const
+FileName FindInFiles::path() const
 {
-    return Utils::FileName::fromUserInput(Utils::FileUtils::normalizePathName(
-                                              m_directory->currentText()));
+    return FileName::fromUserInput(FileUtils::normalizePathName(m_directory->currentText()));
 }
 
 void FindInFiles::writeSettings(QSettings *settings)
@@ -181,13 +181,13 @@ void FindInFiles::readSettings(QSettings *settings)
     settings->beginGroup(QLatin1String("FindInFiles"));
     readCommonSettings(settings, QLatin1String("*.cpp,*.h"));
     m_directoryStrings.setStringList(settings->value(QLatin1String("directories")).toStringList());
-    m_directorySetting = Utils::FileName::fromString(
+    m_directorySetting = FileName::fromString(
                 settings->value(QLatin1String("currentDirectory")).toString());
     settings->endGroup();
     syncComboWithSettings(m_directory, m_directorySetting.toUserOutput());
 }
 
-void FindInFiles::setDirectory(const Utils::FileName &directory)
+void FindInFiles::setDirectory(const FileName &directory)
 {
     syncComboWithSettings(m_directory, directory.toUserOutput());
 }
@@ -197,6 +197,6 @@ void FindInFiles::findOnFileSystem(const QString &path)
     QTC_ASSERT(m_instance, return);
     const QFileInfo fi(path);
     const QString folder = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-    m_instance->setDirectory(Utils::FileName::fromString(folder));
+    m_instance->setDirectory(FileName::fromString(folder));
     FindPlugin::instance()->openFindDialog(m_instance);
 }
