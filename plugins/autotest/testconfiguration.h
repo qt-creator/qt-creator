@@ -22,14 +22,12 @@
 
 #include "autotestconstants.h"
 
+#include <projectexplorer/project.h>
 #include <utils/environment.h>
 
 #include <QObject>
+#include <QPointer>
 #include <QStringList>
-
-namespace ProjectExplorer {
-class Project;
-}
 
 namespace Autotest {
 namespace Internal {
@@ -68,7 +66,7 @@ public:
     QString workingDirectory() const { return m_workingDir; }
     QString displayName() const { return m_displayName; }
     Utils::Environment environment() const { return m_environment; }
-    ProjectExplorer::Project *project() const { return m_project; }
+    ProjectExplorer::Project *project() const { return m_project.data(); }
     bool unnamedOnly() const { return m_unnamedOnly; }
     bool guessedConfiguration() const { return m_guessedConfiguration; }
     TestType testType() const { return m_type; }
@@ -85,7 +83,7 @@ private:
     QString m_workingDir;
     QString m_displayName;
     Utils::Environment m_environment;
-    ProjectExplorer::Project *m_project;
+    QPointer<ProjectExplorer::Project> m_project;
     bool m_guessedConfiguration;
     TestType m_type;
 };

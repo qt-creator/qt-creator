@@ -44,7 +44,7 @@ namespace Internal {
 
 static TestRunner *m_instance = 0;
 
-void emitTestResultCreated(TestResult *testResult)
+static void emitTestResultCreated(TestResult *testResult)
 {
     emit m_instance->testResultCreated(testResult);
 }
@@ -105,9 +105,9 @@ void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
      m_selectedTests = selected;
 }
 
-void performTestRun(QFutureInterface<void> &futureInterface,
-                    const QList<TestConfiguration *> selectedTests, const int timeout,
-                    const QString metricsOption, TestRunner* testRunner)
+static void performTestRun(QFutureInterface<void> &futureInterface,
+                           const QList<TestConfiguration *> selectedTests, const int timeout,
+                           const QString metricsOption)
 {
     int testCaseCount = 0;
     foreach (TestConfiguration *config, selectedTests) {
@@ -124,9 +124,6 @@ void performTestRun(QFutureInterface<void> &futureInterface,
     QProcess testProcess;
     testProcess.setReadChannelMode(QProcess::MergedChannels);
     testProcess.setReadChannel(QProcess::StandardOutput);
-    QObject::connect(testRunner, &TestRunner::requestStopTestRun, &testProcess, [&] () {
-            futureInterface.cancel(); // this kills the process if that is still in the running loop
-    });
 
     TestOutputReader outputReader(&testProcess);
     QObject::connect(&outputReader, &TestOutputReader::increaseProgress, [&] () {
@@ -278,11 +275,15 @@ void TestRunner::runTests()
             Qt::QueuedConnection);
 
     QFuture<void> future = QtConcurrent::run(&performTestRun, m_selectedTests, settings->timeout,
-                                             metricsOption, this);
+                                             metricsOption);
+
     Core::FutureProgress *progress = Core::ProgressManager::addTask(future, tr("Running Tests"),
                                                                     Autotest::Constants::TASK_INDEX);
     connect(progress, &Core::FutureProgress::finished,
             TestRunner::instance(), &TestRunner::onFinished);
+    connect(this, &TestRunner::requestStopTestRun, progress, [progress]() {
+        progress->future().cancel();
+    });
 }
 
 void TestRunner::buildProject(ProjectExplorer::Project *project)
