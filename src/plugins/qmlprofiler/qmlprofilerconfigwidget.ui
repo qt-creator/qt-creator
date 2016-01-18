@@ -23,7 +23,7 @@
      <property name="toolTip">
       <string>Periodically flush pending data to Qt Creator. This reduces the delay when loading the
 data and the memory usage in the application. It distorts the profile as the flushing
-itself takes time. </string>
+itself takes time.</string>
      </property>
     </widget>
    </item>
