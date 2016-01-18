@@ -41,6 +41,8 @@ QtcPlugin {
         "codestyleselectorwidget.cpp",
         "codestyleselectorwidget.h",
         "codestyleselectorwidget.ui",
+        "colorpreviewhoverhandler.cpp",
+        "colorpreviewhoverhandler.h",
         "colorscheme.cpp",
         "colorscheme.h",
         "colorschemeedit.cpp",
