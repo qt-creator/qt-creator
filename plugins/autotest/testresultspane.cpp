@@ -426,7 +426,7 @@ void TestResultsPane::initializeFilterMenu()
 
 void TestResultsPane::updateSummaryLabel()
 {
-    QString labelText = QString::fromLatin1("<p><b>Test summary:</b>&nbsp;&nbsp; %1 %2, %3 %4")
+    QString labelText = QString::fromLatin1("<p>Test summary:&nbsp;&nbsp; %1 %2, %3 %4")
             .arg(QString::number(m_model->resultTypeCount(Result::Pass)), tr("passes"),
                  QString::number(m_model->resultTypeCount(Result::Fail)), tr("fails"));
     int count = m_model->resultTypeCount(Result::UnexpectedPass);
