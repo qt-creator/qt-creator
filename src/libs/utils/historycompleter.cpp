@@ -152,6 +152,7 @@ void HistoryCompleterPrivate::clearHistory()
 
 void HistoryCompleterPrivate::addEntry(const QString &str)
 {
+    QTC_ASSERT(theSettings, return);
     const QString entry = str.trimmed();
     if (entry.isEmpty()) {
         isLastItemEmpty = true;
