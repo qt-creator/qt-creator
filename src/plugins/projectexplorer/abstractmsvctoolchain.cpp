@@ -105,7 +105,7 @@ ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList 
  * Converts MSVC warning flags to clang flags.
  * @see http://msdn.microsoft.com/en-us/library/thxezb7y.aspx
  */
-AbstractMsvcToolChain::WarningFlags AbstractMsvcToolChain::warningFlags(const QStringList &cflags) const
+WarningFlags AbstractMsvcToolChain::warningFlags(const QStringList &cflags) const
 {
     WarningFlags flags;
     foreach (QString flag, cflags) {
@@ -113,7 +113,7 @@ AbstractMsvcToolChain::WarningFlags AbstractMsvcToolChain::warningFlags(const QS
             flag[0] = QLatin1Char('/');
 
         if (flag == QLatin1String("/WX"))
-            flags |= WarningsAsErrors;
+            flags |= WarningFlags::AsErrors;
         else if (flag == QLatin1String("/W0") || flag == QLatin1String("/w"))
             inferWarningsForLevel(0, flags);
         else if (flag == QLatin1String("/W1"))
@@ -127,25 +127,25 @@ AbstractMsvcToolChain::WarningFlags AbstractMsvcToolChain::warningFlags(const QS
         if (add.triggered())
             continue;
         // http://msdn.microsoft.com/en-us/library/ay4h0tc9.aspx
-        add(4263, WarnOverloadedVirtual);
+        add(4263, WarningFlags::OverloadedVirtual);
         // http://msdn.microsoft.com/en-us/library/ytxde1x7.aspx
-        add(4230, WarnIgnoredQualfiers);
+        add(4230, WarningFlags::IgnoredQualfiers);
         // not exact match, http://msdn.microsoft.com/en-us/library/0hx5ckb0.aspx
-        add(4258, WarnHiddenLocals);
+        add(4258, WarningFlags::HiddenLocals);
         // http://msdn.microsoft.com/en-us/library/wzxffy8c.aspx
-        add(4265, WarnNonVirtualDestructor);
+        add(4265, WarningFlags::NonVirtualDestructor);
         // http://msdn.microsoft.com/en-us/library/y92ktdf2%28v=vs.90%29.aspx
-        add(4018, WarnSignedComparison);
+        add(4018, WarningFlags::SignedComparison);
         // http://msdn.microsoft.com/en-us/library/w099eeey%28v=vs.90%29.aspx
-        add(4068, WarnUnknownPragma);
+        add(4068, WarningFlags::UnknownPragma);
         // http://msdn.microsoft.com/en-us/library/26kb9fy0%28v=vs.80%29.aspx
-        add(4100, WarnUnusedParams);
+        add(4100, WarningFlags::UnusedParams);
         // http://msdn.microsoft.com/en-us/library/c733d5h9%28v=vs.90%29.aspx
-        add(4101, WarnUnusedLocals);
+        add(4101, WarningFlags::UnusedLocals);
         // http://msdn.microsoft.com/en-us/library/xb1db44s%28v=vs.90%29.aspx
-        add(4189, WarnUnusedLocals);
+        add(4189, WarningFlags::UnusedLocals);
         // http://msdn.microsoft.com/en-us/library/ttcz0bys%28v=vs.90%29.aspx
-        add(4996, WarnDeprecated);
+        add(4996, WarningFlags::Deprecated);
     }
     return flags;
 }
@@ -336,18 +336,18 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
 void AbstractMsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
 {
     // reset all except unrelated flag
-    flags = flags & WarningsAsErrors;
+    flags = flags & WarningFlags::AsErrors;
 
     if (warningLevel >= 1)
-        flags |= WarningFlags(WarningsDefault | WarnIgnoredQualfiers | WarnHiddenLocals  | WarnUnknownPragma);
+        flags |= WarningFlags(WarningFlags::Default | WarningFlags::IgnoredQualfiers | WarningFlags::HiddenLocals  | WarningFlags::UnknownPragma);
     if (warningLevel >= 2)
-        flags |= WarningsAll;
+        flags |= WarningFlags::All;
     if (warningLevel >= 3) {
-        flags |= WarningFlags(WarningsExtra | WarnNonVirtualDestructor | WarnSignedComparison
-                | WarnUnusedLocals | WarnDeprecated);
+        flags |= WarningFlags(WarningFlags::Extra | WarningFlags::NonVirtualDestructor | WarningFlags::SignedComparison
+                | WarningFlags::UnusedLocals | WarningFlags::Deprecated);
     }
     if (warningLevel >= 4)
-        flags |= WarnUnusedParams;
+        flags |= WarningFlags::UnusedParams;
 }
 
 bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const
@@ -361,7 +361,7 @@ bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const
 }
 
 AbstractMsvcToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag,
-                                                    ToolChain::WarningFlags &flags) :
+                                                          WarningFlags &flags) :
     m_flags(flags),
     m_triggered(false)
 {
@@ -382,7 +382,7 @@ AbstractMsvcToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag,
         m_triggered = true;
 }
 
-void AbstractMsvcToolChain::WarningFlagAdder::operator ()(int warningCode, ToolChain::WarningFlags flagsSet)
+void AbstractMsvcToolChain::WarningFlagAdder::operator ()(int warningCode, WarningFlags flagsSet)
 {
     if (m_triggered)
         return;
@@ -394,11 +394,6 @@ void AbstractMsvcToolChain::WarningFlagAdder::operator ()(int warningCode, ToolC
         else
             m_flags &= ~flagsSet;
     }
-}
-
-void AbstractMsvcToolChain::WarningFlagAdder::operator ()(int warningCode, ToolChain::WarningFlag flag)
-{
-    (*this)(warningCode, WarningFlags(flag));
 }
 
 bool AbstractMsvcToolChain::WarningFlagAdder::triggered() const

@@ -28,10 +28,12 @@
 #include "cppprojectfile.h"
 #include "cpptoolsconstants.h"
 
+#include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
@@ -235,6 +237,83 @@ QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList
     return languages;
 }
 
+namespace {
+
+ProjectPartHeaderPath toProjectPartHeaderPath(const ProjectExplorer::HeaderPath &headerPath)
+{
+    const ProjectPartHeaderPath::Type headerPathType =
+        headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath
+            ? ProjectPartHeaderPath::FrameworkPath
+            : ProjectPartHeaderPath::IncludePath;
+
+    return ProjectPartHeaderPath(headerPath.path(), headerPathType);
+}
+
+}
+
+/*!
+    \brief Retrieves info from concrete compiler using it's flags.
+
+    \param projectPart Project part which can never be an null pointer.
+    \param toolChain Either nullptr or toolchain for project's active target.
+    \param cxxflags C++ or Objective-C++ flags.
+    \param cflags C or ObjectiveC flags if possible, \a cxxflags otherwise.
+*/
+void ProjectPartBuilder::evaluateProjectPartToolchain(
+        ProjectPart *projectPart,
+        const ProjectExplorer::ToolChain *toolChain,
+        const QStringList &commandLineFlags,
+        const Utils::FileName &sysRoot)
+{
+    if (toolChain == nullptr)
+        return;
+
+    using namespace ProjectExplorer;
+    ToolChain::CompilerFlags flags = toolChain->compilerFlags(commandLineFlags);
+    auto &languageVersion = projectPart->languageVersion;
+
+    if (flags & ToolChain::StandardC11)
+        languageVersion = ProjectPart::C11;
+    else if (flags & ToolChain::StandardC99)
+        languageVersion = ProjectPart::C99;
+    else if (flags & ToolChain::StandardCxx17)
+        languageVersion = ProjectPart::CXX17;
+    else if (flags & ToolChain::StandardCxx14)
+        languageVersion = ProjectPart::CXX14;
+    else if (flags & ToolChain::StandardCxx11)
+        languageVersion = ProjectPart::CXX11;
+    else if (flags & ToolChain::StandardCxx98)
+        languageVersion = ProjectPart::CXX98;
+    else
+        languageVersion = ProjectPart::CXX11;
+
+    auto &languageExtensions = projectPart->languageExtensions;
+
+    if (flags & ToolChain::BorlandExtensions)
+        languageExtensions |= ProjectPart::BorlandExtensions;
+    if (flags & ToolChain::GnuExtensions)
+        languageExtensions |= ProjectPart::GnuExtensions;
+    if (flags & ToolChain::MicrosoftExtensions)
+        languageExtensions |= ProjectPart::MicrosoftExtensions;
+    if (flags & ToolChain::OpenMP)
+        languageExtensions |= ProjectPart::OpenMPExtensions;
+    if (flags & ToolChain::ObjectiveC)
+        languageExtensions |= ProjectPart::ObjectiveCExtensions;
+
+    projectPart->warningFlags = toolChain->warningFlags(commandLineFlags);
+
+    const QList<ProjectExplorer::HeaderPath> headers = toolChain->systemHeaderPaths(commandLineFlags, sysRoot);
+    foreach (const ProjectExplorer::HeaderPath &header, headers) {
+        const ProjectPartHeaderPath headerPath = toProjectPartHeaderPath(header);
+        if (!projectPart->headerPaths.contains(headerPath))
+            projectPart->headerPaths.push_back(headerPath);
+    }
+
+    projectPart->toolchainDefines = toolChain->predefinedMacros(commandLineFlags);
+    projectPart->toolchainType = toolChain->typeId();
+    projectPart->updateLanguageFeatures();
+}
+
 namespace Internal {
 
 class ProjectFileAdder
@@ -302,7 +381,10 @@ void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
             if (ProjectExplorer::ToolChain *toolChain = ProjectExplorer::ToolChainKitInformation::toolChain(kit)) {
                 const QStringList flags = languageVersion >= ProjectPart::CXX98 ? m_cxxFlags
                                                                                 : m_cFlags;
-                part->evaluateToolchain(toolChain, flags, ProjectExplorer::SysRootKitInformation::sysRoot(kit));
+                evaluateProjectPartToolchain(part.data(),
+                                             toolChain,
+                                             flags,
+                                             ProjectExplorer::SysRootKitInformation::sysRoot(kit));
             }
         }
     }

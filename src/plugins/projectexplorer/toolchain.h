@@ -27,6 +27,8 @@
 #define TOOLCHAIN_H
 
 #include "projectexplorer_export.h"
+#include "projectexplorer_global.h"
+
 #include <coreplugin/id.h>
 
 #include <utils/fileutils.h>
@@ -101,35 +103,6 @@ public:
     Q_DECLARE_FLAGS(CompilerFlags, CompilerFlag)
 
     virtual CompilerFlags compilerFlags(const QStringList &cxxflags) const = 0;
-
-    enum WarningFlag {
-        // General settings
-        WarningsAsErrors,
-        WarningsDefault,
-        WarningsAll,
-        WarningsExtra,
-        WarningsPedantic,
-
-        // Any language
-        WarnUnusedLocals,
-        WarnUnusedParams,
-        WarnUnusedFunctions,
-        WarnUnusedResult,
-        WarnUnusedValue,
-        WarnDocumentation,
-        WarnUninitializedVars,
-        WarnHiddenLocals,
-        WarnUnknownPragma,
-        WarnDeprecated,
-        WarnSignedComparison,
-        WarnIgnoredQualfiers,
-
-        // C++
-        WarnOverloadedVirtual,
-        WarnEffectiveCxx,
-        WarnNonVirtualDestructor
-    };
-    Q_DECLARE_FLAGS(WarningFlags, WarningFlag)
 
     virtual WarningFlags warningFlags(const QStringList &cflags) const = 0;
     virtual QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,

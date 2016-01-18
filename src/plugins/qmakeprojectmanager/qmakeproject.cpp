@@ -40,6 +40,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
+#include <cpptools/projectpartbuilder.h>
 #include <cpptools/projectpartheaderpath.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/buildmanager.h>
@@ -494,9 +495,10 @@ void QmakeProject::updateCppCodeModel()
             cppPart->files.prepend(ProjectFile(CppTools::CppModelManager::configurationFileName(),
                                             ProjectFile::CXXSource));
             const QStringList cxxflags = pro->variableValue(CppFlagsVar);
-            cppPart->evaluateToolchain(ToolChainKitInformation::toolChain(k),
-                                       cxxflags,
-                                       SysRootKitInformation::sysRoot(k));
+            CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(cppPart.data(),
+                                                                       ToolChainKitInformation::toolChain(k),
+                                                                       cxxflags,
+                                                                       SysRootKitInformation::sysRoot(k));
 
             if (!cppPart->files.isEmpty()) {
                 pinfo.appendProjectPart(cppPart);
@@ -518,9 +520,10 @@ void QmakeProject::updateCppCodeModel()
             }
 
             const QStringList cxxflags = pro->variableValue(CppFlagsVar);
-            objcppPart->evaluateToolchain(ToolChainKitInformation::toolChain(k),
-                                          cxxflags,
-                                          SysRootKitInformation::sysRoot(k));
+            CppTools::ProjectPartBuilder::evaluateProjectPartToolchain(objcppPart.data(),
+                                                                       ToolChainKitInformation::toolChain(k),
+                                                                       cxxflags,
+                                                                       SysRootKitInformation::sysRoot(k));
 
             if (!objcppPart->files.isEmpty()) {
                 pinfo.appendProjectPart(objcppPart);

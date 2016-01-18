@@ -154,7 +154,8 @@ HEADERS += projectexplorer.h \
     projecttree.h \
     expanddata.h \
     waitforstopdialog.h \
-    projectexplorericons.h
+    projectexplorericons.h \
+    projectexplorer_global.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \

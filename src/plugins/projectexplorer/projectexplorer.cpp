@@ -73,7 +73,6 @@
 #include "session.h"
 #include "projectnodes.h"
 #include "sessiondialog.h"
-#include "projectexplorersettingspage.h"
 #include "buildconfiguration.h"
 #include "miniprojecttargetselector.h"
 #include "taskhub.h"
@@ -631,7 +630,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new ProjectFileWizardExtension);
 
     // Settings pages
-    addAutoReleasedObject(new ProjectExplorerSettingsPage);
+    //addAutoReleasedObject(new ProjectExplorerSettingsPage);
     addAutoReleasedObject(new DeviceSettingsPage);
 
     // context menus

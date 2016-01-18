@@ -476,15 +476,15 @@ ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags
     return flags;
 }
 
-GccToolChain::WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
+WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
 {
     // based on 'LC_ALL="en" gcc -Q --help=warnings | grep enabled'
-    WarningFlags flags(WarnDeprecated | WarnIgnoredQualfiers
-                       | WarnSignedComparison | WarnUninitializedVars);
-    WarningFlags groupWall(WarningsAll | WarnUnknownPragma |WarnUnusedFunctions
-                           | WarnUnusedLocals | WarnUnusedResult | WarnUnusedValue
-                           | WarnSignedComparison | WarnUninitializedVars);
-    WarningFlags groupWextra(WarningsExtra | WarnIgnoredQualfiers | WarnUnusedParams);
+    WarningFlags flags(WarningFlags::Deprecated | WarningFlags::IgnoredQualfiers
+                       | WarningFlags::SignedComparison | WarningFlags::UninitializedVars);
+    WarningFlags groupWall(WarningFlags::All | WarningFlags::UnknownPragma | WarningFlags::UnusedFunctions
+                           | WarningFlags::UnusedLocals | WarningFlags::UnusedResult | WarningFlags::UnusedValue
+                           | WarningFlags::SignedComparison | WarningFlags::UninitializedVars);
+    WarningFlags groupWextra(WarningFlags::Extra | WarningFlags::IgnoredQualfiers | WarningFlags::UnusedParams);
 
     foreach (const QString &flag, cflags) {
         if (flag == QLatin1String("--all-warnings"))
@@ -497,26 +497,25 @@ GccToolChain::WarningFlags GccToolChain::warningFlags(const QStringList &cflags)
             continue;
 
         // supported by clang too
-        add("error", WarningsAsErrors);
+        add("error", WarningFlags::AsErrors);
         add("all", groupWall);
         add("extra", groupWextra);
-        add("deprecated", WarnDeprecated);
-        add("effc++", WarnEffectiveCxx);
-        add("ignored-qualifiers", WarnIgnoredQualfiers);
-        add("non-virtual-dtor", WarnNonVirtualDestructor);
-        add("overloaded-virtual", WarnOverloadedVirtual);
-        add("shadow", WarnHiddenLocals);
-        add("sign-compare", WarnSignedComparison);
-        add("unknown-pragmas", WarnUnknownPragma);
-        add("unused", ToolChain::WarningFlag(
-                WarnUnusedFunctions | WarnUnusedLocals | WarnUnusedParams
-                | WarnUnusedResult | WarnUnusedValue));
-        add("unused-function", WarnUnusedFunctions);
-        add("unused-variable", WarnUnusedLocals);
-        add("unused-parameter", WarnUnusedParams);
-        add("unused-result", WarnUnusedResult);
-        add("unused-value", WarnUnusedValue);
-        add("uninitialized", WarnUninitializedVars);
+        add("deprecated", WarningFlags::Deprecated);
+        add("effc++", WarningFlags::EffectiveCxx);
+        add("ignored-qualifiers", WarningFlags::IgnoredQualfiers);
+        add("non-virtual-dtor", WarningFlags::NonVirtualDestructor);
+        add("overloaded-virtual", WarningFlags::OverloadedVirtual);
+        add("shadow", WarningFlags::HiddenLocals);
+        add("sign-compare", WarningFlags::SignedComparison);
+        add("unknown-pragmas", WarningFlags::UnknownPragma);
+        add("unused", WarningFlags::UnusedFunctions | WarningFlags::UnusedLocals | WarningFlags::UnusedParams
+                | WarningFlags::UnusedResult | WarningFlags::UnusedValue);
+        add("unused-function", WarningFlags::UnusedFunctions);
+        add("unused-variable", WarningFlags::UnusedLocals);
+        add("unused-parameter", WarningFlags::UnusedParams);
+        add("unused-result", WarningFlags::UnusedResult);
+        add("unused-value", WarningFlags::UnusedValue);
+        add("uninitialized", WarningFlags::UninitializedVars);
     }
     return flags;
 }
@@ -1052,14 +1051,14 @@ ToolChain::CompilerFlags ClangToolChain::compilerFlags(const QStringList &cxxfla
     return flags;
 }
 
-ToolChain::WarningFlags ClangToolChain::warningFlags(const QStringList &cflags) const
+WarningFlags ClangToolChain::warningFlags(const QStringList &cflags) const
 {
     WarningFlags flags = GccToolChain::warningFlags(cflags);
     foreach (const QString &flag, cflags) {
         if (flag == QLatin1String("-Wdocumentation"))
-            flags |= WarnDocumentation;
+            flags |= WarningFlags::Documentation;
         if (flag == QLatin1String("-Wno-documentation"))
-            flags &= ~WarnDocumentation;
+            flags &= ~WarningFlags::Documentation;
     }
     return flags;
 }
@@ -1287,7 +1286,7 @@ GccToolChain *LinuxIccToolChainFactory::createToolChain(bool autoDetect)
     return new LinuxIccToolChain(autoDetect ? ToolChain::AutoDetection : ToolChain::ManualDetection);
 }
 
-GccToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, ToolChain::WarningFlags &flags) :
+GccToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, WarningFlags &flags) :
     m_flags(flags),
     m_triggered(false)
 {
@@ -1303,7 +1302,7 @@ GccToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, ToolChain:
         m_flagUtf8 = flag.mid(5).toUtf8();
 }
 
-void GccToolChain::WarningFlagAdder::operator ()(const char name[], ToolChain::WarningFlags flagsSet)
+void GccToolChain::WarningFlagAdder::operator ()(const char name[], WarningFlags flagsSet)
 {
     if (m_triggered)
         return;
@@ -1315,11 +1314,6 @@ void GccToolChain::WarningFlagAdder::operator ()(const char name[], ToolChain::W
         else
             m_flags &= ~flagsSet;
     }
-}
-
-void GccToolChain::WarningFlagAdder::operator ()(const char name[], ToolChain::WarningFlag flag)
-{
-    (*this)(name, WarningFlags(flag));
 }
 
 bool GccToolChain::WarningFlagAdder::triggered() const

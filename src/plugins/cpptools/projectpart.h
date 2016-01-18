@@ -31,7 +31,7 @@
 #include "cppprojectfile.h"
 #include "projectpartheaderpath.h"
 
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectexplorer_global.h>
 
 #include <coreplugin/id.h>
 
@@ -88,10 +88,6 @@ public: // Types
 public: // methods
     ProjectPart();
 
-    void evaluateToolchain(const ProjectExplorer::ToolChain *tc,
-                           const QStringList &commandLineFlags,
-                           const Utils::FileName &sysRoot);
-
     void updateLanguageFeatures();
     Ptr copy() const;
 
@@ -114,7 +110,7 @@ public: // fields
     LanguageExtensions languageExtensions;
     CPlusPlus::LanguageFeatures languageFeatures;
     QtVersion qtVersion;
-    ProjectExplorer::ToolChain::WarningFlags warningFlags;
+    ProjectExplorer::WarningFlags warningFlags;
     bool selectedForBuilding;
 };
 

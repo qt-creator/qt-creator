@@ -125,7 +125,6 @@ protected:
     public:
         WarningFlagAdder(const QString &flag, WarningFlags &flags);
         void operator ()(const char name[], WarningFlags flagsSet);
-        void operator ()(const char name[], WarningFlag flag);
 
         bool triggered() const;
     };

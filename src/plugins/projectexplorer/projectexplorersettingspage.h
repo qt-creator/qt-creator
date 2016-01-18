@@ -26,8 +26,9 @@
 #ifndef PROJECTEXPLORERSETTINGSPAGE_H
 #define PROJECTEXPLORERSETTINGSPAGE_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
 #include "ui_projectexplorersettingspage.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QPointer>
 #include <QUuid>

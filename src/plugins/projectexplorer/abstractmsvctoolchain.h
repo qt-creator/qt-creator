@@ -78,7 +78,6 @@ protected:
     public:
         WarningFlagAdder(const QString &flag, WarningFlags &flags);
         void operator ()(int warningCode, WarningFlags flagsSet);
-        void operator ()(int warningCode, WarningFlag flag);
 
         bool triggered() const;
     };

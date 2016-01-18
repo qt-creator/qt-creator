@@ -109,6 +109,7 @@ QtcPlugin {
             "projectexplorer.cpp", "projectexplorer.h",
             "projectexplorer.qrc",
             "projectexplorer_export.h",
+            "projectexplorer_global.h",
             "projectexplorerconstants.h",
             "projectexplorericons.h",
             "projectexplorersettings.h",

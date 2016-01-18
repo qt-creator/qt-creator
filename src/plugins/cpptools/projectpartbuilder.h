@@ -31,6 +31,10 @@
 #include "projectinfo.h"
 #include "projectpart.h"
 
+namespace ProjectExplorer {
+class ToolChain;
+}
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT ProjectPartBuilder
@@ -50,6 +54,11 @@ public:
     void setConfigFileName(const QString &configFileName);
 
     QList<Core::Id> createProjectPartsForFiles(const QStringList &files);
+
+    static void evaluateProjectPartToolchain(ProjectPart *projectPart,
+                                             const ProjectExplorer::ToolChain *toolChain,
+                                             const QStringList &commandLineFlags,
+                                             const Utils::FileName &sysRoot);
 
 private:
     void createProjectPart(const QStringList &theSources, const QString &partName,

@@ -25,8 +25,6 @@
 
 #include "projectpart.h"
 
-#include <projectexplorer/headerpath.h>
-
 #include <QDir>
 #include <QTextStream>
 
@@ -37,76 +35,9 @@ ProjectPart::ProjectPart()
     , languageVersion(CXX14)
     , languageExtensions(NoExtensions)
     , qtVersion(UnknownQt)
-    , warningFlags(ProjectExplorer::ToolChain::WarningsDefault)
+    , warningFlags(ProjectExplorer::WarningFlags::Default)
     , selectedForBuilding(true)
 {
-}
-
-static ProjectPartHeaderPath toProjectPartHeaderPath(const ProjectExplorer::HeaderPath &headerPath)
-{
-    const ProjectPartHeaderPath::Type headerPathType =
-        headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath
-            ? ProjectPartHeaderPath::FrameworkPath
-            : ProjectPartHeaderPath::IncludePath;
-
-    return ProjectPartHeaderPath(headerPath.path(), headerPathType);
-}
-
-/*!
-    \brief Retrieves info from concrete compiler using it's flags.
-
-    \param tc Either nullptr or toolchain for project's active target.
-    \param cxxflags C++ or Objective-C++ flags.
-    \param cflags C or ObjectiveC flags if possible, \a cxxflags otherwise.
-*/
-void ProjectPart::evaluateToolchain(const ProjectExplorer::ToolChain *tc,
-                                    const QStringList &commandLineFlags,
-                                    const Utils::FileName &sysRoot)
-{
-    if (!tc)
-        return;
-
-    using namespace ProjectExplorer;
-    ToolChain::CompilerFlags flags = tc->compilerFlags(commandLineFlags);
-
-    if (flags & ToolChain::StandardC11)
-        languageVersion = C11;
-    else if (flags & ToolChain::StandardC99)
-        languageVersion = C99;
-    else if (flags & ToolChain::StandardCxx17)
-        languageVersion = CXX17;
-    else if (flags & ToolChain::StandardCxx14)
-        languageVersion = CXX14;
-    else if (flags & ToolChain::StandardCxx11)
-        languageVersion = CXX11;
-    else if (flags & ToolChain::StandardCxx98)
-        languageVersion = CXX98;
-    else
-        languageVersion = CXX11;
-
-    if (flags & ToolChain::BorlandExtensions)
-        languageExtensions |= BorlandExtensions;
-    if (flags & ToolChain::GnuExtensions)
-        languageExtensions |= GnuExtensions;
-    if (flags & ToolChain::MicrosoftExtensions)
-        languageExtensions |= MicrosoftExtensions;
-    if (flags & ToolChain::OpenMP)
-        languageExtensions |= OpenMPExtensions;
-    if (flags & ToolChain::ObjectiveC)
-        languageExtensions |= ObjectiveCExtensions;
-
-    warningFlags = tc->warningFlags(commandLineFlags);
-
-    const QList<ProjectExplorer::HeaderPath> headers = tc->systemHeaderPaths(commandLineFlags, sysRoot);
-    foreach (const ProjectExplorer::HeaderPath &header, headers) {
-        const ProjectPartHeaderPath headerPath = toProjectPartHeaderPath(header);
-        if (!headerPaths.contains(headerPath))
-            headerPaths << headerPath;
-    }
-
-    toolchainDefines = tc->predefinedMacros(commandLineFlags);
-    toolchainType = tc->typeId();
-    updateLanguageFeatures();
 }
 
 void ProjectPart::updateLanguageFeatures()

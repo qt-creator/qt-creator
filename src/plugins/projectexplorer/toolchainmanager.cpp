@@ -440,7 +440,7 @@ public:
     bool isValid() const override { return m_valid; }
     QByteArray predefinedMacros(const QStringList &cxxflags) const override { Q_UNUSED(cxxflags); return QByteArray(); }
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override { Q_UNUSED(cxxflags); return NoFlags; }
-    WarningFlags warningFlags(const QStringList &cflags) const override { Q_UNUSED(cflags); return 0; }
+    WarningFlags warningFlags(const QStringList &cflags) const override { Q_UNUSED(cflags); return WarningFlags::NoWarnings; }
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags, const FileName &sysRoot) const override
     { Q_UNUSED(cxxflags); Q_UNUSED(sysRoot); return QList<HeaderPath>(); }
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env); }
