@@ -131,7 +131,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneArgumen
 
     using ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
-    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks),
                 QStringLiteral("int Function(char x)"));
 }
 
@@ -143,7 +143,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneParamet
                                             functionArgumentX,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, 1),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 1),
                 QStringLiteral("int Function(<b>char x</b>)"));
 }
 
@@ -155,7 +155,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneParamet
                                             functionArgumentX,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, -1),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, -1),
                 QStringLiteral("int Function(char x)"));
 }
 
@@ -169,7 +169,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParamet
                                             functionArgumentY,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, 2),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 2),
                 QStringLiteral("int Function(char x, <b>int y</b>)"));
 }
 
@@ -183,7 +183,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParamet
                                             optionalFunctionArgumentY,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, 2),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 2),
                 QStringLiteral("int Function(char x<i>, <b>int y</b></i>)"));
 }
 
@@ -197,7 +197,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTemplateRe
 
     using ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
-    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignature(completionChunks),
+    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(completionChunks),
                 QStringLiteral("Foo&lt;int&gt; Function(char x)"));
 }
 
@@ -211,7 +211,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTemplateAr
 
     using ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
-    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignature(completionChunks),
+    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(completionChunks),
                 QStringLiteral("int Function(const Foo&lt;int&gt; &amp;foo)"));
 }
 
@@ -227,7 +227,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
                                            optionalFunctionArgumentZ,
                                            rightParen});
 
-    ASSERT_THAT(Converter::convertToToolTip(completionChunks),
+    ASSERT_THAT(Converter::convertToToolTipWithHtml(completionChunks),
                 QStringLiteral("int Function (char x<i>, int y, int z</i>)"));
 }
 
@@ -310,7 +310,7 @@ TEST_F(CompletionChunksToTextConverter, const_cast)
 
     converter.parseChunks(completionChunks);
 
-    ASSERT_THAT(converter.text(), QStringLiteral("const_cast&lt;&gt;()"));
+    ASSERT_THAT(converter.text(), QStringLiteral("const_cast<>()"));
 }
 
 TEST_F(CompletionChunksToTextConverter, Throw)
@@ -352,7 +352,7 @@ TEST_F(CompletionChunksToTextConverter, EnableIfT)
 
     converter.parseChunks(completionChunks);
 
-    ASSERT_THAT(converter.text(), QStringLiteral("enable_if_t&lt;&gt;"));
+    ASSERT_THAT(converter.text(), QStringLiteral("enable_if_t<>"));
 }
 
 }
