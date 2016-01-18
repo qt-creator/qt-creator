@@ -541,6 +541,16 @@ Core::Id RunControl::runMode() const
     return m_runMode;
 }
 
+void RunControl::setRunnable(const Runnable &runnable)
+{
+    m_runnable = runnable;
+}
+
+void RunControl::setConnection(const Connection &connection)
+{
+    m_connection = connection;
+}
+
 QString RunControl::displayName() const
 {
     return m_displayName;

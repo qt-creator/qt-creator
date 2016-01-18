@@ -29,6 +29,7 @@
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 #include "projectexplorerconstants.h"
+#include "applicationlauncher.h"
 
 #include <utils/outputformat.h>
 #include <utils/qtcassert.h>
@@ -36,6 +37,8 @@
 
 #include <QPointer>
 #include <QWidget>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QFormLayout;
@@ -148,6 +151,67 @@ private:
     RunConfiguration *m_runConfiguration;
     ISettingsAspect *m_projectSettings; // Owned if present.
     ISettingsAspect *m_globalSettings;  // Not owned.
+};
+
+class PROJECTEXPLORER_EXPORT ClonableConcept
+{
+public:
+    virtual ~ClonableConcept() = default;
+    virtual ClonableConcept *clone() const = 0;
+};
+
+template <class T>
+class ClonableModel : public ClonableConcept
+{
+public:
+    ClonableModel(const T &data) : m_data(data) {}
+    ClonableConcept *clone() const override { return new ClonableModel(*this); }
+
+    T m_data;
+};
+
+class PROJECTEXPLORER_EXPORT Runnable
+{
+public:
+    Runnable() {}
+    Runnable(const Runnable &other) : d(other.d->clone()) {}
+    Runnable(Runnable &&other) = default;
+    template <class T> Runnable(const T &data) : d(new ClonableModel<T>(data)) {}
+
+    void operator=(Runnable other) { d = std::move(other.d); }
+
+    template <class T> bool is() const {
+        return dynamic_cast<ClonableModel<T> *>(d.get()) != 0;
+    }
+
+    template <class T> const T &as() const {
+        return static_cast<ClonableModel<T> *>(d.get())->m_data;
+    }
+
+private:
+    std::unique_ptr<ClonableConcept> d;
+};
+
+class PROJECTEXPLORER_EXPORT Connection
+{
+public:
+    Connection() {}
+    Connection(const Connection &other) : d(other.d->clone()) {}
+    Connection(Connection &&other) = default;
+    template <class T> Connection(const T &data) : d(new ClonableModel<T>(data)) {}
+
+    void operator=(Connection other) { d = std::move(other.d); }
+
+    template <class T> bool is() const {
+        return dynamic_cast<ClonableModel<T> *>(d.get()) != 0;
+    }
+
+    template <class T> const T &as() const {
+        return static_cast<ClonableModel<T> *>(d.get())->m_data;
+    }
+
+private:
+    std::unique_ptr<ClonableConcept> d;
 };
 
 // Documentation inside.
@@ -303,6 +367,12 @@ public:
     Utils::OutputFormatter *outputFormatter();
     Core::Id runMode() const;
 
+    const Runnable &runnable() const { return m_runnable; }
+    void setRunnable(const Runnable &runnable);
+
+    const Connection &connection() const { return m_connection; }
+    void setConnection(const Connection &connection);
+
 public slots:
     void bringApplicationToForeground(qint64 pid);
     void appendMessage(const QString &msg, Utils::OutputFormat format);
@@ -325,6 +395,8 @@ protected:
 
 private:
     QString m_displayName;
+    Runnable m_runnable;
+    Connection m_connection;
     Core::Id m_runMode;
     Utils::Icon m_icon;
     const QPointer<RunConfiguration> m_runConfiguration;
