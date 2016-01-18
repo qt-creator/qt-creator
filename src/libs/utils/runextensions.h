@@ -519,8 +519,25 @@ void blockingMapReduce(QFutureInterface<ReduceResult> futureInterface, const Con
     futureInterface.reportFinished();
 }
 
+// TODO: Use universal references and std::forward to function when we require MSVC2015
+// (MSVC2013 has a bug that std::thread does not move the copied arguments to the function call,
+// which leads to compile errors with rvalue arguments)
+template <typename ResultType, typename Function, typename Obj, typename... Args>
+typename std::enable_if<std::is_member_pointer<typename std::decay<Function>::type>::value>::type
+runAsyncImpl(QFutureInterface<ResultType> futureInterface, const Function &function, const Obj &obj, const Args&... args)
+{
+    std::mem_fn(function)(obj, futureInterface, args...);
+    if (futureInterface.isPaused())
+        futureInterface.waitForResume();
+    futureInterface.reportFinished();
+}
+
+// TODO: Use universal references and std::forward to function when we require MSVC2015
+// (MSVC2013 has a bug that std::thread does not move the copied arguments to the function call,
+// which leads to compile errors with rvalue arguments)
 template <typename ResultType, typename Function, typename... Args>
-void runAsyncImpl(QFutureInterface<ResultType> futureInterface, const Function &function, const Args&... args)
+typename std::enable_if<!std::is_member_pointer<typename std::decay<Function>::type>::value>::type
+runAsyncImpl(QFutureInterface<ResultType> futureInterface, const Function &function, const Args&... args)
 {
     function(futureInterface, args...);
     if (futureInterface.isPaused())
@@ -556,6 +573,19 @@ QFuture<ReduceResult> mapReduce(const Container &container, const InitFunction &
     return future;
 }
 
+/*!
+    The interface of \c {runAsync} is similar to the std::thread constructor and \c {std::invoke}.
+
+    The \a function argument can be a member function, an object with \c {operator()}, a
+    \c {std::function}, lambda, function pointer or function reference.
+    They need to take a \c {QFutureInterface<ResultType>&} as their first argument, followed by
+    other custom arguments which need to be passed to this function.
+    If \a function is a (non-static) member function, the first argument in \a args is expected
+    to be the object that the function is called on.
+
+    \sa std::thread
+    \sa std::invoke
+ */
 template <typename ResultType, typename Function, typename... Args>
 QFuture<ResultType> runAsync(Function &&function, Args&&... args)
 {
