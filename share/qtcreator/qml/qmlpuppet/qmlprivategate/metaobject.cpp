@@ -161,7 +161,7 @@ MetaObject::MetaObject(QObject *object, QQmlEngine *engine)
     //Assign cache to object
     if (ddata && ddata->propertyCache) {
         cache->setParent(ddata->propertyCache);
-        cache->invalidate(engine, this);
+        cache->invalidate(this);
         ddata->propertyCache = m_cache;
     }
 
