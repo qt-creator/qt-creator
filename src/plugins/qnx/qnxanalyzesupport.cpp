@@ -30,7 +30,6 @@
 #include "slog2inforunner.h"
 
 #include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzerstartparameters.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>

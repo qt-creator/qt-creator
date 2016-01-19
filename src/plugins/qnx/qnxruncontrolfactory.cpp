@@ -87,25 +87,6 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
     return params;
 }
 
-static AnalyzerStartParameters createAnalyzerStartParameters(const QnxRunConfiguration *runConfig)
-{
-    AnalyzerStartParameters params;
-    Target *target = runConfig->target();
-    Kit *k = target->kit();
-
-    const IDevice::ConstPtr device = DeviceKitInformation::device(k);
-    if (device.isNull())
-        return params;
-
-    params.debuggee = runConfig->remoteExecutableFilePath();
-    params.debuggeeArgs = runConfig->arguments();
-    params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
-    params.analyzerHost = params.connParams.host;
-    params.analyzerPort = params.connParams.port;
-
-    return params;
-}
-
 QnxRunControlFactory::QnxRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {
@@ -138,29 +119,40 @@ bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id m
 
 RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id mode, QString *errorMessage)
 {
-    Q_ASSERT(canRun(runConfig, mode));
+    QTC_ASSERT(canRun(runConfig, mode), return 0);
+    auto rc = qobject_cast<QnxRunConfiguration *>(runConfig);
+    QTC_ASSERT(rc, return 0);
 
-    QnxRunConfiguration *rc = qobject_cast<QnxRunConfiguration *>(runConfig);
-    Q_ASSERT(rc);
     if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         return new QnxRunControl(rc);
 
     if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE) {
         const DebuggerStartParameters params = createDebuggerStartParameters(rc);
         DebuggerRunControl *runControl = createDebuggerRunControl(params, runConfig, errorMessage);
-        if (!runControl)
-            return 0;
-
-        QnxDebugSupport *debugSupport = new QnxDebugSupport(rc, runControl);
-        connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
-
+        QTC_ASSERT(runControl, return 0);
+        auto debugSupport = new QnxDebugSupport(rc, runControl);
+        connect(runControl, &RunControl::finished, debugSupport, &QnxDebugSupport::handleDebuggingFinished);
         return runControl;
     }
+
     if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        const AnalyzerStartParameters params = createAnalyzerStartParameters(rc);
-        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode);
-        QnxAnalyzeSupport * const analyzeSupport = new QnxAnalyzeSupport(rc, runControl);
-        connect(runControl, SIGNAL(finished()), analyzeSupport, SLOT(handleProfilingFinished()));
+        Kit *kit = runConfig->target()->kit();
+        const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+        if (device.isNull())
+            return 0;
+        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(runConfig, mode);
+        QTC_ASSERT(runControl, return 0);
+        AnalyzerRunnable runnable;
+        runnable.debuggee = rc->remoteExecutableFilePath();
+        runnable.debuggeeArgs = rc->arguments();
+        runControl->setRunnable(runnable);
+        AnalyzerConnection connection;
+        connection.connParams = device->sshParameters();
+        connection.analyzerHost = connection.connParams.host;
+        connection.analyzerPort = connection.connParams.port;
+        runControl->setConnection(connection);
+        auto analyzeSupport = new QnxAnalyzeSupport(rc, runControl);
+        connect(runControl, &RunControl::finished, analyzeSupport, &QnxAnalyzeSupport::handleProfilingFinished);
         return runControl;
     }
 
