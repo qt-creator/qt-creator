@@ -581,7 +581,8 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
     }
 
     refresh();
-    DesignerSupport::updateDirtyNode(quickItem());
+    if (quickItem()->window())
+        DesignerSupport::updateDirtyNode(quickItem());
 
     if (instanceIsValidLayoutable(oldParentInstance, oldParentProperty))
         oldParentInstance->refreshLayoutable();
