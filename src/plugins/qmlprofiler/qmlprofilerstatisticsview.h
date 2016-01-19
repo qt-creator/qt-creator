@@ -93,7 +93,7 @@ public slots:
     void onVisibleFeaturesChanged(quint64 features) override;
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *ev);
+    void contextMenuEvent(QContextMenuEvent *ev) override;
 
 private:
     QModelIndex selectedModelIndex() const;
