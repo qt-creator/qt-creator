@@ -101,6 +101,8 @@ DesignerSettings SettingsPageWidget::settings() const
         settings.insert(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
             m_ui.puppetBuildPathLineEdit->path());
     }
+    settings.insert(DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR,
+        m_ui.alwaysSaveSubcomponentsCheckBox->isChecked());
 
     return settings;
 }
@@ -143,6 +145,8 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
         PuppetCreator::defaultPuppetToplevelBuildDirectory()).toString();
     m_ui.puppetBuildPathLineEdit->setPath(puppetToplevelBuildDirectory);
+    m_ui.alwaysSaveSubcomponentsCheckBox->setChecked(settings.value(
+        DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR).toBool());
 }
 
 SettingsPage::SettingsPage() :

@@ -244,7 +244,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="alwaysSaveSubcomponentsCheckBox">
         <property name="text">
          <string>Always save when leaving subcomponent in bread crumb</string>
         </property>
