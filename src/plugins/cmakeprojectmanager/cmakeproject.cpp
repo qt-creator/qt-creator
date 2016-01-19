@@ -240,10 +240,7 @@ QStringList CMakeProject::getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QB
 
 bool CMakeProject::parseCMakeLists()
 {
-    if (!activeTarget() ||
-        !activeTarget()->activeBuildConfiguration()) {
-        return false;
-    }
+    QTC_ASSERT(activeTarget() && activeTarget()->activeBuildConfiguration(), return false);
 
     CMakeBuildConfiguration *activeBC = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
