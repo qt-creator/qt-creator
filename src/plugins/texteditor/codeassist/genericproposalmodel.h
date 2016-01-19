@@ -67,16 +67,12 @@ public:
     void setSortingAllowed(bool isAllowed);
     bool isSortingAllowed() const;
 
-    Qt::TextFormat detailTextFormat() const;
-    void setDetailTextFormat(Qt::TextFormat detailTextFormat);
-
 protected:
     QList<AssistProposalItem *> m_currentItems;
 
 private:
     QHash<QString, int> m_idByText;
     QList<AssistProposalItem *> m_originalItems;
-    Qt::TextFormat m_detailTextFormat;
 };
 } // TextEditor
 
