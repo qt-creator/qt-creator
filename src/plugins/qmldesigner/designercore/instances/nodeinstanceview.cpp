@@ -169,8 +169,10 @@ void NodeInstanceView::modelAttached(Model *model)
 void NodeInstanceView::modelAboutToBeDetached(Model * model)
 {
     removeAllInstanceNodeRelationships();
-    nodeInstanceServer()->clearScene(createClearSceneCommand());
-    delete nodeInstanceServer();
+    if (nodeInstanceServer()) {
+        nodeInstanceServer()->clearScene(createClearSceneCommand());
+        delete nodeInstanceServer();
+    }
     m_statePreviewImage.clear();
     m_baseStatePreviewImage = QImage();
     removeAllInstanceNodeRelationships();
