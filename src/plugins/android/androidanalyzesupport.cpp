@@ -31,7 +31,6 @@
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzerstartparameters.h>
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
@@ -49,21 +48,19 @@ namespace Internal {
 RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
                                                            Core::Id runMode)
 {
-    Target *target = runConfig->target();
-    AnalyzerStartParameters params;
+    AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(runConfig, runMode);
+    QTC_ASSERT(runControl, return 0);
+    AnalyzerConnection connection;
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6), return 0);
-        params.analyzerHost = server.serverAddress().toString();
+        connection.analyzerHost = server.serverAddress().toString();
     }
-
-    AnalyzerRunControl *analyzerRunControl = AnalyzerManager::createRunControl(params, runConfig, runMode);
-    if (analyzerRunControl) {
-        analyzerRunControl->setDisplayName(AndroidManager::packageName(target));
-        (void) new AndroidAnalyzeSupport(runConfig, analyzerRunControl);
-    }
-    return analyzerRunControl;
+    runControl->setDisplayName(AndroidManager::packageName(runConfig->target()));
+    runControl->setConnection(connection);
+    (void) new AndroidAnalyzeSupport(runConfig, runControl);
+    return runControl;
 }
 
 AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
