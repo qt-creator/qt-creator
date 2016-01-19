@@ -133,14 +133,17 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    }
 
    if (m_qmlPuppetEditorProcess->waitForStarted(10000)) {
-       connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int)), m_qmlPuppetEditorProcess.data(),SLOT(deleteLater()));
+       connect(m_qmlPuppetEditorProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+            m_qmlPuppetEditorProcess.data(), &QProcess::deleteLater);
 
        if (runModus == NormalModus) {
            m_qmlPuppetPreviewProcess->waitForStarted();
-           connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int)), m_qmlPuppetPreviewProcess.data(),SLOT(deleteLater()));
+           connect(m_qmlPuppetPreviewProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                m_qmlPuppetPreviewProcess.data(), &QProcess::deleteLater);
 
            m_qmlPuppetRenderProcess->waitForStarted();
-           connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int)), m_qmlPuppetRenderProcess.data(),SLOT(deleteLater()));
+           connect(m_qmlPuppetRenderProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                m_qmlPuppetRenderProcess.data(), &QProcess::deleteLater);
        }
 
        bool connectedToPuppet = true;
