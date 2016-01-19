@@ -296,7 +296,7 @@ void CompletionChunksToTextConverter::addExtraVerticalSpaceBetweenBraces(
     }
 }
 
-QString CompletionChunksToTextConverter::inDesiredTextFormat(const Utf8String &text)
+QString CompletionChunksToTextConverter::inDesiredTextFormat(const Utf8String &text) const
 {
     if (m_textFormat == TextFormat::Html)
         return text.toString().toHtmlEscaped();
