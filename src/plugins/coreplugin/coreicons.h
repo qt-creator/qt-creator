@@ -26,142 +26,76 @@
 #ifndef COREICONS_H
 #define COREICONS_H
 
+#include "core_global.h"
+
 #include <utils/icon.h>
 
 namespace Core {
 namespace Icons {
 
-const Utils::Icon NEWFILE(
-        QLatin1String(":/core/images/filenew.png"));
-const Utils::Icon OPENFILE(
-        QLatin1String(":/core/images/fileopen.png"));
-const Utils::Icon SAVEFILE(
-        QLatin1String(":/core/images/filesave.png"));
-const Utils::Icon UNDO(
-        QLatin1String(":/core/images/undo.png"));
-const Utils::Icon REDO(
-        QLatin1String(":/core/images/redo.png"));
-const Utils::Icon COPY(
-        QLatin1String(":/core/images/editcopy.png"));
-const Utils::Icon PASTE(
-        QLatin1String(":/core/images/editpaste.png"));
-const Utils::Icon CUT(
-        QLatin1String(":/core/images/editcut.png"));
-const Utils::Icon DIR(
-        QLatin1String(":/core/images/dir.png"));
-const Utils::Icon RESET(
-        QLatin1String(":/core/images/reset.png"));
-const Utils::Icon DARK_CLOSE(
-        QLatin1String(":/core/images/darkclose.png"));
-const Utils::Icon LOCKED(
-        QLatin1String(":/core/images/locked.png"));
-const Utils::Icon UNLOCKED(
-        QLatin1String(":/core/images/unlocked.png"));
-const Utils::Icon FIND_CASE_INSENSITIVELY(
-        QLatin1String(":/find/images/casesensitively.png"));
-const Utils::Icon FIND_WHOLE_WORD(
-        QLatin1String(":/find/images/wholewords.png"));
-const Utils::Icon FIND_REGEXP(
-        QLatin1String(":/find/images/regexp.png"));
-const Utils::Icon FIND_PRESERVE_CASE(
-        QLatin1String(":/find/images/preservecase.png"));
-const Utils::Icon QTLOGO_32(
-        QLatin1String(":/core/images/logo/32/QtProject-qtcreator.png"));
-const Utils::Icon QTLOGO_64(
-        QLatin1String(":/core/images/logo/64/QtProject-qtcreator.png"));
-const Utils::Icon QTLOGO_128(
-        QLatin1String(":/core/images/logo/128/QtProject-qtcreator.png"));
+CORE_EXPORT extern const Utils::Icon NEWFILE;
+CORE_EXPORT extern const Utils::Icon OPENFILE;
+CORE_EXPORT extern const Utils::Icon SAVEFILE;
+CORE_EXPORT extern const Utils::Icon UNDO;
+CORE_EXPORT extern const Utils::Icon REDO;
+CORE_EXPORT extern const Utils::Icon COPY;
+CORE_EXPORT extern const Utils::Icon PASTE;
+CORE_EXPORT extern const Utils::Icon CUT;
+CORE_EXPORT extern const Utils::Icon DIR;
+CORE_EXPORT extern const Utils::Icon RESET;
+CORE_EXPORT extern const Utils::Icon DARK_CLOSE;
+CORE_EXPORT extern const Utils::Icon LOCKED;
+CORE_EXPORT extern const Utils::Icon UNLOCKED;
+CORE_EXPORT extern const Utils::Icon FIND_CASE_INSENSITIVELY;
+CORE_EXPORT extern const Utils::Icon FIND_WHOLE_WORD;
+CORE_EXPORT extern const Utils::Icon FIND_REGEXP;
+CORE_EXPORT extern const Utils::Icon FIND_PRESERVE_CASE;
+CORE_EXPORT extern const Utils::Icon QTLOGO_32;
+CORE_EXPORT extern const Utils::Icon QTLOGO_64;
+CORE_EXPORT extern const Utils::Icon QTLOGO_128;
 
-const Utils::Icon ARROW_UP({
-        {QLatin1String(":/core/images/arrowup.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon ARROW_DOWN({
-        {QLatin1String(":/core/images/arrowdown.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon MINUS({
-        {QLatin1String(":/core/images/minus.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon PLUS({
-        {QLatin1String(":/core/images/plus.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon NEXT({
-        {QLatin1String(":/core/images/next.png"), Utils::Theme::IconsNavigationArrowsColor}});
-const Utils::Icon PREV({
-        {QLatin1String(":/core/images/prev.png"), Utils::Theme::IconsNavigationArrowsColor}});
-const Utils::Icon MAGNIFIER({
-        {QLatin1String(":/core/images/magnifier.png"), Utils::Theme::BackgroundColorHover}}, Utils::Icon::Tint);
-const Utils::Icon CLEAN_PANE({
-        {QLatin1String(":/core/images/clean_pane_small.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon RELOAD({
-        {QLatin1String(":/core/images/reload_gray.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon TOGGLE_SIDEBAR({
-        {QLatin1String(":/core/images/sidebaricon.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon CLOSE_TOOLBAR({
-        {QLatin1String(":/core/images/close.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon CLOSE_FOREGROUND({
-        {QLatin1String(":/core/images/close.png"), Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
-const Utils::Icon CLOSE_BACKGROUND({
-        {QLatin1String(":/core/images/close.png"), Utils::Theme::PanelTextColorLight}}, Utils::Icon::Tint);
-const Utils::Icon SPLIT_HORIZONTAL({
-        {QLatin1String(":/core/images/splitbutton_horizontal.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon SPLIT_VERTICAL({
-        {QLatin1String(":/core/images/splitbutton_vertical.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon CLOSE_SPLIT_TOP({
-        {QLatin1String(":/core/images/splitbutton_closetop.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon CLOSE_SPLIT_BOTTOM({
-        {QLatin1String(":/core/images/splitbutton_closebottom.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon CLOSE_SPLIT_LEFT({
-        {QLatin1String(":/core/images/splitbutton_closeleft.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon CLOSE_SPLIT_RIGHT({
-        {QLatin1String(":/core/images/splitbutton_closeright.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon FILTER({
-        {QLatin1String(":/core/images/filtericon.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon LINK({
-        {QLatin1String(":/core/images/linkicon.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon WARNING({
-        {QLatin1String(":/core/images/warningfill.png"), Utils::Theme::BackgroundColorNormal},
-        {QLatin1String(":/core/images/warning.png"), Utils::Theme::IconsWarningColor}}, Utils::Icon::Tint);
-const Utils::Icon WARNING_TOOLBAR({
-        {QLatin1String(":/core/images/warning.png"), Utils::Theme::IconsWarningToolBarColor}});
-const Utils::Icon ERROR({
-        {QLatin1String(":/core/images/warningfill.png"), Utils::Theme::BackgroundColorNormal},
-        {QLatin1String(":/core/images/error.png"), Utils::Theme::IconsErrorColor}}, Utils::Icon::Tint);
-const Utils::Icon ERROR_TOOLBAR({
-        {QLatin1String(":/core/images/error.png"), Utils::Theme::IconsErrorToolBarColor}});
-const Utils::Icon ERROR_TASKBAR({
-        {QLatin1String(":/core/images/compile_error_taskbar.png"), Utils::Theme::IconsErrorColor}}, Utils::Icon::Tint);
-const Utils::Icon INFO({
-        {QLatin1String(":/core/images/warningfill.png"), Utils::Theme::BackgroundColorNormal},
-        {QLatin1String(":/core/images/info.png"), Utils::Theme::IconsInfoColor}}, Utils::Icon::Tint);
-const Utils::Icon INFO_TOOLBAR({
-        {QLatin1String(":/core/images/info.png"), Utils::Theme::IconsInfoToolBarColor}});
-const Utils::Icon EXPAND({
-        {QLatin1String(":/find/images/expand.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon DEBUG_START_SMALL({
-        {QLatin1String(":/core/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor},
-        {QLatin1String(":/core/images/run_overlay_small.png"), Utils::Theme::IconsRunColor}});
-const Utils::Icon DEBUG_EXIT_SMALL({
-        {QLatin1String(":/core/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor},
-        {QLatin1String(":/core/images/stop_overlay_small.png"), Utils::Theme::IconsStopColor}});
-const Utils::Icon DEBUG_INTERRUPT_SMALL({
-        {QLatin1String(":/core/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor},
-        {QLatin1String(":/core/images/interrupt_overlay_small.png"), Utils::Theme::IconsInterruptColor}});
-const Utils::Icon DEBUG_CONTINUE_SMALL({
-        {QLatin1String(":/core/images/debugger_overlay_small.png"), Utils::Theme::IconsDebugColor},
-        {QLatin1String(":/core/images/continue_overlay_small.png"), Utils::Theme::IconsRunColor}});
-const Utils::Icon ZOOM({
-        {QLatin1String(":/core/images/zoom.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon TOOLBAR_EXTENSION({
-        {QLatin1String(":/core/images/extension.png"), Utils::Theme::IconsBaseColor}});
+CORE_EXPORT extern const Utils::Icon ARROW_UP;
+CORE_EXPORT extern const Utils::Icon ARROW_DOWN;
+CORE_EXPORT extern const Utils::Icon MINUS;
+CORE_EXPORT extern const Utils::Icon PLUS;
+CORE_EXPORT extern const Utils::Icon NEXT;
+CORE_EXPORT extern const Utils::Icon PREV;
+CORE_EXPORT extern const Utils::Icon MAGNIFIER;
+CORE_EXPORT extern const Utils::Icon CLEAN_PANE;
+CORE_EXPORT extern const Utils::Icon RELOAD;
+CORE_EXPORT extern const Utils::Icon TOGGLE_SIDEBAR;
+CORE_EXPORT extern const Utils::Icon CLOSE_TOOLBAR;
+CORE_EXPORT extern const Utils::Icon CLOSE_FOREGROUND;
+CORE_EXPORT extern const Utils::Icon CLOSE_BACKGROUND;
+CORE_EXPORT extern const Utils::Icon SPLIT_HORIZONTAL;
+CORE_EXPORT extern const Utils::Icon SPLIT_VERTICAL;
+CORE_EXPORT extern const Utils::Icon CLOSE_SPLIT_TOP;
+CORE_EXPORT extern const Utils::Icon CLOSE_SPLIT_BOTTOM;
+CORE_EXPORT extern const Utils::Icon CLOSE_SPLIT_LEFT;
+CORE_EXPORT extern const Utils::Icon CLOSE_SPLIT_RIGHT;
+CORE_EXPORT extern const Utils::Icon FILTER;
+CORE_EXPORT extern const Utils::Icon LINK;
+CORE_EXPORT extern const Utils::Icon WARNING;
+CORE_EXPORT extern const Utils::Icon WARNING_TOOLBAR;
+CORE_EXPORT extern const Utils::Icon ERROR;
+CORE_EXPORT extern const Utils::Icon ERROR_TOOLBAR;
+CORE_EXPORT extern const Utils::Icon ERROR_TASKBAR;
+CORE_EXPORT extern const Utils::Icon INFO;
+CORE_EXPORT extern const Utils::Icon INFO_TOOLBAR;
+CORE_EXPORT extern const Utils::Icon EXPAND;
+CORE_EXPORT extern const Utils::Icon DEBUG_START_SMALL;
+CORE_EXPORT extern const Utils::Icon DEBUG_EXIT_SMALL;
+CORE_EXPORT extern const Utils::Icon DEBUG_INTERRUPT_SMALL;
+CORE_EXPORT extern const Utils::Icon DEBUG_CONTINUE_SMALL;
+CORE_EXPORT extern const Utils::Icon ZOOM;
+CORE_EXPORT extern const Utils::Icon TOOLBAR_EXTENSION;
 
-const Utils::Icon MODE_EDIT_CLASSIC(
-        QLatin1String(":/fancyactionbar/images/mode_Edit.png"));
-const Utils::Icon MODE_EDIT_FLAT({
-        {QLatin1String(":/fancyactionbar/images/mode_edit_mask.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon MODE_EDIT_FLAT_ACTIVE({
-        {QLatin1String(":/fancyactionbar/images/mode_edit_mask.png"), Utils::Theme::IconsModeEditActiveColor}});
-const Utils::Icon MODE_DESIGN_CLASSIC(
-        QLatin1String(":/fancyactionbar/images/mode_Design.png"));
-const Utils::Icon MODE_DESIGN_FLAT({
-        {QLatin1String(":/fancyactionbar/images/mode_design_mask.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon MODE_DESIGN_FLAT_ACTIVE({
-        {QLatin1String(":/fancyactionbar/images/mode_design_mask.png"), Utils::Theme::IconsModeDesignActiveColor}});
+CORE_EXPORT extern const Utils::Icon MODE_EDIT_CLASSIC;
+CORE_EXPORT extern const Utils::Icon MODE_EDIT_FLAT;
+CORE_EXPORT extern const Utils::Icon MODE_EDIT_FLAT_ACTIVE;
+CORE_EXPORT extern const Utils::Icon MODE_DESIGN_CLASSIC;
+CORE_EXPORT extern const Utils::Icon MODE_DESIGN_FLAT;
+CORE_EXPORT extern const Utils::Icon MODE_DESIGN_FLAT_ACTIVE;
 
 } // namespace Icons
 } // namespace Core

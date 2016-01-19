@@ -108,7 +108,8 @@ SOURCES += corejsextensions.cpp \
     messagebox.cpp \
     iwelcomepage.cpp \
     externaltoolmanager.cpp \
-    systemsettings.cpp
+    systemsettings.cpp \
+    coreicons.cpp
 
 HEADERS += corejsextensions.h \
     mainwindow.h \
