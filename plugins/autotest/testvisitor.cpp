@@ -353,6 +353,7 @@ GTestVisitor::GTestVisitor(CPlusPlus::Document::Ptr doc)
 
 bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
 {
+    static QString disabledPrefix = QString::fromLatin1("DISABLED_");
     if (!ast || !ast->declarator || !ast->declarator->core_declarator)
         return false;
 
@@ -371,7 +372,8 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         const QString &testCaseName = m_overview.prettyType(testCaseNameArg->type());
         const QString &testName = m_overview.prettyType(testNameArg->type());
 
-        bool disabled = testName.startsWith(QLatin1String("DISABLED_"));
+        const bool disabled = testName.startsWith(disabledPrefix);
+        const bool disabledCase = testCaseName.startsWith(disabledPrefix);
         unsigned line = 0;
         unsigned column = 0;
         unsigned token = id->firstToken();
@@ -382,9 +384,10 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         locationAndType.m_line = line;
         locationAndType.m_column = column - 1;
         locationAndType.m_type = TestTreeItem::GTestName;
-        locationAndType.m_state = disabled ? TestTreeItem::Disabled : TestTreeItem::Enabled;
+        locationAndType.m_state = (disabled || disabledCase) ? TestTreeItem::Disabled
+                                                             : TestTreeItem::Enabled;
         GTestCaseSpec spec;
-        spec.testCaseName = testCaseName;
+        spec.testCaseName = disabledCase ? testCaseName.mid(9) : testCaseName;
         spec.parameterized = TestUtils::isGTestParameterized(prettyName);
         m_gtestFunctions[spec].append(locationAndType);
     }
