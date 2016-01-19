@@ -154,6 +154,7 @@ public:
         // Limit horizontal width
         m_label->setSizePolicy(QSizePolicy::Fixed, m_label->sizePolicy().verticalPolicy());
 
+        m_label->setTextFormat(Qt::RichText);
         m_label->setForegroundRole(QPalette::ToolTipText);
         m_label->setBackgroundRole(QPalette::ToolTipBase);
     }
