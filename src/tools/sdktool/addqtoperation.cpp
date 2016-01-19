@@ -112,7 +112,7 @@ bool AddQtOperation::setArguments(const QStringList &args)
                 return false;
             }
             ++i; // skip next;
-            m_qmake = next;
+            m_qmake = QDir::fromNativeSeparators(next);
             continue;
         }
 

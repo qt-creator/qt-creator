@@ -38,6 +38,8 @@
 
 #include "settings.h"
 
+#include <QDir>
+
 #include <iostream>
 
 const char VERSION[] = "Version";
@@ -117,7 +119,7 @@ bool AddDebuggerOperation::setArguments(const QStringList &args)
             if (next.isNull())
                 return false;
             ++i; // skip next;
-            m_binary = next;
+            m_binary = QDir::fromNativeSeparators(next);
             continue;
         }
 

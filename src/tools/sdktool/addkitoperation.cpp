@@ -41,6 +41,7 @@
 
 #include "settings.h"
 
+#include <QDir>
 #include <QRegExp>
 
 #include <iostream>
@@ -186,7 +187,7 @@ bool AddKitOperation::setArguments(const QStringList &args)
             if (next.isNull())
                 return false;
             ++i; // skip next;
-            m_sysRoot = next;
+            m_sysRoot = QDir::fromNativeSeparators(next);
             continue;
         }
 

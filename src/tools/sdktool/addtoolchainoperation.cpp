@@ -40,6 +40,8 @@
 
 #include <iostream>
 
+#include <QDir>
+
 // ToolChain file stuff:
 const char COUNT[] = "ToolChain.Count";
 const char PREFIX[] = "ToolChain.";
@@ -100,7 +102,7 @@ bool AddToolChainOperation::setArguments(const QStringList &args)
 
         if (current == QLatin1String("--path")) {
             ++i; // skip next;
-            m_path = next;
+            m_path = QDir::fromNativeSeparators(next);
             continue;
         }
 
