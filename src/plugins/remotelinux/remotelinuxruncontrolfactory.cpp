@@ -33,7 +33,6 @@
 
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
-#include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/ianalyzertool.h>
@@ -111,12 +110,14 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
     }
 
     if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        AnalyzerStartParameters params;
-        params.connParams = DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
-        params.analyzerHost = params.connParams.host;
         auto * const rc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig);
         QTC_ASSERT(rc, return 0);
-        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(params, runConfig, mode);
+        auto runControl = AnalyzerManager::createRunControl(runConfig, mode);
+        AnalyzerConnection connection;
+        connection.connParams =
+            DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
+        connection.analyzerHost = connection.connParams.host;
+        runControl->setConnection(connection);
         (void) new RemoteLinuxAnalyzeSupport(rc, runControl, mode);
         return runControl;
     }
