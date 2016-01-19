@@ -135,6 +135,7 @@ private:
 } // Anonymous
 
 GenericProposalModel::GenericProposalModel()
+    : m_detailTextFormat(Qt::AutoText)
 {}
 
 GenericProposalModel::~GenericProposalModel()
@@ -148,6 +149,16 @@ void GenericProposalModel::loadContent(const QList<AssistProposalItem *> &items)
     m_currentItems = items;
     for (int i = 0; i < m_originalItems.size(); ++i)
         m_idByText.insert(m_originalItems.at(i)->text(), i);
+}
+
+Qt::TextFormat GenericProposalModel::detailTextFormat() const
+{
+    return m_detailTextFormat;
+}
+
+void GenericProposalModel::setDetailTextFormat(Qt::TextFormat detailTextFormat)
+{
+    m_detailTextFormat = detailTextFormat;
 }
 
 void GenericProposalModel::reset()

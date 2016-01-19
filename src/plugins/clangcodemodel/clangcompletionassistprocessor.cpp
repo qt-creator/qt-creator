@@ -101,7 +101,8 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
             items.insert(name, item);
             item->setText(name);
             item->setOrder(ccr.priority());
-            QString detail = CompletionChunksToTextConverter::convertToToolTip(ccr.chunks());
+            QString detail
+                    = CompletionChunksToTextConverter::convertToToolTipWithHtml(ccr.chunks());
 
             if (!ccr.briefComment().isEmpty())
                 detail += QStringLiteral("\n\n") + ccr.briefComment().toString();

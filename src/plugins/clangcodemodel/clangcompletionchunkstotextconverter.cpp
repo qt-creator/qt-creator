@@ -96,6 +96,13 @@ void CompletionChunksToTextConverter::setPlaceHolderToEmphasize(int placeHolderN
     m_placeHolderPositionToEmphasize = placeHolderNumber;
 }
 
+void CompletionChunksToTextConverter::setupForKeywords()
+{
+    setAddPlaceHolderPositions(true);
+    setAddSpaces(true);
+    setAddExtraVerticalSpaceBetweenBraces(true);
+}
+
 const QString &CompletionChunksToTextConverter::text() const
 {
     return m_text;
@@ -111,7 +118,7 @@ bool CompletionChunksToTextConverter::hasPlaceholderPositions() const
     return m_placeholderPositions.size() > 0;
 }
 
-QString CompletionChunksToTextConverter::convertToFunctionSignature(
+QString CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(
         const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks,
         int parameterToEmphasize)
 {
@@ -119,6 +126,7 @@ QString CompletionChunksToTextConverter::convertToFunctionSignature(
     converter.setAddPlaceHolderText(true);
     converter.setAddResultType(true);
 
+    converter.setTextFormat(TextFormat::Html);
     converter.setAddOptional(true);
     converter.setEmphasizeOptional(true);
 
@@ -140,7 +148,7 @@ QString CompletionChunksToTextConverter::convertToName(
     return converter.text();
 }
 
-QString CompletionChunksToTextConverter::convertToToolTip(
+QString CompletionChunksToTextConverter::convertToToolTipWithHtml(
         const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
 {
     CompletionChunksToTextConverter converter;
@@ -148,6 +156,7 @@ QString CompletionChunksToTextConverter::convertToToolTip(
     converter.setAddSpaces(true);
     converter.setAddExtraVerticalSpaceBetweenBraces(true);
     converter.setAddOptional(true);
+    converter.setTextFormat(TextFormat::Html);
     converter.setEmphasizeOptional(true);
     converter.setAddResultType(true);
 
@@ -182,7 +191,7 @@ void CompletionChunksToTextConverter::parseDependendOnTheOptionalState(
 void CompletionChunksToTextConverter::parseResultType(const Utf8String &resultTypeText)
 {
     if (m_addResultType)
-        m_text += resultTypeText.toString().toHtmlEscaped() + QChar(QChar::Space);
+        m_text += inDesiredTextFormat(resultTypeText) + QChar(QChar::Space);
 }
 
 void CompletionChunksToTextConverter::parseText(const Utf8String &text)
@@ -192,14 +201,14 @@ void CompletionChunksToTextConverter::parseText(const Utf8String &text)
         m_text += QChar(QChar::Space);
     }
 
-    m_text += text.toString().toHtmlEscaped();
+    m_text += inDesiredTextFormat(text);
 }
 
 void CompletionChunksToTextConverter::wrapInCursiveTagIfOptional(
         const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     if (m_addOptional) {
-        if (m_emphasizeOptional) {
+        if (m_emphasizeOptional && m_textFormat == TextFormat::Html) {
             if (!m_previousCodeCompletionChunk.isOptional() && codeCompletionChunk.isOptional())
                 m_text += QStringLiteral("<i>");
             else if (m_previousCodeCompletionChunk.isOptional() && !codeCompletionChunk.isOptional())
@@ -212,7 +221,7 @@ void CompletionChunksToTextConverter::parsePlaceHolder(
         const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk)
 {
     if (m_addPlaceHolderText) {
-        appendText(codeCompletionChunk.text().toString().toHtmlEscaped(),
+        appendText(inDesiredTextFormat(codeCompletionChunk.text()),
                    emphasizeCurrentPlaceHolder());
     }
 
@@ -287,6 +296,14 @@ void CompletionChunksToTextConverter::addExtraVerticalSpaceBetweenBraces(
     }
 }
 
+QString CompletionChunksToTextConverter::inDesiredTextFormat(const Utf8String &text) const
+{
+    if (m_textFormat == TextFormat::Html)
+        return text.toString().toHtmlEscaped();
+    else
+        return text.toString();
+}
+
 bool CompletionChunksToTextConverter::emphasizeCurrentPlaceHolder() const
 {
     if (m_addPlaceHolderPositions) {
@@ -297,9 +314,14 @@ bool CompletionChunksToTextConverter::emphasizeCurrentPlaceHolder() const
     return false;
 }
 
+void CompletionChunksToTextConverter::setTextFormat(TextFormat textFormat)
+{
+    m_textFormat = textFormat;
+}
+
 void CompletionChunksToTextConverter::appendText(const QString &text, bool boldFormat)
 {
-    if (boldFormat)
+    if (boldFormat && m_textFormat == TextFormat::Html)
         m_text += QStringLiteral("<b>") + text + QStringLiteral("</b>");
     else
         m_text += text;

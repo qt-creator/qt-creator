@@ -43,6 +43,7 @@ ClangAssistProposalModel::ClangAssistProposalModel(
         ClangBackEnd::CompletionCorrection neededCorrection)
     : m_neededCorrection(neededCorrection)
 {
+    setDetailTextFormat(Qt::RichText);
 }
 
 bool ClangAssistProposalModel::isSortable(const QString &/*prefix*/) const

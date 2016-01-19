@@ -53,6 +53,7 @@ protected:
     CodeCompletionChunk templateResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("Foo<int>")};
     CodeCompletionChunk enumerationResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("Enumeration")};
     CodeCompletionChunk functionName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Function")};
+    CodeCompletionChunk namespaceName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Namespace")};
     CodeCompletionChunk variableName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Variable")};
     CodeCompletionChunk enumeratorName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumerator")};
     CodeCompletionChunk enumerationName{CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumeration")};
@@ -61,6 +62,7 @@ protected:
     CodeCompletionChunk rightParen{CodeCompletionChunk::RightParen, Utf8StringLiteral(")")};
     CodeCompletionChunk comma{CodeCompletionChunk::Comma, Utf8StringLiteral(", ")};
     CodeCompletionChunk semicolon{CodeCompletionChunk::SemiColon, Utf8StringLiteral(";")};
+    CodeCompletionChunk colonColonText{CodeCompletionChunk::Text, Utf8StringLiteral("::")};
     CodeCompletionChunk functionArgumentX{CodeCompletionChunk::Placeholder, Utf8StringLiteral("char x")};
     CodeCompletionChunk functionArgumentY{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int y")};
     CodeCompletionChunk functionArgumentZ{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z")};
@@ -131,7 +133,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneArgumen
 
     using ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
-    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks),
                 QStringLiteral("int Function(char x)"));
 }
 
@@ -143,7 +145,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneParamet
                                             functionArgumentX,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, 1),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 1),
                 QStringLiteral("int Function(<b>char x</b>)"));
 }
 
@@ -155,7 +157,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneParamet
                                             functionArgumentX,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, -1),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, -1),
                 QStringLiteral("int Function(char x)"));
 }
 
@@ -169,7 +171,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParamet
                                             functionArgumentY,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, 2),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 2),
                 QStringLiteral("int Function(char x, <b>int y</b>)"));
 }
 
@@ -183,7 +185,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParamet
                                             optionalFunctionArgumentY,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignature(completionChunks, 2),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 2),
                 QStringLiteral("int Function(char x<i>, <b>int y</b></i>)"));
 }
 
@@ -197,7 +199,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTemplateRe
 
     using ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
-    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignature(completionChunks),
+    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(completionChunks),
                 QStringLiteral("Foo&lt;int&gt; Function(char x)"));
 }
 
@@ -211,7 +213,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTemplateAr
 
     using ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
-    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignature(completionChunks),
+    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(completionChunks),
                 QStringLiteral("int Function(const Foo&lt;int&gt; &amp;foo)"));
 }
 
@@ -227,7 +229,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
                                            optionalFunctionArgumentZ,
                                            rightParen});
 
-    ASSERT_THAT(Converter::convertToToolTip(completionChunks),
+    ASSERT_THAT(Converter::convertToToolTipWithHtml(completionChunks),
                 QStringLiteral("int Function (char x<i>, int y, int z</i>)"));
 }
 
@@ -269,7 +271,7 @@ TEST_F(CompletionChunksToTextConverter, Switch)
                                            leftBrace,
                                            verticalSpace,
                                            rightBrace});
-    setupConverterForKeywords();
+    converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
 
@@ -292,7 +294,7 @@ TEST_F(CompletionChunksToTextConverter, For)
                                                    statements,
                                                    verticalSpace,
                                                    rightBrace});
-    setupConverterForKeywords();
+    converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
 
@@ -306,11 +308,11 @@ TEST_F(CompletionChunksToTextConverter, const_cast)
                                                    rightAngle,
                                                    leftParen,
                                                    rightParen});
-    setupConverterForKeywords();
+    converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
 
-    ASSERT_THAT(converter.text(), QStringLiteral("const_cast&lt;&gt;()"));
+    ASSERT_THAT(converter.text(), QStringLiteral("const_cast<>()"));
 }
 
 TEST_F(CompletionChunksToTextConverter, Throw)
@@ -333,7 +335,7 @@ TEST_F(CompletionChunksToTextConverter, ElseIf)
                                                    statements,
                                                    verticalSpace,
                                                    rightBrace});
-    setupConverterForKeywords();
+    converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
 
@@ -348,17 +350,20 @@ TEST_F(CompletionChunksToTextConverter, EnableIfT)
                                            optionalComma,
                                            optionalEnableIfTType,
                                            rightAngle});
-    setupConverterForKeywords();
+    converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
 
-    ASSERT_THAT(converter.text(), QStringLiteral("enable_if_t&lt;&gt;"));
+    ASSERT_THAT(converter.text(), QStringLiteral("enable_if_t<>"));
 }
 
-void CompletionChunksToTextConverter::setupConverterForKeywords()
+TEST_F(CompletionChunksToTextConverter, Namespace)
 {
-    converter.setAddPlaceHolderPositions(true);
-    converter.setAddSpaces(true);
-    converter.setAddExtraVerticalSpaceBetweenBraces(true);
+    CodeCompletionChunks completionChunks({namespaceName, colonColonText});
+
+    converter.parseChunks(completionChunks);
+
+    ASSERT_THAT(converter.text(), QStringLiteral("Namespace::"));
 }
+
 }

@@ -64,6 +64,8 @@ public:
     bool continueOnAttach() const;
     void startWatching();
 
+    bool event(QEvent *) override;
+
 signals:
     void processFound();
 
@@ -93,7 +95,6 @@ private:
     QCheckBox *m_hideOnAttachCheckBox;
     QCheckBox *m_continueOnAttachCheckBox;
     QPushButton *m_watchingPushButton;
-    QPushButton *m_closePushButton;
     ProjectExplorer::DeviceProcessItem m_process;
     QTimer m_timer;
 };

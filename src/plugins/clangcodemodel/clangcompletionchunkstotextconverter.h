@@ -47,23 +47,33 @@ class CompletionChunksToTextConverter
 public:
     void parseChunks(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
 
+    enum class TextFormat {
+        Plain,
+        Html
+    };
+    void setTextFormat(TextFormat textFormat);
     void setAddPlaceHolderText(bool addPlaceHolderText);
     void setAddPlaceHolderPositions(bool addPlaceHolderPositions);
     void setAddResultType(bool addResultType);
     void setAddSpaces(bool addSpaces);
     void setAddExtraVerticalSpaceBetweenBraces(bool addExtraVerticalSpaceBetweenBraces);
-    void setEmphasizeOptional(bool emphasizeOptional);
+    void setEmphasizeOptional(bool emphasizeOptional); // Only for Html format
     void setAddOptional(bool addOptional);
     void setPlaceHolderToEmphasize(int placeHolderNumber);
+
+    void setupForKeywords();
 
     const QString &text() const;
     const std::vector<int> &placeholderPositions() const;
     bool hasPlaceholderPositions() const;
 
-    static QString convertToFunctionSignature(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks,
-                                              int parameterToEmphasize = -1);
     static QString convertToName(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
-    static QString convertToToolTip(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
+    static QString convertToKeywords(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
+    static QString convertToToolTipWithHtml(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
+    static QString convertToFunctionSignatureWithHtml(
+            const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks,
+            int parameterToEmphasize = -1);
+
 private:
     void parse(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
     void parseDependendOnTheOptionalState(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk);
@@ -76,7 +86,8 @@ private:
     void addExtraVerticalSpaceBetweenBraces();
     void addExtraVerticalSpaceBetweenBraces(const ClangBackEnd::CodeCompletionChunks::iterator &);
 
-    void appendText(const QString &text, bool boldFormat = false);
+    QString inDesiredTextFormat(const Utf8String &text) const;
+    void appendText(const QString &text, bool boldFormat = false); // Boldness only in Html format
     bool canAddSpace() const;
     bool isNotOptionalOrAddOptionals(const ClangBackEnd::CodeCompletionChunk &codeCompletionChunk) const;
 
@@ -88,6 +99,7 @@ private:
     ClangBackEnd::CodeCompletionChunk m_previousCodeCompletionChunk;
     QString m_text;
     int m_placeHolderPositionToEmphasize = -1;
+    TextFormat m_textFormat = TextFormat::Plain;
     bool m_addPlaceHolderText = false;
     bool m_addPlaceHolderPositions = false;
     bool m_addResultType = false;
