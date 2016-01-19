@@ -41,6 +41,15 @@
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 
+namespace {
+    QStringList puppetModes()
+    {
+        static QStringList puppetModeList{QLatin1String(""), QLatin1String("all"),
+            QLatin1String("editormode"), QLatin1String("rendermode"), QLatin1String("previewmode")};
+        return puppetModeList;
+    }
+}
+
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -67,6 +76,9 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
         m_ui.puppetBuildPathLineEdit, &QLineEdit::setEnabled);
     connect(m_ui.resetStyle, &QPushButton::clicked,
         m_ui.styleLineEdit, &QLineEdit::clear);
+
+    m_ui.forwardPuppetOutputComboBox->addItems(puppetModes());
+    m_ui.debugPuppetComboBox->addItems(puppetModes());
 }
 
 DesignerSettings SettingsPageWidget::settings() const
@@ -89,6 +101,10 @@ DesignerSettings SettingsPageWidget::settings() const
     settings.insert(DesignerSettingsKey::USE_QSTR_FUNCTION,
         m_ui.useQsTrFunctionRadioButton->isChecked());
     settings.insert(DesignerSettingsKey::CONTROLS_STYLE, m_ui.styleLineEdit->text());
+    settings.insert(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
+        m_ui.forwardPuppetOutputComboBox->currentText());
+    settings.insert(DesignerSettingsKey::DEBUG_PUPPET,
+        m_ui.debugPuppetComboBox->currentText());
 
     if (!m_ui.fallbackPuppetPathLineEdit->path().isEmpty() &&
         m_ui.fallbackPuppetPathLineEdit->path() != PuppetCreator::defaultPuppetFallbackDirectory()) {
@@ -103,6 +119,10 @@ DesignerSettings SettingsPageWidget::settings() const
     }
     settings.insert(DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR,
         m_ui.alwaysSaveSubcomponentsCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS,
+        m_ui.showPropertyEditorWarningsCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
+        m_ui.showWarnExceptionsCheckBox->isChecked());
 
     return settings;
 }
@@ -145,8 +165,18 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
         PuppetCreator::defaultPuppetToplevelBuildDirectory()).toString();
     m_ui.puppetBuildPathLineEdit->setPath(puppetToplevelBuildDirectory);
+
+    m_ui.forwardPuppetOutputComboBox->setCurrentText(settings.value(
+        DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString());
+    m_ui.debugPuppetComboBox->setCurrentText(settings.value(
+        DesignerSettingsKey::DEBUG_PUPPET).toString());
+
     m_ui.alwaysSaveSubcomponentsCheckBox->setChecked(settings.value(
         DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR).toBool());
+    m_ui.showPropertyEditorWarningsCheckBox->setChecked(settings.value(
+        DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
+    m_ui.showWarnExceptionsCheckBox->setChecked(settings.value(
+        DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT).toBool());
 }
 
 SettingsPage::SettingsPage() :
@@ -179,12 +209,17 @@ void SettingsPage::apply()
 
     QList<QByteArray> restartNecessaryKeys;
     restartNecessaryKeys << DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY
-                         << DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY;
+                         << DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY
+                         << DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT
+                         << DesignerSettingsKey::PUPPET_KILL_TIMEOUT
+                         << DesignerSettingsKey::FORWARD_PUPPET_OUTPUT
+                         << DesignerSettingsKey::DEBUG_PUPPET
+                         << DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT;
 
     foreach (const QByteArray &key, restartNecessaryKeys) {
         if (currentSettings.value(key) != newSettings.value(key)) {
             QMessageBox::information(Core::ICore::mainWindow(), tr("Restart Required"),
-                tr("The QML emulation layer path changes will take effect after a "
+                tr("The made changes will take effect after a "
                    "restart of the QML Emulation layer or Qt Creator."));
             break;
         }

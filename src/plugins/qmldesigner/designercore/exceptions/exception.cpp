@@ -33,6 +33,7 @@
 #include <QCoreApplication>
 
 #include <coreplugin/messagebox.h>
+#include <qmldesignerplugin.h>
 
 /*!
 \defgroup CoreExceptions
@@ -85,7 +86,8 @@ bool Exception::shouldAssert()
 
 bool Exception::warnAboutException()
 {
-    static bool warnException = !qgetenv("QTCREATOR_QTQUICKDESIGNER_WARN_EXCEPTION").isEmpty();
+    static bool warnException = !QmlDesignerPlugin::instance()->settings().value(
+        DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT).toBool();
     return warnException;
 }
 

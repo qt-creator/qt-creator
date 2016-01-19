@@ -28,6 +28,7 @@
 #include "propertyeditorvalue.h"
 #include "propertyeditortransaction.h"
 #include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
 #include <qmlobjectnode.h>
 #include <nodemetainfo.h>
@@ -90,8 +91,8 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
 {
     Q_ASSERT(QFileInfo(QLatin1String(":/images/button_normal.png")).exists());
 
-    m_view->engine()->setOutputWarningsToStandardError(
-                !qgetenv("QTCREATOR_QTQUICKDESIGNER_PROPERTYEDITOR_SHOW_WARNINGS").isEmpty());
+    m_view->engine()->setOutputWarningsToStandardError(QmlDesignerPlugin::instance()
+        ->settings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
 
     m_view->engine()->addImportPath(propertyEditorResourcesPath());
     m_dummyPropertyEditorValue->setValue("#000000");

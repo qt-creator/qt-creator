@@ -197,11 +197,14 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        qDebug() << "file is open: " << isOpen;
    }
 
-   m_firstTimer.setInterval(3000);
-   m_secondTimer.setInterval(3000);
-   m_thirdTimer.setInterval(3000);
+   DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+   int timeOutTime = settings.value(DesignerSettingsKey::PUPPET_KILL_TIMEOUT).toInt();
+   m_firstTimer.setInterval(timeOutTime);
+   m_secondTimer.setInterval(timeOutTime);
+   m_thirdTimer.setInterval(timeOutTime);
 
-   if (qgetenv("DEBUG_QML_PUPPET").isEmpty()) {
+    if (QmlDesignerPlugin::instance()->settings().value(DesignerSettingsKey::
+            DEBUG_PUPPET).toString().isEmpty()) {
        connect(&m_firstTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
        connect(&m_secondTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
        connect(&m_thirdTimer, SIGNAL(timeout()), this, SLOT(processFinished()));

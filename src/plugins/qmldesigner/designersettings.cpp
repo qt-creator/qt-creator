@@ -62,6 +62,11 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY);
     restoreValue(settings, DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY);
     restoreValue(settings, DesignerSettingsKey::CONTROLS_STYLE);
+    restoreValue(settings, DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS, false);
+    restoreValue(settings, DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT, false);
+    restoreValue(settings, DesignerSettingsKey::PUPPET_KILL_TIMEOUT, 3000); // this has no ui at the moment
+    restoreValue(settings, DesignerSettingsKey::DEBUG_PUPPET, QString());
+    restoreValue(settings, DesignerSettingsKey::FORWARD_PUPPET_OUTPUT, QString());
 
     settings->endGroup();
     settings->endGroup();

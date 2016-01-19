@@ -148,22 +148,27 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     QProcess *puppetProcess = new QProcess;
     puppetProcess->setObjectName(puppetMode);
     puppetProcess->setProcessEnvironment(processEnvironment());
+
     QObject::connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), puppetProcess, SLOT(kill()));
     QObject::connect(puppetProcess, SIGNAL(finished(int,QProcess::ExitStatus)), handlerObject, finishSlot);
-    QString forwardOutputMode = QString::fromLatin1(qgetenv("FORWARD_QML_PUPPET_OUTPUT").toLower());
-    bool fowardQmlpuppetOutput = forwardOutputMode == puppetMode || forwardOutputMode == QLatin1String("true");
-    if (fowardQmlpuppetOutput) {
+
+    QString forwardOutput = m_designerSettings.value(DesignerSettingsKey::
+        FORWARD_PUPPET_OUTPUT).toString();
+    if (forwardOutput == puppetMode || forwardOutput == QLatin1String("all")) {
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
     }
     puppetProcess->setWorkingDirectory(workingDirectory);
     puppetProcess->start(puppetPath, QStringList() << socketToken << puppetMode << QLatin1String("-graphicssystem raster"));
 
-    if (!qgetenv("DEBUG_QML_PUPPET").isEmpty())
+    QString debugPuppet = m_designerSettings.value(DesignerSettingsKey::
+        DEBUG_PUPPET).toString();
+    if (debugPuppet == puppetMode || debugPuppet == QLatin1String("all")) {
         QMessageBox::information(Core::ICore::dialogParent(),
-                                 QStringLiteral("Puppet is starting ..."),
-                                 QStringLiteral("You can now attach your debugger to the %1 puppet with process id: %2.").arg(
-                                     puppetMode, QString::number(puppetProcess->processId())));
+            QStringLiteral("Puppet is starting ..."),
+            QStringLiteral("You can now attach your debugger to the %1 puppet with process id: %2."
+            ).arg(puppetMode, QString::number(puppetProcess->processId())));
+    }
 
     return puppetProcess;
 }

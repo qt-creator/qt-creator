@@ -52,6 +52,12 @@ const char PUPPET_TOPLEVEL_BUILD_DIRECTORY[] = "PuppetToplevelBuildDirectory";
 const char PUPPET_FALLBACK_DIRECTORY[] = "PuppetFallbackDirectory";
 const char CONTROLS_STYLE[] = "ControlsStyle";
 const char USE_QSTR_FUNCTION[] = "UseQsTrFunction";
+const char SHOW_PROPERTYEDITOR_WARNINGS[] = "ShowPropertyEditorWarnings";
+const char ENABLE_MODEL_EXCEPTION_OUTPUT[] = "WarnException";
+const char PUPPET_KILL_TIMEOUT[] = "PuppetKillTimeout";
+const char DEBUG_PUPPET[] = "DebugPuppet";
+const char FORWARD_PUPPET_OUTPUT[] = "ForwardPuppetOutput";
+
 }
 
 class DesignerSettings : public QHash<QByteArray, QVariant>
