@@ -724,4 +724,14 @@ AnalyzerRunControl *AnalyzerManager::createRunControl(const AnalyzerStartParamet
     return 0;
 }
 
+AnalyzerRunControl *AnalyzerManager::createRunControl(RunConfiguration *runConfiguration, Id runMode)
+{
+    AnalyzerStartParameters dummy;
+    foreach (AnalyzerAction *action, d->m_actions) {
+        if (action->runMode() == runMode)
+            return action->runControlCreator()(dummy, runConfiguration, runMode);
+    }
+    return 0;
+}
+
 } // namespace Analyzer

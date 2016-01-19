@@ -82,7 +82,12 @@ public:
     static void handleToolFinished();
     static QAction *stopAction();
 
+    // FIXME: Remove.
     static AnalyzerRunControl *createRunControl(const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
+
+    // Use this.
+    static AnalyzerRunControl *createRunControl(
         ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 };
 
