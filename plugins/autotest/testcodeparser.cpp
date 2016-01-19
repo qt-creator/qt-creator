@@ -800,7 +800,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         return;
     }
 
-    QFuture<void> future = QtConcurrent::run(&performParse, list, this);
+    QFuture<void> future = Utils::runAsync<void>(&performParse, list, this);
     Core::FutureProgress *progress
             = Core::ProgressManager::addTask(future, isFullParse ? tr("Scanning for Tests")
                                                                  : tr("Refreshing Tests List"),

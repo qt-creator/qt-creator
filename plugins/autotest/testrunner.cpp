@@ -109,6 +109,7 @@ static void performTestRun(QFutureInterface<void> &futureInterface,
                            const QList<TestConfiguration *> selectedTests, const int timeout,
                            const QString metricsOption)
 {
+    QEventLoop eventLoop;
     int testCaseCount = 0;
     foreach (TestConfiguration *config, selectedTests) {
         config->completeTestInformation();
@@ -198,7 +199,7 @@ static void performTestRun(QFutureInterface<void> &futureInterface,
                     emitTestResultCreated(new FaultyTestResult(Result::MessageFatal,
                                                         QObject::tr("Test run canceled by user.")));
                 }
-                qApp->processEvents();
+                eventLoop.processEvents();
             }
         }
 
@@ -274,8 +275,8 @@ void TestRunner::runTests()
             TestResultsPane::instance(), &TestResultsPane::addTestResult,
             Qt::QueuedConnection);
 
-    QFuture<void> future = QtConcurrent::run(&performTestRun, m_selectedTests, settings->timeout,
-                                             metricsOption);
+    QFuture<void> future = Utils::runAsync<void>(&performTestRun, m_selectedTests, settings->timeout,
+                                                 metricsOption);
 
     Core::FutureProgress *progress = Core::ProgressManager::addTask(future, tr("Running Tests"),
                                                                     Autotest::Constants::TASK_INDEX);
