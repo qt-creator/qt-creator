@@ -38,10 +38,7 @@
 
 #include <utils/outputformat.h>
 
-namespace Analyzer {
-class AnalyzerStartParameters;
-class AnalyzerRunControl;
-}
+namespace Analyzer { class AnalyzerRunControl; }
 
 namespace RemoteLinux {
 class AbstractRemoteLinuxRunConfiguration;
