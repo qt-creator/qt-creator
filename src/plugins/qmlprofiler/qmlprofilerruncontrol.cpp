@@ -71,9 +71,8 @@ public:
 // QmlProfilerRunControl
 //
 
-QmlProfilerRunControl::QmlProfilerRunControl(const AnalyzerStartParameters &sp,
-                                             RunConfiguration *runConfiguration)
-    : AnalyzerRunControl(sp, runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
+QmlProfilerRunControl::QmlProfilerRunControl(RunConfiguration *runConfiguration)
+    : AnalyzerRunControl(runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
     , d(new QmlProfilerRunControlPrivate)
 {
     // Only wait 4 seconds for the 'Waiting for connection' on application output, then just try to connect

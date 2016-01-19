@@ -133,7 +133,10 @@ void ValgrindPlugin::extensionsInitialized()
     auto cgWidgetCreator = [cgTool] { return cgTool->createWidgets(); };
     auto cgRunControlCreator = [cgTool](const AnalyzerStartParameters &sp,
         RunConfiguration *runConfiguration, Core::Id) {
-        return cgTool->createRunControl(sp, runConfiguration);
+        auto runControl = cgTool->createRunControl(runConfiguration);
+        runControl->setRunnable(AnalyzerRunnable(sp));
+        runControl->setConnection(AnalyzerConnection(sp));
+        return runControl;
     };
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
@@ -141,8 +144,14 @@ void ValgrindPlugin::extensionsInitialized()
         action->setActionId("Memcheck.Local");
         action->setToolId("Memcheck");
         action->setWidgetCreator(mcWidgetCreator);
-        action->setRunControlCreator(std::bind(&MemcheckTool::createRunControl,
-                                               mcTool, _1, _2, MEMCHECK_RUN_MODE));
+        action->setRunControlCreator([mcTool](const AnalyzerStartParameters &sp,
+            ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode)
+        {
+            auto runControl = mcTool->createRunControl(runConfig, runMode);
+            runControl->setRunnable(AnalyzerRunnable(sp));
+            runControl->setConnection(AnalyzerConnection(sp));
+            return runControl;
+        });
         action->setToolMode(DebugMode);
         action->setRunMode(MEMCHECK_RUN_MODE);
         action->setText(tr("Valgrind Memory Analyzer"));
@@ -156,8 +165,14 @@ void ValgrindPlugin::extensionsInitialized()
         action->setActionId("MemcheckWithGdb.Local");
         action->setToolId("MemcheckWithGdb");
         action->setWidgetCreator([mcgTool] { return mcgTool->createWidgets(); });
-        action->setRunControlCreator(std::bind(&MemcheckTool::createRunControl,
-                                               mcgTool, _1, _2, MEMCHECK_WITH_GDB_RUN_MODE));
+        action->setRunControlCreator([mcgTool](const AnalyzerStartParameters &sp,
+            ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode)
+        {
+            auto runControl = mcgTool->createRunControl(runConfig, runMode);
+            runControl->setRunnable(AnalyzerRunnable(sp));
+            runControl->setConnection(AnalyzerConnection(sp));
+            return runControl;
+        });
         action->setToolMode(DebugMode);
         action->setRunMode(MEMCHECK_WITH_GDB_RUN_MODE);
         action->setText(tr("Valgrind Memory Analyzer with GDB"));
@@ -190,12 +205,15 @@ void ValgrindPlugin::extensionsInitialized()
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
             return;
-        AnalyzerStartParameters sp;
-        sp.connParams = dlg.sshParams();
-        sp.debuggee = dlg.executable();
-        sp.debuggeeArgs = dlg.arguments();
-        ValgrindRunControl *rc = mcTool->createRunControl(sp, 0, MEMCHECK_RUN_MODE);
+        ValgrindRunControl *rc = mcTool->createRunControl(0, MEMCHECK_RUN_MODE);
         QTC_ASSERT(rc, return);
+        AnalyzerRunnable runnable;
+        runnable.debuggee = dlg.executable();
+        runnable.debuggeeArgs = dlg.arguments();
+        rc->setRunnable(runnable);
+        AnalyzerConnection connection;
+        connection.connParams = dlg.sshParams();
+        rc->setConnection(connection);
         rc->setDisplayName(dlg.executable());
         rc->setWorkingDirectory(dlg.workingDirectory());
         rc->setCustomStart();
@@ -214,12 +232,15 @@ void ValgrindPlugin::extensionsInitialized()
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
             return;
-        AnalyzerStartParameters sp;
-        sp.connParams = dlg.sshParams();
-        sp.debuggee = dlg.executable();
-        sp.debuggeeArgs = dlg.arguments();
-        ValgrindRunControl *rc = cgTool->createRunControl(sp, 0);
+        ValgrindRunControl *rc = cgTool->createRunControl(0);
         QTC_ASSERT(rc, return);
+        AnalyzerRunnable runnable;
+        runnable.debuggee = dlg.executable();
+        runnable.debuggeeArgs = dlg.arguments();
+        rc->setRunnable(runnable);
+        AnalyzerConnection connection;
+        connection.connParams = dlg.sshParams();
+        rc->setConnection(connection);
         rc->setDisplayName(dlg.executable());
         rc->setWorkingDirectory(dlg.workingDirectory());
         rc->setCustomStart();

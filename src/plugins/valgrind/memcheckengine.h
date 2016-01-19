@@ -40,8 +40,7 @@ class MemcheckRunControl : public ValgrindRunControl
     Q_OBJECT
 
 public:
-    MemcheckRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                       ProjectExplorer::RunConfiguration *runConfiguration,
+    MemcheckRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                        Core::Id runMode);
 
     bool startEngine() override;
@@ -69,8 +68,7 @@ class MemcheckWithGdbRunControl : public MemcheckRunControl
     Q_OBJECT
 
 public:
-    MemcheckWithGdbRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                              ProjectExplorer::RunConfiguration *runConfiguration);
+    MemcheckWithGdbRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
 
 protected:
     QStringList toolArguments() const override;

@@ -47,8 +47,7 @@ using namespace ProjectExplorer;
 
 namespace Analyzer {
 
-AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
-        RunConfiguration *runConfiguration, Core::Id runMode)
+AnalyzerRunControl::AnalyzerRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
     : RunControl(runConfiguration, runMode)
 {
     setIcon(Icons::ANALYZER_CONTROL_START);
@@ -60,9 +59,6 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
         if (m_workingDirectory.isEmpty())
             m_workingDirectory = runConfiguration->target()->project()->projectDirectory().toString();
     }
-
-    setRunnable(AnalyzerRunnable(sp));
-    setConnection(AnalyzerConnection(sp));
 
     connect(this, &AnalyzerRunControl::finished,
             this, &AnalyzerRunControl::runControlFinished);

@@ -39,8 +39,7 @@ class CallgrindRunControl : public ValgrindRunControl
     Q_OBJECT
 
 public:
-    CallgrindRunControl(const Analyzer::AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration);
+    CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
 
     bool startEngine();
 

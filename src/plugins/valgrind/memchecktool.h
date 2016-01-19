@@ -85,8 +85,7 @@ public:
 
     QWidget *createWidgets();
 
-    MemcheckRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                                         ProjectExplorer::RunConfiguration *runConfiguration,
+    MemcheckRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                                          Core::Id runMode);
 
 private slots:

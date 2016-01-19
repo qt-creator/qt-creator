@@ -116,8 +116,7 @@ public:
     void doClear(bool clearParseData);
     void updateEventCombo();
 
-    ValgrindRunControl *createRunControl(const AnalyzerStartParameters &sp,
-        RunConfiguration *runConfiguration = 0);
+    ValgrindRunControl *createRunControl(RunConfiguration *runConfiguration = 0);
 
 signals:
     void cycleDetectionEnabled(bool enabled);
@@ -510,16 +509,14 @@ CallgrindTool::~CallgrindTool()
     delete d;
 }
 
-ValgrindRunControl *CallgrindTool::createRunControl(const AnalyzerStartParameters &sp,
-    RunConfiguration *runConfiguration)
+ValgrindRunControl *CallgrindTool::createRunControl(RunConfiguration *runConfiguration)
 {
-    return d->createRunControl(sp, runConfiguration);
+    return d->createRunControl(runConfiguration);
 }
 
-ValgrindRunControl *CallgrindToolPrivate::createRunControl(const AnalyzerStartParameters &sp,
-    RunConfiguration *runConfiguration)
+ValgrindRunControl *CallgrindToolPrivate::createRunControl(RunConfiguration *runConfiguration)
 {
-    CallgrindRunControl *rc = new CallgrindRunControl(sp, runConfiguration);
+    auto rc = new CallgrindRunControl(runConfiguration);
 
     connect(rc, &CallgrindRunControl::parserDataReady,
             this, &CallgrindToolPrivate::takeParserDataFromRunControl);

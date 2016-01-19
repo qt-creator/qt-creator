@@ -215,7 +215,9 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
                                                    settings->flushInterval() : 0);
     d->m_profilerConnections->setAggregateTraces(settings->aggregateTraces());
 
-    QmlProfilerRunControl *engine = new QmlProfilerRunControl(sp, runConfiguration);
+    QmlProfilerRunControl *engine = new QmlProfilerRunControl(runConfiguration);
+    engine->setRunnable(AnalyzerRunnable(sp));
+    engine->setConnection(AnalyzerConnection(sp));
 
     engine->registerProfilerStateManager(d->m_profilerState);
 

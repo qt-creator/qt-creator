@@ -39,9 +39,8 @@ using namespace Analyzer;
 using namespace Valgrind;
 using namespace Valgrind::Internal;
 
-CallgrindRunControl::CallgrindRunControl(const AnalyzerStartParameters &sp,
-         ProjectExplorer::RunConfiguration *runConfiguration)
-    : ValgrindRunControl(sp, runConfiguration, CALLGRIND_RUN_MODE)
+CallgrindRunControl::CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration)
+    : ValgrindRunControl(runConfiguration, CALLGRIND_RUN_MODE)
     , m_markAsPaused(false)
 {
     connect(&m_runner, &Callgrind::CallgrindRunner::finished,

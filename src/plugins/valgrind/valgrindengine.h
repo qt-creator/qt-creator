@@ -43,8 +43,7 @@ class ValgrindRunControl : public Analyzer::AnalyzerRunControl
     Q_OBJECT
 
 public:
-    ValgrindRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                       ProjectExplorer::RunConfiguration *runConfiguration,
+    ValgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                        Core::Id runMode);
     ~ValgrindRunControl();
 

@@ -51,9 +51,8 @@ using namespace Valgrind::XmlProtocol;
 namespace Valgrind {
 namespace Internal {
 
-MemcheckRunControl::MemcheckRunControl(const AnalyzerStartParameters &sp,
-        RunConfiguration *runConfiguration, Core::Id runMode)
-    : ValgrindRunControl(sp, runConfiguration, runMode)
+MemcheckRunControl::MemcheckRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
+    : ValgrindRunControl(runConfiguration, runMode)
 {
     connect(&m_parser, &XmlProtocol::ThreadedParser::error,
             this, &MemcheckRunControl::parserError);
@@ -129,9 +128,8 @@ QStringList MemcheckRunControl::suppressionFiles() const
     return m_settings->suppressionFiles();
 }
 
-MemcheckWithGdbRunControl::MemcheckWithGdbRunControl(const AnalyzerStartParameters &sp,
-                                                     RunConfiguration *runConfiguration)
-    : MemcheckRunControl(sp, runConfiguration, MEMCHECK_WITH_GDB_RUN_MODE)
+MemcheckWithGdbRunControl::MemcheckWithGdbRunControl(RunConfiguration *runConfiguration)
+    : MemcheckRunControl(runConfiguration, MEMCHECK_WITH_GDB_RUN_MODE)
 {
     connect(&m_runner, &Memcheck::MemcheckRunner::started,
             this, &MemcheckWithGdbRunControl::startDebugger);

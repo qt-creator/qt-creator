@@ -49,9 +49,8 @@ using namespace ProjectExplorer;
 namespace Valgrind {
 namespace Internal {
 
-ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
-        RunConfiguration *runConfiguration, Core::Id runMode)
-    : AnalyzerRunControl(sp, runConfiguration, runMode),
+ValgrindRunControl::ValgrindRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
+    : AnalyzerRunControl(runConfiguration, runMode),
       m_settings(0),
       m_isStopping(false)
 {

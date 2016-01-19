@@ -38,8 +38,7 @@ class QmlProfilerRunControl : public Analyzer::AnalyzerRunControl
     Q_OBJECT
 
 public:
-    QmlProfilerRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                      ProjectExplorer::RunConfiguration *runConfiguration);
+    QmlProfilerRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerRunControl();
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );

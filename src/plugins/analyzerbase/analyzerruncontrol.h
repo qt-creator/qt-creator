@@ -46,10 +46,6 @@ class ANALYZER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
     Q_OBJECT
 
 public:
-    AnalyzerRunControl(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration,
-        Core::Id runMode);
-
     AnalyzerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
         Core::Id runMode);
 

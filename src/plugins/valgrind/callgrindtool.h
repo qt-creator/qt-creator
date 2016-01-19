@@ -48,8 +48,7 @@ public:
     CallgrindTool(QObject *parent);
     ~CallgrindTool();
 
-    ValgrindRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration = 0);
+    ValgrindRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration = 0);
     QWidget *createWidgets();
 
 public slots:

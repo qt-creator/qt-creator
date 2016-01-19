@@ -423,8 +423,7 @@ QWidget *MemcheckTool::createWidgets()
     return widget;
 }
 
-MemcheckRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters &sp,
-                                                   RunConfiguration *runConfiguration,
+MemcheckRunControl *MemcheckTool::createRunControl(RunConfiguration *runConfiguration,
                                                    Core::Id runMode)
 {
     m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
@@ -432,9 +431,9 @@ MemcheckRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters
 
     MemcheckRunControl *engine = 0;
     if (runMode == MEMCHECK_RUN_MODE)
-        engine = new MemcheckRunControl(sp, runConfiguration, runMode);
+        engine = new MemcheckRunControl(runConfiguration, runMode);
     else
-        engine = new MemcheckWithGdbRunControl(sp, runConfiguration);
+        engine = new MemcheckWithGdbRunControl(runConfiguration);
     connect(engine, &MemcheckRunControl::starting, this, &MemcheckTool::engineStarting);
     connect(engine, &MemcheckRunControl::parserError, this, &MemcheckTool::parserError);
     connect(engine, &MemcheckRunControl::internalParserError, this, &MemcheckTool::internalParserError);
