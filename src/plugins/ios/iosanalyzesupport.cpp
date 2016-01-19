@@ -42,7 +42,6 @@
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzerstartparameters.h>
 #include <utils/outputformat.h>
 #include <utils/qtcprocess.h>
 
@@ -63,33 +62,6 @@ using namespace ProjectExplorer;
 
 namespace Ios {
 namespace Internal {
-
-RunControl *IosAnalyzeSupport::createAnalyzeRunControl(IosRunConfiguration *runConfig,
-                                                       QString *errorMessage)
-{
-    Q_UNUSED(errorMessage);
-    Target *target = runConfig->target();
-    if (!target)
-        return 0;
-    IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
-    if (device.isNull())
-        return 0;
-    AnalyzerStartParameters params;
-    params.debuggee = runConfig->localExecutable().toUserOutput();
-    params.debuggeeArgs = runConfig->commandLineArguments();
-    params.analyzerHost = QLatin1String("localhost");
-    if (device->type() == Core::Id(Ios::Constants::IOS_DEVICE_TYPE)) {
-        IosDevice::ConstPtr iosDevice = device.dynamicCast<const IosDevice>();
-        if (iosDevice.isNull())
-                return 0;
-    }
-    AnalyzerRunControl *analyzerRunControl =
-            AnalyzerManager::createRunControl(params, runConfig, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    if (analyzerRunControl)
-        analyzerRunControl->setDisplayName(runConfig->applicationName());
-    (void) new IosAnalyzeSupport(runConfig, analyzerRunControl, false, true);
-    return analyzerRunControl;
-}
 
 IosAnalyzeSupport::IosAnalyzeSupport(IosRunConfiguration *runConfig,
     AnalyzerRunControl *runControl, bool cppDebug, bool qmlDebug)

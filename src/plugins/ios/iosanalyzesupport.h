@@ -46,9 +46,6 @@ class IosAnalyzeSupport : public QObject
     Q_OBJECT
 
 public:
-    static ProjectExplorer::RunControl *createAnalyzeRunControl(IosRunConfiguration *runConfig,
-                                                                QString *errorMessage);
-
     IosAnalyzeSupport(IosRunConfiguration *runConfig,
                       Analyzer::AnalyzerRunControl *runControl, bool cppDebug, bool qmlDebug);
     ~IosAnalyzeSupport();

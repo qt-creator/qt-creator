@@ -32,6 +32,8 @@
 #include "iosmanager.h"
 #include "iosanalyzesupport.h"
 
+#include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzerruncontrol.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -44,6 +46,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/id.h>
 
+using namespace Analyzer;
 using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 
@@ -172,6 +175,8 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
     Q_ASSERT(canRun(runConfig, mode));
     IosRunConfiguration *rc = qobject_cast<IosRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
+    Target *target = runConfig->target();
+    QTC_ASSERT(target, return 0);
     RunControl *res = 0;
     Core::Id devId = DeviceKitInformation::deviceId(rc->target()->kit());
     // The device can only run an application at a time, if an app is running stop it.
@@ -182,8 +187,24 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
     }
     if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         res = new Ios::Internal::IosRunControl(rc);
-    else if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
-        res = IosAnalyzeSupport::createAnalyzeRunControl(rc, errorMessage);
+    else if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+        AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(runConfig, mode);
+        QTC_ASSERT(runControl, return 0);
+        IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
+        if (device.isNull())
+            return 0;
+        auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runConfig);
+        AnalyzerRunnable runnable;
+        runnable.debuggee = iosRunConfig->localExecutable().toUserOutput();
+        runnable.debuggeeArgs = iosRunConfig->commandLineArguments();
+        AnalyzerConnection connection;
+        connection.analyzerHost = QLatin1String("localhost");
+        runControl->setRunnable(runnable);
+        runControl->setConnection(connection);
+        runControl->setDisplayName(iosRunConfig->applicationName());
+        (void) new IosAnalyzeSupport(iosRunConfig, runControl, false, true);
+        return runControl;
+    }
     else
         res = IosDebugSupport::createDebugRunControl(rc, errorMessage);
     if (devId.isValid())
