@@ -41,7 +41,7 @@ class ClangAssistProposalItem final : public TextEditor::AssistProposalItemInter
 public:
     bool prematurelyApplies(const QChar &typedCharacter) const final;
     bool implicitlyApplies() const final;
-    void apply(TextEditor::TextEditorWidget *editorWidget, int basePosition) const final;
+    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator, int basePosition) const final;
 
     void setText(const QString &text);
     QString text() const final;

@@ -92,20 +92,22 @@ bool KeywordsAssistProposalItem::prematurelyApplies(const QChar &c) const
     return c == QLatin1Char('(') && m_isFunction;
 }
 
-void KeywordsAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget,
+void KeywordsAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterface &manipulator,
                                                         int basePosition) const
 {
     const CompletionSettings &settings = TextEditorSettings::completionSettings();
 
-    int replaceLength = editorWidget->position() - basePosition;
+    int replaceLength = manipulator.currentPosition() - basePosition;
     QString toInsert = text();
     int cursorOffset = 0;
+    const QChar characterAtCurrentPosition = manipulator.characterAt(manipulator.currentPosition());
+
     if (m_isFunction && settings.m_autoInsertBrackets) {
         if (settings.m_spaceAfterFunctionName) {
-            if (editorWidget->textAt(editorWidget->position(), 2) == QLatin1String(" (")) {
+            if (manipulator.textAt(manipulator.currentPosition(), 2) == QLatin1String(" (")) {
                 cursorOffset = 2;
-            } else if (editorWidget->characterAt(editorWidget->position()) == QLatin1Char('(')
-                       || editorWidget->characterAt(editorWidget->position()) == QLatin1Char(' ')) {
+            } else if ( characterAtCurrentPosition == QLatin1Char('(')
+                       || characterAtCurrentPosition == QLatin1Char(' ')) {
                 replaceLength += 1;
                 toInsert += QLatin1String(" (");
             } else {
@@ -113,7 +115,7 @@ void KeywordsAssistProposalItem::applyContextualContent(TextEditorWidget *editor
                 cursorOffset = -1;
             }
         } else {
-            if (editorWidget->characterAt(editorWidget->position()) == QLatin1Char('(')) {
+            if (characterAtCurrentPosition == QLatin1Char('(')) {
                 cursorOffset = 1;
             } else {
                 toInsert += QLatin1String("()");
@@ -122,10 +124,9 @@ void KeywordsAssistProposalItem::applyContextualContent(TextEditorWidget *editor
         }
     }
 
-    editorWidget->setCursorPosition(basePosition);
-    editorWidget->replace(replaceLength, toInsert);
+    manipulator.replace(basePosition, replaceLength, toInsert);
     if (cursorOffset)
-        editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
+        manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
 }
 
 // -------------------------

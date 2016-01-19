@@ -66,22 +66,7 @@ bool ClangAssistProposalItem::implicitlyApplies() const
     return false;
 }
 
-static bool hasOnlyBlanksBeforeCursorInLine(QTextCursor textCursor)
-{
-    textCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-
-    const auto textBeforeCursor = textCursor.selectedText();
-
-    const auto nonSpace = std::find_if(textBeforeCursor.cbegin(),
-                                       textBeforeCursor.cend(),
-                                       [] (const QChar &signBeforeCursor) {
-        return !signBeforeCursor.isSpace();
-    });
-
-    return nonSpace == textBeforeCursor.cend();
-}
-
-void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
+void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
                                     int basePosition) const
 {
     const CodeCompletion ccr = codeCompletion();
@@ -134,7 +119,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
 
             // If the function doesn't return anything, automatically place the semicolon,
             // unless we're doing a scope completion (then it might be function definition).
-            const QChar characterAtCursor = editorWidget->characterAt(editorWidget->position());
+            const QChar characterAtCursor = manipulator.characterAt(manipulator.currentPosition());
             bool endWithSemicolon = m_typedCharacter == QLatin1Char(';')/*
                                             || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON)*/; //###
             const QChar semicolon = m_typedCharacter.isNull() ? QLatin1Char(';') : m_typedCharacter;
@@ -152,7 +137,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
                     m_typedCharacter = QChar();
                 }
             } else if (autoParenthesesEnabled) {
-                const QChar lookAhead = editorWidget->characterAt(editorWidget->position() + 1);
+                const QChar lookAhead = manipulator.characterAt(manipulator.currentPosition() + 1);
                 if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                     extraCharacters += QLatin1Char(')');
                     --cursorOffset;
@@ -187,12 +172,12 @@ void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
     }
 
     // Avoid inserting characters that are already there
-    const int endsPosition = editorWidget->position(TextEditor::EndOfLinePosition);
-    const QString existingText = editorWidget->textAt(editorWidget->position(), endsPosition - editorWidget->position());
+    const int endsPosition = manipulator.positionAt(TextEditor::EndOfLinePosition);
+    const QString existingText = manipulator.textAt(manipulator.currentPosition(), endsPosition - manipulator.currentPosition());
     int existLength = 0;
     if (!existingText.isEmpty() && ccr.completionKind() != CodeCompletion::KeywordCompletionKind) {
         // Calculate the exist length in front of the extra chars
-        existLength = textToBeInserted.length() - (editorWidget->position() - basePosition);
+        existLength = textToBeInserted.length() - (manipulator.currentPosition() - basePosition);
         while (!existingText.startsWith(textToBeInserted.right(existLength))) {
             if (--existLength == 0)
                 break;
@@ -200,7 +185,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
     }
     for (int i = 0; i < extraCharacters.length(); ++i) {
         const QChar a = extraCharacters.at(i);
-        const QChar b = editorWidget->characterAt(editorWidget->position() + i + existLength);
+        const QChar b = manipulator.characterAt(manipulator.currentPosition() + i + existLength);
         if (a == b)
             ++extraLength;
         else
@@ -209,27 +194,15 @@ void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
 
     textToBeInserted += extraCharacters;
 
-    // Insert the remainder of the name
-    const int length = editorWidget->position() - basePosition + existLength + extraLength;
-    const auto textToBeReplaced = editorWidget->textAt(basePosition, length);
+    const int length = manipulator.currentPosition() - basePosition + existLength + extraLength;
 
-    if (textToBeReplaced != textToBeInserted) {
-        editorWidget->setCursorPosition(basePosition);
-        editorWidget->replace(length, textToBeInserted);
+    const bool isReplaced = manipulator.replace(basePosition, length, textToBeInserted);
+    if (isReplaced) {
         if (cursorOffset)
-            editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
+            manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
 
-        // indent the statement
-        if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
-            auto selectionCursor = editorWidget->textCursor();
-            selectionCursor.setPosition(basePosition);
-            selectionCursor.setPosition(basePosition + textToBeInserted.size(), QTextCursor::KeepAnchor);
-
-            auto basePositionCursor = editorWidget->textCursor();
-            basePositionCursor.setPosition(basePosition);
-            if (hasOnlyBlanksBeforeCursorInLine(basePositionCursor))
-                editorWidget->textDocument()->autoIndent(selectionCursor);
-        }
+        if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind)
+            manipulator.autoIndent(basePosition, textToBeInserted.size());
     }
 }
 

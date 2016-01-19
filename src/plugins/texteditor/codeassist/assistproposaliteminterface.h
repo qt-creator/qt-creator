@@ -26,10 +26,9 @@
 #ifndef TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H
 #define TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H
 
-#include <texteditor/texteditor_global.h>
+#include "textdocumentmanipulatorinterface.h"
 
 QT_BEGIN_NAMESPACE
-class QChar;
 class QIcon;
 class QString;
 class QVariant;
@@ -49,7 +48,7 @@ public:
     virtual QString text() const = 0;
     virtual bool implicitlyApplies() const = 0;
     virtual bool prematurelyApplies(const QChar &typedCharacter) const = 0;
-    virtual void apply(TextEditorWidget *editorWidget, int basePosition) const = 0;
+    virtual void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const = 0;
     virtual QIcon icon() const = 0;
     virtual QString detail() const = 0;
     virtual bool isSnippet() const = 0;

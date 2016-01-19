@@ -49,7 +49,7 @@ bool ClangPreprocessorAssistProposalItem::implicitlyApplies() const
     return false;
 }
 
-void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
+void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
                                                 int basePosition) const
 {
     // TODO move in an extra class under tests
@@ -76,12 +76,12 @@ void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextEditorWidget *ed
     }
 
     // Avoid inserting characters that are already there
-    const int endsPosition = editorWidget->position(TextEditor::EndOfLinePosition);
-    const QString existingText = editorWidget->textAt(editorWidget->position(), endsPosition - editorWidget->position());
+    const int endsPosition = manipulator.positionAt(TextEditor::EndOfLinePosition);
+    const QString existingText = manipulator.textAt(manipulator.currentPosition(), endsPosition - manipulator.currentPosition());
     int existLength = 0;
     if (!existingText.isEmpty()) {
         // Calculate the exist length in front of the extra chars
-        existLength = textToBeInserted.length() - (editorWidget->position() - basePosition);
+        existLength = textToBeInserted.length() - (manipulator.currentPosition() - basePosition);
         while (!existingText.startsWith(textToBeInserted.right(existLength))) {
             if (--existLength == 0)
                 break;
@@ -89,7 +89,7 @@ void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextEditorWidget *ed
     }
     for (int i = 0; i < extraCharacters.length(); ++i) {
         const QChar a = extraCharacters.at(i);
-        const QChar b = editorWidget->characterAt(editorWidget->position() + i + existLength);
+        const QChar b = manipulator.characterAt(manipulator.currentPosition() + i + existLength);
         if (a == b)
             ++extraLength;
         else
@@ -99,15 +99,11 @@ void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextEditorWidget *ed
     textToBeInserted += extraCharacters;
 
     // Insert the remainder of the name
-    const int length = editorWidget->position() - basePosition + existLength + extraLength;
-    const auto textToBeReplaced = editorWidget->textAt(basePosition, length);
+    const int length = manipulator.currentPosition() - basePosition + existLength + extraLength;
 
-    if (textToBeReplaced != textToBeInserted) {
-        editorWidget->setCursorPosition(basePosition);
-        editorWidget->replace(length, textToBeInserted);
-        if (cursorOffset)
-            editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
-    }
+    const bool isReplaced = manipulator.replace(basePosition, length, textToBeInserted);
+    if (isReplaced && cursorOffset)
+            manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
 }
 
 void ClangPreprocessorAssistProposalItem::setText(const QString &text)

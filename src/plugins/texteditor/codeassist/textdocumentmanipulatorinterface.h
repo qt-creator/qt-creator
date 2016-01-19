@@ -23,55 +23,38 @@
 **
 ****************************************************************************/
 
-#ifndef IASSISTPROPOSALITEM_H
-#define IASSISTPROPOSALITEM_H
+#ifndef TEXTDOCUMENTMANIPULATORINTERFACE_H
+#define TEXTDOCUMENTMANIPULATORINTERFACE_H
 
 #include <texteditor/texteditor_global.h>
 
-#include "assistproposaliteminterface.h"
-
-#include <QIcon>
-#include <QString>
-#include <QVariant>
+QT_BEGIN_NAMESPACE
+class QChar;
+class QString;
+class QTextCursor;
+QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class TextEditorWidget;
-
-class TEXTEDITOR_EXPORT AssistProposalItem : public AssistProposalItemInterface
+class TEXTEDITOR_EXPORT TextDocumentManipulatorInterface
 {
 public:
-    QString text() const override;
-    bool implicitlyApplies() const override;
-    bool prematurelyApplies(const QChar &c) const override;
-    void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
+    virtual ~TextDocumentManipulatorInterface() = default;
 
-    void setIcon(const QIcon &icon);
-    QIcon icon() const final;
+    virtual int currentPosition() const = 0;
+    virtual int positionAt(TextPositionOperation textPositionOperation) const = 0;
+    virtual QChar characterAt(int position) const = 0;
+    virtual QString textAt(int position, int length) const = 0;
+    virtual QTextCursor textCursorAt(int position) const = 0;
 
-    void setText(const QString &text);
-
-    void setDetail(const QString &detail);
-    QString detail() const final;
-
-    void setData(const QVariant &var);
-    const QVariant &data() const;
-
-    bool isSnippet() const final;
-    bool isValid() const final;
-    quint64 hash() const;
-
-    virtual void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const;
-    virtual void applySnippet(TextDocumentManipulatorInterface &manipulator, int basePosition) const;
-    virtual void applyQuickFix(TextDocumentManipulatorInterface &manipulator, int basePosition) const;
-
-private:
-    QIcon m_icon;
-    QString m_text;
-    QString m_detail;
-    QVariant m_data;
+    virtual void setCursorPosition(int position) = 0;
+    virtual bool replace(int position, int length, const QString &text) = 0;
+    virtual void insertCodeSnippet(int position, const QString &text) = 0;
+    virtual void paste() = 0;
+    virtual void encourageApply() = 0;
+    virtual void autoIndent(int position, int length) = 0;
 };
 
 } // namespace TextEditor
 
-#endif // BASICPROPOSALITEM_H
+#endif // TEXTDOCUMENTMANIPULATORINTERFACE_H

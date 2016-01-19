@@ -34,6 +34,7 @@
 #include "assistinterface.h"
 #include "assistproposalitem.h"
 #include "runner.h"
+#include "textdocumentmanipulator.h"
 
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
@@ -357,7 +358,8 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
 void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *proposalItem)
 {
     QTC_ASSERT(m_proposal, return);
-    proposalItem->apply(m_editorWidget, m_proposal->basePosition());
+    TextDocumentManipulator manipulator(m_editorWidget);
+    proposalItem->apply(manipulator, m_proposal->basePosition());
     destroyContext();
     process();
 }

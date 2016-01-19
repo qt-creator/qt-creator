@@ -87,6 +87,7 @@ SOURCES += texteditorplugin.cpp \
     codeassist/genericproposal.cpp \
     codeassist/genericproposalwidget.cpp \
     codeassist/iassistproposalmodel.cpp \
+    codeassist/textdocumentmanipulator.cpp \
     tabsettingswidget.cpp \
     simplecodestylepreferences.cpp \
     simplecodestylepreferenceswidget.cpp \
@@ -197,6 +198,8 @@ HEADERS += texteditorplugin.h \
     codeassist/genericproposal.h \
     codeassist/genericproposalwidget.h \
     codeassist/iassistproposalmodel.h \
+    codeassist/textdocumentmanipulator.h \
+    codeassist/textdocumentmanipulatorinterface.h \
     tabsettingswidget.h \
     simplecodestylepreferences.h \
     simplecodestylepreferenceswidget.h \

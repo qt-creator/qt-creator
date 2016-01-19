@@ -87,7 +87,7 @@ public:
         m_isOverloaded(false) {}
 
     bool prematurelyApplies(const QChar &c) const override;
-    void applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const override;
+    void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
 
     bool isOverloaded() const { return m_isOverloaded; }
     void markAsOverloaded() { m_isOverloaded = true; }
@@ -161,9 +161,9 @@ bool CppAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
     return false;
 }
 
-static bool isDereferenced(TextEditorWidget *editorWidget, int basePosition)
+static bool isDereferenced(TextDocumentManipulatorInterface &manipulator, int basePosition)
 {
-    QTextCursor cursor = editorWidget->textCursor();
+    QTextCursor cursor = manipulator.textCursorAt(basePosition);
     cursor.setPosition(basePosition);
 
     BackwardsScanner scanner(cursor, LanguageFeatures());
@@ -191,7 +191,7 @@ quint64 CppAssistProposalItem::hash() const
     return 0;
 }
 
-void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const
+void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const
 {
     Symbol *symbol = 0;
 
@@ -241,7 +241,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidge
                     if (function->argumentCount() == 0)
                         extraChars += QLatin1Char('<');
 #endif
-                } else if (!isDereferenced(editorWidget, basePosition) && !function->isAmbiguous()) {
+                } else if (!isDereferenced(manipulator, basePosition) && !function->isAmbiguous()) {
                     // When the user typed the opening parenthesis, he'll likely also type the closing one,
                     // in which case it would be annoying if we put the cursor after the already automatically
                     // inserted closing parenthesis.
@@ -255,7 +255,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidge
 
                     // If the function doesn't return anything, automatically place the semicolon,
                     // unless we're doing a scope completion (then it might be function definition).
-                    const QChar characterAtCursor = editorWidget->characterAt(editorWidget->position());
+                    const QChar characterAtCursor = manipulator.characterAt(manipulator.currentPosition());
                     bool endWithSemicolon = m_typedChar == QLatin1Char(';')
                             || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON);
                     const QChar semicolon = m_typedChar.isNull() ? QLatin1Char(';') : m_typedChar;
@@ -273,7 +273,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidge
                             m_typedChar = QChar();
                         }
                     } else if (autoParenthesesEnabled) {
-                        const QChar lookAhead = editorWidget->characterAt(editorWidget->position() + 1);
+                        const QChar lookAhead = manipulator.characterAt(manipulator.currentPosition() + 1);
                         if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                             extraChars += QLatin1Char(')');
                             --cursorOffset;
@@ -311,11 +311,12 @@ void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidge
 
     // Determine the length of characters that should just be kept on the editor, but do
     // not consider content that ends as an identifier (which could be undesired).
-    const int lineEnd = editorWidget->position(EndOfLinePosition);
-    const QString inEditor = editorWidget->textAt(editorWidget->position(), lineEnd - editorWidget->position());
+    const int lineEnd = manipulator.positionAt(EndOfLinePosition);
+    const QString inEditor = manipulator.textAt(manipulator.currentPosition(),
+                                                lineEnd - manipulator.currentPosition());
     int preserveLength = 0;
     if (!inEditor.isEmpty()) {
-        preserveLength = toInsert.length() - (editorWidget->position() - basePosition);
+        preserveLength = toInsert.length() - (manipulator.currentPosition() - basePosition);
         const int inEditorLength = inEditor.length();
         while (preserveLength > 0) {
             if (inEditor.startsWith(toInsert.right(preserveLength))
@@ -329,7 +330,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidge
 
     for (int i = 0; i < extraChars.length(); ++i) {
         const QChar a = extraChars.at(i);
-        const QChar b = editorWidget->characterAt(editorWidget->position() + i + preserveLength);
+        const QChar b = manipulator.characterAt(manipulator.currentPosition() + i + preserveLength);
         if (a == b)
             ++extraLength;
         else
@@ -339,11 +340,10 @@ void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidge
     toInsert += extraChars;
 
     // Insert the remainder of the name
-    const int length = editorWidget->position() - basePosition + preserveLength + extraLength;
-    editorWidget->setCursorPosition(basePosition);
-    editorWidget->replace(length, toInsert);
+    const int length = manipulator.currentPosition() - basePosition + preserveLength + extraLength;
+    manipulator.replace(basePosition, length, toInsert);
     if (cursorOffset)
-        editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
+        manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
 }
 
 // --------------------

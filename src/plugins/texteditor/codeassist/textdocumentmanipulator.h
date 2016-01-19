@@ -23,51 +23,41 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGCODEMODEL_PREPROCESSORASSISTPROPOSALITEM_H
-#define CLANGCODEMODEL_PREPROCESSORASSISTPROPOSALITEM_H
+#ifndef TEXTDOCUMENTMANIPULATOR_H
+#define TEXTDOCUMENTMANIPULATOR_H
 
-#include <texteditor/codeassist/assistproposaliteminterface.h>
+#include "textdocumentmanipulatorinterface.h"
 
-#include <QIcon>
-#include <QString>
+namespace TextEditor {
 
-namespace ClangCodeModel {
+class TextEditorWidget;
 
-class ClangPreprocessorAssistProposalItem final : public TextEditor::AssistProposalItemInterface
+class TextDocumentManipulator final : public TextDocumentManipulatorInterface
 {
 public:
-    bool prematurelyApplies(const QChar &typedChar) const final;
-    virtual bool implicitlyApplies() const final;
-    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
-               int basePosition) const final;
+    TextDocumentManipulator(TextEditorWidget *textEditorWidget);
 
-    void setText(const QString &text);
-    QString text() const final;
+    int currentPosition() const final;
+    int positionAt(TextPositionOperation textPositionOperation) const final;
+    QChar characterAt(int position) const final;
+    QString textAt(int position, int length) const final;
+    QTextCursor textCursorAt(int position) const final;
 
-    void setIcon(const QIcon &icon);
-    QIcon icon() const final;
-
-    void setDetail(const QString &detail);
-    QString detail() const final;
-
-    bool isSnippet() const final;
-    bool isValid() const final;
-
-    quint64 hash() const final;
-
-    void setCompletionOperator(uint completionOperator);
+    void setCursorPosition(int position) final;
+    bool replace(int position, int length, const QString &text) final;
+    void insertCodeSnippet(int position, const QString &text) final;
+    void paste() final;
+    void encourageApply() final;
+    void autoIndent(int position, int length);
 
 private:
-    bool isInclude() const;
+    bool textIsDifferentAt(int position, int length, const QString &text) const;
+    void replaceWithoutCheck(int position, int length, const QString &text);
 
 private:
-    QString m_text;
-    QString m_detail;
-    QIcon m_icon;
-    uint m_completionOperator;
-    mutable QChar m_typedCharacter;
+    TextEditorWidget *m_textEditorWidget;
 };
 
-} // namespace ClangCodeModel
+} // namespace TextEditor
 
-#endif // CLANGCODEMODEL_PREPROCESSORASSISTPROPOSALITEM_H
+#endif // TEXTDOCUMENTMANIPULATOR_H

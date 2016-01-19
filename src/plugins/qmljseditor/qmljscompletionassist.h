@@ -49,12 +49,12 @@ class QmlJSCompletionAssistInterface;
 
 namespace Internal {
 
-class QmlJSAssistProposalItem : public TextEditor::AssistProposalItem
+class QmlJSAssistProposalItem final : public TextEditor::AssistProposalItem
 {
 public:
-    bool prematurelyApplies(const QChar &c) const override;
-    void applyContextualContent(TextEditor::TextEditorWidget *editorWidget,
-                                int basePosition) const override;
+    bool prematurelyApplies(const QChar &c) const final;
+    void applyContextualContent(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                                int basePosition) const final;
 };
 
 

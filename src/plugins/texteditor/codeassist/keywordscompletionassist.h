@@ -58,7 +58,7 @@ public:
     ~KeywordsAssistProposalItem();
 
     bool prematurelyApplies(const QChar &c) const override;
-    void applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const override;
+    void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
 private:
     bool m_isFunction;
 };

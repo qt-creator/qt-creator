@@ -126,35 +126,33 @@ bool AssistProposalItem::prematurelyApplies(const QChar &c) const
     return false;
 }
 
-void AssistProposalItem::apply(TextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const
 {
     if (data().canConvert<QString>()) {
-        applySnippet(editorWidget, basePosition);
+        applySnippet(manipulator, basePosition);
     } else if (data().canConvert<QuickFixOperation::Ptr>()) {
-        applyQuickFix(editorWidget, basePosition);
+        applyQuickFix(manipulator, basePosition);
     } else {
-        applyContextualContent(editorWidget, basePosition);
-        editorWidget->encourageApply();
+        applyContextualContent(manipulator, basePosition);
+        manipulator.encourageApply();
     }
 }
 
-void AssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const
 {
-    const int currentPosition = editorWidget->position();
-    editorWidget->setCursorPosition(basePosition);
-    editorWidget->replace(currentPosition - basePosition, text());
+    const int currentPosition = manipulator.currentPosition();
+    manipulator.replace(basePosition, currentPosition - basePosition, text());
+
 }
 
-void AssistProposalItem::applySnippet(TextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::applySnippet(TextDocumentManipulatorInterface &manipulator, int basePosition) const
 {
-    QTextCursor tc = editorWidget->textCursor();
-    tc.setPosition(basePosition, QTextCursor::KeepAnchor);
-    editorWidget->insertCodeSnippet(tc, data().toString());
+    manipulator.insertCodeSnippet(basePosition, data().toString());
 }
 
-void AssistProposalItem::applyQuickFix(TextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::applyQuickFix(TextDocumentManipulatorInterface &manipulator, int basePosition) const
 {
-    Q_UNUSED(editorWidget)
+    Q_UNUSED(manipulator)
     Q_UNUSED(basePosition)
 
     QuickFixOperation::Ptr op = data().value<QuickFixOperation::Ptr>();

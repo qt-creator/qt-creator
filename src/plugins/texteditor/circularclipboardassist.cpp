@@ -58,7 +58,7 @@ public:
         setText(text);
     }
 
-    void apply(TextEditorWidget *editorWidget, int /*basePosition*/) const override
+    void apply(TextDocumentManipulatorInterface &manipulator, int /*basePosition*/) const override
     {
 
         //Move to last in circular clipboard
@@ -72,7 +72,7 @@ public:
                     TextEditorWidget::duplicateMimeData(m_mimeData.data()));
 
         //Paste
-        editorWidget->paste();
+        manipulator.paste();
     }
 
 private:

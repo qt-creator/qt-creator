@@ -87,15 +87,6 @@ class MarginSettings;
 class StorageSettings;
 class TypingSettings;
 
-enum TextPositionOperation
-{
-    CurrentPosition = 1,
-    EndOfLinePosition = 2,
-    StartOfLinePosition = 3,
-    AnchorPosition = 4,
-    EndOfDocPosition = 5
-};
-
 enum TextMarkRequestKind
 {
     BreakpointRequest,
