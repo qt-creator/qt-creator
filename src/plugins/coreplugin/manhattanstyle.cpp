@@ -622,8 +622,8 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         // Most styles draw a single dark outline. This looks rather ugly when combined with our
         // single pixel dark separator so we adjust the first tab to compensate for this
 
-        if (const QStyleOptionTabV3 *tab = qstyleoption_cast<const QStyleOptionTabV3 *>(option)) {
-            QStyleOptionTabV3 adjustedTab = *tab;
+        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
+            QStyleOptionTab adjustedTab = *tab;
             if (tab->cornerWidgets == QStyleOptionTab::NoCornerWidgets && (
                     tab->position == QStyleOptionTab::Beginning ||
                     tab->position == QStyleOptionTab::OnlyOneTab))
