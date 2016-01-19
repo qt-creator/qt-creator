@@ -180,8 +180,13 @@ static void performTestRun(QFutureInterface<TestResult *> &futureInterface,
         bool ok = testProcess.waitForStarted();
         QTime executionTimer;
         executionTimer.start();
+        bool canceledByTimeout = false;
         if (ok) {
-            while (testProcess.state() == QProcess::Running && executionTimer.elapsed() < timeout) {
+            while (testProcess.state() == QProcess::Running) {
+                if (executionTimer.elapsed() >= timeout) {
+                    canceledByTimeout = true;
+                    break;
+                }
                 if (futureInterface.isCanceled()) {
                     testProcess.kill();
                     testProcess.waitForFinished();
@@ -191,13 +196,13 @@ static void performTestRun(QFutureInterface<TestResult *> &futureInterface,
             }
         }
 
-        if (executionTimer.elapsed() >= timeout) {
+        if (canceledByTimeout) {
             if (testProcess.state() != QProcess::NotRunning) {
                 testProcess.kill();
                 testProcess.waitForFinished();
-                futureInterface.reportResult(new FaultyTestResult(Result::MessageFatal, QObject::tr(
-                    "Test case canceled due to timeout. \nMaybe raise the timeout?")));
             }
+            futureInterface.reportResult(new FaultyTestResult(Result::MessageFatal, QObject::tr(
+                    "Test case canceled due to timeout. \nMaybe raise the timeout?")));
         }
     }
     futureInterface.setProgressValue(testCaseCount);
