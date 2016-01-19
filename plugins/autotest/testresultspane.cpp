@@ -54,7 +54,9 @@ namespace Internal {
 
 ResultsTreeView::ResultsTreeView(QWidget *parent)
     : Utils::TreeView(parent)
-{}
+{
+    setAttribute(Qt::WA_MacShowFocusRect, false);
+}
 
 void ResultsTreeView::keyPressEvent(QKeyEvent *event)
 {
