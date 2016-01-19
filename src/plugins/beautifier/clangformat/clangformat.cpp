@@ -49,9 +49,11 @@
 #include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/texteditor.h>
+#include <utils/algorithm.h>
 
 #include <QAction>
 #include <QMenu>
+#include <QStringList>
 
 namespace Beautifier {
 namespace Internal {
@@ -136,8 +138,14 @@ Command ClangFormat::command(int offset, int length) const
     if (m_settings->usePredefinedStyle()) {
         command.addOption(QLatin1String("-style=") + m_settings->predefinedStyle());
     } else {
-        command.addOption(QLatin1String("-style={")
-                          + m_settings->style(m_settings->customStyle()).remove(QLatin1Char('\n'))
+        // The clang-format option file is YAML
+        const QStringList lines = m_settings->style(m_settings->customStyle())
+                .split(QLatin1Char('\n'), QString::SkipEmptyParts);
+        const QStringList options = Utils::filtered(lines, [](const QString &s) -> bool {
+            const QString option = s.trimmed();
+            return !(option.startsWith(QLatin1Char('#')) || option == QLatin1String("---"));
+        });
+        command.addOption(QLatin1String("-style={") + options.join(QLatin1String(", "))
                           + QLatin1Char('}'));
     }
 
