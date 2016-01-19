@@ -201,8 +201,7 @@ static QString sysroot(RunConfiguration *runConfig)
     return QString();
 }
 
-AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParameters &sp,
-    RunConfiguration *runConfiguration)
+AnalyzerRunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfiguration)
 {
     QmlProfilerRunConfigurationAspect *aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
                 runConfiguration->extraAspect(Constants::SETTINGS));
@@ -215,22 +214,25 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
                                                    settings->flushInterval() : 0);
     d->m_profilerConnections->setAggregateTraces(settings->aggregateTraces());
 
-    QmlProfilerRunControl *engine = new QmlProfilerRunControl(runConfiguration);
-    engine->setRunnable(AnalyzerRunnable(sp));
-    engine->setConnection(AnalyzerConnection(sp));
+    return new QmlProfilerRunControl(runConfiguration, this);
+}
 
-    engine->registerProfilerStateManager(d->m_profilerState);
+void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
+{
+    runControl->registerProfilerStateManager(d->m_profilerState);
 
     // FIXME: Check that there's something sensible in sp.connParams
-    if (!sp.analyzerSocket.isEmpty())
-        d->m_profilerConnections->setLocalSocket(sp.analyzerSocket);
+    auto &connection = runControl->connection();
+    if (!connection.analyzerSocket.isEmpty())
+        d->m_profilerConnections->setLocalSocket(connection.analyzerSocket);
     else
-        d->m_profilerConnections->setTcpConnection(sp.analyzerHost, sp.analyzerPort);
+        d->m_profilerConnections->setTcpConnection(connection.analyzerHost, connection.analyzerPort);
 
     //
     // Initialize m_projectFinder
     //
 
+    RunConfiguration *runConfiguration = runControl->runConfiguration();
     QString projectDirectory;
     if (runConfiguration) {
         Project *project = runConfiguration->target()->project();
@@ -239,13 +241,11 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
 
     populateFileFinder(projectDirectory, sysroot(runConfiguration));
 
-    if (sp.analyzerSocket.isEmpty())
-        connect(engine, &QmlProfilerRunControl::processRunning,
+    if (connection.analyzerSocket.isEmpty())
+        connect(runControl, &QmlProfilerRunControl::processRunning,
                 d->m_profilerConnections, &QmlProfilerClientManager::connectTcpClient);
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
-            engine, &QmlProfilerRunControl::cancelProcess);
-
-    return engine;
+            runControl, &QmlProfilerRunControl::cancelProcess);
 }
 
 QWidget *QmlProfilerTool::createWidgets()
@@ -516,17 +516,20 @@ void QmlProfilerTool::startRemoteTool()
         settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/port"), port);
     }
 
-    AnalyzerStartParameters sp;
+    AnalyzerConnection connection;
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
-        sp.connParams = device->sshParameters();
-        sp.analyzerHost = device->qmlProfilerHost();
+        connection.connParams = device->sshParameters();
+        connection.analyzerHost = device->qmlProfilerHost();
     }
-    sp.analyzerPort = port;
+    connection.analyzerPort = port;
 
-    AnalyzerRunControl *rc = createRunControl(sp, 0);
-    ProjectExplorerPlugin::startRunControl(rc, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    auto runControl = qobject_cast<QmlProfilerRunControl *>(createRunControl(0));
+    runControl->setConnection(connection);
+    runControl->finalizeSetup();
+
+    ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
 }
 
 void QmlProfilerTool::logState(const QString &msg)

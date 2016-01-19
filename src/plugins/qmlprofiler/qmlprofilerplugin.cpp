@@ -54,9 +54,9 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 
     auto tool = new QmlProfilerTool(this);
     auto widgetCreator = [tool] { return tool->createWidgets(); };
-    auto runControlCreator = [tool](const AnalyzerStartParameters &sp,
+    auto runControlCreator = [tool](const AnalyzerStartParameters &,
         ProjectExplorer::RunConfiguration *runConfiguration, Core::Id) {
-        return tool->createRunControl(sp, runConfiguration);
+        return tool->createRunControl(runConfiguration);
     };
 
     AnalyzerAction *action = 0;

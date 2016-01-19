@@ -26,6 +26,7 @@
 #include "qmlprofilerruncontrol.h"
 
 #include "localqmlprofilerrunner.h"
+#include "qmlprofilertool.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <coreplugin/icore.h>
@@ -61,6 +62,7 @@ namespace QmlProfiler {
 class QmlProfilerRunControl::QmlProfilerRunControlPrivate
 {
 public:
+    Internal::QmlProfilerTool *m_tool = 0;
     QmlProfilerStateManager *m_profilerState = 0;
     QTimer m_noDebugOutputTimer;
     QmlDebug::QmlOutputParser m_outputParser;
@@ -71,10 +73,12 @@ public:
 // QmlProfilerRunControl
 //
 
-QmlProfilerRunControl::QmlProfilerRunControl(RunConfiguration *runConfiguration)
+QmlProfilerRunControl::QmlProfilerRunControl(RunConfiguration *runConfiguration,
+                                             Internal::QmlProfilerTool *tool)
     : AnalyzerRunControl(runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
     , d(new QmlProfilerRunControlPrivate)
 {
+    d->m_tool = tool;
     // Only wait 4 seconds for the 'Waiting for connection' on application output, then just try to connect
     // (application output might be redirected / blocked)
     d->m_noDebugOutputTimer.setSingleShot(true);
@@ -246,6 +250,11 @@ void QmlProfilerRunControl::registerProfilerStateManager( QmlProfilerStateManage
     if (d->m_profilerState)
         connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
                 this, &QmlProfilerRunControl::profilerStateChanged);
+}
+
+void QmlProfilerRunControl::finalizeSetup()
+{
+    d->m_tool->finalizeRunControl(this);
 }
 
 void QmlProfilerRunControl::profilerStateChanged()

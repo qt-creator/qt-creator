@@ -38,6 +38,9 @@ class QMessageBox;
 QT_END_NAMESPACE
 
 namespace QmlProfiler {
+
+class QmlProfilerRunControl;
+
 namespace Internal {
 
 class QMLPROFILER_EXPORT QmlProfilerTool : public QObject
@@ -48,8 +51,8 @@ public:
     explicit QmlProfilerTool(QObject *parent);
     ~QmlProfilerTool();
 
-    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration = 0);
+    Analyzer::AnalyzerRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration = 0);
+    void finalizeRunControl(QmlProfilerRunControl *runControl);
 
     QWidget *createWidgets();
     bool prepareTool();

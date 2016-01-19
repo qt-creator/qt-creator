@@ -30,12 +30,6 @@
 #include <utils/environment.h>
 #include <projectexplorer/applicationlauncher.h>
 
-namespace ProjectExplorer { class RunConfiguration; }
-namespace Analyzer {
-    class AnalyzerStartParameters;
-    class AnalyzerRunControl;
-}
-
 namespace QmlProfiler {
 
 class QmlProfilerRunControl;
@@ -53,28 +47,21 @@ public:
         Utils::Environment environment;
     };
 
-    static Analyzer::AnalyzerRunControl *createLocalRunControl(
-            ProjectExplorer::RunConfiguration *runConfiguration,
-            const Analyzer::AnalyzerStartParameters &sp,
-            QString *errorMessage);
+    LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerRunControl *engine);
+    ~LocalQmlProfilerRunner();
 
     static quint16 findFreePort(QString &host);
     static QString findFreeSocket();
-
-    ~LocalQmlProfilerRunner();
 
 signals:
     void started();
     void stopped();
     void appendMessage(const QString &message, Utils::OutputFormat format);
 
-private slots:
+private:
     void spontaneousStop(int exitCode, QProcess::ExitStatus status);
     void start();
     void stop();
-
-private:
-    LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerRunControl *engine);
 
     Configuration m_configuration;
     ProjectExplorer::ApplicationLauncher m_launcher;

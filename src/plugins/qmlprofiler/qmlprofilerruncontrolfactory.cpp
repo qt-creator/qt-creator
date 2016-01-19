@@ -29,6 +29,8 @@
 #include "qmlprofilerrunconfigurationaspect.h"
 
 #include <analyzerbase/ianalyzertool.h>
+#include <analyzerbase/analyzerruncontrol.h>
+#include <analyzerbase/analyzermanager.h>
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 
@@ -61,38 +63,60 @@ bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, Co
             && (qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration));
 }
 
-static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration *runConfiguration)
-{
-    AnalyzerStartParameters sp;
-
-    // FIXME: This is only used to communicate the connParams settings.
-    auto rc = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return sp);
-    sp.debuggee = rc->executable();
-    sp.debuggeeArgs = rc->commandLineArguments();
-
-    const QtSupport::BaseQtVersion *version =
-            QtSupport::QtKitInformation::qtVersion(runConfiguration->target()->kit());
-    if (version) {
-        QtSupport::QtVersionNumber versionNumber = version->qtVersion();
-        if (versionNumber.majorVersion >= 5 && versionNumber.minorVersion >= 6)
-            sp.analyzerSocket = LocalQmlProfilerRunner::findFreeSocket();
-        else
-            sp.analyzerPort = LocalQmlProfilerRunner::findFreePort(sp.analyzerHost);
-    } else {
-        qWarning() << "Running QML profiler on Kit without Qt version??";
-        sp.analyzerPort = LocalQmlProfilerRunner::findFreePort(sp.analyzerHost);
-    }
-
-    return sp;
-}
-
 RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
-    AnalyzerStartParameters sp = createQmlProfilerStartParameters(runConfiguration);
-    return LocalQmlProfilerRunner::createLocalRunControl(runConfiguration, sp, errorMessage);
+    Kit *kit = runConfiguration->target()->kit();
+    // FIXME: This is only used to communicate the connParams settings.
+    auto localRunConfiguration = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+    QTC_ASSERT(localRunConfiguration, return 0);
+    AnalyzerRunnable runnable;
+    runnable.debuggee = localRunConfiguration->executable();
+    runnable.debuggeeArgs = localRunConfiguration->commandLineArguments();
+
+    AnalyzerConnection connection;
+    const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+    if (version) {
+        QtSupport::QtVersionNumber versionNumber = version->qtVersion();
+        if (versionNumber.majorVersion >= 5 && versionNumber.minorVersion >= 6)
+            connection.analyzerSocket = LocalQmlProfilerRunner::findFreeSocket();
+        else
+            connection.analyzerPort = LocalQmlProfilerRunner::findFreePort(connection.analyzerHost);
+    } else {
+        qWarning() << "Running QML profiler on Kit without Qt version??";
+        connection.analyzerPort = LocalQmlProfilerRunner::findFreePort(connection.analyzerHost);
+    }
+
+    // only desktop device is supported
+    const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+    QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
+
+    auto runControl = qobject_cast<QmlProfilerRunControl *>
+             (AnalyzerManager::createRunControl(runConfiguration, mode));
+    QTC_ASSERT(runControl, return 0);
+
+    runControl->setRunnable(runnable);
+    runControl->setConnection(connection);
+    runControl->finalizeSetup();
+
+    LocalQmlProfilerRunner::Configuration conf;
+    conf.executable = runnable.debuggee;
+    conf.executableArguments = runnable.debuggeeArgs;
+    conf.workingDirectory = runControl->workingDirectory();
+    conf.socket = connection.analyzerSocket;
+    if (EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>())
+        conf.environment = environment->environment();
+    conf.port = connection.analyzerPort;
+
+    if (conf.executable.isEmpty()) {
+        if (errorMessage)
+            *errorMessage = tr("No executable file to launch.");
+        return 0;
+    }
+
+    (void) new LocalQmlProfilerRunner(conf, runControl);
+    return runControl;
 }
 
 ProjectExplorer::IRunConfigurationAspect *

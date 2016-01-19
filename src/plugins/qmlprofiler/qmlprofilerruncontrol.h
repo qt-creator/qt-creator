@@ -33,15 +33,19 @@
 
 namespace QmlProfiler {
 
+namespace Internal { class QmlProfilerTool; }
+
 class QmlProfilerRunControl : public Analyzer::AnalyzerRunControl
 {
     Q_OBJECT
 
 public:
-    QmlProfilerRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
+    QmlProfilerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
+                          Internal::QmlProfilerTool *tool);
     ~QmlProfilerRunControl();
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
+    void finalizeSetup();
 
     void notifyRemoteSetupDone(quint16 port);
     StopResult stop();

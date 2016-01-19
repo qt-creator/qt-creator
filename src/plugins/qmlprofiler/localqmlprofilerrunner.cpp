@@ -27,9 +27,6 @@
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerruncontrol.h"
 
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzerstartparameters.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
@@ -43,51 +40,6 @@
 
 using namespace QmlProfiler;
 using namespace ProjectExplorer;
-
-Analyzer::AnalyzerRunControl *LocalQmlProfilerRunner::createLocalRunControl(
-        RunConfiguration *runConfiguration,
-        const Analyzer::AnalyzerStartParameters &sp,
-        QString *errorMessage)
-{
-    // only desktop device is supported
-    const IDevice::ConstPtr device = DeviceKitInformation::device(
-                runConfiguration->target()->kit());
-    QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
-
-    Analyzer::AnalyzerRunControl *rc = Analyzer::AnalyzerManager::createRunControl(
-                sp, runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    QmlProfilerRunControl *engine = qobject_cast<QmlProfilerRunControl *>(rc);
-    if (!engine) {
-        delete rc;
-        return 0;
-    }
-
-    Configuration conf;
-    conf.executable = sp.debuggee;
-    conf.executableArguments = sp.debuggeeArgs;
-    conf.workingDirectory = rc->workingDirectory();
-    conf.socket = sp.analyzerSocket;
-    if (EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>())
-        conf.environment = environment->environment();
-    conf.port = sp.analyzerPort;
-
-    if (conf.executable.isEmpty()) {
-        if (errorMessage)
-            *errorMessage = tr("No executable file to launch.");
-        return 0;
-    }
-
-    LocalQmlProfilerRunner *runner = new LocalQmlProfilerRunner(conf, engine);
-
-    QObject::connect(runner, &LocalQmlProfilerRunner::stopped,
-                     engine, &QmlProfilerRunControl::notifyRemoteFinished);
-    QObject::connect(runner, &LocalQmlProfilerRunner::appendMessage,
-                     engine, &QmlProfilerRunControl::logApplicationMessage);
-    QObject::connect(engine, &Analyzer::AnalyzerRunControl::starting,
-                     runner, &LocalQmlProfilerRunner::start);
-    QObject::connect(rc, &RunControl::finished, runner, &LocalQmlProfilerRunner::stop);
-    return rc;
-}
 
 QString LocalQmlProfilerRunner::findFreeSocket()
 {
@@ -120,6 +72,14 @@ LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuratio
 {
     connect(&m_launcher, &ApplicationLauncher::appendMessage,
             this, &LocalQmlProfilerRunner::appendMessage);
+    connect(this, &LocalQmlProfilerRunner::stopped,
+            engine, &QmlProfilerRunControl::notifyRemoteFinished);
+    connect(this, &LocalQmlProfilerRunner::appendMessage,
+            engine, &QmlProfilerRunControl::logApplicationMessage);
+    connect(engine, &Analyzer::AnalyzerRunControl::starting,
+            this, &LocalQmlProfilerRunner::start);
+    connect(engine, &RunControl::finished,
+            this, &LocalQmlProfilerRunner::stop);
 }
 
 LocalQmlProfilerRunner::~LocalQmlProfilerRunner()
