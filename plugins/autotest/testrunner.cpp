@@ -36,18 +36,12 @@
 
 #include <QFuture>
 #include <QFutureInterface>
-#include <QMetaObject>
 #include <QTime>
 
 namespace Autotest {
 namespace Internal {
 
 static TestRunner *m_instance = 0;
-
-static void emitTestResultCreated(TestResult *testResult)
-{
-    emit m_instance->testResultCreated(testResult);
-}
 
 static QString executableFilePath(const QString &command, const QProcessEnvironment &environment)
 {
@@ -89,6 +83,17 @@ TestRunner::TestRunner(QObject *parent) :
     QObject(parent),
     m_executingTests(false)
 {
+    connect(&m_futureWatcher, &QFutureWatcher<TestResult *>::resultReadyAt,
+            this, [this](int index) { emit testResultReady(m_futureWatcher.resultAt(index)); });
+    connect(&m_futureWatcher, &QFutureWatcher<TestResult *>::finished,
+            this, &TestRunner::onFinished);
+    connect(this, &TestRunner::requestStopTestRun,
+            &m_futureWatcher, &QFutureWatcher<TestResult *>::cancel);
+    connect(&m_futureWatcher, &QFutureWatcher<TestResult *>::canceled,
+            this, [this]() { emit testResultReady(new FaultyTestResult(
+                                                      Result::MessageFatal,
+                                                      QObject::tr("Test run canceled by user.")));
+    });
 }
 
 TestRunner::~TestRunner()
@@ -105,7 +110,7 @@ void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
      m_selectedTests = selected;
 }
 
-static void performTestRun(QFutureInterface<void> &futureInterface,
+static void performTestRun(QFutureInterface<TestResult *> &futureInterface,
                            const QList<TestConfiguration *> selectedTests, const int timeout,
                            const QString metricsOption)
 {
@@ -116,7 +121,7 @@ static void performTestRun(QFutureInterface<void> &futureInterface,
         if (config->project()) {
             testCaseCount += config->testCaseCount();
         } else {
-            emitTestResultCreated(new FaultyTestResult(Result::MessageWarn,
+            futureInterface.reportResult(new FaultyTestResult(Result::MessageWarn,
                 QObject::tr("Project is null for \"%1\". Removing from test run.\n"
                             "Check the test environment.").arg(config->displayName())));
         }
@@ -126,28 +131,12 @@ static void performTestRun(QFutureInterface<void> &futureInterface,
     testProcess.setReadChannelMode(QProcess::MergedChannels);
     testProcess.setReadChannel(QProcess::StandardOutput);
 
-    TestOutputReader outputReader(&testProcess);
-    QObject::connect(&outputReader, &TestOutputReader::increaseProgress, [&] () {
-        futureInterface.setProgressValue(futureInterface.progressValue() + 1);
-    });
-    QObject::connect(&outputReader, &TestOutputReader::testResultCreated, &emitTestResultCreated);
-
     futureInterface.setProgressRange(0, testCaseCount);
     futureInterface.setProgressValue(0);
 
-    QMetaObject::Connection connection;
     foreach (const TestConfiguration *testConfiguration, selectedTests) {
-        if (connection)
-            QObject::disconnect(connection);
-
-        TestType testType = testConfiguration->testType();
-        if (testType == TestTypeQt) {
-            connection = QObject::connect(&testProcess, &QProcess::readyRead, &outputReader,
-                                          &TestOutputReader::processOutput);
-        } else {
-            connection = QObject::connect(&testProcess, &QProcess::readyRead, &outputReader,
-                                          &TestOutputReader::processGTestOutput);
-        }
+        TestOutputReader outputReader(futureInterface, &testProcess, testConfiguration->testType());
+        Q_UNUSED(outputReader);
         if (futureInterface.isCanceled())
             break;
 
@@ -157,14 +146,14 @@ static void performTestRun(QFutureInterface<void> &futureInterface,
         QProcessEnvironment environment = testConfiguration->environment().toProcessEnvironment();
         QString commandFilePath = executableFilePath(testConfiguration->targetFile(), environment);
         if (commandFilePath.isEmpty()) {
-            emitTestResultCreated(new FaultyTestResult(Result::MessageFatal,
+            futureInterface.reportResult(new FaultyTestResult(Result::MessageFatal,
                 QObject::tr("Could not find command \"%1\". (%2)")
                                                    .arg(testConfiguration->targetFile())
                                                    .arg(testConfiguration->displayName())));
             continue;
         }
 
-        if (testType == TestTypeQt) {
+        if (testConfiguration->testType() == TestTypeQt) {
             QStringList argumentList(QLatin1String("-xml"));
             if (!metricsOption.isEmpty())
                 argumentList << metricsOption;
@@ -196,8 +185,7 @@ static void performTestRun(QFutureInterface<void> &futureInterface,
                 if (futureInterface.isCanceled()) {
                     testProcess.kill();
                     testProcess.waitForFinished();
-                    emitTestResultCreated(new FaultyTestResult(Result::MessageFatal,
-                                                        QObject::tr("Test run canceled by user.")));
+                    return;
                 }
                 eventLoop.processEvents();
             }
@@ -207,7 +195,7 @@ static void performTestRun(QFutureInterface<void> &futureInterface,
             if (testProcess.state() != QProcess::NotRunning) {
                 testProcess.kill();
                 testProcess.waitForFinished();
-                emitTestResultCreated(new FaultyTestResult(Result::MessageFatal, QObject::tr(
+                futureInterface.reportResult(new FaultyTestResult(Result::MessageFatal, QObject::tr(
                     "Test case canceled due to timeout. \nMaybe raise the timeout?")));
             }
         }
@@ -227,14 +215,14 @@ void TestRunner::prepareToRunTests()
 
     foreach (TestConfiguration *config, m_selectedTests) {
         if (!omitRunConfigWarnings && config->guessedConfiguration()) {
-            TestResultsPane::instance()->addTestResult(new FaultyTestResult(Result::MessageWarn,
+            emit testResultReady(new FaultyTestResult(Result::MessageWarn,
                 tr("Project's run configuration was guessed for \"%1\".\n"
                 "This might cause trouble during execution.").arg(config->displayName())));
         }
     }
 
     if (m_selectedTests.empty()) {
-        TestResultsPane::instance()->addTestResult(new FaultyTestResult(Result::MessageWarn,
+        emit testResultReady(new FaultyTestResult(Result::MessageWarn,
             tr("No tests selected. Canceling test run.")));
         onFinished();
         return;
@@ -242,7 +230,7 @@ void TestRunner::prepareToRunTests()
 
     ProjectExplorer::Project *project = m_selectedTests.at(0)->project();
     if (!project) {
-        TestResultsPane::instance()->addTestResult(new FaultyTestResult(Result::MessageWarn,
+        emit testResultReady(new FaultyTestResult(Result::MessageWarn,
             tr("Project is null. Canceling test run.\n"
             "Only desktop kits are supported. Make sure the "
             "currently active kit is a desktop kit.")));
@@ -258,7 +246,7 @@ void TestRunner::prepareToRunTests()
         if (project->hasActiveBuildSettings()) {
             buildProject(project);
         } else {
-            TestResultsPane::instance()->addTestResult(new FaultyTestResult(Result::MessageFatal,
+            emit testResultReady(new FaultyTestResult(Result::MessageFatal,
                 tr("Project is not configured. Canceling test run.")));
             onFinished();
             return;
@@ -271,20 +259,10 @@ void TestRunner::runTests()
     const QSharedPointer<TestSettings> settings = AutotestPlugin::instance()->settings();
     const QString &metricsOption = TestSettings::metricsTypeToOption(settings->metrics);
 
-    connect(this, &TestRunner::testResultCreated,
-            TestResultsPane::instance(), &TestResultsPane::addTestResult,
-            Qt::QueuedConnection);
-
-    QFuture<void> future = Utils::runAsync<void>(&performTestRun, m_selectedTests, settings->timeout,
-                                                 metricsOption);
-
-    Core::FutureProgress *progress = Core::ProgressManager::addTask(future, tr("Running Tests"),
-                                                                    Autotest::Constants::TASK_INDEX);
-    connect(progress, &Core::FutureProgress::finished,
-            TestRunner::instance(), &TestRunner::onFinished);
-    connect(this, &TestRunner::requestStopTestRun, progress, [progress]() {
-        progress->future().cancel();
-    });
+    QFuture<TestResult *> future = Utils::runAsync<TestResult *>(&performTestRun, m_selectedTests,
+                                                               settings->timeout, metricsOption);
+    m_futureWatcher.setFuture(future);
+    Core::ProgressManager::addTask(future, tr("Running Tests"), Autotest::Constants::TASK_INDEX);
 }
 
 void TestRunner::buildProject(ProjectExplorer::Project *project)
@@ -307,17 +285,14 @@ void TestRunner::buildFinished(bool success)
     if (success) {
         runTests();
     } else {
-        TestResultsPane::instance()->addTestResult(new FaultyTestResult(Result::MessageFatal,
-            tr("Build failed. Canceling test run.")));
+        emit testResultReady(new FaultyTestResult(Result::MessageFatal,
+                                                  tr("Build failed. Canceling test run.")));
         onFinished();
     }
 }
 
 void TestRunner::onFinished()
 {
-    disconnect(this, &TestRunner::testResultCreated,
-               TestResultsPane::instance(), &TestResultsPane::addTestResult);
-
     m_executingTests = false;
     emit testRunFinished();
 }

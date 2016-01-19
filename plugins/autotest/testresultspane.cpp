@@ -128,6 +128,8 @@ TestResultsPane::TestResultsPane(QObject *parent) :
             this, &TestResultsPane::onTestRunStarted);
     connect(TestRunner::instance(), &TestRunner::testRunFinished,
             this, &TestResultsPane::onTestRunFinished);
+    connect(TestRunner::instance(), &TestRunner::testResultReady,
+            this, &TestResultsPane::addTestResult);
 }
 
 void TestResultsPane::createToolButtons()

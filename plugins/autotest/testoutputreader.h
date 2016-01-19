@@ -22,6 +22,7 @@
 
 #include "testresult.h"
 
+#include <QFutureInterface>
 #include <QObject>
 #include <QString>
 
@@ -36,24 +37,15 @@ class TestOutputReader : public QObject
 {
     Q_OBJECT
 public:
-    enum OutputType {
-        Qt,
-        GTest
-    };
+    TestOutputReader(QFutureInterface<TestResult *> futureInterface,
+                     QProcess *testApplication, TestType type);
 
-    TestOutputReader(QProcess *testApplication, OutputType type = Qt);
-
-public slots:
+private:
     void processOutput();
     void processGTestOutput();
 
-signals:
-    void testResultCreated(TestResult *testResult);
-    void increaseProgress();
-
-private:
     QProcess *m_testApplication;  // not owned
-    OutputType m_type;
+    QFutureInterface<TestResult *> m_futureInterface;
 };
 
 } // namespace Internal

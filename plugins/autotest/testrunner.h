@@ -23,6 +23,7 @@
 #include "testconfiguration.h"
 #include "testresult.h"
 
+#include <QFutureWatcher>
 #include <QObject>
 #include <QProcess>
 
@@ -47,8 +48,8 @@ public:
 signals:
     void testRunStarted();
     void testRunFinished();
-    void testResultCreated(TestResult *testResult);
     void requestStopTestRun();
+    void testResultReady(TestResult *result);
 
 public slots:
     void prepareToRunTests();
@@ -62,6 +63,7 @@ private:
     void runTests();
     explicit TestRunner(QObject *parent = 0);
 
+    QFutureWatcher<TestResult *> m_futureWatcher;
     QList<TestConfiguration *> m_selectedTests;
     bool m_executingTests;
 
