@@ -949,7 +949,7 @@ static ProString msvcBinDirToQMakeArch(QString subdir)
     if (idx >= 0)
         subdir.remove(0, idx + 1);
     subdir = subdir.toLower();
-    if (subdir == QStringLiteral("amd64"))
+    if (subdir == QLatin1String("amd64"))
         return ProString("x86_64");
     return ProString(subdir);
 }
