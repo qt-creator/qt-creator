@@ -1714,9 +1714,16 @@ class Dumper(DumperBase):
                     hunks[key] = hunk
                     source = sources.get(fileName, None)
                     if source is None:
-                        with open(fileName, 'r') as f:
-                            source = f.read().splitlines()
-                            sources[fileName] = source
+                        try:
+                            with open(fileName, 'r') as f:
+                                source = f.read().splitlines()
+                                sources[fileName] = source
+                        except IOError as error:
+                            # With lldb-3.8 files like /data/dev/creator-3.6/tests/
+                            # auto/debugger/qt_tst_dumpers_StdVector_bfNWZa/main.cpp
+                            # with non-existent directories appear.
+                            warn("FILE: %s  ERROR: %s" % (fileName, error))
+                            source = ""
                     result += '{line="%s"' % lineNumber
                     result += ',file="%s"' % fileName
                     if 0 < lineNumber and lineNumber <= len(source):
