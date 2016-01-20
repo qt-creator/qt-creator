@@ -59,10 +59,9 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
-public slots:
+private:
     void resetModel();
 
-private:
     Project *m_project;
     QList<Project *> m_projects;
 };
@@ -77,10 +76,9 @@ public:
     QSize sizeHint() const;
     void setModel(QAbstractItemModel *model);
 
-private slots:
+private:
     void updateSizeHint();
 
-private:
     QSize m_sizeHint;
 };
 

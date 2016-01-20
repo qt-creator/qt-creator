@@ -52,13 +52,13 @@ DependenciesModel::DependenciesModel(Project *project, QObject *parent)
     // We can't select ourselves as a dependency
     m_projects.removeAll(m_project);
 
-    QObject *sessionManager = SessionManager::instance();
-    connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            this, SLOT(resetModel()));
-    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(resetModel()));
-    connect(sessionManager, SIGNAL(sessionLoaded(QString)),
-            this, SLOT(resetModel()));
+    SessionManager *sessionManager = SessionManager::instance();
+    connect(sessionManager, &SessionManager::projectRemoved,
+            this, &DependenciesModel::resetModel);
+    connect(sessionManager, &SessionManager::projectAdded,
+            this, &DependenciesModel::resetModel);
+    connect(sessionManager, &SessionManager::sessionLoaded,
+            this, &DependenciesModel::resetModel);
 //    qDebug()<<"Dependencies Model"<<this<<"for project"<<project<<"("<<project->file()->fileName()<<")";
 }
 
@@ -157,27 +157,27 @@ QSize DependenciesView::sizeHint() const
 void DependenciesView::setModel(QAbstractItemModel *newModel)
 {
     if (QAbstractItemModel *oldModel = model()) {
-        disconnect(oldModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                this, SLOT(updateSizeHint()));
-        disconnect(oldModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                this, SLOT(updateSizeHint()));
-        disconnect(oldModel, SIGNAL(modelReset()),
-                this, SLOT(updateSizeHint()));
-        disconnect(oldModel, SIGNAL(layoutChanged()),
-                this, SLOT(updateSizeHint()));
+        disconnect(oldModel, &QAbstractItemModel::rowsInserted,
+                this, &DependenciesView::updateSizeHint);
+        disconnect(oldModel, &QAbstractItemModel::rowsRemoved,
+                this, &DependenciesView::updateSizeHint);
+        disconnect(oldModel, &QAbstractItemModel::modelReset,
+                this, &DependenciesView::updateSizeHint);
+        disconnect(oldModel, &QAbstractItemModel::layoutChanged,
+                this, &DependenciesView::updateSizeHint);
     }
 
     QTreeView::setModel(newModel);
 
     if (newModel) {
-        connect(newModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                this, SLOT(updateSizeHint()));
-        connect(newModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                this, SLOT(updateSizeHint()));
-        connect(newModel, SIGNAL(modelReset()),
-                this, SLOT(updateSizeHint()));
-        connect(newModel, SIGNAL(layoutChanged()),
-                this, SLOT(updateSizeHint()));
+        connect(newModel, &QAbstractItemModel::rowsInserted,
+                this, &DependenciesView::updateSizeHint);
+        connect(newModel, &QAbstractItemModel::rowsRemoved,
+                this, &DependenciesView::updateSizeHint);
+        connect(newModel, &QAbstractItemModel::modelReset,
+                this, &DependenciesView::updateSizeHint);
+        connect(newModel, &QAbstractItemModel::layoutChanged,
+                this, &DependenciesView::updateSizeHint);
     }
     updateSizeHint();
 }
