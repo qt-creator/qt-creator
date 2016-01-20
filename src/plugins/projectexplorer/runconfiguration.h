@@ -251,6 +251,7 @@ public:
         return 0;
     }
 
+    virtual Runnable runnable() const;
     virtual Abi abi() const;
 
     void addExtraAspects();

@@ -361,6 +361,34 @@ IRunConfigurationAspect *RunConfiguration::extraAspect(Core::Id id) const
     return 0;
 }
 
+/*!
+    \internal
+
+    \class ProjectExplorer::Runnable
+
+    \brief The ProjectExplorer::Runnable class wraps information needed
+    to execute a process on a target device.
+
+    A target specific \l RunConfiguration implementation can specify
+    what information it considers necessary to execute a process
+    on the target. Target specific) \n IRunControlFactory implementation
+    can use that information either unmodified or tweak it or ignore
+    it when setting up a RunControl.
+
+    From Qt Creator's core perspective a Runnable object is opaque.
+*/
+
+/*!
+    \internal
+
+    \brief Returns a \l Runnable described by this RunConfiguration.
+*/
+
+Runnable RunConfiguration::runnable() const
+{
+    return Runnable();
+}
+
 Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
 {
     return new Utils::OutputFormatter();
