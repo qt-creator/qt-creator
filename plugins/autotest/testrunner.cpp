@@ -135,8 +135,15 @@ static void performTestRun(QFutureInterface<TestResult *> &futureInterface,
     futureInterface.setProgressValue(0);
 
     foreach (const TestConfiguration *testConfiguration, selectedTests) {
-        TestOutputReader outputReader(futureInterface, &testProcess, testConfiguration->testType());
-        Q_UNUSED(outputReader);
+        QScopedPointer<TestOutputReader> outputReader;
+        switch (testConfiguration->testType()) {
+        case TestTypeQt:
+            outputReader.reset(new QtTestOutputReader(futureInterface, &testProcess));
+            break;
+        case TestTypeGTest:
+            outputReader.reset(new GTestOutputReader(futureInterface, &testProcess));
+            break;
+        }
         if (futureInterface.isCanceled())
             break;
 

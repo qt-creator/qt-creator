@@ -28,7 +28,6 @@
 #include <QProcess>
 #include <QFileInfo>
 #include <QDir>
-#include <QXmlStreamReader>
 
 namespace Autotest {
 namespace Internal {
@@ -132,26 +131,20 @@ static QString constructBenchmarkInformation(const QString &metric, double value
 }
 
 TestOutputReader::TestOutputReader(QFutureInterface<TestResult *> futureInterface,
-                                   QProcess *testApplication, TestType type)
-    : m_testApplication(testApplication),
-      m_futureInterface(futureInterface)
+                                   QProcess *testApplication)
+    : m_futureInterface(futureInterface)
+    , m_testApplication(testApplication)
 {
-    if (type == TestTypeQt)
-        connect(testApplication, &QProcess::readyRead, this, &TestOutputReader::processOutput);
-    else
-        connect(testApplication, &QProcess::readyRead, this, &TestOutputReader::processGTestOutput);
+    connect(m_testApplication, &QProcess::readyRead, this, &TestOutputReader::processOutput);
 }
 
-enum CDATAMode {
-    None,
-    DataTag,
-    Description,
-    QtVersion,
-    QtBuild,
-    QTestVersion
-};
+QtTestOutputReader::QtTestOutputReader(QFutureInterface<TestResult *> futureInterface,
+                                       QProcess *testApplication)
+    : TestOutputReader(futureInterface, testApplication)
+{
+}
 
-void TestOutputReader::processOutput()
+void QtTestOutputReader::processOutput()
 {
     if (!m_testApplication || m_testApplication->state() != QProcess::Running)
         return;
@@ -161,115 +154,107 @@ void TestOutputReader::processOutput()
                                         QStringLiteral("QtVersion"),
                                         QStringLiteral("QtBuild"),
                                         QStringLiteral("QTestVersion") };
-    static CDATAMode cdataMode = None;
-    static QString className;
-    static QString testCase;
-    static QString dataTag;
-    static Result::Type result = Result::Invalid;
-    static QString description;
-    static QString file;
-    static int lineNumber = 0;
-    static QString duration;
-    static QXmlStreamReader xmlReader;
 
     while (m_testApplication->canReadLine()) {
-        xmlReader.addData(m_testApplication->readLine());
-        while (!xmlReader.atEnd()) {
-            QXmlStreamReader::TokenType token = xmlReader.readNext();
+        m_xmlReader.addData(m_testApplication->readLine());
+        while (!m_xmlReader.atEnd()) {
+            if (m_futureInterface.isCanceled())
+                return;
+            QXmlStreamReader::TokenType token = m_xmlReader.readNext();
             switch (token) {
             case QXmlStreamReader::StartDocument:
-                className.clear();
+                m_className.clear();
                 break;
             case QXmlStreamReader::EndDocument:
-                xmlReader.clear();
+                m_xmlReader.clear();
                 return;
             case QXmlStreamReader::StartElement: {
-                const QString currentTag = xmlReader.name().toString();
+                const QString currentTag = m_xmlReader.name().toString();
                 if (currentTag == QStringLiteral("TestCase")) {
-                    className = xmlReader.attributes().value(QStringLiteral("name")).toString();
-                    QTC_ASSERT(!className.isEmpty(), continue);
-                    auto testResult = new QTestResult(className);
+                    m_className = m_xmlReader.attributes().value(QStringLiteral("name")).toString();
+                    QTC_ASSERT(!m_className.isEmpty(), continue);
+                    auto testResult = new QTestResult(m_className);
                     testResult->setResult(Result::MessageTestCaseStart);
-                    testResult->setDescription(tr("Executing test case %1").arg(className));
+                    testResult->setDescription(tr("Executing test case %1").arg(m_className));
                     m_futureInterface.reportResult(testResult);
                 } else if (currentTag == QStringLiteral("TestFunction")) {
-                    testCase = xmlReader.attributes().value(QStringLiteral("name")).toString();
-                    QTC_ASSERT(!testCase.isEmpty(), continue);
+                    m_testCase = m_xmlReader.attributes().value(QStringLiteral("name")).toString();
+                    QTC_ASSERT(!m_testCase.isEmpty(), continue);
                     auto testResult = new QTestResult();
                     testResult->setResult(Result::MessageCurrentTest);
-                    testResult->setDescription(tr("Entering test function %1::%2").arg(className,
-                                                                                       testCase));
+                    testResult->setDescription(tr("Entering test function %1::%2").arg(m_className,
+                                                                                       m_testCase));
                     m_futureInterface.reportResult(testResult);
                 } else if (currentTag == QStringLiteral("Duration")) {
-                    duration = xmlReader.attributes().value(QStringLiteral("msecs")).toString();
-                    QTC_ASSERT(!duration.isEmpty(), continue);
+                    m_duration = m_xmlReader.attributes().value(QStringLiteral("msecs")).toString();
+                    QTC_ASSERT(!m_duration.isEmpty(), continue);
                 } else if (currentTag == QStringLiteral("Message")
                            || currentTag == QStringLiteral("Incident")) {
-                    dataTag.clear();
-                    description.clear();
-                    duration.clear();
-                    file.clear();
-                    result = Result::Invalid;
-                    lineNumber = 0;
-                    const QXmlStreamAttributes &attributes = xmlReader.attributes();
-                    result = TestResult::resultFromString(
+                    m_dataTag.clear();
+                    m_description.clear();
+                    m_duration.clear();
+                    m_file.clear();
+                    m_result = Result::Invalid;
+                    m_lineNumber = 0;
+                    const QXmlStreamAttributes &attributes = m_xmlReader.attributes();
+                    m_result = TestResult::resultFromString(
                                 attributes.value(QStringLiteral("type")).toString());
-                    file = decode(attributes.value(QStringLiteral("file")).toString());
-                    if (!file.isEmpty()) {
+                    m_file = decode(attributes.value(QStringLiteral("file")).toString());
+                    if (!m_file.isEmpty()) {
                         const QString base = QFileInfo(m_testApplication->program()).absolutePath();
-                        file = constructSourceFilePath(base, file,
+                        m_file = constructSourceFilePath(base, m_file,
                                                        m_testApplication->program());
                     }
-                    lineNumber = attributes.value(QStringLiteral("line")).toInt();
+                    m_lineNumber = attributes.value(QStringLiteral("line")).toInt();
                 } else if (currentTag == QStringLiteral("BenchmarkResult")) {
-                    const QXmlStreamAttributes &attributes = xmlReader.attributes();
+                    const QXmlStreamAttributes &attributes = m_xmlReader.attributes();
                     const QString metric = attributes.value(QStringLiteral("metrics")).toString();
                     const double value = attributes.value(QStringLiteral("value")).toDouble();
                     const int iterations = attributes.value(QStringLiteral("iterations")).toInt();
-                    description = constructBenchmarkInformation(metric, value, iterations);
-                    result = Result::Benchmark;
+                    m_description = constructBenchmarkInformation(metric, value, iterations);
+                    m_result = Result::Benchmark;
                 } else if (currentTag == QStringLiteral("DataTag")) {
-                    cdataMode = DataTag;
+                    m_cdataMode = DataTag;
                 } else if (currentTag == QStringLiteral("Description")) {
-                    cdataMode = Description;
+                    m_cdataMode = Description;
                 } else if (currentTag == QStringLiteral("QtVersion")) {
-                    result = Result::MessageInternal;
-                    cdataMode = QtVersion;
+                    m_result = Result::MessageInternal;
+                    m_cdataMode = QtVersion;
                 } else if (currentTag == QStringLiteral("QtBuild")) {
-                    result = Result::MessageInternal;
-                    cdataMode = QtBuild;
+                    m_result = Result::MessageInternal;
+                    m_cdataMode = QtBuild;
                 } else if (currentTag == QStringLiteral("QTestVersion")) {
-                    result = Result::MessageInternal;
-                    cdataMode = QTestVersion;
+                    m_result = Result::MessageInternal;
+                    m_cdataMode = QTestVersion;
                 }
                 break;
             }
             case QXmlStreamReader::Characters: {
-                QStringRef text = xmlReader.text().trimmed();
+                QStringRef text = m_xmlReader.text().trimmed();
                 if (text.isEmpty())
                     break;
 
-                switch (cdataMode) {
+                switch (m_cdataMode) {
                 case DataTag:
-                    dataTag = text.toString();
+                    m_dataTag = text.toString();
                     break;
                 case Description:
-                    if (!description.isEmpty())
-                        description.append(QLatin1Char('\n'));
-                    description.append(text);
+                    if (!m_description.isEmpty())
+                        m_description.append(QLatin1Char('\n'));
+                    m_description.append(text);
                     break;
                 case QtVersion:
-                    description = tr("Qt version: %1").arg(text.toString());
+                    m_description = tr("Qt version: %1").arg(text.toString());
                     break;
                 case QtBuild:
-                    description = tr("Qt build: %1").arg(text.toString());
+                    m_description = tr("Qt build: %1").arg(text.toString());
                     break;
                 case QTestVersion:
-                    description = tr("QTest version: %1").arg(text.toString());
+                    m_description = tr("QTest version: %1").arg(text.toString());
                     break;
                 default:
                     QString message = QString::fromLatin1("unexpected cdatamode %1 for text \"%2\"")
-                            .arg(cdataMode)
+                            .arg(m_cdataMode)
                             .arg(text.toString());
                     QTC_ASSERT(false, qWarning() << message);
                     break;
@@ -277,32 +262,32 @@ void TestOutputReader::processOutput()
                 break;
             }
             case QXmlStreamReader::EndElement: {
-                cdataMode = None;
-                const QStringRef currentTag = xmlReader.name();
+                m_cdataMode = None;
+                const QStringRef currentTag = m_xmlReader.name();
                 if (currentTag == QStringLiteral("TestFunction")) {
-                    if (!duration.isEmpty()) {
-                        auto testResult = new QTestResult(className);
-                        testResult->setTestCase(testCase);
+                    if (!m_duration.isEmpty()) {
+                        auto testResult = new QTestResult(m_className);
+                        testResult->setTestCase(m_testCase);
                         testResult->setResult(Result::MessageInternal);
-                        testResult->setDescription(tr("Execution took %1 ms.").arg(duration));
+                        testResult->setDescription(tr("Execution took %1 ms.").arg(m_duration));
                         m_futureInterface.reportResult(testResult);
                     }
                     m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
                 } else if (currentTag == QStringLiteral("TestCase")) {
-                    auto testResult = new QTestResult(className);
+                    auto testResult = new QTestResult(m_className);
                     testResult->setResult(Result::MessageTestCaseEnd);
                     testResult->setDescription(
-                            duration.isEmpty() ? tr("Test finished.")
-                                               : tr("Test execution took %1 ms.").arg(duration));
+                            m_duration.isEmpty() ? tr("Test finished.")
+                                               : tr("Test execution took %1 ms.").arg(m_duration));
                     m_futureInterface.reportResult(testResult);
                 } else if (validEndTags.contains(currentTag.toString())) {
-                    auto testResult = new QTestResult(className);
-                    testResult->setTestCase(testCase);
-                    testResult->setDataTag(dataTag);
-                    testResult->setResult(result);
-                    testResult->setFileName(file);
-                    testResult->setLine(lineNumber);
-                    testResult->setDescription(description);
+                    auto testResult = new QTestResult(m_className);
+                    testResult->setTestCase(m_testCase);
+                    testResult->setDataTag(m_dataTag);
+                    testResult->setResult(m_result);
+                    testResult->setFileName(m_file);
+                    testResult->setLine(m_lineNumber);
+                    testResult->setDescription(m_description);
                     m_futureInterface.reportResult(testResult);
                 }
                 break;
@@ -314,7 +299,13 @@ void TestOutputReader::processOutput()
     }
 }
 
-void TestOutputReader::processGTestOutput()
+GTestOutputReader::GTestOutputReader(QFutureInterface<TestResult *> futureInterface,
+                                     QProcess *testApplication)
+    : TestOutputReader(futureInterface, testApplication)
+{
+}
+
+void GTestOutputReader::processOutput()
 {
     if (!m_testApplication || m_testApplication->state() != QProcess::Running)
         return;
@@ -326,19 +317,16 @@ void TestOutputReader::processGTestOutput()
     static QRegExp testSetFail(QStringLiteral("^\\\[  FAILED  \\] (.*) \\((.*)\\)$"));
     static QRegExp disabledTests(QStringLiteral("^  YOU HAVE (\\d+) DISABLED TESTS?$"));
 
-    static QString currentTestName;
-    static QString currentTestSet;
-    static QString description;
-    static QByteArray unprocessed;
-
     while (m_testApplication->canReadLine()) {
+        if (m_futureInterface.isCanceled())
+            return;
         QByteArray read = m_testApplication->readLine();
-        if (!unprocessed.isEmpty()) {
-            read = unprocessed + read;
-            unprocessed.clear();
+        if (!m_unprocessed.isEmpty()) {
+            read = m_unprocessed + read;
+            m_unprocessed.clear();
         }
         if (!read.endsWith('\n')) {
-            unprocessed = read;
+            m_unprocessed = read;
             continue;
         }
         read.chop(1); // remove the newline from the output
@@ -348,13 +336,13 @@ void TestOutputReader::processGTestOutput()
             continue;
 
         if (!line.startsWith(QLatin1Char('['))) {
-            description.append(line).append(QLatin1Char('\n'));
+            m_description.append(line).append(QLatin1Char('\n'));
             if (line.startsWith(QStringLiteral("Note:"))) {
                 auto testResult = new GTestResult();
                 testResult->setResult(Result::MessageInternal);
                 testResult->setDescription(line);
                 m_futureInterface.reportResult(testResult);
-                description.clear();
+                m_description.clear();
             } else if (disabledTests.exactMatch(line)) {
                 auto testResult = new GTestResult();
                 testResult->setResult(Result::MessageDisabledTests);
@@ -362,62 +350,62 @@ void TestOutputReader::processGTestOutput()
                 testResult->setDescription(tr("You have %n disabled test(s).", 0, disabled));
                 testResult->setLine(disabled); // misuse line property to hold number of disabled
                 m_futureInterface.reportResult(testResult);
-                description.clear();
+                m_description.clear();
             }
             continue;
         }
 
         if (testEnds.exactMatch(line)) {
-            auto testResult = new GTestResult(currentTestName);
-            testResult->setTestCase(currentTestSet);
+            auto testResult = new GTestResult(m_currentTestName);
+            testResult->setTestCase(m_currentTestSet);
             testResult->setResult(Result::MessageTestCaseEnd);
             testResult->setDescription(tr("Test execution took %1").arg(testEnds.cap(2)));
             m_futureInterface.reportResult(testResult);
-            currentTestName.clear();
-            currentTestSet.clear();
+            m_currentTestName.clear();
+            m_currentTestSet.clear();
         } else if (newTestStarts.exactMatch(line)) {
-            currentTestName = newTestStarts.cap(1);
-            auto testResult = new GTestResult(currentTestName);
+            m_currentTestName = newTestStarts.cap(1);
+            auto testResult = new GTestResult(m_currentTestName);
             testResult->setResult(Result::MessageTestCaseStart);
-            testResult->setDescription(tr("Executing test case %1").arg(currentTestName));
+            testResult->setDescription(tr("Executing test case %1").arg(m_currentTestName));
             m_futureInterface.reportResult(testResult);
         } else if (newTestSetStarts.exactMatch(line)) {
-            currentTestSet = newTestSetStarts.cap(1);
+            m_currentTestSet = newTestSetStarts.cap(1);
             auto testResult = new GTestResult();
             testResult->setResult(Result::MessageCurrentTest);
-            testResult->setDescription(tr("Entering test set %1").arg(currentTestSet));
+            testResult->setDescription(tr("Entering test set %1").arg(m_currentTestSet));
             m_futureInterface.reportResult(testResult);
         } else if (testSetSuccess.exactMatch(line)) {
-            auto testResult = new GTestResult(currentTestName);
-            testResult->setTestCase(currentTestSet);
+            auto testResult = new GTestResult(m_currentTestName);
+            testResult->setTestCase(m_currentTestSet);
             testResult->setResult(Result::Pass);
             m_futureInterface.reportResult(testResult);
-            testResult = new GTestResult(currentTestName);
-            testResult->setTestCase(currentTestSet);
+            testResult = new GTestResult(m_currentTestName);
+            testResult->setTestCase(m_currentTestSet);
             testResult->setResult(Result::MessageInternal);
             testResult->setDescription(tr("Execution took %1.").arg(testSetSuccess.cap(2)));
             m_futureInterface.reportResult(testResult);
             m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
         } else if (testSetFail.exactMatch(line)) {
-            auto testResult = new GTestResult(currentTestName);
-            testResult->setTestCase(currentTestSet);
+            auto testResult = new GTestResult(m_currentTestName);
+            testResult->setTestCase(m_currentTestSet);
             testResult->setResult(Result::Fail);
-            description.chop(1);
-            testResult->setDescription(description);
-            int firstColon = description.indexOf(QLatin1Char(':'));
+            m_description.chop(1);
+            testResult->setDescription(m_description);
+            int firstColon = m_description.indexOf(QLatin1Char(':'));
             if (firstColon != -1) {
-                int secondColon = description.indexOf(QLatin1Char(':'), firstColon + 1);
+                int secondColon = m_description.indexOf(QLatin1Char(':'), firstColon + 1);
                 const QString base = QFileInfo(m_testApplication->program()).absolutePath();
-                QString file = constructSourceFilePath(base, description.left(firstColon),
+                QString file = constructSourceFilePath(base, m_description.left(firstColon),
                                                        m_testApplication->program());
-                QString line = description.mid(firstColon + 1, secondColon - firstColon - 1);
+                QString line = m_description.mid(firstColon + 1, secondColon - firstColon - 1);
                 testResult->setFileName(file);
                 testResult->setLine(line.toInt());
             }
             m_futureInterface.reportResult(testResult);
-            description.clear();
-            testResult = new GTestResult(currentTestName);
-            testResult->setTestCase(currentTestSet);
+            m_description.clear();
+            testResult = new GTestResult(m_currentTestName);
+            testResult->setTestCase(m_currentTestSet);
             testResult->setResult(Result::MessageInternal);
             testResult->setDescription(tr("Execution took %1.").arg(testSetFail.cap(2)));
             m_futureInterface.reportResult(testResult);

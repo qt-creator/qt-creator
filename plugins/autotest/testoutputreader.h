@@ -25,6 +25,7 @@
 #include <QFutureInterface>
 #include <QObject>
 #include <QString>
+#include <QXmlStreamReader>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
@@ -38,15 +39,62 @@ class TestOutputReader : public QObject
     Q_OBJECT
 public:
     TestOutputReader(QFutureInterface<TestResult *> futureInterface,
-                     QProcess *testApplication, TestType type);
+                     QProcess *testApplication);
+
+protected:
+    virtual void processOutput() = 0;
+    QFutureInterface<TestResult *> m_futureInterface;
+    QProcess *m_testApplication;  // not owned
+};
+
+class QtTestOutputReader : public TestOutputReader
+{
+public:
+    QtTestOutputReader(QFutureInterface<TestResult *> futureInterface,
+                       QProcess *testApplication);
+
+protected:
+    void processOutput() override;
 
 private:
-    void processOutput();
-    void processGTestOutput();
+    enum CDATAMode
+    {
+        None,
+        DataTag,
+        Description,
+        QtVersion,
+        QtBuild,
+        QTestVersion
+    };
 
-    QProcess *m_testApplication;  // not owned
-    QFutureInterface<TestResult *> m_futureInterface;
+    CDATAMode m_cdataMode = None;
+    QString m_className;
+    QString m_testCase;
+    QString m_dataTag;
+    Result::Type m_result = Result::Invalid;
+    QString m_description;
+    QString m_file;
+    int m_lineNumber = 0;
+    QString m_duration;
+    QXmlStreamReader m_xmlReader;
 };
+
+class GTestOutputReader : public TestOutputReader
+{
+public:
+    GTestOutputReader(QFutureInterface<TestResult *> futureInterface,
+                      QProcess *testApplication);
+
+protected:
+    void processOutput() override;
+
+private:
+    QString m_currentTestName;
+    QString m_currentTestSet;
+    QString m_description;
+    QByteArray m_unprocessed;
+};
+
 
 } // namespace Internal
 } // namespace Autotest
