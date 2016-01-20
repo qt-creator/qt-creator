@@ -156,7 +156,7 @@ private:
 class PROJECTEXPLORER_EXPORT ClonableConcept
 {
 public:
-    virtual ~ClonableConcept() = default;
+    virtual ~ClonableConcept() {}
     virtual ClonableConcept *clone() const = 0;
 };
 
