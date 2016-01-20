@@ -15,6 +15,7 @@ QtcCommercialPlugin {
         "debugmessagesmodel.h",
         "flamegraph.cpp",
         "flamegraph.h",
+        "flamegraph.qrc",
         "flamegraphmodel.cpp",
         "flamegraphmodel.h",
         "flamegraphview.cpp",
