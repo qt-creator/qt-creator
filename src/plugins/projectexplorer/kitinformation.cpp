@@ -104,7 +104,8 @@ Utils::FileName SysRootKitInformation::sysRoot(const Kit *k)
 
 void SysRootKitInformation::setSysRoot(Kit *k, const Utils::FileName &v)
 {
-    k->setValue(SysRootKitInformation::id(), v.toString());
+    if (k)
+        k->setValue(SysRootKitInformation::id(), v.toString());
 }
 
 // --------------------------------------------------------------------------
