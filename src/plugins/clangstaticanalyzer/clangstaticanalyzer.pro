@@ -1,8 +1,4 @@
-TARGET = ClangStaticAnalyzer
-TEMPLATE = lib
-
 include(../../qtcreatorplugin.pri)
-include(clangstaticanalyzer_dependencies.pri)
 
 SOURCES += \
     clangstaticanalyzerconfigwidget.cpp \
