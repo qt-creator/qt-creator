@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#ifndef THEMESETTINGS_H
-#define THEMESETTINGS_H
+#ifndef THEMECHOOSER_H
+#define THEMECHOOSER_H
 
 #include "id.h"
 
@@ -35,7 +35,7 @@
 namespace Core {
 namespace Internal {
 
-class ThemeSettingsPrivate;
+class ThemeChooserPrivate;
 
 class ThemeEntry
 {
@@ -54,19 +54,19 @@ private:
     mutable QString m_displayName;
 };
 
-class ThemeSettingsWidget : public QWidget
+class ThemeChooser : public QWidget
 {
     Q_OBJECT
 
 public:
-    ThemeSettingsWidget(QWidget *parent = 0);
-    ~ThemeSettingsWidget();
+    ThemeChooser(QWidget *parent = 0);
+    ~ThemeChooser();
 
     void apply();
 
 private:
     void refreshThemeList();
-    ThemeSettingsPrivate *d;
+    ThemeChooserPrivate *d;
 };
 
 } // namespace Internal

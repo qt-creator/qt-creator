@@ -78,7 +78,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="Core::Internal::ThemeSettingsWidget" name="themeWidget" native="true"/>
+       <widget class="Core::Internal::ThemeChooser" name="themeChooser" native="true"/>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="languageLabel">
@@ -149,9 +149,9 @@
    <header location="global">utils/qtcolorbutton.h</header>
   </customwidget>
   <customwidget>
-   <class>Core::Internal::ThemeSettingsWidget</class>
+   <class>Core::Internal::ThemeChooser</class>
    <extends>QWidget</extends>
-   <header location="global">coreplugin/themesettings.h</header>
+   <header location="global">coreplugin/themechooser.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

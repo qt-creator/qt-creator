@@ -32,7 +32,7 @@
 #include "modemanager.h"
 #include "infobar.h"
 #include "iwizardfactory.h"
-#include "themesettings.h"
+#include "themechooser.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/documentmanager.h>

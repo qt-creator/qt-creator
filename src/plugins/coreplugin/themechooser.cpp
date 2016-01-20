@@ -26,7 +26,7 @@
 #include "coreconstants.h"
 #include "icore.h"
 #include "manhattanstyle.h"
-#include "themesettings.h"
+#include "themechooser.h"
 
 #include <utils/algorithm.h>
 #include <utils/theme/theme.h>
@@ -119,11 +119,11 @@ private:
 };
 
 
-class ThemeSettingsPrivate
+class ThemeChooserPrivate
 {
 public:
-    ThemeSettingsPrivate(QWidget *widget);
-    ~ThemeSettingsPrivate();
+    ThemeChooserPrivate(QWidget *widget);
+    ~ThemeChooserPrivate();
 
 public:
     ThemeListModel *m_themeListModel;
@@ -131,7 +131,7 @@ public:
     bool m_refreshingThemeList;
 };
 
-ThemeSettingsPrivate::ThemeSettingsPrivate(QWidget *widget)
+ThemeChooserPrivate::ThemeChooserPrivate(QWidget *widget)
     : m_themeListModel(new ThemeListModel)
     , m_themeComboBox(new QComboBox)
     , m_refreshingThemeList(false)
@@ -144,25 +144,25 @@ ThemeSettingsPrivate::ThemeSettingsPrivate(QWidget *widget)
     m_themeComboBox->setModel(m_themeListModel);
 }
 
-ThemeSettingsPrivate::~ThemeSettingsPrivate()
+ThemeChooserPrivate::~ThemeChooserPrivate()
 {
     delete m_themeListModel;
 }
 
-ThemeSettingsWidget::ThemeSettingsWidget(QWidget *parent) :
+ThemeChooser::ThemeChooser(QWidget *parent) :
     QWidget(parent)
 {
-    d = new ThemeSettingsPrivate(this);
+    d = new ThemeChooserPrivate(this);
 
     refreshThemeList();
 }
 
-ThemeSettingsWidget::~ThemeSettingsWidget()
+ThemeChooser::~ThemeChooser()
 {
     delete d;
 }
 
-void ThemeSettingsWidget::refreshThemeList()
+void ThemeChooser::refreshThemeList()
 {
     const QList<ThemeEntry> themes = ThemeEntry::availableThemes();
     const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id,
@@ -175,7 +175,7 @@ void ThemeSettingsWidget::refreshThemeList()
     d->m_refreshingThemeList = false;
 }
 
-void ThemeSettingsWidget::apply()
+void ThemeChooser::apply()
 {
     const int index = d->m_themeComboBox->currentIndex();
     if (index == -1)

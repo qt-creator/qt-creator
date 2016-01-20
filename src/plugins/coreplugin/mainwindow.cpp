@@ -32,7 +32,6 @@
 #include "fancytabwidget.h"
 #include "documentmanager.h"
 #include "generalsettings.h"
-#include "themesettings.h"
 #include "helpmanager.h"
 #include "idocumentfactory.h"
 #include "messagemanager.h"

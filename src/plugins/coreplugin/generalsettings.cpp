@@ -119,7 +119,7 @@ void GeneralSettings::apply()
     setLanguage(m_page->languageBox->itemData(currentIndex, Qt::UserRole).toString());
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
-    m_page->themeWidget->apply();
+    m_page->themeChooser->apply();
 }
 
 void GeneralSettings::finish()
