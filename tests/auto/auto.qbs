@@ -6,6 +6,7 @@ Project {
     references: [
         "aggregation/aggregation.qbs",
         "changeset/changeset.qbs",
+        "clangstaticanalyzer/clangstaticanalyzer.qbs",
         "cplusplus/cplusplus.qbs",
         "debugger/debugger.qbs",
         "diff/diff.qbs",

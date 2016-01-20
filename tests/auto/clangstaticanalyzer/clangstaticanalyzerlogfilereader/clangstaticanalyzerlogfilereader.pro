@@ -1,4 +1,4 @@
-include(../tests.pri)
+include(../clangstaticanalyzertest.pri)
 
 TARGET = tst_clangstaticanalyzerlogfilereader
 

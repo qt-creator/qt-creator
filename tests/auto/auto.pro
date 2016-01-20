@@ -3,6 +3,7 @@ TEMPLATE = subdirs
 SUBDIRS += \
     aggregation \
     changeset \
+    clangstaticanalyzer \
     cplusplus \
     debugger \
     diff \
