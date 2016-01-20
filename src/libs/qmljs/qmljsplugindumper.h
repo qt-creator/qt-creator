@@ -74,6 +74,7 @@ private:
         QStringList typeInfoPaths;
     };
 
+    void runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info, const QStringList &arguments, const QString &importPath);
     void dump(const Plugin &plugin);
     void loadQmltypesFile(const QStringList &qmltypesFilePaths,
                           const QString &libraryPath,

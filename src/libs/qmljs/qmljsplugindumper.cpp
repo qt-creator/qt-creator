@@ -120,14 +120,7 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
         return;
     }
 
-    // run qmldump
-    QProcess *process = new QProcess(this);
-    process->setEnvironment(info.qmlDumpEnvironment.toStringList());
-    connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
-    connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
-    QStringList args(QLatin1String("--builtins"));
-    process->start(info.qmlDumpPath, args);
-    m_runningQmldumps.insert(process, baseImportsPath);
+    runQmlDump(info, QStringList(QLatin1String("--builtins")), baseImportsPath);
     m_qtToInfo.insert(baseImportsPath, info);
 }
 
@@ -416,6 +409,17 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
     m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
 }
 
+void PluginDumper::runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info,
+    const QStringList &arguments, const QString &importPath)
+{
+    QProcess *process = new QProcess(this);
+    process->setEnvironment(info.qmlDumpEnvironment.toStringList());
+    connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
+    connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
+    process->start(info.qmlDumpPath, arguments);
+    m_runningQmldumps.insert(process, importPath);
+}
+
 void PluginDumper::dump(const Plugin &plugin)
 {
     ModelManagerInterface::ProjectInfo info = m_modelManager->defaultProjectInfo();
@@ -453,18 +457,13 @@ void PluginDumper::dump(const Plugin &plugin)
         return;
     }
 
-    QProcess *process = new QProcess(this);
-    process->setEnvironment(info.qmlDumpEnvironment.toStringList());
-    connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
-    connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
     QStringList args;
     if (info.qmlDumpHasRelocatableFlag)
         args << QLatin1String("-nonrelocatable");
     args << plugin.importUri;
     args << plugin.importVersion;
     args << plugin.importPath;
-    process->start(info.qmlDumpPath, args);
-    m_runningQmldumps.insert(process, plugin.qmldirPath);
+    runQmlDump(info, args, plugin.qmldirPath);
 }
 
 /*!
