@@ -128,13 +128,11 @@ public:
 public:
     ThemeListModel *m_themeListModel;
     QComboBox *m_themeComboBox;
-    bool m_refreshingThemeList;
 };
 
 ThemeChooserPrivate::ThemeChooserPrivate(QWidget *widget)
     : m_themeListModel(new ThemeListModel)
     , m_themeComboBox(new QComboBox)
-    , m_refreshingThemeList(false)
 {
     QHBoxLayout *layout = new QHBoxLayout(widget);
     layout->addWidget(m_themeComboBox);
@@ -142,6 +140,12 @@ ThemeChooserPrivate::ThemeChooserPrivate(QWidget *widget)
     auto horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
     layout->addSpacerItem(horizontalSpacer);
     m_themeComboBox->setModel(m_themeListModel);
+    const QList<ThemeEntry> themes = ThemeEntry::availableThemes();
+    const Id activeTheme = Id::fromString(creatorTheme()->id());
+    const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id, activeTheme));
+    m_themeListModel->setThemes(themes);
+    if (selected >= 0)
+        m_themeComboBox->setCurrentIndex(selected);
 }
 
 ThemeChooserPrivate::~ThemeChooserPrivate()
@@ -153,26 +157,11 @@ ThemeChooser::ThemeChooser(QWidget *parent) :
     QWidget(parent)
 {
     d = new ThemeChooserPrivate(this);
-
-    refreshThemeList();
 }
 
 ThemeChooser::~ThemeChooser()
 {
     delete d;
-}
-
-void ThemeChooser::refreshThemeList()
-{
-    const QList<ThemeEntry> themes = ThemeEntry::availableThemes();
-    const int selected = Utils::indexOf(themes, Utils::equal(&ThemeEntry::id,
-                                                             Id::fromString(creatorTheme()->id())));
-
-    d->m_refreshingThemeList = true;
-    d->m_themeListModel->setThemes(themes);
-    if (selected >= 0)
-        d->m_themeComboBox->setCurrentIndex(selected);
-    d->m_refreshingThemeList = false;
 }
 
 void ThemeChooser::apply()

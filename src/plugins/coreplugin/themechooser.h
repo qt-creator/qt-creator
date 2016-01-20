@@ -65,7 +65,6 @@ public:
     void apply();
 
 private:
-    void refreshThemeList();
     ThemeChooserPrivate *d;
 };
 
