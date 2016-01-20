@@ -13,6 +13,7 @@ Project {
         "bineditor/bineditor.qbs",
         "bookmarks/bookmarks.qbs",
         "clangcodemodel/clangcodemodel.qbs",
+        "clangstaticanalyzer/clangstaticanalyzer.qbs",
         "classview/classview.qbs",
         "clearcase/clearcase.qbs",
         "cmakeprojectmanager/cmakeprojectmanager.qbs",

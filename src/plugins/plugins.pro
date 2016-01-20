@@ -3,6 +3,7 @@ include(../../qtcreator.pri)
 TEMPLATE  = subdirs
 
 SUBDIRS   = \
+    clangstaticanalyzer \
     coreplugin \
     texteditor \
     cppeditor \
