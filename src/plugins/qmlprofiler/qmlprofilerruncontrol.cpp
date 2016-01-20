@@ -106,6 +106,7 @@ QmlProfilerRunControl::~QmlProfilerRunControl()
 
 bool QmlProfilerRunControl::startEngine()
 {
+    d->m_tool->finalizeRunControl(this);
     QTC_ASSERT(d->m_profilerState, return false);
 
     if (connection().analyzerPort != 0)
@@ -250,11 +251,6 @@ void QmlProfilerRunControl::registerProfilerStateManager( QmlProfilerStateManage
     if (d->m_profilerState)
         connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
                 this, &QmlProfilerRunControl::profilerStateChanged);
-}
-
-void QmlProfilerRunControl::finalizeSetup()
-{
-    d->m_tool->finalizeRunControl(this);
 }
 
 void QmlProfilerRunControl::profilerStateChanged()

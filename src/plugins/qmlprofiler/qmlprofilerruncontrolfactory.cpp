@@ -98,7 +98,6 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
 
     runControl->setRunnable(runnable);
     runControl->setConnection(connection);
-    runControl->finalizeSetup();
 
     LocalQmlProfilerRunner::Configuration conf;
     conf.executable = runnable.debuggee;

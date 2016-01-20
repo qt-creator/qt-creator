@@ -527,7 +527,6 @@ void QmlProfilerTool::startRemoteTool()
 
     auto runControl = qobject_cast<QmlProfilerRunControl *>(createRunControl(0));
     runControl->setConnection(connection);
-    runControl->finalizeSetup();
 
     ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
 }
