@@ -503,7 +503,7 @@ QVariant RegisterSubItem::data(int column, int role) const
                     return RegisterHandler::tr("Content as %1-bit Binary Values").arg(8 * m_subSize);
             }
             if (m_subKind == FloatRegister)
-                return RegisterHandler::tr("Contents as %1-bit Floating Point Values").arg(8 * m_subSize);
+                return RegisterHandler::tr("Content as %1-bit Floating Point Values").arg(8 * m_subSize);
 
         default:
             break;
