@@ -54,12 +54,6 @@ public:
     quint16 analyzerPort = 0;
 };
 
-class ANALYZER_EXPORT AnalyzerStartParameters
-    : public AnalyzerRunnable, public AnalyzerConnection
-{
-public:
-};
-
 } // namespace Analyzer
 
 #endif // ANALYZERSTARTPARAMETERS_H

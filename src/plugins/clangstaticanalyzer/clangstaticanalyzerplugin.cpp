@@ -132,8 +132,8 @@ bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &
     addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
 
     auto widgetCreator = [tool] { return tool->createWidgets(); };
-    auto runControlCreator = [tool](const AnalyzerStartParameters &,
-        ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode) {
+    auto runControlCreator = [tool](ProjectExplorer::RunConfiguration *runConfiguration,
+                                    Core::Id runMode) {
         return tool->createRunControl(runConfiguration, runMode);
     };
 

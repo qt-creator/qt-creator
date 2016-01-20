@@ -131,8 +131,7 @@ void ValgrindPlugin::extensionsInitialized()
     auto mcWidgetCreator = [mcTool] { return mcTool->createWidgets(); };
     auto cgTool = new CallgrindTool(this);
     auto cgWidgetCreator = [cgTool] { return cgTool->createWidgets(); };
-    auto cgRunControlCreator = [cgTool](const AnalyzerStartParameters &,
-        RunConfiguration *runConfiguration, Core::Id) {
+    auto cgRunControlCreator = [cgTool](RunConfiguration *runConfiguration, Id) {
         return cgTool->createRunControl(runConfiguration);
     };
 
@@ -141,8 +140,7 @@ void ValgrindPlugin::extensionsInitialized()
         action->setActionId("Memcheck.Local");
         action->setToolId("Memcheck");
         action->setWidgetCreator(mcWidgetCreator);
-        action->setRunControlCreator([mcTool](const AnalyzerStartParameters &,
-            ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode) {
+        action->setRunControlCreator([mcTool](RunConfiguration *runConfig, Id runMode) {
             return mcTool->createRunControl(runConfig, runMode);
         });
         action->setToolMode(DebugMode);
@@ -158,8 +156,7 @@ void ValgrindPlugin::extensionsInitialized()
         action->setActionId("MemcheckWithGdb.Local");
         action->setToolId("MemcheckWithGdb");
         action->setWidgetCreator([mcgTool] { return mcgTool->createWidgets(); });
-        action->setRunControlCreator([mcgTool](const AnalyzerStartParameters &,
-            ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode) {
+        action->setRunControlCreator([mcgTool](RunConfiguration *runConfig, Id runMode) {
             return mcgTool->createRunControl(runConfig, runMode);
         });
         action->setToolMode(DebugMode);
