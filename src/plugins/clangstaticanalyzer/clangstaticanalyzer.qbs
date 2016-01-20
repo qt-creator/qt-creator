@@ -71,4 +71,12 @@ QtcPlugin {
         fileTags: []
         files: ["**/*"]
     }
+
+    Group {
+        name: "Other files"
+        fileTags: []
+        files: [
+            project.ide_source_tree + "/doc/src/analyze/creator-clang-static-analyzer.qdoc",
+        ]
+    }
 }

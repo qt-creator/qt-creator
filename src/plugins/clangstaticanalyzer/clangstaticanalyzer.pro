@@ -47,4 +47,5 @@ equals(TEST, 1) {
 }
 
 DISTFILES += \
-    tests/tests.pri
+    tests/tests.pri \
+    $${IDE_SOURCE_TREE}/doc/src/analyze/creator-clang-static-analyzer.qdoc
