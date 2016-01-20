@@ -217,6 +217,13 @@ static void performTestRun(QFutureInterface<TestResult *> &futureInterface,
 
 void TestRunner::prepareToRunTests()
 {
+    ProjectExplorer::Internal::ProjectExplorerSettings projectExplorerSettings =
+        ProjectExplorer::ProjectExplorerPlugin::projectExplorerSettings();
+    if (projectExplorerSettings.buildBeforeDeploy && !projectExplorerSettings.saveBeforeBuild) {
+        if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
+            return;
+    }
+
     const bool omitRunConfigWarnings = AutotestPlugin::instance()->settings()->omitRunConfigWarn;
 
     m_executingTests = true;
@@ -250,8 +257,6 @@ void TestRunner::prepareToRunTests()
         return;
     }
 
-    ProjectExplorer::Internal::ProjectExplorerSettings projectExplorerSettings =
-        ProjectExplorer::ProjectExplorerPlugin::projectExplorerSettings();
     if (!projectExplorerSettings.buildBeforeDeploy) {
         runTests();
     } else {
