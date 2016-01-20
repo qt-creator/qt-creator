@@ -109,9 +109,10 @@ TextTool::~TextTool()
 
 void TextTool::clear()
 {
-    if (textItem())
+    if (textItem()) {
         textItem()->clearFocus();
-    textItem()->deleteLater();
+        textItem()->deleteLater();
+    }
 
     AbstractFormEditorTool::clear();
 }

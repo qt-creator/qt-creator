@@ -105,7 +105,8 @@ ColorTool::~ColorTool()
 
 void ColorTool::clear()
 {
-    m_colorDialog.data()->deleteLater();
+    if (m_colorDialog)
+        m_colorDialog.data()->deleteLater();
 
     AbstractFormEditorTool::clear();
 }
