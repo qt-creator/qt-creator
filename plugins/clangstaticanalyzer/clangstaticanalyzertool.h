@@ -59,8 +59,7 @@ public:
     QList<Diagnostic> diagnostics() const;
 
     QWidget *createWidgets();
-    Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                                                   ProjectExplorer::RunConfiguration *runConfiguration,
+    Analyzer::AnalyzerRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                                                    Core::Id runMode);
     void startTool();
 

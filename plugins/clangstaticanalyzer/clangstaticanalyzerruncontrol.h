@@ -53,8 +53,7 @@ class ClangStaticAnalyzerRunControl : public Analyzer::AnalyzerRunControl
     Q_OBJECT
 
 public:
-    ClangStaticAnalyzerRunControl(const Analyzer::AnalyzerStartParameters &startParams,
-                                  ProjectExplorer::RunConfiguration *runConfiguration,
+    ClangStaticAnalyzerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                                   Core::Id runMode,
                                   const CppTools::ProjectInfo &projectInfo);
 

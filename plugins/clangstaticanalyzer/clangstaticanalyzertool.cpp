@@ -165,10 +165,8 @@ QWidget *ClangStaticAnalyzerTool::createWidgets()
     return toolbarWidget;
 }
 
-AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
-        const AnalyzerStartParameters &sp,
-        RunConfiguration *runConfiguration,
-        Core::Id runMode)
+AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(RunConfiguration *runConfiguration,
+                                                              Core::Id runMode)
 {
     QTC_ASSERT(runConfiguration, return 0);
     QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return 0);
@@ -184,15 +182,15 @@ AnalyzerRunControl *ClangStaticAnalyzerTool::createRunControl(
                return 0);
     m_projectInfoBeforeBuild = CppTools::ProjectInfo();
 
-    auto engine = new ClangStaticAnalyzerRunControl(sp, runConfiguration, runMode,
-                                                    projectInfoAfterBuild);
-    connect(engine, &ClangStaticAnalyzerRunControl::starting,
+    auto runControl = new ClangStaticAnalyzerRunControl(runConfiguration, runMode,
+                                                        projectInfoAfterBuild);
+    connect(runControl, &ClangStaticAnalyzerRunControl::starting,
             this, &ClangStaticAnalyzerTool::onEngineIsStarting);
-    connect(engine, &ClangStaticAnalyzerRunControl::newDiagnosticsAvailable,
+    connect(runControl, &ClangStaticAnalyzerRunControl::newDiagnosticsAvailable,
             this, &ClangStaticAnalyzerTool::onNewDiagnosticsAvailable);
-    connect(engine, &ClangStaticAnalyzerRunControl::finished,
+    connect(runControl, &ClangStaticAnalyzerRunControl::finished,
             this, &ClangStaticAnalyzerTool::onEngineFinished);
-    return engine;
+    return runControl;
 }
 
 static bool dontStartAfterHintForDebugMode(Project *project)

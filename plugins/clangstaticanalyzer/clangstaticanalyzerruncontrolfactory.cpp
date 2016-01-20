@@ -115,7 +115,7 @@ RunControl *ClangStaticAnalyzerRunControlFactory::create(RunConfiguration *runCo
         return 0;
     }
 
-    return AnalyzerManager::createRunControl(AnalyzerStartParameters(), runConfiguration, runMode);
+    return AnalyzerManager::createRunControl(runConfiguration, runMode);
 }
 
 } // namespace Internal

@@ -66,11 +66,10 @@ namespace ClangStaticAnalyzer {
 namespace Internal {
 
 ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
-            const Analyzer::AnalyzerStartParameters &startParams,
             RunConfiguration *runConfiguration,
             Core::Id runMode,
             const ProjectInfo &projectInfo)
-    : AnalyzerRunControl(startParams, runConfiguration, runMode)
+    : AnalyzerRunControl(runConfiguration, runMode)
     , m_projectInfo(projectInfo)
     , m_wordWidth(runConfiguration->abi().wordWidth())
     , m_initialFilesToProcessSize(0)
