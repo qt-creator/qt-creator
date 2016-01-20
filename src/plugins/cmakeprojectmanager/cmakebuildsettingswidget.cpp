@@ -26,15 +26,13 @@
 #include "cmakebuildsettingswidget.h"
 #include "cmakeproject.h"
 #include "cmakebuildconfiguration.h"
-#include "cmakebuildinfo.h"
-#include "cmakeopenprojectwizard.h"
-#include "cmakeprojectmanager.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
 #include <utils/detailswidget.h>
+#include <utils/pathchooser.h>
 
 #include <QFormLayout>
 
@@ -42,8 +40,7 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) :
-    m_pathLineEdit(new QLineEdit),
-    m_changeButton(new QPushButton)
+    m_buildConfiguration(bc)
 {
     auto vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
@@ -58,55 +55,19 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    auto runCmakeButton = new QPushButton(tr("Run CMake..."));
-    connect(runCmakeButton, &QAbstractButton::clicked, this, &CMakeBuildSettingsWidget::runCMake);
-    fl->addRow(tr("Reconfigure project:"), runCmakeButton);
+    auto project = static_cast<CMakeProject *>(bc->target()->project());
+    auto buildDirChooser = new Utils::PathChooser;
+    buildDirChooser->setBaseFileName(project->projectDirectory());
+    buildDirChooser->setFileName(bc->buildDirectory());
+    connect(buildDirChooser, &Utils::PathChooser::rawPathChanged, this,
+            [this, project](const QString &path) {
+                project->changeBuildDirectory(m_buildConfiguration, path);
+            });
 
-    m_pathLineEdit->setReadOnly(true);
-
-    auto hbox = new QHBoxLayout();
-    hbox->addWidget(m_pathLineEdit);
-
-    m_changeButton->setText(tr("&Change"));
-    connect(m_changeButton, &QAbstractButton::clicked, this,
-            &CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog);
-    hbox->addWidget(m_changeButton);
-
-    fl->addRow(tr("Build directory:"), hbox);
-
-    m_buildConfiguration = bc;
-    m_pathLineEdit->setText(m_buildConfiguration->rawBuildDirectory().toString());
-    if (m_buildConfiguration->buildDirectory() == bc->target()->project()->projectDirectory())
-        m_changeButton->setEnabled(false);
-    else
-        m_changeButton->setEnabled(true);
+    fl->addRow(tr("Build directory:"), buildDirChooser);
 
     setDisplayName(tr("CMake"));
 }
 
-void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
-{
-    CMakeBuildInfo info(m_buildConfiguration);
-    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), CMakeOpenProjectWizard::ChangeDirectory,
-                                &info);
-    if (copw.exec() == QDialog::Accepted) {
-        auto project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
-        project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
-        m_pathLineEdit->setText(m_buildConfiguration->rawBuildDirectory().toString());
-    }
-}
-
-void CMakeBuildSettingsWidget::runCMake()
-{
-    if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
-        return;
-    CMakeBuildInfo info(m_buildConfiguration);
-    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), CMakeOpenProjectWizard::WantToUpdate,
-                                &info);
-    if (copw.exec() == QDialog::Accepted) {
-        auto project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
-        project->parseCMakeLists();
-    }
-}
 } // namespace Internal
 } // namespace CMakeProjectManager

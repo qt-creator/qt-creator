@@ -35,7 +35,6 @@
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
 #include "cmakekitinformation.h"
-#include "cmakepreloadcachekitinformation.h"
 
 #include <utils/mimetypes/mimedatabase.h>
 #include <projectexplorer/kitmanager.h>
@@ -59,7 +58,6 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 
     ProjectExplorer::KitManager::registerKitInformation(new CMakeKitInformation);
     ProjectExplorer::KitManager::registerKitInformation(new CMakeGeneratorKitInformation);
-    ProjectExplorer::KitManager::registerKitInformation(new CMakePreloadCacheKitInformation);
     ProjectExplorer::KitManager::registerKitInformation(new CMakeConfigurationKitInformation);
 
     return true;

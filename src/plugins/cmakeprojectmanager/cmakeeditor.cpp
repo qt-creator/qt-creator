@@ -73,10 +73,10 @@ void CMakeEditor::finalizeInitialization()
         if (!document->isModified())
             return;
         InfoBar *infoBar = document->infoBar();
-        Id infoRunCmake("CMakeEditor.RunCMake");
-        if (!infoBar->canInfoBeAdded(infoRunCmake))
+        Id infoRunCMake("CMakeEditor.RunCMake");
+        if (!infoBar->canInfoBeAdded(infoRunCMake))
             return;
-        InfoBarEntry info(infoRunCmake,
+        InfoBarEntry info(infoRunCMake,
                           tr("Changes to cmake files are shown in the project tree after building."),
                           InfoBarEntry::GlobalSuppressionEnabled);
         info.setCustomButtonInfo(tr("Build now"), [document]() {

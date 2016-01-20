@@ -25,47 +25,45 @@
 
 #include "cmakeproject.h"
 
+#include "builddirmanager.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
 #include "cmakerunconfiguration.h"
-#include "cmakeopenprojectwizard.h"
-#include "cmakecbpparser.h"
 #include "cmakefile.h"
 #include "cmakeprojectmanager.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/headerpath.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/buildmanager.h>
-#include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/toolchain.h>
-
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/deploymentdata.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
-#include <qtsupport/uicodemodelsupport.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
 #include <cpptools/projectpartbuilder.h>
-#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/headerpath.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/uicodemodelsupport.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/hostosinfo.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
-#include <coreplugin/editormanager/editormanager.h>
 
-#include <QDebug>
 #include <QDir>
 #include <QFileSystemWatcher>
+#include <QTemporaryDir>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -74,7 +72,6 @@ using namespace Utils;
 
 // QtCreator CMake Generator wishlist:
 // Which make targets we need to build to get all executables
-// What is the make we need to call
 // What is the actual compiler executable
 // DEFINES
 
@@ -84,8 +81,7 @@ using namespace Utils;
 /*!
   \class CMakeProject
 */
-CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName) :
-    m_watcher(new QFileSystemWatcher(this))
+CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
 {
     setId(Constants::CMAKEPROJECT_ID);
     setProjectManager(manager);
@@ -96,56 +92,59 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName) :
 
     rootProjectNode()->setDisplayName(fileName.parentDir().fileName());
 
-    connect(this, &CMakeProject::buildTargetsChanged, this, &CMakeProject::updateRunConfigurations);
-    connect(m_watcher, &QFileSystemWatcher::fileChanged, this, &CMakeProject::fileChanged);
+    connect(this, &CMakeProject::buildDirectoryDataAvailable, this, &CMakeProject::updateRunConfigurations);
+    connect(this, &Project::activeTargetChanged, this, &CMakeProject::activeTargetHasChanged);
+    connect(this, &CMakeProject::environmentChanged, this, [this]() {
+        BuildConfiguration *bc = nullptr;
+        if (activeTarget())
+            bc = activeTarget()->activeBuildConfiguration();
+        changeActiveBuildConfiguration(bc); // Does a clean reset of the builddirmanager
+    });
+
+    connect(this, &Project::addedTarget, this, [this](Target *t) {
+        connect(t, &Target::kitChanged, this, &CMakeProject::handleKitChanges);
+    });
 }
 
 CMakeProject::~CMakeProject()
 {
+    setRootProjectNode(nullptr);
     m_codeModelFuture.cancel();
-}
-
-void CMakeProject::fileChanged(const QString &fileName)
-{
-    Q_UNUSED(fileName)
-
-    parseCMakeLists();
+    delete m_buildDirManager;
 }
 
 void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
 {
-    if (!bc)
-        return;
+    if (m_buildDirManager) {
+        m_buildDirManager->disconnect();
+        m_buildDirManager->deleteLater();
+    }
+    m_buildDirManager = nullptr;
 
-    CMakeBuildConfiguration *cmakebc = static_cast<CMakeBuildConfiguration *>(bc);
+    Kit *k = nullptr;
+    CMakeConfig config;
+    Utils::FileName buildDir;
 
-    // Pop up a dialog asking the user to rerun cmake
-    QString cbpFile = CMakeManager::findCbpFile(QDir(bc->buildDirectory().toString()));
-    QFileInfo cbpFileFi(cbpFile);
-    CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
-    if (!cbpFileFi.exists()) {
-        mode = CMakeOpenProjectWizard::NeedToCreate;
+    CMakeBuildConfiguration *cmakebc = qobject_cast<CMakeBuildConfiguration *>(bc);
+    if (!cmakebc) {
+        k = KitManager::defaultKit();
+        config = CMakeConfigurationKitInformation::configuration(k);
     } else {
-        foreach (const FileName &file, m_watchedFiles) {
-            if (file.toFileInfo().lastModified() > cbpFileFi.lastModified()) {
-                mode = CMakeOpenProjectWizard::NeedToUpdate;
-                break;
-            }
-        }
+        k = cmakebc->target()->kit();
+        // FIXME: Fill config with data from cmakebc!
+        buildDir = cmakebc->buildDirectory();
     }
-
-    if (mode != CMakeOpenProjectWizard::Nothing) {
-        CMakeBuildInfo info(cmakebc);
-        CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), mode, &info);
-        if (copw.exec() == QDialog::Accepted)
-            cmakebc->setInitialArguments(QString());
+    if (k) {
+        m_buildDirManager = new Internal::BuildDirManager(projectDirectory(), k, config,
+                                                          cmakebc->environment(), buildDir);
+        connect(m_buildDirManager, &BuildDirManager::parsingStarted,
+                this, &CMakeProject::parsingStarted);
+        connect(m_buildDirManager, &BuildDirManager::dataAvailable,
+                this, &CMakeProject::parseCMakeOutput);
     }
-
-    // reparse
-    parseCMakeLists();
 }
 
-void CMakeProject::activeTargetWasChanged(Target *target)
+void CMakeProject::activeTargetHasChanged(Target *target)
 {
     if (m_activeTarget) {
         disconnect(m_activeTarget, &Target::activeBuildConfigurationChanged,
@@ -165,7 +164,16 @@ void CMakeProject::activeTargetWasChanged(Target *target)
 void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory)
 {
     bc->setBuildDirectory(FileName::fromString(newBuildDirectory));
-    parseCMakeLists();
+    if (activeTarget() && activeTarget()->activeBuildConfiguration() == bc)
+        changeActiveBuildConfiguration(bc);
+}
+
+void CMakeProject::handleKitChanges()
+{
+    const Target *t = qobject_cast<Target *>(sender());
+    if (t && t != activeTarget())
+        return;
+    changeActiveBuildConfiguration(t->activeBuildConfiguration()); // force proper refresh
 }
 
 QStringList CMakeProject::getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QByteArray *cachedBuildNinja)
@@ -238,88 +246,30 @@ QStringList CMakeProject::getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QB
     return QStringList();
 }
 
-bool CMakeProject::parseCMakeLists()
+void CMakeProject::parseCMakeOutput()
 {
-    QTC_ASSERT(activeTarget() && activeTarget()->activeBuildConfiguration(), return false);
+    QTC_ASSERT(m_buildDirManager, return);
+    QTC_ASSERT(activeTarget() && activeTarget()->activeBuildConfiguration(), return);
 
-    CMakeBuildConfiguration *activeBC = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
         if (isProjectFile(document->filePath()))
             document->infoBar()->removeInfo("CMakeEditor.RunCMake");
 
-    // Find cbp file
-    QString cbpFile = CMakeManager::findCbpFile(activeBC->buildDirectory().toString());
+    auto activeBC = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
 
-    if (cbpFile.isEmpty()) {
-        emit buildTargetsChanged();
-        return false;
-    }
+    rootProjectNode()->setDisplayName(m_buildDirManager->projectName());
 
-    Kit *k = activeTarget()->kit();
-
-    // setFolderName
-    rootProjectNode()->setDisplayName(QFileInfo(cbpFile).completeBaseName());
-    CMakeCbpParser cbpparser;
-    // Parsing
-    //qDebug()<<"Parsing file "<<cbpFile;
-    if (!cbpparser.parseCbpFile(k,cbpFile, projectDirectory().toString())) {
-        // TODO report error
-        emit buildTargetsChanged();
-        return false;
-    }
-
-    foreach (const QString &file, m_watcher->files())
-        if (file != cbpFile)
-            m_watcher->removePath(file);
-
-    // how can we ensure that it is completely written?
-    m_watcher->addPath(cbpFile);
-
-    rootProjectNode()->setDisplayName(cbpparser.projectName());
-
-    //qDebug()<<"Building Tree";
-    QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
-    QSet<FileName> projectFiles;
-    if (cbpparser.hasCMakeFiles()) {
-        fileList.append(cbpparser.cmakeFileList());
-        foreach (const ProjectExplorer::FileNode *node, cbpparser.cmakeFileList())
-            projectFiles.insert(node->filePath());
-    } else {
-        // Manually add the CMakeLists.txt file
-        FileName cmakeListTxt = projectDirectory().appendPath(QLatin1String("CMakeLists.txt"));
-        bool generated = false;
-        fileList.append(new ProjectExplorer::FileNode(cmakeListTxt, ProjectExplorer::ProjectFileType, generated));
-        projectFiles.insert(cmakeListTxt);
-    }
-
-    m_watchedFiles = projectFiles;
-
-    m_files.clear();
-    foreach (ProjectExplorer::FileNode *fn, fileList)
-        m_files.append(fn->filePath().toString());
-    m_files.sort();
-
-    buildTree(static_cast<CMakeProjectNode *>(rootProjectNode()), fileList);
-
-    //qDebug()<<"Adding Targets";
-    m_buildTargets = cbpparser.buildTargets();
-//        qDebug()<<"Printing targets";
-//        foreach (CMakeBuildTarget ct, m_buildTargets) {
-//            qDebug()<<ct.title<<" with executable:"<<ct.executable;
-//            qDebug()<<"WD:"<<ct.workingDirectory;
-//            qDebug()<<ct.makeCommand<<ct.makeCleanCommand;
-//            qDebug()<<"";
-//        }
+    buildTree(static_cast<CMakeProjectNode *>(rootProjectNode()), m_buildDirManager->files());
 
     updateApplicationAndDeploymentTargets();
 
     createUiCodeModelSupport();
 
-    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_buildDirManager->kit());
     if (!tc) {
-        emit buildTargetsChanged();
+        emit buildDirectoryDataAvailable(activeBC);
         emit fileListChanged();
-        return true;
+        return;
     }
 
     CppTools::CppModelManager *modelmanager = CppTools::CppModelManager::instance();
@@ -327,7 +277,7 @@ bool CMakeProject::parseCMakeLists()
     CppTools::ProjectPartBuilder ppBuilder(pinfo);
 
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
-    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
+    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(m_buildDirManager->kit())) {
         if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
             activeQtVersion = CppTools::ProjectPart::Qt4;
         else
@@ -337,7 +287,7 @@ bool CMakeProject::parseCMakeLists()
     ppBuilder.setQtVersion(activeQtVersion);
 
     QByteArray cachedBuildNinja;
-    foreach (const CMakeBuildTarget &cbt, m_buildTargets) {
+    foreach (const CMakeBuildTarget &cbt, buildTargets()) {
         // This explicitly adds -I. to the include paths
         QStringList includePaths = cbt.includeFiles;
         includePaths += projectDirectory().toString();
@@ -358,12 +308,10 @@ bool CMakeProject::parseCMakeLists()
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
 
     emit displayNameChanged();
-    emit buildTargetsChanged();
+    emit buildDirectoryDataAvailable(activeBC);
     emit fileListChanged();
 
     emit activeBC->emitBuildTypeChanged();
-
-    return true;
 }
 
 bool CMakeProject::needsConfiguration() const
@@ -386,30 +334,45 @@ bool CMakeProject::supportsKit(Kit *k, QString *errorMessage) const
     return true;
 }
 
+void CMakeProject::runCMake()
+{
+    if (m_buildDirManager && !m_buildDirManager->isBusy())
+        m_buildDirManager->forceReparse();
+}
+
+bool CMakeProject::isParsing() const
+{
+    return m_buildDirManager && m_buildDirManager->isBusy();
+}
+
 bool CMakeProject::isProjectFile(const FileName &fileName)
 {
-    return m_watchedFiles.contains(fileName);
+    if (!m_buildDirManager)
+        return false;
+    return m_buildDirManager->isProjectFile(fileName);
 }
 
 QList<CMakeBuildTarget> CMakeProject::buildTargets() const
 {
-    return m_buildTargets;
+    if (!m_buildDirManager)
+        return QList<CMakeBuildTarget>();
+    return m_buildDirManager->buildTargets();
 }
 
 QStringList CMakeProject::buildTargetTitles(bool runnable) const
 {
     const QList<CMakeBuildTarget> targets
-            = runnable ? Utils::filtered(m_buildTargets,
+            = runnable ? Utils::filtered(buildTargets(),
                                          [](const CMakeBuildTarget &ct) {
                                              return !ct.executable.isEmpty() && ct.targetType == ExecutableType;
                                          })
-                       : m_buildTargets;
+                       : buildTargets();
     return Utils::transform(targets, [](const CMakeBuildTarget &ct) { return ct.title; });
 }
 
 bool CMakeProject::hasBuildTarget(const QString &title) const
 {
-    return Utils::anyOf(m_buildTargets, [title](const CMakeBuildTarget &ct) { return ct.title == title; });
+    return Utils::anyOf(buildTargets(), [title](const CMakeBuildTarget &ct) { return ct.title == title; });
 }
 
 void CMakeProject::gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list)
@@ -442,7 +405,6 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
 
     // add added nodes
     foreach (ProjectExplorer::FileNode *fn, added) {
-//        qDebug()<<"added"<<fn->path();
         // Get relative path to rootNode
         QString parentDir = fn->filePath().toFileInfo().absolutePath();
         ProjectExplorer::FolderNode *folder = findOrCreateFolder(rootNode, parentDir);
@@ -452,7 +414,6 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
     // remove old file nodes and check whether folder nodes can be removed
     foreach (ProjectExplorer::FileNode *fn, deleted) {
         ProjectExplorer::FolderNode *parent = fn->parentFolderNode();
-//        qDebug()<<"removed"<<fn->path();
         parent->removeFileNodes(QList<ProjectExplorer::FileNode *>() << fn);
         // Check for empty parent
         while (parent->subFolderNodes().isEmpty() && parent->fileNodes().isEmpty()) {
@@ -514,44 +475,13 @@ Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *er
     if (result != RestoreResult::Ok)
         return result;
 
-    bool hasUserFile = activeTarget();
-    if (!hasUserFile) {
-        // Nothing to do, the target setup page will show up
-    } else {
-        // We have a user file, but we could still be missing the cbp file
-        // or simply run createXml with the saved settings
-        CMakeBuildConfiguration *activeBC = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
-        if (!activeBC) {
-            *errorMessage = tr("Internal Error: No build configuration found in settings file.");
-            return RestoreResult::Error;
-        }
-        QString cbpFile = CMakeManager::findCbpFile(QDir(activeBC->buildDirectory().toString()));
-        QFileInfo cbpFileFi(cbpFile);
-
-        CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
-        if (!cbpFileFi.exists())
-            mode = CMakeOpenProjectWizard::NeedToCreate;
-        else if (cbpFileFi.lastModified() < projectFilePath().toFileInfo().lastModified())
-            mode = CMakeOpenProjectWizard::NeedToUpdate;
-
-        if (mode != CMakeOpenProjectWizard::Nothing) {
-            CMakeBuildInfo info(activeBC);
-            CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), mode, &info);
-            if (copw.exec() != QDialog::Accepted)
-                return RestoreResult::UserAbort;
-            else
-                activeBC->setInitialArguments(QString());
-        }
-    }
-
-    parseCMakeLists();
-
     m_activeTarget = activeTarget();
-    if (m_activeTarget)
+    if (m_activeTarget) {
         connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
                 this, &CMakeProject::changeActiveBuildConfiguration);
-    connect(this, &Project::activeTargetChanged,
-            this, &CMakeProject::activeTargetWasChanged);
+        if (BuildConfiguration *bc = m_activeTarget->activeBuildConfiguration())
+            changeActiveBuildConfiguration(bc);
+    }
 
     return RestoreResult::Ok;
 }
@@ -568,7 +498,7 @@ bool CMakeProject::setupTarget(Target *t)
 
 CMakeBuildTarget CMakeProject::buildTargetForTitle(const QString &title)
 {
-    foreach (const CMakeBuildTarget &ct, m_buildTargets)
+    foreach (const CMakeBuildTarget &ct, buildTargets())
         if (ct.title == title)
             return ct;
     return CMakeBuildTarget();
@@ -672,7 +602,7 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
     BuildTargetInfoList appTargetList;
     DeploymentData deploymentData;
 
-    foreach (const CMakeBuildTarget &ct, m_buildTargets) {
+    foreach (const CMakeBuildTarget &ct, buildTargets()) {
         if (ct.executable.isEmpty())
             continue;
 

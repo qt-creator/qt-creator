@@ -27,9 +27,6 @@
 
 #include <projectexplorer/namedwidget.h>
 
-QT_FORWARD_DECLARE_CLASS(QLineEdit)
-QT_FORWARD_DECLARE_CLASS(QPushButton)
-
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -42,11 +39,6 @@ public:
     CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
 
 private:
-    void openChangeBuildDirectoryDialog();
-    void runCMake();
-
-    QLineEdit *m_pathLineEdit;
-    QPushButton *m_changeButton;
     CMakeBuildConfiguration *m_buildConfiguration = 0;
 };
 

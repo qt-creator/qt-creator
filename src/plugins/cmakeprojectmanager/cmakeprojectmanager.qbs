@@ -17,6 +17,8 @@ QtcPlugin {
     ]
 
     files: [
+        "builddirmanager.cpp",
+        "builddirmanager.h",
         "cmake_global.h",
         "cmakebuildconfiguration.cpp",
         "cmakebuildconfiguration.h",
@@ -41,14 +43,8 @@ QtcPlugin {
         "cmakekitinformation.cpp",
         "cmakelocatorfilter.cpp",
         "cmakelocatorfilter.h",
-        "cmakeopenprojectwizard.cpp",
-        "cmakeopenprojectwizard.h",
         "cmakeparser.cpp",
         "cmakeparser.h",
-        "cmakepreloadcachekitconfigwidget.cpp",
-        "cmakepreloadcachekitconfigwidget.h",
-        "cmakepreloadcachekitinformation.cpp",
-        "cmakepreloadcachekitinformation.h",
         "cmakeproject.cpp",
         "cmakeproject.h",
         "cmakeproject.qrc",
@@ -67,8 +63,6 @@ QtcPlugin {
         "cmaketoolmanager.h",
         "cmakesettingspage.h",
         "cmakesettingspage.cpp",
-        "generatorinfo.h",
-        "generatorinfo.cpp",
         "cmakeindenter.h",
         "cmakeindenter.cpp",
         "cmakeautocompleter.h",

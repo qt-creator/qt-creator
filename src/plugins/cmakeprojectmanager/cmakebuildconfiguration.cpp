@@ -27,7 +27,6 @@
 
 #include "cmakebuildinfo.h"
 #include "cmakebuildstep.h"
-#include "cmakeopenprojectwizard.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakebuildsettingswidget.h"
@@ -230,7 +229,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::
 {
     if (!canClone(parent, source))
         return 0;
-    CMakeBuildConfiguration *old = static_cast<CMakeBuildConfiguration *>(source);
+    auto old = static_cast<CMakeBuildConfiguration *>(source);
     return new CMakeBuildConfiguration(parent, old);
 }
 
@@ -264,7 +263,7 @@ CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExp
                                                                 const QString &sourceDir,
                                                                 BuildType buildType) const
 {
-    CMakeBuildInfo *info = new CMakeBuildInfo(this);
+    auto info = new CMakeBuildInfo(this);
     info->kitId = k->id();
     info->environment = Environment::systemEnvironment();
     k->addToEnvironment(info->environment);

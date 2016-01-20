@@ -36,7 +36,7 @@ namespace ProjectExplorer { class Node; }
 namespace Utils {
 class Environment;
 class QtcProcess;
-}
+} // namespace Utils
 
 namespace CMakeProjectManager {
 namespace Internal {

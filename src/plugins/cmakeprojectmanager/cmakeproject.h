@@ -49,12 +49,13 @@ QT_END_NAMESPACE
 namespace CMakeProjectManager {
 
 namespace Internal {
+class BuildDirManager;
 class CMakeFile;
 class CMakeBuildSettingsWidget;
 class CMakeBuildConfiguration;
 class CMakeProjectNode;
 class CMakeManager;
-}
+} // namespace Internal
 
 enum TargetType {
     ExecutableType = 0,
@@ -103,17 +104,19 @@ public:
 
     bool isProjectFile(const Utils::FileName &fileName);
 
-    bool parseCMakeLists();
-
     bool needsConfiguration() const override;
-
     bool requiresTargetPanel() const override;
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage = 0) const override;
 
+    void runCMake();
+    bool isParsing() const;
+
 signals:
+    /// emitted when parsing starts:
+    void parsingStarted();
     /// emitted after parsing
-    void buildTargetsChanged();
+    void buildDirectoryDataAvailable(ProjectExplorer::BuildConfiguration *bc);
 
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
@@ -123,8 +126,10 @@ protected:
     void changeBuildDirectory(Internal::CMakeBuildConfiguration *bc, const QString &newBuildDirectory);
 
 private:
-    void fileChanged(const QString &fileName);
-    void activeTargetWasChanged(ProjectExplorer::Target *target);
+    void handleKitChanges();
+    void parseCMakeOutput();
+
+    void activeTargetHasChanged(ProjectExplorer::Target *target);
     void changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*);
 
     void updateRunConfigurations();
@@ -139,12 +144,11 @@ private:
     QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget, QByteArray *cachedBuildNinja);
 
     ProjectExplorer::Target *m_activeTarget = 0;
+    Internal::BuildDirManager *m_buildDirManager = 0;
 
     // TODO probably need a CMake specific node structure
     QStringList m_files;
     QList<CMakeBuildTarget> m_buildTargets;
-    QFileSystemWatcher *m_watcher;
-    QSet<Utils::FileName> m_watchedFiles;
     QFuture<void> m_codeModelFuture;
 };
 
