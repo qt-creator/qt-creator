@@ -71,18 +71,21 @@ bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, Core:
 RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
+    auto runControl = qobject_cast<ValgrindRunControl *>(AnalyzerManager::createRunControl(runConfiguration, mode));
+    QTC_ASSERT(runControl, return 0);
 
     ApplicationLauncher::Mode localRunMode = ApplicationLauncher::Gui;
     Utils::Environment environment;
-    AnalyzerStartParameters sp;
+    AnalyzerRunnable runnable;
+    AnalyzerConnection connection;
     QString workingDirectory;
     if (auto rc1 = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
         EnvironmentAspect *aspect = runConfiguration->extraAspect<EnvironmentAspect>();
         if (aspect)
             environment = aspect->environment();
         workingDirectory = rc1->workingDirectory();
-        sp.debuggee = rc1->executable();
-        sp.debuggeeArgs = rc1->commandLineArguments();
+        runnable.debuggee = rc1->executable();
+        runnable.debuggeeArgs = rc1->commandLineArguments();
         const IDevice::ConstPtr device =
                 DeviceKitInformation::device(runConfiguration->target()->kit());
         QTC_ASSERT(device, return 0);
@@ -92,25 +95,23 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
             qWarning() << "Cannot open port on host for profiling.";
             return 0;
         }
-        sp.connParams.host = server.serverAddress().toString();
-        sp.connParams.port = server.serverPort();
+        connection.connParams.host = server.serverAddress().toString();
+        connection.connParams.port = server.serverPort();
         localRunMode = rc1->runMode();
-    } else if (RemoteLinux::AbstractRemoteLinuxRunConfiguration *rc2 =
-               qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
-        sp.debuggee = rc2->remoteExecutableFilePath();
-        sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
-        sp.debuggeeArgs = rc2->arguments();
+    } else if (auto rc2 = qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
+        runnable.debuggee = rc2->remoteExecutableFilePath();
+        runnable.debuggeeArgs = rc2->arguments();
+        connection.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
     } else {
         QTC_ASSERT(false, return 0);
     }
 
-    auto analyzerRunControl = AnalyzerManager::createRunControl(sp, runConfiguration, mode);
-    if (auto valgrindRunControl = qobject_cast<ValgrindRunControl *>(analyzerRunControl)) {
-        valgrindRunControl->setLocalRunMode(localRunMode);
-        valgrindRunControl->setEnvironment(environment);
-        valgrindRunControl->setWorkingDirectory(workingDirectory);
-    }
-    return analyzerRunControl;
+    runControl->setRunnable(runnable);
+    runControl->setConnection(connection);
+    runControl->setLocalRunMode(localRunMode);
+    runControl->setEnvironment(environment);
+    runControl->setWorkingDirectory(workingDirectory);
+    return runControl;
 }
 
 

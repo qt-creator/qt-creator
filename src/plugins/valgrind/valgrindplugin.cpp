@@ -131,12 +131,9 @@ void ValgrindPlugin::extensionsInitialized()
     auto mcWidgetCreator = [mcTool] { return mcTool->createWidgets(); };
     auto cgTool = new CallgrindTool(this);
     auto cgWidgetCreator = [cgTool] { return cgTool->createWidgets(); };
-    auto cgRunControlCreator = [cgTool](const AnalyzerStartParameters &sp,
+    auto cgRunControlCreator = [cgTool](const AnalyzerStartParameters &,
         RunConfiguration *runConfiguration, Core::Id) {
-        auto runControl = cgTool->createRunControl(runConfiguration);
-        runControl->setRunnable(AnalyzerRunnable(sp));
-        runControl->setConnection(AnalyzerConnection(sp));
-        return runControl;
+        return cgTool->createRunControl(runConfiguration);
     };
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
@@ -144,13 +141,9 @@ void ValgrindPlugin::extensionsInitialized()
         action->setActionId("Memcheck.Local");
         action->setToolId("Memcheck");
         action->setWidgetCreator(mcWidgetCreator);
-        action->setRunControlCreator([mcTool](const AnalyzerStartParameters &sp,
-            ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode)
-        {
-            auto runControl = mcTool->createRunControl(runConfig, runMode);
-            runControl->setRunnable(AnalyzerRunnable(sp));
-            runControl->setConnection(AnalyzerConnection(sp));
-            return runControl;
+        action->setRunControlCreator([mcTool](const AnalyzerStartParameters &,
+            ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode) {
+            return mcTool->createRunControl(runConfig, runMode);
         });
         action->setToolMode(DebugMode);
         action->setRunMode(MEMCHECK_RUN_MODE);
@@ -165,13 +158,9 @@ void ValgrindPlugin::extensionsInitialized()
         action->setActionId("MemcheckWithGdb.Local");
         action->setToolId("MemcheckWithGdb");
         action->setWidgetCreator([mcgTool] { return mcgTool->createWidgets(); });
-        action->setRunControlCreator([mcgTool](const AnalyzerStartParameters &sp,
-            ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode)
-        {
-            auto runControl = mcgTool->createRunControl(runConfig, runMode);
-            runControl->setRunnable(AnalyzerRunnable(sp));
-            runControl->setConnection(AnalyzerConnection(sp));
-            return runControl;
+        action->setRunControlCreator([mcgTool](const AnalyzerStartParameters &,
+            ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode) {
+            return mcgTool->createRunControl(runConfig, runMode);
         });
         action->setToolMode(DebugMode);
         action->setRunMode(MEMCHECK_WITH_GDB_RUN_MODE);
