@@ -156,7 +156,9 @@ void ThemeSettingsWidget::apply()
         return;
     const QString themeId = d->m_themeListModel->themeAt(index).id().toString();
     QSettings *settings = ICore::settings();
-    if (settings->value(QLatin1String(Constants::SETTINGS_THEME)).toString() != themeId) {
+    const QString currentThemeId = settings->value(QLatin1String(Constants::SETTINGS_THEME),
+                                                   QLatin1String("default")).toString();
+    if (currentThemeId != themeId) {
         QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
                                  tr("The theme change will take effect after a restart of Qt Creator."));
 
