@@ -42,7 +42,6 @@
 
     \list
         \li \l{Running Autotests}
-        \li \l{Using Clang Static Analyzer}{Clang Static Analyzer} integration.
         \li Additional \l{Understanding the Data}{QML Profiler} event
             categories:
             \list

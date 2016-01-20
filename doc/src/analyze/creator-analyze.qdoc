@@ -71,8 +71,7 @@
 
             You can detect problems in C, C++, and
             Objective-C programs by using the experimental plugin that
-            integrates the Clang Static Analyzer source code analysis tool
-            (commercial only).
+            integrates the Clang Static Analyzer source code analysis tool.
 
         \li \l{Analyzing CPU Usage}{CPU Usage Analyzer}
 

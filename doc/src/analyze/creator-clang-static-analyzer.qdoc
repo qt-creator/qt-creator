@@ -37,11 +37,9 @@
 
     \title Using Clang Static Analyzer
 
-    \commercial
-
     \QC integrates the \l{http://clang-analyzer.llvm.org}
     {Clang Static Analyzer} for finding problems in C, C++, and Objective-C
-    programs (commercial only).
+    programs.
 
     \image qtcreator-clang-static-analyzer.png
 
