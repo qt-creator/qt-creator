@@ -159,6 +159,12 @@ def verifyClickCommit():
                     "Verifying that the actual diff editor widgets are readonly.")
         invokeMenuItem("Tools", "Git", "Local Repository", "Log")
 
+def addEmptyFileOutsideProject(filename):
+    __createProjectOrFileSelectType__("  General", "Empty File", isProject=False)
+    replaceEditorContent(waitForObject(":New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit"), filename)
+    clickButton(waitForObject(":Next_QPushButton"))
+    __createProjectHandleLastPage__([filename], "Git", "<None>")
+
 def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
@@ -177,11 +183,8 @@ def main():
     addCPlusPlusFileToCurrentProject(headerName, "C++ Header File", addToVCS="Git",
                                      expectedHeaderName=headerName)
     commitMessages.insert(0, commit("Added pointless header file", "Committed 2 file(s)."))
-    __createProjectOrFileSelectType__("  General", "Empty File", isProject=False)
     readmeName = "README.txt"
-    replaceEditorContent(waitForObject(":New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit"), readmeName)
-    clickButton(waitForObject(":Next_QPushButton"))
-    __createProjectHandleLastPage__([readmeName], "Git", "<None>")
+    addEmptyFileOutsideProject(readmeName)
     replaceEditorContent(waitForObject(":Qt Creator_TextEditor::TextEditorWidget"),
                          "Some important advice in the README")
     invokeMenuItem("File", "Save All")
@@ -207,8 +210,28 @@ def main():
     # verifyClickCommit() must be called after the local git has been created and the files
     # have been pushed to the repository
     verifyClickCommit()
-    invokeMenuItem("File", "Close All Projects and Editors")
+    # test for QTCREATORBUG-15051
+    addEmptyFileOutsideProject("anotherFile.txt")
+    fakeIdCommitMessage = "deadbeefdeadbeefdeadbeef is not a commit id"
+    commit(fakeIdCommitMessage, "Committed 1 file(s).")
+    invokeMenuItem("Tools", "Git", "Local Repository", "Log")
+    gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
+    waitFor("len(str(gitEditor.plainText)) > 0 and str(gitEditor.plainText) != 'Working...'", 20000)
+    placeCursorToLine(gitEditor, fakeIdCommitMessage)
+    if platform.system() == 'Darwin':
+        type(gitEditor, "<Ctrl+Left>")
+    else:
+        type(gitEditor, "<Home>")
+    for _ in range(5):
+        type(gitEditor, "<Right>")
+    rect = gitEditor.cursorRect(gitEditor.textCursor())
+    mouseClick(gitEditor, rect.x+rect.width/2, rect.y+rect.height/2, 0, Qt.LeftButton)
+    changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
+    waitFor('str(changed.plainText) != "Waiting for data..."', 5000)
+    test.compare(str(changed.plainText), "Failed",
+                 "Showing an invalid commit can't succeed but Creator survived.")
 
+    invokeMenuItem("File", "Close All Projects and Editors")
     invokeMenuItem("File", "Exit")
 
 def deleteProject():
