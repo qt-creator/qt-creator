@@ -429,51 +429,41 @@ MemcheckRunControl *MemcheckTool::createRunControl(RunConfiguration *runConfigur
     m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
         ->project()->files(Project::AllFiles) : QStringList());
 
-    MemcheckRunControl *engine = 0;
+    MemcheckRunControl *runControl = 0;
     if (runMode == MEMCHECK_RUN_MODE)
-        engine = new MemcheckRunControl(runConfiguration, runMode);
+        runControl = new MemcheckRunControl(runConfiguration, runMode);
     else
-        engine = new MemcheckWithGdbRunControl(runConfiguration);
-    connect(engine, &MemcheckRunControl::starting, this, &MemcheckTool::engineStarting);
-    connect(engine, &MemcheckRunControl::parserError, this, &MemcheckTool::parserError);
-    connect(engine, &MemcheckRunControl::internalParserError, this, &MemcheckTool::internalParserError);
-    connect(engine, &MemcheckRunControl::finished, this, &MemcheckTool::engineFinished);
-    return engine;
+        runControl = new MemcheckWithGdbRunControl(runConfiguration);
+    connect(runControl, &MemcheckRunControl::starting,
+            this, [this, runControl]() { engineStarting(runControl); });
+    connect(runControl, &MemcheckRunControl::parserError, this, &MemcheckTool::parserError);
+    connect(runControl, &MemcheckRunControl::internalParserError, this, &MemcheckTool::internalParserError);
+    connect(runControl, &MemcheckRunControl::finished, this, &MemcheckTool::engineFinished);
+    return runControl;
 }
 
-void MemcheckTool::engineStarting(const AnalyzerRunControl *engine)
+void MemcheckTool::engineStarting(const MemcheckRunControl *runControl)
 {
     setBusyCursor(true);
     clearErrorView();
     m_loadExternalLogFile->setDisabled(true);
 
     QString dir;
-    if (RunConfiguration *rc = engine->runConfiguration())
+    if (RunConfiguration *rc = runControl->runConfiguration())
         dir = rc->target()->project()->projectDirectory().toString() + QLatin1Char('/');
 
-    const MemcheckRunControl *mEngine = dynamic_cast<const MemcheckRunControl *>(engine);
-    QTC_ASSERT(mEngine, return);
-    const QString name = Utils::FileName::fromString(mEngine->executable()).fileName();
+    const QString name = Utils::FileName::fromString(runControl->executable()).fileName();
 
     m_errorView->setDefaultSuppressionFile(dir + name + QLatin1String(".supp"));
 
-    foreach (const QString &file, mEngine->suppressionFiles()) {
+    foreach (const QString &file, runControl->suppressionFiles()) {
         QAction *action = m_filterMenu->addAction(Utils::FileName::fromString(file).fileName());
         action->setToolTip(file);
-        action->setData(file);
-        connect(action, &QAction::triggered, this, &MemcheckTool::suppressionActionTriggered);
+        connect(action, &QAction::triggered, this, [this, file]() {
+            Core::EditorManager::openEditorAt(file, 0);
+        });
         m_suppressionActions.append(action);
     }
-}
-
-void MemcheckTool::suppressionActionTriggered()
-{
-    QAction *action = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(action, return);
-    const QString file = action->data().toString();
-    QTC_ASSERT(!file.isEmpty(), return);
-
-    Core::EditorManager::openEditorAt(file, 0);
 }
 
 void MemcheckTool::loadExternalXmlLogFile()

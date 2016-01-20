@@ -307,7 +307,7 @@ static Core::Id toolchainType(ProjectExplorer::RunConfiguration *runConfiguratio
 bool ClangStaticAnalyzerRunControl::startEngine()
 {
     m_success = false;
-    emit starting(this);
+    emit starting();
 
     QTC_ASSERT(m_projectInfo.isValid(), emit finished(); return false);
     const Utils::FileName projectFile = m_projectInfo.project()->projectFilePath();

@@ -84,7 +84,7 @@ private slots:
 
 signals:
     /// Must be emitted when the engine is starting.
-    void starting(const Analyzer::AnalyzerRunControl *);
+    void starting();
 
 private:
     bool supportsReRunning() const { return false; }

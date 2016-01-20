@@ -88,22 +88,20 @@ public:
     MemcheckRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                                          Core::Id runMode);
 
-private slots:
+private:
     void settingsDestroyed(QObject *settings);
     void maybeActiveRunConfigurationChanged();
 
-    void engineStarting(const Analyzer::AnalyzerRunControl *engine);
+    void engineStarting(const MemcheckRunControl *engine);
     void engineFinished();
     void loadingExternalXmlLogFileFinished();
 
     void parserError(const Valgrind::XmlProtocol::Error &error);
     void internalParserError(const QString &errorString);
     void updateErrorFilter();
-    void suppressionActionTriggered();
 
     void loadExternalXmlLogFile();
 
-private:
     void setBusyCursor(bool busy);
 
     void clearErrorView();

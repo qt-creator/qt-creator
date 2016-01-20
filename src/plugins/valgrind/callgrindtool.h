@@ -51,7 +51,6 @@ public:
     ValgrindRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration = 0);
     QWidget *createWidgets();
 
-public slots:
     void handleShowCostsOfFunction();
 
 private:

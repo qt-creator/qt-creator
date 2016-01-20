@@ -115,7 +115,7 @@ bool QmlProfilerRunControl::startEngine()
         d->m_noDebugOutputTimer.start();
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
-    emit starting(this);
+    emit starting();
     return true;
 }
 

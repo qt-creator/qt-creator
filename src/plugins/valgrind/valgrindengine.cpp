@@ -65,13 +65,9 @@ ValgrindRunControl::ValgrindRunControl(RunConfiguration *runConfiguration, Core:
         m_settings = ValgrindPlugin::globalSettings();
 }
 
-ValgrindRunControl::~ValgrindRunControl()
-{
-}
-
 bool ValgrindRunControl::startEngine()
 {
-    emit starting(this);
+    emit starting();
 
     FutureProgress *fp = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100);
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);

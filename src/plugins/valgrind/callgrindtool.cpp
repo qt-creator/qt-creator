@@ -162,7 +162,7 @@ public slots:
 
     void takeParserDataFromRunControl(CallgrindRunControl *rc);
     void takeParserData(ParseData *data);
-    void engineStarting(const AnalyzerRunControl *);
+    void engineStarting();
     void engineFinished();
 
     void editorOpened(IEditor *);
@@ -806,7 +806,7 @@ void CallgrindToolPrivate::clearTextMarks()
     m_textMarks.clear();
 }
 
-void CallgrindToolPrivate::engineStarting(const AnalyzerRunControl *)
+void CallgrindToolPrivate::engineStarting()
 {
     // enable/disable actions
     m_resetAction->setEnabled(true);

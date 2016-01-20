@@ -45,7 +45,6 @@ class ValgrindRunControl : public Analyzer::AnalyzerRunControl
 public:
     ValgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                        Core::Id runMode);
-    ~ValgrindRunControl();
 
     bool startEngine();
     void stopEngine();
@@ -67,7 +66,7 @@ protected:
     Utils::Environment m_environment;
     ProjectExplorer::ApplicationLauncher::Mode m_localRunMode;
 
-private slots:
+private:
     void handleProgressCanceled();
     void handleProgressFinished();
     void runnerFinished();
@@ -75,7 +74,6 @@ private slots:
     void receiveProcessOutput(const QString &output, Utils::OutputFormat format);
     void receiveProcessError(const QString &message, QProcess::ProcessError error);
 
-private:
     QStringList genericToolArguments() const;
 
 private:
