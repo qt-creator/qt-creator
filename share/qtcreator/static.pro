@@ -54,14 +54,6 @@ for(data_dir, DATA_DIRS) {
 
 include(static.pri)
 
-# stuff that cannot be handled by static.pri
-osx {
-   # do version magic for app bundles
-   dumpinfo.input = qml/qmldump/Info.plist.in
-   dumpinfo.output = $$IDE_DATA_PATH/qml/qmldump/Info.plist
-   QMAKE_SUBSTITUTES += dumpinfo
-}
-
 SRCRESOURCEDIR = $$IDE_SOURCE_TREE/src/share/qtcreator/
 defineReplace(stripSrcResourceDir) {
     win32 {
