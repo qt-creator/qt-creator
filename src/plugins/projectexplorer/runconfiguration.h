@@ -350,8 +350,10 @@ public:
     virtual bool promptToStop(bool *optionalPrompt = 0) const;
     virtual StopResult stop() = 0;
     virtual bool isRunning() const = 0;
-    virtual QString displayName() const;
     virtual bool supportsReRunning() const { return true; }
+
+    virtual QString displayName() const;
+    void setDisplayName(const QString &displayName);
 
     void setIcon(const Utils::Icon &icon);
     Utils::Icon icon() const;

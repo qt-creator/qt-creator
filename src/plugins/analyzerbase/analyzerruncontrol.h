@@ -29,7 +29,6 @@
 
 #include "analyzerstartparameters.h"
 
-#include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <utils/outputformat.h>
@@ -69,9 +68,7 @@ public:
     void start();
     StopResult stop();
     bool isRunning() const;
-    QString displayName() const;
 
-    void setDisplayName(const QString &displayName);
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &workingDirectory);
 
@@ -93,7 +90,6 @@ protected:
     bool m_isRunning;
 
 private:
-    QString m_displayName; // Default to runConfig->displayName, unless overridden by setDisplayName
     QString m_workingDirectory;
 };
 } // namespace Analyzer

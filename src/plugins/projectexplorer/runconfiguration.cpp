@@ -556,6 +556,11 @@ QString RunControl::displayName() const
     return m_displayName;
 }
 
+void RunControl::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
+}
+
 void RunControl::setIcon(const Utils::Icon &icon)
 {
     m_icon = icon;

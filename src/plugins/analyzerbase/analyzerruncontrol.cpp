@@ -53,7 +53,7 @@ AnalyzerRunControl::AnalyzerRunControl(RunConfiguration *runConfiguration, Core:
     setIcon(Icons::ANALYZER_CONTROL_START);
 
     if (runConfiguration) {
-        m_displayName = runConfiguration->displayName();
+        setDisplayName(runConfiguration->displayName());
         if (auto aspect = runConfiguration->extraAspect<WorkingDirectoryAspect>())
             m_workingDirectory = aspect->workingDirectory().toString();
         if (m_workingDirectory.isEmpty())
@@ -116,16 +116,6 @@ RunControl::StopResult AnalyzerRunControl::stop()
 bool AnalyzerRunControl::isRunning() const
 {
     return m_isRunning;
-}
-
-QString AnalyzerRunControl::displayName() const
-{
-    return m_displayName;
-}
-
-void AnalyzerRunControl::setDisplayName(const QString &displayName)
-{
-    m_displayName = displayName;
 }
 
 void AnalyzerRunControl::setWorkingDirectory(const QString &workingDirectory)
