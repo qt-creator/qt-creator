@@ -87,7 +87,7 @@ void FlameGraphView::selectByTypeId(int typeIndex)
 
 void FlameGraphView::onVisibleFeaturesChanged(quint64 features)
 {
-    int rangeTypeMask;
+    int rangeTypeMask = 0;
     for (int rangeType = 0; rangeType < QmlDebug::MaximumRangeType; ++rangeType) {
         if (features & (1 << QmlDebug::featureFromRangeType(QmlDebug::RangeType(rangeType))))
             rangeTypeMask |= (1 << rangeType);
