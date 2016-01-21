@@ -1114,7 +1114,7 @@ void GitPlugin::cleanRepository(const QString &directory)
     QStringList files;
     QStringList ignoredFiles;
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    const bool gotFiles = m_gitClient->synchronousCleanList(directory, &files, &ignoredFiles, &errorMessage);
+    const bool gotFiles = m_gitClient->synchronousCleanList(directory, QString(), &files, &ignoredFiles, &errorMessage);
     QApplication::restoreOverrideCursor();
 
     if (!gotFiles) {

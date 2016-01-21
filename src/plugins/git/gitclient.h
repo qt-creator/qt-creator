@@ -179,7 +179,7 @@ public:
     bool synchronousReset(const QString &workingDirectory,
                           const QStringList &files = QStringList(),
                           QString *errorMessage = 0);
-    bool synchronousCleanList(const QString &workingDirectory, QStringList *files, QStringList *ignoredFiles, QString *errorMessage);
+    bool synchronousCleanList(const QString &workingDirectory, const QString &modulePath, QStringList *files, QStringList *ignoredFiles, QString *errorMessage);
     bool synchronousApplyPatch(const QString &workingDirectory, const QString &file, QString *errorMessage, const QStringList &arguments = QStringList());
     bool synchronousInit(const QString &workingDirectory);
     bool synchronousCheckoutFiles(const QString &workingDirectory,
@@ -377,7 +377,7 @@ private:
                          const QString &workingDirectory,
                          const QString &fileName,
                          const QString &gitBinDirectory);
-    bool cleanList(const QString &workingDirectory, const QString &flag, QStringList *files, QString *errorMessage);
+    bool cleanList(const QString &workingDirectory, const QString &modulePath, const QString &flag, QStringList *files, QString *errorMessage);
 
     enum ContinueCommandMode {
         ContinueOnly,

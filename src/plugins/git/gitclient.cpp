@@ -1795,10 +1795,16 @@ SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory) const
         foreach (const QString &submoduleName, result.keys()) {
             gitmodulesFile.beginGroup(QLatin1String("submodule \"") +
                                       submoduleName + QLatin1Char('"'));
-            result[submoduleName].dir = gitmodulesFile.value(QLatin1String("path")).toString();
-            QString ignore = gitmodulesFile.value(QLatin1String("ignore")).toString();
-            if (!ignore.isEmpty() && result[submoduleName].ignore.isEmpty())
-                result[submoduleName].ignore = ignore;
+            const QString path = gitmodulesFile.value(QLatin1String("path")).toString();
+            if (path.isEmpty()) { // invalid submodule entry in config
+                result.remove(submoduleName);
+            } else {
+                SubmoduleData &submoduleRef = result[submoduleName];
+                submoduleRef.dir = path;
+                QString ignore = gitmodulesFile.value(QLatin1String("ignore")).toString();
+                if (!ignore.isEmpty() && submoduleRef.ignore.isEmpty())
+                    submoduleRef.ignore = ignore;
+            }
             gitmodulesFile.endGroup();
         }
     }
@@ -1827,37 +1833,43 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
 }
 
 // Retrieve list of files to be cleaned
-bool GitClient::cleanList(const QString &workingDirectory, const QString &flag, QStringList *files, QString *errorMessage)
+bool GitClient::cleanList(const QString &workingDirectory, const QString &modulePath,
+                          const QString &flag, QStringList *files, QString *errorMessage)
 {
+    const QString directory = workingDirectory + QLatin1Char('/') + modulePath;
     QStringList args;
     args << QLatin1String("clean") << QLatin1String("--dry-run") << flag;
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = vcsFullySynchronousExec(workingDirectory, args, &outputText, &errorText);
+    const bool rc = vcsFullySynchronousExec(directory, args, &outputText, &errorText);
     if (!rc) {
-        msgCannotRun(QStringList(QLatin1String("clean")), workingDirectory,
+        msgCannotRun(QStringList(QLatin1String("clean")), directory,
                      errorText, errorMessage);
         return false;
     }
     // Filter files that git would remove
+    const QString relativeBase = modulePath.isEmpty() ? QString() : modulePath + QLatin1Char('/');
     const QString prefix = QLatin1String("Would remove ");
     foreach (const QString &line, commandOutputLinesFromLocal8Bit(outputText))
         if (line.startsWith(prefix))
-            files->push_back(line.mid(prefix.size()));
+            files->push_back(relativeBase + line.mid(prefix.size()));
     return true;
 }
 
-bool GitClient::synchronousCleanList(const QString &workingDirectory, QStringList *files,
-                                     QStringList *ignoredFiles, QString *errorMessage)
+bool GitClient::synchronousCleanList(const QString &workingDirectory, const QString &modulePath,
+                                     QStringList *files, QStringList *ignoredFiles,
+                                     QString *errorMessage)
 {
-    bool res = cleanList(workingDirectory, QLatin1String("-df"), files, errorMessage);
-    res &= cleanList(workingDirectory, QLatin1String("-dXf"), ignoredFiles, errorMessage);
+    bool res = cleanList(workingDirectory, modulePath, QLatin1String("-df"), files, errorMessage);
+    res &= cleanList(workingDirectory, modulePath, QLatin1String("-dXf"), ignoredFiles, errorMessage);
 
-    SubmoduleDataMap submodules = submoduleList(workingDirectory);
+    SubmoduleDataMap submodules = submoduleList(workingDirectory + QLatin1Char('/') + modulePath);
     foreach (const SubmoduleData &submodule, submodules) {
         if (submodule.ignore != QLatin1String("all")
                 && submodule.ignore != QLatin1String("dirty")) {
-            res &= synchronousCleanList(workingDirectory + QLatin1Char('/') + submodule.dir,
+            const QString submodulePath = modulePath.isEmpty() ? submodule.dir
+                                                               : modulePath + QLatin1Char('/') + submodule.dir;
+            res &= synchronousCleanList(workingDirectory, submodulePath,
                                         files, ignoredFiles, errorMessage);
         }
     }
