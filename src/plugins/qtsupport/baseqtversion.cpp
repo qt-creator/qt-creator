@@ -1122,14 +1122,15 @@ void BaseQtVersion::updateVersionInfo() const
     }
     m_qmakeIsExecutable = true;
 
-    const QString qtInstallData = qmakeProperty(m_versionInfo, "QT_INSTALL_DATA");
+
     const QString qtInstallBins = qmakeProperty(m_versionInfo, "QT_INSTALL_BINS");
     const QString qtHeaderData = qmakeProperty(m_versionInfo, "QT_INSTALL_HEADERS");
-    if (!qtInstallData.isNull()) {
-        if (!qtInstallData.isEmpty()) {
+
+    if (!qtInstallBins.isNull()) {
+        if (!qtInstallBins.isEmpty()) {
             m_hasQmlDump
-                    = !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, false).isEmpty()
-                    || !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, true).isEmpty();
+                    = !QmlDumpTool::toolForQtPaths(qtInstallBins, false).isEmpty()
+                    || !QmlDumpTool::toolForQtPaths(qtInstallBins, true).isEmpty();
         }
     }
 
@@ -1300,12 +1301,8 @@ Environment BaseQtVersion::qmlToolsEnvironment() const
 
 QString BaseQtVersion::qmlDumpTool(bool debugVersion) const
 {
-    const QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
-    if (qtInstallData.isEmpty())
-        return QString();
     const QString qtInstallBins = qmakeProperty("QT_INSTALL_BINS");
-    const QString qtHeaderData = qmakeProperty("QT_INSTALL_HEADERS");
-    return QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, debugVersion);
+    return QmlDumpTool::toolForQtPaths(qtInstallBins, debugVersion);
 }
 
 void BaseQtVersion::recheckDumper()
