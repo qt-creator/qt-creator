@@ -92,7 +92,8 @@ bool FindToolWindow::event(QEvent *event)
         if ((ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter)
                 && (ke->modifiers() == Qt::NoModifier || ke->modifiers() == Qt::KeypadModifier)) {
             ke->accept();
-            search();
+            if (m_ui.searchButton->isEnabled())
+                search();
             return true;
         }
     }
@@ -115,7 +116,7 @@ bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)
 void FindToolWindow::updateButtonStates()
 {
     bool filterEnabled = m_currentFilter && m_currentFilter->isEnabled();
-    bool enabled = !m_ui.searchTerm->text().isEmpty() && filterEnabled;
+    bool enabled = !m_ui.searchTerm->text().isEmpty() && filterEnabled && m_currentFilter->isValid();
     m_ui.searchButton->setEnabled(enabled);
     m_ui.replaceButton->setEnabled(m_currentFilter
                                    && m_currentFilter->isReplaceSupported() && enabled);

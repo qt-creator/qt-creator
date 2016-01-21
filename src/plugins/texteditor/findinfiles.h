@@ -52,6 +52,7 @@ public:
     QWidget *createConfigWidget();
     void writeSettings(QSettings *settings);
     void readSettings(QSettings *settings);
+    bool isValid() const;
 
     void setDirectory(const Utils::FileName &directory);
     static void findOnFileSystem(const QString &path);

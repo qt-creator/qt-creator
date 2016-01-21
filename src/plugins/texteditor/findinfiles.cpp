@@ -62,6 +62,11 @@ FindInFiles::~FindInFiles()
 {
 }
 
+bool FindInFiles::isValid() const
+{
+    return m_directory->isValid();
+}
+
 QString FindInFiles::id() const
 {
     return QLatin1String("Files on Disk");
