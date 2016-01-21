@@ -125,7 +125,7 @@ QColor ConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
 void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 opt = option;
+    QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
     painter->save();
 
@@ -253,7 +253,7 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 QSize ConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                                        const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 opt = option;
+    QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
 
     const QTreeView *view = qobject_cast<const QTreeView *>(opt.widget);
@@ -343,8 +343,7 @@ void ConsoleItemDelegate::updateEditorGeometry(QWidget *editor,
                                                   const QStyleOptionViewItem &option,
                                                   const QModelIndex &/*index*/) const
 {
-    QStyleOptionViewItemV4 opt = option;
-    editor->setGeometry(QRect(opt.rect.x(), opt.rect.top(), opt.rect.width(), opt.rect.bottom()));
+    editor->setGeometry(QRect(option.rect.x(), option.rect.top(), option.rect.width(), option.rect.bottom()));
 }
 
 void ConsoleItemDelegate::currentChanged(const QModelIndex &current,

@@ -124,7 +124,7 @@ CostDelegate::CostFormat CostDelegate::format() const
 void CostDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                          const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 opt(option);
+    QStyleOptionViewItem opt(option);
     initStyleOption(&opt, index);
 
     QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
@@ -157,7 +157,7 @@ void CostDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
 QSize CostDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 opt(option);
+    QStyleOptionViewItem opt(option);
     initStyleOption(&opt, index);
 
     const QString text = d->displayText(index, opt.locale);
