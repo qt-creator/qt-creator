@@ -33,7 +33,6 @@
 #include <utils/qtcassert.h>
 
 #include <QStringList>
-#include <QTimer>
 
 using namespace QSsh;
 
@@ -106,12 +105,16 @@ void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
     d->success = true;
 
     d->deviceProcess = device->createProcess(this);
-    connect(d->deviceProcess, SIGNAL(started()), SIGNAL(remoteProcessStarted()));
-    connect(d->deviceProcess, SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdout()));
-    connect(d->deviceProcess, SIGNAL(readyReadStandardError()), SLOT(handleRemoteStderr()));
-    connect(d->deviceProcess, SIGNAL(error(QProcess::ProcessError)),
-            SLOT(handleApplicationError(QProcess::ProcessError)));
-    connect(d->deviceProcess, SIGNAL(finished()), SLOT(handleApplicationFinished()));
+    connect(d->deviceProcess, &DeviceProcess::started,
+            this, &DeviceApplicationRunner::remoteProcessStarted);
+    connect(d->deviceProcess, &DeviceProcess::readyReadStandardOutput,
+            this, &DeviceApplicationRunner::handleRemoteStdout);
+    connect(d->deviceProcess, &DeviceProcess::readyReadStandardError,
+            this, &DeviceApplicationRunner::handleRemoteStderr);
+    connect(d->deviceProcess, &DeviceProcess::error,
+            this, &DeviceApplicationRunner::handleApplicationError);
+    connect(d->deviceProcess, &DeviceProcess::finished,
+            this, &DeviceApplicationRunner::handleApplicationFinished);
     d->deviceProcess->setEnvironment(d->environment);
     d->deviceProcess->setWorkingDirectory(d->workingDir);
     d->deviceProcess->start(command, arguments);

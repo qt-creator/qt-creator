@@ -44,9 +44,10 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT DeviceApplicationRunner : public QObject
 {
     Q_OBJECT
+
 public:
     explicit DeviceApplicationRunner(QObject *parent = 0);
-    virtual ~DeviceApplicationRunner();
+    ~DeviceApplicationRunner();
 
     void setEnvironment(const Utils::Environment &env);
     void setWorkingDirectory(const QString &workingDirectory);
@@ -63,13 +64,12 @@ signals:
     void remoteProcessStarted();
     void finished(bool success);
 
-private slots:
+private:
     void handleApplicationError(QProcess::ProcessError error);
     void handleApplicationFinished();
     void handleRemoteStdout();
     void handleRemoteStderr();
 
-private:
     void doReportError(const QString &message);
     void setFinished();
 
