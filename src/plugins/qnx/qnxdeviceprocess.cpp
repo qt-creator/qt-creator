@@ -57,7 +57,8 @@ QString QnxDeviceProcess::fullCommandLine() const
     if (!m_workingDir.isEmpty())
         fullCommandLine += QString::fromLatin1("cd %1 ; ").arg(QtcProcess::quoteArg(m_workingDir));
 
-    for (auto it = environment().constBegin(); it != environment().constEnd(); ++it)
+    const Environment env = environment();
+    for (auto it = env.constBegin(); it != env.constEnd(); ++it)
         fullCommandLine += QString::fromLatin1("%1='%2' ").arg(it.key()).arg(it.value());
 
     fullCommandLine += QString::fromLatin1("%1 & echo $! > %2").arg(cmd).arg(m_pidFile);
