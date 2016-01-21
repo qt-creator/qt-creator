@@ -580,15 +580,17 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
             setPropertyVariant("y", y());
     }
 
-    refresh();
-    if (quickItem()->window())
-        DesignerSupport::updateDirtyNode(quickItem());
+    if (quickItem()->parentItem()) {
+        refresh();
+        if (quickItem()->window())
+            DesignerSupport::updateDirtyNode(quickItem());
 
-    if (instanceIsValidLayoutable(oldParentInstance, oldParentProperty))
-        oldParentInstance->refreshLayoutable();
+        if (instanceIsValidLayoutable(oldParentInstance, oldParentProperty))
+            oldParentInstance->refreshLayoutable();
 
-    if (instanceIsValidLayoutable(newParentInstance, newParentProperty))
-        newParentInstance->refreshLayoutable();
+        if (instanceIsValidLayoutable(newParentInstance, newParentProperty))
+            newParentInstance->refreshLayoutable();
+    }
 }
 
 void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
