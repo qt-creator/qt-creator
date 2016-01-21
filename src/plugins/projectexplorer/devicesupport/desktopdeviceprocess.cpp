@@ -35,85 +35,88 @@ namespace Internal {
 
 DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &device,
                                            QObject *parent)
-    : DeviceProcess(device, parent), m_process(new QProcess(this))
+    : DeviceProcess(device, parent)
 {
-    connect(m_process, SIGNAL(error(QProcess::ProcessError)),
-            SIGNAL(error(QProcess::ProcessError)));
-    connect(m_process, SIGNAL(finished(int)), SIGNAL(finished()));
-    connect(m_process, SIGNAL(readyReadStandardOutput()), SIGNAL(readyReadStandardOutput()));
-    connect(m_process, SIGNAL(readyReadStandardError()), SIGNAL(readyReadStandardError()));
-    connect(m_process, SIGNAL(started()), SIGNAL(started()));
+    connect(&m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &DeviceProcess::error);
+    connect(&m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            this, &DeviceProcess::finished);
+    connect(&m_process, &QProcess::readyReadStandardOutput,
+            this, &DeviceProcess::readyReadStandardOutput);
+    connect(&m_process, &QProcess::readyReadStandardError,
+            this, &DeviceProcess::readyReadStandardError);
+    connect(&m_process, &QProcess::started, this, &DeviceProcess::started);
 }
 
 void DesktopDeviceProcess::start(const QString &executable, const QStringList &arguments)
 {
-    QTC_ASSERT(m_process->state() == QProcess::NotRunning, return);
-    m_process->start(executable, arguments);
+    QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
+    m_process.start(executable, arguments);
 }
 
 void DesktopDeviceProcess::interrupt()
 {
-    device()->signalOperation()->interruptProcess(m_process->processId());
+    device()->signalOperation()->interruptProcess(m_process.processId());
 }
 
 void DesktopDeviceProcess::terminate()
 {
-    m_process->terminate();
+    m_process.terminate();
 }
 
 void DesktopDeviceProcess::kill()
 {
-    m_process->kill();
+    m_process.kill();
 }
 
 QProcess::ProcessState DesktopDeviceProcess::state() const
 {
-    return m_process->state();
+    return m_process.state();
 }
 
 QProcess::ExitStatus DesktopDeviceProcess::exitStatus() const
 {
-    return m_process->exitStatus();
+    return m_process.exitStatus();
 }
 
 int DesktopDeviceProcess::exitCode() const
 {
-    return m_process->exitCode();
+    return m_process.exitCode();
 }
 
 QString DesktopDeviceProcess::errorString() const
 {
-    return m_process->errorString();
+    return m_process.errorString();
 }
 
 Utils::Environment DesktopDeviceProcess::environment() const
 {
-    return Utils::Environment(m_process->processEnvironment().toStringList());
+    return Utils::Environment(m_process.processEnvironment().toStringList());
 }
 
 void DesktopDeviceProcess::setEnvironment(const Utils::Environment &env)
 {
-    m_process->setProcessEnvironment(env.toProcessEnvironment());
+    m_process.setProcessEnvironment(env.toProcessEnvironment());
 }
 
 void DesktopDeviceProcess::setWorkingDirectory(const QString &directory)
 {
-    m_process->setWorkingDirectory(directory);
+    m_process.setWorkingDirectory(directory);
 }
 
 QByteArray DesktopDeviceProcess::readAllStandardOutput()
 {
-    return m_process->readAllStandardOutput();
+    return m_process.readAllStandardOutput();
 }
 
 QByteArray DesktopDeviceProcess::readAllStandardError()
 {
-    return m_process->readAllStandardError();
+    return m_process.readAllStandardError();
 }
 
 qint64 DesktopDeviceProcess::write(const QByteArray &data)
 {
-    return m_process->write(data);
+    return m_process.write(data);
 }
 
 } // namespace Internal

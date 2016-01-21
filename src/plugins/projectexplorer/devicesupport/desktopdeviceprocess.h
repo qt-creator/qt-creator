@@ -30,36 +30,36 @@
 
 namespace ProjectExplorer {
 namespace Internal {
-class ProcessHelper;
 
 class DesktopDeviceProcess : public DeviceProcess
 {
     Q_OBJECT
+
 public:
     DesktopDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
 
-    void start(const QString &executable, const QStringList &arguments);
-    void interrupt();
-    void terminate();
-    void kill();
+    void start(const QString &executable, const QStringList &arguments) override;
+    void interrupt() override;
+    void terminate() override;
+    void kill() override;
 
-    QProcess::ProcessState state() const;
-    QProcess::ExitStatus exitStatus() const;
-    int exitCode() const;
-    QString errorString() const;
+    QProcess::ProcessState state() const override;
+    QProcess::ExitStatus exitStatus() const override;
+    int exitCode() const override;
+    QString errorString() const override;
 
-    Utils::Environment environment() const;
-    void setEnvironment(const Utils::Environment &env);
+    Utils::Environment environment() const override;
+    void setEnvironment(const Utils::Environment &env) override;
 
-    void setWorkingDirectory(const QString &directory);
+    void setWorkingDirectory(const QString &directory) override;
 
-    QByteArray readAllStandardOutput();
-    QByteArray readAllStandardError();
+    QByteArray readAllStandardOutput() override;
+    QByteArray readAllStandardError() override;
 
-    qint64 write(const QByteArray &data);
+    qint64 write(const QByteArray &data) override;
 
 private:
-    QProcess * const m_process;
+    QProcess m_process;
 };
 
 } // namespace Internal
