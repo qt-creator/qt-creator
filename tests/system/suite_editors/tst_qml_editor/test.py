@@ -31,7 +31,7 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/keyinteraction/focus")
+    sourceExample = os.path.abspath(Qt5Path.getPaths(Qt5Path.EXAMPLES)[0] + "/declarative/keyinteraction/focus")
     proFile = "focus.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
@@ -39,10 +39,10 @@ def main():
     if not startedWithoutPluginError():
         return
     # add docs to have the correct tool tips
-    addHelpDocumentation([os.path.join(sdkPath, "Documentation", "qt.qch")])
-    templateDir = prepareTemplate(sourceExample)
-    openQmakeProject(os.path.join(templateDir, proFile), Targets.DESKTOP_480_DEFAULT)
-    openDocument("focus.QML.qml.focus\\.qml")
+    addHelpDocumentation([os.path.join(Qt5Path.getPaths(Qt5Path.DOCS)[0], "qtquick.qch")])
+    templateDir = prepareTemplate(sourceExample, "/../../helper")
+    openQmakeProject(os.path.join(templateDir, proFile), Targets.DESKTOP_521_DEFAULT)
+    openDocument("focus.QML.qml" + os.sep + "focus.focus\\.qml")
     testRenameId()
     testFindUsages()
     testHovering()
@@ -54,19 +54,20 @@ def testRenameId():
     navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
                             "window=':Qt Creator_Core::Internal::MainWindow'}")
     model = navTree.model()
-    files = ["Core.ContextMenu\\.qml", "Core.GridMenu\\.qml", "Core.ListMenu\\.qml", "focus\\.qml"]
+    files = ["FocusCore.ContextMenu\\.qml", "FocusCore.GridMenu\\.qml",
+             "FocusCore.ListMenu\\.qml", "focus\\.qml"]
     originalTexts = {}
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     formerTxt = editor.plainText
     for file in files:
-        openDocument("focus.QML.qml.%s" % file)
+        openDocument("focus.QML.qml" + os.sep + "focus.%s" % file)
         # wait until editor content switched to the double-clicked file
         while formerTxt==editor.plainText:
             editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
         # store content for next round
         formerTxt = editor.plainText
         originalTexts.setdefault(file, "%s" % formerTxt)
-        test.log("stored %s's content" % file.replace("Core.","").replace("\\",""))
+        test.log("stored %s's content" % file.replace("FocusCore.","").replace("\\",""))
     # last opened file is the main file focus.qml
     line = "FocusScope\s*\{"
     if not placeCursorToLine(editor, line, True):
@@ -83,18 +84,18 @@ def testRenameId():
     # store editor content for synchronizing purpose
     formerTxt = editor.plainText
     for file in files:
-        openDocument("focus.QML.qml.%s" % file)
+        openDocument("focus.QML.qml" + os.sep + "focus.%s" % file)
         # wait until editor content switched to double-clicked file
         while formerTxt==editor.plainText:
             editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
         # store content for next round
         formerTxt = editor.plainText
         originalText = originalTexts.get(file).replace("mainView", "renamedView")
-        test.compare(originalText,formerTxt, "Comparing %s" % file.replace("Core.","").replace("\\",""))
+        test.compare(originalText,formerTxt, "Comparing %s" % file.replace("FocusCore.","").replace("\\",""))
     invokeMenuItem("File","Save All")
 
 def __invokeFindUsage__(treeView, filename, line, additionalKeyPresses, expectedCount):
-    openDocument("focus.QML.qml.%s" % filename)
+    openDocument("focus.QML.qml" + os.sep + "focus.%s" % filename)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if not placeCursorToLine(editor, line, True):
         test.fatal("File seems to have changed... Canceling current test")
@@ -121,7 +122,7 @@ def testHovering():
     navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
                             "window=':Qt Creator_Core::Internal::MainWindow'}")
     test.log("Testing hovering elements")
-    openDocument("focus.QML.qml.focus\\.qml")
+    openDocument("focus.QML.qml" + os.sep + "focus.focus\\.qml")
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     lines=["FocusScope\s*\{", "Rectangle\s*\{"]
     if platform.system() == "Darwin":
@@ -131,15 +132,15 @@ def testHovering():
     additionalKeyPresses = [home, "<Right>"]
     expectedTypes = ["TextTip", "TextTip"]
     expectedValues = [
-                      {'text':'<table><tr><td valign=middle>FocusScope\n<p>The FocusScope object explicitly '
-                       'creates a focus scope.</p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'},
-                      {'text':'<table><tr><td valign=middle>Rectangle\n<p>The Rectangle item provides a filled rectangle with an '
-                       'optional border.</p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}
+                      {'text':'<table><tr><td valign=middle>FocusScope\n<p>Explicitly '
+                       'creates a focus scope </p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'},
+                      {'text':'<table><tr><td valign=middle>Rectangle\n<p>Paints a filled rectangle with an '
+                       'optional border </p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}
                       ]
     alternativeValues = [{"text":"FocusScope"}, {"text":"Rectangle"}]
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
     test.log("Testing hovering properties")
-    openDocument("focus.QML.qml.focus\\.qml")
+    openDocument("focus.QML.qml" + os.sep + "focus.focus\\.qml")
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     lines = ['focus:\s*true', 'color:\s*"black"', 'states:\s*State\s*\{', 'transitions:\s*Transition\s*\{']
     expectedTypes = ["TextTip", "TextTip", "TextTip", "TextTip"]
@@ -159,7 +160,7 @@ def testHovering():
     alternativeValues = [{"text":"boolean"}, {"text":"string"}, {"text":"State"}, {"text":"Transition"}]
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
     test.log("Testing hovering expressions")
-    openDocument("focus.QML.qml.focus\\.qml")
+    openDocument("focus.QML.qml" + os.sep + "focus.focus\\.qml")
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     lines=['color:\s*"black"', 'color:\s*"#3E606F"']
     additionalKeyPresses = ["<Left>"]
@@ -167,7 +168,7 @@ def testHovering():
     alternativeValues = [None, "#39616B"]
     expectedTypes = ["ColorTip", "ColorTip"]
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
-    openDocument("focus.QML.qml.Core.ListMenu\\.qml")
+    openDocument("focus.QML.qml" + os.sep + "focus.FocusCore.ListMenu\\.qml")
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     lines=['Rectangle\s*\{.*color:\s*"#D1DBBD"', 'NumberAnimation\s*\{\s*.*Easing.OutQuint\s*\}']
     additionalKeyPresses = ["<Left>", "<Left>", "<Left>", "<Left>"]
