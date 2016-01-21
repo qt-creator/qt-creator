@@ -39,7 +39,7 @@ class PROJECTEXPLORER_EXPORT IOutputParser : public QObject
 {
     Q_OBJECT
 public:
-    IOutputParser();
+    IOutputParser() = default;
     ~IOutputParser();
 
     virtual void appendOutputParser(IOutputParser *parser);
@@ -71,7 +71,7 @@ public slots:
 private:
     virtual void doFlush();
 
-    IOutputParser *m_parser;
+    IOutputParser *m_parser = 0;
 };
 
 } // namespace ProjectExplorer

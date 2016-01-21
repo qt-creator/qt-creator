@@ -123,10 +123,6 @@
 
 namespace ProjectExplorer {
 
-IOutputParser::IOutputParser() : m_parser(0)
-{
-}
-
 IOutputParser::~IOutputParser()
 {
     delete m_parser;
@@ -142,19 +138,15 @@ void IOutputParser::appendOutputParser(IOutputParser *parser)
     }
 
     m_parser = parser;
-    connect(parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
-            this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)), Qt::DirectConnection);
-    connect(parser, SIGNAL(addTask(ProjectExplorer::Task, int, int)),
-            this, SLOT(taskAdded(ProjectExplorer::Task, int, int)), Qt::DirectConnection);
+    connect(parser, &IOutputParser::addOutput, this, &IOutputParser::outputAdded, Qt::DirectConnection);
+    connect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded, Qt::DirectConnection);
 }
 
 IOutputParser *IOutputParser::takeOutputParserChain()
 {
     IOutputParser *parser = m_parser;
-    disconnect(parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
-               this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
-    disconnect(parser, SIGNAL(addTask(ProjectExplorer::Task, int, int)),
-               this, SLOT(taskAdded(ProjectExplorer::Task, int, int)));
+    disconnect(parser, &IOutputParser::addOutput, this, &IOutputParser::outputAdded);
+    disconnect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded);
     m_parser = 0;
     return parser;
 }
@@ -169,6 +161,8 @@ void IOutputParser::setChildParser(IOutputParser *parser)
     if (m_parser != parser)
         delete m_parser;
     m_parser = parser;
+    connect(parser, &IOutputParser::addOutput, this, &IOutputParser::outputAdded, Qt::DirectConnection);
+    connect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded, Qt::DirectConnection);
 }
 
 void IOutputParser::stdOutput(const QString &line)
