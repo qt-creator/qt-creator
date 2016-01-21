@@ -36,27 +36,21 @@ namespace Internal {
 class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
 {
     Q_OBJECT
+
 public:
     QnxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
                         const QString &targetName);
 
     Utils::Environment environment() const override;
-
     QWidget *createConfigurationWidget() override;
-
     QVariantMap toMap() const override;
 
-protected:
+private:
     friend class QnxRunConfigurationFactory;
 
     QnxRunConfiguration(ProjectExplorer::Target *parent, QnxRunConfiguration *source);
-
     bool fromMap(const QVariantMap &map) override;
 
-private slots:
-    void setQtLibPath(const QString &path);
-
-private:
     QString m_qtLibPath;
 };
 

@@ -32,27 +32,22 @@
 #include <QLabel>
 #include <QLineEdit>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+using namespace ProjectExplorer;
+using namespace RemoteLinux;
 
-namespace {
+namespace Qnx {
+namespace Internal {
+
 const char QtLibPathKey[] = "Qt4ProjectManager.QnxRunConfiguration.QtLibPath";
-}
 
-QnxRunConfiguration::QnxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &targetName)
-    : RemoteLinux::RemoteLinuxRunConfiguration(parent, id, targetName)
+QnxRunConfiguration::QnxRunConfiguration(Target *parent, Core::Id id, const QString &targetName)
+    : RemoteLinuxRunConfiguration(parent, id, targetName)
 {
 }
 
-QnxRunConfiguration::QnxRunConfiguration(ProjectExplorer::Target *parent, QnxRunConfiguration *source)
-    : RemoteLinux::RemoteLinuxRunConfiguration(parent, source)
-    , m_qtLibPath(source->m_qtLibPath)
+QnxRunConfiguration::QnxRunConfiguration(Target *parent, QnxRunConfiguration *source)
+    : RemoteLinuxRunConfiguration(parent, source), m_qtLibPath(source->m_qtLibPath)
 {
-}
-
-void QnxRunConfiguration::setQtLibPath(const QString &path)
-{
-    m_qtLibPath = path;
 }
 
 Utils::Environment QnxRunConfiguration::environment() const
@@ -76,13 +71,14 @@ Utils::Environment QnxRunConfiguration::environment() const
 
 QWidget *QnxRunConfiguration::createConfigurationWidget()
 {
-    RemoteLinux::RemoteLinuxRunConfigurationWidget *rcWidget =
-            qobject_cast<RemoteLinux::RemoteLinuxRunConfigurationWidget *>(RemoteLinux::RemoteLinuxRunConfiguration::createConfigurationWidget());
+    auto rcWidget = qobject_cast<RemoteLinuxRunConfigurationWidget *>
+        (RemoteLinuxRunConfiguration::createConfigurationWidget());
 
-    QLabel *label = new QLabel(tr("Path to Qt libraries on device:"));
-    QLineEdit *lineEdit = new QLineEdit(m_qtLibPath);
+    auto label = new QLabel(tr("Path to Qt libraries on device:"));
+    auto lineEdit = new QLineEdit(m_qtLibPath);
 
-    connect(lineEdit, SIGNAL(textChanged(QString)), this, SLOT(setQtLibPath(QString)));
+    connect(lineEdit, &QLineEdit::textChanged,
+            this, [this](const QString &path) { m_qtLibPath = path; });
 
     rcWidget->addFormLayoutRow(label, lineEdit);
 
@@ -91,16 +87,19 @@ QWidget *QnxRunConfiguration::createConfigurationWidget()
 
 QVariantMap QnxRunConfiguration::toMap() const
 {
-    QVariantMap map(RemoteLinux::RemoteLinuxRunConfiguration::toMap());
+    QVariantMap map(RemoteLinuxRunConfiguration::toMap());
     map.insert(QLatin1String(QtLibPathKey), m_qtLibPath);
     return map;
 }
 
 bool QnxRunConfiguration::fromMap(const QVariantMap &map)
 {
-    if (!RemoteLinux::RemoteLinuxRunConfiguration::fromMap(map))
+    if (!RemoteLinuxRunConfiguration::fromMap(map))
         return false;
 
-    setQtLibPath(map.value(QLatin1String(QtLibPathKey)).toString());
+    m_qtLibPath = map.value(QLatin1String(QtLibPathKey)).toString();
     return true;
 }
+
+} // namespace Internal
+} // namespace Qnx
