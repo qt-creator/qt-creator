@@ -37,7 +37,7 @@ public:
     explicit StyledOutputpanePlaceHolder(Core::IMode *mode, QSplitter *parent = 0);
 
 protected:
-    void childEvent(QChildEvent *event);
+    void childEvent(QChildEvent *event) override;;
 
 private:
     QString m_customStylesheet;

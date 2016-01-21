@@ -46,14 +46,10 @@ void StyledOutputpanePlaceHolder::childEvent(QChildEvent *event)
     Core::OutputPanePlaceHolder::childEvent(event);
 
     if (event->type() == QEvent::ChildAdded) {
-        QWidget *child = qobject_cast<QWidget*>(event->child());
-        if (child) {
+        if (QWidget *child = qobject_cast<QWidget*>(event->child())) {
             QList<QTabWidget*> widgets = child->findChildren<QTabWidget*>();
-            if (!widgets.isEmpty()) {
-                widgets.first()->parentWidget()->ensurePolished();
+            if (!widgets.isEmpty())
                 widgets.first()->parentWidget()->setStyleSheet(m_customStylesheet);
-            }
-
         }
     } else if (event->type() == QEvent::ChildRemoved) {
         QWidget *child = qobject_cast<QWidget*>(event->child());
