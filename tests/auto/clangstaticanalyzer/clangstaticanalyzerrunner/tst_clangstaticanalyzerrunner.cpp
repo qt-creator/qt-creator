@@ -26,27 +26,49 @@
 #include <clangstaticanalyzer/clangstaticanalyzerconstants.h>
 #include <clangstaticanalyzer/clangstaticanalyzerrunner.h>
 
+#include <utils/hostosinfo.h>
+
 #include <QtTest>
 
 using namespace ClangStaticAnalyzer::Internal;
+
+namespace {
+
+static QString clangExecutablePath()
+{
+    const QString clangFileName = Utils::HostOsInfo::withExecutableSuffix(QStringLiteral("clang"));
+    const Utils::Environment environment = Utils::Environment::systemEnvironment();
+
+    return environment.searchInPath(clangFileName).toString();
+}
+
+static bool writeFile(const QString &filePath, const QByteArray &source)
+{
+    Utils::FileSaver saver(filePath);
+    return saver.write(source) && saver.finalize();
+}
+
+} // anonymous namespace
 
 class ClangStaticAnalyzerRunnerTest : public QObject
 {
     Q_OBJECT
 
 public:
-    ClangStaticAnalyzerRunnerTest() {}
+    ClangStaticAnalyzerRunnerTest();
     virtual ~ClangStaticAnalyzerRunnerTest() {}
 
 private slots:
     void runWithTestCodeGeneratedOneIssue();
     void runWithNonExistentFileToAnalyze();
+
+private:
+    QString m_clangExecutable;
 };
 
-static bool writeFile(const QString &filePath, const QByteArray &source)
+ClangStaticAnalyzerRunnerTest::ClangStaticAnalyzerRunnerTest()
+    : m_clangExecutable(clangExecutablePath())
 {
-    Utils::FileSaver saver(filePath);
-    return saver.write(source) && saver.finalize();
 }
 
 class ClangStaticAnalyzerRunnerSignalTester
@@ -137,6 +159,9 @@ bool ClangStaticAnalyzerRunnerSignalTester::expectFinishWithFailureSignal(
 
 void ClangStaticAnalyzerRunnerTest::runWithTestCodeGeneratedOneIssue()
 {
+    if (m_clangExecutable.isEmpty())
+        QSKIP("Clang executable in PATH required.");
+
     const QString testFilePath = QDir::tempPath() + QLatin1String("/testcode.cpp");
     const QByteArray source =
             "void f(int *p) {}\n"
@@ -148,20 +173,24 @@ void ClangStaticAnalyzerRunnerTest::runWithTestCodeGeneratedOneIssue()
 
     QTemporaryDir temporaryDir(QDir::tempPath() + QLatin1String("/qtc-clangstaticanalyzer-XXXXXX"));
     QVERIFY(temporaryDir.isValid());
-    ClangStaticAnalyzerRunner runner(QLatin1String("clang"), temporaryDir.path(),
+    ClangStaticAnalyzerRunner runner(m_clangExecutable, temporaryDir.path(),
                                      Utils::Environment::systemEnvironment());
 
     ClangStaticAnalyzerRunnerSignalTester st(&runner);
     QVERIFY(runner.run(testFilePath));
+
     QVERIFY(st.expectStartedSignal());
     QVERIFY(st.expectFinishWithSuccessSignal());
 }
 
 void ClangStaticAnalyzerRunnerTest::runWithNonExistentFileToAnalyze()
 {
+    if (m_clangExecutable.isEmpty())
+        QSKIP("Clang executable in PATH required.");
+
     QTemporaryDir temporaryDir(QDir::tempPath() + QLatin1String("/qtc-clangstaticanalyzer-XXXXXX"));
     QVERIFY(temporaryDir.isValid());
-    ClangStaticAnalyzerRunner runner(QLatin1String("clang"), temporaryDir.path(),
+    ClangStaticAnalyzerRunner runner(m_clangExecutable, temporaryDir.path(),
                                      Utils::Environment::systemEnvironment());
 
     ClangStaticAnalyzerRunnerSignalTester st(&runner);
