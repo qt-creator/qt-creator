@@ -25,6 +25,8 @@
 
 #include "startremotedialog.h"
 
+#include "analyzerstartparameters.h"
+
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
@@ -134,14 +136,12 @@ QSsh::SshConnectionParameters StartRemoteDialog::sshParams() const
     return device->sshParameters();
 }
 
-QString StartRemoteDialog::executable() const
+AnalyzerRunnable StartRemoteDialog::runnable() const
 {
-    return d->executable->text();
-}
-
-QString StartRemoteDialog::arguments() const
-{
-    return d->arguments->text();
+    AnalyzerRunnable r;
+    r.debuggee = d->executable->text();
+    r.debuggeeArgs = d->arguments->text();
+    return r;
 }
 
 QString StartRemoteDialog::workingDirectory() const

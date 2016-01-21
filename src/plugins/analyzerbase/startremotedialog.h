@@ -36,6 +36,8 @@ namespace Analyzer {
 
 namespace Internal { class StartRemoteDialogPrivate; }
 
+class AnalyzerRunnable;
+
 class ANALYZER_EXPORT StartRemoteDialog : public QDialog
 {
     Q_OBJECT
@@ -45,8 +47,7 @@ public:
     ~StartRemoteDialog();
 
     QSsh::SshConnectionParameters sshParams() const;
-    QString executable() const;
-    QString arguments() const;
+    AnalyzerRunnable runnable() const;
     QString workingDirectory() const;
 
 private slots:
