@@ -114,26 +114,6 @@ bool FontSettings::fromSettings(const QString &category,
         if (scheme.isEmpty() || !QFile::exists(scheme))
             scheme = defaultSchemeFileName(Utils::FileName::fromString(scheme).fileName());
         loadColorScheme(scheme, descriptions);
-    } else {
-        // Load color scheme from ini file
-        foreach (const FormatDescription &desc, descriptions) {
-            const TextStyle id = desc.id();
-            const QString fmt = s->value(group + QLatin1String(Constants::nameForStyle(id)), QString()).toString();
-            Format format;
-            if (fmt.isEmpty()) {
-                format.setForeground(desc.foreground());
-                format.setBackground(desc.background());
-                format.setBold(desc.format().bold());
-                format.setItalic(desc.format().italic());
-                format.setUnderlineColor(desc.format().underlineColor());
-                format.setUnderlineStyle(desc.format().underlineStyle());
-            } else {
-                format.fromString(fmt);
-            }
-            m_scheme.setFormatFor(id, format);
-        }
-
-        m_scheme.setDisplayName(QCoreApplication::translate("TextEditor::Internal::FontSettings", "Customized"));
     }
 
     return true;
