@@ -29,6 +29,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/runextensions.h>
 
 #include <QStandardItemModel>
 #include <QMessageBox>
@@ -41,8 +42,7 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QDateTime>
-#include <QFuture>
-#include <QtConcurrentRun>
+#include <QTimer>
 
 namespace VcsBase {
 namespace Internal {
@@ -51,8 +51,11 @@ enum { nameColumn, columnCount };
 enum { fileNameRole = Qt::UserRole, isDirectoryRole = Qt::UserRole + 1 };
 
 // Helper for recursively removing files.
-static void removeFileRecursion(const QFileInfo &f, QString *errorMessage)
+static void removeFileRecursion(QFutureInterface<void> &futureInterface,
+                                const QFileInfo &f, QString *errorMessage)
 {
+    if (futureInterface.isCanceled())
+        return;
     // The version control system might list files/directory in arbitrary
     // order, causing files to be removed from parent directories.
     if (!f.exists())
@@ -60,7 +63,7 @@ static void removeFileRecursion(const QFileInfo &f, QString *errorMessage)
     if (f.isDir()) {
         const QDir dir(f.absoluteFilePath());
         foreach (const QFileInfo &fi, dir.entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden))
-            removeFileRecursion(fi, errorMessage);
+            removeFileRecursion(futureInterface, fi, errorMessage);
         QDir parent = f.absoluteDir();
         if (!parent.rmdir(f.fileName()))
             errorMessage->append(VcsBase::CleanDialog::tr("The directory %1 could not be deleted.").
@@ -75,46 +78,35 @@ static void removeFileRecursion(const QFileInfo &f, QString *errorMessage)
     }
 }
 
-// A QFuture task for cleaning files in the background.
-// Emits error signal if not all files can be deleted.
-class CleanFilesTask : public QObject
+// Cleaning files in the background
+static void runCleanFiles(QFutureInterface<void> &futureInterface,
+                          const QString &repository, const QStringList &files,
+                          const std::function<void(const QString&)> &errorHandler)
 {
-    Q_OBJECT
-
-public:
-    explicit CleanFilesTask(const QString &repository, const QStringList &files);
-
-    void run();
-
-signals:
-    void error(const QString &e);
-
-private:
-    const QString m_repository;
-    const QStringList m_files;
-
-    QString m_errorMessage;
-};
-
-CleanFilesTask::CleanFilesTask(const QString &repository, const QStringList &files) :
-    m_repository(repository), m_files(files)
-{
-}
-
-void CleanFilesTask::run()
-{
-    foreach (const QString &name, m_files)
-        removeFileRecursion(QFileInfo(name), &m_errorMessage);
-    if (!m_errorMessage.isEmpty()) {
+    QString errorMessage;
+    futureInterface.setProgressRange(0, files.size());
+    futureInterface.setProgressValue(0);
+    foreach (const QString &name, files) {
+        removeFileRecursion(futureInterface, QFileInfo(name), &errorMessage);
+        if (futureInterface.isCanceled())
+            break;
+        futureInterface.setProgressValue(futureInterface.progressValue() + 1);
+    }
+    if (!errorMessage.isEmpty()) {
         // Format and emit error.
         const QString msg = CleanDialog::tr("There were errors when cleaning the repository %1:").
-                            arg(QDir::toNativeSeparators(m_repository));
-        m_errorMessage.insert(0, QLatin1Char('\n'));
-        m_errorMessage.insert(0, msg);
-        emit error(m_errorMessage);
+                            arg(QDir::toNativeSeparators(repository));
+        errorMessage.insert(0, QLatin1Char('\n'));
+        errorMessage.insert(0, msg);
+        errorHandler(errorMessage);
     }
-    // Run in background, need to delete ourselves
-    this->deleteLater();
+}
+
+static void handleError(const QString &errorMessage)
+{
+    QTimer::singleShot(0, VcsOutputWindow::instance(), [errorMessage]() {
+        VcsOutputWindow::instance()->appendSilently(errorMessage);
+    });
 }
 
 // ---------------- CleanDialogPrivate ----------------
@@ -258,12 +250,9 @@ bool CleanDialog::promptToDelete()
         return false;
 
     // Remove in background
-    auto cleanTask = new Internal::CleanFilesTask(d->m_workingDirectory, selectedFiles);
-    connect(cleanTask, &Internal::CleanFilesTask::error,
-            VcsOutputWindow::instance(), &VcsOutputWindow::appendSilently,
-            Qt::QueuedConnection);
+    QFuture<void> task = Utils::runAsync<void>(Internal::runCleanFiles, d->m_workingDirectory,
+                                               selectedFiles, Internal::handleError);
 
-    QFuture<void> task = QtConcurrent::run(cleanTask, &Internal::CleanFilesTask::run);
     const QString taskName = tr("Cleaning \"%1\"").
                              arg(QDir::toNativeSeparators(d->m_workingDirectory));
     Core::ProgressManager::addTask(task, taskName, "VcsBase.cleanRepository");
@@ -306,5 +295,3 @@ void CleanDialog::updateSelectAllCheckBox()
 }
 
 } // namespace VcsBase
-
-#include "cleandialog.moc"
