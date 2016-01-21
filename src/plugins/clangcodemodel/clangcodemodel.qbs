@@ -99,14 +99,14 @@ QtcPlugin {
     Group {
         name: "Test resources"
         prefix: "test/data/"
-        fileTags: "none"
+        fileTags: []
         files: [ "*" ]
         excludeFiles: "clangtestdata.qrc"
     }
 
     Group {
         name: "Other files"
-        fileTags: "none"
+        fileTags: []
         files: [
             "README",
             project.ide_source_tree + "/doc/src/editors/creator-clang-codemodel.qdoc",
