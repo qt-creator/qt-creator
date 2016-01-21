@@ -226,7 +226,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Preferred size")
-        tooltip: qsTr("Preferred size of an item in a layout. If the preferred size is -1, it will be ignored.")
+        tooltip: qsTr("Preferred size of an item in a layout. If the preferred height or width is -1, it is ignored.")
     }
 
     SecondColumnLayout {
