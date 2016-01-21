@@ -1,6 +1,6 @@
 import qbs
 
-QtcCommercialPlugin {
+QtcPlugin {
     name: "QmlProfilerExtension"
 
     Depends { name: "Core" }

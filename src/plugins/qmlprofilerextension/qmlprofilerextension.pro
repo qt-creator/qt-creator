@@ -1,6 +1,3 @@
-TARGET = QmlProfilerExtension
-TEMPLATE = lib
-
 include(../../qtcreatorplugin.pri)
 
 QT += qml quick quickwidgets
