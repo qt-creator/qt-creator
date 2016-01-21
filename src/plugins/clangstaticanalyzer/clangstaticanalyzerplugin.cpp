@@ -113,19 +113,14 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     // In the initialize method, a plugin can be sure that the plugins it
     // depends on have initialized their members.
 
+    Q_UNUSED(arguments);
+    Q_UNUSED(errorString);
+
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
     panelFactory->setPriority(100);
     panelFactory->setDisplayName(tr("Clang Static Analyzer Settings"));
     panelFactory->setSimpleCreateWidgetFunction<ProjectSettingsWidget>(QIcon());
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
-    return initializeEnterpriseFeatures(arguments, errorString);
-}
-
-bool ClangStaticAnalyzerPlugin::initializeEnterpriseFeatures(const QStringList &arguments,
-                                                             QString *errorString)
-{
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorString);
 
     auto tool = m_analyzerTool = new ClangStaticAnalyzerTool(this);
     addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory(m_analyzerTool));
