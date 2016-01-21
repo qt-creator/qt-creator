@@ -412,6 +412,7 @@ void FancyLineEdit::setOkColor(const QColor &c)
 void FancyLineEdit::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
 {
     d->m_validationFunction = fn;
+    validate();
 }
 
 FancyLineEdit::ValidationFunction FancyLineEdit::defaultValidationFunction()
