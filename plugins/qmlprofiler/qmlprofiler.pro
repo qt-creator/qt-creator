@@ -6,7 +6,6 @@ include(../../qtcreatorplugin.pri)
 QT += qml quick quickwidgets
 
 DEFINES += QMLPROFILEREXTENSION_LIBRARY
-CONFIG(licensechecker): DEFINES += LICENSECHECKER
 
 # QmlProfilerExtension files
 

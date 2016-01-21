@@ -27,10 +27,6 @@
 #include "qmlprofilerextensionconstants.h"
 #include <qmlprofiler/qmlprofilertimelinemodelfactory.h>
 
-#ifdef LICENSECHECKER
-#  include <licensechecker/licensecheckerplugin.h>
-#endif
-
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -108,21 +104,8 @@ bool QmlProfilerExtensionPlugin::initialize(const QStringList &arguments, QStrin
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-#ifdef LICENSECHECKER
-    LicenseChecker::LicenseCheckerPlugin *licenseChecker
-            = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
-
-    if (licenseChecker && licenseChecker->hasValidLicense()) {
-        if (licenseChecker->enterpriseFeatures()) {
-            addAutoReleasedObject(new ModelFactory);
-            addAutoReleasedObject(new ViewFactory);
-        }
-    } else {
-        qWarning() << "Invalid license, disabling QML Profiler Enterprise features";
-    }
-#else // LICENSECHECKER
     addAutoReleasedObject(new ModelFactory);
-#endif
+    addAutoReleasedObject(new ViewFactory);
 
     return true;
 }
