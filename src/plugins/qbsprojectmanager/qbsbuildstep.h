@@ -62,7 +62,6 @@ public:
     QVariantMap qbsConfiguration() const;
     void setQbsConfiguration(const QVariantMap &config);
 
-    bool dryRun() const;
     bool keepGoing() const;
     bool showCommandLines() const;
     bool install() const;
@@ -94,7 +93,6 @@ private:
     void setBuildVariant(const QString &variant);
     QString profile() const;
 
-    void setDryRun(bool dr);
     void setKeepGoing(bool kg);
     void setMaxJobs(int jobcount);
     void setShowCommandLines(bool show);
@@ -142,7 +140,6 @@ private slots:
     void updatePropertyEdit(const QVariantMap &data);
 
     void changeBuildVariant(int);
-    void changeDryRun(bool dr);
     void changeShowCommandLines(bool show);
     void changeKeepGoing(bool kg);
     void changeJobCount(int count);

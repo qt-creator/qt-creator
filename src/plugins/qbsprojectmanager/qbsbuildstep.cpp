@@ -170,11 +170,6 @@ void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
     emit qbsConfigurationChanged();
 }
 
-bool QbsBuildStep::dryRun() const
-{
-    return m_qbsBuildOptions.dryRun();
-}
-
 bool QbsBuildStep::keepGoing() const
 {
     return m_qbsBuildOptions.keepGoing();
@@ -353,14 +348,6 @@ QString QbsBuildStep::profile() const
     return qbsConfiguration().value(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY)).toString();
 }
 
-void QbsBuildStep::setDryRun(bool dr)
-{
-    if (m_qbsBuildOptions.dryRun() == dr)
-        return;
-    m_qbsBuildOptions.setDryRun(dr);
-    emit qbsBuildOptionsChanged();
-}
-
 void QbsBuildStep::setKeepGoing(bool kg)
 {
     if (m_qbsBuildOptions.keepGoing() == kg)
@@ -482,7 +469,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
 
     connect(m_ui->buildVariantComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(changeBuildVariant(int)));
-    connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
     connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
     connect(m_ui->jobSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeJobCount(int)));
     connect(m_ui->showCommandLinesCheckBox, &QCheckBox::toggled, this,
@@ -516,7 +502,6 @@ QString QbsBuildStepConfigWidget::displayName() const
 void QbsBuildStepConfigWidget::updateState()
 {
     if (!m_ignoreChange) {
-        m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
         m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
         m_ui->jobSpinBox->setValue(m_step->maxJobs());
         m_ui->showCommandLinesCheckBox->setChecked(m_step->showCommandLines());
@@ -590,13 +575,6 @@ void QbsBuildStepConfigWidget::changeBuildVariant(int idx)
         variant = QLatin1String(Constants::QBS_VARIANT_DEBUG);
     m_ignoreChange = true;
     m_step->setBuildVariant(variant);
-    m_ignoreChange = false;
-}
-
-void QbsBuildStepConfigWidget::changeDryRun(bool dr)
-{
-    m_ignoreChange = true;
-    m_step->setDryRun(dr);
     m_ignoreChange = false;
 }
 

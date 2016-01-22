@@ -107,10 +107,6 @@
 
                     \list
 
-                        \li Select \uicontrol {Dry run} to test building without
-                            executing commands or making permanent
-                            changes to the build graph.
-
                         \li Select \uicontrol {Keep going} to continue building when
                             errors occur, if possible.
 

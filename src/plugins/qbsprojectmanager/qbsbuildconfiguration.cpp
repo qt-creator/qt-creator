@@ -223,7 +223,7 @@ public:
 
     bool dryRun() const {
         if (m_qbsBuildStep)
-            return m_qbsBuildStep->dryRun();
+            return false;
         if (m_qbsCleanStep)
             return m_qbsCleanStep->dryRun();
         return m_qbsInstallStep->dryRun();
