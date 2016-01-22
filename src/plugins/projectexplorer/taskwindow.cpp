@@ -112,7 +112,7 @@ private:
     class Positions
     {
     public:
-        Positions(const QStyleOptionViewItemV4 &options, TaskModel *model) :
+        Positions(const QStyleOptionViewItem &options, TaskModel *model) :
             m_totalWidth(options.rect.width()),
             m_maxFileLength(model->sizeOfFile(options.font)),
             m_maxLineLength(model->sizeOfLineNumber(options.font)),
@@ -670,7 +670,7 @@ TaskDelegate::~TaskDelegate()
 
 QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 opt = option;
+    QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
 
     const QAbstractItemView * view = qobject_cast<const QAbstractItemView *>(opt.widget);
@@ -738,7 +738,7 @@ void TaskDelegate::currentChanged(const QModelIndex &current, const QModelIndex 
 
 void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 opt = option;
+    QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
     painter->save();
 

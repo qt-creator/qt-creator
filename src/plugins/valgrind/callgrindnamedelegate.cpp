@@ -42,7 +42,7 @@ void NameDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                          const QModelIndex &index) const
 {
     // init
-    QStyleOptionViewItemV4 opt(option);
+    QStyleOptionViewItem opt(option);
     initStyleOption(&opt, index);
 
     const int margin = 2;

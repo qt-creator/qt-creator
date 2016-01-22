@@ -4647,7 +4647,7 @@ void TextEditorWidgetPrivate::drawFoldingMarker(QPainter *painter, const QPalett
         painter->drawPolygon(a);
         painter->restore();
     } else {
-        QStyleOptionViewItemV2 opt;
+        QStyleOptionViewItem opt;
         opt.rect = rect;
         opt.state = QStyle::State_Active | QStyle::State_Item | QStyle::State_Children;
         if (expanded)

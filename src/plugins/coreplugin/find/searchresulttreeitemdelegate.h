@@ -39,7 +39,7 @@ public:
     void setTabWidth(int width);
 
 private:
-    int drawLineNumber(QPainter *painter, const QStyleOptionViewItemV3 &option, const QRect &rect, const QModelIndex &index) const;
+    int drawLineNumber(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QModelIndex &index) const;
     void drawText(QPainter *painter, const QStyleOptionViewItem &option,
                            const QRect &rect, const QModelIndex &index) const;
 
