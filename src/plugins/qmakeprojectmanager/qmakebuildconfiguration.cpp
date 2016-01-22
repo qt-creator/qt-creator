@@ -84,13 +84,13 @@ QString QmakeBuildConfiguration::shadowBuildDirectory(const QString &proFilePath
     return FileUtils::resolvePath(projectDir, buildPath);
 }
 
-static Utils::FileName defaultBuildDirectory(const QString &projectPath,
-                                             const ProjectExplorer::Kit *k,
-                                             const QString &suffix,
-                                             BuildConfiguration::BuildType type)
+static FileName defaultBuildDirectory(const QString &projectPath,
+                                      const Kit *k,
+                                      const QString &suffix,
+                                      BuildConfiguration::BuildType type)
 {
-    return Utils::FileName::fromString(QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k,
-                                                                                     suffix, type));
+    return FileName::fromString(QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k,
+                                                                              suffix, type));
 }
 
 const char QMAKE_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
@@ -141,19 +141,19 @@ bool QmakeBuildConfiguration::fromMap(const QVariantMap &map)
 
     m_lastKitState = LastKitState(target()->kit());
 
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
-            this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain*)));
-    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
+    connect(ToolChainManager::instance(), &ToolChainManager::toolChainUpdated,
+            this, &QmakeBuildConfiguration::toolChainUpdated);
+    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+            this, &QmakeBuildConfiguration::qtVersionsChanged);
     return true;
 }
 
 void QmakeBuildConfiguration::ctor()
 {
-    connect(this, SIGNAL(environmentChanged()),
-            this, SLOT(emitProFileEvaluateNeeded()));
-    connect(target(), SIGNAL(kitChanged()),
-            this, SLOT(kitChanged()));
+    connect(this, &BuildConfiguration::environmentChanged,
+            this, &QmakeBuildConfiguration::emitProFileEvaluateNeeded);
+    connect(target(), &Target::kitChanged,
+            this, &QmakeBuildConfiguration::kitChanged);
 }
 
 void QmakeBuildConfiguration::kitChanged()
@@ -168,7 +168,7 @@ void QmakeBuildConfiguration::kitChanged()
     }
 }
 
-void QmakeBuildConfiguration::toolChainUpdated(ProjectExplorer::ToolChain *tc)
+void QmakeBuildConfiguration::toolChainUpdated(ToolChain *tc)
 {
     if (ToolChainKitInformation::toolChain(target()->kit()) == tc)
         emitProFileEvaluateNeeded();
@@ -471,7 +471,7 @@ FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
 
     FileName baseMkspecDir = FileName::fromUserInput(
             version->qmakeProperty("QT_HOST_DATA") + QLatin1String("/mkspecs"));
-    baseMkspecDir = Utils::FileName::fromString(baseMkspecDir.toFileInfo().canonicalFilePath());
+    baseMkspecDir = FileName::fromString(baseMkspecDir.toFileInfo().canonicalFilePath());
 
     // if the path is relative it can be
     // relative to the working directory (as found in the Makefiles)
@@ -531,9 +531,8 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory(QObject *parent) 
 {
     update();
 
-    connect(QtVersionManager::instance(),
-            SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(update()));
+    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
+            this, &QmakeBuildConfigurationFactory::update);
 }
 
 QmakeBuildConfigurationFactory::~QmakeBuildConfigurationFactory()
@@ -556,7 +555,7 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                               const QString &projectPath,
                                                               BuildConfiguration::BuildType type) const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
     QmakeBuildInfo *info = new QmakeBuildInfo(this);
     QString suffix;
     if (type == BuildConfiguration::Release) {
@@ -589,7 +588,7 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     info->kitId = k->id();
 
     // check if this project is in the source directory:
-    Utils::FileName projectFilePath = Utils::FileName::fromString(projectPath);
+    FileName projectFilePath = FileName::fromString(projectPath);
     if (version && version->isInSourceDirectory(projectFilePath)) {
         // assemble build directory
         QString projectDirectory = projectFilePath.toFileInfo().absolutePath();
@@ -598,7 +597,7 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         QString qtBuildDir = version->versionInfo().value(QStringLiteral("QT_INSTALL_PREFIX"));
         QString absoluteBuildPath = QDir::cleanPath(qtBuildDir + QLatin1Char('/') + relativeProjectPath);
 
-        info->buildDirectory = Utils::FileName::fromString(absoluteBuildPath);
+        info->buildDirectory = FileName::fromString(absoluteBuildPath);
     } else {
         info->buildDirectory = defaultBuildDirectory(projectPath, k, suffix, type);
     }
@@ -622,12 +621,12 @@ static QList<BuildConfiguration::BuildType> availableBuildTypes(const BaseQtVers
 
 QList<BuildInfo *> QmakeBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
-    QList<ProjectExplorer::BuildInfo *> result;
+    QList<BuildInfo *> result;
 
     const QString projectFilePath = parent->project()->projectFilePath().toString();
 
     foreach (BuildConfiguration::BuildType buildType,
-             availableBuildTypes(QtSupport::QtKitInformation::qtVersion(parent->kit()))) {
+             availableBuildTypes(QtKitInformation::qtVersion(parent->kit()))) {
         QmakeBuildInfo *info = createBuildInfo(parent->kit(), projectFilePath, buildType);
         info->displayName.clear(); // ask for a name
         info->buildDirectory.clear(); // This depends on the displayName
@@ -639,7 +638,7 @@ QList<BuildInfo *> QmakeBuildConfigurationFactory::availableBuilds(const Target 
 
 int QmakeBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    Utils::MimeDatabase mdb;
+    MimeDatabase mdb;
     if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::PROFILE_MIMETYPE)))
         return 0;
     return -1;
@@ -647,8 +646,8 @@ int QmakeBuildConfigurationFactory::priority(const Kit *k, const QString &projec
 
 QList<BuildInfo *> QmakeBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
-    QList<ProjectExplorer::BuildInfo *> result;
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
+    QList<BuildInfo *> result;
+    BaseQtVersion *qtVersion = QtKitInformation::qtVersion(k);
     if (!qtVersion || !qtVersion->isValid())
         return result;
 
@@ -662,13 +661,13 @@ void QmakeBuildConfigurationFactory::configureBuildConfiguration(Target *parent,
                                                                  QmakeBuildConfiguration *bc,
                                                                  const QmakeBuildInfo *qmakeInfo) const
 {
-    BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(parent->kit());
+    BaseQtVersion *version = QtKitInformation::qtVersion(parent->kit());
 
     BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
     if (qmakeInfo->buildType == BuildConfiguration::Debug)
-        config |= QtSupport::BaseQtVersion::DebugBuild;
+        config |= BaseQtVersion::DebugBuild;
     else
-        config &= ~QtSupport::BaseQtVersion::DebugBuild;
+        config &= ~BaseQtVersion::DebugBuild;
 
     bc->setDefaultDisplayName(qmakeInfo->displayName);
     bc->setDisplayName(qmakeInfo->displayName);
@@ -698,7 +697,7 @@ void QmakeBuildConfigurationFactory::configureBuildConfiguration(Target *parent,
 
     bc->setQMakeBuildConfiguration(config);
 
-    Utils::FileName directory = qmakeInfo->buildDirectory;
+    FileName directory = qmakeInfo->buildDirectory;
     if (directory.isEmpty()) {
         directory = defaultBuildDirectory(parent->project()->projectFilePath().toString(),
                                           parent->kit(), qmakeInfo->displayName, bc->buildType());
