@@ -227,9 +227,6 @@ ShortcutSettingsWidget::ShortcutSettingsWidget(QWidget *parent)
     m_shortcutEdit = new Utils::FancyLineEdit(m_shortcutBox);
     m_shortcutEdit->setFiltering(true);
     m_shortcutEdit->setPlaceholderText(tr("Enter key sequence as text"));
-    m_shortcutEdit->setValidationFunction([this](Utils::FancyLineEdit *, QString *) {
-        return validateShortcutEdit();
-    });
     auto shortcutLabel = new QLabel(tr("Key sequence:"));
     shortcutLabel->setToolTip(Utils::HostOsInfo::isMacHost()
            ? QLatin1String("<html><body>")
@@ -274,6 +271,10 @@ ShortcutSettingsWidget::ShortcutSettingsWidget(QWidget *parent)
     layout()->addWidget(m_shortcutBox);
 
     initialize();
+
+    m_shortcutEdit->setValidationFunction([this](Utils::FancyLineEdit *, QString *) {
+        return validateShortcutEdit();
+    });
 }
 
 ShortcutSettingsWidget::~ShortcutSettingsWidget()
