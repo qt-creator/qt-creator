@@ -27,6 +27,7 @@
 
 #include "projectnodes.h"
 #include "project.h"
+#include "task.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <utils/fileutils.h>
@@ -62,6 +63,7 @@ signals:
 
 protected:
     Utils::Environment buildEnvironment() const;
+    void setCompileIssues(const QList<Task> &issues);
 
 private:
     void onTargetsBuilt(Project *project);

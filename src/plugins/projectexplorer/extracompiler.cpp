@@ -30,12 +30,17 @@
 #include "buildconfiguration.h"
 #include "kitinformation.h"
 
+#include <texteditor/texteditor.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/texteditorconstants.h>
+#include <texteditor/fontsettings.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QDateTime>
 #include <QTimer>
+#include <QTextBlock>
 
 namespace ProjectExplorer {
 
@@ -48,6 +53,7 @@ public:
     Utils::FileName source;
     Utils::FileNameList targets;
     QVector<QString> contents;
+    QList<Task> issues;
     QDateTime compileTime;
     Core::IEditor *lastEditor = 0;
     QMetaObject::Connection activeBuildConfigConnection;
@@ -55,6 +61,7 @@ public:
     bool dirty = false;
 
     QTimer timer;
+    void updateIssues();
 };
 
 ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FileName &source,
@@ -207,6 +214,7 @@ void ExtraCompiler::onEditorChanged(Core::IEditor *editor)
 
     if (editor && editor->document()->filePath() == d->source) {
         d->lastEditor = editor;
+        d->updateIssues();
 
         // Handle new editor
         connect(d->lastEditor->document(), &Core::IDocument::contentsChanged,
@@ -289,6 +297,41 @@ Utils::Environment ExtraCompiler::buildEnvironment() const
     }
 
     return Utils::Environment::systemEnvironment();
+}
+
+void ExtraCompiler::setCompileIssues(const QList<Task> &issues)
+{
+    d->issues = issues;
+    d->updateIssues();
+}
+
+void ExtraCompilerPrivate::updateIssues()
+{
+    if (!lastEditor)
+        return;
+
+    TextEditor::TextEditorWidget *widget =
+            qobject_cast<TextEditor::TextEditorWidget *>(lastEditor->widget());
+    if (!widget)
+        return;
+
+    QList<QTextEdit::ExtraSelection> selections;
+    const QTextDocument *document = widget->document();
+    foreach (const Task &issue, issues) {
+        QTextEdit::ExtraSelection selection;
+        QTextCursor cursor(document->findBlockByNumber(issue.line - 1));
+        cursor.movePosition(QTextCursor::StartOfLine);
+        cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+        selection.cursor = cursor;
+
+        const auto fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
+        selection.format = fontSettings.toTextCharFormat(issue.type == Task::Warning ?
+                TextEditor::C_WARNING : TextEditor::C_ERROR);
+        selection.format.setToolTip(issue.description);
+        selections.append(selection);
+    }
+
+    widget->setExtraSelections(TextEditor::TextEditorWidget::CodeWarningsSelection, selections);
 }
 
 void ExtraCompiler::setContent(const Utils::FileName &file, const QString &contents)
