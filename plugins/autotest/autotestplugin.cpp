@@ -44,10 +44,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#ifdef LICENSECHECKER
-#  include <licensechecker/licensecheckerplugin.h>
-#endif
-
 #include <QAction>
 #include <QMessageBox>
 #include <QMainWindow>
@@ -95,21 +91,6 @@ QSharedPointer<TestSettings> AutotestPlugin::settings() const
     return m_settings;
 }
 
-bool AutotestPlugin::checkLicense()
-{
-#ifdef LICENSECHECKER
-    LicenseChecker::LicenseCheckerPlugin *licenseChecker
-            = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
-
-    if (!licenseChecker || !licenseChecker->hasValidLicense()) {
-        qWarning() << "Invalid license, disabling Qt Creator Enterprise Auto Test Add-on.";
-        return false;
-    } else if (!licenseChecker->enterpriseFeatures())
-        return false;
-#endif // LICENSECHECKER
-    return true;
-}
-
 void AutotestPlugin::initializeMenuEntries()
 {
     ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
@@ -146,9 +127,6 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-
-    if (!checkLicense())
-        return true;
 
     initializeMenuEntries();
 

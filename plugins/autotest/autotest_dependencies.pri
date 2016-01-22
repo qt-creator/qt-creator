@@ -6,8 +6,6 @@ QTC_PLUGIN_DEPENDS += \
     cpptools \
     qmljstools
 
-CONFIG(licensechecker): QTC_PLUGIN_DEPENDS += licensechecker
-
 QTC_LIB_DEPENDS += \
     cplusplus \
     qmljs \
