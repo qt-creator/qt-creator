@@ -104,7 +104,19 @@ void AnalyzerAction::startTool()
 
     // Custom start.
     if (m_customToolStarter) {
-        m_customToolStarter(rc);
+        if (rc) {
+            m_customToolStarter(rc);
+        } else {
+            const QString toolName = text();
+            QMessageBox *errorDialog = new QMessageBox(ICore::mainWindow());
+            errorDialog->setIcon(QMessageBox::Warning);
+            errorDialog->setWindowTitle(toolName);
+            errorDialog->setText(tr("Cannot start %1 without a project. Please open the project "
+                                    "and try again.").arg(toolName));
+            errorDialog->setStandardButtons(QMessageBox::Ok);
+            errorDialog->setDefaultButton(QMessageBox::Ok);
+            errorDialog->show();
+        }
         return;
     }
 
