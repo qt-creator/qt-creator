@@ -55,7 +55,7 @@ ClangStaticAnalyzerSettings *ClangStaticAnalyzerSettings::instance()
 
 static QString clangExecutableFileName()
 {
-    return QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "clang-cl.exe" : "clang");
+    return QLatin1String("clang" QTC_HOST_EXE_SUFFIX);
 }
 
 QString ClangStaticAnalyzerSettings::defaultClangExecutable() const
