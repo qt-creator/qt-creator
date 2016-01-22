@@ -25,6 +25,7 @@
 
 #include "builddirmanager.h"
 #include "cmakekitinformation.h"
+#include "cmakeparser.h"
 #include "cmakeprojectmanager.h"
 #include "cmaketool.h"
 
@@ -237,23 +238,38 @@ void BuildDirManager::startCMake(CMakeTool *tool, const QString &generator,
 {
     QTC_ASSERT(tool && tool->isValid(), return);
     QTC_ASSERT(!m_cmakeProcess, return);
+    QTC_ASSERT(!m_parser, return);
 
     // Make sure m_buildDir exists:
     const QString buildDirStr = m_buildDir.toString();
     QDir bDir = QDir(buildDirStr);
     bDir.mkpath(buildDirStr);
 
+    m_parser = new CMakeParser;
+    QDir source = QDir(m_sourceDir.toString());
+    connect(m_parser, &ProjectExplorer::IOutputParser::addTask, m_parser,
+            [source](const ProjectExplorer::Task &task) {
+                if (task.file.isEmpty() || task.file.toFileInfo().isAbsolute()) {
+                    ProjectExplorer::TaskHub::addTask(task);
+                } else {
+                    ProjectExplorer::Task t = task;
+                    t.file = Utils::FileName::fromString(source.absoluteFilePath(task.file.toString()));
+                    ProjectExplorer::TaskHub::addTask(t);
+                }
+            });
+
     // Always use the sourceDir: If we are triggered because the build directory is getting deleted
     // then we are racing against CMakeCache.txt also getting deleted.
     const QString srcDir = m_sourceDir.toString();
 
     m_cmakeProcess = new Utils::QtcProcess(this);
-    m_cmakeProcess->setProcessChannelMode(QProcess::MergedChannels);
     m_cmakeProcess->setWorkingDirectory(buildDirStr);
     m_cmakeProcess->setEnvironment(m_environment);
 
     connect(m_cmakeProcess, &QProcess::readyReadStandardOutput,
             this, &BuildDirManager::processCMakeOutput);
+    connect(m_cmakeProcess, &QProcess::readyReadStandardError,
+            this, &BuildDirManager::processCMakeError);
     connect(m_cmakeProcess, static_cast<void(QProcess::*)(int,  QProcess::ExitStatus)>(&QProcess::finished),
             this, &BuildDirManager::cmakeFinished);
 
@@ -263,9 +279,7 @@ void BuildDirManager::startCMake(CMakeTool *tool, const QString &generator,
         Utils::QtcProcess::addArg(&args, QString::fromLatin1("-G%1").arg(generator));
     Utils::QtcProcess::addArgs(&args, toArguments(config));
 
-    // Clear task cache:
     ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-    m_toReport.clear();
 
     m_cmakeProcess->setCommand(tool->cmakeExecutable().toString(), args);
     m_cmakeProcess->start();
@@ -277,55 +291,59 @@ void BuildDirManager::cmakeFinished(int code, QProcess::ExitStatus status)
     QTC_ASSERT(m_cmakeProcess, return);
 
     // process rest of the output:
-    while (m_cmakeProcess->canReadLine())
-        processOutputLine(Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(m_cmakeProcess->readLine())));
-    QString rest = Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(m_cmakeProcess->readAllStandardOutput()));
-    if (!rest.isEmpty())
-        processOutputLine(rest);
+    processCMakeOutput();
+    processCMakeError();
 
-    QTC_CHECK(m_cmakeProcess->readAllStandardOutput().isEmpty());
-
-    if (!m_toReport.description.isEmpty())
-        ProjectExplorer::TaskHub::addTask(m_toReport);
-    m_toReport.clear();
+    m_parser->flush();
+    delete m_parser;
+    m_parser = nullptr;
 
     m_cmakeProcess->deleteLater();
     m_cmakeProcess = nullptr;
 
     extractData(); // try even if cmake failed...
 
+    QString msg;
     if (status != QProcess::NormalExit)
-        Core::MessageManager::write(tr("*** cmake process crashed!"));
+        msg = tr("*** cmake process crashed!");
     else if (code != 0)
-        Core::MessageManager::write(tr("*** cmake process exited with exit code %s.").arg(code));
+        msg = tr("*** cmake process exited with exit code %1.").arg(code);
+
+    if (!msg.isEmpty()) {
+        Core::MessageManager::write(msg);
+        ProjectExplorer::TaskHub::addTask(ProjectExplorer::Task::Error, msg,
+                                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+    }
+
     emit dataAvailable();
+}
+
+static QString lineSplit(const QString &rest, const QByteArray &array, std::function<void(const QString &)> f)
+{
+    QString tmp = rest + Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(array));
+    int start = 0;
+    int end = tmp.indexOf(QLatin1Char('\n'), start);
+    while (end >= 0) {
+        f(tmp.mid(start, end - start));
+        start = end + 1;
+        end = tmp.indexOf(QLatin1Char('\n'), start);
+    }
+    return tmp.mid(start);
 }
 
 void BuildDirManager::processCMakeOutput()
 {
-    QTC_ASSERT(m_cmakeProcess, return);
-    while (m_cmakeProcess->canReadLine())
-        processOutputLine(QString::fromLocal8Bit(m_cmakeProcess->readLine()));
+    static QString rest;
+    rest = lineSplit(rest, m_cmakeProcess->readAllStandardOutput(), [this](const QString &s) { Core::MessageManager::write(s); });
 }
 
-void BuildDirManager::processOutputLine(const QString &l)
+void BuildDirManager::processCMakeError()
 {
-    QString line = Utils::SynchronousProcess::normalizeNewlines(l);
-    while (line.endsWith(QLatin1Char('\n')))
-        line.chop(1);
-    Core::MessageManager::write(line);
-
-    // Check for errors:
-    if (m_toReport.type == ProjectExplorer::Task::Unknown) {
-        m_toReport.category = ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM;
-    } else {
-        if (line.startsWith(QStringLiteral("  ")) || line.isEmpty()) {
-            m_toReport.description.append(QStringLiteral("\n") + line);
-        } else {
-            ProjectExplorer::TaskHub::addTask(m_toReport);
-            m_toReport.clear();
-        }
-    }
+    static QString rest;
+    rest = lineSplit(rest, m_cmakeProcess->readAllStandardError(), [this](const QString &s) {
+        m_parser->stdError(s);
+        Core::MessageManager::write(s);
+    });
 }
 
 } // namespace Internal

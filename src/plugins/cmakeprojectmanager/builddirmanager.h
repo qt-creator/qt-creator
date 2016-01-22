@@ -44,7 +44,9 @@ QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher);
 
 namespace ProjectExplorer {
 class FileNode;
+class IOutputParser;
 class Kit;
+class Task;
 } // namespace ProjectExplorer
 
 namespace CMakeProjectManager {
@@ -88,8 +90,7 @@ private:
 
     void cmakeFinished(int code, QProcess::ExitStatus status);
     void processCMakeOutput();
-
-    void processOutputLine(const QString &line);
+    void processCMakeError();
 
     const Utils::FileName m_sourceDir;
     Utils::FileName m_buildDir;
@@ -107,7 +108,7 @@ private:
     QList<ProjectExplorer::FileNode *> m_files;
 
     // For error reporting:
-    ProjectExplorer::Task m_toReport;
+    ProjectExplorer::IOutputParser *m_parser = nullptr;
 };
 
 } // namespace Internal
