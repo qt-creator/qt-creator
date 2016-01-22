@@ -704,6 +704,8 @@
     \section2 C++ Features
 
     \list
+        \li Prefer \c {#pragma once} over header guards.
+
         \li Do not use exceptions, unless you know what you do.
 
         \li Do not use RTTI (Run-Time Type Information; that is, the typeinfo
