@@ -31,6 +31,7 @@
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 #include "texteditorsettings.h"
+#include "basehoverhandler.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/infobar.h>
@@ -60,6 +61,7 @@ PlainTextEditorFactory::PlainTextEditorFactory()
     setDisplayName(qApp->translate("OpenWith::Editors", Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
     addMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
     addMimeType(QLatin1String("text/css")); // for some reason freedesktop thinks css is text/x-csrc
+    addHoverHandler(new BaseHoverHandler);
 
     setDocumentCreator([]() { return new TextDocument(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); });
     setEditorWidgetCreator([]() { return new PlainTextEditorWidget; });

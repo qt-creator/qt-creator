@@ -77,7 +77,7 @@ private:
     void clear();
     void process(TextEditorWidget *widget, int pos);
 
-    virtual void identifyMatch(TextEditorWidget *editorWidget, int pos) = 0;
+    virtual void identifyMatch(TextEditorWidget *editorWidget, int pos);
 
     bool m_diagnosticTooltip;
     QString m_toolTip;

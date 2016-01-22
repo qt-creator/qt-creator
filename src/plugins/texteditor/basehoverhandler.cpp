@@ -143,6 +143,13 @@ void BaseHoverHandler::process(TextEditorWidget *widget, int pos)
     decorateToolTip();
 }
 
+void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
+{
+    QString tooltip = editorWidget->extraSelectionTooltip(pos);
+    if (!tooltip.isEmpty())
+        setToolTip(tooltip);
+}
+
 void BaseHoverHandler::decorateToolTip()
 {
     if (Qt::mightBeRichText(toolTip()))
