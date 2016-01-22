@@ -6,6 +6,7 @@ SUBDIRS   = \
     autotest \
     clangstaticanalyzer \
     coreplugin \
+    qmlprofilerextension \
     texteditor \
     cppeditor \
     bineditor \
