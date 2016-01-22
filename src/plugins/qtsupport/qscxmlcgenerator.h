@@ -46,6 +46,7 @@ private:
 
     QProcess m_process;
     QTemporaryDir m_tmpdir;
+    void parseIssues(const QByteArray &stderr);
 };
 
 class QScxmlcGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory

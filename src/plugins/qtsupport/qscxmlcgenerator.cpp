@@ -37,6 +37,7 @@
 namespace QtSupport {
 
 static QLoggingCategory log("qtc.qsxmlcgenerator");
+static const char TaskCategory[] = "Task.Category.ExtraCompiler.QScxmlc";
 
 QScxmlcGenerator::QScxmlcGenerator(const ProjectExplorer::Project *project,
                                    const Utils::FileName &source,
@@ -47,8 +48,29 @@ QScxmlcGenerator::QScxmlcGenerator(const ProjectExplorer::Project *project,
             this, &QScxmlcGenerator::finishProcess);
 }
 
+void QScxmlcGenerator::parseIssues(const QByteArray &stderr)
+{
+    QList<ProjectExplorer::Task> issues;
+    foreach (const QByteArray &line, stderr.split('\n')) {
+        QByteArrayList tokens = line.split(':');
+
+        if (tokens.length() > 4) {
+            Utils::FileName file = Utils::FileName::fromUtf8(tokens[0]);
+            int line = tokens[1].toInt();
+            // int column = tokens[2].toInt(); <- nice, but not needed for now.
+            ProjectExplorer::Task::TaskType type = tokens[3].trimmed() == "error" ?
+                        ProjectExplorer::Task::Error : ProjectExplorer::Task::Warning;
+            QString message = QString::fromUtf8(tokens.mid(4).join(':').trimmed());
+            issues.append(ProjectExplorer::Task(type, message, file, line, TaskCategory));
+        }
+    }
+    setCompileIssues(issues);
+}
+
 void QScxmlcGenerator::finishProcess()
 {
+    parseIssues(m_process.readAllStandardError());
+
     setCompileTime(QDateTime::currentDateTime());
     foreach (const Utils::FileName &target, targets()) {
         QFile generated(m_tmpdir.path() + QLatin1Char('/') + target.fileName());
