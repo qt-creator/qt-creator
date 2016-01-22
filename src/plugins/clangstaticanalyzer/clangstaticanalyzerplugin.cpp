@@ -141,7 +141,9 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     action->setActionId("ClangStaticAnalyzer");
     action->setWidgetCreator(widgetCreator);
     action->setRunControlCreator(runControlCreator);
-    action->setCustomToolStarter([tool] { tool->startTool(); });
+    action->setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
+        tool->startTool(rc);
+    });
     action->setText(tr("Clang Static Analyzer"));
     action->setToolTip(toolTip);
     action->setMenuGroup(Analyzer::Constants::G_ANALYZER_TOOLS);

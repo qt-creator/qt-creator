@@ -61,7 +61,7 @@ public:
     QWidget *createWidgets();
     Analyzer::AnalyzerRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                                                    Core::Id runMode);
-    void startTool();
+    void startTool(ProjectExplorer::RunConfiguration *rc);
 
 signals:
     void finished(bool success); // For testing.
@@ -83,7 +83,6 @@ private:
 
     QAction *m_goBack;
     QAction *m_goNext;
-    QHash<ProjectExplorer::Target *, DummyRunConfiguration *> m_runConfigs;
     bool m_running;
 };
 

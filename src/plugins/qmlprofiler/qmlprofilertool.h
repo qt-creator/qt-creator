@@ -56,7 +56,7 @@ public:
 
     QWidget *createWidgets();
     bool prepareTool();
-    void startRemoteTool();
+    void startRemoteTool(ProjectExplorer::RunConfiguration *rc);
 
     static QList <QAction *> profilerContextMenuActions();
 

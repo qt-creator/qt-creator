@@ -187,11 +187,11 @@ void ValgrindPlugin::extensionsInitialized()
     action->setActionId("Memcheck.Remote");
     action->setToolId("Memcheck");
     action->setWidgetCreator(mcWidgetCreator);
-    action->setCustomToolStarter([mcTool] {
+    action->setCustomToolStarter([mcTool](ProjectExplorer::RunConfiguration *runConfig) {
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
             return;
-        ValgrindRunControl *rc = mcTool->createRunControl(0, MEMCHECK_RUN_MODE);
+        ValgrindRunControl *rc = mcTool->createRunControl(runConfig, MEMCHECK_RUN_MODE);
         QTC_ASSERT(rc, return);
         AnalyzerRunnable runnable;
         runnable.debuggee = dlg.executable();
@@ -214,11 +214,11 @@ void ValgrindPlugin::extensionsInitialized()
     action->setActionId(CallgrindRemoteActionId);
     action->setToolId(CallgrindToolId);
     action->setWidgetCreator(cgWidgetCreator);
-    action->setCustomToolStarter([cgTool] {
+    action->setCustomToolStarter([cgTool](ProjectExplorer::RunConfiguration *runConfig) {
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
             return;
-        ValgrindRunControl *rc = cgTool->createRunControl(0);
+        ValgrindRunControl *rc = cgTool->createRunControl(runConfig);
         QTC_ASSERT(rc, return);
         AnalyzerRunnable runnable;
         runnable.debuggee = dlg.executable();

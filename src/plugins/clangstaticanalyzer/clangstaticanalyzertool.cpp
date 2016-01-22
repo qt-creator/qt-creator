@@ -58,22 +58,6 @@ using namespace ProjectExplorer;
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-class DummyRunConfiguration : public RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    DummyRunConfiguration(Target *parent)
-        : RunConfiguration(parent, "ClangStaticAnalyzer.DummyRunConfig")
-    {
-        setDefaultDisplayName(tr("Clang Static Analyzer"));
-        addExtraAspects();
-    }
-
-private:
-    QWidget *createConfigurationWidget() override { return 0; }
-};
-
 ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     : QObject(parent)
     , m_diagnosticModel(0)
@@ -225,7 +209,7 @@ static bool dontStartAfterHintForDebugMode(Project *project)
     return false;
 }
 
-void ClangStaticAnalyzerTool::startTool()
+void ClangStaticAnalyzerTool::startTool(ProjectExplorer::RunConfiguration *runConfiguration)
 {
     AnalyzerManager::showMode();
 
@@ -243,21 +227,8 @@ void ClangStaticAnalyzerTool::startTool()
     m_running = true;
     handleStateUpdate();
 
-    Target * const target = project->activeTarget();
-    QTC_ASSERT(target, return);
-    DummyRunConfiguration *& rc = m_runConfigs[target];
-    if (!rc) {
-        rc = new DummyRunConfiguration(target);
-        connect(project, &Project::aboutToRemoveTarget, this,
-                [this](Target *t) { m_runConfigs.remove(t); });
-        const auto onProjectRemoved = [this](Project *p) {
-            foreach (Target * const t, p->targets())
-                m_runConfigs.remove(t);
-        };
-        connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject, this,
-                onProjectRemoved, Qt::UniqueConnection);
-    }
-    ProjectExplorerPlugin::runRunConfiguration(rc, Constants::CLANGSTATICANALYZER_RUN_MODE);
+    ProjectExplorerPlugin::runRunConfiguration(runConfiguration,
+                                               Constants::CLANGSTATICANALYZER_RUN_MODE);
 }
 
 CppTools::ProjectInfo ClangStaticAnalyzerTool::projectInfoBeforeBuild() const
@@ -328,5 +299,3 @@ void ClangStaticAnalyzerTool::handleStateUpdate()
 
 } // namespace Internal
 } // namespace ClangStaticAnalyzer
-
-#include "clangstaticanalyzertool.moc"

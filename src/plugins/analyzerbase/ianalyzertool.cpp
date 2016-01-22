@@ -89,21 +89,23 @@ void AnalyzerAction::startTool()
     if (m_toolPreparer && !m_toolPreparer())
         return;
 
-    // Custom start.
-    if (m_customToolStarter) {
-        m_customToolStarter();
-        return;
-    }
-
     // ### not sure if we're supposed to check if the RunConFiguration isEnabled
     Project *pro = SessionManager::startupProject();
+    RunConfiguration *rc = 0;
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
     if (pro) {
         if (const Target *target = pro->activeTarget()) {
             // Build configuration is 0 for QML projects.
             if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
                 buildType = buildConfig->buildType();
+            rc = target->activeRunConfiguration();
         }
+    }
+
+    // Custom start.
+    if (m_customToolStarter) {
+        m_customToolStarter(rc);
+        return;
     }
 
     // Check the project for whether the build config is in the correct mode

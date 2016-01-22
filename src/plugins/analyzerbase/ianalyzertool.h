@@ -110,7 +110,7 @@ public:
     void startTool();
 
     /// This is only used for setups not using the startup project.
-    typedef std::function<void()> ToolStarter;
+    typedef std::function<void(ProjectExplorer::RunConfiguration *runConfiguration)> ToolStarter;
     void setCustomToolStarter(const ToolStarter &toolStarter) { m_customToolStarter = toolStarter; }
 
 protected:

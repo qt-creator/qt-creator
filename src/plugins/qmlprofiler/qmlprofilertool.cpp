@@ -487,7 +487,7 @@ bool QmlProfilerTool::prepareTool()
     return true;
 }
 
-void QmlProfilerTool::startRemoteTool()
+void QmlProfilerTool::startRemoteTool(ProjectExplorer::RunConfiguration *rc)
 {
     AnalyzerManager::showMode();
 
@@ -525,7 +525,7 @@ void QmlProfilerTool::startRemoteTool()
     }
     connection.analyzerPort = port;
 
-    auto runControl = qobject_cast<QmlProfilerRunControl *>(createRunControl(0));
+    auto runControl = qobject_cast<QmlProfilerRunControl *>(createRunControl(rc));
     runControl->setConnection(connection);
 
     ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);

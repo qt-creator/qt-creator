@@ -81,7 +81,9 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     action->setToolId(Constants::QmlProfilerToolId);
     action->setWidgetCreator(widgetCreator);
     action->setRunControlCreator(runControlCreator);
-    action->setCustomToolStarter([tool] { tool->startRemoteTool(); });
+    action->setCustomToolStarter([tool](ProjectExplorer::RunConfiguration *rc) {
+        tool->startRemoteTool(rc);
+    });
     action->setToolPreparer([tool] { return tool->prepareTool(); });
     action->setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     action->setText(tr("QML Profiler (External)"));
