@@ -319,10 +319,10 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourc
     if (sourceFiles.isEmpty())
         return QFuture<void>();
 
-    QFuture<void> result = QtConcurrent::run(&ModelManagerInterface::parse,
-                                              workingCopyInternal(), sourceFiles,
-                                              this, Dialect(Dialect::Qml),
-                                              emitDocumentOnDiskChanged);
+    QFuture<void> result = Utils::runAsync<void>(&ModelManagerInterface::parse,
+                                                 workingCopyInternal(), sourceFiles,
+                                                 this, Dialect(Dialect::Qml),
+                                                 emitDocumentOnDiskChanged);
     cleanupFutures();
     m_futures.append(result);
 
