@@ -26,8 +26,8 @@
 #ifndef QTOPTIONSPAGE_H
 #define QTOPTIONSPAGE_H
 
-#include "debugginghelperbuildtask.h"
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/fileutils.h>
 
 #include <QIcon>
 #include <QPointer>
@@ -56,7 +56,6 @@ class QtVersionItem;
 namespace Ui {
 class QtVersionManager;
 class QtVersionInfo;
-class DebuggingHelper;
 }
 
 class QtOptionsPageWidget : public QWidget
@@ -73,7 +72,6 @@ private:
     void updateDescriptionLabel();
     void userChangedCurrentVersion();
     void updateWidgets();
-    void updateDebuggingHelperUi();
     BaseQtVersion *currentVersion() const;
     QtVersionItem *currentItem() const;
     void showDebuggingBuildLog(const QtVersionItem *item);
@@ -82,7 +80,6 @@ private:
 
     Internal::Ui::QtVersionManager *m_ui;
     Internal::Ui::QtVersionInfo *m_versionUi;
-    Internal::Ui::DebuggingHelper *m_debuggingHelperUi;
     QTextBrowser *m_infoBrowser;
     int m_defaultVersion;
     QIcon m_invalidVersionIcon;
@@ -99,15 +96,9 @@ private slots:
     void editPath();
     void updateCleanUpButton();
     void updateCurrentQtName();
-    void buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools
-                              = DebuggingHelperBuildTask::AllTools);
-    void buildQmlDump();
-    void slotShowDebuggingBuildLog();
-    void debuggingHelperBuildFinished(int qtVersionId, const QString &output,
-                                      DebuggingHelperBuildTask::Tools tools);
+
     void cleanUpQtVersions();
     void toolChainsUpdated();
-    void selectedToolChainChanged(int index);
 
     void qtVersionsDumpUpdated(const Utils::FileName &qmakeCommand);
     void setInfoWidgetVisibility();

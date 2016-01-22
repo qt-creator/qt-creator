@@ -26,7 +26,6 @@
 #include "qmldumptool.h"
 #include "qtsupportconstants.h"
 #include "qtversionmanager.h"
-#include "debugginghelperbuildtask.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -42,118 +41,6 @@
 #include <QDebug>
 #include <QHash>
 #include <QStandardPaths>
-
-namespace {
-
-using namespace QtSupport;
-using namespace ProjectExplorer;
-
-class QmlDumpBuildTask;
-
-typedef QHash<int, QmlDumpBuildTask *> QmlDumpByVersion;
-Q_GLOBAL_STATIC(QmlDumpByVersion, qmlDumpBuilds)
-
-// A task suitable to be run by QtConcurrent to build qmldump.
-class QmlDumpBuildTask : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit QmlDumpBuildTask(BaseQtVersion *version, ToolChain *toolChain)
-        : m_buildTask(new DebuggingHelperBuildTask(version, toolChain,
-                                                   DebuggingHelperBuildTask::QmlDump))
-        , m_failed(false)
-    {
-        qmlDumpBuilds()->insert(version->uniqueId(), this);
-        // Don't open General Messages pane with errors
-        m_buildTask->showOutputOnError(false);
-        connect(m_buildTask, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
-                this, SLOT(finish(int,QString,DebuggingHelperBuildTask::Tools)),
-                Qt::QueuedConnection);
-    }
-
-    void run(QFutureInterface<void> &future)
-    {
-        m_buildTask->run(future);
-    }
-
-    void updateProjectWhenDone(QPointer<Project> project, bool preferDebug)
-    {
-        foreach (const ProjectToUpdate &update, m_projectsToUpdate) {
-            if (update.project == project)
-                return;
-        }
-
-        ProjectToUpdate update;
-        update.project = project;
-        update.preferDebug = preferDebug;
-        m_projectsToUpdate += update;
-    }
-
-    bool hasFailed() const
-    {
-        return m_failed;
-    }
-
-private slots:
-    void finish(int qtId, const QString &output, DebuggingHelperBuildTask::Tools tools)
-    {
-        BaseQtVersion *version = QtVersionManager::version(qtId);
-
-        QTC_ASSERT(tools == DebuggingHelperBuildTask::QmlDump, return);
-        QString errorMessage;
-        if (!version) {
-            m_failed = true;
-            errorMessage = QString::fromLatin1("Qt version became invalid");
-        } else {
-            if (!version->hasQmlDump()) {
-                m_failed = true;
-                errorMessage = QString::fromLatin1("Could not build QML plugin dumping helper for %1\n"
-                                                   "Output:\n%2").
-                        arg(version->displayName(), output);
-            }
-        }
-
-        if (m_failed) {
-            qWarning("%s", qPrintable(errorMessage));
-            return;
-        }
-
-        // update qmldump path for all the project
-        QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-        if (!modelManager)
-            return;
-
-        foreach (const ProjectToUpdate &update, m_projectsToUpdate) {
-            if (!update.project)
-                continue;
-            QmlJS::ModelManagerInterface::ProjectInfo projectInfo = modelManager->projectInfo(update.project);
-            projectInfo.qmlDumpPath = version->qmlDumpTool(update.preferDebug);
-            if (projectInfo.qmlDumpPath.isEmpty())
-                projectInfo.qmlDumpPath = version->qmlDumpTool(!update.preferDebug);
-            projectInfo.qmlDumpEnvironment = version->qmlToolsEnvironment();
-            projectInfo.qmlDumpHasRelocatableFlag = version->hasQmlDumpWithRelocatableFlag();
-            modelManager->updateProjectInfo(projectInfo, update.project);
-        }
-
-        // clean up
-        qmlDumpBuilds()->remove(qtId);
-        deleteLater();
-    }
-
-private:
-    class ProjectToUpdate {
-    public:
-        QPointer<Project> project;
-        bool preferDebug;
-    };
-
-    QList<ProjectToUpdate> m_projectsToUpdate;
-    DebuggingHelperBuildTask *m_buildTask; // deletes itself after run()
-    bool m_failed;
-};
-} // end of anonymous namespace
-
 
 namespace QtSupport {
 
@@ -311,25 +198,13 @@ QStringList QmlDumpTool::installDirectories(const QString &qtInstallData)
     return directories;
 }
 
-void QmlDumpTool::pathAndEnvironment(Project *project, BaseQtVersion *version,
-                                     ToolChain *toolChain,
+void QmlDumpTool::pathAndEnvironment(BaseQtVersion *version,
                                      bool preferDebug, QString *dumperPath, Utils::Environment *env)
 {
-    QString path;
-    if (version && !version->hasQmlDump() && QmlDumpTool::canBuild(version)) {
-        QmlDumpBuildTask *qmlDumpBuildTask = qmlDumpBuilds()->value(version->uniqueId());
-        if (qmlDumpBuildTask) {
-            if (!qmlDumpBuildTask->hasFailed())
-                qmlDumpBuildTask->updateProjectWhenDone(project, preferDebug);
-        } else {
-            QmlDumpBuildTask *buildTask = new QmlDumpBuildTask(version, toolChain);
-            buildTask->updateProjectWhenDone(project, preferDebug);
-            QFuture<void> task = QtConcurrent::run(&QmlDumpBuildTask::run, buildTask);
-            const QString taskName = QmlDumpBuildTask::tr("Building QML Helpers");
-            Core::ProgressManager::addTask(task, taskName, "QmakeProjectManager::BuildHelpers");
-        }
+    if (version && !version->hasQmlDump())
         return;
-    }
+
+    QString path;
 
     path = toolForVersion(version, preferDebug);
     if (path.isEmpty())
@@ -354,4 +229,3 @@ void QmlDumpTool::pathAndEnvironment(Project *project, BaseQtVersion *version,
 
 } // namespace QtSupport
 
-#include "qmldumptool.moc"

@@ -57,8 +57,7 @@ public:
     // Copy the source files to a target location and return the chosen target location.
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
-    static void pathAndEnvironment(ProjectExplorer::Project *project, BaseQtVersion *version,
-                                   ProjectExplorer::ToolChain *toolChain,
+    static void pathAndEnvironment(BaseQtVersion *version,
                                    bool preferDebug, QString *path, Utils::Environment *env);
 
 private:

@@ -24,7 +24,6 @@ HEADERS += \
     qtoptionspage.h \
     customexecutablerunconfiguration.h \
     customexecutableconfigurationwidget.h \
-    debugginghelperbuildtask.h \
     qtsupportconstants.h \
     profilereader.h \
     qtparser.h \
@@ -53,7 +52,6 @@ SOURCES += \
     qtoptionspage.cpp \
     customexecutablerunconfiguration.cpp \
     customexecutableconfigurationwidget.cpp \
-    debugginghelperbuildtask.cpp \
     profilereader.cpp \
     qtparser.cpp \
     exampleslistmodel.cpp \
@@ -68,7 +66,6 @@ FORMS   +=  \
     codegensettingspagewidget.ui \
     showbuildlog.ui \
     qtversioninfo.ui \
-    debugginghelper.ui \
     qtversionmanager.ui \
 
 RESOURCES += \

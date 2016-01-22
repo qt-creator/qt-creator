@@ -26,9 +26,6 @@
      <item>
       <widget class="Utils::DetailsWidget" name="infoWidget" native="true"/>
      </item>
-     <item>
-      <widget class="Utils::DetailsWidget" name="debuggingHelperWidget" native="true"/>
-     </item>
     </layout>
    </item>
    <item>

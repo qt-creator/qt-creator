@@ -38,7 +38,6 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/debugginghelperbuildtask.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

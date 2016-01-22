@@ -116,9 +116,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     }
 
     if (projectInfo.tryQmlDump) {
-        ToolChain *toolChain = ToolChainKitInformation::toolChain(activeKit);
-        QtSupport::QmlDumpTool::pathAndEnvironment(project, qtVersion,
-                                                   toolChain,
+        QtSupport::QmlDumpTool::pathAndEnvironment(qtVersion,
                                                    preferDebugDump, &projectInfo.qmlDumpPath,
                                                    &projectInfo.qmlDumpEnvironment);
         projectInfo.qmlDumpHasRelocatableFlag = qtVersion->hasQmlDumpWithRelocatableFlag();
