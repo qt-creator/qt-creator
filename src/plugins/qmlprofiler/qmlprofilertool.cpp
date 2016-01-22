@@ -648,24 +648,23 @@ void QmlProfilerTool::restoreFeatureVisibility()
 
 void QmlProfilerTool::clientsDisconnected()
 {
-    // If the application stopped by itself, check if we have all the data
-    if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying ||
-            d->m_profilerState->currentState() == QmlProfilerStateManager::Idle) {
-        if (d->m_profilerModelManager->state() == QmlProfilerModelManager::AcquiringData) {
-            if (d->m_profilerConnections->aggregateTraces()) {
-                d->m_profilerModelManager->acquiringDone();
-            } else {
+    if (d->m_profilerModelManager->state() == QmlProfilerModelManager::AcquiringData) {
+        if (d->m_profilerConnections->aggregateTraces()) {
+            d->m_profilerModelManager->acquiringDone();
+        } else {
+            // If the application stopped by itself, check if we have all the data
+            if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying ||
+                    d->m_profilerState->currentState() == QmlProfilerStateManager::Idle) {
                 showNonmodalWarning(tr("Application finished before loading profiled data.\n"
                                        "Please use the stop button instead."));
                 d->m_profilerModelManager->clear();
             }
         }
-
-        // ... and return to the "base" state
-        if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying)
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
     }
-    // If the connection is closed while the app is still running, no special action is needed
+
+    // ... and return to the "base" state
+    if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying)
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
 }
 
 void addFeatureToMenu(QMenu *menu, ProfileFeature feature, quint64 enabledFeatures)
