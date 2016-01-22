@@ -40,6 +40,10 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
+// --------------------------------------------------------------------
+// CMakeKitConfigWidget:
+// --------------------------------------------------------------------
+
 CMakeKitConfigWidget::CMakeKitConfigWidget(ProjectExplorer::Kit *kit,
                                            const ProjectExplorer::KitInformation *ki) :
     ProjectExplorer::KitConfigWidget(kit, ki),
@@ -183,6 +187,77 @@ void CMakeKitConfigWidget::manageCMakeTools()
 {
     Core::ICore::showOptionsDialog(Constants::CMAKE_SETTINGSPAGE_ID,
                                    buttonWidget());
+}
+
+// --------------------------------------------------------------------
+// CMakeGeneratorKitConfigWidget:
+// --------------------------------------------------------------------
+
+
+CMakeGeneratorKitConfigWidget::CMakeGeneratorKitConfigWidget(ProjectExplorer::Kit *kit,
+                                                             const ProjectExplorer::KitInformation *ki) :
+    ProjectExplorer::KitConfigWidget(kit, ki),
+    m_comboBox(new QComboBox)
+{
+    m_comboBox->setToolTip(toolTip());
+
+    refresh();
+    connect(m_comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, [this](int idx) {
+                m_ignoreChange = true;
+                CMakeGeneratorKitInformation::setGenerator(m_kit, m_comboBox->itemData(idx).toString());
+                m_ignoreChange = false;
+            });
+}
+
+CMakeGeneratorKitConfigWidget::~CMakeGeneratorKitConfigWidget()
+{
+    delete m_comboBox;
+}
+
+QString CMakeGeneratorKitConfigWidget::displayName() const
+{
+    return tr("CMake Generator:");
+}
+
+void CMakeGeneratorKitConfigWidget::makeReadOnly()
+{
+    m_comboBox->setEnabled(false);
+}
+
+void CMakeGeneratorKitConfigWidget::refresh()
+{
+    if (m_ignoreChange)
+        return;
+
+    CMakeTool *const tool = CMakeKitInformation::cmakeTool(m_kit);
+    if (tool != m_currentTool) {
+        m_comboBox->clear();
+        m_comboBox->addItem(tr("<Use Default Generator>"), QString());
+        if (tool && tool->isValid()) {
+            foreach (const QString &g, tool->supportedGenerators())
+                m_comboBox->addItem(g, g);
+        }
+    }
+
+    const QString generator = CMakeGeneratorKitInformation::generator(m_kit);
+    m_comboBox->setCurrentIndex(m_comboBox->findData(generator));
+}
+
+QWidget *CMakeGeneratorKitConfigWidget::mainWidget() const
+{
+    return m_comboBox;
+}
+
+QWidget *CMakeGeneratorKitConfigWidget::buttonWidget() const
+{
+    return nullptr;
+}
+
+QString CMakeGeneratorKitConfigWidget::toolTip() const
+{
+    return tr("CMake generator defines how a project is built when using CMake.<br>"
+              "This setting is ignored when using other build systems.");
 }
 
 } // namespace Internal

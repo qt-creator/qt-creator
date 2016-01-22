@@ -51,4 +51,23 @@ public:
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
 };
 
+class CMAKE_EXPORT CMakeGeneratorKitInformation : public ProjectExplorer::KitInformation
+{
+    Q_OBJECT
+public:
+    CMakeGeneratorKitInformation();
+
+    static QString generator(const ProjectExplorer::Kit *k);
+    static void setGenerator(ProjectExplorer::Kit *k, const QString &generator);
+    static QString generatorArgument(const ProjectExplorer::Kit *k);
+
+    // KitInformation interface
+    QVariant defaultValue(const ProjectExplorer::Kit *k) const override;
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
+    void setup(ProjectExplorer::Kit *k) override;
+    void fix(ProjectExplorer::Kit *k) override;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;
+};
+
 } // namespace CMakeProjectManager

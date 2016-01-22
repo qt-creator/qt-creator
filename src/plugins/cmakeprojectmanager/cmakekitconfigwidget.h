@@ -41,6 +41,10 @@ class CMakeTool;
 
 namespace Internal {
 
+// --------------------------------------------------------------------
+// CMakeKitConfigWidget:
+// --------------------------------------------------------------------
+
 class CMakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
 {
     Q_OBJECT
@@ -68,6 +72,31 @@ private:
     bool m_removingItem = false;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
+};
+
+// --------------------------------------------------------------------
+// CMakeGeneratorKitConfigWidget:
+// --------------------------------------------------------------------
+
+class CMakeGeneratorKitConfigWidget : public ProjectExplorer::KitConfigWidget
+{
+    Q_OBJECT
+public:
+    CMakeGeneratorKitConfigWidget(ProjectExplorer::Kit *kit, const ProjectExplorer::KitInformation *ki);
+    ~CMakeGeneratorKitConfigWidget() override;
+
+    // KitConfigWidget interface
+    QString displayName() const override;
+    void makeReadOnly() override;
+    void refresh() override;
+    QWidget *mainWidget() const override;
+    QWidget *buttonWidget() const override;
+    QString toolTip() const override;
+
+private:
+    bool m_ignoreChange = false;
+    QComboBox *m_comboBox;
+    CMakeTool *m_currentTool = nullptr;
 };
 
 } // namespace Internal
