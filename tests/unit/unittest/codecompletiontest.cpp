@@ -142,7 +142,7 @@ protected:
         readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForArrowDot.cpp")),
         true
     };
-    ClangBackEnd::FileContainer noDotArrowCorrectionForOnlyDotContainer{
+    ClangBackEnd::FileContainer noDotArrowCorrectionForOnlyDotFileContainer{
         Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForOnlyDot.cpp"),
         projectPart.projectPartId(),
         readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForOnlyDot.cpp")),
@@ -386,7 +386,7 @@ TEST_F(CodeCompleter, NoDotArrowCorrectionForArrowDot)
 
 TEST_F(CodeCompleter, NoDotArrowCorrectionForOnlyDot)
 {
-    auto myCompleter = setupCompleter(noDotArrowCorrectionForOnlyDotContainer);
+    auto myCompleter = setupCompleter(noDotArrowCorrectionForOnlyDotFileContainer);
 
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 6);
 
