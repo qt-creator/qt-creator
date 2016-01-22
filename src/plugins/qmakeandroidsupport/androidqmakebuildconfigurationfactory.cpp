@@ -39,9 +39,14 @@
 #include <qmakeprojectmanager/qmakebuildinfo.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 
-using namespace QmakeAndroidSupport::Internal;
+using namespace Android;
+using namespace ProjectExplorer;
+using namespace QmakeProjectManager;
 
-int AndroidQmakeBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
+namespace QmakeAndroidSupport {
+namespace Internal {
+
+int AndroidQmakeBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
     if (QmakeBuildConfigurationFactory::priority(k, projectPath) >= 0
             && Android::AndroidManager::supportsAndroid(k))
@@ -49,7 +54,7 @@ int AndroidQmakeBuildConfigurationFactory::priority(const ProjectExplorer::Kit *
     return -1;
 }
 
-int AndroidQmakeBuildConfigurationFactory::priority(const ProjectExplorer::Target *parent) const
+int AndroidQmakeBuildConfigurationFactory::priority(const Target *parent) const
 {
     if (QmakeBuildConfigurationFactory::priority(parent) >= 0
             && Android::AndroidManager::supportsAndroid(parent))
@@ -57,32 +62,32 @@ int AndroidQmakeBuildConfigurationFactory::priority(const ProjectExplorer::Targe
     return -1;
 }
 
-ProjectExplorer::BuildConfiguration *AndroidQmakeBuildConfigurationFactory::create(ProjectExplorer::Target *parent,
-                                                                                   const ProjectExplorer::BuildInfo *info) const
+BuildConfiguration *AndroidQmakeBuildConfigurationFactory::create(Target *parent,
+                                                                  const BuildInfo *info) const
 {
-    auto qmakeInfo = static_cast<const QmakeProjectManager::QmakeBuildInfo *>(info);
-    AndroidQmakeBuildConfiguration *bc = new AndroidQmakeBuildConfiguration(parent);
+    auto qmakeInfo = static_cast<const QmakeBuildInfo *>(info);
+    auto bc = new AndroidQmakeBuildConfiguration(parent);
     configureBuildConfiguration(parent, bc, qmakeInfo);
 
-    ProjectExplorer::BuildStepList *buildSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+    BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     buildSteps->insertStep(2, new AndroidPackageInstallationStep(buildSteps));
     buildSteps->insertStep(3, new QmakeAndroidBuildApkStep(buildSteps));
     return bc;
 }
 
-ProjectExplorer::BuildConfiguration *AndroidQmakeBuildConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source)
+BuildConfiguration *AndroidQmakeBuildConfigurationFactory::clone(Target *parent, BuildConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
-    AndroidQmakeBuildConfiguration *oldbc(static_cast<AndroidQmakeBuildConfiguration *>(source));
+    auto *oldbc = static_cast<AndroidQmakeBuildConfiguration *>(source);
     return new AndroidQmakeBuildConfiguration(parent, oldbc);
 }
 
-ProjectExplorer::BuildConfiguration *AndroidQmakeBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+BuildConfiguration *AndroidQmakeBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
-    AndroidQmakeBuildConfiguration *bc = new AndroidQmakeBuildConfiguration(parent);
+    auto bc = new AndroidQmakeBuildConfiguration(parent);
     if (bc->fromMap(map))
         return bc;
     delete bc;
@@ -90,43 +95,37 @@ ProjectExplorer::BuildConfiguration *AndroidQmakeBuildConfigurationFactory::rest
 }
 
 
-AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target)
-    : QmakeProjectManager::QmakeBuildConfiguration(target)
+AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(Target *target)
+    : QmakeBuildConfiguration(target)
 {
-    using QmakeProjectManager::QmakeProject;
-    auto updateGrade = [this] {
-        Android::AndroidManager::updateGradleProperties(BuildConfiguration::target());
-    };
+    auto updateGrade = [this] { AndroidManager::updateGradleProperties(BuildConfiguration::target()); };
 
-    QmakeProject *project = qobject_cast<QmakeProject *>(target->project());
+    auto project = qobject_cast<QmakeProject *>(target->project());
     if (project)
         connect(project, &QmakeProject::proFilesEvaluated, this, updateGrade);
     else
         connect(this, &AndroidQmakeBuildConfiguration::enabledChanged, this, updateGrade);
 }
 
-AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, AndroidQmakeBuildConfiguration *source)
-    : QmakeProjectManager::QmakeBuildConfiguration(target, source)
+AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(Target *target, AndroidQmakeBuildConfiguration *source)
+    : QmakeBuildConfiguration(target, source)
 {
-
 }
 
-AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id)
-    : QmakeProjectManager::QmakeBuildConfiguration(target, id)
+AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(Target *target, Core::Id id)
+    : QmakeBuildConfiguration(target, id)
 {
-
 }
 
 void AndroidQmakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
-    m_androidNdkPlatform = Android::AndroidConfigurations::currentConfig().bestNdkPlatformMatch(Android::AndroidManager::minimumSDK(target()));
+    m_androidNdkPlatform = AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target()));
     env.set(QLatin1String("ANDROID_NDK_PLATFORM"), m_androidNdkPlatform);
 }
 
 void AndroidQmakeBuildConfiguration::manifestSaved()
 {
-    using QmakeProjectManager::QMakeStep;
-    QString androidNdkPlatform = Android::AndroidConfigurations::currentConfig().bestNdkPlatformMatch(Android::AndroidManager::minimumSDK(target()));
+    QString androidNdkPlatform = AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target()));
     if (m_androidNdkPlatform == androidNdkPlatform)
         return;
 
@@ -138,8 +137,11 @@ void AndroidQmakeBuildConfiguration::manifestSaved()
 
     qs->setForced(true);
 
-    ProjectExplorer::BuildManager::buildList(stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
-                  ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
-    ProjectExplorer::BuildManager::appendStep(qs, ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    BuildManager::buildList(stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
+                            ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    BuildManager::appendStep(qs, ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
     setSubNodeBuild(0);
 }
+
+} // namespace Internal
+} // namespace QmakeAndroidSupport
