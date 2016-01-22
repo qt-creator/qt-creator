@@ -1,4 +1,5 @@
 import qbs 1.0
+import qbs.FileInfo
 
 Project {
     name: "Qt Creator"
@@ -66,5 +67,32 @@ Project {
         "tests/tests.qbs"
     ]
 
-    AutotestRunner {}
+    AutotestRunner {
+        Depends { name: "Qt.core" }
+        environment: {
+            var env = base;
+            if (!qbs.hostOS.contains("windows") || !qbs.targetOS.contains("windows"))
+                return env;
+            var path = "";
+            for (var i = 0; i < env.length; ++i) {
+                if (env[i].startsWith("PATH=")) {
+                    path = env[i].substring(5);
+                    break;
+                }
+            }
+            var fullQtcInstallDir
+                    = FileInfo.joinPaths(qbs.installRoot, qbs.installPrefix, qbs.InstallDir);
+            var fullLibInstallDir = FileInfo.joinPaths(fullQtcInstallDir, project.ide_library_path);
+            var fullPluginInstallDir
+                    = FileInfo.joinPaths(fullQtcInstallDir, project.ide_plugin_path);
+            path = Qt.core.binPath + ";" + fullLibInstallDir + ";" + fullPluginInstallDir
+                    + ";" + path;
+            var arrayElem = "PATH=" + path;
+            if (i < env.length)
+                env[i] = arrayElem;
+            else
+                env.push(arrayElem);
+            return env;
+        }
+    }
 }
