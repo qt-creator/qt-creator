@@ -36,7 +36,6 @@
 #include <utils/environment.h>
 
 #include <QFuture>
-#include <QFutureSynchronizer>
 #include <QHash>
 #include <QObject>
 #include <QPointer>
@@ -250,6 +249,8 @@ protected:
     void setDefaultProject(const ProjectInfo &pInfo, ProjectExplorer::Project *p);
 
 private:
+    void cleanupFutures();
+
     mutable QMutex m_mutex;
     QmlJS::Snapshot m_validSnapshot;
     QmlJS::Snapshot m_newestSnapshot;
@@ -278,7 +279,7 @@ private:
 
     PluginDumper *m_pluginDumper;
 
-    QFutureSynchronizer<void> m_synchronizer;
+    QList<QFuture<void>> m_futures;
     bool m_indexerEnabled;
 };
 

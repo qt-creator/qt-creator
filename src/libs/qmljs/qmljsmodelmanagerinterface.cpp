@@ -100,7 +100,6 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
       m_pluginDumper(new PluginDumper(this))
 {
     m_indexerEnabled = qgetenv("QTC_NO_CODE_INDEXER") != "1";
-    m_synchronizer.setCancelOnWait(true);
 
     m_updateCppQmlTypesTimer = new QTimer(this);
     m_updateCppQmlTypesTimer->setInterval(1000);
@@ -302,6 +301,18 @@ void ModelManagerInterface::updateSourceFiles(const QStringList &files,
     refreshSourceFiles(files, emitDocumentOnDiskChanged);
 }
 
+void ModelManagerInterface::cleanupFutures()
+{
+    if (m_futures.size() > 10) {
+        QList<QFuture<void> > futures = m_futures;
+        m_futures.clear();
+        foreach (const QFuture<void> &future, futures) {
+            if (!(future.isFinished() || future.isCanceled()))
+                m_futures.append(future);
+        }
+    }
+}
+
 QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourceFiles,
                                                bool emitDocumentOnDiskChanged)
 {
@@ -312,19 +323,8 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourc
                                               workingCopyInternal(), sourceFiles,
                                               this, Dialect(Dialect::Qml),
                                               emitDocumentOnDiskChanged);
-
-    if (m_synchronizer.futures().size() > 10) {
-        QList<QFuture<void> > futures = m_synchronizer.futures();
-
-        m_synchronizer.clearFutures();
-
-        foreach (const QFuture<void> &future, futures) {
-            if (! (future.isFinished() || future.isCanceled()))
-                m_synchronizer.addFuture(future);
-        }
-    }
-
-    m_synchronizer.addFuture(result);
+    cleanupFutures();
+    m_futures.append(result);
 
     if (sourceFiles.count() > 1)
          addTaskInternal(result, tr("Parsing QML Files"), Constants::TASK_INDEX);
@@ -646,7 +646,7 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfos
 
 bool ModelManagerInterface::isIdle() const
 {
-    return m_synchronizer.futures().isEmpty();
+    return m_futures.isEmpty();
 }
 
 void ModelManagerInterface::emitDocumentChangedOnDisk(Document::Ptr doc)
@@ -1099,19 +1099,8 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
         QFuture<void> result = QtConcurrent::run(&ModelManagerInterface::importScan,
                                                   workingCopyInternal(), pathToScan,
                                                   this, true, true);
-
-        if (m_synchronizer.futures().size() > 10) {
-            QList<QFuture<void> > futures = m_synchronizer.futures();
-
-            m_synchronizer.clearFutures();
-
-            foreach (const QFuture<void> &future, futures) {
-                if (! (future.isFinished() || future.isCanceled()))
-                    m_synchronizer.addFuture(future);
-            }
-        }
-
-        m_synchronizer.addFuture(result);
+        cleanupFutures();
+        m_futures.append(result);
 
         addTaskInternal(result, tr("Scanning QML Imports"), Constants::TASK_IMPORT_SCAN);
     }
@@ -1485,8 +1474,9 @@ void ModelManagerInterface::setDefaultVContext(const ViewerContext &vContext)
 
 void ModelManagerInterface::joinAllThreads()
 {
-    foreach (QFuture<void> future, m_synchronizer.futures())
+    foreach (QFuture<void> future, m_futures)
         future.waitForFinished();
+    m_futures.clear();
 }
 
 Document::Ptr ModelManagerInterface::ensuredGetDocumentForPath(const QString &filePath)
