@@ -6,6 +6,7 @@ Project {
     references: [
         "analyzerbase/analyzerbase.qbs",
         "android/android.qbs",
+        "autotest/autotest.qbs",
         "autotoolsprojectmanager/autotoolsprojectmanager.qbs",
         "baremetal/baremetal.qbs",
         "bazaar/bazaar.qbs",
