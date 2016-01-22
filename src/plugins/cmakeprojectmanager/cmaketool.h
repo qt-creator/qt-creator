@@ -27,12 +27,14 @@
 
 #include "cmake_global.h"
 
-#include <texteditor/codeassist/keywordscompletionassist.h>
-#include <utils/fileutils.h>
 #include <coreplugin/id.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
+
+#include <utils/fileutils.h>
+#include <utils/synchronousprocess.h>
 
 #include <QObject>
-#include <QString>
+#include <QMap>
 #include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QProcess)
@@ -52,23 +54,25 @@ public:
 
     typedef std::function<QString (ProjectExplorer::Kit *, const QString &)> PathMapper;
 
-    explicit CMakeTool(Detection d, const Core::Id &id = Core::Id());
+    explicit CMakeTool(Detection d, const Core::Id &id);
     explicit CMakeTool(const QVariantMap &map, bool fromSdk);
-    ~CMakeTool() override;
+    ~CMakeTool() override = default;
 
-    enum State { Invalid, RunningBasic, RunningFunctionList, RunningFunctionDetails,
-                 RunningPropertyList, RunningVariableList, RunningDone };
-    void cancel();
+    static Core::Id createId();
+
     bool isValid() const;
 
     Core::Id id() const { return m_id; }
     QVariantMap toMap () const;
 
     void setCMakeExecutable(const Utils::FileName &executable);
+
     Utils::FileName cmakeExecutable() const;
     bool hasCodeBlocksMsvcGenerator() const;
     bool hasCodeBlocksNinjaGenerator() const;
+    QStringList supportedGenerators() const;
     TextEditor::Keywords keywords();
+
     bool isAutoDetected() const;
     QString displayName() const;
     void setDisplayName(const QString &displayName);
@@ -77,32 +81,24 @@ public:
     QString mapAllPaths(ProjectExplorer::Kit *kit, const QString &in) const;
 
 private:
-    void finished(int exitCode);
-
-    void createId();
-    void finishStep();
-    void startNextStep();
-    bool startProcess(const QStringList &args);
-    void parseFunctionOutput(const QByteArray &output);
-    void parseFunctionDetailsOutput(const QByteArray &output);
-    void parseVariableOutput(const QByteArray &output);
-    void parseDone();
-    QString formatFunctionDetails(const QString &command, const QString &args);
-
-    State m_state = Invalid;
-    QProcess *m_process = 0;
-    Utils::FileName m_executable;
-
-    bool m_isAutoDetected;
-    bool m_hasCodeBlocksMsvcGenerator = false;
-    bool m_hasCodeBlocksNinjaGenerator = false;
-
-    QMap<QString, QStringList> m_functionArgs;
-    QStringList m_variables;
-    QStringList m_functions;
+    Utils::SynchronousProcessResponse run(const QString &arg) const;
+    void parseFunctionDetailsOutput(const QString &output);
+    QStringList parseVariableOutput(const QString &output);
 
     Core::Id m_id;
     QString m_displayName;
+    Utils::FileName m_executable;
+
+    bool m_isAutoDetected;
+
+    mutable bool m_didAttemptToRun;
+    mutable bool m_didRun;
+
+    mutable QStringList m_generators;
+    mutable QMap<QString, QStringList> m_functionArgs;
+    mutable QStringList m_variables;
+    mutable QStringList m_functions;
+
     PathMapper m_pathMapper;
 };
 

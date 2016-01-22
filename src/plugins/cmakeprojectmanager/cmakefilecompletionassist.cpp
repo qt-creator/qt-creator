@@ -46,8 +46,6 @@ using namespace ProjectExplorer;
 // -------------------------------
 // CMakeFileCompletionAssistProvider
 // -------------------------------
-CMakeFileCompletionAssistProvider::CMakeFileCompletionAssistProvider()
-{}
 
 bool CMakeFileCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
@@ -56,9 +54,8 @@ bool CMakeFileCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 
 IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor() const
 {
-    return new CMakeFileCompletionAssist();
+    return new CMakeFileCompletionAssist;
 }
-
 
 CMakeFileCompletionAssist::CMakeFileCompletionAssist() :
     KeywordsCompletionAssistProcessor(Keywords())
@@ -66,21 +63,17 @@ CMakeFileCompletionAssist::CMakeFileCompletionAssist() :
 
 IAssistProposal *CMakeFileCompletionAssist::perform(const AssistInterface *interface)
 {
-    TextEditor::Keywords keywords;
-
+    Keywords kw;
     QString fileName = interface->fileName();
     if (!fileName.isEmpty() && QFileInfo(fileName).isFile()) {
-        Utils::FileName file = Utils::FileName::fromString(fileName);
-        if (Project *p = SessionManager::projectForFile(file)) {
-            if (Target *t = p->activeTarget()) {
-                if (CMakeTool *cmake = CMakeKitInformation::cmakeTool(t->kit())) {
-                    if (cmake->isValid())
-                        keywords = cmake->keywords();
-                }
-            }
+        Project *p = SessionManager::projectForFile(Utils::FileName::fromString(fileName));
+        if (p && p->activeTarget()) {
+            CMakeTool *cmake = CMakeKitInformation::cmakeTool(p->activeTarget()->kit());
+            if (cmake && cmake->isValid())
+                kw = cmake->keywords();
         }
     }
 
-    setKeywords(keywords);
+    setKeywords(kw);
     return KeywordsCompletionAssistProcessor::perform(interface);
 }

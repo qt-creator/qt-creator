@@ -131,7 +131,7 @@ static void readAndDeleteLegacyCMakeSettings ()
     if (exec.toFileInfo().isExecutable()) {
         CMakeTool *item = CMakeToolManager::findByCommand(exec);
         if (!item) {
-            item = new CMakeTool(CMakeTool::ManualDetection);
+            item = new CMakeTool(CMakeTool::ManualDetection, CMakeTool::createId());
             item->setCMakeExecutable(exec);
             item->setDisplayName(CMakeToolManager::tr("CMake at %1").arg(item->cmakeExecutable().toUserOutput()));
 
@@ -182,7 +182,7 @@ static QList<CMakeTool *> autoDetectCMakeTools()
 
     QList<CMakeTool *> found;
     foreach (const FileName &command, suspects) {
-        auto item = new CMakeTool(CMakeTool::AutoDetection);
+        auto item = new CMakeTool(CMakeTool::AutoDetection, CMakeTool::createId());
         item->setCMakeExecutable(command);
         item->setDisplayName(CMakeToolManager::tr("System CMake at %1").arg(command.toUserOutput()));
 
@@ -247,7 +247,7 @@ Id CMakeToolManager::registerOrFindCMakeTool(const FileName &command)
     if (cmake)
         return cmake->id();
 
-    cmake = new CMakeTool(CMakeTool::ManualDetection);
+    cmake = new CMakeTool(CMakeTool::ManualDetection, CMakeTool::createId());
     cmake->setCMakeExecutable(command);
     cmake->setDisplayName(tr("CMake at %1").arg(command.toUserOutput()));
 
