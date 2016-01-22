@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+-->
+<wizard version="1" kind="project"
+        class="qmakeproject" firstpage="10"
+        id="R.AutoTest" category="H.Project"
+        featuresRequired="QtSupport.Wizards.FeatureQt,QtSupport.Wizards.FeatureDesktop">
+        <!-- "Plugin.AutotestGenerator" as required feature would disable the template if the
+             plugin is disabled, but it fails on the kit selection page for having no valid kit -->
+    <icon>autotest_24.png</icon>
+    <description>Creates a new project including auto test skeleton.</description>
+    <displayname>Auto Test</displayname>;
+    <displaycategory>Other Project</displaycategory>
+    <files>
+        <file source="src.pro" target="src/src.pro" />
+        <file source="tests.pro" target="tests/tests.pro" />
+        <file source="auto.pro" target="tests/auto/auto.pro"/>
+        <file source="tst.pro" target="tests/auto/%TestCaseName:l%/%TestCaseName:l%.pro" />
+        <file source="tst_src.cpp"
+              target="tests/auto/%TestCaseName:l%/tst_%TestCaseName:l%.%CppSourceSuffix%"
+              openeditor="true"/>
+        <file source="main.cpp" target="src/main.%CppSourceSuffix%" openeditor="true" />
+        <file source="tmp.pro" target="%ProjectName:l%.pro" openproject="true" />
+    </files>
+    <!-- Create a 2nd wizard page with parameters -->
+    <fieldpagetitle>Project and Test Information</fieldpagetitle>
+    <fields>
+        <field name="RequireGUI">
+            <fieldcontrol class="QCheckBox" />
+            <fielddescription>GUI Application</fielddescription>
+        </field>
+        <field mandatory="true" name="TestCaseName">
+            <fieldcontrol class="QLineEdit" validator="^[a-zA-Z_0-9]+$"
+                          /><!-- defaulttext="" /> -->
+            <fielddescription>Test Case Name:</fielddescription>
+        </field>
+        <field name="RequireApplication">
+            <fieldcontrol class="QCheckBox" />
+            <fielddescription>Requires QApplication</fielddescription>
+        </field>
+        <field name="GenerateInitAndCleanup">
+            <fieldcontrol class="QCheckBox" />
+            <fielddescription>Generate initialization and cleanup code</fielddescription>
+        </field>
+        <field name="BuildAutoTests">
+            <fieldcontrol class="QComboBox" defaultindex="0" >
+                <comboentries>
+                    <comboentry value="always" >
+                        <comboentrytext>always</comboentrytext>
+                    </comboentry>
+                    <comboentry value="debug" >
+                        <comboentrytext>debug only</comboentrytext>
+                    </comboentry>
+                </comboentries>
+            </fieldcontrol>
+            <fielddescription>Build auto tests</fielddescription>
+        </field>
+    </fields>
+</wizard>
