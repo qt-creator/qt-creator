@@ -36,6 +36,7 @@
 #include <utils/fileutils.h>
 
 #include <QByteArray>
+#include <QFutureInterface>
 #include <QObject>
 #include <QSet>
 
@@ -109,6 +110,7 @@ private:
 
     // For error reporting:
     ProjectExplorer::IOutputParser *m_parser = nullptr;
+    QFutureInterface<void> *m_future = nullptr;
 };
 
 } // namespace Internal

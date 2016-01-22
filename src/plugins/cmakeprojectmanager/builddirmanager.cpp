@@ -30,6 +30,7 @@
 #include "cmaketool.h"
 
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
@@ -37,6 +38,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDateTime>
@@ -239,6 +241,7 @@ void BuildDirManager::startCMake(CMakeTool *tool, const QString &generator,
     QTC_ASSERT(tool && tool->isValid(), return);
     QTC_ASSERT(!m_cmakeProcess, return);
     QTC_ASSERT(!m_parser, return);
+    QTC_ASSERT(!m_future, return);
 
     // Make sure m_buildDir exists:
     const QString buildDirStr = m_buildDir.toString();
@@ -281,6 +284,17 @@ void BuildDirManager::startCMake(CMakeTool *tool, const QString &generator,
 
     ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
+    Core::MessageManager::write(tr("Running '%1 %2' in %3.")
+                                .arg(tool->cmakeExecutable().toUserOutput())
+                                .arg(args)
+                                .arg(m_buildDir.toUserOutput()));
+
+    m_future = new QFutureInterface<void>();
+    m_future->setProgressRange(0, 1);
+    Core::ProgressManager::addTask(m_future->future(),
+                                   tr("Configuring \"%1\"").arg(projectName()),
+                                   "CMake.Configure");
+
     m_cmakeProcess->setCommand(tool->cmakeExecutable().toString(), args);
     m_cmakeProcess->start();
     emit parsingStarted();
@@ -313,7 +327,14 @@ void BuildDirManager::cmakeFinished(int code, QProcess::ExitStatus status)
         Core::MessageManager::write(msg);
         ProjectExplorer::TaskHub::addTask(ProjectExplorer::Task::Error, msg,
                                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+        m_future->reportCanceled();
+    } else {
+        m_future->setProgressValue(1);
     }
+
+    m_future->reportFinished();
+    delete m_future;
+    m_future = 0;
 
     emit dataAvailable();
 }
