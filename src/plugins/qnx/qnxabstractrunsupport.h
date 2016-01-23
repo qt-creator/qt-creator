@@ -72,7 +72,7 @@ protected:
     ProjectExplorer::DeviceApplicationRunner *appRunner() const;
     const ProjectExplorer::IDevice::ConstPtr device() const;
 
-protected slots:
+public slots:
     virtual void handleAdapterSetupRequested();
 
     virtual void handleRemoteProcessStarted();

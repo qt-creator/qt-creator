@@ -28,9 +28,7 @@
 
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 
-namespace Utils {
-class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 namespace Qnx {
 namespace Internal {
@@ -52,4 +50,5 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
+
 #endif // QNX_INTERNAL_QNXATTACHDEBUGDIALOG_H

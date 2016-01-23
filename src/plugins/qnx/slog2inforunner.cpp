@@ -29,10 +29,11 @@
 
 #include <utils/qtcassert.h>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+namespace Qnx {
+namespace Internal {
 
-Slog2InfoRunner::Slog2InfoRunner(const QString &applicationId, const RemoteLinux::LinuxDevice::ConstPtr &device, QObject *parent)
+Slog2InfoRunner::Slog2InfoRunner(const QString &applicationId,
+                                 const RemoteLinux::LinuxDevice::ConstPtr &device, QObject *parent)
     : QObject(parent)
     , m_applicationId(applicationId)
     , m_found(false)
@@ -43,17 +44,17 @@ Slog2InfoRunner::Slog2InfoRunner(const QString &applicationId, const RemoteLinux
     m_applicationId.truncate(63);
 
     m_testProcess = new QnxDeviceProcess(device, this);
-    connect(m_testProcess, SIGNAL(finished()), this, SLOT(handleTestProcessCompleted()));
+    connect(m_testProcess, &ProjectExplorer::DeviceProcess::finished, this, &Slog2InfoRunner::handleTestProcessCompleted);
 
     m_launchDateTimeProcess = new ProjectExplorer::SshDeviceProcess(device, this);
-    connect(m_launchDateTimeProcess, SIGNAL(finished()), this, SLOT(launchSlog2Info()));
+    connect(m_launchDateTimeProcess, &ProjectExplorer::DeviceProcess::finished, this, &Slog2InfoRunner::launchSlog2Info);
 
     m_logProcess = new QnxDeviceProcess(device, this);
-    connect(m_logProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(readLogStandardOutput()));
-    connect(m_logProcess, SIGNAL(readyReadStandardError()), this, SLOT(readLogStandardError()));
-    connect(m_logProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleLogError()));
-    connect(m_logProcess, SIGNAL(started()), this, SIGNAL(started()));
-    connect(m_logProcess, SIGNAL(finished()), this, SIGNAL(finished()));
+    connect(m_logProcess, &ProjectExplorer::DeviceProcess::readyReadStandardOutput, this, &Slog2InfoRunner::readLogStandardOutput);
+    connect(m_logProcess, &ProjectExplorer::DeviceProcess::readyReadStandardError, this, &Slog2InfoRunner::readLogStandardError);
+    connect(m_logProcess, &ProjectExplorer::DeviceProcess::error, this, &Slog2InfoRunner::handleLogError);
+    connect(m_logProcess, &ProjectExplorer::DeviceProcess::started, this, &Slog2InfoRunner::started);
+    connect(m_logProcess, &ProjectExplorer::DeviceProcess::finished, this, &Slog2InfoRunner::finished);
 }
 
 void Slog2InfoRunner::start()
@@ -177,3 +178,6 @@ void Slog2InfoRunner::handleLogError()
 {
     emit output(tr("Cannot show slog2info output. Error: %1").arg(m_logProcess->errorString()), Utils::StdErrFormat);
 }
+
+} // namespace Internal
+} // namespace Qnx

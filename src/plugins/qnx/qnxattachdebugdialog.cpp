@@ -38,21 +38,20 @@ using namespace Qnx::Internal;
 QnxAttachDebugDialog::QnxAttachDebugDialog(ProjectExplorer::KitChooser *kitChooser, QWidget *parent)
     : ProjectExplorer::DeviceProcessesDialog(kitChooser, parent)
 {
-    QVBoxLayout *mainLayout = dynamic_cast<QVBoxLayout*>(layout());
-    QTC_ASSERT(mainLayout, return);
-
-    QFormLayout *formLayout = new QFormLayout;
-
-    QLabel *sourceLabel = new QLabel(tr("Project source directory:"), this);
+    auto sourceLabel = new QLabel(tr("Project source directory:"), this);
     m_projectSource = new Utils::PathChooser(this);
     m_projectSource->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    formLayout->addRow(sourceLabel, m_projectSource);
 
-    QLabel *binaryLabel = new QLabel(tr("Local executable:"), this);
+    auto binaryLabel = new QLabel(tr("Local executable:"), this);
     m_localExecutable = new Utils::PathChooser(this);
     m_localExecutable->setExpectedKind(Utils::PathChooser::File);
+
+    auto formLayout = new QFormLayout;
+    formLayout->addRow(sourceLabel, m_projectSource);
     formLayout->addRow(binaryLabel, m_localExecutable);
 
+    auto mainLayout = dynamic_cast<QVBoxLayout*>(layout());
+    QTC_ASSERT(mainLayout, return);
     mainLayout->insertLayout(mainLayout->count() - 2, formLayout);
 }
 

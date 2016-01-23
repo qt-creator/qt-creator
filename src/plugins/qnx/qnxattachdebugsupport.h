@@ -64,15 +64,15 @@ private slots:
 private:
     void stopPDebug();
 
-    ProjectExplorer::Kit *m_kit;
+    ProjectExplorer::Kit *m_kit = 0;
     ProjectExplorer::IDevice::ConstPtr m_device;
     ProjectExplorer::DeviceProcessItem m_process;
 
     ProjectExplorer::DeviceApplicationRunner *m_runner;
     ProjectExplorer::DeviceUsedPortsGatherer *m_portsGatherer;
-    Debugger::DebuggerRunControl *m_runControl;
+    Debugger::DebuggerRunControl *m_runControl = 0;
 
-    int m_pdebugPort;
+    int m_pdebugPort = -1;
     QString m_projectSourceDirectory;
     QString m_localExecutablePath;
 };
