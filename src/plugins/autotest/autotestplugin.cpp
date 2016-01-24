@@ -94,7 +94,7 @@ QSharedPointer<TestSettings> AutotestPlugin::settings() const
 void AutotestPlugin::initializeMenuEntries()
 {
     ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(tr("Tests"));
+    menu->menu()->setTitle(tr("&Tests"));
 
     QAction *action = new QAction(tr("Run &All Tests"), this);
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_ID);
