@@ -320,7 +320,7 @@ void GTestOutputReader::processOutput()
     static QRegExp testEnds(QStringLiteral("^\\[-{10}\\] \\d+ tests? from (.*) \\((.*)\\)$"));
     static QRegExp newTestSetStarts(QStringLiteral("^\\[ RUN      \\] (.*)$"));
     static QRegExp testSetSuccess(QStringLiteral("^\\[       OK \\] (.*) \\((.*)\\)$"));
-    static QRegExp testSetFail(QStringLiteral("^\\\[  FAILED  \\] (.*) \\((.*)\\)$"));
+    static QRegExp testSetFail(QStringLiteral("^\\[  FAILED  \\] (.*) \\((.*)\\)$"));
     static QRegExp disabledTests(QStringLiteral("^  YOU HAVE (\\d+) DISABLED TESTS?$"));
 
     while (m_testApplication->canReadLine()) {
