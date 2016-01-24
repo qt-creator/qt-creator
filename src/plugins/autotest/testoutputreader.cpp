@@ -336,6 +336,8 @@ void GTestOutputReader::processOutput()
             continue;
         }
         read.chop(1); // remove the newline from the output
+        if (read.endsWith('\r'))
+            read.chop(1);
 
         const QString line = QString::fromLatin1(read);
         if (line.trimmed().isEmpty())
