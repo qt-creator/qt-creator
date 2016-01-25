@@ -1,6 +1,6 @@
 import qbs
 
-QtcCommercialPlugin {
+QtcPlugin {
     name: "AutoTest"
 
     Depends { name: "Core" }
