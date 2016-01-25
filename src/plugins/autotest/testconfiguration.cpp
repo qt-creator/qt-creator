@@ -30,8 +30,9 @@
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -94,19 +95,16 @@ void basicProjectInformation(Project *project, const QString &proFile, QString *
     }
 }
 
-void extractEnvironmentInformation(LocalApplicationRunConfiguration *localRunConfiguration,
-                                   QString *workDir, Utils::Environment *env)
+static bool isLocal(RunConfiguration *runConfiguration)
 {
-    *workDir = Utils::FileUtils::normalizePathName(localRunConfiguration->workingDirectory());
-    if (auto environmentAspect = localRunConfiguration->extraAspect<EnvironmentAspect>())
-        *env = environmentAspect->environment();
+    Target *target = runConfiguration ? runConfiguration->target() : 0;
+    Kit *kit = target ? target->kit() : 0;
+    return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
 void TestConfiguration::completeTestInformation()
 {
     QTC_ASSERT(!m_mainFilePath.isEmpty() || !m_proFile.isEmpty(), return);
-
-    typedef LocalApplicationRunConfiguration LocalRunConfig;
 
     Project *project = SessionManager::startupProject();
     if (!project)
@@ -144,21 +142,30 @@ void TestConfiguration::completeTestInformation()
 
     QList<RunConfiguration *> rcs = target->runConfigurations();
     foreach (RunConfiguration *rc, rcs) {
-        auto config = qobject_cast<LocalRunConfig *>(rc);
-        if (config && config->executable() == targetFile) {
-            extractEnvironmentInformation(config, &workDir, &env);
-            hasDesktopTarget = true;
-            break;
+        Runnable runnable = rc->runnable();
+        if (isLocal(rc) && runnable.is<StandardRunnable>()) {
+            StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
+            if (stdRunnable.executable == targetFile) {
+                workDir = Utils::FileUtils::normalizePathName(stdRunnable.workingDirectory);
+                env = stdRunnable.environment;
+                hasDesktopTarget = true;
+                break;
+            }
         }
     }
 
     // if we could not figure out the run configuration
     // try to use the run configuration of the parent project
     if (!hasDesktopTarget && targetProject && !targetFile.isEmpty()) {
-        if (auto config = qobject_cast<LocalRunConfig *>(target->activeRunConfiguration())) {
-            extractEnvironmentInformation(config, &workDir, &env);
-            hasDesktopTarget = true;
-            guessedRunConfiguration = true;
+        if (auto rc = target->activeRunConfiguration()) {
+            Runnable runnable = rc->runnable();
+            if (isLocal(rc) && runnable.is<StandardRunnable>()) {
+                StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
+                workDir = Utils::FileUtils::normalizePathName(stdRunnable.workingDirectory);
+                env = stdRunnable.environment;
+                hasDesktopTarget = true;
+                guessedRunConfiguration = true;
+            }
         }
     }
 

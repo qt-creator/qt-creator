@@ -37,7 +37,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/localapplicationruncontrol.h>
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runnables.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qmldebug/qmloutputparser.h>
 

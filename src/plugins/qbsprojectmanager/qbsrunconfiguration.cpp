@@ -61,6 +61,7 @@
 #include <QDir>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -106,12 +107,12 @@ const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &u
 // --------------------------------------------------------------------
 
 QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
-    LocalApplicationRunConfiguration(parent, id),
+    RunConfiguration(parent, id),
     m_uniqueProductName(uniqueProductNameFromId(id)),
     m_currentInstallStep(0),
     m_currentBuildStepList(0)
 {
-    addExtraAspect(new LocalEnvironmentAspect(this));
+    addExtraAspect(new LocalEnvironmentAspect(this, [this](Environment &env) { addToBaseEnvironment(env); }));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qbs.RunConfiguration.CommandLineArguments")));
     addExtraAspect(new WorkingDirectoryAspect(this, QStringLiteral("Qbs.RunConfiguration.WorkingDirectory")));
 
@@ -123,7 +124,7 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
 }
 
 QbsRunConfiguration::QbsRunConfiguration(Target *parent, QbsRunConfiguration *source) :
-    LocalApplicationRunConfiguration(parent, source),
+    RunConfiguration(parent, source),
     m_uniqueProductName(source->m_uniqueProductName),
     m_currentInstallStep(0), // no need to copy this, we will get if from the DC anyway.
     m_currentBuildStepList(0) // ditto
@@ -226,6 +227,17 @@ void QbsRunConfiguration::installStepToBeRemoved(int pos)
     m_currentInstallStep = 0;
 }
 
+Runnable QbsRunConfiguration::runnable() const
+{
+    StandardRunnable r;
+    r.executable = executable();
+    r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
+    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
+    r.runMode = extraAspect<TerminalAspect>()->runMode();
+    r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
+    return r;
+}
+
 QString QbsRunConfiguration::executable() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
@@ -237,23 +249,11 @@ QString QbsRunConfiguration::executable() const
     return pro->qbsProject().targetExecutable(product, installOptions());
 }
 
-ApplicationLauncher::Mode QbsRunConfiguration::runMode() const
-{
-    return extraAspect<TerminalAspect>()->runMode();
-}
-
 bool QbsRunConfiguration::isConsoleApplication() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
     const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_uniqueProductName);
     return product.properties().value(QLatin1String("consoleApplication"), false).toBool();
-}
-
-QString QbsRunConfiguration::workingDirectory() const
-{
-    const auto *wdAspect = extraAspect<WorkingDirectoryAspect>();
-    QTC_ASSERT(wdAspect, return baseWorkingDirectory());
-    return wdAspect->workingDirectory().toString();
 }
 
 QString QbsRunConfiguration::baseWorkingDirectory() const
@@ -262,11 +262,6 @@ QString QbsRunConfiguration::baseWorkingDirectory() const
     if (!exe.isEmpty())
         return QFileInfo(exe).absolutePath();
     return QString();
-}
-
-QString QbsRunConfiguration::commandLineArguments() const
-{
-    return extraAspect<ArgumentsAspect>()->arguments();
 }
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const

@@ -36,7 +36,7 @@
 
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -52,6 +52,13 @@ using namespace ProjectExplorer;
 namespace QmlProfiler {
 namespace Internal {
 
+static bool isLocal(RunConfiguration *runConfiguration)
+{
+    Target *target = runConfiguration ? runConfiguration->target() : 0;
+    Kit *kit = target ? target->kit() : 0;
+    return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+}
+
 QmlProfilerRunControlFactory::QmlProfilerRunControlFactory(QObject *parent) :
     IRunControlFactory(parent)
 {
@@ -59,22 +66,19 @@ QmlProfilerRunControlFactory::QmlProfilerRunControlFactory(QObject *parent) :
 
 bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    return mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE
-            && (qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration));
+    return mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE && isLocal(runConfiguration);
 }
 
 RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
+    QTC_ASSERT(runConfiguration->runnable().is<StandardRunnable>(), return 0);
+    auto &rcRunnable = runConfiguration->runnable().as<StandardRunnable>();
+    AnalyzerRunnable runnable;
+    runnable.debuggee = rcRunnable.executable;
+    runnable.debuggeeArgs = rcRunnable.commandLineArguments;
 
     Kit *kit = runConfiguration->target()->kit();
-    // FIXME: This is only used to communicate the connParams settings.
-    auto localRunConfiguration = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(localRunConfiguration, return 0);
-    AnalyzerRunnable runnable;
-    runnable.debuggee = localRunConfiguration->executable();
-    runnable.debuggeeArgs = localRunConfiguration->commandLineArguments();
-
     AnalyzerConnection connection;
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
     if (version) {

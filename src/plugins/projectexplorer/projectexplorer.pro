@@ -14,7 +14,7 @@ HEADERS += projectexplorer.h \
     environmentaspectwidget.h \
     gcctoolchain.h \
     importwidget.h \
-    localapplicationrunconfiguration.h \
+    runnables.h \
     localenvironmentaspect.h \
     osparser.h \
     projectexplorer_export.h \
@@ -167,7 +167,6 @@ SOURCES += projectexplorer.cpp \
     environmentaspectwidget.cpp \
     gcctoolchain.cpp \
     importwidget.cpp \
-    localapplicationrunconfiguration.cpp \
     localenvironmentaspect.cpp \
     osparser.cpp \
     projectimporter.cpp \

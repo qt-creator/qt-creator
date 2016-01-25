@@ -40,9 +40,9 @@
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/environmentaspect.h> // For the environment
-#include <projectexplorer/localapplicationrunconfiguration.h> // For LocalApplication*
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -331,12 +331,13 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         m_runConfig = runConfig;
 
     // Extract as much as possible from available RunConfiguration.
-    if (auto localRc = qobject_cast<const LocalApplicationRunConfiguration *>(m_runConfig)) {
-        m_rp.executable = localRc->executable();
-        m_rp.processArgs = localRc->commandLineArguments();
-        m_rp.useTerminal = localRc->runMode() == ApplicationLauncher::Console;
+    if (m_runConfig->runnable().is<StandardRunnable>()) {
+        auto runnable = m_runConfig->runnable().as<StandardRunnable>();
+        m_rp.executable = runnable.executable;
+        m_rp.processArgs = runnable.commandLineArguments;
+        m_rp.useTerminal = runnable.runMode == ApplicationLauncher::Console;
         // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
-        m_rp.workingDirectory = FileUtils::normalizePathName(localRc->workingDirectory());
+        m_rp.workingDirectory = FileUtils::normalizePathName(runnable.workingDirectory);
     }
 
     // Find a Kit and Target. Either could be missing.
@@ -630,9 +631,11 @@ public:
 
     bool canRun(RunConfiguration *runConfig, Core::Id mode) const override
     {
-        return (mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain)
-            && (qobject_cast<LocalApplicationRunConfiguration *>(runConfig)
-                || isDebuggableScript(runConfig));
+        if (!(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain))
+            return false;
+        return DeviceTypeKitInformation::deviceTypeId(runConfig->target()->kit())
+                    == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
+                 || isDebuggableScript(runConfig);
     }
 
     IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc) override

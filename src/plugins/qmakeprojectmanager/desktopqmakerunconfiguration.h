@@ -28,7 +28,7 @@
 
 #include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
 
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runnables.h>
 
 #include <utils/fileutils.h>
 
@@ -48,7 +48,7 @@ class QmakeProject;
 namespace Internal {
 class DesktopQmakeRunConfigurationFactory;
 
-class DesktopQmakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class DesktopQmakeRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
     // to change the display name and arguments and set the userenvironmentchanges
@@ -62,10 +62,8 @@ public:
     QString disabledReason() const override;
     QWidget *createConfigurationWidget() override;
 
-    QString executable() const override;
-    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
-    QString workingDirectory() const override;
-    QString commandLineArguments() const override;
+    ProjectExplorer::Runnable runnable() const override;
+    QString executable() const;
 
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);
@@ -79,7 +77,7 @@ public:
 
     Utils::OutputFormatter *createOutputFormatter() const override;
 
-    void addToBaseEnvironment(Utils::Environment &env) const override;
+    void addToBaseEnvironment(Utils::Environment &env) const;
 
 signals:
     void baseWorkingDirectoryChanged(const QString&);

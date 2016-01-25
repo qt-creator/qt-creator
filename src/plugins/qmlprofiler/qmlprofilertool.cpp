@@ -49,7 +49,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runnables.h>
 #include <texteditor/texteditor.h>
 
 #include <coreplugin/coreconstants.h>

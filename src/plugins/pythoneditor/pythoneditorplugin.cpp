@@ -419,7 +419,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *parent, Core::Id id) :
     const QString exec = sysEnv.searchInPath(QLatin1String("python")).toString();
     m_interpreter = exec.isEmpty() ? QLatin1String("python") : exec;
 
-    addExtraAspect(new LocalEnvironmentAspect(this));
+    addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("PythonEditor.RunConfiguration.Arguments")));
     addExtraAspect(new TerminalAspect(this, QStringLiteral("PythonEditor.RunConfiguration.UseTerminal")));
     setDefaultDisplayName(defaultDisplayName());

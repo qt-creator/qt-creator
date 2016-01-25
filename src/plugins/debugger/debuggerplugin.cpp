@@ -87,7 +87,6 @@
 
 #include <extensionsystem/invoker.h>
 
-#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -98,6 +97,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 

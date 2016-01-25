@@ -28,7 +28,7 @@
 
 #include "qtsupport_global.h"
 
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runnables.h>
 
 #include <QVariantMap>
 
@@ -39,7 +39,7 @@ namespace Internal { class CustomExecutableConfigurationWidget; }
 
 class CustomExecutableRunConfigurationFactory;
 
-class QTSUPPORT_EXPORT CustomExecutableRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class QTSUPPORT_EXPORT CustomExecutableRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
     // the configuration widget needs to setExecutable setWorkingDirectory and setCommandLineArguments
@@ -54,15 +54,13 @@ public:
      * Returns the executable, looks in the environment for it and might even
      * ask the user if none is specified
      */
-    QString executable() const override;
+    QString executable() const;
+    QString workingDirectory() const;
+    ProjectExplorer::Runnable runnable() const override;
 
     /** Returns whether this runconfiguration ever was configured with an executable
      */
     bool isConfigured() const override;
-
-    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
-    QString workingDirectory() const override;
-    QString commandLineArguments() const override;
 
     QWidget *createConfigurationWidget() override;
 

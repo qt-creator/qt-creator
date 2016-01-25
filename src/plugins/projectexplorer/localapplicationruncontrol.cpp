@@ -24,11 +24,14 @@
 ****************************************************************************/
 
 #include "localapplicationruncontrol.h"
-#include "localapplicationrunconfiguration.h"
+#include "runnables.h"
 #include "environmentaspect.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
+
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 
@@ -37,30 +40,27 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-LocalApplicationRunControlFactory::LocalApplicationRunControlFactory()
+static bool isLocal(RunConfiguration *runConfiguration)
 {
-}
-
-LocalApplicationRunControlFactory::~LocalApplicationRunControlFactory()
-{
+    Target *target = runConfiguration ? runConfiguration->target() : 0;
+    Kit *kit = target ? target->kit() : 0;
+    return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
 bool LocalApplicationRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    return mode == Constants::NORMAL_RUN_MODE && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+    return mode == Constants::NORMAL_RUN_MODE && isLocal(runConfiguration);
 }
 
 RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    LocalApplicationRunConfiguration *localRunConfiguration = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-
-    QTC_ASSERT(localRunConfiguration, return 0);
-    LocalApplicationRunControl *runControl = new LocalApplicationRunControl(localRunConfiguration, mode);
-    runControl->setCommand(localRunConfiguration->executable(), localRunConfiguration->commandLineArguments());
-    runControl->setApplicationLauncherMode(localRunConfiguration->runMode());
-    runControl->setWorkingDirectory(localRunConfiguration->workingDirectory());
+    QTC_ASSERT(runConfiguration->runnable().is<StandardRunnable>(), return 0);
+    auto runnable = runConfiguration->runnable().as<StandardRunnable>();
+    auto runControl = new LocalApplicationRunControl(runConfiguration, mode);
+    runControl->setCommand(runnable.executable, runnable.commandLineArguments);
+    runControl->setApplicationLauncherMode(runnable.runMode);
+    runControl->setWorkingDirectory(runnable.workingDirectory);
 
     return runControl;
 }

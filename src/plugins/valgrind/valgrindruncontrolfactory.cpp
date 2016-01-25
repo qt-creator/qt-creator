@@ -41,7 +41,7 @@
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
@@ -75,21 +75,19 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
     QTC_ASSERT(runControl, return 0);
 
     ApplicationLauncher::Mode localRunMode = ApplicationLauncher::Gui;
+    IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
     Utils::Environment environment;
     AnalyzerRunnable runnable;
     AnalyzerConnection connection;
     QString workingDirectory;
-    if (auto rc1 = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
-        EnvironmentAspect *aspect = runConfiguration->extraAspect<EnvironmentAspect>();
-        if (aspect)
-            environment = aspect->environment();
-        workingDirectory = rc1->workingDirectory();
-        runnable.debuggee = rc1->executable();
-        runnable.debuggeeArgs = rc1->commandLineArguments();
-        const IDevice::ConstPtr device =
-                DeviceKitInformation::device(runConfiguration->target()->kit());
-        QTC_ASSERT(device, return 0);
-        QTC_ASSERT(device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE, return 0);
+    Runnable rcRunnable = runConfiguration->runnable();
+    if (rcRunnable.is<StandardRunnable>()
+            && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        auto stdRunnable = runConfiguration->runnable().as<StandardRunnable>();
+        environment = stdRunnable.environment;
+        workingDirectory = stdRunnable.workingDirectory;
+        runnable.debuggee = stdRunnable.executable;
+        runnable.debuggeeArgs = stdRunnable.commandLineArguments;
         QTcpServer server;
         if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
             qWarning() << "Cannot open port on host for profiling.";
@@ -97,11 +95,11 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         }
         connection.connParams.host = server.serverAddress().toString();
         connection.connParams.port = server.serverPort();
-        localRunMode = rc1->runMode();
+        localRunMode = stdRunnable.runMode;
     } else if (auto rc2 = qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
         runnable.debuggee = rc2->remoteExecutableFilePath();
         runnable.debuggeeArgs = rc2->arguments();
-        connection.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();
+        connection.connParams = device->sshParameters();
     } else {
         QTC_ASSERT(false, return 0);
     }

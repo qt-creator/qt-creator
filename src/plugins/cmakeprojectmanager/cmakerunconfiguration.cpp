@@ -61,11 +61,11 @@ const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
 
 CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const QString &target,
                                              const QString &workingDirectory, const QString &title) :
-    LocalApplicationRunConfiguration(parent, id),
+    RunConfiguration(parent, id),
     m_buildTarget(target),
     m_title(title)
 {
-    addExtraAspect(new LocalEnvironmentAspect(this));
+    addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.Arguments")));
     addExtraAspect(new TerminalAspect(this, QStringLiteral("CMakeProjectManager.CMakeRunConfiguration.UseTerminal")));
 
@@ -77,7 +77,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const 
 }
 
 CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, CMakeRunConfiguration *source) :
-    LocalApplicationRunConfiguration(parent, source),
+    RunConfiguration(parent, source),
     m_buildTarget(source->m_buildTarget),
     m_title(source->m_title),
     m_enabled(source->m_enabled)
@@ -90,34 +90,23 @@ void CMakeRunConfiguration::ctor()
     setDefaultDisplayName(defaultDisplayName());
 }
 
-QString CMakeRunConfiguration::executable() const
+Runnable CMakeRunConfiguration::runnable() const
 {
-    return m_buildTarget;
-}
-
-ApplicationLauncher::Mode CMakeRunConfiguration::runMode() const
-{
-    return extraAspect<TerminalAspect>()->runMode();
-}
-
-QString CMakeRunConfiguration::workingDirectory() const
-{
-    const auto *wdAspect = extraAspect<WorkingDirectoryAspect>();
-    QTC_ASSERT(wdAspect, return baseWorkingDirectory());
-    return wdAspect->workingDirectory().toString();
+    StandardRunnable r;
+    r.executable = m_buildTarget;
+    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
+    r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
+    r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
+    r.runMode = extraAspect<TerminalAspect>()->runMode();
+    return r;
 }
 
 QString CMakeRunConfiguration::baseWorkingDirectory() const
 {
-    const QString exe = executable();
+    const QString exe = m_buildTarget;
     if (!exe.isEmpty())
-        return QFileInfo(executable()).absolutePath();
+        return QFileInfo(m_buildTarget).absolutePath();
     return QString();
-}
-
-QString CMakeRunConfiguration::commandLineArguments() const
-{
-    return extraAspect<ArgumentsAspect>()->arguments();
 }
 
 QString CMakeRunConfiguration::title() const
@@ -138,7 +127,7 @@ void CMakeRunConfiguration::setBaseWorkingDirectory(const QString &wd)
 
 QVariantMap CMakeRunConfiguration::toMap() const
 {
-    QVariantMap map(LocalApplicationRunConfiguration::toMap());
+    QVariantMap map(RunConfiguration::toMap());
     map.insert(QLatin1String(TITLE_KEY), m_title);
     return map;
 }

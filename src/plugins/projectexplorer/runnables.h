@@ -23,32 +23,28 @@
 **
 ****************************************************************************/
 
-#ifndef LOCALAPPLICATIONRUNCONFIGURATION_H
-#define LOCALAPPLICATIONRUNCONFIGURATION_H
+#ifndef PROJECTEXPLORER_RUNNABLES_H
+#define PROJECTEXPLORER_RUNNABLES_H
 
 #include "runconfiguration.h"
-#include "applicationlauncher.h"
 
-namespace Utils { class Environment; }
+#include "applicationlauncher.h"
+#include "devicesupport/idevice.h"
+
+#include <utils/environment.h>
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT LocalApplicationRunConfiguration : public RunConfiguration
+class PROJECTEXPLORER_EXPORT StandardRunnable
 {
-    Q_OBJECT
 public:
-    virtual QString executable() const = 0;
-    virtual ApplicationLauncher::Mode runMode() const = 0;
-    virtual QString workingDirectory() const = 0;
-    virtual QString commandLineArguments() const = 0;
-
-    virtual void addToBaseEnvironment(Utils::Environment &env) const;
-
-protected:
-    explicit LocalApplicationRunConfiguration(Target *target, Core::Id id);
-    explicit LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc);
+    QString executable;
+    QString commandLineArguments;
+    QString workingDirectory;
+    Utils::Environment environment;
+    ApplicationLauncher::Mode runMode;
 };
 
 } // namespace ProjectExplorer
 
-#endif // LOCALAPPLICATIONRUNCONFIGURATION_H
+#endif // PROJECTEXPLORER_RUNNABLES_H

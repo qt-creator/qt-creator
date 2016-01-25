@@ -27,7 +27,7 @@
 
 #include "buildconfiguration.h"
 #include "environmentaspectwidget.h"
-#include "localapplicationrunconfiguration.h"
+#include "runnables.h"
 #include "kit.h"
 #include "target.h"
 
@@ -72,8 +72,8 @@ Utils::Environment LocalEnvironmentAspect::baseEnvironment() const
         env = Utils::Environment::systemEnvironment();
     }
 
-    if (const LocalApplicationRunConfiguration *rc = qobject_cast<const LocalApplicationRunConfiguration *>(runConfiguration()))
-        rc->addToBaseEnvironment(env);
+    if (m_baseEnvironmentModifier)
+        m_baseEnvironmentModifier(env);
 
     return env;
 }
@@ -84,16 +84,17 @@ void LocalEnvironmentAspect::buildEnvironmentHasChanged()
         emit environmentChanged();
 }
 
-LocalEnvironmentAspect::LocalEnvironmentAspect(RunConfiguration *parent) :
-    EnvironmentAspect(parent)
+LocalEnvironmentAspect::LocalEnvironmentAspect(RunConfiguration *parent,
+                                               const BaseEnvironmentModifier &modifier) :
+    EnvironmentAspect(parent), m_baseEnvironmentModifier(modifier)
 {
-    connect(parent->target(), SIGNAL(environmentChanged()),
-            this, SLOT(buildEnvironmentHasChanged()));
+    connect(parent->target(), &Target::environmentChanged,
+            this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
 }
 
 LocalEnvironmentAspect *LocalEnvironmentAspect::create(RunConfiguration *parent) const
 {
-    LocalEnvironmentAspect *result = new LocalEnvironmentAspect(parent);
+    auto result = new LocalEnvironmentAspect(parent, m_baseEnvironmentModifier);
     result->setUserEnvironmentChanges(userEnvironmentChanges());
     return result;
 }

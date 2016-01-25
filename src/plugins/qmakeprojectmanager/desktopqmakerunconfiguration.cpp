@@ -76,10 +76,10 @@ static Utils::FileName pathFromId(Core::Id id)
 //
 
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core::Id id) :
-    LocalApplicationRunConfiguration(parent, id),
+    RunConfiguration(parent, id),
     m_proFilePath(pathFromId(id))
 {
-    addExtraAspect(new LocalEnvironmentAspect(this));
+    addExtraAspect(new LocalEnvironmentAspect(this, [this](Environment &env) { addToBaseEnvironment(env); }));
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments")));
     addExtraAspect(new TerminalAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.UseTerminal")));
     addExtraAspect(new WorkingDirectoryAspect(this,
@@ -92,7 +92,7 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core:
 }
 
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, DesktopQmakeRunConfiguration *source) :
-    LocalApplicationRunConfiguration(parent, source),
+    RunConfiguration(parent, source),
     m_proFilePath(source->m_proFilePath),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
     m_isUsingLibrarySearchPath(source->m_isUsingLibrarySearchPath),
@@ -200,7 +200,8 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
 
     m_useQvfbCheck = new QCheckBox(tr("Run on QVFb"), this);
     m_useQvfbCheck->setToolTip(tr("Check this option to run the application on a Qt Virtual Framebuffer."));
-    m_useQvfbCheck->setChecked(m_qmakeRunConfiguration->runMode() == ApplicationLauncher::Console);
+    m_useQvfbCheck->setChecked(m_qmakeRunConfiguration->runnable().as<StandardRunnable>().runMode
+                               == ApplicationLauncher::Console);
     m_useQvfbCheck->setVisible(false);
     auto innerBox = new QHBoxLayout();
     innerBox->addWidget(m_useQvfbCheck);
@@ -301,10 +302,21 @@ QWidget *DesktopQmakeRunConfiguration::createConfigurationWidget()
     return new DesktopQmakeRunConfigurationWidget(this);
 }
 
+Runnable DesktopQmakeRunConfiguration::runnable() const
+{
+    StandardRunnable r;
+    r.executable = executable();
+    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
+    r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
+    r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
+    r.runMode = extraAspect<TerminalAspect>()->runMode();
+    return r;
+}
+
 QVariantMap DesktopQmakeRunConfiguration::toMap() const
 {
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
-    QVariantMap map(LocalApplicationRunConfiguration::toMap());
+    QVariantMap map(RunConfiguration::toMap());
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath.toString()));
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
     map.insert(QLatin1String(USE_LIBRARY_SEARCH_PATH), m_isUsingLibrarySearchPath);
@@ -321,18 +333,13 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     m_parseSuccess = qmakeProject()->validParse(m_proFilePath);
     m_parseInProgress = qmakeProject()->parseInProgress(m_proFilePath);
 
-    return LocalApplicationRunConfiguration::fromMap(map);
+    return RunConfiguration::fromMap(map);
 }
 
 QString DesktopQmakeRunConfiguration::executable() const
 {
     const QmakeProFileNode *node = qmakeProject()->rootProjectNode()->findProFileFor(m_proFilePath);
     return extractWorkingDirAndExecutable(node).second;
-}
-
-ApplicationLauncher::Mode DesktopQmakeRunConfiguration::runMode() const
-{
-    return extraAspect<TerminalAspect>()->runMode();
 }
 
 bool DesktopQmakeRunConfiguration::isUsingDyldImageSuffix() const
@@ -361,20 +368,10 @@ void DesktopQmakeRunConfiguration::setUsingLibrarySearchPath(bool state)
     return extraAspect<LocalEnvironmentAspect>()->environmentChanged();
 }
 
-QString DesktopQmakeRunConfiguration::workingDirectory() const
-{
-    return extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
-}
-
 QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
 {
     const QmakeProFileNode *node = qmakeProject()->rootProjectNode()->findProFileFor(m_proFilePath);
     return extractWorkingDirAndExecutable(node).first;
-}
-
-QString DesktopQmakeRunConfiguration::commandLineArguments() const
-{
-    return extraAspect<ArgumentsAspect>()->arguments();
 }
 
 void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const

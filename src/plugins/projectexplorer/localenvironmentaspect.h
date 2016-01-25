@@ -35,7 +35,8 @@ class PROJECTEXPLORER_EXPORT LocalEnvironmentAspect : public EnvironmentAspect
     Q_OBJECT
 
 public:
-    LocalEnvironmentAspect(RunConfiguration *parent);
+    typedef std::function<void(Utils::Environment &)> BaseEnvironmentModifier;
+    LocalEnvironmentAspect(RunConfiguration *parent, const BaseEnvironmentModifier &modifier);
     LocalEnvironmentAspect *create(RunConfiguration *parent) const;
 
     QList<int> possibleBaseEnvironments() const;
@@ -51,6 +52,8 @@ private:
         SystemEnvironmentBase,
         BuildEnvironmentBase
     };
+
+    BaseEnvironmentModifier m_baseEnvironmentModifier;
 };
 
 } // namespace ProjectExplorer

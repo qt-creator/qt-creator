@@ -52,7 +52,7 @@ namespace QmlProjectManager {
 const char M_CURRENT_FILE[] = "CurrentFile";
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *parent, Id id) :
-    LocalApplicationRunConfiguration(parent, id),
+    RunConfiguration(parent, id),
     m_scriptFile(QLatin1String(M_CURRENT_FILE)),
     m_isEnabled(false)
 {
@@ -61,9 +61,20 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *parent, Id id) :
     ctor();
 }
 
+Runnable QmlProjectRunConfiguration::runnable() const
+{
+    StandardRunnable r;
+    r.executable = executable();
+    r.commandLineArguments = commandLineArguments();
+    r.runMode = ApplicationLauncher::Gui;
+    r.workingDirectory = canonicalCapsPath(target()->project()->projectFilePath()
+                                           .toFileInfo().absolutePath());
+    return r;
+}
+
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *parent,
                                                        QmlProjectRunConfiguration *source) :
-    LocalApplicationRunConfiguration(parent, source),
+    RunConfiguration(parent, source),
     m_currentFileFilename(source->m_currentFileFilename),
     m_mainScriptFilename(source->m_mainScriptFilename),
     m_scriptFile(source->m_scriptFile),
@@ -114,11 +125,6 @@ QString QmlProjectRunConfiguration::executable() const
     return version->qmlviewerCommand();
 }
 
-ApplicationLauncher::Mode QmlProjectRunConfiguration::runMode() const
-{
-    return ApplicationLauncher::Gui;
-}
-
 QString QmlProjectRunConfiguration::commandLineArguments() const
 {
     // arguments in .user file
@@ -137,11 +143,6 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
         Utils::QtcProcess::addArg(&args, s);
     }
     return args;
-}
-
-QString QmlProjectRunConfiguration::workingDirectory() const
-{
-    return canonicalCapsPath(target()->project()->projectFilePath().toFileInfo().absolutePath());
 }
 
 /* QtDeclarative checks explicitly that the capitalization for any URL / path

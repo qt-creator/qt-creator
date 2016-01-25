@@ -26,24 +26,13 @@
 #ifndef CMAKERUNCONFIGURATION_H
 #define CMAKERUNCONFIGURATION_H
 
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runnables.h>
 #include <utils/environment.h>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-QT_END_NAMESPACE
-
-namespace Utils {
-class PathChooser;
-class DetailsWidget;
-}
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeTarget;
-
-class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class CMakeRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
     friend class CMakeRunConfigurationWidget;
@@ -53,10 +42,7 @@ public:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &target,
                           const QString &workingDirectory, const QString &title);
 
-    QString executable() const override;
-    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
-    QString workingDirectory() const override;
-    QString commandLineArguments() const override;
+    ProjectExplorer::Runnable runnable() const override;
     QWidget *createConfigurationWidget() override;
 
     void setExecutable(const QString &executable);

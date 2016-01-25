@@ -26,7 +26,7 @@
 #ifndef QBSRUNCONFIGURATION_H
 #define QBSRUNCONFIGURATION_H
 
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runnables.h>
 
 #include <QStringList>
 #include <QLabel>
@@ -54,7 +54,7 @@ namespace Internal {
 class QbsInstallStep;
 class QbsRunConfigurationFactory;
 
-class QbsRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 
@@ -69,14 +69,12 @@ public:
     QString disabledReason() const override;
     QWidget *createConfigurationWidget() override;
 
-    QString executable() const override;
-    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
-    QString workingDirectory() const override;
-    QString commandLineArguments() const override;
+    ProjectExplorer::Runnable runnable() const override;
 
+    QString executable() const;
     Utils::OutputFormatter *createOutputFormatter() const override;
 
-    void addToBaseEnvironment(Utils::Environment &env) const override;
+    void addToBaseEnvironment(Utils::Environment &env) const;
 
     QString uniqueProductName() const;
     bool isConsoleApplication() const;

@@ -28,7 +28,6 @@
 #include "qmlprofilerruncontrol.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>

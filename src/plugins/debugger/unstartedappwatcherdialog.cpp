@@ -38,7 +38,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runnables.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -55,6 +55,13 @@ using namespace ProjectExplorer;
 
 namespace Debugger {
 namespace Internal {
+
+static bool isLocal(RunConfiguration *runConfiguration)
+{
+    Target *target = runConfiguration ? runConfiguration->target() : 0;
+    Kit *kit = target ? target->kit() : 0;
+    return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+}
 
 /*!
     \class Debugger::Internal::UnstartedAppWatcherDialog
@@ -88,8 +95,11 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     m_kitChooser->setVisible(true);
 
     Project *project = ProjectTree::currentProject();
-    if (project && project->activeTarget() && project->activeTarget()->kit())
-        m_kitChooser->setCurrentKitId(project->activeTarget()->kit()->id());
+    Target *activeTarget = project ? project->activeTarget() : 0;
+    Kit *kit = activeTarget ? activeTarget->kit() : 0;
+
+    if (kit)
+        m_kitChooser->setCurrentKitId(kit->id());
     else if (KitManager::defaultKit())
         m_kitChooser->setCurrentKitId(KitManager::defaultKit()->id());
 
@@ -97,13 +107,12 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_pathChooser->setHistoryCompleter(QLatin1String("LocalExecutable"));
 
-    if (project && project->activeTarget() && project->activeTarget()->activeRunConfiguration()) {
-        LocalApplicationRunConfiguration *localAppRC =
-                qobject_cast<LocalApplicationRunConfiguration *>
-                             (project->activeTarget()->activeRunConfiguration());
-
-        if (localAppRC)
-            m_pathChooser->setPath(localAppRC->executable());
+    if (activeTarget) {
+        if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
+            const Runnable runnable = runConfig->runnable();
+            if (runnable.is<StandardRunnable>() && isLocal(runConfig))
+                m_pathChooser->setPath(runnable.as<StandardRunnable>().executable);
+        }
     }
 
     m_hideOnAttachCheckBox = new QCheckBox(tr("Reopen dialog when application finishes"), this);
@@ -171,20 +180,19 @@ void UnstartedAppWatcherDialog::selectExecutable()
     QString path;
 
     Project *project = ProjectTree::currentProject();
+    Target *activeTarget = project ? project->activeTarget() : 0;
 
-    if (project && project->activeTarget() && project->activeTarget()->activeRunConfiguration()) {
-
-        LocalApplicationRunConfiguration *localAppRC =
-                qobject_cast<LocalApplicationRunConfiguration *>
-                             (project->activeTarget()->activeRunConfiguration());
-        if (localAppRC)
-            path = QFileInfo(localAppRC->executable()).path();
+    if (activeTarget) {
+        if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
+            const Runnable runnable = runConfig->runnable();
+            if (runnable.is<StandardRunnable>() && isLocal(runConfig))
+                path = QFileInfo(runnable.as<StandardRunnable>().executable).path();
+        }
     }
 
     if (path.isEmpty()) {
-        if (project && project->activeTarget() &&
-                project->activeTarget()->activeBuildConfiguration()) {
-            path = project->activeTarget()->activeBuildConfiguration()->buildDirectory().toString();
+        if (activeTarget && activeTarget->activeBuildConfiguration()) {
+            path = activeTarget->activeBuildConfiguration()->buildDirectory().toString();
         } else if (project) {
             path = project->projectDirectory().toString();
         }

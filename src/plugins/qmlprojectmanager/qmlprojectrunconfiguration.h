@@ -28,7 +28,7 @@
 
 #include "qmlprojectmanager_global.h"
 
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runnables.h>
 
 #include <QPointer>
 
@@ -46,7 +46,7 @@ namespace Internal {
     class QmlProjectRunConfigurationWidget;
 }
 
-class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
     friend class Internal::QmlProjectRunConfigurationFactory;
@@ -56,11 +56,8 @@ class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplor
 public:
     QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    QString executable() const override;
-    ProjectExplorer::ApplicationLauncher::Mode runMode() const override;
-    QString commandLineArguments() const override;
+    ProjectExplorer::Runnable runnable() const override;
 
-    QString workingDirectory() const override;
     QtSupport::BaseQtVersion *qtVersion() const;
 
     enum MainScriptSource {
@@ -96,6 +93,10 @@ protected:
 
 private:
     void ctor();
+
+    QString executable() const;
+    QString commandLineArguments() const;
+
     static bool isValidVersion(QtSupport::BaseQtVersion *version);
 
     static QString canonicalCapsPath(const QString &filePath);
