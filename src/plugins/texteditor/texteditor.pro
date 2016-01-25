@@ -1,5 +1,5 @@
 DEFINES += TEXTEDITOR_LIBRARY
-QT += network printsupport xml
+QT += gui-private network printsupport xml
 CONFIG += exceptions
 CONFIG += include_source_dir # For the highlighter autotest.
 include(../../qtcreatorplugin.pri)
