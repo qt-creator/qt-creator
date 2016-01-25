@@ -166,7 +166,7 @@
 
                 Qt unit tests for features or classes
 
-            \li Qt Auto Test (commercial only)
+            \li Qt Auto Test
 
                 Projects with boilerplate code for an autotest. For more
                 information, see \l {Creating Autotests}.

@@ -208,8 +208,7 @@
 
     The following types of events are displayed in the timeline view on one or
     several rows. The availability of event types depends on the version of Qt
-    the application was compiled with, the version of Qt Quick it is using, and
-    whether \QC or \QCE is used to profile it.
+    the application was compiled with and the version of Qt Quick it is using.
 
     \table
 
@@ -218,7 +217,6 @@
         \li Description
         \li Minimum Qt Version
         \li Qt Quick Version
-        \li Commercial Only
 
     \row
         \li \uicontrol {Pixmap Cache}
@@ -227,7 +225,6 @@
             with specifics about its file name and size.
         \li Qt 5.1
         \li Qt Quick 2
-        \li \image ok
 
     \row
         \li \uicontrol {Scene Graph}
@@ -236,7 +233,7 @@
             so.
         \li Qt 5.1
         \li Qt Quick 2
-        \li \image ok
+
     \row
         \li \uicontrol {Memory Usage}
         \li Displays block allocations of the JavaScript memory manager.
@@ -251,21 +248,18 @@
             requested.
         \li Qt 5.4
         \li Qt Quick 2
-        \li \image ok
 
     \row
         \li \uicontrol {Input Events}
         \li Displays mouse and keyboard events.
         \li Qt 4.7.4
         \li Qt Quick 1 or Qt Quick 2
-        \li \image ok
 
     \row
         \li \uicontrol Painting
         \li Displays the time spent painting the scene for each frame.
         \li Qt 4.7.4
         \li Qt Quick 1
-        \li
 
     \row
         \li \uicontrol Animations
@@ -276,14 +270,12 @@
             animations are shown in a separate row then.
         \li Qt 5.0 (Qt 5.3)
         \li Qt Quick 2
-        \li
 
     \row
         \li \uicontrol Compiling
         \li Displays the time spent compiling the QML files.
         \li Qt 4.7.4
         \li Qt Quick 1 or Qt Quick 2
-        \li
 
     \row
         \li \uicontrol Creating
@@ -298,7 +290,6 @@
             events.
         \li Qt 4.7.4 (Qt 5.2.1)
         \li Qt Quick 1 or Qt Quick 2
-        \li
 
     \row
         \li \uicontrol Binding
@@ -306,7 +297,6 @@
             evaluation takes.
         \li Qt 4.7.4
         \li Qt Quick 1 or Qt Quick 2
-        \li
 
     \row
         \li \uicontrol {Handling Signal}
@@ -314,7 +304,6 @@
             handling takes.
         \li Qt 4.7.4
         \li Qt Quick 1 or Qt Quick 2
-        \li
 
     \row
         \li \uicontrol JavaScript
@@ -323,7 +312,6 @@
             you may be using to evaluate bindings or handle signals.
         \li Qt 5.3
         \li Qt Quick 2
-        \li
 
     \endtable
 

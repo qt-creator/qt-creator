@@ -139,8 +139,7 @@
         \li \uicontrol Outline shows the symbol hierarchy of a C++ file and the type
             hierarchy of a QML file.
 
-        \li \uicontrol Tests lists autotests and Qt Quick tests in the project
-            (commercial only).
+        \li \uicontrol Tests lists autotests and Qt Quick tests in the project.
 
         \li \uicontrol {Type Hierarchy} shows the base classes of a class.
 
@@ -297,7 +296,7 @@
     \section2 Viewing Tests
 
     The \uicontrol Tests view shows the autotests and Qt Quick tests in the
-    current project (commercial only). Select the test cases to run. If a Qt
+    current project. Select the test cases to run. If a Qt
     Quick test case does not have a name, it is marked \uicontrol Unnamed in the
     list. Unnamed test cases are always executed when the application that
     contains them is run, and therefore you cannot select or deselect them.
@@ -350,7 +349,7 @@
 
        \li \uicontrol{General Messages}
 
-       \li \uicontrol{Test Results} (commercial only)
+       \li \uicontrol{Test Results}
 
     \endlist
 

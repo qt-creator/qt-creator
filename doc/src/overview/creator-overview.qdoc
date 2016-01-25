@@ -114,7 +114,7 @@
 
                 \QC is integrated to the \l{Qt Test} framework for unit testing
                 Qt based applications and libraries. You can use \QC to build
-                and run autotests (commercial only).
+                and run autotests.
 
                 For more information, see \l{Testing}.
             \li \b {Publishing}
