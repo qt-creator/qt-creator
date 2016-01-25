@@ -74,7 +74,7 @@ QStringList QmakeAndroidSupport::androidExtraLibs(const ProjectExplorer::Target 
     if (!qarc)
         return QStringList();
     auto project = static_cast<QmakeProject *>(target->project());
-    QmakeProFileNode *node = project->rootQmakeProjectNode()->findProFileFor(qarc->proFilePath());
+    QmakeProFileNode *node = project->rootProjectNode()->findProFileFor(qarc->proFilePath());
     return node->variableValue(QmakeProjectManager::AndroidExtraLibs);
 }
 
