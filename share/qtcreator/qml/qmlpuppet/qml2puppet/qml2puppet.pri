@@ -24,7 +24,7 @@ DEFINES -= QT_NO_CAST_FROM_ASCII
 
 DISTFILES += Info.plist
 
-unix:!osx:LIBS += -lrt # posix shared memory
+unix:!openbsd:!osx: LIBS += -lrt # posix shared memory
 
 osx {
     CONFIG -= app_bundle

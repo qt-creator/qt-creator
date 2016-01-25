@@ -56,6 +56,7 @@ public:
 public:
     virtual bool canHandle(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList soLibSearchPath(const ProjectExplorer::Target *target) const = 0;
+    virtual QStringList androidExtraLibs(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList projectTargetApplications(const ProjectExplorer::Target *target) const = 0;
     virtual Utils::FileName apkPath(ProjectExplorer::Target *target) const;
     virtual Utils::FileName androiddeployqtPath(ProjectExplorer::Target *target) const = 0;

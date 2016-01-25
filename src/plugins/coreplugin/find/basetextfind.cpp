@@ -34,6 +34,10 @@
 #include <QPlainTextEdit>
 #include <QTextCursor>
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+#include <private/qtextcursor_p.h>
+#endif
+
 namespace Core {
 
 struct BaseTextFindPrivate
@@ -387,8 +391,13 @@ void BaseTextFind::defineFindScope()
 {
     QTextCursor cursor = textCursor();
     if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor())) {
+#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+        d->m_findScopeStart = QTextCursorPrivate::fromPosition(document()->docHandle(), qMax(0, cursor.selectionStart()));
+        d->m_findScopeEnd = QTextCursorPrivate::fromPosition(document()->docHandle(), cursor.selectionEnd());
+#else
         d->m_findScopeStart = QTextCursor(document()->docHandle(), qMax(0, cursor.selectionStart()));
         d->m_findScopeEnd = QTextCursor(document()->docHandle(), cursor.selectionEnd());
+#endif
         d->m_findScopeVerticalBlockSelectionFirstColumn = -1;
         d->m_findScopeVerticalBlockSelectionLastColumn = -1;
 

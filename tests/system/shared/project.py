@@ -680,13 +680,16 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
     return result, version
 
 # copy example project (sourceExample is path to project) to temporary directory inside repository
-def prepareTemplate(sourceExample):
+def prepareTemplate(sourceExample, deploymentDir=None):
     templateDir = os.path.abspath(tempDir() + "/template")
     try:
         shutil.copytree(sourceExample, templateDir)
     except:
         test.fatal("Error while copying '%s' to '%s'" % (sourceExample, templateDir))
         return None
+    if deploymentDir:
+        shutil.copytree(os.path.abspath(sourceExample + deploymentDir),
+                        os.path.abspath(templateDir + deploymentDir))
     return templateDir
 
 # check and copy files of given dataset to an existing templateDir
