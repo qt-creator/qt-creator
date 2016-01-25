@@ -72,6 +72,13 @@ public:
     int gtestNamesAndSetsCount() const;
 #endif
 
+    // FIXME remove me again
+    struct ReferencingInfo
+    {
+        QString referencingFile;
+        TestTreeModel::Type type;
+    };
+
 signals:
     void cacheCleared();
     void testItemCreated(TestTreeItem *item, TestTreeModel::Type type);
@@ -89,7 +96,8 @@ signals:
 public slots:
     void emitUpdateTestTree();
     void updateTestTree();
-    void checkDocumentForTestCode(CPlusPlus::Document::Ptr document);
+    void checkDocumentForTestCode(CPlusPlus::Document::Ptr document,
+                                  const QString &referencingFile = QString());
     void handleQtQuickTest(CPlusPlus::Document::Ptr document);
     void handleGTest(const QString &filePath);
 
@@ -121,13 +129,6 @@ private:
     void removeGTestsByName(const QString &fileName);
 
     TestTreeModel *m_model;
-
-    // FIXME remove me again
-    struct ReferencingInfo
-    {
-        QString referencingFile;
-        TestTreeModel::Type type;
-    };
 
     QMap<QString, ReferencingInfo> m_referencingFiles;
     QList<UnnamedQuickTestInfo> m_unnamedQuickDocList;

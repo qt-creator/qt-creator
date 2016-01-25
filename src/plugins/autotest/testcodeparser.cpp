@@ -487,7 +487,8 @@ static TestTreeItem *constructGTestTreeItem(const QString &filePath, const GTest
 // is not (yet) part of the CppModelManager's snapshot
 static bool parsingHasFailed;
 
-void performParse(QFutureInterface<void> &futureInterface, QStringList list,
+void performParse(QFutureInterface<void> &futureInterface, const QStringList &list,
+                  const QMap<QString, TestCodeParser::ReferencingInfo> &referencingFiles,
                   TestCodeParser *testCodeParser)
 {
     int progressValue = 0;
@@ -500,7 +501,8 @@ void performParse(QFutureInterface<void> &futureInterface, QStringList list,
         if (snapshot.contains(file)) {
             CPlusPlus::Document::Ptr doc = snapshot.find(file).value();
             futureInterface.setProgressValue(++progressValue);
-            testCodeParser->checkDocumentForTestCode(doc);
+            testCodeParser->checkDocumentForTestCode(doc,
+                                                     referencingFiles.value(file).referencingFile);
         } else {
             parsingHasFailed |= (CppTools::ProjectFile::classify(file)
                                  != CppTools::ProjectFile::Unclassified);
@@ -510,7 +512,8 @@ void performParse(QFutureInterface<void> &futureInterface, QStringList list,
 }
 
 /****** threaded parsing stuff *******/
-void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr document)
+void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr document,
+                                              const QString &referencingFile)
 {
     const QString fileName = document->fileName();
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
@@ -565,11 +568,10 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr document)
 
     // could not find the class to test, or QTest is not included and QT_TESTLIB_LIB defined
     // maybe file is only a referenced file
-    if (m_referencingFiles.contains(fileName)) {
-        const ReferencingInfo &info = m_referencingFiles[fileName];
+    if (!referencingFile.isEmpty()) {
         CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-        if (snapshot.contains(info.referencingFile)) {
-            checkDocumentForTestCode(snapshot.find(info.referencingFile).value());
+        if (snapshot.contains(referencingFile)) {
+            checkDocumentForTestCode(snapshot.find(referencingFile).value());
         } else { // no referencing file too, so this test case is no more a test case
             m_referencingFiles.remove(fileName);
             emit testItemsRemoved(fileName, TestTreeModel::AutoTest);
@@ -790,7 +792,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         foreach (const QString &file, list) {
             if (snapshot.contains(file)) {
                 CPlusPlus::Document::Ptr doc = snapshot.find(file).value();
-                checkDocumentForTestCode(doc);
+                checkDocumentForTestCode(doc, m_referencingFiles.value(file).referencingFile);
             } else {
                 parsingHasFailed |= (CppTools::ProjectFile::classify(file)
                                      != CppTools::ProjectFile::Unclassified);
@@ -800,7 +802,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         return;
     }
 
-    QFuture<void> future = Utils::runAsync<void>(&performParse, list, this);
+    QFuture<void> future = Utils::runAsync<void>(&performParse, list, m_referencingFiles, this);
     Core::FutureProgress *progress
             = Core::ProgressManager::addTask(future, isFullParse ? tr("Scanning for Tests")
                                                                  : tr("Refreshing Tests List"),
