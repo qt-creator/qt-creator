@@ -37,7 +37,9 @@
 #include <QPainter>
 #include <QTextBlock>
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 #include <private/qtextcursor_p.h>
+#endif
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
