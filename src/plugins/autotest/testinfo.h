@@ -31,36 +31,6 @@
 namespace Autotest {
 namespace Internal {
 
-class TestInfo
-{
-public:
-    explicit TestInfo(const QString &className = QString(),
-                      const QStringList &functions = QStringList(),
-                      unsigned revision = 0, unsigned editorRevision = 0);
-
-    ~TestInfo();
-    const QString testClass() const { return m_className; }
-    void setTestClass(const QString &className) { m_className = className; }
-    const QStringList testFunctions() const { return m_functions; }
-    void setTestFunctions(const QStringList &functions) { m_functions = functions; }
-    unsigned revision() const { return m_revision; }
-    void setRevision(unsigned revision) { m_revision = revision; }
-    unsigned editorRevision() const { return m_editorRevision; }
-    void setEditorRevision(unsigned editorRevision) { m_editorRevision = editorRevision; }
-    const QString referencingFile() const { return m_referencingFile; }
-    void setReferencingFile(const QString &refFile) { m_referencingFile = refFile; }
-    const QString proFile() const { return m_proFile; }
-    void setProFile(const QString &proFile) { m_proFile = proFile; }
-
-private:
-    QString m_className;
-    QStringList m_functions;
-    unsigned m_revision;
-    unsigned m_editorRevision;
-    QString m_referencingFile;
-    QString m_proFile;
-};
-
 class UnnamedQuickTestInfo {
 public:
     explicit UnnamedQuickTestInfo(const QString &function = QString(),

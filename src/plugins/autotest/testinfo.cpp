@@ -28,20 +28,6 @@
 namespace Autotest {
 namespace Internal {
 
-TestInfo::TestInfo(const QString &className, const QStringList &functions, unsigned revision,
-                   unsigned editorRevision)
-    : m_className(className),
-      m_functions(functions),
-      m_revision(revision),
-      m_editorRevision(editorRevision)
-{
-}
-
-TestInfo::~TestInfo()
-{
-    m_functions.clear();
-}
-
 UnnamedQuickTestInfo::UnnamedQuickTestInfo(const QString &function, const QString &fileName)
     : m_function(function),
       m_fileName(fileName)

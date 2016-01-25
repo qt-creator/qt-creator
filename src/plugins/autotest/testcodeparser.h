@@ -44,7 +44,6 @@ namespace Autotest {
 namespace Internal {
 
 struct TestCodeLocationAndType;
-class TestInfo;
 class UnnamedQuickTestInfo;
 class GTestInfo;
 struct GTestCaseSpec;
@@ -122,9 +121,15 @@ private:
     void removeGTestsByName(const QString &fileName);
 
     TestTreeModel *m_model;
-    QMap<QString, TestInfo> m_cppDocMap;
-    QMap<QString, TestInfo> m_quickDocMap;
-    QMap<QString, TestInfo> m_gtestDocMap;
+
+    // FIXME remove me again
+    struct ReferencingInfo
+    {
+        QString referencingFile;
+        TestTreeModel::Type type;
+    };
+
+    QMap<QString, ReferencingInfo> m_referencingFiles;
     QList<UnnamedQuickTestInfo> m_unnamedQuickDocList;
     QList<GTestInfo> m_gtestDocList;
     bool m_codeModelParsing;

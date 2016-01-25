@@ -39,7 +39,6 @@ namespace Internal {
 
 struct TestCodeLocationAndType;
 class TestCodeParser;
-class TestInfo;
 class TestTreeItem;
 
 class TestTreeModel : public Utils::TreeModel
