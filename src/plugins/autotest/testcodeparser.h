@@ -44,8 +44,6 @@ namespace Autotest {
 namespace Internal {
 
 struct TestCodeLocationAndType;
-class UnnamedQuickTestInfo;
-class GTestInfo;
 struct GTestCaseSpec;
 
 class TestCodeParser : public QObject
@@ -65,29 +63,9 @@ public:
     State state() const { return m_parserState; }
     void setDirty() { m_dirty = true; }
 
-#ifdef WITH_TESTS
-    int autoTestsCount() const;
-    int namedQuickTestsCount() const;
-    int unnamedQuickTestsCount() const;
-    int gtestNamesAndSetsCount() const;
-#endif
-
-    // FIXME remove me again
-    struct ReferencingInfo
-    {
-        QString referencingFile;
-        TestTreeModel::Type type;
-    };
-
 signals:
-    void cacheCleared();
+    void aboutToPerformFullParse();
     void testItemCreated(TestTreeItem *item, TestTreeModel::Type type);
-    void testItemModified(TestTreeItem *tItem, TestTreeModel::Type type, const QStringList &file);
-    void testItemsRemoved(const QString &filePath, TestTreeModel::Type type);
-    void unnamedQuickTestsUpdated(const QString &mainFile,
-                                  const QMap<QString, TestCodeLocationAndType> &functions);
-    void unnamedQuickTestsRemoved(const QString &filePath);
-    void gTestsRemoved(const QString &filePath);
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();
@@ -105,34 +83,18 @@ public slots:
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);
     void onStartupProjectChanged(ProjectExplorer::Project *);
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
-    void removeFiles(const QStringList &files);
 
 private:
     bool postponed(const QStringList &fileList);
     void scanForTests(const QStringList &fileList = QStringList());
-    void clearCache();
-    void removeTestsIfNecessary(const QString &fileName);
 
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
     void onFinished();
     void onPartialParsingFinished();
-    void updateUnnamedQuickTests(const QString &fileName, const QString &mainFile,
-                                 const QMap<QString, TestCodeLocationAndType> &functions);
-    void updateModelAndCppDocMap(CPlusPlus::Document::Ptr document,
-                                 const QString &declaringFile, TestTreeItem *testItem);
-    void updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
-                                   const QString &referencingFile, TestTreeItem *testItem);
-    void updateGTests(const CPlusPlus::Document::Ptr &doc,
-                      const QMap<GTestCaseSpec, TestCodeLocationList> &tests);
-    void removeUnnamedQuickTestsByName(const QString &fileName);
-    void removeGTestsByName(const QString &fileName);
 
     TestTreeModel *m_model;
 
-    QMap<QString, ReferencingInfo> m_referencingFiles;
-    QList<UnnamedQuickTestInfo> m_unnamedQuickDocList;
-    QList<GTestInfo> m_gtestDocList;
     bool m_codeModelParsing;
     bool m_fullUpdatePostponed;
     bool m_partialUpdatePostponed;

@@ -86,33 +86,14 @@ TestTreeModel::TestTreeModel(QObject *parent) :
     rootItem()->appendChild(m_quickTestRootItem);
     rootItem()->appendChild(m_googleTestRootItem);
 
-    connect(m_parser, &TestCodeParser::cacheCleared, this,
+    connect(m_parser, &TestCodeParser::aboutToPerformFullParse, this,
             &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::testItemCreated,
             this, &TestTreeModel::addTestTreeItem, Qt::QueuedConnection);
-    connect(m_parser, &TestCodeParser::testItemModified,
-            this, &TestTreeModel::modifyTestTreeItem, Qt::QueuedConnection);
-    connect(m_parser, &TestCodeParser::testItemsRemoved,
-            this, &TestTreeModel::removeTestTreeItems, Qt::QueuedConnection);
-    connect(m_parser, &TestCodeParser::unnamedQuickTestsUpdated,
-            this, &TestTreeModel::updateUnnamedQuickTest, Qt::QueuedConnection);
-    connect(m_parser, &TestCodeParser::unnamedQuickTestsRemoved,
-            this, &TestTreeModel::removeUnnamedQuickTests, Qt::QueuedConnection);
-    connect(m_parser, &TestCodeParser::gTestsRemoved,
-            this, &TestTreeModel::removeGTests, Qt::QueuedConnection);
-
-//    CppTools::CppModelManagerInterface *cppMM = CppTools::CppModelManagerInterface::instance();
-//    if (cppMM) {
-//        // replace later on by
-//        // cppMM->registerAstProcessor([this](const CplusPlus::Document::Ptr &doc,
-//        //                             const CPlusPlus::Snapshot &snapshot) {
-//        //        checkForQtTestStuff(doc, snapshot);
-//        //      });
-//        connect(cppMM, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-//                this, SLOT(checkForQtTestStuff(CPlusPlus::Document::Ptr)),
-//                Qt::DirectConnection);
-
-//    }
+    connect(m_parser, &TestCodeParser::parsingFinished,
+            this, &TestTreeModel::sweep, Qt::QueuedConnection);
+    connect(m_parser, &TestCodeParser::parsingFailed,
+            this, &TestTreeModel::sweep, Qt::QueuedConnection);
 }
 
 static TestTreeModel *m_instance = 0;
@@ -148,7 +129,7 @@ void TestTreeModel::enableParsing()
     connect(cppMM, &CppTools::CppModelManager::documentUpdated,
             m_parser, &TestCodeParser::onCppDocumentUpdated, Qt::QueuedConnection);
     connect(cppMM, &CppTools::CppModelManager::aboutToRemoveFiles,
-            m_parser, &TestCodeParser::removeFiles, Qt::QueuedConnection);
+            this, &TestTreeModel::removeFiles, Qt::QueuedConnection);
     connect(cppMM, &CppTools::CppModelManager::projectPartsUpdated,
             m_parser, &TestCodeParser::onProjectPartsUpdated);
 
@@ -156,7 +137,7 @@ void TestTreeModel::enableParsing()
     connect(qmlJsMM, &QmlJS::ModelManagerInterface::documentUpdated,
             m_parser, &TestCodeParser::onQmlDocumentUpdated, Qt::QueuedConnection);
     connect(qmlJsMM, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
-            m_parser, &TestCodeParser::removeFiles, Qt::QueuedConnection);
+            this, &TestTreeModel::removeFiles, Qt::QueuedConnection);
     m_connectionsInitialized = true;
 }
 
@@ -541,38 +522,6 @@ TestConfiguration *TestTreeModel::getTestConfiguration(const TestTreeItem *item)
     return config;
 }
 
-QString TestTreeModel::getMainFileForUnnamedQuickTest(const QString &qmlFile) const
-{
-    const TestTreeItem *unnamed = unnamedQuickTests();
-    const int count = unnamed ? unnamed->childCount() : 0;
-    for (int row = 0; row < count; ++row) {
-        const TestTreeItem *child = unnamed->childItem(row);
-        if (qmlFile == child->filePath())
-            return child->mainFile();
-    }
-    return QString();
-}
-
-void TestTreeModel::qmlFilesForMainFile(const QString &mainFile, QSet<QString> *filePaths) const
-{
-    const TestTreeItem *unnamed = unnamedQuickTests();
-    if (!unnamed)
-        return;
-    for (int row = 0, count = unnamed->childCount(); row < count; ++row) {
-        const TestTreeItem *child = unnamed->childItem(row);
-        if (child->mainFile() == mainFile)
-            filePaths->insert(child->filePath());
-    }
-}
-
-QList<QString> TestTreeModel::getUnnamedQuickTestFunctions() const
-{
-    const TestTreeItem *unnamed = unnamedQuickTests();
-    if (unnamed)
-        return unnamed->getChildNames();
-    return QList<QString>();
-}
-
 bool TestTreeModel::hasUnnamedQuickTests() const
 {
     for (int row = 0, count = m_quickTestRootItem->childCount(); row < count; ++row)
@@ -591,36 +540,11 @@ TestTreeItem *TestTreeModel::unnamedQuickTests() const
     return 0;
 }
 
-void TestTreeModel::removeUnnamedQuickTests(const QString &filePath)
+void TestTreeModel::removeFiles(const QStringList &files)
 {
-    TestTreeItem *unnamedQT = unnamedQuickTests();
-    if (!unnamedQT)
-        return;
-
-    for (int childRow = unnamedQT->childCount() - 1; childRow >= 0; --childRow) {
-        TestTreeItem *child = unnamedQT->childItem(childRow);
-        if (filePath == child->filePath())
-            delete takeItem(child);
-    }
-
-    if (unnamedQT->childCount() == 0)
-        delete takeItem(unnamedQT);
-    emit testTreeModelChanged();
-}
-
-void TestTreeModel::removeGTests(const QString &filePath)
-{
-    for (int childRow = m_googleTestRootItem->childCount() - 1; childRow >= 0; --childRow) {
-        TestTreeItem *child = m_googleTestRootItem->childItem(childRow);
-        for (int grandChildRow = child->childCount() - 1; grandChildRow >= 0; --grandChildRow) {
-            TestTreeItem *grandChild = child->childItem(grandChildRow);
-            if (filePath == grandChild->filePath())
-                delete takeItem(grandChild);
-        }
-        if (child->childCount() == 0)
-            delete takeItem(child);
-    }
-    emit testTreeModelChanged();
+    foreach (const QString &file, files)
+        markForRemoval(file);
+    sweep();
 }
 
 void TestTreeModel::markAllForRemoval()
@@ -711,78 +635,59 @@ QMap<QString, QString> TestTreeModel::referencingFiles() const
     return finder.referencingFiles();
 }
 
-void TestTreeModel::addTestTreeItem(TestTreeItem *item, TestTreeModel::Type type)
+TestTreeItem *TestTreeModel::findTestTreeItemByContent(TestTreeItem *item, TestTreeItem *parent,
+                                                       Type type)
+{
+    for (int row = 0, count = parent->childCount(); row < count; ++row) {
+        TestTreeItem *current = parent->childItem(row);
+        if (current->name() != item->name())
+            continue;
+
+        switch (type) {
+        case AutoTest:
+            if (current->filePath() == item->filePath())
+                return current;
+            break;
+        case QuickTest:
+            if (current->filePath() == item->filePath() && current->mainFile() == item->mainFile())
+                return current;
+            break;
+        case GoogleTest:
+            if (current->type() == item->type())
+                return current;
+            break;
+        }
+    }
+    return 0;
+}
+
+void TestTreeModel::addTestTreeItem(TestTreeItem *item, Type type)
 {
     TestTreeItem *parent = rootItemForType(type);
-    if (type == TestTreeModel::GoogleTest) {
-        // check if there's already an item with the same test name...
-        TestTreeItem *toBeUpdated = 0;
-        for (int row = 0, count = parent->childCount(); row < count; ++row) {
-            TestTreeItem *current = parent->childItem(row);
-            if (current->name() == item->name() && current->type() == item->type()) {
-                toBeUpdated = current;
-                break;
+    TestTreeItem *toBeUpdated = findTestTreeItemByContent(item, parent, type);
+    const int count = item->childCount();
+    if (toBeUpdated) {
+        if (!toBeUpdated->markedForRemoval()) {
+            for (int row = 0; row < count; ++row)
+                toBeUpdated->appendChild(new TestTreeItem(*item->childItem(row)));
+        } else {
+            for (int childRow = count - 1; childRow >= 0; --childRow) {
+                TestTreeItem *childItem = item->childItem(childRow);
+                TestTreeItem *origChild = findTestTreeItemByContent(childItem, toBeUpdated, type);
+                if (origChild) {
+                    QModelIndex toBeModifiedIndex = indexForItem(origChild);
+                    modifyTestSubtree(toBeModifiedIndex, childItem);
+                } else {
+                    toBeUpdated->insertChild(qMin(count, toBeUpdated->childCount()),
+                                             new TestTreeItem(*childItem));
+                }
             }
         }
-        // ...if so we have, to update this one instead of adding a new item
-        if (toBeUpdated) {
-            for (int row = 0, count = item->childCount(); row < count; ++row)
-                toBeUpdated->appendChild(new TestTreeItem(*item->childItem(row)));
-            delete item;
-        } else {
-            parent->appendChild(item);
-        }
+        delete item;
     } else {
         parent->appendChild(item);
     }
     emit testTreeModelChanged();
-}
-
-void TestTreeModel::updateUnnamedQuickTest(const QString &mainFile,
-                                           const QMap<QString, TestCodeLocationAndType> &functions)
-{
-    if (functions.isEmpty())
-        return;
-
-    if (!hasUnnamedQuickTests())
-        addTestTreeItem(new TestTreeItem(QString(), QString(), TestTreeItem::TestClass), QuickTest);
-
-    TestTreeItem *unnamed = unnamedQuickTests();
-    foreach (const QString &functionName, functions.keys()) {
-        const TestCodeLocationAndType locationAndType = functions.value(functionName);
-        TestTreeItem *testFunction = new TestTreeItem(functionName, locationAndType.m_name,
-                                                      locationAndType.m_type);
-        testFunction->setLine(locationAndType.m_line);
-        testFunction->setColumn(locationAndType.m_column);
-        testFunction->setMainFile(mainFile);
-        unnamed->appendChild(testFunction);
-    }
-}
-
-void TestTreeModel::modifyTestTreeItem(TestTreeItem *item, TestTreeModel::Type type, const QStringList &files)
-{
-    QModelIndex index = rootIndexForType(type);
-    TestTreeItem *parent = rootItemForType(type);
-    if (files.isEmpty()) {
-        if (TestTreeItem *unnamed = unnamedQuickTests()) {
-            if (unnamed == item) // no need to update or delete
-                return;
-
-            index = indexForItem(unnamed);
-            modifyTestSubtree(index, item);
-        }
-    } else {
-        for (int row = 0; row < parent->childCount(); ++row) {
-            if (files.contains(parent->childItem(row)->filePath())) {
-                index = index.child(row, 0);
-                modifyTestSubtree(index, item);
-                break;
-            }
-        }
-    }
-    // item was created as temporary, destroy it if it won't get destroyed by its parent
-    if (!item->parent())
-        delete item;
 }
 
 void TestTreeModel::removeAllTestItems()
@@ -791,21 +696,6 @@ void TestTreeModel::removeAllTestItems()
     m_quickTestRootItem->removeChildren();
     m_googleTestRootItem->removeChildren();
     emit testTreeModelChanged();
-}
-
-void TestTreeModel::removeTestTreeItems(const QString &filePath, Type type)
-{
-    bool removed = false;
-    const TestTreeItem *rootItem = rootItemForType(type);
-    for (int row = rootItem->childCount() - 1; row >= 0; --row) {
-        TestTreeItem *childItem = rootItem->childItem(row);
-        if (filePath == childItem->filePath()) {
-            delete takeItem(childItem);
-            removed = true;
-        }
-    }
-    if (removed)
-        emit testTreeModelChanged();
 }
 
 TestTreeItem *TestTreeModel::rootItemForType(TestTreeModel::Type type)
@@ -819,19 +709,6 @@ TestTreeItem *TestTreeModel::rootItemForType(TestTreeModel::Type type)
         return m_googleTestRootItem;
     }
     QTC_ASSERT(false, return 0);
-}
-
-QModelIndex TestTreeModel::rootIndexForType(TestTreeModel::Type type)
-{
-    switch (type) {
-    case AutoTest:
-        return index(0, 0);
-    case QuickTest:
-        return index(1, 0);
-    case GoogleTest:
-        return index(2, 0);
-    }
-    QTC_ASSERT(false, return QModelIndex());
 }
 
 void TestTreeModel::modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem *newItem)

@@ -105,11 +105,6 @@ void AutoTestUnitTests::testCodeParser()
     QCOMPARE(m_model->namedQuickTestsCount(), expectedNamedQuickTestsCount);
     QCOMPARE(m_model->unnamedQuickTestsCount(), expectedUnnamedQuickTestsCount);
     QCOMPARE(m_model->dataTagsCount(), expectedDataTagsCount);
-
-    QCOMPARE(m_model->parser()->autoTestsCount(), expectedAutoTestsCount);
-    QCOMPARE(m_model->parser()->namedQuickTestsCount(), expectedNamedQuickTestsCount);
-    QCOMPARE(m_model->parser()->unnamedQuickTestsCount(), expectedUnnamedQuickTestsCount);
-
 }
 
 void AutoTestUnitTests::testCodeParser_data()
@@ -162,12 +157,6 @@ void AutoTestUnitTests::testCodeParserSwitchStartup()
                  m_isQt4 ? 0 : expectedUnnamedQuickTestsCount.at(i));
         QCOMPARE(m_model->dataTagsCount(),
                  expectedDataTagsCount.at(i));
-
-        QCOMPARE(m_model->parser()->autoTestsCount(), expectedAutoTestsCount.at(i));
-        QCOMPARE(m_model->parser()->namedQuickTestsCount(),
-                 m_isQt4 ? 0 : expectedNamedQuickTestsCount.at(i));
-        QCOMPARE(m_model->parser()->unnamedQuickTestsCount(),
-                 m_isQt4 ? 0 : expectedUnnamedQuickTestsCount.at(i));
     }
 }
 
@@ -212,8 +201,6 @@ void AutoTestUnitTests::testCodeParserGTest()
     QVERIFY(parserSpy.wait(20000));
 
     QCOMPARE(m_model->gtestNamesCount(), 6);
-    // 11 == 3 + 2 + 2 + 2 + 1 + 1, see below
-    QCOMPARE(m_model->parser()->gtestNamesAndSetsCount(), 11);
 
     QMultiMap<QString, int> expectedNamesAndSets;
     expectedNamesAndSets.insert(QStringLiteral("FactorialTest"), 3);
@@ -233,10 +220,6 @@ void AutoTestUnitTests::testCodeParserGTest()
     QCOMPARE(m_model->namedQuickTestsCount(), 0);
     QCOMPARE(m_model->unnamedQuickTestsCount(), 0);
     QCOMPARE(m_model->dataTagsCount(), 0);
-
-    QCOMPARE(m_model->parser()->autoTestsCount(), 0);
-    QCOMPARE(m_model->parser()->namedQuickTestsCount(), 0);
-    QCOMPARE(m_model->parser()->unnamedQuickTestsCount(), 0);
 }
 
 } // namespace Internal

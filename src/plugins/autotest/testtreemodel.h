@@ -64,9 +64,6 @@ public:
     QList<TestConfiguration *> getAllTestCases() const;
     QList<TestConfiguration *> getSelectedTests() const;
     TestConfiguration *getTestConfiguration(const TestTreeItem *item) const;
-    QString getMainFileForUnnamedQuickTest(const QString &qmlFile) const;
-    void qmlFilesForMainFile(const QString &mainFile, QSet<QString> *filePaths) const;
-    QList<QString> getUnnamedQuickTestFunctions() const;
     bool hasUnnamedQuickTests() const;
 
 #ifdef WITH_TESTS
@@ -90,18 +87,14 @@ public slots:
 
 private:
     void addTestTreeItem(TestTreeItem *item, Type type);
-    void updateUnnamedQuickTest(const QString &mainFile,
-                                const QMap<QString, TestCodeLocationAndType> &functions);
-    void modifyTestTreeItem(TestTreeItem *item, Type type, const QStringList &file);
     void removeAllTestItems();
-    void removeTestTreeItems(const QString &filePath, Type type);
-    void removeUnnamedQuickTests(const QString &filePath);
-    void removeGTests(const QString &filePath);
-    bool sweepChildren(TestTreeItem *item);
+    void removeFiles(const QStringList &files);
+    void markForRemoval(const QString &filePath, Type type);
+    void sweepChildren(TestTreeItem *item);
+    TestTreeItem *findTestTreeItemByContent(TestTreeItem *item, TestTreeItem *parent, Type type);
 
     TestTreeItem *unnamedQuickTests() const;
     TestTreeItem *rootItemForType(Type type);
-    QModelIndex rootIndexForType(Type type);
 
     explicit TestTreeModel(QObject *parent = 0);
     void modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem *newItem);

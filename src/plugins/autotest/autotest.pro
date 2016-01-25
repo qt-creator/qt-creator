@@ -11,7 +11,6 @@ SOURCES += \
     testtreemodel.cpp \
     testtreeitem.cpp \
     testvisitor.cpp \
-    testinfo.cpp \
     testcodeparser.cpp \
     autotestplugin.cpp \
     testrunner.cpp \
@@ -31,7 +30,6 @@ HEADERS += \
     testtreemodel.h \
     testtreeitem.h \
     testvisitor.h \
-    testinfo.h \
     testcodeparser.h \
     autotestplugin.h \
     autotest_global.h \
