@@ -28,17 +28,15 @@
 #define VALGRIND_RUNNER_H
 
 #include <analyzerbase/analyzerconstants.h>
-#include <projectexplorer/applicationlauncher.h>
+
+#include <projectexplorer/runnables.h>
 
 #include <utils/outputformat.h>
 #include <ssh/sshconnection.h>
 
 #include <QProcess>
 
-namespace Utils {
-class Environment;
-class SshConnectionParameters;
-}
+namespace Utils { class SshConnectionParameters; }
 
 namespace Valgrind {
 
@@ -57,20 +55,11 @@ public:
     QStringList valgrindArguments() const;
     QStringList fullValgrindArguments() const;
     void setValgrindArguments(const QStringList &toolArguments);
-    QString debuggeeExecutable() const;
-    void setDebuggeeExecutable(const QString &executable);
-    QString debuggeeArguments() const;
-    void setDebuggeeArguments(const QString &arguments);
-
-    void setWorkingDirectory(const QString &path);
-    QString workingDirectory() const;
-    void setEnvironment(const Utils::Environment &environment);
+    void setDebuggee(const ProjectExplorer::StandardRunnable &debuggee) ;
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
 
     void setUseStartupProject(bool useStartupProject);
     bool useStartupProject() const;
-
-    void setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode);
 
     void setConnectionParameters(const QSsh::SshConnectionParameters &connParams);
     const QSsh::SshConnectionParameters &connectionParameters() const;

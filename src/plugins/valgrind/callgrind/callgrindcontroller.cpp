@@ -131,8 +131,6 @@ void CallgrindController::run(Option option)
     const int pid = Utils::HostOsInfo::isWindowsHost() ? 0 : m_valgrindProc->pid();
     m_process->setValgrindExecutable(CALLGRIND_CONTROL_BINARY);
     m_process->setValgrindArguments(QStringList() << optionString << QString::number(pid));
-    m_process->setDebuggeeExecutable(QString());
-    m_process->setDebugeeArguments(QString());
     m_process->run();
 }
 

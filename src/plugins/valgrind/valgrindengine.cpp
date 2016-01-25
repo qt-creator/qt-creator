@@ -83,16 +83,19 @@ bool ValgrindRunControl::startEngine()
     emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), DebugFormat);
 #endif
 
+    StandardRunnable debuggee;
+    debuggee.workingDirectory = workingDirectory();
+    debuggee.executable = runnable().debuggee;
+    debuggee.commandLineArguments = runnable().debuggeeArgs;
+    debuggee.environment = m_environment;
+    debuggee.runMode = m_localRunMode;
+
     ValgrindRunner *run = runner();
-    run->setWorkingDirectory(workingDirectory());
     run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
-    run->setDebuggeeExecutable(runnable().debuggee);
-    run->setDebuggeeArguments(runnable().debuggeeArgs);
-    run->setEnvironment(m_environment);
     run->setConnectionParameters(connection().connParams);
     run->setUseStartupProject(!m_isCustomStart);
-    run->setLocalRunMode(m_localRunMode);
+    run->setDebuggee(debuggee);
 
     connect(run, &ValgrindRunner::processOutputReceived,
             this, &ValgrindRunControl::receiveProcessOutput);

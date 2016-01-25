@@ -28,6 +28,7 @@
 #define VALGRINDPROCESS_H
 
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/runnables.h>
 
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
@@ -35,18 +36,6 @@
 #include <utils/outputformat.h>
 
 namespace Valgrind {
-
-struct Remote {
-    QSsh::SshConnectionParameters m_params;
-    QSsh::SshConnection *m_connection;
-    QSsh::SshRemoteProcess::Ptr m_process;
-    QString m_workingDir;
-    QString m_valgrindExe;
-    QString m_debuggee;
-    QString m_errorString;
-    QProcess::ProcessError m_error;
-    QSsh::SshRemoteProcess::Ptr m_findPID;
-};
 
 /**
  * Process for supplying local and remote valgrind runs
@@ -63,8 +52,7 @@ public:
 
     void setValgrindExecutable(const QString &valgrindExecutable);
     void setValgrindArguments(const QStringList &valgrindArguments);
-    void setDebuggeeExecutable(const QString &debuggeeExecutable);
-    void setDebugeeArguments(const QString &debuggeeArguments);
+    void setDebuggee(const ProjectExplorer::StandardRunnable &debuggee);
 
     void run();
     void close();
@@ -73,10 +61,7 @@ public:
     QProcess::ProcessError processError() const;
 
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
-    void setWorkingDirectory(const QString &path);
     QString workingDirectory() const;
-    void setEnvironment(const Utils::Environment &environment);
-    void setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode);
 
     qint64 pid() const;
     QSsh::SshConnection *connection() const;
@@ -89,7 +74,7 @@ signals:
     void processOutput(const QString &, Utils::OutputFormat format);
     void localHostAddressRetrieved(const QHostAddress &localHostAddress);
 
-private slots:
+private:
     void handleRemoteStderr();
     void handleRemoteStdout();
     void handleError(QSsh::SshError);
@@ -100,23 +85,25 @@ private slots:
     void remoteProcessStarted();
     void findPIDOutputReceived();
 
-private:
     QString argumentString(Utils::OsType osType) const;
 
+    ProjectExplorer::StandardRunnable m_debuggee;
     ProjectExplorer::ApplicationLauncher m_localProcess;
-
     qint64 m_pid;
 
-    Remote m_remote;
+    struct Remote {
+        QSsh::SshConnectionParameters m_params;
+        QSsh::SshConnection *m_connection;
+        QSsh::SshRemoteProcess::Ptr m_process;
+        QString m_errorString;
+        QProcess::ProcessError m_error;
+        QSsh::SshRemoteProcess::Ptr m_findPID;
+    } m_remote;
+
     QString m_valgrindExecutable;
     QStringList m_valgrindArguments;
-    QString m_debuggeeExecutable;
-    QString m_debuggeeArguments;
     bool m_isLocal;
-    ProjectExplorer::ApplicationLauncher::Mode m_localRunMode;
 };
-
-
 
 } // namespace Valgrind
 

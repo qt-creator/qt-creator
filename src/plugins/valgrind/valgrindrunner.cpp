@@ -27,6 +27,8 @@
 #include "valgrindrunner.h"
 #include "valgrindprocess.h"
 
+#include <projectexplorer/runnables.h>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -36,35 +38,26 @@
 
 #include <QEventLoop>
 
+using namespace ProjectExplorer;
+
 namespace Valgrind {
 
 class ValgrindRunner::Private
 {
 public:
-    explicit Private(ValgrindRunner *qq)
-        : q(qq),
-          process(0),
-          channelMode(QProcess::SeparateChannels),
-          finished(false),
-          useStartupProject(true),
-          localRunMode(ProjectExplorer::ApplicationLauncher::Gui)
-    {
-    }
+    Private(ValgrindRunner *runner) : q(runner) {}
 
     void run(ValgrindProcess *process);
 
     ValgrindRunner *q;
-    ValgrindProcess *process;
-    Utils::Environment environment;
-    QProcess::ProcessChannelMode channelMode;
-    bool finished;
+    ValgrindProcess *process = 0;
+    QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
+    bool finished = false;
     QString valgrindExecutable;
     QStringList valgrindArguments;
-    QString debuggeeExecutable;
-    QString debuggeeArguments;
+    StandardRunnable debuggee;
     QString workingdir;
-    bool useStartupProject;
-    ProjectExplorer::ApplicationLauncher::Mode localRunMode;
+    bool useStartupProject = true;
     QSsh::SshConnectionParameters connParams;
 };
 
@@ -80,14 +73,12 @@ void ValgrindRunner::Private::run(ValgrindProcess *_process)
 
     process = _process;
 
-    if (environment.size() > 0)
-        process->setEnvironment(environment);
-
-    process->setWorkingDirectory(workingdir);
     process->setProcessChannelMode(channelMode);
-    process->setLocalRunMode(localRunMode);
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
+    process->setValgrindExecutable(valgrindExecutable);
+    process->setValgrindArguments(q->fullValgrindArguments());
+    process->setDebuggee(debuggee);
 
     QObject::connect(process, &ValgrindProcess::processOutput,
                      q, &ValgrindRunner::processOutputReceived);
@@ -100,10 +91,6 @@ void ValgrindRunner::Private::run(ValgrindProcess *_process)
     QObject::connect(process, &ValgrindProcess::localHostAddressRetrieved, q,
                      &ValgrindRunner::localHostAddressRetrieved);
 
-    process->setValgrindExecutable(valgrindExecutable);
-    process->setValgrindArguments(q->fullValgrindArguments());
-    process->setDebuggeeExecutable(debuggeeExecutable);
-    process->setDebugeeArguments(debuggeeArguments);
     process->run();
 }
 
@@ -153,29 +140,9 @@ QStringList ValgrindRunner::fullValgrindArguments() const
     return fullArgs;
 }
 
-QString ValgrindRunner::debuggeeExecutable() const
+void ValgrindRunner::setDebuggee(const StandardRunnable &debuggee)
 {
-    return d->debuggeeExecutable;
-}
-
-void ValgrindRunner::setDebuggeeExecutable(const QString &executable)
-{
-    d->debuggeeExecutable = executable;
-}
-
-QString ValgrindRunner::debuggeeArguments() const
-{
-    return d->debuggeeArguments;
-}
-
-void ValgrindRunner::setDebuggeeArguments(const QString &arguments)
-{
-    d->debuggeeArguments = arguments;
-}
-
-void ValgrindRunner::setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode)
-{
-    d->localRunMode = localRunMode;
+    d->debuggee = debuggee;
 }
 
 const QSsh::SshConnectionParameters &ValgrindRunner::connectionParameters() const
@@ -186,21 +153,6 @@ const QSsh::SshConnectionParameters &ValgrindRunner::connectionParameters() cons
 void ValgrindRunner::setConnectionParameters(const QSsh::SshConnectionParameters &connParams)
 {
     d->connParams = connParams;
-}
-
-void ValgrindRunner::setWorkingDirectory(const QString &path)
-{
-    d->workingdir = path;
-}
-
-QString ValgrindRunner::workingDirectory() const
-{
-    return d->workingdir;
-}
-
-void ValgrindRunner::setEnvironment(const Utils::Environment &environment)
-{
-    d->environment = environment;
 }
 
 void ValgrindRunner::setProcessChannelMode(QProcess::ProcessChannelMode mode)
