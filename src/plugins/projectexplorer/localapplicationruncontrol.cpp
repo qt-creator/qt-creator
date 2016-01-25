@@ -33,7 +33,6 @@
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
-#include <utils/environment.h>
 
 #include <QDir>
 
@@ -66,12 +65,6 @@ LocalApplicationRunControl::LocalApplicationRunControl(RunConfiguration *rc, Cor
     : RunControl(rc, mode)
 {
     setIcon(Icons::RUN_SMALL);
-    EnvironmentAspect *environment = rc->extraAspect<EnvironmentAspect>();
-    Utils::Environment env;
-    if (environment)
-        env = environment->environment();
-    m_applicationLauncher.setEnvironment(env);
-
     connect(&m_applicationLauncher, &ApplicationLauncher::appendMessage,
             this, static_cast<void(RunControl::*)(const QString &, Utils::OutputFormat)>(&RunControl::appendMessage));
     connect(&m_applicationLauncher, &ApplicationLauncher::processStarted,
@@ -97,6 +90,7 @@ void LocalApplicationRunControl::start()
         m_running = true;
         QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(m_runnable.executable)) + QLatin1Char('\n');
         appendMessage(msg, Utils::NormalMessageFormat);
+        m_applicationLauncher.setEnvironment(m_runnable.environment);
         m_applicationLauncher.start(m_runnable.runMode, m_runnable.executable, m_runnable.commandLineArguments);
         setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
     }
