@@ -4,6 +4,10 @@ contains(CONFIG, dll) {
     DEFINES += CPPTOOLS_STATIC_LIBRARY
 }
 
-HEADERS += $$PWD/senddocumenttracker.h
+HEADERS += \
+    $$PWD/cppprojectfile.h \
+    $$PWD/senddocumenttracker.h \
 
-SOURCES += $$PWD/senddocumenttracker.cpp
+SOURCES += \
+    $$PWD/cppprojectfile.cpp \
+    $$PWD/senddocumenttracker.cpp

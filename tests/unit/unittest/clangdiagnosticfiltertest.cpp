@@ -64,6 +64,7 @@ DiagnosticContainer createDiagnostic(const QString &text,
     );
 }
 
+const QString mainFileHeaderPath = QString::fromUtf8(TESTDATA_DIR "/someHeader.h");
 const QString mainFilePath = QString::fromUtf8(TESTDATA_DIR "/diagnostic_erroneous_source.cpp");
 const QString includedFilePath = QString::fromUtf8(TESTDATA_DIR "/diagnostic_erroneous_header.cpp");
 
@@ -89,6 +90,22 @@ DiagnosticContainer warningFromMainFile()
                 QStringLiteral("warning: enumeration value 'Three' not handled in switch"),
                 ClangBackEnd::DiagnosticSeverity::Warning,
                 mainFilePath);
+}
+
+DiagnosticContainer pragmaOnceWarningInHeader()
+{
+    return createDiagnostic(
+                QStringLiteral("warning: #pragma once in main file"),
+                ClangBackEnd::DiagnosticSeverity::Warning,
+                mainFileHeaderPath);
+}
+
+DiagnosticContainer includeNextInPrimarySourceFileWarningInHeader()
+{
+    return createDiagnostic(
+                QStringLiteral("warning: #include_next in primary source file"),
+                ClangBackEnd::DiagnosticSeverity::Warning,
+                mainFileHeaderPath);
 }
 
 DiagnosticContainer errorFromMainFile()
@@ -191,6 +208,16 @@ TEST_F(ClangDiagnosticFilter, WarningsAreEmptyAfterTaking)
     clangDiagnosticFilter.takeWarnings();
 
     ASSERT_TRUE(clangDiagnosticFilter.takeWarnings().isEmpty());
+}
+
+TEST_F(ClangDiagnosticFilter, IgnoreCertainWarningsInHeaderFiles)
+{
+    ClangCodeModel::Internal::ClangDiagnosticFilter myClangDiagnosticFilter{mainFileHeaderPath};
+
+    myClangDiagnosticFilter.filter({pragmaOnceWarningInHeader(),
+                                    includeNextInPrimarySourceFileWarningInHeader()});
+
+    ASSERT_TRUE(myClangDiagnosticFilter.takeWarnings().isEmpty());
 }
 
 TEST_F(ClangDiagnosticFilter, ErrorsAreEmptyAfterTaking)
