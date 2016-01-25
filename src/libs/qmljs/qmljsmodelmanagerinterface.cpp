@@ -1095,9 +1095,9 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
     }
 
     if (pathToScan.length() > 1) {
-        QFuture<void> result = QtConcurrent::run(&ModelManagerInterface::importScan,
-                                                  workingCopyInternal(), pathToScan,
-                                                  this, true, true);
+        QFuture<void> result = Utils::runAsync<void>(&ModelManagerInterface::importScan,
+                                                     workingCopyInternal(), pathToScan,
+                                                     this, true, true);
         cleanupFutures();
         m_futures.append(result);
 
@@ -1241,8 +1241,7 @@ void ModelManagerInterface::startCppQmlTypeUpdate()
     if (!cppModelManager)
         return;
 
-    m_cppQmlTypesUpdater = QtConcurrent::run(
-                &ModelManagerInterface::updateCppQmlTypes,
+    m_cppQmlTypesUpdater = Utils::runAsync<void>(&ModelManagerInterface::updateCppQmlTypes,
                 this, cppModelManager->snapshot(), m_queuedCppDocuments);
     m_queuedCppDocuments.clear();
 }
@@ -1262,6 +1261,8 @@ void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &interface,
                                      CPlusPlus::Snapshot snapshot,
                                      QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents)
 {
+    interface.setProgressRange(0, documents.size());
+    interface.setProgressValue(0);
     CppDataHash newData = qmlModelManager->cppData();
 
     FindExportedCppTypes finder(snapshot);
@@ -1271,6 +1272,7 @@ void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &interface,
     foreach (const DocScanPair &pair, documents) {
         if (interface.isCanceled())
             return;
+        interface.setProgressValue(interface.progressValue() + 1);
 
         CPlusPlus::Document::Ptr doc = pair.first;
         const bool scan = pair.second;
