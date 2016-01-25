@@ -78,6 +78,8 @@ public:
     QMultiMap<QString, int> gtestNamesAndSets() const;
 #endif
 
+    QMap<QString, QString> referencingFiles() const;
+
 signals:
     void testTreeModelChanged();
 

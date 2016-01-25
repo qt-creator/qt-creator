@@ -87,6 +87,8 @@ public:
     unsigned column() const { return m_column; }
     QString mainFile() const { return m_mainFile; }
     void setMainFile(const QString &mainFile) { m_mainFile = mainFile; }
+    QString referencingFile() const { return m_referencingFile; }
+    void setReferencingFile(const QString &referencingFile) { m_referencingFile = referencingFile; }
     void setChecked(const Qt::CheckState checked);
     Qt::CheckState checked() const;
     Type type() const { return m_type; }
@@ -106,6 +108,7 @@ private:
     unsigned m_line;
     unsigned m_column;
     QString m_mainFile;  // main for Quick tests, project file for gtest
+    QString m_referencingFile;
     TestStates m_state;
 };
 

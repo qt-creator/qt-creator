@@ -42,6 +42,38 @@
 namespace Autotest {
 namespace Internal {
 
+class ReferencingFilesFinder : public Utils::TreeItemVisitor
+{
+public:
+    ReferencingFilesFinder() {}
+
+    bool preVisit(Utils::TreeItem *item) override
+    {
+        // 0 = invisible root, 1 = main categories, 2 = test cases, 3 = test functions
+        return item->level() < 4;
+    }
+
+    void visit(Utils::TreeItem *item) override
+    {
+        // skip invisible root item
+        if (!item->parent())
+            return;
+
+        if (auto testItem = static_cast<TestTreeItem *>(item)) {
+            if (!testItem->filePath().isEmpty() && !testItem->referencingFile().isEmpty())
+                m_referencingFiles.insert(testItem->filePath(), testItem->referencingFile());
+        }
+    }
+
+    QMap<QString, QString> referencingFiles() const { return m_referencingFiles; }
+
+private:
+    QMap<QString, QString> m_referencingFiles;
+
+};
+
+/***********************************************************************************************/
+
 TestTreeModel::TestTreeModel(QObject *parent) :
     TreeModel(parent),
     m_autoTestRootItem(new TestTreeItem(tr("Auto Tests"), QString(), TestTreeItem::Root)),
@@ -589,6 +621,13 @@ void TestTreeModel::removeGTests(const QString &filePath)
             delete takeItem(child);
     }
     emit testTreeModelChanged();
+}
+
+QMap<QString, QString> TestTreeModel::referencingFiles() const
+{
+    ReferencingFilesFinder finder;
+    rootItem()->walkTree(&finder);
+    return finder.referencingFiles();
 }
 
 void TestTreeModel::addTestTreeItem(TestTreeItem *item, TestTreeModel::Type type)

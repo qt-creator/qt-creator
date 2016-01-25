@@ -70,6 +70,7 @@ TestTreeItem::TestTreeItem(const TestTreeItem &other)
       m_line(other.m_line),
       m_column(other.m_column),
       m_mainFile(other.m_mainFile),
+      m_referencingFile(other.m_referencingFile),
       m_state(other.m_state)
 {
     for (int row = 0, count = other.childCount(); row < count; ++row)
@@ -183,6 +184,10 @@ bool TestTreeItem::modifyContent(const TestTreeItem *modified)
     }
     if (m_mainFile != modified->m_mainFile) {
         m_mainFile = modified->m_mainFile;
+        hasBeenModified = true;
+    }
+    if (m_referencingFile != modified->m_referencingFile) {
+        m_referencingFile = modified->m_referencingFile;
         hasBeenModified = true;
     }
     if (m_type != modified->m_type) {

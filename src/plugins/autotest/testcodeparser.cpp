@@ -971,13 +971,17 @@ void TestCodeParser::updateModelAndCppDocMap(CPlusPlus::Document::Ptr document,
         foreach (const QString &file, files) {
             const bool setReferencingFile = (files.size() == 2 && file == declaringFile);
             ReferencingInfo testInfo;
-            if (setReferencingFile)
+            if (setReferencingFile) {
                 testInfo.referencingFile = fileName;
+                testItem->setReferencingFile(fileName);
+            }
             testInfo.type = TestTreeModel::AutoTest;
             m_referencingFiles.insert(file, testInfo);
         }
         emit testItemModified(testItem, TestTreeModel::AutoTest, files);
     } else {
+        if (declaringFile != fileName)
+            testItem->setReferencingFile(fileName);
         emit testItemCreated(testItem, TestTreeModel::AutoTest);
         ReferencingInfo testInfo;
         testInfo.type = TestTreeModel::AutoTest;
@@ -1005,6 +1009,7 @@ void TestCodeParser::updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
         ReferencingInfo testInfo;
         testInfo.referencingFile = referencingFile;
         testInfo.type = TestTreeModel::QuickTest;
+        testItem->setReferencingFile(referencingFile);
         emit testItemModified(testItem, TestTreeModel::QuickTest, { fileName });
         m_referencingFiles.insert(fileName, testInfo);
     } else {
@@ -1015,6 +1020,7 @@ void TestCodeParser::updateModelAndQuickDocMap(QmlJS::Document::Ptr document,
         ReferencingInfo testInfo;
         testInfo.referencingFile = referencingFile;
         testInfo.type = TestTreeModel::QuickTest;
+        testItem->setReferencingFile(referencingFile);
         emit testItemCreated(testItem, TestTreeModel::QuickTest);
         m_referencingFiles.insert(filePath, testInfo);
     }
