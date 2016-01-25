@@ -383,6 +383,7 @@ void GTestOutputReader::processOutput()
             testResult->setResult(Result::MessageCurrentTest);
             testResult->setDescription(tr("Entering test set %1").arg(m_currentTestSet));
             m_futureInterface.reportResult(testResult);
+            m_description.clear();
         } else if (testSetSuccess.exactMatch(line)) {
             auto testResult = new GTestResult(m_currentTestName);
             testResult->setTestCase(m_currentTestSet);
