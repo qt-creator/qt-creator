@@ -27,7 +27,6 @@
 #define LOCALAPPLICATIONRUNCONTROL_H
 
 #include "runconfiguration.h"
-#include "applicationlauncher.h"
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -41,33 +40,6 @@ public:
 };
 
 } // namespace Internal
-
-class PROJECTEXPLORER_EXPORT LocalApplicationRunControl : public RunControl
-{
-    Q_OBJECT
-public:
-    LocalApplicationRunControl(RunConfiguration *runConfiguration, Core::Id mode);
-    ~LocalApplicationRunControl();
-    void start();
-    StopResult stop();
-    bool isRunning() const;
-
-    void setCommand(const QString &executable, const QString &commandLineArguments);
-    void setApplicationLauncherMode(const ApplicationLauncher::Mode mode);
-    void setWorkingDirectory(const QString &workingDirectory);
-
-private slots:
-    void processStarted();
-    void processExited(int exitCode, QProcess::ExitStatus status);
-    void slotAppendMessage(const QString &err, Utils::OutputFormat isError);
-private:
-    ApplicationLauncher m_applicationLauncher;
-    QString m_executable;
-    QString m_commandLineArguments;
-    ApplicationLauncher::Mode m_runMode;
-    bool m_running;
-};
-
 } // namespace ProjectExplorer
 
 #endif // LOCALAPPLICATIONRUNCONTROL_H
