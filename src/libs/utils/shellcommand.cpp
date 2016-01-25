@@ -140,7 +140,9 @@ ShellCommandPrivate::Job::Job(const QString &wd, const Utils::FileName &b, const
 ShellCommand::ShellCommand(const QString &workingDirectory,
                            const QProcessEnvironment &environment) :
     d(new Internal::ShellCommandPrivate(workingDirectory, environment))
-{ }
+{
+    connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &ShellCommand::cancel);
+}
 
 ShellCommand::~ShellCommand()
 {
@@ -223,11 +225,8 @@ void ShellCommand::execute()
     if (d->m_jobs.empty())
         return;
 
-    // For some reason QtConcurrent::run() only works on this
-    QFuture<void> task = QtConcurrent::run(&ShellCommand::run, this);
+    QFuture<void> task = Utils::runAsync<void>(&ShellCommand::run, this);
     d->m_watcher.setFuture(task);
-    connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &ShellCommand::cancel);
-
     addTask(task);
 }
 
@@ -305,9 +304,12 @@ void ShellCommand::run(QFutureInterface<void> &future)
         }
 
         emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
-        if (d->m_lastExecSuccess)
+        if (d->m_lastExecSuccess) {
             emit success(cookie());
-        future.setProgressValue(future.progressMaximum());
+            future.setProgressValue(future.progressMaximum());
+        } else {
+            future.cancel(); // sets the progress indicator red
+        }
     }
 
     if (d->m_progressParser)
