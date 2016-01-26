@@ -87,8 +87,12 @@ void ShellCommandPage::start(ShellCommand *command)
     QTC_ASSERT(m_state != Running, return);
     m_command = command;
     command->setProgressiveOutput(true);
-    connect(command, &ShellCommand::stdOutText, this, &ShellCommandPage::reportStdOut);
-    connect(command, &ShellCommand::stdErrText, this, &ShellCommandPage::reportStdErr);
+    connect(command, &ShellCommand::stdOutText, this, [this](const QString &text) {
+        m_formatter->appendMessage(text, Utils::StdOutFormat);
+    });
+    connect(command, &ShellCommand::stdErrText, this, [this](const QString &text) {
+        m_formatter->appendMessage(text, Utils::StdErrFormat);
+    });
     connect(command, &ShellCommand::finished, this, &ShellCommandPage::slotFinished);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     m_logPlainTextEdit->clear();
@@ -128,16 +132,6 @@ void ShellCommandPage::slotFinished(bool ok, int exitCode, const QVariant &)
     if (success)
         emit completeChanged();
     emit finished(success);
-}
-
-void ShellCommandPage::reportStdOut(const QString &text)
-{
-    m_formatter->appendMessage(text, Utils::StdOutFormat);
-}
-
-void ShellCommandPage::reportStdErr(const QString &text)
-{
-    m_formatter->appendMessage(text, Utils::StdErrFormat);
 }
 
 void ShellCommandPage::terminate()

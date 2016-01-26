@@ -64,8 +64,6 @@ signals:
 
 private:
     void slotFinished(bool ok, int exitCode, const QVariant &cookie);
-    void reportStdOut(const QString &text);
-    void reportStdErr(const QString &text);
 
     QPlainTextEdit *m_logPlainTextEdit;
     OutputFormatter *m_formatter;
