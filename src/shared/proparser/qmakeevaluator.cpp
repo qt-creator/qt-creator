@@ -984,7 +984,8 @@ static ProString msvcArchitecture(const QString &vcInstallDir, const QString &pa
     QString vcBinDir = vcInstallDir;
     if (vcBinDir.endsWith(QLatin1Char('\\')))
         vcBinDir.chop(1);
-    foreach (const QString &dir, pathVar.split(QLatin1Char(';'))) {
+    const auto dirs = pathVar.split(QLatin1Char(';'));
+    for (const QString &dir : dirs) {
         if (!dir.startsWith(vcBinDir, Qt::CaseInsensitive))
             continue;
         const ProString arch = msvcBinDirToQMakeArch(dir.mid(vcBinDir.length() + 1));
@@ -1458,7 +1459,8 @@ void QMakeEvaluator::updateMkspecPaths()
     QStringList ret;
     const QString concat = QLatin1String("/mkspecs");
 
-    foreach (const QString &it, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
+    const auto paths = m_option->getPathListEnv(QLatin1String("QMAKEPATH"));
+    for (const QString &it : paths)
         ret << it + concat;
 
     foreach (const QString &it, m_qmakepath)
@@ -1498,7 +1500,8 @@ void QMakeEvaluator::updateFeaturePaths()
         feature_bases << m_sourceRoot;
     }
 
-    foreach (const QString &item, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
+    const auto items = m_option->getPathListEnv(QLatin1String("QMAKEPATH"));
+    for (const QString &item : items)
         feature_bases << (item + mkspecs_concat);
 
     foreach (const QString &item, m_qmakepath)
@@ -1524,7 +1527,8 @@ void QMakeEvaluator::updateFeaturePaths()
     feature_bases << (m_option->propertyValue(ProKey("QT_HOST_DATA/src")) + mkspecs_concat);
 
     foreach (const QString &fb, feature_bases) {
-        foreach (const ProString &sfx, values(ProKey("QMAKE_PLATFORM")))
+        const auto sfxs = values(ProKey("QMAKE_PLATFORM"));
+        for (const ProString &sfx : sfxs)
             feature_roots << (fb + features_concat + sfx + QLatin1Char('/'));
         feature_roots << (fb + features_concat);
     }
@@ -1597,7 +1601,8 @@ bool QMakeEvaluator::isActiveConfig(const QString &config, bool regex)
 
         // CONFIG variable
         int t = 0;
-        foreach (const ProString &configValue, values(statics.strCONFIG)) {
+        const auto configValues = values(statics.strCONFIG);
+        for (const ProString &configValue : configValues) {
             if (re.exactMatch(configValue.toQString(m_tmp[t])))
                 return true;
             t ^= 1;
@@ -2016,7 +2021,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFileInto(
     *values = visitor.m_valuemapStack.top();
     ProKey qiif("QMAKE_INTERNAL_INCLUDED_FILES");
     ProStringList &iif = m_valuemapStack.first()[qiif];
-    foreach (const ProString &ifn, values->value(qiif))
+    const auto ifns = values->value(qiif);
+    for (const ProString &ifn : ifns)
         if (!iif.contains(ifn))
             iif << ifn;
     return ReturnTrue;

@@ -313,7 +313,8 @@ bool QMakeGlobals::initProperties()
         QT_PCLOSE(proc);
     }
 #endif
-    foreach (QByteArray line, data.split('\n')) {
+    const auto lines = data.split('\n');
+    for (QByteArray line : lines) {
         int off = line.indexOf(':');
         if (off < 0) // huh?
             continue;

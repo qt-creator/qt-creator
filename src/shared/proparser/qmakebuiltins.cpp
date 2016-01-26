@@ -493,14 +493,15 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             }
         }
         if (!var.isEmpty()) {
+            const auto strings = values(map(var));
             if (regexp) {
                 QRegExp sepRx(sep);
-                foreach (const ProString &str, values(map(var))) {
+                for (const ProString &str : strings) {
                     const QString &rstr = str.toQString(m_tmp1).section(sepRx, beg, end);
                     ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr).setSource(str));
                 }
             } else {
-                foreach (const ProString &str, values(map(var))) {
+                for (const ProString &str : strings) {
                     const QString &rstr = str.toQString(m_tmp1).section(sep, beg, end);
                     ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr).setSource(str));
                 }
@@ -529,7 +530,8 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             bool leftalign = false;
             enum { DefaultSign, PadSign, AlwaysSign } sign = DefaultSign;
             if (args.count() >= 2) {
-                foreach (const ProString &opt, split_value_list(args.at(1).toQString(m_tmp2))) {
+                const auto opts = split_value_list(args.at(1).toQString(m_tmp2));
+                for (const ProString &opt : opts) {
                     opt.toQString(m_tmp3);
                     if (m_tmp3.startsWith(QLatin1String("ibase="))) {
                         ibase = m_tmp3.mid(6).toInt();
@@ -618,9 +620,12 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             evalError(fL1S("split(var, sep) requires one or two arguments."));
         } else {
             const QString &sep = (args.count() == 2) ? args.at(1).toQString(m_tmp1) : statics.field_sep;
-            foreach (const ProString &var, values(map(args.at(0))))
-                foreach (const QString &splt, var.toQString(m_tmp2).split(sep))
+            const auto vars = values(map(args.at(0)));
+            for (const ProString &var : vars) {
+                const auto splits = var.toQString(m_tmp2).split(sep);
+                for (const QString &splt : splits)
                     ret << (splt.isSharedWith(m_tmp2) ? var : ProString(splt).setSource(var));
+            }
         }
         break;
     case E_MEMBER:
@@ -761,7 +766,8 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         } else {
             QRegExp regx(args.at(1).toQString());
             int t = 0;
-            foreach (const ProString &val, values(map(args.at(0)))) {
+            const auto vals = values(map(args.at(0)));
+            for (const ProString &val : vals) {
                 if (regx.indexIn(val.toQString(m_tmp[t])) != -1)
                     ret += val;
                 t ^= 1;
@@ -958,7 +964,8 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         } else {
             const QRegExp before(args.at(1).toQString());
             const QString &after(args.at(2).toQString(m_tmp2));
-            foreach (const ProString &val, values(map(args.at(0)))) {
+            const auto vals = values(map(args.at(0)));
+            for (const ProString &val : vals) {
                 QString rstr = val.toQString(m_tmp1);
                 QString copy = rstr; // Force a detach on modify
                 rstr.replace(before, after);
@@ -1191,7 +1198,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                 regx.setPattern(copy);
             }
             int t = 0;
-            foreach (const ProString &s, vars.value(map(args.at(1)))) {
+            const auto strings = vars.value(map(args.at(1)));
+            for (const ProString &s : strings) {
                 if ((!regx.isEmpty() && regx.exactMatch(s.toQString(m_tmp[t]))) || s == qry)
                     return ReturnTrue;
                 t ^= 1;
@@ -1569,7 +1577,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             if (!vals.isEmpty())
                 contents = vals.join(QLatin1Char('\n')) + QLatin1Char('\n');
             if (args.count() >= 3) {
-                foreach (const ProString &opt, split_value_list(args.at(2).toQString(m_tmp2))) {
+                const auto opts = split_value_list(args.at(2).toQString(m_tmp2));
+                for (const ProString &opt : opts) {
                     opt.toQString(m_tmp3);
                     if (m_tmp3 == QLatin1String("append")) {
                         mode = QIODevice::Append;
@@ -1641,7 +1650,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         enum { CacheSet, CacheAdd, CacheSub } mode = CacheSet;
         ProKey srcvar;
         if (args.count() >= 2) {
-            foreach (const ProString &opt, split_value_list(args.at(1).toQString(m_tmp2))) {
+            const auto opts = split_value_list(args.at(1).toQString(m_tmp2));
+            for (const ProString &opt : opts) {
                 opt.toQString(m_tmp3);
                 if (m_tmp3 == QLatin1String("transient")) {
                     persist = false;
