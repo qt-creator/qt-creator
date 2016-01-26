@@ -247,9 +247,9 @@ QStringList QMakeGlobals::splitPathList(const QString &val) const
     QStringList ret;
     if (!val.isEmpty()) {
         QDir bdir;
-        QStringList vals = val.split(dirlist_sep);
+        const QStringList vals = val.split(dirlist_sep);
         ret.reserve(vals.length());
-        foreach (const QString &it, vals)
+        for (const QString &it : vals)
             ret << QDir::cleanPath(bdir.absoluteFilePath(it));
     }
     return ret;
