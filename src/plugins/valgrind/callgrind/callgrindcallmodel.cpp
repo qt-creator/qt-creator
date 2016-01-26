@@ -189,13 +189,13 @@ QVariant CallModel::data(const QModelIndex &index, int role) const
     if (role == RelativeTotalCostRole) {
         const quint64 totalCost = d->m_data->totalCost(d->m_event);
         const quint64 callCost = call->cost(d->m_event);
-        return double(callCost) / totalCost;
+        return totalCost ? (double(callCost) / totalCost) : 0.0;
     }
 
     if (role == RelativeParentCostRole) {
         const quint64 parentCost = d->m_function->inclusiveCost(d->m_event);
         const quint64 callCost = call->cost(d->m_event);
-        return double(callCost) / parentCost;
+        return parentCost ? (double(callCost) / parentCost) : 0.0;
     }
 
     return QVariant();

@@ -298,9 +298,9 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
     if (role == RelativeParentCostRole || role == RelativeTotalCostRole) {
         const quint64 totalCost = d->m_data->totalCost(d->m_event);
         if (index.column() == SelfCostColumn)
-            return double(func->selfCost(d->m_event)) / totalCost;
+            return totalCost ? (double(func->selfCost(d->m_event)) / totalCost) : 0.0;
         if (index.column() == InclusiveCostColumn)
-            return double(func->inclusiveCost(d->m_event)) / totalCost;
+            return totalCost ? (double(func->inclusiveCost(d->m_event)) / totalCost) : 0.0;
     }
 
     if (role == LineNumberRole)
