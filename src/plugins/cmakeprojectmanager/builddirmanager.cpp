@@ -42,6 +42,7 @@
 #include <utils/synchronousprocess.h>
 
 #include <QDateTime>
+#include <QFile>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QRegularExpression>
@@ -185,6 +186,11 @@ QList<CMakeBuildTarget> BuildDirManager::buildTargets() const
 QList<ProjectExplorer::FileNode *> BuildDirManager::files() const
 {
     return m_files;
+}
+
+CMakeConfig BuildDirManager::configuration() const
+{
+    return parseConfiguration();
 }
 
 void BuildDirManager::extractData()
@@ -365,6 +371,92 @@ void BuildDirManager::processCMakeError()
         m_parser->stdError(s);
         Core::MessageManager::write(s);
     });
+}
+
+static QByteArray trimCMakeCacheLine(const QByteArray &in) {
+    int start = 0;
+    while (start < in.count() && (in.at(start) == ' ' || in.at(start) == '\t'))
+        ++start;
+
+    return in.mid(start, in.count() - start - 1);
+}
+
+static QByteArrayList splitCMakeCacheLine(const QByteArray &line) {
+    const int colonPos = line.indexOf(':');
+    if (colonPos < 0)
+        return QByteArrayList();
+
+    const int equalPos = line.indexOf('=', colonPos + 1);
+    if (equalPos < colonPos)
+        return QByteArrayList();
+
+    return QByteArrayList() << line.mid(0, colonPos)
+                            << line.mid(colonPos + 1, equalPos - colonPos - 1)
+                            << line.mid(equalPos + 1);
+}
+
+static CMakeConfigItem::Type fromByteArray(const QByteArray &type) {
+    if (type == "BOOL")
+        return CMakeConfigItem::BOOL;
+    if (type == "STRING")
+        return CMakeConfigItem::STRING;
+    if (type == "FILEPATH")
+        return CMakeConfigItem::FILEPATH;
+    if (type == "PATH")
+        return CMakeConfigItem::PATH;
+    QTC_CHECK(type == "INTERNAL" || type == "STATIC");
+
+    return CMakeConfigItem::INTERNAL;
+}
+
+CMakeConfig BuildDirManager::parseConfiguration() const
+{
+    CMakeConfig result;
+    const QString cacheFile = QDir(m_buildDir.toString()).absoluteFilePath(QLatin1String("CMakeCache.txt"));
+    QFile cache(cacheFile);
+    if (!cache.open(QIODevice::ReadOnly | QIODevice::Text))
+        return CMakeConfig();
+
+    QSet<QByteArray> advancedSet;
+    QByteArray documentation;
+    while (!cache.atEnd()) {
+        const QByteArray line = trimCMakeCacheLine(cache.readLine());
+
+        if (line.isEmpty() || line.startsWith('#'))
+            continue;
+
+        if (line.startsWith("//")) {
+            documentation = line.mid(2);
+            continue;
+        }
+
+        const QByteArrayList pieces = splitCMakeCacheLine(line);
+        if (pieces.isEmpty())
+            continue;
+
+        QTC_ASSERT(pieces.count() == 3, continue);
+        const QByteArray key = pieces.at(0);
+        const QByteArray type = pieces.at(1);
+        const QByteArray value = pieces.at(2);
+
+        if (key.endsWith("-ADVANCED") && value == "1") {
+            advancedSet.insert(key.left(key.count() - 9 /* "-ADVANCED" */));
+        } else {
+            CMakeConfigItem::Type t = fromByteArray(type);
+            if (t != CMakeConfigItem::INTERNAL)
+                result << CMakeConfigItem(key, t, documentation, value);
+        }
+    }
+
+    // Set advanced flags:
+    for (int i = 0; i < result.count(); ++i) {
+        CMakeConfigItem &item = result[i];
+        item.isAdvanced = advancedSet.contains(item.key);
+    }
+
+    Utils::sort(result, CMakeConfigItem::sortOperator());
+
+    return result;
 }
 
 } // namespace Internal

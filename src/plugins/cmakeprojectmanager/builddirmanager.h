@@ -78,6 +78,7 @@ public:
     QString projectName() const;
     QList<CMakeBuildTarget> buildTargets() const;
     QList<ProjectExplorer::FileNode *> files() const;
+    CMakeConfig configuration() const;
 
 signals:
     void parsingStarted() const;
@@ -92,6 +93,8 @@ private:
     void cmakeFinished(int code, QProcess::ExitStatus status);
     void processCMakeOutput();
     void processCMakeError();
+
+    CMakeConfig parseConfiguration() const;
 
     const Utils::FileName m_sourceDir;
     Utils::FileName m_buildDir;
