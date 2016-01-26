@@ -78,6 +78,9 @@ public:
     QMultiMap<QString, int> gtestNamesAndSets() const;
 #endif
 
+    void markAllForRemoval();
+    void markForRemoval(const QString &filePath);
+    void sweep();
     QMap<QString, QString> referencingFiles() const;
 
 signals:
@@ -94,6 +97,7 @@ private:
     void removeTestTreeItems(const QString &filePath, Type type);
     void removeUnnamedQuickTests(const QString &filePath);
     void removeGTests(const QString &filePath);
+    bool sweepChildren(TestTreeItem *item);
 
     TestTreeItem *unnamedQuickTests() const;
     TestTreeItem *rootItemForType(Type type);

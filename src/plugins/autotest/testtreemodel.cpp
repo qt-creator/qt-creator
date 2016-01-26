@@ -623,6 +623,87 @@ void TestTreeModel::removeGTests(const QString &filePath)
     emit testTreeModelChanged();
 }
 
+void TestTreeModel::markAllForRemoval()
+{
+    foreach (Utils::TreeItem *item, m_autoTestRootItem->children())
+        static_cast<TestTreeItem *>(item)->markForRemovalRecursively(true);
+
+    foreach (Utils::TreeItem *item, m_quickTestRootItem->children())
+        static_cast<TestTreeItem *>(item)->markForRemovalRecursively(true);
+
+    foreach (Utils::TreeItem *item, m_googleTestRootItem->children())
+        static_cast<TestTreeItem *>(item)->markForRemovalRecursively(true);
+}
+
+void TestTreeModel::markForRemoval(const QString &filePath)
+{
+    if (filePath.isEmpty())
+        return;
+
+    Type types[] = { AutoTest, QuickTest, GoogleTest };
+    for (Type type : types) {
+        TestTreeItem *root = rootItemForType(type);
+        for (int childRow = root->childCount() - 1; childRow >= 0; --childRow) {
+            TestTreeItem *child = root->childItem(childRow);
+            if (child->markedForRemoval())
+                continue;
+            // Qt + named Quick Tests
+            if (child->filePath() == filePath || child->referencingFile() == filePath) {
+                child->markForRemovalRecursively(true);
+            } else {
+                // unnamed Quick Tests and GTest and Qt Tests with separated source/header
+                int grandChildRow = child->childCount() - 1;
+                for ( ; grandChildRow >= 0; --grandChildRow) {
+                    TestTreeItem *grandChild = child->childItem(grandChildRow);
+                    if (grandChild->filePath() == filePath
+                            || grandChild->referencingFile() == filePath) {
+                        grandChild->markForRemovalRecursively(true);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void TestTreeModel::sweep()
+{
+    bool hasChanged = false;
+    Type types[] = { AutoTest, QuickTest, GoogleTest };
+    for (Type type : types) {
+        TestTreeItem *root = rootItemForType(type);
+        hasChanged |= sweepChildren(root);
+    }
+    if (hasChanged)
+        emit testTreeModelChanged();
+}
+
+/**
+ * @note after calling this function emit testTreeModelChanged() if it returns true
+ */
+bool TestTreeModel::sweepChildren(TestTreeItem *item)
+{
+    bool hasChanged = false;
+    for (int row = item->childCount() - 1; row >= 0; --row) {
+        TestTreeItem *child = item->childItem(row);
+
+        if (child->parentItem()->type() != TestTreeItem::Root && child->markedForRemoval()) {
+            delete takeItem(child);
+            hasChanged = true;
+            continue;
+        }
+        if (bool noEndNode = child->hasChildren()) {
+            hasChanged |= sweepChildren(child);
+            if (noEndNode && child->childCount() == 0) {
+                delete takeItem(child);
+                hasChanged = true;
+                continue;
+            }
+        }
+        child->markForRemoval(false);
+    }
+    return hasChanged;
+}
+
 QMap<QString, QString> TestTreeModel::referencingFiles() const
 {
     ReferencingFilesFinder finder;

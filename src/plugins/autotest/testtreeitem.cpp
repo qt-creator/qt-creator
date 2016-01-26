@@ -41,7 +41,8 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
       m_filePath(filePath),
       m_type(type),
       m_line(0),
-      m_state(Enabled)
+      m_state(Enabled),
+      m_markedForRemoval(false)
 {
     switch (m_type) {
     case TestClass:
@@ -71,7 +72,8 @@ TestTreeItem::TestTreeItem(const TestTreeItem &other)
       m_column(other.m_column),
       m_mainFile(other.m_mainFile),
       m_referencingFile(other.m_referencingFile),
-      m_state(other.m_state)
+      m_state(other.m_state),
+      m_markedForRemoval(other.m_markedForRemoval)
 {
     for (int row = 0, count = other.childCount(); row < count; ++row)
         appendChild(new TestTreeItem(*childItem(row)));
@@ -198,6 +200,8 @@ bool TestTreeItem::modifyContent(const TestTreeItem *modified)
         m_state = modified->m_state;
         hasBeenModified = true;
     }
+    if (m_markedForRemoval != modified->m_markedForRemoval)
+        m_markedForRemoval = modified->m_markedForRemoval;
     return hasBeenModified;
 }
 
@@ -240,6 +244,18 @@ Qt::CheckState TestTreeItem::checked() const
             return parentItem()->m_checked;
     }
     return Qt::Unchecked;
+}
+
+void TestTreeItem::markForRemoval(bool mark)
+{
+    m_markedForRemoval = mark;
+}
+
+void TestTreeItem::markForRemovalRecursively(bool mark)
+{
+    m_markedForRemoval = mark;
+    for (int row = 0, count = childCount(); row < count; ++row)
+        childItem(row)->markForRemovalRecursively(mark);
 }
 
 QList<QString> TestTreeItem::getChildNames() const

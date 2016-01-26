@@ -94,6 +94,9 @@ public:
     Type type() const { return m_type; }
     void setState(TestStates states) { m_state = states; }
     TestStates state() const { return m_state; }
+    void markForRemoval(bool mark);
+    void markForRemovalRecursively(bool mark);
+    bool markedForRemoval() const { return m_markedForRemoval; }
     QList<QString> getChildNames() const;
     TestTreeItem *parentItem() const;
     TestTreeItem *childItem(int row) const;
@@ -110,6 +113,7 @@ private:
     QString m_mainFile;  // main for Quick tests, project file for gtest
     QString m_referencingFile;
     TestStates m_state;
+    bool m_markedForRemoval;
 };
 
 struct TestCodeLocationAndType {
