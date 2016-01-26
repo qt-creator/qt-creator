@@ -81,6 +81,7 @@ public:
     bool expectFinishWithFailureSignal(const QString &expectedErrorMessage = QString());
 
 private:
+    int m_startedSignalEmitted;
     QSignalSpy m_spyStarted;
     QSignalSpy m_spyFinishedWithFailure;
     QSignalSpy m_spyFinishedWithSuccess;
@@ -88,25 +89,37 @@ private:
 
 ClangStaticAnalyzerRunnerSignalTester::ClangStaticAnalyzerRunnerSignalTester(
         ClangStaticAnalyzerRunner *runner)
-    : m_spyStarted(runner, SIGNAL(started()))
+    : m_startedSignalEmitted(0)
+    , m_spyStarted(runner, SIGNAL(started()))
     , m_spyFinishedWithFailure(runner, SIGNAL(finishedWithFailure(QString,QString)))
     , m_spyFinishedWithSuccess(runner, SIGNAL(finishedWithSuccess(QString)))
 {
+    // On Windows started() is emitted before ClangStaticAnalyzerRunner::run()
+    // returns and thus before we reach QSignalSpy::wait(). Ensure that we will
+    // get notified about those early started() signals.
+    QObject::connect(runner, &ClangStaticAnalyzerRunner::started, [this] {
+        ++m_startedSignalEmitted;
+    });
 }
 
 bool ClangStaticAnalyzerRunnerSignalTester::expectStartedSignal()
 {
-    if (m_spyStarted.wait()) {
-        if (m_spyStarted.size() != 1) {
-            qDebug() << "started() emitted more than once.";
-            return false;
-        }
-    } else {
-        qDebug() << "started() not emitted.";
+    if (m_startedSignalEmitted != 0) {
+        if (m_startedSignalEmitted == 1)
+            return true;
+
+        qDebug() << "started() emitted more than once.";
+        return false;
+    } else if (m_spyStarted.wait()) {
+        if (m_spyStarted.size() == 1)
+            return true;
+
+        qDebug() << "started() emitted more than once.";
         return false;
     }
 
-    return true;
+    qDebug() << "started() not emitted.";
+    return false;
 }
 
 bool ClangStaticAnalyzerRunnerSignalTester::expectFinishWithSuccessSignal()
