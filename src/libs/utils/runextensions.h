@@ -28,10 +28,10 @@
 
 #include "qtcassert.h"
 
-#include <qrunnable.h>
-#include <qfuture.h>
-#include <qfutureinterface.h>
-#include <qthreadpool.h>
+#include <QFuture>
+#include <QFutureInterface>
+#include <QRunnable>
+#include <QThreadPool>
 
 #include <chrono>
 #include <functional>
@@ -540,6 +540,73 @@ runAsyncImpl(QFutureInterface<ResultType> futureInterface, const Function &funct
     futureInterface.reportFinished();
 }
 
+// can be replaced with std::(make_)index_sequence with C++14
+template <std::size_t...>
+struct indexSequence { };
+template <std::size_t N, std::size_t... S>
+struct makeIndexSequence : makeIndexSequence<N-1, N-1, S...> { };
+template <std::size_t... S>
+struct makeIndexSequence<0, S...> { typedef indexSequence<S...> type; };
+
+template <class T>
+typename std::decay<T>::type
+decayCopy(T&& v)
+{
+    return std::forward<T>(v);
+}
+
+template <typename ResultType, typename Function, typename... Args>
+class AsyncJob : public QRunnable
+{
+public:
+    AsyncJob(Function &&function, Args&&... args)
+          // decay copy like std::thread
+        : data(decayCopy(std::forward<Function>(function)), decayCopy(std::forward<Args>(args))...)
+    {
+        // we need to report it as started even though it isn't yet, because someone might
+        // call waitForFinished on the future, which does _not_ block if the future is not started
+        futureInterface.setRunnable(this);
+        futureInterface.reportStarted();
+    }
+
+    ~AsyncJob()
+    {
+        // QThreadPool can delete runnables even if they were never run (e.g. QThreadPool::clear).
+        // Since we reported them as started, we make sure that we always report them as finished.
+        // reportFinished only actually sends the signal if it wasn't already finished.
+        futureInterface.reportFinished();
+    }
+
+    QFuture<ResultType> future() { return futureInterface.future(); }
+
+    void run() override
+    {
+        if (futureInterface.isCanceled()) {
+            futureInterface.reportFinished();
+            return;
+        }
+        runHelper(typename makeIndexSequence<std::tuple_size<Data>::value>::type());
+    }
+
+    void setThreadPool(QThreadPool *pool)
+    {
+        futureInterface.setThreadPool(pool);
+    }
+
+private:
+    using Data = std::tuple<typename std::decay<Function>::type, typename std::decay<Args>::type...>;
+
+    template <std::size_t... index>
+    void runHelper(indexSequence<index...>)
+    {
+        // invalidates data, which is moved into the call
+        runAsyncImpl(futureInterface, std::move(std::get<index>(data))...);
+    }
+
+    Data data;
+    QFutureInterface<ResultType> futureInterface;
+};
+
 } // Internal
 
 template <typename ReduceResult, typename Container, typename InitFunction, typename MapFunction,
@@ -581,7 +648,10 @@ QFuture<ReduceResult> mapReduce(const Container &container, const InitFunction &
     \sa std::thread
     \sa std::invoke
  */
-template <typename ResultType, typename Function, typename... Args>
+template <typename ResultType, typename Function, typename... Args,
+          typename = typename std::enable_if<
+                !std::is_same<typename std::decay<Function>::type, QThreadPool>::value
+              >::type>
 QFuture<ResultType> runAsync(Function &&function, Args&&... args)
 {
     QFutureInterface<ResultType> futureInterface;
@@ -589,6 +659,17 @@ QFuture<ResultType> runAsync(Function &&function, Args&&... args)
     std::thread(Internal::runAsyncImpl<ResultType,typename std::decay<Function>::type,typename std::decay<Args>::type...>,
                 futureInterface, std::forward<Function>(function), std::forward<Args>(args)...).detach();
     return futureInterface.future();
+}
+
+template <typename ResultType, typename Function, typename... Args>
+QFuture<ResultType> runAsync(QThreadPool *pool, Function &&function, Args&&... args)
+{
+    auto job = new Internal::AsyncJob<ResultType,Function,Args...>
+            (std::forward<Function>(function), std::forward<Args>(args)...);
+    job->setThreadPool(pool);
+    QFuture<ResultType> future = job->future();
+    pool->start(job);
+    return future;
 }
 
 } // Utils
