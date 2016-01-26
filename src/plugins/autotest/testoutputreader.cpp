@@ -57,14 +57,8 @@ static QString decode(const QString& original)
     return result;
 }
 
-static QString constructSourceFilePath(const QString &path, const QString &filePath,
-                                       const QString &app)
+static QString constructSourceFilePath(const QString &path, const QString &filePath)
 {
-    if (Utils::HostOsInfo::isMacHost() && !app.isEmpty()) {
-        const QString fileName(QFileInfo(app).fileName());
-        return QFileInfo(path.left(path.lastIndexOf(fileName + QLatin1String(".app"))), filePath)
-                   .canonicalFilePath();
-    }
     return QFileInfo(path, filePath).canonicalFilePath();
 }
 
@@ -137,16 +131,17 @@ static QString constructBenchmarkInformation(const QString &metric, double value
 }
 
 TestOutputReader::TestOutputReader(QFutureInterface<TestResult *> futureInterface,
-                                   QProcess *testApplication)
+                                   QProcess *testApplication, const QString &buildDirectory)
     : m_futureInterface(futureInterface)
     , m_testApplication(testApplication)
+    , m_buildDir(buildDirectory)
 {
     connect(m_testApplication, &QProcess::readyRead, this, &TestOutputReader::processOutput);
 }
 
 QtTestOutputReader::QtTestOutputReader(QFutureInterface<TestResult *> futureInterface,
-                                       QProcess *testApplication)
-    : TestOutputReader(futureInterface, testApplication)
+                                       QProcess *testApplication, const QString &buildDirectory)
+    : TestOutputReader(futureInterface, testApplication, buildDirectory)
 {
 }
 
@@ -207,9 +202,7 @@ void QtTestOutputReader::processOutput()
                                 attributes.value(QStringLiteral("type")).toString());
                     m_file = decode(attributes.value(QStringLiteral("file")).toString());
                     if (!m_file.isEmpty()) {
-                        const QString base = QFileInfo(m_testApplication->program()).absolutePath();
-                        m_file = constructSourceFilePath(base, m_file,
-                                                       m_testApplication->program());
+                        m_file = constructSourceFilePath(m_buildDir, m_file);
                     }
                     m_lineNumber = attributes.value(QStringLiteral("line")).toInt();
                 } else if (currentTag == QStringLiteral("BenchmarkResult")) {
@@ -306,8 +299,8 @@ void QtTestOutputReader::processOutput()
 }
 
 GTestOutputReader::GTestOutputReader(QFutureInterface<TestResult *> futureInterface,
-                                     QProcess *testApplication)
-    : TestOutputReader(futureInterface, testApplication)
+                                     QProcess *testApplication, const QString &buildDirectory)
+    : TestOutputReader(futureInterface, testApplication, buildDirectory)
 {
 }
 
@@ -403,11 +396,9 @@ void GTestOutputReader::processOutput()
             m_description.chop(1);
             testResult->setDescription(m_description);
 
-            const QString base = QFileInfo(m_testApplication->program()).absolutePath();
             foreach (const QString &output, m_description.split(QLatin1Char('\n'))) {
                 if (failureLocation.exactMatch(output)) {
-                    QString file = constructSourceFilePath(base, failureLocation.cap(1),
-                                                           m_testApplication->program());
+                    QString file = constructSourceFilePath(m_buildDir, failureLocation.cap(1));
                     if (file.isEmpty())
                         continue;
                     testResult->setFileName(file);

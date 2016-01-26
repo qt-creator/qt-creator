@@ -28,6 +28,7 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
@@ -115,6 +116,7 @@ void TestConfiguration::completeTestInformation()
     QString workDir;
     QString proFile = m_proFile;
     QString displayName;
+    QString buildDir;
     Project *targetProject = 0;
     Utils::Environment env;
     bool hasDesktopTarget = false;
@@ -137,6 +139,15 @@ void TestConfiguration::completeTestInformation()
             targetFile = Utils::HostOsInfo::withExecutableSuffix(bti.targetFilePath.toString());
             targetName = bti.targetName;
             break;
+        }
+    }
+
+    if (targetProject) {
+        if (auto buildConfig = target->activeBuildConfiguration()) {
+            const QString buildBase = buildConfig->buildDirectory().toString();
+            const QString projBase = targetProject->projectDirectory().toString();
+            if (proFile.startsWith(projBase))
+                buildDir = QFileInfo(buildBase + proFile.mid(projBase.length())).absolutePath();
         }
     }
 
@@ -176,6 +187,7 @@ void TestConfiguration::completeTestInformation()
         setTargetFile(targetFile);
         setTargetName(targetName);
         setWorkingDirectory(workDir);
+        setBuildDirectory(buildDir);
         setEnvironment(env);
         setProject(project);
         setGuessedConfiguration(guessedRunConfiguration);
@@ -226,6 +238,11 @@ void TestConfiguration::setProFile(const QString &proFile)
 void TestConfiguration::setWorkingDirectory(const QString &workingDirectory)
 {
     m_workingDir = workingDirectory;
+}
+
+void TestConfiguration::setBuildDirectory(const QString &buildDirectory)
+{
+    m_buildDir = buildDirectory;
 }
 
 void TestConfiguration::setDisplayName(const QString &displayName)

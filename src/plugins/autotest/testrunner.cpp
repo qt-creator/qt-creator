@@ -145,10 +145,12 @@ static void performTestRun(QFutureInterface<TestResult *> &futureInterface,
         QScopedPointer<TestOutputReader> outputReader;
         switch (testConfiguration->testType()) {
         case TestTypeQt:
-            outputReader.reset(new QtTestOutputReader(futureInterface, &testProcess));
+            outputReader.reset(new QtTestOutputReader(futureInterface, &testProcess,
+                                                      testConfiguration->buildDirectory()));
             break;
         case TestTypeGTest:
-            outputReader.reset(new GTestOutputReader(futureInterface, &testProcess));
+            outputReader.reset(new GTestOutputReader(futureInterface, &testProcess,
+                                                     testConfiguration->buildDirectory()));
             break;
         }
         if (futureInterface.isCanceled())
