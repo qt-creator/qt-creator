@@ -55,7 +55,6 @@ public:
     static void createXmlFile(Utils::QtcProcess *process, const QString &executable,
                               const QString &arguments, const QString &sourceDirectory,
                               const QDir &buildDirectory, const Utils::Environment &env);
-    static bool preferNinja();
     static QString findCbpFile(const QDir &);
 
 private:

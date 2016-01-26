@@ -44,7 +44,6 @@
 #include <QTreeView>
 #include <QWidget>
 #include <QUuid>
-#include <QCheckBox>
 
 using namespace Utils;
 
@@ -390,9 +389,6 @@ public:
         m_makeDefButton->setEnabled(false);
         m_makeDefButton->setToolTip(tr("Set as the default CMake Tool to use when creating a new kit or when no value is set."));
 
-        m_preferNinjaCheckBox = new QCheckBox(tr("Prefer Ninja generator (CMake 2.8.9 or higher required)"));
-        m_preferNinjaCheckBox->setChecked(CMakeToolManager::preferNinja());
-
         m_container = new DetailsWidget(this);
         m_container->setState(DetailsWidget::NoSummary);
         m_container->setVisible(false);
@@ -421,7 +417,6 @@ public:
         QVBoxLayout *verticalLayout = new QVBoxLayout();
         verticalLayout->addWidget(m_cmakeToolsView);
         verticalLayout->addWidget(m_container);
-        verticalLayout->addWidget(m_preferNinjaCheckBox);
 
         QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
         horizontalLayout->addLayout(verticalLayout);
@@ -456,7 +451,6 @@ public:
     QPushButton *m_cloneButton;
     QPushButton *m_delButton;
     QPushButton *m_makeDefButton;
-    QCheckBox *m_preferNinjaCheckBox;
     DetailsWidget *m_container;
     CMakeToolItemConfigWidget *m_itemConfigWidget;
     CMakeToolTreeItem *m_currentItem;
@@ -465,7 +459,6 @@ public:
 void CMakeToolConfigWidget::apply()
 {
     m_model.apply();
-    CMakeToolManager::setPreferNinja(m_preferNinjaCheckBox->checkState() == Qt::Checked);
 }
 
 void CMakeToolConfigWidget::cloneCMakeTool()

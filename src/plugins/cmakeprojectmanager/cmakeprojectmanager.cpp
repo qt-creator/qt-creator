@@ -126,11 +126,6 @@ QString CMakeManager::mimeType() const
     return QLatin1String(Constants::CMAKEPROJECTMIMETYPE);
 }
 
-bool CMakeManager::preferNinja()
-{
-    return CMakeToolManager::preferNinja();
-}
-
 // need to refactor this out
 // we probably want the process instead of this function
 // cmakeproject then could even run the cmake process in the background, adding the files afterwards

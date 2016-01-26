@@ -44,7 +44,6 @@ namespace CMakeProjectManager {
 
 const char CMAKETOOL_COUNT_KEY[] = "CMakeTools.Count";
 const char CMAKETOOL_DEFAULT_KEY[] = "CMakeTools.Default";
-const char CMAKETOOL_PREFER_NINJA_KEY[] = "CMakeTools.PreferNinja";
 const char CMAKETOOL_DATA_KEY[] = "CMakeTools.";
 const char CMAKETOOL_FILE_VERSION_KEY[] = "Version";
 const char CMAKETOOL_FILENAME[] = "/qtcreator/cmaketools.xml";
@@ -52,16 +51,12 @@ const char CMAKETOOL_FILENAME[] = "/qtcreator/cmaketools.xml";
 class CMakeToolManagerPrivate
 {
 public:
-    CMakeToolManagerPrivate() : m_preferNinja(false), m_writer(0)
-    { }
-
-    bool m_preferNinja;
     Id m_defaultCMake;
     QList<CMakeTool *> m_cmakeTools;
-    PersistentSettingsWriter *m_writer;
+    PersistentSettingsWriter *m_writer =  nullptr;
     QList<CMakeToolManager::AutodetectionHelper> m_autoDetectionHelpers;
 };
-static CMakeToolManagerPrivate *d = 0;
+static CMakeToolManagerPrivate *d = nullptr;
 
 static void addCMakeTool(CMakeTool *item)
 {
@@ -116,7 +111,6 @@ static QList<CMakeTool *> readCMakeTools(const FileName &fileName, Core::Id *def
     }
 
     *defaultId = Id::fromSetting(data.value(QLatin1String(CMAKETOOL_DEFAULT_KEY), defaultId->toSetting()));
-    d->m_preferNinja= data.value(QLatin1String(CMAKETOOL_PREFER_NINJA_KEY), d->m_preferNinja).toBool();
 
     return loaded;
 }
@@ -137,7 +131,7 @@ static void readAndDeleteLegacyCMakeSettings ()
 
             if (!CMakeToolManager::registerCMakeTool(item)) {
                 delete item;
-                item = 0;
+                item = nullptr;
             }
         }
 
@@ -145,9 +139,6 @@ static void readAndDeleteLegacyCMakeSettings ()
         if (item)
             d->m_defaultCMake = item->id();
     }
-
-    //read the legacy ninja setting, if its not available use the current value
-    d->m_preferNinja = settings->value(QLatin1String("preferNinja"), d->m_preferNinja).toBool();
 
     settings->remove(QString());
     settings->endGroup();
@@ -196,7 +187,7 @@ static QList<CMakeTool *> autoDetectCMakeTools()
     return found;
 }
 
-CMakeToolManager *CMakeToolManager::m_instance = 0;
+CMakeToolManager *CMakeToolManager::m_instance = nullptr;
 
 CMakeToolManager::CMakeToolManager(QObject *parent) : QObject(parent)
 {
@@ -218,7 +209,6 @@ CMakeToolManager::~CMakeToolManager()
     delete d->m_writer;
     qDeleteAll(d->m_cmakeTools);
     delete d;
-    d = 0;
 }
 
 CMakeToolManager *CMakeToolManager::instance()
@@ -229,16 +219,6 @@ CMakeToolManager *CMakeToolManager::instance()
 QList<CMakeTool *> CMakeToolManager::cmakeTools()
 {
     return d->m_cmakeTools;
-}
-
-void CMakeToolManager::setPreferNinja(bool set)
-{
-    d->m_preferNinja = set;
-}
-
-bool CMakeToolManager::preferNinja()
-{
-    return d->m_preferNinja;
 }
 
 Id CMakeToolManager::registerOrFindCMakeTool(const FileName &command)
@@ -416,7 +396,6 @@ void CMakeToolManager::saveCMakeTools()
     QVariantMap data;
     data.insert(QLatin1String(CMAKETOOL_FILE_VERSION_KEY), 1);
     data.insert(QLatin1String(CMAKETOOL_DEFAULT_KEY), d->m_defaultCMake.toSetting());
-    data.insert(QLatin1String(CMAKETOOL_PREFER_NINJA_KEY), d->m_preferNinja);
 
     int count = 0;
     foreach (CMakeTool *item, d->m_cmakeTools) {
