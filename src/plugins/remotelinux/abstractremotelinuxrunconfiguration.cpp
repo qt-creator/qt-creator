@@ -41,17 +41,4 @@ AbstractRemoteLinuxRunConfiguration::AbstractRemoteLinuxRunConfiguration(Project
 
 }
 
-int AbstractRemoteLinuxRunConfiguration::portsUsedByDebuggers() const
-{
-    int ports = 0;
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    if (aspect->useQmlDebugger())
-        ++ports;
-    if (aspect->useCppDebugger())
-        ++ports;
-
-    return ports;
-}
-
 } // namespace RemoteLinux

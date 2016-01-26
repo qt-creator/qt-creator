@@ -32,6 +32,7 @@
 #include "remotelinuxruncontrol.h"
 
 #include <debugger/debuggerruncontrol.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerstartparameters.h>
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
@@ -89,7 +90,10 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
         }
         auto * const rc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig);
         QTC_ASSERT(rc, return 0);
-        if (rc->portsUsedByDebuggers() > dev->freePorts().count()) {
+
+        auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
+        int portsUsed = aspect ? aspect->portsUsedByDebugger() : 0;
+        if (portsUsed > dev->freePorts().count()) {
             *errorMessage = tr("Cannot debug: Not enough free ports available.");
             return 0;
         }

@@ -105,14 +105,17 @@ bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id m
         return false;
     }
 
-    const QnxRunConfiguration * const rc = qobject_cast<QnxRunConfiguration *>(runConfiguration);
     const QnxDeviceConfiguration::ConstPtr dev = DeviceKitInformation::device(runConfiguration->target()->kit())
             .dynamicCast<const QnxDeviceConfiguration>();
     if (dev.isNull())
         return false;
 
-    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE || mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
-        return rc->portsUsedByDebuggers() <= dev->freePorts().count();
+    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
+            || mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+        auto aspect = runConfiguration->extraAspect<DebuggerRunConfigurationAspect>();
+        int portsUsed = aspect ? aspect->portsUsedByDebugger() : 0;
+        return portsUsed <= dev->freePorts().count();
+    }
 
     return true;
 }

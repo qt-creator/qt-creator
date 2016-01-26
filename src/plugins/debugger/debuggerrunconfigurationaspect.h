@@ -74,6 +74,8 @@ public:
     void setUseMultiProcess(bool on);
     bool isQmlDebuggingSpinboxSuppressed() const;
 
+    int portsUsedByDebugger() const;
+
 private:
     friend class Internal::DebuggerRunConfigWidget;
     DebuggerRunConfigurationAspectData d;
