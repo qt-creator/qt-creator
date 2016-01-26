@@ -112,10 +112,9 @@ SourceTool::SourceTool()
 {
     SourceToolAction *sourceToolAction = new SourceToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(sourceToolAction);
-    connect(sourceToolAction->action(),
-            SIGNAL(triggered()),
-            this,
-            SLOT(changeToSourceTool()));
+    connect(sourceToolAction->action(), &QAction::triggered, [=]() {
+        view()->changeCurrentToolTo(this);
+    });
 }
 
 SourceTool::~SourceTool()
@@ -245,11 +244,6 @@ void SourceTool::fileSelected(const QString &fileName)
     }
 
     view()->changeToSelectionTool();
-}
-
-void SourceTool::changeToSourceTool()
-{
-    view()->changeToCustomTool(this);
 }
 
 }

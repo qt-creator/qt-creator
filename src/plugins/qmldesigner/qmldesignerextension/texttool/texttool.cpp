@@ -97,10 +97,9 @@ TextTool::TextTool()
 {
     TextToolAction *textToolAction = new TextToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(textToolAction);
-    connect(textToolAction->action(),
-            SIGNAL(triggered()),
-            this,
-            SLOT(changeToTextTool()));
+    connect(textToolAction->action(), &QAction::triggered, [=]() {
+        view()->changeCurrentToolTo(this);
+    });
 }
 
 TextTool::~TextTool()
@@ -256,11 +255,6 @@ int TextTool::wantHandleItem(const ModelNode &modelNode) const
 QString TextTool::name() const
 {
     return QCoreApplication::translate("TextTool", "Text Tool");
-}
-
-void TextTool::changeToTextTool()
-{
-    view()->changeToCustomTool(this);
 }
 
 TextEditItem *TextTool::textItem() const

@@ -91,7 +91,7 @@ public:
     void changeToResizeTool();
     void changeToTransformTools();
     void changeToCustomTool();
-    void changeToCustomTool(AbstractCustomTool *customTool);
+    void changeCurrentToolTo(AbstractFormEditorTool *customTool);
 
     void registerTool(AbstractCustomTool *tool);
 

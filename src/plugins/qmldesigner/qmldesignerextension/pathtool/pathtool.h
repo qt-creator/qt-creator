@@ -84,9 +84,6 @@ public:
 
     void pathChanged();
 
-private slots:
-    void changeToPathTool();
-
 private:
     PathToolView m_pathToolView;
     QPointer<PathItem> m_pathItem;

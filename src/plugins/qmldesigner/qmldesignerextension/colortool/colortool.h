@@ -80,7 +80,6 @@ private slots:
     void colorDialogAccepted();
     void colorDialogRejected();
     void currentColorChanged(const QColor &color);
-    void changeToColorTool();
 
 private:
     QPointer<QColorDialog> m_colorDialog;

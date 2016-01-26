@@ -78,9 +78,6 @@ public:
 
     QString name() const override;
 
-private slots:
-    void changeToSourceTool();
-
 private:
     /* private methods */
     void fileSelected(const QString &fileName);

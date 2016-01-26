@@ -302,15 +302,9 @@ bool FormEditorView::changeToMoveTool()
 {
     if (m_currentTool == m_moveTool)
         return true;
-
     if (!isMoveToolAvailable())
         return false;
-
-    m_scene->updateAllFormEditorItems();
-    m_currentTool->clear();
-    m_currentTool = m_moveTool;
-    m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+    changeCurrentToolTo(m_moveTool);
     return true;
 }
 
@@ -318,12 +312,7 @@ void FormEditorView::changeToDragTool()
 {
     if (m_currentTool == m_dragTool)
         return;
-
-    m_scene->updateAllFormEditorItems();
-    m_currentTool->clear();
-    m_currentTool = m_dragTool;
-    m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+    changeCurrentToolTo(m_dragTool);
 }
 
 
@@ -331,15 +320,9 @@ bool FormEditorView::changeToMoveTool(const QPointF &beginPoint)
 {
     if (m_currentTool == m_moveTool)
         return true;
-
     if (!isMoveToolAvailable())
         return false;
-
-    m_scene->updateAllFormEditorItems();
-    m_currentTool->clear();
-    m_currentTool = m_moveTool;
-    m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+    changeCurrentToolTo(m_moveTool);
     m_moveTool->beginWithPoint(beginPoint);
     return true;
 }
@@ -348,25 +331,14 @@ void FormEditorView::changeToSelectionTool()
 {
     if (m_currentTool == m_selectionTool)
         return;
-
-    m_scene->updateAllFormEditorItems();
-    m_currentTool->clear();
-    m_currentTool = m_selectionTool;
-    m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+    changeCurrentToolTo(m_selectionTool);
 }
 
 void FormEditorView::changeToSelectionTool(QGraphicsSceneMouseEvent *event)
 {
     if (m_currentTool == m_selectionTool)
         return;
-
-    m_scene->updateAllFormEditorItems();
-    m_currentTool->clear();
-    m_currentTool = m_selectionTool;
-    m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
-
+    changeCurrentToolTo(m_selectionTool);
     m_selectionTool->selectUnderPoint(event);
 }
 
@@ -374,12 +346,7 @@ void FormEditorView::changeToResizeTool()
 {
     if (m_currentTool == m_resizeTool)
         return;
-
-    m_scene->updateAllFormEditorItems();
-    m_currentTool->clear();
-    m_currentTool = m_resizeTool;
-    m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+    changeCurrentToolTo(m_resizeTool);
 }
 
 void FormEditorView::changeToTransformTools()
@@ -388,7 +355,6 @@ void FormEditorView::changeToTransformTools()
        m_currentTool == m_resizeTool ||
        m_currentTool == m_selectionTool)
         return;
-
     changeToSelectionTool();
 }
 
@@ -405,28 +371,21 @@ void FormEditorView::changeToCustomTool()
                 handlingRank = customTool->wantHandleItem(selectedModelNode);
                 selectedCustomTool = customTool;
             }
-
         }
 
-        if (handlingRank > 0) {
-            m_scene->updateAllFormEditorItems();
-            m_currentTool->clear();
-            if (selectedCustomTool) {
-                m_currentTool = selectedCustomTool;
-                m_currentTool->clear();
-                m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
-            }
-        }
+        if (handlingRank > 0 && selectedCustomTool)
+            changeCurrentToolTo(selectedCustomTool);
     }
 }
 
-void FormEditorView::changeToCustomTool(AbstractCustomTool *customTool)
+void FormEditorView::changeCurrentToolTo(AbstractFormEditorTool *newTool)
 {
     m_scene->updateAllFormEditorItems();
     m_currentTool->clear();
-    m_currentTool = customTool;
+    m_currentTool = newTool;
     m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(
+        selectedModelNodes())));
 }
 
 void FormEditorView::registerTool(AbstractCustomTool *tool)
@@ -617,7 +576,6 @@ void FormEditorView::delayedReset()
     if (isAttached() && QmlItemNode::isValidQmlItemNode(rootModelNode()))
         setupFormEditorItemTree(rootModelNode());
 }
-
 
 }
 

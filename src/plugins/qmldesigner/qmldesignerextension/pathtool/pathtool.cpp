@@ -146,10 +146,13 @@ PathTool::PathTool()
 {
     PathToolAction *textToolAction = new PathToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(textToolAction);
-    connect(textToolAction->action(),
-            SIGNAL(triggered()),
-            this,
-            SLOT(changeToPathTool()));
+    connect(textToolAction->action(), &QAction::triggered, [=]() {
+        if (m_pathToolView.model())
+            m_pathToolView.model()->detachView(&m_pathToolView);
+        view()->changeCurrentToolTo(this);
+    });
+
+
 }
 
 PathTool::~PathTool()
@@ -311,13 +314,6 @@ void PathTool::pathChanged()
 {
     if (m_pathItem)
         m_pathItem->updatePath();
-}
-
-void PathTool::changeToPathTool()
-{
-    if (m_pathToolView.model())
-        m_pathToolView.model()->detachView(&m_pathToolView);
-    view()->changeToCustomTool(this);
 }
 
 }

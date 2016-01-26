@@ -93,10 +93,9 @@ ColorTool::ColorTool()
 {
     ColorToolAction *colorToolAction = new ColorToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(colorToolAction);
-    connect(colorToolAction->action(),
-            SIGNAL(triggered()),
-            this,
-            SLOT(changeToColorTool()));
+    connect(colorToolAction->action(), &QAction::triggered, [=]() {
+        view()->changeCurrentToolTo(this);
+    });
 }
 
 ColorTool::~ColorTool()
@@ -242,11 +241,6 @@ void ColorTool::currentColorChanged(const QColor &color)
     if (m_formEditorItem) {
         m_formEditorItem.data()->qmlItemNode().setVariantProperty("color", color);
     }
-}
-
-void ColorTool::changeToColorTool()
-{
-    view()->changeToCustomTool(this);
 }
 
 }

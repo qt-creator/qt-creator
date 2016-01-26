@@ -78,9 +78,6 @@ public:
 
     QString name() const override;
 
-private slots:
-    void changeToTextTool();
-
 protected:
     TextEditItem *textItem() const;
 
