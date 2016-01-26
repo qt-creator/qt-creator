@@ -23,8 +23,6 @@ QtcPlugin {
         "abstractremotelinuxdeploystep.h",
         "abstractremotelinuxrunsupport.cpp",
         "abstractremotelinuxrunsupport.h",
-        "abstractremotelinuxrunconfiguration.h",
-        "abstractremotelinuxrunconfiguration.cpp",
         "abstractuploadandinstallpackageservice.cpp",
         "abstractuploadandinstallpackageservice.h",
         "embeddedlinuxqtversion.cpp",

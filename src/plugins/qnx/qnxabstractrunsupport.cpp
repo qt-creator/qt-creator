@@ -41,11 +41,8 @@ using namespace Qnx::Internal;
 
 QnxAbstractRunSupport::QnxAbstractRunSupport(QnxRunConfiguration *runConfig, QObject *parent)
     : QObject(parent)
-    , m_remoteExecutable(runConfig->remoteExecutableFilePath())
     , m_device(DeviceKitInformation::device(runConfig->target()->kit()))
     , m_state(Inactive)
-    , m_environment(runConfig->environment())
-    , m_workingDir(runConfig->workingDirectory())
 {
     m_runner = new DeviceApplicationRunner(this);
     m_portsGatherer = new DeviceUsedPortsGatherer(this);
@@ -126,9 +123,4 @@ bool QnxAbstractRunSupport::setPort(int &port)
         return false;
     }
     return true;
-}
-
-QString QnxAbstractRunSupport::executable() const
-{
-    return m_remoteExecutable;
 }

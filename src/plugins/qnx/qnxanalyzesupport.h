@@ -28,7 +28,7 @@
 
 #include "qnxabstractrunsupport.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runnables.h>
 #include <utils/outputformat.h>
 #include <qmldebug/qmloutputparser.h>
 
@@ -65,6 +65,7 @@ private slots:
 private:
     void startExecution();
 
+    ProjectExplorer::StandardRunnable m_runnable;
     Analyzer::AnalyzerRunControl *m_runControl;
     QmlDebug::QmlOutputParser m_outputParser;
     int m_qmlPort;

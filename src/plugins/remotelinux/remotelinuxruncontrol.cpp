@@ -25,14 +25,12 @@
 
 #include "remotelinuxruncontrol.h"
 
-#include "abstractremotelinuxrunconfiguration.h"
-
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 
-#include <utils/environment.h>
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
@@ -45,10 +43,7 @@ public:
     bool running;
     DeviceApplicationRunner runner;
     IDevice::ConstPtr device;
-    QString remoteExecutable;
-    QString arguments;
-    Utils::Environment environment;
-    QString workingDir;
+    StandardRunnable runnable;
 };
 
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
@@ -57,12 +52,8 @@ RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
     setIcon(ProjectExplorer::Icons::RUN_SMALL);
 
     d->running = false;
+    d->runnable = rc->runnable().as<StandardRunnable>();
     d->device = DeviceKitInformation::device(rc->target()->kit());
-    const AbstractRemoteLinuxRunConfiguration * const lrc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(rc);
-    d->remoteExecutable = lrc->remoteExecutableFilePath();
-    d->arguments = lrc->arguments();
-    d->environment = lrc->environment();
-    d->workingDir = lrc->workingDirectory();
 }
 
 RemoteLinuxRunControl::~RemoteLinuxRunControl()
@@ -85,10 +76,11 @@ void RemoteLinuxRunControl::start()
             this, &RemoteLinuxRunControl::handleRunnerFinished);
     connect(&d->runner, &DeviceApplicationRunner::reportProgress,
             this, &RemoteLinuxRunControl::handleProgressReport);
-    d->runner.setEnvironment(d->environment);
-    d->runner.setWorkingDirectory(d->workingDir);
-    d->runner.start(d->device, d->remoteExecutable,
-                    Utils::QtcProcess::splitArgs(d->arguments, Utils::OsTypeLinux));
+    d->runner.setEnvironment(d->runnable.environment);
+    d->runner.setWorkingDirectory(d->runnable.workingDirectory);
+    d->runner.start(d->device, d->runnable.executable,
+                    Utils::QtcProcess::splitArgs(d->runnable.commandLineArguments,
+                                                 Utils::OsTypeLinux));
 }
 
 RunControl::StopResult RemoteLinuxRunControl::stop()

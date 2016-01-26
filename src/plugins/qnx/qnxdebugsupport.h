@@ -28,6 +28,8 @@
 
 #include "qnxabstractrunsupport.h"
 
+#include <projectexplorer/runnables.h>
+
 #include <utils/outputformat.h>
 
 namespace Debugger { class DebuggerRunControl; }
@@ -64,10 +66,11 @@ private slots:
 private:
     void startExecution();
 
-    QString executable() const;
+    QString processExecutable() const;
 
     void killInferiorProcess();
 
+    ProjectExplorer::StandardRunnable m_runnable;
     Slog2InfoRunner *m_slog2Info;
 
     Debugger::DebuggerRunControl *m_runControl;

@@ -31,14 +31,20 @@
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxruncontrol.h"
 
-#include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/debuggerstartparameters.h>
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/ianalyzertool.h>
+
+#include <debugger/debuggerruncontrol.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
+#include <debugger/debuggerstartparameters.h>
+
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
+
+#include <qmldebug/qmldebugcommandlinearguments.h>
+
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
@@ -81,6 +87,10 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
     if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         return new RemoteLinuxRunControl(runConfig);
 
+    const auto rcRunnable = runConfig->runnable();
+    QTC_ASSERT(rcRunnable.is<StandardRunnable>(), return 0);
+    const auto stdRunnable = rcRunnable.as<StandardRunnable>();
+
     if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
             || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
         IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
@@ -88,8 +98,6 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
             *errorMessage = tr("Cannot debug: Kit has no device.");
             return 0;
         }
-        auto * const rc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig);
-        QTC_ASSERT(rc, return 0);
 
         auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
         int portsUsed = aspect ? aspect->portsUsedByDebugger() : 0;
@@ -97,32 +105,51 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
             *errorMessage = tr("Cannot debug: Not enough free ports available.");
             return 0;
         }
-        auto *crc = qobject_cast<RemoteLinuxCustomRunConfiguration *>(rc);
-        if (crc && crc->localExecutableFilePath().isEmpty()) {
+
+        QString localExecutable;
+        if (auto rlrc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig))
+            localExecutable = rlrc->localExecutableFilePath();
+        if (localExecutable.isEmpty()) {
             *errorMessage = tr("Cannot debug: Local executable is not set.");
             return 0;
         }
 
-        DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
+        DebuggerStartParameters params;
+        params.startMode = AttachToRemoteServer;
+        params.closeMode = KillAndExitMonitorAtClose;
+        params.remoteSetupNeeded = true;
+
+        if (aspect->useQmlDebugger()) {
+            params.qmlServerAddress = dev->sshParameters().host;
+            params.qmlServerPort = 0; // port is selected later on
+        }
+        if (aspect->useCppDebugger()) {
+            aspect->setUseMultiProcess(true);
+            params.processArgs = stdRunnable.commandLineArguments;
+            if (aspect->useQmlDebugger()) {
+                params.processArgs.prepend(QLatin1Char(' '));
+                params.processArgs.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
+            }
+            params.executable = localExecutable;
+            params.remoteChannel = dev->sshParameters().host + QLatin1String(":-1");
+            params.remoteExecutable = stdRunnable.executable;
+        }
+
         DebuggerRunControl * const runControl = createDebuggerRunControl(params, runConfig, errorMessage, mode);
         if (!runControl)
             return 0;
-        LinuxDeviceDebugSupport * const debugSupport =
-                new LinuxDeviceDebugSupport(rc, runControl);
-        connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
+        (void) new LinuxDeviceDebugSupport(runConfig, runControl);
         return runControl;
     }
 
     if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        auto * const rc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig);
-        QTC_ASSERT(rc, return 0);
         auto runControl = AnalyzerManager::createRunControl(runConfig, mode);
         AnalyzerConnection connection;
         connection.connParams =
             DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
         connection.analyzerHost = connection.connParams.host;
         runControl->setConnection(connection);
-        (void) new RemoteLinuxAnalyzeSupport(rc, runControl, mode);
+        (void) new RemoteLinuxAnalyzeSupport(runConfig, runControl, mode);
         return runControl;
     }
 

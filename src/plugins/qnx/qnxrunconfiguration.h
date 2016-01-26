@@ -28,8 +28,6 @@
 
 #include <remotelinux/remotelinuxrunconfiguration.h>
 
-namespace Utils { class Environment; }
-
 namespace Qnx {
 namespace Internal {
 
@@ -41,7 +39,8 @@ public:
     QnxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
                         const QString &targetName);
 
-    Utils::Environment environment() const override;
+    ProjectExplorer::Runnable runnable() const override;
+
     QWidget *createConfigurationWidget() override;
     QVariantMap toMap() const override;
 

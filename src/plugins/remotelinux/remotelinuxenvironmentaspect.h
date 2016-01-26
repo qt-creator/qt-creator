@@ -32,7 +32,6 @@
 
 namespace RemoteLinux {
 class RemoteLinuxEnvironmentAspectWidget;
-class AbstractRemoteLinuxRunConfiguration;
 
 class REMOTELINUX_EXPORT RemoteLinuxEnvironmentAspect : public ProjectExplorer::EnvironmentAspect
 {
@@ -46,8 +45,6 @@ public:
     QList<int> possibleBaseEnvironments() const;
     QString baseEnvironmentDisplayName(int base) const;
     Utils::Environment baseEnvironment() const;
-
-    AbstractRemoteLinuxRunConfiguration *runConfiguration() const;
 
     Utils::Environment remoteEnvironment() const;
     void setRemoteEnvironment(const Utils::Environment &env);

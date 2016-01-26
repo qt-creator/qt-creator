@@ -24,12 +24,13 @@
 ****************************************************************************/
 
 #include "abstractremotelinuxrunsupport.h"
-#include "abstractremotelinuxrunconfiguration.h"
 
-#include <projectexplorer/target.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/runnables.h>
+#include <projectexplorer/target.h>
+
 #include <utils/environment.h>
 #include <utils/portlist.h>
 
@@ -41,32 +42,26 @@ namespace Internal {
 class AbstractRemoteLinuxRunSupportPrivate
 {
 public:
-    AbstractRemoteLinuxRunSupportPrivate(const AbstractRemoteLinuxRunConfiguration *runConfig)
+    AbstractRemoteLinuxRunSupportPrivate(const RunConfiguration *runConfig)
         : state(AbstractRemoteLinuxRunSupport::Inactive),
-          device(DeviceKitInformation::device(runConfig->target()->kit())),
-          remoteFilePath(runConfig->remoteExecutableFilePath()),
-          arguments(runConfig->arguments()),
-          environment(runConfig->environment()),
-          workingDir(runConfig->workingDirectory())
+          runnable(runConfig->runnable().as<StandardRunnable>()),
+          device(DeviceKitInformation::device(runConfig->target()->kit()))
     {
     }
 
     AbstractRemoteLinuxRunSupport::State state;
+    StandardRunnable runnable;
     DeviceApplicationRunner appRunner;
     DeviceUsedPortsGatherer portsGatherer;
     const IDevice::ConstPtr device;
     Utils::PortList portList;
-    const QString remoteFilePath;
-    const QStringList arguments;
-    const Utils::Environment environment;
-    const QString workingDir;
 };
 
 } // namespace Internal
 
 using namespace Internal;
 
-AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(AbstractRemoteLinuxRunConfiguration *runConfig, QObject *parent)
+AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(RunConfiguration *runConfig, QObject *parent)
     : QObject(parent),
       d(new AbstractRemoteLinuxRunSupportPrivate(runConfig))
 {
@@ -143,29 +138,14 @@ bool AbstractRemoteLinuxRunSupport::setPort(int &port)
     return true;
 }
 
-QStringList AbstractRemoteLinuxRunSupport::arguments() const
-{
-    return d->arguments;
-}
-
-QString AbstractRemoteLinuxRunSupport::remoteFilePath() const
-{
-    return d->remoteFilePath;
-}
-
-Utils::Environment AbstractRemoteLinuxRunSupport::environment() const
-{
-    return d->environment;
-}
-
-QString AbstractRemoteLinuxRunSupport::workingDirectory() const
-{
-    return d->workingDir;
-}
-
 const IDevice::ConstPtr AbstractRemoteLinuxRunSupport::device() const
 {
     return d->device;
+}
+
+const StandardRunnable &AbstractRemoteLinuxRunSupport::runnable() const
+{
+    return d->runnable;
 }
 
 void AbstractRemoteLinuxRunSupport::reset()

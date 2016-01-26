@@ -32,13 +32,13 @@
 
 #include <QObject>
 
-namespace ProjectExplorer { class DeviceApplicationRunner; }
-
-namespace Utils { class Environment; }
+namespace ProjectExplorer {
+class DeviceApplicationRunner;
+class RunConfiguration;
+class StandardRunnable;
+}
 
 namespace RemoteLinux {
-
-class AbstractRemoteLinuxRunConfiguration;
 
 namespace Internal { class AbstractRemoteLinuxRunSupportPrivate; }
 
@@ -54,7 +54,7 @@ protected:
         Running
     };
 public:
-    AbstractRemoteLinuxRunSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
+    AbstractRemoteLinuxRunSupport(ProjectExplorer::RunConfiguration *runConfig,
                           QObject *parent = 0);
     ~AbstractRemoteLinuxRunSupport();
 
@@ -71,11 +71,8 @@ protected:
     void setFinished();
     bool setPort(int &port);
 
-    QStringList arguments() const;
-    QString remoteFilePath() const;
-    Utils::Environment environment() const;
-    QString workingDirectory() const;
     const ProjectExplorer::IDevice::ConstPtr device() const;
+    const ProjectExplorer::StandardRunnable &runnable() const;
 
     void reset();
 

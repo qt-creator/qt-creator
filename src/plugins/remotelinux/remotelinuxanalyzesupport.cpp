@@ -35,6 +35,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/runnables.h>
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -46,6 +47,7 @@
 using namespace QSsh;
 using namespace Analyzer;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -71,7 +73,7 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
+RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RunConfiguration *runConfig,
                                                      AnalyzerRunControl *engine, Core::Id runMode)
     : AbstractRemoteLinuxRunSupport(runConfig, engine),
       d(new RemoteLinuxAnalyzeSupportPrivate(engine, runMode))
@@ -130,12 +132,12 @@ void RemoteLinuxAnalyzeSupport::startExecution()
     connect(runner, &DeviceApplicationRunner::reportError,
             this, &RemoteLinuxAnalyzeSupport::handleAppRunnerError);
 
-    const QStringList args = arguments()
-            << QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, d->qmlPort);
+    QStringList args = QtcProcess::splitArgs(runnable().commandLineArguments, OsTypeLinux);
+    args.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, d->qmlPort));
 
-    runner->setWorkingDirectory(workingDirectory());
-    runner->setEnvironment(environment());
-    runner->start(device(), remoteFilePath(), args);
+    runner->setWorkingDirectory(runnable().workingDirectory);
+    runner->setEnvironment(runnable().environment);
+    runner->start(device(), runnable().executable, args);
 }
 
 void RemoteLinuxAnalyzeSupport::handleAppRunnerError(const QString &error)

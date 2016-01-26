@@ -25,7 +25,6 @@
 
 #include "remotelinuxenvironmentaspect.h"
 
-#include "abstractremotelinuxrunconfiguration.h"
 #include "remotelinuxenvironmentaspectwidget.h"
 
 namespace RemoteLinux {
@@ -72,11 +71,6 @@ Utils::Environment RemoteLinuxEnvironmentAspect::baseEnvironment() const
     if (!env.hasKey(displayKey))
         env.appendOrSet(displayKey, QLatin1String(":0.0"));
     return env;
-}
-
-AbstractRemoteLinuxRunConfiguration *RemoteLinuxEnvironmentAspect::runConfiguration() const
-{
-    return qobject_cast<AbstractRemoteLinuxRunConfiguration *>(EnvironmentAspect::runConfiguration());
 }
 
 Utils::Environment RemoteLinuxEnvironmentAspect::remoteEnvironment() const

@@ -37,13 +37,12 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerrunconfigwidget.h>
 
-#include <remotelinux/abstractremotelinuxrunconfiguration.h>
-
 #include <debugger/debuggerrunconfigurationaspect.h>
+
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
@@ -81,9 +80,9 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
     AnalyzerConnection connection;
     QString workingDirectory;
     Runnable rcRunnable = runConfiguration->runnable();
-    if (rcRunnable.is<StandardRunnable>()
-            && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        auto stdRunnable = runConfiguration->runnable().as<StandardRunnable>();
+    QTC_ASSERT(rcRunnable.is<StandardRunnable>(), return 0);
+    auto stdRunnable = runConfiguration->runnable().as<StandardRunnable>();
+    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         environment = stdRunnable.environment;
         workingDirectory = stdRunnable.workingDirectory;
         runnable.debuggee = stdRunnable.executable;
@@ -96,12 +95,10 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         connection.connParams.host = server.serverAddress().toString();
         connection.connParams.port = server.serverPort();
         localRunMode = stdRunnable.runMode;
-    } else if (auto rc2 = qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
-        runnable.debuggee = rc2->remoteExecutableFilePath();
-        runnable.debuggeeArgs = rc2->arguments();
-        connection.connParams = device->sshParameters();
     } else {
-        QTC_ASSERT(false, return 0);
+        runnable.debuggee = stdRunnable.executable;
+        runnable.debuggeeArgs = stdRunnable.commandLineArguments;
+        connection.connParams = device->sshParameters();
     }
 
     runControl->setRunnable(runnable);

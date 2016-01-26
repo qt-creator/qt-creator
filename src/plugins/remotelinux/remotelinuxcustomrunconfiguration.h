@@ -26,12 +26,12 @@
 #ifndef REMOTELINUXCUSTOMRUNCONFIGURATION_H
 #define REMOTELINUXCUSTOMRUNCONFIGURATION_H
 
-#include "abstractremotelinuxrunconfiguration.h"
+#include <projectexplorer/runconfiguration.h>
 
 namespace RemoteLinux {
 namespace Internal {
 
-class RemoteLinuxCustomRunConfiguration : public AbstractRemoteLinuxRunConfiguration
+class RemoteLinuxCustomRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 public:
@@ -47,12 +47,8 @@ public:
     ConfigurationState ensureConfigured(QString *errorMessage) override;
     QWidget *createConfigurationWidget() override;
     Utils::OutputFormatter *createOutputFormatter() const override;
-
-    QString localExecutableFilePath() const override { return m_localExecutable; }
-    QString remoteExecutableFilePath() const override { return m_remoteExecutable; }
-    QString arguments() const override { return m_arguments; }
-    QString workingDirectory() const override { return m_workingDirectory; }
-    Utils::Environment environment() const override;
+    ProjectExplorer::Runnable runnable() const override;
+    QString localExecutableFilePath() const { return m_localExecutable; }
 
     void setLocalExecutableFilePath(const QString &executable) { m_localExecutable = executable; }
     void setRemoteExecutableFilePath(const QString &executable);
@@ -69,7 +65,6 @@ private:
     QString m_remoteExecutable;
     QString m_arguments;
     QString m_workingDirectory;
-
 };
 
 } // namespace Internal

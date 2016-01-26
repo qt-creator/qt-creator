@@ -28,15 +28,20 @@
 #include "remotelinuxenvironmentaspect.h"
 #include "ui_remotelinuxcustomrunconfigurationwidget.h"
 
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtoutputformatter.h>
 #include <utils/detailswidget.h>
 #include <utils/qtcprocess.h>
 
+using namespace ProjectExplorer;
+
 namespace RemoteLinux {
 namespace Internal {
 
-class RemoteLinuxCustomRunConfigWidget : public ProjectExplorer::RunConfigWidget
+class RemoteLinuxCustomRunConfigWidget : public RunConfigWidget
 {
     Q_OBJECT
 public:
@@ -50,23 +55,24 @@ public:
         detailsContainer->setState(Utils::DetailsWidget::NoSummary);
         QWidget * const detailsWidget = new QWidget(this);
         detailsContainer->setWidget(detailsWidget);
+        auto const runnable = runConfig->runnable().as<StandardRunnable>();
         m_ui.setupUi(detailsWidget);
         m_ui.localExecutablePathChooser->setExpectedKind(Utils::PathChooser::File);
-        m_ui.localExecutablePathChooser->setPath(m_runConfig->localExecutableFilePath());
-        m_ui.remoteExeLineEdit->setText(m_runConfig->remoteExecutableFilePath());
-        m_ui.argsLineEdit->setText(m_runConfig->arguments());
-        m_ui.workingDirLineEdit->setText(m_runConfig->workingDirectory());
-        connect(m_ui.localExecutablePathChooser, SIGNAL(pathChanged(QString)),
-                SLOT(handleLocalExecutableChanged(QString)));
-        connect(m_ui.remoteExeLineEdit, SIGNAL(textEdited(QString)),
-                SLOT(handleRemoteExecutableChanged(QString)));
-        connect(m_ui.argsLineEdit, SIGNAL(textEdited(QString)),
-                SLOT(handleArgumentsChanged(QString)));
-        connect(m_ui.workingDirLineEdit, SIGNAL(textEdited(QString)),
-                SLOT(handleWorkingDirChanged(QString)));
+        m_ui.localExecutablePathChooser->setPath(runConfig->localExecutableFilePath());
+        m_ui.remoteExeLineEdit->setText(runnable.executable);
+        m_ui.argsLineEdit->setText(runnable.commandLineArguments);
+        m_ui.workingDirLineEdit->setText(runnable.workingDirectory);
+        connect(m_ui.localExecutablePathChooser, &Utils::PathChooser::pathChanged,
+                this, &RemoteLinuxCustomRunConfigWidget::handleLocalExecutableChanged);
+        connect(m_ui.remoteExeLineEdit, &QLineEdit::textEdited,
+                this, &RemoteLinuxCustomRunConfigWidget::handleRemoteExecutableChanged);
+        connect(m_ui.argsLineEdit, &QLineEdit::textEdited,
+                this, &RemoteLinuxCustomRunConfigWidget::handleArgumentsChanged);
+        connect(m_ui.workingDirLineEdit, &QLineEdit::textEdited,
+                this, &RemoteLinuxCustomRunConfigWidget::handleWorkingDirChanged);
     }
 
-private slots:
+private:
     void handleLocalExecutableChanged(const QString &path) {
         m_runConfig->setLocalExecutableFilePath(path.trimmed());
     }
@@ -84,7 +90,6 @@ private slots:
         m_runConfig->setWorkingDirectory(wd.trimmed());
     }
 
-private:
     QString displayName() const { return m_runConfig->displayName(); }
 
     RemoteLinuxCustomRunConfiguration * const m_runConfig;
@@ -92,14 +97,14 @@ private:
 };
 
 RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *parent)
-    : AbstractRemoteLinuxRunConfiguration(parent, runConfigId())
+    : RunConfiguration(parent, runConfigId())
 {
     init();
 }
 
 RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *parent,
         RemoteLinuxCustomRunConfiguration *source)
-    : AbstractRemoteLinuxRunConfiguration(parent, source)
+    : RunConfiguration(parent, source)
     , m_localExecutable(source->m_localExecutable)
     , m_remoteExecutable(source->m_remoteExecutable)
     , m_arguments(source->m_arguments)
@@ -136,11 +141,14 @@ Utils::OutputFormatter *RemoteLinuxCustomRunConfiguration::createOutputFormatter
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
-Utils::Environment RemoteLinuxCustomRunConfiguration::environment() const
+Runnable RemoteLinuxCustomRunConfiguration::runnable() const
 {
-    RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinuxEnvironmentAspect>();
-    QTC_ASSERT(aspect, return Utils::Environment());
-    return aspect->environment();
+    StandardRunnable r;
+    r.environment = extraAspect<RemoteLinuxEnvironmentAspect>()->environment();
+    r.executable = m_remoteExecutable;
+    r.commandLineArguments = m_arguments;
+    r.workingDirectory = m_workingDirectory;
+    return r;
 }
 
 void RemoteLinuxCustomRunConfiguration::setRemoteExecutableFilePath(const QString &executable)
@@ -187,7 +195,7 @@ static QString workingDirKey()
 
 bool RemoteLinuxCustomRunConfiguration::fromMap(const QVariantMap &map)
 {
-    if (!AbstractRemoteLinuxRunConfiguration::fromMap(map))
+    if (!RunConfiguration::fromMap(map))
         return false;
     setLocalExecutableFilePath(map.value(localExeKey()).toString());
     setRemoteExecutableFilePath(map.value(remoteExeKey()).toString());
@@ -202,7 +210,7 @@ bool RemoteLinuxCustomRunConfiguration::fromMap(const QVariantMap &map)
 
 QVariantMap RemoteLinuxCustomRunConfiguration::toMap() const
 {
-    QVariantMap map = AbstractRemoteLinuxRunConfiguration::toMap();
+    QVariantMap map = RunConfiguration::toMap();
     map.insert(localExeKey(), m_localExecutable);
     map.insert(remoteExeKey(), m_remoteExecutable);
     map.insert(argsKey(), m_arguments);

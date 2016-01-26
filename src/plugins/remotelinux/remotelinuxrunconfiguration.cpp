@@ -30,7 +30,9 @@
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <utils/qtcprocess.h>
@@ -79,7 +81,7 @@ using namespace Internal;
 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, Core::Id id,
         const QString &targetName)
-    : AbstractRemoteLinuxRunConfiguration(parent, id),
+    : RunConfiguration(parent, id),
       d(new RemoteLinuxRunConfigurationPrivate(targetName))
 {
     init();
@@ -87,7 +89,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, Core::I
 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent,
         RemoteLinuxRunConfiguration *source)
-    : AbstractRemoteLinuxRunConfiguration(parent, source),
+    : RunConfiguration(parent, source),
       d(new RemoteLinuxRunConfigurationPrivate(source->d))
 {
     init();
@@ -125,6 +127,15 @@ OutputFormatter *RemoteLinuxRunConfiguration::createOutputFormatter() const
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
+Runnable RemoteLinuxRunConfiguration::runnable() const
+{
+    StandardRunnable r;
+    r.environment = extraAspect<RemoteLinuxEnvironmentAspect>()->environment();
+    r.executable = remoteExecutableFilePath();
+    r.commandLineArguments = arguments();
+    r.workingDirectory = workingDirectory();
+    return r;
+}
 
 QVariantMap RemoteLinuxRunConfiguration::toMap() const
 {
@@ -169,13 +180,6 @@ QString RemoteLinuxRunConfiguration::defaultDisplayName()
 QString RemoteLinuxRunConfiguration::arguments() const
 {
     return d->arguments;
-}
-
-Environment RemoteLinuxRunConfiguration::environment() const
-{
-    RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinuxEnvironmentAspect>();
-    QTC_ASSERT(aspect, return Environment());
-    return aspect->environment();
 }
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const

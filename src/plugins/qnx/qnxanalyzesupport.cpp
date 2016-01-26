@@ -47,6 +47,7 @@ namespace Internal {
 QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
                                      Analyzer::AnalyzerRunControl *runControl)
     : QnxAbstractRunSupport(runConfig, runControl)
+    , m_runnable(runConfig->runnable().as<StandardRunnable>())
     , m_runControl(runControl)
     , m_qmlPort(-1)
 {
@@ -105,9 +106,9 @@ void QnxAnalyzeSupport::startExecution()
             << QtcProcess::splitArgs(m_runControl->runnable().debuggeeArgs)
             << QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, m_qmlPort);
 
-    appRunner()->setEnvironment(environment());
-    appRunner()->setWorkingDirectory(workingDirectory());
-    appRunner()->start(device(), executable(), args);
+    appRunner()->setEnvironment(m_runnable.environment);
+    appRunner()->setWorkingDirectory(m_runnable.workingDirectory);
+    appRunner()->start(device(), m_runnable.executable, args);
 }
 
 void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)
@@ -116,7 +117,7 @@ void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)
         return;
 
     if (!success)
-        showMessage(tr("The %1 process closed unexpectedly.").arg(executable()),
+        showMessage(tr("The %1 process closed unexpectedly.").arg(m_runnable.executable),
                     NormalMessageFormat);
     m_runControl->notifyRemoteFinished();
 

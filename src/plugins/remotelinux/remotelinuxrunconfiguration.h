@@ -27,7 +27,6 @@
 #define REMOTELINUXRUNCONFIGURATION_H
 
 #include "remotelinux_export.h"
-#include "abstractremotelinuxrunconfiguration.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -47,7 +46,7 @@ class RemoteLinuxRunConfigurationPrivate;
 class RemoteLinuxRunConfigurationFactory;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public AbstractRemoteLinuxRunConfiguration
+class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
     Q_DISABLE_COPY(RemoteLinuxRunConfiguration)
@@ -63,14 +62,14 @@ public:
     QWidget *createConfigurationWidget() override;
     Utils::OutputFormatter *createOutputFormatter() const override;
 
-    virtual Utils::Environment environment() const override;
+    ProjectExplorer::Runnable runnable() const override;
 
-    QString localExecutableFilePath() const override;
+    QString localExecutableFilePath() const;
     QString defaultRemoteExecutableFilePath() const;
-    QString remoteExecutableFilePath() const override;
-    QString arguments() const override;
+    QString remoteExecutableFilePath() const;
+    QString arguments() const;
     void setArguments(const QString &args);
-    QString workingDirectory() const override;
+    QString workingDirectory() const;
     void setWorkingDirectory(const QString &wd);
     void setAlternateRemoteExecutable(const QString &exe);
     QString alternateRemoteExecutable() const;

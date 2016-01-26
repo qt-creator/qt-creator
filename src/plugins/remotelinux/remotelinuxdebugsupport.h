@@ -28,23 +28,18 @@
 
 #include "abstractremotelinuxrunsupport.h"
 
-namespace Debugger {
-class DebuggerRunControl;
-class DebuggerStartParameters;
-}
+namespace Debugger { class DebuggerRunControl; }
 
 namespace RemoteLinux {
-class AbstractRemoteLinuxRunConfiguration;
 
 namespace Internal { class LinuxDeviceDebugSupportPrivate; }
 
 class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public AbstractRemoteLinuxRunSupport
 {
     Q_OBJECT
-public:
-    static Debugger::DebuggerStartParameters startParameters(const AbstractRemoteLinuxRunConfiguration *runConfig);
 
-    LinuxDeviceDebugSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
+public:
+    LinuxDeviceDebugSupport(ProjectExplorer::RunConfiguration *runConfig,
             Debugger::DebuggerRunControl *runControl);
     ~LinuxDeviceDebugSupport();
 

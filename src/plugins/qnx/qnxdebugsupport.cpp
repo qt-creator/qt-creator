@@ -35,6 +35,7 @@
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -48,6 +49,7 @@ using namespace Qnx::Internal;
 
 QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::DebuggerRunControl *runControl)
     : QnxAbstractRunSupport(runConfig, runControl)
+    , m_runnable(runConfig->runnable().as<StandardRunnable>())
     , m_runControl(runControl)
     , m_pdebugPort(-1)
     , m_qmlPort(-1)
@@ -106,9 +108,9 @@ void QnxDebugSupport::startExecution()
         arguments << QString::number(m_pdebugPort);
     else if (m_useQmlDebugger && !m_useCppDebugger)
         arguments = Utils::QtcProcess::splitArgs(m_runControl->startParameters().processArgs);
-    appRunner()->setEnvironment(environment());
-    appRunner()->setWorkingDirectory(workingDirectory());
-    appRunner()->start(device(), executable(), arguments);
+    appRunner()->setEnvironment(m_runnable.environment);
+    appRunner()->setWorkingDirectory(m_runnable.workingDirectory);
+    appRunner()->start(device(), processExecutable(), arguments);
 }
 
 void QnxDebugSupport::handleRemoteProcessStarted()
@@ -135,7 +137,7 @@ void QnxDebugSupport::handleRemoteProcessFinished(bool success)
     } else {
         Debugger::RemoteSetupResult result;
         result.success = false;
-        result.reason = tr("The %1 process closed unexpectedly.").arg(executable());
+        result.reason = tr("The %1 process closed unexpectedly.").arg(processExecutable());
         m_runControl->notifyEngineRemoteSetupFinished(result);
     }
 }
@@ -150,14 +152,14 @@ void QnxDebugSupport::handleDebuggingFinished()
     killInferiorProcess();
 }
 
-QString QnxDebugSupport::executable() const
+QString QnxDebugSupport::processExecutable() const
 {
-    return m_useCppDebugger? QLatin1String(Constants::QNX_DEBUG_EXECUTABLE) : QnxAbstractRunSupport::executable();
+    return m_useCppDebugger? QLatin1String(Constants::QNX_DEBUG_EXECUTABLE) : m_runnable.executable;
 }
 
 void QnxDebugSupport::killInferiorProcess()
 {
-    device()->signalOperation()->killProcess(QnxAbstractRunSupport::executable());
+    device()->signalOperation()->killProcess(m_runnable.executable);
 }
 
 void QnxDebugSupport::handleProgressReport(const QString &progressOutput)

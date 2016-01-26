@@ -33,20 +33,23 @@
 #include <debugger/debuggerkitinformation.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
-
-#include <utils/qtcassert.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
+
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QPointer>
 
 using namespace QSsh;
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -54,8 +57,7 @@ namespace Internal {
 class LinuxDeviceDebugSupportPrivate
 {
 public:
-    LinuxDeviceDebugSupportPrivate(const AbstractRemoteLinuxRunConfiguration *runConfig,
-            DebuggerRunControl *runControl)
+    LinuxDeviceDebugSupportPrivate(const RunConfiguration *runConfig, DebuggerRunControl *runControl)
         : runControl(runControl),
           qmlDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useQmlDebugger()),
           cppDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useCppDebugger()),
@@ -75,45 +77,15 @@ public:
 
 using namespace Internal;
 
-DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractRemoteLinuxRunConfiguration *runConfig)
-{
-    DebuggerStartParameters params;
-    Target *target = runConfig->target();
-    Kit *k = target->kit();
-    const IDevice::ConstPtr device = DeviceKitInformation::device(k);
-    QTC_ASSERT(device, return params);
-
-    params.startMode = AttachToRemoteServer;
-    params.closeMode = KillAndExitMonitorAtClose;
-    params.remoteSetupNeeded = true;
-
-    auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
-    if (aspect->useQmlDebugger()) {
-        params.qmlServerAddress = device->sshParameters().host;
-        params.qmlServerPort = 0; // port is selected later on
-    }
-    if (aspect->useCppDebugger()) {
-        aspect->setUseMultiProcess(true);
-        params.processArgs = runConfig->arguments();
-        if (aspect->useQmlDebugger()) {
-            params.processArgs.prepend(QLatin1Char(' '));
-            params.processArgs.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
-        }
-        params.executable = runConfig->localExecutableFilePath();
-        params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
-        params.remoteExecutable = runConfig->remoteExecutableFilePath();
-    }
-
-    return params;
-}
-
-LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
+LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunConfiguration *runConfig,
         DebuggerRunControl *runControl)
     : AbstractRemoteLinuxRunSupport(runConfig, runControl),
-      d(new LinuxDeviceDebugSupportPrivate(static_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig), runControl))
+      d(new LinuxDeviceDebugSupportPrivate(runConfig, runControl))
 {
     connect(runControl, &DebuggerRunControl::requestRemoteSetup,
             this, &LinuxDeviceDebugSupport::handleRemoteSetupRequested);
+    connect(runControl, &RunControl::finished,
+            this, &LinuxDeviceDebugSupport::handleDebuggingFinished);
 }
 
 LinuxDeviceDebugSupport::~LinuxDeviceDebugSupport()
@@ -156,14 +128,14 @@ void LinuxDeviceDebugSupport::startExecution()
         connect(runner, &DeviceApplicationRunner::remoteProcessStarted,
                 this, &LinuxDeviceDebugSupport::handleRemoteProcessStarted);
 
-    QStringList args = arguments();
+    QStringList args = QtcProcess::splitArgs(runnable().commandLineArguments, OsTypeLinux);
     QString command;
 
     if (d->qmlDebugging)
         args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, d->qmlPort));
 
     if (d->qmlDebugging && !d->cppDebugging) {
-        command = remoteFilePath();
+        command = runnable().executable;
     } else {
         command = device()->debugServerPath();
         if (command.isEmpty())
@@ -179,8 +151,8 @@ void LinuxDeviceDebugSupport::startExecution()
             this, &LinuxDeviceDebugSupport::handleProgressReport);
     connect(runner, &DeviceApplicationRunner::reportError,
             this, &LinuxDeviceDebugSupport::handleAppRunnerError);
-    runner->setEnvironment(environment());
-    runner->setWorkingDirectory(workingDirectory());
+    runner->setEnvironment(runnable().environment);
+    runner->setWorkingDirectory(runnable().workingDirectory);
     runner->start(device(), command, args);
 }
 
