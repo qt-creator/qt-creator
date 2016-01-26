@@ -30,6 +30,7 @@
 #include <valgrind/xmlprotocol/suppression.h>
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runnables.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include "parsertests.h"
@@ -466,9 +467,12 @@ void ParserTests::testRealValgrind()
     qDebug() << "running exe:" << executable << " HINT: set VALGRIND_TEST_BIN to change this";
     ThreadedParser parser;
 
+    ProjectExplorer::StandardRunnable debuggee;
+    debuggee.executable = executable;
+
     Memcheck::MemcheckRunner runner;
     runner.setValgrindExecutable(QLatin1String("valgrind"));
-    runner.setDebuggeeExecutable(executable);
+    runner.setDebuggee(debuggee);
     runner.setParser(&parser);
     RunnerDumper dumper(&runner, &parser);
     runner.start();
@@ -497,17 +501,20 @@ void ParserTests::testValgrindStartError()
 {
     QFETCH(QString, valgrindExe);
     QFETCH(QStringList, valgrindArgs);
-    QFETCH(QString, debuggee);
+    QFETCH(QString, debuggeeExecutable);
     QFETCH(QString, debuggeeArgs);
 
     ThreadedParser parser;
+
+    ProjectExplorer::StandardRunnable debuggee;
+    debuggee.executable = debuggeeExecutable;
+    debuggee.commandLineArguments = debuggeeArgs;
 
     Memcheck::MemcheckRunner runner;
     runner.setParser(&parser);
     runner.setValgrindExecutable(valgrindExe);
     runner.setValgrindArguments(valgrindArgs);
-    runner.setDebuggeeExecutable(debuggee);
-    runner.setDebuggeeArguments(debuggeeArgs);
+    runner.setDebuggee(debuggee);
     RunnerDumper dumper(&runner, &parser);
     runner.start();
     runner.waitForFinished();

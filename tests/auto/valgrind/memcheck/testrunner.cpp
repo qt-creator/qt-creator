@@ -34,6 +34,7 @@
 #include <valgrind/memcheck/memcheckrunner.h>
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runnables.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QDebug>
@@ -77,8 +78,10 @@ QString TestRunner::runTestBinary(const QString &binary, const QStringList &vArg
     const QString binPath = appBinDir + QLatin1Char('/') + binary;
     if (!QFileInfo(binPath).isExecutable())
         qFatal("No such test app: %s", qPrintable(binPath));
+    ProjectExplorer::StandardRunnable debuggee;
+    debuggee.executable = binPath;
     m_runner->setValgrindArguments(QStringList() << "--num-callers=50" << "--track-origins=yes" << vArgs);
-    m_runner->setDebuggeeExecutable(binPath);
+    m_runner->setDebuggee(debuggee);
     m_runner->start();
     m_runner->waitForFinished();
     return binPath;
