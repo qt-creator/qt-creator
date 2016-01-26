@@ -303,8 +303,8 @@ static void addJsonArray(const QJsonArray &array, const QString &keyPrefix, ProV
 
 static void addJsonObject(const QJsonObject &object, const QString &keyPrefix, ProValueMap *map)
 {
-    foreach (const QString &key, object.keys())
-        addJsonValue(object.value(key), keyPrefix + key, map);
+    for (auto it = object.begin(), end = object.end(); it != end; ++it)
+        addJsonValue(it.value(), keyPrefix + it.key(), map);
 
     insertJsonKeyValue(keyPrefix + QLatin1String("_KEYS_"), object.keys(), map);
 }
