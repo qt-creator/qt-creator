@@ -4,6 +4,7 @@ description = "Extending Qt Creator Manual"
 language                = Cpp
 
 headerdirs              = . \
+                          ../api \
                           ../../src/libs/aggregation \
                           ../../src/libs/cplusplus \
                           ../../src/libs/extensionsystem \
@@ -11,14 +12,13 @@ headerdirs              = . \
                           ../../src/libs/qmljs \
                           ../../src/libs/qtcreatorcdbext \
                           ../../src/plugins/coreplugin \
-                          ../../src/plugins/find \
-                          ../../src/plugins/locator \
                           ../../src/plugins/debugger \
                           ../../src/plugins/vcsbase \
                           ../../src/plugins/projectexplorer \
                           ../../src/plugins/texteditor
 
 sourcedirs              = . \
+                          ../api \
                           ../../src/libs/aggregation \
                           ../../src/libs/cplusplus \
                           ../../src/libs/extensionsystem \
@@ -26,8 +26,6 @@ sourcedirs              = . \
                           ../../src/libs/qmljs \
                           ../../src/libs/qtcreatorcdbext \
                           ../../src/plugins/coreplugin \
-                          ../../src/plugins/find \
-                          ../../src/plugins/locator \
                           ../../src/plugins/debugger \
                           ../../src/plugins/vcsbase \
                           ../../src/plugins/projectexplorer\
