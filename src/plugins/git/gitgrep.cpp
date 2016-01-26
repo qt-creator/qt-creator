@@ -284,7 +284,7 @@ void GitGrep::writeSettings(QSettings *settings)
 void GitGrep::readSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("GitGrep"));
-    readCommonSettings(settings, QString());
+    readCommonSettings(settings, QLatin1String("*"));
     settings->endGroup();
 }
 
