@@ -322,6 +322,7 @@ void GTestOutputReader::processOutput()
     static QRegExp testSetSuccess(QStringLiteral("^\\[       OK \\] (.*) \\((.*)\\)$"));
     static QRegExp testSetFail(QStringLiteral("^\\[  FAILED  \\] (.*) \\((.*)\\)$"));
     static QRegExp disabledTests(QStringLiteral("^  YOU HAVE (\\d+) DISABLED TESTS?$"));
+    static QRegExp failureLocation(QStringLiteral("^(.*):(\\d+): Failure$"));
 
     while (m_testApplication->canReadLine()) {
         if (m_futureInterface.isCanceled())
@@ -401,15 +402,18 @@ void GTestOutputReader::processOutput()
             testResult->setResult(Result::Fail);
             m_description.chop(1);
             testResult->setDescription(m_description);
-            int firstColon = m_description.indexOf(QLatin1Char(':'));
-            if (firstColon != -1) {
-                int secondColon = m_description.indexOf(QLatin1Char(':'), firstColon + 1);
-                const QString base = QFileInfo(m_testApplication->program()).absolutePath();
-                QString file = constructSourceFilePath(base, m_description.left(firstColon),
-                                                       m_testApplication->program());
-                QString line = m_description.mid(firstColon + 1, secondColon - firstColon - 1);
-                testResult->setFileName(file);
-                testResult->setLine(line.toInt());
+
+            const QString base = QFileInfo(m_testApplication->program()).absolutePath();
+            foreach (const QString &output, m_description.split(QLatin1Char('\n'))) {
+                if (failureLocation.exactMatch(output)) {
+                    QString file = constructSourceFilePath(base, failureLocation.cap(1),
+                                                           m_testApplication->program());
+                    if (file.isEmpty())
+                        continue;
+                    testResult->setFileName(file);
+                    testResult->setLine(failureLocation.cap(2).toInt());
+                    break;
+                }
             }
             m_futureInterface.reportResult(testResult);
             m_description.clear();
