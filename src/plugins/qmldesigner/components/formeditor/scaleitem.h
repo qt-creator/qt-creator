@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef SCALEITEM_H
-#define SCALEITEM_H
+#pragma once
 
 #include <QGraphicsRectItem>
 
@@ -44,6 +42,4 @@ private:
     ScaleIndicator* m_indicator;
 };
 
-}
-
-#endif // SCALEITEM_H
+} // namespace QmlDesigner

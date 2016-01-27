@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef QMLDESIGNER_BINDINGINDICATORGRAPHICSITEM_H
-#define QMLDESIGNER_BINDINGINDICATORGRAPHICSITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 
@@ -47,5 +45,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_BINDINGINDICATORGRAPHICSITEM_H

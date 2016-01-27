@@ -22,14 +22,12 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef SELECTIONRECTANGLE_H
-#define SELECTIONRECTANGLE_H
+#include "layeritem.h"
 
 #include <QPointer>
 #include <QGraphicsRectItem>
-#include "layeritem.h"
-
 
 namespace QmlDesigner {
 
@@ -54,6 +52,4 @@ private:
     QPointer<LayerItem> m_layerItem;
 };
 
-}
-
-#endif // SELECTIONRECTANGLE_H
+} // namespace QmlDesigner

@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef RESIZEINDICATOR_H
-#define RESIZEINDICATOR_H
+#pragma once
 
 #include "resizecontroller.h"
 
@@ -51,7 +49,6 @@ public:
 
     void show();
     void hide();
-
     void clear();
 
     void setItems(const QList<FormEditorItem*> &itemList);
@@ -59,10 +56,7 @@ public:
 
 private:
     QHash<FormEditorItem*, ResizeController> m_itemControllerHash;
-
     LayerItem *m_layerItem;
 };
 
 } // namespace QmlDesigner
-
-#endif // SCALEINDICATOR_H

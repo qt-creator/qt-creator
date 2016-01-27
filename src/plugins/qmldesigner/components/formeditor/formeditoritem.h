@@ -22,14 +22,13 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef FORMEDITORITEM_H
-#define FORMEDITORITEM_H
+#include <qmlitemnode.h>
+#include "snappinglinecreator.h"
 
 #include <QPointer>
 #include <QGraphicsWidget>
-#include <qmlitemnode.h>
-#include "snappinglinecreator.h"
 
 QT_BEGIN_NAMESPACE
 class QTimeLine;
@@ -142,6 +141,4 @@ inline int FormEditorItem::type() const
     return UserType + 0xfffa;
 }
 
-}
-
-#endif // FORMEDITORITEM_H
+} // namespace QmlDesigner

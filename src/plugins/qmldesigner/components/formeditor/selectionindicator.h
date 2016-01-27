@@ -22,19 +22,16 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef SELECTIONINDICATOR_H
-#define SELECTIONINDICATOR_H
-
-#include <QPointer>
-#include <QGraphicsPolygonItem>
 #include "layeritem.h"
 #include "formeditoritem.h"
-#include <QCursor>
 
+#include <QCursor>
+#include <QPointer>
+#include <QGraphicsPolygonItem>
 
 namespace QmlDesigner {
-
 
 class SelectionIndicator
 {
@@ -59,6 +56,4 @@ private:
 
 };
 
-}
-
-#endif // SELECTIONINDICATOR_H
+} // namespace QmlDesigner

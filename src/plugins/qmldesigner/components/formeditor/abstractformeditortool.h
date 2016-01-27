@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef ABSTRACTFORMEDITORTOOL_H
-#define ABSTRACTFORMEDITORTOOL_H
+#pragma once
 
 #include "formeditoritem.h"
 
@@ -104,6 +102,4 @@ private:
     QList<FormEditorItem*> m_itemList;
 };
 
-}
-
-#endif // ABSTRACTFORMEDITORTOOL_H
+} // namespace QmlDesigner

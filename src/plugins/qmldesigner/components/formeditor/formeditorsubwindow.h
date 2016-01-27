@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef FORMEDITORSUBWINDOW_H
-#define FORMEDITORSUBWINDOW_H
+#pragma once
 
 #include <QMdiSubWindow>
 
@@ -37,5 +35,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-#endif // FORMEDITORSUBWINDOW_H

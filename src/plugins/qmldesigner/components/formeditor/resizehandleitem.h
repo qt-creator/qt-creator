@@ -22,15 +22,13 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef RESIZEHANDLEITEM_H
-#define RESIZEHANDLEITEM_H
-
-#include <QGraphicsItem>
+#include "resizecontroller.h"
 
 #include <qmldesignercorelib_global.h>
 
-#include "resizecontroller.h"
+#include <QGraphicsItem>
 
 namespace QmlDesigner {
 
@@ -41,7 +39,6 @@ public:
     {
         Type = 0xEAEA
     };
-
 
     ResizeHandleItem(QGraphicsItem *parent, const ResizeController &resizeController);
     ~ResizeHandleItem();
@@ -77,6 +74,4 @@ inline int ResizeHandleItem::type() const
     return Type;
 }
 
-}
-
-#endif // RESIZEHANDLEITEM_H
+} // namespace QmlDesigner

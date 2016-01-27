@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef QMLDESIGNER_ANCHORINDICATORGRAPHICSITEM_H
-#define QMLDESIGNER_ANCHORINDICATORGRAPHICSITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 
@@ -65,5 +63,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_ANCHORINDICATORGRAPHICSITEM_H

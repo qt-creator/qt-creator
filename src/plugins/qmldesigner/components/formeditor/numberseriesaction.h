@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef NUMBERSERIESACTION_H
-#define NUMBERSERIESACTION_H
+#pragma once
 
 #include <QWidgetAction>
 #include <QPointer>
@@ -60,6 +58,4 @@ private:
     int m_comboBoxModelIndex;
 };
 
-} // namespace QKinecticDesigner
-
-#endif // NUMBERSERIESACTION_H
+} // namespace QmlDesigner

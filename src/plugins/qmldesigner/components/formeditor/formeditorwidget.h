@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef FORMEDITORWIDGET_H
-#define FORMEDITORWIDGET_H
+#pragma once
 
 #include <QWidget>
 #include <QPointer>
@@ -103,7 +101,4 @@ private:
     QPointer<QAction> m_resetAction;
 };
 
-
-}
-#endif //FORMEDITORWIDGET_H
-
+} // namespace QmlDesigner

@@ -22,23 +22,18 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef RESIZECONTROLLER_H
-#define RESIZECONTROLLER_H
+#pragma once
 
 #include <QWeakPointer>
 #include <QSharedPointer>
-
 
 namespace QmlDesigner {
 
 class FormEditorItem;
 class LayerItem;
 class ResizeHandleItem;
-
 class ResizeControllerData;
 class WeakResizeController;
-
 
 class ResizeController
 {
@@ -73,7 +68,6 @@ public:
 
     WeakResizeController toWeakResizeController() const;
 
-
 private: // functions
     ResizeController(const QSharedPointer<ResizeControllerData> &data);
 private: // variables
@@ -97,6 +91,4 @@ private: // variables
     QWeakPointer<ResizeControllerData> m_data;
 };
 
-}
-
-#endif // RESIZECONTROLLER_H
+} // namespace QmlDesigner

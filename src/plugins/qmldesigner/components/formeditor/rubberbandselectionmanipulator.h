@@ -22,17 +22,13 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef RUBBERBANDSELECTIONMANIPULATOR_H
-#define RUBBERBANDSELECTIONMANIPULATOR_H
-
+#pragma once
 
 #include "selectionrectangle.h"
 #include "formeditorview.h"
 #include "formeditoritem.h"
 
 namespace QmlDesigner {
-
 
 class RubberBandSelectionManipulator
 {
@@ -42,7 +38,6 @@ public:
         AddToSelection,
         RemoveFromSelection
     };
-
 
     RubberBandSelectionManipulator(LayerItem *layerItem, FormEditorView *editorView);
 
@@ -63,7 +58,6 @@ public:
 protected:
     FormEditorItem *topFormEditorItem(const QList<QGraphicsItem*> &itemList);
 
-
 private:
     QList<FormEditorItem*> m_itemList;
     QList<QmlItemNode> m_oldSelectionList;
@@ -74,6 +68,4 @@ private:
     bool m_isActive;
 };
 
-}
-
-#endif // RUBBERBANDSELECTIONMANIPULATOR_H
+} // namespace QmlDesigner

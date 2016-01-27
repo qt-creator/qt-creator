@@ -22,16 +22,13 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef RESIZETOOL_H
-#define RESIZETOOL_H
+#pragma once
 
 #include "abstractformeditortool.h"
 #include "selectionindicator.h"
 #include "resizeindicator.h"
 #include "anchorindicator.h"
 #include "resizemanipulator.h"
-
 
 namespace QmlDesigner {
 
@@ -66,7 +63,6 @@ public:
     void instancesCompleted(const QList<FormEditorItem*> &itemList) override;
     void instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
-
 private:
     SelectionIndicator m_selectionIndicator;
     ResizeIndicator m_resizeIndicator;
@@ -74,6 +70,4 @@ private:
     ResizeManipulator m_resizeManipulator;
 };
 
-}
-
-#endif // RESIZETOOL_H
+} // namespace QmlDesigner

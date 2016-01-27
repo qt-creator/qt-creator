@@ -22,10 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef SELECTIONTOOL_H
-#define SELECTIONTOOL_H
-
+#pragma once
 
 #include "abstractformeditortool.h"
 #include "rubberbandselectionmanipulator.h"
@@ -39,7 +36,6 @@
 #include <QTime>
 
 namespace QmlDesigner {
-
 
 class SelectionTool : public AbstractFormEditorTool
 {
@@ -93,5 +89,4 @@ private:
     QCursor m_cursor;
 };
 
-}
-#endif // SELECTIONTOOL_H
+} // namespace QmlDesigner

@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef QMLDESIGNER_BACKGROUNDACTION_H
-#define QMLDESIGNER_BACKGROUNDACTION_H
+#pragma once
 
 #include <QWidgetAction>
 
@@ -56,5 +54,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_BACKGROUNDACTION_H

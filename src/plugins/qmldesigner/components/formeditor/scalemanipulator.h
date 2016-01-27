@@ -22,15 +22,13 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef SCALEMANIPULATOR_H
-#define SCALEMANIPULATOR_H
+#pragma once
 
 #include <QPointF>
 
-
-
+QT_BEGIN_NAMESPACE
 class QGraphicsLineItem;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
@@ -43,7 +41,6 @@ public:
     ScaleManipulator(LayerItem *layerItem, FormEditorItem *formEditorItem);
     virtual ~ScaleManipulator();
 
-
     void begin(const QPointF& beginPoint);
     void update(const QPointF& updatePoint);
     void reparentTo(FormEditorItem *newParent);
@@ -54,5 +51,4 @@ private:
   FormEditorItem *m_formEditorItem;
 };
 
-}
-#endif // SCALEMANIPULATOR_H
+} // namespace QmlDesigner

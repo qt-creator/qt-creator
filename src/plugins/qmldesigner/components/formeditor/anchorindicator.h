@@ -22,14 +22,12 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef QMLDESIGNER_ANCHORINDICATOR_H
-#define QMLDESIGNER_ANCHORINDICATOR_H
-
-#include <QPointer>
 #include "layeritem.h"
 #include "formeditoritem.h"
 
+#include <QPointer>
 
 namespace QmlDesigner {
 
@@ -62,5 +60,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_ANCHORINDICATOR_H

@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef ZOOMACTION_H
-#define ZOOMACTION_H
+#pragma once
 
 #include <QWidgetAction>
 #include <QPointer>
@@ -63,5 +61,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // ZOOMACTION_H

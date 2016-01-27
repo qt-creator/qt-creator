@@ -22,20 +22,18 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef MOVEMANIPULATOR_H
-#define MOVEMANIPULATOR_H
+#include "formeditoritem.h"
+#include "rewritertransaction.h"
+#include "snapper.h"
+#include "formeditorview.h"
 
 #include <QPointer>
 #include <QGraphicsItem>
 #include <QHash>
 #include <QPointF>
 #include <QRectF>
-
-#include "formeditoritem.h"
-#include "rewritertransaction.h"
-#include "snapper.h"
-#include "formeditorview.h"
 
 namespace QmlDesigner {
 
@@ -115,5 +113,4 @@ private:
     QPointF m_lastPosition;
 };
 
-}
-#endif // MOVEMANIPULATOR_H
+} // namespace QmlDesigner

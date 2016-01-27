@@ -22,15 +22,14 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef RESIZEMANIPULATOR_H
-#define RESIZEMANIPULATOR_H
-
-#include <QPointer>
 #include "resizehandleitem.h"
 #include <snapper.h>
 #include "rewritertransaction.h"
 #include "formeditorview.h"
+
+#include <QPointer>
 
 namespace QmlDesigner {
 
@@ -82,5 +81,4 @@ private:
     bool m_isActive;
 };
 
-}
-#endif // RESIZEMANIPULATOR_H
+} // namespace QmlDesigner

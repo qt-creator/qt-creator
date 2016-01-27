@@ -22,13 +22,9 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef CONTROLELEMENT_H
-#define CONTROLELEMENT_H
-
+#pragma once
 
 #include <QGraphicsRectItem>
-
 
 namespace QmlDesigner {
 
@@ -41,13 +37,10 @@ public:
     ~ControlElement();
 
     void hide();
-
     void setBoundingRect(const QRectF &rect);
 
 private:
     QGraphicsRectItem *m_controlShape;
 };
 
-}
-
-#endif // CONTROLELEMENT_H
+} // namespace QmlDesigner

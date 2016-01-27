@@ -22,10 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef FORMEDITORNODEINSTANCE_H
-#define FORMEDITORNODEINSTANCE_H
-
+#pragma once
 
 #include <nodeinstanceview.h>
 
@@ -41,6 +38,4 @@ public:
     ~FormEditorNodeInstanceView();
 };
 
-
-}
-#endif //FORMEDITORNODEINSTANCE_H
+} // namespace QmlDesigner

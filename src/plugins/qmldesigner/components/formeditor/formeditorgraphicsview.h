@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef FORMEDITORGRAPHICSVIEW_H
-#define FORMEDITORGRAPHICSVIEW_H
+#pragma once
 
 #include <QGraphicsView>
 
@@ -63,5 +61,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // FORMEDITORGRAPHICSVIEW_H

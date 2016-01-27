@@ -22,13 +22,12 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef QMLDESIGNER_BINDINGINDICATOR_H
-#define QMLDESIGNER_BINDINGINDICATOR_H
-
-#include <QPointer>
 #include "layeritem.h"
 #include "formeditoritem.h"
+
+#include <QPointer>
 
 namespace QmlDesigner {
 
@@ -44,7 +43,6 @@ public:
 
     void show();
     void hide();
-
     void clear();
 
     void setItems(const QList<FormEditorItem*> &itemList);
@@ -60,5 +58,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_BINDINGINDICATOR_H

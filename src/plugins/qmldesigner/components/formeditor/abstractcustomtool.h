@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef QMLDESIGNER_ABSTRACTSINGLESELECTIONTOOL_H
-#define QMLDESIGNER_ABSTRACTSINGLESELECTIONTOOL_H
+#pragma once
 
 #include "abstractformeditortool.h"
 
@@ -43,5 +41,3 @@ public:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_ABSTRACTSINGLESELECTIONTOOL_H

@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef LINEEDITACTION_H
-#define LINEEDITACTION_H
+#pragma once
 
 #include <QWidgetAction>
 
@@ -52,5 +50,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // LINEEDITACTION_H

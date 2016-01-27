@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef DRAGTOOL_H
-#define DRAGTOOL_H
+#pragma once
 
 #include "abstractformeditortool.h"
 #include "movemanipulator.h"
@@ -100,6 +98,4 @@ private:
     bool m_isAborted;
 };
 
-
-}
-#endif // DRAGTOOL_H
+} // namespace QmlDesigner

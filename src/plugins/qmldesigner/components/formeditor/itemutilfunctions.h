@@ -22,13 +22,11 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef ITEMUTILFUNCTIONS_H
-#define ITEMUTILFUNCTIONS_H
-
-#include <QRectF>
 #include "formeditoritem.h"
 
+#include <QRectF>
 
 namespace QmlDesigner {
 
@@ -38,6 +36,4 @@ ModelNode parentNodeSemanticallyChecked(const ModelNode &childNode, const ModelN
 
 FormEditorItem* mapGraphicsViewToGraphicsScene(FormEditorItem* item);
 
-}
-
-#endif // ITEMUTILFUNCTIONS_H
+} // namespace QmlDesigner

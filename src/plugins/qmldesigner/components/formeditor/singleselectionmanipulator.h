@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef SINGLESELECTIONMANIPULATOR_H
-#define SINGLESELECTIONMANIPULATOR_H
+#pragma once
 
 #include "formeditorview.h"
 
@@ -65,5 +63,4 @@ private:
     bool m_isActive;
 };
 
-}
-#endif // SINGLESELECTIONMANIPULATOR_H
+} // namespace QmlDesigner

@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef ONEDIMENSIONALCLUSTER_H
-#define ONEDIMENSIONALCLUSTER_H
+#pragma once
 
 #include <QList>
 
@@ -43,8 +41,6 @@ private:
     double mean() const;
     double first() const;
 
-
-
     static QList<OneDimensionalCluster> createOneDimensionalClusterList(const QList<double> & oneDimensionalCoordinateList);
     static QList<OneDimensionalCluster> reduceOneDimensionalClusterList(const QList<OneDimensionalCluster> & unreducedClusterList, double maximumDistance);
 
@@ -58,9 +54,7 @@ inline bool operator < (const OneDimensionalCluster & firstCluster, const OneDim
 
 inline OneDimensionalCluster operator+(const OneDimensionalCluster & firstCluster, const OneDimensionalCluster & secondCluster)
 {
-
     return OneDimensionalCluster(firstCluster.m_coordinateList + secondCluster.m_coordinateList);
 }
 
-}
-#endif // ONEDIMENSIONALCLUSTER_H
+} // namespace QmlDesigner

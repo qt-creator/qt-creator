@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef FORMEDITORVIEW_H
-#define FORMEDITORVIEW_H
+#pragma once
 
 #include <abstractview.h>
 
@@ -138,6 +136,4 @@ private: //variables
     int m_transactionCounter;
 };
 
-}
-
-#endif //FORMEDITORVIEW_H
+} // namespace QmlDesigner

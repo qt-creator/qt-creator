@@ -22,14 +22,13 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef QMLDESIGNER_CONTENTNOTEDITABLEINDICATOR_H
-#define QMLDESIGNER_CONTENTNOTEDITABLEINDICATOR_H
+#include "layeritem.h"
+#include "formeditoritem.h"
 
 #include <QPointer>
 #include <QGraphicsRectItem>
-#include "layeritem.h"
-#include "formeditoritem.h"
 
 namespace QmlDesigner {
 
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_CONTENTNOTEDITABLEINDICATOR_H

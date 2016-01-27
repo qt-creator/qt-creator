@@ -22,16 +22,14 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#ifndef FORMEDITORSCENE_H
-#define FORMEDITORSCENE_H
-
+#include <qmlitemnode.h>
+#include "abstractformeditortool.h"
 
 #include <QGraphicsScene>
 #include <QPointer>
 #include <QHash>
-#include <qmlitemnode.h>
-#include "abstractformeditortool.h"
 
 QT_BEGIN_NAMESPACE
 class QGraphicsSceneMouseEvent;
@@ -126,9 +124,4 @@ private:
     bool m_showBoundingRects;
 };
 
-
-
-
-}
-#endif //FORMEDITORSCENE_H
-
+} // namespace QmlDesigner

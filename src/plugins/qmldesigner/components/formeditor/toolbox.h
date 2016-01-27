@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef TOOLBOX_H
-#define TOOLBOX_H
+#pragma once
 
 #include <utils/styledbar.h>
 
@@ -52,5 +50,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // TOOLBOX_H

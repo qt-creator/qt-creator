@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef SNAPPER_H
-#define SNAPPER_H
+#pragma once
 
 #include "formeditoritem.h"
 
@@ -33,7 +31,6 @@ class QLineF;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
-
 
 class Snapper
 {
@@ -115,5 +112,4 @@ private:
     double m_snappingDistance;
 };
 
-}
-#endif // SNAPPER_H
+} // namespace QmlDesigner

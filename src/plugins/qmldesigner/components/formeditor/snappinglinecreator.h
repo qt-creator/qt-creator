@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef SNAPPINGLINECREATOR_H
-#define SNAPPINGLINECREATOR_H
+#pragma once
 
 #include "layeritem.h"
 #include <QPair>
@@ -97,5 +95,4 @@ private:
     double m_rightPadding;
 };
 
-}
-#endif // SNAPPINGLINECREATOR_H
+} // namespace QmlDesigner

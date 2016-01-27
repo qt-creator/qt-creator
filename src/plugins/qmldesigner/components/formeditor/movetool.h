@@ -22,9 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#ifndef MOVETOOL_H
-#define MOVETOOL_H
+#pragma once
 
 #include "abstractformeditortool.h"
 #include "movemanipulator.h"
@@ -35,7 +33,6 @@
 #include "contentnoteditableindicator.h"
 
 namespace QmlDesigner {
-
 
 class MoveTool : public AbstractFormEditorTool
 {
@@ -90,5 +87,4 @@ private:
     QList<FormEditorItem*> m_movingItems;
 };
 
-}
-#endif // MOVETOOL_H
+} // namespace QmlDesigner
