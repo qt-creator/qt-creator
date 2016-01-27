@@ -32,8 +32,9 @@
 #include "cdb/cdbengine.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runnables.h>
+#include <projectexplorer/toolchain.h>
 #include <utils/pathchooser.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
@@ -131,7 +132,6 @@ QString DebuggerKitChooser::kitToolTip(Kit *k) const
 class StartApplicationParameters
 {
 public:
-    StartApplicationParameters();
     QString displayName() const;
     bool equals(const StartApplicationParameters &rhs) const;
     void toSettings(QSettings *) const;
@@ -143,28 +143,20 @@ public:
     Id kitId;
     uint serverPort;
     QString serverAddress;
-    QString localExecutable;
-    QString processArgs;
-    QString workingDirectory;
-    bool breakAtMain;
-    bool runInTerminal;
+    StandardRunnable runnable;
+    bool breakAtMain = false;
     QString serverStartScript;
     QString debugInfoLocation;
 };
 
-StartApplicationParameters::StartApplicationParameters() :
-    breakAtMain(false), runInTerminal(false)
-{
-}
-
 bool StartApplicationParameters::equals(const StartApplicationParameters &rhs) const
 {
-    return localExecutable == rhs.localExecutable
+    return runnable.executable == rhs.runnable.executable
         && serverPort == rhs.serverPort
-        && processArgs == rhs.processArgs
-        && workingDirectory == rhs.workingDirectory
+        && runnable.commandLineArguments == rhs.runnable.commandLineArguments
+        && runnable.workingDirectory == rhs.runnable.workingDirectory
         && breakAtMain == rhs.breakAtMain
-        && runInTerminal == rhs.runInTerminal
+        && runnable.runMode == rhs.runnable.runMode
         && serverStartScript == rhs.serverStartScript
         && kitId == rhs.kitId
         && debugInfoLocation == rhs.debugInfoLocation
@@ -175,7 +167,8 @@ QString StartApplicationParameters::displayName() const
 {
     const int maxLength = 60;
 
-    QString name = FileName::fromString(localExecutable).fileName() + QLatin1Char(' ') + processArgs;
+    QString name = FileName::fromString(runnable.executable).fileName()
+            + QLatin1Char(' ') + runnable.commandLineArguments;
     if (name.size() > 60) {
         int index = name.lastIndexOf(QLatin1Char(' '), maxLength);
         if (index == -1)
@@ -195,11 +188,11 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue(_("LastKitId"), kitId.toSetting());
     settings->setValue(_("LastServerPort"), serverPort);
     settings->setValue(_("LastServerAddress"), serverAddress);
-    settings->setValue(_("LastExternalExecutable"), localExecutable);
-    settings->setValue(_("LastExternalExecutableArguments"), processArgs);
-    settings->setValue(_("LastExternalWorkingDirectory"), workingDirectory);
+    settings->setValue(_("LastExternalExecutable"), runnable.executable);
+    settings->setValue(_("LastExternalExecutableArguments"), runnable.commandLineArguments);
+    settings->setValue(_("LastExternalWorkingDirectory"), runnable.workingDirectory);
     settings->setValue(_("LastExternalBreakAtMain"), breakAtMain);
-    settings->setValue(_("LastExternalRunInTerminal"), runInTerminal);
+    settings->setValue(_("LastExternalRunInTerminal"), runnable.runMode == ApplicationLauncher::Console);
     settings->setValue(_("LastServerStartScript"), serverStartScript);
     settings->setValue(_("LastDebugInfoLocation"), debugInfoLocation);
 }
@@ -209,11 +202,12 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     kitId = Id::fromSetting(settings->value(_("LastKitId")));
     serverPort = settings->value(_("LastServerPort")).toUInt();
     serverAddress = settings->value(_("LastServerAddress")).toString();
-    localExecutable = settings->value(_("LastExternalExecutable")).toString();
-    processArgs = settings->value(_("LastExternalExecutableArguments")).toString();
-    workingDirectory = settings->value(_("LastExternalWorkingDirectory")).toString();
+    runnable.executable = settings->value(_("LastExternalExecutable")).toString();
+    runnable.commandLineArguments = settings->value(_("LastExternalExecutableArguments")).toString();
+    runnable.workingDirectory = settings->value(_("LastExternalWorkingDirectory")).toString();
     breakAtMain = settings->value(_("LastExternalBreakAtMain")).toBool();
-    runInTerminal = settings->value(_("LastExternalRunInTerminal")).toBool();
+    runnable.runMode = settings->value(_("LastExternalRunInTerminal")).toBool()
+            ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
     serverStartScript = settings->value(_("LastServerStartScript")).toString();
     debugInfoLocation = settings->value(_("LastDebugInfoLocation")).toString();
 }
@@ -331,7 +325,7 @@ void StartApplicationDialog::setHistory(const QList<StartApplicationParameters> 
     d->historyComboBox->clear();
     for (int i = l.size(); --i >= 0; ) {
         const StartApplicationParameters &p = l.at(i);
-        if (!p.localExecutable.isEmpty())
+        if (!p.runnable.executable.isEmpty())
             d->historyComboBox->addItem(p.displayName(), QVariant::fromValue(p));
     }
 }
@@ -402,7 +396,7 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
         settings->endGroup();
     }
 
-    rp->executable = newParameters.localExecutable;
+    rp->executable = newParameters.runnable.executable;
     const QString inputAddress = dialog.d->serverAddressEdit->text();
     if (!inputAddress.isEmpty())
         rp->remoteChannel = inputAddress;
@@ -410,10 +404,10 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
         rp->remoteChannel = rp->connParams.host;
     rp->remoteChannel += QLatin1Char(':') + QString::number(newParameters.serverPort);
     rp->displayName = newParameters.displayName();
-    rp->workingDirectory = newParameters.workingDirectory;
-    rp->useTerminal = newParameters.runInTerminal;
-    if (!newParameters.processArgs.isEmpty())
-        rp->processArgs = newParameters.processArgs;
+    rp->workingDirectory = newParameters.runnable.workingDirectory;
+    rp->useTerminal = newParameters.runnable.runMode == ApplicationLauncher::Console;
+    if (!newParameters.runnable.commandLineArguments.isEmpty())
+        rp->processArgs = newParameters.runnable.commandLineArguments;
     rp->breakOnMain = newParameters.breakAtMain;
     rp->serverStartScript = newParameters.serverStartScript;
     rp->debugInfoLocation = newParameters.debugInfoLocation;
@@ -433,14 +427,15 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     StartApplicationParameters result;
     result.serverPort = d->serverPortSpinBox->value();
     result.serverAddress = d->serverAddressEdit->text();
-    result.localExecutable = d->localExecutablePathChooser->path();
+    result.runnable.executable = d->localExecutablePathChooser->path();
     result.serverStartScript = d->serverStartScriptPathChooser->path();
     result.kitId = d->kitChooser->currentKitId();
     result.debugInfoLocation = d->debuginfoPathChooser->path();
-    result.processArgs = d->arguments->text();
-    result.workingDirectory = d->workingDirectory->path();
+    result.runnable.commandLineArguments = d->arguments->text();
+    result.runnable.workingDirectory = d->workingDirectory->path();
     result.breakAtMain = d->breakAtMainCheckBox->isChecked();
-    result.runInTerminal = d->runInTerminalCheckBox->isChecked();
+    result.runnable.runMode = d->runInTerminalCheckBox->isChecked()
+            ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
     return result;
 }
 
@@ -449,12 +444,12 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
     d->kitChooser->setCurrentKitId(p.kitId);
     d->serverPortSpinBox->setValue(p.serverPort);
     d->serverAddressEdit->setText(p.serverAddress);
-    d->localExecutablePathChooser->setPath(p.localExecutable);
+    d->localExecutablePathChooser->setPath(p.runnable.executable);
     d->serverStartScriptPathChooser->setPath(p.serverStartScript);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);
-    d->arguments->setText(p.processArgs);
-    d->workingDirectory->setPath(p.workingDirectory);
-    d->runInTerminalCheckBox->setChecked(p.runInTerminal);
+    d->arguments->setText(p.runnable.commandLineArguments);
+    d->workingDirectory->setPath(p.runnable.workingDirectory);
+    d->runInTerminalCheckBox->setChecked(p.runnable.runMode == ApplicationLauncher::Console);
     d->breakAtMainCheckBox->setChecked(p.breakAtMain);
     updateState();
 }
