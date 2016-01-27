@@ -43,6 +43,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/projectnodes.h>
@@ -1071,11 +1072,6 @@ PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
     : RunControl(rc, mode), m_running(false)
 {
     setIcon(ProjectExplorer::Icons::RUN_SMALL);
-    EnvironmentAspect *environment = rc->extraAspect<EnvironmentAspect>();
-    Utils::Environment env;
-    if (environment)
-        env = environment->environment();
-    m_applicationLauncher.setEnvironment(env);
 
     m_interpreter = rc->interpreter();
     m_mainScript = rc->mainScript();
@@ -1107,10 +1103,12 @@ void PythonRunControl::start()
         QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(m_interpreter)) + QLatin1Char('\n');
         appendMessage(msg, Utils::NormalMessageFormat);
 
-        QString args;
-        QtcProcess::addArg(&args, m_mainScript);
-        QtcProcess::addArgs(&args, m_commandLineArguments);
-        m_applicationLauncher.start(m_runMode, m_interpreter, args);
+        StandardRunnable r;
+        QtcProcess::addArg(&r.commandLineArguments, m_mainScript);
+        QtcProcess::addArgs(&r.commandLineArguments, m_commandLineArguments);
+        r.executable = m_interpreter;
+        r.runMode = m_runMode;
+        m_applicationLauncher.start(r);
 
         setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
     }

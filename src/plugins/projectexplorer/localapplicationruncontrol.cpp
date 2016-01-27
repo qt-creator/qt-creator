@@ -90,8 +90,7 @@ void LocalApplicationRunControl::start()
         m_running = true;
         QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(m_runnable.executable)) + QLatin1Char('\n');
         appendMessage(msg, Utils::NormalMessageFormat);
-        m_applicationLauncher.setEnvironment(m_runnable.environment);
-        m_applicationLauncher.start(m_runnable.runMode, m_runnable.executable, m_runnable.commandLineArguments);
+        m_applicationLauncher.start(m_runnable);
         setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
     }
 }

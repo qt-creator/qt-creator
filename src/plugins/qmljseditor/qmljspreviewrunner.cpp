@@ -27,6 +27,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/runnables.h>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
@@ -46,8 +48,6 @@ QmlJSPreviewRunner::QmlJSPreviewRunner(QObject *parent) :
                                + Utils::HostOsInfo::pathListSeparator()
                                + QString::fromLocal8Bit(qgetenv("PATH"));
     m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, QLatin1String("qmlviewer"));
-
-    m_applicationLauncher.setEnvironment(Utils::Environment::systemEnvironment());
 }
 
 bool QmlJSPreviewRunner::isReady() const
@@ -59,9 +59,12 @@ void QmlJSPreviewRunner::run(const QString &filename)
 {
     QString errorMessage;
     if (!filename.isEmpty()) {
-        m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui, m_qmlViewerDefaultPath,
-                                    Utils::QtcProcess::quoteArg(filename));
-
+        ProjectExplorer::StandardRunnable r;
+        r.environment = Utils::Environment::systemEnvironment();
+        r.runMode = ProjectExplorer::ApplicationLauncher::Gui;
+        r.executable = m_qmlViewerDefaultPath;
+        r.commandLineArguments = Utils::QtcProcess::quoteArg(filename);
+        m_applicationLauncher.start(r);
     } else {
         errorMessage = tr("No file specified.");
     }

@@ -76,11 +76,6 @@ void ValgrindProcess::setValgrindExecutable(const QString &valgrindExecutable)
 void ValgrindProcess::setDebuggee(const StandardRunnable &debuggee)
 {
     m_debuggee = debuggee;
-    if (isLocal()) {
-        m_localProcess.setWorkingDirectory(m_debuggee.workingDirectory);
-        m_localProcess.setEnvironment(m_debuggee.environment);
-        ///TODO: remote anything that should/could be done here?
-    }
 }
 
 void ValgrindProcess::setValgrindArguments(const QStringList &valgrindArguments)
@@ -122,8 +117,13 @@ void ValgrindProcess::run()
         connect(&m_localProcess, &ApplicationLauncher::appendMessage,
                 this, &ValgrindProcess::processOutput);
 
-        m_localProcess.start(m_debuggee.runMode, m_valgrindExecutable,
-                             argumentString(Utils::HostOsInfo::hostOs()));
+        StandardRunnable valgrind;
+        valgrind.executable = m_valgrindExecutable;
+        valgrind.runMode = m_debuggee.runMode;
+        valgrind.commandLineArguments = argumentString(Utils::HostOsInfo::hostOs());
+        valgrind.workingDirectory = m_debuggee.workingDirectory;
+        valgrind.environment = m_debuggee.environment;
+        m_localProcess.start(valgrind);
 
     } else {
         // connect to host and wait for connection

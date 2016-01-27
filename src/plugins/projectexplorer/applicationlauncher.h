@@ -32,10 +32,10 @@
 
 #include <QProcess>
 
-namespace Utils { class Environment; }
-
 namespace ProjectExplorer {
+
 struct ApplicationLauncherPrivate;
+class StandardRunnable;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT ApplicationLauncher : public QObject
@@ -51,14 +51,8 @@ public:
     explicit ApplicationLauncher(QObject *parent = 0);
     ~ApplicationLauncher();
 
-    void setWorkingDirectory(const QString &dir);
-    QString workingDirectory() const;
-    void setEnvironment(const Utils::Environment &env);
-
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
-
-    void start(Mode mode, const QString &program,
-               const QString &args = QString());
+    void start(const ProjectExplorer::StandardRunnable &runnable);
     void stop();
     bool isRunning() const;
     qint64 applicationPID() const;

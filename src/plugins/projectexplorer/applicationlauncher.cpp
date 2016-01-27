@@ -45,6 +45,7 @@
 
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
+#include "runnables.h"
 
 /*!
     \class ProjectExplorer::ApplicationLauncher
@@ -134,44 +135,32 @@ ApplicationLauncher::~ApplicationLauncher()
     delete d;
 }
 
-void ApplicationLauncher::setWorkingDirectory(const QString &dir)
-{
-    // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
-    const QString fixedPath = Utils::FileUtils::normalizePathName(dir);
-    d->m_guiProcess.setWorkingDirectory(fixedPath);
-    d->m_consoleProcess.setWorkingDirectory(fixedPath);
-}
-
-QString ApplicationLauncher::workingDirectory() const
-{
-    return d->m_guiProcess.workingDirectory();
-}
-
-void ApplicationLauncher::setEnvironment(const Utils::Environment &env)
-{
-    d->m_guiProcess.setEnvironment(env);
-    d->m_consoleProcess.setEnvironment(env);
-}
-
 void ApplicationLauncher::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
     d->m_guiProcess.setProcessChannelMode(mode);
 }
 
-void ApplicationLauncher::start(Mode mode, const QString &program, const QString &args)
+void ApplicationLauncher::start(const StandardRunnable &runnable)
 {
+    // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
+    const QString fixedPath = Utils::FileUtils::normalizePathName(runnable.workingDirectory);
+    d->m_guiProcess.setWorkingDirectory(fixedPath);
+    d->m_consoleProcess.setWorkingDirectory(fixedPath);
+    d->m_guiProcess.setEnvironment(runnable.environment);
+    d->m_consoleProcess.setEnvironment(runnable.environment);
+
     d->m_processRunning = true;
 #ifdef Q_OS_WIN
     if (!WinDebugInterface::instance()->isRunning())
         WinDebugInterface::instance()->start(); // Try to start listener again...
 #endif
 
-    d->m_currentMode = mode;
-    if (mode == Gui) {
-        d->m_guiProcess.setCommand(program, args);
+    d->m_currentMode = runnable.runMode;
+    if (d->m_currentMode == Gui) {
+        d->m_guiProcess.setCommand(runnable.executable, runnable.commandLineArguments);
         d->m_guiProcess.start();
     } else {
-        d->m_consoleProcess.start(program, args);
+        d->m_consoleProcess.start(runnable.executable, runnable.commandLineArguments);
     }
 }
 

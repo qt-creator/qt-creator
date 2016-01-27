@@ -49,6 +49,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/runnables.h>
 
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -535,14 +536,17 @@ void QmlEngine::runEngine()
 void QmlEngine::startApplicationLauncher()
 {
     if (!d->applicationLauncher.isRunning()) {
+        StandardRunnable runnable;
+        runnable.environment = runParameters().inferiorEnvironment;
+        runnable.workingDirectory = runParameters().workingDirectory;
+        runnable.executable = runParameters().executable;
+        runnable.commandLineArguments = runParameters().processArgs;
         appendMessage(tr("Starting %1 %2").arg(
-                          QDir::toNativeSeparators(runParameters().executable),
-                          runParameters().processArgs)
+                          QDir::toNativeSeparators(runnable.executable),
+                          runnable.commandLineArguments)
                       + QLatin1Char('\n')
                      , Utils::NormalMessageFormat);
-        d->applicationLauncher.start(ApplicationLauncher::Gui,
-                                    runParameters().executable,
-                                    runParameters().processArgs);
+        d->applicationLauncher.start(runnable);
     }
 }
 
@@ -635,9 +639,6 @@ void QmlEngine::setupEngine()
         // we need to get the port first
         notifyEngineRequestRemoteSetup();
     } else {
-        d->applicationLauncher.setEnvironment(runParameters().inferiorEnvironment);
-        d->applicationLauncher.setWorkingDirectory(runParameters().workingDirectory);
-
         // We can't do this in the constructore because runControl() isn't yet defined
         connect(&d->applicationLauncher, &ApplicationLauncher::bringToForegroundRequested,
                 runControl(), &RunControl::bringApplicationToForeground,
