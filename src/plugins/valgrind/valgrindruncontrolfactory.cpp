@@ -70,21 +70,12 @@ bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, Core:
 RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
-    auto runControl = qobject_cast<ValgrindRunControl *>(AnalyzerManager::createRunControl(runConfiguration, mode));
+    AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(runConfiguration, mode);
     QTC_ASSERT(runControl, return 0);
 
-    ApplicationLauncher::Mode localRunMode = ApplicationLauncher::Gui;
     IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
-    Utils::Environment environment;
-    StandardRunnable runnable;
     AnalyzerConnection connection;
-    Runnable rcRunnable = runConfiguration->runnable();
-    QTC_ASSERT(rcRunnable.is<StandardRunnable>(), return 0);
-    auto stdRunnable = runConfiguration->runnable().as<StandardRunnable>();
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        environment = stdRunnable.environment;
-        runnable.executable = stdRunnable.executable;
-        runnable.commandLineArguments = stdRunnable.commandLineArguments;
         QTcpServer server;
         if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
             qWarning() << "Cannot open port on host for profiling.";
@@ -92,20 +83,14 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         }
         connection.connParams.host = server.serverAddress().toString();
         connection.connParams.port = server.serverPort();
-        localRunMode = stdRunnable.runMode;
     } else {
-        runnable.executable = stdRunnable.executable;
-        runnable.commandLineArguments = stdRunnable.commandLineArguments;
         connection.connParams = device->sshParameters();
     }
 
-    runControl->setRunnable(runnable);
+    runControl->setRunnable(runConfiguration->runnable());
     runControl->setConnection(connection);
-    runControl->setLocalRunMode(localRunMode);
-    runControl->setEnvironment(environment);
     return runControl;
 }
-
 
 class ValgrindRunConfigurationAspect : public IRunConfigurationAspect
 {

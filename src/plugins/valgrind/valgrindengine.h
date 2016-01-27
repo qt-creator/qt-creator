@@ -52,8 +52,6 @@ public:
     QString executable() const;
 
     void setCustomStart() { m_isCustomStart = true; }
-    void setEnvironment(const Utils::Environment &environment);
-    void setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode);
 
 protected:
     virtual QString progressTitle() const = 0;
@@ -63,8 +61,6 @@ protected:
     ValgrindBaseSettings *m_settings;
     QFutureInterface<void> m_progress;
     bool m_isCustomStart;
-    Utils::Environment m_environment;
-    ProjectExplorer::ApplicationLauncher::Mode m_localRunMode;
 
 private:
     void handleProgressCanceled();
