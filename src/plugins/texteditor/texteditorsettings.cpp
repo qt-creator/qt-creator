@@ -509,6 +509,16 @@ Core::Id TextEditorSettings::languageId(const QString &mimeType)
     return d->m_mimeTypeToLanguage.value(mimeType);
 }
 
+void showZoomIndicator(QWidget *editor, const int newZoom)
+{
+    if (editor) {
+        Utils::FadingIndicator::showText(editor,
+                                         QCoreApplication::translate("TextEditor::TextEditorSettings",
+                                                                     "Zoom: %1%").arg(newZoom),
+                                         Utils::FadingIndicator::SmallText);
+    }
+}
+
 void TextEditorSettings::fontZoomRequested(int zoom)
 {
     FontSettings &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
@@ -517,11 +527,7 @@ void TextEditorSettings::fontZoomRequested(int zoom)
     if (newZoom == previousZoom)
         return;
     fs.setFontZoom(newZoom);
-    if (QWidget *editor = qobject_cast<QWidget *>(sender())) {
-        Utils::FadingIndicator::showText(editor,
-                                         tr("Zoom: %1%").arg(newZoom),
-                                         Utils::FadingIndicator::SmallText);
-    }
+    showZoomIndicator(qobject_cast<QWidget *>(sender()), newZoom);
     d->m_fontSettingsPage->saveSettings();
 }
 
@@ -529,5 +535,6 @@ void TextEditorSettings::zoomResetRequested()
 {
     FontSettings &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
     fs.setFontZoom(100);
+    showZoomIndicator(qobject_cast<QWidget *>(sender()), 100);
     d->m_fontSettingsPage->saveSettings();
 }
