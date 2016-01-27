@@ -76,7 +76,7 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
     ApplicationLauncher::Mode localRunMode = ApplicationLauncher::Gui;
     IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
     Utils::Environment environment;
-    AnalyzerRunnable runnable;
+    StandardRunnable runnable;
     AnalyzerConnection connection;
     QString workingDirectory;
     Runnable rcRunnable = runConfiguration->runnable();
@@ -85,8 +85,8 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         environment = stdRunnable.environment;
         workingDirectory = stdRunnable.workingDirectory;
-        runnable.debuggee = stdRunnable.executable;
-        runnable.debuggeeArgs = stdRunnable.commandLineArguments;
+        runnable.executable = stdRunnable.executable;
+        runnable.commandLineArguments = stdRunnable.commandLineArguments;
         QTcpServer server;
         if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
             qWarning() << "Cannot open port on host for profiling.";
@@ -96,8 +96,8 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         connection.connParams.port = server.serverPort();
         localRunMode = stdRunnable.runMode;
     } else {
-        runnable.debuggee = stdRunnable.executable;
-        runnable.debuggeeArgs = stdRunnable.commandLineArguments;
+        runnable.executable = stdRunnable.executable;
+        runnable.commandLineArguments = stdRunnable.commandLineArguments;
         connection.connParams = device->sshParameters();
     }
 

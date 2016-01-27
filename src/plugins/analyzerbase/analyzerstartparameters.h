@@ -27,23 +27,13 @@
 #define ANALYZERSTARTPARAMETERS_H
 
 #include "analyzerbase_global.h"
-#include "analyzerconstants.h"
 
-#include <coreplugin/id.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runnables.h>
 #include <ssh/sshconnection.h>
-#include <utils/environment.h>
 
 #include <QMetaType>
 
 namespace Analyzer {
-
-class ANALYZER_EXPORT AnalyzerRunnable
-{
-public:
-    QString debuggee;
-    QString debuggeeArgs;
-};
 
 class ANALYZER_EXPORT AnalyzerConnection
 {

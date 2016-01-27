@@ -194,9 +194,9 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
         if (device.isNull())
             return 0;
         auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runConfig);
-        AnalyzerRunnable runnable;
-        runnable.debuggee = iosRunConfig->localExecutable().toUserOutput();
-        runnable.debuggeeArgs = iosRunConfig->commandLineArguments();
+        StandardRunnable runnable;
+        runnable.executable = iosRunConfig->localExecutable().toUserOutput();
+        runnable.commandLineArguments = iosRunConfig->commandLineArguments();
         AnalyzerConnection connection;
         connection.analyzerHost = QLatin1String("localhost");
         runControl->setRunnable(runnable);

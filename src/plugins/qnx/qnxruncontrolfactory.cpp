@@ -145,10 +145,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id m
             return 0;
         AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(runConfig, mode);
         QTC_ASSERT(runControl, return 0);
-        AnalyzerRunnable runnable;
-        runnable.debuggee = rc->remoteExecutableFilePath();
-        runnable.debuggeeArgs = rc->arguments();
-        runControl->setRunnable(runnable);
+        runControl->setRunnable(runConfig->runnable());
         AnalyzerConnection connection;
         connection.connParams = device->sshParameters();
         connection.analyzerHost = connection.connParams.host;

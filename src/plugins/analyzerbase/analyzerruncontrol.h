@@ -30,6 +30,7 @@
 #include "analyzerstartparameters.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runnables.h>
 
 #include <utils/outputformat.h>
 
@@ -58,7 +59,7 @@ public:
     virtual void pause() {}
     virtual void unpause() {}
 
-    const AnalyzerRunnable &runnable() const;
+    const ProjectExplorer::StandardRunnable &runnable() const;
     const AnalyzerConnection &connection() const;
 
     virtual void notifyRemoteSetupDone(quint16) {}

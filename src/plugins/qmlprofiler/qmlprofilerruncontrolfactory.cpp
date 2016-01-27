@@ -73,10 +73,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     QTC_ASSERT(runConfiguration->runnable().is<StandardRunnable>(), return 0);
-    auto &rcRunnable = runConfiguration->runnable().as<StandardRunnable>();
-    AnalyzerRunnable runnable;
-    runnable.debuggee = rcRunnable.executable;
-    runnable.debuggeeArgs = rcRunnable.commandLineArguments;
+    auto runnable = runConfiguration->runnable().as<StandardRunnable>();
 
     Kit *kit = runConfiguration->target()->kit();
     AnalyzerConnection connection;
@@ -104,8 +101,8 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     runControl->setConnection(connection);
 
     LocalQmlProfilerRunner::Configuration conf;
-    conf.executable = runnable.debuggee;
-    conf.executableArguments = runnable.debuggeeArgs;
+    conf.executable = runnable.executable;
+    conf.executableArguments = runnable.commandLineArguments;
     conf.workingDirectory = runControl->workingDirectory();
     conf.socket = connection.analyzerSocket;
     if (EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>())

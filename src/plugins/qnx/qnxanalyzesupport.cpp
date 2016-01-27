@@ -103,7 +103,7 @@ void QnxAnalyzeSupport::startExecution()
     setState(StartingRemoteProcess);
 
     const QStringList args = QStringList()
-            << QtcProcess::splitArgs(m_runControl->runnable().debuggeeArgs)
+            << QtcProcess::splitArgs(m_runControl->runnable().commandLineArguments)
             << QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, m_qmlPort);
 
     appRunner()->setEnvironment(m_runnable.environment);

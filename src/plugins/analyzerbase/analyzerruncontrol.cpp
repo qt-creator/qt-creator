@@ -66,9 +66,9 @@ AnalyzerRunControl::AnalyzerRunControl(RunConfiguration *runConfiguration, Core:
             this, &AnalyzerRunControl::stopIt);
 }
 
-const AnalyzerRunnable &AnalyzerRunControl::runnable() const
+const StandardRunnable &AnalyzerRunControl::runnable() const
 {
-    return RunControl::runnable().as<AnalyzerRunnable>();
+    return RunControl::runnable().as<StandardRunnable>();
 }
 
 const AnalyzerConnection &AnalyzerRunControl::connection() const

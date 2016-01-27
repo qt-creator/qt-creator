@@ -83,10 +83,9 @@ bool ValgrindRunControl::startEngine()
     emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), DebugFormat);
 #endif
 
-    StandardRunnable debuggee;
+    StandardRunnable debuggee = runnable();
+    // FIXME: Consolidate:
     debuggee.workingDirectory = workingDirectory();
-    debuggee.executable = runnable().debuggee;
-    debuggee.commandLineArguments = runnable().debuggeeArgs;
     debuggee.environment = m_environment;
     debuggee.runMode = m_localRunMode;
 
@@ -119,7 +118,7 @@ void ValgrindRunControl::stopEngine()
 
 QString ValgrindRunControl::executable() const
 {
-    return runnable().debuggee;
+    return runnable().executable;
 }
 
 void ValgrindRunControl::setEnvironment(const Utils::Environment &environment)

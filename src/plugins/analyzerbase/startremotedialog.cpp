@@ -30,6 +30,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/runnables.h>
 #include <ssh/sshconnection.h>
 
 #include <QDialogButtonBox>
@@ -136,17 +137,13 @@ QSsh::SshConnectionParameters StartRemoteDialog::sshParams() const
     return device->sshParameters();
 }
 
-AnalyzerRunnable StartRemoteDialog::runnable() const
+StandardRunnable StartRemoteDialog::runnable() const
 {
-    AnalyzerRunnable r;
-    r.debuggee = d->executable->text();
-    r.debuggeeArgs = d->arguments->text();
+    StandardRunnable r;
+    r.executable = d->executable->text();
+    r.commandLineArguments = d->arguments->text();
+    r.workingDirectory = d->workingDirectory->text();
     return r;
-}
-
-QString StartRemoteDialog::workingDirectory() const
-{
-    return d->workingDirectory->text();
 }
 
 } // namespace Analyzer
