@@ -29,6 +29,7 @@
 #include "qmlprofiler_global.h"
 #include <utils/environment.h>
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/runnables.h>
 
 namespace QmlProfiler {
 
@@ -39,12 +40,9 @@ class QMLPROFILER_EXPORT LocalQmlProfilerRunner : public QObject
 
 public:
     struct Configuration {
-        QString executable;
-        QString executableArguments;
+        ProjectExplorer::StandardRunnable debuggee;
         quint16 port;
         QString socket;
-        QString workingDirectory;
-        Utils::Environment environment;
     };
 
     LocalQmlProfilerRunner(const Configuration &configuration, QmlProfilerRunControl *engine);
@@ -65,7 +63,6 @@ private:
 
     Configuration m_configuration;
     ProjectExplorer::ApplicationLauncher m_launcher;
-    QmlProfilerRunControl *m_engine;
 };
 
 } // namespace QmlProfiler

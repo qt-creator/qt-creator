@@ -75,6 +75,12 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     QTC_ASSERT(runConfiguration->runnable().is<StandardRunnable>(), return 0);
     auto runnable = runConfiguration->runnable().as<StandardRunnable>();
 
+    if (runnable.executable.isEmpty()) {
+        if (errorMessage)
+            *errorMessage = tr("No executable file to launch.");
+        return 0;
+    }
+
     Kit *kit = runConfiguration->target()->kit();
     AnalyzerConnection connection;
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
@@ -101,19 +107,9 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     runControl->setConnection(connection);
 
     LocalQmlProfilerRunner::Configuration conf;
-    conf.executable = runnable.executable;
-    conf.executableArguments = runnable.commandLineArguments;
-    conf.workingDirectory = runnable.workingDirectory;
+    conf.debuggee = runnable;
     conf.socket = connection.analyzerSocket;
-    if (EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>())
-        conf.environment = environment->environment();
     conf.port = connection.analyzerPort;
-
-    if (conf.executable.isEmpty()) {
-        if (errorMessage)
-            *errorMessage = tr("No executable file to launch.");
-        return 0;
-    }
 
     (void) new LocalQmlProfilerRunner(conf, runControl);
     return runControl;

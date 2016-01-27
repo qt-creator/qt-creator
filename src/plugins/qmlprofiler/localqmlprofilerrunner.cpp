@@ -66,8 +66,7 @@ quint16 LocalQmlProfilerRunner::findFreePort(QString &host)
 LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
                                                QmlProfilerRunControl *engine) :
     QObject(engine),
-    m_configuration(configuration),
-    m_engine(engine)
+    m_configuration(configuration)
 {
     connect(&m_launcher, &ApplicationLauncher::appendMessage,
             this, &LocalQmlProfilerRunner::appendMessage);
@@ -95,20 +94,21 @@ void LocalQmlProfilerRunner::start()
                                                  m_configuration.socket);
 
 
-    if (!m_configuration.executableArguments.isEmpty())
-        arguments += QLatin1Char(' ') + m_configuration.executableArguments;
+    if (!m_configuration.debuggee.commandLineArguments.isEmpty())
+        arguments += QLatin1Char(' ') + m_configuration.debuggee.commandLineArguments;
 
     if (QmlProfilerPlugin::debugOutput) {
-        qWarning("QmlProfiler: Launching %s:%s", qPrintable(m_configuration.executable),
+        qWarning("QmlProfiler: Launching %s:%s", qPrintable(m_configuration.debuggee.executable),
                  qPrintable(m_configuration.socket.isEmpty() ?
                                 QString::number(m_configuration.port) : m_configuration.socket));
     }
 
-    m_launcher.setWorkingDirectory(m_configuration.workingDirectory);
-    m_launcher.setEnvironment(m_configuration.environment);
+    m_launcher.setWorkingDirectory(m_configuration.debuggee.workingDirectory);
+    m_launcher.setEnvironment(m_configuration.debuggee.environment);
     connect(&m_launcher, &ApplicationLauncher::processExited,
             this, &LocalQmlProfilerRunner::spontaneousStop);
-    m_launcher.start(ApplicationLauncher::Gui, m_configuration.executable, arguments);
+    m_launcher.start(ApplicationLauncher::Gui, m_configuration.debuggee.executable,
+                     arguments);
 
     emit started();
 }
