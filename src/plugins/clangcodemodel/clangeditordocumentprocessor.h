@@ -76,6 +76,12 @@ public:
     TextEditor::QuickFixOperations
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface) override;
 
+    bool hasDiagnosticsAt(uint line, uint column) const override;
+    void showDiagnosticTooltip(const QPoint &point,
+                               QWidget *parent,
+                               uint line,
+                               uint column) const override;
+
     ClangBackEnd::FileContainer fileContainerWithArguments() const;
 
     void clearDiagnosticsWithFixIts();

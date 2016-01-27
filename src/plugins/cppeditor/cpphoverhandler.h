@@ -36,6 +36,10 @@ class CppHoverHandler : public TextEditor::BaseHoverHandler
 private:
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
     void decorateToolTip() override;
+    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) override;
+
+private:
+    int m_positionForEditorDocumentProcessor = -1;
 };
 
 } // namespace Internal

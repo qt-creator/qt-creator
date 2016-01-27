@@ -65,6 +65,12 @@ public:
     virtual TextEditor::QuickFixOperations
     extraRefactoringOperations(const TextEditor::AssistInterface &assistInterface);
 
+    virtual bool hasDiagnosticsAt(uint line, uint column) const;
+    virtual void showDiagnosticTooltip(const QPoint &point,
+                                       QWidget *parent,
+                                       uint line,
+                                       uint column) const;
+
 signals:
     // Signal interface to implement
     void codeWarningsUpdated(unsigned revision,

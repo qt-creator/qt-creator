@@ -60,7 +60,8 @@ SOURCES += \
     skippedsourcerangestest.cpp \
     highlightingmarksreportertest.cpp \
     chunksreportedmonitor.cpp \
-    unsavedfiletest.cpp
+    unsavedfiletest.cpp \
+    clangisdiagnosticrelatedtolocationtest.cpp
 
 HEADERS += \
     gtest-qt-printing.h \

@@ -77,6 +77,7 @@ QtcPlugin {
         "clangfunctionhintmodel.h",
         "clanghighlightingmarksreporter.cpp",
         "clanghighlightingmarksreporter.h",
+        "clangisdiagnosticrelatedtolocation.h",
         "clangmodelmanagersupport.cpp",
         "clangmodelmanagersupport.h",
         "clangpreprocessorassistproposalitem.cpp",

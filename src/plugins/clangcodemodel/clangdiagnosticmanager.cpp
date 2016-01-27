@@ -25,7 +25,9 @@
 
 #include "clangdiagnosticfilter.h"
 #include "clangdiagnosticmanager.h"
+#include "clangisdiagnosticrelatedtolocation.h"
 
+#include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
@@ -38,14 +40,12 @@
 namespace  {
 
 QTextEdit::ExtraSelection createExtraSelections(const QTextCharFormat &mainformat,
-                                                const QTextCursor &cursor,
-                                                const QString &diagnosticText)
+                                                const QTextCursor &cursor)
 {
     QTextEdit::ExtraSelection extraSelection;
 
     extraSelection.format = mainformat;
     extraSelection.cursor = cursor;
-    extraSelection.format.setToolTip(diagnosticText);
 
     return extraSelection;
 }
@@ -61,7 +61,6 @@ int positionInText(QTextDocument *textDocument,
 void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
                         QTextDocument *textDocument,
                         const QTextCharFormat &contextFormat,
-                        const QString &diagnosticText,
                         QList<QTextEdit::ExtraSelection> &extraSelections)
 {
     for (auto &&range : diagnostic.ranges()) {
@@ -69,7 +68,7 @@ void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
         cursor.setPosition(positionInText(textDocument, range.start()));
         cursor.setPosition(positionInText(textDocument, range.end()), QTextCursor::KeepAnchor);
 
-        auto extraSelection = createExtraSelections(contextFormat, cursor, diagnosticText);
+        auto extraSelection = createExtraSelections(contextFormat, cursor);
 
         extraSelections.push_back(std::move(extraSelection));
     }
@@ -90,37 +89,6 @@ QTextCursor createSelectionCursor(QTextDocument *textDocument,
     return cursor;
 }
 
-bool isHelpfulChildDiagnostic(const ClangBackEnd::DiagnosticContainer &parentDiagnostic,
-                              const ClangBackEnd::DiagnosticContainer &childDiagnostic)
-{
-    auto parentLocation = parentDiagnostic.location();
-    auto childLocation = childDiagnostic.location();
-
-    return parentLocation == childLocation;
-}
-
-QString diagnosticText(const ClangBackEnd::DiagnosticContainer &diagnostic)
-{
-    QString text = diagnostic.category().toString()
-            + QStringLiteral("\n\n")
-            + diagnostic.text().toString();
-
-#ifdef QT_DEBUG
-    if (!diagnostic.disableOption().isEmpty()) {
-        text += QStringLiteral(" (disable with ")
-                + diagnostic.disableOption().toString()
-                + QStringLiteral(")");
-    }
-#endif
-
-    for (auto &&childDiagnostic : diagnostic.children()) {
-        if (isHelpfulChildDiagnostic(diagnostic, childDiagnostic))
-            text += QStringLiteral("\n  ") + childDiagnostic.text().toString();
-    }
-
-    return text;
-}
-
 void addSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                    QTextDocument *textDocument,
                    const QTextCharFormat &mainFormat,
@@ -129,11 +97,9 @@ void addSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics
 {
     for (auto &&diagnostic : diagnostics) {
         auto cursor = createSelectionCursor(textDocument, diagnostic.location());
+        auto extraSelection = createExtraSelections(mainFormat, cursor);
 
-        auto text = diagnosticText(diagnostic);
-        auto extraSelection = createExtraSelections(mainFormat, cursor, text);
-
-        addRangeSelections(diagnostic, textDocument, contextFormat, text, extraSelections);
+        addRangeSelections(diagnostic, textDocument, contextFormat, extraSelections);
 
         extraSelections.push_back(std::move(extraSelection));
     }
@@ -164,6 +130,69 @@ void addErrorSelections(const QVector<ClangBackEnd::DiagnosticContainer> &diagno
     addSelections(diagnostics, textDocument, errorFormat, errorContextFormat, extraSelections);
 }
 
+ClangBackEnd::SourceLocationContainer toSourceLocation(QTextDocument *textDocument, int position)
+{
+    int line, column;
+    if (TextEditor::Convenience::convertPosition(textDocument, position, &line, &column))
+        return ClangBackEnd::SourceLocationContainer(Utf8String(), line, column);
+
+    return ClangBackEnd::SourceLocationContainer();
+}
+
+ClangBackEnd::SourceRangeContainer toSourceRange(const QTextCursor &cursor)
+{
+    using namespace ClangBackEnd;
+
+    QTextDocument *textDocument = cursor.document();
+
+    return SourceRangeContainer(toSourceLocation(textDocument, cursor.anchor()),
+                                toSourceLocation(textDocument, cursor.position()));
+}
+
+bool isDiagnosticAtLocation(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                            uint line,
+                            uint column,
+                            QTextDocument *textDocument)
+{
+    using namespace ClangCodeModel::Internal;
+
+    const ClangBackEnd::SourceLocationContainer &location = diagnostic.location();
+    const QTextCursor cursor = createSelectionCursor(textDocument, location);
+    const ClangBackEnd::SourceRangeContainer cursorRange = toSourceRange(cursor);
+
+    return isDiagnosticRelatedToLocation(diagnostic, {cursorRange}, line, column);
+}
+
+QVector<ClangBackEnd::DiagnosticContainer>
+filteredDiagnosticsAtLocation(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+                              uint line,
+                              uint column,
+                              QTextDocument *textDocument)
+{
+    QVector<ClangBackEnd::DiagnosticContainer> filteredDiagnostics;
+
+    foreach (const auto &diagnostic, diagnostics) {
+        if (isDiagnosticAtLocation(diagnostic, line, column, textDocument))
+            filteredDiagnostics.append(diagnostic);
+    }
+
+    return filteredDiagnostics;
+}
+
+bool editorDocumentProcessorHasDiagnosticAt(
+        const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
+        uint line,
+        uint column,
+        QTextDocument *textDocument)
+{
+    foreach (const auto &diagnostic, diagnostics) {
+        if (isDiagnosticAtLocation(diagnostic, line, column, textDocument))
+            return true;
+    }
+
+    return false;
+}
+
 } // anonymous
 
 namespace ClangCodeModel {
@@ -192,6 +221,26 @@ QList<QTextEdit::ExtraSelection> ClangDiagnosticManager::takeExtraSelections()
     return extraSelections;
 }
 
+bool ClangDiagnosticManager::hasDiagnosticsAt(uint line, uint column) const
+{
+    QTextDocument *textDocument = m_textDocument->document();
+
+    return editorDocumentProcessorHasDiagnosticAt(m_errorDiagnostics, line, column, textDocument)
+        || editorDocumentProcessorHasDiagnosticAt(m_warningDiagnostics, line, column, textDocument);
+}
+
+QVector<ClangBackEnd::DiagnosticContainer>
+ClangDiagnosticManager::diagnosticsAt(uint line, uint column) const
+{
+    QTextDocument *textDocument = m_textDocument->document();
+
+    QVector<ClangBackEnd::DiagnosticContainer> diagnostics;
+    diagnostics += filteredDiagnosticsAtLocation(m_errorDiagnostics, line, column, textDocument);
+    diagnostics += filteredDiagnosticsAtLocation(m_warningDiagnostics, line, column, textDocument);
+
+    return diagnostics;
+}
+
 void ClangDiagnosticManager::clearDiagnosticsWithFixIts()
 {
     m_fixItdiagnostics.clear();
@@ -213,8 +262,6 @@ void ClangDiagnosticManager::processNewDiagnostics(
 
     generateTextMarks();
     generateEditorSelections();
-
-    clearWarningsAndErrors();
 }
 
 const QVector<ClangBackEnd::DiagnosticContainer> &
@@ -239,12 +286,6 @@ void ClangDiagnosticManager::addClangTextMarks(
 
         m_textDocument->addMark(&textMark);
     }
-}
-
-void ClangDiagnosticManager::clearWarningsAndErrors()
-{
-    m_warningDiagnostics.clear();
-    m_errorDiagnostics.clear();
 }
 
 QString ClangDiagnosticManager::filePath() const

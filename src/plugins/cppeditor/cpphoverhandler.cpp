@@ -29,6 +29,10 @@
 #include "cppelementevaluator.h"
 
 #include <coreplugin/helpmanager.h>
+#include <cpptools/baseeditordocumentprocessor.h>
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/editordocumenthandle.h>
+#include <texteditor/convenience.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
@@ -39,12 +43,55 @@
 using namespace Core;
 using namespace TextEditor;
 
+namespace {
+
+CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(TextEditorWidget *editorWidget)
+{
+    const QString filePath = editorWidget->textDocument()->filePath().toString();
+    auto cppModelManager = CppTools::CppModelManager::instance();
+    CppTools::CppEditorDocumentHandle *editorHandle = cppModelManager->cppEditorDocument(filePath);
+
+    if (editorHandle)
+        return editorHandle->processor();
+
+    return 0;
+}
+
+bool editorDocumentProcessorHasDiagnosticAt(TextEditorWidget *editorWidget, int pos)
+{
+    if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
+        int line, column;
+        if (Convenience::convertPosition(editorWidget->document(), pos, &line, &column))
+            return processor->hasDiagnosticsAt(line, column);
+    }
+
+    return false;
+}
+
+void processWithEditorDocumentProcessor(TextEditorWidget *editorWidget,
+                                        const QPoint &point,
+                                        int position)
+{
+    if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
+        int line, column;
+        if (Convenience::convertPosition(editorWidget->document(), position, &line, &column))
+            processor->showDiagnosticTooltip(point, editorWidget, line, column);
+    }
+}
+
+} // anonymous namespace
+
 namespace CppEditor {
 namespace Internal {
 
 void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
 {
-    if (!editorWidget->extraSelectionTooltip(pos).isEmpty()) {
+    m_positionForEditorDocumentProcessor = -1;
+
+    if (editorDocumentProcessorHasDiagnosticAt(editorWidget, pos)) {
+        setIsDiagnosticTooltip(true);
+        m_positionForEditorDocumentProcessor = pos;
+    } else if (!editorWidget->extraSelectionTooltip(pos).isEmpty()) {
         setToolTip(editorWidget->extraSelectionTooltip(pos));
     } else {
         QTextCursor tc(editorWidget->document());
@@ -82,6 +129,9 @@ void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
 
 void CppHoverHandler::decorateToolTip()
 {
+    if (m_positionForEditorDocumentProcessor != -1)
+        return;
+
     if (Qt::mightBeRichText(toolTip()))
         setToolTip(toolTip().toHtmlEscaped());
 
@@ -112,6 +162,15 @@ void CppHoverHandler::decorateToolTip()
             setToolTip(prefix + help.helpId());
         }
     }
+}
+
+void CppHoverHandler::operateTooltip(TextEditor::TextEditorWidget *editorWidget,
+                                     const QPoint &point)
+{
+    if (m_positionForEditorDocumentProcessor != -1)
+        processWithEditorDocumentProcessor(editorWidget, point, m_positionForEditorDocumentProcessor);
+    else
+        BaseHoverHandler::operateTooltip(editorWidget, point);
 }
 
 } // namespace Internal

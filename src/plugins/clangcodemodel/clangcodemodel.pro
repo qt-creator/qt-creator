@@ -53,6 +53,7 @@ HEADERS += \
     clangfixitoperationsextractor.h \
     clangfunctionhintmodel.h \
     clanghighlightingmarksreporter.h \
+    clangisdiagnosticrelatedtolocation.h \
     clangmodelmanagersupport.h \
     clangpreprocessorassistproposalitem.h \
     clangtextmark.h \

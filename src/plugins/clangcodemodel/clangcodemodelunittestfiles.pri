@@ -16,4 +16,5 @@ HEADERS += \
     $$PWD/clangcompletioncontextanalyzer.h \
     $$PWD/clangdiagnosticfilter.h \
     $$PWD/clangfixitoperation.h \
-    $$PWD/clanghighlightingmarksreporter.h
+    $$PWD/clanghighlightingmarksreporter.h \
+    $$PWD/clangisdiagnosticrelatedtolocation.h

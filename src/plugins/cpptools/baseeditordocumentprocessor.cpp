@@ -58,6 +58,15 @@ BaseEditorDocumentProcessor::extraRefactoringOperations(const TextEditor::Assist
     return TextEditor::QuickFixOperations();
 }
 
+bool BaseEditorDocumentProcessor::hasDiagnosticsAt(uint, uint) const
+{
+    return false;
+}
+
+void BaseEditorDocumentProcessor::showDiagnosticTooltip(const QPoint &, QWidget *, uint, uint) const
+{
+}
+
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
                                             BaseEditorDocumentParser::Ptr parser,
                                             const WorkingCopy workingCopy)

@@ -51,6 +51,9 @@ public:
     const QVector<ClangBackEnd::DiagnosticContainer> &diagnosticsWithFixIts() const;
     QList<QTextEdit::ExtraSelection> takeExtraSelections();
 
+    bool hasDiagnosticsAt(uint line, uint column) const;
+    QVector<ClangBackEnd::DiagnosticContainer> diagnosticsAt(uint line, uint column) const;
+
     void clearDiagnosticsWithFixIts();
 
 private:
@@ -59,7 +62,6 @@ private:
     void generateEditorSelections();
     void generateTextMarks();
     void addClangTextMarks(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics);
-    void clearWarningsAndErrors();
 
 private:
     TextEditor::TextDocument *m_textDocument;

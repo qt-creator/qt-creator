@@ -50,6 +50,7 @@
 #include <cplusplus/CppDocument.h>
 
 #include <utils/qtcassert.h>
+#include <utils/tooltip/tooltip.h>
 #include <utils/QtConcurrentTools>
 
 #include <QTextBlock>
@@ -231,6 +232,73 @@ TextEditor::QuickFixOperations ClangEditorDocumentProcessor::extraRefactoringOpe
     ClangFixItOperationsExtractor extractor(m_diagnosticManager.diagnosticsWithFixIts());
 
     return extractor.extract(assistInterface.fileName(), currentLine(assistInterface));
+}
+
+bool ClangEditorDocumentProcessor::hasDiagnosticsAt(uint line, uint column) const
+{
+    return m_diagnosticManager.hasDiagnosticsAt(line, column);
+}
+
+namespace {
+
+bool isHelpfulChildDiagnostic(const ClangBackEnd::DiagnosticContainer &parentDiagnostic,
+                              const ClangBackEnd::DiagnosticContainer &childDiagnostic)
+{
+    auto parentLocation = parentDiagnostic.location();
+    auto childLocation = childDiagnostic.location();
+
+    return parentLocation == childLocation;
+}
+
+QString diagnosticText(const ClangBackEnd::DiagnosticContainer &diagnostic)
+{
+    QString text = diagnostic.category().toString()
+            + QStringLiteral("\n\n")
+            + diagnostic.text().toString();
+
+#ifdef QT_DEBUG
+    if (!diagnostic.disableOption().isEmpty()) {
+        text += QStringLiteral(" (disable with ")
+                + diagnostic.disableOption().toString()
+                + QStringLiteral(")");
+    }
+#endif
+
+    for (auto &&childDiagnostic : diagnostic.children()) {
+        if (isHelpfulChildDiagnostic(diagnostic, childDiagnostic))
+            text += QStringLiteral("\n  ") + childDiagnostic.text().toString();
+    }
+
+    return text;
+}
+
+QString generateTooltipText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
+{
+    QString text;
+
+    foreach (const ClangBackEnd::DiagnosticContainer &diagnostic, diagnostics) {
+        if (text.isEmpty())
+            text += diagnosticText(diagnostic);
+        else
+            text += QStringLiteral("\n\n\n") + diagnosticText(diagnostic);
+    }
+
+    return text;
+}
+
+} // anonymous namespace
+
+void ClangEditorDocumentProcessor::showDiagnosticTooltip(const QPoint &point,
+                                                         QWidget *parent,
+                                                         uint line,
+                                                         uint column) const
+{
+    const QVector<ClangBackEnd::DiagnosticContainer> diagnostics
+            = m_diagnosticManager.diagnosticsAt(line, column);
+
+    const QString tooltipText = generateTooltipText(diagnostics);
+
+    ::Utils::ToolTip::show(point, tooltipText, parent);
 }
 
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const
