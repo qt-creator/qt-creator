@@ -40,6 +40,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QMetaObject>
 #include <QRegExp>
 #include <QTextDocument>
 #include <QTextStream>
@@ -1216,7 +1217,8 @@ void ModelManagerInterface::maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document
         doc->releaseSourceAndAST();
 
     // delegate actual queuing to the gui thread
-    QTimer::singleShot(0, this, [this, doc, scan]() { queueCppQmlTypeUpdate(doc, scan); });
+    QMetaObject::invokeMethod(this, "queueCppQmlTypeUpdate",
+                              Q_ARG(CPlusPlus::Document::Ptr, doc), Q_ARG(bool, scan));
 }
 
 void ModelManagerInterface::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan)
@@ -1315,7 +1317,7 @@ void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &interface,
     qmlModelManager->m_cppDataHash = newData;
     if (hasNewInfo)
         // one could get away with re-linking the cpp types...
-        QTimer::singleShot(0, qmlModelManager, &ModelManagerInterface::asyncReset);
+        QMetaObject::invokeMethod(qmlModelManager, "asyncReset");
 }
 
 ModelManagerInterface::CppDataHash ModelManagerInterface::cppData() const
