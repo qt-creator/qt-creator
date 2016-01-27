@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECT_H
-#define CMAKEPROJECT_H
+#pragma once
 
 #include "cmake_global.h"
 #include "cmakeprojectnodes.h"
@@ -151,4 +150,3 @@ private:
 
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECT_H

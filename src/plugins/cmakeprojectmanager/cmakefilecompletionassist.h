@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEFILECOMPLETIONASSIST_H
-#define CMAKEFILECOMPLETIONASSIST_H
+#pragma once
 
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
@@ -57,4 +56,3 @@ public:
 } // Internal
 } // CMakeProjectManager
 
-#endif // CMAKEFILECOMPLETIONASSIST_H

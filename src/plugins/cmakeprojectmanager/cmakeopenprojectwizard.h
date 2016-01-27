@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEOPENPROJECTWIZARD_H
-#define CMAKEOPENPROJECTWIZARD_H
+#pragma once
 
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildinfo.h"
@@ -193,4 +192,3 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEOPENPROJECTWIZARD_H

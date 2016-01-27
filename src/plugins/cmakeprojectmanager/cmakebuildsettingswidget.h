@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEBUILDSETTINGSWIDGET_H
-#define CMAKEBUILDSETTINGSWIDGET_H
+#pragma once
 
 #include <projectexplorer/namedwidget.h>
 
@@ -54,4 +53,3 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEBUILDSETTINGSWIDGET_H

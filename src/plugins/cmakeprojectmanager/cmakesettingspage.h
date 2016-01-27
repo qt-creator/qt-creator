@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKESETTINGSPAGE_H
-#define CMAKESETTINGSPAGE_H
+#pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/pathchooser.h>
@@ -56,4 +55,3 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKESETTINGSPAGE_H

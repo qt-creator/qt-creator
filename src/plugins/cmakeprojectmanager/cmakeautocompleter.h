@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEAUTOCOMPLETER_H
-#define CMAKEAUTOCOMPLETER_H
+#pragma once
 
 #include "cmake_global.h"
 
@@ -49,4 +48,3 @@ public:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEAUTOCOMPLETER_H

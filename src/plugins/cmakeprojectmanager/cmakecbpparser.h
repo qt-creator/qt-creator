@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKECBPPARSER_H
-#define CMAKECBPPARSER_H
+#pragma once
 
 #include "cmakeproject.h"
 
@@ -86,4 +85,3 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKECBPPARSER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEBUILDINFO_H
-#define CMAKEBUILDINFO_H
+#pragma once
 
 #include "cmakebuildconfiguration.h"
 
@@ -63,4 +62,3 @@ public:
 
 } // namespace CMakeProjectManager
 
-#endif // CMAKEBUILDINFO_H

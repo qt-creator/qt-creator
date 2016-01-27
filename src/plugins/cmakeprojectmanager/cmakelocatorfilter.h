@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKELOCATORFILTER_H
-#define CMAKELOCATORFILTER_H
+#pragma once
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -55,4 +54,3 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKELOCATORFILTER_H

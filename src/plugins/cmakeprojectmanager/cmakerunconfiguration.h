@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKERUNCONFIGURATION_H
-#define CMAKERUNCONFIGURATION_H
+#pragma once
 
 #include <projectexplorer/runnables.h>
 #include <utils/environment.h>
@@ -109,4 +108,3 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKERUNCONFIGURATION_H

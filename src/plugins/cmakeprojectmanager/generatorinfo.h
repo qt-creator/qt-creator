@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKE_GENERATORINFO_H
-#define CMAKE_GENERATORINFO_H
+#pragma once
 
 #include "cmakeprojectmanager.h"
 
@@ -63,4 +62,3 @@ private:
 
 Q_DECLARE_METATYPE(CMakeProjectManager::Internal::GeneratorInfo)
 
-#endif // CMAKE_GENERATORINFO_H

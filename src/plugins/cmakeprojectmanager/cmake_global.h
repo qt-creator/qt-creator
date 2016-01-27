@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKE_GLOBAL_H
-#define CMAKE_GLOBAL_H
+#pragma once
 
 #include <QtGlobal>
 
@@ -34,4 +33,3 @@
 #  define CMAKE_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // CMAKE_GLOBAL_H

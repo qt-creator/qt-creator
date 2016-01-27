@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKETOOLMANAGER_H
-#define CMAKETOOLMANAGER_H
+#pragma once
 
 #include "cmake_global.h"
 #include "cmaketool.h"
@@ -81,4 +80,3 @@ private:
 
 } // namespace CMakeProjectManager
 
-#endif // CMAKETOOLMANAGER_H

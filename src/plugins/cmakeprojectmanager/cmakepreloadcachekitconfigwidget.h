@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPRELOADCACHEKITCONFIGWIDGET_H
-#define CMAKEPRELOADCACHEKITCONFIGWIDGET_H
+#pragma once
 
 #include <projectexplorer/kitconfigwidget.h>
 
@@ -60,4 +59,3 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPRELOADCACHEKITCONFIGWIDGET_H

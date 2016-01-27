@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPRELOADCACHEKITINFORMATION_H
-#define CMAKEPRELOADCACHEKITINFORMATION_H
+#pragma once
 
 #include "cmake_global.h"
 
@@ -54,4 +53,3 @@ public:
 
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPRELOADCACHEKITINFORMATION_H

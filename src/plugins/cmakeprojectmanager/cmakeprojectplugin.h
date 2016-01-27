@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECTPLUGIN_H
-#define CMAKEPROJECTPLUGIN_H
+#pragma once
 
 #include <extensionsystem/iplugin.h>
 
@@ -56,4 +55,3 @@ private slots:
 } // namespace Internal
 } // namespace CMakeProject
 
-#endif // CMAKEPROJECTPLUGIN_H

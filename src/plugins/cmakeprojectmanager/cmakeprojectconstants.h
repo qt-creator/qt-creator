@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECTCONSTANTS_H
-#define CMAKEPROJECTCONSTANTS_H
+#pragma once
 
 namespace CMakeProjectManager {
 namespace Constants {
@@ -52,4 +51,3 @@ const char CMAKE_SETTINGSPAGE_ID[] = "Z.CMake";
 } // namespace Constants
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTCONSTANTS_H

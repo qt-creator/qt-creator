@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEKITCONFIGWIDGET_H
-#define CMAKEKITCONFIGWIDGET_H
+#pragma once
 
 #include <projectexplorer/kitconfigwidget.h>
 
@@ -74,4 +73,3 @@ private:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEKITCONFIGWIDGET_H

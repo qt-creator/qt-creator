@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPROJECTNODES_H
-#define CMAKEPROJECTNODES_H
+#pragma once
 
 #include <projectexplorer/projectnodes.h>
 
@@ -44,4 +43,3 @@ public:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTNODES_H

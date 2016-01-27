@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEKITINFORMATION_H
-#define CMAKEKITINFORMATION_H
+#pragma once
 
 #include "cmake_global.h"
 
@@ -57,4 +56,3 @@ public:
 
 } // namespace CMakeProjectManager
 
-#endif // CMAKEKITINFORMATION_H

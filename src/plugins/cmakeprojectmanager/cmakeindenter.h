@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEINDENTER_H
-#define CMAKEINDENTER_H
+#pragma once
 
 #include "cmake_global.h"
 
@@ -43,4 +42,3 @@ public:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEINDENTER_H

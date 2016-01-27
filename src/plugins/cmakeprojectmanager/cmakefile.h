@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEFILE_H
-#define CMAKEFILE_H
+#pragma once
 
 #include <coreplugin/idocument.h>
 
@@ -51,4 +50,3 @@ public:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEFILE_H

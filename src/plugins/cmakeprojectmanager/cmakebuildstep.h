@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEBUILDSTEP_H
-#define CMAKEBUILDSTEP_H
+#pragma once
 
 #include <projectexplorer/abstractprocessstep.h>
 
@@ -154,4 +153,3 @@ public:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEBUILDSTEP_H

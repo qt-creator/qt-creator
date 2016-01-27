@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEPARSER_H
-#define CMAKEPARSER_H
+#pragma once
 
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
@@ -54,4 +53,3 @@ private:
 } // namespace CMakeProjectManager
 } // namespace Internal
 
-#endif // CMAKEPARSER_H

@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CMAKEEDITOR_H
-#define CMAKEEDITOR_H
+#pragma once
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -59,4 +58,3 @@ public:
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEEDITOR_H
