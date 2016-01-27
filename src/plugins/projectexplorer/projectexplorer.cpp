@@ -139,6 +139,7 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QThreadPool>
 #include <QTimer>
 
 /*!
@@ -368,6 +369,7 @@ public:
 #ifdef WITH_JOURNALD
     JournaldWatcher *m_journalWatcher;
 #endif
+    QThreadPool m_threadPool;
 };
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
@@ -1850,6 +1852,11 @@ QStringList ProjectExplorerPlugin::projectFileGlobs()
 void ProjectExplorerPlugin::updateContextMenuActions()
 {
     dd->updateContextMenuActions();
+}
+
+QThreadPool *ProjectExplorerPlugin::sharedThreadPool()
+{
+    return &(dd->m_threadPool);
 }
 
 /*!

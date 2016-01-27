@@ -37,6 +37,7 @@
 QT_BEGIN_NAMESPACE
 class QPoint;
 class QAction;
+class QThreadPool;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -153,6 +154,8 @@ public:
     static QStringList projectFileGlobs();
 
     static void updateContextMenuActions();
+
+    static QThreadPool *sharedThreadPool();
 
 private:
     static bool coreAboutToClose();
