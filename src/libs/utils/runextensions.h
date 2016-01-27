@@ -28,6 +28,7 @@
 
 #include "qtcassert.h"
 
+#include <QCoreApplication>
 #include <QFuture>
 #include <QFutureInterface>
 #include <QRunnable>
@@ -581,6 +582,10 @@ public:
 
     void run() override
     {
+        if (priority != QThread::InheritPriority)
+            if (QThread *thread = QThread::currentThread())
+                if (thread != qApp->thread())
+                    thread->setPriority(priority);
         if (futureInterface.isCanceled()) {
             futureInterface.reportFinished();
             return;
@@ -591,6 +596,11 @@ public:
     void setThreadPool(QThreadPool *pool)
     {
         futureInterface.setThreadPool(pool);
+    }
+
+    void setThreadPriority(QThread::Priority p)
+    {
+        priority = p;
     }
 
 private:
@@ -605,6 +615,7 @@ private:
 
     Data data;
     QFutureInterface<ResultType> futureInterface;
+    QThread::Priority priority = QThread::InheritPriority;
 };
 
 } // Internal
@@ -662,14 +673,27 @@ QFuture<ResultType> runAsync(Function &&function, Args&&... args)
 }
 
 template <typename ResultType, typename Function, typename... Args>
-QFuture<ResultType> runAsync(QThreadPool *pool, Function &&function, Args&&... args)
+QFuture<ResultType> runAsync(QThreadPool *pool, QThread::Priority priority,
+                             Function &&function, Args&&... args)
 {
     auto job = new Internal::AsyncJob<ResultType,Function,Args...>
             (std::forward<Function>(function), std::forward<Args>(args)...);
     job->setThreadPool(pool);
+    job->setThreadPriority(priority);
     QFuture<ResultType> future = job->future();
     pool->start(job);
     return future;
+}
+
+template <typename ResultType, typename Function, typename... Args,
+          typename = typename std::enable_if<
+                !std::is_same<typename std::decay<Function>::type, QThread::Priority>::value
+              >::type>
+QFuture<ResultType> runAsync(QThreadPool *pool,
+                             Function &&function, Args&&... args)
+{
+    return runAsync<ResultType>(pool, QThread::InheritPriority, std::forward<Function>(function),
+                                std::forward<Args>(args)...);
 }
 
 } // Utils
