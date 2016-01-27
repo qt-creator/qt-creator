@@ -138,6 +138,12 @@ void BuildDirManager::forceReparse()
     startCMake(tool, generator, m_inputConfig);
 }
 
+void BuildDirManager::setInputConfiguration(const CMakeConfig &config)
+{
+    m_inputConfig = config;
+    forceReparse();
+}
+
 void BuildDirManager::parse()
 {
     CMakeTool *tool = CMakeKitInformation::cmakeTool(m_kit);

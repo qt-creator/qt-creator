@@ -27,6 +27,7 @@
 
 #include "cmake_global.h"
 #include "cmakeprojectnodes.h"
+#include "configmodel.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -111,6 +112,9 @@ public:
 
     void runCMake();
     bool isParsing() const;
+
+    QList<ConfigModel::DataItem> currentCMakeConfiguration() const;
+    void setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items);
 
 signals:
     /// emitted when parsing starts:

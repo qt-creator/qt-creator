@@ -66,6 +66,8 @@ QtcPlugin {
         "cmakeindenter.h",
         "cmakeindenter.cpp",
         "cmakeautocompleter.h",
-        "cmakeautocompleter.cpp"
+        "cmakeautocompleter.cpp",
+        "configmodel.cpp",
+        "configmodel.h"
     ]
 }

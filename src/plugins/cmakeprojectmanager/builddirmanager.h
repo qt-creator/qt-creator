@@ -74,6 +74,8 @@ public:
     void parse();
     void forceReparse();
 
+    void setInputConfiguration(const CMakeConfig &config);
+
     bool isProjectFile(const Utils::FileName &fileName) const;
     QString projectName() const;
     QList<CMakeBuildTarget> buildTargets() const;

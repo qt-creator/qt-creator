@@ -26,7 +26,8 @@ HEADERS = builddirmanager.h \
     cmakefile.h \
     cmakebuildsettingswidget.h \
     cmakeindenter.h \
-    cmakeautocompleter.h
+    cmakeautocompleter.h \
+    configmodel.h
 
 SOURCES = builddirmanager.cpp \
     cmakebuildstep.cpp \
@@ -50,6 +51,7 @@ SOURCES = builddirmanager.cpp \
     cmakefile.cpp \
     cmakebuildsettingswidget.cpp \
     cmakeindenter.cpp \
-    cmakeautocompleter.cpp
+    cmakeautocompleter.cpp \
+    configmodel.cpp
 
 RESOURCES += cmakeproject.qrc

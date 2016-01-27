@@ -339,6 +339,75 @@ bool CMakeProject::isParsing() const
     return m_buildDirManager && m_buildDirManager->isBusy();
 }
 
+QList<ConfigModel::DataItem> CMakeProject::currentCMakeConfiguration() const
+{
+    if (!m_buildDirManager || m_buildDirManager->isBusy())
+        return QList<ConfigModel::DataItem>();
+    const QList<CMakeConfigItem> cmakeItems = m_buildDirManager->configuration();
+    return Utils::transform(cmakeItems, [](const CMakeConfigItem &i) {
+        ConfigModel::DataItem j;
+        j.key = QString::fromUtf8(i.key);
+        j.value = QString::fromUtf8(i.value);
+        j.description = QString::fromUtf8(i.documentation);
+
+        j.isAdvanced = i.isAdvanced;
+        switch (i.type) {
+        case CMakeConfigItem::FILEPATH:
+            j.type = ConfigModel::DataItem::FILE;
+            break;
+        case CMakeConfigItem::PATH:
+            j.type = ConfigModel::DataItem::DIRECTORY;
+            break;
+        case CMakeConfigItem::BOOL:
+            j.type = ConfigModel::DataItem::BOOLEAN;
+            break;
+        case CMakeConfigItem::STRING:
+            j.type = ConfigModel::DataItem::STRING;
+            break;
+        default:
+            j.type = ConfigModel::DataItem::UNKNOWN;
+            break;
+        }
+
+        return j;
+    });
+}
+
+void CMakeProject::setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items)
+{
+    if (!m_buildDirManager || m_buildDirManager->isBusy())
+        return;
+
+    const CMakeConfig config = Utils::transform(items, [](const ConfigModel::DataItem &i) {
+        CMakeConfigItem ni;
+        ni.key = i.key.toUtf8();
+        ni.value = i.value.toUtf8();
+        ni.documentation = i.description.toUtf8();
+        ni.isAdvanced = i.isAdvanced;
+        switch (i.type) {
+        case CMakeProjectManager::ConfigModel::DataItem::BOOLEAN:
+            ni.type = CMakeConfigItem::BOOL;
+            break;
+        case CMakeProjectManager::ConfigModel::DataItem::FILE:
+            ni.type = CMakeConfigItem::FILEPATH;
+            break;
+        case CMakeProjectManager::ConfigModel::DataItem::DIRECTORY:
+            ni.type = CMakeConfigItem::PATH;
+            break;
+        case CMakeProjectManager::ConfigModel::DataItem::STRING:
+            ni.type = CMakeConfigItem::STRING;
+            break;
+        case CMakeProjectManager::ConfigModel::DataItem::UNKNOWN:
+        default:
+            ni.type = CMakeConfigItem::INTERNAL;
+            break;
+        }
+        return ni;
+    });
+
+    m_buildDirManager->setInputConfiguration(config);
+}
+
 bool CMakeProject::isProjectFile(const FileName &fileName)
 {
     if (!m_buildDirManager)
