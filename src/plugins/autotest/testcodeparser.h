@@ -35,6 +35,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QFutureWatcher>
 
 namespace Core {
 class Id;
@@ -74,11 +75,6 @@ signals:
 public slots:
     void emitUpdateTestTree();
     void updateTestTree();
-    void checkDocumentForTestCode(CPlusPlus::Document::Ptr document,
-                                  const QString &referencingFile = QString());
-    void handleQtQuickTest(CPlusPlus::Document::Ptr document);
-    void handleGTest(const QString &filePath);
-
     void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document);
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);
     void onStartupProjectChanged(ProjectExplorer::Project *);
@@ -102,6 +98,7 @@ private:
     bool m_singleShotScheduled;
     QSet<QString> m_postponedFiles;
     State m_parserState;
+    QFutureWatcher<TestParseResult> m_futureWatcher;
 };
 
 } // namespace Internal

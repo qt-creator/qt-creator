@@ -145,6 +145,13 @@ private:
 
 };
 
+struct TestParseResult
+{
+    TestParseResult(TestTreeItem *it, TestTreeModel::Type t) : item(it), type(t) {}
+    TestTreeItem *item;
+    TestTreeModel::Type type;
+};
+
 } // namespace Internal
 } // namespace Autotest
 
