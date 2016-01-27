@@ -34,6 +34,11 @@
 #include <debugger/debuggerstartparameters.h>
 
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
+#include <projectexplorer/runnables.h>
+
+#include <utils/qtcprocess.h>
+
+using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
@@ -167,9 +172,10 @@ void BareMetalDebugSupport::startExecution()
     connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::reportError,
             this, &BareMetalDebugSupport::appRunnerError);
 
-    const QString cmd = p->executable();
-    const QStringList args = p->arguments();
-    m_appRunner->start(m_device, cmd, args);
+    StandardRunnable r;
+    r.executable = p->executable();
+    r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::OsTypeLinux);
+    m_appRunner->start(m_device, r);
 }
 
 void BareMetalDebugSupport::setFinished()

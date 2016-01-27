@@ -31,6 +31,7 @@
 #include "qnxdeviceprocess.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
+#include <projectexplorer/runnables.h>
 #include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
 
@@ -135,9 +136,10 @@ void QnxDeviceConfiguration::updateVersionNumber() const
     QObject::connect(&versionNumberProcess, SIGNAL(finished()), &eventLoop, SLOT(quit()));
     QObject::connect(&versionNumberProcess, SIGNAL(error(QProcess::ProcessError)), &eventLoop, SLOT(quit()));
 
-    QStringList arguments;
-    arguments << QLatin1String("-r");
-    versionNumberProcess.start(QLatin1String("uname"), arguments);
+    StandardRunnable r;
+    r.executable = QLatin1String("uname");
+    r.commandLineArguments = QLatin1String("-r");
+    versionNumberProcess.start(r);
 
     bool isGuiThread = QThread::currentThread() == QCoreApplication::instance()->thread();
     if (isGuiThread)

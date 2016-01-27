@@ -44,15 +44,12 @@ public:
     // Files to source before executing the command (if they exist). Overrides the default.
     void setRcFilesToSource(const QStringList &filePaths);
 
-    void setWorkingDirectory(const QString &directory);
-
 private:
-    QString fullCommandLine() const;
+    QString fullCommandLine(const ProjectExplorer::StandardRunnable &) const override;
 
     QStringList rcFilesToSource() const;
 
     QStringList m_rcFilesToSource;
-    QString m_workingDir;
 };
 
 } // namespace RemoteLinux

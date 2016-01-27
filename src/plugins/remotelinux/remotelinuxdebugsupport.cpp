@@ -124,18 +124,25 @@ void LinuxDeviceDebugSupport::startExecution()
             this, &LinuxDeviceDebugSupport::handleRemoteErrorOutput);
     connect(runner, &DeviceApplicationRunner::remoteStdout,
             this, &LinuxDeviceDebugSupport::handleRemoteOutput);
+    connect(runner, &DeviceApplicationRunner::finished,
+            this, &LinuxDeviceDebugSupport::handleAppRunnerFinished);
+    connect(runner, &DeviceApplicationRunner::reportProgress,
+            this, &LinuxDeviceDebugSupport::handleProgressReport);
+    connect(runner, &DeviceApplicationRunner::reportError,
+            this, &LinuxDeviceDebugSupport::handleAppRunnerError);
     if (d->qmlDebugging && !d->cppDebugging)
         connect(runner, &DeviceApplicationRunner::remoteProcessStarted,
                 this, &LinuxDeviceDebugSupport::handleRemoteProcessStarted);
 
-    QStringList args = QtcProcess::splitArgs(runnable().commandLineArguments, OsTypeLinux);
+    StandardRunnable r = runnable();
+    QStringList args = QtcProcess::splitArgs(r.commandLineArguments, OsTypeLinux);
     QString command;
 
     if (d->qmlDebugging)
         args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, d->qmlPort));
 
     if (d->qmlDebugging && !d->cppDebugging) {
-        command = runnable().executable;
+        command = r.executable;
     } else {
         command = device()->debugServerPath();
         if (command.isEmpty())
@@ -144,16 +151,9 @@ void LinuxDeviceDebugSupport::startExecution()
         args.append(QString::fromLatin1("--multi"));
         args.append(QString::fromLatin1(":%1").arg(d->gdbServerPort));
     }
-
-    connect(runner, &DeviceApplicationRunner::finished,
-            this, &LinuxDeviceDebugSupport::handleAppRunnerFinished);
-    connect(runner, &DeviceApplicationRunner::reportProgress,
-            this, &LinuxDeviceDebugSupport::handleProgressReport);
-    connect(runner, &DeviceApplicationRunner::reportError,
-            this, &LinuxDeviceDebugSupport::handleAppRunnerError);
-    runner->setEnvironment(runnable().environment);
-    runner->setWorkingDirectory(runnable().workingDirectory);
-    runner->start(device(), command, args);
+    r.executable = command;
+    r.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
+    runner->start(device(), r);
 }
 
 void LinuxDeviceDebugSupport::handleAppRunnerError(const QString &error)

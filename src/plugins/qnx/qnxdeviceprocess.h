@@ -38,17 +38,14 @@ class QnxDeviceProcess : public ProjectExplorer::SshDeviceProcess
 public:
     QnxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device, QObject *parent);
 
-    void setWorkingDirectory(const QString &directory) { m_workingDir = directory; }
-
     void interrupt() { doSignal(2); }
     void terminate() { doSignal(15); }
     void kill() { doSignal(9); }
-    QString fullCommandLine() const;
+    QString fullCommandLine(const ProjectExplorer::StandardRunnable &runnable) const;
 
 private:
     void doSignal(int sig);
     QString m_pidFile;
-    QString m_workingDir;
 };
 
 } // namespace Internal

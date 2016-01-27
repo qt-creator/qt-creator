@@ -41,6 +41,7 @@
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/portlist.h>
@@ -109,10 +110,10 @@ void QnxAttachDebugSupport::launchPDebug()
         return;
     }
 
-    const QString remoteCommand = QLatin1String("pdebug");
-    QStringList arguments;
-    arguments << QString::number(m_pdebugPort);
-    m_runner->start(m_device, remoteCommand, arguments);
+    StandardRunnable r;
+    r.executable = QLatin1String("pdebug");
+    r.commandLineArguments = QString::number(m_pdebugPort);
+    m_runner->start(m_device, r);
 }
 
 void QnxAttachDebugSupport::attachToProcess()

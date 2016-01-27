@@ -31,8 +31,6 @@
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 
-#include <utils/qtcprocess.h>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
@@ -76,11 +74,7 @@ void RemoteLinuxRunControl::start()
             this, &RemoteLinuxRunControl::handleRunnerFinished);
     connect(&d->runner, &DeviceApplicationRunner::reportProgress,
             this, &RemoteLinuxRunControl::handleProgressReport);
-    d->runner.setEnvironment(d->runnable.environment);
-    d->runner.setWorkingDirectory(d->runnable.workingDirectory);
-    d->runner.start(d->device, d->runnable.executable,
-                    Utils::QtcProcess::splitArgs(d->runnable.commandLineArguments,
-                                                 Utils::OsTypeLinux));
+    d->runner.start(d->device, d->runnable);
 }
 
 RunControl::StopResult RemoteLinuxRunControl::stop()

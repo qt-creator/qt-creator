@@ -38,7 +38,7 @@ class DesktopDeviceProcess : public DeviceProcess
 public:
     DesktopDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
 
-    void start(const QString &executable, const QStringList &arguments) override;
+    void start(const Runnable &runnable) override;
     void interrupt() override;
     void terminate() override;
     void kill() override;
@@ -47,11 +47,6 @@ public:
     QProcess::ExitStatus exitStatus() const override;
     int exitCode() const override;
     QString errorString() const override;
-
-    Utils::Environment environment() const override;
-    void setEnvironment(const Utils::Environment &env) override;
-
-    void setWorkingDirectory(const QString &directory) override;
 
     QByteArray readAllStandardOutput() override;
     QByteArray readAllStandardError() override;

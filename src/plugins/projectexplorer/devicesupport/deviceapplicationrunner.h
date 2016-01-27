@@ -33,13 +33,9 @@
 #include <QObject>
 #include <QProcess>
 
-QT_BEGIN_NAMESPACE
-class QStringList;
-QT_END_NAMESPACE
-
-namespace Utils { class Environment; }
-
 namespace ProjectExplorer {
+
+class Runnable;
 
 class PROJECTEXPLORER_EXPORT DeviceApplicationRunner : public QObject
 {
@@ -49,11 +45,7 @@ public:
     explicit DeviceApplicationRunner(QObject *parent = 0);
     ~DeviceApplicationRunner();
 
-    void setEnvironment(const Utils::Environment &env);
-    void setWorkingDirectory(const QString &workingDirectory);
-
-    void start(const IDevice::ConstPtr &device, const QString &command,
-               const QStringList &arguments);
+    void start(const IDevice::ConstPtr &device, const Runnable &runnable);
     void stop();
 
 signals:

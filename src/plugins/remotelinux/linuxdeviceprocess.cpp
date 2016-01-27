@@ -25,8 +25,13 @@
 
 #include "linuxdeviceprocess.h"
 
+#include <projectexplorer/runnables.h>
+
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
+
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 
@@ -36,7 +41,6 @@ LinuxDeviceProcess::LinuxDeviceProcess(const QSharedPointer<const ProjectExplore
         QObject *parent)
     : ProjectExplorer::SshDeviceProcess(device, parent)
 {
-    setEnvironment(Utils::Environment(Utils::OsTypeLinux));
 }
 
 void LinuxDeviceProcess::setRcFilesToSource(const QStringList &filePaths)
@@ -44,22 +48,19 @@ void LinuxDeviceProcess::setRcFilesToSource(const QStringList &filePaths)
     m_rcFilesToSource = filePaths;
 }
 
-void LinuxDeviceProcess::setWorkingDirectory(const QString &directory)
+QString LinuxDeviceProcess::fullCommandLine(const StandardRunnable &runnable) const
 {
-    m_workingDir = directory;
-}
+    const Environment env = runnable.environment;
 
-QString LinuxDeviceProcess::fullCommandLine() const
-{
     QString fullCommandLine;
     foreach (const QString &filePath, rcFilesToSource())
         fullCommandLine += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);
-    if (!m_workingDir.isEmpty()) {
-        fullCommandLine.append(QLatin1String("cd ")).append(quote(m_workingDir))
+    if (!runnable.workingDirectory.isEmpty()) {
+        fullCommandLine.append(QLatin1String("cd ")).append(quote(runnable.workingDirectory))
                 .append(QLatin1String(" && "));
     }
     QString envString;
-    for (auto it = environment().constBegin(); it != environment().constEnd(); ++it) {
+    for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
         if (!envString.isEmpty())
             envString += QLatin1Char(' ');
         envString.append(it.key()).append(QLatin1String("='")).append(it.value())
@@ -69,10 +70,10 @@ QString LinuxDeviceProcess::fullCommandLine() const
         fullCommandLine.append(QLatin1Char(' ')).append(envString);
     if (!fullCommandLine.isEmpty())
         fullCommandLine += QLatin1Char(' ');
-    fullCommandLine.append(quote(executable()));
-    if (!arguments().isEmpty()) {
+    fullCommandLine.append(quote(runnable.executable));
+    if (!runnable.commandLineArguments.isEmpty()) {
         fullCommandLine.append(QLatin1Char(' '));
-        fullCommandLine.append(Utils::QtcProcess::joinArgs(arguments(), Utils::OsTypeLinux));
+        fullCommandLine.append(runnable.commandLineArguments);
     }
     return fullCommandLine;
 }

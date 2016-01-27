@@ -132,12 +132,12 @@ void RemoteLinuxAnalyzeSupport::startExecution()
     connect(runner, &DeviceApplicationRunner::reportError,
             this, &RemoteLinuxAnalyzeSupport::handleAppRunnerError);
 
-    QStringList args = QtcProcess::splitArgs(runnable().commandLineArguments, OsTypeLinux);
-    args.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, d->qmlPort));
-
-    runner->setWorkingDirectory(runnable().workingDirectory);
-    runner->setEnvironment(runnable().environment);
-    runner->start(device(), runnable().executable, args);
+    auto r = runnable();
+    if (!r.commandLineArguments.isEmpty())
+        r.commandLineArguments.append(QLatin1Char(' '));
+    r.commandLineArguments
+            += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, d->qmlPort);
+    runner->start(device(), r);
 }
 
 void RemoteLinuxAnalyzeSupport::handleAppRunnerError(const QString &error)

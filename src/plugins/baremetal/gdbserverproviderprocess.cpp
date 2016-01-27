@@ -26,12 +26,15 @@
 #include "gdbserverproviderprocess.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/runnables.h>
 
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QStringList>
+
+using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
@@ -60,12 +63,12 @@ GdbServerProviderProcess::GdbServerProviderProcess(
             this, &ProjectExplorer::DeviceProcess::started);
 }
 
-void GdbServerProviderProcess::start(const QString &executable, const QStringList &arguments)
+void GdbServerProviderProcess::start(const ProjectExplorer::Runnable &runnable)
 {
+    QTC_ASSERT(runnable.is<StandardRunnable>(), return);
     QTC_ASSERT(m_process->state() == QProcess::NotRunning, return);
-    QString args;
-    Utils::QtcProcess::addArgs(&args, arguments);
-    m_process->setCommand(executable, args);
+    auto r = runnable.as<StandardRunnable>();
+    m_process->setCommand(r.executable, r.commandLineArguments);
     m_process->start();
 }
 
@@ -102,21 +105,6 @@ int GdbServerProviderProcess::exitCode() const
 QString GdbServerProviderProcess::errorString() const
 {
     return m_process->errorString();
-}
-
-Utils::Environment GdbServerProviderProcess::environment() const
-{
-    return Utils::Environment(m_process->processEnvironment().toStringList());
-}
-
-void GdbServerProviderProcess::setEnvironment(const Utils::Environment &env)
-{
-    m_process->setProcessEnvironment(env.toProcessEnvironment());
-}
-
-void GdbServerProviderProcess::setWorkingDirectory(const QString &dir)
-{
-    m_process->setWorkingDirectory(dir);
 }
 
 QByteArray GdbServerProviderProcess::readAllStandardOutput()

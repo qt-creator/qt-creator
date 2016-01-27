@@ -28,6 +28,7 @@
 
 #include <projectexplorer/devicesupport/deviceprocess.h>
 
+namespace ProjectExplorer { class Runnable; }
 namespace Utils { class QtcProcess; }
 
 namespace BareMetal {
@@ -41,7 +42,7 @@ public:
             const QSharedPointer<const ProjectExplorer::IDevice> &device,
             QObject *parent = 0);
 
-    void start(const QString &executable, const QStringList &arguments);
+    void start(const ProjectExplorer::Runnable &runnable);
     void interrupt();
     void terminate();
     void kill();
@@ -50,10 +51,6 @@ public:
     QProcess::ExitStatus exitStatus() const;
     int exitCode() const;
     QString errorString() const;
-
-    Utils::Environment environment() const;
-    void setEnvironment(const Utils::Environment &);
-    void setWorkingDirectory(const QString &);
 
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();

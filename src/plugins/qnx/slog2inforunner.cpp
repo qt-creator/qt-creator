@@ -27,7 +27,10 @@
 
 #include "qnxdeviceprocess.h"
 
+#include <projectexplorer/runnables.h>
 #include <utils/qtcassert.h>
+
+using namespace ProjectExplorer;
 
 namespace Qnx {
 namespace Internal {
@@ -59,7 +62,9 @@ Slog2InfoRunner::Slog2InfoRunner(const QString &applicationId,
 
 void Slog2InfoRunner::start()
 {
-    m_testProcess->start(QLatin1String("slog2info"), QStringList());
+    StandardRunnable r;
+    r.executable = QLatin1String("slog2info");
+    m_testProcess->start(r);
 }
 
 void Slog2InfoRunner::stop()
@@ -89,9 +94,10 @@ void Slog2InfoRunner::handleTestProcessCompleted()
 
 void Slog2InfoRunner::readLaunchTime()
 {
-    QStringList arguments;
-    arguments << QLatin1String("+\"%d %H:%M:%S\"");
-    m_launchDateTimeProcess->start(QLatin1String("date"), arguments);
+    StandardRunnable r;
+    r.executable = QLatin1String("date");
+    r.commandLineArguments = QLatin1String("+\"%d %H:%M:%S\"");
+    m_launchDateTimeProcess->start(r);
 }
 
 void Slog2InfoRunner::launchSlog2Info()
@@ -105,9 +111,10 @@ void Slog2InfoRunner::launchSlog2Info()
     m_launchDateTime = QDateTime::fromString(QString::fromLatin1(m_launchDateTimeProcess->readAllStandardOutput()).trimmed(),
                                              QString::fromLatin1("dd HH:mm:ss"));
 
-    QStringList arguments;
-    arguments << QLatin1String("-w");
-    m_logProcess->start(QLatin1String("slog2info"), arguments);
+    StandardRunnable r;
+    r.executable = QLatin1String("slog2info");
+    r.commandLineArguments = QLatin1String("-w");
+    m_logProcess->start(r);
 }
 
 void Slog2InfoRunner::readLogStandardOutput()

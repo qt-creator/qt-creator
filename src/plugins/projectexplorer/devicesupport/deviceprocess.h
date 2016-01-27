@@ -27,16 +27,17 @@
 #define QTC_DEVICEPROCESS_H
 
 #include "../projectexplorer_export.h"
+#include "../runconfiguration.h"
 
 #include <QObject>
 #include <QProcess>
 #include <QSharedPointer>
 #include <QStringList>
 
-namespace Utils { class Environment; }
-
 namespace ProjectExplorer {
+
 class IDevice;
+class Runnable;
 
 class PROJECTEXPLORER_EXPORT DeviceProcess : public QObject
 {
@@ -44,7 +45,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcess : public QObject
 public:
     virtual ~DeviceProcess();
 
-    virtual void start(const QString &executable, const QStringList &arguments = QStringList()) = 0;
+    virtual void start(const Runnable &runnable) = 0;
     virtual void interrupt() = 0;
     virtual void terminate() = 0;
     virtual void kill() = 0;
@@ -53,11 +54,6 @@ public:
     virtual QProcess::ExitStatus exitStatus() const = 0;
     virtual int exitCode() const = 0;
     virtual QString errorString() const = 0;
-
-    virtual Utils::Environment environment() const = 0;
-    virtual void setEnvironment(const Utils::Environment &env) = 0;
-
-    virtual void setWorkingDirectory(const QString &workingDirectory) = 0;
 
     virtual QByteArray readAllStandardOutput() = 0;
     virtual QByteArray readAllStandardError() = 0;

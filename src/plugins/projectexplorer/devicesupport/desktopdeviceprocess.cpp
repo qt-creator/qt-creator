@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "desktopdeviceprocess.h"
+
 #include "idevice.h"
+#include "../runnables.h"
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -48,10 +50,14 @@ DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &
     connect(&m_process, &QProcess::started, this, &DeviceProcess::started);
 }
 
-void DesktopDeviceProcess::start(const QString &executable, const QStringList &arguments)
+void DesktopDeviceProcess::start(const Runnable &runnable)
 {
+    QTC_ASSERT(runnable.is<StandardRunnable>(), return);
     QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
-    m_process.start(executable, arguments);
+    auto r = runnable.as<StandardRunnable>();
+    m_process.setProcessEnvironment(r.environment.toProcessEnvironment());
+    m_process.setWorkingDirectory(r.workingDirectory);
+    m_process.start(r.executable, Utils::QtcProcess::splitArgs(r.commandLineArguments));
 }
 
 void DesktopDeviceProcess::interrupt()
@@ -87,21 +93,6 @@ int DesktopDeviceProcess::exitCode() const
 QString DesktopDeviceProcess::errorString() const
 {
     return m_process.errorString();
-}
-
-Utils::Environment DesktopDeviceProcess::environment() const
-{
-    return Utils::Environment(m_process.processEnvironment().toStringList());
-}
-
-void DesktopDeviceProcess::setEnvironment(const Utils::Environment &env)
-{
-    m_process.setProcessEnvironment(env.toProcessEnvironment());
-}
-
-void DesktopDeviceProcess::setWorkingDirectory(const QString &directory)
-{
-    m_process.setWorkingDirectory(directory);
 }
 
 QByteArray DesktopDeviceProcess::readAllStandardOutput()

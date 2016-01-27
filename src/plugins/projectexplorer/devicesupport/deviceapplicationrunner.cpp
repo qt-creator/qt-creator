@@ -26,6 +26,7 @@
 #include "deviceapplicationrunner.h"
 
 #include "sshdeviceprocess.h"
+#include "../runnables.h"
 
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
@@ -46,8 +47,6 @@ class DeviceApplicationRunner::DeviceApplicationRunnerPrivate
 {
 public:
     DeviceProcess *deviceProcess;
-    Utils::Environment environment;
-    QString workingDir;
     State state;
     bool stopRequested;
     bool success;
@@ -67,18 +66,7 @@ DeviceApplicationRunner::~DeviceApplicationRunner()
     delete d;
 }
 
-void DeviceApplicationRunner::setEnvironment(const Utils::Environment &env)
-{
-    d->environment = env;
-}
-
-void DeviceApplicationRunner::setWorkingDirectory(const QString &workingDirectory)
-{
-    d->workingDir = workingDirectory;
-}
-
-void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
-        const QString &command, const QStringList &arguments)
+void DeviceApplicationRunner::start(const IDevice::ConstPtr &device, const Runnable &runnable)
 {
     QTC_ASSERT(d->state == Inactive, return);
 
@@ -95,7 +83,7 @@ void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
         return;
     }
 
-    if (command.isEmpty()) {
+    if (runnable.is<StandardRunnable>() && runnable.as<StandardRunnable>().executable.isEmpty()) {
         doReportError(tr("Cannot run: No command given."));
         setFinished();
         return;
@@ -115,9 +103,7 @@ void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
             this, &DeviceApplicationRunner::handleApplicationError);
     connect(d->deviceProcess, &DeviceProcess::finished,
             this, &DeviceApplicationRunner::handleApplicationFinished);
-    d->deviceProcess->setEnvironment(d->environment);
-    d->deviceProcess->setWorkingDirectory(d->workingDir);
-    d->deviceProcess->start(command, arguments);
+    d->deviceProcess->start(runnable);
 }
 
 void DeviceApplicationRunner::stop()

@@ -102,13 +102,12 @@ void QnxAnalyzeSupport::startExecution()
 
     setState(StartingRemoteProcess);
 
-    const QStringList args = QStringList()
-            << QtcProcess::splitArgs(m_runControl->runnable().commandLineArguments)
-            << QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, m_qmlPort);
-
-    appRunner()->setEnvironment(m_runnable.environment);
-    appRunner()->setWorkingDirectory(m_runnable.workingDirectory);
-    appRunner()->start(device(), m_runnable.executable, args);
+    StandardRunnable r = m_runnable;
+    if (!r.commandLineArguments.isEmpty())
+        r.commandLineArguments += QLatin1Char(' ');
+    r.commandLineArguments
+            += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, m_qmlPort);
+    appRunner()->start(device(), r);
 }
 
 void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)
