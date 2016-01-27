@@ -42,9 +42,6 @@ using namespace TextEditor;
 namespace CppEditor {
 namespace Internal {
 
-CppHoverHandler::CppHoverHandler()
-{}
-
 void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
 {
     if (!editorWidget->extraSelectionTooltip(pos).isEmpty()) {
