@@ -52,14 +52,6 @@ AnalyzerRunControl::AnalyzerRunControl(RunConfiguration *runConfiguration, Core:
 {
     setIcon(Icons::ANALYZER_CONTROL_START);
 
-    if (runConfiguration) {
-        setDisplayName(runConfiguration->displayName());
-        if (auto aspect = runConfiguration->extraAspect<WorkingDirectoryAspect>())
-            m_workingDirectory = aspect->workingDirectory().toString();
-        if (m_workingDirectory.isEmpty())
-            m_workingDirectory = runConfiguration->target()->project()->projectDirectory().toString();
-    }
-
     connect(this, &AnalyzerRunControl::finished,
             this, &AnalyzerRunControl::runControlFinished);
     connect(AnalyzerManager::stopAction(), &QAction::triggered,
@@ -88,11 +80,6 @@ void AnalyzerRunControl::runControlFinished()
     AnalyzerManager::handleToolFinished();
 }
 
-QString AnalyzerRunControl::workingDirectory() const
-{
-    return m_workingDirectory;
-}
-
 void AnalyzerRunControl::start()
 {
     AnalyzerManager::handleToolStarted();
@@ -116,11 +103,6 @@ RunControl::StopResult AnalyzerRunControl::stop()
 bool AnalyzerRunControl::isRunning() const
 {
     return m_isRunning;
-}
-
-void AnalyzerRunControl::setWorkingDirectory(const QString &workingDirectory)
-{
-    m_workingDirectory = workingDirectory;
 }
 
 } // namespace Analyzer

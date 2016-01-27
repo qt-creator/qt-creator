@@ -103,7 +103,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     LocalQmlProfilerRunner::Configuration conf;
     conf.executable = runnable.executable;
     conf.executableArguments = runnable.commandLineArguments;
-    conf.workingDirectory = runControl->workingDirectory();
+    conf.workingDirectory = runnable.workingDirectory;
     conf.socket = connection.analyzerSocket;
     if (EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>())
         conf.environment = environment->environment();

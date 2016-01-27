@@ -85,7 +85,6 @@ bool ValgrindRunControl::startEngine()
 
     StandardRunnable debuggee = runnable();
     // FIXME: Consolidate:
-    debuggee.workingDirectory = workingDirectory();
     debuggee.environment = m_environment;
     debuggee.runMode = m_localRunMode;
 

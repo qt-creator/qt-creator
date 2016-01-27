@@ -70,9 +70,6 @@ public:
     StopResult stop();
     bool isRunning() const;
 
-    QString workingDirectory() const;
-    void setWorkingDirectory(const QString &workingDirectory);
-
 public slots:
     virtual void logApplicationMessage(const QString &, Utils::OutputFormat) {}
 
@@ -89,9 +86,6 @@ private:
 
 protected:
     bool m_isRunning;
-
-private:
-    QString m_workingDirectory;
 };
 } // namespace Analyzer
 

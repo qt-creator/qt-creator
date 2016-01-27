@@ -199,7 +199,6 @@ void ValgrindPlugin::extensionsInitialized()
         connection.connParams = dlg.sshParams();
         rc->setConnection(connection);
         rc->setDisplayName(runnable.executable);
-        rc->setWorkingDirectory(runnable.workingDirectory);
         rc->setCustomStart();
         ProjectExplorerPlugin::startRunControl(rc, MEMCHECK_RUN_MODE);
     });
@@ -224,7 +223,6 @@ void ValgrindPlugin::extensionsInitialized()
         connection.connParams = dlg.sshParams();
         rc->setConnection(connection);
         rc->setDisplayName(runnable.executable);
-        rc->setWorkingDirectory(runnable.workingDirectory);
         rc->setCustomStart();
         ProjectExplorerPlugin::startRunControl(rc, CALLGRIND_RUN_MODE);
     });

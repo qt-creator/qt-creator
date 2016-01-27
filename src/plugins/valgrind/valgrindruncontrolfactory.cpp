@@ -78,13 +78,11 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
     Utils::Environment environment;
     StandardRunnable runnable;
     AnalyzerConnection connection;
-    QString workingDirectory;
     Runnable rcRunnable = runConfiguration->runnable();
     QTC_ASSERT(rcRunnable.is<StandardRunnable>(), return 0);
     auto stdRunnable = runConfiguration->runnable().as<StandardRunnable>();
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         environment = stdRunnable.environment;
-        workingDirectory = stdRunnable.workingDirectory;
         runnable.executable = stdRunnable.executable;
         runnable.commandLineArguments = stdRunnable.commandLineArguments;
         QTcpServer server;
@@ -105,7 +103,6 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
     runControl->setConnection(connection);
     runControl->setLocalRunMode(localRunMode);
     runControl->setEnvironment(environment);
-    runControl->setWorkingDirectory(workingDirectory);
     return runControl;
 }
 
