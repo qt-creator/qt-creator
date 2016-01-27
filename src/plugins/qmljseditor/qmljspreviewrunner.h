@@ -42,17 +42,12 @@ public:
     bool isReady() const;
     void run(const QString &filename);
 
-signals:
-
-public slots:
-
 private:
     QString m_qmlViewerDefaultPath;
 
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
 
 };
-
 
 } // namespace Internal
 } // namespace QmlJSEditor
