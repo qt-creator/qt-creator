@@ -28,19 +28,30 @@
 
 #include <codecompletion.h>
 
-#include <texteditor/codeassist/assistproposalitem.h>
+#include <texteditor/codeassist/assistproposaliteminterface.h>
+
+#include <QString>
 
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangAssistProposalItem final : public TextEditor::AssistProposalItem
+class ClangAssistProposalItem final : public TextEditor::AssistProposalItemInterface
 {
     friend bool operator<(const ClangAssistProposalItem &first, const ClangAssistProposalItem &second);
 public:
     ClangAssistProposalItem() {}
 
-    bool prematurelyApplies(const QChar &c) const override;
-    void applyContextualContent(TextEditor::TextEditorWidget *editorWidget, int basePosition) const override;
+    bool prematurelyApplies(const QChar &c) const final;
+    bool implicitlyApplies() const final;
+    void apply(TextEditor::TextEditorWidget *editorWidget, int basePosition) const final;
+
+    void setText(const QString &text);
+    QString text() const final;
+    QIcon icon() const final;
+    QString detail() const final;
+    bool isSnippet() const final;
+    bool isValid() const final;
+    quint64 hash() const final;
 
     void keepCompletionOperator(unsigned compOp);
 
@@ -53,6 +64,7 @@ public:
 private:
     ClangBackEnd::CodeCompletion m_codeCompletion;
     QList<ClangBackEnd::CodeCompletion> m_overloads;
+    QString m_text;
     unsigned m_completionOperator;
     mutable QChar m_typedChar;
 };

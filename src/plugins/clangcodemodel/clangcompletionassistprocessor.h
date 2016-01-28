@@ -71,8 +71,7 @@ private:
     bool completeDoxygenKeywords();
     void addCompletionItem(const QString &text,
                            const QIcon &icon = QIcon(),
-                           int order = 0,
-                           const QVariant &data = QVariant());
+                           int order = 0);
 
     struct UnsavedFileContentInfo {
         QByteArray unsavedContent;

@@ -62,119 +62,39 @@ using TextEditor::AssistProposalItemInterface;
 
 namespace {
 
-const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
-
-
 QList<AssistProposalItemInterface *> toAssistProposalItems(const CodeCompletions &completions)
 {
-    static CPlusPlus::Icons m_icons; // de-deduplicate
 
     bool signalCompletion = false; // TODO
     bool slotCompletion = false; // TODO
 
-    const QIcon snippetIcon = QIcon(QLatin1String(SNIPPET_ICON_PATH));
     QHash<QString, ClangAssistProposalItem *> items;
-    foreach (const CodeCompletion &ccr, completions) {
-        if (ccr.text().isEmpty()) // TODO: Make isValid()?
+    foreach (const CodeCompletion &codeCompletion, completions) {
+        if (codeCompletion.text().isEmpty()) // TODO: Make isValid()?
             continue;
-        if (signalCompletion && ccr.completionKind() != CodeCompletion::SignalCompletionKind)
+        if (signalCompletion && codeCompletion.completionKind() != CodeCompletion::SignalCompletionKind)
             continue;
-        if (slotCompletion && ccr.completionKind() != CodeCompletion::SlotCompletionKind)
+        if (slotCompletion && codeCompletion.completionKind() != CodeCompletion::SlotCompletionKind)
             continue;
 
         QString name;
-        if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind)
-            name = CompletionChunksToTextConverter::convertToName(ccr.chunks());
+        if (codeCompletion.completionKind() == CodeCompletion::KeywordCompletionKind)
+            name = CompletionChunksToTextConverter::convertToName(codeCompletion.chunks());
         else
-            name = ccr.text().toString();
+            name = codeCompletion.text().toString();
 
         ClangAssistProposalItem *item = items.value(name, 0);
         if (item) {
-            item->addOverload(ccr);
+            item->addOverload(codeCompletion);
         } else {
             item = new ClangAssistProposalItem;
+            QString detail = CompletionChunksToTextConverter::convertToToolTipWithHtml(codeCompletion.chunks());
+
             items.insert(name, item);
+
             item->setText(name);
-            item->setOrder(ccr.priority());
-            QString detail
-                    = CompletionChunksToTextConverter::convertToToolTipWithHtml(ccr.chunks());
-
-            if (!ccr.briefComment().isEmpty())
-                detail += QStringLiteral("\n\n") + ccr.briefComment().toString();
-
-            item->setDetail(detail);
-            item->setCodeCompletion(ccr);
-        }
-
-        // FIXME: show the effective accessebility instead of availability
-        using CPlusPlus::Icons;
-
-        switch (ccr.completionKind()) {
-        case CodeCompletion::ClassCompletionKind:
-        case CodeCompletion::TemplateClassCompletionKind:
-        case CodeCompletion::TypeAliasCompletionKind:
-            item->setIcon(m_icons.iconForType(Icons::ClassIconType)); break;
-        case CodeCompletion::EnumerationCompletionKind: item->setIcon(m_icons.iconForType(Icons::EnumIconType)); break;
-        case CodeCompletion::EnumeratorCompletionKind: item->setIcon(m_icons.iconForType(Icons::EnumeratorIconType)); break;
-
-        case CodeCompletion::ConstructorCompletionKind: // fall through
-        case CodeCompletion::DestructorCompletionKind: // fall through
-        case CodeCompletion::FunctionCompletionKind:
-        case CodeCompletion::TemplateFunctionCompletionKind:
-        case CodeCompletion::ObjCMessageCompletionKind:
-            switch (ccr.availability()) {
-            case CodeCompletion::Available:
-            case CodeCompletion::Deprecated:
-                item->setIcon(m_icons.iconForType(Icons::FuncPublicIconType));
-                break;
-            default:
-                item->setIcon(m_icons.iconForType(Icons::FuncPrivateIconType));
-                break;
-            }
-            break;
-
-        case CodeCompletion::SignalCompletionKind:
-            item->setIcon(m_icons.iconForType(Icons::SignalIconType));
-            break;
-
-        case CodeCompletion::SlotCompletionKind:
-            switch (ccr.availability()) {
-            case CodeCompletion::Available:
-            case CodeCompletion::Deprecated:
-                item->setIcon(m_icons.iconForType(Icons::SlotPublicIconType));
-                break;
-            case CodeCompletion::NotAccessible:
-            case CodeCompletion::NotAvailable:
-                item->setIcon(m_icons.iconForType(Icons::SlotPrivateIconType));
-                break;
-            }
-            break;
-
-        case CodeCompletion::NamespaceCompletionKind: item->setIcon(m_icons.iconForType(Icons::NamespaceIconType)); break;
-        case CodeCompletion::PreProcessorCompletionKind: item->setIcon(m_icons.iconForType(Icons::MacroIconType)); break;
-        case CodeCompletion::VariableCompletionKind:
-            switch (ccr.availability()) {
-            case CodeCompletion::Available:
-            case CodeCompletion::Deprecated:
-                item->setIcon(m_icons.iconForType(Icons::VarPublicIconType));
-                break;
-            default:
-                item->setIcon(m_icons.iconForType(Icons::VarPrivateIconType));
-                break;
-            }
-            break;
-
-        case CodeCompletion::KeywordCompletionKind:
-            item->setIcon(m_icons.iconForType(Icons::KeywordIconType));
-            break;
-
-        case CodeCompletion::ClangSnippetKind:
-            item->setIcon(snippetIcon);
-            break;
-
-        case CodeCompletion::Other:
-            item->setIcon(m_icons.iconForType(Icons::UnknownIconType));
-            break;
+            item->setOrder(int(codeCompletion.priority()));
+            item->setCodeCompletion(codeCompletion);
         }
     }
 
@@ -613,10 +533,10 @@ void ClangCompletionAssistProcessor::completeIncludePath(const QString &realPath
             if (fileInfo.isDir())
                 text += QLatin1Char('/');
 
-            ClangAssistProposalItem *item = new ClangAssistProposalItem;
+            auto *item = new ClangAssistProposalItem; // TODO: Add IncludeAssistProposalItem
             item->setText(text);
-            item->setDetail(hint);
-            item->setIcon(m_icons.keywordIcon());
+            //item->setDetail(hint);
+            //item->setIcon(m_icons.keywordIcon());
             item->keepCompletionOperator(m_completionOperator);
             m_completions.append(item);
         }
@@ -645,14 +565,12 @@ bool ClangCompletionAssistProcessor::completeDoxygenKeywords()
 
 void ClangCompletionAssistProcessor::addCompletionItem(const QString &text,
                                                        const QIcon &icon,
-                                                       int order,
-                                                       const QVariant &data)
+                                                       int order)
 {
     ClangAssistProposalItem *item = new ClangAssistProposalItem;
     item->setText(text);
-    item->setIcon(icon);
+    //item->setIcon(icon); TODO: Add item for macros and includes
     item->setOrder(order);
-    item->setData(data);
     item->keepCompletionOperator(m_completionOperator);
     m_completions.append(item);
 }
