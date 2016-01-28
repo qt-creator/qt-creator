@@ -166,6 +166,7 @@ QtcLibrary {
         "qtcprocess.h",
         "reloadpromptutils.cpp",
         "reloadpromptutils.h",
+        "runextensions.cpp",
         "runextensions.h",
         "savedaction.cpp",
         "savedaction.h",

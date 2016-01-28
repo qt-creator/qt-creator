@@ -99,7 +99,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/categorysortfiltermodel.cpp \
     $$PWD/dropsupport.cpp \
     $$PWD/icon.cpp \
-    $$PWD/port.cpp
+    $$PWD/port.cpp \
+    $$PWD/runextensions.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp

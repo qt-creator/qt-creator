@@ -27,11 +27,13 @@
 #define RUNEXTENSIONS_H
 
 #include "qtcassert.h"
+#include "utils_global.h"
 
 #include <QCoreApplication>
 #include <QFuture>
 #include <QFutureInterface>
 #include <QRunnable>
+#include <QThread>
 #include <QThreadPool>
 
 #include <chrono>
@@ -618,6 +620,18 @@ private:
     QThread::Priority priority = QThread::InheritPriority;
 };
 
+class QTCREATOR_UTILS_EXPORT RunnableThread : public QThread
+{
+public:
+    explicit RunnableThread(QRunnable *runnable, QObject *parent = 0);
+
+protected:
+    void run();
+
+private:
+    QRunnable *m_runnable;
+};
+
 } // Internal
 
 template <typename ReduceResult, typename Container, typename InitFunction, typename MapFunction,
@@ -665,11 +679,11 @@ template <typename ResultType, typename Function, typename... Args,
               >::type>
 QFuture<ResultType> runAsync(Function &&function, Args&&... args)
 {
-    QFutureInterface<ResultType> futureInterface;
-    futureInterface.reportStarted();
-    std::thread(Internal::runAsyncImpl<ResultType,typename std::decay<Function>::type,typename std::decay<Args>::type...>,
-                futureInterface, std::forward<Function>(function), std::forward<Args>(args)...).detach();
-    return futureInterface.future();
+    auto job = new Internal::AsyncJob<ResultType,Function,Args...>
+            (std::forward<Function>(function), std::forward<Args>(args)...);
+    QFuture<ResultType> future = job->future();
+    (new Internal::RunnableThread(job))->start(); // automatically deletes itself
+    return future;
 }
 
 template <typename ResultType, typename Function, typename... Args>
