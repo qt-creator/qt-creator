@@ -33,43 +33,30 @@
 #include <QPointer>
 #include <QStringListModel>
 
-namespace Utils {
-class FancyLineEdit;
-class PathChooser;
-}
+QT_FORWARD_DECLARE_CLASS(QCheckBox)
 
 namespace Git {
 namespace Internal {
 
-class GitGrep : public TextEditor::BaseFileFind
+class GitGrep : public TextEditor::FileFindExtension
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(GitGrep)
 
 public:
-    QString id() const override;
-    QString displayName() const override;
+    GitGrep();
+    ~GitGrep() override;
+    QString title() const override;
+    QWidget *widget() const override;
+    bool isEnabled() const override;
+    bool isEnabled(const TextEditor::FileFindParameters &parameters) const override;
+    QVariant parameters() const override;
+    void readSettings(QSettings *settings) override;
+    void writeSettings(QSettings *settings) const override;
     QFuture<Utils::FileSearchResultList> executeSearch(
             const TextEditor::FileFindParameters &parameters) override;
-    QWidget *createConfigWidget() override;
-    void writeSettings(QSettings *settings) override;
-    void readSettings(QSettings *settings) override;
-    bool isValid() const override;
-
-    void setDirectory(const Utils::FileName &directory);
-
-protected:
-    Utils::FileIterator *files(const QStringList &nameFilters,
-                               const QVariant &additionalParameters) const override;
-    QVariant additionalParameters() const override;
-    QString label() const override;
-    QString toolTip() const override;
 
 private:
-    Utils::FileName path() const;
-    bool validateDirectory(Utils::FancyLineEdit *edit, QString *errorMessage) const;
-
-    QPointer<QWidget> m_configWidget;
-    QPointer<Utils::PathChooser> m_directory;
+    QPointer<QCheckBox> m_widget;
 };
 
 } // namespace Internal

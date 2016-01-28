@@ -68,15 +68,14 @@ public:
 class BaseFileFindPrivate
 {
 public:
-    BaseFileFindPrivate() : m_resultLabel(0), m_filterCombo(0) {}
-
     QMap<QFutureWatcher<FileSearchResultList> *, QPointer<SearchResult> > m_watchers;
     QPointer<IFindSupport> m_currentFindSupport;
 
-    QLabel *m_resultLabel;
+    QLabel *m_resultLabel = 0;
     QStringListModel m_filterStrings;
     QString m_filterSetting;
     QPointer<QComboBox> m_filterCombo;
+    QPointer<FileFindExtension> m_extension;
 };
 
 } // namespace Internal
@@ -130,6 +129,11 @@ QStringList BaseFileFind::fileNameFilters() const
     return filters;
 }
 
+FileFindExtension *BaseFileFind::extension() const
+{
+    return d->m_extension.data();
+}
+
 void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
                                     SearchResultWindow::SearchMode searchMode)
 {
@@ -147,6 +151,8 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     parameters.flags = findFlags;
     parameters.nameFilters = fileNameFilters();
     parameters.additionalParameters = additionalParameters();
+    if (d->m_extension)
+        parameters.extensionParameters = d->m_extension->parameters();
     search->setUserData(qVariantFromValue(parameters));
     connect(search, &SearchResult::activated, this, &BaseFileFind::openEditor);
     if (searchMode == SearchResultWindow::SearchAndReplace)
@@ -190,6 +196,12 @@ void BaseFileFind::findAll(const QString &txt, FindFlags findFlags)
 void BaseFileFind::replaceAll(const QString &txt, FindFlags findFlags)
 {
     runNewSearch(txt, findFlags, SearchResultWindow::SearchAndReplace);
+}
+
+void BaseFileFind::setFindExtension(FileFindExtension *extension)
+{
+    QTC_ASSERT(!d->m_extension, return);
+    d->m_extension = extension;
 }
 
 void BaseFileFind::doReplace(const QString &text,
@@ -263,6 +275,8 @@ void BaseFileFind::writeCommonSettings(QSettings *settings)
     settings->setValue(QLatin1String("filters"), d->m_filterStrings.stringList());
     if (d->m_filterCombo)
         settings->setValue(QLatin1String("currentFilter"), d->m_filterCombo->currentText());
+    if (d->m_extension)
+        d->m_extension->writeSettings(settings);
 }
 
 void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaultFilter)
@@ -276,6 +290,8 @@ void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaul
     d->m_filterStrings.setStringList(filters);
     if (d->m_filterCombo)
         syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);
+    if (d->m_extension)
+        d->m_extension->readSettings(settings);
 }
 
 void BaseFileFind::syncComboWithSettings(QComboBox *combo, const QString &setting)
@@ -425,6 +441,9 @@ QVariant BaseFileFind::getAdditionalParameters(SearchResult *search)
 
 QFuture<FileSearchResultList> BaseFileFind::executeSearch(const FileFindParameters &parameters)
 {
+    if (d->m_extension && d->m_extension->isEnabled(parameters))
+        return d->m_extension->executeSearch(parameters);
+
     auto func = parameters.flags & FindRegularExpression
             ? Utils::findInFilesRegExp
             : Utils::findInFiles;

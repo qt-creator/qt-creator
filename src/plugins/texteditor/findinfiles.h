@@ -55,7 +55,12 @@ public:
     bool isValid() const;
 
     void setDirectory(const Utils::FileName &directory);
+    Utils::FileName directory() const;
     static void findOnFileSystem(const QString &path);
+    static FindInFiles *instance();
+
+signals:
+    void pathChanged(const QString &directory);
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,

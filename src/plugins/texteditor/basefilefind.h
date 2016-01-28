@@ -57,6 +57,22 @@ public:
     Core::FindFlags flags;
     QStringList nameFilters;
     QVariant additionalParameters;
+    QVariant extensionParameters;
+};
+
+class TEXTEDITOR_EXPORT FileFindExtension : public QObject
+{
+public:
+    virtual ~FileFindExtension() {}
+    virtual QString title() const = 0;
+    virtual QWidget *widget() const = 0;
+    virtual bool isEnabled() const = 0;
+    virtual bool isEnabled(const FileFindParameters &parameters) const = 0;
+    virtual QVariant parameters() const = 0;
+    virtual void readSettings(QSettings *settings) = 0;
+    virtual void writeSettings(QSettings *settings) const = 0;
+    virtual QFuture<Utils::FileSearchResultList> executeSearch(
+            const FileFindParameters &parameters) = 0;
 };
 
 class TEXTEDITOR_EXPORT BaseFileFind : public Core::IFindFilter
@@ -71,6 +87,7 @@ public:
     bool isReplaceSupported() const { return true; }
     void findAll(const QString &txt, Core::FindFlags findFlags);
     void replaceAll(const QString &txt, Core::FindFlags findFlags);
+    void setFindExtension(FileFindExtension *extension);
 
     /* returns the list of unique files that were passed in items */
     static QStringList replaceAll(const QString &txt,
@@ -94,6 +111,7 @@ protected:
     void syncComboWithSettings(QComboBox *combo, const QString &setting);
     void updateComboEntries(QComboBox *combo, bool onTop);
     QStringList fileNameFilters() const;
+    FileFindExtension *extension() const;
 
 private:
     void displayResult(int index);

@@ -129,6 +129,10 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     m_baseTextMarkRegistry = new TextMarkRegistry(this);
 
+    addAutoReleasedObject(new FindInFiles);
+    addAutoReleasedObject(new FindInCurrentFile);
+    addAutoReleasedObject(new FindInOpenFiles);
+
     return true;
 }
 
@@ -145,10 +149,6 @@ void TextEditorPlugin::extensionsInitialized()
             this, &TextEditorPlugin::updateSearchResultsTabWidth);
 
     updateSearchResultsTabWidth(m_settings->codeStyle()->currentTabSettings());
-
-    addAutoReleasedObject(new FindInFiles);
-    addAutoReleasedObject(new FindInCurrentFile);
-    addAutoReleasedObject(new FindInOpenFiles);
 
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
 

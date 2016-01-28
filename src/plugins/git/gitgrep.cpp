@@ -27,24 +27,21 @@
 #include "gitclient.h"
 #include "gitplugin.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/find/findplugin.h>
 #include <coreplugin/vcsmanager.h>
+#include <texteditor/findinfiles.h>
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
-#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 
-#include <QDir>
+#include <QCheckBox>
+#include <QCoreApplication>
 #include <QEventLoop>
 #include <QFuture>
 #include <QFutureWatcher>
-#include <QGridLayout>
-#include <QLabel>
 #include <QSettings>
 
 using namespace Utils;
@@ -54,17 +51,9 @@ namespace Internal {
 
 using namespace Core;
 
-QString GitGrep::id() const
-{
-    return QLatin1String("Git Grep");
-}
-
-QString GitGrep::displayName() const
-{
-    return tr("Git Grep");
-}
-
 namespace {
+
+const char EnableGitGrep[] = "EnableGitGrep";
 
 class GitGrepRunner : public QObject
 {
@@ -180,116 +169,71 @@ private:
 
 } // namespace
 
-QFuture<FileSearchResultList> GitGrep::executeSearch(
-        const TextEditor::FileFindParameters &parameters)
+static bool validateDirectory(const QString &path)
 {
-    return Utils::runAsync<FileSearchResultList>(GitGrepRunner::run, parameters);
-}
-
-FileIterator *GitGrep::files(const QStringList &, const QVariant &) const
-{
-    QTC_ASSERT(false, return 0);
-}
-
-QVariant GitGrep::additionalParameters() const
-{
-    return qVariantFromValue(path().toString());
-}
-
-QString GitGrep::label() const
-{
-    const QChar slash = QLatin1Char('/');
-    const QStringList &nonEmptyComponents = path().toFileInfo().absoluteFilePath()
-            .split(slash, QString::SkipEmptyParts);
-    return tr("Git Grep \"%1\":").arg(nonEmptyComponents.isEmpty() ? QString(slash)
-                                                                   : nonEmptyComponents.last());
-}
-
-QString GitGrep::toolTip() const
-{
-    //: %3 is filled by BaseFileFind::runNewSearch
-    return tr("Path: %1\nFilter: %2\n%3")
-            .arg(path().toUserOutput(), fileNameFilters().join(QLatin1Char(',')));
-}
-
-bool GitGrep::validateDirectory(FancyLineEdit *edit, QString *errorMessage) const
-{
-    static IVersionControl *gitVc =
-            VcsManager::versionControl(VcsBase::Constants::VCS_ID_GIT);
+    static IVersionControl *gitVc = VcsManager::versionControl(VcsBase::Constants::VCS_ID_GIT);
     QTC_ASSERT(gitVc, return false);
-    if (!m_directory->defaultValidationFunction()(edit, errorMessage))
-        return false;
-    const QString path = m_directory->path();
-    IVersionControl *vc = VcsManager::findVersionControlForDirectory(path, 0);
-    if (vc == gitVc)
-        return true;
-    if (errorMessage)
-        *errorMessage = tr("The path \"%1\" is not managed by Git").arg(path);
-    return false;
+    return gitVc == VcsManager::findVersionControlForDirectory(path, 0);
 }
 
-QWidget *GitGrep::createConfigWidget()
+GitGrep::GitGrep()
 {
-    if (!m_configWidget) {
-        m_configWidget = new QWidget;
-        QGridLayout * const gridLayout = new QGridLayout(m_configWidget);
-        gridLayout->setMargin(0);
-        m_configWidget->setLayout(gridLayout);
-
-        QLabel *dirLabel = new QLabel(tr("Director&y:"));
-        gridLayout->addWidget(dirLabel, 0, 0, Qt::AlignRight);
-        m_directory = new PathChooser;
-        m_directory->setExpectedKind(PathChooser::ExistingDirectory);
-        m_directory->setHistoryCompleter(QLatin1String("Git.Grep.History"), true);
-        m_directory->setPromptDialogTitle(tr("Directory to search"));
-        m_directory->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
-            return validateDirectory(edit, errorMessage);
-        });
-        connect(m_directory.data(), &PathChooser::validChanged,
-                this, &GitGrep::enabledChanged);
-        dirLabel->setBuddy(m_directory);
-        gridLayout->addWidget(m_directory, 0, 1, 1, 2);
-
-        QLabel * const filePatternLabel = new QLabel(tr("Fi&le pattern:"));
-        filePatternLabel->setMinimumWidth(80);
-        filePatternLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        QWidget *patternWidget = createPatternWidget();
-        filePatternLabel->setBuddy(patternWidget);
-        gridLayout->addWidget(filePatternLabel, 1, 0);
-        gridLayout->addWidget(patternWidget, 1, 1, 1, 2);
-        m_configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    }
-    return m_configWidget;
+    m_widget = new QCheckBox(tr("&Use Git Grep"));
+    m_widget->setToolTip(tr("Use Git Grep for searching. This includes only files "
+                            "that are managed by source control."));
+    TextEditor::FindInFiles *findInFiles = TextEditor::FindInFiles::instance();
+    QTC_ASSERT(findInFiles, return);
+    QObject::connect(findInFiles, &TextEditor::FindInFiles::pathChanged,
+                     m_widget.data(), [this](const QString &path) {
+        m_widget->setEnabled(validateDirectory(path));
+    });
+    findInFiles->setFindExtension(this);
 }
 
-FileName GitGrep::path() const
+GitGrep::~GitGrep()
 {
-    return m_directory->fileName();
+    delete m_widget.data();
 }
 
-void GitGrep::writeSettings(QSettings *settings)
+QString GitGrep::title() const
 {
-    settings->beginGroup(QLatin1String("GitGrep"));
-    writeCommonSettings(settings);
-    settings->endGroup();
+    return tr("Git Grep");
+}
+
+QWidget *GitGrep::widget() const
+{
+    return m_widget.data();
+}
+
+bool GitGrep::isEnabled() const
+{
+    return m_widget->isEnabled() && m_widget->isChecked();
+}
+
+bool GitGrep::isEnabled(const TextEditor::FileFindParameters &parameters) const
+{
+    return parameters.extensionParameters.toBool();
+}
+
+QVariant GitGrep::parameters() const
+{
+    return isEnabled();
 }
 
 void GitGrep::readSettings(QSettings *settings)
 {
-    settings->beginGroup(QLatin1String("GitGrep"));
-    readCommonSettings(settings, QLatin1String("*"));
-    settings->endGroup();
+    m_widget->setChecked(settings->value(QLatin1String(EnableGitGrep), false).toBool());
 }
 
-bool GitGrep::isValid() const
+void GitGrep::writeSettings(QSettings *settings) const
 {
-    return m_directory->isValid();
+    settings->setValue(QLatin1String(EnableGitGrep), m_widget->isChecked());
 }
 
-void GitGrep::setDirectory(const FileName &directory)
+QFuture<FileSearchResultList> GitGrep::executeSearch(
+        const TextEditor::FileFindParameters &parameters)
 {
-    m_directory->setFileName(directory);
+    return Utils::runAsync<FileSearchResultList>(GitGrepRunner::run, parameters);
 }
 
 } // Internal

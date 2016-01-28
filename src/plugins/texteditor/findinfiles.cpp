@@ -92,10 +92,17 @@ QVariant FindInFiles::additionalParameters() const
 
 QString FindInFiles::label() const
 {
+    QString title = tr("Directory");
+    if (FileFindExtension *ext = extension()) {
+        if (ext->isEnabled())
+            title = ext->title();
+    }
     const QChar slash = QLatin1Char('/');
     const QStringList &nonEmptyComponents = path().toFileInfo().absoluteFilePath()
             .split(slash, QString::SkipEmptyParts);
-    return tr("Directory \"%1\":").arg(nonEmptyComponents.isEmpty() ? QString(slash) : nonEmptyComponents.last());
+    return tr("%1 \"%2\":")
+            .arg(title)
+            .arg(nonEmptyComponents.isEmpty() ? QString(slash) : nonEmptyComponents.last());
 }
 
 QString FindInFiles::toolTip() const
@@ -114,15 +121,21 @@ QWidget *FindInFiles::createConfigWidget()
         gridLayout->setMargin(0);
         m_configWidget->setLayout(gridLayout);
 
+        int row = 0;
+        if (FileFindExtension *ext = extension())
+            gridLayout->addWidget(ext->widget(), row++, 1, 1, 2);
+
         QLabel *dirLabel = new QLabel(tr("Director&y:"));
-        gridLayout->addWidget(dirLabel, 0, 0, Qt::AlignRight);
+        gridLayout->addWidget(dirLabel, row, 0, Qt::AlignRight);
         m_directory = new PathChooser;
         m_directory->setExpectedKind(PathChooser::ExistingDirectory);
-        m_directory->setHistoryCompleter(QLatin1String(HistoryKey),
-                                         /*restoreLastItemFromHistory=*/ true);
         m_directory->setPromptDialogTitle(tr("Directory to Search"));
+        connect(m_directory.data(), &PathChooser::pathChanged,
+                this, &FindInFiles::pathChanged);
         connect(m_directory.data(), &PathChooser::validChanged,
                 this, &FindInFiles::enabledChanged);
+        m_directory->setHistoryCompleter(QLatin1String(HistoryKey),
+                                         /*restoreLastItemFromHistory=*/ true);
         if (!HistoryCompleter::historyExistsFor(QLatin1String(HistoryKey))) {
             auto completer = static_cast<HistoryCompleter *>(m_directory->lineEdit()->completer());
             const QStringList legacyHistory = Core::ICore::settings()->value(
@@ -131,7 +144,7 @@ QWidget *FindInFiles::createConfigWidget()
                 completer->addEntry(dir);
         }
         dirLabel->setBuddy(m_directory);
-        gridLayout->addWidget(m_directory, 0, 1, 1, 2);
+        gridLayout->addWidget(m_directory, row++, 1, 1, 2);
 
         QLabel * const filePatternLabel = new QLabel(tr("Fi&le pattern:"));
         filePatternLabel->setMinimumWidth(80);
@@ -139,8 +152,8 @@ QWidget *FindInFiles::createConfigWidget()
         filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         QWidget *patternWidget = createPatternWidget();
         filePatternLabel->setBuddy(patternWidget);
-        gridLayout->addWidget(filePatternLabel, 1, 0);
-        gridLayout->addWidget(patternWidget, 1, 1, 1, 2);
+        gridLayout->addWidget(filePatternLabel, row, 0);
+        gridLayout->addWidget(patternWidget, row++, 1, 1, 2);
         m_configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     }
     return m_configWidget;
@@ -170,6 +183,11 @@ void FindInFiles::setDirectory(const FileName &directory)
     m_directory->setFileName(directory);
 }
 
+FileName FindInFiles::directory() const
+{
+    return m_directory->fileName();
+}
+
 void FindInFiles::findOnFileSystem(const QString &path)
 {
     QTC_ASSERT(m_instance, return);
@@ -177,4 +195,9 @@ void FindInFiles::findOnFileSystem(const QString &path)
     const QString folder = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
     m_instance->setDirectory(FileName::fromString(folder));
     FindPlugin::instance()->openFindDialog(m_instance);
+}
+
+FindInFiles *FindInFiles::instance()
+{
+    return m_instance;
 }
