@@ -42,21 +42,21 @@ using namespace ClangBackEnd;
 namespace ClangCodeModel {
 namespace Internal {
 
-bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
+bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedCharacter) const
 {
     bool applies = false;
 
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT)
-        applies = QString::fromLatin1("(,").contains(typedChar);
+        applies = QString::fromLatin1("(,").contains(typedCharacter);
     else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL)
-        applies = (typedChar == QLatin1Char('/')) && text().endsWith(QLatin1Char('/'));
+        applies = (typedCharacter == QLatin1Char('/')) && text().endsWith(QLatin1Char('/'));
     else if (codeCompletion().completionKind() == CodeCompletion::ObjCMessageCompletionKind)
-        applies = QString::fromLatin1(";.,").contains(typedChar);
+        applies = QString::fromLatin1(";.,").contains(typedCharacter);
     else
-        applies = QString::fromLatin1(";.,:(").contains(typedChar);
+        applies = QString::fromLatin1(";.,:(").contains(typedCharacter);
 
     if (applies)
-        m_typedChar = typedChar;
+        m_typedCharacter = typedCharacter;
 
     return applies;
 }
@@ -87,23 +87,16 @@ void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
     const CodeCompletion ccr = codeCompletion();
 
     QString textToBeInserted = text();
-    QString extraChars;
+    QString extraCharacters;
     int extraLength = 0;
     int cursorOffset = 0;
 
     bool autoParenthesesEnabled = true;
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
-        extraChars += QLatin1Char(')');
-        if (m_typedChar == QLatin1Char('(')) // Eat the opening parenthesis
-            m_typedChar = QChar();
-    } else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL) {
-        if (!textToBeInserted.endsWith(QLatin1Char('/'))) {
-            extraChars += QLatin1Char((m_completionOperator == T_ANGLE_STRING_LITERAL) ? '>' : '"');
-        } else {
-            if (m_typedChar == QLatin1Char('/')) // Eat the slash
-                m_typedChar = QChar();
-        }
-    } else if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
+        extraCharacters += QLatin1Char(')');
+        if (m_typedCharacter == QLatin1Char('(')) // Eat the opening parenthesis
+            m_typedCharacter = QChar();
+    } else  if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
         CompletionChunksToTextConverter converter;
         converter.setupForKeywords();
 
@@ -131,42 +124,42 @@ void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
             // When the user typed the opening parenthesis, he'll likely also type the closing one,
             // in which case it would be annoying if we put the cursor after the already automatically
             // inserted closing parenthesis.
-            const bool skipClosingParenthesis = m_typedChar != QLatin1Char('(');
+            const bool skipClosingParenthesis = m_typedCharacter != QLatin1Char('(');
 
             if (completionSettings.m_spaceAfterFunctionName)
-                extraChars += QLatin1Char(' ');
-            extraChars += QLatin1Char('(');
-            if (m_typedChar == QLatin1Char('('))
-                m_typedChar = QChar();
+                extraCharacters += QLatin1Char(' ');
+            extraCharacters += QLatin1Char('(');
+            if (m_typedCharacter == QLatin1Char('('))
+                m_typedCharacter = QChar();
 
             // If the function doesn't return anything, automatically place the semicolon,
             // unless we're doing a scope completion (then it might be function definition).
             const QChar characterAtCursor = editorWidget->characterAt(editorWidget->position());
-            bool endWithSemicolon = m_typedChar == QLatin1Char(';')/*
+            bool endWithSemicolon = m_typedCharacter == QLatin1Char(';')/*
                                             || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON)*/; //###
-            const QChar semicolon = m_typedChar.isNull() ? QLatin1Char(';') : m_typedChar;
+            const QChar semicolon = m_typedCharacter.isNull() ? QLatin1Char(';') : m_typedCharacter;
 
             if (endWithSemicolon && characterAtCursor == semicolon) {
                 endWithSemicolon = false;
-                m_typedChar = QChar();
+                m_typedCharacter = QChar();
             }
 
             // If the function takes no arguments, automatically place the closing parenthesis
             if (!isOverloaded() && !ccr.hasParameters() && skipClosingParenthesis) {
-                extraChars += QLatin1Char(')');
+                extraCharacters += QLatin1Char(')');
                 if (endWithSemicolon) {
-                    extraChars += semicolon;
-                    m_typedChar = QChar();
+                    extraCharacters += semicolon;
+                    m_typedCharacter = QChar();
                 }
             } else if (autoParenthesesEnabled) {
                 const QChar lookAhead = editorWidget->characterAt(editorWidget->position() + 1);
                 if (MatchingText::shouldInsertMatchingText(lookAhead)) {
-                    extraChars += QLatin1Char(')');
+                    extraCharacters += QLatin1Char(')');
                     --cursorOffset;
                     if (endWithSemicolon) {
-                        extraChars += semicolon;
+                        extraCharacters += semicolon;
                         --cursorOffset;
-                        m_typedChar = QChar();
+                        m_typedCharacter = QChar();
                     }
                 }
             }
@@ -187,8 +180,8 @@ void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
     }
 
     // Append an unhandled typed character, adjusting cursor offset when it had been adjusted before
-    if (!m_typedChar.isNull()) {
-        extraChars += m_typedChar;
+    if (!m_typedCharacter.isNull()) {
+        extraCharacters += m_typedCharacter;
         if (cursorOffset != 0)
             --cursorOffset;
     }
@@ -205,8 +198,8 @@ void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
                 break;
         }
     }
-    for (int i = 0; i < extraChars.length(); ++i) {
-        const QChar a = extraChars.at(i);
+    for (int i = 0; i < extraCharacters.length(); ++i) {
+        const QChar a = extraCharacters.at(i);
         const QChar b = editorWidget->characterAt(editorWidget->position() + i + existLength);
         if (a == b)
             ++extraLength;
@@ -214,7 +207,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextEditorWidget *editorWidget,
             break;
     }
 
-    textToBeInserted += extraChars;
+    textToBeInserted += extraCharacters;
 
     // Insert the remainder of the name
     const int length = editorWidget->position() - basePosition + existLength + extraLength;

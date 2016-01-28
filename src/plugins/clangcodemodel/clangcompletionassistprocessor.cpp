@@ -33,6 +33,7 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangfunctionhintmodel.h"
 #include "clangcompletionchunkstotextconverter.h"
+#include "clangpreprocessorassistproposalitem.h"
 
 #include <cpptools/cppdoxygen.h>
 #include <cpptools/cppmodelmanager.h>
@@ -533,11 +534,11 @@ void ClangCompletionAssistProcessor::completeIncludePath(const QString &realPath
             if (fileInfo.isDir())
                 text += QLatin1Char('/');
 
-            auto *item = new ClangAssistProposalItem; // TODO: Add IncludeAssistProposalItem
+            auto *item = new ClangPreprocessorAssistProposalItem;
             item->setText(text);
-            //item->setDetail(hint);
-            //item->setIcon(m_icons.keywordIcon());
-            item->keepCompletionOperator(m_completionOperator);
+            item->setDetail(hint);
+            item->setIcon(m_icons.keywordIcon());
+            item->setCompletionOperator(m_completionOperator);
             m_completions.append(item);
         }
     }
@@ -567,11 +568,11 @@ void ClangCompletionAssistProcessor::addCompletionItem(const QString &text,
                                                        const QIcon &icon,
                                                        int order)
 {
-    ClangAssistProposalItem *item = new ClangAssistProposalItem;
+    auto *item = new ClangPreprocessorAssistProposalItem;
     item->setText(text);
-    //item->setIcon(icon); TODO: Add item for macros and includes
+    item->setIcon(icon);
     item->setOrder(order);
-    item->keepCompletionOperator(m_completionOperator);
+    item->setCompletionOperator(m_completionOperator);
     m_completions.append(item);
 }
 

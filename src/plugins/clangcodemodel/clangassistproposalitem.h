@@ -39,9 +39,7 @@ class ClangAssistProposalItem final : public TextEditor::AssistProposalItemInter
 {
     friend bool operator<(const ClangAssistProposalItem &first, const ClangAssistProposalItem &second);
 public:
-    ClangAssistProposalItem() {}
-
-    bool prematurelyApplies(const QChar &c) const final;
+    bool prematurelyApplies(const QChar &typedCharacter) const final;
     bool implicitlyApplies() const final;
     void apply(TextEditor::TextEditorWidget *editorWidget, int basePosition) const final;
 
@@ -66,7 +64,7 @@ private:
     QList<ClangBackEnd::CodeCompletion> m_overloads;
     QString m_text;
     unsigned m_completionOperator;
-    mutable QChar m_typedChar;
+    mutable QChar m_typedCharacter;
 };
 
 } // namespace Internal

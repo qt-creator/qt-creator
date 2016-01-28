@@ -79,6 +79,8 @@ QtcPlugin {
         "clanghighlightingmarksreporter.h",
         "clangmodelmanagersupport.cpp",
         "clangmodelmanagersupport.h",
+        "clangpreprocessorassistproposalitem.cpp",
+        "clangpreprocessorassistproposalitem.h",
         "clangtextmark.cpp",
         "clangtextmark.h",
         "clangutils.cpp",

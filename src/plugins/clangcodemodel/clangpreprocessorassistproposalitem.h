@@ -23,46 +23,50 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H
-#define TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H
+#ifndef CLANGCODEMODEL_PREPROCESSORASSISTPROPOSALITEM_H
+#define CLANGCODEMODEL_PREPROCESSORASSISTPROPOSALITEM_H
 
-#include <texteditor/texteditor_global.h>
+#include <texteditor/codeassist/assistproposaliteminterface.h>
 
-QT_BEGIN_NAMESPACE
-class QChar;
-class QIcon;
-class QString;
-class QVariant;
-QT_END_NAMESPACE
-
+#include <QIcon>
 #include <QString>
 
-namespace TextEditor {
+namespace ClangCodeModel {
 
-class TextEditorWidget;
-
-class TEXTEDITOR_EXPORT AssistProposalItemInterface
+class ClangPreprocessorAssistProposalItem final : public TextEditor::AssistProposalItemInterface
 {
 public:
-    virtual ~AssistProposalItemInterface() noexcept = default;
+    bool prematurelyApplies(const QChar &typedChar) const final;
+    virtual bool implicitlyApplies() const final;
+    void apply(TextEditor::TextEditorWidget *editorWidget, int basePosition) const final;
 
-    virtual QString text() const = 0;
-    virtual bool implicitlyApplies() const = 0;
-    virtual bool prematurelyApplies(const QChar &typedCharacter) const = 0;
-    virtual void apply(TextEditorWidget *editorWidget, int basePosition) const = 0;
-    virtual QIcon icon() const = 0;
-    virtual QString detail() const = 0;
-    virtual bool isSnippet() const = 0;
-    virtual bool isValid() const = 0;
-    virtual quint64 hash() const = 0; // it is only for removing duplicates
+    void setText(const QString &text);
+    QString text() const final;
 
-    int order() const { return m_order; }
-    void setOrder(int order) { m_order = order; }
+    void setIcon(const QIcon &icon);
+    QIcon icon() const final;
+
+    void setDetail(const QString &detail);
+    QString detail() const final;
+
+    bool isSnippet() const final;
+    bool isValid() const final;
+
+    quint64 hash() const final;
+
+    void setCompletionOperator(uint completionOperator);
 
 private:
-    int m_order = 0;
+    bool isInclude() const;
+
+private:
+    QString m_text;
+    QString m_detail;
+    QIcon m_icon;
+    uint m_completionOperator;
+    mutable QChar m_typedCharacter;
 };
 
-} // namespace TextEditor
+} // namespace ClangCodeModel
 
-#endif // TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H
+#endif // CLANGCODEMODEL_PREPROCESSORASSISTPROPOSALITEM_H

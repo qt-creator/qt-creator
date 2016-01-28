@@ -27,6 +27,7 @@ SOURCES += \
     clangfunctionhintmodel.cpp \
     clanghighlightingmarksreporter.cpp \
     clangmodelmanagersupport.cpp \
+    clangpreprocessorassistproposalitem.cpp \
     clangtextmark.cpp \
     clangutils.cpp
 
@@ -53,6 +54,7 @@ HEADERS += \
     clangfunctionhintmodel.h \
     clanghighlightingmarksreporter.h \
     clangmodelmanagersupport.h \
+    clangpreprocessorassistproposalitem.h \
     clangtextmark.h \
     clangutils.h
 
