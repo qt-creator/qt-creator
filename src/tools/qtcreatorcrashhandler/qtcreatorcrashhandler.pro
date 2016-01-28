@@ -2,6 +2,7 @@ QTC_LIB_DEPENDS += utils
 
 include(../../qtcreatortool.pri)
 
+DESTDIR = $$IDE_BIN_PATH
 TARGET = qtcreator_crash_handler
 
 SOURCES += \
