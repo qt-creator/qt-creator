@@ -291,7 +291,7 @@ void CrashHandler::debugApplication()
 
     // Prepare command.
     QString executable = d->creatorInPath.toString();
-    if (!d->restartAppCommandLine.isEmpty())
+    if (executable.isEmpty() && !d->restartAppCommandLine.isEmpty())
         executable = d->restartAppCommandLine.at(0);
     const QStringList commandLine = QStringList()
             << executable
