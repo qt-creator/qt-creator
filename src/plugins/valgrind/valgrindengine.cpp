@@ -28,13 +28,15 @@
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
 
+#include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzerstartparameters.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/runconfiguration.h>
-#include <analyzerbase/analyzermanager.h>
 
 #include <QApplication>
 #include <QMainWindow>
@@ -85,9 +87,9 @@ bool ValgrindRunControl::startEngine()
     ValgrindRunner *run = runner();
     run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
-    run->setConnectionParameters(connection().connParams);
+    run->setConnectionParameters(connection().as<AnalyzerConnection>().connParams);
     run->setUseStartupProject(!m_isCustomStart);
-    run->setDebuggee(runnable());
+    run->setDebuggee(runnable().as<StandardRunnable>());
 
     connect(run, &ValgrindRunner::processOutputReceived,
             this, &ValgrindRunControl::receiveProcessOutput);
@@ -111,7 +113,7 @@ void ValgrindRunControl::stopEngine()
 
 QString ValgrindRunControl::executable() const
 {
-    return runnable().executable;
+    return runnable().as<StandardRunnable>().executable;
 }
 
 QStringList ValgrindRunControl::genericToolArguments() const

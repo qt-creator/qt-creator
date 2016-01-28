@@ -27,10 +27,9 @@
 #ifndef ANALYZERRUNCONTROL_H
 #define ANALYZERRUNCONTROL_H
 
-#include "analyzerstartparameters.h"
+#include "analyzerbase_global.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runnables.h>
 
 #include <utils/outputformat.h>
 
@@ -58,9 +57,6 @@ public:
     virtual bool canPause() const { return false; }
     virtual void pause() {}
     virtual void unpause() {}
-
-    const ProjectExplorer::StandardRunnable &runnable() const;
-    const AnalyzerConnection &connection() const;
 
     virtual void notifyRemoteSetupDone(quint16) {}
     virtual void notifyRemoteFinished() {}

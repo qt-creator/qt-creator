@@ -28,7 +28,6 @@
 #include "analyzerruncontrol.h"
 #include "ianalyzertool.h"
 #include "analyzermanager.h"
-#include "analyzerstartparameters.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -56,16 +55,6 @@ AnalyzerRunControl::AnalyzerRunControl(RunConfiguration *runConfiguration, Core:
             this, &AnalyzerRunControl::runControlFinished);
     connect(AnalyzerManager::stopAction(), &QAction::triggered,
             this, &AnalyzerRunControl::stopIt);
-}
-
-const StandardRunnable &AnalyzerRunControl::runnable() const
-{
-    return RunControl::runnable().as<StandardRunnable>();
-}
-
-const AnalyzerConnection &AnalyzerRunControl::connection() const
-{
-    return RunControl::connection().as<AnalyzerConnection>();
 }
 
 void AnalyzerRunControl::stopIt()

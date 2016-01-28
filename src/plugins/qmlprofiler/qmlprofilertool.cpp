@@ -39,6 +39,7 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
+#include <analyzerbase/analyzerstartparameters.h>
 
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
@@ -222,7 +223,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
     runControl->registerProfilerStateManager(d->m_profilerState);
 
     // FIXME: Check that there's something sensible in sp.connParams
-    auto &connection = runControl->connection();
+    auto connection = runControl->connection().as<AnalyzerConnection>();
     if (!connection.analyzerSocket.isEmpty())
         d->m_profilerConnections->setLocalSocket(connection.analyzerSocket);
     else

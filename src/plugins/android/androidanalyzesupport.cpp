@@ -31,6 +31,7 @@
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
+#include <analyzerbase/analyzerstartparameters.h>
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>

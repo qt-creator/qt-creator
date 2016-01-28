@@ -33,6 +33,7 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
+#include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/ianalyzertool.h>
 
 #include <debugger/debuggerruncontrol.h>

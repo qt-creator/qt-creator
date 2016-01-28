@@ -29,6 +29,8 @@
 #include "qmlprofilertool.h"
 
 #include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzerstartparameters.h>
+
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/helpmanager.h>
@@ -109,9 +111,12 @@ bool QmlProfilerRunControl::startEngine()
     d->m_tool->finalizeRunControl(this);
     QTC_ASSERT(d->m_profilerState, return false);
 
-    if (connection().analyzerPort != 0)
-        emit processRunning(connection().analyzerPort);
-    else if (connection().analyzerSocket.isEmpty())
+    QTC_ASSERT(connection().is<AnalyzerConnection>(), return false);
+    auto conn = connection().as<AnalyzerConnection>();
+
+    if (conn.analyzerPort != 0)
+        emit processRunning(conn.analyzerPort);
+    else if (conn.analyzerSocket.isEmpty())
         d->m_noDebugOutputTimer.start();
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
@@ -233,7 +238,7 @@ void QmlProfilerRunControl::processIsRunning(quint16 port)
     d->m_noDebugOutputTimer.stop();
 
     if (port == 0)
-        port = connection().analyzerPort;
+        port = connection().as<AnalyzerConnection>().analyzerPort;
     if (port != 0)
         emit processRunning(port);
 }
