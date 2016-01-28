@@ -33,13 +33,13 @@
 #include <clang-c/Index.h>
 
 #include <chrono>
-#include <vector>
 #include <memory>
 
 namespace ClangBackEnd {
 
 using time_point = std::chrono::steady_clock::time_point;
 
+class UnsavedFile;
 class UnsavedFilesData;
 
 class UnsavedFiles
@@ -57,21 +57,18 @@ public:
 
     void createOrUpdate(const QVector<FileContainer> &fileContainers);
     void remove(const QVector<FileContainer> &fileContainers);
-    void clear();
+
+    UnsavedFile &unsavedFile(const Utf8String &filePath);
 
     uint count() const;
-
     CXUnsavedFile *cxUnsavedFiles() const;
-    const std::vector<CXUnsavedFile> &cxUnsavedFileVector() const;
 
     const time_point &lastChangeTimePoint() const;
 
 private:
-    CXUnsavedFile createCxUnsavedFile(const Utf8String &filePath, const Utf8String &fileContent);
-    static void deleteCXUnsavedFile(CXUnsavedFile &cxUnsavedFile);
-    void updateCXUnsavedFileWithFileContainer(const FileContainer &fileContainer);
-    void removeCXUnsavedFile(const FileContainer &fileContainer);
-    void addOrUpdateCXUnsavedFile(const FileContainer &fileContainer);
+    void updateUnsavedFileWithFileContainer(const FileContainer &fileContainer);
+    void removeUnsavedFile(const FileContainer &fileContainer);
+    void addOrUpdateUnsavedFile(const FileContainer &fileContainer);
     void updateLastChangeTimePoint();
 
 private:

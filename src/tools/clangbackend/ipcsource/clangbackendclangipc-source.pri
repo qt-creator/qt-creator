@@ -7,6 +7,7 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/codecompletefailedexception.h \
     $$PWD/clangcodecompleteresults.h \
     $$PWD/codecompletionsextractor.h \
+    $$PWD/unsavedfile.h \
     $$PWD/unsavedfiles.h \
     $$PWD/projects.h \
     $$PWD/translationunits.h \
@@ -31,8 +32,7 @@ HEADERS += $$PWD/clangipcserver.h \
     $$PWD/highlightinginformationsiterator.h \
     $$PWD/skippedsourceranges.h \
     $$PWD/clangtranslationunit.h \
-    $$PWD/clangtype.h \
-    $$PWD/temporarymodifiedunsavedfiles.h
+    $$PWD/clangtype.h
 
 SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -41,6 +41,7 @@ SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/codecompletefailedexception.cpp \
     $$PWD/clangcodecompleteresults.cpp \
     $$PWD/codecompletionsextractor.cpp \
+    $$PWD/unsavedfile.cpp \
     $$PWD/unsavedfiles.cpp \
     $$PWD/projects.cpp \
     $$PWD/translationunits.cpp \
@@ -63,5 +64,4 @@ SOURCES += $$PWD/clangipcserver.cpp \
     $$PWD/highlightinginformation.cpp \
     $$PWD/skippedsourceranges.cpp \
     $$PWD/clangtranslationunit.cpp \
-    $$PWD/clangtype.cpp \
-    $$PWD/temporarymodifiedunsavedfiles.cpp
+    $$PWD/clangtype.cpp

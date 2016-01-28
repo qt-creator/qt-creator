@@ -42,6 +42,7 @@ namespace ClangBackEnd {
 
 class TranslationUnitData;
 class CodeCompleter;
+class UnsavedFile;
 class UnsavedFiles;
 class ProjectPart;
 class DiagnosticContainer;
@@ -93,8 +94,9 @@ public:
     CXIndex index() const;
     CXTranslationUnit cxTranslationUnit() const;
     CXTranslationUnit cxTranslationUnitWithoutReparsing() const;
+
+    UnsavedFile &unsavedFile() const;
     CXUnsavedFile * cxUnsavedFiles() const;
-    const std::vector<CXUnsavedFile> &cxUnsavedFilesVector() const;
 
     uint unsavedFilesCount() const;
 

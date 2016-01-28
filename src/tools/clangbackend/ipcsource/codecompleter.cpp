@@ -31,7 +31,7 @@
 #include "codecompletefailedexception.h"
 #include "codecompletionsextractor.h"
 #include "sourcelocation.h"
-#include "temporarymodifiedunsavedfiles.h"
+#include "unsavedfile.h"
 #include "clangtranslationunit.h"
 #include "sourcerange.h"
 
@@ -97,22 +97,18 @@ ClangCodeCompleteResults CodeCompleter::complete(uint line,
 
 ClangCodeCompleteResults CodeCompleter::completeWithArrowInsteadOfDot(uint line, uint column)
 {
-    TemporaryModifiedUnsavedFiles modifiedUnsavedFiles(translationUnit.cxUnsavedFilesVector());
-    const SourceLocation location = translationUnit.sourceLocationAtWithoutReparsing(line,
-                                                                                     column - 1);
-
-    const bool replaced = modifiedUnsavedFiles.replaceInFile(filePath(),
-                                                             location.offset(),
-                                                             1,
-                                                             Utf8StringLiteral("->"));
-
     ClangCodeCompleteResults results;
+
+    const SourceLocation location = translationUnit.sourceLocationAtWithoutReparsing(line, column - 1);
+    const bool replaced = translationUnit.unsavedFile().replaceAt(location.offset(),
+                                                                  1,
+                                                                  Utf8StringLiteral("->"));
 
     if (replaced) {
         results = complete(line,
                            column + 1,
-                           modifiedUnsavedFiles.cxUnsavedFiles(),
-                           modifiedUnsavedFiles.count());
+                           translationUnit.cxUnsavedFiles(),
+                           translationUnit.unsavedFilesCount());
 
         if (results.hasResults())
             neededCorrection_ = CompletionCorrection::DotToArrowCorrection;

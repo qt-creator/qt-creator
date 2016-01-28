@@ -28,17 +28,20 @@
 #include "gmock/gmock.h"
 #include "gtest-qt-printing.h"
 
-#include <unsavedfiles.h>
 #include <filecontainer.h>
+#include <unsavedfiles.h>
+#include <unsavedfile.h>
 
 #include <QVector>
 
+using ClangBackEnd::UnsavedFile;
 using ClangBackEnd::UnsavedFiles;
 using ClangBackEnd::FileContainer;
 
+using ::testing::Gt;
 using ::testing::IsNull;
 using ::testing::NotNull;
-using ::testing::Gt;
+using ::testing::PrintToString;
 
 namespace {
 
@@ -65,19 +68,30 @@ MATCHER_P(HasUnsavedFiles, fileContainers, "")
         return false;
     }
 
-    for (const CXUnsavedFile &cxUnsavedFile : unsavedFiles.cxUnsavedFileVector()) {
-        if (!fileContainersContainsItemMatchingToCxUnsavedFile(fileContainers, cxUnsavedFile))
+    for (uint i = 0, to = unsavedFiles.count(); i < to; ++i) {
+        CXUnsavedFile *cxUnsavedFile = unsavedFiles.cxUnsavedFiles() + i;
+        if (!fileContainersContainsItemMatchingToCxUnsavedFile(fileContainers, *cxUnsavedFile))
             return false;
     }
 
     return true;
 }
 
+MATCHER_P3(IsUnsavedFile, fileName, contents, contentsLength,
+          std::string(negation ? "isn't" : "is")
+          + " file name " + PrintToString(fileName)
+          + ", contents " + PrintToString(contents)
+          + ", contents length " + PrintToString(contentsLength))
+{
+    CXUnsavedFile unsavedFile = arg.cxUnsavedFile;
+
+    return fileName == unsavedFile.Filename
+        && contents == unsavedFile.Contents
+        && size_t(contentsLength) == unsavedFile.Length;
+}
+
 class UnsavedFiles : public ::testing::Test
 {
-protected:
-    void TearDown() override;
-
 protected:
     ::UnsavedFiles unsavedFiles;
     Utf8String filePath{Utf8StringLiteral("file.cpp")};
@@ -86,11 +100,6 @@ protected:
     Utf8String unsavedContent1{Utf8StringLiteral("foo")};
     Utf8String unsavedContent2{Utf8StringLiteral("bar")};
 };
-
-void UnsavedFiles::TearDown()
-{
-    unsavedFiles.clear();
-}
 
 TEST_F(UnsavedFiles, DoNothingForUpdateIfFileHasNoUnsavedContent)
 {
@@ -149,6 +158,25 @@ TEST_F(UnsavedFiles, RemoveUnsavedFiles)
 
     ASSERT_THAT(unsavedFiles, HasUnsavedFiles(QVector<FileContainer>()));
 }
+
+TEST_F(UnsavedFiles, FindUnsavedFile)
+{
+    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true)});
+    unsavedFiles.createOrUpdate(fileContainers);
+
+    UnsavedFile &unsavedFile = unsavedFiles.unsavedFile(filePath);
+
+    ASSERT_THAT(unsavedFile, IsUnsavedFile(filePath, unsavedContent1, unsavedContent1.byteSize()));
 }
 
+TEST_F(UnsavedFiles, FindNoUnsavedFile)
+{
+    QVector<FileContainer> fileContainers({FileContainer(filePath, projectPartId, unsavedContent1, true)});
+    unsavedFiles.createOrUpdate(fileContainers);
 
+    UnsavedFile &unsavedFile = unsavedFiles.unsavedFile(Utf8StringLiteral("nonExistingFilePath.cpp"));
+
+    ASSERT_THAT(unsavedFile, IsUnsavedFile(Utf8String(), Utf8String(), 0UL));
+}
+
+}

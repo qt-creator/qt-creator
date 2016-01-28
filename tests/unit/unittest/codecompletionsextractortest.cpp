@@ -548,7 +548,6 @@ TEST_F(CodeCompletionsExtractor, UnsavedFile)
     unsavedFiles.createOrUpdate({unsavedDataFileContainer(TESTDATA_DIR"/complete_extractor_function.cpp",
                                  TESTDATA_DIR"/complete_extractor_function_unsaved.cpp")});
     ClangCodeCompleteResults completeResults(getResults(translationUnit, 20));
-    unsavedFiles.clear();
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
@@ -566,7 +565,6 @@ TEST_F(CodeCompletionsExtractor, ChangeUnsavedFile)
     unsavedFiles.createOrUpdate({unsavedDataFileContainer(TESTDATA_DIR"/complete_extractor_function.cpp",
                                  TESTDATA_DIR"/complete_extractor_function_unsaved_2.cpp")});
     completeResults = getResults(translationUnit, 20);
-    unsavedFiles.clear();
 
     ::CodeCompletionsExtractor extractor(completeResults.data());
 

@@ -25,8 +25,9 @@
 
 #include "unsavedfiles.h"
 
+#include "unsavedfile.h"
+
 #include <algorithm>
-#include <cstring>
 
 namespace ClangBackEnd {
 
@@ -34,24 +35,15 @@ class UnsavedFilesData
 {
 public:
     UnsavedFilesData();
-    ~UnsavedFilesData();
 
 public:
     time_point lastChangeTimePoint;
-    std::vector<CXUnsavedFile> cxUnsavedFiles;
+    std::vector<UnsavedFile> unsavedFiles;
 };
 
 UnsavedFilesData::UnsavedFilesData()
     : lastChangeTimePoint(std::chrono::steady_clock::now())
 {
-}
-
-UnsavedFilesData::~UnsavedFilesData()
-{
-    for (CXUnsavedFile &cxUnsavedFile : cxUnsavedFiles)
-        UnsavedFiles::deleteCXUnsavedFile(cxUnsavedFile);
-
-    cxUnsavedFiles.clear();
 }
 
 UnsavedFiles::UnsavedFiles()
@@ -79,7 +71,7 @@ UnsavedFiles &UnsavedFiles::operator=(UnsavedFiles &&other)
 void UnsavedFiles::createOrUpdate(const QVector<FileContainer> &fileContainers)
 {
     for (const FileContainer &fileContainer : fileContainers)
-        updateCXUnsavedFileWithFileContainer(fileContainer);
+        updateUnsavedFileWithFileContainer(fileContainer);
 
     updateLastChangeTimePoint();
 }
@@ -87,33 +79,35 @@ void UnsavedFiles::createOrUpdate(const QVector<FileContainer> &fileContainers)
 void UnsavedFiles::remove(const QVector<FileContainer> &fileContainers)
 {
     for (const FileContainer &fileContainer : fileContainers)
-        removeCXUnsavedFile(fileContainer);
+        removeUnsavedFile(fileContainer);
 
     updateLastChangeTimePoint();
 }
 
-void UnsavedFiles::clear()
+UnsavedFile &UnsavedFiles::unsavedFile(const Utf8String &filePath)
 {
-    for (CXUnsavedFile &cxUnsavedFile : d->cxUnsavedFiles)
-        deleteCXUnsavedFile(cxUnsavedFile);
+    const auto isMatchingFile = [filePath] (const UnsavedFile &unsavedFile) {
+        return unsavedFile.filePath() == filePath;
+    };
+    const auto unsavedFileIterator = std::find_if(d->unsavedFiles.begin(),
+                                                  d->unsavedFiles.end(),
+                                                  isMatchingFile);
 
-    d->cxUnsavedFiles.clear();
-    updateLastChangeTimePoint();
+    if (unsavedFileIterator != d->unsavedFiles.end())
+        return *unsavedFileIterator;
+
+    static UnsavedFile defaultUnsavedFile = UnsavedFile(Utf8String(), Utf8String());
+    return defaultUnsavedFile;
 }
 
 uint UnsavedFiles::count() const
 {
-    return uint(d->cxUnsavedFiles.size());
+    return uint(d->unsavedFiles.size());
 }
 
 CXUnsavedFile *UnsavedFiles::cxUnsavedFiles() const
 {
-    return d->cxUnsavedFiles.data();
-}
-
-const std::vector<CXUnsavedFile> &UnsavedFiles::cxUnsavedFileVector() const
-{
-    return d->cxUnsavedFiles;
+    return d->unsavedFiles.data()->data();
 }
 
 const time_point &UnsavedFiles::lastChangeTimePoint() const
@@ -121,59 +115,35 @@ const time_point &UnsavedFiles::lastChangeTimePoint() const
     return d->lastChangeTimePoint;
 }
 
-CXUnsavedFile UnsavedFiles::createCxUnsavedFile(const Utf8String &filePath, const Utf8String &fileContent)
+void UnsavedFiles::updateUnsavedFileWithFileContainer(const FileContainer &fileContainer)
 {
-    char *cxUnsavedFilePath = new char[filePath.byteSize() + 1];
-    char *cxUnsavedFileContent = new char[fileContent.byteSize() + 1];
-
-    std::memcpy(cxUnsavedFilePath, filePath.constData(), filePath.byteSize() + 1);
-    std::memcpy(cxUnsavedFileContent, fileContent.constData(), fileContent.byteSize() + 1);
-
-    return CXUnsavedFile { cxUnsavedFilePath, cxUnsavedFileContent, ulong(fileContent.byteSize())};
+    if (fileContainer.hasUnsavedFileContent())
+        addOrUpdateUnsavedFile(fileContainer);
+    else
+        removeUnsavedFile(fileContainer);
 }
 
-void UnsavedFiles::deleteCXUnsavedFile(CXUnsavedFile &cxUnsavedFile)
-{
-    delete [] cxUnsavedFile.Contents;
-    delete [] cxUnsavedFile.Filename;
-    cxUnsavedFile.Contents = nullptr;
-    cxUnsavedFile.Filename = nullptr;
-    cxUnsavedFile.Length = 0;
-}
-
-void UnsavedFiles::updateCXUnsavedFileWithFileContainer(const FileContainer &fileContainer)
-{
-    if (fileContainer.hasUnsavedFileContent()) {
-        addOrUpdateCXUnsavedFile(fileContainer);
-    } else {
-        removeCXUnsavedFile(fileContainer);
-    }
-}
-
-void UnsavedFiles::removeCXUnsavedFile(const FileContainer &fileContainer)
+void UnsavedFiles::removeUnsavedFile(const FileContainer &fileContainer)
 {
     const Utf8String filePath = fileContainer.filePath();
-    auto removeBeginIterator = std::partition(d->cxUnsavedFiles.begin(),
-                                              d->cxUnsavedFiles.end(),
-                                              [filePath] (const CXUnsavedFile &cxUnsavedFile) { return filePath != cxUnsavedFile.Filename; });
+    auto removeBeginIterator = std::partition(d->unsavedFiles.begin(),
+                                              d->unsavedFiles.end(),
+                                              [filePath] (const UnsavedFile &unsavedFile) { return filePath != unsavedFile.filePath(); });
 
-    std::for_each(removeBeginIterator, d->cxUnsavedFiles.end(), UnsavedFiles::deleteCXUnsavedFile);
-    d->cxUnsavedFiles.erase(removeBeginIterator, d->cxUnsavedFiles.end());
+    d->unsavedFiles.erase(removeBeginIterator, d->unsavedFiles.end());
 }
 
-void UnsavedFiles::addOrUpdateCXUnsavedFile(const FileContainer &fileContainer)
+void UnsavedFiles::addOrUpdateUnsavedFile(const FileContainer &fileContainer)
 {
     const Utf8String filePath = fileContainer.filePath();
     const Utf8String fileContent = fileContainer.unsavedFileContent();
-    auto isSameFile = [filePath] (const CXUnsavedFile &cxUnsavedFile) { return filePath == cxUnsavedFile.Filename; };
+    auto isSameFile = [filePath] (const UnsavedFile &unsavedFile) { return filePath == unsavedFile.filePath(); };
 
-    auto cxUnsavedFileIterator = std::find_if(d->cxUnsavedFiles.begin(), d->cxUnsavedFiles.end(), isSameFile);
-    if (cxUnsavedFileIterator == d->cxUnsavedFiles.end())
-        d->cxUnsavedFiles.push_back(createCxUnsavedFile(filePath, fileContent));
-    else {
-        deleteCXUnsavedFile(*cxUnsavedFileIterator);
-        *cxUnsavedFileIterator = createCxUnsavedFile(filePath, fileContent);
-    }
+    auto unsavedFileIterator = std::find_if(d->unsavedFiles.begin(), d->unsavedFiles.end(), isSameFile);
+    if (unsavedFileIterator == d->unsavedFiles.end())
+        d->unsavedFiles.emplace_back(filePath, fileContent);
+    else
+        *unsavedFileIterator = UnsavedFile(filePath, fileContent);
 }
 
 void UnsavedFiles::updateLastChangeTimePoint()

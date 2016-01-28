@@ -185,6 +185,11 @@ CXTranslationUnit TranslationUnit::cxTranslationUnitWithoutReparsing() const
     return d->translationUnit;
 }
 
+UnsavedFile &TranslationUnit::unsavedFile() const
+{
+    return unsavedFiles().unsavedFile(filePath());
+}
+
 const Utf8String &TranslationUnit::filePath() const
 {
     checkIfNull();
@@ -496,11 +501,6 @@ uint TranslationUnit::unsavedFilesCount() const
 CXUnsavedFile *TranslationUnit::cxUnsavedFiles() const
 {
     return unsavedFiles().cxUnsavedFiles();
-}
-
-const std::vector<CXUnsavedFile> &TranslationUnit::cxUnsavedFilesVector() const
-{
-    return unsavedFiles().cxUnsavedFileVector();
 }
 
 TranslationUnit::~TranslationUnit() = default;

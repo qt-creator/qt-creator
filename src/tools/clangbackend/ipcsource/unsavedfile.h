@@ -23,44 +23,40 @@
 **
 ****************************************************************************/
 
-#ifndef CLANGBACKEND_TEMPORARYMODIFIEDUNSAVEDFILES_H
-#define CLANGBACKEND_TEMPORARYMODIFIEDUNSAVEDFILES_H
+#pragma once
 
 #include <clang-c/Index.h>
 
-#include <utf8string.h>
+#include <iosfwd>
 
-#include <vector>
+class Utf8String;
 
 namespace ClangBackEnd {
 
-class TemporaryModifiedUnsavedFiles
+using uint = unsigned int;
+
+class UnsavedFile
 {
 public:
-    TemporaryModifiedUnsavedFiles(const std::vector<CXUnsavedFile> &unsavedFilesVector);
+    friend void PrintTo(const UnsavedFile &unsavedFile, std::ostream *os);
 
-    TemporaryModifiedUnsavedFiles(const TemporaryModifiedUnsavedFiles &) = delete;
+    UnsavedFile(const Utf8String &filePath, const Utf8String &fileContent);
+    ~UnsavedFile();
 
-    bool replaceInFile(const Utf8String &filePath,
-                       uint offset,
-                       uint length,
-                       const Utf8String &replacement);
+    UnsavedFile(const UnsavedFile &other) = delete;
+    bool operator=(const UnsavedFile &other) = delete;
 
-    CXUnsavedFile cxUnsavedFileAt(uint index);
-    CXUnsavedFile *cxUnsavedFiles();
-    uint count();
+    UnsavedFile(UnsavedFile &&other) noexcept;
+    UnsavedFile &operator=(UnsavedFile &&other) noexcept;
 
-private:
-    bool replaceInFile_internal(CXUnsavedFile &unsavedFile,
-                                uint offset,
-                                uint length,
-                                const Utf8String &replacement);
+    const char *filePath() const;
 
-private:
-    std::vector<CXUnsavedFile> m_unsavedFileVector;
-    std::vector<Utf8String> m_modifiedContents;
+    bool replaceAt(uint position, uint length, const Utf8String &replacement);
+
+    CXUnsavedFile *data();
+
+public: // for tests
+    CXUnsavedFile cxUnsavedFile = { nullptr, nullptr, 0UL };
 };
 
 } // namespace ClangBackEnd
-
-#endif // CLANGBACKEND_TEMPORARYMODIFIEDUNSAVEDFILES_H
