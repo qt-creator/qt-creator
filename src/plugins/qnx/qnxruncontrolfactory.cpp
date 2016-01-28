@@ -67,12 +67,12 @@ static DebuggerStartParameters createDebuggerStartParameters(QnxRunConfiguration
 
     params.startMode = AttachToRemoteServer;
     params.useCtrlCStub = true;
-    params.executable = runConfig->localExecutableFilePath();
+    params.inferior.executable = runConfig->localExecutableFilePath();
     params.remoteExecutable = runConfig->remoteExecutableFilePath();
     params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
     params.remoteSetupNeeded = true;
     params.closeMode = KillAtClose;
-    params.processArgs = runConfig->arguments();
+    params.inferior.commandLineArguments = runConfig->arguments();
 
     auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useQmlDebugger()) {

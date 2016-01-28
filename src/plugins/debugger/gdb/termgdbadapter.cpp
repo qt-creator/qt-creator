@@ -81,7 +81,7 @@ void GdbTermEngine::setupEngine()
     if (!prepareCommand())
         return;
 
-    m_stubProc.setWorkingDirectory(runParameters().workingDirectory);
+    m_stubProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
     // Set environment + dumper preload.
     m_stubProc.setEnvironment(runParameters().stubEnvironment);
 
@@ -94,8 +94,8 @@ void GdbTermEngine::setupEngine()
     // FIXME: Starting the stub implies starting the inferior. This is
     // fairly unclean as far as the state machine and error reporting go.
 
-    if (!m_stubProc.start(runParameters().executable,
-                         runParameters().processArgs)) {
+    if (!m_stubProc.start(runParameters().inferior.executable,
+                         runParameters().inferior.commandLineArguments)) {
         // Error message for user is delivered via a signal.
         handleAdapterStartFailed(QString());
         return;

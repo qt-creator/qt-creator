@@ -101,12 +101,12 @@ QDebug operator<<(QDebug d, DebuggerState state)
 QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
 {
     QDebug nospace = str.nospace();
-    nospace << "executable=" << sp.executable
+    nospace << "executable=" << sp.inferior.executable
             << " coreFile=" << sp.coreFile
-            << " processArgs=" << sp.processArgs
-            << " inferior environment=<" << sp.inferiorEnvironment.size() << " variables>"
+            << " processArgs=" << sp.inferior.commandLineArguments
+            << " inferior environment=<" << sp.inferior.environment.size() << " variables>"
             << " debugger environment=<" << sp.debuggerEnvironment.size() << " variables>"
-            << " workingDir=" << sp.workingDirectory
+            << " workingDir=" << sp.inferior.workingDirectory
             << " attachPID=" << sp.attachPID
             << " useTerminal=" << sp.useTerminal
             << " remoteChannel=" << sp.remoteChannel
@@ -206,7 +206,7 @@ public:
 
         Utils::globalMacroExpander()->registerFileVariables(PrefixDebugExecutable,
             tr("Debugged executable"),
-            [this]() { return m_runParameters.executable; });
+            [this]() { return m_runParameters.inferior.executable; });
     }
 
 public slots:
@@ -569,7 +569,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
         d->m_runControl->setApplicationProcessHandle(ProcessHandle(d->m_inferiorPid));
 
     if (isNativeMixedActive())
-        d->m_runParameters.inferiorEnvironment.set(QLatin1String("QV4_FORCE_INTERPRETER"), QLatin1String("1"));
+        d->m_runParameters.inferior.environment.set(QLatin1String("QV4_FORCE_INTERPRETER"), QLatin1String("1"));
 
     action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
 
@@ -922,7 +922,7 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
 
         if (result.qmlServerPort != InvalidPort) {
             d->m_runParameters.qmlServerPort = result.qmlServerPort;
-            d->m_runParameters.processArgs.replace(_("%qml_port%"), QString::number(result.qmlServerPort));
+            d->m_runParameters.inferior.commandLineArguments.replace(_("%qml_port%"), QString::number(result.qmlServerPort));
         }
 
     } else {
@@ -1831,7 +1831,7 @@ void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
         return;
     if (sp->languages == QmlLanguage)
         return;
-    QString binary = sp->executable;
+    QString binary = sp->inferior.executable;
     if (binary.isEmpty())
         return;
 

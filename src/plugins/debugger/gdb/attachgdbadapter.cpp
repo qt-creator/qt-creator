@@ -52,8 +52,8 @@ void GdbAttachEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
-    if (!runParameters().workingDirectory.isEmpty())
-        m_gdbProc.setWorkingDirectory(runParameters().workingDirectory);
+    if (!runParameters().inferior.workingDirectory.isEmpty())
+        m_gdbProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
     m_gdbProc.setEnvironment(runParameters().debuggerEnvironment);
 
     startGdb();

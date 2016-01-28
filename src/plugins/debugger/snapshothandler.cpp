@@ -168,7 +168,7 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
         case 0:
             return rp.displayName;
         case 1:
-            return rp.coreFile.isEmpty() ? rp.executable : rp.coreFile;
+            return rp.coreFile.isEmpty() ? rp.inferior.executable : rp.coreFile;
         }
         return QVariant();
 

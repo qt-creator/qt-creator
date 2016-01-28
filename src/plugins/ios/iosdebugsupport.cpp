@@ -112,7 +112,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     bool cppDebug = aspect->useCppDebugger();
     bool qmlDebug = aspect->useQmlDebugger();
     if (cppDebug) {
-        params.executable = runConfig->localExecutable().toString();
+        params.inferior.executable = runConfig->localExecutable().toString();
         params.remoteChannel = QLatin1String("connect://localhost:0");
 
         Utils::FileName xcodeInfo = IosConfigurations::developerPath().parentDir()

@@ -396,7 +396,7 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
         settings->endGroup();
     }
 
-    rp->executable = newParameters.runnable.executable;
+    rp->inferior.executable = newParameters.runnable.executable;
     const QString inputAddress = dialog.d->serverAddressEdit->text();
     if (!inputAddress.isEmpty())
         rp->remoteChannel = inputAddress;
@@ -404,10 +404,10 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
         rp->remoteChannel = rp->connParams.host;
     rp->remoteChannel += QLatin1Char(':') + QString::number(newParameters.serverPort);
     rp->displayName = newParameters.displayName();
-    rp->workingDirectory = newParameters.runnable.workingDirectory;
+    rp->inferior.workingDirectory = newParameters.runnable.workingDirectory;
     rp->useTerminal = newParameters.runnable.runMode == ApplicationLauncher::Console;
     if (!newParameters.runnable.commandLineArguments.isEmpty())
-        rp->processArgs = newParameters.runnable.commandLineArguments;
+        rp->inferior.commandLineArguments = newParameters.runnable.commandLineArguments;
     rp->breakOnMain = newParameters.breakAtMain;
     rp->serverStartScript = newParameters.serverStartScript;
     rp->debugInfoLocation = newParameters.debugInfoLocation;

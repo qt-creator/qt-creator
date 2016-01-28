@@ -129,8 +129,8 @@ RunControl *BareMetalRunControlFactory::create(
         }
     }
 
-    sp.executable = bin;
-    sp.processArgs = rc->arguments();
+    sp.inferior.executable = bin;
+    sp.inferior.commandLineArguments = rc->arguments();
     sp.startMode = AttachToRemoteServer;
     sp.commandsAfterConnect = p->initCommands().toLatin1();
     sp.commandsForReset = p->resetCommands().toLatin1();

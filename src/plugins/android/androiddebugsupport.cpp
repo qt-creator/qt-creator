@@ -96,7 +96,8 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
     if (aspect->useCppDebugger()) {
         Kit *kit = target->kit();
-        params.executable = target->activeBuildConfiguration()->buildDirectory().toString() + QLatin1String("/app_process");
+        params.inferior.executable = target->activeBuildConfiguration()->buildDirectory().toString()
+                                     + QLatin1String("/app_process");
         params.skipExecutableValidation = true;
         params.remoteChannel = runConfig->remoteChannel();
         params.solibSearchPath = AndroidManager::androidQtSupport(target)->soLibSearchPath(target);

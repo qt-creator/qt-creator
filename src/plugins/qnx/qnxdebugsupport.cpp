@@ -100,14 +100,15 @@ void QnxDebugSupport::startExecution()
     setState(StartingRemoteProcess);
 
     if (m_useQmlDebugger)
-        m_runControl->startParameters().processArgs +=
+        m_runControl->startParameters().inferior.commandLineArguments +=
                 QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, m_qmlPort);
 
     QStringList arguments;
     if (m_useCppDebugger)
         arguments << QString::number(m_pdebugPort);
     else if (m_useQmlDebugger && !m_useCppDebugger)
-        arguments = Utils::QtcProcess::splitArgs(m_runControl->startParameters().processArgs);
+        arguments = Utils::QtcProcess::splitArgs(
+                        m_runControl->startParameters().inferior.commandLineArguments);
     StandardRunnable r;
     r.executable = processExecutable();
     r.commandLineArguments = Utils::QtcProcess::joinArgs(arguments);

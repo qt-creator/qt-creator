@@ -1138,8 +1138,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 if (val.isEmpty()) {
                     if (key.isEmpty()) {
                         continue;
-                    } else if (rp.executable.isEmpty()) {
-                        rp.executable = key;
+                    } else if (rp.inferior.executable.isEmpty()) {
+                        rp.inferior.executable = key;
                     } else {
                         *errorMessage = DebuggerPlugin::tr("Only one executable allowed.");
                         return false;
@@ -1164,10 +1164,10 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             }
         }
         if (rp.startMode == StartExternal) {
-            rp.displayName = tr("Executable file \"%1\"").arg(rp.executable);
-            rp.startMessage = tr("Debugging file %1.").arg(rp.executable);
+            rp.displayName = tr("Executable file \"%1\"").arg(rp.inferior.executable);
+            rp.startMessage = tr("Debugging file %1.").arg(rp.inferior.executable);
         }
-        rp.inferiorEnvironment = Utils::Environment::systemEnvironment();
+        rp.inferior.environment = Utils::Environment::systemEnvironment();
         rp.stubEnvironment = Utils::Environment::systemEnvironment();
         rp.debuggerEnvironment = Utils::Environment::systemEnvironment();
         m_scheduledStarts.append(QPair<DebuggerRunParameters, Kit *>(rp, kit));
@@ -1331,7 +1331,7 @@ void DebuggerPluginPrivate::attachCore()
     QString display = dlg.useLocalCoreFile() ? dlg.localCoreFile() : dlg.remoteCoreFile();
     DebuggerRunParameters rp;
     rp.masterEngineType = DebuggerKitInformation::engineType(dlg.kit());
-    rp.executable = dlg.localExecutableFile();
+    rp.inferior.executable = dlg.localExecutableFile();
     rp.coreFile = dlg.localCoreFile();
     rp.displayName = tr("Core file \"%1\"").arg(display);
     rp.startMode = AttachCore;
@@ -1467,7 +1467,7 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     DebuggerRunParameters rp;
     rp.attachPID = process.pid;
     rp.displayName = tr("Process %1").arg(process.pid);
-    rp.executable = process.exe;
+    rp.inferior.executable = process.exe;
     rp.startMode = AttachExternal;
     rp.closeMode = DetachAtClose;
     rp.continueAfterAttach = contAfterAttach;
@@ -2239,14 +2239,14 @@ static QString formatStartParameters(DebuggerRunParameters &sp)
     if (sp.languages & QmlLanguage)
         str << "qml";
     str << '\n';
-    if (!sp.executable.isEmpty()) {
-        str << "Executable: " << QDir::toNativeSeparators(sp.executable)
-            << ' ' << sp.processArgs;
+    if (!sp.inferior.executable.isEmpty()) {
+        str << "Executable: " << QDir::toNativeSeparators(sp.inferior.executable)
+            << ' ' << sp.inferior.commandLineArguments;
         if (sp.useTerminal)
             str << " [terminal]";
         str << '\n';
-        if (!sp.workingDirectory.isEmpty())
-            str << "Directory: " << QDir::toNativeSeparators(sp.workingDirectory)
+        if (!sp.inferior.workingDirectory.isEmpty())
+            str << "Directory: " << QDir::toNativeSeparators(sp.inferior.workingDirectory)
                 << '\n';
     }
     QString cmd = sp.debuggerCommand;

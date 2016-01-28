@@ -135,7 +135,7 @@ void PdbEngine::setupEngine()
     }
 
     QStringList args = { bridge, scriptFile.fileName() };
-    args.append(Utils::QtcProcess::splitArgs(runParameters().processArgs));
+    args.append(Utils::QtcProcess::splitArgs(runParameters().inferior.workingDirectory));
     showMessage(_("STARTING ") + m_interpreter + QLatin1Char(' ') + args.join(QLatin1Char(' ')));
     m_proc.start(m_interpreter, args);
 

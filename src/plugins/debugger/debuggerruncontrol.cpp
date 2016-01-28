@@ -146,7 +146,7 @@ void DebuggerRunControl::start()
     QTC_ASSERT(m_engine, return);
     // User canceled input dialog asking for executable when working on library project.
     if (m_engine->runParameters().startMode == StartInternal
-            && m_engine->runParameters().executable.isEmpty()
+            && m_engine->runParameters().inferior.executable.isEmpty()
             && m_engine->runParameters().interpreter.isEmpty()) {
         appendMessage(tr("No executable specified.") + QLatin1Char('\n'), ErrorMessageFormat);
         emit started();
@@ -333,11 +333,11 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     // Extract as much as possible from available RunConfiguration.
     if (m_runConfig->runnable().is<StandardRunnable>()) {
         auto runnable = m_runConfig->runnable().as<StandardRunnable>();
-        m_rp.executable = runnable.executable;
-        m_rp.processArgs = runnable.commandLineArguments;
+        m_rp.inferior.executable = runnable.executable;
+        m_rp.inferior.commandLineArguments = runnable.commandLineArguments;
         m_rp.useTerminal = runnable.runMode == ApplicationLauncher::Console;
         // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
-        m_rp.workingDirectory = FileUtils::normalizePathName(runnable.workingDirectory);
+        m_rp.inferior.workingDirectory = FileUtils::normalizePathName(runnable.workingDirectory);
     }
 
     // Find a Kit and Target. Either could be missing.
@@ -353,10 +353,10 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
     }
 
     // We might get an executable from a local PID.
-    if (m_rp.executable.isEmpty() && m_rp.attachPID != InvalidPid) {
+    if (m_rp.inferior.executable.isEmpty() && m_rp.attachPID != InvalidPid) {
         foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses())
             if (p.pid == m_rp.attachPID)
-                m_rp.executable = p.exe;
+                m_rp.inferior.executable = p.exe;
     }
 
     if (!m_kit) {
@@ -366,8 +366,8 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
         QList<Abi> abis;
         if (m_rp.toolChainAbi.isValid()) {
             abis.push_back(m_rp.toolChainAbi);
-        } else if (!m_rp.executable.isEmpty()) {
-            abis = Abi::abisOfBinary(FileName::fromString(m_rp.executable));
+        } else if (!m_rp.inferior.executable.isEmpty()) {
+            abis = Abi::abisOfBinary(FileName::fromString(m_rp.inferior.executable));
         }
 
         if (!abis.isEmpty()) {
@@ -401,9 +401,9 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
 
     if (m_runConfig) {
         if (auto envAspect = m_runConfig->extraAspect<EnvironmentAspect>()) {
-            m_rp.inferiorEnvironment = envAspect->environment(); // Correct.
-            m_rp.stubEnvironment = m_rp.inferiorEnvironment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
-            m_rp.debuggerEnvironment = m_rp.inferiorEnvironment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
+            m_rp.inferior.environment = envAspect->environment(); // Correct.
+            m_rp.stubEnvironment = m_rp.inferior.environment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
+            m_rp.debuggerEnvironment = m_rp.inferior.environment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
         }
     }
 
@@ -466,9 +466,9 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
             m_rp.interpreter = interpreter;
             QString args = runConfig->property("arguments").toString();
             if (!args.isEmpty()) {
-                if (!m_rp.processArgs.isEmpty())
-                    m_rp.processArgs.append(QLatin1Char(' '));
-                m_rp.processArgs.append(args);
+                if (!m_rp.inferior.commandLineArguments.isEmpty())
+                    m_rp.inferior.commandLineArguments.append(QLatin1Char(' '));
+                m_rp.inferior.commandLineArguments.append(args);
             }
             m_rp.masterEngineType = PdbEngineType;
         }
@@ -496,8 +496,8 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 // Makes sure that all bindings go through the JavaScript engine, so that
                 // breakpoints are actually hit!
                 const QString optimizerKey = _("QML_DISABLE_OPTIMIZER");
-                if (!m_rp.inferiorEnvironment.hasKey(optimizerKey))
-                    m_rp.inferiorEnvironment.set(optimizerKey, _("1"));
+                if (!m_rp.inferior.environment.hasKey(optimizerKey))
+                    m_rp.inferior.environment.set(optimizerKey, _("1"));
             }
         }
     }
@@ -532,7 +532,8 @@ void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const 
                 service = QmlDebug::QmlDebuggerServices;
             }
             if (m_rp.startMode != AttachExternal)
-                QtcProcess::addArg(&m_rp.processArgs, wantCppDebugger && m_rp.nativeMixedEnabled ?
+                QtcProcess::addArg(&m_rp.inferior.commandLineArguments,
+                                   wantCppDebugger && m_rp.nativeMixedEnabled ?
                                        QmlDebug::qmlDebugNativeArguments(service, false) :
                                        QmlDebug::qmlDebugTcpArguments(service, m_rp.qmlServerPort));
         }

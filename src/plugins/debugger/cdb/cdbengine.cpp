@@ -409,7 +409,7 @@ int CdbEngine::elapsedLogTime() const
 bool CdbEngine::startConsole(const DebuggerRunParameters &sp, QString *errorMessage)
 {
     if (debug)
-        qDebug("startConsole %s", qPrintable(sp.executable));
+        qDebug("startConsole %s", qPrintable(sp.inferior.executable));
     m_consoleStub.reset(new ConsoleProcess);
     m_consoleStub->setMode(ConsoleProcess::Suspend);
     connect(m_consoleStub.data(), &ConsoleProcess::processError,
@@ -418,11 +418,11 @@ bool CdbEngine::startConsole(const DebuggerRunParameters &sp, QString *errorMess
             this, &CdbEngine::consoleStubProcessStarted);
     connect(m_consoleStub.data(), &ConsoleProcess::stubStopped,
             this, &CdbEngine::consoleStubExited);
-    m_consoleStub->setWorkingDirectory(sp.workingDirectory);
+    m_consoleStub->setWorkingDirectory(sp.inferior.workingDirectory);
     if (sp.stubEnvironment.size())
         m_consoleStub->setEnvironment(sp.stubEnvironment);
-    if (!m_consoleStub->start(sp.executable, sp.processArgs)) {
-        *errorMessage = tr("The console process \"%1\" could not be started.").arg(sp.executable);
+    if (!m_consoleStub->start(sp.inferior.executable, sp.inferior.commandLineArguments)) {
+        *errorMessage = tr("The console process \"%1\" could not be started.").arg(sp.inferior.executable);
         return false;
     }
     return true;
@@ -448,8 +448,8 @@ void CdbEngine::consoleStubProcessStarted()
         qDebug("consoleStubProcessStarted() PID=%lld", m_consoleStub->applicationPID());
     // Attach to console process.
     DebuggerRunParameters attachParameters = runParameters();
-    attachParameters.executable.clear();
-    attachParameters.processArgs.clear();
+    attachParameters.inferior.executable.clear();
+    attachParameters.inferior.commandLineArguments.clear();
     attachParameters.attachPID = m_consoleStub->applicationPID();
     attachParameters.startMode = AttachExternal;
     attachParameters.useTerminal = false;
@@ -579,7 +579,8 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
     case StartExternal:
         if (!nativeArguments.isEmpty())
             nativeArguments.push_back(blank);
-        QtcProcess::addArgs(&nativeArguments, QStringList(QDir::toNativeSeparators(sp.executable)));
+        QtcProcess::addArgs(&nativeArguments,
+                            QStringList(QDir::toNativeSeparators(sp.inferior.executable)));
         break;
     case AttachToRemoteServer:
         break;
@@ -600,10 +601,10 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
         *errorMessage = QString::fromLatin1("Internal error: Unsupported start mode %1.").arg(sp.startMode);
         return false;
     }
-    if (!sp.processArgs.isEmpty()) { // Complete native argument string.
+    if (!sp.inferior.commandLineArguments.isEmpty()) { // Complete native argument string.
         if (!nativeArguments.isEmpty())
             nativeArguments.push_back(blank);
-        nativeArguments += sp.processArgs;
+        nativeArguments += sp.inferior.commandLineArguments;
     }
 
     const QString msg = QString::fromLatin1("Launching %1 %2\nusing %3 of %4.").
@@ -615,12 +616,12 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
 
     m_outputBuffer.clear();
     m_autoBreakPointCorrection = false;
-    const QStringList inferiorEnvironment = sp.inferiorEnvironment.size() == 0 ?
+    const QStringList inferiorEnvironment = sp.inferior.environment.size() == 0 ?
                                     QProcessEnvironment::systemEnvironment().toStringList() :
-                                    sp.inferiorEnvironment.toStringList();
+                                    sp.inferior.environment.toStringList();
     m_process.setEnvironment(mergeEnvironment(inferiorEnvironment, extensionFi.absolutePath()));
-    if (!sp.workingDirectory.isEmpty())
-        m_process.setWorkingDirectory(sp.workingDirectory);
+    if (!sp.inferior.workingDirectory.isEmpty())
+        m_process.setWorkingDirectory(sp.inferior.workingDirectory);
 
 #ifdef Q_OS_WIN
     if (!nativeArguments.isEmpty()) // Appends

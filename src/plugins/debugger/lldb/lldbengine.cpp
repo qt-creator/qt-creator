@@ -177,9 +177,9 @@ bool LldbEngine::prepareCommand()
     if (HostOsInfo::isWindowsHost()) {
         DebuggerRunParameters &rp = runParameters();
         QtcProcess::SplitError perr;
-        rp.processArgs = QtcProcess::prepareArgs(rp.processArgs, &perr,
-                                                 HostOsInfo::hostOs(),
-                    nullptr, &rp.workingDirectory).toWindowsArgs();
+        rp.inferior.commandLineArguments
+                = QtcProcess::prepareArgs(rp.inferior.commandLineArguments, &perr, HostOsInfo::hostOs(),
+                                          nullptr, &rp.inferior.workingDirectory).toWindowsArgs();
         if (perr != QtcProcess::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
@@ -207,7 +207,7 @@ void LldbEngine::setupEngine()
             return;
         }
 
-        m_stubProc.setWorkingDirectory(runParameters().workingDirectory);
+        m_stubProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
         // Set environment + dumper preload.
         m_stubProc.setEnvironment(runParameters().stubEnvironment);
 
@@ -217,8 +217,8 @@ void LldbEngine::setupEngine()
         // FIXME: Starting the stub implies starting the inferior. This is
         // fairly unclean as far as the state machine and error reporting go.
 
-        if (!m_stubProc.start(runParameters().executable,
-                             runParameters().processArgs)) {
+        if (!m_stubProc.start(runParameters().inferior.executable,
+                             runParameters().inferior.commandLineArguments)) {
             // Error message for user is delivered via a signal.
             //handleAdapterStartFailed(QString());
             notifyEngineSetupFailed();
@@ -251,8 +251,8 @@ void LldbEngine::startLldb()
 
     showMessage(_("STARTING LLDB: ") + m_lldbCmd);
     m_lldbProc.setEnvironment(runParameters().debuggerEnvironment);
-    if (!runParameters().workingDirectory.isEmpty())
-        m_lldbProc.setWorkingDirectory(runParameters().workingDirectory);
+    if (!runParameters().inferior.workingDirectory.isEmpty())
+        m_lldbProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
 
     m_lldbProc.setCommand(m_lldbCmd, QString());
     m_lldbProc.start();
@@ -288,7 +288,7 @@ void LldbEngine::startLldbStage2()
 void LldbEngine::setupInferior()
 {
     Environment sysEnv = Environment::systemEnvironment();
-    Environment runEnv = runParameters().inferiorEnvironment;
+    Environment runEnv = runParameters().inferior.environment;
     foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
         DebuggerCommand cmd("executeDebuggerCommand");
         if (item.unset)
@@ -322,8 +322,8 @@ void LldbEngine::setupInferior()
 
     QString executable;
     QtcProcess::Arguments args;
-    QtcProcess::prepareCommand(QFileInfo(rp.executable).absoluteFilePath(),
-                               rp.processArgs, &executable, &args);
+    QtcProcess::prepareCommand(QFileInfo(rp.inferior.executable).absoluteFilePath(),
+                               rp.inferior.commandLineArguments, &executable, &args);
 
     DebuggerCommand cmd2("setupInferior");
     cmd2.arg("executable", executable);
@@ -332,9 +332,9 @@ void LldbEngine::setupInferior()
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
 
-    cmd2.arg("dyldimagesuffix", rp.inferiorEnvironment.value(_("DYLD_IMAGE_SUFFIX")));
-    cmd2.arg("dyldframeworkpath", rp.inferiorEnvironment.value(_("DYLD_LIBRARY_PATH")));
-    cmd2.arg("dyldlibrarypath", rp.inferiorEnvironment.value(_("DYLD_FRAMEWORK_PATH")));
+    cmd2.arg("dyldimagesuffix", rp.inferior.environment.value(_("DYLD_IMAGE_SUFFIX")));
+    cmd2.arg("dyldframeworkpath", rp.inferior.environment.value(_("DYLD_LIBRARY_PATH")));
+    cmd2.arg("dyldlibrarypath", rp.inferior.environment.value(_("DYLD_FRAMEWORK_PATH")));
 
     QJsonArray processArgs;
     foreach (const QString &arg, args.toUnixArgs())

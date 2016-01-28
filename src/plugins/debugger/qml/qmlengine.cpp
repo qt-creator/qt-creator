@@ -536,11 +536,7 @@ void QmlEngine::runEngine()
 void QmlEngine::startApplicationLauncher()
 {
     if (!d->applicationLauncher.isRunning()) {
-        StandardRunnable runnable;
-        runnable.environment = runParameters().inferiorEnvironment;
-        runnable.workingDirectory = runParameters().workingDirectory;
-        runnable.executable = runParameters().executable;
-        runnable.commandLineArguments = runParameters().processArgs;
+        StandardRunnable runnable = runParameters().inferior;
         appendMessage(tr("Starting %1 %2").arg(
                           QDir::toNativeSeparators(runnable.executable),
                           runnable.commandLineArguments)

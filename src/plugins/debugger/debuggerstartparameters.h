@@ -33,6 +33,7 @@
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QMetaType>
@@ -60,18 +61,13 @@ public:
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
 public:
-    DebuggerStartParameters() {}
-
     DebuggerStartMode startMode = NoStartMode;
     DebuggerCloseMode closeMode = KillAtClose;
 
-    QString executable;
+    ProjectExplorer::StandardRunnable inferior;
     QString displayName; // Used in the Snapshots view.
-    QString processArgs;
-    Utils::Environment inferiorEnvironment;
     Utils::Environment debuggerEnvironment;
     Utils::Environment stubEnvironment;
-    QString workingDirectory;
     qint64 attachPID = InvalidPid;
     QStringList solibSearchPath;
     bool useTerminal = false;

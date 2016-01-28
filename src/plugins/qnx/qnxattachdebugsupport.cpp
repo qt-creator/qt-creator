@@ -125,7 +125,7 @@ void QnxAttachDebugSupport::attachToProcess()
     sp.connParams.port = m_pdebugPort;
     sp.remoteChannel = m_device->sshParameters().host + QLatin1Char(':') + QString::number(m_pdebugPort);
     sp.displayName = tr("Remote: \"%1:%2\" - Process %3").arg(sp.connParams.host).arg(m_pdebugPort).arg(m_process.pid);
-    sp.executable = m_localExecutablePath;
+    sp.inferior.executable = m_localExecutablePath;
     sp.useCtrlCStub = true;
 
     QnxQtVersion *qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(m_kit));

@@ -4082,7 +4082,7 @@ void GdbEngine::startGdb(const QStringList &args)
     Module module;
     module.startAddress = 0;
     module.endAddress = 0;
-    module.modulePath = rp.executable;
+    module.modulePath = rp.inferior.executable;
     module.moduleName = QLatin1String("<executable>");
     modulesHandler()->updateModule(module);
 
@@ -4191,7 +4191,7 @@ void GdbEngine::loadInitScript()
 void GdbEngine::setEnvironmentVariables()
 {
     Environment sysEnv = Environment::systemEnvironment();
-    Environment runEnv = runParameters().inferiorEnvironment;
+    Environment runEnv = runParameters().inferior.environment;
     foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
         if (item.unset)
             runCommand({"unset environment " + item.name.toUtf8(), NoFlags});
@@ -4470,9 +4470,10 @@ bool GdbEngine::prepareCommand()
     if (HostOsInfo::isWindowsHost()) {
         DebuggerRunParameters &rp = runParameters();
         QtcProcess::SplitError perr;
-        rp.processArgs = QtcProcess::prepareArgs(rp.processArgs, &perr,
-                                                 HostOsInfo::hostOs(),
-                    nullptr, &rp.workingDirectory).toWindowsArgs();
+        rp.inferior.commandLineArguments =
+                QtcProcess::prepareArgs(rp.inferior.commandLineArguments, &perr,
+                                        HostOsInfo::hostOs(), nullptr,
+                                        &rp.inferior.workingDirectory).toWindowsArgs();
         if (perr != QtcProcess::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809

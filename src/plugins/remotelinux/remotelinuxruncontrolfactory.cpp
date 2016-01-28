@@ -125,12 +125,12 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
         }
         if (aspect->useCppDebugger()) {
             aspect->setUseMultiProcess(true);
-            params.processArgs = stdRunnable.commandLineArguments;
+            params.inferior.commandLineArguments = stdRunnable.commandLineArguments;
             if (aspect->useQmlDebugger()) {
-                params.processArgs.prepend(QLatin1Char(' '));
-                params.processArgs.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
+                params.inferior.commandLineArguments.prepend(QLatin1Char(' '));
+                params.inferior.commandLineArguments.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
             }
-            params.executable = localExecutable;
+            params.inferior.commandLineArguments = localExecutable;
             params.remoteChannel = dev->sshParameters().host + QLatin1String(":-1");
             params.remoteExecutable = stdRunnable.executable;
         }

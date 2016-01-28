@@ -53,8 +53,8 @@ void GdbPlainEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     setEnvironmentVariables();
-    if (!runParameters().processArgs.isEmpty()) {
-        QString args = runParameters().processArgs;
+    if (!runParameters().inferior.commandLineArguments.isEmpty()) {
+        QString args = runParameters().inferior.commandLineArguments;
         runCommand({"-exec-arguments " + toLocalEncoding(args), NoFlags});
     }
     runCommand({"-file-exec-and-symbols \"" + execFilePath() + '"', NoFlags,
@@ -120,8 +120,8 @@ void GdbPlainEngine::setupEngine()
     }
     gdbArgs.append(_("--tty=") + m_outputCollector.serverName());
 
-    if (!runParameters().workingDirectory.isEmpty())
-        m_gdbProc.setWorkingDirectory(runParameters().workingDirectory);
+    if (!runParameters().inferior.workingDirectory.isEmpty())
+        m_gdbProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
 
     startGdb(gdbArgs);
 }
@@ -145,7 +145,7 @@ void GdbPlainEngine::shutdownEngine()
 
 QByteArray GdbPlainEngine::execFilePath() const
 {
-    return QFileInfo(runParameters().executable)
+    return QFileInfo(runParameters().inferior.executable)
             .absoluteFilePath().toLocal8Bit();
 }
 

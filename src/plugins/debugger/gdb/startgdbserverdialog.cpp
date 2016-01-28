@@ -213,7 +213,7 @@ void GdbServerStarter::attach(int port)
     rp.connParams.port = port;
     rp.remoteChannel = rp.connParams.host + QLatin1Char(':') + QString::number(rp.connParams.port);
     rp.displayName = tr("Remote: \"%1:%2\"").arg(rp.connParams.host).arg(port);
-    rp.executable = localExecutable;
+    rp.inferior.executable = localExecutable;
     rp.startMode = AttachToRemoteServer;
     rp.closeMode = KillAtClose;
     createAndScheduleRun(rp, d->kit);

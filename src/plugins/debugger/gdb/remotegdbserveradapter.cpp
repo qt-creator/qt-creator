@@ -79,14 +79,14 @@ void GdbRemoteServerEngine::setupEngine()
         // Provide script information about the environment
         QString arglist;
         QtcProcess::addArg(&arglist, serverStartScript);
-        QtcProcess::addArg(&arglist, runParameters().executable);
+        QtcProcess::addArg(&arglist, runParameters().inferior.executable);
         QtcProcess::addArg(&arglist, runParameters().remoteChannel);
 
         m_uploadProc.start(arglist);
         m_uploadProc.waitForStarted();
     }
-    if (!runParameters().workingDirectory.isEmpty())
-        m_gdbProc.setWorkingDirectory(runParameters().workingDirectory);
+    if (!runParameters().inferior.workingDirectory.isEmpty())
+        m_gdbProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
 
     if (runParameters().remoteSetupNeeded) {
         notifyEngineRequestRemoteSetup();
@@ -164,15 +164,15 @@ void GdbRemoteServerEngine::setupInferior()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const DebuggerRunParameters &rp = runParameters();
     QString executableFileName;
-    if (!rp.executable.isEmpty()) {
-        QFileInfo fi(rp.executable);
+    if (!rp.inferior.executable.isEmpty()) {
+        QFileInfo fi(rp.inferior.executable);
         executableFileName = fi.absoluteFilePath();
     }
 
     //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
     //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
-    const QString args = isMasterEngine() ? runParameters().processArgs
-                          : masterEngine()->runParameters().processArgs;
+    const QString args = isMasterEngine() ? runParameters().inferior.commandLineArguments
+                          : masterEngine()->runParameters().inferior.commandLineArguments;
 
 //    if (!remoteArch.isEmpty())
 //        postCommand("set architecture " + remoteArch);

@@ -79,7 +79,7 @@ void GdbCoreEngine::setupEngine()
     showMessage(_("TRYING TO START ADAPTER"));
 
     const DebuggerRunParameters &rp = runParameters();
-    m_executable = rp.executable;
+    m_executable = rp.inferior.executable;
     QFileInfo fi(rp.coreFile);
     m_coreName = fi.absoluteFilePath();
 
