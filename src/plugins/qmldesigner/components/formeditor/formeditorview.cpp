@@ -56,7 +56,7 @@ FormEditorView::FormEditorView(QObject *parent)
       m_selectionTool(new SelectionTool(this)),
       m_resizeTool(new ResizeTool(this)),
       m_dragTool(new DragTool(this)),
-      m_currentTool(m_selectionTool),
+      m_currentTool(m_selectionTool.get()),
       m_transactionCounter(0)
 {
     Internal::FormEditorContext *formEditorContext = new Internal::FormEditorContext(m_formEditorWidget.data());
@@ -73,21 +73,13 @@ FormEditorScene* FormEditorView::scene() const
 
 FormEditorView::~FormEditorView()
 {
-    delete m_selectionTool;
-    m_selectionTool = 0;
-    delete m_moveTool;
-    m_moveTool = 0;
-    delete m_resizeTool;
-    m_resizeTool = 0;
-    delete m_dragTool;
-    m_dragTool = 0;
-
+    m_currentTool = 0;
     qDeleteAll(m_customToolList);
 
-    // delete scene after tools to prevent double deletion
-    // of items
-    delete m_scene.data();
-    delete m_formEditorWidget.data();
+    // delete scene after tools to prevent access to the scene while
+    // calling destructors (and also double deletion of items)
+    m_scene->deleteLater();
+    m_formEditorWidget->deleteLater();
 }
 
 void FormEditorView::modelAttached(Model *model)
@@ -183,7 +175,7 @@ void FormEditorView::modelAboutToBeDetached(Model *model)
     m_formEditorWidget->resetView();
     scene()->resetScene();
 
-    m_currentTool = m_selectionTool;
+    m_currentTool = m_selectionTool.get();
 
     AbstractView::modelAboutToBeDetached(model);
 }
@@ -300,60 +292,60 @@ AbstractFormEditorTool* FormEditorView::currentTool() const
 
 bool FormEditorView::changeToMoveTool()
 {
-    if (m_currentTool == m_moveTool)
+    if (m_currentTool == m_moveTool.get())
         return true;
     if (!isMoveToolAvailable())
         return false;
-    changeCurrentToolTo(m_moveTool);
+    changeCurrentToolTo(m_moveTool.get());
     return true;
 }
 
 void FormEditorView::changeToDragTool()
 {
-    if (m_currentTool == m_dragTool)
+    if (m_currentTool == m_dragTool.get())
         return;
-    changeCurrentToolTo(m_dragTool);
+    changeCurrentToolTo(m_dragTool.get());
 }
 
 
 bool FormEditorView::changeToMoveTool(const QPointF &beginPoint)
 {
-    if (m_currentTool == m_moveTool)
+    if (m_currentTool == m_moveTool.get())
         return true;
     if (!isMoveToolAvailable())
         return false;
-    changeCurrentToolTo(m_moveTool);
+    changeCurrentToolTo(m_moveTool.get());
     m_moveTool->beginWithPoint(beginPoint);
     return true;
 }
 
 void FormEditorView::changeToSelectionTool()
 {
-    if (m_currentTool == m_selectionTool)
+    if (m_currentTool == m_selectionTool.get())
         return;
-    changeCurrentToolTo(m_selectionTool);
+    changeCurrentToolTo(m_selectionTool.get());
 }
 
 void FormEditorView::changeToSelectionTool(QGraphicsSceneMouseEvent *event)
 {
-    if (m_currentTool == m_selectionTool)
+    if (m_currentTool == m_selectionTool.get())
         return;
-    changeCurrentToolTo(m_selectionTool);
+    changeCurrentToolTo(m_selectionTool.get());
     m_selectionTool->selectUnderPoint(event);
 }
 
 void FormEditorView::changeToResizeTool()
 {
-    if (m_currentTool == m_resizeTool)
+    if (m_currentTool == m_resizeTool.get())
         return;
-    changeCurrentToolTo(m_resizeTool);
+    changeCurrentToolTo(m_resizeTool.get());
 }
 
 void FormEditorView::changeToTransformTools()
 {
-    if (m_currentTool == m_moveTool ||
-       m_currentTool == m_resizeTool ||
-       m_currentTool == m_selectionTool)
+    if (m_currentTool == m_moveTool.get() ||
+       m_currentTool == m_resizeTool.get() ||
+       m_currentTool == m_selectionTool.get())
         return;
     changeToSelectionTool();
 }

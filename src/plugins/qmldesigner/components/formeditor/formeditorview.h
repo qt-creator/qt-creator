@@ -28,6 +28,8 @@
 
 #include <abstractview.h>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QGraphicsScene;
 class QGraphicsSceneMouseEvent;
@@ -128,10 +130,10 @@ private: //variables
     QPointer<FormEditorWidget> m_formEditorWidget;
     QPointer<FormEditorScene> m_scene;
     QList<AbstractCustomTool*> m_customToolList;
-    MoveTool *m_moveTool;
-    SelectionTool *m_selectionTool;
-    ResizeTool *m_resizeTool;
-    DragTool *m_dragTool;
+    std::unique_ptr<MoveTool> m_moveTool;
+    std::unique_ptr<SelectionTool> m_selectionTool;
+    std::unique_ptr<ResizeTool> m_resizeTool;
+    std::unique_ptr<DragTool> m_dragTool;
     AbstractFormEditorTool *m_currentTool;
     int m_transactionCounter;
 };
