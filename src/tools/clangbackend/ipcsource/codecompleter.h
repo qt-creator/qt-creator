@@ -46,6 +46,9 @@ public:
 
     CompletionCorrection neededCorrection() const;
 
+public: // for tests
+    bool hasDotAt(uint line, uint column) const;
+
 private:
     ClangCodeCompleteResults complete(uint line,
                                       uint column,

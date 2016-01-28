@@ -148,6 +148,12 @@ protected:
         readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForOnlyDot.cpp")),
         true
     };
+    ClangBackEnd::FileContainer noDotArrowCorrectionForColonColonFileContainer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withNoDotArrowCorrectionForColonColon.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForColonColon.cpp")),
+        true
+    };
 };
 
 Utf8String CodeCompleter::readFileContent(const QString &fileName)
@@ -295,6 +301,22 @@ TEST_F(CodeCompleter, ArrowCompletion)
                 ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
+TEST_F(CodeCompleter, HasDotAt)
+{
+    auto myCompleter = setupCompleter(dotArrowCorrectionForPointerFileContainer);
+
+    ASSERT_TRUE(myCompleter.hasDotAt(5, 8));
+}
+
+TEST_F(CodeCompleter, HasNoDotAtDueToMissingUnsavedFile)
+{
+    const ClangBackEnd::FileContainer fileContainer = dotArrowCorrectionForPointerFileContainer;
+    translationUnits.create({fileContainer});
+    ClangBackEnd::CodeCompleter myCompleter(translationUnits.translationUnit(fileContainer));
+
+    ASSERT_FALSE(myCompleter.hasDotAt(5, 8));
+}
+
 TEST_F(CodeCompleter, DotToArrowCompletionForPointer)
 {
     auto myCompleter = setupCompleter(dotArrowCorrectionForPointerFileContainer);
@@ -371,6 +393,14 @@ TEST_F(CodeCompleter, NoDotArrowCorrectionForOnlyDot)
     ASSERT_THAT(completions,
                 Contains(IsCodeCompletion(Utf8StringLiteral("Foo"),
                                           CodeCompletion::ClassCompletionKind)));
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+TEST_F(CodeCompleter, NoDotArrowCorrectionForColonColon)
+{
+    auto myCompleter = setupCompleter(noDotArrowCorrectionForColonColonFileContainer);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(1, 7);
+
     ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 

@@ -150,4 +150,25 @@ TEST_F(UnsavedFile, Replace)
     ASSERT_THAT(unsavedFile, IsUnsavedFile(filePath, expectedContent, expectedContent.byteSize()));
 }
 
+TEST_F(UnsavedFile, HasNoCharacterForTooBigOffset)
+{
+    ::UnsavedFile unsavedFile(filePath, fileContent);
+
+    ASSERT_FALSE(unsavedFile.hasCharacterAt(100, 'x'));
+}
+
+TEST_F(UnsavedFile, HasNoCharacterForWrongOffset)
+{
+    ::UnsavedFile unsavedFile(filePath, fileContent);
+
+    ASSERT_FALSE(unsavedFile.hasCharacterAt(0, 'x'));
+}
+
+TEST_F(UnsavedFile, HasCharacterForCorrectOffset)
+{
+    ::UnsavedFile unsavedFile(filePath, fileContent);
+
+    ASSERT_TRUE(unsavedFile.hasCharacterAt(0, 'c'));
+}
+
 } // anonymous namespace

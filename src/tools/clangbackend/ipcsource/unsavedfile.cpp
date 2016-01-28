@@ -65,6 +65,14 @@ const char *UnsavedFile::filePath() const
     return cxUnsavedFile.Filename;
 }
 
+bool UnsavedFile::hasCharacterAt(uint position, char character) const
+{
+    if (position < cxUnsavedFile.Length)
+        return cxUnsavedFile.Contents[position] == character;
+
+    return false;
+}
+
 bool UnsavedFile::replaceAt(uint position, uint length, const Utf8String &replacement)
 {
     if (position < cxUnsavedFile.Length) {

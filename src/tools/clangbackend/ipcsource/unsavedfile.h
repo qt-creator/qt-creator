@@ -51,6 +51,7 @@ public:
 
     const char *filePath() const;
 
+    bool hasCharacterAt(uint position, char character) const;
     bool replaceAt(uint position, uint length, const Utf8String &replacement);
 
     CXUnsavedFile *data();

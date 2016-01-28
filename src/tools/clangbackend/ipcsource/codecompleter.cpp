@@ -68,7 +68,7 @@ CodeCompletions CodeCompleter::complete(uint line, uint column)
                                                 translationUnit.cxUnsavedFiles(),
                                                 translationUnit.unsavedFilesCount());
 
-    if (results.hasNoResultsForDotCompletion())
+    if (results.hasNoResultsForDotCompletion() && hasDotAt(line, column - 1))
         results = completeWithArrowInsteadOfDot(line, column);
 
     return toCodeCompletions(results);
@@ -93,6 +93,14 @@ ClangCodeCompleteResults CodeCompleter::complete(uint line,
                                 unsavedFiles,
                                 unsavedFileCount,
                                 options);
+}
+
+bool CodeCompleter::hasDotAt(uint line, uint column) const
+{
+    const UnsavedFile &unsavedFile = translationUnit.unsavedFile();
+    const SourceLocation location = translationUnit.sourceLocationAtWithoutReparsing(line, column);
+
+    return unsavedFile.hasCharacterAt(location.offset(), '.');
 }
 
 ClangCodeCompleteResults CodeCompleter::completeWithArrowInsteadOfDot(uint line, uint column)
