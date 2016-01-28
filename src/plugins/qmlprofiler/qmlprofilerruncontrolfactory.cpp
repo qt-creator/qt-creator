@@ -108,6 +108,8 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
 
     LocalQmlProfilerRunner::Configuration conf;
     conf.debuggee = runnable;
+    if (EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>())
+        conf.debuggee.environment = environment->environment();
     conf.socket = connection.analyzerSocket;
     conf.port = connection.analyzerPort;
 
