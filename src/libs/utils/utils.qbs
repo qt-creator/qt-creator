@@ -144,6 +144,8 @@ QtcLibrary {
         "pathlisteditor.h",
         "persistentsettings.cpp",
         "persistentsettings.h",
+        "port.cpp",
+        "port.h",
         "portlist.cpp",
         "portlist.h",
         "progressindicator.cpp",

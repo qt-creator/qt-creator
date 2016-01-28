@@ -98,7 +98,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/overridecursor.cpp \
     $$PWD/categorysortfiltermodel.cpp \
     $$PWD/dropsupport.cpp \
-    $$PWD/icon.cpp
+    $$PWD/icon.cpp \
+    $$PWD/port.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -205,7 +206,8 @@ HEADERS += \
     $$PWD/categorysortfiltermodel.h \
     $$PWD/dropsupport.h \
     $$PWD/utilsicons.h \
-    $$PWD/icon.h
+    $$PWD/icon.h \
+    $$PWD/port.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
