@@ -324,32 +324,27 @@ void DebuggerRunControlCreator::initialize(const DebuggerStartParameters &sp)
 void DebuggerRunControlCreator::enrich(const RunConfiguration *runConfig, const Kit *kit)
 {
     QTC_ASSERT(!m_kit, return);
+    QTC_ASSERT(!m_target, return);
     QTC_ASSERT(!m_runConfig, return);
 
-    // Find RunConfiguration.
-    if (!m_runConfig)
-        m_runConfig = runConfig;
+    m_kit = kit;
+    m_runConfig = runConfig;
+
+    // Find a Kit and Target. Either could be missing.
+    if (m_runConfig)
+        m_target = m_runConfig->target();
+
+    if (!m_kit && m_target)
+        m_kit = m_target->kit();
 
     // Extract as much as possible from available RunConfiguration.
-    if (m_runConfig->runnable().is<StandardRunnable>()) {
+    if (m_runConfig && m_runConfig->runnable().is<StandardRunnable>()) {
         auto runnable = m_runConfig->runnable().as<StandardRunnable>();
         m_rp.inferior.executable = runnable.executable;
         m_rp.inferior.commandLineArguments = runnable.commandLineArguments;
         m_rp.useTerminal = runnable.runMode == ApplicationLauncher::Console;
         // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
         m_rp.inferior.workingDirectory = FileUtils::normalizePathName(runnable.workingDirectory);
-    }
-
-    // Find a Kit and Target. Either could be missing.
-    if (m_runConfig)
-        m_target = m_runConfig->target();
-
-    if (!m_kit)
-        m_kit = kit;
-
-    if (!m_kit) {
-        if (m_target)
-            m_kit = m_target->kit();
     }
 
     // We might get an executable from a local PID.
