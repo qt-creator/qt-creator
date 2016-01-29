@@ -42,6 +42,7 @@ ValgrindProcess::ValgrindProcess(bool isLocal, const QSsh::SshConnectionParamete
     : QObject(parent),
       m_isLocal(isLocal)
 {
+    m_isLocal = sshParams.host.isEmpty();
     m_remote.m_params = sshParams;
     m_remote.m_connection = connection;
     m_remote.m_error = QProcess::UnknownError;

@@ -81,8 +81,6 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
             qWarning() << "Cannot open port on host for profiling.";
             return 0;
         }
-        connection.connParams.host = server.serverAddress().toString();
-        connection.connParams.port = server.serverPort();
     } else {
         connection.connParams = device->sshParameters();
     }
