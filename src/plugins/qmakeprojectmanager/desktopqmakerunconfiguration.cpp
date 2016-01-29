@@ -43,6 +43,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/persistentsettings.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
@@ -338,8 +339,9 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
 
 QString DesktopQmakeRunConfiguration::executable() const
 {
-    const QmakeProFileNode *node = qmakeProject()->rootProjectNode()->findProFileFor(m_proFilePath);
-    return extractWorkingDirAndExecutable(node).second;
+    if (QmakeProFileNode *node = projectNode())
+        return extractWorkingDirAndExecutable(node).second;
+    return QString();
 }
 
 bool DesktopQmakeRunConfiguration::isUsingDyldImageSuffix() const
@@ -370,8 +372,9 @@ void DesktopQmakeRunConfiguration::setUsingLibrarySearchPath(bool state)
 
 QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
 {
-    const QmakeProFileNode *node = qmakeProject()->rootProjectNode()->findProFileFor(m_proFilePath);
-    return extractWorkingDirAndExecutable(node).first;
+    if (QmakeProFileNode *node = projectNode())
+        return extractWorkingDirAndExecutable(node).first;
+    return QString();
 }
 
 void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
@@ -382,7 +385,7 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
     // The user could be linking to a library found via a -L/some/dir switch
     // to find those libraries while actually running we explicitly prepend those
     // dirs to the library search path
-    const QmakeProFileNode *node = qmakeProject()->rootProjectNode()->findProFileFor(m_proFilePath);
+    const QmakeProFileNode *node = projectNode();
     if (m_isUsingLibrarySearchPath && node) {
         const QStringList libDirectories = node->variableValue(LibDirectoriesVar);
         if (!libDirectories.isEmpty()) {
@@ -412,14 +415,21 @@ QmakeProject *DesktopQmakeRunConfiguration::qmakeProject() const
     return static_cast<QmakeProject *>(target()->project());
 }
 
+QmakeProFileNode *DesktopQmakeRunConfiguration::projectNode() const
+{
+    QmakeProject *project = qmakeProject();
+    QTC_ASSERT(project, return nullptr);
+    QmakeProFileNode *rootNode = project->rootProjectNode();
+    QTC_ASSERT(rootNode, return nullptr);
+    QmakeProFileNode *node = rootNode->findProFileFor(m_proFilePath);
+    QTC_CHECK(node);
+    return node;
+}
+
 QString DesktopQmakeRunConfiguration::defaultDisplayName()
 {
-    const QmakeProFileNode *root = qmakeProject()->rootProjectNode();
-    if (root) {
-        const QmakeProFileNode *node = root->findProFileFor(m_proFilePath);
-        if (node) // should always be found
-            return node->displayName();
-    }
+    if (QmakeProFileNode *node = projectNode())
+        return node->displayName();
 
     QString defaultName;
     if (!m_proFilePath.isEmpty())

@@ -100,6 +100,7 @@ private:
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
     QmakeProject *qmakeProject() const;
+    QmakeProFileNode *projectNode() const;
 
     void ctor();
 
