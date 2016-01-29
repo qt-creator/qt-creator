@@ -682,7 +682,10 @@ QFuture<ResultType> runAsync(Function &&function, Args&&... args)
     auto job = new Internal::AsyncJob<ResultType,Function,Args...>
             (std::forward<Function>(function), std::forward<Args>(args)...);
     QFuture<ResultType> future = job->future();
-    (new Internal::RunnableThread(job))->start(); // automatically deletes itself
+    auto thread = new Internal::RunnableThread(job);
+    thread->moveToThread(qApp->thread()); // make sure thread gets deleteLater on main thread
+    QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+    thread->start();
     return future;
 }
 
