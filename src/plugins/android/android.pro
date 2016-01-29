@@ -47,7 +47,8 @@ HEADERS += \
     avddialog.h \
     android_global.h \
     androidbuildapkstep.h \
-    androidbuildapkwidget.h
+    androidbuildapkwidget.h \
+    androidrunnable.h
 
 SOURCES += \
     androidconfigurations.cpp \

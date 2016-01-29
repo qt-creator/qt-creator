@@ -77,6 +77,7 @@ QtcPlugin {
         "androidruncontrol.h",
         "androidrunfactories.cpp",
         "androidrunfactories.h",
+        "androidrunnable.h",
         "androidrunner.cpp",
         "androidrunner.h",
         "androidsettingspage.cpp",

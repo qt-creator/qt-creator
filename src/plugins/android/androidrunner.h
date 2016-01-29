@@ -27,6 +27,7 @@
 #define ANDROIDRUNNER_H
 
 #include "androidconfigurations.h"
+#include "androidrunnable.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
@@ -58,6 +59,8 @@ public:
     ~AndroidRunner();
 
     QString displayName() const;
+    void setRunnable(const AndroidRunnable &runnable);
+    const AndroidRunnable &runnable() const { return m_androidRunnable; }
 
 public slots:
     void start();
@@ -92,12 +95,9 @@ private:
     QTimer m_checkPIDTimer;
     bool m_wasStarted;
     int m_tries;
-
     QByteArray m_stdoutBuffer;
     QByteArray m_stderrBuffer;
-    QString m_intentName;
-    QString m_packageName;
-    QString m_deviceSerialNumber;
+    AndroidRunnable m_androidRunnable;
     qint64 m_processPID;
     bool m_useCppDebugger;
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;

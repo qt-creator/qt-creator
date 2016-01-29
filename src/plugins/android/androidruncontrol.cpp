@@ -42,6 +42,7 @@ AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
     , m_runner(new AndroidRunner(this, rc, ProjectExplorer::Constants::NORMAL_RUN_MODE))
     , m_running(false)
 {
+    setRunnable(m_runner->runnable());
     setIcon(Icons::RUN_SMALL);
 }
 
@@ -63,6 +64,7 @@ void AndroidRunControl::start()
     connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
         SLOT(handleRemoteProcessFinished(QString)));
     appendMessage(tr("Starting remote process."), Utils::NormalMessageFormat);
+    m_runner->setRunnable(runnable().as<AndroidRunnable>());
     m_runner->start();
 }
 

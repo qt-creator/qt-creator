@@ -149,17 +149,17 @@ AndroidRunner::AndroidRunner(QObject *parent,
         m_qmlPort = 0;
     }
     ProjectExplorer::Target *target = runConfig->target();
-    m_intentName = AndroidManager::intentName(target);
-    m_packageName = m_intentName.left(m_intentName.indexOf(QLatin1Char('/')));
+    m_androidRunnable.intentName = AndroidManager::intentName(target);
+    m_androidRunnable.packageName = m_androidRunnable.intentName.left(m_androidRunnable.intentName.indexOf(QLatin1Char('/')));
 
-    m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
+    m_androidRunnable.deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_processPID = -1;
     m_adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
-    m_selector = AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
+    m_selector = AndroidDeviceInfo::adbSelector(m_androidRunnable.deviceSerialNumber);
 
-    QString packageDir = _("/data/data/") + m_packageName;
+    QString packageDir = _("/data/data/") + m_androidRunnable.packageName;
     m_pingFile = packageDir + _("/debug-ping");
-    m_pongFile = _("/data/local/tmp/qt/debug-pong-") + m_packageName;
+    m_pongFile = _("/data/local/tmp/qt/debug-pong-") + m_androidRunnable.packageName;
     m_gdbserverSocket = packageDir + _("/debug-socket");
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (version && version->qtVersion() >=  QtSupport::QtVersionNumber(5, 4, 0))
@@ -263,16 +263,16 @@ QByteArray AndroidRunner::runPs()
 void AndroidRunner::checkPID()
 {
     QByteArray psOut = runPs();
-    m_processPID = extractPid(m_packageName, psOut);
+    m_processPID = extractPid(m_androidRunnable.packageName, psOut);
 
     if (m_processPID == -1) {
         if (m_wasStarted) {
             m_wasStarted = false;
             m_checkPIDTimer.stop();
-            emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" died.").arg(m_packageName));
+            emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" died.").arg(m_androidRunnable.packageName));
         } else {
             if (++m_tries > 3)
-                emit remoteProcessFinished(QLatin1String("\n\n") + tr("Unable to start \"%1\".").arg(m_packageName));
+                emit remoteProcessFinished(QLatin1String("\n\n") + tr("Unable to start \"%1\".").arg(m_androidRunnable.packageName));
         }
     } else if (!m_wasStarted){
         if (m_useCppDebugger) {
@@ -300,7 +300,7 @@ void AndroidRunner::forceStop()
 {
     QProcess proc;
     proc.start(m_adb, selector() << _("shell") << _("am") << _("force-stop")
-               << m_packageName);
+               << m_androidRunnable.packageName);
     proc.waitForFinished();
 
     // try killing it via kill -9
@@ -311,7 +311,7 @@ void AndroidRunner::forceStop()
         if (to == -1)
             break;
         QString line = QString::fromUtf8(out.data() + from, to - from - 1);
-        if (line.endsWith(m_packageName) || line.endsWith(m_gdbserverPath)) {
+        if (line.endsWith(m_androidRunnable.packageName) || line.endsWith(m_gdbserverPath)) {
             int pid = extractPidFromChunk(out, from);
             adbKill(pid);
         }
@@ -337,8 +337,14 @@ void AndroidRunner::asyncStart()
         adb.waitForFinished();
     }
 
+    foreach (const QStringList &entry, m_androidRunnable.beforeStartADBCommands) {
+        QProcess adb;
+        adb.start(m_adb, selector() << entry);
+        adb.waitForFinished();
+    }
+
     QStringList args = selector();
-    args << _("shell") << _("am") << _("start") << _("-n") << m_intentName;
+    args << _("shell") << _("am") << _("start") << _("-n") << m_androidRunnable.intentName;
 
     if (m_useCppDebugger) {
         QProcess adb;
@@ -354,7 +360,7 @@ void AndroidRunner::asyncStart()
             return;
         }
 
-        const QString pingPongSocket(m_packageName + _(".ping_pong_socket"));
+        const QString pingPongSocket(m_androidRunnable.packageName + _(".ping_pong_socket"));
         args << _("-e") << _("debug_ping") << _("true");
         if (m_handShakeMethod == SocketHandShake) {
             args << _("-e") << _("ping_socket") << pingPongSocket;
@@ -411,7 +417,7 @@ void AndroidRunner::asyncStart()
     }
     if (!adb.waitForFinished(10000)) {
         adb.terminate();
-        emit remoteProcessFinished(tr("Unable to start \"%1\".").arg(m_packageName));
+        emit remoteProcessFinished(tr("Unable to start \"%1\".").arg(m_androidRunnable.packageName));
         return;
     }
 
@@ -476,7 +482,7 @@ void AndroidRunner::asyncStart()
                     break;
 
                 if (i == 20) {
-                    emit remoteProcessFinished(tr("Unable to start \"%1\".").arg(m_packageName));
+                    emit remoteProcessFinished(tr("Unable to start \"%1\".").arg(m_androidRunnable.packageName));
                     return;
                 }
                 qDebug() << "WAITING FOR " << tmp.fileName();
@@ -540,11 +546,16 @@ void AndroidRunner::stop()
     m_tries = 0;
     if (m_processPID != -1) {
         forceStop();
-        emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" terminated.").arg(m_packageName));
+        emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" terminated.").arg(m_androidRunnable.packageName));
     }
     //QObject::disconnect(&m_adbLogcatProcess, 0, this, 0);
     m_adbLogcatProcess.kill();
     m_adbLogcatProcess.waitForFinished();
+    foreach (const QStringList &entry, m_androidRunnable.afterFinishADBCommands) {
+        QProcess adb;
+        adb.start(m_adb, selector() << entry);
+        adb.waitForFinished();
+    }
 }
 
 void AndroidRunner::logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError)
@@ -613,7 +624,7 @@ void AndroidRunner::adbKill(qint64 pid)
     {
         QProcess process;
         process.start(m_adb, selector() << _("shell")
-            << _("run-as") << m_packageName
+            << _("run-as") << m_androidRunnable.packageName
             << _("kill") << QLatin1String("-9") << QString::number(pid));
         process.waitForFinished();
     }
@@ -621,7 +632,13 @@ void AndroidRunner::adbKill(qint64 pid)
 
 QString AndroidRunner::displayName() const
 {
-    return m_packageName;
+    return m_androidRunnable.packageName;
+}
+
+void AndroidRunner::setRunnable(const AndroidRunnable &runnable)
+{
+    m_androidRunnable = runnable;
+    m_selector = AndroidDeviceInfo::adbSelector(m_androidRunnable.deviceSerialNumber);
 }
 
 } // namespace Internal
