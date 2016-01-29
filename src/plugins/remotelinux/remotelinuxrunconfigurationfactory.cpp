@@ -59,10 +59,6 @@ RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *
     setObjectName(QLatin1String("RemoteLinuxRunConfigurationFactory"));
 }
 
-RemoteLinuxRunConfigurationFactory::~RemoteLinuxRunConfigurationFactory()
-{
-}
-
 bool RemoteLinuxRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))

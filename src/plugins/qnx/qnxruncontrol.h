@@ -39,7 +39,7 @@ class QnxRunControl : public RemoteLinux::RemoteLinuxRunControl
 public:
     explicit QnxRunControl(ProjectExplorer::RunConfiguration *runConfig);
 
-    RemoteLinux::RemoteLinuxRunControl::StopResult stop();
+    RemoteLinux::RemoteLinuxRunControl::StopResult stop() override;
 
 private slots:
     void printMissingWarning();

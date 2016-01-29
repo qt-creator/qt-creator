@@ -42,22 +42,22 @@ class QmlProfilerRunControl : public Analyzer::AnalyzerRunControl
 public:
     QmlProfilerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                           Internal::QmlProfilerTool *tool);
-    ~QmlProfilerRunControl();
+    ~QmlProfilerRunControl() override;
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
-    void notifyRemoteSetupDone(quint16 port);
-    StopResult stop();
+    void notifyRemoteSetupDone(quint16 port) override;
+    StopResult stop() override;
 
 signals:
     void processRunning(quint16 port);
 
 public slots:
-    bool startEngine();
-    void stopEngine();
+    bool startEngine() override;
+    void stopEngine() override;
     void cancelProcess();
-    void notifyRemoteFinished();
-    void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
+    void notifyRemoteFinished() override;
+    void logApplicationMessage(const QString &msg, Utils::OutputFormat format) override;
 
 private slots:
     void wrongSetupMessageBox(const QString &errorMessage);

@@ -358,9 +358,6 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory(QObject *parent) :
     IBuildConfigurationFactory(parent)
 { }
 
-QbsBuildConfigurationFactory::~QbsBuildConfigurationFactory()
-{ }
-
 bool QbsBuildConfigurationFactory::canHandle(const Target *t) const
 {
     return qobject_cast<Internal::QbsProject *>(t->project());

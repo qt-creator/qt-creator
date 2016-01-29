@@ -282,7 +282,6 @@ class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
 
 public:
     explicit IRunConfigurationFactory(QObject *parent = 0);
-    virtual ~IRunConfigurationFactory();
 
     enum CreationMode {UserCreate, AutoCreate};
     virtual QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode = UserCreate) const = 0;
@@ -312,7 +311,6 @@ class PROJECTEXPLORER_EXPORT IRunControlFactory : public QObject
     Q_OBJECT
 public:
     explicit IRunControlFactory(QObject *parent = 0);
-    virtual ~IRunControlFactory();
 
     virtual bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const = 0;
     virtual RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) = 0;
@@ -345,7 +343,7 @@ public:
     };
 
     RunControl(RunConfiguration *runConfiguration, Core::Id mode);
-    virtual ~RunControl();
+    ~RunControl() override;
     virtual void start() = 0;
 
     virtual bool promptToStop(bool *optionalPrompt = 0) const;

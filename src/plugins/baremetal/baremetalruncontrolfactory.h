@@ -41,11 +41,10 @@ class BareMetalRunControlFactory : public ProjectExplorer::IRunControlFactory
 
 public:
     explicit BareMetalRunControlFactory(QObject *parent = 0);
-    ~BareMetalRunControlFactory();
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode) const;
+
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode) const override;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        Core::Id mode,
-                                        QString *errorMessage);
+                                        Core::Id mode, QString *errorMessage) override;
 };
 
 } // namespace Internal

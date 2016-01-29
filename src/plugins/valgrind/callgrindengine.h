@@ -41,18 +41,18 @@ class CallgrindRunControl : public ValgrindRunControl
 public:
     CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
 
-    bool startEngine();
+    bool startEngine() override;
 
     Valgrind::Callgrind::ParseData *takeParserData();
 
-    bool canPause() const { return true; }
+    bool canPause() const override { return true; }
 
 public slots:
     /// controller actions
     void dump();
     void reset();
-    void pause();
-    void unpause();
+    void pause() override;
+    void unpause() override;
 
     /// marks the callgrind process as paused
     /// calls pause() and unpause() if there's an active run
@@ -61,9 +61,9 @@ public slots:
     void setToggleCollectFunction(const QString &toggleCollectFunction);
 
 protected:
-    virtual QStringList toolArguments() const;
-    virtual QString progressTitle() const;
-    virtual Valgrind::ValgrindRunner *runner();
+    QStringList toolArguments() const override;
+    QString progressTitle() const override;
+    Valgrind::ValgrindRunner *runner() override;
 
 signals:
     void parserDataReady(CallgrindRunControl *engine);

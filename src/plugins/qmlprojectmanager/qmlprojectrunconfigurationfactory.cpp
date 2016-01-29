@@ -42,10 +42,6 @@ QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *pa
     setObjectName(QLatin1String("QmlProjectRunConfigurationFactory"));
 }
 
-QmlProjectRunConfigurationFactory::~QmlProjectRunConfigurationFactory()
-{
-}
-
 QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const
 {
     Q_UNUSED(mode)

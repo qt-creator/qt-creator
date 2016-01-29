@@ -203,6 +203,3 @@ bool BuildStep::enabled() const
 IBuildStepFactory::IBuildStepFactory(QObject *parent) :
     QObject(parent)
 { }
-
-IBuildStepFactory::~IBuildStepFactory()
-{ }

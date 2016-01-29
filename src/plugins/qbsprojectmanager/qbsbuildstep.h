@@ -161,7 +161,6 @@ private:
     bool m_ignoreChange;
 };
 
-
 class QbsBuildStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
@@ -170,19 +169,18 @@ public:
     explicit QbsBuildStepFactory(QObject *parent = 0);
 
     // used to show the list of possible additons to a target, returns a list of types
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const override;
     // used to translate the types to names to display to the user
-    QString displayNameForId(Core::Id id) const;
+    QString displayNameForId(Core::Id id) const override;
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const override;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
     // used to recreate the runConfigurations when restoring settings
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
-    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product);
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
+    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const override;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) override;
 };
-
 
 } // namespace Internal
 } // namespace QbsProjectManager

@@ -51,9 +51,9 @@ class WinRtRunControl : public ProjectExplorer::RunControl
 public:
     explicit WinRtRunControl(WinRtRunConfiguration *runConfiguration, Core::Id mode);
 
-    void start();
-    StopResult stop();
-    bool isRunning() const;
+    void start() override;
+    StopResult stop() override;
+    bool isRunning() const override;
 
 private slots:
     void onProcessStarted();

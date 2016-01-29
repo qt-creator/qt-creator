@@ -47,9 +47,9 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 public:
     explicit AutotoolsBuildConfiguration(ProjectExplorer::Target *parent);
 
-    ProjectExplorer::NamedWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget() override;
 
-    BuildType buildType() const;
+    BuildType buildType() const override;
 
 protected:
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
@@ -58,7 +58,7 @@ protected:
     friend class AutotoolsBuildSettingsWidget;
 
 private:
-    void setBuildDirectory(const Utils::FileName &directory);
+    void setBuildDirectory(const Utils::FileName &directory) override;
 };
 
 class AutotoolsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
@@ -68,18 +68,18 @@ class AutotoolsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigu
 public:
     explicit AutotoolsBuildConfigurationFactory(QObject *parent = 0);
 
-    int priority(const ProjectExplorer::Target *parent) const;
-    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const;
-    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const;
+    int priority(const ProjectExplorer::Target *parent) const override;
+    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const override;
+    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const override;
     QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k,
-                                                        const QString &projectPath) const;
+                                                        const QString &projectPath) const override;
     ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
-                                                const ProjectExplorer::BuildInfo *info) const;
+                                                const ProjectExplorer::BuildInfo *info) const override;
 
-    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
-    AutotoolsBuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
-    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    AutotoolsBuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const override;
+    AutotoolsBuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) override;
+    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const override;
+    AutotoolsBuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
 
 private:
     bool canHandle(const ProjectExplorer::Target *t) const;

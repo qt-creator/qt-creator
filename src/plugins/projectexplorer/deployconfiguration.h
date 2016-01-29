@@ -85,14 +85,12 @@ protected:
     DefaultDeployConfiguration(Target *target, DeployConfiguration *source);
 };
 
-class PROJECTEXPLORER_EXPORT DeployConfigurationFactory :
-    public QObject
+class PROJECTEXPLORER_EXPORT DeployConfigurationFactory : public QObject
 {
     Q_OBJECT
 
 public:
     explicit DeployConfigurationFactory(QObject *parent = 0);
-    virtual ~DeployConfigurationFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
     virtual QList<Core::Id> availableCreationIds(Target *parent) const = 0;
@@ -118,15 +116,15 @@ signals:
 class DefaultDeployConfigurationFactory : public DeployConfigurationFactory
 {
 public:
-    QList<Core::Id> availableCreationIds(Target *parent) const;
+    QList<Core::Id> availableCreationIds(Target *parent) const override;
     // used to translate the types to names to display to the user
-    QString displayNameForId(Core::Id id) const;
-    bool canCreate(Target *parent, Core::Id id) const;
-    DeployConfiguration *create(Target *parent, Core::Id id);
-    bool canRestore(Target *parent, const QVariantMap &map) const;
-    DeployConfiguration *restore(Target *parent, const QVariantMap &map);
-    bool canClone(Target *parent, DeployConfiguration *product) const;
-    DeployConfiguration *clone(Target *parent, DeployConfiguration *product);
+    QString displayNameForId(Core::Id id) const override;
+    bool canCreate(Target *parent, Core::Id id) const override;
+    DeployConfiguration *create(Target *parent, Core::Id id) override;
+    bool canRestore(Target *parent, const QVariantMap &map) const override;
+    DeployConfiguration *restore(Target *parent, const QVariantMap &map) override;
+    bool canClone(Target *parent, DeployConfiguration *product) const override;
+    DeployConfiguration *clone(Target *parent, DeployConfiguration *product) override;
 private:
     bool canHandle(Target *parent) const;
 };

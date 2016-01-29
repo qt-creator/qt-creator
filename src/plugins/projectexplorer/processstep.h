@@ -38,18 +38,15 @@ class ProcessStepFactory : public IBuildStepFactory
     Q_OBJECT
 
 public:
-    ProcessStepFactory();
-    ~ProcessStepFactory();
+    virtual QList<Core::Id> availableCreationIds(BuildStepList *parent) const override;
+    virtual QString displayNameForId(Core::Id id) const override;
 
-    virtual QList<Core::Id> availableCreationIds(BuildStepList *parent) const;
-    virtual QString displayNameForId(Core::Id id) const;
-
-    virtual bool canCreate(BuildStepList *parent, Core::Id id) const;
-    virtual BuildStep *create(BuildStepList *parent, Core::Id id);
-    virtual bool canRestore(BuildStepList *parent, const QVariantMap &map) const;
-    virtual BuildStep *restore(BuildStepList *parent, const QVariantMap &map);
-    virtual bool canClone(BuildStepList *parent, BuildStep *product) const;
-    virtual BuildStep *clone(BuildStepList *parent, BuildStep *product);
+    virtual bool canCreate(BuildStepList *parent, Core::Id id) const override;
+    virtual BuildStep *create(BuildStepList *parent, Core::Id id) override;
+    virtual bool canRestore(BuildStepList *parent, const QVariantMap &map) const override;
+    virtual BuildStep *restore(BuildStepList *parent, const QVariantMap &map) override;
+    virtual bool canClone(BuildStepList *parent, BuildStep *product) const override;
+    virtual BuildStep *clone(BuildStepList *parent, BuildStep *product) override;
 };
 
 class ProcessStep : public AbstractProcessStep

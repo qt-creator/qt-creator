@@ -59,15 +59,15 @@ class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 
 public:
     explicit QMakeStepFactory(QObject *parent = 0);
-    virtual ~QMakeStepFactory();
-    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
-    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *bs) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *bs);
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    QString displayNameForId(Core::Id id) const;
+
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const override;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
+    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *bs) const override;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *bs) override;
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const override;
+    QString displayNameForId(Core::Id id) const override;
 };
 
 } // namespace Internal

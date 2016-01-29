@@ -45,8 +45,7 @@ class ANALYZER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
     Q_OBJECT
 
 public:
-    AnalyzerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
-        Core::Id runMode);
+    AnalyzerRunControl(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 
     /// Start analyzation process.
     virtual bool startEngine() = 0;
@@ -62,12 +61,12 @@ public:
     virtual void notifyRemoteFinished() {}
 
     // ProjectExplorer::RunControl
-    void start();
-    StopResult stop();
-    bool isRunning() const;
+    void start() override;
+    StopResult stop() override;
+    bool isRunning() const override;
 
 public slots:
-    virtual void logApplicationMessage(const QString &, Utils::OutputFormat) {}
+    virtual void logApplicationMessage(const QString &, Utils::OutputFormat) { }
 
 private slots:
     void stopIt();
@@ -78,7 +77,7 @@ signals:
     void starting();
 
 private:
-    bool supportsReRunning() const { return false; }
+    bool supportsReRunning() const override { return false; }
 
 protected:
     bool m_isRunning;

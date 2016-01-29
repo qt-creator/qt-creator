@@ -40,12 +40,12 @@ class AndroidRunControl : public ProjectExplorer::RunControl
 
 public:
     explicit AndroidRunControl(AndroidRunConfiguration *runConfig);
-    ~AndroidRunControl();
+    ~AndroidRunControl() override;
 
-    void start();
-    StopResult stop();
-    bool isRunning() const;
-    QString displayName() const;
+    void start() override;
+    StopResult stop() override;
+    bool isRunning() const override;
+    QString displayName() const override;
 
 private slots:
     void handleRemoteProcessFinished(const QString &error);
@@ -53,8 +53,7 @@ private slots:
     void handleRemoteErrorOutput(const QString &output);
 
 private:
-
-    AndroidRunner * const m_runner;
+    AndroidRunner *const m_runner;
     bool m_running;
 };
 

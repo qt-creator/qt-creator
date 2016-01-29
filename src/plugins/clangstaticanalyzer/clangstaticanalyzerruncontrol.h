@@ -57,8 +57,8 @@ public:
                                   Core::Id runMode,
                                   const CppTools::ProjectInfo &projectInfo);
 
-    bool startEngine();
-    void stopEngine();
+    bool startEngine() override;
+    void stopEngine() override;
 
     bool success() const { return m_success; } // For testing.
 

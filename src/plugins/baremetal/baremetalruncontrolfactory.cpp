@@ -62,10 +62,6 @@ BareMetalRunControlFactory::BareMetalRunControlFactory(QObject *parent) :
 {
 }
 
-BareMetalRunControlFactory::~BareMetalRunControlFactory()
-{
-}
-
 bool BareMetalRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
     if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE

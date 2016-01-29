@@ -46,8 +46,8 @@ public:
     ValgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
                        Core::Id runMode);
 
-    bool startEngine();
-    void stopEngine();
+    bool startEngine() override;
+    void stopEngine() override;
 
     QString executable() const;
 

@@ -51,7 +51,7 @@ public:
     explicit QmakeBuildConfiguration(ProjectExplorer::Target *target);
     ~QmakeBuildConfiguration();
 
-    ProjectExplorer::NamedWidget *createConfigWidget();
+    ProjectExplorer::NamedWidget *createConfigWidget() override;
     bool isShadowBuild() const;
 
     void setSubNodeBuild(QmakeProjectManager::QmakeProFileNode *node);
@@ -91,14 +91,14 @@ public:
                                             const QString &directory, const QtSupport::BaseQtVersion *version,
                                             QStringList *outArgs = 0);
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const override;
 
-    virtual bool isEnabled() const;
-    virtual QString disabledReason() const;
+    virtual bool isEnabled() const override;
+    virtual QString disabledReason() const override;
     /// \internal For QmakeProject, since that manages the parsing information
     void setEnabled(bool enabled);
 
-    BuildType buildType() const;
+    BuildType buildType() const override;
 
 public slots:
     void emitProFileEvaluateNeeded();
@@ -117,8 +117,8 @@ private slots:
 protected:
     QmakeBuildConfiguration(ProjectExplorer::Target *target, QmakeBuildConfiguration *source);
     QmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
-    virtual bool fromMap(const QVariantMap &map);
-    void setBuildDirectory(const Utils::FileName &directory);
+    bool fromMap(const QVariantMap &map) override;
+    void setBuildDirectory(const Utils::FileName &directory) override;
 
 private:
     void ctor();
@@ -154,20 +154,19 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfigurationFactory : public Project
 
 public:
     explicit QmakeBuildConfigurationFactory(QObject *parent = 0);
-    ~QmakeBuildConfigurationFactory();
 
-    int priority(const ProjectExplorer::Target *parent) const;
-    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const;
-    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const;
+    int priority(const ProjectExplorer::Target *parent) const override;
+    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const override;
+    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const override;
     QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k,
-                                                        const QString &projectPath) const;
+                                                        const QString &projectPath) const override;
     ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
-                                                const ProjectExplorer::BuildInfo *info) const;
+                                                const ProjectExplorer::BuildInfo *info) const override;
 
-    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
-    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const override;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) override;
+    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const override;
+    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
 protected:
     void configureBuildConfiguration(ProjectExplorer::Target *parent, QmakeBuildConfiguration *bc, const QmakeBuildInfo *info) const;
 

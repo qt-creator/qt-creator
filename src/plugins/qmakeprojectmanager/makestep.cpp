@@ -477,10 +477,6 @@ MakeStepFactory::MakeStepFactory(QObject *parent) :
 {
 }
 
-MakeStepFactory::~MakeStepFactory()
-{
-}
-
 bool MakeStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     if (parent->target()->project()->id() == Constants::QMAKEPROJECT_ID)

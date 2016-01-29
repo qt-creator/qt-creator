@@ -56,10 +56,6 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory(QObject *pare
     setObjectName(QLatin1String("BareMetalRunConfigurationFactory"));
 }
 
-BareMetalRunConfigurationFactory::~BareMetalRunConfigurationFactory()
-{
-}
-
 bool BareMetalRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))

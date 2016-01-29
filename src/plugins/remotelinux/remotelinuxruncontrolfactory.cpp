@@ -61,10 +61,6 @@ RemoteLinuxRunControlFactory::RemoteLinuxRunControlFactory(QObject *parent)
 {
 }
 
-RemoteLinuxRunControlFactory::~RemoteLinuxRunControlFactory()
-{
-}
-
 bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
     if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE

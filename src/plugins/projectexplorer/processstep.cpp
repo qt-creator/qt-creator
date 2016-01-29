@@ -156,14 +156,6 @@ bool ProcessStep::fromMap(const QVariantMap &map)
 // ProcessStepFactory
 //*******
 
-ProcessStepFactory::ProcessStepFactory()
-{
-}
-
-ProcessStepFactory::~ProcessStepFactory()
-{
-}
-
 bool ProcessStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     Q_UNUSED(parent);

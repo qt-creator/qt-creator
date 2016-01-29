@@ -47,20 +47,19 @@ DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStart
                                                              QString *errorMessage,
                                                              Core::Id runMode = ProjectExplorer::Constants::DEBUG_RUN_MODE);
 
-class DEBUGGER_EXPORT DebuggerRunControl
-    : public ProjectExplorer::RunControl
+class DEBUGGER_EXPORT DebuggerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 
 public:
-    ~DebuggerRunControl();
+    ~DebuggerRunControl() override;
 
     // ProjectExplorer::RunControl
-    void start();
-    bool promptToStop(bool *prompt = 0) const;
-    StopResult stop(); // Called from SnapshotWindow.
-    bool isRunning() const;
-    QString displayName() const;
+    void start() override;
+    bool promptToStop(bool *prompt = 0) const override;
+    StopResult stop() override; // Called from SnapshotWindow.
+    bool isRunning() const override;
+    QString displayName() const override;
 
     void startFailed();
     void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);

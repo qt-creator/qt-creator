@@ -42,11 +42,10 @@ public:
                                                   QObject *parent = 0);
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                Core::Id runMode) const;
+                Core::Id runMode) const override;
 
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        Core::Id runMode,
-                                        QString *errorMessage);
+                                        Core::Id runMode, QString *errorMessage) override;
 
 private:
     ClangStaticAnalyzerTool *m_tool;

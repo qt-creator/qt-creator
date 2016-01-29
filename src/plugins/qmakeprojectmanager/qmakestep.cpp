@@ -731,10 +731,6 @@ QMakeStepFactory::QMakeStepFactory(QObject *parent) :
 {
 }
 
-QMakeStepFactory::~QMakeStepFactory()
-{
-}
-
 bool QMakeStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)

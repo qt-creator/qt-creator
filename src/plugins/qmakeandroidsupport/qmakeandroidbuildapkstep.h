@@ -38,19 +38,19 @@ class QmakeAndroidBuildApkStepFactory : public ProjectExplorer::IBuildStepFactor
 public:
     explicit QmakeAndroidBuildApkStepFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    QString displayNameForId(Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const override;
+    QString displayNameForId(Core::Id id) const override;
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const override;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
 
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
 
     bool canClone(ProjectExplorer::BuildStepList *parent,
-                  ProjectExplorer::BuildStep *product) const;
+                  ProjectExplorer::BuildStep *product) const override;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *product);
+                                      ProjectExplorer::BuildStep *product) override;
 private:
     bool canHandle(ProjectExplorer::Target *t) const;
 

@@ -431,10 +431,6 @@ IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
 {
 }
 
-IRunConfigurationFactory::~IRunConfigurationFactory()
-{
-}
-
 RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
@@ -502,10 +498,6 @@ QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 
 IRunControlFactory::IRunControlFactory(QObject *parent)
     : QObject(parent)
-{
-}
-
-IRunControlFactory::~IRunControlFactory()
 {
 }
 

@@ -40,7 +40,7 @@ class IosRunControl : public ProjectExplorer::RunControl
 
 public:
     explicit IosRunControl(IosRunConfiguration *runConfig);
-    ~IosRunControl();
+    ~IosRunControl() override;
 
 
     void start() override;
@@ -54,8 +54,7 @@ private slots:
     void handleRemoteErrorOutput(const QString &output);
 
 private:
-
-    IosRunner * const m_runner;
+    IosRunner *const m_runner;
     bool m_running;
 };
 

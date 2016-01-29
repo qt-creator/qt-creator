@@ -116,14 +116,13 @@ private:
     mutable Utils::Environment m_cachedEnvironment;
 };
 
-class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :
-    public QObject
+class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject
 {
     Q_OBJECT
 
 public:
     explicit IBuildConfigurationFactory(QObject *parent = 0);
-    virtual ~IBuildConfigurationFactory();
+    ~IBuildConfigurationFactory() override;
 
     // The priority is negative if this factory can not create anything for the target.
     // It is 0 for the "default" factory that wants to handle the target.

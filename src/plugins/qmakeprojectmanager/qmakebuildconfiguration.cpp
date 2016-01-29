@@ -535,10 +535,6 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory(QObject *parent) 
             this, &QmakeBuildConfigurationFactory::update);
 }
 
-QmakeBuildConfigurationFactory::~QmakeBuildConfigurationFactory()
-{
-}
-
 void QmakeBuildConfigurationFactory::update()
 {
     emit availableCreationIdsChanged();

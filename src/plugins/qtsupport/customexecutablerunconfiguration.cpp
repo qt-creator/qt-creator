@@ -329,9 +329,6 @@ CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory
     IRunConfigurationFactory(parent)
 { setObjectName(QLatin1String("CustomExecutableRunConfigurationFactory")); }
 
-CustomExecutableRunConfigurationFactory::~CustomExecutableRunConfigurationFactory()
-{ }
-
 bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))

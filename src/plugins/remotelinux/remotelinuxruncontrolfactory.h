@@ -36,12 +36,11 @@ class RemoteLinuxRunControlFactory : public ProjectExplorer::IRunControlFactory
     Q_OBJECT
 public:
     explicit RemoteLinuxRunControlFactory(QObject *parent = 0);
-    ~RemoteLinuxRunControlFactory();
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                Core::Id mode) const;
+                Core::Id mode) const override;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        Core::Id mode, QString *errorMessage);
+                                        Core::Id mode, QString *errorMessage) override;
 };
 
 } // namespace Internal

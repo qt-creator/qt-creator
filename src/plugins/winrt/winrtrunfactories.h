@@ -39,18 +39,18 @@ class WinRtRunConfigurationFactory  : public ProjectExplorer::IRunConfigurationF
 public:
     WinRtRunConfigurationFactory();
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
-    QString displayNameForId(Core::Id id) const;
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const override;
+    QString displayNameForId(Core::Id id) const override;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const override;
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
-                                             ProjectExplorer::RunConfiguration *product);
+                                             ProjectExplorer::RunConfiguration *product) override;
 
 private:
     bool canHandle(ProjectExplorer::Target *parent) const;
-    virtual ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id);
-    virtual ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    virtual ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id) override;
+    virtual ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
 };
 
 class WinRtRunControlFactory : public ProjectExplorer::IRunControlFactory
@@ -59,9 +59,9 @@ class WinRtRunControlFactory : public ProjectExplorer::IRunControlFactory
 public:
     WinRtRunControlFactory();
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                Core::Id mode) const;
+                Core::Id mode) const override;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                       Core::Id mode, QString *errorMessage);
+                       Core::Id mode, QString *errorMessage) override;
     QString displayName() const;
 };
 

@@ -40,12 +40,11 @@ public:
     explicit ValgrindRunControlFactory(QObject *parent = 0);
 
     // IRunControlFactory implementation
-    bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const;
+    bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const override;
 
-    ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
-                                        Core::Id mode,
-                                        QString *errorMessage);
-    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc);
+    ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration, Core::Id mode,
+                                        QString *errorMessage) override;
+    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc) override;
 };
 
 } // namespace Internal

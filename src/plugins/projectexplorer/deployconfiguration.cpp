@@ -174,9 +174,6 @@ DeployConfigurationFactory::DeployConfigurationFactory(QObject *parent) :
     QObject(parent)
 { setObjectName(QLatin1String("DeployConfigurationFactory")); }
 
-DeployConfigurationFactory::~DeployConfigurationFactory()
-{ }
-
 DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
     return ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>(

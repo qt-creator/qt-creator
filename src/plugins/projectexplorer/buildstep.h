@@ -101,7 +101,6 @@ class PROJECTEXPLORER_EXPORT IBuildStepFactory :
 
 public:
     explicit IBuildStepFactory(QObject *parent = 0);
-    virtual ~IBuildStepFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
     virtual QList<Core::Id> availableCreationIds(BuildStepList *parent) const = 0;

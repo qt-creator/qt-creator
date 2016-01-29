@@ -36,29 +36,29 @@ class WinRtDeployConfigurationFactory : public ProjectExplorer::DeployConfigurat
 {
 public:
     explicit WinRtDeployConfigurationFactory(QObject *parent = 0);
-    QString displayNameForId(Core::Id id) const;
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *source) const;
+    QString displayNameForId(Core::Id id) const override;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const override;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id) override;
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
+    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *source) const override;
     ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
-                                                ProjectExplorer::DeployConfiguration *source);
+                                                ProjectExplorer::DeployConfiguration *source) override;
 };
 
 class WinRtDeployStepFactory : public ProjectExplorer::IBuildStepFactory
 {
 public:
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    QString displayNameForId(Core::Id id) const;
-    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
-    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const override;
+    QString displayNameForId(Core::Id id) const override;
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const override;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const override;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) override;
+    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const override;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *source);
+                                      ProjectExplorer::BuildStep *source) override;
 };
 
 class WinRtDeployConfiguration : public ProjectExplorer::DeployConfiguration

@@ -406,9 +406,6 @@ QbsRunConfigurationFactory::QbsRunConfigurationFactory(QObject *parent) :
     setObjectName(QLatin1String("QbsRunConfigurationFactory"));
 }
 
-QbsRunConfigurationFactory::~QbsRunConfigurationFactory()
-{ }
-
 bool QbsRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
