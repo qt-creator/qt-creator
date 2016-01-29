@@ -348,9 +348,9 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourc
 
 void ModelManagerInterface::fileChangedOnDisk(const QString &path)
 {
-    QtConcurrent::run(&ModelManagerInterface::parse,
-                      workingCopyInternal(), QStringList() << path,
-                      this, Dialect(Dialect::AnyLanguage), true);
+    Utils::runAsync<void>(&ModelManagerInterface::parse,
+                          workingCopyInternal(), QStringList() << path,
+                          this, Dialect(Dialect::AnyLanguage), true);
 }
 
 void ModelManagerInterface::removeFiles(const QStringList &files)
