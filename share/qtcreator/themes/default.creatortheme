@@ -166,7 +166,7 @@ DrawProgressBarSunken=true
 DrawSearchResultWidgetFrame=true
 DrawTargetSelectorBottom=true
 ApplyThemePaletteGlobally=false
-FlatSideBarIcons=false
+FlatSideBarIcons=true
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=ffffff
