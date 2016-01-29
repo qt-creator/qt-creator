@@ -99,6 +99,7 @@ private:
     QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFileNode *node) const;
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
+    bool isConsoleApplication() const;
     QmakeProject *qmakeProject() const;
     QmakeProFileNode *projectNode() const;
 

@@ -135,12 +135,6 @@ void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool su
         setDefaultDisplayName(defaultDisplayName());
         extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
     }
-
-    auto terminalAspect = extraAspect<TerminalAspect>();
-    if (!terminalAspect->isUserSet()) {
-        terminalAspect->setUseTerminal(pro->variableValue(ConfigVar).contains(QLatin1String("console"))
-                                       && !pro->variableValue(QtVar).contains(QLatin1String("testlib")));
-    }
 }
 
 void DesktopQmakeRunConfiguration::proFileEvaluated()
@@ -295,6 +289,9 @@ void DesktopQmakeRunConfigurationWidget::effectiveTargetInformationChanged()
     auto aspect = m_qmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>();
     aspect->setDefaultWorkingDirectory(FileName::fromString(m_qmakeRunConfiguration->baseWorkingDirectory()));
     aspect->pathChooser()->setBaseFileName(m_qmakeRunConfiguration->target()->project()->projectDirectory());
+    auto terminalAspect = m_qmakeRunConfiguration->extraAspect<TerminalAspect>();
+    if (!terminalAspect->isUserSet())
+        terminalAspect->setUseTerminal(m_qmakeRunConfiguration->isConsoleApplication());
     m_ignoreChange = false;
 }
 
@@ -375,6 +372,15 @@ QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
     if (QmakeProFileNode *node = projectNode())
         return extractWorkingDirAndExecutable(node).first;
     return QString();
+}
+
+bool DesktopQmakeRunConfiguration::isConsoleApplication() const
+{
+    if (QmakeProFileNode *node = projectNode()) {
+        return node->variableValue(ConfigVar).contains(QLatin1String("console"))
+                && !node->variableValue(QtVar).contains(QLatin1String("testlib"));
+    }
+    return false;
 }
 
 void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
