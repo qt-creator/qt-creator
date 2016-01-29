@@ -76,7 +76,7 @@ TestTreeItem::TestTreeItem(const TestTreeItem &other)
       m_markedForRemoval(other.m_markedForRemoval)
 {
     for (int row = 0, count = other.childCount(); row < count; ++row)
-        appendChild(new TestTreeItem(*childItem(row)));
+        appendChild(new TestTreeItem(*other.childItem(row)));
 }
 
 static QIcon testTreeIcon(TestTreeItem::Type type)
