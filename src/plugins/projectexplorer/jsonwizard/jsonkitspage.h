@@ -62,10 +62,9 @@ public:
     static QVector<ConditionalFeature> parseFeatures(const QVariant &data,
                                                      QString *errorMessage = 0);
 
-private slots:
+private:
     void setupProjectFiles(const JsonWizard::GeneratorFiles &files);
 
-private:
     QString m_unexpandedProjectPath;
 
     QVector<ConditionalFeature> m_requiredFeatures;

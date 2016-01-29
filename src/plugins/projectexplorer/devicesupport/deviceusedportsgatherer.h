@@ -50,14 +50,13 @@ signals:
     void error(const QString &errMsg);
     void portListReady();
 
-private slots:
+private:
     void handleConnectionEstablished();
     void handleConnectionError();
     void handleProcessClosed(int exitStatus);
     void handleRemoteStdOut();
     void handleRemoteStdErr();
 
-private:
     void setupUsedPorts();
 
     Internal::DeviceUsedPortsGathererPrivate * const d;

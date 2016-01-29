@@ -80,7 +80,7 @@ signals:
     void tasksChanged();
     void tasksCleared();
 
-private slots:
+private:
     void addCategory(Core::Id categoryId, const QString &displayName, bool visible);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
@@ -99,7 +99,6 @@ private slots:
     void setShowWarnings(bool);
     void updateCategoriesMenu();
 
-private:
     int sizeHintForColumn(int column) const;
 
     TaskWindowPrivate *d;

@@ -528,17 +528,19 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     m_predefinedDetails->updateSummaryText();
     m_headerDetails->updateSummaryText();
 
-    connect(m_compilerCommand, SIGNAL(rawPathChanged(QString)), this, SIGNAL(dirty()));
-    connect(m_makeCommand, SIGNAL(rawPathChanged(QString)), this, SIGNAL(dirty()));
-    connect(m_abiWidget, SIGNAL(abiChanged()), this, SIGNAL(dirty()));
-    connect(m_predefinedMacros, SIGNAL(textChanged()), this, SLOT(updateSummaries()));
-    connect(m_headerPaths, SIGNAL(textChanged()), this, SLOT(updateSummaries()));
-    connect(m_cxx11Flags, SIGNAL(textChanged(QString)), this, SIGNAL(dirty()));
-    connect(m_mkspecs, SIGNAL(textChanged(QString)), this, SIGNAL(dirty()));
-    connect(m_errorParserComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(errorParserChanged(int)));
-    connect(m_customParserSettingsButton, SIGNAL(clicked()),
-            this, SLOT(openCustomParserSettingsDialog()));
+    connect(m_compilerCommand, &PathChooser::rawPathChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_makeCommand, &PathChooser::rawPathChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_predefinedMacros, &QPlainTextEdit::textChanged,
+            this, &CustomToolChainConfigWidget::updateSummaries);
+    connect(m_headerPaths, &QPlainTextEdit::textChanged,
+            this, &CustomToolChainConfigWidget::updateSummaries);
+    connect(m_cxx11Flags, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_mkspecs, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_errorParserComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &CustomToolChainConfigWidget::errorParserChanged);
+    connect(m_customParserSettingsButton, &QAbstractButton::clicked,
+            this, &CustomToolChainConfigWidget::openCustomParserSettingsDialog);
     errorParserChanged(m_errorParserComboBox->currentIndex());
 }
 

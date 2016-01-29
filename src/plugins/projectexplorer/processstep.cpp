@@ -237,13 +237,13 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
 
     updateDetails();
 
-    connect(m_ui.command, SIGNAL(rawPathChanged(QString)),
-            this, SLOT(commandLineEditTextEdited()));
-    connect(m_ui.workingDirectory, SIGNAL(rawPathChanged(QString)),
-            this, SLOT(workingDirectoryLineEditTextEdited()));
+    connect(m_ui.command, &Utils::PathChooser::rawPathChanged,
+            this, &ProcessStepConfigWidget::commandLineEditTextEdited);
+    connect(m_ui.workingDirectory, &Utils::PathChooser::rawPathChanged,
+            this, &ProcessStepConfigWidget::workingDirectoryLineEditTextEdited);
 
-    connect(m_ui.commandArgumentsLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(commandArgumentsLineEditTextEdited()));
+    connect(m_ui.commandArgumentsLineEdit, &QLineEdit::textEdited,
+            this, &ProcessStepConfigWidget::commandArgumentsLineEditTextEdited);
 }
 
 void ProcessStepConfigWidget::updateDetails()

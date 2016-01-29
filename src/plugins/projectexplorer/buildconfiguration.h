@@ -101,11 +101,10 @@ protected:
     void cloneSteps(BuildConfiguration *source);
     void emitEnvironmentChanged();
 
-private slots:
+private:
     void handleKitUpdate();
     void emitBuildDirectoryChanged();
 
-private:
     void ctor();
 
     bool m_clearSystemEnvironment;

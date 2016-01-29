@@ -54,13 +54,12 @@ public:
 
     void updateDevice(Core::Id id);
 
-private slots:
+private:
     void handleDeviceAdded(Core::Id id);
     void handleDeviceRemoved(Core::Id id);
     void handleDeviceUpdated(Core::Id id);
     void handleDeviceListChanged();
 
-private:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool matchesTypeFilter(const IDevice::ConstPtr &dev) const;
 

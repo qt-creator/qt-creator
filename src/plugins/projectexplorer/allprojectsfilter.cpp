@@ -44,8 +44,8 @@ AllProjectsFilter::AllProjectsFilter()
     setShortcutString(QString(QLatin1Char('a')));
     setIncludedByDefault(true);
 
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(fileListChanged()),
-            this, SLOT(markFilesAsOutOfDate()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
+            this, &AllProjectsFilter::markFilesAsOutOfDate);
 }
 
 void AllProjectsFilter::markFilesAsOutOfDate()
@@ -69,5 +69,5 @@ void AllProjectsFilter::prepareSearch(const QString &entry)
 void AllProjectsFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
-    QTimer::singleShot(0, this, SLOT(markFilesAsOutOfDate()));
+    QTimer::singleShot(0, this, &AllProjectsFilter::markFilesAsOutOfDate);
 }

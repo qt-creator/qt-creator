@@ -87,7 +87,7 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation
 
     m_contentWidget->hide();
 
-    connect(m_taskWindow, SIGNAL(tasksChanged()), this, SLOT(updateState()));
+    connect(m_taskWindow.data(), &TaskWindow::tasksChanged, this, &BuildProgress::updateState);
 }
 
 void BuildProgress::updateState()

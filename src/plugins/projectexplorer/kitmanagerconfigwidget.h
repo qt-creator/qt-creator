@@ -74,14 +74,13 @@ signals:
     void dirty();
     void isAutoDetectedChanged();
 
-private slots:
+private:
     void setIcon();
     void setDisplayName();
     void setFileSystemFriendlyName();
     void workingCopyWasUpdated(ProjectExplorer::Kit *k);
     void kitWasUpdated(ProjectExplorer::Kit *k);
 
-private:
     enum LayoutColumns {
         LabelColumn,
         WidgetColumn,

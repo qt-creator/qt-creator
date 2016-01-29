@@ -40,11 +40,10 @@ class EditorSettingsWidget : public QWidget
 public:
     EditorSettingsWidget(Project *project);
 
-private slots:
+private:
     void globalSettingsActivated(int index);
     void restoreDefaultValues();
 
-private:
     void settingsToUi(const EditorConfiguration *config);
 
     Ui::EditorSettingsPropertiesPage m_ui;

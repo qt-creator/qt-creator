@@ -55,7 +55,7 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : QWidget(), 
         m_ui.languageComboBox->addItem(factory->displayName());
     }
 
-    connect(m_ui.languageComboBox, SIGNAL(currentIndexChanged(int)),
-            m_ui.stackedWidget, SLOT(setCurrentIndex(int)));
+    connect(m_ui.languageComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            m_ui.stackedWidget, &QStackedWidget::setCurrentIndex);
 }
 

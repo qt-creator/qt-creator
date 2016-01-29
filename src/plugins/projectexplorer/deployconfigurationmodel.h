@@ -47,11 +47,10 @@ public:
     DeployConfiguration *deployConfigurationAt(int i);
     DeployConfiguration *deployConfigurationFor(const QModelIndex &idx);
     QModelIndex indexFor(DeployConfiguration *rc);
-private slots:
+private:
     void addedDeployConfiguration(ProjectExplorer::DeployConfiguration*);
     void removedDeployConfiguration(ProjectExplorer::DeployConfiguration*);
     void displayNameChanged();
-private:
     Target *m_target;
     QList<DeployConfiguration *> m_deployConfigurations;
 };

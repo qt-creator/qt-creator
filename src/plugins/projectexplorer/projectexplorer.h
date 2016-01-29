@@ -62,6 +62,8 @@ class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ProjectExplorer.json")
 
+    friend class ProjectExplorerPluginPrivate;
+
 public:
     ProjectExplorerPlugin();
     ~ProjectExplorerPlugin();
@@ -110,7 +112,7 @@ public:
     static OpenProjectResult openProject(const QString &fileName);
     static OpenProjectResult openProjects(const QStringList &fileNames);
     static void showOpenProjectError(const OpenProjectResult &result);
-    Q_SLOT void openProjectWelcomePage(const QString &fileName);
+    static void openProjectWelcomePage(const QString &fileName);
     static void unloadProject(Project *project);
 
     static bool saveModifiedFiles();
@@ -157,8 +159,7 @@ public:
 
     static QThreadPool *sharedThreadPool();
 
-private:
-    static bool coreAboutToClose();
+    static void openOpenProjectDialog();
 
 signals:
     void runControlStarted(ProjectExplorer::RunControl *rc);
@@ -175,11 +176,9 @@ signals:
 
     void updateRunActions();
 
-public slots:
-    static void openOpenProjectDialog();
-
-private slots:
-    void restoreSession2();
+private:
+    static bool coreAboutToClose();
+    static void restoreSession2();
 
 #ifdef WITH_TESTS
     void testAnsiFilterOutputParser_data();

@@ -46,15 +46,15 @@ BuildEnvironmentWidget::BuildEnvironmentWidget(BuildConfiguration *bc)
     m_buildEnvironmentWidget = new EnvironmentWidget(this, m_clearSystemEnvironmentCheckBox);
     vbox->addWidget(m_buildEnvironmentWidget);
 
-    connect(m_buildEnvironmentWidget, SIGNAL(userChangesChanged()),
-            this, SLOT(environmentModelUserChangesChanged()));
-    connect(m_clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(clearSystemEnvironmentCheckBoxClicked(bool)));
+    connect(m_buildEnvironmentWidget, &EnvironmentWidget::userChangesChanged,
+            this, &BuildEnvironmentWidget::environmentModelUserChangesChanged);
+    connect(m_clearSystemEnvironmentCheckBox, &QAbstractButton::toggled,
+            this, &BuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked);
 
     m_buildConfiguration = bc;
 
-    connect(m_buildConfiguration->target(), SIGNAL(environmentChanged()),
-            this, SLOT(environmentChanged()));
+    connect(m_buildConfiguration->target(), &Target::environmentChanged,
+            this, &BuildEnvironmentWidget::environmentChanged);
 
     m_clearSystemEnvironmentCheckBox->setChecked(!m_buildConfiguration->useSystemEnvironment());
     m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());

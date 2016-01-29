@@ -69,7 +69,7 @@ signals:
     void bringToForegroundRequested(qint64 pid);
     void error(QProcess::ProcessError error);
 
-private slots:
+private:
     void guiProcessError();
     void consoleProcessError(const QString &error);
     void readStandardOutput();
@@ -81,7 +81,6 @@ private slots:
     void processDone(int, QProcess::ExitStatus);
     void bringToForeground();
 
-private:
     ApplicationLauncherPrivate *d;
 };
 

@@ -77,12 +77,12 @@ class GccToolChainConfigWidget : public ToolChainConfigWidget
 public:
     GccToolChainConfigWidget(GccToolChain *);
     static QStringList splitString(const QString &s);
-private slots:
+
+private:
     void handleCompilerCommandChange();
     void handlePlatformCodeGenFlagsChange();
     void handlePlatformLinkerFlagsChange();
 
-private:
     void applyImpl();
     void discardImpl() { setFromToolchain(); }
     bool isDirtyImpl() const;

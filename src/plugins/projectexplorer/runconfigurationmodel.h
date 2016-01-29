@@ -46,11 +46,10 @@ public:
     RunConfiguration *runConfigurationAt(int i);
     RunConfiguration *runConfigurationFor(const QModelIndex &idx);
     QModelIndex indexFor(RunConfiguration *rc);
-private slots:
+private:
     void addedRunConfiguration(ProjectExplorer::RunConfiguration*);
     void removedRunConfiguration(ProjectExplorer::RunConfiguration*);
     void displayNameChanged();
-private:
     Target *m_target;
     QList<RunConfiguration *> m_runConfigurations;
 };

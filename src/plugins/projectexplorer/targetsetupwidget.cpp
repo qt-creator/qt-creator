@@ -103,13 +103,13 @@ TargetSetupWidget::TargetSetupWidget(Kit *k,
 
     setProjectPath(projectPath);
 
-    connect(m_detailsWidget, SIGNAL(checked(bool)),
-            this, SLOT(targetCheckBoxToggled(bool)));
+    connect(m_detailsWidget, &Utils::DetailsWidget::checked,
+            this, &TargetSetupWidget::targetCheckBoxToggled);
 
-    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(handleKitUpdate(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), &KitManager::kitUpdated,
+            this, &TargetSetupWidget::handleKitUpdate);
 
-    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageKit()));
+    connect(m_manageButton, &QAbstractButton::clicked, this, &TargetSetupWidget::manageKit);
 }
 
 TargetSetupWidget::~TargetSetupWidget()
@@ -183,11 +183,8 @@ void TargetSetupWidget::addBuildInfo(BuildInfo *info, bool isImport)
     m_newBuildsLayout->addWidget(reportIssuesLabel, pos * 2 + 1, 0, 1, 2);
     reportIssuesLabel->setVisible(false);
 
-    connect(checkbox, SIGNAL(toggled(bool)),
-            this, SLOT(checkBoxToggled(bool)));
-
-    connect(pathChooser, SIGNAL(rawPathChanged(QString)),
-            this, SLOT(pathChanged()));
+    connect(checkbox, &QAbstractButton::toggled, this, &TargetSetupWidget::checkBoxToggled);
+    connect(pathChooser, &Utils::PathChooser::rawPathChanged, this, &TargetSetupWidget::pathChanged);
 
     m_checkboxes.append(checkbox);
     m_pathChoosers.append(pathChooser);

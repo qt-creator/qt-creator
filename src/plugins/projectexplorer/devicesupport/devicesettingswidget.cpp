@@ -93,7 +93,8 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
       m_configWidget(0)
 {
     initGui();
-    connect(m_deviceManager, SIGNAL(deviceUpdated(Core::Id)), SLOT(handleDeviceUpdated(Core::Id)));
+    connect(m_deviceManager, &DeviceManager::deviceUpdated,
+            this, &DeviceSettingsWidget::handleDeviceUpdated);
 }
 
 DeviceSettingsWidget::~DeviceSettingsWidget()
@@ -122,11 +123,11 @@ void DeviceSettingsWidget::initGui()
         lastIndex = 0;
     if (lastIndex < m_ui->configurationComboBox->count())
         m_ui->configurationComboBox->setCurrentIndex(lastIndex);
-    connect(m_ui->configurationComboBox, SIGNAL(currentIndexChanged(int)),
-        SLOT(currentDeviceChanged(int)));
+    connect(m_ui->configurationComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &DeviceSettingsWidget::currentDeviceChanged);
     currentDeviceChanged(currentIndex());
-    connect(m_ui->defaultDeviceButton, SIGNAL(clicked()),
-        SLOT(setDefaultDevice()));
+    connect(m_ui->defaultDeviceButton, &QAbstractButton::clicked,
+            this, &DeviceSettingsWidget::setDefaultDevice);
 }
 
 void DeviceSettingsWidget::addDevice()
@@ -280,14 +281,15 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     if (device->hasDeviceTester()) {
         QPushButton * const button = new QPushButton(tr("Test"));
         m_additionalActionButtons << button;
-        connect(button, SIGNAL(clicked()), SLOT(testDevice()));
+        connect(button, &QAbstractButton::clicked, this, &DeviceSettingsWidget::testDevice);
         m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
     }
 
     if (device->canCreateProcessModel()) {
         QPushButton * const button = new QPushButton(tr("Show Running Processes..."));
         m_additionalActionButtons << button;
-        connect(button, SIGNAL(clicked()), SLOT(handleProcessListRequested()));
+        connect(button, &QAbstractButton::clicked,
+                this, &DeviceSettingsWidget::handleProcessListRequested);
         m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
     }
 

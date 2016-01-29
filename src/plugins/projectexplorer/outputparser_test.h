@@ -68,11 +68,10 @@ public:
 signals:
     void aboutToDeleteParser();
 
-private slots:
+private:
     void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
     void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skipLines);
 
-private:
     void reset();
 
     bool m_debug;

@@ -57,14 +57,14 @@ DeployConfigurationModel::DeployConfigurationModel(Target *target, QObject *pare
     m_deployConfigurations = m_target->deployConfigurations();
     Utils::sort(m_deployConfigurations, DeployConfigurationComparer());
 
-    connect(target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
-    connect(target, SIGNAL(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+    connect(target, &Target::addedDeployConfiguration,
+            this, &DeployConfigurationModel::addedDeployConfiguration);
+    connect(target, &Target::removedDeployConfiguration,
+            this, &DeployConfigurationModel::removedDeployConfiguration);
 
     foreach (DeployConfiguration *dc, m_deployConfigurations)
-        connect(dc, SIGNAL(displayNameChanged()),
-                this, SLOT(displayNameChanged()));
+        connect(dc, &ProjectConfiguration::displayNameChanged,
+                this, &DeployConfigurationModel::displayNameChanged);
 }
 
 int DeployConfigurationModel::rowCount(const QModelIndex &parent) const
@@ -168,8 +168,8 @@ void DeployConfigurationModel::addedDeployConfiguration(DeployConfiguration *dc)
     m_deployConfigurations.insert(i, dc);
     endInsertRows();
 
-    connect(dc, SIGNAL(displayNameChanged()),
-            this, SLOT(displayNameChanged()));
+    connect(dc, &ProjectConfiguration::displayNameChanged,
+            this, &DeployConfigurationModel::displayNameChanged);
 }
 
 void DeployConfigurationModel::removedDeployConfiguration(DeployConfiguration *dc)

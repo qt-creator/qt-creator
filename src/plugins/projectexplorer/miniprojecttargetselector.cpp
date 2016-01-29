@@ -230,17 +230,17 @@ int ListWidget::padding()
 ProjectListWidget::ProjectListWidget(QWidget *parent)
     : ListWidget(parent), m_ignoreIndexChange(false)
 {
-    QObject *sessionManager = SessionManager::instance();
-    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(addProject(ProjectExplorer::Project*)));
-    connect(sessionManager, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
-            this, SLOT(removeProject(ProjectExplorer::Project*)));
-    connect(sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(changeStartupProject(ProjectExplorer::Project*)));
-    connect(sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
-            this, SLOT(projectDisplayNameChanged(ProjectExplorer::Project*)));
-    connect(this, SIGNAL(currentRowChanged(int)),
-            this, SLOT(setProject(int)));
+    SessionManager *sessionManager = SessionManager::instance();
+    connect(sessionManager, &SessionManager::projectAdded,
+            this, &ProjectListWidget::addProject);
+    connect(sessionManager, &SessionManager::aboutToRemoveProject,
+            this, &ProjectListWidget::removeProject);
+    connect(sessionManager, &SessionManager::startupProjectChanged,
+            this, &ProjectListWidget::changeStartupProject);
+    connect(sessionManager, &SessionManager::projectDisplayNameChanged,
+            this, &ProjectListWidget::projectDisplayNameChanged);
+    connect(this, &QListWidget::currentRowChanged,
+            this, &ProjectListWidget::setProject);
 }
 
 QListWidgetItem *ProjectListWidget::itemForProject(Project *project)
@@ -397,8 +397,8 @@ void ProjectListWidget::changeStartupProject(Project *project)
 GenericListWidget::GenericListWidget(QWidget *parent)
     : ListWidget(parent), m_ignoreIndexChange(false)
 {
-    connect(this, SIGNAL(currentRowChanged(int)),
-            this, SLOT(rowChanged(int)));
+    connect(this, &QListWidget::currentRowChanged,
+            this, &GenericListWidget::rowChanged);
 }
 
 void GenericListWidget::setProjectConfigurations(const QList<ProjectConfiguration *> &list, ProjectConfiguration *active)
@@ -407,8 +407,8 @@ void GenericListWidget::setProjectConfigurations(const QList<ProjectConfiguratio
     clear();
     for (int i = 0; i < count(); ++i) {
         ProjectConfiguration *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
-        disconnect(p, SIGNAL(displayNameChanged()),
-                   this, SLOT(displayNameChanged()));
+        disconnect(p, &ProjectConfiguration::displayNameChanged,
+                   this, &GenericListWidget::displayNameChanged);
     }
 
     QFontMetrics fn(font());
@@ -447,8 +447,8 @@ void GenericListWidget::addProjectConfiguration(ProjectConfiguration *pc)
     }
     insertItem(pos, lwi);
 
-    connect(pc, SIGNAL(displayNameChanged()),
-            this, SLOT(displayNameChanged()));
+    connect(pc, &ProjectConfiguration::displayNameChanged,
+            this, &GenericListWidget::displayNameChanged);
 
     QFontMetrics fn(font());
     int width = fn.width(pc->displayName()) + padding();
@@ -460,8 +460,8 @@ void GenericListWidget::addProjectConfiguration(ProjectConfiguration *pc)
 void GenericListWidget::removeProjectConfiguration(ProjectConfiguration *pc)
 {
     m_ignoreIndexChange = true;
-    disconnect(pc, SIGNAL(displayNameChanged()),
-               this, SLOT(displayNameChanged()));
+    disconnect(pc, &ProjectConfiguration::displayNameChanged,
+               this, &GenericListWidget::displayNameChanged);
     delete itemForProjectConfiguration(pc);
 
     QFontMetrics fn(font());
@@ -698,32 +698,32 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     if (startup)
         activeTargetChanged(startup->activeTarget());
 
-    connect(m_summaryLabel, SIGNAL(linkActivated(QString)),
-            this, SLOT(switchToProjectsMode()));
+    connect(m_summaryLabel, &QLabel::linkActivated,
+            this, &MiniProjectTargetSelector::switchToProjectsMode);
 
-    QObject *sessionManager = SessionManager::instance();
-    connect(sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(changeStartupProject(ProjectExplorer::Project*)));
+    SessionManager *sessionManager = SessionManager::instance();
+    connect(sessionManager, &SessionManager::startupProjectChanged,
+            this, &MiniProjectTargetSelector::changeStartupProject);
 
-    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(projectAdded(ProjectExplorer::Project*)));
-    connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            this, SLOT(projectRemoved(ProjectExplorer::Project*)));
-    connect(sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
-            this, SLOT(updateActionAndSummary()));
+    connect(sessionManager, &SessionManager::projectAdded,
+            this, &MiniProjectTargetSelector::projectAdded);
+    connect(sessionManager, &SessionManager::projectRemoved,
+            this, &MiniProjectTargetSelector::projectRemoved);
+    connect(sessionManager, &SessionManager::projectDisplayNameChanged,
+            this, &MiniProjectTargetSelector::updateActionAndSummary);
 
     // for icon changes:
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(kitChanged(ProjectExplorer::Kit*)));
+    connect(ProjectExplorer::KitManager::instance(), &KitManager::kitUpdated,
+            this, &MiniProjectTargetSelector::kitChanged);
 
-    connect(m_listWidgets[TARGET], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
-            this, SLOT(setActiveTarget(ProjectExplorer::ProjectConfiguration*)));
-    connect(m_listWidgets[BUILD], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
-            this, SLOT(setActiveBuildConfiguration(ProjectExplorer::ProjectConfiguration*)));
-    connect(m_listWidgets[DEPLOY], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
-            this, SLOT(setActiveDeployConfiguration(ProjectExplorer::ProjectConfiguration*)));
-    connect(m_listWidgets[RUN], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
-            this, SLOT(setActiveRunConfiguration(ProjectExplorer::ProjectConfiguration*)));
+    connect(m_listWidgets[TARGET], &GenericListWidget::changeActiveProjectConfiguration,
+            this, &MiniProjectTargetSelector::setActiveTarget);
+    connect(m_listWidgets[BUILD], &GenericListWidget::changeActiveProjectConfiguration,
+            this, &MiniProjectTargetSelector::setActiveBuildConfiguration);
+    connect(m_listWidgets[DEPLOY], &GenericListWidget::changeActiveProjectConfiguration,
+            this, &MiniProjectTargetSelector::setActiveDeployConfiguration);
+    connect(m_listWidgets[RUN], &GenericListWidget::changeActiveProjectConfiguration,
+            this, &MiniProjectTargetSelector::setActiveRunConfiguration);
 }
 
 bool MiniProjectTargetSelector::event(QEvent *event)
@@ -983,11 +983,11 @@ void MiniProjectTargetSelector::setActiveRunConfiguration(ProjectConfiguration *
 
 void MiniProjectTargetSelector::projectAdded(Project *project)
 {
-    connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(slotAddedTarget(ProjectExplorer::Target*)));
+    connect(project, &Project::addedTarget,
+            this, &MiniProjectTargetSelector::slotAddedTarget);
 
-    connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
-            this, SLOT(slotRemovedTarget(ProjectExplorer::Target*)));
+    connect(project, &Project::removedTarget,
+            this, &MiniProjectTargetSelector::slotRemovedTarget);
 
     foreach (Target *t, project->targets())
         addedTarget(t);
@@ -1001,11 +1001,11 @@ void MiniProjectTargetSelector::projectAdded(Project *project)
 
 void MiniProjectTargetSelector::projectRemoved(Project *project)
 {
-    disconnect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-               this, SLOT(slotAddedTarget(ProjectExplorer::Target*)));
+    disconnect(project, &Project::addedTarget,
+               this, &MiniProjectTargetSelector::slotAddedTarget);
 
-    disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
-               this, SLOT(slotRemovedTarget(ProjectExplorer::Target*)));
+    disconnect(project, &Project::removedTarget,
+               this, &MiniProjectTargetSelector::slotRemovedTarget);
 
     foreach (Target *t, project->targets())
         removedTarget(t);
@@ -1019,20 +1019,20 @@ void MiniProjectTargetSelector::projectRemoved(Project *project)
 
 void MiniProjectTargetSelector::addedTarget(Target *target)
 {
-    connect(target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(slotAddedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-    connect(target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(slotRemovedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    connect(target, &Target::addedBuildConfiguration,
+            this, &MiniProjectTargetSelector::slotAddedBuildConfiguration);
+    connect(target, &Target::removedBuildConfiguration,
+            this, &MiniProjectTargetSelector::slotRemovedBuildConfiguration);
 
-    connect(target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(slotAddedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
-    connect(target, SIGNAL(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(slotRemovedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+    connect(target, &Target::addedDeployConfiguration,
+            this, &MiniProjectTargetSelector::slotAddedDeployConfiguration);
+    connect(target, &Target::removedDeployConfiguration,
+            this, &MiniProjectTargetSelector::slotRemovedDeployConfiguration);
 
-    connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(slotAddedRunConfiguration(ProjectExplorer::RunConfiguration*)));
-    connect(target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(slotRemovedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    connect(target, &Target::addedRunConfiguration,
+            this, &MiniProjectTargetSelector::slotAddedRunConfiguration);
+    connect(target, &Target::removedRunConfiguration,
+            this, &MiniProjectTargetSelector::slotRemovedRunConfiguration);
 
     if (target->project() == m_project)
         m_listWidgets[TARGET]->addProjectConfiguration(target);
@@ -1056,20 +1056,20 @@ void MiniProjectTargetSelector::slotAddedTarget(Target *target)
 
 void MiniProjectTargetSelector::removedTarget(Target *target)
 {
-    disconnect(target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-               this, SLOT(slotAddedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-    disconnect(target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-               this, SLOT(slotRemovedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    disconnect(target, &Target::addedBuildConfiguration,
+               this, &MiniProjectTargetSelector::slotAddedBuildConfiguration);
+    disconnect(target, &Target::removedBuildConfiguration,
+               this, &MiniProjectTargetSelector::slotRemovedBuildConfiguration);
 
-    disconnect(target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-               this, SLOT(slotAddedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
-    disconnect(target, SIGNAL(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-               this, SLOT(slotRemovedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+    disconnect(target, &Target::addedDeployConfiguration,
+               this, &MiniProjectTargetSelector::slotAddedDeployConfiguration);
+    disconnect(target, &Target::removedDeployConfiguration,
+               this, &MiniProjectTargetSelector::slotRemovedDeployConfiguration);
 
-    disconnect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-               this, SLOT(slotAddedRunConfiguration(ProjectExplorer::RunConfiguration*)));
-    disconnect(target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-               this, SLOT(slotRemovedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    disconnect(target, &Target::addedRunConfiguration,
+               this, &MiniProjectTargetSelector::slotAddedRunConfiguration);
+    disconnect(target, &Target::removedRunConfiguration,
+               this, &MiniProjectTargetSelector::slotRemovedRunConfiguration);
 
     if (target->project() == m_project)
         m_listWidgets[TARGET]->removeProjectConfiguration(target);
@@ -1241,13 +1241,13 @@ void MiniProjectTargetSelector::updateRunListVisible()
 void MiniProjectTargetSelector::changeStartupProject(Project *project)
 {
     if (m_project) {
-        disconnect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                   this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
+        disconnect(m_project, &Project::activeTargetChanged,
+                   this, &MiniProjectTargetSelector::activeTargetChanged);
     }
     m_project = project;
     if (m_project) {
-        connect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
+        connect(m_project, &Project::activeTargetChanged,
+                this, &MiniProjectTargetSelector::activeTargetChanged);
         activeTargetChanged(m_project->activeTarget());
     } else {
         activeTargetChanged(0);
@@ -1268,18 +1268,18 @@ void MiniProjectTargetSelector::changeStartupProject(Project *project)
 void MiniProjectTargetSelector::activeTargetChanged(Target *target)
 {
     if (m_target) {
-        disconnect(m_target, SIGNAL(displayNameChanged()),
-                   this, SLOT(updateActionAndSummary()));
-        disconnect(m_target, SIGNAL(toolTipChanged()),
-                   this, SLOT(updateActionAndSummary()));
-        disconnect(m_target, SIGNAL(iconChanged()),
-                   this, SLOT(updateActionAndSummary()));
-        disconnect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                   this, SLOT(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)));
-        disconnect(m_target, SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
-                   this, SLOT(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)));
-        disconnect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-                   this, SLOT(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)));
+        disconnect(m_target, &ProjectConfiguration::displayNameChanged,
+                   this, &MiniProjectTargetSelector::updateActionAndSummary);
+        disconnect(m_target, &Target::toolTipChanged,
+                   this, &MiniProjectTargetSelector::updateActionAndSummary);
+        disconnect(m_target, &Target::iconChanged,
+                   this, &MiniProjectTargetSelector::updateActionAndSummary);
+        disconnect(m_target, &Target::activeBuildConfigurationChanged,
+                   this, &MiniProjectTargetSelector::activeBuildConfigurationChanged);
+        disconnect(m_target, &Target::activeDeployConfigurationChanged,
+                   this, &MiniProjectTargetSelector::activeDeployConfigurationChanged);
+        disconnect(m_target, &Target::activeRunConfigurationChanged,
+                   this, &MiniProjectTargetSelector::activeRunConfigurationChanged);
     }
 
     m_target = target;
@@ -1289,15 +1289,15 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
     m_listWidgets[TARGET]->setActiveProjectConfiguration(m_target);
 
     if (m_buildConfiguration)
-        disconnect(m_buildConfiguration, SIGNAL(displayNameChanged()),
-                   this, SLOT(updateActionAndSummary()));
+        disconnect(m_buildConfiguration, &ProjectConfiguration::displayNameChanged,
+                   this, &MiniProjectTargetSelector::updateActionAndSummary);
     if (m_deployConfiguration)
-        disconnect(m_deployConfiguration, SIGNAL(displayNameChanged()),
-                   this, SLOT(updateActionAndSummary()));
+        disconnect(m_deployConfiguration, &ProjectConfiguration::displayNameChanged,
+                   this, &MiniProjectTargetSelector::updateActionAndSummary);
 
     if (m_runConfiguration)
-        disconnect(m_runConfiguration, SIGNAL(displayNameChanged()),
-                   this, SLOT(updateActionAndSummary()));
+        disconnect(m_runConfiguration, &ProjectConfiguration::displayNameChanged,
+                   this, &MiniProjectTargetSelector::updateActionAndSummary);
 
     if (m_target) {
         QList<ProjectConfiguration *> bl;
@@ -1317,29 +1317,29 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
 
         m_buildConfiguration = m_target->activeBuildConfiguration();
         if (m_buildConfiguration)
-            connect(m_buildConfiguration, SIGNAL(displayNameChanged()),
-                    this, SLOT(updateActionAndSummary()));
+            connect(m_buildConfiguration, &ProjectConfiguration::displayNameChanged,
+                    this, &MiniProjectTargetSelector::updateActionAndSummary);
         m_deployConfiguration = m_target->activeDeployConfiguration();
         if (m_deployConfiguration)
-            connect(m_deployConfiguration, SIGNAL(displayNameChanged()),
-                    this, SLOT(updateActionAndSummary()));
+            connect(m_deployConfiguration, &ProjectConfiguration::displayNameChanged,
+                    this, &MiniProjectTargetSelector::updateActionAndSummary);
         m_runConfiguration = m_target->activeRunConfiguration();
         if (m_runConfiguration)
-            connect(m_runConfiguration, SIGNAL(displayNameChanged()),
-                    this, SLOT(updateActionAndSummary()));
+            connect(m_runConfiguration, &ProjectConfiguration::displayNameChanged,
+                    this, &MiniProjectTargetSelector::updateActionAndSummary);
 
-        connect(m_target, SIGNAL(displayNameChanged()),
-                this, SLOT(updateActionAndSummary()));
-        connect(m_target, SIGNAL(toolTipChanged()),
-                this, SLOT(updateActionAndSummary()));
-        connect(m_target, SIGNAL(iconChanged()),
-                this, SLOT(updateActionAndSummary()));
-        connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                this, SLOT(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)));
-        connect(m_target, SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
-                this, SLOT(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)));
-        connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-                this, SLOT(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)));
+        connect(m_target, &ProjectConfiguration::displayNameChanged,
+                this, &MiniProjectTargetSelector::updateActionAndSummary);
+        connect(m_target, &Target::toolTipChanged,
+                this, &MiniProjectTargetSelector::updateActionAndSummary);
+        connect(m_target, &Target::iconChanged,
+                this, &MiniProjectTargetSelector::updateActionAndSummary);
+        connect(m_target, &Target::activeBuildConfigurationChanged,
+                this, &MiniProjectTargetSelector::activeBuildConfigurationChanged);
+        connect(m_target, &Target::activeDeployConfigurationChanged,
+                this, &MiniProjectTargetSelector::activeDeployConfigurationChanged);
+        connect(m_target, &Target::activeRunConfigurationChanged,
+                this, &MiniProjectTargetSelector::activeRunConfigurationChanged);
     } else {
         m_listWidgets[BUILD]->setProjectConfigurations(QList<ProjectConfiguration *>(), 0);
         m_listWidgets[DEPLOY]->setProjectConfigurations(QList<ProjectConfiguration *>(), 0);
@@ -1360,12 +1360,12 @@ void MiniProjectTargetSelector::kitChanged(Kit *k)
 void MiniProjectTargetSelector::activeBuildConfigurationChanged(BuildConfiguration *bc)
 {
     if (m_buildConfiguration)
-        disconnect(m_buildConfiguration, SIGNAL(displayNameChanged()),
-                   this, SLOT(updateActionAndSummary()));
+        disconnect(m_buildConfiguration, &ProjectConfiguration::displayNameChanged,
+                   this, &MiniProjectTargetSelector::updateActionAndSummary);
     m_buildConfiguration = bc;
     if (m_buildConfiguration)
-        connect(m_buildConfiguration, SIGNAL(displayNameChanged()),
-                this, SLOT(updateActionAndSummary()));
+        connect(m_buildConfiguration, &ProjectConfiguration::displayNameChanged,
+                this, &MiniProjectTargetSelector::updateActionAndSummary);
     m_listWidgets[BUILD]->setActiveProjectConfiguration(bc);
     updateActionAndSummary();
 }
@@ -1373,12 +1373,12 @@ void MiniProjectTargetSelector::activeBuildConfigurationChanged(BuildConfigurati
 void MiniProjectTargetSelector::activeDeployConfigurationChanged(DeployConfiguration *dc)
 {
     if (m_deployConfiguration)
-        disconnect(m_deployConfiguration, SIGNAL(displayNameChanged()),
-                   this, SLOT(updateActionAndSummary()));
+        disconnect(m_deployConfiguration, &ProjectConfiguration::displayNameChanged,
+                   this, &MiniProjectTargetSelector::updateActionAndSummary);
     m_deployConfiguration = dc;
     if (m_deployConfiguration)
-        connect(m_deployConfiguration, SIGNAL(displayNameChanged()),
-                this, SLOT(updateActionAndSummary()));
+        connect(m_deployConfiguration, &ProjectConfiguration::displayNameChanged,
+                this, &MiniProjectTargetSelector::updateActionAndSummary);
     m_listWidgets[DEPLOY]->setActiveProjectConfiguration(dc);
     updateActionAndSummary();
 }
@@ -1386,12 +1386,12 @@ void MiniProjectTargetSelector::activeDeployConfigurationChanged(DeployConfigura
 void MiniProjectTargetSelector::activeRunConfigurationChanged(RunConfiguration *rc)
 {
     if (m_runConfiguration)
-        disconnect(m_runConfiguration, SIGNAL(displayNameChanged()),
-                   this, SLOT(updateActionAndSummary()));
+        disconnect(m_runConfiguration, &ProjectConfiguration::displayNameChanged,
+                   this, &MiniProjectTargetSelector::updateActionAndSummary);
     m_runConfiguration = rc;
     if (m_runConfiguration)
-        connect(m_runConfiguration, SIGNAL(displayNameChanged()),
-                this, SLOT(updateActionAndSummary()));
+        connect(m_runConfiguration, &ProjectConfiguration::displayNameChanged,
+                this, &MiniProjectTargetSelector::updateActionAndSummary);
     m_listWidgets[RUN]->setActiveProjectConfiguration(rc);
     updateActionAndSummary();
 }
@@ -1472,7 +1472,7 @@ void MiniProjectTargetSelector::delayedHide()
     QDateTime current = QDateTime::currentDateTime();
     if (m_earliestHidetime > current) {
         // schedule for later
-        QTimer::singleShot(current.msecsTo(m_earliestHidetime) + 50, this, SLOT(delayedHide()));
+        QTimer::singleShot(current.msecsTo(m_earliestHidetime) + 50, this, &MiniProjectTargetSelector::delayedHide);
     } else {
         hide();
     }

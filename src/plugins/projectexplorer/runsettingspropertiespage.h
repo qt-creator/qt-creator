@@ -60,7 +60,7 @@ public:
     explicit RunSettingsWidget(Target *target);
     ~RunSettingsWidget();
 
-private slots:
+private:
     void currentRunConfigurationChanged(int index);
     void aboutToShowAddMenu();
     void cloneRunConfiguration();
@@ -75,7 +75,6 @@ private slots:
 
     void updateRemoveToolButton();
 
-private:
     QString uniqueDCName(const QString &name);
     QString uniqueRCName(const QString &name);
     void updateDeployConfiguration(DeployConfiguration *);

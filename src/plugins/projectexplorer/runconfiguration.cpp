@@ -246,7 +246,8 @@ void RunConfiguration::addExtraAspect(IRunConfigurationAspect *aspect)
 
 void RunConfiguration::ctor()
 {
-    connect(this, SIGNAL(enabledChanged()), this, SIGNAL(requestRunActionsUpdate()));
+    connect(this, &RunConfiguration::enabledChanged,
+            this, &RunConfiguration::requestRunActionsUpdate);
 
     Utils::MacroExpander *expander = macroExpander();
     expander->setDisplayName(tr("Run Settings"));
@@ -702,7 +703,7 @@ void RunControl::bringApplicationToForegroundInternal()
         // "-600 no eligible process with specified process id"
         // if we call SetFrontProcess too early
         ++m_foregroundCount;
-        QTimer::singleShot(200, this, SLOT(bringApplicationToForegroundInternal()));
+        QTimer::singleShot(200, this, &RunControl::bringApplicationToForegroundInternal);
         return;
     }
 #endif

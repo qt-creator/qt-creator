@@ -37,12 +37,11 @@ public:
     explicit SshDeviceProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
     ~SshDeviceProcessList();
 
-private slots:
+private:
     void handleConnectionError();
     void handleListProcessFinished(int exitStatus);
     void handleKillProcessFinished(const QString &errorString);
 
-private:
     virtual QString listProcessesCommandLine() const = 0;
     virtual QList<DeviceProcessItem> buildProcessList(const QString &listProcessesReply) const = 0;
 

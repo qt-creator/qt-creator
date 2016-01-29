@@ -157,13 +157,12 @@ public:
     { return m_sourceModel->hasFile(mapToSource(index)); }
 
     QModelIndex mapFromSource(const QModelIndex &idx) const;
-private slots:
+private:
     void handleNewRows(const QModelIndex &index, int first, int last);
     void handleRowsAboutToBeRemoved(const QModelIndex &index, int first, int last);
     void handleDataChanged(const QModelIndex &top, const QModelIndex &bottom);
     void handleReset();
 
-private:
     QModelIndex mapToSource(const QModelIndex &index) const;
     void invalidateFilter();
     void updateMapping() const;

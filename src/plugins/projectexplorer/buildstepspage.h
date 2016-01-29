@@ -103,7 +103,7 @@ public:
 
     void init(BuildStepList *bsl);
 
-private slots:
+private:
     void updateAddBuildStepMenu();
     void addBuildStep(int pos);
     void updateSummary();
@@ -116,7 +116,6 @@ private slots:
     void removeBuildStep(int pos);
     void triggerDisable(int pos);
 
-private:
     void setupUi();
     void updateBuildStepButtonsState();
     void addBuildStepWidget(int pos, BuildStep *step);

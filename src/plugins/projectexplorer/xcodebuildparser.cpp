@@ -278,7 +278,8 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing()
     XcodebuildParser *childParser = new XcodebuildParser;
     XcodebuildParserTester *tester = new XcodebuildParserTester(childParser);
 
-    connect(&testbench, SIGNAL(aboutToDeleteParser()), tester, SLOT(onAboutToDeleteParser()));
+    connect(&testbench, &OutputParserTester::aboutToDeleteParser,
+            tester, &XcodebuildParserTester::onAboutToDeleteParser);
 
     testbench.appendOutputParser(childParser);
     QFETCH(ProjectExplorer::XcodebuildParser::XcodebuildStatus, initialStatus);

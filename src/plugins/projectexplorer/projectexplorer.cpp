@@ -1087,13 +1087,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectSelectorAction->setEnabled(false);
     QWidget *mainWindow = ICore::mainWindow();
     dd->m_targetSelector = new MiniProjectTargetSelector(dd->m_projectSelectorAction, mainWindow);
-    connect(dd->m_projectSelectorAction, &QAction::triggered, dd->m_targetSelector, &QWidget::show);
+    connect(dd->m_projectSelectorAction, &QAction::triggered,
+            dd->m_targetSelector, &QWidget::show);
     ModeManager::addProjectSelector(dd->m_projectSelectorAction);
 
     dd->m_projectSelectorActionMenu = new QAction(this);
     dd->m_projectSelectorActionMenu->setEnabled(false);
     dd->m_projectSelectorActionMenu->setText(tr("Open Build and Run Kit Selector..."));
-    connect(dd->m_projectSelectorActionMenu, &QAction::triggered, dd->m_targetSelector,
+    connect(dd->m_projectSelectorActionMenu, &QAction::triggered,
+            dd->m_targetSelector,
             &MiniProjectTargetSelector::toggleVisible);
     cmd = ActionManager::registerAction(dd->m_projectSelectorActionMenu, Constants::SELECTTARGET);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
@@ -1932,7 +1934,7 @@ void ProjectExplorerPluginPrivate::restoreSession()
     connect(dd->m_welcomePage, &ProjectWelcomePage::requestProject,
             m_instance, &ProjectExplorerPlugin::openProjectWelcomePage);
     dd->m_arguments = arguments;
-    QTimer::singleShot(0, m_instance, SLOT(restoreSession2()));
+    QTimer::singleShot(0, m_instance, &ProjectExplorerPlugin::restoreSession2);
     updateActions();
 }
 
@@ -2949,7 +2951,8 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
         menu->addSeparator();
         QAction *action = menu->addAction(QCoreApplication::translate(
                                           "Core", Core::Constants::TR_CLEAR_MENU));
-        connect(action, &QAction::triggered, this, &ProjectExplorerPluginPrivate::clearRecentProjects);
+        connect(action, &QAction::triggered,
+                this, &ProjectExplorerPluginPrivate::clearRecentProjects);
     }
     emit m_instance->recentProjectsChanged();
 }
@@ -2978,7 +2981,8 @@ void ProjectExplorerPluginPrivate::invalidateProject(Project *project)
     if (debug)
         qDebug() << "ProjectExplorerPlugin::invalidateProject" << project->displayName();
 
-    disconnect(project, &Project::fileListChanged, m_instance, &ProjectExplorerPlugin::fileListChanged);
+    disconnect(project, &Project::fileListChanged,
+               m_instance, &ProjectExplorerPlugin::fileListChanged);
     updateActions();
 }
 

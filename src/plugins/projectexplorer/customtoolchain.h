@@ -169,7 +169,7 @@ class CustomToolChainConfigWidget : public ToolChainConfigWidget
 public:
     CustomToolChainConfigWidget(CustomToolChain *);
 
-private slots:
+private:
     void updateSummaries();
     void errorParserChanged(int index);
     void openCustomParserSettingsDialog();

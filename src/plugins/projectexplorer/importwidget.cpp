@@ -59,7 +59,7 @@ ImportWidget::ImportWidget(QWidget *parent) :
     QPushButton *importButton = new QPushButton(tr("Import"), widget);
     layout->addWidget(importButton);
 
-    connect(importButton, SIGNAL(clicked()), this, SLOT(handleImportRequest()));
+    connect(importButton, &QAbstractButton::clicked, this, &ImportWidget::handleImportRequest);
 
     detailsWidget->setWidget(widget);
 }

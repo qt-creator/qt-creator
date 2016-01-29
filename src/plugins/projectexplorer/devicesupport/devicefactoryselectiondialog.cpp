@@ -56,9 +56,10 @@ DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
         }
     }
 
-    connect(ui->listWidget, SIGNAL(itemSelectionChanged()), SLOT(handleItemSelectionChanged()));
-    connect(ui->listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-            SLOT(handleItemDoubleClicked()));
+    connect(ui->listWidget, &QListWidget::itemSelectionChanged,
+            this, &DeviceFactorySelectionDialog::handleItemSelectionChanged);
+    connect(ui->listWidget, &QListWidget::itemDoubleClicked,
+            this, &DeviceFactorySelectionDialog::handleItemDoubleClicked);
     handleItemSelectionChanged();
 }
 

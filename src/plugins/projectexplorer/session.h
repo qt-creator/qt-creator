@@ -148,13 +148,12 @@ signals:
     void aboutToSaveSession();
     void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 
-private slots:
+private:
     static void saveActiveMode(Core::IMode *mode);
     void clearProjectFileCache();
     static void configureEditor(Core::IEditor *editor, const QString &fileName);
     static void markSessionFileDirty(bool makeDefaultVirginDirty = true);
     static void handleProjectDisplayNameChanged();
-private:
     static void configureEditors(Project *project);
 };
 

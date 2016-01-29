@@ -354,7 +354,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
             if (!d->hostKeyDatabase->load(keyFilePath, &error))
                 Core::MessageManager::write(error);
         }
-        connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), SLOT(save()));
+        connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested, this, &DeviceManager::save);
     }
 }
 
@@ -478,11 +478,11 @@ void ProjectExplorerPlugin::testDeviceManager()
     QVERIFY(!mgr->find(dev->id()));
     const int oldDeviceCount = mgr->deviceCount();
 
-    QSignalSpy deviceAddedSpy(mgr, SIGNAL(deviceAdded(Core::Id)));
-    QSignalSpy deviceRemovedSpy(mgr, SIGNAL(deviceRemoved(Core::Id)));
-    QSignalSpy deviceUpdatedSpy(mgr, SIGNAL(deviceUpdated(Core::Id)));
-    QSignalSpy deviceListReplacedSpy(mgr, SIGNAL(deviceListReplaced()));
-    QSignalSpy updatedSpy(mgr, SIGNAL(updated()));
+    QSignalSpy deviceAddedSpy(mgr, &DeviceManager::deviceAdded);
+    QSignalSpy deviceRemovedSpy(mgr, &DeviceManager::deviceRemoved);
+    QSignalSpy deviceUpdatedSpy(mgr, &DeviceManager::deviceUpdated);
+    QSignalSpy deviceListReplacedSpy(mgr, &DeviceManager::deviceListReplaced);
+    QSignalSpy updatedSpy(mgr, &DeviceManager::updated);
 
     mgr->addDevice(dev);
     QCOMPARE(mgr->deviceCount(), oldDeviceCount + 1);

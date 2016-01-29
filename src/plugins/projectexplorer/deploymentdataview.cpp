@@ -55,7 +55,8 @@ DeploymentDataView::DeploymentDataView(Target *target, QWidget *parent) :
 
     d->target = target;
 
-    connect(target, SIGNAL(deploymentDataChanged()), SLOT(updateDeploymentDataModel()));
+    connect(target, &Target::deploymentDataChanged,
+            this, &DeploymentDataView::updateDeploymentDataModel);
     updateDeploymentDataModel();
 }
 

@@ -88,12 +88,11 @@ protected:
     void resizeEvent(QResizeEvent *event);
     bool event(QEvent *e);
 
-private slots:
+private:
     void changeButtonPressed();
     void updateButtons();
     void menuAboutToShow();
     void menuAboutToHide();
-private:
     void getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex);
     int maxVisibleTargets() const;
     void ensureCurrentIndexVisible();

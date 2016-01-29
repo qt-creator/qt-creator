@@ -94,7 +94,8 @@ TargetSelector::TargetSelector(QWidget *parent) :
 
     m_targetChangeButton = new QPixmapButton(this, m_targetChangePixmap2, m_targetChangePixmap);
     m_targetChangeButton->hide();
-    connect(m_targetChangeButton, SIGNAL(pressed()), this, SLOT(changeButtonPressed()));
+    connect(m_targetChangeButton, &QAbstractButton::pressed,
+            this, &TargetSelector::changeButtonPressed);
 }
 
 void TargetSelector::changeButtonPressed()
@@ -218,19 +219,19 @@ TargetSelector::Target TargetSelector::targetAt(int index) const
 void TargetSelector::setTargetMenu(QMenu *menu)
 {
     if (m_targetChangeButton->menu()) {
-        disconnect(m_targetChangeButton->menu(), SIGNAL(aboutToShow()),
-                   this, SLOT(menuAboutToShow()));
-        disconnect(m_targetChangeButton->menu(), SIGNAL(aboutToHide()),
-                   this, SLOT(menuAboutToHide()));
+        disconnect(m_targetChangeButton->menu(), &QMenu::aboutToShow,
+                   this, &TargetSelector::menuAboutToShow);
+        disconnect(m_targetChangeButton->menu(), &QMenu::aboutToHide,
+                   this, &TargetSelector::menuAboutToHide);
     }
 
     m_targetChangeButton->setMenu(menu);
 
     if (menu) {
-        connect(m_targetChangeButton->menu(), SIGNAL(aboutToShow()),
-                this, SLOT(menuAboutToShow()));
-        connect(m_targetChangeButton->menu(), SIGNAL(aboutToHide()),
-                this, SLOT(menuAboutToHide()));
+        connect(m_targetChangeButton->menu(), &QMenu::aboutToShow,
+                this, &TargetSelector::menuAboutToShow);
+        connect(m_targetChangeButton->menu(), &QMenu::aboutToHide,
+                this, &TargetSelector::menuAboutToHide);
     }
 }
 

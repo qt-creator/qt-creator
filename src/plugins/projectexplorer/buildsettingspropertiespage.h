@@ -55,18 +55,15 @@ public:
     void addSubWidget(NamedWidget *widget);
     QList<NamedWidget *> subWidgets() const;
 
-private slots:
+private:
     void updateBuildSettings();
     void currentIndexChanged(int index);
 
-    void cloneConfiguration();
-    void deleteConfiguration();
     void renameConfiguration();
     void updateAddButtonMenu();
 
     void updateActiveConfiguration();
 
-private:
     void createConfiguration(BuildInfo *info);
     void cloneConfiguration(BuildConfiguration *toClone);
     void deleteConfiguration(BuildConfiguration *toDelete);

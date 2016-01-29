@@ -44,12 +44,11 @@ class PROJECTEXPLORER_EXPORT BuildEnvironmentWidget : public NamedWidget
 public:
     BuildEnvironmentWidget(BuildConfiguration *bc);
 
-private slots:
+private:
     void environmentModelUserChangesChanged();
     void clearSystemEnvironmentCheckBoxClicked(bool checked);
     void environmentChanged();
 
-private:
     EnvironmentWidget *m_buildEnvironmentWidget;
     QCheckBox *m_clearSystemEnvironmentCheckBox;
     BuildConfiguration *m_buildConfiguration;

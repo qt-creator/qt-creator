@@ -106,10 +106,10 @@ ToolWidget::ToolWidget(QWidget *parent)
 
     layout->addWidget(m_secondWidget);
 
-    connect(m_disableButton, SIGNAL(clicked()), this, SIGNAL(disabledClicked()));
-    connect(m_upButton, SIGNAL(clicked()), this, SIGNAL(upClicked()));
-    connect(m_downButton, SIGNAL(clicked()), this, SIGNAL(downClicked()));
-    connect(m_removeButton, SIGNAL(clicked()), this, SIGNAL(removeClicked()));
+    connect(m_disableButton, &QAbstractButton::clicked, this, &ToolWidget::disabledClicked);
+    connect(m_upButton, &QAbstractButton::clicked, this, &ToolWidget::upClicked);
+    connect(m_downButton, &QAbstractButton::clicked, this, &ToolWidget::downClicked);
+    connect(m_removeButton, &QAbstractButton::clicked, this, &ToolWidget::removeClicked);
 }
 
 void ToolWidget::setOpacity(qreal value)
@@ -255,14 +255,17 @@ void BuildStepListWidget::init(BuildStepList *bsl)
     setupUi();
 
     if (m_buildStepList) {
-        disconnect(m_buildStepList, SIGNAL(stepInserted(int)), this, SLOT(addBuildStep(int)));
-        disconnect(m_buildStepList, SIGNAL(stepRemoved(int)), this, SLOT(removeBuildStep(int)));
-        disconnect(m_buildStepList, SIGNAL(stepMoved(int,int)), this, SLOT(stepMoved(int,int)));
+        disconnect(m_buildStepList, &BuildStepList::stepInserted,
+                   this, &BuildStepListWidget::addBuildStep);
+        disconnect(m_buildStepList, &BuildStepList::stepRemoved,
+                   this, &BuildStepListWidget::removeBuildStep);
+        disconnect(m_buildStepList, &BuildStepList::stepMoved,
+                   this, &BuildStepListWidget::stepMoved);
     }
 
-    connect(bsl, SIGNAL(stepInserted(int)), this, SLOT(addBuildStep(int)));
-    connect(bsl, SIGNAL(stepRemoved(int)), this, SLOT(removeBuildStep(int)));
-    connect(bsl, SIGNAL(stepMoved(int,int)), this, SLOT(stepMoved(int,int)));
+    connect(bsl, &BuildStepList::stepInserted, this, &BuildStepListWidget::addBuildStep);
+    connect(bsl, &BuildStepList::stepRemoved, this, &BuildStepListWidget::removeBuildStep);
+    connect(bsl, &BuildStepList::stepMoved, this, &BuildStepListWidget::stepMoved);
 
     qDeleteAll(m_buildStepsData);
     m_buildStepsData.clear();
@@ -326,22 +329,22 @@ void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
 
     m_vbox->insertWidget(pos, s->detailsWidget);
 
-    connect(s->widget, SIGNAL(updateSummary()),
-            this, SLOT(updateSummary()));
-    connect(s->widget, SIGNAL(updateAdditionalSummary()),
-            this, SLOT(updateAdditionalSummary()));
+    connect(s->widget, &BuildStepConfigWidget::updateSummary,
+            this, &BuildStepListWidget::updateSummary);
+    connect(s->widget, &BuildStepConfigWidget::updateAdditionalSummary,
+            this, &BuildStepListWidget::updateAdditionalSummary);
 
-    connect(s->step, SIGNAL(enabledChanged()),
-            this, SLOT(updateEnabledState()));
+    connect(s->step, &BuildStep::enabledChanged,
+            this, &BuildStepListWidget::updateEnabledState);
 
-    connect(s->toolWidget, SIGNAL(disabledClicked()),
-            m_disableMapper, SLOT(map()));
-    connect(s->toolWidget, SIGNAL(upClicked()),
-            m_upMapper, SLOT(map()));
-    connect(s->toolWidget, SIGNAL(downClicked()),
-            m_downMapper, SLOT(map()));
-    connect(s->toolWidget, SIGNAL(removeClicked()),
-            m_removeMapper, SLOT(map()));
+    connect(s->toolWidget, &ToolWidget::disabledClicked,
+            m_disableMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+    connect(s->toolWidget, &ToolWidget::upClicked,
+            m_upMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+    connect(s->toolWidget, &ToolWidget::downClicked,
+            m_downMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
+    connect(s->toolWidget, &ToolWidget::removeClicked,
+            m_removeMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
 }
 
 void BuildStepListWidget::addBuildStep(int pos)
@@ -413,17 +416,17 @@ void BuildStepListWidget::setupUi()
         return;
 
     m_disableMapper = new QSignalMapper(this);
-    connect(m_disableMapper, SIGNAL(mapped(int)),
-            this, SLOT(triggerDisable(int)));
+    connect(m_disableMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped),
+            this, &BuildStepListWidget::triggerDisable);
     m_upMapper = new QSignalMapper(this);
-    connect(m_upMapper, SIGNAL(mapped(int)),
-            this, SLOT(triggerStepMoveUp(int)));
+    connect(m_upMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped),
+            this, &BuildStepListWidget::triggerStepMoveUp);
     m_downMapper = new QSignalMapper(this);
-    connect(m_downMapper, SIGNAL(mapped(int)),
-            this, SLOT(triggerStepMoveDown(int)));
+    connect(m_downMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped),
+            this, &BuildStepListWidget::triggerStepMoveDown);
     m_removeMapper = new QSignalMapper(this);
-    connect(m_removeMapper, SIGNAL(mapped(int)),
-            this, SLOT(triggerRemoveBuildStep(int)));
+    connect(m_removeMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped),
+            this, &BuildStepListWidget::triggerRemoveBuildStep);
 
     m_vbox = new QVBoxLayout(this);
     m_vbox->setContentsMargins(0, 0, 0, 0);
@@ -446,8 +449,8 @@ void BuildStepListWidget::setupUi()
 
     m_vbox->addLayout(hboxLayout);
 
-    connect(m_addButton->menu(), SIGNAL(aboutToShow()),
-            this, SLOT(updateAddBuildStepMenu()));
+    connect(m_addButton->menu(), &QMenu::aboutToShow,
+            this, &BuildStepListWidget::updateAddBuildStepMenu);
 }
 
 void BuildStepListWidget::updateBuildStepButtonsState()

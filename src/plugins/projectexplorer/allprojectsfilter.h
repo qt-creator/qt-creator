@@ -42,7 +42,7 @@ public:
     void refresh(QFutureInterface<void> &future);
     void prepareSearch(const QString &entry);
 
-private slots:
+private:
     void markFilesAsOutOfDate();
 };
 

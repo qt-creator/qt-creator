@@ -90,9 +90,8 @@ signals:
     void contextMenuRequested(const QPoint &pos, const int index);
 protected:
     bool eventFilter(QObject *object, QEvent *event);
-private slots:
-    void slotContextMenuRequested(const QPoint &pos);
 private:
+    void slotContextMenuRequested(const QPoint &pos);
     int m_tabIndexForMiddleClick;
 };
 
@@ -104,8 +103,8 @@ TabWidget::TabWidget(QWidget *parent)
 {
     tabBar()->installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(slotContextMenuRequested(QPoint)));
+    connect(this, &QWidget::customContextMenuRequested,
+            this, &TabWidget::slotContextMenuRequested);
 }
 
 bool TabWidget::eventFilter(QObject *object, QEvent *event)
@@ -163,8 +162,8 @@ AppOutputPane::AppOutputPane() :
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
-    connect(m_reRunButton, SIGNAL(clicked()),
-            this, SLOT(reRunRunControl()));
+    connect(m_reRunButton, &QAbstractButton::clicked,
+            this, &AppOutputPane::reRunRunControl);
 
     // Stop
     m_stopAction->setIcon(Icons::STOP_SMALL.icon());
@@ -176,8 +175,8 @@ AppOutputPane::AppOutputPane() :
     m_stopButton->setDefaultAction(cmd->action());
     m_stopButton->setAutoRaise(true);
 
-    connect(m_stopAction, SIGNAL(triggered()),
-            this, SLOT(stopRunControl()));
+    connect(m_stopAction, &QAction::triggered,
+            this, &AppOutputPane::stopRunControl);
 
     // Attach
     m_attachButton->setToolTip(msgAttachDebuggerTooltip());
@@ -185,8 +184,8 @@ AppOutputPane::AppOutputPane() :
     m_attachButton->setIcon(Core::Icons::DEBUG_START_SMALL.icon());
     m_attachButton->setAutoRaise(true);
 
-    connect(m_attachButton, SIGNAL(clicked()),
-            this, SLOT(attachToRunControl()));
+    connect(m_attachButton, &QAbstractButton::clicked,
+            this, &AppOutputPane::attachToRunControl);
 
     m_zoomInButton->setToolTip(tr("Increase Font Size"));
     m_zoomInButton->setIcon(Core::Icons::PLUS.icon());
@@ -209,11 +208,13 @@ AppOutputPane::AppOutputPane() :
     m_tabWidget->setDocumentMode(true);
     m_tabWidget->setTabsClosable(true);
     m_tabWidget->setMovable(true);
-    connect(m_tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
+    connect(m_tabWidget, &QTabWidget::tabCloseRequested,
+            this, [this](int index) { closeTab(index); });
     layout->addWidget(m_tabWidget);
 
-    connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
-    connect(m_tabWidget, SIGNAL(contextMenuRequested(QPoint,int)), this, SLOT(contextMenuRequested(QPoint,int)));
+    connect(m_tabWidget, &QTabWidget::currentChanged, this, &AppOutputPane::tabChanged);
+    connect(m_tabWidget, &TabWidget::contextMenuRequested,
+            this, &AppOutputPane::contextMenuRequested);
 
     m_mainWidget->setLayout(layout);
 
@@ -223,10 +224,10 @@ AppOutputPane::AppOutputPane() :
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             this, &AppOutputPane::updateBehaviorSettings);
 
-    connect(SessionManager::instance(), SIGNAL(aboutToUnloadSession(QString)),
-            this, SLOT(aboutToUnloadSession()));
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            this, SLOT(updateFromSettings()));
+    connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
+            this, &AppOutputPane::aboutToUnloadSession);
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, &AppOutputPane::updateFromSettings);
 
 #ifdef Q_OS_WIN
     connect(this, &AppOutputPane::allRunControlsFinished,
@@ -381,14 +382,15 @@ void AppOutputPane::updateBehaviorSettings()
 
 void AppOutputPane::createNewOutputWindow(RunControl *rc)
 {
-    connect(rc, SIGNAL(started()),
-            this, SLOT(slotRunControlStarted()));
-    connect(rc, SIGNAL(finished()),
-            this, SLOT(slotRunControlFinished()));
-    connect(rc, SIGNAL(applicationProcessHandleChanged()),
-            this, SLOT(enableButtons()));
-    connect(rc, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)),
-            this, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)));
+    connect(rc, &RunControl::started,
+            this, &AppOutputPane::slotRunControlStarted);
+    connect(rc, &RunControl::finished,
+            this, &AppOutputPane::slotRunControlFinished);
+    connect(rc, &RunControl::applicationProcessHandleChanged,
+            this, &AppOutputPane::enableDefaultButtons);
+    connect(rc, static_cast<void (RunControl::*)(
+                ProjectExplorer::RunControl *, const QString &, Utils::OutputFormat)>(&RunControl::appendMessage),
+            this, &AppOutputPane::appendMessage);
 
     Utils::OutputFormatter *formatter = rc->outputFormatter();
 
@@ -536,11 +538,6 @@ QList<RunControl *> AppOutputPane::allRunControls() const
     });
 }
 
-bool AppOutputPane::closeTab(int index)
-{
-    return closeTab(index, CloseTabWithPrompt);
-}
-
 bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 {
     int index = indexOf(m_tabWidget->widget(tabIndex));
@@ -605,7 +602,7 @@ void AppOutputPane::projectRemoved()
     tabChanged(m_tabWidget->currentIndex());
 }
 
-void AppOutputPane::enableButtons()
+void AppOutputPane::enableDefaultButtons()
 {
     const RunControl *rc = currentRunControl();
     const bool isRunning = rc && rc->isRunning();
@@ -663,7 +660,7 @@ void AppOutputPane::tabChanged(int i)
         const RunControl *rc = m_runControlTabs.at(index).runControl;
         enableButtons(rc, rc->isRunning());
     } else {
-        enableButtons();
+        enableDefaultButtons();
     }
 }
 
@@ -695,8 +692,7 @@ void AppOutputPane::slotRunControlStarted()
 void AppOutputPane::slotRunControlFinished()
 {
     RunControl *rc = qobject_cast<RunControl *>(sender());
-    QMetaObject::invokeMethod(this, "slotRunControlFinished2", Qt::QueuedConnection,
-                              Q_ARG(ProjectExplorer::RunControl *, rc));
+    QTimer::singleShot(0, this, [this, rc]() { slotRunControlFinished2(rc); });
     rc->outputFormatter()->flush();
 }
 

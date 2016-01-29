@@ -80,14 +80,16 @@ AbiWidget::AbiWidget(QWidget *parent) :
     d->m_abi->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     d->m_abi->setMinimumContentsLength(4);
     layout->addWidget(d->m_abi);
-    connect(d->m_abi, SIGNAL(currentIndexChanged(int)), this, SLOT(modeChanged()));
+    connect(d->m_abi, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &AbiWidget::modeChanged);
 
     d->m_architectureComboBox = new QComboBox(this);
     layout->addWidget(d->m_architectureComboBox);
     for (int i = 0; i <= static_cast<int>(Abi::UnknownArchitecture); ++i)
         d->m_architectureComboBox->addItem(Abi::toString(static_cast<Abi::Architecture>(i)), i);
     d->m_architectureComboBox->setCurrentIndex(static_cast<int>(Abi::UnknownArchitecture));
-    connect(d->m_architectureComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(customAbiChanged()));
+    connect(d->m_architectureComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &AbiWidget::customAbiChanged);
 
     QLabel *separator1 = new QLabel(this);
     separator1->setText(QLatin1String("-"));
@@ -99,7 +101,8 @@ AbiWidget::AbiWidget(QWidget *parent) :
     for (int i = 0; i <= static_cast<int>(Abi::UnknownOS); ++i)
         d->m_osComboBox->addItem(Abi::toString(static_cast<Abi::OS>(i)), i);
     d->m_osComboBox->setCurrentIndex(static_cast<int>(Abi::UnknownOS));
-    connect(d->m_osComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(osChanged()));
+    connect(d->m_osComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &AbiWidget::osChanged);
 
     QLabel *separator2 = new QLabel(this);
     separator2->setText(QLatin1String("-"));
@@ -108,7 +111,8 @@ AbiWidget::AbiWidget(QWidget *parent) :
 
     d->m_osFlavorComboBox = new QComboBox(this);
     layout->addWidget(d->m_osFlavorComboBox);
-    connect(d->m_osFlavorComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(customAbiChanged()));
+    connect(d->m_osFlavorComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &AbiWidget::customAbiChanged);
 
     QLabel *separator3 = new QLabel(this);
     separator3->setText(QLatin1String("-"));
@@ -120,7 +124,8 @@ AbiWidget::AbiWidget(QWidget *parent) :
     for (int i = 0; i <= static_cast<int>(Abi::UnknownFormat); ++i)
         d->m_binaryFormatComboBox->addItem(Abi::toString(static_cast<Abi::BinaryFormat>(i)), i);
     d->m_binaryFormatComboBox->setCurrentIndex(static_cast<int>(Abi::UnknownFormat));
-    connect(d->m_binaryFormatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(customAbiChanged()));
+    connect(d->m_binaryFormatComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &AbiWidget::customAbiChanged);
 
     QLabel *separator4 = new QLabel(this);
     separator4->setText(QLatin1String("-"));
@@ -134,7 +139,8 @@ AbiWidget::AbiWidget(QWidget *parent) :
     d->m_wordWidthComboBox->addItem(Abi::toString(64), 64);
     d->m_wordWidthComboBox->addItem(Abi::toString(0), 0);
     d->m_wordWidthComboBox->setCurrentIndex(2);
-    connect(d->m_wordWidthComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(customAbiChanged()));
+    connect(d->m_wordWidthComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &AbiWidget::customAbiChanged);
 
     layout->setStretchFactor(d->m_abi, 1);
 

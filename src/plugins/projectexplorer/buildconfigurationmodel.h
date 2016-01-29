@@ -46,11 +46,10 @@ public:
     BuildConfiguration *buildConfigurationAt(int i);
     BuildConfiguration *buildConfigurationFor(const QModelIndex &idx);
     QModelIndex indexFor(BuildConfiguration *rc);
-private slots:
+private:
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration*);
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration*);
     void displayNameChanged();
-private:
     Target *m_target;
     QList<BuildConfiguration *> m_buildConfigurations;
 };

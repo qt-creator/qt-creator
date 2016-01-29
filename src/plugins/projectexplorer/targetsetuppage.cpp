@@ -65,7 +65,7 @@ public:
     QLabel *optionHintLabel;
     QCheckBox *allKitsCheckBox;
 
-    void setupUi(QWidget *q)
+    void setupUi(TargetSetupPage *q)
     {
         QWidget *setupTargetPage = new QWidget(q);
         descriptionLabel = new QLabel(setupTargetPage);
@@ -127,11 +127,11 @@ public:
         verticalLayout_3->setContentsMargins(0, 0, 0, -1);
         verticalLayout_3->addWidget(setupTargetPage);
 
-        QObject::connect(optionHintLabel, SIGNAL(linkActivated(QString)),
-                         q, SLOT(openOptions()));
+        QObject::connect(optionHintLabel, &QLabel::linkActivated,
+                         q, &TargetSetupPage::openOptions);
 
-        QObject::connect(allKitsCheckBox, SIGNAL(clicked()),
-                         q, SLOT(changeAllKitsSelections()));
+        QObject::connect(allKitsCheckBox, &QAbstractButton::clicked,
+                         q, &TargetSetupPage::changeAllKitsSelections);
     }
 };
 
@@ -177,17 +177,14 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
     setUseScrollArea(true);
 
-    QObject *km = KitManager::instance();
+    KitManager *km = KitManager::instance();
     // do note that those slots are triggered once *per* targetsetuppage
     // thus the same slot can be triggered multiple times on different instances!
-    connect(km, SIGNAL(kitAdded(ProjectExplorer::Kit*)),
-            this, SLOT(handleKitAddition(ProjectExplorer::Kit*)));
-    connect(km, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
-            this, SLOT(handleKitRemoval(ProjectExplorer::Kit*)));
-    connect(km, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(handleKitUpdate(ProjectExplorer::Kit*)));
-    connect(m_importWidget, SIGNAL(importFrom(Utils::FileName)),
-            this, SLOT(import(Utils::FileName)));
+    connect(km, &KitManager::kitAdded, this, &TargetSetupPage::handleKitAddition);
+    connect(km, &KitManager::kitRemoved, this, &TargetSetupPage::handleKitRemoval);
+    connect(km, &KitManager::kitUpdated, this, &TargetSetupPage::handleKitUpdate);
+    connect(m_importWidget, &ImportWidget::importFrom,
+            this, [this](const Utils::FileName &dir) { import(dir); });
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Kits"));
 }
@@ -428,11 +425,6 @@ void TargetSetupPage::openOptions()
     Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, this);
 }
 
-void TargetSetupPage::import(const Utils::FileName &path)
-{
-    import(path, false);
-}
-
 void TargetSetupPage::kitSelectionChanged()
 {
     int selected = 0;
@@ -529,8 +521,8 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 
     widget->setKitSelected(m_preferredMatcher.isValid() && m_preferredMatcher.matches(k));
     m_widgets.insert(k->id(), widget);
-    connect(widget, SIGNAL(selectedToggled()),
-            this, SLOT(kitSelectionChanged()));
+    connect(widget, &TargetSetupWidget::selectedToggled,
+            this, &TargetSetupPage::kitSelectionChanged);
     m_baseLayout->addWidget(widget);
 
     m_baseLayout->addWidget(m_importWidget);
@@ -538,8 +530,7 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
         m_baseLayout->addWidget(widget);
     m_baseLayout->addItem(m_spacer);
 
-    connect(widget, SIGNAL(selectedToggled()),
-            this, SIGNAL(completeChanged()));
+    connect(widget, &TargetSetupWidget::selectedToggled, this, &QWizardPage::completeChanged);
 
     if (!m_firstWidget)
         m_firstWidget = widget;

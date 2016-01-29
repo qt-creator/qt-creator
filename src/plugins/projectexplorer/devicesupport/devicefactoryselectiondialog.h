@@ -46,8 +46,8 @@ public:
     Core::Id selectedId() const;
 
 private:
-    Q_SLOT void handleItemSelectionChanged();
-    Q_SLOT void handleItemDoubleClicked();
+    void handleItemSelectionChanged();
+    void handleItemDoubleClicked();
     Ui::DeviceFactorySelectionDialog *ui;
 };
 

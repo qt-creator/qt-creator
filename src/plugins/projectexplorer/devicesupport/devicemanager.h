@@ -79,10 +79,9 @@ signals:
 
     void devicesLoaded(); // Emitted once load() is done
 
-private slots:
+private:
     void save();
 
-private:
     DeviceManager(bool isInstance = true);
 
     void load();

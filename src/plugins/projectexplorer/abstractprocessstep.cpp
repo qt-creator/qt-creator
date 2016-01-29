@@ -213,13 +213,13 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     m_process->setWorkingDirectory(wd.absolutePath());
     m_process->setEnvironment(m_param.environment());
 
-    connect(m_process, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(processReadyReadStdOutput()));
-    connect(m_process, SIGNAL(readyReadStandardError()),
-            this, SLOT(processReadyReadStdError()));
+    connect(m_process, &QProcess::readyReadStandardOutput,
+            this, &AbstractProcessStep::processReadyReadStdOutput);
+    connect(m_process, &QProcess::readyReadStandardError,
+            this, &AbstractProcessStep::processReadyReadStdError);
 
-    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(slotProcessFinished(int,QProcess::ExitStatus)));
+    connect(m_process, static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+            this, &AbstractProcessStep::slotProcessFinished);
 
     m_process->setCommand(effectiveCommand, m_param.effectiveArguments());
     m_process->start();
@@ -234,7 +234,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     processStarted();
 
     m_timer = new QTimer();
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(checkForCancel()));
+    connect(m_timer, &QTimer::timeout, this, &AbstractProcessStep::checkForCancel);
     m_timer->start(500);
     m_killProcess = false;
 }

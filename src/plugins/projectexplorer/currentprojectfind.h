@@ -55,7 +55,7 @@ protected:
     QVariant additionalParameters() const;
     QString label() const;
 
-private slots:
+private:
     void handleProjectChanged();
     void recheckEnabled();
 };

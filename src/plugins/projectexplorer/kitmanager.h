@@ -151,8 +151,7 @@ public:
 
     static QList<Kit *> sortKits(const QList<Kit *> kits); // Avoid sorting whenever possible!
 
-public slots:
-    void saveKits();
+    static void saveKits();
 
 signals:
     void kitAdded(ProjectExplorer::Kit *);

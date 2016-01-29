@@ -73,13 +73,12 @@ class ProjectListWidget : public ListWidget
     Q_OBJECT
 public:
     explicit ProjectListWidget(QWidget *parent = 0);
-private slots:
+private:
     void addProject(ProjectExplorer::Project *project);
     void removeProject(ProjectExplorer::Project *project);
     void projectDisplayNameChanged(ProjectExplorer::Project *project);
     void changeStartupProject(ProjectExplorer::Project *project);
     void setProject(int index);
-private:
     QListWidgetItem *itemForProject(Project *project);
     QString fullName(Project *project);
     bool m_ignoreIndexChange;
@@ -92,13 +91,11 @@ public:
     explicit KitAreaWidget(QWidget *parent = 0);
     ~KitAreaWidget();
 
-public slots:
     void setKit(ProjectExplorer::Kit *k);
 
-private slots:
+private:
     void updateKit(ProjectExplorer::Kit *k);
 
-private:
     QGridLayout *m_layout;
     Kit *m_kit;
     QList<KitConfigWidget *> m_widgets;
@@ -117,10 +114,9 @@ public:
     void setActiveProjectConfiguration(ProjectConfiguration *active);
     void addProjectConfiguration(ProjectConfiguration *pc);
     void removeProjectConfiguration(ProjectConfiguration *pc);
-private slots:
+private:
     void rowChanged(int index);
     void displayNameChanged();
-private:
     QListWidgetItem *itemForProjectConfiguration(ProjectConfiguration *pc);
     bool m_ignoreIndexChange;
 };
@@ -136,11 +132,11 @@ public:
     void keyPressEvent(QKeyEvent *ke);
     void keyReleaseEvent(QKeyEvent *ke);
     bool event(QEvent *event);
-public slots:
+
     void toggleVisible();
     void nextOrShow();
 
-private slots:
+private:
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
     void slotAddedTarget(ProjectExplorer::Target *target);
@@ -167,7 +163,6 @@ private slots:
     void delayedHide();
     void updateActionAndSummary();
     void switchToProjectsMode();
-private:
     void addedTarget(Target *target);
     void removedTarget(Target *target);
     void addedBuildConfiguration(BuildConfiguration* bc);

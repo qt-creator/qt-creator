@@ -93,11 +93,10 @@ public:
     ProcessStepConfigWidget(ProcessStep *step);
     virtual QString displayName() const;
     virtual QString summaryText() const;
-private slots:
+private:
     void commandLineEditTextEdited();
     void workingDirectoryLineEditTextEdited();
     void commandArgumentsLineEditTextEdited();
-private:
     void updateDetails();
     ProcessStep *m_step;
     Ui::ProcessStepWidget m_ui;

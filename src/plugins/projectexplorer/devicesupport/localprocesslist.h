@@ -51,11 +51,10 @@ private:
     void doUpdate();
     void doKillProcess(const DeviceProcessItem &process);
 
-private slots:
+private:
     void handleUpdate();
     void reportDelayedKillStatus(const QString &errorMessage);
 
-private:
     const qint64 m_myPid;
 
 };

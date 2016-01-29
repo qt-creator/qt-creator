@@ -46,7 +46,8 @@ namespace Internal {
 SessionModel::SessionModel(QObject *parent)
     : QAbstractListModel(parent)
 {
-    connect(SessionManager::instance(), SIGNAL(sessionLoaded(QString)), SLOT(resetSessions()));
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+            this, &SessionModel::resetSessions);
 }
 
 int SessionModel::rowCount(const QModelIndex &) const

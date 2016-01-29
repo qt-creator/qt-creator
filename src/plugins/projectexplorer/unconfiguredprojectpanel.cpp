@@ -89,16 +89,16 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project) :
 
     completeChanged();
 
-    connect(m_configureButton, SIGNAL(clicked()),
-            this, SLOT(done()));
-    connect(m_cancelButton, SIGNAL(clicked()),
-            this, SLOT(cancel()));
-    connect(m_targetSetupPage, SIGNAL(completeChanged()),
-            this, SLOT(completeChanged()));
-    connect(KitManager::instance(), SIGNAL(defaultkitChanged()),
-            this, SLOT(updateNoteText()));
-    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
+    connect(m_configureButton, &QAbstractButton::clicked,
+            this, &TargetSetupPageWrapper::done);
+    connect(m_cancelButton, &QAbstractButton::clicked,
+            this, &TargetSetupPageWrapper::cancel);
+    connect(m_targetSetupPage, &QWizardPage::completeChanged,
+            this, &TargetSetupPageWrapper::completeChanged);
+    connect(KitManager::instance(), &KitManager::defaultkitChanged,
+            this, &TargetSetupPageWrapper::updateNoteText);
+    connect(KitManager::instance(), &KitManager::kitUpdated,
+            this, &TargetSetupPageWrapper::kitUpdated);
 }
 
 void TargetSetupPageWrapper::kitUpdated(Kit *k)

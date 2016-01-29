@@ -69,12 +69,14 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
 
     d->device = device;
     d->connection = QSsh::acquireConnection(device->sshParameters());
-    connect(d->connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
+    connect(d->connection, &SshConnection::error,
+            this, &DeviceUsedPortsGatherer::handleConnectionError);
     if (d->connection->state() == SshConnection::Connected) {
         handleConnectionEstablished();
         return;
     }
-    connect(d->connection, SIGNAL(connected()), SLOT(handleConnectionEstablished()));
+    connect(d->connection, &SshConnection::connected,
+            this, &DeviceUsedPortsGatherer::handleConnectionEstablished);
     if (d->connection->state() == SshConnection::Unconnected)
         d->connection->connectToHost();
 }
@@ -86,9 +88,9 @@ void DeviceUsedPortsGatherer::handleConnectionEstablished()
     const QByteArray commandLine = d->device->portsGatheringMethod()->commandLine(protocol);
     d->process = d->connection->createRemoteProcess(commandLine);
 
-    connect(d->process.data(), SIGNAL(closed(int)), SLOT(handleProcessClosed(int)));
-    connect(d->process.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdOut()));
-    connect(d->process.data(), SIGNAL(readyReadStandardError()), SLOT(handleRemoteStdErr()));
+    connect(d->process.data(), &SshRemoteProcess::closed, this, &DeviceUsedPortsGatherer::handleProcessClosed);
+    connect(d->process.data(), &SshRemoteProcess::readyReadStandardOutput, this, &DeviceUsedPortsGatherer::handleRemoteStdOut);
+    connect(d->process.data(), &SshRemoteProcess::readyReadStandardError, this, &DeviceUsedPortsGatherer::handleRemoteStdErr);
 
     d->process->start();
 }

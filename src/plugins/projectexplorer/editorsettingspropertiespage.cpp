@@ -42,23 +42,27 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_proj
 
     globalSettingsActivated(config->useGlobalSettings() ? 0 : 1);
 
-    connect(m_ui.globalSelector, SIGNAL(activated(int)),
-            this, SLOT(globalSettingsActivated(int)));
-    connect(m_ui.restoreButton, SIGNAL(clicked()), this, SLOT(restoreDefaultValues()));
 
-    connect(m_ui.showWrapColumn, SIGNAL(toggled(bool)), config, SLOT(setShowWrapColumn(bool)));
-    connect(m_ui.wrapColumn, SIGNAL(valueChanged(int)), config, SLOT(setWrapColumn(int)));
+    connect(m_ui.globalSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+            this, &EditorSettingsWidget::globalSettingsActivated);
+    connect(m_ui.restoreButton, &QAbstractButton::clicked,
+            this, &EditorSettingsWidget::restoreDefaultValues);
 
-    connect(m_ui.behaviorSettingsWidget, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
-            config, SLOT(setTypingSettings(TextEditor::TypingSettings)));
-    connect(m_ui.behaviorSettingsWidget, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-            config, SLOT(setStorageSettings(TextEditor::StorageSettings)));
-    connect(m_ui.behaviorSettingsWidget, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
-            config, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
-    connect(m_ui.behaviorSettingsWidget, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
-            config, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
-    connect(m_ui.behaviorSettingsWidget, SIGNAL(textCodecChanged(QTextCodec*)),
-            config, SLOT(setTextCodec(QTextCodec*)));
+    connect(m_ui.showWrapColumn, &QAbstractButton::toggled,
+            config, &EditorConfiguration::setShowWrapColumn);
+    connect(m_ui.wrapColumn, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            config, &EditorConfiguration::setWrapColumn);
+
+    connect(m_ui.behaviorSettingsWidget, &TextEditor::BehaviorSettingsWidget::typingSettingsChanged,
+            config, &EditorConfiguration::setTypingSettings);
+    connect(m_ui.behaviorSettingsWidget, &TextEditor::BehaviorSettingsWidget::storageSettingsChanged,
+            config, &EditorConfiguration::setStorageSettings);
+    connect(m_ui.behaviorSettingsWidget, &TextEditor::BehaviorSettingsWidget::behaviorSettingsChanged,
+            config, &EditorConfiguration::setBehaviorSettings);
+    connect(m_ui.behaviorSettingsWidget, &TextEditor::BehaviorSettingsWidget::extraEncodingSettingsChanged,
+            config, &EditorConfiguration::setExtraEncodingSettings);
+    connect(m_ui.behaviorSettingsWidget, &TextEditor::BehaviorSettingsWidget::textCodecChanged,
+            config, &EditorConfiguration::setTextCodec);
 }
 
 void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)

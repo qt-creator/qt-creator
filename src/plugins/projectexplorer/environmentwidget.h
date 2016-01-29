@@ -70,7 +70,7 @@ signals:
     void userChangesChanged();
     void detailsVisibleChanged(bool visible);
 
-private slots:
+private:
     void editEnvironmentButtonClicked();
     void addEnvironmentButtonClicked();
     void removeEnvironmentButtonClicked();
@@ -83,7 +83,6 @@ private slots:
     void updateButtons();
     void linkActivated(const QString &link);
 
-private:
     EnvironmentWidgetPrivate *d;
 };
 

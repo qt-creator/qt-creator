@@ -247,13 +247,13 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
 
     Core::ICore::addContextObject(d->m_taskWindowContext);
 
-    connect(d->m_listview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            tld, SLOT(currentChanged(QModelIndex,QModelIndex)));
+    connect(d->m_listview->selectionModel(), &QItemSelectionModel::currentChanged,
+            tld, &TaskDelegate::currentChanged);
 
-    connect(d->m_listview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(currentChanged(QModelIndex)));
-    connect(d->m_listview, SIGNAL(activated(QModelIndex)),
-            this, SLOT(triggerDefaultHandler(QModelIndex)));
+    connect(d->m_listview->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &TaskWindow::currentChanged);
+    connect(d->m_listview, &QAbstractItemView::activated,
+            this, &TaskWindow::triggerDefaultHandler);
 
     d->m_contextMenu = new QMenu(d->m_listview);
 

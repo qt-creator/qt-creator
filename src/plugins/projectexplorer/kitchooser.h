@@ -66,17 +66,16 @@ signals:
 public slots:
     void populate();
 
-private slots:
-    void onCurrentIndexChanged(int index);
-    void onManageButtonClicked();
-
 protected:
     virtual QString kitText(const Kit *k) const;
     virtual QString kitToolTip(Kit *k) const;
 
 private:
-    KitMatcher m_kitMatcher;
+    void onCurrentIndexChanged(int index);
+    void onManageButtonClicked();
     Kit *kitAt(int index) const;
+
+    KitMatcher m_kitMatcher;
     QComboBox *m_chooser;
     QPushButton *m_manageButton;
 };

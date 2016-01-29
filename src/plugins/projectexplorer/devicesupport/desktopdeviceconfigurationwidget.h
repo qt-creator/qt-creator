@@ -40,10 +40,9 @@ public:
 
     void updateDeviceFromUi();
 
-private slots:
+private:
     void updateFreePorts();
 
-private:
     void initGui();
 
 private:

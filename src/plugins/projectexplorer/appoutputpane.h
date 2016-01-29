@@ -101,11 +101,10 @@ public slots:
     void appendMessage(ProjectExplorer::RunControl *rc, const QString &out,
                        Utils::OutputFormat format);
 
-private slots:
+private:
     void reRunRunControl();
     void stopRunControl();
     void attachToRunControl();
-    bool closeTab(int index);
     void tabChanged(int);
     void contextMenuRequested(const QPoint &pos, int index);
     void slotRunControlStarted();
@@ -114,12 +113,11 @@ private slots:
 
     void aboutToUnloadSession();
     void updateFromSettings();
-    void enableButtons();
+    void enableDefaultButtons();
 
     void zoomIn();
     void zoomOut();
 
-private:
     void enableButtons(const RunControl *rc, bool isRunning);
 
     struct RunControlTab {
@@ -133,7 +131,7 @@ private:
     };
 
     bool isRunning() const;
-    bool closeTab(int index, CloseTabMode cm);
+    bool closeTab(int index, CloseTabMode cm = CloseTabWithPrompt);
     bool optionallyPromptToStop(RunControl *runControl);
 
     int indexOf(const RunControl *) const;

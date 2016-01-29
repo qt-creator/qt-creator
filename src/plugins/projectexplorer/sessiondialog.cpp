@@ -89,9 +89,9 @@ SessionNameInputDialog::SessionNameInputDialog(const QStringList &sessions, QWid
     hlayout->addWidget(m_newSessionLineEdit);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     m_switchToButton = buttons->addButton(tr("Switch To"), QDialogButtonBox::AcceptRole);
-    connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
-    connect(buttons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(clicked(QAbstractButton*)));
+    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(buttons, &QDialogButtonBox::clicked, this, &SessionNameInputDialog::clicked);
     hlayout->addWidget(buttons);
     setLayout(hlayout);
 }
@@ -123,21 +123,21 @@ SessionDialog::SessionDialog(QWidget *parent)
 {
     m_ui.setupUi(this);
 
-    connect(m_ui.btCreateNew, SIGNAL(clicked()),
-            this, SLOT(createNew()));
-    connect(m_ui.btClone, SIGNAL(clicked()),
-            this, SLOT(clone()));
-    connect(m_ui.btDelete, SIGNAL(clicked()),
-            this, SLOT(remove()));
+    connect(m_ui.btCreateNew, &QAbstractButton::clicked,
+            this, &SessionDialog::createNew);
+    connect(m_ui.btClone, &QAbstractButton::clicked,
+            this, &SessionDialog::clone);
+    connect(m_ui.btDelete, &QAbstractButton::clicked,
+            this, &SessionDialog::remove);
 
-    connect(m_ui.btSwitch, SIGNAL(clicked()), this, SLOT(switchToSession()));
-    connect(m_ui.btRename, SIGNAL(clicked()), this, SLOT(rename()));
+    connect(m_ui.btSwitch, &QAbstractButton::clicked, this, &SessionDialog::switchToSession);
+    connect(m_ui.btRename, &QAbstractButton::clicked, this, &SessionDialog::rename);
 
-    connect(m_ui.sessionList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-            this, SLOT(switchToSession()));
+    connect(m_ui.sessionList, &QListWidget::itemDoubleClicked,
+            this, &SessionDialog::switchToSession);
 
-    connect(m_ui.sessionList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-            this, SLOT(updateActions()));
+    connect(m_ui.sessionList, &QListWidget::currentItemChanged,
+            this, &SessionDialog::updateActions);
 
     m_ui.whatsASessionLabel->setOpenExternalLinks(true);
     addItems(true);

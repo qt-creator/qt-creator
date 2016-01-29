@@ -53,8 +53,10 @@ SshDeviceProcessList::~SshDeviceProcessList()
 
 void SshDeviceProcessList::doUpdate()
 {
-    connect(&d->process, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(&d->process, SIGNAL(processClosed(int)), SLOT(handleListProcessFinished(int)));
+    connect(&d->process, &SshRemoteProcessRunner::connectionError,
+            this, &SshDeviceProcessList::handleConnectionError);
+    connect(&d->process, &SshRemoteProcessRunner::processClosed,
+            this, &SshDeviceProcessList::handleListProcessFinished);
     d->process.run(listProcessesCommandLine().toUtf8(), device()->sshParameters());
 }
 
@@ -62,8 +64,8 @@ void SshDeviceProcessList::doKillProcess(const DeviceProcessItem &process)
 {
     d->signalOperation = device()->signalOperation();
     QTC_ASSERT(d->signalOperation, return);
-    connect(d->signalOperation.data(), SIGNAL(finished(QString)),
-            SLOT(handleKillProcessFinished(QString)));
+    connect(d->signalOperation.data(), &DeviceProcessSignalOperation::finished,
+            this, &SshDeviceProcessList::handleKillProcessFinished);
     d->signalOperation->killProcess(process.pid);
 }
 

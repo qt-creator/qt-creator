@@ -118,8 +118,8 @@ ToolChainKitInformation::ToolChainKitInformation()
     setId(ToolChainKitInformation::id());
     setPriority(30000);
 
-    connect(KitManager::instance(), SIGNAL(kitsLoaded()),
-            this, SLOT(kitsWereLoaded()));
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
+            this, &ToolChainKitInformation::kitsWereLoaded);
 }
 
 QVariant ToolChainKitInformation::defaultValue(Kit *k) const
@@ -251,10 +251,10 @@ void ToolChainKitInformation::kitsWereLoaded()
     foreach (Kit *k, KitManager::kits())
         fix(k);
 
-    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
-            this, SLOT(toolChainRemoved(ProjectExplorer::ToolChain*)));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
-            this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain*)));
+    connect(ToolChainManager::instance(), &ToolChainManager::toolChainRemoved,
+            this, &ToolChainKitInformation::toolChainRemoved);
+    connect(ToolChainManager::instance(), &ToolChainManager::toolChainUpdated,
+            this, &ToolChainKitInformation::toolChainUpdated);
 }
 
 void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
@@ -360,8 +360,8 @@ DeviceKitInformation::DeviceKitInformation()
     setId(DeviceKitInformation::id());
     setPriority(32000);
 
-    connect(KitManager::instance(), SIGNAL(kitsLoaded()),
-            this, SLOT(kitsWereLoaded()));
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
+            this, &DeviceKitInformation::kitsWereLoaded);
 }
 
 QVariant DeviceKitInformation::defaultValue(Kit *k) const
@@ -488,15 +488,15 @@ void DeviceKitInformation::kitsWereLoaded()
         fix(k);
 
     DeviceManager *dm = DeviceManager::instance();
-    connect(dm, SIGNAL(deviceListReplaced()), this, SLOT(devicesChanged()));
-    connect(dm, SIGNAL(deviceAdded(Core::Id)), this, SLOT(devicesChanged()));
-    connect(dm, SIGNAL(deviceRemoved(Core::Id)), this, SLOT(devicesChanged()));
-    connect(dm, SIGNAL(deviceUpdated(Core::Id)), this, SLOT(deviceUpdated(Core::Id)));
+    connect(dm, &DeviceManager::deviceListReplaced, this, &DeviceKitInformation::devicesChanged);
+    connect(dm, &DeviceManager::deviceAdded, this, &DeviceKitInformation::devicesChanged);
+    connect(dm, &DeviceManager::deviceRemoved, this, &DeviceKitInformation::devicesChanged);
+    connect(dm, &DeviceManager::deviceUpdated, this, &DeviceKitInformation::deviceUpdated);
 
-    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), &KitManager::kitUpdated,
+            this, &DeviceKitInformation::kitUpdated);
+    connect(KitManager::instance(), &KitManager::unmanagedKitUpdated,
+            this, &DeviceKitInformation::kitUpdated);
 }
 
 void DeviceKitInformation::deviceUpdated(Core::Id id)

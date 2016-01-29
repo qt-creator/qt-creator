@@ -46,11 +46,10 @@ public:
     void refresh(QFutureInterface<void> &future);
     void prepareSearch(const QString &entry);
 
-private slots:
+private:
     void currentProjectChanged();
     void markFilesAsOutOfDate();
 
-private:
     Project *m_project;
 };
 

@@ -81,11 +81,10 @@ public:
 
     void flush();
 
-private slots:
+private:
     void updateWordWrapMode();
     void updateZoomEnabled();
 
-private:
     CompileOutputTextEdit *m_outputWindow;
     QHash<unsigned int, QPair<int, int>> m_taskPositions;
     ShowOutputTaskHandler * m_handler;

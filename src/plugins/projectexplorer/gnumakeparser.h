@@ -49,7 +49,6 @@ public:
 
     bool hasFatalErrors() const;
 
-public slots:
     void taskAdded(const ProjectExplorer::Task &task, int linkedLines, int skippedLines);
 
 private:
@@ -78,12 +77,10 @@ class GnuMakeParserTester : public QObject
 
 public:
     explicit GnuMakeParserTester(GnuMakeParser *parser, QObject *parent = 0);
+    void parserIsAboutToBeDeleted();
 
     QStringList directories;
     GnuMakeParser *parser;
-
-public slots:
-    void parserIsAboutToBeDeleted();
 };
 #endif
 

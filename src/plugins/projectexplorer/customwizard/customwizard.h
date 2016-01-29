@@ -146,7 +146,7 @@ protected:
     void initProjectWizardDialog(BaseProjectWizardDialog *w, const QString &defaultPath,
                                  const QList<QWizardPage *> &extensionPages) const;
 
-private slots:
+private:
     void projectParametersChanged(const QString &project, const QString &path);
 };
 

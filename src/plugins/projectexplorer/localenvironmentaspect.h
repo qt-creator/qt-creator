@@ -43,7 +43,6 @@ public:
     QString baseEnvironmentDisplayName(int base) const;
     Utils::Environment baseEnvironment() const;
 
-public slots:
     void buildEnvironmentHasChanged();
 
 private:

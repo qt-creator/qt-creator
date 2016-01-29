@@ -385,9 +385,6 @@ signals:
     void finished();
     void applicationProcessHandleChanged();
 
-private slots:
-    void bringApplicationToForegroundInternal();
-
 protected:
     bool showPromptToStopDialog(const QString &title, const QString &text,
                                 const QString &stopButtonText = QString(),
@@ -395,6 +392,8 @@ protected:
                                 bool *prompt = 0) const;
 
 private:
+    void bringApplicationToForegroundInternal();
+
     QString m_displayName;
     Runnable m_runnable;
     Connection m_connection;

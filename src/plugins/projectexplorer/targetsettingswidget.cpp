@@ -60,18 +60,19 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
     m_addButton = new QPushButton(tr("Add Kit"), buttonWidget);
     buttonLayout->addWidget(m_addButton);
     m_manageButton = new QPushButton(tr("Manage Kits..."), buttonWidget);
-    connect(m_manageButton, SIGNAL(clicked()), this, SIGNAL(manageButtonClicked()));
+    connect(m_manageButton, &QAbstractButton::clicked,
+            this, &TargetSettingsWidget::manageButtonClicked);
     buttonLayout->addWidget(m_manageButton);
     headerLayout->addWidget(buttonWidget, 0, Qt::AlignVCenter);
 
     headerLayout->addWidget(m_targetSelector, 0, Qt::AlignBottom);
     headerLayout->addStretch(10);
-    connect(m_targetSelector, SIGNAL(currentChanged(int,int)),
-            this, SIGNAL(currentChanged(int,int)));
-    connect(m_targetSelector, SIGNAL(toolTipRequested(QPoint,int)),
-            this, SIGNAL(toolTipRequested(QPoint,int)));
-    connect(m_targetSelector, SIGNAL(menuShown(int)),
-            this, SIGNAL(menuShown(int)));
+    connect(m_targetSelector, &TargetSelector::currentChanged,
+            this, &TargetSettingsWidget::currentChanged);
+    connect(m_targetSelector, &TargetSelector::toolTipRequested,
+            this, &TargetSettingsWidget::toolTipRequested);
+    connect(m_targetSelector, &TargetSelector::menuShown,
+            this, &TargetSettingsWidget::menuShown);
 
     QPalette shadowPal;
     QLinearGradient grad(0, 0, 0, 2);

@@ -114,11 +114,10 @@ public slots:
     void accept() override;
     void reject() override;
 
-private slots:
+private:
     void handleNewPages(int pageId);
     void handleError(const QString &message);
 
-private:
     QString stringify(const QVariant &v) const override;
     QString evaluate(const QVariant &v) const override ;
     void openFiles(const GeneratorFiles &files);

@@ -175,17 +175,17 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().count() > 1);
     m_renameDeployButton->setEnabled(m_target->activeDeployConfiguration());
 
-    connect(m_addDeployMenu, SIGNAL(aboutToShow()),
-            this, SLOT(aboutToShowDeployMenu()));
-    connect(m_deployConfigurationCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(currentDeployConfigurationChanged(int)));
-    connect(m_removeDeployToolButton, SIGNAL(clicked(bool)),
-            this, SLOT(removeDeployConfiguration()));
-    connect(m_renameDeployButton, SIGNAL(clicked()),
-            this, SLOT(renameDeployConfiguration()));
+    connect(m_addDeployMenu, &QMenu::aboutToShow,
+            this, &RunSettingsWidget::aboutToShowDeployMenu);
+    connect(m_deployConfigurationCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &RunSettingsWidget::currentDeployConfigurationChanged);
+    connect(m_removeDeployToolButton, &QAbstractButton::clicked,
+            this, &RunSettingsWidget::removeDeployConfiguration);
+    connect(m_renameDeployButton, &QAbstractButton::clicked,
+            this, &RunSettingsWidget::renameDeployConfiguration);
 
-    connect(m_target, SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(activeDeployConfigurationChanged()));
+    connect(m_target, &Target::activeDeployConfigurationChanged,
+            this, &RunSettingsWidget::activeDeployConfigurationChanged);
 
     // run part
     runWidget->setContentsMargins(0, 10, 0, 25);
@@ -205,27 +205,27 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
 
     setConfigurationWidget(rc);
 
-    connect(m_addRunMenu, SIGNAL(aboutToShow()),
-            this, SLOT(aboutToShowAddMenu()));
-    connect(m_runConfigurationCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(currentRunConfigurationChanged(int)));
-    connect(m_removeRunToolButton, SIGNAL(clicked(bool)),
-            this, SLOT(removeRunConfiguration()));
-    connect(m_renameRunButton, SIGNAL(clicked()),
-            this, SLOT(renameRunConfiguration()));
+    connect(m_addRunMenu, &QMenu::aboutToShow,
+            this, &RunSettingsWidget::aboutToShowAddMenu);
+    connect(m_runConfigurationCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &RunSettingsWidget::currentRunConfigurationChanged);
+    connect(m_removeRunToolButton, &QAbstractButton::clicked,
+            this, &RunSettingsWidget::removeRunConfiguration);
+    connect(m_renameRunButton, &QAbstractButton::clicked,
+            this, &RunSettingsWidget::renameRunConfiguration);
 
-    connect(m_target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(updateRemoveToolButton()));
-    connect(m_target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(updateRemoveToolButton()));
+    connect(m_target, &Target::addedRunConfiguration,
+            this, &RunSettingsWidget::updateRemoveToolButton);
+    connect(m_target, &Target::removedRunConfiguration,
+            this, &RunSettingsWidget::updateRemoveToolButton);
 
-    connect(m_target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(updateRemoveToolButton()));
-    connect(m_target, SIGNAL(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(updateRemoveToolButton()));
+    connect(m_target, &Target::addedDeployConfiguration,
+            this, &RunSettingsWidget::updateRemoveToolButton);
+    connect(m_target, &Target::removedDeployConfiguration,
+            this, &RunSettingsWidget::updateRemoveToolButton);
 
-    connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(activeRunConfigurationChanged()));
+    connect(m_target, &Target::activeRunConfigurationChanged,
+            this, &RunSettingsWidget::activeRunConfigurationChanged);
 }
 
 RunSettingsWidget::~RunSettingsWidget()
@@ -236,8 +236,9 @@ void RunSettingsWidget::aboutToShowAddMenu()
 {
     m_addRunMenu->clear();
     if (m_target->activeRunConfiguration()) {
-        m_addRunMenu->addAction(tr("&Clone Selected"),
-                                this, SLOT(cloneRunConfiguration()));
+        QAction *cloneAction = m_addRunMenu->addAction(tr("&Clone Selected"));
+        connect(cloneAction, &QAction::triggered,
+                this, &RunSettingsWidget::cloneRunConfiguration);
     }
     QList<IRunConfigurationFactory *> factories =
         ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
@@ -545,8 +546,8 @@ void RunSettingsWidget::addSubWidget(RunConfigWidget *widget)
 
     QLabel *label = new QLabel(this);
     label->setText(widget->displayName());
-    connect(widget, SIGNAL(displayNameChanged(QString)),
-            label, SLOT(setText(QString)));
+    connect(widget, &RunConfigWidget::displayNameChanged,
+            label, &QLabel::setText);
     QFont f = label->font();
     f.setBold(true);
     f.setPointSizeF(f.pointSizeF() * 1.2);

@@ -41,8 +41,8 @@ DesktopDeviceConfigurationWidget::DesktopDeviceConfigurationWidget(const IDevice
     m_ui(new Ui::DesktopDeviceConfigurationWidget)
 {
     m_ui->setupUi(this);
-    connect(m_ui->freePortsLineEdit, SIGNAL(textChanged(QString)),
-            SLOT(updateFreePorts()));
+    connect(m_ui->freePortsLineEdit, &QLineEdit::textChanged,
+            this, &DesktopDeviceConfigurationWidget::updateFreePorts);
 
     initGui();
 }

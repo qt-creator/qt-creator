@@ -77,7 +77,7 @@ public:
 signals:
     void selectedToggled() const;
 
-private slots:
+private:
     void handleKitUpdate(ProjectExplorer::Kit *k);
 
     void checkBoxToggled(bool b);
@@ -85,7 +85,6 @@ private slots:
     void targetCheckBoxToggled(bool b);
     void manageKit();
 
-private:
     void reportIssues(int index);
     QPair<Task::TaskType, QString> findIssues(const BuildInfo *info);
     void clear();

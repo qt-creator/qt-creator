@@ -135,13 +135,13 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     : QWidget(parent), d(new EnvironmentWidgetPrivate)
 {
     d->m_model = new Utils::EnvironmentModel();
-    connect(d->m_model, SIGNAL(userChangesChanged()),
-            this, SIGNAL(userChangesChanged()));
-    connect(d->m_model, SIGNAL(modelReset()),
-            this, SLOT(invalidateCurrentIndex()));
+    connect(d->m_model, &Utils::EnvironmentModel::userChangesChanged,
+            this, &EnvironmentWidget::userChangesChanged);
+    connect(d->m_model, &QAbstractItemModel::modelReset,
+            this, &EnvironmentWidget::invalidateCurrentIndex);
 
-    connect(d->m_model, SIGNAL(focusIndex(QModelIndex)),
-            this, SLOT(focusIndex(QModelIndex)));
+    connect(d->m_model, &Utils::EnvironmentModel::focusIndex,
+            this, &EnvironmentWidget::focusIndex);
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
@@ -205,26 +205,27 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
     vbox->addWidget(d->m_detailsContainer);
 
-    connect(d->m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(updateButtons()));
+    connect(d->m_model, &QAbstractItemModel::dataChanged,
+            this, &EnvironmentWidget::updateButtons);
 
-    connect(d->m_editButton, SIGNAL(clicked(bool)),
-            this, SLOT(editEnvironmentButtonClicked()));
-    connect(d->m_addButton, SIGNAL(clicked(bool)),
-            this, SLOT(addEnvironmentButtonClicked()));
-    connect(d->m_resetButton, SIGNAL(clicked(bool)),
-            this, SLOT(removeEnvironmentButtonClicked()));
-    connect(d->m_unsetButton, SIGNAL(clicked(bool)),
-            this, SLOT(unsetEnvironmentButtonClicked()));
-    connect(d->m_batchEditButton, SIGNAL(clicked(bool)),
-            this, SLOT(batchEditEnvironmentButtonClicked()));
-    connect(d->m_environmentView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(environmentCurrentIndexChanged(QModelIndex)));
+    connect(d->m_editButton, &QAbstractButton::clicked,
+            this, &EnvironmentWidget::editEnvironmentButtonClicked);
+    connect(d->m_addButton, &QAbstractButton::clicked,
+            this, &EnvironmentWidget::addEnvironmentButtonClicked);
+    connect(d->m_resetButton, &QAbstractButton::clicked,
+            this, &EnvironmentWidget::removeEnvironmentButtonClicked);
+    connect(d->m_unsetButton, &QAbstractButton::clicked,
+            this, &EnvironmentWidget::unsetEnvironmentButtonClicked);
+    connect(d->m_batchEditButton, &QAbstractButton::clicked,
+            this, &EnvironmentWidget::batchEditEnvironmentButtonClicked);
+    connect(d->m_environmentView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &EnvironmentWidget::environmentCurrentIndexChanged);
 
-    connect(d->m_detailsContainer, SIGNAL(linkActivated(QString)),
-            this, SLOT(linkActivated(QString)));
+    connect(d->m_detailsContainer, &Utils::DetailsWidget::linkActivated,
+            this, &EnvironmentWidget::linkActivated);
 
-    connect(d->m_model, SIGNAL(userChangesChanged()), this, SLOT(updateSummaryText()));
+    connect(d->m_model, &Utils::EnvironmentModel::userChangesChanged,
+            this, &EnvironmentWidget::updateSummaryText);
 }
 
 EnvironmentWidget::~EnvironmentWidget()

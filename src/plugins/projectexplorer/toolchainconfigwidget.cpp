@@ -66,7 +66,7 @@ ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
 
     m_mainLayout->addRow(tr("Name:"), m_nameLineEdit);
 
-    connect(m_nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(dirty()));
+    connect(m_nameLineEdit, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
 }
 
 void ToolChainConfigWidget::apply()

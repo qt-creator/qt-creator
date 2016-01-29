@@ -235,8 +235,8 @@ QList<DeviceProcessItem> LocalProcessList::getLocalProcesses()
 void LocalProcessList::doKillProcess(const DeviceProcessItem &process)
 {
     DeviceProcessSignalOperation::Ptr signalOperation = device()->signalOperation();
-    connect(signalOperation.data(), SIGNAL(finished(QString)),
-            SLOT(reportDelayedKillStatus(QString)));
+    connect(signalOperation.data(), &DeviceProcessSignalOperation::finished,
+            this, &LocalProcessList::reportDelayedKillStatus);
     signalOperation->killProcess(process.pid);
 }
 
@@ -255,7 +255,7 @@ void LocalProcessList::handleUpdate()
 
 void LocalProcessList::doUpdate()
 {
-    QTimer::singleShot(0, this, SLOT(handleUpdate()));
+    QTimer::singleShot(0, this, &LocalProcessList::handleUpdate);
 }
 
 void LocalProcessList::reportDelayedKillStatus(const QString &errorMessage)

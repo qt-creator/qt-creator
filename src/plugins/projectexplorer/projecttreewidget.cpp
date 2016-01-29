@@ -195,44 +195,46 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     m_filterProjectsAction = new QAction(tr("Simplify Tree"), this);
     m_filterProjectsAction->setCheckable(true);
     m_filterProjectsAction->setChecked(false); // default is the traditional complex tree
-    connect(m_filterProjectsAction, SIGNAL(toggled(bool)), this, SLOT(setProjectFilter(bool)));
+    connect(m_filterProjectsAction, &QAction::toggled, this, &ProjectTreeWidget::setProjectFilter);
 
     m_filterGeneratedFilesAction = new QAction(tr("Hide Generated Files"), this);
     m_filterGeneratedFilesAction->setCheckable(true);
     m_filterGeneratedFilesAction->setChecked(true);
-    connect(m_filterGeneratedFilesAction, SIGNAL(toggled(bool)), this, SLOT(setGeneratedFilesFilter(bool)));
+    connect(m_filterGeneratedFilesAction, &QAction::toggled,
+            this, &ProjectTreeWidget::setGeneratedFilesFilter);
 
     // connections
-    connect(m_model, SIGNAL(modelReset()),
-            this, SLOT(initView()));
+    connect(m_model, &QAbstractItemModel::modelReset,
+            this, &ProjectTreeWidget::initView);
     connect(m_model, &FlatModel::renamed,
             this, &ProjectTreeWidget::renamed);
-    connect(m_view, SIGNAL(activated(QModelIndex)),
-            this, SLOT(openItem(QModelIndex)));
-    connect(m_view->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(handleCurrentItemChange(QModelIndex)));
-    connect(m_view, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(showContextMenu(QPoint)));
+    connect(m_view, &QAbstractItemView::activated,
+            this, &ProjectTreeWidget::openItem);
+    connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &ProjectTreeWidget::handleCurrentItemChange);
+    connect(m_view, &QWidget::customContextMenuRequested,
+            this, &ProjectTreeWidget::showContextMenu);
 
-    QObject *sessionManager = SessionManager::instance();
-    connect(sessionManager, SIGNAL(singleProjectAdded(ProjectExplorer::Project*)),
-            this, SLOT(handleProjectAdded(ProjectExplorer::Project*)));
-    connect(sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(startupProjectChanged(ProjectExplorer::Project*)));
+    SessionManager *sessionManager = SessionManager::instance();
+    connect(sessionManager, &SessionManager::singleProjectAdded,
+            this, &ProjectTreeWidget::handleProjectAdded);
+    connect(sessionManager, &SessionManager::startupProjectChanged,
+            this, &ProjectTreeWidget::startupProjectChanged);
 
-    connect(sessionManager, SIGNAL(aboutToLoadSession(QString)),
-            this, SLOT(disableAutoExpand()));
-    connect(sessionManager, SIGNAL(sessionLoaded(QString)),
-            this, SLOT(loadExpandData()));
-    connect(sessionManager, SIGNAL(aboutToSaveSession()),
-            this, SLOT(saveExpandData()));
+    connect(sessionManager, &SessionManager::aboutToLoadSession,
+            this, &ProjectTreeWidget::disableAutoExpand);
+    connect(sessionManager, &SessionManager::sessionLoaded,
+            this, &ProjectTreeWidget::loadExpandData);
+    connect(sessionManager, &SessionManager::aboutToSaveSession,
+            this, &ProjectTreeWidget::saveExpandData);
 
     m_toggleSync = new QToolButton;
     m_toggleSync->setIcon(Core::Icons::LINK.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(autoSynchronization());
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
-    connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleAutoSynchronization()));
+    connect(m_toggleSync, &QAbstractButton::clicked,
+            this, &ProjectTreeWidget::toggleAutoSynchronization);
 
     setAutoSynchronization(true);
 

@@ -89,9 +89,8 @@ class DeviceProcessesDialogPrivate : public QObject
     Q_OBJECT
 
 public:
-    DeviceProcessesDialogPrivate(KitChooser *chooser, QWidget *parent);
+    DeviceProcessesDialogPrivate(KitChooser *chooser, QDialog *parent);
 
-public slots:
     void setDevice(const IDevice::ConstPtr &device);
     void updateProcessList();
     void updateDevice();
@@ -102,8 +101,7 @@ public slots:
     void updateButtons();
     DeviceProcessItem selectedProcess() const;
 
-public:
-    QWidget *q;
+    QDialog *q;
     DeviceProcessList *processList;
     ProcessListFilterModel proxyModel;
     QLabel *kitLabel;
@@ -118,7 +116,7 @@ public:
     QDialogButtonBox *buttonBox;
 };
 
-DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, QWidget *parent)
+DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, QDialog *parent)
     : q(parent)
     , kitLabel(new QLabel(DeviceProcessesDialog::tr("Kit:"), parent))
     , kitChooser(chooser)
@@ -187,17 +185,24 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 
     proxyModel.setFilterRegExp(processFilterLineEdit->text());
 
-    connect(processFilterLineEdit, SIGNAL(textChanged(QString)),
-        &proxyModel, SLOT(setFilterRegExp(QString)));
+    connect(processFilterLineEdit,
+            static_cast<void (FancyLineEdit::*)(const QString &)>(&FancyLineEdit::textChanged),
+            &proxyModel,
+            static_cast<void (ProcessListFilterModel::*)(const QString &)>(
+                &ProcessListFilterModel::setFilterRegExp));
     connect(procView->selectionModel(),
-        SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-        SLOT(updateButtons()));
-    connect(updateListButton, SIGNAL(clicked()), SLOT(updateProcessList()));
-    connect(kitChooser, SIGNAL(currentIndexChanged(int)), SLOT(updateDevice()));
-    connect(killProcessButton, SIGNAL(clicked()), SLOT(killProcess()));
-    connect(&proxyModel, SIGNAL(layoutChanged()), SLOT(handleProcessListUpdated()));
-    connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
+        &QItemSelectionModel::selectionChanged,
+        this, &DeviceProcessesDialogPrivate::updateButtons);
+    connect(updateListButton, &QAbstractButton::clicked,
+            this, &DeviceProcessesDialogPrivate::updateProcessList);
+    connect(kitChooser, &KitChooser::currentIndexChanged,
+            this, &DeviceProcessesDialogPrivate::updateDevice);
+    connect(killProcessButton, &QAbstractButton::clicked,
+            this, &DeviceProcessesDialogPrivate::killProcess);
+    connect(&proxyModel, &QAbstractItemModel::layoutChanged,
+            this, &DeviceProcessesDialogPrivate::handleProcessListUpdated);
+    connect(buttonBox, &QDialogButtonBox::accepted, q, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, q, &QDialog::reject);
 
     QWidget::setTabOrder(kitChooser, processFilterLineEdit);
     QWidget::setTabOrder(processFilterLineEdit, procView);
@@ -216,12 +221,12 @@ void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
     QTC_ASSERT(processList, return);
     proxyModel.setSourceModel(processList);
 
-    connect(processList, SIGNAL(error(QString)),
-        SLOT(handleRemoteError(QString)));
-    connect(processList, SIGNAL(processListUpdated()),
-        SLOT(handleProcessListUpdated()));
-    connect(processList, SIGNAL(processKilled()),
-        SLOT(handleProcessKilled()), Qt::QueuedConnection);
+    connect(processList, &DeviceProcessList::error,
+            this, &DeviceProcessesDialogPrivate::handleRemoteError);
+    connect(processList, &DeviceProcessList::processListUpdated,
+            this, &DeviceProcessesDialogPrivate::handleProcessListUpdated);
+    connect(processList, &DeviceProcessList::processKilled,
+            this, &DeviceProcessesDialogPrivate::handleProcessKilled, Qt::QueuedConnection);
 
     updateButtons();
     updateProcessList();
@@ -329,8 +334,8 @@ void DeviceProcessesDialog::addAcceptButton(const QString &label)
 {
     d->acceptButton = new QPushButton(label);
     d->buttonBox->addButton(d->acceptButton, QDialogButtonBox::AcceptRole);
-    connect(d->procView, SIGNAL(activated(QModelIndex)),
-            d->acceptButton, SLOT(click()));
+    connect(d->procView, &QAbstractItemView::activated,
+            d->acceptButton, &QAbstractButton::click);
     d->buttonBox->addButton(QDialogButtonBox::Cancel);
 }
 

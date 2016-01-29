@@ -82,7 +82,7 @@ public slots:
     void setProjectFilterEnabled(bool filter);
     void setGeneratedFilesFilterEnabled(bool filter);
 
-private slots:
+private:
     void aboutToShowInSimpleTreeChanged(ProjectExplorer::FolderNode *node);
     void showInSimpleTreeChanged(ProjectExplorer::FolderNode *node);
     void foldersAboutToBeAdded(FolderNode *parentFolder, const QList<FolderNode*> &newFolders);
@@ -103,7 +103,6 @@ private slots:
 
     void nodeUpdated(ProjectExplorer::Node *node);
 
-private:
     void added(FolderNode* folderNode, const QList<Node*> &newNodeList);
     void removed(FolderNode* parentNode, const QList<Node*> &newNodeList);
     void removeFromCache(QList<FolderNode *> list);

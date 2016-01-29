@@ -42,10 +42,9 @@ public:
     explicit DeploymentDataView(Target *target, QWidget *parent = 0);
     ~DeploymentDataView();
 
-private slots:
+private:
     void updateDeploymentDataModel();
 
-private:
     Internal::DeploymentDataViewPrivate * const d;
 };
 

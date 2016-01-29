@@ -47,10 +47,12 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     m_ui.directoryButtonGroup->setId(m_ui.currentDirectoryRadioButton, UseCurrentDirectory);
     m_ui.directoryButtonGroup->setId(m_ui.directoryRadioButton, UseProjectDirectory);
 
-    connect(m_ui.directoryButtonGroup, SIGNAL(buttonClicked(int)),
-            this, SLOT(slotDirectoryButtonGroupChanged()));
-    connect(m_ui.resetButton, SIGNAL(clicked()), this, SLOT(resetDefaultBuildDirectory()));
-    connect(m_ui.buildDirectoryEdit, SIGNAL(textChanged(QString)), this, SLOT(updateResetButton()));
+    connect(m_ui.directoryButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked),
+            this, &ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged);
+    connect(m_ui.resetButton, &QAbstractButton::clicked,
+            this, &ProjectExplorerSettingsWidget::resetDefaultBuildDirectory);
+    connect(m_ui.buildDirectoryEdit, &QLineEdit::textChanged,
+            this, &ProjectExplorerSettingsWidget::updateResetButton);
 
     auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(m_ui.buildDirectoryEdit);

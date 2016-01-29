@@ -67,9 +67,10 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
 
     emitEnvironmentChanged();
 
-    connect(target, SIGNAL(kitChanged()),
-            this, SLOT(handleKitUpdate()));
-    connect(this, SIGNAL(environmentChanged()), this, SLOT(emitBuildDirectoryChanged()));
+    connect(target, &Target::kitChanged,
+            this, &BuildConfiguration::handleKitUpdate);
+    connect(this, &BuildConfiguration::environmentChanged,
+            this, &BuildConfiguration::emitBuildDirectoryChanged);
 
     ctor();
 }
@@ -87,8 +88,8 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
 
     emitEnvironmentChanged();
 
-    connect(target, SIGNAL(kitChanged()),
-            this, SLOT(handleKitUpdate()));
+    connect(target, &Target::kitChanged,
+            this, &BuildConfiguration::handleKitUpdate);
 
     ctor();
 }

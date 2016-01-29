@@ -57,14 +57,14 @@ RunConfigurationModel::RunConfigurationModel(Target *target, QObject *parent)
     m_runConfigurations = m_target->runConfigurations();
     Utils::sort(m_runConfigurations, RunConfigurationComparer());
 
-    connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
-    connect(target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    connect(target, &Target::addedRunConfiguration,
+            this, &RunConfigurationModel::addedRunConfiguration);
+    connect(target, &Target::removedRunConfiguration,
+            this, &RunConfigurationModel::removedRunConfiguration);
 
     foreach (RunConfiguration *rc, m_runConfigurations)
-        connect(rc, SIGNAL(displayNameChanged()),
-                this, SLOT(displayNameChanged()));
+        connect(rc, &ProjectConfiguration::displayNameChanged,
+                this, &RunConfigurationModel::displayNameChanged);
 }
 
 int RunConfigurationModel::rowCount(const QModelIndex &parent) const
@@ -169,8 +169,8 @@ void RunConfigurationModel::addedRunConfiguration(RunConfiguration *rc)
     endInsertRows();
 
 
-    connect(rc, SIGNAL(displayNameChanged()),
-            this, SLOT(displayNameChanged()));
+    connect(rc, &ProjectConfiguration::displayNameChanged,
+            this, &RunConfigurationModel::displayNameChanged);
 }
 
 void RunConfigurationModel::removedRunConfiguration(RunConfiguration *rc)

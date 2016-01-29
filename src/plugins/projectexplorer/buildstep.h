@@ -85,7 +85,7 @@ signals:
 
     /// Adds \p string to the compile output view, formatted in \p format
     void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
-        ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline) const;
+        ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline);
 
     void finished();
 
@@ -142,7 +142,8 @@ public:
     SimpleBuildStepConfigWidget(BuildStep *step)
         : m_step(step)
     {
-        connect(m_step, SIGNAL(displayNameChanged()), SIGNAL(updateSummary()));
+        connect(m_step, &ProjectConfiguration::displayNameChanged,
+                this, &BuildStepConfigWidget::updateSummary);
     }
 
     ~SimpleBuildStepConfigWidget() {}

@@ -213,7 +213,7 @@ QWidget *CustomWizardFieldPage::registerComboBox(const QString &fieldName,
     } while (false);
     registerField(fieldName, combo, "text", SIGNAL(text4Changed(QString)));
     // Connect to completeChanged() for derived classes that reimplement isComplete()
-    connect(combo, SIGNAL(text4Changed(QString)), SIGNAL(completeChanged()));
+    connect(combo, &TextFieldComboBox::text4Changed, this, &QWizardPage::completeChanged);
     return combo;
 } // QComboBox
 
@@ -227,7 +227,7 @@ QWidget *CustomWizardFieldPage::registerTextEdit(const QString &fieldName,
     textEdit->setAcceptRichText(acceptRichText);
     // Connect to completeChanged() for derived classes that reimplement isComplete()
     registerField(fieldName, textEdit, "plainText", SIGNAL(textChanged()));
-    connect(textEdit, SIGNAL(textChanged()), SIGNAL(completeChanged()));
+    connect(textEdit, &QTextEdit::textChanged, this, &QWizardPage::completeChanged);
     const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
     m_textEdits.push_back(TextEditData(textEdit, defaultText));
     return textEdit;
@@ -254,7 +254,7 @@ QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
 
     registerField(fieldName, pathChooser, "path", SIGNAL(rawPathChanged(QString)));
     // Connect to completeChanged() for derived classes that reimplement isComplete()
-    connect(pathChooser, SIGNAL(rawPathChanged(QString)), SIGNAL(completeChanged()));
+    connect(pathChooser, &PathChooser::rawPathChanged, this, &QWizardPage::completeChanged);
     const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
     m_pathChoosers.push_back(PathChooserData(pathChooser, defaultText));
     return pathChooser;
@@ -277,7 +277,7 @@ QWidget *CustomWizardFieldPage::registerCheckBox(const QString &fieldName,
         checkBox->setFalseText(falseTextIt.value());
     registerField(fieldName, checkBox, "text", SIGNAL(textChanged(QString)));
     // Connect to completeChanged() for derived classes that reimplement isComplete()
-    connect(checkBox, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
+    connect(checkBox, &TextFieldCheckBox::textChanged, this, &QWizardPage::completeChanged);
     return checkBox;
 }
 
@@ -296,7 +296,7 @@ QWidget *CustomWizardFieldPage::registerLineEdit(const QString &fieldName,
     }
     registerField(fieldName, lineEdit, "text", SIGNAL(textEdited(QString)));
     // Connect to completeChanged() for derived classes that reimplement isComplete()
-    connect(lineEdit, SIGNAL(textEdited(QString)), SIGNAL(completeChanged()));
+    connect(lineEdit, &QLineEdit::textEdited, this, &QWizardPage::completeChanged);
 
     const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
     const QString placeholderText = field.controlAttributes.value(QLatin1String("placeholdertext"));
@@ -434,7 +434,7 @@ CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ct
 {
     m_pathChooser->setHistoryCompleter(QLatin1String("PE.ProjectDir.History"));
     addRow(tr("Path:"), m_pathChooser);
-    connect(m_pathChooser, SIGNAL(validChanged(bool)), this, SIGNAL(completeChanged()));
+    connect(m_pathChooser, &PathChooser::validChanged, this, &QWizardPage::completeChanged);
 }
 
 QString CustomWizardPage::path() const

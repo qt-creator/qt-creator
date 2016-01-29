@@ -73,8 +73,8 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     if (m_baseEnvironmentComboBox->count() == 1)
         m_baseEnvironmentComboBox->setEnabled(false);
 
-    connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(baseEnvironmentSelected(int)));
+    connect(m_baseEnvironmentComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &EnvironmentAspectWidget::baseEnvironmentSelected);
 
     baseLayout->addWidget(m_baseEnvironmentComboBox);
     baseLayout->addStretch(10);
@@ -88,14 +88,15 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     topLayout->addWidget(m_environmentWidget);
 
-    connect(m_environmentWidget, SIGNAL(userChangesChanged()),
-            this, SLOT(userChangesEdited()));
+    connect(m_environmentWidget, &EnvironmentWidget::userChangesChanged,
+            this, &EnvironmentAspectWidget::userChangesEdited);
 
-    connect(m_aspect, SIGNAL(baseEnvironmentChanged()), this, SLOT(changeBaseEnvironment()));
-    connect(m_aspect, SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
-            this, SLOT(changeUserChanges(QList<Utils::EnvironmentItem>)));
-    connect(m_aspect, SIGNAL(environmentChanged()),
-            this, SLOT(environmentChanged()));
+    connect(m_aspect, &EnvironmentAspect::baseEnvironmentChanged,
+            this, &EnvironmentAspectWidget::changeBaseEnvironment);
+    connect(m_aspect, &EnvironmentAspect::userEnvironmentChangesChanged,
+            this, &EnvironmentAspectWidget::changeUserChanges);
+    connect(m_aspect, &EnvironmentAspect::environmentChanged,
+            this, &EnvironmentAspectWidget::environmentChanged);
 }
 
 QString EnvironmentAspectWidget::displayName() const

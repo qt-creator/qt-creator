@@ -82,12 +82,11 @@ public slots:
     void initializeVersionControls();
     void setProjectUiVisible(bool visible);
 
-private slots:
+private:
     void projectChanged(int);
     void manageVcs();
     void hideVersionControlUiElements();
 
-private:
     void setAdditionalInfo(const QString &text);
     void setAddingSubProject(bool addingSubProject);
     void setModel(Utils::TreeModel *model);

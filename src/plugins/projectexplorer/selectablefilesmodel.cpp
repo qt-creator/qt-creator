@@ -577,7 +577,8 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     m_applyFilterButton->setText(tr("Apply Filter"));
     layout->addWidget(m_applyFilterButton, static_cast<int>(SelectableFilesWidgetRows::ApplyButton), 3);
 
-    connect(m_applyFilterButton, &QAbstractButton::clicked, this, &SelectableFilesWidget::applyFilter);
+    connect(m_applyFilterButton, &QAbstractButton::clicked,
+            this, &SelectableFilesWidget::applyFilter);
 
     m_view->setMinimumSize(500, 400);
     m_view->setHeaderHidden(true);
@@ -737,10 +738,10 @@ SelectableFilesDialogEditFiles::SelectableFilesDialogEditFiles(const Utils::File
     QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal, this);
     buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    connect(buttonBox, SIGNAL(accepted()),
-            this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()),
-            this, SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted,
+            this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected,
+            this, &QDialog::reject);
     layout->addWidget(buttonBox);
 }
 

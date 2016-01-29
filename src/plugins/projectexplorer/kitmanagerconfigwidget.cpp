@@ -83,7 +83,8 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     Q_ASSERT(fileSystemFriendlyNameRegexp.isValid());
     m_fileSystemFriendlyNameLineEdit->setValidator(new QRegularExpressionValidator(fileSystemFriendlyNameRegexp, m_fileSystemFriendlyNameLineEdit));
     m_layout->addWidget(m_fileSystemFriendlyNameLineEdit, 1, WidgetColumn);
-    connect(m_fileSystemFriendlyNameLineEdit, &QLineEdit::textChanged, this, &KitManagerConfigWidget::setFileSystemFriendlyName);
+    connect(m_fileSystemFriendlyNameLineEdit, &QLineEdit::textChanged,
+            this, &KitManagerConfigWidget::setFileSystemFriendlyName);
 
     QWidget *inner = new QWidget;
     inner->setLayout(m_layout);

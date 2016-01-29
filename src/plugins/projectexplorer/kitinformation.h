@@ -97,7 +97,7 @@ public:
 
     static QString msgNoToolChainInTarget();
 
-private slots:
+private:
     void kitsWereLoaded();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
     void toolChainRemoved(ProjectExplorer::ToolChain *tc);
@@ -163,7 +163,7 @@ public:
     static void setDevice(Kit *k, IDevice::ConstPtr dev);
     static void setDeviceId(Kit *k, Core::Id dataId);
 
-private slots:
+private:
     void kitsWereLoaded();
     void deviceUpdated(Core::Id dataId);
     void devicesChanged();

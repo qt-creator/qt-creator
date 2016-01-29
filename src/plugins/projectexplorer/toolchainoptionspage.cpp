@@ -66,7 +66,8 @@ public:
         if (widget) {
             if (tc->isAutoDetected())
                 widget->makeReadOnly();
-            QObject::connect(widget, &ToolChainConfigWidget::dirty, [this] {
+            QObject::connect(widget, &ToolChainConfigWidget::dirty,
+                             [this] {
                 changed = true;
                 update();
             });

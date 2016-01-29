@@ -55,12 +55,11 @@ public:
 signals:
     void abiChanged();
 
-private slots:
+private:
     void osChanged();
     void modeChanged();
     void customAbiChanged();
 
-private:
     void setCustomAbi(const Abi &a);
 
     Internal::AbiWidgetPrivate *const d;

@@ -59,14 +59,14 @@ BuildConfigurationModel::BuildConfigurationModel(Target *target, QObject *parent
     m_buildConfigurations = m_target->buildConfigurations();
     Utils::sort(m_buildConfigurations, BuildConfigurationComparer());
 
-    connect(target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-    connect(target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    connect(target, &Target::addedBuildConfiguration,
+            this, &BuildConfigurationModel::addedBuildConfiguration);
+    connect(target, &Target::removedBuildConfiguration,
+            this, &BuildConfigurationModel::removedBuildConfiguration);
 
     foreach (BuildConfiguration *bc, m_buildConfigurations)
-        connect(bc, SIGNAL(displayNameChanged()),
-                this, SLOT(displayNameChanged()));
+        connect(bc, &ProjectConfiguration::displayNameChanged,
+                this, &BuildConfigurationModel::displayNameChanged);
 }
 
 int BuildConfigurationModel::rowCount(const QModelIndex &parent) const
@@ -171,8 +171,8 @@ void BuildConfigurationModel::addedBuildConfiguration(BuildConfiguration *bc)
     endInsertRows();
 
 
-    connect(bc, SIGNAL(displayNameChanged()),
-            this, SLOT(displayNameChanged()));
+    connect(bc, &ProjectConfiguration::displayNameChanged,
+            this, &BuildConfigurationModel::displayNameChanged);
 }
 
 void BuildConfigurationModel::removedBuildConfiguration(BuildConfiguration *bc)

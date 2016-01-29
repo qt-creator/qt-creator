@@ -168,12 +168,14 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     setAutoSynchronization(true);
 
     // connections
-    connect(m_listView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(slotOpenItem(QModelIndex)));
-    connect(m_filterHiddenFilesAction, SIGNAL(toggled(bool)), this, SLOT(setHiddenFilesFilter(bool)));
-    connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleAutoSynchronization()));
-    connect(m_filterModel, SIGNAL(layoutChanged()),
-            this, SLOT(ensureCurrentIndex()));
+    connect(m_listView, &QAbstractItemView::activated,
+            this, &FolderNavigationWidget::slotOpenItem);
+    connect(m_filterHiddenFilesAction, &QAction::toggled,
+            this, &FolderNavigationWidget::setHiddenFilesFilter);
+    connect(m_toggleSync, &QAbstractButton::clicked,
+            this, &FolderNavigationWidget::toggleAutoSynchronization);
+    connect(m_filterModel, &QAbstractItemModel::layoutChanged,
+            this, &FolderNavigationWidget::ensureCurrentIndex);
 }
 
 void FolderNavigationWidget::toggleAutoSynchronization()

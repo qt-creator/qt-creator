@@ -49,7 +49,7 @@ public:
     void setAutoLoadSession(bool);
     bool autoLoadSession() const;
 
-private slots:
+private:
     void createNew();
     void clone();
     void remove();
@@ -58,7 +58,6 @@ private slots:
 
     void updateActions();
 
-private:
     void addItems(bool setDefaultSession);
     void markItems();
     void addSessionToUi(const QString &name, bool switchTo);
@@ -75,10 +74,9 @@ public:
     QString value() const;
     bool isSwitchToRequested() const;
 
-private slots:
+private:
     void clicked(QAbstractButton *button);
 
-private:
     QLineEdit *m_newSessionLineEdit;
     QPushButton *m_switchToButton;
     bool m_usedSwitchTo;

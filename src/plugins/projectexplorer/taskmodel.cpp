@@ -331,14 +331,14 @@ TaskFilterModel::TaskFilterModel(TaskModel *sourceModel, QObject *parent) : QAbs
     Q_ASSERT(m_sourceModel);
     updateMapping();
 
-    connect(m_sourceModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(handleNewRows(QModelIndex,int,int)));
-    connect(m_sourceModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-            this, SLOT(handleRowsAboutToBeRemoved(QModelIndex,int,int)));
-    connect(m_sourceModel, SIGNAL(modelReset()),
-            this, SLOT(handleReset()));
-    connect(m_sourceModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+    connect(m_sourceModel, &QAbstractItemModel::rowsInserted,
+            this, &TaskFilterModel::handleNewRows);
+    connect(m_sourceModel, &QAbstractItemModel::rowsAboutToBeRemoved,
+            this, &TaskFilterModel::handleRowsAboutToBeRemoved);
+    connect(m_sourceModel, &QAbstractItemModel::modelReset,
+            this, &TaskFilterModel::handleReset);
+    connect(m_sourceModel, &QAbstractItemModel::dataChanged,
+            this, &TaskFilterModel::handleDataChanged);
 
     m_includeUnknowns = m_includeWarnings = m_includeErrors = true;
 }

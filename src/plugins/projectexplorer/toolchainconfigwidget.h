@@ -62,11 +62,10 @@ public:
 signals:
     void dirty();
 
-protected slots:
+protected:
     void setErrorMessage(const QString &);
     void clearErrorMessage();
 
-protected:
     virtual void applyImpl() = 0;
     virtual void discardImpl() = 0;
     virtual bool isDirtyImpl() const = 0;

@@ -882,10 +882,13 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
 
     setFromToolchain();
 
-    connect(m_compilerCommand, SIGNAL(rawPathChanged(QString)), this, SLOT(handleCompilerCommandChange()));
-    connect(m_platformCodeGenFlagsLineEdit, SIGNAL(editingFinished()), this, SLOT(handlePlatformCodeGenFlagsChange()));
-    connect(m_platformLinkerFlagsLineEdit, SIGNAL(editingFinished()), this, SLOT(handlePlatformLinkerFlagsChange()));
-    connect(m_abiWidget, SIGNAL(abiChanged()), this, SIGNAL(dirty()));
+    connect(m_compilerCommand, &PathChooser::rawPathChanged,
+            this, &GccToolChainConfigWidget::handleCompilerCommandChange);
+    connect(m_platformCodeGenFlagsLineEdit, &QLineEdit::editingFinished,
+            this, &GccToolChainConfigWidget::handlePlatformCodeGenFlagsChange);
+    connect(m_platformLinkerFlagsLineEdit, &QLineEdit::editingFinished,
+            this, &GccToolChainConfigWidget::handlePlatformLinkerFlagsChange);
+    connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
 }
 
 void GccToolChainConfigWidget::applyImpl()

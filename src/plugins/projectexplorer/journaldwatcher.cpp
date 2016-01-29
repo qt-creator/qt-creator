@@ -197,7 +197,8 @@ JournaldWatcher::JournaldWatcher()
     if (!d->setup())
         d->teardown();
     else
-        connect(d->m_notifier, &QSocketNotifier::activated, m_instance, &JournaldWatcher::handleEntry);
+        connect(d->m_notifier, &QSocketNotifier::activated,
+                m_instance, &JournaldWatcher::handleEntry);
     m_instance->handleEntry(); // advance to the end of file...
 }
 

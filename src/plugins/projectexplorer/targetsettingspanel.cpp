@@ -460,7 +460,8 @@ void TargetSettingsPanelWidget::updateTargetButtons()
             this, &TargetSettingsPanelWidget::changeActionTriggered);
     connect(m_duplicateMenu, &QMenu::triggered,
             this, &TargetSettingsPanelWidget::duplicateActionTriggered);
-    connect(removeAction, &QAction::triggered, this, &TargetSettingsPanelWidget::removeCurrentTarget);
+    connect(removeAction, &QAction::triggered,
+            this, &TargetSettingsPanelWidget::removeCurrentTarget);
 
     foreach (Kit *k, KitManager::sortKits(KitManager::kits())) {
         if (m_project->target(k))

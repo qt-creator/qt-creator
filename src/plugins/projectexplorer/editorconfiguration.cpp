@@ -114,8 +114,8 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
     // if setCurrentDelegate is 0 values are read from *this prefs
     d->m_defaultCodeStyle->setCurrentDelegate(TextEditorSettings::codeStyle());
 
-    connect(SessionManager::instance(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
-            this, SLOT(slotAboutToRemoveProject(ProjectExplorer::Project*)));
+    connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject,
+            this, &EditorConfiguration::slotAboutToRemoveProject);
 }
 
 EditorConfiguration::~EditorConfiguration()
@@ -285,30 +285,31 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     }
 }
 
-static void switchSettings_helper(const QObject *newSender, const QObject *oldSender,
+template<typename New, typename Old>
+static void switchSettings_helper(const New *newSender, const Old *oldSender,
                                   TextEditorWidget *widget)
 {
-    QObject::disconnect(oldSender, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)),
-                        widget, SLOT(setMarginSettings(TextEditor::MarginSettings)));
-    QObject::disconnect(oldSender, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
-                        widget, SLOT(setTypingSettings(TextEditor::TypingSettings)));
-    QObject::disconnect(oldSender, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-                        widget, SLOT(setStorageSettings(TextEditor::StorageSettings)));
-    QObject::disconnect(oldSender, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
-                        widget, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
-    QObject::disconnect(oldSender, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
-                        widget, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
+    QObject::disconnect(oldSender, &Old::marginSettingsChanged,
+                        widget, &TextEditorWidget::setMarginSettings);
+    QObject::disconnect(oldSender, &Old::typingSettingsChanged,
+                        widget, &TextEditorWidget::setTypingSettings);
+    QObject::disconnect(oldSender, &Old::storageSettingsChanged,
+                        widget, &TextEditorWidget::setStorageSettings);
+    QObject::disconnect(oldSender, &Old::behaviorSettingsChanged,
+                        widget, &TextEditorWidget::setBehaviorSettings);
+    QObject::disconnect(oldSender, &Old::extraEncodingSettingsChanged,
+                        widget, &TextEditorWidget::setExtraEncodingSettings);
 
-    QObject::connect(newSender, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)),
-                     widget, SLOT(setMarginSettings(TextEditor::MarginSettings)));
-    QObject::connect(newSender, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
-                     widget, SLOT(setTypingSettings(TextEditor::TypingSettings)));
-    QObject::connect(newSender, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-                     widget, SLOT(setStorageSettings(TextEditor::StorageSettings)));
-    QObject::connect(newSender, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
-                     widget, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
-    QObject::connect(newSender, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
-                     widget, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
+    QObject::connect(newSender, &New::marginSettingsChanged,
+                     widget, &TextEditorWidget::setMarginSettings);
+    QObject::connect(newSender, &New::typingSettingsChanged,
+                     widget, &TextEditorWidget::setTypingSettings);
+    QObject::connect(newSender, &New::storageSettingsChanged,
+                     widget, &TextEditorWidget::setStorageSettings);
+    QObject::connect(newSender, &New::behaviorSettingsChanged,
+                     widget, &TextEditorWidget::setBehaviorSettings);
+    QObject::connect(newSender, &New::extraEncodingSettingsChanged,
+                     widget, &TextEditorWidget::setExtraEncodingSettings);
 }
 
 void EditorConfiguration::switchSettings(TextEditorWidget *widget) const

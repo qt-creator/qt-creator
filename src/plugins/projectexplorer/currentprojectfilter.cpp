@@ -73,10 +73,12 @@ void CurrentProjectFilter::currentProjectChanged()
     if (project == m_project)
         return;
     if (m_project)
-        disconnect(m_project, SIGNAL(fileListChanged()), this, SLOT(markFilesAsOutOfDate()));
+        disconnect(m_project, &Project::fileListChanged,
+                   this, &CurrentProjectFilter::markFilesAsOutOfDate);
 
     if (project)
-        connect(project, SIGNAL(fileListChanged()), this, SLOT(markFilesAsOutOfDate()));
+        connect(project, &Project::fileListChanged,
+                this, &CurrentProjectFilter::markFilesAsOutOfDate);
 
     m_project = project;
     markFilesAsOutOfDate();
@@ -85,5 +87,5 @@ void CurrentProjectFilter::currentProjectChanged()
 void CurrentProjectFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
-    QTimer::singleShot(0, this, SLOT(markFilesAsOutOfDate()));
+    QTimer::singleShot(0, this, &CurrentProjectFilter::markFilesAsOutOfDate);
 }

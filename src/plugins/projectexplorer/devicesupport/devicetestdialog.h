@@ -43,12 +43,11 @@ public:
 
     void reject();
 
-private slots:
+private:
     void handleProgressMessage(const QString &message);
     void handleErrorMessage(const QString &message);
     void handleTestFinished(ProjectExplorer::DeviceTester::TestResult result);
 
-private:
     void addText(const QString &text, const QString &color, bool bold);
 
     class DeviceTestDialogPrivate;

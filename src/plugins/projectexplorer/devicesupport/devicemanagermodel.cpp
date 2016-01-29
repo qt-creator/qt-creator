@@ -48,10 +48,14 @@ DeviceManagerModel::DeviceManagerModel(const DeviceManager *deviceManager, QObje
 {
     d->deviceManager = deviceManager;
     handleDeviceListChanged();
-    connect(deviceManager, SIGNAL(deviceAdded(Core::Id)), SLOT(handleDeviceAdded(Core::Id)));
-    connect(deviceManager, SIGNAL(deviceRemoved(Core::Id)), SLOT(handleDeviceRemoved(Core::Id)));
-    connect(deviceManager, SIGNAL(deviceUpdated(Core::Id)), SLOT(handleDeviceUpdated(Core::Id)));
-    connect(deviceManager, SIGNAL(deviceListReplaced()), SLOT(handleDeviceListChanged()));
+    connect(deviceManager, &DeviceManager::deviceAdded,
+            this, &DeviceManagerModel::handleDeviceAdded);
+    connect(deviceManager, &DeviceManager::deviceRemoved,
+            this, &DeviceManagerModel::handleDeviceRemoved);
+    connect(deviceManager, &DeviceManager::deviceUpdated,
+            this, &DeviceManagerModel::handleDeviceUpdated);
+    connect(deviceManager, &DeviceManager::deviceListReplaced,
+            this, &DeviceManagerModel::handleDeviceListChanged);
 }
 
 DeviceManagerModel::~DeviceManagerModel()

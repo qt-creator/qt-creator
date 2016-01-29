@@ -49,10 +49,9 @@ public:
 signals:
     void importFrom(const Utils::FileName &dir);
 
-private slots:
+private:
     void handleImportRequest();
 
-private:
     Utils::PathChooser *m_pathChooser;
 };
 

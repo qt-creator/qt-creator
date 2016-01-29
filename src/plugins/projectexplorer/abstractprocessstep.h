@@ -77,7 +77,7 @@ protected:
 
     QFutureInterface<bool> *futureInterface() const;
 
-private slots:
+private:
     void processReadyReadStdOutput();
     void processReadyReadStdError();
     void slotProcessFinished(int, QProcess::ExitStatus);
@@ -89,7 +89,6 @@ private slots:
 
     void outputAdded(const QString &string, BuildStep::OutputFormat format);
 
-private:
     QTimer *m_timer;
     QFutureInterface<bool> *m_futureInterface;
     ProcessParameters m_param;

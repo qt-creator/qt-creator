@@ -66,20 +66,20 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     viewLayout->addWidget(m_centralWidget);
 
     // Connections
-    connect(m_tabWidget, SIGNAL(currentIndexChanged(int,int)),
-            this, SLOT(showProperties(int,int)));
+    connect(m_tabWidget, &DoubleTabWidget::currentIndexChanged,
+            this, &ProjectWindow::showProperties);
 
-    QObject *sessionManager = SessionManager::instance();
-    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(registerProject(ProjectExplorer::Project*)));
-    connect(sessionManager, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
-            this, SLOT(deregisterProject(ProjectExplorer::Project*)));
+    SessionManager *sessionManager = SessionManager::instance();
+    connect(sessionManager, &SessionManager::projectAdded,
+            this, &ProjectWindow::registerProject);
+    connect(sessionManager, &SessionManager::aboutToRemoveProject,
+            this, &ProjectWindow::deregisterProject);
 
-    connect(sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(startupProjectChanged(ProjectExplorer::Project*)));
+    connect(sessionManager, &SessionManager::startupProjectChanged,
+            this, &ProjectWindow::startupProjectChanged);
 
-    connect(sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
-            this, SLOT(projectDisplayNameChanged(ProjectExplorer::Project*)));
+    connect(sessionManager, &SessionManager::projectDisplayNameChanged,
+            this, &ProjectWindow::projectDisplayNameChanged);
 
     // Update properties to empty project for now:
     showProperties(-1, -1);
@@ -160,8 +160,7 @@ void ProjectWindow::registerProject(Project *project)
                            project->projectFilePath().toString(),
                            m_cache.tabNames(project));
 
-    connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
-            this, SLOT(removedTarget(ProjectExplorer::Target*)));
+    connect(project, &Project::removedTarget, this, &ProjectWindow::removedTarget);
 }
 
 bool ProjectWindow::deregisterProject(Project *project)
@@ -170,8 +169,7 @@ bool ProjectWindow::deregisterProject(Project *project)
     if (index == -1)
         return false;
 
-    disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
-            this, SLOT(removedTarget(ProjectExplorer::Target*)));
+    disconnect(project, &Project::removedTarget, this, &ProjectWindow::removedTarget);
 
     QVector<QWidget *> deletedWidgets = m_cache.deregisterProject(project);
     if (deletedWidgets.contains(m_currentWidget))

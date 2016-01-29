@@ -85,15 +85,6 @@ public:
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
 
-signals:
-    void typingSettingsChanged(const TextEditor::TypingSettings &);
-    void storageSettingsChanged(const TextEditor::StorageSettings &);
-    void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
-    void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
-    void marginSettingsChanged(const TextEditor::MarginSettings &);
-
-private slots:
-
     void setTypingSettings(const TextEditor::TypingSettings &settings);
     void setStorageSettings(const TextEditor::StorageSettings &settings);
     void setBehaviorSettings(const TextEditor::BehaviorSettings &settings);
@@ -106,6 +97,14 @@ private slots:
     void setTextCodec(QTextCodec *textCodec);
 
     void slotAboutToRemoveProject(ProjectExplorer::Project *project);
+
+signals:
+    void typingSettingsChanged(const TextEditor::TypingSettings &);
+    void storageSettingsChanged(const TextEditor::StorageSettings &);
+    void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
+    void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
+    void marginSettingsChanged(const TextEditor::MarginSettings &);
+
 private:
     void switchSettings(TextEditor::TextEditorWidget *baseTextEditor) const;
 

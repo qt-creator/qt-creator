@@ -55,10 +55,12 @@ DeviceTestDialog::DeviceTestDialog(const IDevice::ConstPtr &deviceConfiguration,
     d->ui.setupUi(this);
 
     d->deviceTester->setParent(this);
-    connect(d->deviceTester, SIGNAL(progressMessage(QString)), SLOT(handleProgressMessage(QString)));
-    connect(d->deviceTester, SIGNAL(errorMessage(QString)), SLOT(handleErrorMessage(QString)));
-    connect(d->deviceTester, SIGNAL(finished(ProjectExplorer::DeviceTester::TestResult)),
-        SLOT(handleTestFinished(ProjectExplorer::DeviceTester::TestResult)));
+    connect(d->deviceTester, &DeviceTester::progressMessage,
+            this, &DeviceTestDialog::handleProgressMessage);
+    connect(d->deviceTester, &DeviceTester::errorMessage,
+            this, &DeviceTestDialog::handleErrorMessage);
+    connect(d->deviceTester, &DeviceTester::finished,
+            this, &DeviceTestDialog::handleTestFinished);
     d->deviceTester->testDevice(deviceConfiguration);
 }
 

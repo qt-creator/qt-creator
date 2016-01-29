@@ -68,12 +68,11 @@ public:
     static Node *nodeForFile(const Utils::FileName &fileName);
     static Node *mostExpandedNode(const QList<Node*> &nodes);
 
-public slots:
     void toggleAutoSynchronization();
     void editCurrentItem();
     void collapseAll();
 
-private slots:
+private:
     void setProjectFilter(bool filter);
     void setGeneratedFilesFilter(bool filter);
 
@@ -88,7 +87,6 @@ private slots:
     void saveExpandData();
     void disableAutoExpand();
 
-private:
     void setCurrentItem(ProjectExplorer::Node *node);
     void recursiveLoadExpandData(const QModelIndex &index, QSet<ExpandData> &data);
     void recursiveSaveExpandData(const QModelIndex &index, QList<QVariant> *data);

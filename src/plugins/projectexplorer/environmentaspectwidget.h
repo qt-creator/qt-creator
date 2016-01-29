@@ -58,14 +58,13 @@ public:
 
     QWidget *additionalWidget() const;
 
-private slots:
+private:
     void baseEnvironmentSelected(int idx);
     void changeBaseEnvironment();
     void userChangesEdited();
     void changeUserChanges(QList<Utils::EnvironmentItem> changes);
     void environmentChanged();
 
-private:
     EnvironmentAspect *m_aspect;
     bool m_ignoreChange;
 

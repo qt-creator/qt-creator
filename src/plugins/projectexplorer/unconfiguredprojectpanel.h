@@ -46,14 +46,13 @@ public:
 protected:
     void keyReleaseEvent(QKeyEvent *event);
     void keyPressEvent(QKeyEvent *event);
-private slots:
+private:
     void done();
     void cancel();
     void kitUpdated(ProjectExplorer::Kit *k);
     void updateNoteText();
     void completeChanged();
 
-private:
     Project *m_project;
     TargetSetupPage *m_targetSetupPage;
     QPushButton *m_configureButton;

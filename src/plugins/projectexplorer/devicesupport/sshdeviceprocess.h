@@ -57,7 +57,7 @@ public:
     // Default is "false" due to OpenSSH not implementing this feature for some reason.
     void setSshServerSupportsSignals(bool signalsSupported);
 
-private slots:
+private:
     void handleConnected();
     void handleConnectionError();
     void handleDisconnected();
@@ -68,7 +68,6 @@ private slots:
     void handleKillOperationFinished(const QString &errorMessage);
     void handleKillOperationTimeout();
 
-private:
     virtual QString fullCommandLine(const StandardRunnable &runnable) const;
 
     class SshDeviceProcessPrivate;

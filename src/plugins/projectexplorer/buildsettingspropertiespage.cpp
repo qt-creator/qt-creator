@@ -116,19 +116,19 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     updateAddButtonMenu();
     updateBuildSettings();
 
-    connect(m_buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(currentIndexChanged(int)));
+    connect(m_buildConfigurationComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &BuildSettingsWidget::currentIndexChanged);
 
-    connect(m_removeButton, SIGNAL(clicked()),
-            this, SLOT(deleteConfiguration()));
+    connect(m_removeButton, &QAbstractButton::clicked,
+            this, [this]() { deleteConfiguration(m_buildConfiguration); });
 
-    connect(m_renameButton, SIGNAL(clicked()),
-            this, SLOT(renameConfiguration()));
+    connect(m_renameButton, &QAbstractButton::clicked,
+            this, &BuildSettingsWidget::renameConfiguration);
 
-    connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(updateActiveConfiguration()));
+    connect(m_target, &Target::activeBuildConfigurationChanged,
+            this, &BuildSettingsWidget::updateActiveConfiguration);
 
-    connect(m_target, SIGNAL(kitChanged()), this, SLOT(updateAddButtonMenu()));
+    connect(m_target, &Target::kitChanged, this, &BuildSettingsWidget::updateAddButtonMenu);
 }
 
 void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
@@ -137,8 +137,8 @@ void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
 
     QLabel *label = new QLabel(this);
     label->setText(widget->displayName());
-    connect(widget, SIGNAL(displayNameChanged(QString)),
-            label, SLOT(setText(QString)));
+    connect(widget, &NamedWidget::displayNameChanged,
+            label, &QLabel::setText);
     QFont f = label->font();
     f.setBold(true);
     f.setPointSizeF(f.pointSizeF() * 1.2);
@@ -174,8 +174,9 @@ void BuildSettingsWidget::updateAddButtonMenu()
 
     if (m_target) {
         if (m_target->activeBuildConfiguration()) {
-            m_addButtonMenu->addAction(tr("&Clone Selected"),
-                                       this, SLOT(cloneConfiguration()));
+            QAction *cloneAction = m_addButtonMenu->addAction(tr("&Clone Selected"));
+            connect(cloneAction, &QAction::triggered,
+                    this, [this]() { cloneConfiguration(m_buildConfiguration); });
         }
         IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(m_target);
         if (!factory)
@@ -257,16 +258,6 @@ void BuildSettingsWidget::createConfiguration(BuildInfo *info)
     m_target->addBuildConfiguration(bc);
     SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
     info->displayName = originalDisplayName;
-}
-
-void BuildSettingsWidget::cloneConfiguration()
-{
-    cloneConfiguration(m_buildConfiguration);
-}
-
-void BuildSettingsWidget::deleteConfiguration()
-{
-    deleteConfiguration(m_buildConfiguration);
 }
 
 QString BuildSettingsWidget::uniqueName(const QString & name)

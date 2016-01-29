@@ -56,12 +56,11 @@ public:
     QString buildDirectory() const;
     void setBuildDirectory(const QString &bd);
 
-private slots:
+private:
     void slotDirectoryButtonGroupChanged();
     void resetDefaultBuildDirectory();
     void updateResetButton();
 
-private:
     void setJomVisible(bool);
 
     Ui::ProjectExplorerSettingsPageUi m_ui;

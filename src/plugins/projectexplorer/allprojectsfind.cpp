@@ -49,7 +49,8 @@ using namespace TextEditor;
 AllProjectsFind::AllProjectsFind()
     :  m_configWidget(0)
 {
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(fileListChanged()), this, SLOT(handleFileListChanged()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
+            this, &AllProjectsFind::handleFileListChanged);
 }
 
 QString AllProjectsFind::id() const

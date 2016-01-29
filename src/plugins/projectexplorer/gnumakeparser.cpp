@@ -405,8 +405,8 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
     OutputParserTester testbench;
     GnuMakeParser *childParser = new GnuMakeParser;
     GnuMakeParserTester *tester = new GnuMakeParserTester(childParser);
-    connect(&testbench, SIGNAL(aboutToDeleteParser()),
-            tester, SLOT(parserIsAboutToBeDeleted()));
+    connect(&testbench, &OutputParserTester::aboutToDeleteParser,
+            tester, &GnuMakeParserTester::parserIsAboutToBeDeleted);
 
     testbench.appendOutputParser(childParser);
     QFETCH(QStringList, extraSearchDirs);

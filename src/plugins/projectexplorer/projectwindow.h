@@ -84,18 +84,16 @@ public:
 
     void aboutToShutdown();
 
-public slots:
-    void projectUpdated(ProjectExplorer::Project *project);
-
-private slots:
-    void projectDisplayNameChanged(ProjectExplorer::Project *p);
-    void showProperties(int index, int subIndex);
-    void registerProject(ProjectExplorer::Project*);
-    bool deregisterProject(ProjectExplorer::Project*);
-    void startupProjectChanged(ProjectExplorer::Project *);
-    void removedTarget(ProjectExplorer::Target*);
+    void projectUpdated(Project *project);
 
 private:
+    void projectDisplayNameChanged(Project *p);
+    void showProperties(int index, int subIndex);
+    void registerProject(Project*);
+    bool deregisterProject(Project*);
+    void startupProjectChanged(Project *);
+    void removedTarget(Target*);
+
     void removeCurrentWidget();
 
     bool m_ignoreChange;

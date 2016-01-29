@@ -92,37 +92,38 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
         d->m_guiProcess.setReadChannelMode(QProcess::MergedChannels);
     } else {
         d->m_guiProcess.setReadChannelMode(QProcess::SeparateChannels);
-        connect(&d->m_guiProcess, SIGNAL(readyReadStandardError()),
-            this, SLOT(readStandardError()));
+        connect(&d->m_guiProcess, &QProcess::readyReadStandardError,
+                this, &ApplicationLauncher::readStandardError);
     }
-    connect(&d->m_guiProcess, SIGNAL(readyReadStandardOutput()),
-        this, SLOT(readStandardOutput()));
-    connect(&d->m_guiProcess, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(guiProcessError()));
-    connect(&d->m_guiProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(processDone(int,QProcess::ExitStatus)));
-    connect(&d->m_guiProcess, SIGNAL(started()),
-            this, SLOT(bringToForeground()));
-    connect(&d->m_guiProcess, SIGNAL(error(QProcess::ProcessError)),
-            this, SIGNAL(error(QProcess::ProcessError)));
+    connect(&d->m_guiProcess, &QProcess::readyReadStandardOutput,
+            this, &ApplicationLauncher::readStandardOutput);
+    connect(&d->m_guiProcess, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &ApplicationLauncher::guiProcessError);
+    connect(&d->m_guiProcess, static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+            this, &ApplicationLauncher::processDone);
+    connect(&d->m_guiProcess, &QProcess::started,
+            this, &ApplicationLauncher::bringToForeground);
+    connect(&d->m_guiProcess, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+            this, &ApplicationLauncher::error);
 
 #ifdef Q_OS_UNIX
     d->m_consoleProcess.setSettings(Core::ICore::settings());
 #endif
-    connect(&d->m_consoleProcess, SIGNAL(processStarted()),
-            this, SIGNAL(processStarted()));
-    connect(&d->m_consoleProcess, SIGNAL(processError(QString)),
-            this, SLOT(consoleProcessError(QString)));
-    connect(&d->m_consoleProcess, SIGNAL(processStopped(int,QProcess::ExitStatus)),
-            this, SLOT(processDone(int,QProcess::ExitStatus)));
-    connect(&d->m_consoleProcess, SIGNAL(error(QProcess::ProcessError)),
-            this, SIGNAL(error(QProcess::ProcessError)));
+    connect(&d->m_consoleProcess, &Utils::ConsoleProcess::processStarted,
+            this, &ApplicationLauncher::processStarted);
+    connect(&d->m_consoleProcess, &Utils::ConsoleProcess::processError,
+            this, &ApplicationLauncher::consoleProcessError);
+    connect(&d->m_consoleProcess, &Utils::ConsoleProcess::processStopped,
+            this, &ApplicationLauncher::processDone);
+    connect(&d->m_consoleProcess,
+            static_cast<void (Utils::ConsoleProcess::*)(QProcess::ProcessError)>(&Utils::ConsoleProcess::error),
+            this, &ApplicationLauncher::error);
 
 #ifdef Q_OS_WIN
-    connect(WinDebugInterface::instance(), SIGNAL(cannotRetrieveDebugOutput()),
-            this, SLOT(cannotRetrieveDebugOutput()));
-    connect(WinDebugInterface::instance(), SIGNAL(debugOutput(qint64,QString)),
-            this, SLOT(checkDebugOutput(qint64,QString)), Qt::BlockingQueuedConnection);
+    connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
+            this, &ApplicationLauncher::cannotRetrieveDebugOutput);
+    connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
+            this, &ApplicationLauncher::checkDebugOutput, Qt::BlockingQueuedConnection);
 #endif
 #ifdef WITH_JOURNALD
     connect(JournaldWatcher::instance(), &JournaldWatcher::journaldOutput,

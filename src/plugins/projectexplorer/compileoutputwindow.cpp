@@ -76,8 +76,8 @@ public:
 
         fontSettingsChanged();
 
-        connect(TextEditor::TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-                this, SLOT(fontSettingsChanged()));
+        connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
+                this, &CompileOutputTextEdit::fontSettingsChanged);
 
         connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
                 this, &CompileOutputTextEdit::saveSettings);
@@ -100,7 +100,7 @@ public:
     {
         m_taskids.clear();
     }
-private slots:
+private:
     void fontSettingsChanged()
     {
         setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
@@ -190,8 +190,8 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     m_handler = new ShowOutputTaskHandler(this);
     ExtensionSystem::PluginManager::addObject(m_handler);
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            this, SLOT(updateWordWrapMode()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, &CompileOutputWindow::updateWordWrapMode);
     updateWordWrapMode();
 }
 

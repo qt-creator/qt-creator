@@ -80,12 +80,12 @@ signals:
     void taskAdded(const ProjectExplorer::Task &task);
     void tasksCleared();
 
-private slots:
+private:
     static void addToTaskWindow(const ProjectExplorer::Task &task, int linkedOutputLines, int skipLines);
-    static void addToOutputWindow(const QString &string, ProjectExplorer::BuildStep::OutputFormat,
-        ProjectExplorer::BuildStep::OutputNewlineSetting = BuildStep::DoAppendNewline);
+    static void addToOutputWindow(const QString &string, BuildStep::OutputFormat format,
+                           BuildStep::OutputNewlineSetting newlineSettings = BuildStep::DoAppendNewline);
 
-    static void buildStepFinishedAsync();
+    void buildStepFinishedAsync();
     static void nextBuildQueue();
     static void progressChanged();
     static void progressTextChanged();
@@ -94,7 +94,6 @@ private slots:
     static void updateTaskCount();
     static void finish();
 
-private:
     static void startBuildQueue();
     static void nextStep();
     static void clearBuildQueue();

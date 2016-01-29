@@ -62,10 +62,9 @@ protected:
     QString label() const;
     QString toolTip() const;
 
-private slots:
+private:
     void handleFileListChanged();
 
-private:
     QPointer<QWidget> m_configWidget;
 };
 

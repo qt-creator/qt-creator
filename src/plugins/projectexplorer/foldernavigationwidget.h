@@ -58,7 +58,7 @@ public slots:
     void setAutoSynchronization(bool sync);
     void toggleAutoSynchronization();
 
-private slots:
+private:
     void setCurrentFile(Core::IEditor *editor);
     void slotOpenItem(const QModelIndex &viewIndex);
     void setHiddenFilesFilter(bool filter);

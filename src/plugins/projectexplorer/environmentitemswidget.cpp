@@ -106,8 +106,8 @@ EnvironmentItemsDialog::EnvironmentItemsDialog(QWidget *parent) :
     d->m_editor = new EnvironmentItemsWidget(this);
     QDialogButtonBox *box = new QDialogButtonBox(
             QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
-    connect(box, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(box, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(box, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(box, &QDialogButtonBox::rejected, this, &QDialog::reject);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(d->m_editor);
     layout->addWidget(box);

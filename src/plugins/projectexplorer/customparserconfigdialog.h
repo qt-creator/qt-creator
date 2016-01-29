@@ -77,10 +77,9 @@ public:
 
     bool isDirty() const;
 
-private slots:
+private:
     void changed();
 
-private:
     bool checkPattern(QLineEdit *pattern, const QString &outputText,
                       QString *errorMessage, QRegularExpressionMatch *match);
 

@@ -39,16 +39,24 @@ CustomParserConfigDialog::CustomParserConfigDialog(QDialog *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->errorPattern, SIGNAL(textChanged(QString)), this, SLOT(changed()));
-    connect(ui->errorOutputMessage, SIGNAL(textChanged(QString)), this, SLOT(changed()));
-    connect(ui->errorFileNameCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
-    connect(ui->errorLineNumberCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
-    connect(ui->errorMessageCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
-    connect(ui->warningPattern, SIGNAL(textChanged(QString)), this, SLOT(changed()));
-    connect(ui->warningOutputMessage, SIGNAL(textChanged(QString)), this, SLOT(changed()));
-    connect(ui->warningFileNameCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
-    connect(ui->warningLineNumberCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
-    connect(ui->warningMessageCap, SIGNAL(valueChanged(int)), this, SLOT(changed()));
+    connect(ui->errorPattern, &QLineEdit::textChanged, this, &CustomParserConfigDialog::changed);
+    connect(ui->errorOutputMessage, &QLineEdit::textChanged,
+            this, &CustomParserConfigDialog::changed);
+    connect(ui->errorFileNameCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &CustomParserConfigDialog::changed);
+    connect(ui->errorLineNumberCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &CustomParserConfigDialog::changed);
+    connect(ui->errorMessageCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &CustomParserConfigDialog::changed);
+    connect(ui->warningPattern, &QLineEdit::textChanged, this, &CustomParserConfigDialog::changed);
+    connect(ui->warningOutputMessage, &QLineEdit::textChanged,
+            this, &CustomParserConfigDialog::changed);
+    connect(ui->warningFileNameCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &CustomParserConfigDialog::changed);
+    connect(ui->warningLineNumberCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &CustomParserConfigDialog::changed);
+    connect(ui->warningMessageCap, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &CustomParserConfigDialog::changed);
 
     changed();
     m_dirty = false;

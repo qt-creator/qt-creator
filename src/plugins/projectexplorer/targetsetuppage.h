@@ -86,25 +86,24 @@ public:
     void setNoteText(const QString &text);
     void showOptionsHint(bool show);
 
-private slots:
+    void openOptions();
+    void changeAllKitsSelections();
+
+private:
     void handleKitAddition(ProjectExplorer::Kit *k);
     void handleKitRemoval(ProjectExplorer::Kit *k);
     void handleKitUpdate(ProjectExplorer::Kit *k);
     void updateVisibility();
-    void openOptions();
-    void import(const Utils::FileName &path);
 
     void kitSelectionChanged();
-    void changeAllKitsSelections();
 
-private:
     bool isUpdating() const;
     void selectAtLeastOneKit();
     void removeWidget(Kit *k);
     Internal::TargetSetupWidget *addWidget(Kit *k);
 
     void setupImports();
-    void import(const Utils::FileName &path, bool silent);
+    void import(const Utils::FileName &path, bool silent = false);
 
     void setupWidgets();
     void reset();
