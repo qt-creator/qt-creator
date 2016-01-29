@@ -252,10 +252,8 @@ void QtTestOutputReader::processOutput()
                     m_description = tr("QTest version: %1").arg(text.toString());
                     break;
                 default:
-                    QString message = QString::fromLatin1("unexpected cdatamode %1 for text \"%2\"")
-                            .arg(m_cdataMode)
-                            .arg(text.toString());
-                    QTC_ASSERT(false, qWarning() << message);
+                    // this must come from plain printf() calls - but this will be ignored anyhow
+                    qWarning() << "Ignored plain output:" << text.toString();
                     break;
                 }
                 break;
@@ -382,7 +380,9 @@ void GTestOutputReader::processOutput()
             auto testResult = new GTestResult(m_currentTestName);
             testResult->setTestCase(m_currentTestSet);
             testResult->setResult(Result::Pass);
+            testResult->setDescription(m_description);
             m_futureInterface.reportResult(testResult);
+            m_description.clear();
             testResult = new GTestResult(m_currentTestName);
             testResult->setTestCase(m_currentTestSet);
             testResult->setResult(Result::MessageInternal);
