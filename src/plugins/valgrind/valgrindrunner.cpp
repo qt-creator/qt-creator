@@ -56,7 +56,6 @@ public:
     QString valgrindExecutable;
     QStringList valgrindArguments;
     StandardRunnable debuggee;
-    QString workingdir;
     bool useStartupProject = true;
     QSsh::SshConnectionParameters connParams;
 };
