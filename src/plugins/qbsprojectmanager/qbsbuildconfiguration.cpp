@@ -257,10 +257,6 @@ public:
         return m_qbsBuildStep ? m_qbsBuildStep->maxJobs() : 0;
     }
 
-    bool allArtifacts() const {
-        return m_qbsCleanStep ? m_qbsCleanStep->cleanAll() : false;
-    }
-
     QString installRoot() const {
         return m_qbsInstallStep ? m_qbsInstallStep->absoluteInstallRoot() : QString();
     }
@@ -308,8 +304,6 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
         Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--jobs")
                                    << QString::number(jobCount));
     }
-    if (stepProxy.allArtifacts())
-        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--all-artifacts"));
     const QString installRoot = stepProxy.installRoot();
     if (!installRoot.isEmpty()) {
         Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--install-root")

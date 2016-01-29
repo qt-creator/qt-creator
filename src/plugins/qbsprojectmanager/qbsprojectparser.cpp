@@ -81,7 +81,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     params.setTopLevelProfile(profileName);
     specialKey = QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY);
     params.setBuildVariant(userConfig.take(specialKey).toString());
-    params.setSettingsDirectory(QbsManager::settings()->baseDirectoy());
+    params.setSettingsDirectory(QbsManager::settings()->baseDirectory());
     params.setOverriddenValues(userConfig);
 
     // Some people don't like it when files are created as a side effect of opening a project,
