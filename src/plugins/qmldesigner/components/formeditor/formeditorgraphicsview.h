@@ -43,11 +43,11 @@ public:
     void activateColoredBackground(const QColor &color);
 
 protected:
-    void drawBackground(QPainter *painter, const QRectF &rect);
-    void wheelEvent(QWheelEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+    void drawBackground(QPainter *painter, const QRectF &rect) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 private:
     bool m_isPanning;
     int m_panStartX, m_panStartY;
