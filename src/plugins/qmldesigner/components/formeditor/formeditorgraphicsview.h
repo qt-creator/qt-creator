@@ -48,9 +48,17 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 private:
-    bool m_isPanning;
-    int m_panStartX, m_panStartY;
+    enum Panning{
+        NotStarted, MouseWheelStarted, SpaceKeyStarted
+    };
+
+    void startPanning(QEvent *event);
+    void stopPanning(QEvent *event);
+    Panning m_isPanning = Panning::NotStarted;
+    QPoint m_panningStartPosition;
     QRectF m_rootItemRect;
 };
 

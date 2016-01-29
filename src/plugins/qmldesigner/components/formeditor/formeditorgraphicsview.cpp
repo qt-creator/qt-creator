@@ -32,8 +32,7 @@
 namespace QmlDesigner {
 
 FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
-    QGraphicsView(parent),
-    m_isPanning(false)
+    QGraphicsView(parent)
 {
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setResizeAnchor(QGraphicsView::AnchorViewCenter);
@@ -60,29 +59,26 @@ void FormEditorGraphicsView::wheelEvent(QWheelEvent *event)
         event->ignore();
     else
         QGraphicsView::wheelEvent(event);
-
 }
 
 void FormEditorGraphicsView::mousePressEvent(QMouseEvent *event)
 {
-    if (event->buttons().testFlag(Qt::MiddleButton)) {
-        m_isPanning = true;
-        m_panStartX = event->x();
-        m_panStartY = event->y();
-        setCursor(Qt::ClosedHandCursor);
-        event->accept();
-    } else {
+    if (event->buttons().testFlag(Qt::MiddleButton) && m_isPanning == Panning::NotStarted)
+        startPanning(event);
+    else
         QGraphicsView::mousePressEvent(event);
-    }
 }
 
 void FormEditorGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (m_isPanning) {
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() - (event->x() - m_panStartX));
-        verticalScrollBar()->setValue(verticalScrollBar()->value() - (event->y() - m_panStartY));
-        m_panStartX = event->x();
-        m_panStartY = event->y();
+    if (m_isPanning != Panning::NotStarted) {
+        if (!m_panningStartPosition.isNull()) {
+            horizontalScrollBar()->setValue(horizontalScrollBar()->value() -
+                (event->x() - m_panningStartPosition.x()));
+            verticalScrollBar()->setValue(verticalScrollBar()->value() -
+                (event->y() - m_panningStartPosition.y()));
+        }
+        m_panningStartPosition = event->pos();
         event->accept();
     }else {
         QGraphicsView::mouseMoveEvent(event);
@@ -91,14 +87,44 @@ void FormEditorGraphicsView::mouseMoveEvent(QMouseEvent *event)
 
 void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (m_isPanning) {
-
-        m_isPanning = false;
-        setCursor(Qt::ArrowCursor);
-        event->accept();
-    }else {
+    if (m_isPanning == Panning::MouseWheelStarted)
+        stopPanning(event);
+    else
         QGraphicsView::mouseReleaseEvent(event);
-    }
+}
+
+void FormEditorGraphicsView::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Space && m_isPanning == Panning::NotStarted)
+        startPanning(event);
+    else
+        QGraphicsView::keyPressEvent(event);
+}
+
+void FormEditorGraphicsView::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Space && !event->isAutoRepeat())
+        stopPanning(event);
+    else
+        QGraphicsView::keyReleaseEvent(event);
+}
+
+void FormEditorGraphicsView::startPanning(QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress)
+        m_isPanning = Panning::SpaceKeyStarted;
+    else
+        m_isPanning = Panning::MouseWheelStarted;
+    setCursor(Qt::ClosedHandCursor);
+    event->accept();
+}
+
+void FormEditorGraphicsView::stopPanning(QEvent *event)
+{
+    m_isPanning = Panning::NotStarted;
+    m_panningStartPosition = QPoint();
+    setCursor(Qt::ArrowCursor);
+    event->accept();
 }
 
 void FormEditorGraphicsView::setRootItemRect(const QRectF &rect)
