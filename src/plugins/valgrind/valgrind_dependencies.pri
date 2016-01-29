@@ -9,5 +9,4 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     debugger \
     projectexplorer \
-    texteditor \
-    remotelinux
+    texteditor

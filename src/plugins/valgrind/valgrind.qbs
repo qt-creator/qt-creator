@@ -13,7 +13,6 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
-    Depends { name: "RemoteLinux" }
 
     Group {
         name: "General"
