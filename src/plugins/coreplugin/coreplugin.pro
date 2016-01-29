@@ -1,5 +1,5 @@
 DEFINES += CORE_LIBRARY
-QT += gui-private \
+QT += \
     help \
     network \
     printsupport \
