@@ -172,7 +172,6 @@ HistoryCompleter::HistoryCompleter(const QString &historyKey, QObject *parent)
 {
     QTC_ASSERT(!historyKey.isEmpty(), return);
     QTC_ASSERT(theSettings, return);
-    setCompletionMode(QCompleter::UnfilteredPopupCompletion);
 
     d->historyKey = QLatin1String("CompleterHistory/") + historyKey;
     d->list = theSettings->value(d->historyKey).toStringList();
