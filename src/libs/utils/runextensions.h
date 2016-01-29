@@ -26,6 +26,7 @@
 #ifndef RUNEXTENSIONS_H
 #define RUNEXTENSIONS_H
 
+#include "functiontraits.h"
 #include "qtcassert.h"
 #include "utils_global.h"
 
@@ -517,25 +518,126 @@ void blockingMapReduce(QFutureInterface<ReduceResult> futureInterface, const Con
     futureInterface.reportFinished();
 }
 
-template <typename ResultType, typename Function, typename Obj, typename... Args>
-typename std::enable_if<std::is_member_pointer<typename std::decay<Function>::type>::value>::type
-runAsyncImpl(QFutureInterface<ResultType> futureInterface, Function &&function, Obj &&obj, Args&&... args)
+template <typename Function>
+class MemberCallable;
+
+template <typename Result, typename Obj, typename... Args>
+class MemberCallable<Result(Obj::*)(Args...) const>
 {
-    std::mem_fn(std::forward<Function>(function))(std::forward<Obj>(obj),
-                                                  futureInterface, std::forward<Args>(args)...);
+public:
+    MemberCallable(Result(Obj::* function)(Args...) const, const Obj *obj)
+        : m_function(function),
+          m_obj(obj)
+    {
+    }
+
+    Result operator()(Args&&... args) const
+    {
+        return ((*m_obj).*m_function)(std::forward<Args>(args)...);
+    }
+
+private:
+    Result(Obj::* m_function)(Args...) const;
+    const Obj *m_obj;
+};
+
+template <typename Result, typename Obj, typename... Args>
+class MemberCallable<Result(Obj::*)(Args...)>
+{
+public:
+    MemberCallable(Result(Obj::* function)(Args...), Obj *obj)
+        : m_function(function),
+          m_obj(obj)
+    {
+    }
+
+    Result operator()(Args&&... args) const
+    {
+        return ((*m_obj).*m_function)(std::forward<Args>(args)...);
+    }
+
+private:
+    Result(Obj::* m_function)(Args...);
+    Obj *m_obj;
+};
+
+// void function that does not take QFutureInterface
+template <typename ResultType, typename Function, typename... Args>
+void runAsyncReturnVoidDispatch(std::true_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+{
+    function(std::forward<Args>(args)...);
     if (futureInterface.isPaused())
         futureInterface.waitForResume();
     futureInterface.reportFinished();
 }
 
+// non-void function that does not take QFutureInterface
 template <typename ResultType, typename Function, typename... Args>
-typename std::enable_if<!std::is_member_pointer<typename std::decay<Function>::type>::value>::type
-runAsyncImpl(QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+void runAsyncReturnVoidDispatch(std::false_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+{
+    futureInterface.reportResult(function(std::forward<Args>(args)...));
+    if (futureInterface.isPaused())
+        futureInterface.waitForResume();
+    futureInterface.reportFinished();
+}
+
+// function that takes QFutureInterface
+template <typename ResultType, typename Function, typename... Args>
+void runAsyncQFutureInterfaceDispatch(std::true_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
 {
     function(futureInterface, std::forward<Args>(args)...);
     if (futureInterface.isPaused())
         futureInterface.waitForResume();
     futureInterface.reportFinished();
+}
+
+// function that does not take QFutureInterface
+template <typename ResultType, typename Function, typename... Args>
+void runAsyncQFutureInterfaceDispatch(std::false_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+{
+    runAsyncReturnVoidDispatch(std::is_void<typename std::result_of<Function(Args...)>::type>(),
+                               futureInterface, std::forward<Function>(function), std::forward<Args>(args)...);
+}
+
+// function that takes at least one argument which could be QFutureInterface
+template <typename ResultType, typename Function, typename... Args>
+void runAsyncArityDispatch(std::true_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+{
+    runAsyncQFutureInterfaceDispatch(std::is_same<QFutureInterface<ResultType>&,
+                                                  typename functionTraits<Function>::template argument<0>::type>(),
+                                     futureInterface, std::forward<Function>(function), std::forward<Args>(args)...);
+}
+
+// function that does not take an argument, so it does not take a QFutureInterface
+template <typename ResultType, typename Function, typename... Args>
+void runAsyncArityDispatch(std::false_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+{
+    runAsyncQFutureInterfaceDispatch(std::false_type(),
+                                     futureInterface, std::forward<Function>(function), std::forward<Args>(args)...);
+}
+
+// function, function pointer, or other callable object that is no member pointer
+template <typename ResultType, typename Function, typename... Args,
+          typename = typename std::enable_if<
+                !std::is_member_pointer<typename std::decay<Function>::type>::value
+              >::type>
+void runAsyncImpl(QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
+{
+    runAsyncArityDispatch(std::integral_constant<bool, (functionTraits<Function>::arity > 0)>(),
+                          futureInterface, std::forward<Function>(function), std::forward<Args>(args)...);
+}
+
+// Function = member function
+template <typename ResultType, typename Function, typename Obj, typename... Args,
+          typename = typename std::enable_if<
+                std::is_member_pointer<typename std::decay<Function>::type>::value
+              >::type>
+void runAsyncImpl(QFutureInterface<ResultType> futureInterface, Function &&function, Obj &&obj, Args&&... args)
+{
+    // Wrap member function with object into callable
+    runAsyncImpl(futureInterface,
+                 MemberCallable<Function>(std::forward<Function>(function), std::forward<Obj>(obj)),
+                 std::forward<Args>(args)...);
 }
 
 // can be replaced with std::(make_)index_sequence with C++14

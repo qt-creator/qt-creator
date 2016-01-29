@@ -104,6 +104,7 @@ QtcLibrary {
         "filewizardpage.ui",
         "flowlayout.cpp",
         "flowlayout.h",
+        "functiontraits.h",
         "historycompleter.cpp",
         "historycompleter.h",
         "hostosinfo.h",

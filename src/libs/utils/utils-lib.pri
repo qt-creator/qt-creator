@@ -208,7 +208,8 @@ HEADERS += \
     $$PWD/dropsupport.h \
     $$PWD/utilsicons.h \
     $$PWD/icon.h \
-    $$PWD/port.h
+    $$PWD/port.h \
+    $$PWD/functiontraits.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
