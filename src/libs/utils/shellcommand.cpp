@@ -28,21 +28,18 @@
 #include "fileutils.h"
 #include "synchronousprocess.h"
 #include "runextensions.h"
-#include "qtcassert.h"
 
-#include <QProcess>
-#include <QProcessEnvironment>
+#include <QFileInfo>
 #include <QFuture>
 #include <QFutureWatcher>
-#include <QtConcurrentRun>
-#include <QFileInfo>
-#include <QCoreApplication>
-#include <QVariant>
+#include <QMutex>
+#include <QProcess>
+#include <QProcessEnvironment>
 #include <QScopedPointer>
 #include <QSharedPointer>
 #include <QStringList>
 #include <QTextCodec>
-#include <QMutex>
+#include <QVariant>
 
 /*!
     \fn void Utils::ProgressParser::parseProgress(const QString &text)
