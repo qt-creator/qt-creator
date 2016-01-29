@@ -20,6 +20,7 @@ SOURCES += \
     clangcompletioncontextanalyzer.cpp \
     clangdiagnosticfilter.cpp \
     clangdiagnosticmanager.cpp \
+    clangdiagnostictooltipwidget.cpp \
     clangeditordocumentparser.cpp \
     clangeditordocumentprocessor.cpp \
     clangfixitoperation.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
     clangconstants.h \
     clangdiagnosticfilter.h \
     clangdiagnosticmanager.h \
+    clangdiagnostictooltipwidget.h \
     clangeditordocumentparser.h \
     clangeditordocumentprocessor.h \
     clangfixitoperation.h \

@@ -206,6 +206,11 @@ void ToolTip::hide()
     instance()->hideTipWithDelay();
 }
 
+void ToolTip::hideImmediately()
+{
+    instance()->hideTipImmediately();
+}
+
 void ToolTip::hideTipWithDelay()
 {
     if (!m_hideDelayTimer.isActive())

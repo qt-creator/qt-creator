@@ -67,9 +67,10 @@ public:
     ConstIterator begin() const;
     ConstIterator end() const;
 
+    using IsAcceptedDiagnostic = std::function<bool (const Diagnostic &)>;
     QVector<DiagnosticContainer> toDiagnosticContainers() const;
     QVector<DiagnosticContainer> toDiagnosticContainers(
-            const Diagnostic::IsAcceptedDiagnostic &isAcceptedDiagnostic) const;
+            const IsAcceptedDiagnostic &isAcceptedDiagnostic) const;
 
 private:
     DiagnosticSet(CXDiagnosticSet cxDiagnosticSet);

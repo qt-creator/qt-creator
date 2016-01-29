@@ -78,6 +78,7 @@ public:
                      const QString &helpId = QString(), const QRect &rect = QRect());
     static void move(const QPoint &pos, QWidget *w);
     static void hide();
+    static void hideImmediately();
     static bool isVisible();
 
     static QPoint offsetFromPosition();

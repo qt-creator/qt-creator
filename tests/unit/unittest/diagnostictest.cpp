@@ -170,18 +170,6 @@ TEST_F(Diagnostic, toDiagnosticContainerLetChildrenThroughByDefault)
     ASSERT_THAT(diagnostic, IsDiagnosticContainer(diagnosticWithChild));
 }
 
-TEST_F(Diagnostic, toDiagnosticContainerFiltersOutChildren)
-{
-    const auto diagnosticWithoutChild = expectedDiagnostic(WithoutChild);
-    const auto acceptDiagnosticWithSpecificText = [](const ::Diagnostic &diagnostic) {
-        return diagnostic.text() != Utf8StringLiteral("note: previous declaration is here");
-    };
-
-    const auto diagnostic = diagnosticSet.front().toDiagnosticContainer(acceptDiagnosticWithSpecificText);
-
-    ASSERT_THAT(diagnostic, IsDiagnosticContainer(diagnosticWithoutChild));
-}
-
 DiagnosticContainer Diagnostic::expectedDiagnostic(Diagnostic::ChildMode childMode) const
 {
     QVector<DiagnosticContainer> children;

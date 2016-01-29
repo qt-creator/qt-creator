@@ -160,18 +160,6 @@ TEST_F(DiagnosticSet, ToDiagnosticContainersFiltersOutTopLevelItem)
     ASSERT_TRUE(diagnostics.isEmpty());
 }
 
-TEST_F(DiagnosticSet, ToDiagnosticContainersFiltersOutChildren)
-{
-    const auto diagnosticContainerWithoutChild = expectedDiagnostic(WithoutChild);
-    const auto acceptMainFileDiagnostics = [this](const Diagnostic &diagnostic) {
-        return diagnostic.location().filePath() == translationUnitMainFile.filePath();
-    };
-
-    const auto diagnostics = diagnosticSetWithChildren.toDiagnosticContainers(acceptMainFileDiagnostics);
-
-    ASSERT_THAT(diagnostics, Contains(IsDiagnosticContainer(diagnosticContainerWithoutChild)));
-}
-
 DiagnosticContainer DiagnosticSet::expectedDiagnostic(DiagnosticSet::ChildMode childMode) const
 {
     QVector<DiagnosticContainer> children;

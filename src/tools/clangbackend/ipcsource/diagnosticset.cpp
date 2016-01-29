@@ -88,14 +88,14 @@ QVector<DiagnosticContainer> DiagnosticSet::toDiagnosticContainers() const
 }
 
 QVector<DiagnosticContainer> DiagnosticSet::toDiagnosticContainers(
-        const Diagnostic::IsAcceptedDiagnostic &isAcceptedDiagnostic) const
+        const IsAcceptedDiagnostic &isAcceptedDiagnostic) const
 {
     QVector<DiagnosticContainer> diagnosticContainers;
     diagnosticContainers.reserve(size());
 
     for (const Diagnostic &diagnostic : *this) {
         if (isAcceptedDiagnostic(diagnostic))
-            diagnosticContainers.push_back(diagnostic.toDiagnosticContainer(isAcceptedDiagnostic));
+            diagnosticContainers.push_back(diagnostic.toDiagnosticContainer());
     }
 
     return diagnosticContainers;

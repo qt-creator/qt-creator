@@ -65,6 +65,8 @@ QtcPlugin {
         "clangdiagnosticfilter.h",
         "clangdiagnosticmanager.cpp",
         "clangdiagnosticmanager.h",
+        "clangdiagnostictooltipwidget.cpp",
+        "clangdiagnostictooltipwidget.h",
         "clangeditordocumentparser.cpp",
         "clangeditordocumentparser.h",
         "clangeditordocumentprocessor.cpp",
