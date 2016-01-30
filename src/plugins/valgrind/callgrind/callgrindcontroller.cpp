@@ -93,10 +93,7 @@ void CallgrindController::run(Option option)
     }
     QTC_ASSERT(m_valgrindProc, return);
 
-    QSsh::SshConnection *connection = m_valgrindProc->connection();
-    m_process = new ValgrindProcess(
-                connection ? connection->connectionParameters() : QSsh::SshConnectionParameters(),
-                connection, this);
+    m_process = new ValgrindProcess(m_valgrindProc->device(), this);
 
     connect(m_process, &ValgrindProcess::finished,
             this, &CallgrindController::processFinished);

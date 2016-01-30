@@ -56,8 +56,7 @@ public:
     QString valgrindExecutable;
     QStringList valgrindArguments;
     StandardRunnable debuggee;
-    bool useStartupProject = true;
-    QSsh::SshConnectionParameters connParams;
+    IDevice::ConstPtr device;
 };
 
 void ValgrindRunner::Private::run(ValgrindProcess *_process)
@@ -144,29 +143,19 @@ void ValgrindRunner::setDebuggee(const StandardRunnable &debuggee)
     d->debuggee = debuggee;
 }
 
-const QSsh::SshConnectionParameters &ValgrindRunner::connectionParameters() const
-{
-    return d->connParams;
-}
-
-void ValgrindRunner::setConnectionParameters(const QSsh::SshConnectionParameters &connParams)
-{
-    d->connParams = connParams;
-}
-
 void ValgrindRunner::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {
     d->channelMode = mode;
 }
 
-void ValgrindRunner::setUseStartupProject(bool useStartupProject)
+void ValgrindRunner::setDevice(const IDevice::ConstPtr &device)
 {
-    d->useStartupProject = useStartupProject;
+    d->device = device;
 }
 
-bool ValgrindRunner::useStartupProject() const
+IDevice::ConstPtr ValgrindRunner::device() const
 {
-    return d->useStartupProject;
+    return d->device;
 }
 
 void ValgrindRunner::waitForFinished() const
@@ -181,8 +170,7 @@ void ValgrindRunner::waitForFinished() const
 
 bool ValgrindRunner::start()
 {
-    // FIXME: This wrongly uses "useStartupProject" for a Local/Remote decision.
-    d->run(new ValgrindProcess(d->connParams, 0, this));
+    d->run(new ValgrindProcess(d->device, this));
     return true;
 }
 

@@ -2,6 +2,7 @@ import qbs
 
 QtcAutotest {
     Depends { name: "AnalyzerBase" }
+    Depends { name: "Core" }
     Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
     Depends { name: "ProjectExplorer" }

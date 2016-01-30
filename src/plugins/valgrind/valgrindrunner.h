@@ -36,8 +36,6 @@
 
 #include <QProcess>
 
-namespace Utils { class SshConnectionParameters; }
-
 namespace Valgrind {
 
 class ValgrindProcess;
@@ -58,11 +56,8 @@ public:
     void setDebuggee(const ProjectExplorer::StandardRunnable &debuggee) ;
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
 
-    void setUseStartupProject(bool useStartupProject);
-    bool useStartupProject() const;
-
-    void setConnectionParameters(const QSsh::SshConnectionParameters &connParams);
-    const QSsh::SshConnectionParameters &connectionParameters() const;
+    void setDevice(const ProjectExplorer::IDevice::ConstPtr &device);
+    ProjectExplorer::IDevice::ConstPtr device() const;
 
     void waitForFinished() const;
 

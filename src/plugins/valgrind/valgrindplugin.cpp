@@ -199,7 +199,6 @@ void ValgrindPlugin::extensionsInitialized()
         connection.connParams = dlg.sshParams();
         rc->setConnection(connection);
         rc->setDisplayName(runnable.executable);
-        rc->setCustomStart();
         ProjectExplorerPlugin::startRunControl(rc, MEMCHECK_RUN_MODE);
     });
     action->setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
@@ -223,7 +222,6 @@ void ValgrindPlugin::extensionsInitialized()
         connection.connParams = dlg.sshParams();
         rc->setConnection(connection);
         rc->setDisplayName(runnable.executable);
-        rc->setCustomStart();
         ProjectExplorerPlugin::startRunControl(rc, CALLGRIND_RUN_MODE);
     });
 

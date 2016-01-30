@@ -33,25 +33,12 @@
 
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerstartparameters.h>
-#include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerrunconfigwidget.h>
-
-#include <debugger/debuggerrunconfigurationaspect.h>
-
-#include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runnables.h>
-#include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
 
-#include <QTcpServer>
-
 using namespace Analyzer;
 using namespace ProjectExplorer;
-using namespace Utils;
 
 namespace Valgrind {
 namespace Internal {
@@ -70,24 +57,7 @@ bool ValgrindRunControlFactory::canRun(RunConfiguration *runConfiguration, Core:
 RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
-    AnalyzerRunControl *runControl = AnalyzerManager::createRunControl(runConfiguration, mode);
-    QTC_ASSERT(runControl, return 0);
-
-    IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
-    AnalyzerConnection connection;
-    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        QTcpServer server;
-        if (!server.listen(QHostAddress::LocalHost) && !server.listen(QHostAddress::LocalHostIPv6)) {
-            qWarning() << "Cannot open port on host for profiling.";
-            return 0;
-        }
-    } else {
-        connection.connParams = device->sshParameters();
-    }
-
-    runControl->setRunnable(runConfiguration->runnable());
-    runControl->setConnection(connection);
-    return runControl;
+    return AnalyzerManager::createRunControl(runConfiguration, mode);
 }
 
 class ValgrindRunConfigurationAspect : public IRunConfigurationAspect

@@ -48,7 +48,7 @@ public:
     CallgrindTool(QObject *parent);
     ~CallgrindTool();
 
-    ValgrindRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration = 0);
+    ValgrindRunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     QWidget *createWidgets();
 
     void handleShowCostsOfFunction();

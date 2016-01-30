@@ -37,12 +37,11 @@ using namespace ProjectExplorer;
 
 namespace Valgrind {
 
-ValgrindProcess::ValgrindProcess(const QSsh::SshConnectionParameters &sshParams,
-                                 QSsh::SshConnection *connection, QObject *parent)
-    : QObject(parent)
+ValgrindProcess::ValgrindProcess(const IDevice::ConstPtr &device,
+                                 QObject *parent)
+    : QObject(parent), m_device(device)
 {
-    m_params = sshParams;
-    m_remote.m_connection = connection;
+    m_remote.m_connection = 0;
     m_remote.m_error = QProcess::UnknownError;
     m_pid = 0;
 }
@@ -126,8 +125,9 @@ void ValgrindProcess::run()
 
     } else {
         // connect to host and wait for connection
+        // FIXME: Use aquireConnection() instead.
         if (!m_remote.m_connection)
-            m_remote.m_connection = new QSsh::SshConnection(m_params, this);
+            m_remote.m_connection = new QSsh::SshConnection(m_device->sshParameters(), this);
 
         if (m_remote.m_connection->state() != QSsh::SshConnection::Connected) {
             connect(m_remote.m_connection, &QSsh::SshConnection::connected,
@@ -227,7 +227,7 @@ QSsh::SshConnection *ValgrindProcess::connection() const
 
 bool ValgrindProcess::isLocal() const
 {
-    return m_params.host.isEmpty();
+    return m_device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
 void ValgrindProcess::localProcessStarted()

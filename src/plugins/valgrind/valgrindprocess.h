@@ -28,6 +28,7 @@
 #define VALGRINDPROCESS_H
 
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runnables.h>
 
 #include <ssh/sshremoteprocess.h>
@@ -45,8 +46,7 @@ class ValgrindProcess : public QObject
     Q_OBJECT
 
 public:
-    ValgrindProcess(const QSsh::SshConnectionParameters &sshParams,
-                    QSsh::SshConnection *connection, QObject *parent);
+    ValgrindProcess(const ProjectExplorer::IDevice::ConstPtr &device, QObject *parent);
 
     bool isRunning() const;
 
@@ -62,6 +62,8 @@ public:
 
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     QString workingDirectory() const;
+
+    ProjectExplorer::IDevice::ConstPtr device() const { return m_device; }
 
     qint64 pid() const;
     QSsh::SshConnection *connection() const;
@@ -90,6 +92,7 @@ private:
     ProjectExplorer::StandardRunnable m_debuggee;
     ProjectExplorer::ApplicationLauncher m_localProcess;
     qint64 m_pid;
+    ProjectExplorer::IDevice::ConstPtr m_device;
 
     struct Remote {
         QSsh::SshConnection *m_connection;

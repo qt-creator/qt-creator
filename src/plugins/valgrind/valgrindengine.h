@@ -51,16 +51,13 @@ public:
 
     QString executable() const;
 
-    void setCustomStart() { m_isCustomStart = true; }
-
 protected:
     virtual QString progressTitle() const = 0;
     virtual QStringList toolArguments() const = 0;
     virtual Valgrind::ValgrindRunner *runner() = 0;
 
-    ValgrindBaseSettings *m_settings;
+    ValgrindBaseSettings *m_settings = 0;
     QFutureInterface<void> m_progress;
-    bool m_isCustomStart;
 
 private:
     void handleProgressCanceled();
@@ -73,7 +70,7 @@ private:
     QStringList genericToolArguments() const;
 
 private:
-    bool m_isStopping;
+    bool m_isStopping = false;
 };
 
 } // namespace Internal

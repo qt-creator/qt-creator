@@ -95,13 +95,11 @@ bool MemcheckRunner::start()
 {
     QTC_ASSERT(d->parser, return false);
 
-    // The remote case is handled in localHostAddressRetrieved().
-    // FIXME: We start confusing "use startup project" with a "local/remote"
-    // decision here.
-    if (useStartupProject()) {
-        startServers(QHostAddress(QHostAddress::LocalHost));
-        setValgrindArguments(memcheckLogArguments() + valgrindArguments());
-    }
+    if (!startServers())
+        return false;
+
+    setValgrindArguments(memcheckLogArguments() + valgrindArguments());
+
     return ValgrindRunner::start();
 }
 
@@ -135,10 +133,10 @@ void MemcheckRunner::readLogSocket()
     emit logMessageReceived(d->logSocket->readAll());
 }
 
-// Note: The callers of this function cannot handle errors, so they will ignore the return value.
-// We still provide it in case the surrounding infrastructure will improve.
-bool MemcheckRunner::startServers(const QHostAddress &localHostAddress)
+bool MemcheckRunner::startServers()
 {
+    QHostAddress localHostAddress(QHostAddress::LocalHost);
+
     bool check = d->xmlServer.listen(localHostAddress);
     const QString ip = localHostAddress.toString();
     if (!check) {
@@ -176,8 +174,7 @@ QStringList MemcheckRunner::memcheckLogArguments() const
 
 void MemcheckRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)
 {
-    startServers(localHostAddress);
-    setValgrindArguments(memcheckLogArguments() + valgrindArguments());
+    Q_UNUSED(localHostAddress);
     valgrindProcess()->setValgrindArguments(fullValgrindArguments());
 }
 

@@ -52,11 +52,10 @@ namespace Valgrind {
 namespace Internal {
 
 ValgrindRunControl::ValgrindRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
-    : AnalyzerRunControl(runConfiguration, runMode),
-      m_settings(0),
-      m_isStopping(false)
+    : AnalyzerRunControl(runConfiguration, runMode)
 {
-    m_isCustomStart = false;
+    QTC_ASSERT(runConfiguration, return);
+    setRunnable(runConfiguration->runnable());
 
     if (runConfiguration)
         if (IRunConfigurationAspect *aspect = runConfiguration->extraAspect(ANALYZER_VALGRIND_SETTINGS))
@@ -87,8 +86,8 @@ bool ValgrindRunControl::startEngine()
     ValgrindRunner *run = runner();
     run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
-    run->setConnectionParameters(connection().as<AnalyzerConnection>().connParams);
-    run->setUseStartupProject(!m_isCustomStart);
+    QTC_ASSERT(!device().isNull(), return false);
+    run->setDevice(device());
     run->setDebuggee(runnable().as<StandardRunnable>());
 
     connect(run, &ValgrindRunner::processOutputReceived,

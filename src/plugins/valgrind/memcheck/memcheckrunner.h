@@ -62,7 +62,7 @@ private slots:
 private:
     QString tool() const;
 
-    bool startServers(const QHostAddress &localHostAddress);
+    bool startServers();
     QStringList memcheckLogArguments() const;
 
     class Private;
