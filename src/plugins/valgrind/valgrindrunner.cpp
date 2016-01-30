@@ -182,7 +182,7 @@ void ValgrindRunner::waitForFinished() const
 bool ValgrindRunner::start()
 {
     // FIXME: This wrongly uses "useStartupProject" for a Local/Remote decision.
-    d->run(new ValgrindProcess(d->useStartupProject, d->connParams, 0, this));
+    d->run(new ValgrindProcess(d->connParams, 0, this));
     return true;
 }
 

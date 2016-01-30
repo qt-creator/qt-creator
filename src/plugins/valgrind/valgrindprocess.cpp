@@ -37,13 +37,11 @@ using namespace ProjectExplorer;
 
 namespace Valgrind {
 
-ValgrindProcess::ValgrindProcess(bool isLocal, const QSsh::SshConnectionParameters &sshParams,
+ValgrindProcess::ValgrindProcess(const QSsh::SshConnectionParameters &sshParams,
                                  QSsh::SshConnection *connection, QObject *parent)
-    : QObject(parent),
-      m_isLocal(isLocal)
+    : QObject(parent)
 {
-    m_isLocal = sshParams.host.isEmpty();
-    m_remote.m_params = sshParams;
+    m_params = sshParams;
     m_remote.m_connection = connection;
     m_remote.m_error = QProcess::UnknownError;
     m_pid = 0;
@@ -129,7 +127,7 @@ void ValgrindProcess::run()
     } else {
         // connect to host and wait for connection
         if (!m_remote.m_connection)
-            m_remote.m_connection = new QSsh::SshConnection(m_remote.m_params, this);
+            m_remote.m_connection = new QSsh::SshConnection(m_params, this);
 
         if (m_remote.m_connection->state() != QSsh::SshConnection::Connected) {
             connect(m_remote.m_connection, &QSsh::SshConnection::connected,
@@ -225,6 +223,11 @@ void ValgrindProcess::connected()
 QSsh::SshConnection *ValgrindProcess::connection() const
 {
     return m_remote.m_connection;
+}
+
+bool ValgrindProcess::isLocal() const
+{
+    return m_params.host.isEmpty();
 }
 
 void ValgrindProcess::localProcessStarted()

@@ -45,8 +45,8 @@ class ValgrindProcess : public QObject
     Q_OBJECT
 
 public:
-    ValgrindProcess(bool isLocal, const QSsh::SshConnectionParameters &sshParams,
-                    QSsh::SshConnection *connection = 0, QObject *parent = 0);
+    ValgrindProcess(const QSsh::SshConnectionParameters &sshParams,
+                    QSsh::SshConnection *connection, QObject *parent);
 
     bool isRunning() const;
 
@@ -65,7 +65,7 @@ public:
 
     qint64 pid() const;
     QSsh::SshConnection *connection() const;
-    bool isLocal() const { return m_isLocal; }
+    bool isLocal() const;
 
 signals:
     void started();
@@ -92,7 +92,6 @@ private:
     qint64 m_pid;
 
     struct Remote {
-        QSsh::SshConnectionParameters m_params;
         QSsh::SshConnection *m_connection;
         QSsh::SshRemoteProcess::Ptr m_process;
         QString m_errorString;
@@ -100,9 +99,9 @@ private:
         QSsh::SshRemoteProcess::Ptr m_findPID;
     } m_remote;
 
+    QSsh::SshConnectionParameters m_params;
     QString m_valgrindExecutable;
     QStringList m_valgrindArguments;
-    bool m_isLocal;
 };
 
 } // namespace Valgrind
