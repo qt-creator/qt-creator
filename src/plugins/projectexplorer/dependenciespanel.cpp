@@ -158,13 +158,13 @@ void DependenciesView::setModel(QAbstractItemModel *newModel)
 {
     if (QAbstractItemModel *oldModel = model()) {
         disconnect(oldModel, &QAbstractItemModel::rowsInserted,
-                this, &DependenciesView::updateSizeHint);
+                   this, &DependenciesView::updateSizeHint);
         disconnect(oldModel, &QAbstractItemModel::rowsRemoved,
-                this, &DependenciesView::updateSizeHint);
+                   this, &DependenciesView::updateSizeHint);
         disconnect(oldModel, &QAbstractItemModel::modelReset,
-                this, &DependenciesView::updateSizeHint);
+                   this, &DependenciesView::updateSizeHint);
         disconnect(oldModel, &QAbstractItemModel::layoutChanged,
-                this, &DependenciesView::updateSizeHint);
+                   this, &DependenciesView::updateSizeHint);
     }
 
     QTreeView::setModel(newModel);

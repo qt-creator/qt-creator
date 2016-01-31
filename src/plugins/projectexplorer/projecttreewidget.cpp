@@ -112,17 +112,17 @@ public:
         if (model()) {
             QAbstractItemModel *m = model();
             disconnect(m, &QAbstractItemModel::dataChanged,
-                    this, &ProjectTreeView::invalidateSize);
+                       this, &ProjectTreeView::invalidateSize);
             disconnect(m, &QAbstractItemModel::layoutChanged,
-                    this, &ProjectTreeView::invalidateSize);
+                       this, &ProjectTreeView::invalidateSize);
             disconnect(m, &QAbstractItemModel::modelReset,
-                    this, &ProjectTreeView::invalidateSize);
+                       this, &ProjectTreeView::invalidateSize);
             disconnect(m, &QAbstractItemModel::rowsInserted,
-                    this, &ProjectTreeView::invalidateSize);
+                       this, &ProjectTreeView::invalidateSize);
             disconnect(m, &QAbstractItemModel::rowsMoved,
-                    this, &ProjectTreeView::invalidateSize);
+                       this, &ProjectTreeView::invalidateSize);
             disconnect(m, &QAbstractItemModel::rowsRemoved,
-                    this, &ProjectTreeView::invalidateSize);
+                       this, &ProjectTreeView::invalidateSize);
         }
         if (newModel) {
             connect(newModel, &QAbstractItemModel::dataChanged,
