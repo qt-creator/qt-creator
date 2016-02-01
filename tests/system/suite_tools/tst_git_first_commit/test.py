@@ -64,7 +64,7 @@ def main():
     clickButton(waitForObject(":Select a Git Commit.Show_QPushButton"))
     changedEdit = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
     waitFor("len(str(changedEdit.plainText)) > 0 and "
-            "str(changedEdit.plainText) != 'Waiting for data...'", 20000)
+            "str(changedEdit.plainText) != 'Waiting for data...'", 40000)
     diffPlainText = str(changedEdit.plainText)
     test.verify("# This file is used to ignore files which are generated" in diffPlainText,
                 "Comment from .gitignore in diff?")
