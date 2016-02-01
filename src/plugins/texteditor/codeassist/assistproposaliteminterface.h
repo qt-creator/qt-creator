@@ -44,7 +44,7 @@ class TextEditorWidget;
 class TEXTEDITOR_EXPORT AssistProposalItemInterface
 {
 public:
-    virtual ~AssistProposalItemInterface() noexcept = default;
+    virtual ~AssistProposalItemInterface() Q_DECL_NOEXCEPT = default;
 
     virtual QString text() const = 0;
     virtual bool implicitlyApplies() const = 0;
