@@ -540,6 +540,45 @@ static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,
     return tc;
 }
 
+// Detect build tools introduced with MSVC2015
+static void detectCppBuildTools(QList<ToolChain *> *list)
+{
+    struct Entry {
+        const char *postFix;
+        const char *varsBatArg;
+        Abi::Architecture architecture;
+        Abi::BinaryFormat format;
+        unsigned char wordSize;
+    };
+
+    const Entry entries[] = {
+        {" (x86)", "x86", Abi::X86Architecture, Abi::PEFormat, 32},
+        {" (x64)", "amd64", Abi::X86Architecture, Abi::PEFormat, 64},
+        {" (x86_arm)", "x86_arm", Abi::ArmArchitecture, Abi::PEFormat, 32},
+        {" (x64_arm)", "amd64_arm", Abi::ArmArchitecture, Abi::PEFormat, 64}
+    };
+
+#ifdef Q_OS_WIN64
+    const char programFilesC[] = "ProgramFiles(x86)";
+#else
+    const char programFilesC[] = "ProgramFiles";
+#endif
+    const QString name = QStringLiteral("Microsoft Visual C++ Build Tools");
+    const QString vcVarsBat = QFile::decodeName(qgetenv(programFilesC))
+        + QLatin1Char('/') + name + QStringLiteral("/vcbuildtools.bat");
+    if (!QFileInfo(vcVarsBat).isFile())
+        return;
+    const size_t count = sizeof(entries) / sizeof(entries[0]);
+    for (size_t i = 0; i < count; ++i) {
+        const Entry &e = entries[i];
+        const Abi abi(e.architecture, Abi::WindowsOS, Abi::WindowsMsvc2015Flavor,
+                      e.format, e.wordSize);
+        list->append(new MsvcToolChain(name + QLatin1String(e.postFix), abi,
+                                       vcVarsBat, QLatin1String(e.varsBatArg),
+                                       ToolChain::AutoDetection));
+    }
+}
+
 QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> results;
@@ -629,6 +668,8 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
             qWarning("Unable to find MSVC setup script %s in version %d", qPrintable(vcvarsAllbat), version);
         }
     }
+
+    detectCppBuildTools(&results);
 
     return results;
 }

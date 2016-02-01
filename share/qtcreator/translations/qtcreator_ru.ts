@@ -3753,40 +3753,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsPropertiesPage</name>
-    <message>
-        <source>Pre-compiled headers:</source>
-        <translation>Предкомпиляция:</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Нет</translation>
-    </message>
-    <message>
-        <source>Build system (exact)</source>
-        <translation>Система сборки (точно)</translation>
-    </message>
-    <message>
-        <source>Build system (fuzzy)</source>
-        <translation>Система сборки (приближённо)</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Особая</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Выбрать...</translation>
-    </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
-    <message>
-        <source>Clang Settings</source>
-        <translation>Настройки Clang</translation>
-    </message>
-</context>
-<context>
     <name>ClangCodeModel::Internal::ModelManagerSupport</name>
     <message>
         <source>Clang</source>
@@ -13229,10 +13195,6 @@ Do you want to retry?</source>
     <message>
         <source>Start Watching</source>
         <translation>Начинать наблюдение</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
     </message>
     <message>
         <source>Kit: </source>
@@ -24083,6 +24045,10 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Приложение Qt Canvas 3D</translation>
     </message>
     <message>
+        <source>Qt 5.6</source>
+        <translation>Qt 5.6</translation>
+    </message>
+    <message>
         <source>Qt 5.5</source>
         <translation>Qt 5.5</translation>
     </message>
@@ -28820,10 +28786,6 @@ This is independent of the visibility property in QML.</source>
 <context>
     <name>QmlDesigner::QmlDesignerPlugin</name>
     <message>
-        <source>Cannot create OpenGL context.</source>
-        <translation>Не удалось создать контекст OpenGL.</translation>
-    </message>
-    <message>
         <source>Switch Text/Design</source>
         <translation>Переключить текст/дизайн</translation>
     </message>
@@ -29785,20 +29747,12 @@ Please build the qmldump application on the Qt version options page.</source>
         <translation>Версия с основным номером отличным от 1 не поддерживается.</translation>
     </message>
     <message>
-        <source>Reading only version 1.1 parts.</source>
-        <translation>Чтение разделов версии 1.1.</translation>
-    </message>
-    <message>
         <source>Expected document to contain a single object definition.</source>
         <translation>Требуется определение в документе ровно одного объекта.</translation>
     </message>
     <message>
         <source>Expected document to contain a Module {} member.</source>
         <translation>В документе требуется наличие члена Module {}.</translation>
-    </message>
-    <message>
-        <source>Expected only Component and ModuleApi object definitions.</source>
-        <translation>Допустимы только определения объектов Component и ModuleApi.</translation>
     </message>
     <message>
         <source>Expected only Property, Method, Signal and Enum object definitions, not &quot;%1&quot;.</source>
@@ -30595,10 +30549,6 @@ references to elements in other files, loops, and so on.)</source>
 </context>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerPlugin</name>
-    <message>
-        <source>Cannot create OpenGL context.</source>
-        <translation>Не удалось создать контекст OpenGL.</translation>
-    </message>
     <message>
         <source>QML Profiler</source>
         <translation>Профайлер QML</translation>
@@ -31823,6 +31773,13 @@ cannot be found in the path.</source>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Журнал сборки помощника отладчика</translation>
+    </message>
+</context>
+<context>
+    <name>QtSupport::ProMessageHandler</name>
+    <message>
+        <source>[Inexact] </source>
+        <translation>[Примерно] </translation>
     </message>
 </context>
 <context>
@@ -38683,13 +38640,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Welcome Mode Load Error</source>
         <translation>Ошибка загрузки режима приветствия</translation>
-    </message>
-</context>
-<context>
-    <name>Welcome::Internal::WelcomePlugin</name>
-    <message>
-        <source>Cannot create OpenGL context.</source>
-        <translation>Не удалось создать контекст OpenGL.</translation>
     </message>
 </context>
 <context>

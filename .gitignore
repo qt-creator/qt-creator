@@ -34,6 +34,10 @@ Thumbs.db
 *.embed.manifest
 /.qmake.cache
 /.qmake.stash
+*_wrapper.sh
+*_wrapper.bat
+wrapper.sh
+wrapper.bat
 
 # qtcreator generated files
 *.pro.user*

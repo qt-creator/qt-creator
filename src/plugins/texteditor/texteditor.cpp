@@ -5488,6 +5488,14 @@ void TextEditorWidget::wheelEvent(QWheelEvent *e)
     QPlainTextEdit::wheelEvent(e);
 }
 
+static void showZoomIndicator(QWidget *editor, const int newZoom)
+{
+    Utils::FadingIndicator::showText(editor,
+                                     QCoreApplication::translate("TextEditor::TextEditorWidget",
+                                                                 "Zoom: %1%").arg(newZoom),
+                                     Utils::FadingIndicator::SmallText);
+}
+
 void TextEditorWidget::zoomF(float delta)
 {
     d->clearVisibleFoldedBlock();
@@ -5499,14 +5507,13 @@ void TextEditorWidget::zoomF(float delta)
         step = -1;
 
     const int newZoom = TextEditorSettings::instance()->increaseFontZoom(int(step));
-    Utils::FadingIndicator::showText(this,
-                                     tr("Zoom: %1%").arg(newZoom),
-                                     Utils::FadingIndicator::SmallText);
+    showZoomIndicator(this, newZoom);
 }
 
 void TextEditorWidget::zoomReset()
 {
     TextEditorSettings::instance()->resetFontZoom();
+    showZoomIndicator(this, 100);
 }
 
 TextEditorWidget::Link TextEditorWidget::findLinkAt(const QTextCursor &, bool, bool)
