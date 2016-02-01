@@ -90,7 +90,7 @@ private:
     void removeAllTestItems();
     void removeFiles(const QStringList &files);
     void markForRemoval(const QString &filePath, Type type);
-    void sweepChildren(TestTreeItem *item);
+    bool sweepChildren(TestTreeItem *item);
     TestTreeItem *findTestTreeItemByContent(TestTreeItem *item, TestTreeItem *parent, Type type);
 
     TestTreeItem *unnamedQuickTests() const;
