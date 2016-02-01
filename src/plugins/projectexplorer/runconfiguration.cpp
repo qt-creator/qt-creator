@@ -542,9 +542,8 @@ public:
         if (runConfiguration) {
             displayName  = runConfiguration->displayName();
             outputFormatter = runConfiguration->createOutputFormatter();
-
-            if (runConfiguration->target())
-                project = runConfiguration->target()->project();
+            device = DeviceKitInformation::device(runConfiguration->target()->kit());
+            project = runConfiguration->target()->project();
         }
 
         // We need to ensure that there's always a OutputFormatter
@@ -559,6 +558,7 @@ public:
 
     QString displayName;
     Runnable runnable;
+    IDevice::ConstPtr device;
     Connection connection;
     Core::Id runMode;
     Utils::Icon icon;
@@ -643,6 +643,11 @@ Abi RunControl::abi() const
     if (const RunConfiguration *rc = d->runConfiguration.data())
         return rc->abi();
     return Abi();
+}
+
+IDevice::ConstPtr RunControl::device() const
+{
+   return d->device;
 }
 
 RunConfiguration *RunControl::runConfiguration() const

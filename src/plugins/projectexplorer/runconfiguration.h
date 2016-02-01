@@ -29,6 +29,7 @@
 #include "projectconfiguration.h"
 #include "projectexplorerconstants.h"
 #include "applicationlauncher.h"
+#include "devicesupport/idevice.h"
 
 #include <utils/qtcassert.h>
 #include <utils/icon.h>
@@ -369,6 +370,7 @@ public:
     ProcessHandle applicationProcessHandle() const;
     void setApplicationProcessHandle(const ProcessHandle &handle);
     Abi abi() const;
+    IDevice::ConstPtr device() const;
 
     RunConfiguration *runConfiguration() const;
     Project *project() const;
