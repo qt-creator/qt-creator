@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
-    <height>244</height>
+    <width>451</width>
+    <height>271</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -70,6 +70,16 @@
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="alwaysParseCB">
+            <property name="toolTip">
+             <string>Parse for tests even when no Tests related widget is displayed.</string>
+            </property>
+            <property name="text">
+             <string>Always parse current project for tests</string>
             </property>
            </widget>
           </item>

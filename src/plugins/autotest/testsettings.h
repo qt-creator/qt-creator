@@ -57,6 +57,7 @@ struct TestSettings
     bool omitRunConfigWarn;
     bool limitResultOutput;
     bool autoScroll;
+    bool alwaysParse;
 };
 
 inline bool operator==(const TestSettings &s1, const TestSettings &s2) { return s1.equals(s2); }

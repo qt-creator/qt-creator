@@ -54,7 +54,9 @@ public:
     static TestTreeModel* instance();
     ~TestTreeModel();
     void enableParsing();
+    void enableParsingFromSettings();
     void disableParsing();
+    void disableParsingFromSettings();
 
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -100,6 +102,7 @@ private:
     void modifyTestSubtree(QModelIndex &toBeModifiedIndex, const TestTreeItem *newItem);
     void processChildren(QModelIndex &parentIndex, const TestTreeItem *newItem,
                          const int upperBound, const QHash<QString, Qt::CheckState> &checkStates);
+    void setupParsingConnections();
 
     TestTreeItem *m_autoTestRootItem;
     TestTreeItem *m_quickTestRootItem;

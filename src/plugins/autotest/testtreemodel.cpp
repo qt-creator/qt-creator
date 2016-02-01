@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "autotestconstants.h"
+#include "autotestplugin.h"
 #include "testcodeparser.h"
+#include "testsettings.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
@@ -113,7 +115,16 @@ TestTreeModel::~TestTreeModel()
 void TestTreeModel::enableParsing()
 {
     m_refCounter.ref();
+    setupParsingConnections();
+}
 
+void TestTreeModel::enableParsingFromSettings()
+{
+    setupParsingConnections();
+}
+
+void TestTreeModel::setupParsingConnections()
+{
     if (!m_connectionsInitialized)
         m_parser->setDirty();
 
@@ -143,7 +154,13 @@ void TestTreeModel::enableParsing()
 
 void TestTreeModel::disableParsing()
 {
-    if (!m_refCounter.deref())
+    if (!m_refCounter.deref() && !AutotestPlugin::instance()->settings()->alwaysParse)
+        m_parser->setState(TestCodeParser::Disabled);
+}
+
+void TestTreeModel::disableParsingFromSettings()
+{
+    if (!m_refCounter.load())
         m_parser->setState(TestCodeParser::Disabled);
 }
 

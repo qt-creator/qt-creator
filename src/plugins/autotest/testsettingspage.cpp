@@ -26,6 +26,7 @@
 #include "autotestconstants.h"
 #include "testsettingspage.h"
 #include "testsettings.h"
+#include "testtreemodel.h"
 
 #include <coreplugin/icore.h>
 
@@ -49,6 +50,7 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.omitRunConfigWarnCB->setChecked(settings.omitRunConfigWarn);
     m_ui.limitResultOutputCB->setChecked(settings.limitResultOutput);
     m_ui.autoScrollCB->setChecked(settings.autoScroll);
+    m_ui.alwaysParseCB->setChecked(settings.alwaysParse);
 
     switch (settings.metrics) {
     case MetricsType::Walltime:
@@ -79,6 +81,7 @@ TestSettings TestSettingsWidget::settings() const
     result.omitRunConfigWarn = m_ui.omitRunConfigWarnCB->isChecked();
     result.limitResultOutput = m_ui.limitResultOutputCB->isChecked();
     result.autoScroll = m_ui.autoScrollCB->isChecked();
+    result.alwaysParse = m_ui.alwaysParseCB->isChecked();
 
     if (m_ui.walltimeRB->isChecked())
         result.metrics = MetricsType::Walltime;
@@ -125,6 +128,10 @@ void TestSettingsPage::apply()
     if (newSettings != *m_settings) {
         *m_settings = newSettings;
         m_settings->toSettings(Core::ICore::settings());
+        if (m_settings->alwaysParse)
+            TestTreeModel::instance()->enableParsingFromSettings();
+        else
+            TestTreeModel::instance()->disableParsingFromSettings();
     }
 }
 

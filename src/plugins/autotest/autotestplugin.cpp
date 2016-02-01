@@ -135,6 +135,9 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     addAutoReleasedObject(new TestNavigationWidgetFactory);
     addAutoReleasedObject(TestResultsPane::instance());
 
+    if (m_settings->alwaysParse)
+        TestTreeModel::instance()->enableParsingFromSettings();
+
     return true;
 }
 
