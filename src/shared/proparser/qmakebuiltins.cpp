@@ -146,6 +146,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "shell_quote", E_SHELL_QUOTE },
         { "getenv", E_GETENV },
     };
+    statics.expands.reserve((int)(sizeof(expandInits)/sizeof(expandInits[0])));
     for (unsigned i = 0; i < sizeof(expandInits)/sizeof(expandInits[0]); ++i)
         statics.expands.insert(ProKey(expandInits[i].name), expandInits[i].func);
 
@@ -187,6 +188,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "touch", T_TOUCH },
         { "cache", T_CACHE },
     };
+    statics.functions.reserve((int)(sizeof(testInits)/sizeof(testInits[0])));
     for (unsigned i = 0; i < sizeof(testInits)/sizeof(testInits[0]); ++i)
         statics.functions.insert(ProKey(testInits[i].name), testInits[i].func);
 }

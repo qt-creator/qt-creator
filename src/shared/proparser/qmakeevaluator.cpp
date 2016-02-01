@@ -183,6 +183,7 @@ void QMakeEvaluator::initStatics()
         { "IN_PWD", "PWD" },
         { "DEPLOYMENT", "INSTALLS" }
     };
+    statics.varMap.reserve((int)(sizeof(mapInits)/sizeof(mapInits[0])));
     for (unsigned i = 0; i < sizeof(mapInits)/sizeof(mapInits[0]); ++i)
         statics.varMap.insert(ProKey(mapInits[i].oldname), ProKey(mapInits[i].newname));
 }
@@ -760,12 +761,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
                 if (ok) {
                     int end = itl.mid(dotdot+2).toInt(&ok);
                     if (ok) {
-                        if (m_cumulative && qAbs(end - start) > 100) {
+                        const int absDiff = qAbs(end - start);
+                        if (m_cumulative && absDiff > 100) {
                             // Such a loop is unlikely to contribute something useful to the
                             // file collection, and may cause considerable delay.
                             traceMsg("skipping excessive loop in cumulative mode");
                             return ReturnFalse;
                         }
+                        list.reserve(absDiff + 1);
                         if (start < end) {
                             for (int i = start; i <= end; i++)
                                 list << ProString(QString::number(i));
