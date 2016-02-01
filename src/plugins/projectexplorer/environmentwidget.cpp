@@ -32,6 +32,7 @@
 #include <utils/environment.h>
 #include <utils/environmentmodel.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/itemviews.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QString>
@@ -160,7 +161,10 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     horizontalLayout->setMargin(0);
-    d->m_environmentView = new Internal::EnvironmentTreeView(this);
+    auto tree = new Utils::TreeView(this);
+    connect(tree, &QAbstractItemView::activated,
+            tree, [tree](const QModelIndex &idx) { tree->edit(idx); });
+    d->m_environmentView = tree;
     d->m_environmentView->setModel(d->m_model);
     d->m_environmentView->setItemDelegate(new EnvironmentDelegate(d->m_model, d->m_environmentView));
     d->m_environmentView->setMinimumHeight(400);
@@ -362,48 +366,6 @@ void EnvironmentWidget::invalidateCurrentIndex()
 {
     environmentCurrentIndexChanged(QModelIndex());
 }
-
-Internal::EnvironmentTreeView::EnvironmentTreeView(QWidget *parent)
-    : QTreeView(parent)
-{
-
-}
-
-QModelIndex Internal::EnvironmentTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
-{
-    QModelIndex idx = currentIndex();
-    int column = idx.column();
-    int row = idx.row();
-
-    if (cursorAction == QAbstractItemView::MoveNext) {
-        if (column == 0)
-            return idx.sibling(row, 1);
-        else if (row + 1 < model()->rowCount())
-            return idx.sibling(row + 1, 0);
-        else // On last column in last row
-            return idx;
-    } else if (cursorAction == QAbstractItemView::MovePrevious) {
-        if (column == 1)
-            return idx.sibling(row, 0);
-        else if (row - 1 >= 0)
-            return idx.sibling(row - 1, 1);
-        else // On first column in first row
-            return idx;
-    }
-    return QTreeView::moveCursor(cursorAction, modifiers);
-}
-
-void Internal::EnvironmentTreeView::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
-        if (!edit(currentIndex(), EditKeyPressed, event))
-            event->ignore();
-        return;
-    }
-
-    QTreeView::keyPressEvent(event);
-}
-
 
 } // namespace ProjectExplorer
 
