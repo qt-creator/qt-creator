@@ -296,7 +296,9 @@ static void insertJsonKeyValue(const QString &key, const QStringList &values, Pr
 static void addJsonArray(const QJsonArray &array, const QString &keyPrefix, ProValueMap *map)
 {
     QStringList keys;
-    for (int i = 0; i < array.count(); ++i) {
+    const int size = array.count();
+    keys.reserve(size);
+    for (int i = 0; i < size; ++i) {
         keys.append(QString::number(i));
         addJsonValue(array.at(i), keyPrefix + QString::number(i), map);
     }
@@ -305,10 +307,14 @@ static void addJsonArray(const QJsonArray &array, const QString &keyPrefix, ProV
 
 static void addJsonObject(const QJsonObject &object, const QString &keyPrefix, ProValueMap *map)
 {
-    for (auto it = object.begin(), end = object.end(); it != end; ++it)
-        addJsonValue(it.value(), keyPrefix + it.key(), map);
-
-    insertJsonKeyValue(keyPrefix + QLatin1String("_KEYS_"), object.keys(), map);
+    QStringList keys;
+    keys.reserve(object.size());
+    for (auto it = object.begin(), end = object.end(); it != end; ++it) {
+        const QString key = it.key();
+        keys.append(key);
+        addJsonValue(it.value(), keyPrefix + key, map);
+    }
+    insertJsonKeyValue(keyPrefix + QLatin1String("_KEYS_"), keys, map);
 }
 
 static void addJsonValue(const QJsonValue &value, const QString &keyPrefix, ProValueMap *map)
