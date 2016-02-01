@@ -27,11 +27,9 @@
 #define RUNCONFIGURATION_H
 
 #include "projectconfiguration.h"
-#include "projectexplorer_export.h"
 #include "projectexplorerconstants.h"
 #include "applicationlauncher.h"
 
-#include <utils/outputformat.h>
 #include <utils/qtcassert.h>
 #include <utils/icon.h>
 
@@ -54,6 +52,8 @@ class RunConfiguration;
 class RunConfigWidget;
 class RunControl;
 class Target;
+
+namespace Internal { class RunControlPrivate; }
 
 // FIXME: This should also contain a handle to an remote device if used.
 class PROJECTEXPLORER_EXPORT ProcessHandle
@@ -368,10 +368,10 @@ public:
     Utils::OutputFormatter *outputFormatter();
     Core::Id runMode() const;
 
-    const Runnable &runnable() const { return m_runnable; }
+    const Runnable &runnable() const;
     void setRunnable(const Runnable &runnable);
 
-    const Connection &connection() const { return m_connection; }
+    const Connection &connection() const;
     void setConnection(const Connection &connection);
 
 public slots:
@@ -393,24 +393,7 @@ protected:
 
 private:
     void bringApplicationToForegroundInternal();
-
-    QString m_displayName;
-    Runnable m_runnable;
-    Connection m_connection;
-    Core::Id m_runMode;
-    Utils::Icon m_icon;
-    const QPointer<RunConfiguration> m_runConfiguration;
-    QPointer<Project> m_project;
-    Utils::OutputFormatter *m_outputFormatter;
-
-    // A handle to the actual application process.
-    ProcessHandle m_applicationProcessHandle;
-
-#ifdef Q_OS_MAC
-    //these two are used to bring apps in the foreground on Mac
-    qint64 m_internalPid;
-    int m_foregroundCount;
-#endif
+    Internal::RunControlPrivate *d;
 };
 
 } // namespace ProjectExplorer

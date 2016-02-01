@@ -42,7 +42,7 @@
 #include <QTimer>
 #include <QPushButton>
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_OSX
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
@@ -531,93 +531,139 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunCon
     than it needs to be.
 */
 
-RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode)
-    : m_runMode(mode), m_runConfiguration(runConfiguration), m_outputFormatter(0)
-{
-    if (runConfiguration) {
-        m_displayName  = runConfiguration->displayName();
-        m_outputFormatter = runConfiguration->createOutputFormatter();
+namespace Internal {
 
-        if (runConfiguration->target())
-            m_project = m_runConfiguration->target()->project();
+class RunControlPrivate
+{
+public:
+    RunControlPrivate(RunConfiguration *runConfiguration, Core::Id mode)
+        : runMode(mode), runConfiguration(runConfiguration)
+    {
+        if (runConfiguration) {
+            displayName  = runConfiguration->displayName();
+            outputFormatter = runConfiguration->createOutputFormatter();
+
+            if (runConfiguration->target())
+                project = runConfiguration->target()->project();
+        }
+
+        // We need to ensure that there's always a OutputFormatter
+        if (!outputFormatter)
+            outputFormatter = new Utils::OutputFormatter();
     }
 
-    // We need to ensure that there's always a OutputFormatter
-    if (!m_outputFormatter)
-        m_outputFormatter = new Utils::OutputFormatter();
+    ~RunControlPrivate()
+    {
+        delete outputFormatter;
+    }
+
+    QString displayName;
+    Runnable runnable;
+    Connection connection;
+    Core::Id runMode;
+    Utils::Icon icon;
+    const QPointer<RunConfiguration> runConfiguration;
+    QPointer<Project> project;
+    Utils::OutputFormatter *outputFormatter = 0;
+
+    // A handle to the actual application process.
+    ProcessHandle applicationProcessHandle;
+
+#ifdef Q_OS_OSX
+    //these two are used to bring apps in the foreground on Mac
+    qint64 internalPid;
+    int foregroundCount;
+#endif
+};
+
+} // Internal
+
+RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode)
+    : d(new Internal::RunControlPrivate(runConfiguration, mode))
+{
 }
 
 RunControl::~RunControl()
 {
-    delete m_outputFormatter;
+    delete d;
 }
 
 Utils::OutputFormatter *RunControl::outputFormatter()
 {
-    return m_outputFormatter;
+    return d->outputFormatter;
 }
 
 Core::Id RunControl::runMode() const
 {
-    return m_runMode;
+    return d->runMode;
+}
+
+const Runnable &RunControl::runnable() const
+{
+    return d->runnable;
 }
 
 void RunControl::setRunnable(const Runnable &runnable)
 {
-    m_runnable = runnable;
+    d->runnable = runnable;
+}
+
+const Connection &RunControl::connection() const
+{
+    return d->connection;
 }
 
 void RunControl::setConnection(const Connection &connection)
 {
-    m_connection = connection;
+    d->connection = connection;
 }
 
 QString RunControl::displayName() const
 {
-    return m_displayName;
+    return d->displayName;
 }
 
 void RunControl::setDisplayName(const QString &displayName)
 {
-    m_displayName = displayName;
+    d->displayName = displayName;
 }
 
 void RunControl::setIcon(const Utils::Icon &icon)
 {
-    m_icon = icon;
+    d->icon = icon;
 }
 
 Utils::Icon RunControl::icon() const
 {
-    return m_icon;
+    return d->icon;
 }
 
 Abi RunControl::abi() const
 {
-    if (const RunConfiguration *rc = m_runConfiguration.data())
+    if (const RunConfiguration *rc = d->runConfiguration.data())
         return rc->abi();
     return Abi();
 }
 
 RunConfiguration *RunControl::runConfiguration() const
 {
-    return m_runConfiguration.data();
+    return d->runConfiguration.data();
 }
 
 Project *RunControl::project() const
 {
-    return m_project.data();
+    return d->project.data();
 }
 
 ProcessHandle RunControl::applicationProcessHandle() const
 {
-    return m_applicationProcessHandle;
+    return d->applicationProcessHandle;
 }
 
 void RunControl::setApplicationProcessHandle(const ProcessHandle &handle)
 {
-    if (m_applicationProcessHandle != handle) {
-        m_applicationProcessHandle = handle;
+    if (d->applicationProcessHandle != handle) {
+        d->applicationProcessHandle = handle;
         emit applicationProcessHandleChanged();
     }
 }
@@ -679,14 +725,14 @@ bool RunControl::showPromptToStopDialog(const QString &title,
 
 bool RunControl::sameRunConfiguration(const RunControl *other) const
 {
-    return other->m_runConfiguration.data() == m_runConfiguration.data();
+    return other->d->runConfiguration.data() == d->runConfiguration.data();
 }
 
 void RunControl::bringApplicationToForeground(qint64 pid)
 {
-#ifdef Q_OS_MAC
-    m_internalPid = pid;
-    m_foregroundCount = 0;
+#ifdef Q_OS_OSX
+    d->internalPid = pid;
+    d->foregroundCount = 0;
     bringApplicationToForegroundInternal();
 #else
     Q_UNUSED(pid)
@@ -695,14 +741,14 @@ void RunControl::bringApplicationToForeground(qint64 pid)
 
 void RunControl::bringApplicationToForegroundInternal()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_OSX
     ProcessSerialNumber psn;
-    GetProcessForPID(m_internalPid, &psn);
-    if (SetFrontProcess(&psn) == procNotFound && m_foregroundCount < 15) {
+    GetProcessForPID(d->internalPid, &psn);
+    if (SetFrontProcess(&psn) == procNotFound && d->foregroundCount < 15) {
         // somehow the mac/carbon api says
         // "-600 no eligible process with specified process id"
         // if we call SetFrontProcess too early
-        ++m_foregroundCount;
+        ++d->foregroundCount;
         QTimer::singleShot(200, this, &RunControl::bringApplicationToForegroundInternal);
         return;
     }
