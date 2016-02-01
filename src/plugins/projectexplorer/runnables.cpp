@@ -23,29 +23,16 @@
 **
 ****************************************************************************/
 
-#ifndef ANALYZERSTARTPARAMETERS_H
-#define ANALYZERSTARTPARAMETERS_H
+#include "runnables.h"
 
-#include "analyzerbase_global.h"
+namespace ProjectExplorer {
 
-#include <projectexplorer/runnables.h>
-#include <ssh/sshconnection.h>
-
-#include <QMetaType>
-
-namespace Analyzer {
-
-class ANALYZER_EXPORT AnalyzerConnection
+bool operator==(const StandardRunnable &r1, const StandardRunnable &r2)
 {
-public:
-    QSsh::SshConnectionParameters connParams;
-    QString analyzerHost;
-    QString analyzerSocket;
-    quint16 analyzerPort = 0;
-};
+    return r1.executable == r2.executable
+        && r1.commandLineArguments == r2.commandLineArguments
+        && r1.workingDirectory == r2.workingDirectory
+        && r1.environment == r2.environment;
+}
 
-ANALYZER_EXPORT bool operator==(const AnalyzerConnection &c1, const AnalyzerConnection &c2);
-
-} // namespace Analyzer
-
-#endif // ANALYZERSTARTPARAMETERS_H
+} // namespace ProjectExplorer

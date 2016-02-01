@@ -719,4 +719,12 @@ AnalyzerRunControl *AnalyzerManager::createRunControl(RunConfiguration *runConfi
     return 0;
 }
 
+bool operator==(const AnalyzerConnection &c1, const AnalyzerConnection &c2)
+{
+    return c1.connParams == c2.connParams
+        && c1.analyzerHost == c2.analyzerHost
+        && c1.analyzerSocket == c2.analyzerSocket
+        && c1.analyzerPort == c2.analyzerPort;
+}
+
 } // namespace Analyzer

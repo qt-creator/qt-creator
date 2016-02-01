@@ -127,7 +127,7 @@ QtcPlugin {
             "projectwizardpage.cpp", "projectwizardpage.h", "projectwizardpage.ui",
             "propertiespanel.cpp", "propertiespanel.h",
             "removetaskhandler.cpp", "removetaskhandler.h",
-            "runnables.h",
+            "runnables.cpp", "runnables.h",
             "runconfiguration.cpp", "runconfiguration.h",
             "runconfigurationaspects.cpp", "runconfigurationaspects.h",
             "runconfigurationmodel.cpp", "runconfigurationmodel.h",

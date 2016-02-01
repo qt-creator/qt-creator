@@ -45,6 +45,8 @@ public:
     ApplicationLauncher::Mode runMode;
 };
 
+PROJECTEXPLORER_EXPORT bool operator==(const StandardRunnable &r1, const StandardRunnable &r2);
+
 } // namespace ProjectExplorer
 
 #endif // PROJECTEXPLORER_RUNNABLES_H

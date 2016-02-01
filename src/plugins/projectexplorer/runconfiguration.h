@@ -158,6 +158,7 @@ class PROJECTEXPLORER_EXPORT ClonableConcept
 public:
     virtual ~ClonableConcept() {}
     virtual ClonableConcept *clone() const = 0;
+    virtual bool equals(const std::unique_ptr<ClonableConcept> &other) const = 0;
 };
 
 template <class T>
@@ -166,6 +167,12 @@ class ClonableModel : public ClonableConcept
 public:
     ClonableModel(const T &data) : m_data(data) {}
     ClonableConcept *clone() const override { return new ClonableModel(*this); }
+
+    bool equals(const std::unique_ptr<ClonableConcept> &other) const override
+    {
+        auto that = dynamic_cast<const ClonableModel<T> *>(other.get());
+        return that && m_data == that->m_data;
+    }
 
     T m_data;
 };
@@ -187,6 +194,8 @@ public:
     template <class T> const T &as() const {
         return static_cast<ClonableModel<T> *>(d.get())->m_data;
     }
+
+    bool operator==(const Runnable &other) const;
 
 private:
     std::unique_ptr<ClonableConcept> d;
@@ -363,7 +372,7 @@ public:
 
     RunConfiguration *runConfiguration() const;
     Project *project() const;
-    bool sameRunConfiguration(const RunControl *other) const;
+    bool canReUseOutputPane(const RunControl *other) const;
 
     Utils::OutputFormatter *outputFormatter();
     Core::Id runMode() const;

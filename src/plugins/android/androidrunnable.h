@@ -42,6 +42,17 @@ struct ANDROID_EXPORT AndroidRunnable
     QString deviceSerialNumber;
 };
 
+inline bool operator==(const AndroidRunnable &r1, const AndroidRunnable &r2)
+{
+    return r1.packageName == r2.packageName
+        && r1.intentName == r2.intentName
+        && r1.commandLineArguments == r2.commandLineArguments
+        && r1.environment == r2.environment
+        && r1.beforeStartADBCommands == r2.beforeStartADBCommands
+        && r1.afterFinishADBCommands == r2.afterFinishADBCommands
+        && r1.deviceSerialNumber == r2.deviceSerialNumber;
+}
+
 } // namespace Android
 
 #endif // ANDROIDRUNNABLE_H

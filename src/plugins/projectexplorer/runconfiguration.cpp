@@ -655,6 +655,14 @@ Project *RunControl::project() const
     return d->project.data();
 }
 
+bool RunControl::canReUseOutputPane(const RunControl *other) const
+{
+    if (other->isRunning())
+        return false;
+
+    return d->runnable == other->d->runnable;
+}
+
 ProcessHandle RunControl::applicationProcessHandle() const
 {
     return d->applicationProcessHandle;
@@ -723,11 +731,6 @@ bool RunControl::showPromptToStopDialog(const QString &title,
     return close;
 }
 
-bool RunControl::sameRunConfiguration(const RunControl *other) const
-{
-    return other->d->runConfiguration.data() == d->runConfiguration.data();
-}
-
 void RunControl::bringApplicationToForeground(qint64 pid)
 {
 #ifdef Q_OS_OSX
@@ -758,6 +761,11 @@ void RunControl::bringApplicationToForegroundInternal()
 void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
 {
     emit appendMessage(this, msg, format);
+}
+
+bool Runnable::operator==(const Runnable &other) const
+{
+    return d ? d->equals(other.d) : (other.d.get() == 0);
 }
 
 } // namespace ProjectExplorer

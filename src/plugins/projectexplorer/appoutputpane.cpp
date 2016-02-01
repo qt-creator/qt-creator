@@ -398,7 +398,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     const int size = m_runControlTabs.size();
     for (int i = 0; i < size; i++) {
         RunControlTab &tab =m_runControlTabs[i];
-        if (tab.runControl->sameRunConfiguration(rc) && !tab.runControl->isRunning()) {
+        if (rc->canReUseOutputPane(tab.runControl)) {
             // Reuse this tab
             delete tab.runControl;
             tab.runControl = rc;

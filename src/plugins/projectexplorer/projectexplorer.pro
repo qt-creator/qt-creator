@@ -168,6 +168,7 @@ SOURCES += projectexplorer.cpp \
     environmentaspectwidget.cpp \
     gcctoolchain.cpp \
     importwidget.cpp \
+    runnables.cpp \
     localenvironmentaspect.cpp \
     osparser.cpp \
     projectimporter.cpp \
