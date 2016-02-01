@@ -28,6 +28,7 @@
 
 #include <texteditor/texteditor_global.h>
 
+#include "assistproposaliteminterface.h"
 
 #include <QIcon>
 #include <QString>
@@ -37,30 +38,28 @@ namespace TextEditor {
 
 class TextEditorWidget;
 
-class TEXTEDITOR_EXPORT AssistProposalItem
+class TEXTEDITOR_EXPORT AssistProposalItem : public AssistProposalItemInterface
 {
 public:
-    AssistProposalItem();
-    virtual ~AssistProposalItem();
-
-    virtual QString text() const;
-    virtual bool implicitlyApplies() const;
-    virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void apply(TextEditorWidget *editorWidget, int basePosition) const;
+    QString text() const override;
+    bool implicitlyApplies() const override;
+    bool prematurelyApplies(const QChar &c) const override;
+    void apply(TextEditorWidget *editorWidget, int basePosition) const override;
 
     void setIcon(const QIcon &icon);
-    const QIcon &icon() const;
+    QIcon icon() const final;
 
     void setText(const QString &text);
 
     void setDetail(const QString &detail);
-    const QString &detail() const;
+    QString detail() const final;
 
     void setData(const QVariant &var);
     const QVariant &data() const;
 
-    int order() const;
-    void setOrder(int order);
+    bool isSnippet() const final;
+    bool isValid() const final;
+    quint64 hash() const;
 
     virtual void applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const;
     virtual void applySnippet(TextEditorWidget *editorWidget, int basePosition) const;
@@ -71,7 +70,6 @@ private:
     QString m_text;
     QString m_detail;
     QVariant m_data;
-    int m_order;
 };
 
 } // namespace TextEditor

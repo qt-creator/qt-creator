@@ -33,7 +33,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangAssistProposalItem : public TextEditor::AssistProposalItem
+class ClangAssistProposalItem final : public TextEditor::AssistProposalItem
 {
     friend bool operator<(const ClangAssistProposalItem &first, const ClangAssistProposalItem &second);
 public:

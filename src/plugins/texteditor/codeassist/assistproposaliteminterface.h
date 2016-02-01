@@ -23,47 +23,46 @@
 **
 ****************************************************************************/
 
-#include "clangassistproposalitem.h"
+#ifndef TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H
+#define TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H
 
-#include "clangassistproposalmodel.h"
+#include <texteditor/texteditor_global.h>
 
-#include <texteditor/codeassist/assistproposaliteminterface.h>
+QT_BEGIN_NAMESPACE
+class QChar;
+class QIcon;
+class QString;
+class QVariant;
+QT_END_NAMESPACE
 
-#include <algorithm>
+#include <QString>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace TextEditor {
 
-ClangAssistProposalModel::ClangAssistProposalModel(
-        ClangBackEnd::CompletionCorrection neededCorrection)
-    : m_neededCorrection(neededCorrection)
+class TextEditorWidget;
+
+class TEXTEDITOR_EXPORT AssistProposalItemInterface
 {
-}
+public:
+    virtual ~AssistProposalItemInterface() noexcept = default;
 
-bool ClangAssistProposalModel::isSortable(const QString &/*prefix*/) const
-{
-    return true;
-}
+    virtual QString text() const = 0;
+    virtual bool implicitlyApplies() const = 0;
+    virtual bool prematurelyApplies(const QChar &character) const = 0;
+    virtual void apply(TextEditorWidget *editorWidget, int basePosition) const = 0;
+    virtual QIcon icon() const = 0;
+    virtual QString detail() const = 0;
+    virtual bool isSnippet() const = 0;
+    virtual bool isValid() const = 0;
+    virtual quint64 hash() const = 0; // it is only for removing duplicates
 
-void ClangAssistProposalModel::sort(const QString &/*prefix*/)
-{
-    using TextEditor::AssistProposalItemInterface;
+    int order() const { return m_order; }
+    void setOrder(int order) { m_order = order; }
 
-    auto currentItemsCompare = [](AssistProposalItemInterface *first,
-                                  AssistProposalItemInterface *second) {
-        return (first->order() > 0
-                && (first->order() < second->order()
-                     || (first->order() == second->order() && first->text() < second->text())));
-    };
+private:
+    int m_order = 0;
+};
 
-    std::sort(m_currentItems.begin(), m_currentItems.end(), currentItemsCompare);
-}
+} // namespace TextEditor
 
-ClangBackEnd::CompletionCorrection ClangAssistProposalModel::neededCorrection() const
-{
-    return m_neededCorrection;
-}
-
-} // namespace Internal
-} // namespace ClangCodeModel
-
+#endif // TEXTEDITOR_ASSISTPROPOSALITEMINTERFACE_H

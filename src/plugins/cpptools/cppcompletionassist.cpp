@@ -80,7 +80,7 @@ struct CompleteFunctionDeclaration
 // ---------------------
 // CppAssistProposalItem
 // ---------------------
-class CppAssistProposalItem : public AssistProposalItem
+class CppAssistProposalItem final : public AssistProposalItem
 {
 public:
     CppAssistProposalItem() :
@@ -95,11 +95,14 @@ public:
     void keepTypeOfExpression(const QSharedPointer<TypeOfExpression> &typeOfExp)
     { m_typeOfExpression = typeOfExp; }
 
+
+    quint64 hash() const override;
+
 private:
-    bool m_isOverloaded;
-    mutable QChar m_typedChar;
-    unsigned m_completionOperator;
     QSharedPointer<TypeOfExpression> m_typeOfExpression;
+    unsigned m_completionOperator;
+    mutable QChar m_typedChar;
+    bool m_isOverloaded;
 };
 
 } // Internal
@@ -115,10 +118,10 @@ bool CppAssistProposalModel::isSortable(const QString &prefix) const
     return !prefix.isEmpty();
 }
 
-AssistProposalItem *CppAssistProposalModel::proposalItem(int index) const
+AssistProposalItemInterface *CppAssistProposalModel::proposalItem(int index) const
 {
-    auto item = static_cast<AssistProposalItem *>(GenericProposalModel::proposalItem(index));
-    if (!item->data().canConvert<QString>()) {
+    AssistProposalItemInterface *item = GenericProposalModel::proposalItem(index);
+    if (!item->isSnippet()) {
         CppAssistProposalItem *cppItem = static_cast<CppAssistProposalItem *>(item);
         cppItem->keepCompletionOperator(m_completionOperator);
         cppItem->keepTypeOfExpression(m_typeOfExpression);
@@ -176,6 +179,16 @@ static bool isDereferenced(TextEditorWidget *editorWidget, int basePosition)
         }
     }
     return false;
+}
+
+quint64 CppAssistProposalItem::hash() const
+{
+    if (data().canConvert<Symbol *>())
+        return quint64(data().value<Symbol *>()->index());
+    else if (data().canConvert<CompleteFunctionDeclaration>())
+        return quint64(data().value<CompleteFunctionDeclaration>().function->index());
+
+    return 0;
 }
 
 void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const
@@ -892,12 +905,12 @@ IAssistProposal *InternalCppCompletionAssistProcessor::createContentProposal()
 {
     // Duplicates are kept only if they are snippets.
     QSet<QString> processed;
-    QList<AssistProposalItem *>::iterator it = m_completions.begin();
+    auto it = m_completions.begin();
     while (it != m_completions.end()) {
         CppAssistProposalItem *item = static_cast<CppAssistProposalItem *>(*it);
-        if (!processed.contains(item->text()) || item->data().canConvert<QString>()) {
+        if (!processed.contains(item->text()) || item->isSnippet()) {
             ++it;
-            if (!item->data().canConvert<QString>()) {
+            if (!item->isSnippet()) {
                 processed.insert(item->text());
                 if (!item->isOverloaded()) {
                     if (Symbol *symbol = qvariant_cast<Symbol *>(item->data())) {

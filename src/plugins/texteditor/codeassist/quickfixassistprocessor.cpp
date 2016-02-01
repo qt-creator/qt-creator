@@ -55,7 +55,7 @@ IAssistProposal *QuickFixAssistProcessor::perform(const AssistInterface *interfa
         factory->matchingOperations(assistInterface, quickFixes);
 
     if (!quickFixes.isEmpty()) {
-        QList<AssistProposalItem *> items;
+        QList<AssistProposalItemInterface *> items;
         foreach (const QuickFixOperation::Ptr &op, quickFixes) {
             QVariant v;
             v.setValue(op);
@@ -65,6 +65,7 @@ IAssistProposal *QuickFixAssistProcessor::perform(const AssistInterface *interfa
             item->setOrder(op->priority());
             items.append(item);
         }
+
         return new GenericProposal(interface->position(), items);
     }
 

@@ -101,7 +101,9 @@ private:
 class VirtualFunctionProposal : public GenericProposal
 {
 public:
-    VirtualFunctionProposal(int cursorPos, const QList<AssistProposalItem *> &items, bool openInSplit)
+    VirtualFunctionProposal(int cursorPos,
+                            const QList<AssistProposalItemInterface *> &items,
+                            bool openInSplit)
         : GenericProposal(cursorPos, items)
         , m_openInSplit(openInSplit)
     {}
@@ -126,13 +128,12 @@ public:
     {
         QTC_ASSERT(m_params.function, return 0);
 
-        AssistProposalItem *hintItem
-                = new VirtualFunctionProposalItem(TextEditorWidget::Link());
+        auto *hintItem = new VirtualFunctionProposalItem(TextEditorWidget::Link());
         hintItem->setText(QCoreApplication::translate("VirtualFunctionsAssistProcessor",
                                                       "...searching overrides"));
         hintItem->setOrder(-1000);
 
-        QList<AssistProposalItem *> items;
+        QList<AssistProposalItemInterface *> items;
         items << itemFromFunction(m_params.function);
         items << hintItem;
         return new VirtualFunctionProposal(m_params.cursorPosition, items, m_params.openInNextSplit);
@@ -156,7 +157,7 @@ public:
         if (overrides.isEmpty())
             return 0;
 
-        QList<AssistProposalItem *> items;
+        QList<AssistProposalItemInterface *> items;
         foreach (Function *func, overrides)
             items << itemFromFunction(func);
         items.first()->setOrder(1000); // Ensure top position for function of static type
@@ -172,14 +173,14 @@ private:
         return func;
     }
 
-    AssistProposalItem *itemFromFunction(Function *func) const
+    VirtualFunctionProposalItem *itemFromFunction(Function *func) const
     {
         const TextEditorWidget::Link link = CppTools::linkToSymbol(maybeDefinitionFor(func));
         QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(func));
         if (func->isPureVirtual())
             text += QLatin1String(" = 0");
 
-        AssistProposalItem *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
+        auto *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
         item->setText(text);
         item->setIcon(m_icons.iconForSymbol(func));
 

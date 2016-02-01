@@ -34,7 +34,7 @@
 
 namespace TextEditor {
 
-class AssistProposalItem;
+class AssistProposalItemInterface;
 
 class TEXTEDITOR_EXPORT SnippetAssistCollector
 {
@@ -42,7 +42,7 @@ public:
     SnippetAssistCollector(const QString &groupId, const QIcon &icon, int order = 0);
     ~SnippetAssistCollector();
 
-    QList<AssistProposalItem *> collect() const;
+    QList<AssistProposalItemInterface *> collect() const;
 
 private:
     QString m_groupId;

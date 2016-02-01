@@ -32,7 +32,7 @@
 using namespace TextEditor;
 using namespace Internal;
 
-static void appendSnippets(QList<AssistProposalItem *> *items,
+static void appendSnippets(QList<AssistProposalItemInterface *> *items,
                     const QString &groupId,
                     const QIcon &icon,
                     int order)
@@ -61,9 +61,9 @@ SnippetAssistCollector::SnippetAssistCollector(const QString &groupId, const QIc
 SnippetAssistCollector::~SnippetAssistCollector()
 {}
 
-QList<AssistProposalItem *> SnippetAssistCollector::collect() const
+QList<AssistProposalItemInterface *> SnippetAssistCollector::collect() const
 {
-    QList<AssistProposalItem *> snippets;
+    QList<AssistProposalItemInterface *> snippets;
     appendSnippets(&snippets, m_groupId, m_icon, m_order);
     appendSnippets(&snippets, QLatin1String(Constants::TEXT_SNIPPET_GROUP_ID), m_icon, m_order);
     return snippets;

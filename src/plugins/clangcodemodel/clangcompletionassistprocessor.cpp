@@ -58,14 +58,14 @@ namespace ClangCodeModel {
 namespace Internal {
 
 using ClangBackEnd::CodeCompletion;
-using TextEditor::AssistProposalItem;
+using TextEditor::AssistProposalItemInterface;
 
 namespace {
 
 const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
 
 
-QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &completions)
+QList<AssistProposalItemInterface *> toAssistProposalItems(const CodeCompletions &completions)
 {
     static CPlusPlus::Icons m_icons; // de-deduplicate
 
@@ -178,7 +178,7 @@ QList<AssistProposalItem *> toAssistProposalItems(const CodeCompletions &complet
         }
     }
 
-    QList<AssistProposalItem *> results;
+    QList<AssistProposalItemInterface *> results;
     results.reserve(items.size());
     std::copy(items.cbegin(), items.cend(), std::back_inserter(results));
 

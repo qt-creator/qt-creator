@@ -915,7 +915,7 @@ private:
     QString m_needle;
 };
 
-class FakeVimAssistProposalItem : public AssistProposalItem
+class FakeVimAssistProposalItem final : public AssistProposalItem
 {
 public:
     FakeVimAssistProposalItem(const FakeVimCompletionAssistProvider *provider)
@@ -948,7 +948,7 @@ private:
 class FakeVimAssistProposalModel : public GenericProposalModel
 {
 public:
-    FakeVimAssistProposalModel(const QList<AssistProposalItem *> &items)
+    FakeVimAssistProposalModel(const QList<AssistProposalItemInterface *> &items)
     {
         loadContent(items);
     }
@@ -976,7 +976,7 @@ public:
         tc.setPosition(interface->position());
         tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
-        QList<AssistProposalItem *> items;
+        QList<AssistProposalItemInterface *> items;
         QSet<QString> seen;
         QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
         while (1) {

@@ -61,7 +61,7 @@ public:
 class QmlJSAssistProposalModel : public TextEditor::GenericProposalModel
 {
 public:
-    QmlJSAssistProposalModel(const QList<TextEditor::AssistProposalItem *> &items)
+    QmlJSAssistProposalModel(const QList<TextEditor::AssistProposalItemInterface *> &items)
     {
         loadContent(items);
     }
@@ -109,7 +109,7 @@ private:
 
     int m_startPosition;
     QScopedPointer<const QmlJSCompletionAssistInterface> m_interface;
-    QList<TextEditor::AssistProposalItem *> m_completions;
+    QList<TextEditor::AssistProposalItemInterface *> m_completions;
     TextEditor::SnippetAssistCollector m_snippetCollector;
 };
 

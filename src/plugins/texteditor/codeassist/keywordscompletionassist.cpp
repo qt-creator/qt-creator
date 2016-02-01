@@ -192,7 +192,7 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
         IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
         return proposal;
     } else {
-        QList<AssistProposalItem *> items;
+        QList<AssistProposalItemInterface *> items;
         addWordsToProposalList(&items, m_keywords.variables(), m_variableIcon);
         addWordsToProposalList(&items, m_keywords.functions(), m_functionIcon);
         return new GenericProposal(m_startPosition, items);
@@ -256,7 +256,7 @@ bool KeywordsCompletionAssistProcessor::isInComment() const
     return false;
 }
 
-void KeywordsCompletionAssistProcessor::addWordsToProposalList(QList<AssistProposalItem *> *items, const QStringList &words, const QIcon &icon)
+void KeywordsCompletionAssistProcessor::addWordsToProposalList(QList<AssistProposalItemInterface *> *items, const QStringList &words, const QIcon &icon)
 {
     if (!items)
         return;

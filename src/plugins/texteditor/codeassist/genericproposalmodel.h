@@ -39,7 +39,7 @@ QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace TextEditor {
 
-class AssistProposalItem;
+class AssistProposalItemInterface;
 
 class TEXTEDITOR_EXPORT GenericProposalModel : public IAssistProposalModel
 {
@@ -61,18 +61,18 @@ public:
     virtual bool supportsPrefixExpansion() const;
     virtual QString proposalPrefix() const;
     virtual bool keepPerfectMatch(AssistReason reason) const;
-    virtual AssistProposalItem *proposalItem(int index) const;
+    virtual AssistProposalItemInterface *proposalItem(int index) const;
 
-    void loadContent(const QList<AssistProposalItem *> &items);
+    void loadContent(const QList<AssistProposalItemInterface *> &items);
     void setSortingAllowed(bool isAllowed);
     bool isSortingAllowed() const;
 
 protected:
-    QList<AssistProposalItem *> m_currentItems;
+    QList<AssistProposalItemInterface *> m_currentItems;
 
 private:
     QHash<QString, int> m_idByText;
-    QList<AssistProposalItem *> m_originalItems;
+    QList<AssistProposalItemInterface *> m_originalItems;
 };
 } // TextEditor
 

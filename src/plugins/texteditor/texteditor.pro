@@ -189,6 +189,7 @@ HEADERS += texteditorplugin.h \
     convenience.h \
     codeassist/assistenums.h \
     codeassist/runner.h \
+    codeassist/assistproposaliteminterface.h \
     codeassist/completionassistprovider.h \
     codeassist/genericproposalmodel.h \
     codeassist/quickfixassistprovider.h \

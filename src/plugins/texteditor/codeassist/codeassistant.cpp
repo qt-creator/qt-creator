@@ -85,7 +85,7 @@ public:
 
 private:
     void proposalComputed();
-    void processProposalItem(AssistProposalItem *proposalItem);
+    void processProposalItem(AssistProposalItemInterface *proposalItem);
     void handlePrefixExpansion(const QString &newPrefix);
     void finalizeProposal();
     void explicitlyAborted();
@@ -354,7 +354,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
                                        m_editorWidget->position() - basePosition));
 }
 
-void CodeAssistantPrivate::processProposalItem(AssistProposalItem *proposalItem)
+void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *proposalItem)
 {
     QTC_ASSERT(m_proposal, return);
     proposalItem->apply(m_editorWidget, m_proposal->basePosition());

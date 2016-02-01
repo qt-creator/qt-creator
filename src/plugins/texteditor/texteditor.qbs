@@ -148,6 +148,7 @@ QtcPlugin {
             "assistinterface.h",
             "assistproposalitem.cpp",
             "assistproposalitem.h",
+            "assistproposaliteminterface.h",
             "codeassistant.cpp",
             "codeassistant.h",
             "completionassistprovider.cpp",

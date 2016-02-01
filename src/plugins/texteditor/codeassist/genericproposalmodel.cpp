@@ -54,7 +54,7 @@ struct ContentLessThan
         : m_prefix(prefix)
     {}
 
-    bool operator()(const AssistProposalItem *a, const AssistProposalItem *b)
+    bool operator()(const AssistProposalItemInterface *a, const AssistProposalItemInterface *b)
     {
         // The order is case-insensitive in principle, but case-sensitive when this
         // would otherwise mean equality
@@ -137,7 +137,7 @@ GenericProposalModel::~GenericProposalModel()
     qDeleteAll(m_originalItems);
 }
 
-void GenericProposalModel::loadContent(const QList<AssistProposalItem *> &items)
+void GenericProposalModel::loadContent(const QList<AssistProposalItemInterface *> &items)
 {
     m_originalItems = items;
     m_currentItems = items;
@@ -170,17 +170,18 @@ QString GenericProposalModel::detail(int index) const
     return m_currentItems.at(index)->detail();
 }
 
+// make it optional because it is not needed in many cases
 void GenericProposalModel::removeDuplicates()
 {
-    QHash<QString, QVariant> unique;
-    QList<AssistProposalItem *>::iterator it = m_originalItems.begin();
+    QHash<QString, quint64> unique;
+    auto it = m_originalItems.begin();
     while (it != m_originalItems.end()) {
-        const AssistProposalItem *item = *it;
+        const AssistProposalItemInterface *item = *it;
         if (unique.contains(item->text())
-                && unique.value(item->text(), QVariant()) == item->data()) {
+                && unique.value(item->text()) == item->hash()) {
             it = m_originalItems.erase(it);
         } else {
-            unique.insert(item->text(), item->data());
+            unique.insert(item->text(), item->hash());
             ++it;
         }
     }
@@ -245,8 +246,7 @@ void GenericProposalModel::filter(const QString &prefix)
     QRegExp regExp(keyRegExp);
 
     m_currentItems.clear();
-    for (auto it = m_originalItems.begin(); it != m_originalItems.end(); ++it) {
-        AssistProposalItem *item = *it;
+    foreach (const auto &item, m_originalItems) {
         if (regExp.indexIn(item->text()) == 0)
             m_currentItems.append(item);
     }
@@ -306,7 +306,7 @@ QString GenericProposalModel::proposalPrefix() const
     return commonPrefix;
 }
 
-AssistProposalItem *GenericProposalModel::proposalItem(int index) const
+AssistProposalItemInterface *GenericProposalModel::proposalItem(int index) const
 {
     return m_currentItems.at(index);
 }

@@ -746,10 +746,10 @@ bool hasSnippet(ProposalModel model, const QByteArray &text)
 
     auto *genericModel = static_cast<TextEditor::GenericProposalModel *>(model.data());
     for (int i = 0, size = genericModel->size(); i < size; ++i) {
-        TextEditor::AssistProposalItem *item = genericModel->proposalItem(i);
+        TextEditor::AssistProposalItemInterface *item = genericModel->proposalItem(i);
         QTC_ASSERT(item, continue);
         if (item->text() == snippetText)
-            return item->data().toString().contains(QLatin1Char('$'));
+            return item->isSnippet();
     }
 
     return false;

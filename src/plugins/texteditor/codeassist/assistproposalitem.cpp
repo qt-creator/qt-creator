@@ -60,19 +60,12 @@ namespace TextEditor {
     This is the place to implement the actual application of the item.
 */
 
-AssistProposalItem::AssistProposalItem()
-    : m_order(0)
-{}
-
-AssistProposalItem::~AssistProposalItem()
-{}
-
 void AssistProposalItem::setIcon(const QIcon &icon)
 {
     m_icon = icon;
 }
 
-const QIcon &AssistProposalItem::icon() const
+QIcon AssistProposalItem::icon() const
 {
     return m_icon;
 }
@@ -92,7 +85,7 @@ void AssistProposalItem::setDetail(const QString &detail)
     m_detail = detail;
 }
 
-const QString &AssistProposalItem::detail() const
+QString AssistProposalItem::detail() const
 {
     return m_detail;
 }
@@ -107,14 +100,19 @@ const QVariant &AssistProposalItem::data() const
     return m_data;
 }
 
-int AssistProposalItem::order() const
+bool AssistProposalItem::isSnippet() const
 {
-    return m_order;
+    return data().canConvert<QString>();
 }
 
-void AssistProposalItem::setOrder(int order)
+bool AssistProposalItem::isValid() const
 {
-    m_order = order;
+    return m_data.isValid();
+}
+
+quint64 AssistProposalItem::hash() const
+{
+    return 0;
 }
 
 bool AssistProposalItem::implicitlyApplies() const

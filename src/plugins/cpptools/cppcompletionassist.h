@@ -71,7 +71,7 @@ public:
     }
 
     bool isSortable(const QString &prefix) const override;
-    TextEditor::AssistProposalItem *proposalItem(int index) const override;
+    TextEditor::AssistProposalItemInterface *proposalItem(int index) const override;
 
     unsigned m_completionOperator;
     bool m_replaceDotForArrow;

@@ -78,7 +78,7 @@ enum CompletionOrder {
     TypeOrder = -30
 };
 
-static void addCompletion(QList<AssistProposalItem *> *completions,
+static void addCompletion(QList<AssistProposalItemInterface *> *completions,
                           const QString &text,
                           const QIcon &icon,
                           int order,
@@ -95,7 +95,7 @@ static void addCompletion(QList<AssistProposalItem *> *completions,
     completions->append(item);
 }
 
-static void addCompletions(QList<AssistProposalItem *> *completions,
+static void addCompletions(QList<AssistProposalItemInterface *> *completions,
                            const QStringList &newCompletions,
                            const QIcon &icon,
                            int order)
@@ -120,10 +120,10 @@ public:
 class CompletionAdder : public PropertyProcessor
 {
 protected:
-    QList<AssistProposalItem *> *completions;
+    QList<AssistProposalItemInterface *> *completions;
 
 public:
-    CompletionAdder(QList<AssistProposalItem *> *completions,
+    CompletionAdder(QList<AssistProposalItemInterface *> *completions,
                     const QIcon &icon, int order)
         : completions(completions)
         , icon(icon)
@@ -150,7 +150,7 @@ public:
 class LhsCompletionAdder : public CompletionAdder
 {
 public:
-    LhsCompletionAdder(QList<AssistProposalItem *> *completions,
+    LhsCompletionAdder(QList<AssistProposalItemInterface *> *completions,
                        const QIcon &icon,
                        int order,
                        bool afterOn)
@@ -982,7 +982,7 @@ class QmlJSLessThan
 public:
     QmlJSLessThan(const QString &searchString) : m_searchString(searchString)
     { }
-    bool operator() (const AssistProposalItem *a, const AssistProposalItem *b)
+    bool operator() (const AssistProposalItemInterface *a, const AssistProposalItemInterface *b)
     {
         if (a->order() != b->order())
             return a->order() > b->order();
@@ -990,8 +990,8 @@ public:
             return true;
         else if (b->text().isEmpty())
             return false;
-        else if (a->data().isValid() != b->data().isValid())
-            return a->data().isValid();
+        else if (a->isValid() != b->isValid())
+            return a->isValid();
         else if (a->text().at(0).isUpper() && b->text().at(0).isLower())
             return false;
         else if (a->text().at(0).isLower() && b->text().at(0).isUpper())
@@ -1016,9 +1016,9 @@ void QmlJSAssistProposalModel::filter(const QString &prefix)
     GenericProposalModel::filter(prefix);
     if (prefix.startsWith(QLatin1String("__")))
         return;
-    QList<AssistProposalItem *> newCurrentItems;
+    QList<AssistProposalItemInterface *> newCurrentItems;
     newCurrentItems.reserve(m_currentItems.size());
-    foreach (AssistProposalItem *item, m_currentItems)
+    foreach (AssistProposalItemInterface *item, m_currentItems)
         if (!item->text().startsWith(QLatin1String("__")))
             newCurrentItems << item;
     m_currentItems = newCurrentItems;

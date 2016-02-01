@@ -90,7 +90,7 @@ public:
 
         QIcon icon = QIcon::fromTheme(QLatin1String("edit-paste"), Core::Icons::PASTE.icon()).pixmap(16);
         CircularClipboard * clipboard = CircularClipboard::instance();
-        QList<AssistProposalItem *> items;
+        QList<AssistProposalItemInterface *> items;
         for (int i = 0; i < clipboard->size(); ++i) {
             QSharedPointer<const QMimeData> data = clipboard->next();
 

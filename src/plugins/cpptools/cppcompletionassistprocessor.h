@@ -44,7 +44,7 @@ protected:
     void addSnippets();
 
     int m_positionForProposal;
-    QList<TextEditor::AssistProposalItem *> m_completions;
+    QList<TextEditor::AssistProposalItemInterface *> m_completions;
     QStringList m_preprocessorCompletions;
     TextEditor::IAssistProposal *m_hintProposal;
     CPlusPlus::Icons m_icons;

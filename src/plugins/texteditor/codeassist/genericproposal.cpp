@@ -34,7 +34,7 @@ GenericProposal::GenericProposal(int cursorPos, GenericProposalModel *model)
     , m_model(model)
 {}
 
-GenericProposal::GenericProposal(int cursorPos, const QList<AssistProposalItem *> &items)
+GenericProposal::GenericProposal(int cursorPos, const QList<AssistProposalItemInterface *> &items)
     : m_basePosition(cursorPos)
     , m_model(new GenericProposalModel)
 {

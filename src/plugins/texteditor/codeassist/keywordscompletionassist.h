@@ -94,7 +94,7 @@ private:
     bool acceptsIdleEditor();
     int findStartOfName(int pos = -1);
     bool isInComment() const;
-    void addWordsToProposalList(QList<AssistProposalItem *> *items, const QStringList &words, const QIcon &icon);
+    void addWordsToProposalList(QList<AssistProposalItemInterface *> *items, const QStringList &words, const QIcon &icon);
 
     int m_startPosition;
     QString m_word;

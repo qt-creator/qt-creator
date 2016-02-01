@@ -483,7 +483,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
             && d->m_justInvoked
             && d->m_isSynchronized) {
         if (d->m_model->size() == 1) {
-            AssistProposalItem *item = d->m_model->proposalItem(0);
+            AssistProposalItemInterface *item = d->m_model->proposalItem(0);
             if (item->implicitlyApplies()) {
                 d->m_completionListView->reset();
                 abort();
@@ -628,7 +628,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
                 && d->m_completionListView->currentIndex().isValid()
                 && qApp->focusWidget() == o) {
             const QChar &typedChar = ke->text().at(0);
-            AssistProposalItem *item =
+            AssistProposalItemInterface *item =
                 d->m_model->proposalItem(d->m_completionListView->currentIndex().row());
             if (item->prematurelyApplies(typedChar)
                     && (d->m_reason == ExplicitlyInvoked || item->text().endsWith(typedChar))) {

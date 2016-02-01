@@ -32,7 +32,7 @@
 namespace CppEditor {
 namespace Internal {
 
-class VirtualFunctionProposalItem: public TextEditor::AssistProposalItem
+class VirtualFunctionProposalItem final : public TextEditor::AssistProposalItem
 {
 public:
     VirtualFunctionProposalItem(const TextEditor::TextEditorWidget::Link &link,

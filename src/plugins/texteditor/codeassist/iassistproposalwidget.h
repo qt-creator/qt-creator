@@ -36,7 +36,7 @@ namespace TextEditor {
 
 class CodeAssistant;
 class IAssistProposalModel;
-class AssistProposalItem;
+class AssistProposalItemInterface;
 
 class TEXTEDITOR_EXPORT IAssistProposalWidget  : public QFrame
 {
@@ -60,7 +60,7 @@ public:
 
 signals:
     void prefixExpanded(const QString &newPrefix);
-    void proposalItemActivated(AssistProposalItem *proposalItem);
+    void proposalItemActivated(AssistProposalItemInterface *proposalItem);
     void explicitlyAborted();
 };
 
