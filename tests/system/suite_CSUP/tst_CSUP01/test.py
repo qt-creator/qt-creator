@@ -43,57 +43,66 @@ def triggerCompletion(editorWidget):
 
 # entry of test
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    clangLoaded = startCreatorTryingClang()
     if not startedWithoutPluginError():
         return
     # create qt quick application
 # Step 1: Open test .pro project.
     createNewQtQuickApplication(tempDir(), "SampleApp")
+    for useClang in set([False, clangLoaded]):
+        selectClangCodeModel(clangLoaded, useClang)
+        changeAutocompleteToManual(False)
 # Step 2: Open .cpp file in Edit mode.
-    if not openDocument("SampleApp.Sources.main\\.cpp"):
-        test.fatal("Could not open main.cpp")
-        invokeMenuItem("File", "Exit")
-        return
-    test.verify(checkIfObjectExists(":Qt Creator_CppEditor::Internal::CPPEditorWidget"),
-                "Step 2: Verifying if: .cpp file is opened in Edit mode.")
+        if not openDocument("SampleApp.Sources.main\\.cpp"):
+            test.fatal("Could not open main.cpp")
+            invokeMenuItem("File", "Exit")
+            return
+        test.verify(checkIfObjectExists(":Qt Creator_CppEditor::Internal::CPPEditorWidget"),
+                    "Step 2: Verifying if: .cpp file is opened in Edit mode.")
 # Step 3: Insert text "re" to new line in Editor mode and press Ctrl+Space.
-    editorWidget = findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-    if not placeCursorToLine(editorWidget, "QGuiApplication app(argc, argv);"):
-        earlyExit("Did not find first line in function block.")
-        return
-    type(editorWidget, "<Return>")
-    type(editorWidget, "re")
-    triggerCompletion(editorWidget)
-    waitForObjectItem(":popupFrame_Proposal_QListView", "register")
-    doubleClickItem(":popupFrame_Proposal_QListView", "register", 5, 5, 0, Qt.LeftButton)
-    test.compare(str(lineUnderCursor(editorWidget)).strip(), "register",
-                 "Step 3: Verifying if: The list of suggestions is opened. It is "
-                 "possible to select one of the suggestions.")
+        editorWidget = findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+        if not placeCursorToLine(editorWidget, "QGuiApplication app(argc, argv);"):
+            earlyExit("Did not find first line in function block.")
+            return
+        type(editorWidget, "<Return>")
+        type(editorWidget, "re")
+        triggerCompletion(editorWidget)
+        waitForObjectItem(":popupFrame_Proposal_QListView", "realloc")
+        doubleClickItem(":popupFrame_Proposal_QListView", "realloc", 5, 5, 0, Qt.LeftButton)
+        test.compare(str(lineUnderCursor(editorWidget)).strip(), "realloc()",
+                     "Step 3: Verifying if: The list of suggestions is opened. It is "
+                     "possible to select one of the suggestions.")
 # Step 4: Insert text "voi" to new line and press Tab.
-    resetLine(editorWidget)
-    type(editorWidget, "voi")
-    waitForObjectItem(":popupFrame_Proposal_QListView", "void")
-    type(waitForObject(":popupFrame_Proposal_QListView"), "<Tab>")
-    test.compare(str(lineUnderCursor(editorWidget)).strip(), "void",
-                 "Step 4: Verifying if: Word 'void' is completed because only one option is available.")
+        resetLine(editorWidget)
+        type(editorWidget, "voi")
+        waitForObjectItem(":popupFrame_Proposal_QListView", "void")
+        type(waitForObject(":popupFrame_Proposal_QListView"), "<Tab>")
+        test.compare(str(lineUnderCursor(editorWidget)).strip(), "void",
+                     "Step 4: Verifying if: Word 'void' is completed because only one option is available.")
 # Step 5: From "Tools -> Options -> Text Editor -> Completion" select Activate completion Manually,
 # uncheck Autocomplete common prefix and press Apply and then Ok . Return to Edit mode.
-    test.log("Step 5: Change Code Completion settings")
-    changeAutocompleteToManual()
+        test.log("Step 5: Change Code Completion settings")
+        changeAutocompleteToManual()
 # Step 6: Insert text "ret" and press Ctrl+Space.
-    editorWidget = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-    resetLine(editorWidget)
-    type(editorWidget, "ret")
-    triggerCompletion(editorWidget)
-    try:
-        waitForObjectItem(":popupFrame_Proposal_QListView", "return")
-    except:
-        test.fail("Could not find proposal popup.")
-    type(editorWidget, "<Right>")
-    type(editorWidget, "<Backspace>")
-    test.compare(str(lineUnderCursor(editorWidget)).strip(), "ret",
-                 "Step 6: Verifying if: Suggestion is displayed but text is not "
-                 "completed automatically even there is only one suggestion.")
+        editorWidget = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+        resetLine(editorWidget)
+        type(editorWidget, "retu")
+        triggerCompletion(editorWidget)
+        try:
+            proposal = "return"
+            if useClang:
+                # clang adds a whitespace because the function needs to return a value
+                proposal += " "
+            waitForObjectItem(":popupFrame_Proposal_QListView", proposal)
+        except:
+            test.fail("Could not find proposal popup.")
+        type(editorWidget, "<Right>")
+        type(editorWidget, "<Backspace>")
+        test.compare(str(lineUnderCursor(editorWidget)).strip(), "retu",
+                     "Step 6: Verifying if: Suggestion is displayed but text is not "
+                     "completed automatically even there is only one suggestion.")
+        invokeMenuItem('File', 'Revert "main.cpp" to Saved')
+        clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
     # exit qt creator
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")

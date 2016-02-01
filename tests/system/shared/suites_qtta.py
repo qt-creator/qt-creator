@@ -59,12 +59,15 @@ def checkSyntaxError(issuesView, expectedTextsArray, warnIfMoreIssues = True):
     return False
 
 # change autocomplete options to manual
-def changeAutocompleteToManual():
+def changeAutocompleteToManual(toManual=True):
     invokeMenuItem("Tools", "Options...")
     mouseClick(waitForObjectItem(":Options_QListView", "Text Editor"), 5, 5, 0, Qt.LeftButton)
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Completion")
-    ensureChecked(waitForObject(":Behavior.Autocomplete common prefix_QCheckBox"), False)
-    selectFromCombo(":Behavior.completionTrigger_QComboBox", "Manually")
+    ensureChecked(waitForObject(":Behavior.Autocomplete common prefix_QCheckBox"), not toManual)
+    activateCompletion = "Always"
+    if toManual:
+        activateCompletion = "Manually"
+    selectFromCombo(":Behavior.completionTrigger_QComboBox", activateCompletion)
     verifyEnabled(":Options.OK_QPushButton")
     clickButton(waitForObject(":Options.OK_QPushButton"))
 

@@ -23,12 +23,29 @@
 **
 ****************************************************************************/
 
+#include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QLoggingCategory>
 
 #include <connectionserver.h>
 #include <cmbmessages.h>
 #include <clangipcserver.h>
+
+QString processArguments(QCoreApplication &application)
+{
+    QCommandLineParser parser;
+    parser.setApplicationDescription(QStringLiteral("Qt Creator Clang backend process."));
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addPositionalArgument(QStringLiteral("connection"), QStringLiteral("Connection"));
+
+    parser.process(application);
+
+    if (parser.positionalArguments().isEmpty())
+        parser.showHelp(1);
+
+    return parser.positionalArguments().first();
+}
 
 int main(int argc, char *argv[])
 {
@@ -41,10 +58,7 @@ int main(int argc, char *argv[])
 
     QCoreApplication application(argc, argv);
 
-    if (application.arguments().count() != 2) {
-        qWarning() << "wrong argument count";
-        return 1;
-    }
+    const QString connection =  processArguments(application);
 
     ClangBackEnd::Messages::registerMessages();
 
@@ -52,7 +66,7 @@ int main(int argc, char *argv[])
     clang_enableStackTraces();
 
     ClangBackEnd::ClangIpcServer clangIpcServer;
-    ClangBackEnd::ConnectionServer connectionServer(application.arguments()[1]);
+    ClangBackEnd::ConnectionServer connectionServer(connection);
     connectionServer.start();
     connectionServer.setIpcServer(&clangIpcServer);
 
