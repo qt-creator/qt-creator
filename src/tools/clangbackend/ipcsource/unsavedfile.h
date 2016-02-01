@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <QtGlobal>
+
 #include <clang-c/Index.h>
 
 #include <iosfwd>
@@ -40,14 +42,15 @@ class UnsavedFile
 public:
     friend void PrintTo(const UnsavedFile &unsavedFile, std::ostream *os);
 
+    UnsavedFile();
     UnsavedFile(const Utf8String &filePath, const Utf8String &fileContent);
     ~UnsavedFile();
 
     UnsavedFile(const UnsavedFile &other) = delete;
     bool operator=(const UnsavedFile &other) = delete;
 
-    UnsavedFile(UnsavedFile &&other) noexcept;
-    UnsavedFile &operator=(UnsavedFile &&other) noexcept;
+    UnsavedFile(UnsavedFile &&other) Q_DECL_NOEXCEPT;
+    UnsavedFile &operator=(UnsavedFile &&other) Q_DECL_NOEXCEPT;
 
     const char *filePath() const;
 
@@ -57,7 +60,7 @@ public:
     CXUnsavedFile *data();
 
 public: // for tests
-    CXUnsavedFile cxUnsavedFile = { nullptr, nullptr, 0UL };
+    CXUnsavedFile cxUnsavedFile;
 };
 
 } // namespace ClangBackEnd

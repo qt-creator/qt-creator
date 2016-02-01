@@ -32,6 +32,11 @@
 
 namespace ClangBackEnd {
 
+UnsavedFile::UnsavedFile()
+    : cxUnsavedFile(CXUnsavedFile{nullptr, nullptr, 0UL})
+{
+}
+
 UnsavedFile::UnsavedFile(const Utf8String &filePath, const Utf8String &fileContent)
 {
     char *cxUnsavedFilePath = new char[filePath.byteSize() + 1];
@@ -45,13 +50,13 @@ UnsavedFile::UnsavedFile(const Utf8String &filePath, const Utf8String &fileConte
                                   ulong(fileContent.byteSize())};
 }
 
-UnsavedFile::UnsavedFile(UnsavedFile &&other) noexcept
+UnsavedFile::UnsavedFile(UnsavedFile &&other) Q_DECL_NOEXCEPT
     : cxUnsavedFile(other.cxUnsavedFile)
 {
     other.cxUnsavedFile = { nullptr, nullptr, 0UL };
 }
 
-UnsavedFile &UnsavedFile::operator=(UnsavedFile &&other) noexcept
+UnsavedFile &UnsavedFile::operator=(UnsavedFile &&other) Q_DECL_NOEXCEPT
 {
     using std::swap;
 
