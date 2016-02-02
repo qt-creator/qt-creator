@@ -45,11 +45,6 @@ namespace Valgrind {
 class ValgrindRunner::Private
 {
 public:
-    Private(ValgrindRunner *runner) : q(runner) {}
-
-    void run(ValgrindProcess *process);
-
-    ValgrindRunner *q;
     ValgrindProcess *process = 0;
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
     bool finished = false;
@@ -59,42 +54,8 @@ public:
     IDevice::ConstPtr device;
 };
 
-void ValgrindRunner::Private::run(ValgrindProcess *_process)
-{
-    if (process && process->isRunning()) {
-        process->close();
-        process->disconnect(q);
-        process->deleteLater();
-    }
-
-    QTC_ASSERT(_process, return);
-
-    process = _process;
-
-    process->setProcessChannelMode(channelMode);
-    // consider appending our options last so they override any interfering user-supplied options
-    // -q as suggested by valgrind manual
-    process->setValgrindExecutable(valgrindExecutable);
-    process->setValgrindArguments(q->fullValgrindArguments());
-    process->setDebuggee(debuggee);
-
-    QObject::connect(process, &ValgrindProcess::processOutput,
-                     q, &ValgrindRunner::processOutputReceived);
-    QObject::connect(process, &ValgrindProcess::started,
-                     q, &ValgrindRunner::started);
-    QObject::connect(process, &ValgrindProcess::finished,
-                     q, &ValgrindRunner::processFinished);
-    QObject::connect(process, &ValgrindProcess::error,
-                     q, &ValgrindRunner::processError);
-    QObject::connect(process, &ValgrindProcess::localHostAddressRetrieved, q,
-                     &ValgrindRunner::localHostAddressRetrieved);
-
-    process->run();
-}
-
 ValgrindRunner::ValgrindRunner(QObject *parent)
-    : QObject(parent),
-      d(new Private(this))
+    : QObject(parent), d(new Private)
 {
 }
 
@@ -170,7 +131,26 @@ void ValgrindRunner::waitForFinished() const
 
 bool ValgrindRunner::start()
 {
-    d->run(new ValgrindProcess(d->device, this));
+    d->process = new ValgrindProcess(d->device, this);
+    d->process->setProcessChannelMode(d->channelMode);
+    // consider appending our options last so they override any interfering user-supplied options
+    // -q as suggested by valgrind manual
+    d->process->setValgrindExecutable(d->valgrindExecutable);
+    d->process->setValgrindArguments(fullValgrindArguments());
+    d->process->setDebuggee(d->debuggee);
+
+    QObject::connect(d->process, &ValgrindProcess::processOutput,
+                     this, &ValgrindRunner::processOutputReceived);
+    QObject::connect(d->process, &ValgrindProcess::started,
+                     this, &ValgrindRunner::started);
+    QObject::connect(d->process, &ValgrindProcess::finished,
+                     this, &ValgrindRunner::processFinished);
+    QObject::connect(d->process, &ValgrindProcess::error,
+                     this, &ValgrindRunner::processError);
+    QObject::connect(d->process, &ValgrindProcess::localHostAddressRetrieved,
+                     this, &ValgrindRunner::localHostAddressRetrieved);
+
+    d->process->run();
     return true;
 }
 
