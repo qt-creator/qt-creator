@@ -335,8 +335,9 @@ KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) cons
 FileName DebuggerKitInformation::debuggerCommand(const Kit *k)
 {
     const DebuggerItem *item = debugger(k);
-    QTC_ASSERT(item, return FileName());
-    return item->command();
+    if (item)
+        return item->command();
+    return FileName();
 }
 
 DebuggerEngineType DebuggerKitInformation::engineType(const Kit *k)
