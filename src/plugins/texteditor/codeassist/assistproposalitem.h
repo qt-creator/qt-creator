@@ -60,7 +60,7 @@ public:
 
     bool isSnippet() const final;
     bool isValid() const final;
-    quint64 hash() const;
+    quint64 hash() const override;
 
     virtual void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const;
     virtual void applySnippet(TextDocumentManipulatorInterface &manipulator, int basePosition) const;
