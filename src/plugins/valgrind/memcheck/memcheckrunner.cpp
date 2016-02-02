@@ -172,11 +172,5 @@ QStringList MemcheckRunner::memcheckLogArguments() const
     return arguments;
 }
 
-void MemcheckRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)
-{
-    Q_UNUSED(localHostAddress);
-    valgrindProcess()->setValgrindArguments(fullValgrindArguments());
-}
-
 } // namespace Memcheck
 } // namespace Valgrind

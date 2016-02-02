@@ -53,8 +53,6 @@ signals:
     void logMessageReceived(const QByteArray &);
 
 private slots:
-    void localHostAddressRetrieved(const QHostAddress &localHostAddress);
-
     void xmlSocketConnected();
     void logSocketConnected();
     void readLogSocket();

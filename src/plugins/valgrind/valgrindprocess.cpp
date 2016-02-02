@@ -205,8 +205,6 @@ void ValgrindProcess::connected()
 {
     QTC_ASSERT(m_remote.m_connection->state() == QSsh::SshConnection::Connected, return);
 
-    emit localHostAddressRetrieved(m_remote.m_connection->connectionInfo().localAddress);
-
     // connected, run command
     QString cmd;
 
