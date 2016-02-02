@@ -181,6 +181,7 @@ private:
     static void restoreSession2();
 
 #ifdef WITH_TESTS
+private slots:
     void testAnsiFilterOutputParser_data();
     void testAnsiFilterOutputParser();
 
@@ -220,7 +221,7 @@ private:
 
     void testToolChainManager_data();
     void testToolChainManager();
-#endif
+#endif // WITH_TESTS
 };
 
 } // namespace ProjectExplorer
