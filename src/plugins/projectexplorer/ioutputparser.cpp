@@ -163,10 +163,12 @@ void IOutputParser::setChildParser(IOutputParser *parser)
     if (m_parser != parser)
         delete m_parser;
     m_parser = parser;
-    connect(parser, &IOutputParser::addOutput,
-            this, &IOutputParser::outputAdded, Qt::DirectConnection);
-    connect(parser, &IOutputParser::addTask,
-            this, &IOutputParser::taskAdded, Qt::DirectConnection);
+    if (parser) {
+        connect(parser, &IOutputParser::addOutput,
+                this, &IOutputParser::outputAdded, Qt::DirectConnection);
+        connect(parser, &IOutputParser::addTask,
+                this, &IOutputParser::taskAdded, Qt::DirectConnection);
+    }
 }
 
 void IOutputParser::stdOutput(const QString &line)
