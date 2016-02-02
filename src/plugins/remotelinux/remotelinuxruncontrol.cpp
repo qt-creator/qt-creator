@@ -26,10 +26,8 @@
 #include "remotelinuxruncontrol.h"
 
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runnables.h>
-#include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 
@@ -40,7 +38,6 @@ class RemoteLinuxRunControl::RemoteLinuxRunControlPrivate
 public:
     bool running;
     DeviceApplicationRunner runner;
-    IDevice::ConstPtr device;
     StandardRunnable runnable;
 };
 
@@ -51,7 +48,6 @@ RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
 
     d->running = false;
     d->runnable = rc->runnable().as<StandardRunnable>();
-    d->device = DeviceKitInformation::device(rc->target()->kit());
 }
 
 RemoteLinuxRunControl::~RemoteLinuxRunControl()
@@ -74,7 +70,7 @@ void RemoteLinuxRunControl::start()
             this, &RemoteLinuxRunControl::handleRunnerFinished);
     connect(&d->runner, &DeviceApplicationRunner::reportProgress,
             this, &RemoteLinuxRunControl::handleProgressReport);
-    d->runner.start(d->device, d->runnable);
+    d->runner.start(device(), d->runnable);
 }
 
 RunControl::StopResult RemoteLinuxRunControl::stop()
