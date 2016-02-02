@@ -307,6 +307,8 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     m_asyncUpdateTimer.setInterval(3000);
     connect(&m_asyncUpdateTimer, &QTimer::timeout, this, &QmakeProject::asyncUpdate);
 
+    setRootProjectNode(new QmakeProFileNode(this, projectFilePath()));
+
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &QmakeProject::buildFinished);
 
@@ -355,8 +357,6 @@ Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *er
     }
 
     projectManager()->registerProject(this);
-
-    setRootProjectNode(new QmakeProFileNode(this, projectFilePath()));
 
     // On active buildconfiguration changes, reevaluate the .pro files
     m_activeTarget = activeTarget();
