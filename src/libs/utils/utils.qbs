@@ -9,20 +9,19 @@ QtcLibrary {
         "QTC_REL_TOOLS_PATH=\"" + FileInfo.relativePath(project.ide_bin_path,
                                                         project.ide_libexec_path) + "\""
     ])
+    cpp.dynamicLibraries: {
+        var libs = [];
+        if (qbs.targetOS.contains("windows")) {
+            libs.push("user32", "iphlpapi", "ws2_32", "shell32");
+        } else if (qbs.targetOS.contains("unix")) {
+            if (!qbs.targetOS.contains("osx"))
+                libs.push("X11");
+            if (!qbs.targetOS.contains("openbsd"))
+                libs.push("pthread");
+        }
+        return libs;
+    }
 
-    Properties {
-        condition: qbs.targetOS.contains("windows")
-        cpp.dynamicLibraries: [
-            "user32",
-            "iphlpapi",
-            "ws2_32",
-            "shell32",
-        ]
-    }
-    Properties {
-        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
-        cpp.dynamicLibraries: ["X11"]
-    }
     Properties {
         condition: qbs.targetOS.contains("osx")
         cpp.frameworks: ["Foundation"]
