@@ -161,10 +161,6 @@
     functions to obtain the current project, open projects, and so on.
 */
 
-namespace {
-bool debug = false;
-}
-
 using namespace Core;
 using namespace ProjectExplorer::Internal;
 
@@ -1387,10 +1383,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
 void ProjectExplorerPluginPrivate::loadAction()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::loadAction";
-
-
     QString dir = dd->m_lastOpenDirectory;
 
     // for your special convenience, we preselect a pro file if it is
@@ -1416,18 +1408,12 @@ void ProjectExplorerPluginPrivate::loadAction()
 
 void ProjectExplorerPluginPrivate::unloadProjectContextMenu()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::unloadProjectContextMenu";
-
     if (Project *p = ProjectTree::currentProject())
         ProjectExplorerPlugin::unloadProject(p);
 }
 
 void ProjectExplorerPluginPrivate::handleUnloadProject()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::unloadProject";
-
     QList<Project *> projects = SessionManager::projects();
     QTC_ASSERT(!projects.isEmpty(), return);
 
@@ -1466,9 +1452,6 @@ void ProjectExplorerPlugin::unloadProject(Project *project)
 
 void ProjectExplorerPluginPrivate::closeAllProjects()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::closeAllProject";
-
     if (!EditorManager::closeAllEditors())
         return; // Action has been cancelled
 
@@ -1554,9 +1537,6 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
 
 void ProjectExplorerPluginPrivate::newProject()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::newProject";
-
     ICore::showNewItemDialog(tr("New Project", "Title of dialog"),
                              Utils::filtered(IWizardFactory::allWizardFactories(),
                                              [](IWizardFactory *f) { return !f->supportedProjectTypes().isEmpty(); }));
@@ -1565,9 +1545,6 @@ void ProjectExplorerPluginPrivate::newProject()
 
 void ProjectExplorerPluginPrivate::showSessionManager()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::showSessionManager";
-
     if (SessionManager::isDefaultVirgin()) {
         // do not save new virgin default sessions
     } else {
@@ -1587,9 +1564,6 @@ void ProjectExplorerPluginPrivate::showSessionManager()
 
 void ProjectExplorerPluginPrivate::setStartupProject(Project *project)
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::setStartupProject";
-
     if (!project)
         return;
     SessionManager::setStartupProject(project);
@@ -1598,9 +1572,6 @@ void ProjectExplorerPluginPrivate::setStartupProject(Project *project)
 
 void ProjectExplorerPluginPrivate::savePersistentSettings()
 {
-    if (debug)
-        qDebug()<<"ProjectExplorerPlugin::savePersistentSettings()";
-
     if (dd->m_shuttingDown)
         return;
 
@@ -1657,9 +1628,6 @@ void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
 
 ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProject(const QString &fileName)
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::openProject";
-
     OpenProjectResult result = openProjects(QStringList() << fileName);
     Project *project = result.project();
     if (!project)
@@ -1715,9 +1683,6 @@ static void appendError(QString &errorString, const QString &error)
 
 ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin - opening projects " << fileNames;
-
     const QList<IProjectManager*> projectManagers = allProjectManagers();
 
     QList<Project*> openedPro;
@@ -1869,9 +1834,6 @@ QThreadPool *ProjectExplorerPlugin::sharedThreadPool()
 */
 void ProjectExplorerPluginPrivate::restoreSession()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::restoreSession";
-
     // We have command line arguments, try to find a session in them
     QStringList arguments = ExtensionSystem::PluginManager::arguments();
     if (!dd->m_sessionToRestoreAtStartup.isEmpty() && !arguments.isEmpty())
@@ -1941,8 +1903,6 @@ void ProjectExplorerPluginPrivate::restoreSession()
 
 void ProjectExplorerPluginPrivate::loadSession(const QString &session)
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::loadSession" << session;
     SessionManager::loadSession(session);
 }
 
@@ -1954,10 +1914,6 @@ void ProjectExplorerPlugin::restoreSession2()
 
 void ProjectExplorerPluginPrivate::buildStateChanged(Project * pro)
 {
-    if (debug) {
-        qDebug() << "buildStateChanged";
-        qDebug() << pro->projectFilePath() << "isBuilding()" << BuildManager::isBuilding(pro);
-    }
     Q_UNUSED(pro)
     updateActions();
 }
@@ -2034,9 +1990,6 @@ void ProjectExplorerPlugin::initiateInlineRenaming()
 
 void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
 {
-    if (debug)
-        qDebug() << "buildQueueFinished()" << success;
-
     updateActions();
 
     bool ignoreErrors = true;
@@ -2136,9 +2089,6 @@ QString ProjectExplorerPlugin::directoryFor(Node *node)
 
 void ProjectExplorerPluginPrivate::updateActions()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::updateActions";
-
     m_newAction->setEnabled(!ICore::isNewItemDialogRunning());
 
     Project *project = SessionManager::startupProject();
@@ -2233,9 +2183,6 @@ void ProjectExplorerPluginPrivate::updateActions()
 
 bool ProjectExplorerPlugin::saveModifiedFiles()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::saveModifiedFiles";
-
     QList<IDocument *> documentsToSave = DocumentManager::modifiedDocuments();
     if (!documentsToSave.isEmpty()) {
         if (dd->m_projectExplorerSettings.saveBeforeBuild) {
@@ -2284,15 +2231,6 @@ QString ProjectExplorerPlugin::displayNameForStepId(Id stepId)
 
 int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> stepIds)
 {
-    if (debug) {
-        QStringList projectNames, stepNames;
-        foreach (const Project *p, projects)
-            projectNames << p->displayName();
-        foreach (const Id id, stepIds)
-            stepNames << id.toString();
-        qDebug() << "Building" << stepNames << "for projects" << projectNames;
-    }
-
     if (!m_instance->saveModifiedFiles())
         return -1;
 
@@ -2878,18 +2816,12 @@ void ProjectExplorerPluginPrivate::slotUpdateRunActions()
 
 void ProjectExplorerPluginPrivate::cancelBuild()
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::cancelBuild";
-
     if (BuildManager::isBuilding())
         BuildManager::cancel();
 }
 
 void ProjectExplorerPluginPrivate::addToRecentProjects(const QString &fileName, const QString &displayName)
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::addToRecentProjects(" << fileName << ")";
-
     if (fileName.isEmpty())
         return;
     QString prettyFileName(QDir::toNativeSeparators(fileName));
@@ -2924,11 +2856,7 @@ void ProjectExplorerPluginPrivate::updateUnloadProjectMenu()
 void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
 {
     typedef QList<QPair<QString, QString> >::const_iterator StringPairListConstIterator;
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::updateRecentProjectMenu";
-
-    ActionContainer *aci =
-        ActionManager::actionContainer(Constants::M_RECENTPROJECTS);
+    ActionContainer *aci = ActionManager::actionContainer(Constants::M_RECENTPROJECTS);
     QMenu *menu = aci->menu();
     menu->clear();
 
@@ -2966,9 +2894,6 @@ void ProjectExplorerPluginPrivate::clearRecentProjects()
 
 void ProjectExplorerPluginPrivate::openRecentProject(const QString &fileName)
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::openRecentProject()";
-
     if (!fileName.isEmpty()) {
         ProjectExplorerPlugin::OpenProjectResult result
                 = ProjectExplorerPlugin::openProject(fileName);
@@ -2979,9 +2904,6 @@ void ProjectExplorerPluginPrivate::openRecentProject(const QString &fileName)
 
 void ProjectExplorerPluginPrivate::invalidateProject(Project *project)
 {
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::invalidateProject" << project->displayName();
-
     disconnect(project, &Project::fileListChanged,
                m_instance, &ProjectExplorerPlugin::fileListChanged);
     updateActions();
