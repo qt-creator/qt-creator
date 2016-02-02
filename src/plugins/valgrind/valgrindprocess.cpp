@@ -26,6 +26,8 @@
 
 #include "valgrindprocess.h"
 
+#include <ssh/sshconnectionmanager.h>
+
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -44,6 +46,12 @@ ValgrindProcess::ValgrindProcess(const IDevice::ConstPtr &device,
     m_remote.m_connection = 0;
     m_remote.m_error = QProcess::UnknownError;
     m_pid = 0;
+}
+
+ValgrindProcess::~ValgrindProcess()
+{
+    if (m_remote.m_connection)
+        QSsh::releaseConnection(m_remote.m_connection);
 }
 
 void ValgrindProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
@@ -125,9 +133,8 @@ void ValgrindProcess::run()
 
     } else {
         // connect to host and wait for connection
-        // FIXME: Use aquireConnection() instead.
         if (!m_remote.m_connection)
-            m_remote.m_connection = new QSsh::SshConnection(m_device->sshParameters(), this);
+            m_remote.m_connection = QSsh::acquireConnection(m_device->sshParameters());
 
         if (m_remote.m_connection->state() != QSsh::SshConnection::Connected) {
             connect(m_remote.m_connection, &QSsh::SshConnection::connected,

@@ -47,6 +47,7 @@ class ValgrindProcess : public QObject
 
 public:
     ValgrindProcess(const ProjectExplorer::IDevice::ConstPtr &device, QObject *parent);
+    ~ValgrindProcess();
 
     bool isRunning() const;
 
